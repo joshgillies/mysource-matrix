@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.17 2005/08/18 04:22:48 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.38.2.18 2005/08/18 05:19:27 dmckee Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.17 $
+* @version $Revision: 1.38.2.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1373,26 +1373,53 @@ class Listing_Engine extends Page
 			$first = true;
 			$found_root = false;
 
-			$parent_asset_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id));
-
+			//Prepare the url for getLineageFromUrl
+			$nurl = $asset->getUrl();
+			$unrl = strip_url($nurl);
+			$nurl = stristr($nurl,'/');
+			$nurl = substr($nurl,2);
+			$parent_assets = $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(null, $nurl);
 
 			// searching for the root asset
 			$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
 			$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
-			foreach ($parent_asset_ids as $parent_asset_id) {
-				if ($parent_asset_id == $root_assetid) {
+			$show_root = false;
+			$started = false;
+			foreach ($parent_assets as $data) {
+				if ($data['assetid'] == $root_assetid) {
 					$found_root = true;
 				}
 				if (!$found_root) continue;
-				if (!$first) {
+				if ($first && !$show_root) {
+					$first = false;
+					continue;
+				}
+
+				// If this is the asset itself, don't put it in the lineage.
+				if ($data['assetid'] == $assetid) continue;
+				if (!$first && $lineage != '') {
 					$lineage .= $this->attr('lineage_seperator');
 					$linked_lineage .= $this->attr('lineage_seperator');
 				}
+				$linked_lineage .= '<a href="'.$data['protocol'].'://'.$data['url'].'">'.$data['short_name'].'</a>';
+				$lineage .= $data['short_name'];
 				$first = false;
-				$ancestor_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_asset_id);
-				$linked_lineage .= '<a href="'.$ancestor_asset->getUrl().'">'.$ancestor_asset->name.'</a>';
-				$lineage .= $ancestor_asset->short_name;
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ancestor_asset);
+			}
+
+			// We didn't find the search_root in the lineage, it's probably a file
+			// It is valid though, so lets print it, as it's better than the
+			// warning messages it used to spit out
+			if (!$found_root) {
+				$first = true;
+				foreach ($parent_assets as $data) {
+					if (!$first && $lineage != '') {
+						$lineage .= $this->attr('lineage_seperator');
+						$linked_lineage .= $this->attr('lineage_seperator');
+					}
+					$lineage .= $data['short_name'];
+					$linked_lineage .= '<a href="'.$data['protocol'].'://'.$data['url'].'">'.$data['short_name'].'</a>';
+					$first = false;
+				}
 			}
 			$keywords['asset_lineage'] = $lineage;
 			$keywords['asset_lineage_linked'] = $linked_lineage;
