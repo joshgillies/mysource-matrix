@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.3 2005/08/02 08:01:28 lwright Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.4 2005/08/18 06:39:35 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -146,7 +146,7 @@ class Ecommerce_Cart_Processor
 	{
 		if (is_null($this->cart)) $this->initialiseCart();
 
-		// TODO: getCart calls validateCart()
+		// remove any invalid cart items
 		$this->validateCart();
 
 		return $this->cart;
