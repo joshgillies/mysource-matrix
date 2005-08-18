@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.58 2005/08/18 05:37:07 mmcintyre Exp $
+* $Id: form_email_edit_fns.inc,v 1.59 2005/08/18 06:11:17 mmcintyre Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -531,7 +531,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$headers = Array('__time__' => translate('submission_time'), '__user__' => translate('cms_form_user_submitting'));
 
 		$sql = 'SELECT
-					*
+					a.assetid, a.type_code, a.created, a.created_userid
 				FROM
 					('.SQ_TABLE_RUNNING_PREFIX.'ast a JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.type_code)
 					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
@@ -606,25 +606,29 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from_value = isset($_POST[$prefix.'_export_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_fromvalue']['m'],$_POST[$prefix.'_export_fromvalue']['d'],$_POST[$prefix.'_export_fromvalue']['y'])) : '---------- --:--:--';
 		$to_value = isset($_POST[$prefix.'_export_tovalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_tovalue']['m'],$_POST[$prefix.'_export_tovalue']['d'],$_POST[$prefix.'_export_tovalue']['y'])) : '---------- --:--:--';
 
-		$from_value = explode('-',iso8601_date_component($from_value));
-		$to_value = explode('-',iso8601_date_component($to_value));
+		$from_value = explode('-', iso8601_date_component($from_value));
+		$to_value = explode('-', iso8601_date_component($to_value));
 
 		// convert the ISO times to time stamps but manually because we can't be sure
 		// about the h:m:s section of the above times
-		$from_ts = mktime(0,0,0,$from_value[1],$from_value[2],$from_value[0]);
-		$to_ts   = mktime(23,59,59,$to_value[1],$to_value[2],$to_value[0]);
+		$from_ts = mktime(0, 0, 0, $from_value[1], $from_value[2], $from_value[0]);
+		$to_ts   = mktime(23, 59, 59, $to_value[1], $to_value[2], $to_value[0]);
 
 		echo '<submissions>';
 
 		$sql = 'SELECT
-					*
+					a.assetid, a.type_code, a.created
 				FROM
-					('.SQ_TABLE_RUNNING_PREFIX.'ast a JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.type_code)
+					('.SQ_TABLE_RUNNING_PREFIX.'ast a
+					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.type_code)
 					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 					ON l.minorid = a.assetid';
 
-		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).') AND i.inhd_type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote('form_submission').
-			' AND a.created BETWEEN '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart(ts_iso8601($from_ts)).' AND '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart(ts_iso8601($to_ts));
+		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).')
+					AND i.inhd_type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote('form_submission').'
+					AND a.created BETWEEN '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart(ts_iso8601($from_ts)).'
+					AND '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart(ts_iso8601($to_ts));
+
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'i');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
