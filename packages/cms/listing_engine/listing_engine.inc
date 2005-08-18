@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.81 2005/08/17 04:59:10 pgannavarapu Exp $
+* $Id: listing_engine.inc,v 1.82 2005/08/18 00:43:48 ndvries Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1791,18 +1791,8 @@ class Listing_Engine extends Page
 
 				switch ($group_level['group_type']) {
 					case 'parent_asset':
-						$is_sort_assetid = '';
-						$link_assetids = Array();
+						$value = $this->getGroupableParentAssetids($current_parent);
 
-						$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($current_parent, SQ_SC_LINK_BACKEND_NAV, '', true, 'minor');
-						$link_assetids = Array();
-
-						// remember we can have more than one direct parent
-						foreach ($links as $link) {
-							$link_assetids[] = $link['majorid'];
-						}
-
-						$value = $link_assetids;
 					break;
 
 					case 'metadata':
@@ -1862,6 +1852,30 @@ class Listing_Engine extends Page
 		}
 
 	}//end groupAssetsRecursively()
+
+
+	/**
+	* Get all the parents of this asset which can be used for grouping. This
+	* function needs to be overridden in assets like Search_Page where the use
+	* of proxy search types require alternate logic to just getting ALL parents.
+	*
+	* @param array	$child_assetid	the asset to find the parents of
+	*
+	* @access public
+	* @return Array	returns a list of valid groupable parents
+	*/
+	function getGroupableParentAssetids($child_assetid)
+	{
+		$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($child_assetid, SQ_SC_LINK_BACKEND_NAV, '', true, 'minor');
+
+		$parent_link_assetids = Array();
+		foreach ($parent_links as $parent_link) {
+			$parent_link_assetids[] = $parent_link['majorid'];
+		}
+
+		return $parent_link_assetids;
+
+	}//end getGroupableParentAssetids()
 
 
 	/**

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.128 2005/08/17 02:13:11 gsherwood Exp $
+* $Id: search_page.inc,v 1.129 2005/08/18 00:40:21 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.128 $
+* @version $Revision: 1.129 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -361,6 +361,7 @@ class Search_Page extends Listing_Engine
 		}
 
 		$new_results = Array();
+		$this->_tmp['proxy_grouping'] = Array();
 		foreach ($collated_types as $result_type => $result_assetids) {
 			if (isset($proxy_settings[$result_type])) {
 				if (empty($proxy_settings[$result_type])) {
@@ -386,6 +387,7 @@ class Search_Page extends Listing_Engine
 					foreach ($links as $link) {
 						// keep the original score
 						$new_results[$link['minorid']] = $results[$orig_assetid];
+						$this->_tmp['proxy_grouping'][$link['minorid']] = $orig_assetid;
 					}
 				}
 			}
@@ -1585,6 +1587,35 @@ class Search_Page extends Listing_Engine
 		return $replaces;
 
 	}//end getResultsBodyReplacements()
+
+
+	/**
+	* Get all the parents of this asset which can be used for grouping. This
+	* function needs to be overridden in assets like Search_Page where the use
+	* of proxy search types require alternate logic to just getting ALL parents.
+	*
+	* @param array	$child_assetid	the asset to find the parents of
+	*
+	* @access public
+	* @return Array	returns a list of valid groupable parents
+	*/
+	function getGroupableParentAssetids($child_assetid)
+	{
+		$proxy_settings = $this->attr('proxy_types');
+		if (empty($proxy_settings)) {
+			// no proxy search types are configured, so get groupable parents normally
+			return parent::getGroupableParentAssetids($child_assetid);
+		} else {
+			// this child became a search result by proxy
+			if (!empty($this->_tmp['proxy_grouping'][$child_assetid])) {
+				return $this->_tmp['proxy_grouping'][$child_assetid];
+			} else {
+				// this search result wasn't by proxy, so get groupable parents normally
+				return parent::getGroupableParentAssetids($child_assetid);
+			}
+		}
+
+	}//end getGroupableParentAssetids()
 
 
 	/**
