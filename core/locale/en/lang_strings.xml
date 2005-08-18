@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.43 2005/08/17 01:48:52 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.44 2005/08/18 05:43:59 pgannavarapu Exp $
 *
 */
 
@@ -541,6 +541,7 @@
 	<string source="hipo_release_locks_dependents"> and its dependant assets</string>
 	<string source="cloning_confirmation">Cloning Confirmation</string>
 	<string source="hipo_cloning_confirm">Please confirm that you are cloning the following asset(s) to under "%s":</string>
+	<string source="hipo_asset_cloning_successful">The following asset(s) have been successfully Cloned under "%s":</string>
 	<string source="hipo_confirm_abort">Press the &lt;b&gt;Next&lt;/b&gt; button below to confirm or the &lt;b&gt;Cancel&lt;/b&gt; button to abort.</string>
 	<string source="hipo_move_confirmation">Move Confirmation</string>
 	<string source="hipo_confirm_new_links">Please confirm that you are creating new link(s) for the following asset(s) under "%s":</string>
