@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.4 2005/07/27 10:45:22 brobertson Exp $
+* $Id: CueTree.java,v 1.5 2005/08/18 04:35:17 ndvries Exp $
 *
 */
 
@@ -979,7 +979,6 @@ public class CueTree extends JTree {
 					index = 0;
 				} else {
 					// if we are on the same branch...
-					index = 1;
 					if (currentPath.getParentPath() == sourcePath.getParentPath()) {
 
 						int newIndex = getModel().getIndexOfChild(
@@ -1001,10 +1000,11 @@ public class CueTree extends JTree {
 						}
 					}
 
-					index += getModel().getIndexOfChild(
+					index = getModel().getIndexOfChild(
 							currentPath.getParentPath().getLastPathComponent(),
 							currentPath.getLastPathComponent()
-						);
+					);
+
 					parentPath = currentPath.getParentPath();
 				}
 			} else {
