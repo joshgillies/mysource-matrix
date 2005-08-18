@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.5 2005/08/01 06:52:31 lwright Exp $
+* $Id: simple_form.inc,v 1.6 2005/08/18 06:54:43 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -150,7 +150,38 @@ class Simple_Form extends Asset
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
 	{
 		// there are no links away from the shadow asset (ie:questions)
-		if (!is_numeric($assetid)) return Array();
+		if (!is_numeric($assetid)) {
+			$links = Array();
+			if ($side_of_link == 'minor') {
+				$return_link = false;
+
+				if ($type_code == '') {
+					// not fussed what we're getting, so return me
+					$return_link = true;
+				} else if ($strict_type_code) {
+					// strict type code check
+					$return_link = ($type_code == $this->type());
+				} else {
+					$return_link = (in_array($this->type(), $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true)));
+				}
+
+				if ($return_link) {
+					$links[] = Array(
+									'linkid'			=> 0,
+									'majorid'			=> $this->id,
+									'minorid'			=> $assetid,
+									'major_type_code'	=> $this->type(),
+									'value'				=> '',
+									'link_type'			=> SQ_LINK_TYPE_2,
+									'is_dependant'		=> true,
+									'is_exclusive'		=> false,
+									'sort_order'		=> 0,
+								   );
+				}
+			}
+
+			return $links;
+		}
 
 		$links = Array();
 		$new_sort_order = 0;
@@ -195,9 +226,13 @@ class Simple_Form extends Asset
 			$get_question_types = Array();
 
 			foreach ($questions as $questionid => $data) {
-				if ($strict_type_code) {
+				if ($type_code == '') {
+					// not fussed what we're getting, so return me
+					$get_question = true;
+				} else if ($strict_type_code) {
+					// strict type code check
 					$get_question = ($type_code == $data['type_code']);
-				} else if ($type_code != '') {
+				} else {
 					// if we've already cached whether this question type is to be
 					// returned, then we don't need to look it up again
 					if (isset($get_question_types[$data['type_code']])) {
@@ -206,9 +241,6 @@ class Simple_Form extends Asset
 					} else {
 						$get_question = (in_array($data['type_code'], $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true)));
 					}
-				} else {
-					// not fussed what we're getting, so return me
-					$get_question = true;
 				}
 
 				if ($get_question) {
@@ -246,7 +278,7 @@ class Simple_Form extends Asset
 	function getAssetMapLinks()
 	{
 		$new_sort_order = 0;
-		$old_links = $this->getLinks($this->id, SQ_SC_LINK_BACKEND_NAV, 'asset', false, 'major', 'sort_order');
+		$old_links = $this->getLinks($this->id, SQ_SC_LINK_BACKEND_NAV);
 		$links = Array();
 		while (!empty($old_links)) {
 			array_push($links, array_shift($old_links));
@@ -824,6 +856,30 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 
 
 	/**
+	* Add valid keywords for this asset to an array of keywords when asked
+	*
+	* @param &object Asset	$asset	the asset that triggered the event
+	* @param Array			$vars	the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access private
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		$vars['keywords'] = isset($vars['keywords']) ? $vars['keywords'] : Array();
+		$keywords = Array();
+
+		if ($this->isFormatBodycopyEnabled()) {
+			$keywords = $this->getDisplayKeywords('form_');
+		}
+
+		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
+
+	}//end onRequestKeywords()
+
+
+	/**
 	* Returns a list of display keywords for the questions handled by this section
 	*
 	* @param string	$prefix		the prefix that should be applied to each
@@ -911,7 +967,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	* @return Array(string => string)	keyword => description
 	* @access public
 	*/
-	function getDisplayKeywordReplacements($prefix)
+	function getDisplayKeywordReplacement($prefix)
 	{
 		$questions = $this->attr('questions');
 		$keywords = Array();
@@ -966,7 +1022,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	* @return Array(string => string)	keyword => description
 	* @access public
 	*/
-	function getResponseKeywordReplacements($prefix)
+	function getResponseKeywordReplacement($prefix)
 	{
 		$questions = $this->attr('questions');
 		$keywords = Array();
@@ -1067,6 +1123,27 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 		}
 
 		return $asset;
+
+	}//end createFormatBodycopy()
+
+
+	/**
+	* Returns whether the format bodycopy is enabled
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isFormatBodycopyEnabled() {
+		$link_types = SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3;
+
+		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_types, 'bodycopy', 'format'));
+
+		if ($bodycopy_link) {
+			return ($bodycopy_link['link_type'] == SQ_LINK_TYPE_2);
+		} else {
+			return false;
+		}
+
 
 	}//end createFormatBodycopy()
 
@@ -1192,7 +1269,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	*/
 	function printCustomFormat(&$bodycopy)
 	{
-		$replacements = $this->getDisplayKeywordReplacements('form_');
+		$replacements = $this->getDisplayKeywordReplacement('form_');
 		$bodycopy->setKeywordReplacements($replacements);
 		$bodycopy->printBody();
 
