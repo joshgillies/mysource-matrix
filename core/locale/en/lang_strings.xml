@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.44 2005/08/18 05:43:59 pgannavarapu Exp $
+* $Id: lang_strings.xml,v 1.45 2005/08/18 06:51:02 lwright Exp $
 *
 */
 
@@ -559,7 +559,7 @@
 	<string source="hipo_value_divided_by_schema">Value will be divided by number of affected schemas</string>
 	<string source="hipo_value_divided_by_permission">Value will be divided by number of affected permissions</string>
 	<string source="hipo_cannot_modify_schema">Could not %1$s schema "%2$s" on "%3$S" because this asset already has this schema %4$s. The current schema setting for "%3$s" has been retained</string>
-	<string source="hipo_cannot_modify_permission">'Could not %1$s $2$s access for "%3$s" on "%4$s" because this asset already has %5$s %2$s access to "%3$s". The current permission for "%4$s" has been retained.'</string>
+	<string source="hipo_cannot_modify_permission">Could not %1$s %2$s access for "%3$s" on "%4$s" because this asset already has %5$s %2$s access to "%3$s". The current permission for "%4$s" has been retained.</string>
 	<string source="hipo_editing_metadata_schema">Editing Metadata Schemas for "%s"</string>
 	<string source="hipo_skipping_metadata_schema">Skipping "%s" as it does not require metadata</string>
 	<string source="hipo_skipping_permission">Could not edit permissions for asset #%s, asset does not exist</string>
@@ -986,6 +986,7 @@
 	<string source="never">Never</string>
 	<string source="inbox">Inbox</string>
 	<string source="email">Email</string>
+	<string source="email_address">Email Address</string>
 	<string source="active">Active</string>
 	<string source="active_question">Active ?</string>
 	<string source="inactive">Inactive</string>
