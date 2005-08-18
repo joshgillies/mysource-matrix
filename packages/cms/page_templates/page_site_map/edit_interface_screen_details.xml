@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.14 2005/05/20 01:46:26 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.15 2005/08/18 02:38:52 dheppell Exp $
 *
 */
 -->
@@ -31,6 +31,9 @@
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode" />
 			</function_call>
+		</field>
+		<field attribute="map_format">
+			<selection style="list"  height="1" extras="" />
 		</field>
 		<field attribute="columns">
 			<int width="3" />

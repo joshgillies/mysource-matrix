@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.21 2005/07/21 01:02:22 dheppell Exp $
+* $Id: page_site_map.inc,v 1.22 2005/08/18 02:38:52 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -162,24 +162,18 @@ class Page_Site_Map extends Page
 				// CHUNK chunk CHUNK chunk CHUNK it up!
 				$chunks = array_chunk($page_data[$siteid], $num_chunks, true);
 				unset($page_data[$siteid]);
-				?>
 
-				<table cellpadding="0" cellspacing="0" border="0">
-					<tr>
-						<?php
-						foreach ($chunks as $chunk) {
-							?><td valign="top"><?php
-							$sub_chunk = Array();
-							$sub_chunk[$siteid] = $chunk;
-							$sub_chunk = $sub_chunk + $page_data;
-							$this->_recursePrintAssetList($sub_chunk, $siteid, 1);
-							unset($sub_chunk);
-							?></td><?php
-						}
-						?>
-					</tr>
-				</table>
-				<?php
+				// better than conditional html everywhere, well have different functions
+				// for each format
+				switch ($this->attr('map_format')) {
+					case 'unordered_list':
+						$this->_paintUnorderedList($chunks[0], $page_data);
+					break;
+
+					default:
+						$this->_paintDefault($chunks, $page_data, $siteid);
+				}
+
 				$cached_contents = ob_get_contents();
 				$cm->saveToCache($this->id, $this->type(), 'site_map', $cached_contents);
 			ob_end_clean();
@@ -189,6 +183,77 @@ class Page_Site_Map extends Page
 		echo $cached_contents;
 
 	}//end printBody()
+
+
+	/**
+	* Begins to paint a site map in the default format
+	*
+	* @param Array $chunks      the level of depth with which to begin processing
+	* @param Array $page_data   data on assets
+	* @param int   $sideid      id of root asset
+	*
+	* @access private
+	* @return void
+	*/
+	function _paintUnorderedList($chunks, &$page_data, $generating=false)
+	{
+		if (!$generating) global $SQ_SITE_MAP_ASSET_URLS;
+
+		?>
+		<ul>
+<?php
+		foreach ($chunks as $item) {
+			$url = ($generating) ? '<'.'?php echo $SQ_SITE_MAP_ASSET_URLS[$item[\'assetid\']] ?'.'>' : $SQ_SITE_MAP_ASSET_URLS[$item['assetid']];
+?>
+			<li><?php 
+				if ($this->attr('icons')) {
+					?><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($item['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;<?php 
+				}
+			?><a href="<?php echo $url;?>"><?php echo $item['name']; ?></a></li>
+<?php
+			if (isset($page_data[$item['assetid']])) {
+				$this->_paintUnorderedList($page_data[$item['assetid']], $page_data, $generating);
+			}
+		}
+		?>
+		</ul>
+<?php
+
+	}//end _paintUnorderedList()
+
+
+	/**
+	* Begins to paint a site map in the default format
+	*
+	* @param Array $chunks      chunks of assets to buuild the map with
+	* @param Array $page_data   data on assets
+	* @param int   $sideid      id of root asset
+	*
+	* @access private
+	* @return void
+	*/
+	function _paintDefault($chunks=Array(), $page_data, $siteid)
+	{
+		?>
+		
+		<table cellpadding="0" cellspacing="0" border="0">
+		<tr>
+		<?php
+		foreach ($chunks as $chunk) {
+			?><td valign="top"><?php
+			$sub_chunk = Array();
+			$sub_chunk[$siteid] = $chunk;
+			$sub_chunk = $sub_chunk + $page_data;
+			$this->_defaultRecursePrintAssetList($sub_chunk, $siteid, 1);
+			unset($sub_chunk);
+			?></td><?php
+		}
+		?>
+		</tr>
+		</table>
+		<?php
+
+	}//end _paintDefault()
 
 
 	/**
@@ -202,14 +267,13 @@ class Page_Site_Map extends Page
 	* @access private
 	* @return boolean
 	*/
-	function _recursePrintAssetList(&$page_data, $parent, $level, $generating=false)
+	function _defaultRecursePrintAssetList(&$page_data, $parent, $level, $generating=false)
 	{
 		$top_level = $this->attr('top_level');
 		$stalks = $this->attr('stalks');
 
-		if (!$generating) {
-			global $SQ_SITE_MAP_ASSET_URLS;
-		}
+		if (!$generating) global $SQ_SITE_MAP_ASSET_URLS;
+
 		?>
 		<table cellpadding="0" cellspacing="0" border="0">
 			<?php
@@ -228,9 +292,12 @@ class Page_Site_Map extends Page
 					<td <?php echo $bg; ?>>
 					<img src="<?php echo sq_web_path('lib').'/web/images/'.$image2; ?>" width="20" height="20" border="0" alt="Level <?php echo $level; ?> Item" /></td>
 					<td >
-						<?php if ($this->attr('icons')) { ?>
+						<?php 
+						if ($this->attr('icons')) {
+?>
 							<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;
-						<?php } ?>
+						<?php }
+?>
 						<a href="<?php echo $url?>"><?php echo $data['name'];?></a>
 					</td>
 				</tr>
@@ -241,7 +308,7 @@ class Page_Site_Map extends Page
 						<td <?php echo $bg; ?>><img src="<?php echo sq_web_path('lib').'/web/images/blank.gif'; ?>" width="1" height="1" alt=" " /></td>
 						<td>
 							<?php
-							$this->_recursePrintAssetList($page_data, $data['assetid'], ($level +1), $generating);
+							$this->_defaultRecursePrintAssetList($page_data, $data['assetid'], ($level +1), $generating);
 							?>
 						</td>
 					</tr>
@@ -255,7 +322,7 @@ class Page_Site_Map extends Page
 
 		return true;
 
-	}//end _recursePrintAssetList()
+	}//end _defaultRecursePrintAssetList()
 
 
 }//end class

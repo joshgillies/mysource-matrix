@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_edit_fns.inc,v 1.14 2005/05/11 06:07:33 lwright Exp $
+* $Id: page_site_map_edit_fns.inc,v 1.15 2005/08/18 02:38:52 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -67,7 +67,7 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
 			}
 			if (!is_null($root_asset)) {
-				echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
+				echo $root_asset->name.' (Id: #'.$root_asset->id.')';
 			} else {
 				echo translate('cms_no_root_node');
 			}
@@ -92,14 +92,18 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processRootNode(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_rootid']['assetid'])) return false;
+		if (!isset($_POST[$prefix.'_rootid']['assetid'])) {
+			return false;
+		}
 		$new_root  = $_POST[$prefix.'_rootid']['assetid'];
 
 		// getting existing root link
 		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'root');
 
 		// dont process anything if the root node has not changed
-		if (!empty($root_link) && $root_link['minorid'] == $new_root) return false;
+		if (!empty($root_link) && $root_link['minorid'] == $new_root) {
+			return false;
+		}
 
 		$ok = true;
 
