@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.22 2005/08/18 02:38:52 dheppell Exp $
+* $Id: page_site_map.inc,v 1.23 2005/08/18 04:33:51 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -161,13 +161,14 @@ class Page_Site_Map extends Page
 				$num_chunks = ceil($num_pages / $num_columns);
 				// CHUNK chunk CHUNK chunk CHUNK it up!
 				$chunks = array_chunk($page_data[$siteid], $num_chunks, true);
+				$root_data = $page_data[$siteid];
 				unset($page_data[$siteid]);
 
 				// better than conditional html everywhere, well have different functions
 				// for each format
 				switch ($this->attr('map_format')) {
 					case 'unordered_list':
-						$this->_paintUnorderedList($chunks[0], $page_data);
+						$this->_paintUnorderedList($root_data, $page_data);
 					break;
 
 					default:
@@ -195,8 +196,13 @@ class Page_Site_Map extends Page
 	* @access private
 	* @return void
 	*/
-	function _paintUnorderedList($chunks, &$page_data, $generating=false)
+	function _paintUnorderedList($chunks, &$page_data, $level=1, $generating=false)
 	{
+		$top_level = $this->attr('top_level');
+		if ($top_level == 0) {
+			$level = -1;
+		}
+		
 		if (!$generating) global $SQ_SITE_MAP_ASSET_URLS;
 
 		?>
@@ -211,8 +217,8 @@ class Page_Site_Map extends Page
 				}
 			?><a href="<?php echo $url;?>"><?php echo $item['name']; ?></a></li>
 <?php
-			if (isset($page_data[$item['assetid']])) {
-				$this->_paintUnorderedList($page_data[$item['assetid']], $page_data, $generating);
+			if (isset($page_data[$item['assetid']]) && $level + 1 <= $top_level) {
+				$this->_paintUnorderedList($page_data[$item['assetid']], $page_data, $level + 1, $generating);
 			}
 		}
 		?>
