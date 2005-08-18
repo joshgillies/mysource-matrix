@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.53.2.5 2005/08/18 06:07:55 mmcintyre Exp $
+* $Id: form_email_edit_fns.inc,v 1.53.2.6 2005/08/18 06:14:28 mmcintyre Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.53.2.5 $
+* @version $Revision: 1.53.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1257,7 +1257,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				}
 			$o->closeField();
 
-			$edit_fns->paintRule($rule_asset, $o, $prefix.'_rule_'.$k, $rule, $write_access, $q_asset);
+			if ($q_asset) {
+				$edit_fns->paintRule($rule_asset, $o, $prefix.'_rule_'.$k, $rule, $write_access, $q_asset);
+			}
 
 			if ($write_access) {
 				$o->openField('Delete ?');
