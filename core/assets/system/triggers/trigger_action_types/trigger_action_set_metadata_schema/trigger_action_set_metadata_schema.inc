@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_schema.inc,v 1.1 2005/08/18 05:38:39 ndvries Exp $
+* $Id: trigger_action_set_metadata_schema.inc,v 1.2 2005/08/18 05:49:24 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a metadata schema
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,24 +106,25 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 	*/
 	function getInterface($settings, $prefix, $write_access=false)
 	{
-		$current_schemaid = (empty($settings['schemaid'])) ? 0 : $settings['schemaid'];
+		$current_schemaid = array_get_index($settings, 'schemaid', 0);
+		$granted = array_get_index($settings, 'granted', 1);
+		$options = Array(
+					true	=> 'Apply',
+					false	=> 'Deny'
+				   );
 
 		ob_start();
 			if ($write_access) {
-				$options = Array(
-							true	=> 'Apply',
-							false	=> 'Deny'
-						   );
-				combo_box($prefix.'[granted]', $options, false, $settings['granted']);
+				combo_box($prefix.'[granted]', $options, false, $granted);
 				echo ' the following schema ';
 				asset_finder($prefix.'[schemaid]', $current_schemaid, Array('metadata_schema' => 'I'));
 			} else {
-				$granted_str = ($settings['granted']) ? 'Apply' : 'Deny';
+				$granted_str = ($granted) ? 'Apply' : 'Deny';
 				if (!empty($current_schemaid)) {
 					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_schemaid));
-					echo $granted_str.' the following schema <b>'.$schema_info[$current_schemaid]['name'].' (#'.$current_schemaid.')</b>';
+					echo $options[$granted].' the following schema <b>'.$schema_info[$current_schemaid]['name'].' (#'.$current_schemaid.')</b>';
 				} else {
-					echo $granted_str.' the following schema <b>No schema specified</b>';
+					echo $options[$granted].' the following schema <b>No schema specified</b>';
 				}
 			}
 
