@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.75.2.2 2005/07/21 01:05:43 dheppell Exp $
+* $Id: page_asset_listing.inc,v 1.75.2.3 2005/08/18 04:22:48 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.75.2.2 $
+* @version $Revision: 1.75.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -185,7 +185,6 @@ class Page_Asset_Listing extends Listing_Engine
 
 			// get our page chunk here
 			$todo =& $this->getChunk($children, $replacements, $result_page, $num_per_page);
-
 			$num_assets_showing = count($todo);
 
 			ob_start();
@@ -287,7 +286,7 @@ class Page_Asset_Listing extends Listing_Engine
 			if (empty($sort_info) || !($sort_info['type'] == 'field') || ($sort_info['params']['field'] != 'short_name')) {
 				$letter_sort_by = 'name';
 			} else {
-				$letter_sort_by = $sort_info['field'];
+				$letter_sort_by = $sort_info['params']['field'];
 			}
 		}
 

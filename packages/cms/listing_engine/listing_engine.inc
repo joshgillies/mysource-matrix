@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.16 2005/08/17 04:59:34 pgannavarapu Exp $
+* $Id: listing_engine.inc,v 1.38.2.17 2005/08/18 04:22:48 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.16 $
+* @version $Revision: 1.38.2.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1236,7 +1236,7 @@ class Listing_Engine extends Page
 		} else {
 			foreach ($todo as $assetid => $type_code) {
 				if ($using_groups) {
-					$this->_printAsset($assetid, $type_code['type_code'], array_get_index($type_code, 'position_number', 0));
+					$this->_printAsset($assetid, $type_code, array_get_index($type_code, 'position_number', 0));
 				} else {
 					$this->_printAsset($assetid, $type_code, $list_position);
 				}
