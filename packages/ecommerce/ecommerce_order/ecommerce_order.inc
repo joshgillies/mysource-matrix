@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order.inc,v 1.7 2005/08/08 06:39:59 lwright Exp $
+* $Id: ecommerce_order.inc,v 1.8 2005/08/18 06:37:30 lwright Exp $
 *
 */
 
@@ -54,6 +54,30 @@ class Ecommerce_Order extends Asset
 
 
 	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Orders add a default web path when they are created
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!parent::_createAdditional($link)) return false;
+
+		// set an initial web path
+		$initial_path = $this->id;
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_paths = make_valid_web_paths(Array($initial_path));
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
+		return $this->saveWebPaths($good_paths);
+
+	}//end _createAdditional()
+
+
+	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	* In the form
 	*
@@ -74,12 +98,6 @@ class Ecommerce_Order extends Asset
 		return $allowed_links;
 
 	}//end _getAllowedLinks()
-
-
-	// TODO : getStatusDescription()
-	/*function getStatusDescription($status)
-	{
-	}*/
 
 
 	/**
@@ -172,7 +190,7 @@ class Ecommerce_Order extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function setOrderStatus($status)
+	function setOrderStatus($status, $message='')
 	{
 		// set status
 		if (is_numeric($status)) {
@@ -180,7 +198,11 @@ class Ecommerce_Order extends Asset
 			switch ($status) {
 				case SQ_ECOM_ORDER_STATUS_PROCESSING :
 					$new_status = SQ_ECOM_ORDER_STATUS_PROCESSING;
-					$status_message = translate('ecom_order_status_prcessing');
+					if (empty($message)) {
+						$status_message = translate('ecom_order_status_processing');
+					} else {
+						$status_message = $message;
+					}
 				break;
 				case SQ_ECOM_ORDER_STATUS_SUCCESS :
 					$new_status = SQ_ECOM_ORDER_STATUS_SUCCESS;
@@ -203,14 +225,10 @@ class Ecommerce_Order extends Asset
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 			// set status
-			if (!empty($new_status)) {
-				$this->setAttrValue('status', $new_status);
-			} else {
-				$success = false;
-			}
+			$this->setAttrValue('status', $new_status);
 
 			// set status message
-			if ($success && !empty($status_message)) {
+			if (!empty($status_message)) {
 				$this->setAttrValue('status_message', $status_message);
 			} else {
 				$success = false;
@@ -220,7 +238,7 @@ class Ecommerce_Order extends Asset
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
 				$success = false;
 			} elseif (!$this->saveAttributes()) {
-					$success = false;
+				$success = false;
 			}
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 
@@ -411,6 +429,7 @@ class Ecommerce_Order extends Asset
 		return $method;
 
 	}//end getDeliveryMethod()
+
 
 }//end class
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order_edit_fns.inc,v 1.5 2005/08/08 06:40:00 lwright Exp $
+* $Id: ecommerce_order_edit_fns.inc,v 1.6 2005/08/18 06:38:29 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -55,9 +55,54 @@ class Ecommerce_Order_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
+	function paintDeliveryMethod(&$asset, &$o, $prefix)
+	{
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+		$assetid = $asset->attr('delivery_id');
+		if (!empty($assetid)) {
+			$href       = reset($am->getAssetBackendHref(Array($assetid => 'details')));
+			$asset_info = $am->getAssetInfo(Array($assetid), 'blis_delivery_method', false, 'name');
+			echo '<a href="'.$href.'">'.$asset_info[$assetid].' (#'.$assetid.')</a>';
+		} else {
+			echo 'None';
+		}
+
+	}
+
+
+	/**
+	* Paints the summary of ecommerce order
+	*
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
 	function paintOrderSummary(&$asset, &$o, $prefix)
 	{
 		echo '<pre>'.$asset->attr('summary').'</pre>';
+
+		return false;
+
+	}//end paintOrderSummary()
+
+
+	/**
+	* Paints the summary of ecommerce order
+	*
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintInternalSummary(&$asset, &$o, $prefix)
+	{
+		echo '<pre>'.$asset->attr('internal_summary').'</pre>';
 
 		return false;
 

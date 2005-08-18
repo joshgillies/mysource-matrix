@@ -11,15 +11,22 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2005/08/08 06:40:00 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.5 2005/08/18 06:38:29 lwright Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Processing Status">
+	<section name="Order Details">
 		<field>
-			<display_name>Current</display_name>
+			<display_name>Delivery Method</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintDeliveryMethod"   />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Processing Status</display_name>
 			<note />
 			<function_call>
 				<paint_function name="paintOrderStatus" />
@@ -32,6 +39,15 @@
 			<note>The summary of ecommerce order which includes the details of purchased items and receipt information from delivery</note>
 			<function_call>
 				<paint_function name="paintOrderSummary" />
+			</function_call>
+		</field>`
+	</section>
+	<section name="Internal Summary">
+		<field>
+			<display_name>Internal Summary</display_name>
+			<note>This information is only available to backend users</note>
+			<function_call>
+				<paint_function name="paintInternalSummary" />
 			</function_call>
 		</field>`
 	</section>

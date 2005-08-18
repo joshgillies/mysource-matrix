@@ -11,13 +11,18 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2005/08/08 06:40:00 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2005/08/18 06:38:29 lwright Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Processing Status" write_access="write:none">
+	<section name="Order Details" write_access="write:none">
+		<field>
+			<function_call>
+				<paint_function   name="paintDeliveryMethod"   />
+			</function_call>
+		</field>
 		<field>
 			<function_call>
 				<paint_function   name="paintOrderStatus"   />
@@ -28,6 +33,13 @@
 		<field>
 			<function_call>
 				<paint_function   name="paintOrderSummary"   />
+			</function_call>
+		</field>
+	</section>
+	<section name="Internal Summary" write_access="write:none">
+		<field>
+			<function_call>
+				<paint_function   name="paintInternalSummary"   />
 			</function_call>
 		</field>
 	</section>
