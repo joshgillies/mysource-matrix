@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.73 2005/08/17 05:55:34 pgannavarapu Exp $
+* $Id: search_manager.inc,v 1.74 2005/08/18 02:22:51 ndvries Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -50,6 +50,7 @@ class Search_Manager extends Asset
 										'status_changed'	=> translate('asset_status_changed_date'),
 									  );
 		$this->standard_text_fields = Array(
+										'assetid'		=> translate('asset_id'),
 										'name'			=> translate('asset_name'),
 										'short_name'	=> translate('asset_name_short'),
 										'contents'		=> translate('asset_contents'),
@@ -303,6 +304,16 @@ class Search_Manager extends Asset
 			}
 		}
 
+		if (isset($weightings['__assetid__'])) {
+			$index_content[] = Array(
+								'value'		=> $asset->id,
+								'type_code'	=> $type_code,
+								'type'		=> 'int',
+								'component'	=> '__assetid__',
+								'score'		=> $weightings['__assetid__'],
+							   );
+		}
+
 		$dates = Array(
 					'__created__'	=> $asset->created,
 					'__updated__'	=> $asset->updated,
@@ -493,6 +504,7 @@ class Search_Manager extends Asset
 	function getIndexableAssetComponents()
 	{
 		$components = Array(
+						'__assetid__'			=> 'Asset ID',
 						'__name__'				=> 'Asset Name',
 						'__short_name__'		=> 'Asset Short Name',
 						'__created__'			=> 'Created Date',
