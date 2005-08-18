@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.57 2005/07/20 07:13:12 dheppell Exp $
+* $Id: form_email_edit_fns.inc,v 1.58 2005/08/18 05:37:07 mmcintyre Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -127,15 +127,27 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$to_ts   = mktime(23,59,59,$to_value[1],$to_value[2],$to_value[0]);
 
 		$sql = 'SELECT
-					*
+					a.assetid, a.created_userid, a.created
 				FROM
-					('.SQ_TABLE_RUNNING_PREFIX.'ast a JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.type_code)
+					('.SQ_TABLE_RUNNING_PREFIX.'ast a
+					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.type_code)
 					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 					ON l.minorid = a.assetid';
-		$count_sql = str_replace('*', 'count(*)', $sql);
 
-		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).') AND i.inhd_type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote('form_submission').
-			' AND a.created BETWEEN '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart($from_value).' AND '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart($to_value);
+		$count_sql = 'SELECT
+						count(*)
+					  FROM
+						('.SQ_TABLE_RUNNING_PREFIX.'ast a
+						JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.type_code)
+						JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
+						ON l.minorid = a.assetid';
+
+
+		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).')
+					AND i.inhd_type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote('form_submission').'
+					AND a.created BETWEEN '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart($from_value).'
+					AND '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart($to_value);
+
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'i');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -163,9 +175,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		if ($asset_count == 0) {
 			?><p><i><?php echo translate('cms_form_no_submissions_during_period') ?></i></p><?php
 		} else {
-			?>
-
-			<style type="text/css">
+			?><style type="text/css">
 				td.sq-form-sub {
 					padding-top: 0px;
 				}
@@ -409,7 +419,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$to->printField();
 
 		$o->closeField();
-		echo '<br />';
+
 		$o->openField(translate('format'));
 
 		$options = Array(
@@ -436,7 +446,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		// - unset SQ_FORM_SUBMITTED so the form can still be submitted via Commit
 		// - set export switch to 0 = "OFF" so Commit doesn't try to save a file either
 		// - return true for the event as per JS standard
-		echo '<br />';
+
 		$o->openField(translate('download'));
 
 		echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
