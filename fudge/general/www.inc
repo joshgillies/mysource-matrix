@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.15 2005/08/16 05:28:56 skim Exp $
+* $Id: www.inc,v 1.16 2005/08/18 05:36:36 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package Fudge
 * @subpackage General
 */
@@ -111,7 +111,24 @@ function relative_href($from,$to)
 function valid_email($e)
 {
 	return preg_match("|^[A-Za-z0-9](([_\.\-\']?[A-Za-z0-9]+)*)@([0-9a-zA-Z]([0-9A-Za-z-]*)+\.)+[a-zA-Z]{2,}$|",$e);
+
 }//end valid_email()
+
+
+/**
+* Checks a url for validity
+*
+* @param string			$url		the url to check
+* @param array(string)	$schemes	a list of valid schemes to check against, defaults to 'http' and 'https'
+*
+* @return boolean
+* @access public
+*/
+function valid_url($url, $schemes=Array('http','https'))
+{
+	return preg_match('/^('.implode('|', $schemes).'):\/\/[a-z0-9]+(([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,})?((:[0-9]{1,5})?\/.*)?$/i', $url);
+
+}//end valid_url()
 
 
 /**
