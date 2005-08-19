@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.16 2005/08/19 00:47:18 mmcintyre Exp $
+* $Id: hipo_job_create_links.inc,v 1.17 2005/08/19 01:23:36 mmcintyre Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -350,15 +350,12 @@ class HIPO_Job_Create_Links extends HIPO_Job
 						$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_LINK_TYPE_1 + SQ_LINK_TYPE_2, '', true, $current['linkid']);
 
 						if (!empty($trash_link)) $num_other_links--;
-
 						if (!$num_other_links) {
-
 							// now lets get all the other links this asset has in the system and
 							// display them to the user
 							// note that we are also going to ask the major asset in the link
 							// to describe it so it makes sense to the user looking at it
 							$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE, '', true, 'minor');
-
 							if (!empty($links)) {
 								if (!$trash_section_painted) {
 									$o->openSection(translate('warning_-_moving_to_trash'));
@@ -380,24 +377,27 @@ class HIPO_Job_Create_Links extends HIPO_Job
 									// construct a human readable lineage
 									$num_in_lineage = count($link_lineage);
 									$lineage = '';
-									for ($i = 0; $i < $num_in_lineage; $i++) {
-										$entry = $link_lineage[$i];
-										if ($i == ($num_in_lineage -1)) {
+
+									$i = 0;
+									foreach ($link_lineage as $parentid => $name) {
+										if ($i == ($num_in_lineage - 1)) {
 											continue;
 										} else if ($i <= 1 || $num_in_lineage <= 5) {
-											$lineage .= $entry.' &gt; ';
+											$lineage .= $name.' &gt; ';
 										} else if ($num_in_lineage - $i <= 3 && $num_in_lineage > 5) {
-											$lineage .= $entry.' &gt; ';
+											$lineage .= $name.' &gt; ';
 										} else if ($i == 2 && $num_in_lineage > 5) {
 											$lineage .= '... &gt; ';
 										}
+										$i++;
 									}
-									$lineage .= '<b>'.$link_lineage[($num_in_lineage-1)].'</b>';
+
+									$lineage .= '<b>'.array_pop($link_lineage).'</b>';
 
 									?>
 									<tr>
 										<td class="sq-backend-table-cell">
-											<b><?php echo $lineage; ?></b>
+											<?php echo $lineage; ?>
 											<?php echo (!empty($link_description)) ? '<br/>'.$link_description : ''; ?>
 										</td>
 									</tr>
