@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.6 2005/08/18 06:54:43 lwright Exp $
+* $Id: simple_form.inc,v 1.7 2005/08/19 01:54:44 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -169,7 +169,7 @@ class Simple_Form extends Asset
 					$links[] = Array(
 									'linkid'			=> 0,
 									'majorid'			=> $this->id,
-									'minorid'			=> $assetid,
+									'minorid'			=> $this->id.':'.$assetid,
 									'major_type_code'	=> $this->type(),
 									'value'				=> '',
 									'link_type'			=> SQ_LINK_TYPE_2,
