@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.40 2005/08/18 04:32:53 tbarrett Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.41 2005/08/19 01:12:50 dheppell Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1387,7 +1387,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 							<tr>
 								<td class="sq-backend-table-cell">
 									<?php
-									if ($info['params']['field'] == 'no_sorting') continue;
+									if (array_get_index($info['params'], 'field', false) == 'no_sorting') continue;
 									hidden_field($prefix.'_sort_order_list['.$id.']', $id); ?>
 									<span id ="<?php echo $prefix ?>_sort_order_<?php echo $id; ?>"><?php echo $info['name']; ?></span>
 								</td>
