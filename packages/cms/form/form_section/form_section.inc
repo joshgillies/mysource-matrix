@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.42 2005/08/19 00:21:35 lwright Exp $
+* $Id: form_section.inc,v 1.43 2005/08/19 01:53:23 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -171,7 +171,7 @@ class Form_Section extends Asset
 					$links[] = Array(
 									'linkid'			=> 0,
 									'majorid'			=> $this->id,
-									'minorid'			=> $assetid,
+									'minorid'			=> $this->id.':'.$assetid,
 									'major_type_code'	=> $this->type(),
 									'value'				=> '',
 									'link_type'			=> SQ_LINK_TYPE_2,
