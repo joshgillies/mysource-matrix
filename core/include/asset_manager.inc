@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.363 2005/08/19 04:24:13 dmckee Exp $
+* $Id: asset_manager.inc,v 1.364 2005/08/19 05:39:18 dmckee Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.363 $
+* @version $Revision: 1.364 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4711,15 +4711,67 @@ class Asset_Manager extends MySource_Object
 			}
 			$lineages = $this->getLinkLineages($fancy_asset->id);
 
-			$link_id = current(array_keys($lineages));
+			// Determine which site we are in, and find one of our lineages that lies in that site
+			$all_sites = $this->getParents($fancy_asset->id, 'site');
+			$valid_sites = Array();
+			foreach ($all_sites as $id => $type_code) {
+				$current_site =& $this->getAsset($id);
+				$site_url = $original_site_url = $current_site->getUrl();
+				$original_site_url = $site_url = str_replace(Array('http://', 'https://'), '', $site_url);
+				$valid = false;
+				if (strpos($url, $site_url) !== false) {
+					$valid = true;
+				} else {
+					while (strrpos($site_url, '/') !== false) {
+						$site_url = substr($site_url, 0, strrpos($site_url, '/'));
+						if (strpos($url, $site_url) !== false) {
+							$valid = true;
+							break;
+						}
+					}
+				}
+				//We found one, add it to the array
+				if ($valid) $valid_sites[$id] = $original_site_url;
+			}
+
+			$root_id = 0;
+			if (!empty($valid_sites)) {
+				if (count($valid_sites) == 1) {
+					//Only 1 valid site, lets go with it
+					$root_id = current(array_keys($valid_sites));
+				} else {
+					//More than one site, we need more filtering
+
+					//Go on current url?
+					$current_site = $this->getRootUrl(current_url(false, true));
+					$urls = array_flip($valid_sites);
+					if (isset($urls[$current_site['url']])) {
+						$root_id = $urls[$current_site['url']];
+					}
+				}
+			}
+
+			$link_id = 0;
+
+			if ($root_id != 0) {
+				foreach ($lineages as $id => $data) {
+					if (isset($data['lineage'][$root_id])) {
+						$link_id = $id;
+						break;
+					}
+				}
+			} else {
+				$link_id = current(array_keys($lineages));
+			}
 
 			$link = $this->getLinkById($link_id);
 			$parent =& $this->getAsset($link['majorid']);
 			$parent_url = $parent->getUrl();
-			//
+
+			//Lets use our parent's url to get our lineage
 			$parent_url = str_replace(Array('http://', 'https://'), '', $parent_url);
 
-			//
+			//Now lets set the url to our parents url, and continue with the rest of the function as normal
 			$root_url = $this->getRootURL($parent_url);
 			$url = $parent_url;
 
@@ -4728,7 +4780,8 @@ class Asset_Manager extends MySource_Object
 				trigger_localised_error('SYS0247', E_USER_WARNING, $fancy_url);
 				return Array();
 			}
-		}
+		}// end empty $root_url foreach
+
 		// the get_lineage_from_url procedure takes a url and splits it into the
 		// possible urls that we are looking for.
 		// we do this because its faster than performing a 'url LIKE l.url%'
