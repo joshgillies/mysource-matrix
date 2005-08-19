@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.362 2005/08/19 00:46:52 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.363 2005/08/19 04:24:13 dmckee Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.362 $
+* @version $Revision: 1.363 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4703,32 +4703,30 @@ class Asset_Manager extends MySource_Object
 		if (empty($root_url)) {
 			$found = false;
 			//We want to check if this is an asset (file) with a publicly served url
-			if (strpos($url, '__') != -1 ) {
-				$fancy_asset =& $this->getAssetFromURL($protocol, $url);
-				if (empty($fancy_asset)) {
-					$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
-					trigger_localised_error('SYS0247', E_USER_WARNING, $fancy_url);
-					return Array();
-				}
-				$lineages = $this->getLinkLineages($fancy_asset);
+			$fancy_asset =& $this->getAssetFromURL($protocol, $url);
+			if (empty($fancy_asset)) {
+				$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
+				trigger_localised_error('SYS0247', E_USER_WARNING, $fancy_url);
+				return Array();
+			}
+			$lineages = $this->getLinkLineages($fancy_asset->id);
 
-				$link_id = current(array_keys($lineages));
+			$link_id = current(array_keys($lineages));
 
-				$link = $this->getLinkById($link_id);
-				$parent =& $this->getAsset($link['majorid']);
-				$parent_url = $parent->getUrl();
-				//
-				$parent_url = str_replace(Array('http://', 'https://'), '', $parent_url);
+			$link = $this->getLinkById($link_id);
+			$parent =& $this->getAsset($link['majorid']);
+			$parent_url = $parent->getUrl();
+			//
+			$parent_url = str_replace(Array('http://', 'https://'), '', $parent_url);
 
-				//
-				$root_url = $this->getRootURL($parent_url);
-				$url = $parent_url;
+			//
+			$root_url = $this->getRootURL($parent_url);
+			$url = $parent_url;
 
-				if (empty($root_url)) {
-					$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
-					trigger_localised_error('SYS0247', E_USER_WARNING, $fancy_url);
-					return Array();
-				}
+			if (empty($root_url)) {
+				$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
+				trigger_localised_error('SYS0247', E_USER_WARNING, $fancy_url);
+				return Array();
 			}
 		}
 		// the get_lineage_from_url procedure takes a url and splits it into the
