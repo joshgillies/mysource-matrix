@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.19 2005/08/18 06:40:27 dmckee Exp $
+* $Id: listing_engine.inc,v 1.38.2.20 2005/08/19 00:33:42 dmckee Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.19 $
+* @version $Revision: 1.38.2.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1409,7 +1409,7 @@ class Listing_Engine extends Page
 				// searching for the root asset
 				$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
 				$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
-				$show_root = $this->attr('root_in_lineage');
+				$show_root = false;
 				$started = false;
 				foreach ($parent_assets as $data) {
 					if ($data['assetid'] == $root_assetid) {
