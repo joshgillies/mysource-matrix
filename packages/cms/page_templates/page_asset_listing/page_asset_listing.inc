@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.86 2005/08/16 04:22:04 pgannavarapu Exp $
+* $Id: page_asset_listing.inc,v 1.87 2005/08/19 01:38:05 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -60,10 +60,10 @@ class Page_Asset_Listing extends Listing_Engine
 	*
 	* Creates the page contents bodycopy
 	*
-	* @param array	&$link	information used to create the initial link
+	* @param array()	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
@@ -86,7 +86,7 @@ class Page_Asset_Listing extends Listing_Engine
 	*
 	* @param int	$linkid	the link id of the link to remove
 	*
-	* @return mixed TRUE or error msg string
+	* @return mixed boolean|string
 	* @access public
 	*/
 	function isDeletableLink($linkid)
@@ -104,7 +104,7 @@ class Page_Asset_Listing extends Listing_Engine
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @return Array()
+	* @return array()
 	* @access private
 	* @see Asset::_getAllowedLinks()
 	*/
@@ -167,8 +167,16 @@ class Page_Asset_Listing extends Listing_Engine
 			}
 			// if there are no children available, just print the page bodycopy
 			if (empty($children)) {
-				$replacements['asset_count'] = $num_kids;
-				$replacements['asset_listing'] = '';
+				$replacements['asset_count']			= 0;
+				$replacements['asset_listing']			= '';
+				$replacements['page_list']				= '';
+				$replacements['page_number']			= 0;
+				$replacements['page_asset_count']		= 0;
+				$replacements['total_pages']			= 0;
+				$replacements['first_asset_position']	= '';
+				$replacements['last_asset_position']	= '';
+				$replacements['previous_page']			= '';
+				$replacements['next_page']				= '';
 				$format_bodycopy->setKeywordReplacements($replacements);
 				$format_bodycopy->printBody();
 				return;
@@ -176,7 +184,6 @@ class Page_Asset_Listing extends Listing_Engine
 			$num_per_page = $this->attr('num_per_page');
 			$result_page = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
 			if ($result_page <= 0) $result_page = 1;
-
 
 			// get our page chunk here
 			$todo =& $this->getChunk($children, $replacements, $result_page, $num_per_page);
@@ -251,7 +258,7 @@ class Page_Asset_Listing extends Listing_Engine
 	*		);
 	* </pre>
 	*
-	* @return array
+	* @return array()
 	* @access protected
 	*/
 	function getAssetList()
@@ -412,7 +419,7 @@ class Page_Asset_Listing extends Listing_Engine
 	/**
 	* Gets the list of current root nodes
 	*
-	* @return Array(string)
+	* @return array()
 	* @access public
 	*/
 	function getRootNodes()
@@ -462,8 +469,8 @@ class Page_Asset_Listing extends Listing_Engine
 	* )
 	* </pre>
 	*
+	* @return array()
 	* @access public
-	* @return array(string => string)
 	*/
 	function _getContentsKeywords()
 	{
