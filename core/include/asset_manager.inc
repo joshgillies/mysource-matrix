@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.322.2.21 2005/08/19 05:53:53 dmckee Exp $
+* $Id: asset_manager.inc,v 1.322.2.22 2005/08/19 06:09:34 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322.2.21 $
+* @version $Revision: 1.322.2.22 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2368,18 +2368,15 @@ class Asset_Manager extends MySource_Object
 				$asset_lineage = Array();
 				foreach ($link_tree as $tree_data) {
 					if ($tree_data['assetid'] == $majorid) continue;
-					$asset_lineage[] = $tree_data['name'];
+					$asset_lineage[$tree_data['assetid']] = $tree_data['name'];
 				}
-				$asset_lineage[] = $parent_data['name'];
-				if (isset($output_lineages[$asset_lineage]) && !$can_edit) {
-					continue;
-				}
+				$asset_lineage[$parent_data['assetid']] = $parent_data['name'];
 
-				$link_lineages[$linkid] = Array(
-											'linkid'	=> $linkid,
-											'link_type'	=> $link_type,
-											'lineage'	=> $asset_lineage,
-										  );
+				$link_lineages[] = Array(
+										'linkid'	=> $linkid,
+										'link_type'	=> $link_type,
+										'lineage'	=> $asset_lineage,
+								   );
 			}
 
 		}//end foreach result
