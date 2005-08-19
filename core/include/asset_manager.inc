@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.361 2005/08/18 04:43:03 dmckee Exp $
+* $Id: asset_manager.inc,v 1.362 2005/08/19 00:46:52 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.361 $
+* @version $Revision: 1.362 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2320,13 +2320,15 @@ class Asset_Manager extends MySource_Object
 	* @return array	linkid => Array ('linkid' => linkid, 'link_type' => link_type, 'lineage' => Array(...))
 	* @access public
 	*/
-	function getLinkLineages(&$asset)
+	function getLinkLineages($assetid)
 	{
+		assert_valid_assetid($assetid);
+
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$assetids = Array();
-		$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_ALL, '', true, 'minor');
+		$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_SC_LINK_ALL, '', true, 'minor');
 
 		foreach ($asset_links as $link) {
 			$assetids[$link['majorid']] = Array();
@@ -2379,9 +2381,9 @@ class Asset_Manager extends MySource_Object
 				$asset_lineage = Array();
 				foreach ($link_tree as $tree_data) {
 					if ($tree_data['assetid'] == $majorid) continue;
-					$asset_lineage[] = $tree_data['name'];
+					$asset_lineage[$tree_data['assetid']] = $tree_data['name'];
 				}
-				$asset_lineage[] = $parent_data['name'];
+				$asset_lineage[$parent_data['assetid']] = $parent_data['name'];
 				if (isset($output_lineages[$asset_lineage]) && !$can_edit) {
 					continue;
 				}
