@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.3.2.1 2005/08/18 04:39:38 ndvries Exp $
+* $Id: CueTree.java,v 1.3.2.2 2005/08/19 02:02:24 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1004,6 +1004,10 @@ public class CueTree extends JTree {
 							currentPath.getParentPath().getLastPathComponent(),
 							currentPath.getLastPathComponent()
 					);
+
+					if (sourcePath.getParentPath() == null) {
+						index++;
+					}
 
 					parentPath = currentPath.getParentPath();
 				}
