@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18.2.10 2005/08/18 05:17:28 pgannavarapu Exp $
+* $Id: lang_strings.xml,v 1.18.2.11 2005/08/19 06:24:44 lwright Exp $
 *
 */
 
@@ -691,7 +691,7 @@
 	<string source="core_site_not_found_page">The not found page for the site</string>
 	<string source="core_primary_url_not_set">No primary URL has been set</string>
 	<string source="core_one_network_for_site">Sites can only be linked under one Site Network</string>
-	<string source="core_from_site">from site $s</string>
+	<string source="core_from_site">from site %s</string>
 	<string source="core_keyword_list_empty">The keyword list is empty.</string>
 	<string source="cannot_load_cache_of_non_asset">Cannot load cache of non asset object</string>
 	<string source="cannot_save_cache_of_non_asset">Cannot save cache of non asset object</string>
