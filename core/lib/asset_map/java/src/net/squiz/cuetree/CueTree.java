@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.5 2005/08/18 04:35:17 ndvries Exp $
+* $Id: CueTree.java,v 1.6 2005/08/19 01:57:55 ndvries Exp $
 *
 */
 
@@ -1005,6 +1005,10 @@ public class CueTree extends JTree {
 							currentPath.getLastPathComponent()
 					);
 
+					if (sourcePath.getParentPath() == null) {
+						index++;
+					}
+
 					parentPath = currentPath.getParentPath();
 				}
 			} else {
@@ -1016,6 +1020,7 @@ public class CueTree extends JTree {
 			if (aboveTopPath) {
 				index = 0;
 			}
+
 	//		if (triggersPath)
 	//			triggerPath(currentPath, initPoint.y, 5);
 			if (requestMode == MOVE_REQUEST_MODE) {
