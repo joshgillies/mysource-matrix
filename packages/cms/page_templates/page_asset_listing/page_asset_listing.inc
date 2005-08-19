@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.75.2.3 2005/08/18 04:22:48 tbarrett Exp $
+* $Id: page_asset_listing.inc,v 1.75.2.4 2005/08/19 01:41:31 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.75.2.3 $
+* @version $Revision: 1.75.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -60,10 +60,10 @@ class Page_Asset_Listing extends Listing_Engine
 	*
 	* Creates the page contents bodycopy
 	*
-	* @param array	&$link	information used to create the initial link
+	* @param array()	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
@@ -72,7 +72,7 @@ class Page_Asset_Listing extends Listing_Engine
 		// add a bodycopy to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 
-		$asset = new Bodycopy();
+		$asset =& new Bodycopy();
 		$copy_link = Array('asset' => &$this, 'value' => 'page_contents' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', 'Page Contents');
 
@@ -86,7 +86,7 @@ class Page_Asset_Listing extends Listing_Engine
 	*
 	* @param int	$linkid	the link id of the link to remove
 	*
-	* @return mixed TRUE or error msg string
+	* @return mixed boolean|string
 	* @access public
 	*/
 	function isDeletableLink($linkid)
@@ -104,7 +104,7 @@ class Page_Asset_Listing extends Listing_Engine
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @return Array()
+	* @return array()
 	* @access private
 	* @see Asset::_getAllowedLinks()
 	*/
@@ -171,8 +171,16 @@ class Page_Asset_Listing extends Listing_Engine
 
 			// if there are no children available, just print the page bodycopy
 			if (empty($children)) {
-				$replacements['asset_count'] = $num_kids;
-				$replacements['asset_listing'] = '';
+				$replacements['asset_count']			= 0;
+				$replacements['asset_listing']			= '';
+				$replacements['page_list']				= '';
+				$replacements['page_number']			= 0;
+				$replacements['page_asset_count']		= 0;
+				$replacements['total_pages']			= 0;
+				$replacements['first_asset_position']	= '';
+				$replacements['last_asset_position']	= '';
+				$replacements['previous_page']			= '';
+				$replacements['next_page']				= '';
 				$format_bodycopy->setKeywordReplacements($replacements);
 				$format_bodycopy->printBody();
 				return;
@@ -206,7 +214,7 @@ class Page_Asset_Listing extends Listing_Engine
 			}
 
 			// if the result page is too high, set to last page
-			if($num_per_page == 0) {
+			if ($num_per_page == 0) {
 				$result_page = 1;
 			} else {
 				$result_page = min($result_page, ceil($replacements['asset_count'] / $num_per_page));
@@ -256,7 +264,7 @@ class Page_Asset_Listing extends Listing_Engine
 	*		);
 	* </pre>
 	*
-	* @return array
+	* @return array()
 	* @access protected
 	*/
 	function getAssetList()
@@ -386,9 +394,9 @@ class Page_Asset_Listing extends Listing_Engine
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
-	*								we add keywords to the $vars['keywords'] array
+	* @param object		&$broadcaster	the asset that triggered the event
+	* @param array()	$vars			the vars that get submitted by the broadcaster
+	*									we add keywords to the $vars['keywords'] array
 	*
 	* @return boolean
 	* @access private
@@ -427,8 +435,8 @@ class Page_Asset_Listing extends Listing_Engine
 	* )
 	* </pre>
 	*
+	* @return array()
 	* @access public
-	* @return array(string => string)
 	*/
 	function getContentsKeywords()
 	{
@@ -455,7 +463,7 @@ class Page_Asset_Listing extends Listing_Engine
 	/**
 	* Gets the list of current root nodes
 	*
-	* @return Array(string)
+	* @return array()
 	* @access public
 	*/
 	function getRootNodes()
