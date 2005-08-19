@@ -39,10 +39,14 @@ function sq_listing_check_state(el, prefix) {
 		if (el = form.elements[i]) {
 			if (el.length) {
 				for (j = 0; j < el.length; j++) {
-					el[j].checked = tested[i];
+					if (el[j].checked != tested[i]) {
+						el[j].click();
+					}
 				}
 			} else {
-				el.checked = tested[i];
+				if (el.checked != tested[i]) {
+					el.click();
+				}
 			}
 		}
 	}
