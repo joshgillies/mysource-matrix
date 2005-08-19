@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_network.inc,v 1.6 2005/08/19 06:19:21 lwright Exp $
+* $Id: site_network.inc,v 1.7 2005/08/19 06:21:43 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -104,7 +104,7 @@ class Site_Network extends Folder
 		$result = parent::canCreateLink($minor, $link_type, $exclusive);
 		if ($result !== true) return $result;
 
-		if (is_a($minor, 'site')) {
+		if (is_a($minor, 'site') && ($link_type != SQ_LINK_NOTICE)) {
 			// site assets can only be in a single site network
 			$network_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'site_network', false, 'minor');
 			if (!empty($network_link)) return translate('core_one_network_for_site');
@@ -130,7 +130,7 @@ class Site_Network extends Folder
 	 */
 	 function canMoveLink(&$minor, &$old_major, $link_type)
 	 {
-		if (is_a($minor, 'site') && is_a($old_major, 'site_network')) {
+		if (is_a($minor, 'site') && is_a($old_major, 'site_network') && ($link_type != SQ_LINK_NOTICE)) {
 			// if we are moving from a site network, we can tolerate one existing
 			// network link - the one being moved from
 			$network_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'site_network', false, 'minor');
