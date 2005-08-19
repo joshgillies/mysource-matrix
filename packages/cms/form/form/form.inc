@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.100.2.9 2005/08/11 02:25:01 dmckee Exp $
+* $Id: form.inc,v 1.100.2.10 2005/08/19 01:52:45 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.100.2.9 $
+* @version $Revision: 1.100.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -108,26 +108,27 @@ class Form extends Asset
 		$asset = null;
 		if (empty($shadowid)) return $asset;
 
-		// if the shadow id is numeric then we want a REAL asset (ie. a section)
-		if (is_numeric($shadowid)) {
-			return $GLOBALS['SQ_SYSTEM']->am->getAsset($shadowid);
-		}
-
-		if ($shadowid{0} == 'q') {	// Questions will be preceded with a 'q'
+		// Questions follow the format '<assetid>:q<shadowid>'
+		if ($shadowid{0} == 'q') {
 
 			// pick up the question in question (!)
+			$questions = $this->attr('questions');
 			$questionid = substr($shadowid, 1, strlen($shadowid));
-			$data = $this->getQuestionById($questionid);
-			if (empty($data)) return $asset;
+			if (empty($questions[$questionid])) return $asset;
 
-			$data['questionid'] = $questionid;
+			$q_type_code = $questions[$questionid]['question_type_code'];
 
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset($data['question_type_code']);
+			// not fussed about type code?
+			if (empty($type_code)) $type_code = $q_type_code;
 
-			$type_code = $data['question_type_code'];
+			// only give the asset back if of the right type code
+			if (in_array($q_type_code, $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true))) {
+				$questions[$questionid]['questionid'] = $questionid;
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset($q_type_code);
 
-			// this eval returns the necessary object for the question type
-			$asset =& new $type_code($this->id, $data);
+				// this eval returns the necessary object for the question type
+				$asset =& new $q_type_code($this->id, $questions[$questionid]);
+			}
 		}
 
 		return $asset;
@@ -157,68 +158,121 @@ class Form extends Asset
 	*/
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
 	{
-		// there are no links away from the shadow asset (ie:questions)
-		if (!is_numeric($assetid)) return Array();
+		$links = Array();
+		$new_sort_order = 0;
 
-		// only TYPE_2 links are ever returned
-		if (!($link_types & SQ_LINK_TYPE_2)) {
-			return Array();
+		// shadow assets have no children, but they have one minor link the other way
+		if (!is_numeric($assetid)) {
+			if ($side_of_link == 'minor') {
+				$return_link = false;
+
+				if ($type_code == '') {
+					// not fussed what we're getting, so return me
+					$return_link = true;
+				} else if ($strict_type_code) {
+					// strict type code check
+					$return_link = ($type_code == $this->type());
+				} else {
+					$return_link = (in_array($this->type(), $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true)));
+				}
+
+				if ($return_link) {
+					$links[] = Array(
+									'linkid'			=> 0,
+									'majorid'			=> $this->id,
+									'minorid'			=> $this->id.':'.$assetid,
+									'major_type_code'	=> $this->type(),
+									'value'				=> '',
+									'link_type'			=> SQ_LINK_TYPE_2,
+									'is_dependant'		=> true,
+									'is_exclusive'		=> false,
+									'sort_order'		=> 0,
+								   );
+				}
+			}
+
+			return $links;
 		}
 
-		if (!isset($this->_tmp['getLinks'][$assetid][$side_of_link])) {
-
-			// We also need the REAL asset links here, so we can access the form sections
-			$links = Array();
-
-			// If the bodycopy folder is in here, we need to include that REAL link
-			if ($bc_link = Asset_Manager::getLink($assetid, SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder')) {
-				// we need to add in the majorid by hand
-				$bc_link['majorid'] = $this->id;
-				$links[] = $bc_link;
-			}
-
-			// Same here for sections
-			$sections = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, 'form_section');
-			foreach (array_keys($sections) as $key) {
-				$GLOBALS['SQ_SYSTEM']->am->acquireLock($key, 'all');
-				//manually add majorid
-				$sc_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($assetid, $key);
-				$sc_link['majorid'] = $this->id;
-				$links[] = $sc_link;
-			}
-
-			// but we also need question shadow asset links
-			$entries = $this->getQuestions();
-
-			$i = 0;
-			foreach ($links as $link) {
-				$i = max($i, $link['sort_order']);
-			}
-
-			foreach ($entries as $questionid => $data) {
-
-				$links[] = Array(
-							'linkid'			=> 0,
-							'majorid'			=> $this->id,
-							'minorid'			=> $this->id.':q'.$questionid,
-							'minor_type_code'	=> $data['question_type_code'],
-							'value'				=> '',
-							'link_type'			=> SQ_LINK_TYPE_2,
-							'is_dependant'		=> true,
-							'is_exclusive'		=> false,
-							'sort_order'		=> $i + array_search($this->id.':q'.$questionid, $this->attr('sort_order')),
+		// are we getting our bodycopy folder and/or sections (if they all exist)?
+		$real_type_codes = Array(
+							'folder'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3,
+							'form_section'	=> SQ_LINK_TYPE_2,
 						   );
+
+		foreach($real_type_codes as $real_type_code => $allowed_link_types) {
+			if ($type_code == '') {
+				// not fussed what we're getting, so return me
+				$get_type = true;
+			} else if ($strict_type_code) {
+				$get_type = ($type_code == $real_type_code);
+			} else {
+				// specific type code set, non-strict check
+				$get_type = (in_array($real_type_code, $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true)));
 			}
 
-			if (is_null($sort_by)) $sort_by = 'sort_order';
+			// we are getting this type?
+			if ($get_type) {
+				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($assetid, $link_types & $allowed_link_types, $real_type_code, false);
+				$type_links = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
 
-			uasort($links, create_function('$a,$b','return $a["'.$sort_by.'"] > $b["'.$sort_by.'"];'));
-
-			$this->_tmp['getLinks'][$assetid][$side_of_link] = $links;
-
+				foreach (array_keys($type_links) as $key) {
+					$type_links[$key]['sort_order'] = $new_sort_order;
+					$links[] = $type_links[$key];
+					$new_sort_order++;
+				}
+			}
 		}
 
-		return $this->_tmp['getLinks'][$assetid][$side_of_link];
+		// but we also need question shadow asset links
+		if ($link_types & SQ_LINK_TYPE_2) {
+			$questions = $this->attr('questions');
+
+			// keep a cache of asset type codes if we are checking on a non-strict
+			// type code, to stop us calling getTypeDescendants() all the time
+			// (not needed if strict type check or if not fussed)
+			$get_question_types = Array();
+
+			foreach ($questions as $questionid => $data) {
+				if ($type_code == '') {
+					// not fussed what we're getting, so return me
+					$get_question = true;
+				} else if ($strict_type_code) {
+					// strict type code check
+					$get_question = ($type_code == $data['question_type_code']);
+				} else {
+					// if we've already cached whether this question type is to be
+					// returned, then we don't need to look it up again
+					if (isset($get_question_types[$data['question_type_code']])) {
+						$get_question = $get_question_types[$data['question_type_code']];
+						$get_question_types[$data['question_type_code']] = $get_question;
+					} else {
+						$get_question = (in_array($data['question_type_code'], $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true)));
+					}
+				}
+
+				if ($get_question) {
+					$links[] = Array(
+								'linkid'			=> 0,
+								'majorid'			=> $this->id,
+								'minorid'			=> $this->id.':q'.$questionid,
+								'minor_type_code'	=> $data['question_type_code'],
+								'value'				=> '',
+								'link_type'			=> SQ_LINK_TYPE_2,
+								'is_dependant'		=> true,
+								'is_exclusive'		=> false,
+								'sort_order'		=> $new_sort_order,
+							   );
+				}
+				$new_sort_order++;
+			}
+		}
+
+		if (is_null($sort_by)) $sort_by = 'sort_order';
+
+		uasort($links, create_function('$a,$b','return $a["'.$sort_by.'"] > $b["'.$sort_by.'"];'));
+
+		return $links;
 
 	}//end getLinks()
 
@@ -231,37 +285,28 @@ class Form extends Asset
 	*/
 	function getAssetMapLinks()
 	{
-		$old_links = $this->getLinks($this->id, SQ_SC_LINK_BACKEND_NAV, 'asset', false, 'major', 'sort_order');
+		$new_sort_order = 0;
+		$old_links = $this->getLinks($this->id, SQ_SC_LINK_BACKEND_NAV);
 		$links = Array();
 		while (!empty($old_links)) {
 			array_push($links, array_shift($old_links));
 		}
 
-		// get the bodycopy link
-		$bc_link = Asset_Manager::getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder');
-
-		//get the section links
-		$sections = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'form_section');
+		$questions = $this->attr('questions');
 
 		foreach (array_keys($links) as $i) {
 
 			$link =& $links[$i];
 
-			// if this is the link to the bodycopy folder, we don't need this
-			// because the Asset Manager already knows about it
-			if (!empty($bc_link) && ($link['linkid'] == $bc_link['linkid'])) {
+			// remove real links
+			if ($link['minor_type_code'] == 'folder') {
 				unset($links[$i]);
 				continue;
 			}
 
-			// remove any section links already retrieved
-			if (!empty($sections)) {
-				foreach (array_keys($sections) as $key) {
-					if ($link['minorid'] == $key) {
-						unset($links[$i]);
-						unset($sections[$key]);
-					}
-				}
+			if ($link['minor_type_code'] == 'form_section') {
+				unset($links[$i]);
+				continue;
 			}
 
 			// mould it all to the asset map's liking
@@ -272,12 +317,16 @@ class Form extends Asset
 
 			$link['assetid'] = $link['minorid'];
 			$link['type_code'] = $link['minor_type_code'];
-
-			$link_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['assetid']);
-			$link['short_name'] = $link_asset->short_name;
-			$link['name'] = $link_asset->name;
-			$link['status'] = $link_asset->status;
 			$link['linkid'] = $link['majorid'].':'.$link['minorid'];
+
+			$questionid = str_replace($this->id.':q', '', $link['assetid']);
+
+			// make name and short name the same
+			$link['name'] = $questions[$questionid]['attributes']['name'];
+			$link['short_name'] = $link['name'];
+
+			// make the status the same as the form's one
+			$link['status'] = $this->status;
 
 			unset($link['minor_type_code']);
 			unset($link['majorid']);
@@ -294,6 +343,38 @@ class Form extends Asset
 
 
 	/**
+	* Get all asset ids that are above the passed assetid in the various trees in which it exists
+	*
+	* @param int			$shadowid			the shadow ID of the shadow asset to get (ie. the
+	*											part after the ':')
+	* @param string|array	$type_code			the type of asset that is linked (eg 'User', 'User_Group', etc)
+	*											if an array returns link if matches any of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	*
+	* @return array(int)
+	* @access public
+	* @see Asset_Manager::getParents()
+	*/
+	function getParents($shadowid, $type_code='', $strict_type_code=true)
+	{
+		// basically get the parents of the section, and add itself in the
+		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
+		$queried_parents = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
+		$parents = Array();
+
+		foreach($queried_parents as $queried_parent) {
+			$parents[$queried_parent['majorid']] = $queried_parent['type_code'];
+		}
+
+		$parents[$this->id] = $this->type();
+
+		return $parents;
+
+	}//end getParents()
+
+
+	/**
 	* Get all asset ids that are below the passed assetid in the various trees in which it exists
 	*
 	* @param int			$assetid			the id of the asset to get its children for
@@ -306,12 +387,13 @@ class Form extends Asset
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	*
-	* @return Array(int => string)	returns an array of assetids and their type code
+	* @return array(int => string)	returns an array of assetids and their type code
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
 	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
 	{
+		// no shadow assets have children in this asset
 		if (!is_numeric($assetid)) return Array();
 
 		if (!is_array($type_code)) {
@@ -326,17 +408,15 @@ class Form extends Asset
 
 		// this is so we get the sections as we go
 		// have to do this all in here because calling asset manager will bring on a vicious loop
-
-		$asset = &$this->getAsset($assetid);
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_a($asset, 'bridge') && ($assetid != $this->id)) {
 			$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $sort_by);
 			$this->forgetAsset($asset);
 		} else {
-
 			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $sort_by);
 			unset($asset);
-			if (!empty($query)) {
 
+			if (!empty($query)) {
 				$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
 				assert_valid_db_result($result);
 
@@ -345,7 +425,7 @@ class Form extends Asset
 		}
 
 		// now questions
-		$entries = $this->getQuestions();
+		$entries = $this->attr('questions');
 		if (empty($type_code)) {
 			foreach ($entries as $questionid => $data) {
 				$children[$this->id.':q'.$questionid] = $data['question_type_code'];
@@ -374,46 +454,6 @@ class Form extends Asset
 		return $children;
 
 	}//end getChildren()
-
-
-	/**
-	* Get all asset ids that are above the passed assetid in the various trees in which it exists
-	*
-	* Can only find parents of type <i>form_section</i> or <i>form</i>
-	*
-	* @param int			$assetid			the id of the asset to get its parents for
-	* @param string|array	$type_code			the type of asset that is linked (eg 'Form_Section', 'Form_Question', etc)
-	*											if an array returns link if matches any of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	*
-	* @return Array(int)
-	* @access public
-	* @see Asset_Manager::getParents()
-	*/
-	function getParents($assetid, $type_code='', $strict_type_code=true)
-	{
-		// there are no links away from the shadow asset (ie:questions)
-		if (!is_numeric($assetid)) {
-			return Array($this->id => $this->type());
-		}
-
-		$parents = Array();
-		if (!is_array($type_code)) {
-			$type_code = Array($type_code);
-		}
-		if (!in_array('form_section', $type_code) && !in_array('form', $type_code)) {
-			return Array();
-		}
-
-		if (!isset($this->_tmp['getParents'][$assetid])) {
-			// this is so we get the sections as we go
-			$children = Asset::getParents($assetid, $type_code, $strict_type_code);
-		}
-
-		return $this->_tmp['getParents'][$assetid];
-
-	}//end getParents()
 
 
 	/**
