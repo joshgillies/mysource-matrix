@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.15 2005/05/17 06:58:42 ndvries Exp $
+* $Id: hipo_job_create_links.inc,v 1.16 2005/08/19 00:47:18 mmcintyre Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -369,7 +369,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 								echo $asset->name;
 
-								$link_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE);
+								$link_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE);
 
 								?><table class="sq-backend-table"><?php
 								foreach ($links as $link_data) {
