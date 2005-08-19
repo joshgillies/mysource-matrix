@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.365 2005/08/19 05:51:17 dmckee Exp $
+* $Id: asset_manager.inc,v 1.366 2005/08/19 06:07:05 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.365 $
+* @version $Revision: 1.366 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2359,12 +2359,12 @@ class Asset_Manager extends MySource_Object
 
 			$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
 			assert_valid_db_result($result);
-
 		}
 
 		foreach ($asset_links as $link_data) {
 			$link_info[$link_data['majorid']][] = $link_data;
 		}
+
 
 		$link_lineages = Array();
 		foreach (array_values($result) as $link_tree) {
@@ -2374,7 +2374,6 @@ class Asset_Manager extends MySource_Object
 			$majorid = $parent_data['assetid'];
 
 			foreach ($link_info[$majorid] as $link_data) {
-
 				$link_type = $link_data['link_type'];
 				$linkid = $link_data['linkid'];
 
@@ -2384,15 +2383,12 @@ class Asset_Manager extends MySource_Object
 					$asset_lineage[$tree_data['assetid']] = $tree_data['name'];
 				}
 				$asset_lineage[$parent_data['assetid']] = $parent_data['name'];
-				if (isset($output_lineages[$asset_lineage]) && !$can_edit) {
-					continue;
-				}
 
-				$link_lineages[$linkid] = Array(
-											'linkid'	=> $linkid,
-											'link_type'	=> $link_type,
-											'lineage'	=> $asset_lineage,
-										  );
+				$link_lineages[] = Array(
+										'linkid'	=> $linkid,
+										'link_type'	=> $link_type,
+										'lineage'	=> $asset_lineage,
+								   );
 			}
 
 		}//end foreach result
