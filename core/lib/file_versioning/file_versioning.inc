@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.8.2.5 2005/08/17 01:05:34 dheppell Exp $
+* $Id: file_versioning.inc,v 1.8.2.6 2005/08/21 22:45:12 mmcintyre Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.8.2.5 $
+* @version $Revision: 1.8.2.6 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -827,9 +827,7 @@ class File_Versioning
 			return $info;
 		}
 
-		if ($use_trans) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!$this->_lockFile($info['fileid'])) {
 			trigger_localised_error('FVER0018', E_USER_NOTICE);
@@ -914,10 +912,7 @@ class File_Versioning
 			return $info;
 		}
 
-		if ($use_trans) {
-			$result = $this->_db->query('BEGIN');
-			assert_valid_db_result($result);
-		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!$this->_lockFile($info['fileid'])) {
 			trigger_localised_error('FVER0018', E_USER_NOTICE);
@@ -978,9 +973,7 @@ class File_Versioning
 
 		$this->_releaseFile($info['fileid']);
 
-		if ($use_trans) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return FUDGE_FV_OK;
 
