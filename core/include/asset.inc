@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.449 2005/08/21 23:49:55 lwright Exp $
+* $Id: asset.inc,v 1.450 2005/08/21 23:50:32 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.449 $
+* @version $Revision: 1.450 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3095,9 +3095,7 @@ class Asset extends MySource_Object
 				$replacement = $mm_keyword[$keyword];
 			}
 		}
-
-		bam($keyword.' => '.$replacement);
-
+		
 		return $replacement;
 
 	}//end getKeywordReplacement()
