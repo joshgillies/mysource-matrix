@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.90 2005/08/11 04:54:58 mmcintyre Exp $
+* $Id: metadata_manager.inc,v 1.91 2005/08/21 23:49:55 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -869,6 +869,18 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_short_name' :
 				case 'asset_version'    :
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_asset->'.substr($keyword,6).';'."\n";
+				break;
+
+				case 'asset_version_major'    :
+					echo 'list($metadata_replacements['.var_export($keyword, 1).'],,) = explode(\'.\',$metadata_asset->version);'."\n";
+				break;
+				
+				case 'asset_version_minor'    :
+					echo 'list(,$metadata_replacements['.var_export($keyword, 1).'],) = explode(\'.\',$metadata_asset->version);'."\n";
+				break;
+				
+				case 'asset_version_micro'    :
+					echo 'list(,,$metadata_replacements['.var_export($keyword, 1).']) = explode(\'.\',$metadata_asset->version);'."\n";
 				break;
 
 				case 'asset_url' :

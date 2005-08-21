@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.448 2005/08/17 06:18:33 ndvries Exp $
+* $Id: asset.inc,v 1.449 2005/08/21 23:49:55 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.448 $
+* @version $Revision: 1.449 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2833,6 +2833,9 @@ class Asset extends MySource_Object
 								'asset_name',
 								'asset_short_name',
 								'asset_version',
+								'asset_version_major',
+								'asset_version_minor',
+								'asset_version_micro',
 								'asset_created',
 								'asset_updated',
 								'asset_created_short',
@@ -2873,7 +2876,7 @@ class Asset extends MySource_Object
 		foreach ($default_keywords as $keyword) {
 			$keywords[$keyword]['value'] = $mm_keywords[$keyword];
 		}
-
+		
 		foreach ($this->vars as $name => $info) {
 			if ($info['type'] == 'serialise') continue;
 			$keywords['asset_attribute_'.$name]['value'] = $info['value'];
@@ -2891,6 +2894,9 @@ class Asset extends MySource_Object
 			$keywords['asset_name']['description']                  = 'Full name of the asset';
 			$keywords['asset_short_name']['description']            = 'Short name of the asset';
 			$keywords['asset_version']['description']               = 'Version of the asset being displayed';
+			$keywords['asset_version_major']['description']         = 'Major version number of the asset being displayed';
+			$keywords['asset_version_minor']['description']         = 'Minor version number of the asset being displayed';
+			$keywords['asset_version_micro']['description']         = 'Micro version number of the asset being displayed';
 			$keywords['asset_created']['description']               = 'The date and time the asset was created (yyyy-mm-dd hh:mm:ss)';
 			$keywords['asset_updated']['description']               = 'The date and time the asset was last updated (yyyy-mm-dd hh:mm:ss)';
 			$keywords['asset_status_updated']['description']        = 'The date and time the asset\'s status was last updated (yyyy-mm-dd hh:mm:ss)';
@@ -2952,6 +2958,9 @@ class Asset extends MySource_Object
 								'asset_name',
 								'asset_short_name',
 								'asset_version',
+								'asset_version_major',
+								'asset_version_minor',
+								'asset_version_micro',
 								'asset_created',
 								'asset_updated',
 								'asset_created_short',
@@ -3082,10 +3091,13 @@ class Asset extends MySource_Object
 			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$dummy_array = Array($keyword);
 			$mm_keyword = $mm->generateKeywordReplacements($this, $dummy_array, false);
-			if (!empty($mm_keyword[$keyword])) {
+			if (isset($mm_keyword[$keyword])) {
 				$replacement = $mm_keyword[$keyword];
 			}
 		}
+
+		bam($keyword.' => '.$replacement);
+
 		return $replacement;
 
 	}//end getKeywordReplacement()
