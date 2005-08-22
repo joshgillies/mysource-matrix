@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.46 2005/08/19 06:23:15 lwright Exp $
+* $Id: lang_strings.xml,v 1.47 2005/08/22 04:30:50 lwright Exp $
 *
 */
 
@@ -875,6 +875,7 @@
 
 	<string source="trigger_set_design_basic">Set the asset's design to: %s</string>
 	<string source="trigger_set_status">Set the Asset's status to: %s</string>
+	<string source="trigger_increment_version">Increment this component of the Asset's version number: %s</string>
 
 
 	<string source="trigger_asset_id">Asset ID is %s</string>
@@ -1570,6 +1571,9 @@
 	<string source="asset_assetid">The ID of the asset</string>
 	<string source="asset_short_name">Short name of the asset</string>
 	<string source="asset_version">Version of the asset being displayed</string>
+	<string source="asset_version_major">Major version component of the asset being displayed</string>
+	<string source="asset_version_minor">Minor version component of the asset being displayed</string>
+	<string source="asset_version_micro">Micro version component of the asset being displayed</string>
 	<string source="asset_created">The date and time the asset was created (yyyy-mm-dd hh:mm:ss)</string>
 	<string source="asset_updated">The date and time the asset was last updated (yyyy-mm-dd hh:mm:ss)</string>
 	<string source="asset_status_updated">The date and time the asset's status was last updated (yyyy-mm-dd hh:mm:ss)</string>
