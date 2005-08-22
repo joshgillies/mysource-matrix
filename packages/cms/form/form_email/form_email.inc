@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.40.2.1 2005/06/14 06:52:54 lwright Exp $
+* $Id: form_email.inc,v 1.40.2.2 2005/08/22 03:47:32 dheppell Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.40.2.1 $
+* @version $Revision: 1.40.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -73,7 +73,7 @@ class Form_Email extends Form
 	{
 		$prefix = $this->getPrefix();
 		$referer = (isset($_SERVER['HTTP_REFERER'])) ? $_SERVER['HTTP_REFERER'] : '';
-		?><input type="hidden" name="<?php echo $prefix; ?>_referral_url" value="<?php echo $referer; ?>"><?php
+		?><input type="hidden" name="<?php echo $prefix; ?>_referral_url" value="<?php echo $referer; ?>" /><?php
 		return parent::printStandard();
 
 	}//end printStandard()
