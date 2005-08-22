@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.322.2.23 2005/08/22 05:54:37 dmckee Exp $
+* $Id: asset_manager.inc,v 1.322.2.24 2005/08/22 06:26:35 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322.2.23 $
+* @version $Revision: 1.322.2.24 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -639,6 +639,7 @@ class Asset_Manager extends MySource_Object
 								ORDER BY inhd_type_code, type_code_lvl ASC'
 								);
 		assert_valid_db_result($result);
+
 		return $result;
 
 	}//end getTypeDescendants()
@@ -800,7 +801,6 @@ class Asset_Manager extends MySource_Object
 				$asset = &$this->getAsset($real_assetid, '', $mute_errors);
 				if (!method_exists($asset, 'getAsset')) {
 					trigger_localised_error('SYS0203', E_USER_WARNING, $asset->name);
-					//return $null;
 				} else {
 					$asset = &$asset->getAsset($id_parts[1]);
 				}
@@ -4767,15 +4767,25 @@ class Asset_Manager extends MySource_Object
 		// the get_lineage_from_url procedure takes a url and splits it into the
 		// possible urls that we are looking for.
 		// we do this because its faster than performing a 'url LIKE l.url%'
-		$function_call = 'sq_get_lineage_from_url('.$db->quoteSmart($url.'/').')';
+		$in_sql = 'sq_get_lineage_from_url('.$db->quoteSmart($url.'/').')';
 
 		// if we are oracle type-cast the function result to a table
 		if ($db->phptype == 'oci8') {
-			$function_call = 'table('.$function_call.')';
+			$in_sql = 'SELECT * FROM table('.$in_sql.')';
+			$result = $db->getCol($in_sql);
+			assert_valid_db_result($result);
+
+			for (reset($result); null !== ($key = key($result)); next($result)) {
+				$result[$key] = $db->quoteSmart($result[$key]);
+			}
+			$in_sql = implode(',', $result);
+
+		} else {
+			$in_sql = 'SELECT * FROM '.$in_sql;
 		}
 		$where = 'l.root_urlid = '.$db->quote((int) $root_url['urlid']).'
 				  AND l.url IN (
-								SELECT * FROM '.$function_call.'
+								'.$in_sql.'
 							)';
 
 		if (!is_null($protocol)) {
@@ -5560,24 +5570,29 @@ class Asset_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$assetid = (string) $assetid;
 
-		$function_call = SQ_TABLE_RUNNING_PREFIX.'get_parent_treeids('.$db->quoteSmart($assetid).', '.$db->quoteSmart(SQ_CONF_ASSET_TREE_SIZE).')';
-		// if we are oracle type-cast the function result to a table
+		$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_parent_treeids('.$db->quoteSmart($assetid).', '.$db->quoteSmart(SQ_CONF_ASSET_TREE_SIZE).')';
+
 		if ($db->phptype == 'oci8') {
-			$function_call = 'table('.$function_call.')';
-			// MM: use the rule based optimizer for this plan as the statistics generated
-			// in 9i seem to really hinder the performance of this query.
-			// 10g will safely ignore the rule based optimiser hint
-			$select = 'SELECT /*+ RULE */ DISTINCT(l.majorid), a.type_code, t.treeid';
+			$in_sql = 'SELECT * FROM table('.$in_sql.')';
+			$result = $db->getCol($in_sql);
+			assert_valid_db_result($result);
+
+			for (reset($result); null !== ($key = key($result)); next($result)) {
+				$result[$key] = $db->quoteSmart($result[$key]);
+			}
+
+			$in_sql = implode(',', $result);
 		} else {
-			$select = 'SELECT DISTINCT(l.majorid), a.type_code, t.treeid';
+			$in_sql = 'SELECT * FROM '.$in_sql;
 		}
 
 		$select = 'SELECT DISTINCT(l.majorid), a.type_code, t.treeid';
+
 		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON l.linkid = t.linkid
 					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.majorid = a.assetid';
 		$where  ='t.treeid IN (
-								SELECT * FROM '.$function_call.'
+								'.$in_sql.'
 							)';
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
