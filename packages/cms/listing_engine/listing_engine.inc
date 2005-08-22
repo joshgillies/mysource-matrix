@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.85 2005/08/18 06:36:52 dmckee Exp $
+* $Id: listing_engine.inc,v 1.86 2005/08/22 08:06:58 gsherwood Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -577,10 +577,9 @@ class Listing_Engine extends Page
 
 
 	/**
-	* Remove non-live assets from the list of assets to print if the user doesnt have write access
+	* Remove assets with a status that we do not want to show
 	*
-	* The assets we filter out here could have read access granted for the current user, but
-	* non-live assets require write access to be viewed, and we need to load the asset to ask for that.
+	* For assets with a status less than LIVE, the asset is loaded and read access is checked.
 	*
 	* @param array	&$todo	an array of assets to list in the same format as the return
 	*						value of getAssetList()
@@ -591,35 +590,58 @@ class Listing_Engine extends Page
 	*/
 	function filterAssetStatuses(&$todo)
 	{
-		// first check to see if this is a special user without restrictions
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$todo_keys = array_keys($todo);
+		for (reset($todo_keys); null !== ($key = key($todo_keys)); next($todo_keys)) {
+			$todo_keys[$key] = $db->quoteSmart((string) $todo_keys[$key]);
+		}
+
+		$wanted_statuses = $this->attr('statuses');
+		if (!empty($wanted_statuses)) {
+			$sql = 'SELECT
+						assetid
+					FROM
+						sq_ast
+					WHERE
+							assetid IN ('.implode(', ', $todo_keys).')
+						AND status IN ('.implode(', ', $wanted_statuses).')';
+	
+			$wanted_assets = $db->getCol($sql);
+			assert_valid_db_result($wanted_assets);
+
+			foreach ($todo as $assetid => $v) {
+				if (!in_array($assetid, $wanted_assets)) {
+					unset($todo[$assetid]);
+				}
+			}
+		}
+
+		// check to see if this is a special user without restrictions
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if (!$user_restrictions) return;
+		
+		if (empty($wanted_statuses)) {
+			// get a list of assets that are not live
+			$sql = 'SELECT
+						assetid, type_code
+					FROM
+						sq_ast
+					WHERE
+							assetid IN ('.implode(',', $todo_keys).')
+						AND status < '.$db->quote(SQ_STATUS_LIVE);
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$assetids = array_keys($todo);
-
-		for (reset($assetids); null !== ($k = key($assetids)); next($assetids)) {
-			$assetids[$k] = $db->quote($assetids[$k]);
+			$wanted_assets = $db->getAssoc($sql);
+			assert_valid_db_result($wanted_assets);
 		}
 
-		// get a list of assets that are not live
-		$sql = 'SELECT assetid from sq_ast
-				WHERE assetid IN ('.implode(',', $assetids).')
-				  AND status < '.$db->quote(SQ_STATUS_LIVE);
-		$non_live_assets = $db->getCol($sql);
-		assert_valid_db_result($non_live_assets);
-
-		foreach ($non_live_assets as $assetid) {
-			//we get the type code from a different place for letters
-			$type_code = ($this->attr('group_by') == 'letter') ? $todo[$assetid]['type_code'] : $todo[$assetid];
-
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
-			if (!$asset->writeAccess()) unset($todo[$assetid]);
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-			unset($asset);
+		foreach ($todo as $assetid => $v) {
+			if (isset($wanted_assets[$assetid])) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $wanted_assets[$assetid]);
+				if (!$asset->writeAccess()) unset($todo[$assetid]);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				unset($asset);
+			}
 		}
-
-		return;
 
 	}//end filterAssetStatuses()
 
