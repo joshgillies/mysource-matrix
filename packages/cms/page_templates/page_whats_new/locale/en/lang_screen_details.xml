@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2005/07/21 23:41:46 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.7 2005/08/22 08:09:15 gsherwood Exp $
 *
 */
 -->
@@ -79,6 +79,14 @@
 				<paint_function   name="paintAssetTypes"   />
 				<process_function name="processAssetTypes" />
 			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintStatus" />
+				<process_function name="processStatus" />
+			</function_call>
+			<display_name>Asset Statuses to List</display_name>
+			<note>Assets will only be shown if their status is listed here</note>
 		</field>
 		<field attribute="num_per_page">
 			<display_name>Assets Per Page</display_name>
