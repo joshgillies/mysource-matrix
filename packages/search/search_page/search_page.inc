@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.129 2005/08/18 00:40:21 ndvries Exp $
+* $Id: search_page.inc,v 1.130 2005/08/22 06:09:57 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.129 $
+* @version $Revision: 1.130 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -328,11 +328,10 @@ class Search_Page extends Listing_Engine
 		$results =& $this->convertProxyAssetTypes($results);
 
 		$this->_tmp['search_results'] =& $results;
-		if (empty($results)) {
-			echo $this->getBodycopyContents('no_results', $this->getResultsBodyReplacements($results));
-		} else {
-			echo $this->getBodycopyContents('results', $this->getResultsBodyReplacements($results));
-		}
+		$bc_name = 'results';
+		if (empty($results)) $bc_name = 'no_results';
+
+		echo $this->getBodycopyContents($bc_name, $this->getResultsBodyReplacements($results, $bc_name));
 
 	}//end printResultsBody()
 
@@ -1031,13 +1030,14 @@ class Search_Page extends Listing_Engine
 						}
 					break;
 
-					case 'asset_date' :
-						$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
-						$this->_printDateRangeDescription($current_value);
-					break;
-
 					default :
-						echo $query;
+						if (is_array($query) && isset($query['from']) && isset($query['to'])) {
+							// this is a date field
+							$this->_printDateRangeDescription($query);
+						} else {
+							// just a standard text field
+							echo $query;
+						}
 					break;
 
 				}//end switch field type
@@ -1278,14 +1278,15 @@ class Search_Page extends Listing_Engine
 	* Keyword-replaces for the results mode
 	*
 	* @param array	$results	the results returned
+	* @param string	$bc_name	the name of the bodycopy to be printed (results | no_results)
 	*
 	* @return void
 	* @access private
 	*/
-	function getResultsBodyReplacements(&$results)
+	function getResultsBodyReplacements(&$results, $bc_name='results')
 	{
 		$mode = array_get_index($_REQUEST, 'mode', 'results');
-		$bodycopy =& $this->getBodycopy('results');
+		$bodycopy =& $this->getBodycopy($bc_name);
 		$keywords = $bodycopy->getKeywords();
 		$replaces = Array();
 
