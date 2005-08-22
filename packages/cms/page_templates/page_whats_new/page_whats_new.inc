@@ -11,12 +11,12 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.22 2005/07/19 07:20:48 skim Exp $
+* $Id: page_whats_new.inc,v 1.23 2005/08/22 08:08:45 gsherwood Exp $
 *
 */
 
 
-require_once dirname(__FILE__).'/../../page_templates/page_asset_listing/page_asset_listing.inc';
+require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset_listing.inc';
 
 /**
 * Page_Whats_New
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../page_templates/page_asset_listing/page_as
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
