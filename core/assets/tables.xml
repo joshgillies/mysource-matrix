@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.29 2005/08/15 04:43:34 mmcintyre Exp $
+* $Id: tables.xml,v 1.30 2005/08/22 23:16:27 mmcintyre Exp $
 *
 */
 -->
@@ -1309,31 +1309,31 @@
 		</table>
 		<table name="trig_hash" require_rollback="0">
 			<columns>
-				<column name="event" allow_null="1">
+				<column name="event" allow_null="0">
 					<type>VARCHAR(100)</type>
 					<type_variations />
 					<default />
 					<description>Event type code (asset type) a trigger in triggerid is interested in.</description>
 				</column>
-				<column name="assetid" allow_null="1">
+				<column name="assetid" allow_null="0">
 					<type>VARCHAR(15)</type>
 					<type_variations />
 					<default />
 					<description>Asset ID of the asset broadcasting the event a trigger in triggerid is interested in.</description>
 				</column>
-				<column name="asset_type" allow_null="1">
+				<column name="asset_type" allow_null="0">
 					<type>VARCHAR(100)</type>
 					<type_variations />
 					<default />
 					<description>Asset Type of the asset broadcasting the event</description>
 				</column>
-				<column name="treeid" allow_null="1">
+				<column name="treeid" allow_null="0">
 					<type>VARCHAR(2000)</type>
 					<type_variations />
 					<default />
 					<description>Tree ID. If broadcaster is a child of it (immediate or not) the trigger might want to be executed.</description>
 				</column>
-				<column name="tree_propagate" allow_null="1">
+				<column name="tree_propagate" allow_null="0">
 					<type>CHAR(2)</type>
 					<type_variations />
 					<default />
@@ -1345,32 +1345,63 @@
 					<default />
 					<description>Trigger ID every hash line corresponds to</description>
 				</column>
-				<column name="parentid" allow_null="1">
+				<column name="parentid" allow_null="0">
 					<type>VARCHAR(15)</type>
 					<type_variations />
 					<default />
 					<description>If the broadcasting asset has a parent with id in this column, trigger might want to be executed</description>
 				</column>
-				<column name="parent_type" allow_null="1">
+				<column name="parent_type" allow_null="0">
 					<type>VARCHAR(100)</type>
 					<type_variations />
 					<default />
 					<description>The type of parent asset (purpose is similar to parentid)</description>
 				</column>
-				<column name="childid" allow_null="1">
+				<column name="childid" allow_null="0">
 					<type>VARCHAR(15)</type>
 					<type_variations />
 					<default />
 					<description>If the broadcasting asset has a child with id in this column, trigger might want to be executed</description>
 				</column>
-				<column name="child_type" allow_null="1">
+				<column name="child_type" allow_null="0">
 					<type>VARCHAR(100)</type>
 					<type_variations />
 					<default />
 					<description>The type of child asset (purpose is similar to childid)</description>
 				</column>
 			</columns>
-			<keys />
+			<keys>
+				<primary_key>
+					<column name="event" />
+				</primary_key>
+				<primary_key>
+					<column name="assetid" />
+				</primary_key>
+				<primary_key>
+					<column name="asset_type" />
+				</primary_key>
+				<primary_key>
+					<column name="treeid" />
+				</primary_key>
+				<primary_key>
+					<column name="tree_propagate" />
+				</primary_key>
+				<primary_key>
+					<column name="triggerid" />
+				</primary_key>
+				<primary_key>
+					<column name="parentid" />
+				</primary_key>
+				<primary_key>
+					<column name="parent_type" />
+				</primary_key>
+				<primary_key>
+					<column name="childid" />
+				</primary_key>
+				<primary_key>
+					<column name="child_type" />
+				</primary_key>
+			</keys>
 			<indexes>
 				<index>
 					<column name="event" />
