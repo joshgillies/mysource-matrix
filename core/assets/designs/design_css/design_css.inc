@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.13 2005/07/11 01:12:42 dheppell Exp $
+* $Id: design_css.inc,v 1.14 2005/08/22 01:35:13 mnyeholt Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -479,6 +479,8 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 
 		if ($cache_asset == null) return false;
 
+		// Strip excess whitespace
+		$file_contents = preg_replace('/\s+/is', ' ', $file_contents);
 		/* @var $cache_asset File */
 		$existing = $cache_asset->getExistingFile();
 		string_to_file($file_contents, $existing['path']);
