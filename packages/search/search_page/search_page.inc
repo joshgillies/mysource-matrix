@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.130 2005/08/22 06:09:57 gsherwood Exp $
+* $Id: search_page.inc,v 1.131 2005/08/22 22:43:55 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.130 $
+* @version $Revision: 1.131 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -334,6 +334,26 @@ class Search_Page extends Listing_Engine
 		echo $this->getBodycopyContents($bc_name, $this->getResultsBodyReplacements($results, $bc_name));
 
 	}//end printResultsBody()
+
+
+	/**
+	* Remove assets with a status that we do not want to show
+	*
+	* Search page doesnt need to filter anything because does everything for it,
+	* including checking read access.
+	*
+	* @param array	&$todo	an array of assets to list in the same format as the return
+	*						value of getAssetList()
+	*
+	* @return void
+	* @access protected
+	* @see getAssetList()
+	*/
+	function filterAssetStatuses(&$todo)
+	{
+		return;
+
+	}//end filterAssetStatuses()
 
 
 	/**
