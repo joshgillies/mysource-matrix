@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.322.2.22 2005/08/19 06:09:34 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.322.2.23 2005/08/22 05:54:37 dmckee Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322.2.22 $
+* @version $Revision: 1.322.2.23 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4737,7 +4737,7 @@ class Asset_Manager extends MySource_Object
 			if ($root_id != 0) {
 				foreach ($lineages as $id => $data) {
 					if (isset($data['lineage'][$root_id])) {
-						$link_id = $id;
+						$link_id = $data['linkid'];
 						break;
 					}
 				}
