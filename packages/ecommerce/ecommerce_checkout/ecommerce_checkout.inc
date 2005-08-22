@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.34 2005/08/18 06:39:05 lwright Exp $
+* $Id: ecommerce_checkout.inc,v 1.35 2005/08/22 04:35:57 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -333,8 +333,11 @@ class Ecommerce_Checkout extends Page
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 				if ($this->print_context !== 'failure') {
+					// order processing successful!
 					$this->print_context = 'receipt';
 					$this->_tmp['delete_all_orders_after_printing'] = true;
+					
+					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_ecommerce_order_submitted', $order_asset);
 				}
 			break;
 
