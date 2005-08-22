@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.39 2005/06/09 05:55:37 lwright Exp $
+* $Id: form_section_edit_fns.inc,v 1.40 2005/08/22 04:04:34 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -64,7 +64,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 
 		// include script for re-ordering questions
 		?>
-		<script language="JavaScript">
+		<script type="text/javascript">
 			function sortOrderMoveDown(currentOrder) {
 			  if (!document.getElementById) {
 				  alert('<?php echo translate('cms_form_no_getelementbyid') ?>');
@@ -207,7 +207,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 									<td align="center" width="100" class="sq-backend-table-cell">
 										<?php
 										if ($i != 0) {
-											?><a href="#" onclick="sortOrderMoveUp(<?php echo $sort_id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a><?php
+											?><a href="#" onclick="sortOrderMoveUp(<?php echo $sort_id ?>); return false;"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a><?php
 										}
 
 										if ($i != count($sort_order) -1) {
