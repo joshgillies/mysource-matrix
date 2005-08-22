@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.17 2005/08/16 05:28:56 skim Exp $
+* $Id: text.inc,v 1.18 2005/08/22 07:19:21 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package Fudge
 * @subpackage Text
 */
@@ -38,36 +38,61 @@
 
 /**
 * Takes a string an associative array of keyword => replacements
-* Replaces any occurance of "%keyword%" with the replacements text
 *
 * It return whatever the type of argument $text
 * The argument $text can text either string text or array to replace in
+* If the type verification is successful, then, it calls
+* _replace_keywords_recursive() method to repclce any occurences of keywords
 *
-* @param mixed		$text			the text or array to replace in
-* @param array()	&$replacements	an array of replacements (keyword => replacement)
+* @param mixed	$text			the text or array to replace in
+* @param array	&$replacements	an array of replacements (keyword => replacement)
 *
-* @return mixed string|array()
+* @return mixed string|array
 * @access public
 */
 function replace_keywords($text, &$replacements)
 {
+	// type verification
+	$is_replacements_array = is_array($replacements);
+	if (is_string($text)) {
+		if (!$is_replacements_array) return '';
+	} else if (is_array($text)) {
+		if (!$is_replacements_array) return Array();
+	} else {
+		return '';
+	}
+
+	return _replace_keywords_recursive($text, $replacements);
+
+}//end replace_keywords()
+
+
+/**
+* Replaces any occurance of "%keyword%" with the replacements text
+*
+* @param mixed	$text			the text or array to replace in
+* @param array	&$replacements	an array of replacements (keyword => replacement)
+*
+* @return mixed string|array
+* @access private
+*/
+function _replace_keywords_recursive($text, &$replacements)
+{
 	if (is_array($text)) {
 		$r = Array();
 		foreach ($text as $key => $value) {
-			$key = replace_keywords($key, $replacements);
-			$r[$key] = replace_keywords($value, $replacements);
+			$key = _replace_keywords_recursive($key, $replacements);
+			$r[$key] = _replace_keywords_recursive($value, $replacements);
 		}
 		return $r;
 	}
-	if (!empty($replacements)) {
-		foreach ($replacements as $keyword => $replacement) {
-			if ($keyword == '') continue;
-			$text = str_replace("%$keyword%", $replacement, $text);
-		}
+	foreach ($replacements as $keyword => $replacement) {
+		if ($keyword == '') continue;
+		$text = str_replace("%$keyword%", $replacement, $text);
 	}
 	return $text;
 
-}//end replace_keywords()
+}//end _replace_keywords_recursive()
 
 
 /**
@@ -76,7 +101,7 @@ function replace_keywords($text, &$replacements)
 * @param string	$text		the text or array to search
 * @param string	$additional	additional valid keyword charaters for this match
 *
-* @return array()
+* @return array
 * @access public
 */
 function retrieve_keywords_replacements($text, $additional='')
@@ -102,11 +127,18 @@ function retrieve_keywords_replacements($text, $additional='')
 * @param string	$word_match_regexp	Regular expression for matching valid words
 * @param int	$min_length			The minimum length for words matched
 *
-* @return array()
+* @return array
 * @access public
 */
-function get_word_counts($text, $split_regexp='[^A-z0-9]+', $word_match_regexp='[A-z0-9]+',$min_length=1)
+function get_word_counts($text, $split_regexp='[^A-z0-9]+', $word_match_regexp='[A-z0-9]+', $min_length=1)
 {
+	// type verification
+	if (!is_string($text) || !is_string($split_regexp) || !is_string($word_match_regexp) || !is_int($min_length)) {
+		return Array();
+	} else if (!is_int($min_length) || ($min_length < 0)) {
+		return Array();
+	}
+
 	$words = split($split_regexp, $text);
 	$word_counts = array_count_values($words);
 	foreach ($word_counts as $word => $count) {
