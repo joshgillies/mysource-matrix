@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.322.2.24 2005/08/22 06:26:35 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.322.2.25 2005/08/22 07:20:10 dmckee Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322.2.24 $
+* @version $Revision: 1.322.2.25 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4680,10 +4680,12 @@ class Asset_Manager extends MySource_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
+		$non_standard_url = false;
 		// get the root(site) url for this url
 		$root_url = $this->getRootURL($url);
 		if (empty($root_url)) {
 			$found = false;
+			$non_standard_url = true;
 			//We want to check if this is an asset (file) with a publicly served url
 			$fancy_asset =& $this->getAssetFromURL($protocol, $url);
 			if (empty($fancy_asset)) {
@@ -4753,8 +4755,13 @@ class Asset_Manager extends MySource_Object
 			//Lets use our parent's url to get our lineage
 			$parent_url = str_replace(Array('http://', 'https://'), '', $parent_url);
 
+			if (empty($parent_url)) {
+				return Array();
+			}
+
 			//Now lets set the url to our parents url, and continue with the rest of the function as normal
 			$root_url = $this->getRootURL($parent_url);
+
 			$url = $parent_url;
 
 			if (empty($root_url)) {
@@ -4831,7 +4838,7 @@ class Asset_Manager extends MySource_Object
 
 			$result = array_merge($result, $bridge_lineage);
 
-		} else if (empty($result) || $result[count($result) - 1]['url'] != $url) {
+		} else if (empty($result) || (($result[count($result) - 1]['url'] != $url) && (!$non_standard_url))) {
 
 			// no urls found or we only found some of the parents, but not the passed url
 			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
