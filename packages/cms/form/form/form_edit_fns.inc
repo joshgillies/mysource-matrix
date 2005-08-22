@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.56.2.3 2005/06/15 00:48:39 dmckee Exp $
+* $Id: form_edit_fns.inc,v 1.56.2.4 2005/08/22 04:04:48 dheppell Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.56.2.3 $
+* @version $Revision: 1.56.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -117,7 +117,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 
 		// include script for re-ordering questions
 		?>
-		<script language="JavaScript">
+		<script type="text/javascript">
 			function sortOrderMoveDown(currentOrder) {
 			  if (!document.getElementById) {
 				  alert('<?php echo translate('cms_form_no_getelementbyid'); ?>');
@@ -260,11 +260,11 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 									<td align="center" width="100" class="sq-backend-table-cell">
 										<?php
 										if ($i != 0) {
-											?><a href="#" onclick="sortOrderMoveUp(<?php echo $sort_id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a><?php
+											?><a href="#" onclick="sortOrderMoveUp(<?php echo $sort_id ?>); return false;"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a><?php
 										}
 
 										if ($i != count($sort_order) -1) {
-											?><a href="#" onclick="sortOrderMoveDown(<?php echo $sort_id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a><?php
+											?><a href="#" onclick="sortOrderMoveDown(<?php echo $sort_id ?>); return false;"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a><?php
 										}
 										?>
 								</td>

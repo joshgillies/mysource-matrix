@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.100.2.10 2005/08/19 01:52:45 lwright Exp $
+* $Id: form.inc,v 1.100.2.11 2005/08/22 04:04:48 dheppell Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.100.2.10 $
+* @version $Revision: 1.100.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -920,7 +920,7 @@ class Form extends Asset
 		ob_start();
 		echo '<form name="'.$prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$clientside.'>';
 		if ($this->attr('use_client_side')) {
-			?><script language="JavaScript">
+			?><script type="text/javascript">
 			function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 				var submission_errors = new Array();
 				i = 0;
