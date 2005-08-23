@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.59 2005/08/18 06:11:17 mmcintyre Exp $
+* $Id: form_email_edit_fns.inc,v 1.60 2005/08/23 00:22:49 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -256,7 +256,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				}
 				?></b>
 			</td>
-			<td class="sq-form-sub-header" colspan="3" align="right"><?php echo translate('cms_form_submissions_during_period', $submission_offset + 1, min($asset_count, $submission_offset + $num_per_page), $asset_count) ?>
+			<td class="sq-form-sub-header" colspan="4" align="right"><?php echo translate('cms_form_submissions_during_period', $submission_offset + 1, min($asset_count, $submission_offset + $num_per_page), $asset_count) ?>
 			</td>
 			</tr>
 			<tr>
@@ -271,6 +271,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				</th>
 				<th>
 					<?php echo translate('expand_question') ?>
+				</th>
+				<th>
+					<?php echo translate('delete_question') ?>
 				</th>
 				<th>&nbsp;</th>
 			</tr>
@@ -316,6 +319,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					</td>
 					<td>
 						<input type="checkbox" name="<?php echo $prefix ?>_viewsub[<?php echo $assetid ?>]" value="1" <?php if ($sub_expanded) echo ' checked="checked"' ?>>
+					</td>
+					<td>
+						<input type="checkbox" name="<?php echo $prefix ?>_delete[]" value="<?php echo $assetid ?>" <?php if ($sub_expanded) echo ' checked="checked"' ?>>
 					</td>
 					<td>[ <a href="<?php echo $sub_asset->getBackendHref(); ?>"><?php echo translate('edit') ?></a> ]</td>
 				</tr>
@@ -363,7 +369,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 
 	/**
-	* Processes the submissions block (nothing to process!)
+	* Processes the submissions block (only processes deletion of submissions)
 	*
 	* @param object Form_Email			&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
@@ -374,7 +380,56 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	*/
 	function processSubmissions(&$asset, &$o, $prefix)
 	{
-		return false;
+		$delete_list = isset($_POST[$prefix.'_delete']) ? $_POST[$prefix.'_delete'] : Array();
+		
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		
+		// acquire the links lock on the form
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'links')) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+		
+		foreach($delete_list as $delete_assetid) {
+			// is the assetid a valid one?
+			if (!assert_valid_assetid($delete_assetid, '', false, false)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+			
+			// acquire the links lock on the submission to delete
+			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($delete_assetid, 'links')) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+			
+			$submission_link =& $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $delete_assetid, SQ_LINK_TYPE_3);
+			if (!$submission_link) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			} else {
+				if (!$asset->deleteLink($submission_link['linkid'])) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}
+			
+			// release the links lock
+			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($delete_assetid, 'links')) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+		}
+		
+		// now release the links lock on the form itself
+		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'links')) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+		
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		
+		return true;
 
 	}//end processSubmissions()
 
