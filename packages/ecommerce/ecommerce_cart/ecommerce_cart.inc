@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.16 2005/08/03 05:04:59 lwright Exp $
+* $Id: ecommerce_cart.inc,v 1.17 2005/08/23 06:31:10 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -99,6 +99,7 @@ class Ecommerce_Cart extends Listing_Engine
 		return $cart;
 
 	}//end _getCart()
+
 
 	/**
 	* Get the list of asset that should be printed
@@ -357,22 +358,20 @@ class Ecommerce_Cart extends Listing_Engine
 		$parameter_map = &$this->getAttribute('parameter_map');
 		$this->_tmp['cart_updated'] = false;
 
-		// add
 		$add_items = $parameter_map->getParameterValue('add_item');
 		if (!empty($add_items)) {
-			foreach ($add_items as $assetid => $quantity)
-			{
+			foreach ($add_items as $assetid => $quantity) {
 				if (empty($assetid) || !strlen($quantity)) {
 					continue;
 				}
 
-				$current_quantity = 0;
 				if (isset($cart_contents[$assetid]['quantity'])) {
-					$current_quantity = $cart_contents[$assetid]['quantity'];
+					// we dont add the product if it is already in the cart
+					continue;
 				}
 
 				// only add if it's not going to break our Quantity selection
-				if ($this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, $current_quantity + $quantity) == ($quantity + $current_quantity)) {
+				if ($this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, $quantity) == $quantity) {
 					if ($cart->addItem($assetid, $quantity)) {
 						$this->_tmp['cart_updated'] = true;
 					}
