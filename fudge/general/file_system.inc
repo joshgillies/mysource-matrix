@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.34 2005/08/16 05:28:56 skim Exp $
+* $Id: file_system.inc,v 1.35 2005/08/23 05:44:59 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions for the file system
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package Fudge
 * @subpackage General
 */
@@ -38,6 +38,7 @@
 
 /**
 * Takes a filename and extracts the extension
+* If the parameter passed is not a string then it returns an empty string
 *
 * @param string	$filename	the file whose extension to get
 *
@@ -46,7 +47,11 @@
 */
 function get_file_type($filename)
 {
-	return strtolower(  substr( strrchr($filename,'.') , 1)  );
+	if (is_string($filename)) {
+		return strtolower(  substr( strrchr($filename,'.') , 1)  );
+	} else {
+		return '';
+	}
 
 }//end get_file_type()
 
@@ -102,6 +107,17 @@ function file_to_string($filename)
 */
 function string_to_file($string, $filename)
 {
+	//retun false if $filename is not a string or it is empty
+
+	if (!is_string($filename) || empty($filename)) {
+		return false;
+	}
+
+	//this function writes into the files only in the existing directories
+	//if directory doe snot exist then it returns false
+
+	if (!is_dir(dirname($filename))) return false;
+
 	$tmp_filename = tempnam(dirname($filename), __FUNCTION__);
 	if (!$f = fopen($tmp_filename, 'wb')) {
 		trigger_error('Unable to open temporary file ('.$tmp_filename.') for writing, unable to write '.$filename, E_USER_WARNING);
@@ -127,6 +143,7 @@ function string_to_file($string, $filename)
 
 		if (file_exists($filename)) unlink($filename);
 	}
+
 	if (rename($tmp_filename, $filename)) {
 		return true;
 	} else {
@@ -191,7 +208,7 @@ function increment_filename($name,$spacer='')
 *								file name and restrict the returned files to the type of file you passed in.
 * @param boolean	$fullpath	whether to return the full path to the file or just the filenames themselves
 *
-* @return array()
+* @return array
 * @access public
 */
 function list_files($dir, $fullpath=false)
@@ -233,9 +250,9 @@ function list_files($dir, $fullpath=false)
 *
 * @param string		$dir			the directory you want to list sub directories for
 * @param boolean	$fullpath		whether to return the full path to the direcotry or just the names themselves
-* @param array()	$ignore_list	list of directories which will be ignored
+* @param array		$ignore_list	list of directories which will be ignored
 *
-* @return array()
+* @return array
 * @access public
 */
 function list_dirs($dir, $fullpath=false, $ignore_list=Array())
@@ -261,6 +278,8 @@ function list_dirs($dir, $fullpath=false, $ignore_list=Array())
 
 /**
 * Creates a directory, including any parent directories needed to get to that directory
+* TODO: This function should not allow integers. It is the responsibility of the calling function
+* to typecast the argument to a String before calling this function.
 *
 * @param string	$path	the path to create
 *
@@ -269,6 +288,9 @@ function list_dirs($dir, $fullpath=false, $ignore_list=Array())
 */
 function create_directory($path)
 {
+	if ((!is_string($path) &&(!is_int($path))) || empty($path)) {
+		return false;
+	}
 	$branches = explode('/', $path);
 	$trunk = '';
 	$old_umask = umask(0);
@@ -463,7 +485,7 @@ function move_file($from, $to)
 * @param int	$max_lines		number of lines to get
 * @param string	$line_ending	end of line character
 *
-* @return array()
+* @return array
 * @access public
 */
 function get_last_lines_from_file($filepath, $max_lines=10, $line_ending='\n')
