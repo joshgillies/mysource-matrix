@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.14 2005/08/22 01:35:13 mnyeholt Exp $
+* $Id: design_css.inc,v 1.15 2005/08/23 01:07:40 mnyeholt Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -374,12 +374,14 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 	function processBackend(&$o, &$link)
 	{
 		$cache = $this->attr('cache_css');
+		$strip = $this->attr('strip_whitespace');
 		if (!parent::processBackend($o, $link)) return false;
 
+		$regen = (!$cache && $this->attr('cache_css')) || ($strip != $this->attr('strip_whitespace'));
 		// Okay, if after processing everything in the backend, and the
-		// status of the cache_css attribute has gone from false to true,
+		// status of the cache_css attribute has gone from false to true or strip_whitespace has changed,
 		// we've gotta update the static cache to reflect that this has changed.
-		if (!$cache && $this->attr('cache_css') && !$this->_tmp['updated_cache']) {
+		if ($regen && !$this->_tmp['updated_cache']) {
 			$this->generateStaticFile();
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 			$customisation_links = $am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css_customisation', true, 'major', 'customisation');
@@ -390,7 +392,6 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 				$customisation->generateStaticFile();
 			}// end foreach
 		}
-		return true;
 
 	}//end processBackend()
 
@@ -480,7 +481,9 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		if ($cache_asset == null) return false;
 
 		// Strip excess whitespace
-		$file_contents = preg_replace('/\s+/is', ' ', $file_contents);
+		if ($this->attr('strip_whitespace')) {
+			$file_contents = preg_replace('/\s+/is', ' ', $file_contents);
+		}
 		/* @var $cache_asset File */
 		$existing = $cache_asset->getExistingFile();
 		string_to_file($file_contents, $existing['path']);
