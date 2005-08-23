@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.16 2005/08/18 05:36:36 lwright Exp $
+* $Id: www.inc,v 1.17 2005/08/23 01:39:46 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package Fudge
 * @subpackage General
 */
@@ -41,13 +41,18 @@
 * you from the first URL to the second.
 *
 * @param string	$from	the absolute URL to come from, in the form protocol://domain/dir/dir2/file
-* @param string	$to		the absolute URL to get to, in the form protocol://domain/dir/dir2/file
+* @param string	$to		the absolute URL to get to, in the form protocol://domain/dir/dir2/dir3
 *
 * @return string
 * @access public
 */
 function relative_href($from,$to)
 {
+	// type verification
+	if (!is_string($from) || !is_string($to)) {
+		return '';
+	}
+
 	$from_bits = preg_split('/\\/+/', trim($from));
 	$to_bits   = preg_split('/\\/+/', trim($to));
 
@@ -110,6 +115,8 @@ function relative_href($from,$to)
 */
 function valid_email($e)
 {
+	if (!is_string($e)) return false;
+
 	return preg_match("|^[A-Za-z0-9](([_\.\-\']?[A-Za-z0-9]+)*)@([0-9a-zA-Z]([0-9A-Za-z-]*)+\.)+[a-zA-Z]{2,}$|",$e);
 
 }//end valid_email()
@@ -118,8 +125,8 @@ function valid_email($e)
 /**
 * Checks a url for validity
 *
-* @param string			$url		the url to check
-* @param array(string)	$schemes	a list of valid schemes to check against, defaults to 'http' and 'https'
+* @param string	$url		the url to check
+* @param array	$schemes	a list of valid schemes to check against, defaults to 'http' and 'https'
 *
 * @return boolean
 * @access public
@@ -134,23 +141,26 @@ function valid_url($url, $schemes=Array('http','https'))
 /**
 * Convert POST or GET array into raw string
 *
-* @param array()	$data	post or get array
+* @param array	$data	post or get array
 *
 * @return string
 * @access public
 */
 function make_raw_post_data($data)
 {
+	// type verification
+	if (!is_array($data) || empty($data)) {
+		return '';
+	}
+
 	$val_array = null;
 
-	if (!empty($data) && is_array($data)) {
-		foreach ($data as $name => $value) {
-			$val_array[] = recursive_make_raw_post_data($name, $value);
-		}
+	foreach ($data as $name => $value) {
+		$val_array[] = recursive_make_raw_post_data($name, $value);
 	}
 
 	if (!empty($val_array)) {
-		$result = implode('&', $val_array);
+		$result = htmlentities(implode('&', $val_array));
 	} else {
 		$result = '';
 	}
@@ -175,6 +185,9 @@ function recursive_make_raw_post_data($name, $data)
 		return $name.'='.urlencode($data);
 	} else {
 		$val_array=Array();
+
+		if (empty($data)) return $name.'=';
+
 		foreach ($data as $key => $value) {
 			$val_array[] = recursive_make_raw_post_data($name.'['.$key.']', $value);
 		}
