@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.30 2005/08/16 05:28:56 skim Exp $
+* $Id: general.inc,v 1.31 2005/08/23 05:52:14 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package Fudge
 * @subpackage General
 */
@@ -43,7 +43,7 @@
 *
 * @param mixed	$var	the var to cleanup
 *
-* @return mixed array()|string
+* @return mixed array|string
 * @access public
 */
 function gpc_stripslashes($var)
@@ -64,10 +64,10 @@ function gpc_stripslashes($var)
 /**
 * Strips the slashes from an entire associative array
 *
-* @param array()	&$array		the array to stripslash
+* @param array		&$array		the array to stripslash
 * @param boolean	$strip_keys	whether or not to stripslash the keys as well
 *
-* @return array()
+* @return array
 * @access public
 */
 function stripslashes_array(&$array, $strip_keys=false)
@@ -98,14 +98,19 @@ function stripslashes_array(&$array, $strip_keys=false)
 /**
 * Convert html entities from an entire associative array
 *
-* @param array()	&$array			the array to htmlentities
+* @param mixed		&$array			the array or the string to htmlentities
 * @param boolean	$encode_keys	whether or not to htmlentities the keys as well
 *
-* @return array()
+* @return mixed array|string
 * @access public
 */
 function htmlentities_array(&$array, $encode_keys=false)
 {
+	// type verification
+	if ((!is_array($array) && !is_string($array)) || !is_bool($encode_keys)) {
+		return Array();
+	}
+
 	if (is_string($array)) return htmlentities($array);
 	$keys_to_replace = Array();
 	foreach ($array as $key => $value) {
@@ -134,8 +139,8 @@ function htmlentities_array(&$array, $encode_keys=false)
 *
 * It returns true if instance removed, false if not found
 *
-* @param mixed		$v	the value to remove
-* @param array()	&$a	the array to search and remove from
+* @param mixed	$v	the value to remove
+* @param array	&$a	the array to search and remove from
 *
 * @return boolean
 * @access public
@@ -155,30 +160,57 @@ function array_remove_element($v, &$a)
 
 /**
 * Merges two multi-dimensional arrays
+*
+* This function performs argument type verification
+* before it calls recursive function to merge two arrays
 * Note that the second given array will override elements of the first
 *
-* @param array()	$array1	the original array
-* @param array()	$array2	the array that will override the first
+* @param array	$array1	the original array
+* @param array	$array2	the array that will override the first
 *
-* @return array()
+* @return array
 * @access public
 */
 function array_merge_multi($array1, $array2)
 {
-	if (is_array($array2) && !empty($array2)) {
-		foreach ($array2 as $key => $value) {
-			if (is_array($value)) {
-				$array1[$key] = array_merge_multi($array1[$key], $value);
-			} else {
-				if (!is_array($array1)) $array1 = Array();
-				$array1[$key] = $value;
-			}
+	// type verification
+	if (!is_array($array1) || !is_array($array2)) {
+		return Array();
+	}
+
+	if (empty($array2)) return $array1;
+
+	return _array_merge_multi_recursive($array1, $array2);
+
+}//end array_merge_multi()
+
+
+/**
+* Helper function for array_merge_multi()
+*
+* This function is being called my array_merge_multi() function and
+* merges two arrays
+*
+* @param array	$array1	the original array
+* @param array	$array2	the array that will override the first
+*
+* @return array
+* @access private
+*/
+function _array_merge_multi_recursive($array1, $array2)
+{
+	foreach ($array2 as $key => $value) {
+		if (is_array($value)) {
+			$array1[$key] = _array_merge_multi_recursive($array1[$key], $value);
+		} else {
+			if (!is_array($array1)) $array1 = Array();
+			$array1[$key] = $value;
 		}
 	}
 
 	return $array1;
 
-}//end array_merge_multi()
+}//end _array_merge_multi_recursive()
 
 
 /**
@@ -186,7 +218,7 @@ function array_merge_multi($array1, $array2)
 *
 * @param int	$length	the length of the password
 *
-* @return array()
+* @return array
 * @access public
 */
 function random_password($length)
@@ -225,6 +257,16 @@ function random_password($length)
 */
 function ellipsisize($string, $length)
 {
+	// type verification
+	if (!is_string($string) || !is_int($length) ) {
+		return '';
+	}
+
+	// boundary check
+	if ($length < 0 || $length > strlen($string)) {
+		return '';
+	}
+
 	$full_length = strlen((string) $string);
 	$length += 2; // add 2 because an elipsis is 3 chars long
 	$on = true;
@@ -252,8 +294,12 @@ function ellipsisize($string, $length)
 
 /**
 * Takes a string and looks for an integer at the end of it
-* It tries to incrememnt this integer, if it can't find one, it appends "2"
-* The option spacer only works if no int is already present - good for starting a trend
+*
+* If it can't find an integer at the end, it appends "2"
+* If the name only consists of digits, it simply increases one, eg. '1' => '2'. '99' => '100'
+* If the name ends with digits with preceeding zeros, it only treats non-zero
+* digits as integer, eg. 'hello_0001' => 'hello_0002', 'hello_009' => 'hello_010'.
+* Also, the option spacer still only works if no int is already present - good for starting a trend
 *
 * @param string	$name	the original name of the file
 * @param string	$spacer	the char(s) to put between the end of the name and the $numeral
@@ -263,18 +309,50 @@ function ellipsisize($string, $length)
 */
 function increment_name($name='', $spacer='')
 {
-	for ($i = strlen($name) - 1; $i > 0; $i--) {
-		if (!ereg('[^a-zA-Z0-9]',$name[$i])) break;
+	// type verification
+	if (!is_string($name) || !is_string($spacer)) {
+		return '';
 	}
-	$trailing_whitespace = substr($name,$i+1);
-	for ($j = $i; $j > 0; $j--) {
-		if (!ereg('[0-9]',$name[$j])) break;
+
+	$last_character = substr($name, -1);
+
+	if (preg_match('/[^0-9]/', $last_character)) {
+		// name ends with character
+		return $name.$spacer.'2';
+
+	} else if (preg_match('/^[0-9]+$/', $name)) {
+		// name with only digits
+		$next_number = intval($name) + 1;
+		return strval($next_number);
+
+	} else {
+		// name ends with non-digit character
+		if (preg_match('/(.*[^0-9]{1})(0+[0-9]+)$/', $name, $number)) {
+			// name ends with digits with preceeding zeros, like 001, 0002
+
+			if (preg_match('/^0+$/', $number[2])) {
+				// all zeros, eg. hello_00000
+				return $number[1].substr($number[2], 0, -1).strval(1);
+
+			} else if (preg_match('/^(0+)([1-9]{1}[0-9]*)$/', $number[2], $number2)) {
+				// some zeros and number eg. hello_01, hello_0003429
+				$last_character = substr($number2[2], -1);
+				$next_number = intval($number2[2]) + 1;
+
+				if ($last_character == '9') {
+					return $number[1].substr($number2[1], 0, -1).strval($next_number);
+				} else {
+					return $number[1].$number2[1].strval($next_number);
+				}
+				//echo print_r($number2);
+			}
+
+		} else if (preg_match('/(.*[^0-9]{1})([0-9]{1,})$/', $name, $number)) {
+			// name ends with digits without preceeding zeros, like 100, 223
+			$next_number = intval($number[2]) + 1;
+			return $number[1].strval($next_number);
+		}
 	}
-	$int = substr($name,$j+1,$i-$j);
-	if (!$int) {
-		return substr($name,0,$j+1).$spacer.(2).$trailing_whitespace;
-	}
-	return substr($name,0,$j+1).($int+1).$trailing_whitespace;
 
 }//end increment_name()
 
@@ -396,6 +474,13 @@ function security_key_image($word, $w, $h, $bg='FFFFFF', $text='000000', $border
 */
 function add_ordinal_suffix($num)
 {
+	// type verification
+	if (!is_int($num)) return '';
+
+	// boundary check
+	if ($num <= 0) return '';
+
+
 	if ((10 < ($num % 100)) && (($num % 100) < 20)) {
 		return $num.'th';
 	} else {
