@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.31 2005/08/23 05:52:14 skim Exp $
+* $Id: general.inc,v 1.32 2005/08/23 23:04:17 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package Fudge
 * @subpackage General
 */
@@ -201,6 +201,9 @@ function _array_merge_multi_recursive($array1, $array2)
 {
 	foreach ($array2 as $key => $value) {
 		if (is_array($value)) {
+//			if (!array_key_exists($key, $array1)) {
+//				$array1[$key] = Array();
+//			}
 			$array1[$key] = _array_merge_multi_recursive($array1[$key], $value);
 		} else {
 			if (!is_array($array1)) $array1 = Array();
