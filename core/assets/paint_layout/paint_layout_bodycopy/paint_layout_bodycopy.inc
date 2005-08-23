@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.7 2005/08/23 04:30:06 dmckee Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.8 2005/08/23 05:16:49 dmckee Exp $
 *
 */
 
@@ -49,7 +49,7 @@ require_once 'include/conditions_list.inc';
 * If an attribute is not recognised, the condition will be evaluated as false.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -169,7 +169,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		$sq_plb_asset_url_list = $GLOBALS['SQ_SYSTEM']->am->getAssetHref($matches[1]);
 
 		$e = '|\./\?a=([0-9]+)([^0-9])|';
-		$with = '<'.'?php echo $sq_plb_asset_url_list[\\1]; ?'.'>"';
+		$with = '<'.'?php echo $sq_plb_asset_url_list[\\1]; ?'.'>\\2"';
 		$content = preg_replace($e, $with, $content);
 
 		$content = $php_end.$content.$php_begin;
