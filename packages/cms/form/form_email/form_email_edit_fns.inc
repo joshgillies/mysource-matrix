@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.60 2005/08/23 00:22:49 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.61 2005/08/23 01:58:09 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -63,7 +63,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return false;
 
-		$expand_list = isset($_POST[$prefix.'_viewsub']) ? array_keys($_POST[$prefix.'_viewsub']) : Array();
+		$expand_list = isset($_POST[$prefix.'_expand']) ? $_POST[$prefix.'_expand'] : Array();
 		$num_subs = 0;
 
 		$parameters = Array(
@@ -193,6 +193,38 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					font-size: 11px;
 				}
 			</style>
+			<script type="text/javascript"><!--
+				function sq_set_check_all(form, prefix, value) {
+					set_els = form.elements[prefix];
+					
+					if (set_els.length) {
+						for (k = 0; k < set_els.length; k++) {
+							set_els[k].checked = value;
+						}
+					} else {
+						set_els.checked = value;
+					}
+				}
+				
+				function sq_test_check_all(form, prefix, set_el) {
+					test_els = form.elements[prefix];
+					set_el = form.elements[set_el];
+					
+					if (test_els.length) {
+						test = true;
+						for (k = 0; k < test_els.length; k++) {
+							if (!test_els[k].checked) {
+								test = false;
+								break;
+							}
+						}
+					} else {
+						test = test_els.checked;
+					}
+					
+					set_el.checked = test;
+				}
+			//--></script>
 			<table class="sq-backend-table">
 			<tr>
 			<td class="sq-form-sub-header" colspan="2"><b><?php
@@ -270,10 +302,10 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					<?php echo translate('user') ?>
 				</th>
 				<th>
-					<?php echo translate('expand_question') ?>
+					<input type="checkbox" name="<?php echo $prefix ?>_expand_all" value="" onclick="sq_set_check_all(this.form, '<?php echo $prefix ?>_expand[]', this.checked);"> <?php echo translate('expand_question') ?>
 				</th>
 				<th>
-					<?php echo translate('delete_question') ?>
+					<input type="checkbox" name="<?php echo $prefix ?>_delete_all" value="" onclick="sq_set_check_all(this.form, '<?php echo $prefix ?>_delete[]', this.checked);"> <?php echo translate('delete_question') ?>
 				</th>
 				<th>&nbsp;</th>
 			</tr>
@@ -318,10 +350,10 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						?>
 					</td>
 					<td>
-						<input type="checkbox" name="<?php echo $prefix ?>_viewsub[<?php echo $assetid ?>]" value="1" <?php if ($sub_expanded) echo ' checked="checked"' ?>>
+						<input type="checkbox" name="<?php echo $prefix ?>_expand[]" value="<?php echo $assetid ?>" <?php if ($sub_expanded) echo ' checked="checked"' ?> onclick="sq_test_check_all(this.form, '<?php echo $prefix ?>_expand[]', '<?php echo $prefix ?>_expand_all');">
 					</td>
 					<td>
-						<input type="checkbox" name="<?php echo $prefix ?>_delete[]" value="<?php echo $assetid ?>" <?php if ($sub_expanded) echo ' checked="checked"' ?>>
+						<input type="checkbox" name="<?php echo $prefix ?>_delete[]" value="<?php echo $assetid ?>" onclick="sq_test_check_all(this.form, '<?php echo $prefix ?>_delete[]', '<?php echo $prefix ?>_delete_all');">
 					</td>
 					<td>[ <a href="<?php echo $sub_asset->getBackendHref(); ?>"><?php echo translate('edit') ?></a> ]</td>
 				</tr>
@@ -330,7 +362,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				if ($sub_expanded) {
 					?>
 					<tr>
-						<td colspan="5" class="sq-form-sub">
+						<td colspan="6" class="sq-form-sub">
 							<table class="sq-backend-table">
 								<tr>
 									<?php
@@ -362,9 +394,14 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			}//end foreach submission
 			?>
 			</table>
+			<script type="text/javascript"><!--
+			sq_test_check_all(document.main_form, '<?php echo $prefix ?>_expand[]', '<?php echo $prefix ?>_expand_all');
+			//--></script>
 		<?php
 		}
-
+		
+		return true;
+		
 	}//end paintSubmissions()
 
 
@@ -381,6 +418,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	function processSubmissions(&$asset, &$o, $prefix)
 	{
 		$delete_list = isset($_POST[$prefix.'_delete']) ? $_POST[$prefix.'_delete'] : Array();
+		if (empty($delete_list)) return false;
 		
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		
