@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.131 2005/08/22 22:43:55 gsherwood Exp $
+* $Id: search_page.inc,v 1.132 2005/08/23 05:54:16 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.131 $
+* @version $Revision: 1.132 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1622,19 +1622,17 @@ class Search_Page extends Listing_Engine
 	*/
 	function getGroupableParentAssetids($child_assetid)
 	{
+		$parents = parent::getGroupableParentAssetids($child_assetid);
+
 		$proxy_settings = $this->attr('proxy_types');
-		if (empty($proxy_settings)) {
-			// no proxy search types are configured, so get groupable parents normally
-			return parent::getGroupableParentAssetids($child_assetid);
-		} else {
+		if (!empty($proxy_settings)) {
 			// this child became a search result by proxy
 			if (!empty($this->_tmp['proxy_grouping'][$child_assetid])) {
-				return $this->_tmp['proxy_grouping'][$child_assetid];
-			} else {
-				// this search result wasn't by proxy, so get groupable parents normally
-				return parent::getGroupableParentAssetids($child_assetid);
+				$valid_parents = array_unique(array_values($this->_tmp['proxy_grouping']));
+				$parents = array_intersect($valid_parents, $parents);
 			}
 		}
+		return $parents;
 
 	}//end getGroupableParentAssetids()
 
