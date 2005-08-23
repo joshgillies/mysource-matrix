@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.4 2005/05/11 06:04:54 lwright Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.4.2.1 2005/08/23 05:17:10 dmckee Exp $
 *
 */
 
@@ -49,7 +49,7 @@ require_once 'include/conditions_list.inc';
 * If an attribute is not recognised, the condition will be evaluated as false.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -126,36 +126,36 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		$required_substitution_keywords = Array();
 
 		foreach ($required_keywords as $keyword) {
-		 	if (!isset($keyword_replacements[$keyword])) {
-			 	$value = null;
+			if (!isset($keyword_replacements[$keyword])) {
+				$value = null;
 
 				if (preg_match('/^(' . SQ_KEYWORD_CONDITION_BEGIN . '|' . SQ_KEYWORD_CONDITION_END . '|' . SQ_KEYWORD_CONDITION_ELSE . ')_(.*)$/', $keyword, $condition_parts)) {
 					if (count($condition_parts) == 3) {
 						$test_keyword = $condition_parts[2];
-				 		switch ($condition_parts[1]) {
-				 			case SQ_KEYWORD_CONDITION_BEGIN :
-				 				$this->_addRequiredKeywordsFromEvaluatedKeyword($test_keyword, $required_substitution_keywords);
-						 		$value = 'if ($this->_evaluateKeyword(\'' . $test_keyword . '\')) {';
-						 		break;
-				 			case SQ_KEYWORD_CONDITION_ELSE :
-						 		$value = '} else {';
-						 		break;
-				 			case SQ_KEYWORD_CONDITION_END :
-						 		$value = '} //' . $test_keyword;
-						 		break;
-				 		}
+						switch ($condition_parts[1]) {
+							case SQ_KEYWORD_CONDITION_BEGIN :
+								$this->_addRequiredKeywordsFromEvaluatedKeyword($test_keyword, $required_substitution_keywords);
+								$value = 'if ($this->_evaluateKeyword(\'' . $test_keyword . '\')) {';
+								break;
+							case SQ_KEYWORD_CONDITION_ELSE :
+								$value = '} else {';
+								break;
+							case SQ_KEYWORD_CONDITION_END :
+								$value = '} //' . $test_keyword;
+								break;
+						}
 
-				 		if (!empty($value)) {
-				 			$value = $php_begin . $value . $php_end;
-				 		}
+						if (!empty($value)) {
+							$value = $php_begin . $value . $php_end;
+						}
 					}
-			 	}
+				}
 
-			 	if (isset($value)) {
-			 		$keyword_replacements[$keyword] = $value;
-			 	} else {
-			 		$required_substitution_keywords[$keyword] = 1;
-			 	}
+				if (isset($value)) {
+					$keyword_replacements[$keyword] = $value;
+				} else {
+					$required_substitution_keywords[$keyword] = 1;
+				}
 			}
 		}
 
@@ -169,6 +169,16 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		$keyword_replacements = array_merge($keyword_replacements, $this->_getAssetKeywordReplacements($asset, array_keys($required_substitution_keywords)));
 
 		$content = replace_keywords($content, $keyword_replacements);
+
+		// Replace all './?a=' references with absolute URLs
+		$e = '|\./\?a=([0-9]+)|';
+		$matches = Array();
+		preg_match_all($e, $content, $matches);
+		$sq_plb_asset_url_list = $GLOBALS['SQ_SYSTEM']->am->getAssetHref($matches[1]);
+
+		$e = '|\./\?a=([0-9]+)([^0-9])|';
+		$with = '<'.'?php echo $sq_plb_asset_url_list[\\1]; ?'.'>\\2';
+		$content = preg_replace($e, $with, $content);
 
 		// 3. evaluate the whole content
 		$content = $php_end . $content . $php_begin;
