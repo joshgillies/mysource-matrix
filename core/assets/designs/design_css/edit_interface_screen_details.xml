@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.6.2.1 2005/06/27 01:31:05 mnyeholt Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6.2.2 2005/08/23 01:07:18 mnyeholt Exp $
 *
 */
 -->
@@ -45,6 +45,9 @@
 	</section>
 	<section name="Cache CSS File" write_access="write:attributes">
 		<field attribute="cache_css">
+			<boolean true_text="on" false_text="off"/>
+		</field>
+		<field attribute="strip_whitespace">
 			<boolean true_text="on" false_text="off"/>
 		</field>
 	</section>
