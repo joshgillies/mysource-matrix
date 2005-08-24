@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.16 2005/08/24 01:38:45 ndvries Exp $
+* $Id: file_versioning.inc,v 1.17 2005/08/24 03:14:23 skim Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -114,18 +114,12 @@ class File_Versioning
 	*
 	* @param string	$iso8601	date time string in 'YYYY-MM-DD HH:MM:SS' format
 	*
+	* @deprecated use iso8601_ts() in core/include/general.inc instead
 	* @return int
 	*/
 	function _iso8601Ts($iso8601)
 	{
-		return mktime(
-			(int) substr($iso8601,11,2),
-			(int) substr($iso8601,14,2),
-			(int) substr($iso8601,17,2),
-			(int) substr($iso8601,5,2),
-			(int) substr($iso8601,8,2),
-			(int) substr($iso8601,0,4)
-		);
+		return iso8601_ts($iso8601);
 
 	}//end _iso8601Ts()
 
@@ -135,11 +129,12 @@ class File_Versioning
 	*
 	* @param int	$timestamp	unix timestamp
 	*
+	* @deprecated use ts_iso8601() in core/include/general.inc instead
 	* @return string
 	*/
 	function _tsIso8601($timestamp)
 	{
-		return date('Y-m-d H:i:s', (int) $timestamp);
+		return ts_iso8601($timestamp);
 
 	}//end _tsIso8601()
 
@@ -890,7 +885,7 @@ class File_Versioning
 		if ($use_trans) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		}
-		
+
 
 		return FUDGE_FV_OK;
 

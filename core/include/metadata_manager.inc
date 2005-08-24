@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.91 2005/08/21 23:49:55 lwright Exp $
+* $Id: metadata_manager.inc,v 1.92 2005/08/24 03:14:21 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -937,7 +937,7 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_created_iso8601' :
 				case 'asset_updated_iso8601' :
 				case 'asset_status_changed_iso8601' :
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'Y-m-d\\TH:i:s\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_iso8601') - strlen('asset_')).');'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'Y-m-d\\TH:i:s\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_iso8601') - strlen('asset_')).').substr(date(\'O\'),0,3).\':\'.substr(date(\'O\'),-2);'."\n";
 				break;
 
 				case 'asset_created_rfc2822' :

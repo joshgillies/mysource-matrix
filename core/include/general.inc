@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.97 2005/08/15 13:49:42 brobertson Exp $
+* $Id: general.inc,v 1.98 2005/08/24 03:14:21 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix
 */
 
@@ -652,9 +652,10 @@ function bit_elements($num)
 * Takes an ISO-8601 compliant date-time string and returns a unix timestamp for it
 *
 * @param string	$iso8601	date time string in any of the following formats:
-*							'YYYY-MM-DDTHH:MM:SS'	date and time with 'T' separator (XML format)
-*							'YYYY-MM-DD HH:MM:SS'	date and time without 'T' (SQL date/datetime format)
-*							'YYYY-MM-DD'			date only
+*							'YYYY-MM-DDThh:mm:ss'		date and time with 'T' separator (XML format)
+*							'YYYY-MM-DDThh:mm:ssTZD'	date and time with 'T' separator with TZD(Time Zone Designator)
+*							'YYYY-MM-DD hh:mm:ss'		date and time without 'T' (SQL date/datetime format)
+*							'YYYY-MM-DD'				date only
 *
 * @return int
 * @access public
@@ -662,7 +663,16 @@ function bit_elements($num)
 function iso8601_ts($iso8601)
 {
 	// we have everything including the time
-	if (preg_match("/^[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}[ T]([0-9\-]{2}\:?){3}$/",$iso8601)) {
+	if (preg_match("/^[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}$/",$iso8601)) {
+		// valid but we only have the date
+		return mktime(
+			0, 0, 0,
+			(int) substr($iso8601,5,2),
+			(int) substr($iso8601,8,2),
+			(int) substr($iso8601,0,4)
+		);
+
+	} else if (preg_match('/^[0-9]{4}(-[0-9]{2}(-[0-9]{2}([T| ]{1}[0-9]{2}:[0-9]{2}(:[0-9]{2}(\.[0-9]{1,2}){0,1}){0,1}([\+|-]{1}[0-9]{2}:[0-9]{2}){0,1}){0,1}){0,1}){0,1}$/',$iso8601)) {
 		return mktime(
 			(int) substr($iso8601,11,2),
 			(int) substr($iso8601,14,2),
@@ -671,14 +681,7 @@ function iso8601_ts($iso8601)
 			(int) substr($iso8601,8,2),
 			(int) substr($iso8601,0,4)
 		);
-	// valid but we only have the date
-	} else if (preg_match("/^[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}$/",$iso8601)) {
-		return mktime(
-			0, 0, 0,
-			(int) substr($iso8601,5,2),
-			(int) substr($iso8601,8,2),
-			(int) substr($iso8601,0,4)
-		);
+
 	} else {
 		return 0;
 	}
@@ -696,7 +699,9 @@ function iso8601_ts($iso8601)
 */
 function ts_iso8601($timestamp)
 {
-	return date('Y-m-d H:i:s', $timestamp);
+	$time_zone_designater = date('O');
+	$tzd_iso8601 = substr($time_zone_designater, 0, 3).':'.substr($time_zone_designater, -2);
+	return date('Y-m-d\TH:i:s', $timestamp).$tzd_iso8601;
 
 }//end ts_iso8601()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.29 2005/08/15 00:00:50 tbarrett Exp $
+* $Id: datetime.inc,v 1.30 2005/08/24 03:14:23 skim Exp $
 *
 */
 
@@ -46,7 +46,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    </datetime>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -391,12 +391,14 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			$matches = Array();
 			$period_options = $this->_getPeriodOptions();
 			$age_options = $this->_getAgeOptions();
+			$time_zone_designater = date('O');
+			$tzd_iso8601 = substr($time_zone_designater, 0, 3).':'.substr($time_zone_designater, -2);
 
 			preg_match('|([\-\+])([0-9]+)(['.implode('', array_keys($period_options)).'])|', $this->value, $matches);
 			if (isset($matches[1])) $period_age  = $matches[1];
 			if (isset($matches[2])) $period_num  = $matches[2];
 			if (isset($matches[3])) $period_type = $matches[3];
-			return date('Y-m-d H:i:s', strtotime($period_age.$period_num.' '.$period_options[$period_type]));
+			return date('Y-m-d\TH:i:s', strtotime($period_age.$period_num.' '.$period_options[$period_type])).$tzd_iso8601;
 		}
 
 	}//end getISO8601()
