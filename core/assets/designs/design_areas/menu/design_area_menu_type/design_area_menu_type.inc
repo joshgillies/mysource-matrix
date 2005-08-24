@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.67 2005/07/15 00:42:32 tbarrett Exp $
+* $Id: design_area_menu_type.inc,v 1.68 2005/08/24 06:57:04 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -359,6 +359,57 @@ class Design_Area_Menu_Type extends Design_Area
 
 
 	/**
+	* Overrides the parent function, in order to display our static functions correctly
+	* In the global scope
+	*
+	* @param object Design	$design the design for which we are currently printing
+	* @param boolean 			$cache true this design area should be cached
+	*
+	* @return boolean
+	* @access public
+	*/
+	function printCachedArea(&$design, $cache=false)
+	{
+		$instance_id = '_'.$this->id.'_'.$design->id;
+
+		if ($cache && $this->canBeCached()) {
+			echo '<?php ';
+			// Prints menu_get_assets() before caching, and the duplicate call inside the printArea
+			// below, will bug out before printing as it will find its already defined
+			$this->printStaticInitOutput($design);
+			echo '?>';
+			echo '
+			<?php
+				$cm = &$GLOBALS[\'SQ_SYSTEM\']->am->getSystemAsset(\'cache_manager\');
+				$asset_contents'.$instance_id.' = $cm->loadFromCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'\');
+
+				if (empty($asset_contents'.$instance_id.')) {
+					ob_start();
+			?>
+			';
+		}
+
+		$ret = $this->printArea($design);
+
+		if ($cache && $this->canBeCached()) {
+			echo '
+			<?php
+						$asset_contents'.$instance_id.' = ob_get_contents();
+					ob_end_clean();
+					$cm->saveToCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'\', $asset_contents'.$instance_id.');
+				}
+
+				echo $asset_contents'.$instance_id.';
+			?>
+			';
+		}
+
+		return $ret;
+
+	}//end printCachedArea()
+
+
+	/**
 	* Performs any outputting needed to by all design areas of this menu type
 	* NOTE: assumes PHP tags are open
 	*
@@ -420,14 +471,14 @@ class Design_Area_Menu_Type extends Design_Area
 
 				$sql    = \'SELECT DISTINCT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
 						   FROM \'.SQ_TABLE_RUNNING_PREFIX.\'ast a
-						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_lnk l ON a.assetid = l.minorid
-						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_path pt ON a.assetid = pt.assetid \';
+							 INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_lnk l ON a.assetid = l.minorid
+							 INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_path pt ON a.assetid = pt.assetid \';
 				if (!empty($USERIDS_COND)) {
 				$sql   .= \'
-						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_perm p ON a.assetid = p.assetid \';
+							 INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_perm p ON a.assetid = p.assetid \';
 				}
 				$where  = \'l.majorid IN (\'.substr($majorids_str, 0, -1).\')
-						     AND \'.db_extras_bitand($db, \'l.link_type\', SQ_SC_LINK_FRONTEND_NAV).\' > 0 \';
+							 AND \'.db_extras_bitand($db, \'l.link_type\', SQ_SC_LINK_FRONTEND_NAV).\' > 0 \';
 				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'a\');
 				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'l\');
 				if (!empty($USERIDS_COND)) {
