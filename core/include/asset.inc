@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.450 2005/08/21 23:50:32 lwright Exp $
+* $Id: asset.inc,v 1.451 2005/08/24 04:36:08 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.450 $
+* @version $Revision: 1.451 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -189,6 +189,8 @@ class Asset extends MySource_Object
 	*
 	* @param int	$assetid	the asset id to be loaded
 	*
+	* @return object
+	* @access public
 	*/
 	function Asset($assetid=0)
 	{
@@ -227,7 +229,7 @@ class Asset extends MySource_Object
 	*        )
 	* </PRE>
 	*
-	* @return mixed int or false
+	* @return mixed int|boolean
 	* @access public
 	*/
 	function create(&$link)
@@ -525,8 +527,8 @@ class Asset extends MySource_Object
 	* )
 	* </PRE>
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _preCreateCheck(&$link)
 	{
@@ -552,8 +554,8 @@ class Asset extends MySource_Object
 	* )
 	* </PRE>
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
@@ -567,8 +569,10 @@ class Asset extends MySource_Object
 	*
 	* The create log and DB transaction will also be aborted
 	*
-	* @access private
+	* @param boolean	$trigger_level_changed	if it's false, restore runlevel
+	*
 	* @return boolean
+	* @access private
 	*/
 	function _abortCreate($trigger_level_changed=false)
 	{
@@ -591,8 +595,8 @@ class Asset extends MySource_Object
 	*
 	* @param int	$assetid	the asset ID to be loaded
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function load($assetid)
 	{
@@ -677,8 +681,8 @@ class Asset extends MySource_Object
 	*
 	* Also takes into account if we are using a system version
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _loadDataPaths()
 	{
@@ -697,8 +701,8 @@ class Asset extends MySource_Object
 	*
 	* If the asset has no asset ID, this function just loads the default values for the asset type.
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _loadVars()
 	{
@@ -1223,7 +1227,7 @@ class Asset extends MySource_Object
 	* @param boolean	$include_asset	when true adds the "Asset" type to the parent list,
 	*									even though it's an unistantiable object
 	*
-	* @return array()
+	* @return array
 	* @access public
 	* @see Asset_Manager::getTypeAncestors()
 	*/
@@ -1241,7 +1245,6 @@ class Asset extends MySource_Object
 	* @param boolean	$update_parents	should we go through an update all our dependant parents as well ?
 	*									NOTE: this is passed to incrementVersion to let it know that the parents
 	*									should have their versions updated as well.
-	*
 	*
 	* @return boolean
 	* @access public
@@ -1331,7 +1334,7 @@ class Asset extends MySource_Object
 	/**
 	* Gets the default languages of the asset as an array
 	*
-	* @return array(string)
+	* @return array
 	* @access public
 	*/
 	function getLanguages()
@@ -1444,7 +1447,7 @@ class Asset extends MySource_Object
 	/**
 	* Remap existing assetids used to new ones for ourselves and all our dependants
 	*
-	* @param array	&$map	a map of the form Array([old asset id] => [new asset id]);
+	* @param array	$map	a map of the form Array([old asset id] => [new asset id]);
 	*
 	* @return boolean
 	* @access public
@@ -1478,7 +1481,7 @@ class Asset extends MySource_Object
 	*
 	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
 	*
-	* @return bool
+	* @return boolean
 	* @access public
 	*/
 	function morph($new_type_code)
@@ -1678,8 +1681,8 @@ class Asset extends MySource_Object
 	* We set $vars['my_keyword'] = 'my keyword desc' to tell the broadcaster
 	* what keywords are available for this asset type.
 	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
 	*								we add keywords to the $vars['keywords'] array
 	*
 	* @return void
@@ -1715,8 +1718,9 @@ class Asset extends MySource_Object
 	/**
 	* Takes a clone shell and clones the sources required components to the clone shell
 	*
-	* @param &object Asset	$clone		the clone shell
-	* @param array			$components	the wanted components to clone eg.
+	* @param object	&$clone		the clone shell
+	* @param array	$components	the wanted components to clone eg.
+	* <PRE>
 	*                       Array(
 	*                         'attributes',
 	*                         'metadata_shemas',
@@ -1727,6 +1731,7 @@ class Asset extends MySource_Object
 	*                       );
 	*                       or alternately
 	*                       Array('all');
+	* </PRE>
 	*
 	* @return boolean
 	* @access public
@@ -1862,7 +1867,7 @@ class Asset extends MySource_Object
 	/**
 	* Returns a status object for the current asset to be used for processing
 	*
-	* @return object Asset_Status
+	* @return object
 	* @access public
 	*/
 	function &getStatus()
@@ -1914,8 +1919,8 @@ class Asset extends MySource_Object
 	/**
 	* Processes the changes required when a new status is set
 	*
-	* @param int        $new_status        the new status to set for this asset
-	*@param boolean     $update_parent     Specify if we want to update the parent as well
+	* @param int		$new_status		the new status to set for this asset
+	* @param boolean	$update_parents	Specify if we want to update the parent as well
 	*
 	* @return boolean
 	* @access public
@@ -2022,12 +2027,12 @@ class Asset extends MySource_Object
 	* The user field for the specified date is set to the userid specified. If
 	* none is specified, then the current user is used
 	*
-	* @param string 	$date_type	the date to update, which must be one of 'published' or 'created'
-	* @param int		$time		the time to set the date to. If NULL then use current time
-	* @param int		$userid 	the userid that modified the specified date
+	* @param string	$date_type	the date to update, which must be one of 'published' or 'created'
+	* @param int	$time		the time to set the date to. If NULL then use current time
+	* @param int	$userid		the userid that modified the specified date
 	*
+	* @return boolean
 	* @access public
-	* @return boolean indicating success
 	*/
 	function setDate($date_type, $time=null, $userid=null)
 	{
@@ -2155,8 +2160,9 @@ class Asset extends MySource_Object
 	/**
 	* Can the current user forceably acquire the current lock on this asset?
 	*
-	* @param string		$lock_type		any valid lock type for this asset's type,
-	*									plus 'all' which will attempt to acquire all locks that this asset has
+	* @param string	$lock_type	any valid lock type for this asset's type,
+	*							plus 'all' which will attempt to acquire all locks that this asset has
+	*
 	* @return boolean
 	* @access public
 	*/
@@ -2200,7 +2206,7 @@ class Asset extends MySource_Object
 	/**
 	* Returns any locks that are needed for editing, based on a set of custom keywords
 	*
-	* @param array $keywords the keywords to govern what locks are required
+	* @param array	$keywords	the keywords to govern what locks are required
 	*
 	* @return array
 	* @access public
@@ -2247,15 +2253,16 @@ class Asset extends MySource_Object
 	* Creates a link between this asset and the passed asset, of a certain type
 	* and returns the linkid of the created link
 	*
-	* @param object Asset	&$minor		the minor asset that we are linking to
-	* @param string			$link_type	the type of link this is
-	* @param string			$value		the value that is to be associated with this link
-	* @param string			$sort_order	the position in the links list that this link should take,
-	*									if null or less than zero places at end of list
-	* @param string			$dependant	'0' / '1' on whether the this asset is dependant on the
-	*									asset that will be linked by this new link
-	* @param string			$exclusive	'0' / '1' on whether the this asset is linked exclusivly
-	*									to the asset that will be linked by this new link
+	* @param object		&$minor		the minor asset that we are linking to
+	* @param string		$link_type	the type of link this is
+	* @param string		$value		the value that is to be associated with this link
+	* @param string		$sort_order	the position in the links list that this link should take,
+	*								if null or less than zero places at end of list
+	* @param string		$dependant	'0' / '1' on whether the this asset is dependant on the
+	*								asset that will be linked by this new link
+	* @param string		$exclusive	'0' / '1' on whether the this asset is linked exclusivly
+	*								to the asset that will be linked by this new link
+	* @param boolean	$moving		moving
 	*
 	* @return int
 	* @access public
@@ -2276,15 +2283,15 @@ class Asset extends MySource_Object
 	* should be checked to work out what side of the link this asset is on. The return value should indicate
 	* if any of the link fields were changed.
 	*
-	* @param object Asset	$asset			the major or minor asset that we are linking to
-	* @param string			$side_of_link	the side of the link we are on (major or minor)
-	* @param string			$link_type		the type of link we are creating
-	* @param string			$value			the value that is to be associated with the link
-	* @param string			$sort_order		the position in the links list that this link should take,
-	* @param string			$dependant		'0' / '1' on whether the this asset is dependant on the
-	*										asset that will be linked by the new link
-	* @param string			$exclusive		'0' / '1' on whether the this asset is linked exclusivly
-	*										to the asset that will be linked by the new link
+	* @param object	&$asset			the major or minor asset that we are linking to
+	* @param string	$side_of_link	the side of the link we are on (major or minor)
+	* @param string	&$link_type		the type of link we are creating
+	* @param string	&$value			the value that is to be associated with the link
+	* @param string	&$sort_order	the position in the links list that this link should take,
+	* @param string	&$dependant		'0' / '1' on whether the this asset is dependant on the
+	*								asset that will be linked by the new link
+	* @param string	&$exclusive		'0' / '1' on whether the this asset is linked exclusivly
+	*								to the asset that will be linked by the new link
 	*
 	* @return boolean
 	* @access public
@@ -2299,11 +2306,11 @@ class Asset extends MySource_Object
 	/**
 	* Returns TRUE if the passed minor asset can be linked to this asset, or a string with the error msg
 	*
-	* @param object Asset   &$minor     the minor asset that we are linking to
-	* @param string			$link_type	the type of link this is
-	* @param int			$exclusive	the exclusive status of the link (gets passed to canLinkToType)
+	* @param object	&$minor		the minor asset that we are linking to
+	* @param string	$link_type	the type of link this is
+	* @param int	$exclusive	the exclusive status of the link (gets passed to canLinkToType)
 	*
-	* @return mixed TRUE or error message string
+	* @return mixed boolean|string
 	* @access public
 	*/
 	function canCreateLink(&$minor, $link_type, $exclusive)
@@ -2325,11 +2332,11 @@ class Asset extends MySource_Object
 	* Remember that this is called for the asset we are moving TO - as it would
 	* have with canCreateLink().
 	*
-	* @param object Asset	&$minor		the minor asset that we are linking to
-	* @param object Asset	&$old_major	the major asset that we are being moved from
-	* @param string			$link_type	the type of link this is
+	* @param object	&$minor		the minor asset that we are linking to
+	* @param object	&$old_major	the major asset that we are being moved from
+	* @param string	$link_type	the type of link this is
 	*
-	* @return mixed TRUE or error message string
+	* @return mixed boolean|string
 	* @access public
 	*/
 	function canMoveLink(&$minor, &$old_major, $link_type)
@@ -2372,9 +2379,11 @@ class Asset extends MySource_Object
 	/**
 	* Determine if we can delete the passed link right now
 	*
+	* This function returns TRUE or error message
+	*
 	* @param int	$linkid	the link id of the link to remove
 	*
-	* @return mixed TRUE or error msg string
+	* @return mixed boolean|string
 	* @access public
 	*/
 	function canDeleteLink($linkid)
@@ -2394,9 +2403,11 @@ class Asset extends MySource_Object
 	/**
 	* Determine if we COULD delete the passed link IF we acquired the lock on this asset
 	*
+	* This function return TRUE or error message
+	*
 	* @param int	$linkid	the link id of the link to remove
 	*
-	* @return mixed TRUE or error msg string
+	* @return mixed boolean|string
 	* @access public
 	*/
 	function couldDeleteLink($linkid)
@@ -2441,7 +2452,6 @@ class Asset extends MySource_Object
 	*
 	* Called whenever any type of link is changed. Allows caching of objects, links and other stuff
 	* to occur but not cause integrity issues during script execution.
-	*
 	* ONLY TO BE CALLED FROM THE ASSET MANAGER
 	*
 	* @return boolean
@@ -2652,8 +2662,8 @@ class Asset extends MySource_Object
 	* This function sets the value of the attribute locally, but does not database updating.
 	* The change is queued awaiting the call of saveAttributes()
 	*
-	* @param string		$name	the name of the attribute
-	* @param string		$value	the new value of the attribute
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -2725,9 +2735,9 @@ class Asset extends MySource_Object
 	/**
 	* Get the value of an attribute
 	*
-	* @param string	$name the name of the attribute whose value you want to get
+	* @param string	$name	the name of the attribute whose value you want to get
 	*
-	* @return mixed
+	* @return mixed string|null
 	* @access public
 	*/
 	function attr($name)
@@ -2744,9 +2754,9 @@ class Asset extends MySource_Object
 	/**
 	* Get the value of an attribute by reference
 	*
-	* @param string	$name the name of the attribute whose value you want to get
+	* @param string	$name	the name of the attribute whose value you want to get
 	*
-	* @return mixed
+	* @return mixed object|null
 	* @access public
 	*/
 	function &attrByRef($name)
@@ -2768,7 +2778,7 @@ class Asset extends MySource_Object
 	*									because you can't use the '@' operator when
 	*									returning by reference
 	*
-	* @return mixed object Asset_Attribute or NULL
+	* @return mixed object|null
 	* @access public
 	*/
 	function &getAttribute($name, $mute_errors=false)
@@ -2808,22 +2818,21 @@ class Asset extends MySource_Object
 	* Return the keywords for this asset type with their replacements for this asset instance
 	*
 	* This function is called in asset-listing situations like the asset listing, search page etc
-	*
 	* The return value is in the form:
-	* <pre>
+	* <PRE>
 	* Array(
 	*   'name' => Array (
 	*               'value'       => 'page',
 	*               'description' => 'the asset name',
 	*             ),
 	* );
-	* </pre>
+	* </PRE>
 	*
-	* @param boolean $descriptions if TRUE descriptions will be included in the array
+	* @param boolean	$descriptions	if TRUE descriptions will be included in the array
 	*
 	* @deprecated
-	* @access public
 	* @return array
+	* @access public
 	*/
 	function getAssetKeywords($descriptions=false)
 	{
@@ -2876,7 +2885,7 @@ class Asset extends MySource_Object
 		foreach ($default_keywords as $keyword) {
 			$keywords[$keyword]['value'] = $mm_keywords[$keyword];
 		}
-		
+
 		foreach ($this->vars as $name => $info) {
 			if ($info['type'] == 'serialise') continue;
 			$keywords['asset_attribute_'.$name]['value'] = $info['value'];
@@ -2938,16 +2947,15 @@ class Asset extends MySource_Object
 	* Return the keywords for this asset type.
 	*
 	* This function is called in asset-listing situations like the asset listing, search page etc
-	*
 	* The return value is in the form:
-	* <pre>
+	* <PRE>
 	* Array(
 	*   'name' => 'description' => 'the asset name',
 	* );
-	* </pre>
+	* </PRE>
 	*
-	* @access public
 	* @return array
+	* @access public
 	*/
 	function getAvailableKeywords()
 	{
@@ -3017,8 +3025,8 @@ class Asset extends MySource_Object
 	/**
 	* Compares the result from getAssetKeywords() and getAvailableKeywords()
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _keywordsCompare()
 	{
@@ -3095,7 +3103,7 @@ class Asset extends MySource_Object
 				$replacement = $mm_keyword[$keyword];
 			}
 		}
-		
+
 		return $replacement;
 
 	}//end getKeywordReplacement()
@@ -3139,7 +3147,7 @@ class Asset extends MySource_Object
 	/**
 	* Returns the editable content of this asset
 	*
-	* @return String
+	* @return string
 	* @access public
 	*/
 	function getContent()
@@ -3151,8 +3159,6 @@ class Asset extends MySource_Object
 
 	/**
 	* Sets the editable content of this asset
-	*
-	* @param String
 	*
 	* @return boolean
 	* @access public
@@ -3282,6 +3288,8 @@ class Asset extends MySource_Object
 	* user can edit the asset without going through a safe edit
 	* NOTE: will return false if asset is not currently live
 	*
+	* @param string	$lock_type	the type of lock
+	*
 	* @return boolean
 	* @access public
 	* @see canliveEdit()
@@ -3302,6 +3310,8 @@ class Asset extends MySource_Object
 	* Live edit means the asset is currently SQ_STATUS_LIVE but this
 	* user can edit the asset without going through a safe edit
 	* NOTE: will return false if asset is not currently live
+	*
+	* @param int	$lock_type	the type of lock
 	*
 	* @return boolean
 	* @access public
@@ -3490,7 +3500,9 @@ class Asset extends MySource_Object
 	/**
 	* Called when the any permission is updated for this asset
 	*
-	* @return boolean	whether everything is OK
+	* It returns true if everything is OK.
+	*
+	* @return boolean
 	* @access public
 	*/
 	function permissionsUpdated()
@@ -3572,7 +3584,9 @@ class Asset extends MySource_Object
 	/**
 	* Called by the design to print extra material in the head of the HTML document for this asset
 	* it's up to the kids to override
+	* TODO: empty function
 	*
+	* @return void
 	* @access public
 	*/
 	function printHead()
@@ -3584,7 +3598,9 @@ class Asset extends MySource_Object
 	/**
 	* Called by the design to print the body of this asset
 	* it's up to the kids to override
+	* TODO: empty function
 	*
+	* @return void
 	* @access public
 	*/
 	function printBody()
@@ -3617,8 +3633,9 @@ class Asset extends MySource_Object
 	* Prints out the backend interface for the asset
 	* it's up to the kids to override
 	*
-	* @param object Backend_Outputter $o
+	* @param object	&$o	Backend_Outputter object
 	*
+	* @return void
 	* @access public
 	*/
 	function paintBackend(&$o)
@@ -3634,8 +3651,6 @@ class Asset extends MySource_Object
 	/**
 	* Generate a prefix to be used by paint() and process()
 	*
-	* @param object	Asset	$owner	the asset whose interface we are painting
-	*
 	* @return string
 	* @access public
 	*/
@@ -3650,8 +3665,8 @@ class Asset extends MySource_Object
 	* Processes a backend submission from this asset, returns true if all OK
 	* Put's the array of processed attributes into $this->_tmp['process_attributes']
 	*
-	* @param object Backend_Outputter	$o
-	* @param array(string)				&$link	information used to create the initial link
+	* @param object	&$o		Backend_Outputter object
+	* @param array	&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
@@ -3678,9 +3693,9 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Returns a reference to the edit interface for this asset type
+	* Returns a reference to the Asset_Edit_Interface object for this asset type
 	*
-	* @return object Asset_Edit_Interface
+	* @return object
 	* @access public
 	*/
 	function &getEI()
@@ -3697,7 +3712,7 @@ class Asset extends MySource_Object
 	/**
 	* Returns the Edit_Fns object appropriate for whatever asset type we are
 	*
-	* @return object Asset_Edit_Fns
+	* @return object
 	* @access public
 	*/
 	function &getEditFns()
@@ -3717,6 +3732,7 @@ class Asset extends MySource_Object
 	*
 	* @param string	$screen	the code name of the screen that you want displayed when the asset is loaded
 	*
+	* @return string
 	* @access public
 	*/
 	function getBackendHref($screen='')
@@ -3764,8 +3780,6 @@ class Asset extends MySource_Object
 	/**
 	* Returns the href for this asset closest to the $base_url, but relative to the current url
 	*
-	* @param string	$base_url	the url that we are want to match closest to
-	*
 	* @return string
 	* @access public
 	*/
@@ -3806,7 +3820,7 @@ class Asset extends MySource_Object
 	/**
 	* Attempts to override all current paths for this asset with those passed in the array
 	*
-	* @param Array	$paths	array of paths to give this asset
+	* @param array	$paths	array of paths to give this asset
 	*
 	* @return boolean
 	* @access public
@@ -3975,17 +3989,18 @@ class Asset extends MySource_Object
 	* Returns a list of lookup value information associated with this asset matching the criteria
 	*
 	* Return value is in the form<br />
-	* <pre>
+	* <PRE>
 	* Array(
 	*   [url] => Array(
 	*   [name] => Array('value' => [value], 'inhd' => [inhd]),
 	*   ....
 	* )
-	* </pre>
+	* </PRE>
 	*
-	* @param boolean|null	$inherited		include inherited values (NULL = don't care, TRUE = Yes, FALSE = no)
-	* @param string			$prefix			a prefix to search for in the name field of ast_lookup_value
-	* @param boolean		$like_search	TRUE = LIKE $prefix, FALSE = NOT LIKE $prefix
+	* @param mixed		$inherited		it takes a mixed argument, boolean or null
+	*									include inherited values (NULL = don't care, TRUE = Yes, FALSE = no)
+	* @param string		$prefix			a prefix to search for in the name field of ast_lookup_value
+	* @param boolean	$like_search	TRUE = LIKE $prefix, FALSE = NOT LIKE $prefix
 	*
 	* @return array
 	* @access public
@@ -4235,18 +4250,18 @@ class Asset extends MySource_Object
 	/**
 	* Set's the lookup values for this asset
 	*
-	* @param Array	$lookup_values	array of the values that we want to save
-	*								<pre>
-	*								"[url]" => array (
-	*									"[name]" => array (
-	*										"value" => "[value]",
-	*										"inhd" => "[inherited]",
-	*									),
+	* @param array	$values	array of the values that we want to save
+	* <PRE>
+	*							"[url]" => array (
+	*								"[name]" => array (
+	*									"value" => "[value]",
+	*									"inhd" => "[inherited]",
 	*								),
-	*								</pre>
-	*								NOTE: 'inhd' is ignored - it exists only because it makes it
-	*								easier to just modify the return value of Asset::getLookupValues()
-	*								all values in this array will be saved with inhd set to 0 (false)
+	*							),
+	* </PRE>
+	*						NOTE: 'inhd' is ignored - it exists only because it makes it
+	*						easier to just modify the return value of Asset::getLookupValues()
+	*						all values in this array will be saved with inhd set to 0 (false)
 	*
 	* @return boolean
 	* @access public
