@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.38 2005/08/16 05:28:56 skim Exp $
+* $Id: datetime.inc,v 1.39 2005/08/24 04:23:58 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     General function for manipulating dates and times
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package Fudge
 * @subpackage General
 */
@@ -39,13 +39,16 @@
 /**
 * Takes a timestamp and returns a date/time string with detail varying by how recent the date is
 *
-* @param string	$then	the timestamp for some time in the future or past
+* @param int	$then	the timestamp for some time in the future or past
 *
 * @return string
 * @access public
 */
 function easy_datetime($then='')
 {
+	// type verification
+	if (!is_int($then)) return 0;
+
 	$now = time();
 	$now_date = date('Y-m-d');
 	$then_date = date('Y-m-d', $then);
@@ -85,13 +88,18 @@ function easy_datetime($then='')
 * @param string		$secs			the number of seconds that have passed
 * @param boolean	$full_format	print full hours, minutes, seconds text
 * @param boolean	$return_array	return the values as an array of data instead of a string
-* @param array()	$units			an array of time units to display or return (d, h, m, s)
+* @param array		$units			an array of time units to display or return (d, h, m, s)
 *
-* @return mixed string|array()
+* @return mixed string|array
 * @access public
 */
 function easy_time_total($secs=0, $full_format=false, $return_array=false, $units=Array('d', 'h', 'm', 's'))
 {
+	// type verification
+	if (!is_int($secs) || !is_bool($full_format) || !is_bool($return_array) || !is_array($units)) {
+		return '';
+	}
+
 	if ($secs < 0) {
 		$suffix = ' ago';
 		$secs = abs($secs);
@@ -112,21 +120,21 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false, $unit
 
 	// if there is more than one day left
 	if ($secs >= $day) {
-		$num_days = floor($secs/$day);
+		$num_days = intval(floor($secs/$day));
 		// remove the number of seconds we have taken care of
 		$secs -= ($day * $num_days);
 	}
 
 	// if there is more than one hour left
 	if ($secs >= $hour) {
-		$num_hours = floor($secs/$hour);
+		$num_hours = intval(floor($secs/$hour));
 		// remove the number of seconds we have taken care of
 		$secs -= ($hour * $num_hours);
 	}
 
 	// if there is more than one minute left
 	if ($secs >= $minute) {
-		$num_minutes = floor($secs/$minute);
+		$num_minutes = intval(floor($secs/$minute));
 		// remove the number of seconds we have taken care of
 		$secs -= ($minute * $num_minutes);
 	}
@@ -254,7 +262,7 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false, $unit
 				$time_type .= $joiner.'m';
 				// if there are hours then zerofill to 2 places
 				if ($num_hours) {
-					$str .= $joiner.sprintf("%02d", $num_minutes);
+					$str .= $joiner.sprintf('%02d', $num_minutes);
 				} else {
 					$str .= $joiner.$num_minutes;
 				}
@@ -280,7 +288,7 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false, $unit
 				$str .= $joiner.$num_seconds;
 			} else {
 				$time_type .= $joiner.'s';
-				$str .= $joiner.sprintf("%02d", $num_seconds);
+				$str .= $joiner.sprintf('%02d', $num_seconds);
 			}
 		}
 
@@ -612,7 +620,7 @@ function int_to_roman($num=0)
 * @param int	$month		the month to use
 * @param int	$year		the year that the month is in
 *
-* @return array()
+* @return array
 * @access public
 */
 function weekday_dates_in_month($weekday, $month, $year)
@@ -686,6 +694,23 @@ function iso8601_time_component($iso8601)
 /**
 * Returns true if passed string is a valid ISO8601 time with at least a full date
 *
+* The following formats are valid according to iso8601.
+* <PRE>
+*	Year:
+*		YYYY (eg 1997)
+*	Year and month:
+*		YYYY-MM (eg 1997-07)
+*	Complete date:
+*		YYYY-MM-DD (eg 1997-07-16)
+*	Complete date plus hours and minutes:
+*		YYYY-MM-DDThh:mmTZD (eg 1997-07-16T19:20+01:00)
+*	Complete date plus hours, minutes and seconds:
+*		YYYY-MM-DDThh:mm:ssTZD (eg 1997-07-16T19:20:30+01:00)
+*	Complete date plus hours, minutes, seconds and a decimal fraction of a second
+*		YYYY-MM-DDThh:mm:ss.sTZD (eg 1997-07-16T19:20:30.45+01:00)
+* </PRE>
+* reference : http://www.w3.org/TR/NOTE-datetime
+*
 * @param string	$iso8601	The date that we are going to check
 *
 * @return boolean
@@ -693,7 +718,7 @@ function iso8601_time_component($iso8601)
 */
 function is_iso8601($iso8601)
 {
-	return (boolean)preg_match("/^\-?[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}([ T]([0-9\-]{2}\:?){3})?$/",$iso8601);
+	return (boolean)preg_match('/^[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2}(\.[0-9]{1,2}){0,1}){0,1}[\+|-]{1}[0-9]{2}:[0-9]{2}){0,1}){0,1}){0,1}$/', $iso8601);
 
 }//end is_iso8601()
 
