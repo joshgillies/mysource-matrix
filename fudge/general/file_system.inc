@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.35 2005/08/23 05:44:59 pgannavarapu Exp $
+* $Id: file_system.inc,v 1.36 2005/08/24 05:50:03 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions for the file system
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package Fudge
 * @subpackage General
 */
@@ -488,7 +488,7 @@ function move_file($from, $to)
 * @return array
 * @access public
 */
-function get_last_lines_from_file($filepath, $max_lines=10, $line_ending='\n')
+function get_last_lines_from_file($filepath, $max_lines=10, $line_ending="\n")
 {
 	$result = Array();
 	$max_lines = is_int($max_lines)?$max_lines:10;
