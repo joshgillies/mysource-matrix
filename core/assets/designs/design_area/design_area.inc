@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.40.2.4 2005/08/15 04:19:52 mmcintyre Exp $
+* $Id: design_area.inc,v 1.40.2.5 2005/08/24 06:58:53 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.40.2.4 $
+* @version $Revision: 1.40.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -284,7 +284,7 @@ class Design_Area extends Asset
 
 		return $ret;
 
-	}//end printArea()
+	}//end printCachedArea()
 
 
 	/**
