@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy_management.inc,v 1.3 2005/08/01 04:30:59 ndvries Exp $
+* $Id: paint_layout_bodycopy_management.inc,v 1.4 2005/08/24 02:49:48 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,6 +73,46 @@ class Paint_Layout_Bodycopy_Management extends Asset_Management
 					  );
 
 	}//end constructor
+
+
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		if (!parent::_upgrade($current_version)) return false;
+
+		$asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
+
+		if (version_compare($current_version, '0.2', '<')) {
+			// version 0.1 -> 0.2
+			// Changed Paint layouts to use their content files to read/write data that
+			// can be reused. This upgrade simply prints those files for the first time
+			bam('STARTING '.$asset_name.' UPGRADE - FROM VERSION 0.1');
+			$pl_bodycopies = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false, true);
+			foreach ($pl_bodycopies as $assetid => $type_code) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				if (is_null($asset)) continue;
+
+				// We need to output our content files, otherwise old paint layouts will print blank
+				$asset->saveSystemVersion();
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				unset($asset);
+
+			}//end foreach
+			bam($asset_name.' UPGRADE COMPLETE - FROM VERSION 0.1 to 0.2');
+
+		}//end version 0.1 upgrade
+
+		return true;
+
+	}//end _upgrade()
 
 
 }//end class

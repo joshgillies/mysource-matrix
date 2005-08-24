@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.5 2005/08/01 04:30:59 ndvries Exp $
+* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.6 2005/08/24 02:49:48 dmckee Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,41 +106,9 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 			return false;
 		}
 
-		$content = $asset->getRawBodycopyContent();
-		$keywords = retrieve_keywords_replacements($content);
-
-		$stack = Array();
-
 		$validated = true;
 
-		// we rely on the fact that the retrieve_keywords_replacements() returns
-		// all keywords (even duplicates) in the order they exist in content
-		foreach ($keywords as $keyword) {
-			if (preg_match('/^('.SQ_KEYWORD_CONDITION_BEGIN.'|'.SQ_KEYWORD_CONDITION_END.'|'.SQ_KEYWORD_CONDITION_ELSE.')_(.*)$/', $keyword, $condition_parts)) {
-				$test_keyword = $condition_parts[2];
-				switch ($condition_parts[1]) {
-					case SQ_KEYWORD_CONDITION_BEGIN :
-						array_push($stack, $test_keyword);
-					break;
-					case SQ_KEYWORD_CONDITION_ELSE :
-						$current_scope = end($stack);
-						if (end($stack) != $test_keyword) {
-							trigger_localised_error('CORE0202', E_USER_WARNING, $keyword, SQ_KEYWORD_CONDITION_ELSE.'_'.$current_scope, SQ_KEYWORD_CONDITION_END.'_'.$current_scope, SQ_KEYWORD_CONDITION_BEGIN.'_'.$test_keyword);
-							$validated = false;
-							break 2; //exit out of loop
-						}
-					break;
-					case SQ_KEYWORD_CONDITION_END :
-						$current_scope = array_pop($stack);
-						if ($current_scope != $test_keyword) {
-							trigger_localised_error('CORE0202', E_USER_WARNING, $keyword, SQ_KEYWORD_CONDITION_ELSE.'_'.$current_scope, SQ_KEYWORD_CONDITION_END.'_'.$current_scope, SQ_KEYWORD_CONDITION_BEGIN.'_'.$test_keyword);
-							$validated = false;
-							break 2; //exit out of loop
-						}
-					break;
-				}//end switch
-		 	}// end if
-		}// end foreach
+		if (!$asset->saveSystemVersion()) $validated = false;
 
 		if (!$asset->setAttrValue('validated', $validated)) {
 			return false;

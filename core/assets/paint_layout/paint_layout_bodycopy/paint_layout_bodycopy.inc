@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.9 2005/08/23 23:17:01 gsherwood Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.10 2005/08/24 02:49:48 dmckee Exp $
 *
 */
 
@@ -49,7 +49,7 @@ require_once 'include/conditions_list.inc';
 * If an attribute is not recognised, the condition will be evaluated as false.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,39 +78,15 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 
 	/**
-	 * Returns the body of the painted asset
-	 *
-	 * @param object|Asset $asset 	the asset to paint
-	 *
-	 * @return string
-	 * @access public
-	 */
-	function paintAsset(&$asset)
+	* Saves the paint layout bodycopy's reusable data to its data directory
+	*
+	* @return bool
+	*/
+	function saveSystemVersion()
 	{
-		/*
-		 * Possibles keywords:
-		 *
-		 * Substitution
-		 *
-		 * 1. asset keywords
-		 * 2. %asset_content%
-		 *
-		 * Condition
-		 *
-		 * 3. %begin_SUBSTITUTION_KEYWORD% ... %end_SUBSTITUTION_KEYWORD%
-		 *
-		 */
-
-		$ret = '';
-
-		if (!$this->attr('validated')) {
-			trigger_localised_error('CORE0205', E_USER_WARNING, $asset->name, $asset->id);
-			ob_start();
-			$asset->printBody();
-			return ob_get_clean();
-		}
-
-		$this->asset_to_paint = &$asset;
+		// Use bodycopy's save functionality to store any notice links our containers have,
+		// and to store the original content before any substitutions take place
+		if (!parent::saveSystemVersion()) return false;
 
 		$content = $this->getRawBodycopyContent();
 		$required_keywords = $this->getKeywords();
@@ -133,7 +109,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 						switch ($condition_parts[1]) {
 							case SQ_KEYWORD_CONDITION_BEGIN :
 								$this->_addRequiredKeywordsFromEvaluatedKeyword($test_keyword, $required_substitution_keywords);
-								$value = 'if ($this->_evaluateKeyword(\''.$test_keyword.'\')) {';
+								$value = 'if (isset($paint_layout_keywords[\''.$test_keyword.'\']) && trim($paint_layout_keywords[\''.$test_keyword.'\']) != \'\') {';
 							break;
 							case SQ_KEYWORD_CONDITION_ELSE :
 								$value = '} else {';
@@ -157,33 +133,93 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			}
 		}
 
-		// get the value of all the required keywords
-		$keyword_replacements = array_merge($keyword_replacements, $this->_getAssetKeywordReplacements($asset, array_keys($required_substitution_keywords)));
-
+		// Replace all the conditional keywords in our content with valid PHP code
 		$content = replace_keywords($content, $keyword_replacements);
 
-		// Replace all './?a=' references with absolute URLs
-		$e = '|\./\?a=([0-9]+)|';
-		$matches = Array();
-		preg_match_all($e, $content, $matches);
-		$sq_plb_asset_url_list = $GLOBALS['SQ_SYSTEM']->am->getAssetHref($matches[1]);
+		// Save the substitution keywords we will need to lookup for each asset display
+		if (!string_to_file(serialize($required_substitution_keywords), $this->data_path.'/.sq_system/.keywords')) {
+			trigger_localised_error('CORE0048', E_USER_WARNING, $this->name);
+			return false;
+		}
 
+		// Change each ./?a= url to reference the sq_asset_url_list array, which
+		// is built from our container's notice links when content is printed.
 		$e = '|\./\?a=([0-9]+)([^0-9])|';
-		$with = '<'.'?php echo $sq_plb_asset_url_list[\\1]; ?'.'>\\2';
+		$with = '<'.'?php echo $sq_asset_url_list[\\1]; ?'.'>\\2';
 		$content = preg_replace($e, $with, $content);
 
-		$content = $php_end.$content.$php_begin;
+		$content = $content.$php_begin;
 
-		unset($this->keyword_replacements);
-		$this->keyword_replacements = &$keyword_replacements;
+		// save the contents of the bodycopy
+		if (!string_to_file($content, $this->data_path.'/content_file.php')) {
+			trigger_localised_error('CORE0047', E_USER_WARNING, $this->name);
+			return false;
+		}
 
-		// evaluate the content (necessary for the conditions written in PHP)
-		ob_start();
-			eval($content);
-			$ret = ob_get_contents();
-		ob_end_clean();
+		return true;
 
-		return $ret;
+	}//end saveSystemVersion()
+
+
+	/**
+	 * Returns the body of the painted asset
+	 *
+	 * @param object|Asset $asset 	the asset to paint
+	 *
+	 * @return string
+	 * @access public
+	 */
+	function paintAsset(&$asset)
+	{
+		/*
+		 * Possible keywords:
+		 *
+		 * SUBSTITUTION_KEYWORDS:
+		 *
+		 * 1. any asset keywords
+		 * 2. %asset_content%
+		 *
+		 * Condition
+		 *
+		 * 3. %begin_SUBSTITUTION_KEYWORD% ... %end_SUBSTITUTION_KEYWORD%
+		 *
+		 */
+
+		$ret = '';
+
+		if (!$this->attr('validated')) {
+			trigger_localised_error('CORE0205', E_USER_WARNING, $asset->name, $asset->id);
+			ob_start();
+			$asset->printBody();
+			return ob_get_clean();
+		}
+
+		$this->asset_to_paint = &$asset;
+
+		// Retrieve any assets referenced in this bodycopy, and get their urls for lookup
+		if (file_exists($this->data_path.'/.sq_system/.notice_links')) {
+			$linked_assets = unserialize(file_to_string($this->data_path.'/.sq_system/.notice_links'));
+			$sq_asset_url_list = $GLOBALS['SQ_SYSTEM']->am->getAssetHref($linked_assets);
+		}
+
+		// Find stored keyword replacements
+		$paint_layout_keywords = Array();
+		if (file_exists($this->data_path.'/.sq_system/.keywords')) {
+			$paint_layout_keywords = unserialize(file_to_string($this->data_path.'/.sq_system/.keywords'));
+			$paint_layout_keywords = $this->_getAssetKeywordReplacements($asset, array_keys($paint_layout_keywords));
+		}
+
+		// Read in content file, find keyword replacements, spit out the results
+		$content = '';
+		if (file_exists($this->data_path.'/content_file.php')) {
+			ob_start();
+				include($this->data_path.'/content_file.php');
+				$content = ob_get_contents();
+			ob_end_clean();
+			$content = replace_keywords($content, $paint_layout_keywords);
+		}
+
+		return $content;
 
 	}//end paintAsset()
 
@@ -320,7 +356,6 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		// function, because the logical conditions may need other keywords which are not in $required_keywords
 		$condition_list =& new Conditions_List($this, 'conditional_keywords');
 		$ret = array_merge($ret, $condition_list->evaluate($required_keywords, $ret, Array(false, true)));
-
 		return $ret;
 
 	}//end _getAssetKeywordReplacements()
@@ -336,7 +371,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	 */
 	function setAssociatedAssetType($asset_type='')
 	{
-		$asset->setAttrValue('associated_asset_type', $asset_type);
+		$this->setAttrValue('associated_asset_type', $asset_type);
 
 	}//end setAssociatedAssetType()
 
@@ -355,7 +390,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 
 	/**
-	 * Fill an array with the the list of all available keywords
+	 * Fill an array with the list of all available keywords
 	 *
 	 * @param Array 	$keywords			an array to fill
 	 * @param string 	$asset_type_code	the type of asset which should be
