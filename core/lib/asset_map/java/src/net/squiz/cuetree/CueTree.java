@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.6 2005/08/19 01:57:55 ndvries Exp $
+* $Id: CueTree.java,v 1.7 2005/08/25 05:26:57 ndvries Exp $
 *
 */
 
@@ -969,6 +969,7 @@ public class CueTree extends JTree {
 			// the CueGestureListener to determine where in the tree the node is to
 			// be added/moved
 			int index = -1;
+			int indexModifier = 0;
 
 			if (!lastPathWasParent) {
 				// if the last path wasn't the new parent and the current path
@@ -998,6 +999,11 @@ public class CueTree extends JTree {
 							stopCueMode();
 							return;
 						}
+
+						// if the new position is higher up in the tree
+						if (newIndex < oldIndex) {
+							indexModifier++;
+						}
 					}
 
 					index = getModel().getIndexOfChild(
@@ -1006,7 +1012,7 @@ public class CueTree extends JTree {
 					);
 
 					if (sourcePath.getParentPath() == null) {
-						index++;
+						indexModifier++;
 					}
 
 					parentPath = currentPath.getParentPath();
@@ -1014,6 +1020,8 @@ public class CueTree extends JTree {
 			} else {
 				parentPath = currentPath;
 			}
+
+			index += indexModifier;
 
 			// if the path was above the top path in the tree then the index
 			// is 0
