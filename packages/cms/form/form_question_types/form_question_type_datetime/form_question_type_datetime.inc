@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.17.2.2 2005/05/02 02:44:57 gsherwood Exp $
+* $Id: form_question_type_datetime.inc,v 1.17.2.3 2005/08/25 06:41:24 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.17.2.2 $
+* @version $Revision: 1.17.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -195,6 +195,7 @@ class Form_Question_Type_Datetime extends Form_Question
 	*/
 	function evaluate($answer=null)
 	{
+		$ok = false;
 		if (isset($_POST[$this->id.'value'])) {
 			// we need to create a variable for these value to pass by reference
 			$value = '';
@@ -382,8 +383,8 @@ class Form_Question_Type_Datetime extends Form_Question
 	function populate()
 	{
 		$val = '';
-		$value = $_POST[$this->id.'value'];
-		$show = $_POST[$this->id.'show'];
+		$value = isset($_POST[$this->id.'value']) ? $_POST[$this->id.'value'] : '';
+		$show =  isset($_POST[$this->id.'show']) ? $_POST[$this->id.'show'] : '';
 
 		if (strpos($show, 'y') === false) {
 			$val .= '----';
