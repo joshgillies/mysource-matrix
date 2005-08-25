@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.35 2005/08/22 04:35:57 lwright Exp $
+* $Id: ecommerce_checkout.inc,v 1.36 2005/08/25 01:24:31 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -188,7 +188,6 @@ class Ecommerce_Checkout extends Page
 			} else {
 				echo 'You cannot edit this order';
 			}
-
 			return;
 		}
 
@@ -200,9 +199,13 @@ class Ecommerce_Checkout extends Page
 		// if context is checkout, compare the global and local carts,
 		// if they are different, update the local cart
 		if (empty($request_action)) {
-
 			if (strcmp($this->print_context, 'checkout') == 0) {
 				$global_cart =& new Ecommerce_Cart_Processor();
+
+				// unset previous order id and delivery information
+				unset($_SESSION['SQ_TEMP_ORDER']['order_id']);
+				unset($_SESSION['SQ_TEMP_ORDER']['delivery_id']);
+				unset($_SESSION['SQ_TEMP_ORDER']['delivery_state']);
 
 				$local_cart_empty = empty($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
 
@@ -321,7 +324,6 @@ class Ecommerce_Checkout extends Page
 					$order_asset->setAttrValue('status_message', translate('ecom_order_status_failed'));
 
 					$this->_tmp['failure_summary'] = $delivery_method->getFailureSummary();
-
 					$this->print_context = 'failure';
 				}
 
@@ -331,12 +333,11 @@ class Ecommerce_Checkout extends Page
 					$this->print_context = 'failure';
 				}
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-
 				if ($this->print_context !== 'failure') {
+
 					// order processing successful!
 					$this->print_context = 'receipt';
 					$this->_tmp['delete_all_orders_after_printing'] = true;
-					
 					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_ecommerce_order_submitted', $order_asset);
 				}
 			break;
