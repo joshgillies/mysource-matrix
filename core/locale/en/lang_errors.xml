@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.12.2.1 2005/06/17 06:49:10 lwright Exp $
+* $Id: lang_errors.xml,v 1.12.2.2 2005/08/25 00:32:18 dmckee Exp $
 *
 */
 
@@ -1074,7 +1074,7 @@ As specified by %5$s and will be deferred</error><!-- core/include/package_manag
 
 	<error code="SYS0206">Shadow asset handler #%s does not exist</error><!-- core/include/asset_manager.inc: -->
 
-	<error code="SYS0207">Staic Screen Code "%s" already in use</error><!-- core/include/backend_outputter.inc: -->
+	<error code="SYS0207">Static Screen Code "%s" already in use</error><!-- core/include/backend_outputter.inc: -->
 
 	<error code="SYS0208">Status change failed, could not save to cache</error><!-- core/include/asset_status/asset_status_live.inc: -->
 <!-- core/include/asset_status/asset_status_live_approval.inc: -->
