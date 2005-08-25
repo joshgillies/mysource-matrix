@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.14 2005/06/23 23:01:09 gsherwood Exp $
+* $Id: lang_errors.xml,v 1.15 2005/08/25 00:31:24 dmckee Exp $
 *
 */
 
@@ -1074,7 +1074,7 @@ As specified by %5$s and will be deferred</error><!-- core/include/package_manag
 
 	<error code="SYS0206">Shadow asset handler #%s does not exist</error><!-- core/include/asset_manager.inc: -->
 
-	<error code="SYS0207">Staic Screen Code "%s" already in use</error><!-- core/include/backend_outputter.inc: -->
+	<error code="SYS0207">Static Screen Code "%s" already in use</error><!-- core/include/backend_outputter.inc: -->
 
 	<error code="SYS0208">Status change failed, could not save to cache</error><!-- core/include/asset_status/asset_status_live.inc: -->
 <!-- core/include/asset_status/asset_status_live_approval.inc: -->
@@ -1298,7 +1298,7 @@ Full Node Contents %3$s</error>
 	<error code="SYS0307">Asset #%1$s does not have the schema for field #%2$s applied</error>
 
 	<error code="SYS0308">Asset #%s is not a metadata field</error>
-	
+
 	<error code="SYS0309">You do not have permission to change the status of "%1$s" (#%2$s)</error>
 
 	<!-- CORE ASSETS -->
