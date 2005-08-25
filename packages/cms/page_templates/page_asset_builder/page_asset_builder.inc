@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.75 2005/08/16 00:38:10 ndvries Exp $
+* $Id: page_asset_builder.inc,v 1.76 2005/08/25 00:53:33 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -798,7 +798,7 @@ class Page_Asset_Builder extends Page
 						$height = $data['allow_multiple'] ? 4 : 1;
 						combo_box($code_name, $options, $data['allow_multiple'], $default,  $height);
 					break;
-
+					case 'radio':
 						if ($data['allow_multiple']) {
 							// print checkboxes
 							$checked = !$data['allow_empty'];
