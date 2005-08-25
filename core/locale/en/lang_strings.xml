@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.47 2005/08/22 04:30:50 lwright Exp $
+* $Id: lang_strings.xml,v 1.48 2005/08/25 02:33:01 amiller Exp $
 *
 */
 
@@ -920,6 +920,7 @@
 	<string source="denied">Denied</string>
 	<string source="applied">Applied</string>
 	<string source="access">Access</string>
+	<string source="permission">Permission</string>
 	<string source="version">Version</string>
 	<string source="view">View</string>
 	<string source="present">present</string>
@@ -950,6 +951,8 @@
 	<string source="priority">Priority</string>
 	<string source="sent">Sent</string>
 	<string source="read">Read</string>
+	<string source="write">Write</string>
+	<string source="admin">Admin</string>
 	<string source="recover">Recover</string>
 	<string source="purge">Purge</string>
 	<string source="div">DIV</string>
@@ -1131,9 +1134,10 @@
 	<string source="manually_cascade_permissions_option">Manually cascade permissions</string>
 	<string source="password_rules_configuration">Password Rules Configuration</string>
 	<string source="session_rules_configuration">Session Rules Configuration</string>
-
-	<string source="specific_access">Specific Access</string>
-	<string source="public_access">Public Access</string>
+	
+	<string source="permission_section">%1$s Permission</string>
+	<string source="specific_permission">Specific Permission</string>
+	<string source="public_permission">Public Permission</string>
 
 
 	<string source="item">item</string>

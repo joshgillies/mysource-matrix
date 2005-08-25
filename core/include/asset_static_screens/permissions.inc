@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.23 2005/06/29 07:21:24 ndvries Exp $
+* $Id: permissions.inc,v 1.24 2005/08/25 02:32:45 amiller Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 
@@ -133,12 +133,12 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 function paintPermissions(&$owner, &$o, &$ei)
 {
 	$prefix = $owner->getPrefix();
-	$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
+	$perms = Array('read' => SQ_PERMISSION_READ, 'write' => SQ_PERMISSION_WRITE, 'admin' => SQ_PERMISSION_ADMIN);
 
 	$admin_access = $owner->adminAccess('permissions');
 
 	foreach ($perms as $title => $perm) {
-		$o->openSection($title.' Access');
+		$o->openSection(translate('permission_section', translate($title)));
 
 		$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
 
@@ -217,11 +217,11 @@ function paintPermissions(&$owner, &$o, &$ei)
 				// if Public Access isn't set
 				if (!isset($direct['0'])) {
 					combo_box($prefix.'_permissions['.$perm.'][public_access][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), false, '');
-					echo ' '.translate('public_access').'<br/>';
+					echo ' '.translate('public_permission').'<br/>';
 				}
 
 				combo_box($prefix.'_permissions['.$perm.'][new][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), false, '');
-				echo ' '.translate('specific_access').' ';
+				echo ' '.translate('specific_permission').' ';
 				asset_finder($prefix.'_permissions['.$perm.'][new][userid]', 0, Array('user' => 'D', 'user_group' => 'D'));
 			$o->closeField();
 		}//end if
