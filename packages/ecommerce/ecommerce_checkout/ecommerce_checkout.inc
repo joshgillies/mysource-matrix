@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.37 2005/08/26 06:11:16 skim Exp $
+* $Id: ecommerce_checkout.inc,v 1.38 2005/08/26 06:55:42 rhoward Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -265,11 +265,11 @@ class Ecommerce_Checkout extends Page
 						$success = false;
 					}
 
+
 					// create a temporary order
 					$_SESSION['SQ_TEMP_ORDER']['delivery_id']		= $delivery_method_id;
 					$_SESSION['SQ_TEMP_ORDER']['delivery_state']	= $delivery_method->getState();
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($delivery_method);
-
 				}
 
 				// if cart is empty, there's no point in checking out
@@ -316,6 +316,8 @@ class Ecommerce_Checkout extends Page
 						break;
 					}
 				}
+
+				$delivery_method->setState($_SESSION['SQ_TEMP_ORDER']['delivery_state']);
 
 				$delivery_processing_status = $delivery_method->processDelivery($order_asset);
 
