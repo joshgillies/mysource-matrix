@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.98 2005/08/24 03:14:21 skim Exp $
+* $Id: general.inc,v 1.99 2005/08/26 06:50:11 mmcintyre Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.99 $
 * @package MySource_Matrix
 */
 
@@ -692,6 +692,8 @@ function iso8601_ts($iso8601)
 /**
 * Takes a unix timestamp for it and returns an ISO-8601 compliant date-time string
 *
+* (Note that this is not really ISO8601 format, but SQL:1999 (ISO9075) format!!)
+*
 * @param int	$timestamp	unix timestamp
 *
 * @return string
@@ -699,9 +701,7 @@ function iso8601_ts($iso8601)
 */
 function ts_iso8601($timestamp)
 {
-	$time_zone_designater = date('O');
-	$tzd_iso8601 = substr($time_zone_designater, 0, 3).':'.substr($time_zone_designater, -2);
-	return date('Y-m-d\TH:i:s', $timestamp).$tzd_iso8601;
+	return date('Y-m-d H:i:s', $timestamp);
 
 }//end ts_iso8601()
 
