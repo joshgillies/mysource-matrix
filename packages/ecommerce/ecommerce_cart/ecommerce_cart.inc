@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.17 2005/08/23 06:31:10 gsherwood Exp $
+* $Id: ecommerce_cart.inc,v 1.18 2005/08/26 06:41:45 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -235,7 +235,7 @@ class Ecommerce_Cart extends Listing_Engine
 		}
 
 		// get any extra keyword replacements from this asset
-		$replacements = $this->getContentsKeywordReplacements() + $replacements;
+		$replacements = $this->getContentsKeywordReplacements($keywords) + $replacements;
 
 		if (!empty($this->_tmp['cart_updated'])) {
 			$replacements['cart_updated'] = $this->attr('cart_updated_text');
@@ -244,7 +244,7 @@ class Ecommerce_Cart extends Listing_Engine
 		}
 
 		$num_per_page = $this->attr('num_per_page');
-		$result_page = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
+		$result_page = (isset($_REQUEST['result_page'])) ? (int) $_REQUEST['result_page'] : 1;
 		if ($result_page <= 0) $result_page = 1;
 
 		// get our page chunk here
@@ -288,17 +288,22 @@ class Ecommerce_Cart extends Listing_Engine
 			}
 		}
 
-		// pagination
-		$field_name = 'result_page';
-		$this->registerFormField($field_name);
 
-		$value = array_get_index($_REQUEST, 'result_page', 1);
-		hidden_field($field_name, $value);
+		// pagination
+
+		if ($num_per_page > 0) {
+			$this->registerFormField('result_page');
+			hidden_field('result_page', $result_page);
+		}
 
 		//line below see above
 		$replacements['checkout_cart_button']  = $checkout_cart_button;
 		$replacements['checkout_cart_href']    = $checkout_cart_href;
-		$replacements['cart_update_button']    = $this->getSubmitButtonKeywordReplacement();
+
+
+		if (in_array('cart_update_button', $keywords)) {
+			$replacements['cart_update_button']    = $this->getSubmitButtonKeywordReplacement();
+		}
 		$replacements['asset_listing']         = $global_contents;
 		$replacements['asset_count']           = $num_kids;
 		$replacements['product_count']         = $cart->getCount();
