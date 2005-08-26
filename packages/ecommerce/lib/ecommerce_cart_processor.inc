@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.4 2005/08/18 06:39:35 lwright Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.5 2005/08/26 07:14:35 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -191,6 +191,19 @@ class Ecommerce_Cart_Processor
 		return $count;
 
 	}//end getCount()
+
+
+	/**
+	* Return the count of the unique items currently in this cart
+	*
+	* @return double
+	* @access public
+	*/
+	function getUniqueCount()
+	{
+		return count($this->cart);
+
+	}//end getUniqueCount()
 
 
 	/**

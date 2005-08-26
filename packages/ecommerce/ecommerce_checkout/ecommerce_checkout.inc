@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.38 2005/08/26 06:55:42 rhoward Exp $
+* $Id: ecommerce_checkout.inc,v 1.39 2005/08/26 07:14:34 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -783,6 +783,8 @@ class Ecommerce_Checkout extends Page
 		$keywords['error_messages']				= translate('ecom_checkout_keyword_error_messages');
 		$keywords['cart_summary']				= translate('ecom_checkout_keyword_cart_summary');
 		$keywords['go_to_confirmation_button']	= translate('ecom_checkout_keyword_go_to_confirmation_button');
+		$keywords['items_count']				= translate('ecom_checkout_keyword_items_count');
+		$keywords['items_total_count']			= translate('ecom_checkout_keyword_total_items_count');
 
 		return $keywords;
 
@@ -801,6 +803,8 @@ class Ecommerce_Checkout extends Page
 		$keywords['confirmation_summary']		= translate('ecom_checkout_keyword_confirmation_summary');
 		$keywords['confirm_order_button']		= translate('ecom_checkout_keyword_confirm_order_button');
 		$keywords['return_to_checkout_button']	= translate('ecom_checkout_keyword_return_to_checkout_button');
+		$keywords['items_count']				= translate('ecom_checkout_keyword_items_count');
+		$keywords['items_total_count']			= translate('ecom_checkout_keyword_total_items_count');
 
 		return $keywords;
 
@@ -1071,6 +1075,36 @@ class Ecommerce_Checkout extends Page
 		return ob_get_clean();
 
 	}//end getFailureSummaryKeywordReplacement()
+
+
+	/**
+	* Get Keyword Replacement for 'items_count' keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getItemsCountKeywordReplacement()
+	{
+		$cart =& new Ecommerce_Cart_Processor();
+		$cart->setCartContainer($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
+		return $cart->getUniqueCount();
+
+	}//end getItemsCountKeywordReplacement()
+
+
+	/**
+	* Get Keyword Replacement for 'items_total_count' keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getItemsTotalCountKeywordReplacement()
+	{
+		$cart =& new Ecommerce_Cart_Processor();
+		$cart->setCartContainer($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
+		return $cart->getCount();
+
+	}//end getItemsTotalCountKeywordReplacement()
 
 
 }//end class
