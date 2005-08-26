@@ -9,9 +9,10 @@ $primary_url = '';
 
 if ($site_network_id) {
 	$site_network = &$GLOBALS['SQ_SYSTEM']->am->getAsset($site_network_id);
-	if (!is_null($site_network)) $primary_url = $site_network->getPrimaryURL();
+	if (!is_null($site_network)) {
+		$primary_url = $site_network->getPrimaryURL();
+	}
 }
-
 
 if ($primary_url == sq_web_path('root_url')) {
 
@@ -24,15 +25,10 @@ if ($primary_url == sq_web_path('root_url')) {
 	}
 
 	echo 'var SESSIONID = "'.session_id().'";';
-	?>
-	function start_session_handler(url) {
-		JsHttpConnector.submitRequest(url + '&sessionid=' + SESSIONID);
-	}
-	<?php
 
 } else {
 
-	if (!isset($_GET['sessionid'])) {
+	if (!isset($_REQUEST['SQ_SYSTEM_SESSION'])) {
 		// something is definately wrong
 		trigger_localised_error('SYS0013', E_USER_ERROR);
 	}
@@ -40,8 +36,16 @@ if ($primary_url == sq_web_path('root_url')) {
 		trigger_localised_error('SYS0014', E_USER_ERROR);
 	}
 
-	$site_network->syncSessionFile($_REQUEST['sessionid']);
+	echo 'var SESSIONID = "'.session_id().'";';
+
+	$site_network->syncSessionFile($_REQUEST['SQ_SYSTEM_SESSION']);
 
 }//end if
+?>
+	function start_session_handler(url) {
+		JsHttpConnector.submitRequest(url + '&sessionid=' + SESSIONID);
+	}
+
+<?php
 
 ?>
