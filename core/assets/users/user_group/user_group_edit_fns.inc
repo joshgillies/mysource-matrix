@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.24 2005/08/12 05:05:56 dheppell Exp $
+* $Id: user_group_edit_fns.inc,v 1.25 2005/08/26 03:27:48 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -123,8 +123,20 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$unrestricted = !$this->isRestricted($asset, $prefix);
-		if (isset($_POST[$prefix.'_unrestricted']) && $_POST[$prefix.'_unrestricted'] && !$unrestricted) {
+		// work out if we wanna do any processing
+		$release_restrictions = (isset($_REQUEST[$prefix.'_unrestricted']) && $this->isRestricted($asset, $prefix));
+
+		if($release_restrictions) {
+			$sql = 'DELETE FROM
+						sq_ast_edit_access
+					WHERE
+						userid = '.$db->quoteSmart($asset->id).'
+			';
+			
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+		}
+		/*if (isset($_POST[$prefix.'_unrestricted']) && $_POST[$prefix.'_unrestricted'] && !$unrestricted) {
 
 			$sql = 'INSERT INTO
 						sq_ast_edit_access
@@ -157,7 +169,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
-		}
+		}*/
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
@@ -181,7 +193,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	function isRestricted(&$asset, $prefix)
 	{
 		$current = $this->getCurrentRestrictions($asset);
-		return !isset($current['0']['0']);
+		return !empty($current);
 
 	}//end isRestricted()
 
@@ -307,6 +319,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processTypeRestrictions(&$asset, &$o, $prefix)
 	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$current = $this->getCurrentRestrictions($asset);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -350,7 +363,6 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		 //  REMOVE ACCESS TO SCREENS  //
 		////////////////////////////////
 		if (isset($_POST[$prefix.'_remove_type_screen'])) {
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$doomed_screens = $_POST[$prefix.'_remove_type_screen'];
 			foreach ($doomed_screens as $type_code => $screen_data) {
 				foreach ($screen_data as $doomed_screen => $on) {
