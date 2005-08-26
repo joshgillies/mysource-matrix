@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.33 2005/08/23 23:05:26 skim Exp $
+* $Id: general.inc,v 1.34 2005/08/26 05:30:37 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package Fudge
 * @subpackage General
 */
@@ -410,8 +410,15 @@ function security_key_image($word, $w, $h, $bg='FFFFFF', $text='000000', $border
 		// create an image we will use to print the characters on and then
 		// another image $zoom times bigger where we will print the larger
 		// zoomed text for easier reading
-		$test_im  = @imagecreate($w, $h) || die ('Cannot Initialize new GD image stream');
-		$final_im = @imagecreate(($w * $zoom), ($h * $zoom)) || die ('Cannot Initialize new GD image stream');
+		if (!($test_im = @imagecreate($w, $h))) {
+			trigger_error('Cannot Initialize new GD image stream', E_USER_WARNING);
+			return false;
+		}
+
+		if (!$final_im = @imagecreate(($w * $zoom), ($h * $zoom))) {
+			trigger_error('Cannot Initialize new GD image stream', E_USER_WARNING);
+			return false;
+		}
 
 		// create some colours we will use in the image
 		// NOTE: The first colour allocated is used for the background
