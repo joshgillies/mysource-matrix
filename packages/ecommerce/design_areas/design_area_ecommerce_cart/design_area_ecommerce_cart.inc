@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_ecommerce_cart.inc,v 1.7 2005/08/04 01:34:12 lwright Exp $
+* $Id: design_area_ecommerce_cart.inc,v 1.8 2005/08/26 06:43:58 mmcintyre Exp $
 *
 */
 
@@ -46,26 +46,31 @@ class Design_Area_Ecommerce_Cart extends Design_Area
 	*/
 	function printVar($var, $args, $value_prefix='', $value_suffix='')
 	{
-		$lib_path = SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 		switch ($var) {
 			case 'cart_href' :
-				$cart_assetid = (int) $this->attr('cart');
-				$url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($cart_assetid);
-				echo $url;
+				echo '<','?php';
+				?>
+					$url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(<?php echo $this->attr('cart'); ?>);
+					echo $url;
+				<?php
+				echo '?','>';
 				break;
 
 			case 'checkout_href' :
-				$checkout_assetid = (int) $this->attr('ecom_form');
-				$url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($checkout_assetid);
-				echo $url;
+				echo '<','?php';
+				?>
+					$url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(<?php echo $this->attr('ecom_form'); ?>);
+					echo $url;
+				<?php
+				echo '?','>';
 				break;
 
 			case 'items' :
 				echo '<','?php';
 				?>
-				require_once '<?php echo $lib_path ?>';
-				$cart =& new Ecommerce_Cart_Processor();
-				echo ' '.($cart->getCount() == 1) ? translate('item') : translate('items');
+					require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
+					$cart =& new Ecommerce_Cart_Processor();
+					echo ' '.($cart->getCount() == 1) ? translate('item') : translate('items');
 				<?php
 				echo '?','>';
 				break;
@@ -73,9 +78,9 @@ class Design_Area_Ecommerce_Cart extends Design_Area
 			case 'count' :
 				echo '<','?php';
 				?>
-				require_once '<?php echo $lib_path ?>';
-				$cart =& new Ecommerce_Cart_Processor();
-				echo $cart->getCount();
+					require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
+					$cart =& new Ecommerce_Cart_Processor();
+					echo $cart->getCount();
 				<?php
 				echo '?','>';
 				break;
@@ -83,9 +88,9 @@ class Design_Area_Ecommerce_Cart extends Design_Area
 			case 'total' :
 				echo '<','?php';
 				?>
-				require_once '<?php echo $lib_path ?>';
-				$cart =& new Ecommerce_Cart_Processor();
-				echo number_format($cart->getTotal(),2);
+					require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
+					$cart =& new Ecommerce_Cart_Processor();
+					echo number_format($cart->getTotal(), 2);
 				<?php
 				echo '?','>';
 				break;
