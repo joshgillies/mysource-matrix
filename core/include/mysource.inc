@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.139 2005/08/17 23:49:12 dheppell Exp $
+* $Id: mysource.inc,v 1.140 2005/08/26 04:20:24 dmckee Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.139 $
+* @version $Revision: 1.140 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1265,6 +1265,9 @@ class MySource
 			if (is_null($pref)) {
 				return $preferences;
 			} else {
+				if (!isset($preferences[$asset_type]) || !isset($preferences[$asset_type][$pref])) {
+					return $preferences;
+				}
 				$pref_value = $preferences[$asset_type][$pref];
 				if ($value_only) {
 					return $pref_value['default'];
