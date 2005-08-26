@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.87 2005/08/22 23:29:07 dmckee Exp $
+* $Id: listing_engine.inc,v 1.88 2005/08/26 06:39:47 mmcintyre Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -304,7 +304,8 @@ class Listing_Engine extends Page
 		}
 
 		$selections = $this->attr('asset_selections');
-		if (!empty($used_fields) || count($selections) > 0 || $this->requires_form) {
+
+		if (!empty($used_fields) || $this->requires_form) {
 
 			// include the 'select all' js if required
 			foreach ($selections as $selection_name => $selection_settings) {
@@ -605,7 +606,7 @@ class Listing_Engine extends Page
 					WHERE
 							assetid IN ('.implode(', ', $todo_keys).')
 						AND status IN ('.implode(', ', $wanted_statuses).')';
-	
+
 			$wanted_assets = $db->getCol($sql);
 			assert_valid_db_result($wanted_assets);
 
@@ -619,7 +620,7 @@ class Listing_Engine extends Page
 		// check to see if this is a special user without restrictions
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if (!$user_restrictions) return;
-		
+
 		if (empty($wanted_statuses)) {
 			// get a list of assets that are not live
 			$sql = 'SELECT
@@ -1180,6 +1181,9 @@ class Listing_Engine extends Page
 					$selection_defaults = $this->getAssetSelectionDefaults();
 
 					foreach ($selections as $selection_name => $settings) {
+						if (!in_array($selection_name.'_check_all_in_group', $format_keywords)) continue;
+						$this->registerFormField($selection_name.'_check_all_in_group');
+
 						// predefine some commonly used settings, for brevity's sake
 						$selection_options = array_get_index($settings, 'options', $selection_defaults['options']);
 						$selection_allow_multiple = array_get_index($selection_options, 'allow_multiple', $selection_defaults['options']['allow_multiple']);
@@ -1522,7 +1526,13 @@ class Listing_Engine extends Page
 		if (is_array($selections) && !empty($selections)) {
 
 			foreach ($selections as $selection_name => $settings) {
-				ob_start();
+
+				$buffering = in_array($selection_name.'_asset_selection', $bc_keywords);
+
+				if ($buffering) {
+					ob_start();
+					$this->registerFormField($selection_name.'_asset_selection');
+				}
 
 				// predefine some commonly used settings, for brevity's sake
 				$selection_options = array_get_index($settings, 'options', $selection_defaults['options']);
@@ -1543,52 +1553,63 @@ class Listing_Engine extends Page
 				switch (array_get_index($settings, 'type', $selection_defaults['type'])) {
 					case 'textbox':
 						$selection_id = str_replace(' ', '_', $selection_name.'['.$assetid.']');
-						if ($selection_restrict_enable) {
-							int_text_box($selection_id, $selection_value, $selection_allow_negative, 3, $selection_restrict_min, $selection_restrict_max);
-						} else {
-							int_text_box($selection_id, $selection_value, $selection_allow_negative, 3);
+						if ($buffering) {
+							if ($selection_restrict_enable) {
+								int_text_box($selection_id, $selection_value, $selection_allow_negative, 3, $selection_restrict_min, $selection_restrict_max);
+							} else {
+								int_text_box($selection_id, $selection_value, $selection_allow_negative, 3);
+							}
 						}
 					break;
 
 					case 'selection':
-						// list contents
-						$selection_list = Array();
-						if (!empty($settings['options']['restrict_range']['enable'])) {
-							for ($ii = $selection_restrict_min; $ii <= $selection_restrict_max; $ii++) {
-								$selection_list[$ii] = $ii;
-							}
-						} else {
-							$selection_list = Array('0');
-						}
-
-						// check that the value is on the list
-						if (!isset($selection_list[$selection_value])) {
-							$selection_value = reset($selection_list);
-						}
-
-						// list display
 						$selection_id = str_replace(' ', '_', $selection_name.'['.$assetid.']');
-						combo_box($selection_id, $selection_list, $selection_allow_multiple, $selection_value);
+						if ($buffering) {
+							// list contents
+							$selection_list = Array();
+							if (!empty($settings['options']['restrict_range']['enable'])) {
+								for ($ii = $selection_restrict_min; $ii <= $selection_restrict_max; $ii++) {
+									$selection_list[$ii] = $ii;
+								}
+							} else {
+								$selection_list = Array('0');
+							}
+
+							// check that the value is on the list
+							if (!isset($selection_list[$selection_value])) {
+								$selection_value = reset($selection_list);
+							}
+
+							// list display
+							combo_box($selection_id, $selection_list, $selection_allow_multiple, $selection_value);
+						}
 					break;
 
 					case 'radio':
 					default:
 						if ($selection_allow_multiple) {
 							$selection_id = str_replace(' ', '_', $selection_name.'['.$assetid.']');
-							check_box($selection_id, '1', ($selection_value > 0 ? true : false), "sq_listing_check_state(this, '".$selection_name."')");
 
-							// the flag is used to determine whether a checkbox is
-							// present and not ticked, or not present at all
-							hidden_field($selection_name.'_flag', '1');
+							if ($buffering) {
+								check_box($selection_id, '1', ($selection_value > 0 ? true : false), "sq_listing_check_state(this, '".$selection_name."')");
+
+								// the flag is used to determine whether a checkbox is
+								// present and not ticked, or not present at all
+								hidden_field($selection_name.'_flag', '1');
+							}
 						} else {
 							$selection_id = str_replace(' ', '_', $selection_name);
-							radio_button($selection_id, $assetid, ($selection_value == $assetid ? true : false));
+							if ($buffering) {
+								radio_button($selection_id, $assetid, ($selection_value == $assetid ? true : false));
+							}
 						}
 					break;
 				}
 
 				// set selection and its ids keywords
-				$keywords[$selection_name.'_asset_selection'] = ob_get_clean();
+				if ($buffering) {
+					$keywords[$selection_name.'_asset_selection'] = ob_get_clean();
+				}
 				$keywords[$selection_name.'_selection_id'] = $selection_id;
 			}
 		}
@@ -2456,18 +2477,23 @@ class Listing_Engine extends Page
 	* )
 	* </pre>
 	*
+	* @param array	$keywords	the keywords from the content
+	*
 	* @access public
 	* @return array(string => string)
 	*/
-	function getContentsKeywordReplacements()
+	function getContentsKeywordReplacements($keywords=Array())
 	{
-
 		$replacements = Array();
 
 		$selections = $this->attr('asset_selections');
 		$selection_defaults = $this->getAssetSelectionDefaults();
 
 		foreach ($selections as $selection_name => $settings) {
+
+			if (!in_array($selection_name.'_check_all', $keywords)) continue;
+			$this->registerFormField($selection_name.'_check_all');
+
 			// predefine some commonly used settings, for brevity's sake
 			$selection_options = array_get_index($settings, 'options', $selection_defaults['options']);
 			$selection_allow_multiple = array_get_index($selection_options, 'allow_multiple', $selection_defaults['options']['allow_multiple']);
