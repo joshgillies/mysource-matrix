@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order.inc,v 1.8 2005/08/18 06:37:30 lwright Exp $
+* $Id: ecommerce_order.inc,v 1.9 2005/08/26 06:48:30 mmcintyre Exp $
 *
 */
 
@@ -237,7 +237,7 @@ class Ecommerce_Order extends Asset
 			// save attributes
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
 				$success = false;
-			} elseif (!$this->saveAttributes()) {
+			} else if (!$this->saveAttributes()) {
 				$success = false;
 			}
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
