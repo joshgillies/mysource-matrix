@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.22.2.2 2005/08/15 03:54:32 mmcintyre Exp $
+* $Id: user_group_edit_fns.inc,v 1.22.2.3 2005/08/26 04:58:29 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22.2.2 $
+* @version $Revision: 1.22.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -119,51 +119,26 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processUnrestricted(&$asset, &$o, $prefix)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		// work out if we wanna do any processing
+		$release_restrictions = (isset($_REQUEST[$prefix.'_unrestricted']) && $this->isRestricted($asset, $prefix));
 
-		$unrestricted = !$this->isRestricted($asset, $prefix);
-		if (isset($_POST[$prefix.'_unrestricted']) && $_POST[$prefix.'_unrestricted'] && !$unrestricted) {
-
+		if($release_restrictions) {
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-			$sql = 'INSERT INTO
-						sq_ast_edit_access
-						(
-							userid,
-							type_code,
-							screen,
-							section
-						)
-						VALUES
-						(
-							'.$db->quoteSmart($asset->id).',
-							'.$db->quoteSmart('0').',
-							'.$db->quoteSmart('0').',
-							'.$db->quoteSmart('0').'
-						)';
-
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
-
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-		} else if (!isset($_POST[$prefix.'_unrestricted']) && $unrestricted) {
-
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
+		
 			$sql = 'DELETE FROM
 						sq_ast_edit_access
 					WHERE
-							userid		= '.$db->quote($asset->id).'
-						AND	type_code	= '.$db->quote('0').'
-						AND	screen		= '.$db->quote('0').'
-						AND	section		= '.$db->quote('0');
+						userid = '.$db->quoteSmart($asset->id).'
+			';
 
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
-
+			
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		}
+
+		
 
 		return true;
 
@@ -185,7 +160,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	function isRestricted(&$asset, $prefix)
 	{
 		$current = $this->getCurrentRestrictions($asset);
-		return !isset($current['0']['0']);
+		return !empty($current);
 
 	}//end isRestricted()
 
@@ -304,6 +279,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processTypeRestrictions(&$asset, &$o, $prefix)
 	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$current = $this->getCurrentRestrictions($asset);

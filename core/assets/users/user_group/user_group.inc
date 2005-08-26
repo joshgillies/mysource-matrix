@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group.inc,v 1.16.2.2 2005/08/12 05:23:24 mmcintyre Exp $
+* $Id: user_group.inc,v 1.16.2.3 2005/08/26 04:58:29 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16.2.2 $
+* @version $Revision: 1.16.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,46 +49,6 @@ class User_Group extends Folder
 		$this->Folder($assetid);
 
 	}//end constructor
-
-
-	/**
-	* Perform any additional processing required during the creation of this asset
-	*
-	* For example, creating other child assets should be performed in this method
-	*
-	* @param array	&$link	information used to create the initial link
-	*
-	* @access private
-	* @return boolean
-	*/
-	function _createAdditional(&$link)
-	{
-		// assign unrestricted access initially
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$sql = 'INSERT INTO sq_ast_edit_access
-			(
-				userid,
-				type_code,
-				screen,
-				section
-			)
-			VALUES
-			(
-				'.$db->quoteSmart($this->id).',
-				'.$db->quoteSmart('0').',
-				'.$db->quoteSmart('0').',
-				'.$db->quoteSmart('0').'
-			)';
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-		return true;
-
-	}//end _createAdditional()
 
 
 	/**
