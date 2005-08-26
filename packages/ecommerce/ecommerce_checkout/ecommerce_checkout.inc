@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.36 2005/08/25 01:24:31 skim Exp $
+* $Id: ecommerce_checkout.inc,v 1.37 2005/08/26 06:11:16 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -138,12 +138,14 @@ class Ecommerce_Checkout extends Page
 
 		// print context
 		$this->_printContext();
-
 		if (array_get_index($this->_tmp, 'delete_all_orders_after_printing', false)) {
-			// clear global cart
-			$cart =& new Ecommerce_Cart_Processor();
-			$cart->clearCart();
-			unset($cart);
+
+			if (!isset($_SESSION['SQ_TEMP_ORDER']['editing_order'])) {
+				// clear global cart
+				$cart =& new Ecommerce_Cart_Processor();
+				$cart->clearCart();
+				unset($cart);
+			}
 
 			// clear local cart
 			$_SESSION['SQ_TEMP_ORDER'] = Array();
@@ -166,6 +168,7 @@ class Ecommerce_Checkout extends Page
 		// edit Ecommerce Order. Check permission and lock order
 		// if the user doesn't have permission or lock, return without setting
 		// print_context
+
 		$order_id = array_get_index($_REQUEST, 'edit_order_id', 0);
 		if (!empty($order_id)) {
 			$order =& $GLOBALS['SQ_SYSTEM']->am->getAsset($order_id);
@@ -181,6 +184,9 @@ class Ecommerce_Checkout extends Page
 
 					$this->print_context = 'checkout';
 
+					// set edit flag true
+					$_SESSION['SQ_TEMP_ORDER']['editing_order'] = true;
+
 				} else {
 					echo 'This order is currently being edited';
 				}
@@ -189,6 +195,7 @@ class Ecommerce_Checkout extends Page
 				echo 'You cannot edit this order';
 			}
 			return;
+
 		}
 
 		// default print context is'checkout'
@@ -206,6 +213,7 @@ class Ecommerce_Checkout extends Page
 				unset($_SESSION['SQ_TEMP_ORDER']['order_id']);
 				unset($_SESSION['SQ_TEMP_ORDER']['delivery_id']);
 				unset($_SESSION['SQ_TEMP_ORDER']['delivery_state']);
+				unset($_SESSION['SQ_TEMP_ORDER']['editing_order']);
 
 				$local_cart_empty = empty($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
 
@@ -274,6 +282,11 @@ class Ecommerce_Checkout extends Page
 				} else {
 					$this->print_context = 'checkout';
 				}
+
+				if (isset($_SESSION['SQ_TEMP_ORDER']['editing_order'])) {
+					$_SESSION['SQ_TEMP_ORDER']['editing_order'] = true;
+				}
+
 			break;
 
 			case 'return_to_checkout':
