@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.119.2.11 2005/08/17 23:50:19 dheppell Exp $
+* $Id: mysource.inc,v 1.119.2.12 2005/08/26 04:17:37 dmckee Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.119.2.11 $
+* @version $Revision: 1.119.2.12 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1222,7 +1222,19 @@ class MySource
 		static $user_prefs = Array(); // per-script-execution cache
 		if (empty($this->user->id)) {
 			include SQ_DATA_PATH.'/private/conf/preferences.inc';
-			return $preferences;
+			if (is_null($pref)) {
+				return $preferences;
+			} else {
+				if (!isset($preferences[$asset_type]) || !isset($preferences[$asset_type][$pref])) {
+					return $preferences;
+				}
+				$pref_value = $preferences[$asset_type][$pref];
+				if ($value_only) {
+					return $pref_value['default'];
+				} else {
+					return $pref_value;
+				}
+			}
 		}
 		if (!isset($user_prefs[$this->user->id])) {
 			$groups = $this->user->getGroups();
