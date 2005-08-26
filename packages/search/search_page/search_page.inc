@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.132 2005/08/23 05:54:16 mmcintyre Exp $
+* $Id: search_page.inc,v 1.133 2005/08/26 06:47:11 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.132 $
+* @version $Revision: 1.133 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1339,7 +1339,7 @@ class Search_Page extends Listing_Engine
 		}
 
 		// get any extra keyword replacements from asset_listing
-		$parent_replaces = $this->getContentsKeywordReplacements();
+		$parent_replaces = $this->getContentsKeywordReplacements($keywords);
 
 		foreach ($keywords as $keyword) {
 			$replacement = "%$keyword%";
