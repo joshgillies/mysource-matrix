@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_edit_fns.inc,v 1.8 2005/08/16 23:58:08 dheppell Exp $
+* $Id: ldap_user_edit_fns.inc,v 1.9 2005/08/28 23:28:27 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user_edit_fns.inc
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -89,6 +89,9 @@ class Ldap_User_Edit_Fns extends Backend_User_Edit_Fns
 			$count = count($field_data);
 			if ($count > 1) $field_name .= ' ('.$count.' values)';
 			$o->openField($field_name);
+				if (isset($field_data['value']) && is_array($field_data['value'])) {
+					$field_data['value'] = implode(',', $field_data['value']);
+				}
 				echo implode('<br />', $field_data);
 			$o->closeField();
 		}
