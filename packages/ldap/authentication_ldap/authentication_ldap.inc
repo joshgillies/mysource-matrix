@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.7 2005/07/05 05:00:54 tbarrett Exp $
+* $Id: authentication_ldap.inc,v 1.8 2005/08/29 03:36:03 dmckee Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -109,7 +109,7 @@ class Authentication_LDAP extends Authentication
 			$this->_registerInvalidLogin($user);
 		}
 
-		return $null;
+		return null;
 
 	}//end authenticateUser()
 
