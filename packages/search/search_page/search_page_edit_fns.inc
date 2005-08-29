@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.61 2005/08/15 00:52:09 tbarrett Exp $
+* $Id: search_page_edit_fns.inc,v 1.62 2005/08/29 00:57:00 mmcintyre Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1526,7 +1526,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 												$options['inherit'][$i] = $inherit;
 												$i++;
 											}
-											asset_type_chooser($prefix.'_'.$current_type.'_children', true, $options, true, false, true);
+											asset_type_chooser($prefix.'_'.$current_type.'_children', true, $options, null, true, true);
 										} else {
 											echo implode(', ', $am->getTypeInfo(array_keys($type_settings), 'name'));
 										}
