@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.39 2005/08/24 04:23:58 skim Exp $
+* $Id: datetime.inc,v 1.40 2005/08/29 00:28:48 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     General function for manipulating dates and times
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package Fudge
 * @subpackage General
 */
@@ -694,23 +694,6 @@ function iso8601_time_component($iso8601)
 /**
 * Returns true if passed string is a valid ISO8601 time with at least a full date
 *
-* The following formats are valid according to iso8601.
-* <PRE>
-*	Year:
-*		YYYY (eg 1997)
-*	Year and month:
-*		YYYY-MM (eg 1997-07)
-*	Complete date:
-*		YYYY-MM-DD (eg 1997-07-16)
-*	Complete date plus hours and minutes:
-*		YYYY-MM-DDThh:mmTZD (eg 1997-07-16T19:20+01:00)
-*	Complete date plus hours, minutes and seconds:
-*		YYYY-MM-DDThh:mm:ssTZD (eg 1997-07-16T19:20:30+01:00)
-*	Complete date plus hours, minutes, seconds and a decimal fraction of a second
-*		YYYY-MM-DDThh:mm:ss.sTZD (eg 1997-07-16T19:20:30.45+01:00)
-* </PRE>
-* reference : http://www.w3.org/TR/NOTE-datetime
-*
 * @param string	$iso8601	The date that we are going to check
 *
 * @return boolean
@@ -718,7 +701,7 @@ function iso8601_time_component($iso8601)
 */
 function is_iso8601($iso8601)
 {
-	return (boolean)preg_match('/^[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2}(\.[0-9]{1,2}){0,1}){0,1}[\+|-]{1}[0-9]{2}:[0-9]{2}){0,1}){0,1}){0,1}$/', $iso8601);
+	return (boolean)preg_match("/^\-?[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}([ T]([0-9\-]{2}\:?){3})?$/",$iso8601);
 
 }//end is_iso8601()
 
