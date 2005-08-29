@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.49 2005/08/26 03:27:48 dheppell Exp $
+* $Id: lang_strings.xml,v 1.50 2005/08/29 01:55:51 dheppell Exp $
 *
 */
 
@@ -781,8 +781,6 @@
 	<string source="cannot_delete_workspace-user_link">You cant delete the link between a user and their workspace</string>
 	<string source="user_group_unrestricted_access_granted">Unrestricted access has been granted. No security restrictions apply on this user group.</string>
 	<string source="user_group_unrestricted_access_denied">Unrestricted access has not been granted. Security restrictions do apply on this user group.</string>
-	<string source="grant_unrestricted_access">Grant Unrestricted Access</string>
-	<string source="grant_unrestricted_access_note">When this box is selected, unrestricted access is granted to all assets. Note this will delete all currently applied restrictions.&lt;br /&gt;To apply restrictions, select which assets to apply restrictions to in the section below</string>
 	<string source="grant_screen_access">Grant access for screen</string>
 	<string source="granted_unrestricted_acces_explanation">You have granted access to all screens so you cannot grant access to any more. Remove the "All Screens" option to futher customise this asset type</string>
 	<string source="remove_all_screens_explanation">If you delete the "All Screens" option, the "Details" screen will be added as a default. You can choose to remove this later.</string>
