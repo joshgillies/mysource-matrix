@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.98.2.10 2005/08/17 01:21:58 mmcintyre Exp $
+* $Id: search_page.inc,v 1.98.2.11 2005/08/29 00:10:20 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.98.2.10 $
+* @version $Revision: 1.98.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1733,8 +1733,8 @@ class Search_Page extends Listing_Engine
 
 		$fields = $this->attr('fields');
 		$mode = array_get_index($_REQUEST, 'mode', 'results');
-		$suffix = ($mode == 'results') ? '_query' : '_query_sis';
 		if ($mode == '') $mode = 'results';
+		$suffix = ($mode == 'results') ? '_query' : '_query_sis';
 		$queries = Array();
 		foreach ($fields as $field_name => $field) {
 
