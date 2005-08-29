@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.92 2005/08/24 03:14:21 skim Exp $
+* $Id: metadata_manager.inc,v 1.93 2005/08/29 04:36:46 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -958,9 +958,7 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_status_changed_by_name':
 					$field_name = substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_by_name') - strlen('asset_'));
 					echo 'if (!isset($metadata_'.$field_name.'_by_user)) {
-					$asset_info = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo(Array($metadata_asset->'.$field_name.'_userid));
-					if (!empty($asset_info)) {
-					$metadata_'.$field_name.'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.$field_name.'_userid);'."\n}\n}\n";
+					$metadata_'.$field_name.'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.$field_name.'_userid);'."\n}\n";
 					echo 'if (!empty($metadata_'.$field_name.'_by_user)) { ';
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.$field_name.'_by_user->name;'."\n";
 					echo '} else {'."\n";
@@ -975,9 +973,7 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_updated_by_last_name'  :
 				case 'asset_updated_by_email'      :
 					echo 'if (!isset($metadata_'.substr($keyword,6,7).'_by_user)) {
-					$asset_info = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo(Array($metadata_asset->'.substr($keyword,6,7).'_userid));
-					if (!empty($asset_info)) {
-					$metadata_'.substr($keyword,6,7).'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid,\'\', true);'."\n}\n}\n";
+					$metadata_'.substr($keyword,6,7).'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid,\'\', true);'."\n}\n";
 					echo 'if (!empty($metadata_'.substr($keyword,6,7).'_by_user)) { ';
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.substr($keyword,6,7).'_by_user->attr(\''.substr($keyword,17).'\');'."\n";
 					echo '} else {'."\n";
@@ -1016,9 +1012,7 @@ class Metadata_Manager extends MySource_Object
 					echo 'if (is_null($metadata_asset->published_userid)) {'."\n";
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'Never Published\';'."\n";
 					echo '} else { if (!isset($metadata_published_by_user)) {
-					$asset_info = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo(Array($metadata_asset->published_userid));
-					if (!empty($asset_info)) {
-					$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n}\n";
+					$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n";
 					echo 'if (!empty($metadata_published_by_user)) { ';
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_published_by_user->name;'."\n";
 					echo '} else {'."\n";
@@ -1032,9 +1026,7 @@ class Metadata_Manager extends MySource_Object
 					echo 'if (is_null($metadata_asset->published_userid)) {'."\n";
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
 					echo '} else { if (!isset($metadata_published_by_user)) {
-					$asset_info = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo(Array($metadata_asset->published_userid));
-					if (!empty($asset_info)) {
-					$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n}\n";
+					$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n";
 					echo 'if (!empty($metadata_published_by_user)) { ';
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_published_by_user->attr(\''.substr($keyword,19).'\');'."\n";
 					echo '} else {'."\n";
@@ -1108,7 +1100,6 @@ class Metadata_Manager extends MySource_Object
 				break;
 
 			}//end switch
-
 
 			if (!$generating) {
 				eval(ob_get_contents());
