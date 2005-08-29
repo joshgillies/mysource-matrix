@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap.inc,v 1.7 2005/02/27 21:43:52 gsherwood Exp $
+* $Id: ldap.inc,v 1.7.2.1 2005/08/29 06:07:39 dmckee Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     To provide an interface to an LDAP directory server for basic functionality
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package Fudge
 * @subpackage ldap
 */
@@ -106,8 +106,8 @@ class Ldap
 		return true;
 
 	}//end connect()
-	
-	
+
+
 	/**
 	* Bind to a LDAP server
 	*
@@ -191,14 +191,13 @@ class Ldap
 	{
 		if (!$this->ptr) return 0;
 
-		if ($multi_level && $multi_result) $sr = ldap_search($this->ptr, $startdn, $filter);
-		else if ($multi_result) $sr = ldap_list($this->ptr, $startdn, $filter);
-		else $sr = ldap_read($this->ptr, $startdn, $filter);
+		if ($multi_level && $multi_result) $sr = @ldap_search($this->ptr, $startdn, $filter);
+		else if ($multi_result) $sr = @ldap_list($this->ptr, $startdn, $filter);
+		else $sr = @ldap_read($this->ptr, $startdn, $filter);
 
 		if (!is_null($sort_by)) ldap_sort($this->ptr, $sr,  $sort_by);
 
 		if (!$sr) {
-			trigger_error('Unable to SEARCH ['.$startdn.'] with Filter ['.$filter.']: '.ldap_error($this->ptr), E_USER_WARNING);
 			return 0;
 		} else {
 			return $sr;
