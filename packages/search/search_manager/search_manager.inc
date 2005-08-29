@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.74 2005/08/18 02:22:51 ndvries Exp $
+* $Id: search_manager.inc,v 1.75 2005/08/29 05:06:43 dmckee Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -602,6 +602,10 @@ class Search_Manager extends Asset
 	*/
 	function isWordIndexable($word)
 	{
+		//Make sure db constraints aren't breached
+		$max_length = 255;
+		if (strlen($word) > $max_length) return false;
+
 		$min_length = $this->attr('min_word_length');
 		return $this->isWhiteWord($word) || (strlen($word) >= $min_length && !$this->isNoiseWord($word));
 
