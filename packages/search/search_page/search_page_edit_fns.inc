@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.62 2005/08/29 00:57:00 mmcintyre Exp $
+* $Id: search_page_edit_fns.inc,v 1.63 2005/08/29 01:25:55 ndvries Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1496,15 +1496,15 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
-		$o->openField('Proxy Asset Types:');
+		$o->openField(translate('search_page_proxy_asset_types').':');
 			if (empty($current_types)) {
-				echo 'There are no current types defined.';
+				echo translate('search_page_no_types_defined');
 			} else {
 				?>
 					<table class="sq-backend-table">
 						<tr>
-							<td class="sq-backend-table-header" style="width: 200px;">Proxy Type Code</td>
-							<td class="sq-backend-table-header">Child Type Codes</td>
+							<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('search_page_proxy_type_code') ?></td>
+							<td class="sq-backend-table-header"><?php echo translate('search_page_proxy_child_type_codes') ?></td>
 							<?php
 								if ($write_access) {
 									?><td class="sq-backend-table-header" style="width: 20px;"><?php echo translate('delete') ?></td><?php
@@ -1545,21 +1545,21 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			}
 		$o->closeField();
 
-		$o->openField('New Proxy Asset Type:');
-			if ($write_access) {
-				$types = array_keys($asset->attr('types'));
-				$types = array_diff($types, array_keys($current_types));
+		$search_types = array_keys($asset->attr('types'));
+		if ($write_access && !empty($search_types)) {
+			$o->openField(translate('search_page_proxy_type_code_new').':');
+				$types = array_diff($search_types, array_keys($current_types));
 
 				if (empty($types)) {
-					echo 'All available type codes have been selected as proxies';
+					echo translate('search_page_proxy_all_types_selected');
 				} else {
 					echo '&nbsp;';
 					$options = Array('' => '');
 					$options += $am->getTypeInfo($types, 'name');
 					combo_box($prefix.'_new_type', $options, false, count($types));
 				}
-			}
-		$o->closeField();
+			$o->closeField();
+		}
 
 		return $write_access;
 
