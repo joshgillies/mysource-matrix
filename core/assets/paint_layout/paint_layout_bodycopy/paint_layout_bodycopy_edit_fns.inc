@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.6 2005/08/24 02:49:48 dmckee Exp $
+* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.7 2005/08/29 06:56:39 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,15 +106,8 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 			return false;
 		}
 
-		$validated = true;
+		if (!$asset->saveSystemVersion()) return false;
 
-		if (!$asset->saveSystemVersion()) $validated = false;
-
-		if (!$asset->setAttrValue('validated', $validated)) {
-			return false;
-		}
-
-		// even if the validation failed we will still save the contents for the user
 		return true;
 
 	}//end processBodycopy()

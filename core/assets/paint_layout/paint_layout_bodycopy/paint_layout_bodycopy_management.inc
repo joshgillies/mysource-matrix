@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy_management.inc,v 1.4 2005/08/24 02:49:48 dmckee Exp $
+* $Id: paint_layout_bodycopy_management.inc,v 1.5 2005/08/29 06:56:01 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,11 +53,6 @@ class Paint_Layout_Bodycopy_Management extends Asset_Management
 													'added'		=> '0.1',
 													'type'		=> 'serialise',
 													'default'	=> Array(),
-												   ),
-						'validated'				=> Array(
-													'added'		=> '0.1',
-													'type'		=> 'boolean',
-													'default'	=> false,
 												   ),
 						'associated_asset_type'	=> Array(
 													'added'		=> '0.1',
