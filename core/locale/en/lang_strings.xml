@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18.2.13 2005/08/26 04:58:29 dheppell Exp $
+* $Id: lang_strings.xml,v 1.18.2.14 2005/08/30 09:08:32 brobertson Exp $
 *
 */
 
@@ -663,6 +663,7 @@
 	<string source="core_customise_question">Customise ?</string>
 	<string source="core_cannot_upload_file_larger_than">You may only upload files no bigger than %s</string>
 	<string source="core_upload_new_file_button">Upload a new file</string>
+	<string source="core_upload_server_file_button">Choose a pre-uploaded file</string>
 	<string source="core_asset_paths_not_set">%s assets do not set the paths here</string>
 	<string source="core_path_set_by_filename">The path is set by the filename on the &lt;a href="%s"&gt;Details Screen&lt;/a&gt;</string>
 	<string source="core_current_file">Current File</string>
