@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list_edit_fns.inc,v 1.1 2005/07/20 00:02:45 lwright Exp $
+* $Id: form_question_type_tickbox_list_edit_fns.inc,v 1.2 2005/08/30 03:24:39 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -101,7 +101,10 @@ class Form_Question_Type_Tickbox_List_Edit_Fns extends Form_Question_Edit_Fns
 	*/
 	function processDefault(&$asset, &$o, $prefix)
 	{
-		if (isset($_POST[$prefix.'default'])) {
+		if (isset($_POST[$prefix.'default']) && $_POST[$prefix.'default'][0] == 'none') {
+			$asset->setAttrValue('default', Array());
+		}
+		else if (isset($_POST[$prefix.'default'])) {
 			if (!$asset->setAttrValue('default', $_POST[$prefix.'default'])) {
 				return false;
 			}

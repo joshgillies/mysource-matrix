@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list_edit_fns.inc,v 1.1 2005/07/20 00:02:45 lwright Exp $
+* $Id: form_question_type_option_list_edit_fns.inc,v 1.2 2005/08/30 03:24:38 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../form_question_type_tickbox_list/form_questio
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,9 +55,9 @@ class Form_Question_Type_Option_List_Edit_Fns extends Form_Question_Type_Tickbox
 	/**
 	* paints a section to choose the default for this question
 	*
-	* @param object Form_Question		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	Form_Question, the asset whose interface we are painting
+	* @param object	&$o		Backend_Outputter, the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -66,29 +66,40 @@ class Form_Question_Type_Option_List_Edit_Fns extends Form_Question_Type_Tickbox
 	{
 		if (!$asset->writeAccess('attributes')) return false;
 
+		// default entry to have no default value
+		$none = Array('none');
 		$options = explode("\r\n", $asset->attr('options'));
+		$options = array_merge($none, $options);
 
 		echo "<table cellpadding=\"0\" cellspacing=\"0\">\n";
-
 		$defaults = $asset->attr('default');
-		if (empty($defaults)) {
-			$defaults = Array(reset($options));
-		}
 
-		foreach ($options as $ref => $option) {
-			if (!trim($option)) continue;
+		if (!empty($options[1])) {
 
-			echo '<tr><td>';
-			$val  = explode(':', $option);
-			$name = $prefix.'default[]';
+			foreach ($options as $ref => $option) {
+				if (!trim($option)) continue;
+				echo '<tr><td>';
+				$val  = explode(':', $option);
+				$name = $prefix.'default[]';
+				$title = (count($val) > 1) ? $val[1] : $val[0];
 
-			$title = (count($val) > 1) ? $val[1] : $val[0];
-			$checked = (in_array($ref, $defaults)) ? true : false;
-			radio_button($name, $ref, $checked);
+				if ($option == 'none') {
+					$checked = (empty($defaults)) ? true : false;
+				} else {
+					$checked = (in_array($ref - 1, $defaults)) ? true : false;
+				}
 
-			echo '&nbsp;<span onclick="this.previousSibling.previousSibling.checked = (!this.previousSibling.previousSibling.checked || this.previousSibling.previousSibling.type==\'radio\')">'.$title.'</span>';
-			echo '</td></tr>';
-		}
+				if ($ref == 0) {
+					radio_button($name, 'none', $checked);
+				} else {
+					radio_button($name, ($ref - 1), $checked);
+				}
+
+				echo '&nbsp;<span onclick="this.previousSibling.previousSibling.checked = (!this.previousSibling.previousSibling.checked || this.previousSibling.previousSibling.type==\'radio\')">'.$title.'</span>';
+				echo '</td></tr>';
+			}
+
+		}//end if
 		echo '</table>';
 
 		return true;
@@ -97,4 +108,5 @@ class Form_Question_Type_Option_List_Edit_Fns extends Form_Question_Type_Tickbox
 
 
 }//end class
+
 ?>
