@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_edit_fns.inc,v 1.1 2005/05/02 02:43:01 ndvries Exp $
+* $Id: report_asset_statuses_edit_fns.inc,v 1.2 2005/08/30 00:53:26 dheppell Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -125,7 +125,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 		// generate XML contents
 		$contents = '<asset_list>'."\n";
 		foreach ($result as $values) {
-			$contents .= '<asset assetid="'.$values['assetid'].'" name="'.$values['name'].'" type_code="'.$values['type_code'].'">'."\n";
+			$contents .= '<asset assetid="'.$values['assetid'].'" name="'.htmlSpecialChars($values['name']).'" type_code="'.$values['type_code'].'">'."\n";
 			$contents .= '	<status value="'.$values['status'].'" changed="'.$values['status_changed'].'" changed_userid="'.$values['status_changed_userid'].'" changed_user_name="'.$values['user_name'].'"/>'."\n";
 			$contents .= '</asset>'."\n";
 		}

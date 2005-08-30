@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata_edit_fns.inc,v 1.8 2005/05/11 06:04:55 lwright Exp $
+* $Id: report_incomplete_metadata_edit_fns.inc,v 1.9 2005/08/30 00:53:24 dheppell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -107,7 +107,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 				$field_values = $mm->getMetadataFieldValues($asset->id);
 
 				$empty_fields = false;
-				$content = "\t".'<asset assetid="'.$asset->id.'" name="'.$asset->name.'" short_name="'.$asset->short_name.'" type_code="'.$asset->type().'" status="'.$asset->status.'">'."\n";
+				$content = "\t".'<asset assetid="'.$asset->id.'" name="'.htmlSpecialChars($asset->name).'" short_name="'.htmlSpecialChars($asset->short_name).'" type_code="'.$asset->type().'" status="'.$asset->status.'">'."\n";
 				foreach ($field_values as $field_name => $value) {
 					$value = trim($value);
 					if (empty($value)) {
@@ -207,7 +207,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td colspan="4" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('core_no_missing_metadata_fields_found'); ?></td>
+						<td colspan="4" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in'); ?></td>
 						<td class="sq-backend-table-header"><?php echo translate('empty_fields'); ?></td>
 					</tr>
 				<?php

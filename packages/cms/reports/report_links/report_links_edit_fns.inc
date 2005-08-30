@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.5 2005/05/27 04:46:44 dmckee Exp $
+* $Id: report_links_edit_fns.inc,v 1.6 2005/08/30 00:53:26 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -103,7 +103,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					$wysiwyg_html = $asset->attr('html');
 
 					$master_matches = Array();
-					preg_match_all('%(href|src)=[\'"]([^\'\s"]*)%', $wysiwyg_html, $master_matches);
+					preg_match_all('%(href|src)=[\'"]([^\'\s"]*)%', $wysiwyg_html, $master_matches);//'
 					$matches = $master_matches[2];
 
 					foreach ($matches as $match) {
@@ -144,7 +144,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					}//end foreach
 
 					if (!empty($content)) {
-						$content = "\t".'<asset assetid="'.$asset->id.'" name="'.$asset->name.'" short_name="'.$asset->short_name.'" type_code="'.$asset->type().'" status="'.$asset->status.'">'."\n".$content."\t".'</asset>'."\n";
+						$content = "\t".'<asset assetid="'.$asset->id.'" name="'.htmlSpecialChars($asset->name).'" short_name="'.htmlSpecialChars($asset->short_name).'" type_code="'.$asset->type().'" status="'.$asset->status.'">'."\n".$content."\t".'</asset>'."\n";
 						fwrite($temp_file, $content);
 					}
 
@@ -512,6 +512,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				if (empty($reported_links['external'])) {
 					echo translate('cms_report_links_no_external_links');
 				} else {
+					$ast_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($reported_links['external']));
+					minibam($ast_info, 'ast of info');
+
 					?>
 					<table class="sq-backend-table">
 						<tr>
