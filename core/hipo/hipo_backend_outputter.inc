@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_backend_outputter.inc,v 1.17 2005/06/16 05:47:29 lwright Exp $
+* $Id: hipo_backend_outputter.inc,v 1.18 2005/08/30 09:05:16 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/include/backend_outputter.inc';
 *    suite hipo jobs
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 class Hipo_Backend_Outputter extends Backend_Outputter
@@ -138,7 +138,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 					</tr>
 					<tr>
 						<td align="center">
-						<form name="<?php echo $this->_form_data['form_name']; ?>" method="post" action="<?php echo $this->_form_data['url']; ?>">
+						<form name="<?php echo $this->_form_data['form_name']; ?>" method="post" action="<?php echo $this->_form_data['url']; ?>"  enctype="multipart/form-data">
 					<?php
 					foreach ($this->_hidden_fields as $name => $value) {
 						hidden_field($name, $value);
@@ -245,7 +245,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 						switch ($field['format']) {
 							case 'new_line' :
 								?>
-									<tr>
+									<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?> <?php if ($field['id_name']) echo 'id="'.$field['id_name'].'"'; ?>>
 										<td nowrap valign="top" class="sq-backend-field" colspan="3">
 											<a name="field_<?php echo $field['field_count']; ?>"></a>
 											<?php echo $field['name'];?>
@@ -288,7 +288,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 
 							default :
 							?>
-								<tr>
+								<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?> <?php if ($field['id_name']) echo 'id="'.$field['id_name'].'"'; ?>>
 									<td nowrap valign="top" class="sq-backend-field">
 										<a name="field_<?php echo $field['field_count']; ?>"></a>
 										<?php echo $field['name'];?>
