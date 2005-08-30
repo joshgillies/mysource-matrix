@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_edit_fns.inc,v 1.11 2005/06/02 04:42:02 ndvries Exp $
+* $Id: image_variety_edit_fns.inc,v 1.12 2005/08/30 07:31:34 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -294,7 +294,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 
 		// file not in repository
 		if ($up_to_date & FUDGE_FV_NOT_CHECKED_OUT) {
-			if (!$fv->add($asset->data_path_suffix, $d_new_file, '', false)) {
+			if (!$fv->add($asset->data_path_suffix, $d_new_file, '')) {
 				return false;
 			}
 
@@ -304,7 +304,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			}
 
 		} else if ($up_to_date & FUDGE_FV_MODIFIED) {
-			if (!$fv->commit($d_new_file, '', false)) return false;
+			if (!$fv->commit($d_new_file, '')) return false;
 
 		}
 

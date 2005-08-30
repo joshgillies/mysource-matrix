@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.17 2005/08/24 03:14:23 skim Exp $
+* $Id: file_versioning.inc,v 1.18 2005/08/30 07:31:39 ndvries Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -323,12 +323,11 @@ class File_Versioning
 	* @param string		$rep_path	the path in the repository to store this file
 	* @param string		$real_file	the path to the file in the filesystem to add to the repository
 	* @param string		$extra_info	any extra info that can be stored with this version of the file (eg who actually added it)
-	* @param boolean	$use_trans	whether or not to surround database calls with transactions ( needed because some DBMS's don't support nested transactions)
 	*
 	* @return boolean
 	* @access public
 	*/
-	function add($rep_path, $real_file, $extra_info='', $use_trans=true)
+	function add($rep_path, $real_file, $extra_info='')
 	{
 		// make sure we can get to the file
 		if (!is_file($real_file) || !is_readable($real_file)) {
@@ -807,12 +806,11 @@ class File_Versioning
 	*
 	* @param string		$real_file	the checked out filename (ie the path to it on the filesystem)
 	* @param string		$extra_info	any extra info that can be stored with this version of the file (eg who actually added it)
-	* @param boolean	$use_trans	whether or not to surround database calls with transactions ( needed because some DBMS's don't support nested transactions)
 	*
 	* @return int FUDGE_FV_NOT_CHECKED_OUT|FUDGE_FV_ERROR|FUDGE_FV_NOT_MODIFIED|FUDGE_FV_OK
 	* @access public
 	*/
-	function commit($real_file, $extra_info='', $use_trans=true)
+	function commit($real_file, $extra_info='')
 	{
 		$info = $this->_getFileInfoFromRealFile($real_file);
 		if (!is_array($info)) {
@@ -822,9 +820,7 @@ class File_Versioning
 			return $info;
 		}
 
-		if ($use_trans) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!$this->_lockFile($info['fileid'])) {
 			trigger_localised_error('FVER0018', E_USER_NOTICE);
@@ -866,7 +862,7 @@ class File_Versioning
 		}
 
 		// update the repository file
-		$version = $this->_updateFile($info['fileid'], $info['path'], $real_file, $extra_info, $use_trans);
+		$version = $this->_updateFile($info['fileid'], $info['path'], $real_file, $extra_info);
 		if (empty($version)) {
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -882,10 +878,7 @@ class File_Versioning
 
 		$this->_releaseFile($info['fileid']);
 
-		if ($use_trans) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		}
-
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return FUDGE_FV_OK;
 
@@ -897,12 +890,11 @@ class File_Versioning
 	*
 	* @param string		$real_file	the checked out filename (ie the path to it on the filesystem)
 	* @param string		$extra_info	any extra info that can be stored with this version of the file (eg who actually added it)
-	* @param boolean	$use_trans	whether or not to surround database calls with transactions ( needed because some DBMS's don't support nested transactions)
 	*
 	* @return int FUDGE_FV_NOT_CHECKED_OUT|FUDGE_FV_ERROR|FUDGE_FV_OK
 	* @access public
 	*/
-	function remove($real_file, $extra_info='', $use_trans=true)
+	function remove($real_file, $extra_info='')
 	{
 		$info = $this->_getFileInfoFromRealFile($real_file);
 		if (!is_array($info)) {
@@ -912,10 +904,7 @@ class File_Versioning
 			return $info;
 		}
 
-		if ($use_trans) {
-			$result = $this->_db->query('BEGIN');
-			assert_valid_db_result($result);
-		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!$this->_lockFile($info['fileid'])) {
 			trigger_localised_error('FVER0018', E_USER_NOTICE);
@@ -960,7 +949,7 @@ class File_Versioning
 		clearstatcache(); // just in case :)
 
 		// update the repository file
-		$version = $this->_updateFile($info['fileid'], $info['path'], $real_file, $extra_info, $use_trans);
+		$version = $this->_updateFile($info['fileid'], $info['path'], $real_file, $extra_info);
 		if (empty($version)) {
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');

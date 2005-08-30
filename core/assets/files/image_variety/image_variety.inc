@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.18 2005/06/02 04:42:02 ndvries Exp $
+* $Id: image_variety.inc,v 1.19 2005/08/30 07:31:34 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -314,7 +314,7 @@ class Image_Variety extends Asset
 
 			// file not in repository
 			if ($up_to_date & FUDGE_FV_NOT_CHECKED_OUT) {
-				if (!$fv->add($this->data_path_suffix, $d_new_file, '', false)) {
+				if (!$fv->add($this->data_path_suffix, $d_new_file, '')) {
 					return false;
 				}
 
@@ -379,7 +379,7 @@ class Image_Variety extends Asset
 			}
 
 		} else {
-			if (!($fv->remove($d_file, '', false) & FUDGE_FV_OK)) {
+			if (!($fv->remove($d_file, '') & FUDGE_FV_OK)) {
 				trigger_localised_error('CORE0041', E_USER_WARNING, $d_filename);
 				return false;
 			}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: password_change_design.inc,v 1.1 2005/05/12 23:57:36 ndvries Exp $
+* $Id: password_change_design.inc,v 1.2 2005/08/30 07:31:38 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -143,7 +143,7 @@ class Password_Change_Design extends Design
 
 		if (!$file_exists) {
 			// attempt to add the file to the repository
-			if (!$fv->add($this->data_path_suffix, $parse_file, '', false)) {
+			if (!$fv->add($this->data_path_suffix, $parse_file, '')) {
 				trigger_localised_error('CORE0025', E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -152,7 +152,7 @@ class Password_Change_Design extends Design
 			// updating existing file
 			$file_status = $fv->upToDate($parse_file);
 			if (FUDGE_FV_MODIFIED & $file_status) {
-				if (!$fv->commit($parse_file, '', false)) {
+				if (!$fv->commit($parse_file, '')) {
 					trigger_localised_error('CORE0033', E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.94 2005/07/20 23:51:48 dheppell Exp $
+* $Id: design_edit_fns.inc,v 1.95 2005/08/30 07:31:30 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -116,13 +116,13 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			if ($new_version) {
 				$file_status = $fv->upToDate($parse_file);
 				if (FUDGE_FV_MODIFIED & $file_status) {
-					if (!$fv->commit($parse_file, '', false)) {
+					if (!$fv->commit($parse_file, '')) {
 						trigger_localised_error('CORE0160', E_USER_WARNING);
 					}
 				}
 			} else {
 				// attempt to add the parse file to the repository
-				if (!$fv->add($asset->data_path_suffix, $parse_file, '', false)) {
+				if (!$fv->add($asset->data_path_suffix, $parse_file, '')) {
 					trigger_localised_error('CORE1057', E_USER_WARNING);
 				}
 			}
@@ -270,7 +270,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				// add a new version to the repository
 				$file_status = $fv->upToDate($parse_file);
 				if (FUDGE_FV_MODIFIED & $file_status) {
-					if (!$fv->commit($parse_file, '', false)) {
+					if (!$fv->commit($parse_file, '')) {
 						trigger_localised_error('CORE0160', E_USER_WARNING);
 					}
 				} else {
@@ -481,7 +481,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			if (in_array(array_get_index($element['attributes'], 'print'), Array('no', 'false', '0'))) {
 				$design_areas[$element['attributes']['id_name']]->setAttrValue('print', false);
 			}
-			
+
 			if (!$design_areas[$element['attributes']['id_name']]->saveAttributes()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -647,7 +647,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		if ($new_file) {
 			// attempt to add the file to the repository
-			if (!$fv->add($asset->data_path_suffix, $file, '', false)) {
+			if (!$fv->add($asset->data_path_suffix, $file, '')) {
 				trigger_localised_error('CORE0156', E_USER_WARNING);
 				return false;
 			}
@@ -655,7 +655,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			// updating existing file
 			$file_status = $fv->upToDate($file);
 			if (FUDGE_FV_MODIFIED & $file_status) {
-				if (!$fv->commit($file, '', false)) {
+				if (!$fv->commit($file, '')) {
 					trigger_localised_error('CORE0159', E_USER_WARNING);
 					return false;
 				}

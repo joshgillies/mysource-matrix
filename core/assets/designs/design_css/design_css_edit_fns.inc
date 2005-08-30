@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_edit_fns.inc,v 1.10 2005/06/28 04:18:07 mnyeholt Exp $
+* $Id: design_css_edit_fns.inc,v 1.11 2005/08/30 07:31:32 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -234,7 +234,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 
 		if ($new_file) {
 			// attempt to add the file to the repository
-			if (!$fv->add($asset->data_path_suffix, $file, '', false)) {
+			if (!$fv->add($asset->data_path_suffix, $file, '')) {
 				trigger_localised_error('CORE0165', E_USER_WARNING);
 				return false;
 			}
@@ -242,7 +242,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 			// updating existing file
 			$file_status = $fv->upToDate($file);
 			if (FUDGE_FV_MODIFIED & $file_status) {
-				if (!$fv->commit($file, '', false)) {
+				if (!$fv->commit($file, '')) {
 					trigger_localised_error('CORE0159', E_USER_WARNING);
 					return false;
 				}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_parse_design.php,v 1.4 2005/03/22 17:17:38 gnoel Exp $
+* $Id: system_parse_design.php,v 1.5 2005/08/30 07:31:40 ndvries Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Upgrade menu design areas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -82,7 +82,7 @@ $parse_file  = $design->data_path.'/parse.txt';
 // add a new version to the repository
 $file_status = $fv->upToDate($parse_file);
 if (FUDGE_FV_MODIFIED & $file_status) {
-	if (!$fv->commit($parse_file, '', false)) {
+	if (!$fv->commit($parse_file, '')) {
 		trigger_error('Failed committing file version', E_USER_ERROR);
 		printUpdateStatus('UNABLE TO COMMIT PARSE FILE');
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($design);

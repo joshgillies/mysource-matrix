@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.109 2005/08/12 06:58:59 tbarrett Exp $
+* $Id: file.inc,v 1.110 2005/08/30 07:31:33 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.109 $
+* @version $Revision: 1.110 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -794,14 +794,14 @@ class File extends Asset
 
 		// we are renaming the file, so we need to remove the old name from
 		// the repository and add the new one in
-		$result = $fv->remove($data_path.'/'.$old_filename, '', false);
+		$result = $fv->remove($data_path.'/'.$old_filename, '');
 		if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
 			trigger_localised_error('CORE0042', E_USER_WARNING);
 			return false;
 		}
 
 		// attempt to add a new version of the file to the repository
-		if (!$fv->add($this->data_path_suffix, $data_path.'/'.$new_filename, '', false)) {
+		if (!$fv->add($this->data_path_suffix, $data_path.'/'.$new_filename, '')) {
 			trigger_localised_error('CORE0026', E_USER_WARNING);
 			return false;
 		}

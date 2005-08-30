@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.61 2005/08/12 06:58:59 tbarrett Exp $
+* $Id: file_edit_fns.inc,v 1.62 2005/08/30 07:31:33 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -185,7 +185,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			// a new file with a new name means we need to remove the old
 			// one from the repository (NOTE that this doesnt actually 'remove' the
 			// files from the repository - just marks the branch as complete)
-			$result = $fv->remove($existing['path'], '', false);
+			$result = $fv->remove($existing['path'], '');
 			if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
 				trigger_localised_error('CORE0042', E_USER_WARNING);
 				return false;
@@ -215,14 +215,14 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if ($asset->name == $name && !empty($existing)) {
 			$file_status = $fv->upToDate($asset->data_path.'/'.$name);
 			if (FUDGE_FV_MODIFIED & $file_status) {
-				if (!$fv->commit($asset->data_path.'/'.$name, '', false)) {
+				if (!$fv->commit($asset->data_path.'/'.$name, '')) {
 					trigger_localised_error('CORE0034', E_USER_WARNING);
 					return false;
 				}
 			}
 		} else {
 			// attempt to add the file to the repository
-			if (!$fv->add($asset->data_path_suffix, $asset->data_path.'/'.$name, '', false)) {
+			if (!$fv->add($asset->data_path_suffix, $asset->data_path.'/'.$name, '')) {
 				trigger_localised_error('CORE0026', E_USER_WARNING);
 				return false;
 			}

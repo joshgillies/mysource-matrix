@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: login_design.inc,v 1.13 2005/05/11 06:04:59 lwright Exp $
+* $Id: login_design.inc,v 1.14 2005/08/30 07:31:36 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -137,7 +137,7 @@ class Login_Design extends Design
 
 		if (!$file_exists) {
 			// attempt to add the file to the repository
-			if (!$fv->add($this->data_path_suffix, $parse_file, '', false)) {
+			if (!$fv->add($this->data_path_suffix, $parse_file, '')) {
 				trigger_localised_error('CORE0025', E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -146,7 +146,7 @@ class Login_Design extends Design
 			// updating existing file
 			$file_status = $fv->upToDate($parse_file);
 			if (FUDGE_FV_MODIFIED & $file_status) {
-				if (!$fv->commit($parse_file, '', false)) {
+				if (!$fv->commit($parse_file, '')) {
 					trigger_localised_error('CORE0033', E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
