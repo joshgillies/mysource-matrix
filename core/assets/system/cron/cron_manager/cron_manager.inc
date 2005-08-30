@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.33.2.2 2005/03/31 02:20:31 lwright Exp $
+* $Id: cron_manager.inc,v 1.33.2.3 2005/08/30 01:21:42 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -794,7 +794,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 									SELECT type_code
 									FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
 									WHERE inhd_type_code = '.$db->quote('cron_job').'
-				  					)
+									)
 				  AND at.name = '.$db->quote('when').'
 				  AND ('.$hourly.'
 					OR '.$daily.'
@@ -920,6 +920,29 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 		}// end if
 
 	}// end _errorHandler()
+
+
+	/**
+	* Returns TRUE if the passed minor asset can be linked to this asset, or a string with the error msg
+	*
+	* @param object Asset	$minor		the minor asset that we are linking to
+	* @param string			$link_type	the type of link this is
+	* @param int			$exclusive	the exclusive status of the link (gets passed to canLinkToType)
+	*
+	* @return mixed TRUE or error message string
+	* @access public
+	*/
+	function canCreateLink(&$minor, $link_type, $exclusive)
+	{
+		if (!is_a($minor, 'cron_job')) {
+			return parent::canCreateLink($minor, $link_type, $exclusive);
+		}
+		// This is a cron job, so any user who has access to create one, should be able to.
+		// With standard link creation, write access is checked, which for normal users
+		// Fails on the cron manager. This bypasses that issue.
+		return true;
+	}
+
 
 }//end class
 ?>
