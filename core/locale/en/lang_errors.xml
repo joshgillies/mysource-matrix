@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.12.2.2 2005/08/25 00:32:18 dmckee Exp $
+* $Id: lang_errors.xml,v 1.12.2.3 2005/08/30 09:07:55 brobertson Exp $
 *
 */
 
@@ -652,7 +652,7 @@
 	<error code="FVER0027">File "%1$s/%2$s" with verison #%3$s not found in the repository</error>
 		<!-- core/lib/file_versioning/file_versioning.inc:222: -->
 
-	<error code="FVER0028">File versioning information at version %$1s missing for file #%2$s</error>
+	<error code="FVER0028">File versioning information at version %1$s missing for file #%2$s</error>
 		<!-- core/lib/file_versioning/file_versioning.inc:216: -->
 
 	<!-- SYSTEM -->
