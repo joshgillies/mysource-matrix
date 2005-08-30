@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_backend_outputter.inc,v 1.15.2.1 2005/06/16 05:44:29 lwright Exp $
+* $Id: hipo_backend_outputter.inc,v 1.15.2.2 2005/08/30 09:04:57 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/include/backend_outputter.inc';
 *    suite hipo jobs
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15.2.1 $
+* @version $Revision: 1.15.2.2 $
 * @package MySource_Matrix
 */
 class Hipo_Backend_Outputter extends Backend_Outputter
@@ -101,38 +101,23 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 					$this->_paintCssInclude($file);
 				}
 
-				$this->addJsInclude(sq_web_path('lib').'/js/translation.js');
-
-				// add translation stuff
-				list($lang, $country, $variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
-
-				if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'.js')) {
-					$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'.js');
+				// add JS translation files
+				foreach ($GLOBALS['SQ_SYSTEM']->lm->getJavascriptIncludes() as $js_include) {
+					$this->addJsInclude($js_include);
 				}
 
-				if (!empty($country)) {
-					if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'.js')) {
-						$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'.js');
-					}
-
-					if (!empty($variant)) {
-						if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js')) {
-							$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js');
-						}
-					}
-				}
-
-				// end add translation stuff, now add everything else
+				// add general Js includes
 				$this->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
 				$this->addJsInclude(sq_web_path('lib').'/js/general.js');
 				$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
 				$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
 
+				// print them all out
 				foreach ($this->_js_includes as $file) {
 					$this->_paintJsInclude($file);
 				}
 				?>
-				<script language="Javascript" type="text/javascript">
+				<script type="text/javascript">
 				<!--
 					var ON_LOAD_TIME_OUT = null;
 					function page_on_load() {
@@ -153,7 +138,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 					</tr>
 					<tr>
 						<td align="center">
-						<form name="<?php echo $this->_form_data['form_name']; ?>" method="post" action="<?php echo $this->_form_data['url']; ?>">
+						<form name="<?php echo $this->_form_data['form_name']; ?>" method="post" action="<?php echo $this->_form_data['url']; ?>" enctype="multipart/form-data" >
 					<?php
 					foreach ($this->_hidden_fields as $name => $value) {
 						hidden_field($name, $value);
@@ -260,7 +245,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 						switch ($field['format']) {
 							case 'new_line' :
 								?>
-									<tr>
+									<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?> <?php if ($field['id_name']) echo 'id="'.$field['id_name'].'"'; ?>>
 										<td nowrap valign="top" class="sq-backend-field" colspan="3">
 											<a name="field_<?php echo $field['field_count']; ?>"></a>
 											<?php echo $field['name'];?>
@@ -303,7 +288,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 
 							default :
 							?>
-								<tr>
+								<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?> <?php if ($field['id_name']) echo 'id="'.$field['id_name'].'"'; ?>>
 									<td nowrap valign="top" class="sq-backend-field">
 										<a name="field_<?php echo $field['field_count']; ?>"></a>
 										<?php echo $field['name'];?>
