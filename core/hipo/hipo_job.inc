@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.72.2.1 2005/08/12 05:23:24 mmcintyre Exp $
+* $Id: hipo_job.inc,v 1.72.2.2 2005/08/30 08:59:05 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.72.2.1 $
+* @version $Revision: 1.72.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -167,8 +167,7 @@ class HIPO_Job extends MySource_Object
 	* Constructor
 	*
 	* @param string	$code_name		a unique code_name the HIPO
-	* @param string	$current_mode	the mode this HIPO is being displayed in
-	*								(web = browser, server = HIPO server)
+	*
 	*/
 	function HIPO_Job($code_name='')
 	{
