@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.70 2005/06/28 05:32:25 ndvries Exp $
+* $Id: hipo_herder.inc,v 1.71 2005/08/30 08:45:33 brobertson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -119,11 +119,14 @@ class HIPO_Herder extends MySource_Object
 			}
 
 			$vars = unserialize($hipo_vars['hipo_vars']);
-			if (!isset($vars['job_dir']) || empty($vars['job_dir'])) {
-					$job_dir = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
+			if (empty($vars['job_dir'])) {
+				$job_dir = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
 			} else {
-					$job_dir = $vars['job_dir'];
+				$job_dir = $vars['job_dir'];
 			}
+
+			$this->_includeHipoJobLocales($job_dir);
+
 			require_once $job_dir.'/'.$job_type.'.inc';
 
 			$this->_jobs[$code_name] = new $job_type($code_name);
@@ -580,6 +583,8 @@ class HIPO_Herder extends MySource_Object
 			$job_dir = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
 		}
 
+		$this->_includeHipoJobLocales($job_dir);
+
 		require_once $job_dir.'/'.$job_type.'.inc';
 		$init_hipo = new $job_type();
 		$init_hipo->setRunningVars($vars);
@@ -718,6 +723,34 @@ class HIPO_Herder extends MySource_Object
 		return $init_hipo->getErrors();
 
 	}//end freestyleHipo()
+
+
+	/**
+	* Include the locales for a hipo job
+	*
+	* @param string	$job_dir	where to find this hipo job include files
+	*
+	* @return void
+	* @access private
+	*/
+	function _includeHipoJobLocales($job_dir)
+	{
+		// if a default hipo job location, nothing to do
+		if ($job_dir == SQ_SYSTEM_ROOT.'/core/hipo/jobs') return;
+
+		// If this is not in the core/hipo/jobs it has to be under one of the packages
+		// Because the hipo jobs are not assets the locale strings will be part of 
+		// the packages locales
+		if (strpos($job_dir, str_replace('\\', '/', SQ_CORE_PACKAGE_PATH)) !== false) {
+			$GLOBALS['SQ_SYSTEM']->lm->includePackageStrings('__core__');
+		} else {
+			$stripped_dir = str_replace(str_replace('\\', '/', SQ_PACKAGES_PATH).'/', '', $job_dir);
+			$package = substr($stripped_dir, 0, strpos($stripped_dir, '/'));
+			$GLOBALS['SQ_SYSTEM']->lm->includePackageStrings($package);
+		}
+
+
+	}//end _includeHipoJobLocales()
 
 
 	/**
