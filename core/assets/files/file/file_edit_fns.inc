@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.60.2.1 2005/08/12 06:58:44 tbarrett Exp $
+* $Id: file_edit_fns.inc,v 1.60.2.2 2005/08/30 08:25:44 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60.2.1 $
+* @version $Revision: 1.60.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,7 +73,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			file_upload($prefix);
 			if ($this->havePreUploadedFiles($asset, $prefix)) {
 				echo '&nbsp;&nbsp;';
-				normal_button($prefix.'_choose_server_file_button', 'Choose a pre-uploaded file', 'this.parentNode.parentNode.style.display=\'none\';			 document.getElementById(\''.$prefix.'_simple_upload_button\').parentNode.parentNode.style.display=\'\'');
+				normal_button($prefix.'_choose_server_file_button', translate('core_upload_server_file_button'), 'this.parentNode.parentNode.style.display=\'none\';			 document.getElementById(\''.$prefix.'_simple_upload_button\').parentNode.parentNode.style.display=\'\'');
 			}
 		}
 		$this->printExistingFileInfo($asset);
