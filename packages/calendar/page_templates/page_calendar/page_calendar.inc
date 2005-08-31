@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.160.2.2 2005/07/29 05:26:48 dheppell Exp $
+* $Id: page_calendar.inc,v 1.160.2.3 2005/08/31 05:41:08 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.160.2.2 $
+* @version $Revision: 1.160.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -357,11 +357,24 @@ class Page_Calendar extends Page_Asset_Listing
 		$cal_view = $_REQUEST['SQ_CALENDAR_VIEW'];
 		$cal_date = $_REQUEST['SQ_CALENDAR_DATE'];
 		$event_id = array_get_index($_REQUEST, 'SQ_CALENDAR_EVENT_ID', false);
-		$prev_date = date('Y-m-d', strtotime('-1 '.$cal_view, strtotime($cal_date)));
-		$next_date = date('Y-m-d', strtotime('+1 '.$cal_view, strtotime($cal_date)));
+
+		// the link to the prev/next/current month always points to
+		// the first date of the month.
+		if ($cal_view == 'month') {
+			$date_format = 'Y-m-01';
+		} else {
+			$date_format = 'Y-m-d';
+		}
+		$prev_date = date($date_format, strtotime('-1 '.$cal_view, strtotime($cal_date)));
+		$next_date = date($date_format, strtotime('+1 '.$cal_view, strtotime($cal_date)));
+
 		$replacements['prev_link'] = $event_id ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$prev_date.'">'.htmlentities(str_replace('%v%', ucfirst($cal_view), $this->attr('prev_link_text'))).'</a>';
 		$replacements['next_link'] = $event_id ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$next_date.'">'.htmlentities(str_replace('%v%', ucfirst($cal_view), $this->attr('next_link_text'))).'</a>';
 		$enabled_views = $this->attr('enabled_views');
+
+		if ($cal_view == 'week') {
+			$cal_date = date('Y-m-01', iso8601_ts($cal_date));
+		}
 
 		$up_view = '';
 		foreach ($enabled_views as $view => $type) {
@@ -479,7 +492,7 @@ class Page_Calendar extends Page_Asset_Listing
 		} else if ($format == 'list_with_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getYearEventsByMonth($year);
-	
+
 			foreach ($this->month_names_full as $month_num => $month_name) {
 
 				uasort($events[$month_num], 'compare_start_dates');
@@ -587,6 +600,7 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function getMonthView($date, $format)
 	{
+		$this->_printPopupsScript();
 		list($year, $month, $day) = explode('-', $date);
 		$enabled_views = $this->attr('enabled_views');
 		$drill_down_views = Array('week', 'day');
@@ -637,6 +651,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$month_length = days_in_month($month, $year);
 			$current_day = 1;
 			$current_date = $_REQUEST['SQ_CALENDAR_DATE'];
+			$current_day_name = date('l',iso8601_ts($current_date));
 			?>
 			<table id="month" border="0" cellspacing="0" cellpadding="0" style="width: <?php echo (7.35 * $column_width); ?>px">
 				<tr>
@@ -657,9 +672,23 @@ class Page_Calendar extends Page_Asset_Listing
 				</tr>
 				<tr>
 			<?php
+			// First Week
 			if ($this->attr('month_links_to_week')) {
+				$offset = 0;
+				$day_in_seconds = 24 * 60 * 60;
+				$first_week_link_date = $current_date;
+				$week_start_index	= $this->attr('week_starts_on');
+				$curr_day_index		= array_search(date('l', iso8601_ts($current_date)), $this->day_names);
+				if ($week_start_index != $curr_day_index) {
+					if ($week_start_index < $curr_day_index) {
+						$offset = $curr_day_index - $week_start_index;
+					} else {
+						$offset = $curr_day_index + (7 - $week_start_index);
+					}
+				}
+				$first_week_link_date = iso8601_date_component(ts_iso8601(iso8601_ts($current_date) - ($offset * $day_in_seconds)));
 				?>
-				<th class="weekLink" onclick="location.href = this.childNodes[0].href;"><a class="dateLink" href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.add_days_to_iso($current_date) ?>">&raquo;</a></th>
+				<th class="weekLink" onclick="location.href = this.childNodes[0].href;"><a class="dateLink" href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.$first_week_link_date ?>">&raquo;</a></th>
 				<?php
 			}
 
@@ -709,6 +738,7 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 				echo '</tr>';
 			}
+			$current_date = sprintf('%04d-%02d-%02d', $year, $month, $current_day);
 
 			// print the final week, if necessary
 			if ($current_day <= $month_length) {
@@ -1096,8 +1126,9 @@ class Page_Calendar extends Page_Asset_Listing
 					}
 					$current_mouse_over_out_code = '';
 					if (isset($event['description']) && !empty($event['description'])) {
-						echo '<div id="event_'.$assetid.'_description" class="popup">'.$event['description'].'</div>';
-						$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')" onmouseout="stopTrailingPopup()"';
+						$popup_div_id = $assetid.'_'.$id;
+						echo '<div id="event_'.$popup_div_id.'_description" class="popup">'.$event['description'].'</div>';
+						$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$popup_div_id.'_description\')" onmouseout="stopTrailingPopup()"';
 					}
 					echo '<div id="'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' style="margin: 0px 0px 1px 0px; text-align: center; padding: 0px; width: '.($width-2).'px;'.$cursor_code.'" class="'.$event_class.' event"'.$onclick_code.'>';
 
@@ -1191,7 +1222,6 @@ class Page_Calendar extends Page_Asset_Listing
 		$cmp_func = create_function('$a, $b', 'return ($b[\'end_date_ts\'] - $b[\'start_date_ts\']) - ($a[\'end_date_ts\'] - $a[\'start_date_ts\']);');
 		uasort($events, $cmp_func);
 		$res = '';
-
 		foreach ($events as $assetid => $details) {
 
 			$real_assetid = current(explode(':', $assetid));
@@ -1293,6 +1323,7 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		$res = '';
 		foreach ($events as $assetid => $details) {
+			$popup_div_id = str_replace(':', '_', $assetid);
 			$assetid = strtok($assetid, ':');
 			$event_class = (isset($root_nodes[$details['root_node']]['class_name'])) ? $root_nodes[$details['root_node']] ['class_name'] : '';
 			$onclick_code =$show_event_link ? ' onclick="clickChild(this); "' : '';
@@ -1300,8 +1331,8 @@ class Page_Calendar extends Page_Asset_Listing
 
 			$current_mouse_over_out_code = '';
 			if (isset($details['description']) && !empty($details['description'])) {
-				$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
-				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')" onmouseout="stopTrailingPopup()"';
+				$res .= '<div id="event_'.$popup_div_id.'_description" class="popup">'.$details['description'].'</div>';
+				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$popup_div_id.'_description\')" onmouseout="stopTrailingPopup()"';
 			}
 
 			$res .= '<div style="width: '.$width.'px; '.$cursor_code.'"'.$onclick_code.' '.$current_mouse_over_out_code.'><div style="width: auto; margin-bottom: 1px;" class="event '.$event_class.'">';
@@ -1914,18 +1945,19 @@ class Page_Calendar extends Page_Asset_Listing
 	function getWeekEventsByDay($date)
 	{
 		$res = Array();
+		$day_in_second = 24 * 60 * 60;	// 86400 seconds
 		$days_to_show = $this->attr('week_view_show_days');
-		for ($i = iso8601_ts($date); $i <= iso8601_ts($date) + 6*86400; $i += 86400) {
+		for ($i = iso8601_ts($date); $i <= iso8601_ts($date) + 6*$day_in_second; $i += $day_in_second) {
 			if ($days_to_show[date('w', $i)]) {
 				$res[iso8601_date_component(ts_iso8601($i))] = Array();
 			}
 		}
 
 		$week_start_day = $this->attr('week_starts_on');
-		$first_day = iso8601_ts($date) - ((7+(date('w', iso8601_ts($date)) - $week_start_day))%7)*86400;
+		$first_day = iso8601_ts($date) - ((7+(date('w', iso8601_ts($date)) - $week_start_day))%7)*$day_in_second;
 		$cal_date = date('Y-m-d', $first_day);
 
-		$last_day = iso8601_date_component(ts_iso8601(iso8601_ts($cal_date) + 6*86400));
+		$last_day = iso8601_date_component(ts_iso8601(iso8601_ts($cal_date) + 6*$day_in_second));
 
 		$plain_events = $this->getWeekEvents($cal_date);
 		$events =& expand_event_list($plain_events, $cal_date, $last_day, $this->attr('day_starts_at'), $this->attr('day_ends_at'));
