@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.12 2005/05/11 06:04:57 lwright Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.13 2005/08/31 03:29:50 mmcintyre Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -173,7 +173,8 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT w.*, a.name
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_wflow w
-					NATURAL JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a
+					INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a
+					ON w.assetid = a.assetid
 				WHERE w.wflow IS NOT NULL
 					AND w.granted = '.$db->quote('1');
 		$rows = $db->getAll($sql);
