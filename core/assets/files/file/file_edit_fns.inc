@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.63 2005/08/30 08:31:55 brobertson Exp $
+* $Id: file_edit_fns.inc,v 1.64 2005/08/31 00:43:22 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -120,15 +120,16 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	*     tmp_name          => the location of the file on the file system
 	*     non_uploaded_file => must equal TRUE
 	*
-	* @param object File				&$asset	the file asset
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for form elements
-	* @param array(string)				$info	info about the uploaded file
+	* @param object File				&$asset				the file asset
+	* @param object	Backend_Outputter	$o					the outputter class
+	* @param string						$prefix				prefix for form elements
+	* @param array(string)				$info				info about the uploaded file
+	* @param boolean					$redirect_in_limbo	redirect when the file name changes in limbo
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
+	function processFileUpload(&$asset, &$o, $prefix, $info=Array(), $redirect_in_limbo=true)
 	{
 		if (!$asset->writeAccess('attributes')) return false;
 		if (empty($info) && isset($_POST[$prefix.'_server_file']) && !empty($_POST[$prefix.'_server_file'])) {
@@ -248,7 +249,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			return false;
 		}
 
-		if (SQ_IN_LIMBO && $name_changed) {
+		if (SQ_IN_LIMBO && $name_changed && $redirect_in_limbo) {
 			// if we are in limbo and the name of the file has changed, the URL will also change
 			// so we need to redirect to the new limbo URL
 			$o->setRedirect(strip_url($asset->getUrl()).'/'.SQ_CONF_LIMBO_SUFFIX);
