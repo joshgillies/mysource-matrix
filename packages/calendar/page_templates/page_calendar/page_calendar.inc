@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.125.2.13 2005/05/31 02:29:19 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.125.2.14 2005/08/31 06:52:39 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.125.2.13 $
+* @version $Revision: 1.125.2.14 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -43,29 +43,34 @@ class Page_Calendar extends Page_Asset_Listing
 	* @var array
 	*/
 	var $view_options = Array(
-		'year'	=> Array(
-			''						=> '(none)',
-			'list_without_headings'	=> 'List without Headings',
-			'list_with_headings'	=> 'List with Month Headings',
-			'calendar_format'		=> 'Calendar Format'),
-		'month' => Array(
-			''						=> '(none)',
-			'list_without_headings'	=> 'List without Headings',
-			'list_with_headings'	=> 'List with Day Headings',
-			'calendar_format'		=> 'Calendar Format'),
-		'week' => Array(
-			''						=> '(none)',
-			'list_without_headings'	=> 'List without Headings',
-			'list_with_headings'	=> 'List with Day Headings',
-			'calendar_format'		=> 'Calendar Format'),
-		'day' => Array(
-			''						=> '(none)',
-			'list_without_headings'	=> 'List without Headings',
-			'calendar_format'		=> 'Calendar Format'),
-		'event' => Array(
-			''						=> '(none)',
-			'single_event'			=> 'Single Event Display')
-	);
+							'year'	=> Array(
+										''						=> '(none)',
+										'list_without_headings'	=> 'List without Headings',
+										'list_with_headings'	=> 'List with Month Headings',
+										'calendar_format'		=> 'Calendar Format',
+									   ),
+							'month'	=> Array(
+										''						=> '(none)',
+										'list_without_headings'	=> 'List without Headings',
+										'list_with_headings'	=> 'List with Day Headings',
+										'calendar_format'		=> 'Calendar Format',
+									   ),
+							'week'	=> Array(
+										''						=> '(none)',
+										'list_without_headings'	=> 'List without Headings',
+										'list_with_headings'	=> 'List with Day Headings',
+										'calendar_format'		=> 'Calendar Format',
+									   ),
+							'day'	=> Array(
+										''						=> '(none)',
+										'list_without_headings'	=> 'List without Headings',
+										'calendar_format'		=> 'Calendar Format',
+									   ),
+							'event'	=> Array(
+										''				=> '(none)',
+										'single_event'	=> 'Single Event Display',
+									   ),
+						);
 
 
 	/**
@@ -93,9 +98,9 @@ class Page_Calendar extends Page_Asset_Listing
 	* @var Array(keyword => name)
 	*/
 	var $_available_keywords = Array(
-								'calendar_contents' => 'Calendar Contents',
-								'calendar_title'    => 'Calendar Title',
-								);
+								'calendar_contents'	=> 'Calendar Contents',
+								'calendar_title'	=> 'Calendar Title',
+							   );
 
 
 	/**
@@ -392,11 +397,24 @@ class Page_Calendar extends Page_Asset_Listing
 		$cal_view = $_REQUEST['SQ_CALENDAR_VIEW'];
 		$cal_date = $_REQUEST['SQ_CALENDAR_DATE'];
 		$event_id = array_get_index($_REQUEST, 'SQ_CALENDAR_EVENT_ID', false);
-		$prev_date = date('Y-m-d', strtotime('-1 '.$cal_view, strtotime($cal_date)));
-		$next_date = date('Y-m-d', strtotime('+1 '.$cal_view, strtotime($cal_date)));
+
+		// the link to the prev/next/current month always points to
+		// the first date of the month.
+		if ($cal_view == 'month') {
+			$date_format = 'Y-m-01';
+		} else {
+			$date_format = 'Y-m-d';
+		}
+		$prev_date = date($date_format, strtotime('-1 '.$cal_view, strtotime($cal_date)));
+		$next_date = date($date_format, strtotime('+1 '.$cal_view, strtotime($cal_date)));
+
 		$replacements['prev_link'] = $event_id ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$prev_date.'">'.htmlentities(str_replace('%v%', ucfirst($cal_view), $this->attr('prev_link_text'))).'</a>';
 		$replacements['next_link'] = $event_id ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$next_date.'">'.htmlentities(str_replace('%v%', ucfirst($cal_view), $this->attr('next_link_text'))).'</a>';
 		$enabled_views = $this->attr('enabled_views');
+
+		if ($cal_view == 'week') {
+			$cal_date = date('Y-m-01', iso8601_ts($cal_date));
+		}
 
 		$up_view = '';
 		foreach ($enabled_views as $view => $type) {
@@ -621,6 +639,7 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function getMonthView($date, $format)
 	{
+		//$this->_printPopupsScript();
 		list($year, $month, $day) = explode('-', $date);
 		$enabled_views = $this->attr('enabled_views');
 		$drill_down_view = empty($enabled_views['day']) ? '' : 'day';
@@ -671,7 +690,8 @@ class Page_Calendar extends Page_Asset_Listing
 			$month_length = days_in_month($month, $year);
 			$current_day = 1;
 			$current_date = $_REQUEST['SQ_CALENDAR_DATE'];
-			if ($this->attr('enable_description_popups')) $this->_printPopupsScript();
+			$current_day_name = date('l',iso8601_ts($current_date));
+			if ($this->attr('enable_description_popups')) 	$this->_printPopupsScript();
 			?>
 			<table id="month" border="0" cellspacing="0" cellpadding="0" style="width: <?php echo (7.35 * $column_width); ?>px">
 				<tr>
@@ -692,9 +712,23 @@ class Page_Calendar extends Page_Asset_Listing
 				</tr>
 				<tr>
 			<?php
+			// First Week
 			if ($this->attr('month_links_to_week')) {
+				$offset = 0;
+				$day_in_seconds = 24 * 60 * 60;
+				$first_week_link_date = $current_date;
+				$week_start_index	= $this->attr('week_starts_on');
+				$curr_day_index		= array_search(date('l', iso8601_ts($current_date)), $this->day_names);
+				if ($week_start_index != $curr_day_index) {
+					if ($week_start_index < $curr_day_index) {
+						$offset = $curr_day_index - $week_start_index;
+					} else {
+						$offset = $curr_day_index + (7 - $week_start_index);
+					}
+				}
+				$first_week_link_date = iso8601_date_component(ts_iso8601(iso8601_ts($current_date) - ($offset * $day_in_seconds)));
 				?>
-				<th class="weekLink" onclick="location.href = this.childNodes[0].href;"><a class="dateLink" href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.add_days_to_iso($current_date) ?>">&raquo;</a></th>
+				<th class="weekLink" onclick="location.href = this.childNodes[0].href;"><a class="dateLink" href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.$first_week_link_date ?>">&raquo;</a></th>
 				<?php
 			}
 
@@ -744,12 +778,13 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 				echo '</tr>';
 			}
+			$current_date = sprintf('%04d-%02d-%02d', $year, $month, $current_day);
 
 			// print the final week, if necessary
 			if ($current_day <= $month_length) {
 				$i = 0;
 				echo '<tr>';
-				if ($this->attr('month_links_to_week')) { 
+				if ($this->attr('month_links_to_week')) {
 					?>
 					<th class="weekLink" onclick="location.href = this.childNodes[0].href;"><a  class="dateLink"  href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.$current_date ?>">&raquo;</a></th>
 					<?php
@@ -885,7 +920,9 @@ class Page_Calendar extends Page_Asset_Listing
 					}
 				}
 
-				foreach ($columns_info as $id => $info) $column_names[$id] = $info['name'];
+				foreach ($columns_info as $id => $info) {
+					$column_names[$id] = $info['name'];
+				}
 				if (in_array('*', $this->attr('columnise_day_view_by_root_node'))) {
 					$column_names['*'] = ($this->attr('other_column_name') == '') ? 'Other' : $this->attr('other_column_name');
 				}
@@ -1135,8 +1172,9 @@ class Page_Calendar extends Page_Asset_Listing
 					}
 					$current_mouse_over_out_code = '';
 					if (isset($event['description']) && !empty($event['description'])) {
-						echo '<div id="event_'.$assetid.'_description" class="popup">'.$event['description'].'</div>';
-						$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')" onmouseout="stopTrailingPopup()"';
+						$popup_div_id = $assetid.'_'.$id;
+						echo '<div id="event_'.$popup_div_id.'_description" class="popup">'.$event['description'].'</div>';
+						$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$popup_div_id.'_description\')" onmouseout="stopTrailingPopup()"';
 					}
 					echo '<div id="'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' style="margin: 0px 0px 1px 0px; text-align: center; padding: 0px; width: '.($width-2).'px;'.$cursor_code.'" class="'.$event_class.' event"'.$onclick_code.'>';
 
@@ -1324,6 +1362,7 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		$res = '';
 		foreach ($events as $assetid => $details) {
+			$popup_div_id = str_replace(':', '_', $assetid);
 			$assetid = strtok($assetid, ':');
 			$event_class = (isset($root_nodes[$details['root_node']]['class_name'])) ? $root_nodes[$details['root_node']] ['class_name'] : '';
 			$onclick_code =$show_event_link ? ' onclick="clickChild(this); "' : '';
@@ -1331,8 +1370,8 @@ class Page_Calendar extends Page_Asset_Listing
 
 			$current_mouse_over_out_code = '';
 			if (isset($details['description']) && !empty($details['description'])) {
-				$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
-				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')" onmouseout="stopTrailingPopup()"';
+				$res .= '<div id="event_'.$popup_div_id.'_description" class="popup">'.$details['description'].'</div>';
+				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$popup_div_id.'_description\')" onmouseout="stopTrailingPopup()"';
 			}
 
 			$res .= '<div style="width: '.$width.'px; '.$cursor_code.'"'.$onclick_code.' '.$current_mouse_over_out_code.'><div style="width: auto; margin-bottom: 1px;" class="event '.$event_class.'">';
