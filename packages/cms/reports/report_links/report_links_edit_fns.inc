@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.6 2005/08/30 00:53:26 dheppell Exp $
+* $Id: report_links_edit_fns.inc,v 1.7 2005/08/31 00:19:38 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -109,7 +109,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					foreach ($matches as $match) {
 						// skip keywords
 						$keywords = retrieve_keywords_replacements($match);
-						if (count($keywords) == 1 && $match == '%'.$keywords[0].'%') continue;
+						if (count($keywords) == 1 && $match == '%'.$keywords[0].'%') {
+							continue;
+						}
 
 						if (!$match) continue;
 						$link_valid = '0';
@@ -206,7 +208,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	{
 		$asset = null;
 		$assetid = $link[1];
-		if ($assetid) $asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
+		if ($assetid) {
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
+		}
 
 		if (is_null($asset)) {
 			// the asset was invalid
@@ -219,12 +223,22 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		} else if (!empty($link[2])) {
 			$contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
 			$anchorExists = false;
-			foreach ($contents as $content) {
-				if (preg_match('/<a name="'.$link[2].'">/', $content, $matches)) {
-					$anchorExists = true;
-					break;
+
+			// check if we are looking for an interface for this asset
+			if (preg_match('/\/_admin|\/_edit/', $link[2], $matches)) {
+				$anchorExists = true;
+			} else if (preg_match('/^\?(.+=.*)*/', $link[2], $matches)) {
+				$anchorExists = true;
+			} else {
+			// otherwise lets traul the contents for a matching anchor
+				foreach ($contents as $content) {
+					if (preg_match('/<a name="'.$link[2].'">/', $content, $matches)) {
+						$anchorExists = true;
+						break;
+					}
 				}
 			}
+
 			if (!$anchorExists) {
 				$valid = '0';
 				$description = translate('cms_report_links_anchor_not_exist', $link[2]);
@@ -236,7 +250,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$valid = '1';
 			$description = '';
 		}
-		if (!is_null($asset)) $GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+		if (!is_null($asset)) {
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+		}
 
 		return Array('valid' => $valid, 'description' => $description);
 
@@ -267,21 +283,29 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$description = translate('cms_report_links_cannot_test_protocol');
 			$valid = '1';
 		} else {
-			if (empty($url_parts['path'])) $url_parts['path'] = '/';
-			if (empty($url_parts['port'])) $url_parts['port'] = '80';
+			if (empty($url_parts['path'])) {
+				$url_parts['path'] = '/';
+			}
+			if (empty($url_parts['port'])) {
+				$url_parts['port'] = '80';
+			}
 
 			$url_path = $url_parts['path'];
-			if (!empty($url_parts['query'])) $url_path .= '?'.$url_parts['query'];
+			if (!empty($url_parts['query'])) {
+				$url_path .= '?'.$url_parts['query'];
+			}
 
 			$socket = @fsockopen($url_parts['host'], $url_parts['port'], $errno, $errstr, 15);
 			if (!$socket) {
 				$description = translate('cms_report_links_invalid_url');
 				$valid = '1';
 			} else {
-				fwrite ($socket, "HEAD ".$url_path." HTTP/1.0\r\nHost: ".$url_parts['host']."\r\n\r\n");
+				fwrite ($socket, 'HEAD '.$url_path." HTTP/1.0\r\nHost: ".$url_parts['host']."\r\n\r\n");
 				$response = fgets($socket, 128);
 				$headers = '';
-				while (!feof($socket)) $headers .= fgets($socket, 128);
+				while (!feof($socket)) {
+					$headers .= fgets($socket, 128);
+				}
 
 				if (preg_match('|200 ok|i', $response)) {
 					$description = '';
@@ -371,7 +395,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			return;
 		}
 
-		$input = new XML_Tree($report_path);
+		$input =& new XML_Tree($report_path);
 		$root  = &$input->getTreeFromFile();
 		if (PEAR::isError($root)) {
 			trigger_localised_error('CMS0009', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
@@ -431,13 +455,14 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					<table class="sq-backend-table" style="border: 1px solid #DDDDDD;" border="0">
 						<tr>
 							<td colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in') ?></td>
-							<td colspan="2" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('linking_to') ?></td>
+							<td colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('linking_to') ?></td>
 							<td class="sq-backend-table-header"><?php echo translate('comments'); ?></td>
 						</tr>
 					<?php
 					foreach ($reported_links['internal'] as $assetid => $links) {
 						foreach ($links as $link) {
 							$from_info = $this->_getAssetReportInfo($assetid);
+							$from_name = (strlen($from_info['name']) < 40) ? $from_info['name']: ellipsisize($from_info['name'], 40);
 
 							$to = null;
 							if ($link['data']) {
@@ -448,18 +473,23 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 								$to_string = translate('unknown_asset_id', $link['data']);
 								$to_bg = 'FFF';
 								$to_status = '';
+								$to_name = '';
 							} else {
 								$to_type = $to->type();
-								$to_string = '<span title="'.$to->name.'">'.ellipsisize($to->name, 40).' [#'.$to->id.']</span>';
+								$to_name = (strlen($to->name) < 40) ? $to->name : ellipsisize($to->name, 40);
+								$to_string = '<span title="'.$to->name.'"> [#'.$to->id.'] '.$to_name.'</span>';
 								$to_bg = get_status_colour($to->status);
 								$to_status = get_status_description($to->status);
 							}
 
 							?>
 							<tr>
-								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px; text-align: right;">
-									<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('edit_this_asset'); ?>">#<?php echo (int) $from_info['assetid']; ?></a>
+								<!-- ASSET STATUS -->
+								<td class="sq-backend-table-cell" style="width: 16px; padding-top: 7px; padding-right: 0px;">
+									<span style="border: solid 1px #CCC; padding: 0 1ex;background: #<?php echo $from_info['bg']; ?>">&nbsp;</span>
 								</td>
+
+								<!-- ASSET ICON -->
 								<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
 									<?php
 									if (!empty($from_info['type'])) {
@@ -471,9 +501,18 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 									}
 									?>
 								</td>
-								<td class="sq-backend-table-cell" style="width: 190px; padding-left: 0px;">
-									<span style="border: solid 1px #CCC; padding: 0 1ex;background: #<?php echo $from_info['bg']; ?>"><?php echo $from_info['string']; ?></span>
+
+								<!-- ASSET NAME -->
+								<td class="sq-backend-table-cell" style="width: 190px; padding-right: 1px; padding-top:6px; text-align: left;">
+									<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('edit_this_asset'); ?>">[#<?php echo  $from_info['assetid']; ?>] <?php echo  $from_name ?></a>
 								</td>
+
+								<!-- LINKED STATUS -->
+								<td class="sq-backend-table-cell" style="width: 16px; padding-top: 7px; padding-right: 0px;">
+										<span style="border: solid 1px #CCC; padding: 0 1ex;background: #<?php echo $to_bg; ?>">&nbsp;</span>
+								</td>
+
+								<!-- LINKED ICON -->
 								<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
 									<?php
 									if (!empty($to_type)) {
@@ -485,12 +524,18 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 									}
 									?>
 								</td>
-								<td class="sq-backend-table-cell" style="width: 190px; padding-left: 0px;">
-									<span style="border: solid 1px #CCC; padding: 0 1ex;background: #<?php echo $to_bg; ?>"><?php echo $to_string; ?></span>
+
+								<!-- LINKED NAME -->
+								<td class="sq-backend-table-cell" style="width: 190px; padding-right: 1px; padding-top:6px; text-align: left;">
+									<?php echo $to_string; ?>
 								</td>
+								
+								<!-- COMMENT -->
 								<td class="sq-backend-table-cell">
 									<?php
-									if (!$link['valid']) echo '<span style="color: #007EFA;"><b>';
+										if (!$link['valid']) {
+											echo '<span style="color: #007EFA;"><b>';
+										}
 									echo $link['description'];
 									if (!$link['valid']) echo '</b></span>';
 									?>
@@ -513,26 +558,29 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					echo translate('cms_report_links_no_external_links');
 				} else {
 					$ast_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($reported_links['external']));
-					minibam($ast_info, 'ast of info');
-
 					?>
 					<table class="sq-backend-table">
 						<tr>
 							<td colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in'); ?></td>
-							<td class="sq-backend-table-header" style="width: 226px;"><?php echo translate('url'); ?></td>
+							<td class="sq-backend-table-header" style="width: 274px;"><?php echo translate('url'); ?></td>
 							<td class="sq-backend-table-header"><?php echo translate('comments'); ?></td>
 						</tr>
 					<?php
 					foreach ($reported_links['external'] as $assetid => $links) {
 						foreach ($links as $link) {
 							$from_info = $this->_getAssetReportInfo($assetid);
+							$from_name = (strlen($from_info['name']) < 40) ? $from_info['name']: ellipsisize($from_info['name'], 40);
 
-							$to_string = '<a href="'.$link['data'].'" target="_blank" title="'.$link['data'].'">'.ellipsisize($link['data'], 50).'</a>';
+							$name = (strlen($link['data']) < 50) ? $link['data'] : ellipsisize($link['data'], 50);
+							$to_string = '<a href="'.$link['data'].'" target="_blank" title="'.$link['data'].'">'.$name.'</a>';
 							?>
 							<tr>
-								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px; text-align: right;">
-									<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('edit_this_asset') ?>">#<?php echo (int) $from_info['assetid']; ?></a>
+								<!-- ASSET STATUS -->
+								<td class="sq-backend-table-cell" style="width: 16px; padding-top: 7px; padding-right: 0px;">
+									<span style="border: solid 1px #CCC; padding: 0 1ex;background: #<?php echo $from_info['bg']; ?>">&nbsp;</span>
 								</td>
+
+								<!-- ASSET ICON -->
 								<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
 									<?php
 									if (!empty($from_info['type'])) {
@@ -544,15 +592,23 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 									}
 									?>
 								</td>
-								<td class="sq-backend-table-cell" style="width: 190px; padding-left: 0px">
-									<span style="border: solid 1px #CCC; padding: 0 1ex;background: #<?php echo $from_info['bg']; ?>"><?php echo $from_info['string']; ?></span>
+
+								<!-- ASSET NAME -->
+								<td class="sq-backend-table-cell" style="width: 190px; padding-right: 1px; padding-top:6px; text-align: left;">
+									<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('edit_this_asset') ?>">[#<?php echo (int) $from_info['assetid']; ?>] <?php echo $from_name; ?></a>
 								</td>
-								<td class="sq-backend-table-cell" style="width: 226px;">
+
+								<!-- URL -->
+								<td class="sq-backend-table-cell" style="width: 226px; padding-right: 1px; padding-top:6px; text-align:left;">
 									<?php echo $to_string; ?>
 								</td>
+
+								<!-- COMMENTs -->
 								<td class="sq-backend-table-cell">
 									<?php
-									if (!$link['valid']) echo '<span style="color: #007EFA;"><b>';
+										if (!$link['valid']) {
+											echo '<span style="color: #007EFA;"><b>';
+										}
 									echo $link['description'];
 									if (!$link['valid']) echo '</b></span>';
 									?>
@@ -586,11 +642,16 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 						foreach ($links as $link) {
 							$from_info = $this->_getAssetReportInfo($assetid);
 							$to_string = $link['data'];
+							$name = (strlen($from_info['name']) < 40) ? $from_info['name'] : ellipsisize($from_info['name'], 40);
 							?>
 							<tr>
-								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px; text-align: right;">
-									<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('edit_this_asset'); ?>">#<?php echo (int) $from_info['assetid']; ?></a>
+
+								<!-- ASSET STATUS -->
+								<td class="sq-backend-table-cell" style="width: 16px; padding-top: 7px; padding-right: 0px;">
+								<span style="border: solid 1px #CCC; padding: 0 1ex;background: #<?php echo $from_info['bg']; ?>">&nbsp;</span>
 								</td>
+
+								<!-- ASSET ICON -->
 								<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
 									<?php
 									if (!empty($from_info['type'])) {
@@ -602,15 +663,23 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 									}
 									?>
 								</td>
-								<td class="sq-backend-table-cell" style="width: 190px; padding-left: 0px;">
-									<span style="border: solid 1px #CCC; padding: 0 1ex;background: #<?php echo $from_info['bg']; ?>"><?php echo $from_info['string']; ?></span>
+
+								<!-- ASSET NAME -->
+								<td class="sq-backend-table-cell" style="width: 190px; padding-right: 1px; padding-top:6px; text-align: left;">
+									<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('edit_this_asset'); ?>">[#<?php echo (int) $from_info['assetid']; ?>] <?php echo $name; ?></a>
 								</td>
-								<td class="sq-backend-table-cell" style="width: 274px;">
+
+								<!-- ADDRESS -->
+								<td class="sq-backend-table-cell" style="width: 226px; padding-right: 1px; padding-top:6px;">
 									<?php echo $to_string; ?>
 								</td>
+
+								<!-- COMMENTS -->
 								<td class="sq-backend-table-cell">
 									<?php
-									if (!$link['valid']) echo '<span style="color: #007EFA;"><b>';
+										if (!$link['valid']) {
+											echo '<span style="color: #007EFA;"><b>';
+										}
 									echo $link['description'];
 									if (!$link['valid']) echo '</b></span>';
 									?>
@@ -676,6 +745,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 		return Array(
 				'assetid'		=> $assetid,
+				'name'			=> $asset_name,
 				'type'			=> $asset_type,
 				'string'		=> $asset_string,
 				'bg'			=> $asset_bg,
