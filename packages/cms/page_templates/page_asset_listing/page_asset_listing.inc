@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.89 2005/08/26 06:42:09 mmcintyre Exp $
+* $Id: page_asset_listing.inc,v 1.90 2005/08/31 04:57:46 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -177,6 +177,13 @@ class Page_Asset_Listing extends Listing_Engine
 				$replacements['last_asset_position']	= '';
 				$replacements['previous_page']			= '';
 				$replacements['next_page']				= '';
+
+				$selections = $this->attr('asset_selections');
+				foreach ($selections as $selection_name => $settings) {
+					$replacements[$selection_name.'_check_all'] = '';
+					$replacements[$selection_name.'_check_all_in_group'] = '';
+				}
+
 				$format_bodycopy->setKeywordReplacements($replacements);
 				$format_bodycopy->printBody();
 				return;
