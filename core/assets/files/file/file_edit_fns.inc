@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.60.2.2 2005/08/30 08:25:44 brobertson Exp $
+* $Id: file_edit_fns.inc,v 1.60.2.3 2005/08/31 01:58:29 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60.2.2 $
+* @version $Revision: 1.60.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -390,7 +390,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			?>
 			<div>
 				<b><a href="<?php echo current_url(true, true).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank"><?php echo translate('core_current_file'); ?></a></b><br/>
-				<b><?php echo translate('size'); ?>':</b> <?php echo easy_filesize($existing['size'])?><br/>
+				<b><?php echo translate('size'); ?>:</b> <?php echo easy_filesize($existing['size'])?><br/>
 				<b><?php echo translate('updated'); ?>:</b> <?php echo readable_datetime($existing['modified'])?>
 			</div>
 			<?php
