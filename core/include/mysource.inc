@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.140 2005/08/26 04:20:24 dmckee Exp $
+* $Id: mysource.inc,v 1.141 2005/09/01 03:13:56 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.140 $
+* @version $Revision: 1.141 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1083,7 +1083,7 @@ class MySource
 		$session_name = session_name();
 		$header = "Set-Cookie: $session_name=$session_id; ";
 		if (!empty($time_to_live)) {
-			$header .= 'expires='.substr(date('r', time()+$time_to_live-((int)substr(date('O'), 0, 3)*60*60)), 0, -5).' GMT';
+			$header .= 'expires='.substr(date('r', time()+$time_to_live-((int)substr(date('O'), 0, 3)*60*60)), 0, -6).' GMT; ';
 		}
 		if (!empty($session_params['path'])) {
 			$header .= "path=$session_params[path]; ";
