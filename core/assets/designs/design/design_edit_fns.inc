@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.95 2005/08/30 07:31:30 ndvries Exp $
+* $Id: design_edit_fns.inc,v 1.96 2005/09/01 01:14:32 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,9 +55,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint the interface for the parse file uploading
 	*
-	* @param object Asset				$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -76,9 +76,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes the interface for the parse file uploading
 	*
-	* @param object Asset				$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -142,9 +142,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint the interface for the reparsing the current parse file
 	*
-	* @param object Asset				$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -169,9 +169,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes the interface for the reparsing the current parse file
 	*
-	* @param object Asset				$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -193,9 +193,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint the interface for editing the parse file
 	*
-	* @param object Asset				$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -235,9 +235,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes the interface for the editing the parse file
 	*
-	* @param object Asset				$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -300,7 +300,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Parses the parse file and processes the contents
 	*
-	* @param object Asset	$asset	the asset to which we belong
+	* @param object	&$asset	the asset to which we belong
 	*
 	* @return boolean
 	* @access public
@@ -319,10 +319,10 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Parses the string into an array recursively cut up into html and tag pieces
 	*
-	* @param object Asset	$asset	the asset to which we belong
+	* @param object	&$asset			the asset to which we belong
 	* @param string	$file_contents	the contents to parse
 	*
-	* @return Array
+	* @return array
 	* @access private
 	*/
 	function _parseString(&$asset, $file_contents)
@@ -361,8 +361,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Loops through the contents array and creates the necessary objects
 	*
-	* @param object Asset	$asset		the asset to which we belong
-	* @param array			$contents	the contents array we generated with _parseString()
+	* @param object	&$asset		the asset to which we belong
+	* @param array	$contents	the contents array we generated with _parseString()
 	*
 	* @return boolean
 	* @access private
@@ -447,7 +447,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			// if it doesn't exist, create it, and acquire the lock
 			if (is_null($da)) {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
-				$da = new $design_area();
+				$da =& new $design_area();
 				$da_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_3, 'value' => $id_name, 'is_dependant' => '1');
 				$da->setAttrValue('id_name', $id_name);
 				if (!$da->create($da_link)) {
@@ -523,7 +523,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Creates the (hopefully ;) single accumulated design file for this design
 	*
-	* @param object Asset	$asset	the asset to which we belong
+	* @param object	&$asset	the asset to which we belong
 	*
 	* @return boolean
 	* @access private
@@ -674,10 +674,11 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 
 	/**
+	* Paint New Files
 	*
-	* @param object Asset				$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -694,10 +695,11 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 
 	/**
+	* Process New Files
 	*
-	* @param object Asset				$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -718,7 +720,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				|| preg_match('/\\.tar$/', $info['name']) ) {
 
 				require_once 'Archive/Tar.php';
-				$tar_ball = new Archive_Tar($info['tmp_name']);
+				$tar_ball =& new Archive_Tar($info['tmp_name']);
 				if (($contents = $tar_ball->listContent()) != 0) {
 
 					// Basically we want to make sure that all the files in the
@@ -787,8 +789,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Creates a new file asset, populates it, and links it to $asset
 	*
-	* @param object Asset	$asset	the asset to link the file to
-	* @param array			$info	info about the uploaded file
+	* @param object	&$asset	the asset to link the file to
+	* @param array	$info	info about the uploaded file
 	*
 	* @return boolean
 	* @access public
@@ -805,10 +807,10 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$existing_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($existing_ids));
 
 		$existing_fileid = 0;
-		foreach ($existing_info as $existing_info) {
+		foreach ($existing_info as $asset_id => $asset_info) {
 			// if the name is the same, delete the link
-			if ($existing_info['name'] == $info['name']) {
-				$existing_fileid = $existing_info['assetid'];
+			if ($asset_info['name'] == $info['name']) {
+				$existing_fileid = $asset_id;
 				break;
 			}
 		}
@@ -846,27 +848,24 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($new_file->id, 'attributes');
 			$edit_fns = $new_file->getEditFns();
-			if ($edit_fns->processFileUpload($new_file, $o, $new_file->getPrefix(), $info)) {
-				if ($lock_status === 1) {
-					$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'attributes');
-				}
-				return true;
-			}
+			$success = $edit_fns->processFileUpload($new_file, $o, $new_file->getPrefix(), $info);
+
 			if ($lock_status === 1) {
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'attributes');
 			}
-		}
 
-		return false;
+			return $success;
+		}
 
 	}//end _processUploadedFile()
 
 
 	/**
+	* Paint New Customisation
 	*
-	* @param object Asset				$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -886,10 +885,11 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 
 	/**
+	* Process New Customisation
 	*
-	* @param object Asset				$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -999,10 +999,11 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 
 	/**
+	* Paint current customisation
 	*
-	* @param object Asset				$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
