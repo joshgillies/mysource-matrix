@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table_editing.inc,v 1.17.2.4 2005/06/30 00:14:59 dmckee Exp $
+* $Id: table_editing.inc,v 1.17.2.5 2005/09/01 23:48:05 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -205,6 +205,7 @@ class Table_Editing extends WYSIWYG_Plugin
 				strPage = "<?php echo $this->get_popup_href('edit_table.php')?>";
 				var width = 820;
 				var height = 570;
+				table_structure = this.make_absolute_urls(table_structure);
 				this._popupDialog("editTableProperties", strPage, width, height, true, function(params) {
 					if (!params) {
 						// user must have pressed Cancel
