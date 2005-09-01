@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table_editing.inc,v 1.25 2005/08/01 08:57:14 brobertson Exp $
+* $Id: table_editing.inc,v 1.26 2005/09/01 23:48:53 dmckee Exp $
 *
 */
 
@@ -207,6 +207,7 @@ class Table_Editing extends WYSIWYG_Plugin
 				strPage = "<?php echo $this->get_popup_href('edit_table.php')?>";
 				var width = 820;
 				var height = 570;
+				table_structure = this.make_absolute_urls(table_structure);
 				this._popupDialog("editTableProperties", strPage, width, height, true, function(params) {
 					if (!params) {
 						// user must have pressed Cancel
