@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.134 2005/08/28 23:59:34 gsherwood Exp $
+* $Id: search_page.inc,v 1.135 2005/09/01 04:18:48 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.134 $
+* @version $Revision: 1.135 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -94,7 +94,6 @@ class Search_Page extends Listing_Engine
 	function Search_Page($assetid=0)
 	{
 		$this->_ser_attrs = true;
-		$this->requires_form = true;
 		$this->Listing_Engine($assetid);
 
 	}//end constructor
@@ -294,12 +293,17 @@ class Search_Page extends Listing_Engine
 			$_REQUEST['search_category'] = $submitted_category;
 		}
 
-		?>
-		<input type="hidden" name="current_result_page" value="<?php echo $current_result_page; ?>" />
-		<input type="hidden" name="results_per_page" value="<?php echo $results_per_page; ?>" />
-		<input type="hidden" name="submitted_search_category" value="<?php echo $submitted_category; ?>" />
-		<input type="hidden" name="mode" value="" />
-		<?php
+		// pagination
+		if ($results_per_page > 0) {
+			$this->registerFormField('result_page');
+			?>
+			<input type="hidden" name="current_result_page" value="<?php echo $current_result_page; ?>" />
+			<input type="hidden" name="results_per_page" value="<?php echo $results_per_page; ?>" />
+			<input type="hidden" name="submitted_search_category" value="<?php echo $submitted_category; ?>" />
+			<input type="hidden" name="mode" value="" />
+			<?php
+		}
+
 		switch ($mode) {
 			case 'results':
 			case 'sis'    :
@@ -718,6 +722,7 @@ class Search_Page extends Listing_Engine
 			$options[$code_name] = $cat_option['full_name'];
 		}
 		ob_start();
+			$this->registerFormField('category_'.$cat_set_name);
 			combo_box('category_'.$cat_set_name, $options, false, '');
 			$res = ob_get_contents();
 		ob_end_clean();
@@ -739,6 +744,7 @@ class Search_Page extends Listing_Engine
 		$query_var = $field_name.'_query';
 		$fields = $this->attr('fields');
 		$query = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, '');
+		$read_only = false;
 
 		ob_start();
 
@@ -766,13 +772,14 @@ class Search_Page extends Listing_Engine
 									$selection->paint('queries_'.$query_var);
 								break;
 							}//end switch
-
+						} else {
+							// not printing a field, set read-only
+							$read_only = true;
 						}//end if metadata asset exists
 					break;
 
 					case 'asset_attrib' :
 						$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
-
 						if ($attribute->type() == 'datetime') {
 
 							$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
@@ -818,6 +825,10 @@ class Search_Page extends Listing_Engine
 				text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
 			}
 
+			if (!$read_only) {
+				$this->registerFormField('queries_'.$query_var);
+			}
+
 			$replacement = ob_get_contents();
 
 		ob_end_clean();
@@ -839,8 +850,8 @@ class Search_Page extends Listing_Engine
 	{
 		$query_var = $field_name.'_query_sis';
 		$query = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, '');
-
 		$fields = $this->attr('fields');
+		$read_only = false;
 
 		ob_start();
 
@@ -854,8 +865,10 @@ class Search_Page extends Listing_Engine
 						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						if (!is_null($asset)) {
 							$params = $asset->vars;
+							$this->registerFormField('queries_'.$query_var);
 							switch (get_class($asset)) {
 								case 'metadata_field_date' :
+									$read_only = true;
 									$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
 									$this->_printDateRange('queries_'.$query_var, $current_value, true);
 								break;
@@ -865,8 +878,6 @@ class Search_Page extends Listing_Engine
 								case 'metadata_field_select' :
 									$selection = $asset->getSelectionAttribute();
 									$value = Array();
-
-									$read_only = false;
 
 									if (empty($selection->_params['multiple'])) {
 										if (isset($selection->_params['options'][$query])) {
@@ -895,17 +906,20 @@ class Search_Page extends Listing_Engine
 								break;
 							}//end switch
 
+						} else {
+							// not printing a field, set read-only
+							$read_only = true;
 						}//end if metadata asset exists
 					break;
 
 					case 'asset_attrib' :
-						$read_only = false;
 						$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
 
 						if ($attribute->type() == 'datetime') {
 
+							$read_only = true;
 							$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
-							$this->_printDateRange('queries_'.$query_var, $current_value, true);
+							$this->_printDateRange('queries_'.$query_var, $current_value, $read_only);
 
 						} else {
 
@@ -956,7 +970,8 @@ class Search_Page extends Listing_Engine
 
 					case 'asset_date' :
 						$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
-						$this->_printDateRange('queries_'.$query_var, $current_value, true);
+						$read_only = true;
+						$this->_printDateRange('queries_'.$query_var, $current_value, $read_only);
 					break;
 
 					default :
@@ -968,6 +983,10 @@ class Search_Page extends Listing_Engine
 			} else {
 				// when there are multiple (or 0) data sources supplied the format is always text (for now)
 				text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
+			}
+
+			if (!$read_only) {
+				$this->registerFormField('queries_'.$query_var);
 			}
 
 			$replacement = ob_get_contents();
@@ -991,7 +1010,6 @@ class Search_Page extends Listing_Engine
 	{
 		$query_var = $field_name.'_query_sis';
 		$query = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, '');
-
 		$fields = $this->attr('fields');
 
 		ob_start();
@@ -1023,7 +1041,6 @@ class Search_Page extends Listing_Engine
 					break;
 
 					case 'asset_attrib' :
-						$read_only = false;
 						$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['data_sources'][0]['params']['attrid']);
 
 						if ($attribute->type() == 'datetime') {
@@ -1032,7 +1049,6 @@ class Search_Page extends Listing_Engine
 							$this->_printDateRangeDescription($current_value);
 
 						} else {
-
 							// if this is a boolean or selection field, we want to make sure blank options are allowed
 							if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
 								$attribute->_params['allow_empty'] = true;
@@ -1093,6 +1109,7 @@ class Search_Page extends Listing_Engine
 			case 'submit_button' :
 
 				$field_name = $prefix.'_submit_button';
+				$this->registerFormField($field_name);
 
 				// if we are on the initial search page, don't use javascript
 				// for the submit button so enter will submit the form
@@ -1110,7 +1127,9 @@ class Search_Page extends Listing_Engine
 			break;
 
 			case 'search_in_search_button' :
-				$replacement  = '<input type="submit" name="sis_search_button" onclick="
+				$field_name = 'sis_search_button';
+				$this->registerFormField($field_name);
+				$replacement  = '<input type="submit" name="'.$field_name.'" onclick="
 					document.listing_form.current_result_page.value=\'0\';
 					document.listing_form.mode.value = \'sis\';
 					return true;
@@ -1141,7 +1160,9 @@ class Search_Page extends Listing_Engine
 
 			case 'results_per_page' :
 				$results_per_page = array_get_index($_REQUEST, 'results_per_page', $this->attr('num_per_page'));
-				$replacement = '<input type="text" onchange="
+				$field_name = 'results_per_page_text_box';
+				$this->registerFormField($field_name);
+				$replacement = '<input type="text" name="'.$field_name.'" onchange="
 					document.listing_form.results_per_page.value = this.value;
 				" value="'.$results_per_page.'" size="5" />';
 			break;
@@ -1175,8 +1196,12 @@ class Search_Page extends Listing_Engine
 		foreach ($keywords as $keyword) {
 			if (ereg('(.+)_query_logic$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 				$current_logic = array_get_index($_REQUEST, $keyword, array_get_index($fields[$matches[1]], 'word_logic'));
-				$options = Array('AND' => translate('sch_page_format_logic_and'), 'OR' => translate('sch_page_format_logic_or'));
+				$options = Array(
+							'AND'	=> translate('sch_page_format_logic_and'),
+							'OR'	=> translate('sch_page_format_logic_or')
+						   );
 				ob_start();
+					$this->registerFormField($keyword);
 					combo_box($keyword, $options, false, $current_logic);
 					$replaces[$keyword] = ob_get_contents();
 				ob_end_clean();
@@ -1424,6 +1449,7 @@ class Search_Page extends Listing_Engine
 						$current_logic = array_get_index($_REQUEST, $keyword, 'AND');
 						$options = Array('AND' => translate('sch_page_format_logic_and'), 'OR' => translate('sch_page_format_logic_or'));
 						ob_start();
+							$this->registerFormField($keyword);
 							combo_box($keyword, $options, false, $current_logic);
 							$replacement = ob_get_contents();
 						ob_end_clean();
