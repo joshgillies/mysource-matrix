@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.274 2005/08/26 03:27:48 dheppell Exp $
+* $Id: asset_edit_interface.inc,v 1.275 2005/09/01 23:14:49 dheppell Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.274 $
+* @version $Revision: 1.275 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -774,7 +774,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$check_screen_restrictions = !$creating && (!($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()));
 		if ($check_screen_restrictions) {
 			$allowed_screens = $this->getAllowedScreens($owner);
-			if (isset($allowed_screens['0']['0'])) {
+			if (empty($allowed_screens)) {
 				$check_screen_restrictions = false;
 			}
 		}
@@ -1663,7 +1663,7 @@ class Asset_Edit_Interface extends MySource_Object
 				if (!$owner->adminAccess('')) {
 					$allowed_screens = $this->getAllowedScreens($owner);
 
-					if (!isset($allowed_screens['0']['0']) && !isset($allowed_screens[$active_screen])) {
+					if (!empty($allowed_screens) && !isset($allowed_screens[$active_screen])) {
 						// this user is not allowed to view the current screen
 						$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
 						exit();
