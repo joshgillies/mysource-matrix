@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.11 2005/08/29 06:56:39 ndvries Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.12 2005/09/02 04:12:11 ndvries Exp $
 *
 */
 
@@ -49,7 +49,7 @@ require_once 'include/conditions_list.inc';
 * If an attribute is not recognised, the condition will be evaluated as false.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -109,7 +109,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 						switch ($condition_parts[1]) {
 							case SQ_KEYWORD_CONDITION_BEGIN :
 								$this->_addRequiredKeywordsFromEvaluatedKeyword($test_keyword, $required_substitution_keywords);
-								$value = 'if (empty($paint_layout_keywords[\''.$test_keyword.'\']) && trim($paint_layout_keywords[\''.$test_keyword.'\']) != \'\') {';
+								$value = 'if (!empty($paint_layout_keywords[\''.$test_keyword.'\']) && trim($paint_layout_keywords[\''.$test_keyword.'\']) != \'\') {';
 							break;
 							case SQ_KEYWORD_CONDITION_ELSE :
 								$value = '} else {';
