@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.51 2005/08/30 09:08:49 brobertson Exp $
+* $Id: lang_strings.xml,v 1.52 2005/09/02 06:57:54 lwright Exp $
 *
 */
 
@@ -1133,7 +1133,7 @@
 	<string source="manually_cascade_permissions_option">Manually cascade permissions</string>
 	<string source="password_rules_configuration">Password Rules Configuration</string>
 	<string source="session_rules_configuration">Session Rules Configuration</string>
-	
+
 	<string source="permission_section">%1$s Permission</string>
 	<string source="specific_permission">Specific Permission</string>
 	<string source="public_permission">Public Permission</string>
@@ -1349,9 +1349,12 @@
 
 	<!-- strings for javascript -->
 	<string source="submission_form_not_found" js="1">Could not find form with ID %s to submit</string>
-	<string source="jshttpconnector_transmit_error" js="1">JSHTTPCONNECTOR TRANSMIT ERROR: \n %s</string>
-	<string source="jshttpconnector_receive_error" js="1">JSHTTPCONNECTOR RECEIVE ERROR: \n %s</string>
-	<string source="jshttpconnector_status">\n(HTTP Status = %s)</string>
+	<string source="jshttpconnector_transmit_error" js="1">JSHTTPCONNECTOR TRANSMIT ERROR:
+%s</string>
+	<string source="jshttpconnector_receive_error" js="1">JSHTTPCONNECTOR RECEIVE ERROR:
+%s</string>
+	<string source="jshttpconnector_status">
+(HTTP Status = %s)</string>
 	<string source="unable_to_use_layers" js="1">Unable to use layers on your page, sorry</string>
 	<string source="element_not_combo_box" js="1">Element "%s" is not a combo box</string>
 	<string source="not_leap_year" js="1">%1$s is not a leap year, there is no %2$sth of Feburary.</string>
@@ -1369,7 +1372,8 @@
 	<string source="unable_to_initialise_iframe" js="1">ERROR: IFRAME can't be initialized.</string>
 	<string source="undefined_mode" js="1">Mode %s not defined!</string>
 	<string source="mozilla13_alpha_not_supported" js="1">You need at least Mozilla-1.3 Alpha.\n Sorry, your Gecko is not supported.</string>
-	<string source="mozilla13_beta_not_supported" js="1">Mozilla 1.3 Beta or before is not supported!\n I'll try, though, but it might not work.</string>
+	<string source="mozilla13_beta_not_supported" js="1">Mozilla 1.3 Beta or before is not supported!
+I'll try, though, but it might not work.</string>
 	<string source="changing_dictionary" js="1">Please wait: changing dictionary to: "%s".</string>
 	<string source="spellcheck_complete" js="1">Spelling checking is complete</string>
 	<string source="impossible_condition_occured" js="1">An impossible condition just happened.  Call FBI.  ;-)</string>
@@ -1382,7 +1386,8 @@
 	<string source="lin_not_exists" js="1">This link does not exist</string>
 	<string source="page_not_loaded_yet" js="1">You were too quick off the mark, the page is not loaded yet. Do you want to reload the page?</string>
 	<string source="no_url_found" js="1">No URL found for "%1$s"; Design "%2$s" might not be linked under a site with a URL</string>
-	<string source="cannot_accept_non_digit_characters" js="1">This is an numerical field.\nUnable to accept non-digit characters in this field.</string>
+	<string source="cannot_accept_non_digit_characters" js="1">This is an numerical field.
+Unable to accept non-digit characters in this field.</string>
 	<string source="cannot_be_negative" js="1">This field has to be non-negative.</string>
 	<string source="collapse_all" js="1">Collapse All</string>
 	<string source="expand_all" js="1">Expand All</string>
@@ -1405,11 +1410,16 @@
 	<string source="order_type_unknown" js="1">ORDER TYPE : "%s" unknown</string>
 	<string source="enter_positive_number" js="1">Please enter a positive number</string>
 	<string source="invalid_colour_code" js="1">Invalid color code: %s</string>
-	<string source="preview_needs_rewritten" js="1">"FIXME: preview needs rewritten:\n  show the image inside this window instead of opening a new one.</string>
-	<string source="must_select_at_least_one_protocol" js="1">You need to select at least one protocol, otherwise the url will be deleted.\nDo you want to delete "%s" ?</string>
+	<string source="preview_needs_rewritten" js="1">FIXME: preview needs rewritten:
+show the image inside this window instead of opening a new one.</string>
+	<string source="must_select_at_least_one_protocol" js="1">You need to select at least one protocol, otherwise the url will be deleted.
+Do you want to delete "%s" ?</string>
 	<string source="confirm_purge_trash" js="1">Are you sure you want to purge all assets currently in the trash?</string>
-	<string source="confirm_delete_component" js="1">Deleting a component cannot be undone.\nAre you sure you want to proceed?</string>
-	<string source="confirm_delete_trigger" js="1">Are you sure you want to delete the selected triggers?\n\nItems to delete: %s</string>
+	<string source="confirm_delete_component" js="1">Deleting a component cannot be undone.
+Are you sure you want to proceed?</string>
+	<string source="confirm_delete_trigger" js="1">Are you sure you want to delete the selected triggers?
+
+Items to delete: %s</string>
 	<string source="confirm_cancel" js="1">Are you sure you want to cancel?</string>
 	<string source="warn_delete_all_files_associated_to_patch" js="1">This will delete all files associated with this patch.</string>
 	<string source="more_info" js="1">More Info</string>
