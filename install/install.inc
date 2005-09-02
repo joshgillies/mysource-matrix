@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.53 2005/07/12 03:26:14 lwright Exp $
+* $Id: install.inc,v 1.54 2005/09/02 06:07:49 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1220,7 +1220,9 @@ function build_locale_string_file($locale)
 					'translated_strings["'.$locale.'"] = new Array();'."\n";
 
 		foreach ($js_strings as $string_code => $string) {
-			$js_file .= 'translated_strings["'.$locale.'"]["'.$string_code.'"] = "'.str_replace('"', '\\"', $string).'";'."\n";
+			$string = str_replace("\n", '\\n', $string);
+			$string = str_replace('"', '\\"', $string);
+			$js_file .= 'translated_strings["'.$locale.'"]["'.$string_code.'"] = "'.$string.'";'."\n";
 		}
 
 		string_to_file($js_file, SQ_DATA_PATH.'/public/system/core/js_strings.'.$locale.'.js');
@@ -1452,7 +1454,7 @@ function extract_strings_from_xml($file, $root_element, $child_element, $key_att
 		}
 
 		$source_code = $string_node->attributes[$key_attribute];
-		$translation = $string_node->content;
+		$translation = html_entity_decode($string_node->content);
 
 		// have it already been set in this file?
 		if (isset($extracted_strings[$source_code])) {
@@ -1502,7 +1504,7 @@ function extract_errors_from_xml($file, $root_element, $child_element, $key_attr
 		}
 
 		$source_code = $string_node->attributes[$key_attribute];
-		$translation = $string_node->content;
+		$translation = html_entity_decode($string_node->content);
 
 		// have it already been set in this file?
 		if (isset($extracted_strings[$source_code])) {
@@ -1551,7 +1553,7 @@ function extract_internal_messages($file)
 
 		foreach ($string_node->children as $sub_node) {
 			if (($sub_node->name == 'subject') || ($sub_node->name == 'body')) {
-				$translation[$sub_node->name] =& $sub_node->content;
+				$translation[$sub_node->name] =& html_entity_decode($sub_node->content);
 			}
 		}
 
@@ -1565,9 +1567,8 @@ function extract_internal_messages($file)
 		} else if (empty($translation)) {
 			trigger_error('Skipping translation for code "'.$source_code.'" as the translation appears to be empty', E_USER_NOTICE);
 		} else {
-			// replace \n with a new line, but not \\n
-			$extracted_messages[$source_code]['subject'] = str_replace('\n', "\n", $translation['subject']);
-			$extracted_messages[$source_code]['body']    = str_replace('\n', "\n", $translation['body']);
+			$extracted_messages[$source_code]['subject'] = $translation['subject'];
+			$extracted_messages[$source_code]['body']    = $translation['body'];
 		}
 
 	}//end foreach string_node
