@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.37.2.1 2005/06/28 00:09:00 tbarrett Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.37.2.2 2005/09/02 03:55:57 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.37.2.1 $
+* @version $Revision: 1.37.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -118,7 +118,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 			if (in_array($key, $defaults)) {
 				$html .= ' checked="checked"';
 			}
-			$html .= $extras.' />';
+			$html .= ($extras == '') ? '/>' : ' '.$extras.' />';
 
 			$html .= '&nbsp;<label for="'.$this->id.'_'.$key.'">'.$value.'</label>';
 
