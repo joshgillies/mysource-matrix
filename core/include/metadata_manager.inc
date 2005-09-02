@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.83.2.4 2005/08/29 04:47:20 dheppell Exp $
+* $Id: metadata_manager.inc,v 1.83.2.5 2005/09/02 03:07:49 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.83.2.4 $
+* @version $Revision: 1.83.2.5 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -945,7 +945,15 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_status_changed_by_name':
 					$field_name = substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_by_name') - strlen('asset_'));
 					echo 'if (!isset($metadata_'.$field_name.'_by_user)) {
-					$metadata_'.$field_name.'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.$field_name.'_userid);'."\n}\n";
+					$evaluate = false;
+					$id_parts = explode(\':\', $metadata_asset->id);
+					if (isset($id_parts[1])) $evaluate = true;
+					else {
+						$asset_info = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo(Array($metadata_asset->'.$field_name.'_userid));
+						if (!empty($asset_info)) $evalueate = true;
+					}
+					if ($evaluate) {
+						$metadata_'.$field_name.'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.$field_name.'_userid);}'."\n}\n";
 					echo 'if (!empty($metadata_'.$field_name.'_by_user)) { ';
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.$field_name.'_by_user->name;'."\n";
 					echo '} else {'."\n";
