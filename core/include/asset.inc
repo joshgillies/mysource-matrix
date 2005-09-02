@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.451 2005/08/24 04:36:08 skim Exp $
+* $Id: asset.inc,v 1.452 2005/09/02 04:01:58 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.451 $
+* @version $Revision: 1.452 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -271,6 +271,14 @@ class Asset extends MySource_Object
 		$now    = time();
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$initial_version = '0.0.1';
+		$initial_status = SQ_STATUS_UNDER_CONSTRUCTION;
+		if (array_get_index($link, 'is_dependant') && ($link['asset']->status != SQ_STATUS_UNDER_CONSTRUCTION)) {
+			$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+			if (0 == count($wfm->getSchemas($link['asset']->id, true))) {
+				// no workflow for parent
+				 $initial_status = $link['asset']->status;
+			}
+		}
 
 		$now_sql = db_extras_todate($db, ts_iso8601($now));
 		$sql = 'INSERT INTO
@@ -298,7 +306,7 @@ class Asset extends MySource_Object
 					'.$db->quoteSmart($this->type()).',
 					'.$db->quoteSmart($name).',
 					'.$db->quoteSmart($name).',
-					'.$db->quoteSmart(SQ_STATUS_UNDER_CONSTRUCTION).',
+					'.$db->quoteSmart($initial_status).',
 					'.$now_sql.',
 					'.$db->quoteSmart($userid).',
 					'.$now_sql.',
@@ -315,7 +323,7 @@ class Asset extends MySource_Object
 		$this->version               = $initial_version;
 		$this->name                  = $name;
 		$this->short_name            = $name;
-		$this->status                = SQ_STATUS_UNDER_CONSTRUCTION;
+		$this->status                = $initial_status;
 		$this->created               = $now;
 		$this->created_userid        = $userid;
 		$this->updated               = $now;
@@ -2271,7 +2279,7 @@ class Asset extends MySource_Object
 	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0', $moving=false)
 	{
 		if (!$this->id) return 0;
-		return $GLOBALS['SQ_SYSTEM']->am->createAssetLink($this, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving); 	                 return $GLOBALS['SQ_SYSTEM']->am->createAssetLink($this, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
+		return $GLOBALS['SQ_SYSTEM']->am->createAssetLink($this, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
 
 	}//end createLink()
 
@@ -3478,7 +3486,6 @@ class Asset extends MySource_Object
 
 		$grants  = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, true);
 		$revokes = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, false, false);
-
 		// has their access been revoked at all?
 		if (!empty($revokes)) {
 			$revoked = array_intersect($assetids, $revokes);
