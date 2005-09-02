@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.37.2.1 2005/07/21 01:42:39 tbarrett Exp $
+* $Id: html_form.js,v 1.37.2.2 2005/09/02 01:28:17 dheppell Exp $
 *
 */
 
@@ -673,7 +673,7 @@ function prependClearButton(elt, inherit)
 {
 	newButton = document.createElement('input');
 	newButton.type = 'button';
-	newButton.value = js_tranlsate('clear');
+	newButton.value = js_translate('clear');
 	if (inherit) {
 		newButton.onclick = new Function("resetLastSelect(this); clearLastCheckbox(this);");
 	} else {
