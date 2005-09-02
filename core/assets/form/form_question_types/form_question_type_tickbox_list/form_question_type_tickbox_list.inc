@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.2 2005/09/02 03:52:49 dheppell Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.3 2005/09/02 04:09:45 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,10 +106,12 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 					list-style-type:	none;
 					margin-left:		0px;
 					padding-left:		0px;
+					white-space:		nowrap;
 				}
 				ul.horizontal-tickboxes li {
 					display:			inline;
 					margin-right:		15px;
+					white-space:		nowrap;
 				}
 			</style>
 		';
