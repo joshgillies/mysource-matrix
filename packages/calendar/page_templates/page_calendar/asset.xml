@@ -14,7 +14,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.9 2005/04/29 05:39:19 gsherwood Exp $
+* $Id: asset.xml,v 1.10 2005/09/04 23:09:18 skim Exp $
 *
 */
 -->
@@ -27,7 +27,7 @@
 	<description>Calendar Page, users can display Calendar Event type assets in the form of a daily, weekly, monthly or annual calendar (in traditional or listing formats) using this asset.</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>
-	<parent_type>page_asset_listing</parent_type>
+	<parent_type>page</parent_type>
 	<requirements>
 		<requirement type="asset">
 			<code>page_asset_listing</code>
@@ -35,4 +35,4 @@
 		</requirement>
 	</requirements>
 	<flash_menu_path>Calendar</flash_menu_path>
-</asset_info> 
+</asset_info>

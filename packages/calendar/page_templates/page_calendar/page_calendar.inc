@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.167 2005/08/31 05:43:21 skim Exp $
+* $Id: page_calendar.inc,v 1.168 2005/09/04 23:09:18 skim Exp $
 *
 */
 
@@ -31,11 +31,11 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.167 $
+* @version $Revision: 1.168 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
-class Page_Calendar extends Page_Asset_Listing
+class Page_Calendar extends Page
 {
 
 
@@ -65,22 +65,25 @@ class Page_Calendar extends Page_Asset_Listing
 	*
 	* @param int	$assetid	the asset id to be loaded
 	*
+	* @return object
+	* @access public
 	*/
 	function Page_Calendar($assetid=0)
 	{
-		$this->Page_Asset_Listing($assetid);
+		$this->_ser_attrs = true;
+		$this->Page($assetid);
 
 	}//end constructor
 
 
 	/**
-	* Create this asset
+	* Create this asset.
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
-	* @see Asset::create()
-	* @return mixed int or false
+	* @return mixed int|boolean
 	* @access public
+	* @see Asset::create()
 	*/
 	function create(&$link)
 	{
@@ -116,8 +119,8 @@ class Page_Calendar extends Page_Asset_Listing
 	*        )
 	* </PRE>
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
@@ -128,7 +131,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		// create the page contents bodycopy
 		$page_contents_data = Array('content' => '<h2 style="text-align: center">%calendar_title%</h2><p style="text-align: center">%prev_link%&nbsp;&nbsp;&nbsp;&nbsp;%up_link%&nbsp;&nbsp;&nbsp;&nbsp;%next_link%</p>%calendar_contents%');
-		$asset = new Bodycopy();
+		$asset =& new Bodycopy();
 		$copy_link = Array('asset' => &$this, 'value' => 'page_contents' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', 'Page Contents');
 		if (!$asset->create($copy_link, $page_contents_data)) {
@@ -140,7 +143,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		// create the event formats folder
 		$copy_link = Array('asset' => &$this, 'value' => 'type_formats' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-		$type_formats = new Folder();
+		$type_formats =& new Folder();
 		$type_formats->setAttrValue('name', 'Type Formats');
 		if (!$type_formats->create($copy_link)) {
 			$this->id = 0;
@@ -153,7 +156,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$event_types = Array('single', 'recurring');
 		foreach ($event_types as $event_type) {
 			$copy_link['value'] = 'calendar_event_'.$event_type;
-			$asset = new Bodycopy();
+			$asset =& new Bodycopy();
 			$asset->setAttrValue('name', ucfirst($event_type).' Event Format');
 			if (!$asset->create($copy_link, $event_bodycopy_data)) {
 				$this->id = 0;
@@ -169,6 +172,24 @@ class Page_Calendar extends Page_Asset_Listing
 		return true;
 
 	}//end _createAdditional()
+
+
+	/**
+	* Returns an array of all the permitted link type, the type asset and the cardinality
+	*
+	* @return array
+	* @access private
+	* @see Asset::_getAllowedLinks()
+	*/
+	function _getAllowedLinks()
+	{
+		$page_links = parent::_getAllowedLinks();
+		$page_links[SQ_LINK_TYPE_2]['folder']   = Array('card' => 'M', 'exclusive' => false);
+		$page_links[SQ_LINK_NOTICE]['asset']    = Array('card' => 'M', 'exclusive' => false);
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 1,   'exclusive' => true);
+		return $page_links;
+
+	}//end _getAllowedLinks()
 
 
 	/**
@@ -252,8 +273,9 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Look at the request values SQ_CALENDAR_DATE and SQ_CALENDAR_VIEW,
 	* check they are valid and tweak them if necessary
+	* It returns false if a non-recoverable problem was encountered
 	*
-	* @return boolean	false if a non-recoverable problem was encountered
+	* @return boolean
 	* @access private
 	*/
 	function _validateRequest()
@@ -347,8 +369,9 @@ class Page_Calendar extends Page_Asset_Listing
 
 	/**
 	* Get the replacements for the up, next and previous links
+	* This return an array of keyword => replacement value
 	*
-	* @return array		keyword => replacement value
+	* @return array
 	* @access private
 	*/
 	function _getNavLinkReplacements()
@@ -398,8 +421,8 @@ class Page_Calendar extends Page_Asset_Listing
 	* )
 	* </pre>
 	*
+	* @return array
 	* @access public
-	* @return array(string => string)
 	*/
 	function getContentsKeywords()
 	{
@@ -423,7 +446,9 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Get the replacenent for the %calendar_title% keyword
 	*
-	* @return string	The title to be displayed
+	* The title to be displayed
+	*
+	* @return string
 	* @access public
 	*/
 	function getCalendarTitle()
@@ -445,7 +470,9 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Get the replacement for the %calendar_contents% keyword
 	*
-	* @return string	The contents to be displayed
+	* The contents to be displayed
+	*
+	* @return string
 	* @access public
 	*/
 	function getCalendarContents()
@@ -470,6 +497,9 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Get the contents of the year view for the year containing the specified day
 	*
+	* @param string	$date	the ISO 8601'd date that we are displaying (YYYY-MM-DD)
+	* @param string	$format	the format of display
+	*
 	* @return void
 	* @access public
 	*/
@@ -486,13 +516,11 @@ class Page_Calendar extends Page_Asset_Listing
 			if ($list_entry_types['year'] == 'title') {
 				echo $this->_getTitleList($events, $enabled_views['event']);
 			} else {
-				$this->filterAssetStatuses($events);
-				$this->printAssetList($events);
+				$this->printEventList($events);
 			}
 		} else if ($format == 'list_with_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getYearEventsByMonth($year);
-
 			foreach ($this->month_names_full as $month_num => $month_name) {
 
 				uasort($events[$month_num], 'compare_start_dates');
@@ -507,8 +535,7 @@ class Page_Calendar extends Page_Asset_Listing
 				if ($list_entry_types['year'] == 'title') {
 					echo $this->_getTitleList($events[$month_num], $enabled_views['event']);
 				} else {
-					$this->filterAssetStatuses($events[$month_num]);
-					$this->printAssetList($events[$month_num]);
+					$this->printEventList($events[$month_num]);
 				}
 			}
 		} else {
@@ -593,7 +620,8 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Get the contents of the monthly view with for the month containing the specified day
 	*
-	* @param string	$iso	the ISO 8601'd date that we are displaying (YYYY-MM-DD)
+	* @param string	$date	the ISO 8601'd date that we are displaying (YYYY-MM-DD)
+	* @param string	$format	the format of display
 	*
 	* @return void
 	* @access public
@@ -616,8 +644,7 @@ class Page_Calendar extends Page_Asset_Listing
 			if ($list_entry_types['month'] == 'title') {
 				echo $this->_getTitleList($events, $enabled_views['event']);
 			} else {
-				$this->filterAssetStatuses($events);
-				$this->printAssetList($events);
+				$this->printEventList($events);
 			}
 		} else if ($format == 'list_with_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
@@ -635,8 +662,7 @@ class Page_Calendar extends Page_Asset_Listing
 				if ($list_entry_types['month'] == 'title') {
 					echo $this->_getTitleList($events[$current_day], $enabled_views['event']);
 				} else {
-					$this->filterAssetStatuses($events[$current_day]);
-					$this->printAssetList($events[$current_day]);
+					$this->printEventList($events[$current_day]);
 				}
 			}
 		} else {
@@ -784,7 +810,8 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Get the contents of the week view for the week containing the specified day
 	*
-	* @param string	$date one of the dates in the week to show
+	* @param string	$date	the ISO 8601'd date that we are displaying (YYYY-MM-DD)
+	* @param string	$format	the format of display
 	*
 	* @return void
 	* @access public
@@ -801,8 +828,7 @@ class Page_Calendar extends Page_Asset_Listing
 			if ($list_entry_types['week'] == 'title') {
 				echo $this->_getTitleList($events, $enabled_views['event']);
 			} else {
-				$this->filterAssetStatuses($events);
-				$this->printAssetList($events);
+				$this->printEventList($events);
 			}
 		} else if ($format == 'list_with_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
@@ -815,8 +841,7 @@ class Page_Calendar extends Page_Asset_Listing
 				if ($list_entry_types['week'] == 'title') {
 					echo $this->_getTitleList($events[$day_date], $enabled_views['event']);
 				} else {
-					$this->filterAssetStatuses($events[$day_date]);
-					$this->printAssetList($events[$day_date]);
+					$this->printEventList($events[$day_date]);
 				}
 			}
 		} else {
@@ -841,7 +866,7 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Get the contents of the day view for the specified day
 	*
-	* @param string	$iso	the ISO 8601'd day (YYYY-MM-DD)
+	* @param string	$date	the ISO 8601'd day (YYYY-MM-DD)
 	* @param string	$format	'list_with_headings' | 'list_without_headings' | 'calendar_format'
 	*
 	* @return void
@@ -857,8 +882,7 @@ class Page_Calendar extends Page_Asset_Listing
 			if ($list_entry_types['day'] == 'title') {
 				echo $this->_getTitleList($events, $enabled_views['event']);
 			} else {
-				$this->filterAssetStatuses($events);
-				$this->printAssetList($events);
+				$this->printEventList($events);
 			}
 		} else {
 			$column_names = Array();
@@ -895,24 +919,18 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Get the contents of the details of the specified event by itself
 	*
+	* @param int	$event_id	the assetid of the event to display
+	*
 	* @return void
 	* @access public
 	*/
 	function getEventView($event_id)
 	{
+		$res = '';
 		ob_start();
 			$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($event_id));
-			$asset_list = Array($event_id => $info[$event_id]['type_code']);
-			$this->filterAssetStatuses($asset_list);
-			$this->filterAssetTypes($asset_list);
-			$type_folder = &$this->getFolder('type_formats');
-			$this->_tmp['type_folder_id']	= $type_folder->id;
-			$this->_tmp['is_default']		= Array();
-			// listing engine uses this information
-			$this->_tmp['assets_info'] = $info;
-			if (!empty($asset_list)) {
-				$this->_printAsset($event_id, $asset_list[$event_id], null);
-			}
+			if (!empty($info)) $this->printEventList($info);
+
 			$res = ob_get_contents();
 		ob_end_clean();
 		return $res;
@@ -926,6 +944,8 @@ class Page_Calendar extends Page_Asset_Listing
 	* If the form has been submitted it is processed, and if the processing was successful
 	* event view is returned
 	*
+	* @param int	$event_id	the assetid of the event to display
+	*
 	* @return void
 	* @access public
 	*/
@@ -933,7 +953,7 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		$event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($event_id);
 		require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
-		$o = new Limbo_Outputter();
+		$o =& new Limbo_Outputter();
 		if (!$event->id) {
 			trigger_localised_error('CAL0024', E_USER_WARNING, $event_id);
 			return false;
@@ -986,10 +1006,10 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Get the HTML for an unordered list of the titles of the given events, with links if required
 	*
-	* @param $events		array	The events to show, $assetid => array of details
-	* @param $show_links	boolean	Whether to link the names to the events' event view
+	* @param array		$events		The events to show, $assetid => array of details
+	* @param boolean	$show_links	Whether to link the names to the events' event view
 	*
-	* @return string	The HTML of the list
+	* @return string
 	* @access private
 	*/
 	function _getTitleList($events, $show_links=true)
@@ -1016,9 +1036,9 @@ class Page_Calendar extends Page_Asset_Listing
 	* as specified.
 	*
 	* @param string		$table_id			The id to use for the HTML table element
-	* @param Array		$column_names		A column_id=>name array of the columns in the table
-	* @param Array		$column_links		A column_id=>href of places to link column headers to
-	* @param Array		$events				A column_id=>array(hhmm=>array(events)) array of events to show
+	* @param array		$column_names		A column_id=>name array of the columns in the table
+	* @param array		$column_links		A column_id=>href of places to link column headers to
+	* @param array		$events				A column_id=>array(hhmm=>array(events)) array of events to show
 	* @param boolean	$show_event_links	Whether to link the event names to the event view
 	*
 	* @return void
@@ -1201,17 +1221,19 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Get the contents of a cell in the week or day table
 	*
-	* @param array		$events				The events for the cell, $assetid => details
+	* @param array		&$events			The events for the cell, $assetid => details
+	* @param string		$event_link_date	The date to the event link
 	* @param boolean	$show_event_links	Whether to link the event's name to its event view
-	* @param array		$root_nodes			The root nodes for this page, used for getting classnames
+	* @param array		&$root_nodes		The root nodes for this page, used for getting classnames
 	* @param int		$cell_ts			The timestamp (seconds today) of the earliest time in the cell
 	* @param int		$partition_time		The length of the partition in minutes
 	* @param float		$cell_height		The height of the cell, in pixels
 	* @param float		$event_width		The width of the event, in pixels
+	* @param array		&$layout_map		The array of layouts
 	* @param string		$mousedown_code		Javascript code to put in the onmousedown attribute of the event DIVs
 	* @param string		$mouseup_code		Javascript code to put in the onmouseup attribute of the event DIVs
 	*
-	* @return string	The HTML for the contents of the table cell
+	* @return string
 	* @access private
 	*/
 	function _getTimedTableCellContents(&$events, $event_link_date, $show_event_links, &$root_nodes, $cell_ts, $partition_time, $cell_height, $event_width, &$layout_map, $mousedown_code, $mouseup_code)
@@ -1313,11 +1335,13 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Get the contents of a cell in the month table
 	*
-	* @param array		$events				The events for the cell, $assetid => details
+	* @param array		&$events			The events for the cell, $assetid => details
 	* @param boolean	$show_event_link	Whether to link the event's name to its event view
-	* @param array		$root_nodes			The root nodes for this page, used for getting classnames
+	* @param string		$event_link_date	The date to the event link
+	* @param array		&$root_nodes		The root nodes for this page, used for getting classnames
+	* @param float		$width				The width of the event, in pixels
 	*
-	* @return string	The HTML for the contents of the table cell
+	* @return string
 	* @access private
 	*/
 	function _getMonthCellContents(&$events, $show_event_link, $event_link_date, &$root_nodes, $width)
@@ -1338,7 +1362,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 			$res .= '<div style="width: '.$width.'px; '.$cursor_code.'"'.$onclick_code.' '.$current_mouse_over_out_code.'><div style="width: auto; margin-bottom: 1px;" class="event '.$event_class.'">';
 			if ($show_event_link) {
-				$res .= '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$event_link_date.'&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'" class="event '. $event_class.'">';
+				$res .= '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$event_link_date.'&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'" class="event '.$event_class.'">';
 			}
 			$res .= $details['name'];
 			if ($show_event_link) $res .= '</a>';
@@ -1352,8 +1376,8 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Print general javascript used by this page
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function _getGeneralScript()
 	{
@@ -1401,10 +1425,10 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Print the javascript needed to support click-to-add-event behaviour
 	*
-	* @param $ab_id		The assetid of the asset builder page to redirect to
+	* @param int	$ab_id	The assetid of the asset builder page to redirect to
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _printAddEventScript($ab_id)
 	{
@@ -1432,10 +1456,11 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Print the javascript needed to support drag and drop editing of events
 	*
-	* @param $table_id	The ID of the HTML table within which events are being dragged and dropped
+	* @param int	$table_id	The ID of the HTML table within which events are being dragged and dropped
+	* @param array	$columns	The array of columns
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _printEventDraggingScript($table_id, $columns=null)
 	{
@@ -1542,8 +1567,8 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Print the script used to support rollover description popups
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _printPopupsScript()
 	{
@@ -1560,8 +1585,9 @@ class Page_Calendar extends Page_Asset_Listing
 
 	/**
 	* Returns the maximum number of overlapping events in a certain event list
+	* minimum of 1
 	*
-	* @param Array	&$events	array of events containing at least start_date and
+	* @param array	&$events	array of events containing at least start_date and
 	*							end_date indices which only contain a time component
 	*							(HH:MM:SS) as their value for both
 	* @param string	$start		Earliest time to check for overlaps (HH:MM)
@@ -1570,7 +1596,7 @@ class Page_Calendar extends Page_Asset_Listing
 	* @param int	$root_node	The root node that we are restricting this search to. If left
 	*							NULL this will search all root nodes
 	*
-	* @return int				minimum of 1
+	* @return int
 	* @access private
 	*/
 	function _countOverlappingEvents(&$events, $start, $end, $spacing, $root_node=null)
@@ -1644,6 +1670,10 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Add the specified number of minutes to the time given
 	*
+	* @param float	&$current_hour	The timestamp of the current hour
+	* @param float	&$current_mins	The timestamp of the current minutes
+	* @param float	$add_mins		The timestamp of the minutes to add
+	*
 	* @return void
 	* @access private
 	*/
@@ -1665,8 +1695,8 @@ class Page_Calendar extends Page_Asset_Listing
 	* @param array	$day_start_dts	The day-timestamp (minutes since midnight) of the day start time
 	* @param array	$day_end_dts	The day-timestamp of the day end time
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _trimEvent(&$details, $day_start_dts, $day_end_dts)
 	{
@@ -1700,8 +1730,12 @@ class Page_Calendar extends Page_Asset_Listing
 
 	/**
 	* Get the events to show in year view for the specified year
+	* It return the array of assetid => asset_type_code
 	*
-	* @return array	( assetid => asset_type_code )
+	* @param int	$year	the year of the events
+	*
+	* @return array
+	* @access private
 	*/
 	function getYearEvents($year)
 	{
@@ -1746,8 +1780,12 @@ class Page_Calendar extends Page_Asset_Listing
 
 	/**
 	* Get the events to show in year view for the specified year, separated into months
+	* It return the array of month_number => array ( assetid => asset_type_code )
 	*
-	* @return array ( month_number => array ( assetid => asset_type_code ))
+	* @param int	$year	the year of the events
+	*
+	* @return array
+	* @access private
 	*/
 	function getYearEventsByMonth($year)
 	{
@@ -1761,15 +1799,13 @@ class Page_Calendar extends Page_Asset_Listing
 		$last_day = sprintf('%04d-%02d-%02d', $year, 12, 31);
 
 		$plain_events = $this->getYearEvents($year);
+
 		$events =& expand_event_list($plain_events, $cal_date, $last_day);
 
 		foreach ($events as $id => $details) {
 			if ($details['start_date_year'] == $year) {
 				$res[$details['start_date_mon']][strtok($id, ':')] = $details; // use strtok because we only want to see one instance per month
 			}
-		}
-		foreach ($res as $date => $events) {
-			process_exceptions($res[$date]);
 		}
 
 		return $res;
@@ -1779,8 +1815,13 @@ class Page_Calendar extends Page_Asset_Listing
 
 	/**
 	* Get the events to show in year view for the specified year, separated into months and days
+	* It return the array of month_number => array
+	* (month_number => array ( day_number => array (assetid => array(...))))
 	*
-	* @return array ( month_number => array ( day_number => array (assetid => array(...))))
+	* @param int	$year	the year of the events
+	*
+	* @return array
+	* @access private
 	*/
 	function getYearEventsByMonthAndDay($year)
 	{
@@ -1817,8 +1858,13 @@ class Page_Calendar extends Page_Asset_Listing
 
 	/**
 	* Get the events to show in month view for the specified month
+	* It returns the array of assetid => array(...)
 	*
-	* @return array	( assetid => array(...))
+	* @param int	$year	the year of the events
+	* @param int	$month	the month of the events
+	*
+	* @return array
+	* @access private
 	*/
 	function getMonthEvents($year, $month)
 	{
@@ -1874,8 +1920,13 @@ class Page_Calendar extends Page_Asset_Listing
 
 	/**
 	* Get the events to show in month view for the specified month, separated by day
+	* It returns the array of $day => array ( assetid => array(...) )
 	*
-	* @return array	$day => array ( assetid => array(...) )
+	* @param int	$year	the year of the events
+	* @param int	$month	the month of the events
+	*
+	* @return array
+	* @access private
 	*/
 	function getMonthEventsByDay($year, $month)
 	{
@@ -1906,10 +1957,14 @@ class Page_Calendar extends Page_Asset_Listing
 	}//end getMonthEventsByDay()
 
 
-	/*
+	/**
 	* Get the events to show in week view for the week containing the given YYYY-MM-DD date
+	* It returns the array of (assetid => Array(...) ))
 	*
-	* @return array (assetid => Array(...) ))
+	* @param string	$date	The current date
+	*
+	* @return array
+	* @access private
 	*/
 	function getWeekEvents($date)
 	{
@@ -1955,10 +2010,14 @@ class Page_Calendar extends Page_Asset_Listing
 	}//end getWeekEvents()
 
 
-	/*
+	/**
 	* Get the events to show in week view for the week containing the given YYYY-MM-DD date, separated by day
+	* It returns the array of ($iso_date => array ( $assetid => Array(...) ))
 	*
-	* @return array ($iso_date => array ( $assetid => Array(...) ))
+	* @param string	$date	The current date
+	*
+	* @return array
+	* @access private
 	*/
 	function getWeekEventsByDay($date)
 	{
@@ -1996,11 +2055,17 @@ class Page_Calendar extends Page_Asset_Listing
 	}//end getWeekEventsByDay()
 
 
-	/*
+	/**
 	* Get the events to show in week view for the week containing the given YYYY-MM-DD date,
-	* separated by day and time
+	* separated by day and time ($iso_date => array ( $assetid => Array(...) ))
 	*
-	* @return array ($iso_date => array ( $assetid => Array(...) ))
+	* @param string	$date			The current date
+	* @param string	$first_time		The date to start
+	* @param int	$time_partition	The interval of time
+	* @param string	$last_time		The date to end
+	*
+	* @return array
+	* @access private
 	*/
 	function getWeekEventsByDayAndTime($date, $first_time='', $time_partition='', $last_time='')
 	{
@@ -2079,10 +2144,12 @@ class Page_Calendar extends Page_Asset_Listing
 
 	/**
 	* Get the events on the specified day
+	* It returns the array of (assetid => Array(...) ))
 	*
 	* @param string	$date	The date of the day to get events for, in ISO format (YYYY-MM-DD)
 	*
-	* @return array (assetid => Array(...) ))
+	* @return array
+	* @access private
 	*/
 	function getDayEvents($date)
 	{
@@ -2141,8 +2208,15 @@ class Page_Calendar extends Page_Asset_Listing
 
 	/**
 	* Get the events on the specified day, separated by time into the partitions specified
+	* It returns the array of ( partition_start_time => array ( assetid => array(...)))
 	*
-	* @return array ( partition_start_time => array ( assetid => array(...)))
+	* @param string	$date			The current date
+	* @param string	$first_time		The date to start
+	* @param int	$time_partition	The interval of time
+	* @param string	$last_time		The date to end
+	*
+	* @return array
+	* @access private
 	*/
 	function getDayEventsByTime($date, $first_time='', $time_partition='', $last_time='')
 	{
@@ -2202,8 +2276,16 @@ class Page_Calendar extends Page_Asset_Listing
 
 	/**
 	* Get events on the specified date, separated by root node and time partition
+	* It returns the array of ( root_node_id => array ( partition_start_time => array ( assetid => array (...)))
 	*
-	* @return array ( root_node_id => array ( partition_start_time => array ( assetid => array (...)))
+	* @param string	$date			The current date
+	* @param string	$first_time		The date to start
+	* @param int	$time_partition	The interval of time
+	* @param string	$last_time		The date to end
+	* @param string	$root_nodes		The root nodes of the event folder
+	*
+	* @return array
+	* @access private
 	*/
 	function getDayEventsByRootNodeAndTime($date, $first_time='', $time_partition='', $last_time='', $root_nodes='')
 	{
@@ -2302,8 +2384,8 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Get SQL to add to queries to implement the 'personalised calendar' feature where appropriate
 	*
+	* @return string
 	* @access private
-	* @return string	SQL to add to event-retrieval queries
 	*/
 	function _getPersonalisedSQL()
 	{
@@ -2321,39 +2403,103 @@ class Page_Calendar extends Page_Asset_Listing
 
 
 	/**
-	* Print the list of assets
+	* Print the list of events
 	*
-	* @param array	&$assets	an array of assets to print, assetid => Array(details), NB different to listing engine function
+	* The calendar can choose the format of the view as a list.
+	* This function prints the events in the form of text list.
+	*
+	* @param array	&$events	an array of events to print
 	*
 	* @return void
 	* @access public
 	*/
-	function printAssetList(&$assets)
+	function printEventList(&$events)
 	{
-		$this->_tmp['formats']        = Array();
-		$this->_tmp['default_format'] = '';
-		$this->_tmp['is_default']     = Array();
-		$this->_tmp['needs_asset']    = Array();
-		$this->_tmp['assets_info']    = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($assets));
+		if (empty($events)) return;
 
-		$type_folder = &$this->getFolder('type_formats');
-		$this->_tmp['type_folder_id'] = $type_folder->id;
+		$assetids = array_keys($events);
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
-		$this->_tmp['position_formats'] = Array();
+		// Only two bodycopy is available for the calendar
+		if (!isset($this->_tmp['allowed_type_formats'])) {
+			$folder = 'type_formats';
+			$folder_link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, $folder);
+			$links = $am->getLinks($folder_link['minorid'], SQ_LINK_TYPE_2, 'bodycopy', true);
 
-		foreach ($assets as $assetid => $details) {
-			$this->_printAsset(strtok($assetid, ':'), $details['type_code'], null);
+			foreach ($links as $bodycopy) {
+				$bodycopy_type_code = $bodycopy['value'];
+				$this->_tmp['allowed_type_formats'][$bodycopy_type_code] =& $am->getAsset($bodycopy['minorid'], 'bodycopy');
+			}
 		}
 
-	}//end printAssetList()
+		// loop each event
+		foreach ($assetids as $assetid) {
+
+			$type_code = $events[$assetid]['type_code'];
+			$ori_assetid = $assetid;
+			$assetid = strtok($assetid, ':');
+
+			// Determine which bodycopy to use
+			if (array_key_exists($type_code, $this->_tmp['allowed_type_formats'])) {
+				$bodycopy =& $this->_tmp['allowed_type_formats'][$type_code];
+			}
+			else if ($type_code == 'calendar_event_modification' ) {
+				// Modification Event
+				// at the moment, this is always 'calendar_event_recurring' bodycopy
+				$link = $am->getLink($assetid, SQ_LINK_TYPE_2, 'calendar_event_recurring', true, null, 'minor');
+				$bodycopy =& $this->_tmp['allowed_type_formats'][$link['major_type_code']];
+			}
+			else if ($type_code == 'calendar_event_cancellation' ) {
+				continue;
+			}
+			else {
+				// check parent type
+				$type_ance = $am->getTypeAncestors($type_code);
+				$parent_cancellation = false;
+				foreach ($type_ance as $parent_type) {
+					if (array_key_exists($parent_type, $this->_tmp['allowed_type_formats'])) {
+						$bodycopy =& $this->_tmp['allowed_type_formats'][$parent_type];
+						break;
+					} else if ($type_code == 'calendar_event_cancellation' ) {
+						$parent_cancellation = true;
+						break;
+					}
+				}
+				if (!$parent_cancellation) {
+					trigger_localised_error('CAL0061', E_USER_WARNING, $assetid);
+				}
+				continue;
+			}
+
+			// set keyword replacement
+			$replacements = Array();
+			$bc_keywords = $bodycopy->getKeywords();
+			$event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+			foreach ($bc_keywords as $keyword) {
+				if ($keyword == 'asset_contents') {
+					ob_start();
+						$event->printBody();
+					$replacements['asset_contents'] = ob_get_clean();
+				} else {
+					$replacements[$keyword] = $event->getKeywordReplacement($keyword);
+				}
+			}
+			$bodycopy->setKeywordReplacements($replacements);
+
+			// print body
+			$bodycopy->printBody();
+
+		}//end foreach
+
+	}//end printEventList()
 
 
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
-	* @param &object Asset	&$broadcaster	the asset that triggered the event
-	* @param Array			$vars			the vars that get submitted by the broadcaster
-	*										we add keywords to the $vars['keywords'] array
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
 	*
 	* @return boolean
 	* @access private
@@ -2376,43 +2522,44 @@ class Page_Calendar extends Page_Asset_Listing
 
 	/**
 	* Returns an array listing all the view options available
-
-	* @return Array
+	*
+	* @return array
 	* @access private
 	*/
 	function getViewOptions()
 	{
 		return Array(
-					'year'	=> Array(
-									''						=> translate('cal_no_display'),
-									'list_without_headings'	=> translate('cal_list_without_headings'),
-									'list_with_headings'	=> translate('cal_list_with_month_headings'),
-									'calendar_format'		=> translate('cal_calendar_format'),
-							   ),
-					'month'	=> Array(
-									''						=> translate('cal_no_display'),
-									'list_without_headings'	=> translate('cal_list_without_headings'),
-									'list_with_headings'	=> translate('cal_list_with_day_headings'),
-									'calendar_format'		=> translate('cal_calendar_format'),
-							   ),
-					'week'	=> Array(
-									''						=> translate('cal_no_display'),
-									'list_without_headings'	=> translate('cal_list_without_headings'),
-									'list_with_headings'	=> translate('cal_list_with_day_headings'),
-									'calendar_format'		=> translate('cal_calendar_format'),
-							   ),
-					'day'	=> Array(
-									''						=> translate('cal_no_display'),
-									'list_without_headings'	=> translate('cal_list_without_headings'),
-									'calendar_format'		=> translate('cal_calendar_format'),
-							   ),
-					'event'	=> Array(
-									''				=> translate('cal_no_display'),
-									'single_event'	=> translate('cal_single_event_display'),
-							   ),
+				'year'	=> Array(
+							''						=> translate('cal_no_display'),
+							'list_without_headings'	=> translate('cal_list_without_headings'),
+							'list_with_headings'	=> translate('cal_list_with_month_headings'),
+							'calendar_format'		=> translate('cal_calendar_format'),
+						   ),
+				'month'	=> Array(
+							''						=> translate('cal_no_display'),
+							'list_without_headings'	=> translate('cal_list_without_headings'),
+							'list_with_headings'	=> translate('cal_list_with_day_headings'),
+							'calendar_format'		=> translate('cal_calendar_format'),
+						   ),
+				'week'	=> Array(
+							''						=> translate('cal_no_display'),
+							'list_without_headings'	=> translate('cal_list_without_headings'),
+							'list_with_headings'	=> translate('cal_list_with_day_headings'),
+							'calendar_format'		=> translate('cal_calendar_format'),
+						   ),
+				'day'	=> Array(
+							''						=> translate('cal_no_display'),
+							'list_without_headings'	=> translate('cal_list_without_headings'),
+							'calendar_format'		=> translate('cal_calendar_format'),
+						   ),
+				'event'	=> Array(
+							''				=> translate('cal_no_display'),
+							'single_event'	=> translate('cal_single_event_display'),
+						   ),
 			   );
 
 	}//end getViewOptions()
+
 
 }//end class
 ?>
