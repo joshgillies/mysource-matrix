@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18.2.15 2005/09/02 06:57:40 lwright Exp $
+* $Id: lang_strings.xml,v 1.18.2.16 2005/09/05 00:00:36 mmcintyre Exp $
 *
 */
 
@@ -594,6 +594,7 @@
 	<string source="maps_no_patches_installed">There are no patches currently installed</string>
 	<string source="maps_install_date">Install Date</string>
 	<string source="maps_held_at">Held At</string>
+	<string source="due_to_expire_in">Due To Expire In %s</string>
 	<string source="maps_hipo_ensure_backup">Please ensure you have backed up your system before continuing. You must tick the box below to confirm and continue installation of the patch</string>
 	<string source="maps_hipo_backup_confirm">Yes, I have backed up my system</string>
 	<string source="maps_ignore_filechecks">Ignore File Checks</string>
