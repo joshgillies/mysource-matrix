@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.111 2005/08/31 01:33:36 ndvries Exp $
+* $Id: file.inc,v 1.112 2005/09/05 07:01:13 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.111 $
+* @version $Revision: 1.112 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -140,7 +140,7 @@ class File extends Asset
 		$o = &$GLOBALS['SQ_SYSTEM']->backend->out;
 		$info = $this->_tmp['file_create_data'];
 
- 		$ret_val = $edit->processFileChooser($this, $o, $prefix, true) || $edit->processFileUpload($this, $o, $prefix, $info, false);
+		$ret_val = $edit->processFileChooser($this, $o, $prefix, true) || $edit->processFileUpload($this, $o, $prefix, $info, false);
 
 		$this->saveAttributes();
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
@@ -1006,7 +1006,7 @@ class File extends Asset
 
 		if (is_file($path)) {
 			$existing['path'] = $path;
-			$existing['filename'] = $this->name;
+			$existing['filename'] = basename($existing['path']);
 			$existing['modified'] = filemtime($existing['path']);
 			$existing['size'] = filesize($existing['path']);
 		}
