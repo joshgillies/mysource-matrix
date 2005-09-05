@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_link.inc,v 1.11 2005/07/01 01:50:01 tbarrett Exp $
+* $Id: trigger_action_create_link.inc,v 1.12 2005/09/05 06:15:30 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -131,8 +131,8 @@ class Trigger_Action_Create_Link extends Trigger_Action
 
 		return Array(
 				'linkid'		=> $link['linkid'],
-				'majorid'		=> $link['majorid'],
-				'minorid'		=> $link['minorid'],
+				'majorid'		=> array_get_index($link, 'majorid', 0),
+				'minorid'		=> array_get_index($link, 'minorid', 0),
 				'link_type'		=> $link['link_type'],
 				'value'			=> $link['value'],
 				'sort_order'	=> $link['sort_order'],
