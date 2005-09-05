@@ -1,5 +1,137 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.6.0
+
+Featured Changes
+----------------------
+
+PURGING OLD FILE VERSIONING INFORMATION
+
+	The rollback_management.php script now accepts an extra parameter, '-f'. This parameter purges old file versioning files and history entries beyond a certain period. All current file versioning files will remain. The period is specified in the same way as for '-p'. For example:
+
+		php scripts/rollback_management.php -s . -f 2w
+
+	Will purge all old file versioning files and history entries that are more than 2 weeks old.
+
+CONDITION SERVER VARIABLE
+
+	A new Show If condition has been added to compare the value of a server variable (any of the $_SERVER array values). This new condition allows the design to restrict content based on browser type (like the User Agent condition), referring URL, language, IP address, protocol etc. Users can also be conditionally placed into groups based on the value in a server variable.
+
+	The following is an example of testing for language:
+
+	<MySource_AREA id_name="LangDetector" design_area="show_if">
+	   <MySource_SET name="condition" value="server_variable"/>
+	   <MySource_SET name="condition_server_variable" value="HTTP_ACCEPT_LANGUAGE" />
+	   <MySource_SET name="condition_server_variable_match" value="en" />
+	   <MySource_THEN>
+		   English
+	   </MySource_THEN>
+	   <MySource_ELSE>
+		   Another language, translate
+	   </MySource_ELSE>
+	</MySource_AREA>
+
+	The following is an example for testing for a query string value:
+
+	<MySource_AREA id_name="QueryDetector" design_area="show_if">
+	   <MySource_SET name="condition" value="server_variable"/>
+	   <MySource_SET name="condition_server_variable" value="QUERY_STRING" />
+	   <MySource_SET name="condition_server_variable_match" value="location=" />
+	   <MySource_THEN>
+		   Location Specified, Print a different logo
+	   </MySource_THEN>
+	   <MySource_ELSE>
+		   No location, revert to default
+	   </MySource_ELSE>
+	</MySource_AREA>
+
+IMPROVED RECREATE LINK TREE SCRIPT
+
+	A new version of the recreate_link_tree.php script has been added to MySource Matrix last week. The old script was using asset manager getLinks() calls. This was very, very slow and actually had problems because the form_email asset is a bridge and only returns TYPE_2 links, which meant all the form submissions in the systems not having entries in the link tree table.
+
+	The new version of the script does what the original one used to but reads directly from the sq_ast_lnk table, making it much quicker and using much less memory.
+
+	The biggest change to this script is that it now does NOT run the insert queries. It just sends them to STDOUT. If you are using PostgreSQL, the script will output the queries in COPY format because pgsql inserts much quicker with that.
+
+	Usage: php scripts/recreate_link_tree.php . > tmp.sql
+
+
+Complete Changelog
+----------------------
+
+Core
+
+* Fixed bug #701: Unable to re-order assets in the asset map consistently
+* Fixed bug #717: Using layouts to edit metadata on front end
+* Fixed bug #754: Collation order breaks when special characters are ignored in the sort order
+* Fixed bug #779: Colour of Tabs a problem
+* Fixed bug #808: Paint layout not removed from URL
+* Fixed bug #825: Source string for forceably_acquire_lock not found
+* Fixed bug #826: Future Status changes broken in RC2
+* Fixed bug #827: Insert Link in wysiwyg not supporting rtsp protocol
+* Fixed bug #828: Image Editor changes file extension unintentionally
+* Fixed bug #829: Paint layout never uses default type format bodycopy
+* Fixed bug #832: Running step 3 on a specific package unregisters search manager as an event listener
+* Fixed bug #837: Package manager cannot detect indirectly deferred assets
+* Fixed bug #839: user group restrictions not working correctly
+* Fixed bug #841: Image variety - filename not updated
+* Fixed bug #843: Files getting multiple lookup entries
+* Fixed bug #845: treeid - children missing treeid after being moved
+* Fixed bug #853: Site Networks: editing won't work when no primary URL set
+* Fixed bug #856: Backend Users can't create Matrix Users
+* Fixed bug #859: Unwanted remaps created when updating multiple lookups for same URL
+* Fixed bug #861: Undefined variable $type_code
+* Fixed bug #862: Cloned assets not getting schemas from parents
+* Fixed bug #877: Cached menu areas break when there is more than one
+* Fixed bug #878: Status block no longer appears for user assets in Simple Edit
+* Fixed bug #882: Site network JS session code not working when printing login screen
+* Fixed bug #884: Permissions screen not localised
+* Fixed bug #887: import_files.php preferences error
+* Fixed bug #893: Asset map ellipsises names of assets when switching between finder mode/normal mode
+* Fixed bug #894: Table Editor breaks contained image src links (IE only)
+* Fixed bug #896: Javascript error when closing the Admin in Firefox
+
+CMS
+
+* Fixed bug #812: Asset Listing - Grouping - Field Keywords (listing engine)
+* Fixed bug #846: Client side validation printed even if question not printed (custom form)
+* Fixed bug #849: asset builder - dynamic location not working (asset builder)
+* Fixed bug #851: Form::getLinks() only returns shadow assets (custom form)
+* Fixed bug #854: Asset Listing does not replace keyword when no asset to list (listing engine)
+* Fixed bug #857: Listing Engine - %asset_lineage_linked% showing too many assets (listing engine)
+* Fixed bug #864: File Upload Type Rule - edit interface performs array-to-string conversion (custom form)
+* Fixed bug #865: Customised type formats not used in asset listing (listing engine)
+* Fixed bug #871: Error when adding custom sort field on asset attribute (listing engine)
+* Fixed bug #872: Selecting Radio Button display for Selectable Create Locations causes error (custom form)
+* Fixed bug #874: Invalid (X)HTML in Custom Form generated code (custom form)
+* Fixed bug #875: Script tag needs type in Custom form Javascript (custom form)
+* Fixed bug #889: Default value will not deselect on an options list (custom form)
+
+Search
+
+* Fixed bug #390: Search page allows you to specify search fields for non-searchable attributes (search page)
+* Fixed bug #777: Search folder does not show children of search results (search folder)
+* Fixed bug #804: Using %asset_lineage% in a search that searches Files causes Warning (search page)
+* Fixed bug #831: Search folder refresh broken (search folder)
+* Fixed bug #835: Manually changed asset dates are not updated in search index table (search manager)
+* Fixed bug #858: Case sensitivity on white word list (search manager)
+* Fixed bug #867: Search Page - SQL error (search page)
+* Fixed bug #888: No validation occurs on search indexing field (search manager)
+
+LDAP
+
+* Fixed bug #860: Messages from deleted LDAP users generate warnings/errors (ldap user)
+* Fixed bug #879: LDAP Groups don't get Unrestricted Access by default (ldap group)
+* Fixed bug #881: LDAP user information not printing correctly via keywords (ldap user)
+
+Calendar
+
+* Fixed bug #842: Problem with multiple root nodes and columnisation (calendar page)
+* Fixed bug #890: pop up bug in calender (design area js calendar navigator)
+
+
+
+
 VERSION 3.6.0 RC2
 
 Featured Changes
