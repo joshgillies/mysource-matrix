@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: countries.inc,v 1.6 2005/01/20 13:33:23 brobertson Exp $
+* $Id: countries.inc,v 1.6.2.1 2005/09/05 23:43:48 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *     and the country name as defined by ISO Standard 3166
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package Fudge
 * @subpackage Standards_Lists
 */
@@ -109,7 +109,7 @@ $standards_lists_countries = Array( 'af' => 'Afghanistan',
 									'fj' => 'Fiji',
 									'fi' => 'Finland',
 									'fr' => 'France',
-									'fx' => 'France\, Metropolitan',
+									'fx' => 'France, Metropolitan',
 									'gf' => 'French Guiana',
 									'pf' => 'French Polynesia',
 									'tf' => 'French Southern Territories',
@@ -147,8 +147,8 @@ $standards_lists_countries = Array( 'af' => 'Afghanistan',
 									'kz' => 'Kazakhstan',
 									'ke' => 'Kenya',
 									'ki' => 'Kiribati',
-									'kp' => 'Korea\, Democratic people\'s Republic of',
-									'kr' => 'Korea\, Republic of',
+									'kp' => 'Korea, Democratic people\'s Republic of',
+									'kr' => 'Korea, Republic of',
 									'kw' => 'Kuwait',
 									'kg' => 'Kyrgyzstan',
 									'la' => 'Lao people\'s democratic republic',
@@ -174,7 +174,7 @@ $standards_lists_countries = Array( 'af' => 'Afghanistan',
 									'yt' => 'Mayotte',
 									'mx' => 'Mexico',
 									'fm' => 'Micronesia (Federated States of)',
-									'md' => 'Moldova\, Republic of',
+									'md' => 'Moldova, Republic of',
 									'mc' => 'Monaco',
 									'mn' => 'Mongolia',
 									'ms' => 'Montserrat',
@@ -241,9 +241,9 @@ $standards_lists_countries = Array( 'af' => 'Afghanistan',
 									'se' => 'Sweden',
 									'ch' => 'Switzerland',
 									'sy' => 'Syria Arab Republic',
-									'tw' => 'Taiwan\, Province of China',
+									'tw' => 'Taiwan, Province of China',
 									'tj' => 'Tajikistan',
-									'tz' => 'Tanzania\, United Republic Of',
+									'tz' => 'Tanzania, United Republic Of',
 									'th' => 'Thailand',
 									'tg' => 'Togo',
 									'tk' => 'Tokelau',
