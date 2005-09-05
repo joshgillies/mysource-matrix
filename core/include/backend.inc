@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.128 2005/05/20 09:13:14 gnoel Exp $
+* $Id: backend.inc,v 1.128.2.1 2005/09/05 07:06:39 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.128 $
+* @version $Revision: 1.128.2.1 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -738,9 +738,11 @@ class Backend extends MySource_Object
 			.sidenav-tab-active, .sidenav-tab-icon-active {
 				background:	url("<?php echo sq_web_path('lib'); ?>/web/images/sidenav_active_tab_bg.png");
 			}
-
-			.sidenav-tab, .sidenav-tab-active {
-				border-right:		1px solid #FFFFFF;
+			.sidenav-tab-end {
+				background:	url("<?php echo sq_web_path('lib'); ?>/web/images/sidenav_tab_end.png") no-repeat;
+			}
+			.sidenav-tab-end-active {
+				background:	url("<?php echo sq_web_path('lib'); ?>/web/images/sidenav_active_tab_end.png") no-repeat;
 			}
 
 			.sidenav-tab-icon, .sidenav-tab-icon-active {
@@ -750,7 +752,7 @@ class Backend extends MySource_Object
 			.sidenav-tab a, .sidenav-tab-active a {
 				font-family:		Arial;
 				font-size:			10px;
-				color:				#FFFFFF;
+				color:				#000000;
 				padding-left:		2px;
 				padding-right:		8px;
 				text-decoration:	none;
@@ -810,6 +812,8 @@ class Backend extends MySource_Object
 				// switch the tabs
 				var tabStart = document.getElementById(oldTabName + '_tab_start');
 				tabStart.className = 'sidenav-tab-start';
+				var tabEnd = document.getElementById(oldTabName + '_tab_end');
+				tabEnd.className = 'sidenav-tab-end';
 				var tabIcon = document.getElementById(oldTabName + '_tab_icon');
 				tabIcon.className = 'sidenav-tab-icon';
 				var tab = document.getElementById(oldTabName + '_tab');
@@ -817,6 +821,8 @@ class Backend extends MySource_Object
 
 				tabStart = document.getElementById(tabName + '_tab_start');
 				tabStart.className = 'sidenav-tab-start-active';
+				tabEnd = document.getElementById(tabName + '_tab_end');
+				tabEnd.className = 'sidenav-tab-end-active';
 				tabIcon = document.getElementById(tabName + '_tab_icon');
 				tabIcon.className = 'sidenav-tab-icon-active';
 				tab = document.getElementById(tabName + '_tab');
@@ -837,13 +843,15 @@ class Backend extends MySource_Object
 						<tr>
 							<td><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="24" height="1" /></td>
 
-							<td class="sidenav-tab-start-active" id="asset_map_tab_start"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="6" height="17" /></td>
+							<td class="sidenav-tab-start-active" id="asset_map_tab_start"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="2" height="20" /></td>
 							<td class="sidenav-tab-icon-active" id="asset_map_tab_icon"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/tree.png", "14", "14", "");</script></td>
 							<td class="sidenav-tab-active" id="asset_map_tab"><a href="#" onClick="Javascript: switchSideNav('asset_map'); return false;"><?php echo translate('asset_map'); ?></a></td>
+							<td class="sidenav-tab-end-active" id="asset_map_tab_end"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="3" height="20" /></td>
 
-							<td class="sidenav-tab-start" id="my_space_tab_start"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="6" height="17" /></td>
+							<td class="sidenav-tab-start" id="my_space_tab_start"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="2" height="20" /></td>
 							<td class="sidenav-tab-icon" id="my_space_tab_icon"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/myspace.png", "14", "14", "");</script></td>
 							<td class="sidenav-tab" id="my_space_tab"><a href="#" onClick="Javascript: switchSideNav('my_space'); return false;"><?php echo translate('my_space'); ?></a></td>
+							<td class="sidenav-tab-end" id="my_space_tab_end"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="3" height="20" /></td>
 						</tr>
 					</table>
 				</td>
@@ -855,10 +863,10 @@ class Backend extends MySource_Object
 			</tr>
 		</table>
 
-		<div id="asset_map" style="position: absolute; top: 44px; left: 5px; visibility: visible;">
+		<div id="asset_map" style="position: absolute; top: 47px; left: 6px; visibility: visible; border-top: 0px none; border-left: 0px none;">
 			<?php
 			require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
-			$asset_map = new Asset_Map();
+			$asset_map =& new Asset_Map();
 			$asset_map->embedAssetMap('complex', '275');
 			?>
 		</div>
