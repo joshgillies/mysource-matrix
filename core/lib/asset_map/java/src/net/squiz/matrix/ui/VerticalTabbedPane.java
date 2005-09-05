@@ -13,6 +13,7 @@ import javax.swing.plaf.metal.*;
 import net.squiz.matrix.assetmap.*;
 import net.squiz.matrix.matrixtree.*;
 import net.squiz.matrix.plaf.*;
+import com.sun.java.swing.plaf.windows.*;
 
 public class VerticalTabbedPane extends JTabbedPane {
 
@@ -35,7 +36,7 @@ public class VerticalTabbedPane extends JTabbedPane {
 		tabsVertical = (tabPlacement == LEFT || tabPlacement == RIGHT);
 
 		// NdV: Quick hack to solve the color issue in J2SE 1.5
-		UIManager.put("TabbedPane.selected", new Color(0x462F51));
+		UIManager.put("TabbedPane.selected", MatrixLookAndFeel.PANEL_COLOUR);
 
 		setUI(new VerticalTabbedPaneUI(tabsVertical));
 		// MM: need to do this outside of this class to keep it generic
@@ -63,24 +64,105 @@ public class VerticalTabbedPane extends JTabbedPane {
 	 * @param s the text on the tab
 	 * @param c the component to add to the tab
 	 */
-	public void addTab(String s, Component c) {
-		Icon icon = new VerticalTextIcon(s, getTabPlacement() == RIGHT);
+	public void addTab(String s, Icon icon, Component c) {
+		Icon textIcon = new VerticalTextIcon(s, getTabPlacement() == RIGHT);
+		VerticalCompoundIcon compoundIcon = new VerticalCompoundIcon(textIcon, icon, 0, 0);
+
 		insertTab(
 			tabsVertical ? null : s,
-			tabsVertical ? icon : null,
+			tabsVertical ? compoundIcon : null,
 			c,
 			null,
 			getTabCount()
 		);
+
 		BufferedImage image = new BufferedImage(
-			icon.getIconWidth(),
-			icon.getIconHeight(),
+			compoundIcon.getIconWidth(),
+			compoundIcon.getIconHeight(),
 			BufferedImage.TYPE_INT_ARGB_PRE
 		);
 		Graphics2D g = image.createGraphics();
-		icon.paintIcon(null, g, 0, 0);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		compoundIcon.paintIcon(null, g, 0, 0);
 
 		setDisabledIconAt(indexOfComponent(c), new ImageIcon(GrayFilter.createDisabledImage(image)));
+	}
+
+    private class VerticalCompoundIcon extends CompoundIcon
+    {
+
+        public VerticalCompoundIcon (Icon mainIcon, Icon decorator, int xAlignment, int yAlignment)
+        {
+			if (!isLegalValue(xAlignment, VALID_X)) {
+				throw new IllegalArgumentException(
+					"xAlignment must be LEFT, RIGHT or CENTER");
+			}
+			if (!isLegalValue(yAlignment, VALID_Y)) {
+				throw new IllegalArgumentException(
+					"yAlignment must be TOP, BOTTOM or CENTER");
+			}
+
+			this.mainIcon = mainIcon;
+			this.decorator = decorator;
+			this.xAlignment = xAlignment;
+			this.yAlignment = yAlignment;
+        }
+
+		/**
+		 * Returns the icon with of the compound icon, which is the same as
+		 * the main icon
+		 *
+		 * @return the width
+		 */
+		public int getIconWidth() {
+			if (mainIcon.getIconWidth() > decorator.getIconWidth()) {
+				return mainIcon.getIconWidth() - 7;
+			} else {
+				return decorator.getIconWidth() - 7;
+			}
+		}
+
+		/**
+		 * Returns the icon height, which is the same as the main icon height
+		 *
+		 * @return the icon height
+		 */
+		public int getIconHeight() {
+			return mainIcon.getIconHeight() + decorator.getIconHeight();
+		}
+
+		/**
+		 * Paints the compound icon
+		 *
+		 * @param c the component
+		 * @param g the graphics set
+		 * @param x the x co-ordinate
+		 * @param y the y co-ordiate
+		 */
+		public void paintIcon(Component c, Graphics g, int x, int y) {
+
+			int middleX = (x + x + getIconWidth()) / 2;
+			int middleY = (y + y + getIconHeight()) / 2;
+
+			Graphics2D g2 = (Graphics2D) g.create();
+
+			int mainIconX = middleX - (mainIcon.getIconWidth() / 2);
+			mainIcon.paintIcon(c, g2, mainIconX, y);
+
+			g2.rotate(Math.toRadians(-90), middleX, middleY);
+
+			int decoratorX = middleX - (getIconHeight() / 2);
+			int decoratorY = middleY - (decorator.getIconHeight() / 2);
+
+			decorator.paintIcon(
+						null,
+						g2,
+						decoratorX + (mainIcon.getIconWidth() / 2) + 2,
+						decoratorY
+			);
+
+			g2.dispose();
+		}
 	}
 
 	private class VerticalTextIcon implements Icon {
@@ -113,7 +195,8 @@ public class VerticalTabbedPane extends JTabbedPane {
 			// rotate the graphics 90 degress and draw the string
 			// clockwise for the right, anti-clockwise for the left
 			g2.rotate(Math.toRadians(clockwise ? 90 : -90), x, y);
-			// g2.setFont(UIManger.getVertical);
+			g2.setFont((Font)UIManager.get("VerticalTextIcon.font"));
+
 			g2.drawString(
 				tabText,
 				x - (clockwise ? 0 : getIconHeight()) + 8,
@@ -127,7 +210,7 @@ public class VerticalTabbedPane extends JTabbedPane {
 		 * @return the icon width
 		 */
 		public int getIconWidth() {
-			return 10;
+			return 8;
 		}
 
 		/**

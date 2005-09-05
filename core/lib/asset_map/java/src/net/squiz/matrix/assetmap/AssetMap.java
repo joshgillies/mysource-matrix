@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMap.java,v 1.14 2005/06/24 00:44:32 ndvries Exp $
+* $Id: AssetMap.java,v 1.15 2005/09/05 06:41:54 ndvries Exp $
 *
 */
 
@@ -45,7 +45,7 @@ import java.security.AccessControlException;
  * The main applet class
  * @author Marc McIntyre <mmcintyre@squiz.net>
  */
-public class AssetMap extends JApplet implements InitialisationListener {
+public class AssetMap extends JApplet implements InitialisationListener, KeyListener, ContainerListener {
 
 	private BasicView view1;
 	private BasicView view2;
@@ -65,6 +65,8 @@ public class AssetMap extends JApplet implements InitialisationListener {
 			ulnfe.printStackTrace();
 		}
 		applet = this;
+
+		addKeyAndContainerListenerRecursively(this);
 	}
 
 	// MM: find a better solution for doing this
@@ -106,6 +108,8 @@ public class AssetMap extends JApplet implements InitialisationListener {
 		loadParameters();
 		loadTranslations();
 		getContentPane().add(createApplet());
+
+		addKeyListener(this);
 	}
 
 	/**
@@ -309,6 +313,56 @@ public class AssetMap extends JApplet implements InitialisationListener {
 			MatrixTreeBus.startAssetFinderMode(assetTypes);
 		} else if (command.equals("assetFinderStopped")) {
 			MatrixTreeBus.stopAssetFinderMode();
+		}
+	}
+
+	public void keyPressed(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			Iterator trees = MatrixTreeBus.getTrees();
+
+			while (trees.hasNext()) {
+				MatrixTree tree = (MatrixTree) trees.next();
+				tree.stopCueMode();
+			}
+		}
+	}
+
+	public void keyTyped(KeyEvent e) {}
+	public void keyReleased(KeyEvent e) {}
+
+	public void componentAdded(ContainerEvent e) {
+		addKeyAndContainerListenerRecursively(e.getChild());
+	}
+
+	public void componentRemoved(ContainerEvent e) {
+		removeKeyAndContainerListenerRecursively(e.getChild());
+	}
+
+	public void addKeyAndContainerListenerRecursively(Component c) {
+		c.addKeyListener(this);
+
+		if (c instanceof Container) {
+			Container cont = (Container)c;
+			cont.addContainerListener(this);
+
+			Component[] children = cont.getComponents();
+			for (int i = 0; i < children.length; i++) {
+				addKeyAndContainerListenerRecursively(children[i]);
+			}
+		}
+	}
+
+	public void removeKeyAndContainerListenerRecursively(Component c) {
+		c.removeKeyListener(this);
+
+		if (c instanceof Container) {
+			Container cont = (Container)c;
+			cont.removeContainerListener(this);
+
+			Component[] children = cont.getComponents();
+			for (int i = 0; i < children.length; i++) {
+				removeKeyAndContainerListenerRecursively(children[i]);
+			}
 		}
 	}
 }

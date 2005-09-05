@@ -17,11 +17,10 @@ public class UndockedView extends JFrame implements View {
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setTitle(view.getName());
 		getContentPane().add(view.getViewComponent());
-	}
 
-//	private JPanel createTools() {
-//
-//	}
+		JSplitPane splitPane = ((BasicView)view).getSplitPane();
+		splitPane.setDividerLocation(Integer.MAX_VALUE);
+	}
 
 	public MatrixTree getTree() {
 		return view.getTree();

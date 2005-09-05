@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: StatusKey.java,v 1.2 2005/07/27 10:45:22 brobertson Exp $
+* $Id: StatusKey.java,v 1.3 2005/09/05 06:43:31 ndvries Exp $
 *
 */
 
@@ -50,6 +50,9 @@ public class StatusKey extends JPanel implements MatrixConstants {
 		setBackground(Color.white);
 		setBorder(new EmptyBorder(3, 3, 3, 3));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		setMinimumSize(new Dimension(0,0));
+		setMaximumSize(new Dimension(0,200));
+		setPreferredSize(new Dimension(0,200));
 	}
 
 	/**

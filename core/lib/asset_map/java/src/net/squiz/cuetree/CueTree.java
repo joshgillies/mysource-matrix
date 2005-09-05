@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.7 2005/08/25 05:26:57 ndvries Exp $
+* $Id: CueTree.java,v 1.8 2005/09/05 06:41:53 ndvries Exp $
 *
 */
 
@@ -44,7 +44,7 @@ public class CueTree extends JTree {
 
 	/** The mode that indicate that the tree supports dragging */
 	public static final int DRAG_MODE = 1;
-	/** The mode that indicate that the tree supports clicing to move nodes */
+	/** The mode that indicate that the tree supports clicking to move nodes */
 	public static final int CLICK_MODE = 2;
 	/** Mode that indicates that the tree is adding a node */
 
