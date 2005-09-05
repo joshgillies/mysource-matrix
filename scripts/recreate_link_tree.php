@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_link_tree.php,v 1.11.2.4 2005/08/12 14:56:10 brobertson Exp $
+* $Id: recreate_link_tree.php,v 1.11.2.5 2005/09/05 23:23:45 amiller Exp $
 *
 */
 
@@ -34,7 +34,7 @@
 * SQ_CONF_ASSET_TREE_BASE or SQ_CONF_ASSET_TREE_SIZE config options change
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11.2.4 $
+* @version $Revision: 1.11.2.5 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -69,7 +69,12 @@ $script_start = time();
 
 echo_headline('TRUNCATING TREE');
 
-$sql = 'TRUNCATE sq_ast_lnk_tree;';
+if ($pgdb) {
+	$sql = 'TRUNCATE sq_ast_lnk_tree;';
+} else {
+	$sql = 'TRUNCATE TABLE sq_ast_lnk_tree;';
+}
+
 echo $sql,"\n";
 
 $sql = 'SELECT l.majorid, l.linkid, l.minorid
@@ -119,6 +124,8 @@ fwrite(STDERR, "\n");
 
 if ($pgdb) {
 	echo "\\.\n";
+} else {
+	echo "COMMIT;\n";
 }
 
 echo_headline($echo_i.' TREE ENTRIES CREATED');
