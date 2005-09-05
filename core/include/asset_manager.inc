@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.322.2.25 2005/08/22 07:20:10 dmckee Exp $
+* $Id: asset_manager.inc,v 1.322.2.26 2005/09/05 01:50:57 dmckee Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322.2.25 $
+* @version $Revision: 1.322.2.26 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4749,7 +4749,9 @@ class Asset_Manager extends MySource_Object
 			}
 
 			$link = $this->getLinkById($link_id);
+			if (empty($link)) return Array();
 			$parent =& $this->getAsset($link['majorid']);
+			if (empty($parent)) return Array();
 			$parent_url = $parent->getUrl();
 
 			//Lets use our parent's url to get our lineage
