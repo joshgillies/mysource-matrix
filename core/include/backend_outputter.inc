@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.112 2005/06/29 07:21:24 ndvries Exp $
+* $Id: backend_outputter.inc,v 1.113 2005/09/05 00:52:59 dmckee Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.112 $
+* @version $Revision: 1.113 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1036,7 +1036,7 @@ class Backend_Outputter
 
 
 				function page_on_unload() {
-					if (parent.frames['sq_sidenav'] && window.self.name == 'sq_main') {
+					if (parent.frames['sq_sidenav'] && window.self.name == 'sq_main' && parent.frames['sq_sidenav'].asset_finder_onunload) {
 						parent.frames['sq_sidenav'].asset_finder_onunload();
 					}
 				}//end page_on_load()
