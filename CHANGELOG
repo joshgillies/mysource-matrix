@@ -1,5 +1,47 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.4.6
+
+Complete Changelog
+----------------------
+
+Core
+
+* Fixed bug #666: Similar URLs breaking getLineageFromURL
+* Fixed bug #808: Paint layout not removed from URL
+* Fixed bug #827: Insert Link in wysiwyg not supporting rtsp protocol
+* Fixed bug #828: Image Editor changes file extension unintentionally
+* Fixed bug #837: Package manager cannot detect indirectly deferred assets
+* Fixed bug #856: Backend Users can't create Matrix Users
+* Fixed bug #878: Status block no longer appears for user assets in Simple Edit
+* Fixed bug #894: Table Editor breaks contained image src links (IE only)
+* Fixed bug #896: Javascript error when closing the Admin in Firefox
+
+CMS
+
+* Fixed bug #836: Undefined variable in form_email_edit_fns on line 942 (custom form)
+* Fixed bug #846: Client side validation printed even if question not printed (custom form)
+* Fixed bug #851: Form::getLinks() only returns shadow assets (custom form)
+* Fixed bug #885: Undefined index: attribute with tickbox tables (custom form)
+* Fixed bug #889: Default value will not deselect on an options list (custom form)
+
+Search
+
+* Fixed bug #835: Manually changed asset dates are not updated in search index table (search manager)
+* Fixed bug #858: Case sensitivity on white word list (search manager)
+* Fixed bug #888: No validation occurs on search indexing field (search manager)
+
+LDAP
+
+* Fixed bug #860: Messages from deleted LDAP users generate warnings/errors (ldap user)
+
+Calendar
+
+* Fixed bug #890: pop up bug in calender (design area js calendar navigator)
+
+
+
+
 VERSION 3.4.5
 
 Complete Changelog
