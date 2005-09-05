@@ -11,8 +11,8 @@ import javax.swing.plaf.*;
 
 public class MatrixLookAndFeel extends MetalLookAndFeel implements MatrixConstants {
 
-	private static Color lightGrey = new Color(0xC3C3C3);
-	private static Color vLightGrey = new Color(0xF5F5F5);
+	public static Color PANEL_COLOUR = new Color(0xF5F5F5);
+	public static Color PANEL_BORDER_COLOUR = new Color(0xC3C3C3);
 
 	protected void initClassDefaults(UIDefaults table) {
 		super.initClassDefaults(table);
@@ -29,51 +29,56 @@ public class MatrixLookAndFeel extends MetalLookAndFeel implements MatrixConstan
 		super.initComponentDefaults(table);
 
 		Object[] defaults = {
-			"StatusBar.border", new LineBorder(lightGrey),
-			"StatusBar.background", vLightGrey,
-			"SplitPane.border", new LineBorder(lightGrey),
-			"SplitPaneDivider.buttonbackground", vLightGrey, // matrix specific
-			"SplitPaneDivider.buttonforeground", lightGrey, // matrix specific
+			"StatusBar.border", new LineBorder(PANEL_BORDER_COLOUR),
+			"StatusBar.background", PANEL_COLOUR,
+			"SplitPane.border", new LineBorder(PANEL_BORDER_COLOUR),
+			"SplitPaneDivider.buttonbackground", PANEL_COLOUR, // matrix specific
+			"SplitPaneDivider.buttonforeground", PANEL_BORDER_COLOUR, // matrix specific
 			"SplitPaneDivider.buttonbordercolor", new Color(0x3B3B3B), // matrix specific
-			"SplitPaneDivider.border", new LineBorder(lightGrey),
+			"SplitPaneDivider.border", new LineBorder(PANEL_BORDER_COLOUR),
 
-			"SplitPane.background", vLightGrey,
+			"SplitPane.background", PANEL_COLOUR,
 			"Tree.expandedIcon", new WindowsTreeUI.ExpandedIcon(),
 			"Tree.collapsedIcon", new WindowsTreeUI.CollapsedIcon(),
-		//	"ScrollBar.shadow", new Color(0x000000), // left line in scrollbar track
-			"ScrollBar.thumb", vLightGrey,  // background of the scrollbar
-			"ScrollBar.thumbShadow", lightGrey, // scrollbar border
-			"ScrollBar.thumbHighlight", vLightGrey, // scrollbar dots
-			"ScrollBar.track", vLightGrey,
-			"ScrollBar.trackHighlightColor", vLightGrey,
-			"ScrollBar.background", vLightGrey, // track background
-		//	"ScrollBar.foreground", Color.blue,
-			"ScrollBar.darkShadow", lightGrey,
+			//"ScrollBar.shadow", new Color(0x000000), // left line in scrollbar track
+			"ScrollBar.thumb", PANEL_COLOUR,  // background of the scrollbar
+			"ScrollBar.thumbShadow", PANEL_BORDER_COLOUR, // scrollbar border
+			"ScrollBar.thumbHighlight", PANEL_COLOUR, // scrollbar dots
+			"ScrollBar.track", PANEL_COLOUR,
+			"ScrollBar.trackHighlightColor", PANEL_COLOUR,
+			"ScrollBar.background", PANEL_COLOUR, // track background
+			//"ScrollBar.foreground", Color.blue,
+			"ScrollBar.darkShadow", PANEL_BORDER_COLOUR,
 
-		//	"TabbedPane.tabAreaBackground", new Color(0xFF0000), // doesnt seem to do much
-			"TabbedPane.selected", new Color(0x462F51), // selected tab
-	//		"TabbedPane.selectHighlight", lightGrey, // selected tab border
-			"TabbedPane.background", new Color(0x5E476A), // other tabs
-			"TabbedPane.foreground", Color.WHITE, // text color
-		//	"TabbedPane.highlight", Color.RED, // nothing
-		//	"TabbedPane.light", Color.RED, // other tab border
-	//		"TabbedPane.darkShadow", Color.WHITE, // all tab borders
-			"TabbedPane.font", new Font("Verdana", Font.PLAIN, 11),
+			"TabbedPane.tabAreaBackground", Color.RED, // doesnt seem to do much
+			"TabbedPane.selected", PANEL_COLOUR, // selected tab
 
-		//	"SplitPane.dividerSize", new Integer(10),
+			"TabbedPane.selectHighlight", PANEL_BORDER_COLOUR, // selected tab border
+			"TabbedPane.background", PANEL_BORDER_COLOUR, // other tabs
 
-			"MenuItem.background", vLightGrey,
-			"Menu.background", vLightGrey,
-		//	"MenuItem.border", new LineBorder(lightGrey),
-		//	"Menu.border", lightGrey,
-			"PopupMenu.border", new LineBorder(lightGrey),
-			"MenuItem.selectionBackground", lightGrey,
-			"Menu.selectionBackground", lightGrey,
+			"TabbedPane.foreground", Color.BLACK, // text color
+			"TabbedPane.light", PANEL_BORDER_COLOUR.brighter(), // other tab border
+			"TabbedPane.highlight", PANEL_BORDER_COLOUR.brighter().brighter(), // nothing
+			"TabbedPane.shadow", PANEL_BORDER_COLOUR.darker(), // all tab borders
+			"TabbedPane.darkShadow", PANEL_BORDER_COLOUR.darker().darker(), // all tab borders
+			"TabbedPane.font", PLAIN_FONT_10,
 
-			"SelectionTool.background", lightGrey, // matrix specific
-			"SelectionTool.bordercolor", lightGrey, // matrix specific
+			"VerticalTextIcon.font", PLAIN_FONT_10,
 
-			"InspectorNavigator.background", vLightGrey,
+			//"SplitPane.dividerSize", new Integer(10),
+
+			"MenuItem.background", PANEL_COLOUR,
+			"Menu.background", PANEL_COLOUR,
+			//"MenuItem.border", new LineBorder(PANEL_BORDER_COLOUR),
+			//"Menu.border", PANEL_BORDER_COLOUR,
+			"PopupMenu.border", new LineBorder(PANEL_BORDER_COLOUR),
+			"MenuItem.selectionBackground", PANEL_BORDER_COLOUR,
+			"Menu.selectionBackground", PANEL_BORDER_COLOUR,
+
+			"SelectionTool.background", PANEL_BORDER_COLOUR, // matrix specific
+			"SelectionTool.bordercolor", PANEL_BORDER_COLOUR, // matrix specific
+
+			"InspectorNavigator.background", PANEL_COLOUR,
 
 			"MenuItem.font", PLAIN_FONT_10,
 			"Menu.font", PLAIN_FONT_10,
@@ -88,10 +93,10 @@ public class MatrixLookAndFeel extends MetalLookAndFeel implements MatrixConstan
 		super.initSystemColorDefaults(table);
 
 		Object[] systemColors = {
-			"scrollbar", lightGrey,
-		//	"control", vLightGrey,
-		//	"controlDkShadow", vLightGrey,  // divider dots
-		//	"controlHighlight", vLightGrey,
+			"scrollbar", PANEL_BORDER_COLOUR,
+		//	"control", PANEL_COLOUR,
+		//	"controlDkShadow", PANEL_COLOUR,  // divider dots
+		//	"controlHighlight", PANEL_COLOUR,
 		};
 
 		for (int i = 0; i < systemColors.length; i += 2) {

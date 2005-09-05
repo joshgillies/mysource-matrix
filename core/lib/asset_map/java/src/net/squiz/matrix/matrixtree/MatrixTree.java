@@ -17,8 +17,8 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.7.2.1 2005/07/01 01:16:01 ndvries Exp $
- * $Name: not supported by cvs2svn $
+ * $Id: MatrixTree.java,v 1.7.2.2 2005/09/05 06:58:52 ndvries Exp $
+ *
  */
 
  /*
@@ -289,6 +289,9 @@ public class MatrixTree extends CueTree
 
 		removeMouseListener(selTool);
 		removeMouseMotionListener(selTool);
+
+		setLargeModel(true);
+		setRowHeight(16);
 	}
 
 	/**
@@ -301,6 +304,9 @@ public class MatrixTree extends CueTree
 
 		addMouseListener(selTool);
 		addMouseMotionListener(selTool);
+
+		setLargeModel(false);
+		setRowHeight(0);
 	}
 
 	/**
@@ -706,13 +712,6 @@ public class MatrixTree extends CueTree
 			}
 		};
 
-		Action escapeAction = new AbstractAction() {
-			public void actionPerformed(ActionEvent evt) {
-				if (inCueMode)
-					stopCueMode();
-			}
-		};
-
 		getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "delete");
 		getActionMap().put("delete", deleteAction);
 		getInputMap().put(KeyStroke.getKeyStroke("control F"), "search");
@@ -721,8 +720,6 @@ public class MatrixTree extends CueTree
 		getActionMap().put("open selection", openSelectionAction);
 		getInputMap().put(KeyStroke.getKeyStroke("control C"), "create selection");
 		getActionMap().put("create selection", createSelectionAction);
-		getInputMap().put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0), "escape");
-		getActionMap().put("escape", escapeAction);
 	}
 
 	//}}}

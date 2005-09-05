@@ -7,7 +7,7 @@ import java.awt.*;
 import net.squiz.matrix.core.*;
 import net.squiz.matrix.ui.*;
 
-public class FinderView extends JPanel {
+public class FinderView extends BasicView {
 
 	protected FinderTree tree;
 
@@ -23,27 +23,6 @@ public class FinderView extends JPanel {
 		add(scrollPane);
 		add(MatrixStatusBar.createStatusBar(), BorderLayout.SOUTH);
 		setSize(300,500);
-	}
-
-	protected MatrixTree constructTree() {
-		tree = MatrixTreeBus.createFinderTree(new LoadingNode());
-		return tree;
-	}
-
-	public FinderTree getTree() {
-		return tree;
-	}
-
-	public String getName() {
-		return getAccessibleContext().getAccessibleName();
-	}
-
-	public void setName(String name) {
-		getAccessibleContext().setAccessibleName(name);
-	}
-
-	public JComponent getViewComponent() {
-		return this;
 	}
 
 }

@@ -17,8 +17,8 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: SelectionTool.java,v 1.1 2005/02/18 05:26:24 mmcintyre Exp $
- * $Name: not supported by cvs2svn $
+ * $Id: SelectionTool.java,v 1.1.2.1 2005/09/05 06:58:55 ndvries Exp $
+ *
  */
 
 package net.squiz.matrix.ui;
@@ -57,7 +57,6 @@ public class SelectionTool extends MouseAdapter implements MouseMotionListener {
 	private java.util.List removeSelections = new ArrayList();
 	/* a list of nodes to be added to the selection */
 	private java.util.List addSelections = new ArrayList();
-
 
 	public SelectionTool(JTree comp) {
 		this.comp = comp;
@@ -245,8 +244,10 @@ public class SelectionTool extends MouseAdapter implements MouseMotionListener {
 			for (int i = 0; i < rows.length; i++) {
 				if (rows[i] == null)
 					continue;
-				if (selectionBounds.intersects(tree.getPathBounds(rows[i])))
-					currSelection.add(rows[i]);
+
+					if (selectionBounds.intersects(tree.getPathBounds(rows[i]))) {
+						currSelection.add(rows[i]);
+					}
 			}
 			if (currSelection != null && !currSelection.isEmpty())
 				intersectSelection(currSelection);
@@ -264,10 +265,13 @@ public class SelectionTool extends MouseAdapter implements MouseMotionListener {
 			if(tree != null) {
 				TreePath[] selection = new TreePath[newMaxIndex - newMinIndex + 1];
 
-			for (int counter = newMinIndex; counter <= newMaxIndex; counter++)
-				selection[counter - newMinIndex] = ui.getPathForRow(tree, counter);
+				for (int counter = newMinIndex; counter <= newMaxIndex; counter++) {
+					selection[counter - newMinIndex] = ui.getPathForRow(tree, counter);
+				}
+
 				return selection;
 			}
+
 			return null;
 		}
 
@@ -341,7 +345,7 @@ public class SelectionTool extends MouseAdapter implements MouseMotionListener {
 				return true;
 			if (table.getValueAt( table.rowAtPoint(point), table.columnAtPoint(point) ) == null)
 				return true;
-			
+
 			// MM: need to move mouseInsideCellComponent into this
 			// inner class
 			InspectorGadget tempTable = (InspectorGadget) table;

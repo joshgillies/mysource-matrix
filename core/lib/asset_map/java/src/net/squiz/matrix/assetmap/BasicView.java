@@ -12,14 +12,14 @@ import net.squiz.matrix.plaf.*;
 public class BasicView extends JPanel implements View {
 
 	protected MatrixTree tree;
-	private JSplitPane pane;
+	private JSplitPane splitPane;
 
 	public BasicView() {
 		construct();
 	}
 
 	private void construct() {
-		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		splitPane.setUI(new MatrixSplitPaneUI());
 
 		JScrollPane scrollPane = new JScrollPane(constructTree());
@@ -29,11 +29,13 @@ public class BasicView extends JPanel implements View {
 
 		splitPane.setTopComponent(scrollPane);
 		splitPane.setBottomComponent(statusKey);
-		splitPane.setDividerLocation(Integer.MAX_VALUE);
-		splitPane.setLastDividerLocation((int)(AssetMap.getApplet().getHeight() - statusKey.getHeight()));
 		splitPane.setOneTouchExpandable(true);
+		splitPane.setDividerLocation(Integer.MAX_VALUE);
 
 		setLayout(new BorderLayout());
+		JPanel tabUnderlay = new JPanel();
+		tabUnderlay.setBackground(MatrixLookAndFeel.PANEL_COLOUR);
+		add(tabUnderlay, BorderLayout.WEST);
 		add(new AssetMapMenuPanel(tree), BorderLayout.NORTH);
 		add(MatrixStatusBar.createStatusBar(), BorderLayout.SOUTH);
 		add(splitPane);
@@ -59,5 +61,9 @@ public class BasicView extends JPanel implements View {
 
 	public JComponent getViewComponent() {
 		return this;
+	}
+
+	public JSplitPane getSplitPane() {
+		return splitPane;
 	}
 }

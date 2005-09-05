@@ -52,8 +52,9 @@ public class MatrixTabbedPane extends VerticalTabbedPane {
 						panel.add(tabsUndocked, BorderLayout.CENTER);
 						source.setComponentAt(source.getSelectedIndex(), panel);
 
-						//source.setComponentAt(source.getSelectedIndex(), new JPanel());
 						UndockedView udView = new UndockedView(view, source.getSelectedIndex());
+						AssetMap.applet.addKeyAndContainerListenerRecursively(udView);
+
 						udView.setSize(300, 600);
 						GUIUtilities.showInScreenCenter(udView);
 						udView.toFront();
@@ -69,16 +70,10 @@ public class MatrixTabbedPane extends VerticalTabbedPane {
 							}
 
 							if (i == source.getTabCount() - 1) {
-								source.setSelectedIndex(source.getSelectedIndex());
+								source.setSelectedIndex(-1);
 								allUndocked = true;
 							}
 						}
-
-						/*if (source.getSelectedIndex() - 1 == source.getTabCount()) {
-							source.setSelectedIndex(0);
-						} else {
-							source.setSelectedIndex(source.getSelectedIndex() + 1);
-						}*/
 					}
 				}
 			}
@@ -90,7 +85,7 @@ public class MatrixTabbedPane extends VerticalTabbedPane {
 
 	public void addView(String name, View view) {
 		view.setName(name);
-		add(name, view.getViewComponent());
+		addTab(name, GUIUtilities.getAssetMapIcon("tree.png"), view.getViewComponent());
 	}
 
 	public boolean isAllUndocked() {
@@ -102,10 +97,16 @@ public class MatrixTabbedPane extends VerticalTabbedPane {
 		public void windowClosing(WindowEvent evt) {
 			UndockedView view = (UndockedView) evt.getComponent();
 			JComponent basicView = view.getViewComponent();
+
+			JSplitPane splitPane = ((BasicView)basicView).getSplitPane();
+			splitPane.setDividerLocation(Integer.MAX_VALUE);
+
 			setComponentAt(view.getIndex(), basicView);
 			setEnabledAt(view.getIndex(), true);
-	//		if (isAllUndocked())
-	//			setSelectedIndex(view.getIndex());
+			if (isAllUndocked())
+				setSelectedIndex(view.getIndex());
+
+
 		}
 	}
 

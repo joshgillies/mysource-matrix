@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: CompoundIcon.java,v 1.3 2005/01/20 13:10:35 brobertson Exp $
+* $Id: CompoundIcon.java,v 1.3.2.1 2005/09/05 06:58:51 ndvries Exp $
 *
 */
 
@@ -30,40 +30,48 @@ import javax.swing.*;
 /**
  * The compond icon can be used to take an existing icon and overlay
  * another smaller icon over it.
- * 
+ *
  * @author Marc McIntyre <mmcintyre@squiz.net>
  */
 public class CompoundIcon implements Icon, SwingConstants {
- 
+
 	/** The valid x positions */
 	protected static final int[]
     VALID_X = {LEFT, RIGHT, CENTER};
-	
+
 	/** The valid y positions */
 	protected static final int[]
     VALID_Y = {TOP, BOTTOM, CENTER};
-  
+
 	/** The main and decorator icons */
 	protected Icon mainIcon, decorator;
-	
+
 	/** The y alignment */
 	protected int yAlignment = BOTTOM;
-	
+
 	/** The x alignment */
 	protected int xAlignment = LEFT;
-  
+
+	/**
+	 * Constructor with empty args so that the class can be extended
+	 *
+	 */
+	public CompoundIcon() {
+
+	}
+
 	/**
 	 * Constructs a conpound icon
-	 * 
+	 *
 	 * @param mainIcon the main icon which will be on the bottom layer
 	 * @param decorator the decorator icon which will be on the top layer
 	 * @param xAlignment the x alignment
 	 * @param yAlignment the y alignment
 	 */
 	public CompoundIcon(
-	  		Icon mainIcon, 
+	  		Icon mainIcon,
 			Icon decorator,
-			int xAlignment, 
+			int xAlignment,
 			int yAlignment) {
 		if (decorator.getIconWidth() > mainIcon.getIconWidth()) {
 	  		throw new IllegalArgumentException(
@@ -81,42 +89,42 @@ public class CompoundIcon implements Icon, SwingConstants {
 	    	throw new IllegalArgumentException(
 	    		"yAlignment must be TOP, BOTTOM or CENTER");
 	    }
-	    
+
 	    this.mainIcon = mainIcon;
 	    this.decorator = decorator;
 	    this.xAlignment = xAlignment;
 	    this.yAlignment = yAlignment;
 	}
-  
+
 	/**
 	 * Returns TRUE if the specified value is legal
-	 * 
+	 *
 	 * @param value the value to check
 	 * @param legal the legal values
 	 * @return
 	 */
 	public boolean isLegalValue(int value, int[] legal) {
 		for (int i = 0; i < legal.length; i++) {
-			if (value == legal[i]) 
+			if (value == legal[i])
 				return true;
 		}
 		return false;
 	}
-  
+
 	/**
 	 * Returns an icon that can be used in disabled JLabels
-	 * 
+	 *
 	 * @return the disabled icon
 	 */
 	public Icon getDisabledIcon() {
 		Image grayImage = GrayFilter.createDisabledImage(((ImageIcon) mainIcon).getImage());
         return new ImageIcon(grayImage);
 	}
-	
+
 	/**
-	 * Returns the icon with of the compond icon, wchich is the sam with 
+	 * Returns the icon with of the compond icon, wchich is the sam with
 	 * as the main icon
-	 * 
+	 *
 	 * @return the width
 	 */
 	public int getIconWidth() {
@@ -125,16 +133,16 @@ public class CompoundIcon implements Icon, SwingConstants {
 
 	/**
 	 * Returns the icon height, which is the same as the main icon height
-	 * 
+	 *
 	 * @return the icon height
 	 */
 	public int getIconHeight() {
 		return mainIcon.getIconHeight();
 	}
-  
+
 	/**
 	 * Paints the compound icon
-	 * 
+	 *
 	 * @param c the component
 	 * @param g the graphics set
 	 * @param x the x co-ordinate
@@ -144,7 +152,7 @@ public class CompoundIcon implements Icon, SwingConstants {
 		mainIcon.paintIcon(c, g, x, y);
 		int w = getIconWidth();
 		int h = getIconHeight();
-		
+
 		if (xAlignment == CENTER) {
 			x += (w - decorator.getIconWidth()) / 2;
 		}

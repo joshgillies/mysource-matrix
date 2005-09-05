@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.3.2.2 2005/08/19 02:02:24 ndvries Exp $
-* $Name: not supported by cvs2svn $
+* $Id: CueTree.java,v 1.3.2.3 2005/09/05 06:58:50 ndvries Exp $
+*
 */
 
 package net.squiz.cuetree;
@@ -44,7 +44,7 @@ public class CueTree extends JTree {
 
 	/** The mode that indicate that the tree supports dragging */
 	public static final int DRAG_MODE = 1;
-	/** The mode that indicate that the tree supports clicing to move nodes */
+	/** The mode that indicate that the tree supports clicking to move nodes */
 	public static final int CLICK_MODE = 2;
 	/** Mode that indicates that the tree is adding a node */
 
@@ -969,6 +969,7 @@ public class CueTree extends JTree {
 			// the CueGestureListener to determine where in the tree the node is to
 			// be added/moved
 			int index = -1;
+			int indexModifier = 0;
 
 			if (!lastPathWasParent) {
 				// if the last path wasn't the new parent and the current path
@@ -998,6 +999,11 @@ public class CueTree extends JTree {
 							stopCueMode();
 							return;
 						}
+
+						// if the new position is higher up in the tree
+						if (newIndex < oldIndex) {
+							indexModifier++;
+						}
 					}
 
 					index = getModel().getIndexOfChild(
@@ -1006,7 +1012,7 @@ public class CueTree extends JTree {
 					);
 
 					if (sourcePath.getParentPath() == null) {
-						index++;
+						indexModifier++;
 					}
 
 					parentPath = currentPath.getParentPath();
@@ -1015,11 +1021,14 @@ public class CueTree extends JTree {
 				parentPath = currentPath;
 			}
 
+			index += indexModifier;
+
 			// if the path was above the top path in the tree then the index
 			// is 0
 			if (aboveTopPath) {
 				index = 0;
 			}
+
 	//		if (triggersPath)
 	//			triggerPath(currentPath, initPoint.y, 5);
 			if (requestMode == MOVE_REQUEST_MODE) {
