@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.41 2005/08/19 01:12:50 dheppell Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.42 2005/09/06 01:29:53 arailean Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -63,9 +63,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for choosing which asset types to list
 	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -119,9 +119,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the asset types to list
 	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -165,9 +165,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for editing custom asset positions
 	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -260,9 +260,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the interface for editing custom asset positions
 	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -308,9 +308,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paints the interface for setting the number of columns to display per row
 	*
-	* @param object	Listing_Engine		&$asset	asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for form elements
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -402,9 +402,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the interface for setting the number of columns to display per row
 	*
-	* @param object	Listing_Engine		&$asset	asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for form elements
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
@@ -443,9 +443,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paints the interface for previewing the column layout
 	*
-	* @param object	Listing_Engine		&$asset	asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for form elements
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -503,9 +503,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the interface for previewing the column layout
 	*
-	* @param object	Listing_Engine		&$asset	asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for form elements
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
@@ -520,9 +520,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint links to the defaut formats
 	*
-	* @param object Asset				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -580,9 +580,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for Group Formats
 	*
-	* @param object Asset	                 &$asset  the asset whose interface we are painting
-	* @param object	Backend_Outputter    &$o      the outputter class
-	* @param string                       $prefix  prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -619,9 +619,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	* override the whole paint/process functions if they've got special asset
 	* type logic (Eg. proxy asset types)
 	*
-	* @param object Asset				&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
 	*
 	* @return boolean
 	* @access public
@@ -636,9 +634,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for editing custom type formats
 	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -723,9 +721,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the interface for editing custom type formats
 	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -794,9 +792,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for editing custom position formats
 	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -870,9 +868,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the interface for editing custom position formats
 	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -934,9 +932,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paints the interface for selecting sort field
 	*
-	* @param object	Listing_Engine		&$asset		asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for form elements
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -996,6 +994,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 						$combo_list = Array('' => '');
 						foreach ($fields as $id => $info) {
+							if (empty($sort_by_options[$info['params']['field']])) {
+								continue;
+							}
 							?>
 								<tr>
 									<td class="sq-backend-table-cell">
@@ -1126,9 +1127,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paints the interface for selecting sort field
 	*
-	* @param object	Listing_Engine		&$asset		asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for form elements
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -1226,9 +1227,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paints the inteface for choosing a default sort by field
 	*
-	* @param object	Listing_Engine		&$asset		asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for form elements
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -1269,9 +1270,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the default sory by option
 	*
-	* @param object	Listing_Engine		&$asset		asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for form elements
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -1294,9 +1295,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paints the interface for re ordering the sort options
 	*
-	* @param object	Listing_Engine		&$asset		asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for form elements
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -1387,7 +1388,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 							<tr>
 								<td class="sq-backend-table-cell">
 									<?php
-									if (array_get_index($info['params'], 'field', false) == 'no_sorting') continue;
+									if (array_get_index($info['params'], 'field', false) == 'no_sorting') {
+										continue;
+									}
 									hidden_field($prefix.'_sort_order_list['.$id.']', $id); ?>
 									<span id ="<?php echo $prefix ?>_sort_order_<?php echo $id; ?>"><?php echo $info['name']; ?></span>
 								</td>
@@ -1427,9 +1430,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the interface for re ordering the sort options
 	*
-	* @param object	Listing_Engine		&$asset		asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for form elements
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -1465,9 +1468,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paints the inteface for changing the default sort direction text
 	*
-	* @param object	Listing_Engine		&$asset		asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for form elements
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -1500,9 +1503,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the inteface for changing the default sort direction text
 	*
-	* @param object	Listing_Engine		&$asset		asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for form elements
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -1523,7 +1526,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Get the possible 'sort by' options
 	*
-	* @return Array(string => string)
+	* @param object	&$asset	asset being painted
+	*
+	* @return array
 	* @access protected
 	*/
 	function _getSortByOptions(&$asset)
@@ -1555,9 +1560,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paints the root node selection box
 	*
-	* @param object Listing_Engine		&$asset	asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for the html doc element name
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
 	*
 	* @return boolean
 	* @access public
@@ -1605,9 +1610,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the value input from root node selection box
 	*
-	* @param object Listing_Engine		&$asset	asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for the html doc element name
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
 	*
 	* @return void
 	* @access public
@@ -1670,9 +1675,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the Group By field
 	*
-	* @param object Listing_Engine		&$asset	asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for the html doc element name
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
 	*
 	* @return boolean
 	* @access public
@@ -1768,9 +1773,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the Group By field
 	*
-	* @param object Listing_Engine		&$asset	asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for the html doc element name
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
 	*
 	* @return boolean
 	* @access public
@@ -1832,10 +1837,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint 'Group By Metadata' Option
 	*
-	* @param object Listing_Engine		&$asset			asset being painted
-	* @param object Backend_Outputter	&$o					backend outputter
-	* @param string						$prefix				prefix for the html doc element name
-	* @param Array						$group_by_option	the 'group by' array element
+	* @param object	&$asset				asset being painted
+	* @param object	&$o					backend outputter
+	* @param string	$prefix				prefix for the html doc element name
+	* @param array	$group_by_option	the 'group by' array element
 	*
 	* @return boolean
 	* @access public
@@ -1867,10 +1872,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint 'Group By Metadata' Option
 	*
-	* @param object Listing_Engine		&$asset			asset being painted
-	* @param object Backend_Outputter	&$o					backend outputter
-	* @param string						$prefix				prefix for the html doc element name
-	* @param Array						$group_by_option	the 'group by' array element
+	* @param object	&$asset				asset being painted
+	* @param object	&$o					backend outputter
+	* @param string	$prefix				prefix for the html doc element name
+	* @param int	$key				key
+	* @param array	&$group_by_option	the 'group by' array element
 	*
 	* @return boolean
 	* @access public
@@ -1893,10 +1899,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint 'Group By Parent Asset' Option
 	*
-	* @param object Listing_Engine		&$asset			asset being painted
-	* @param object Backend_Outputter	&$o					backend outputter
-	* @param string						$prefix				prefix for the html doc element name
-	* @param Array						$group_by_option	the 'group by' array element
+	* @param object	&$asset				asset being painted
+	* @param object	&$o					backend outputter
+	* @param string	$prefix				prefix for the html doc element name
+	* @param array	$group_by_option	the 'group by' array element
 	*
 	* @return boolean
 	* @access public
@@ -1961,10 +1967,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint 'Group By Parent Asset' Option
 	*
-	* @param object Listing_Engine		&$asset			asset being painted
-	* @param object Backend_Outputter	&$o					backend outputter
-	* @param string						$prefix				prefix for the html doc element name
-	* @param Array						$group_by_option	the 'group by' array element
+	* @param object	&$asset				asset being painted
+	* @param object	&$o					backend outputter
+	* @param string	$prefix				prefix for the html doc element name
+	* @param int	$key				key
+	* @param array	&$group_by_option	the 'group by' array element
 	*
 	* @return boolean
 	* @access public
@@ -1998,9 +2005,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint a place to add a new 'Group By' field
 	*
-	* @param object Listing_Engine		&$asset		asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for the html doc element name
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
 	*
 	* @return boolean
 	* @access public
@@ -2037,9 +2044,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the 'new Group By field' field
 	*
-	* @param object Listing_Engine    &$asset    asset being painted
-	* @param object Backend_Outputter &$o        backend outputter
-	* @param string                   $prefix    prefix for the html doc element name
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
 	*
 	* @return boolean
 	* @access public
@@ -2125,10 +2132,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the current Asset Selections
 	*
-	* @param object Listing_Engine		&$asset				asset being painted
-	* @param object Backend_Outputter	&$o					backend outputter
-	* @param string						$prefix				prefix for the html doc element name
-	* @param Array						$group_by_option	the 'group by' array element
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
 	*
 	* @return boolean
 	* @access public
@@ -2275,9 +2281,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process Asset Selection modifications and deletions
 	*
-	* @param object Listing_Engine		&$asset				asset being painted
-	* @param object Backend_Outputter	&$o					backend outputter
-	* @param string						$prefix				prefix for the html doc element name
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
 	*
 	* @return boolean
 	* @access public
@@ -2372,10 +2378,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the current Asset Targets
 	*
-	* @param object Listing_Engine		&$asset				asset being painted
-	* @param object Backend_Outputter	&$o					backend outputter
-	* @param string						$prefix				prefix for the html doc element name
-	* @param Array						$group_by_option	the 'group by' array element
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
 	*
 	* @return boolean
 	* @access public
@@ -2492,9 +2497,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process Asset Target modifications and deletions
 	*
-	* @param object Listing_Engine		&$asset				asset being painted
-	* @param object Backend_Outputter	&$o					backend outputter
-	* @param string						$prefix				prefix for the html doc element name
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
 	*
 	* @return boolean
 	* @access public
@@ -2551,12 +2556,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for selecting searched statuses
 	*
-	* @param object Asset				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	* @param string						$category	the category we are painting for
-	*												(if blank we paint for the whole search page)
-	* @param boolean					$read_only	force read only view
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -2598,9 +2600,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the interface for selecting searched statuses
 	*
-	* @param object Asset				&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -2626,9 +2628,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for changing the dropdown lists options
 	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset		the asset whose interface we are painting
+	* @param object	&$o			the outputter class
+	* @param string	$prefix		prefix for the form elements
+	* @param array	&$options	options
 	*
 	* @return boolean
 	* @access public
@@ -2684,9 +2687,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the interface for editing the dropdown lists options
 	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset		the asset whose interface we are painting
+	* @param object	&$o			the outputter class
+	* @param string	$prefix		prefix for the form elements
+	* @param array	&$options	options
 	*
 	* @return boolean
 	* @access public
@@ -2716,11 +2720,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for a single set of selectable create locations
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	* @param string						$name	the name of the selectable locations set
-	* @param array						&$data	details of the selectable locations set
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return void
 	* @access public
@@ -2868,11 +2870,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for a single set of selectable create locations
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	* @param string						$name	the name of the selectable locations set
-	* @param array						&$data	details of the selectable locations set
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return void
 	* @access public
