@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.11 2005/07/05 02:22:09 dmckee Exp $
+* $Id: preview.inc,v 1.12 2005/09/06 06:57:10 rong Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 
@@ -55,7 +55,6 @@ function paintPreview(&$owner, &$o, &$ei)
 	$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 
 	$url_data = $db->getAll($sql.' '.$where.' ORDER BY l.url');
-
 	assert_valid_db_result($url_data);
 
 	if (empty($url_data)) {
@@ -85,7 +84,6 @@ function paintPreview(&$owner, &$o, &$ei)
 
 
 	if (!empty($url_data)) {
-		$primary_url = '';
 		$preview_urls = Array();
 		$preview_designs = Array('' => 'Default Frontend Design');
 		$has_default_design = false;
@@ -93,9 +91,14 @@ function paintPreview(&$owner, &$o, &$ei)
 		$contains_diff_domain = false;
 		$current_url = parse_url(current_url());
 
+		// set the primary preview url to the first system root url
+		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+		$primary_url = &$GLOBALS['SQ_SYSTEM']->am->getAssetURL($owner->id,$root_urls[0]);
+
 		foreach ($url_data as $url_info) {
 			$protocol = ($url_info['https']) ? 'https://' : 'http://';
 			$preview_urls[$protocol.$url_info['url']] = $protocol.$url_info['url'];
+
 			if (empty($primary_url)) {
 				$primary_url = $protocol.$url_info['url'];
 			}
