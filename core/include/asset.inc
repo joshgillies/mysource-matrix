@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.398.2.13 2005/08/17 04:46:34 lwright Exp $
+* $Id: asset.inc,v 1.398.2.14 2005/09/06 00:57:18 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.398.2.13 $
+* @version $Revision: 1.398.2.14 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -199,11 +199,6 @@ class Asset extends MySource_Object
 	function Asset($assetid=0)
 	{
 		$this->MySource_Object();
-
-		$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings(get_class($this));
-		foreach ($GLOBALS['SQ_SYSTEM']->am->getTypeAncestors(get_class($this)) as $type_parent) {
-			$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings($type_parent);
-		}
 
 		if ($assetid) {
 			$this->load($assetid);
