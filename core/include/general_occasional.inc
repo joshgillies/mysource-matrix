@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.60 2005/07/29 04:50:55 tbarrett Exp $
+* $Id: general_occasional.inc,v 1.61 2005/09/06 00:18:01 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix
 */
 
@@ -343,7 +343,7 @@ function make_valid_web_paths($paths)
 		$path = str_replace('&', '_and_',  $path);
 
 		// no spaces in web paths
-		$path = preg_replace('/\\s+/', '_', $path);
+		$path = preg_replace('/\\s+/', SQ_CONF_WEB_PATH_SEPARATOR, $path);
 
 		// no parentheses
 		$path = preg_replace('/[\(\)\[\]]/', '', $path);
@@ -390,7 +390,7 @@ function implode_sql($query_components)
 	$select = 'SELECT '.implode(', ', $query_components['select']);
 	$from = 'FROM '.implode(', ', $query_components['from']);
 	$where = 'WHERE ('.implode(")\n\t".$where_joiner.' (', $query_components['where']).')';
-	
+
 	$sql = "$select\n$from\n$where";
 
 	if (!empty($query_components['group_by'])) {

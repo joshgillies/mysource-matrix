@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.68 2005/07/08 00:30:26 amiller Exp $
+* $Id: system_config.inc,v 1.69 2005/09/06 00:18:01 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -59,6 +59,7 @@ class System_Config extends Config
 						'SQ_CONF_SYSTEM_OWNER'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_SYSTEM_ROOT_URLS'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_STATIC_ROOT_URL'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_WEB_PATH_SEPARATOR'		=> Array('editable'	=> 1, 'default'	=> '_'),
 						'SQ_CONF_STATIC_ROOT_HTTP'			=> Array('editable' => 1, 'default' => true),
 						'SQ_CONF_STATIC_ROOT_HTTPS'			=> Array('editable' => 1, 'default' => false),
 						'SQ_CONF_DEFAULT_EMAIL'				=> Array('editable' => 1, 'default' => ''),
@@ -100,6 +101,8 @@ class System_Config extends Config
 	/**
 	* Constructor
 	*
+	* @return object
+	* @access public
 	*/
 	function System_Config()
 	{
@@ -112,12 +115,12 @@ class System_Config extends Config
 	/**
 	* Rewrites the conf file with current variables
 	*
-	* @param Array		$vars				the array with any new values (that are allowed to be edited)
+	* @param array		$vars				the array with any new values (that are allowed to be edited)
 	*										Array('[config_var_name]' => [scalar value])
 	* @param boolean	$backup_existing	whether we should backup the existing config file first
-	* @param boolean 	$send_message		whether to send a message using the messaging system
+	* @param boolean	$send_message		whether to send a message using the messaging system
 	*
-	* @return boolean	indicates whether the file was written
+	* @return boolean
 	* @access public
 	*/
 	function save($vars, $backup_existing=false, $send_message=true)
@@ -176,11 +179,12 @@ class System_Config extends Config
 	* Paints out the code for the config file for the passed config
 	* This allows extra things to be added for special cases
 	*
-	* @param string		$name	the config var name
-	* @param mixed		$value	the value that the config var has
+	* @param string		$var_name	the config var name
+	* @param mixed		$value		the value that the config var has
 	* @param boolean	$var_export	whether to run the value through var_export or not
 	*
-	* @return boolean	whether the value is valid or not
+	* @return boolean
+	* @access private
 	*/
 	function _paintConfigVar($var_name, $value, $var_export=true)
 	{
@@ -318,7 +322,7 @@ class System_Config extends Config
 	* If you (as a sub-class) put your config vars so that when they are submitted appear in
 	* $_POST[get_class($this)] then you probably won't need to override processBackend()
 	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	* @param object	&$o	reference to the backend outputter
 	*
 	* @return void
 	* @access public
@@ -388,6 +392,13 @@ class System_Config extends Config
 					}
 				}
 				$o->closeField();
+
+			$o->openField(translate('system_web_path_separator'));
+			if ($write_access) {
+				text_box($class.'[SQ_CONF_WEB_PATH_SEPARATOR]', SQ_CONF_WEB_PATH_SEPARATOR, 1, 1);
+			} else {
+				echo nl2br(SQ_CONF_WEB_PATH_SEPARATOR);
+			}
 
 			$o->openField(translate('system_static_url_http'));
 				if ($write_access && $is_root) {

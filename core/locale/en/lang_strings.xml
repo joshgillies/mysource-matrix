@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.52 2005/09/02 06:57:54 lwright Exp $
+* $Id: lang_strings.xml,v 1.53 2005/09/06 00:18:01 rong Exp $
 *
 */
 
@@ -215,6 +215,7 @@
 	<string source="system_settings">System Settings</string>
 	<string source="system_simple_edit_suffix">System Simple Edit Suffix</string>
 	<string source="system_tools">System Tools</string>
+	<string source="system_web_path_separator">System Web Path Separator</string>
 	<string source="system_wide">System Wide</string>
 	<string source="target_node">Target Node</string>
 	<string source="tech_email">Tech Email</string>
