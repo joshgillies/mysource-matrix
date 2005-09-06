@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.71 2005/08/30 08:45:33 brobertson Exp $
+* $Id: hipo_herder.inc,v 1.72 2005/09/06 23:56:02 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -61,7 +61,9 @@ class HIPO_Herder extends MySource_Object
 	/**
 	* Constructor
 	*
-	*/
+	* @return object
+	* @access public
+	 */
 	function HIPO_Herder()
 	{
 
@@ -71,7 +73,7 @@ class HIPO_Herder extends MySource_Object
 	/**
 	* Backend outputter for hipos
 	*
-	* @return object Hipo_Backend_Outputter
+	* @return object
 	* @access public
 	*/
 	function &getBackendOutputter()
@@ -88,9 +90,11 @@ class HIPO_Herder extends MySource_Object
 	/**
 	* Returns the job for the passed code name
 	*
+	* Returns the requested hipo job OR null on error
+	*
 	* @param string	$code_name	the codename of the job
 	*
-	* @return object HIPO_Job | null	returns the requested hipo job OR null on error
+	* @return object
 	* @access public
 	*/
 	function &getJob($code_name)
@@ -129,7 +133,7 @@ class HIPO_Herder extends MySource_Object
 
 			require_once $job_dir.'/'.$job_type.'.inc';
 
-			$this->_jobs[$code_name] = new $job_type($code_name);
+			$this->_jobs[$code_name] =& new $job_type($code_name);
 
 			if (!$this->_jobs[$code_name]->code_name) {
 				// something buggered up, not our problem
@@ -149,6 +153,8 @@ class HIPO_Herder extends MySource_Object
 	*
 	* If the HIPO is finsihed, the URL returned will be the on_complete_url in the
 	* _options array of the HIPO so that the HIPO can redirect back to where it started
+	*
+	* @param string	$code_name	the codename of the job
 	*
 	* @return string
 	* @access public
@@ -399,7 +405,12 @@ class HIPO_Herder extends MySource_Object
 							<?php
 							foreach ($buttons_to_print as $btn_code => $btn_data) {
 								?><td valign="top" align="center"><?php
-								normal_button($btn_code, $btn_data['value'], $btn_data['action'], 'class="sq-hipo-button-enabled"');
+								// access key 'n' for next button
+								if ($btn_data['value'] == 'Next >>') {
+									normal_button($btn_code, $btn_data['value'], $btn_data['action'], 'class="sq-hipo-button-enabled", accesskey="n""');
+								} else {
+									normal_button($btn_code, $btn_data['value'], $btn_data['action'], 'class="sq-hipo-button-enabled"');
+								}
 								?></td><?php
 							}
 							?>
@@ -423,13 +434,13 @@ class HIPO_Herder extends MySource_Object
 	/**
 	* Called by the daemon script to inform the hipo manager that it is about to start processing
 	* This is needed so that we can check the the input from the web script and
-	* return an ACK or an error to it before we start processing
+	* returns an ACK or an error, indicating whether processing should start or not
 	*
-	* @param Array	$input_data		data sent from the web script
-	* @param Array 	$output_data	data to be sent back to the web script - Array ('result' => [ack|error], 'msg' => '');
+	* @param array	&$input_data	data sent from the web script
+	* @param array	&$output_data	data to be sent back to the web script
 	* @param string	$taskid			the id of the task on the server (used if we need to abort later on)
 	*
-	* @return boolean	indicating whether processing should start or not
+	* @return boolean
 	* @access public
 	*/
 	function prepareProcessServer(&$input_data, &$output_data, $taskid)
@@ -535,7 +546,9 @@ class HIPO_Herder extends MySource_Object
 	/**
 	* The handler for the any signals from the system
 	*
-	* @return int		$signo	the signal number
+	* @param int	$signo	the signal number
+	*
+	* @return void
 	* @access public
 	*/
 	function serverSigHandler($signo)
@@ -586,7 +599,7 @@ class HIPO_Herder extends MySource_Object
 		$this->_includeHipoJobLocales($job_dir);
 
 		require_once $job_dir.'/'.$job_type.'.inc';
-		$init_hipo = new $job_type();
+		$init_hipo =& new $job_type();
 		$init_hipo->setRunningVars($vars);
 
 		// prepare() check the integrity of the the running vars
@@ -633,7 +646,7 @@ class HIPO_Herder extends MySource_Object
 	*									(can be left blank to use the current URL when the
 	*									HIPO jobs were queued)
 	*
-	* @return string | Array()
+	* @return mixed string|array
 	* @access public
 	*/
 	function runQueuedJobs($on_complete_url='')
@@ -701,7 +714,7 @@ class HIPO_Herder extends MySource_Object
 	* @param string	$job_dir	where to find this hipo job include files
 	*							(can be left blank to use default hipo job directory)
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function freestyleHipo($job_type, $vars=Array(), $job_dir='')
@@ -711,7 +724,7 @@ class HIPO_Herder extends MySource_Object
 		}
 
 		require_once $job_dir.'/'.$job_type.'.inc';
-		$init_hipo = new $job_type();
+		$init_hipo =& new $job_type();
 		$init_hipo->setRunningVars($vars);
 		$init_hipo->_steps = $init_hipo->getInitialStepData();
 
@@ -736,10 +749,12 @@ class HIPO_Herder extends MySource_Object
 	function _includeHipoJobLocales($job_dir)
 	{
 		// if a default hipo job location, nothing to do
-		if ($job_dir == SQ_SYSTEM_ROOT.'/core/hipo/jobs') return;
+		if ($job_dir == SQ_SYSTEM_ROOT.'/core/hipo/jobs') {
+			return;
+		}
 
 		// If this is not in the core/hipo/jobs it has to be under one of the packages
-		// Because the hipo jobs are not assets the locale strings will be part of 
+		// Because the hipo jobs are not assets the locale strings will be part of
 		// the packages locales
 		if (strpos($job_dir, str_replace('\\', '/', SQ_CORE_PACKAGE_PATH)) !== false) {
 			$GLOBALS['SQ_SYSTEM']->lm->includePackageStrings('__core__');
@@ -756,9 +771,10 @@ class HIPO_Herder extends MySource_Object
 	/**
 	* Print out the backend interface for the Herder
 	*
-	* @param object Backend	$backend	reference to the backend object
+	* @param object	&$backend	reference to the backend object
 	*
 	* @return void
+	* @access public
 	*/
 	function paintBackend(&$backend)
 	{
