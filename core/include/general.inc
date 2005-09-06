@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.99 2005/08/26 06:50:11 mmcintyre Exp $
+* $Id: general.inc,v 1.100 2005/09/06 01:57:43 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix
 */
 
@@ -663,7 +663,7 @@ function bit_elements($num)
 function iso8601_ts($iso8601)
 {
 	// we have everything including the time
-	if (preg_match("/^[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}$/",$iso8601)) {
+	if (preg_match("/^[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}$/", $iso8601)) {
 		// valid but we only have the date
 		return mktime(
 			0, 0, 0,
@@ -672,7 +672,7 @@ function iso8601_ts($iso8601)
 			(int) substr($iso8601,0,4)
 		);
 
-	} else if (preg_match('/^[0-9]{4}(-[0-9]{2}(-[0-9]{2}([T| ]{1}[0-9]{2}:[0-9]{2}(:[0-9]{2}(\.[0-9]{1,2}){0,1}){0,1}([\+|-]{1}[0-9]{2}:[0-9]{2}){0,1}){0,1}){0,1}){0,1}$/',$iso8601)) {
+	} else if (preg_match('/^[0-9\-]{4}(-[0-9\-]{2}(-[0-9\-]{2}([T| ]{1}[0-9\-]{2}:[0-9\-]{2}(:[0-9\-]{2}(\.[0-9\-]{1,2}){0,1}){0,1}([\+|-]{1}[0-9\-]{2}:[0-9\-]{2}){0,1}){0,1}){0,1}){0,1}$/', $iso8601)) {
 		return mktime(
 			(int) substr($iso8601,11,2),
 			(int) substr($iso8601,14,2),
@@ -979,9 +979,9 @@ function sq_print_icon($path, $width, $height, $alt='', $title=null, $extras='')
 	?>
 
 	<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif"
-	     alt="<?php echo $alt; ?>"
-	     title="<?php echo $title; ?>"
-	     <?php echo $extras; ?> />
+		 alt="<?php echo $alt; ?>"
+		 title="<?php echo $title; ?>"
+		 <?php echo $extras; ?> />
 	<?php
 
 }//end sq_print_icon()
