@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.75 2005/08/11 04:55:42 mmcintyre Exp $
+* $Id: workflow_manager.inc,v 1.76 2005/09/06 00:08:30 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1161,12 +1161,15 @@ class Workflow_Manager extends MySource_Object
 			return false;
 		}
 
+		// we have to get the publishers before the workflow is cleared, because
+		// this function depends on having a workflow running
+		$publishers = $this->whoCanPublish($asset->id);
+
 		if (!$this->_clearWorkflow($assetid)) return false;
 
 		// send internal messages to everyone who could approve before to let them know that someone cancelled
 		if (!$this->silentWorkflowParty($asset->id)) {
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$publishers = $this->whoCanPublish($asset->id);
 
 			// create a new internal message if we have not been supplied with one
 			if (is_null($msg)) $msg = $ms->newMessage();
