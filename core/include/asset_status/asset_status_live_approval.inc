@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.35 2005/04/27 00:14:43 lwright Exp $
+* $Id: asset_status_live_approval.inc,v 1.35.2.1 2005/09/06 01:45:04 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                   there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.35.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live_Approval extends Asset_Status
@@ -259,9 +259,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 
 					// update the last published date
 					if (!$this->owner->setDate('published', time())) return false;
-				}
 
-				if ($new_status == SQ_STATUS_APPROVED) {
 					// log an internal message
 					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
