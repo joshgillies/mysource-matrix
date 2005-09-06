@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.275 2005/09/01 23:14:49 dheppell Exp $
+* $Id: asset_edit_interface.inc,v 1.276 2005/09/06 00:03:36 ndvries Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.275 $
+* @version $Revision: 1.276 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1211,9 +1211,9 @@ class Asset_Edit_Interface extends MySource_Object
 				}
 			}//end if
 
-			// Metadata doesn't have an xml file defined, so to avoid any file not found errors below,
-			// Lets skip this bit, and move onto the next screen.
+			// Metadata & workflow don't have an xml file defined, so move onto the next screen.
 			if ($screen == 'metadata') continue;
+			if ($screen == 'workflow') continue;
 
 			// its not a static screen, so get the xml file and parse it for
 			// the keywords that we want, if the xml file exists
@@ -1432,18 +1432,18 @@ class Asset_Edit_Interface extends MySource_Object
 							$display_name = '';
 							$field_note   = '';
 							$attr_tag     = null;
-		
+
 							for ($sub_index = 0; $sub_index < count($field->children); $sub_index++) {
 								$sub_field =& $field->children[$sub_index];
 								switch ($sub_field->name) {
 									case 'display_name':
 										$display_name = $sub_field->content;
 									break;
-		
+
 									case 'note':
 										$field_note = $sub_field->content;
 									break;
-		
+
 									default:
 										if (!is_null($attr_tag)) {
 											trigger_localised_error('SYS0194', E_USER_WARNING);
@@ -1453,64 +1453,64 @@ class Asset_Edit_Interface extends MySource_Object
 									break;
 								}//end switch
 							}
-		
+
 							$field_access = $this->_getAccess($owner, $field, $prefix, $section_access);
 							if (!($field_access & SQ_EI_READ)) {
 								continue;
 							}
-		
+
 							if (!isset($field->attributes['format'])) {
 								$field->attributes['format'] = '';
 							}
-		
+
 							// reset get_field
 							$get_field = false;
-		
+
 							if (!empty($field->attributes['attribute'])) {
 								// find out what we need to get in this loop
 								if (isset($layout_keywords['screens'][$screen]['fields'][$field->attributes['attribute']])) {
 									$get_field = true;
 									$field_keyword = $layout_keywords['screens'][$screen]['fields'][$field->attributes['attribute']];
 								}
-		
+
 								// if we do not want anything in this loop, continue
 								if (!$get_field && !$get_section && !$get_screen) {
 									continue;
 								}
-		
+
 								if ($field->name != 'field') continue;
 								$o->openField($display_name, $field->attributes['format'], '', isset($field->attributes['hidden']));
-		
+
 								$attr = &$owner->getAttribute($field->attributes['attribute']);
-		
+
 								if (is_null($attr)) continue;
 								if (!$attr->setEditParams($attr_tag)) continue;
 								// if this is not a wanted keyword, then continue on our way
 								if (isset($layout_keywords['screens'][$screen]['fields'][$field->attributes['attribute']]))
-		
+
 								// start buffering for this field
 								if ($get_field) ob_start();
-		
+
 								$attr->paint($prefix.'_'.$attr->id, !(($field_access & SQ_EI_WRITE) && $limbo_access));
 								if (($field_access & SQ_EI_WRITE) && $limbo_access) {
 									$print_commit_button = true;
 								}
-		
+
 								if (!empty($field_note)) {
-									
+
 									$field_note = str_replace('%description%', $attr->description, $field_note);
 									$o->note($field_note);
 								}
-		
+
 								// end buffering
 								if ($get_field) {
 									$this->_tmp['layout_keyword_replacements'][$field_keyword] = ob_get_contents();
 									ob_end_flush();
 								}
 								$o->closeField();
-		
+
 							} else if ($attr_tag->name == 'function_call') {
-		
+
 								if (isset($field->attributes['keyword'])) {
 									// find out what we need to get in this loop
 									if (isset($layout_keywords['screens'][$screen]['fields'][$field->attributes['keyword']])) {
@@ -1518,17 +1518,17 @@ class Asset_Edit_Interface extends MySource_Object
 										$field_keyword = $layout_keywords['screens'][$screen]['fields'][$field->attributes['keyword']];
 									}
 								}
-		
+
 								$paint_node = &$attr_tag->children[0];
 								if ($field->name != 'field') continue;
-		
+
 								$o->openField($display_name, $field->attributes['format'], '', isset($field->attributes['hidden']));
-		
+
 								if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
 									echo translate('painting_funtion_not_found');
 								} else {
 									if ($get_field) ob_start();
-		
+
 									if ($this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix)) {
 										$print_commit_button = true;
 									}
@@ -1538,9 +1538,9 @@ class Asset_Edit_Interface extends MySource_Object
 										ob_end_flush();
 									}
 								}//end if
-		
+
 								$o->closeField();
-		
+
 							}//end if
 						break;
 
