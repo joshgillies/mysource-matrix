@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.115 2005/09/07 23:45:34 mmcintyre Exp $
+* $Id: form.inc,v 1.116 2005/09/07 23:46:27 mmcintyre Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.115 $
+* @version $Revision: 1.116 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -362,6 +362,7 @@ class Form extends Asset
 	{
 		// basically get the parents of the section, and add itself in the
 		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
+		
 		if (empty($query)) return Array();
 		
 		$queried_parents = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
