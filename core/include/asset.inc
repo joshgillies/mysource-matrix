@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.338.2.14 2005/08/11 06:00:14 tbarrett Exp $
+* $Id: asset.inc,v 1.338.2.15 2005/09/07 02:07:58 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.338.2.14 $
+* @version $Revision: 1.338.2.15 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1873,6 +1873,11 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$msg_reps = Array(
+							'asset_name'	=> $this->name,
+							'old_status'	=> get_status_description($this->status),
+							'new_status'	=> get_status_description($new_status),
+						);
 		$message_body = 'The '.$date_type.' date of "'.$this->name.'" was successfully changed from "'.$old_date_string.'" to "'.$new_date_string.'"';
 		$message = $ms->newMessage(Array(), 'Asset Date Changed', $message_body, 'asset.dates');
 		$message->parameters['assetid'] = $this->id;
