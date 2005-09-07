@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.27 2005/06/29 23:44:12 ndvries Exp $
+* $Id: workflow.inc,v 1.28 2005/09/07 05:45:48 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 */
 
@@ -515,13 +515,13 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 
 								}// end foreach
 
-								// if there is a keyword replacement for this, add it to the replacements
-								if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) {
-									$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_report']] = ob_get_contents();
-									ob_end_flush();
-								}
+								$o->closeSection();
 
-							$o->closeSection();
+							// if there is a keyword replacement for this, add it to the replacements
+							if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) {
+								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_report']] = ob_get_contents();
+								ob_end_flush();
+							}
 
 						}// end foreach
 
