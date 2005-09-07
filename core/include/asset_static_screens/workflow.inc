@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.11.2.3 2005/05/31 01:14:52 rhoward Exp $
+* $Id: workflow.inc,v 1.11.2.4 2005/09/07 06:46:47 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -469,13 +469,13 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 
 								}// end foreach
 
-								// if there is a keyword replacement for this, add it to the replacements
-								if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) {
-									$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_report']] = ob_get_contents();
-									ob_end_flush();
-								}
-
 							$o->closeSection();
+
+							// if there is a keyword replacement for this, add it to the replacements
+							if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) {
+								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_report']] = ob_get_contents();
+								ob_end_flush();
+							}
 
 						}// end foreach
 
