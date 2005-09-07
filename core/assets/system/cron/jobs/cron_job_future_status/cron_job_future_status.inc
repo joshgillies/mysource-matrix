@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.28 2005/08/12 16:55:57 brobertson Exp $
+* $Id: cron_job_future_status.inc,v 1.29 2005/09/07 06:16:47 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -307,8 +307,13 @@ class Cron_Job_Future_Status extends Cron_Job
 	{
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, __CLASS__, true, 'minor', 'updating');
 		$assetids = Array();
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		foreach ($links as $link) {
-			$assetids[] = $link['majorid'];
+			$cm_links = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($cm->id, $link['majorid']);
+			if (!empty($cm_links)) {
+				//This asset is still linked to the cron manager, so its still active.
+				$assetids[] = $link['majorid'];
+			}
 		}
 		$dates = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('when', 'cron_job_future_status', $assetids);
 		asort($dates, SORT_STRING);

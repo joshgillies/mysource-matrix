@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.55 2005/05/11 06:04:57 lwright Exp $
+* $Id: cron_manager.inc,v 1.56 2005/09/07 06:16:44 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -295,6 +295,7 @@ class Cron_Manager extends Asset
 		if (empty($link)) return false;
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+		$job->removeJob();
 		$success = $this->deleteLink($link['linkid']);
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 

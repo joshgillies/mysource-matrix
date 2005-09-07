@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.37 2005/08/03 00:37:40 dmckee Exp $
+* $Id: cron_job.inc,v 1.38 2005/09/07 06:16:37 dmckee Exp $
 *
 */
 
@@ -40,7 +40,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -872,6 +872,25 @@ class Cron_Job extends Asset
 		return $start_ts + ($add['minutes'] * 60);
 
 	}//end getNextRun()
+
+
+	/**
+	* Called when a link to this job is removed. If that was it's last significant
+	* link, the job should be moved to the trash.
+	*
+	* @return bool		Returns true on success.
+	* @access public
+	* @static
+	*/
+	function removeJob()
+	{
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$cron_manager_links = $am->getLinks($this->id, SQ_LINK_TYPE_2, 'cron_manager', true, 'minor');
+		if (empty($cron_manager_links)) {
+			$trash = $am->getAsset($am->getSystemAssetid('trash_folder'));
+			$trash->createLink($this, SQ_LINK_TYPE_2);
+		}
+	}
 
 
 }//end class
