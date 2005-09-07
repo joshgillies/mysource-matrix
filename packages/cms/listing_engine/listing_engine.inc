@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.88 2005/08/26 06:39:47 mmcintyre Exp $
+* $Id: listing_engine.inc,v 1.89 2005/09/07 07:07:15 arailean Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.88 $
+* @version $Revision: 1.89 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -74,8 +74,8 @@ class Listing_Engine extends Page
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
@@ -120,7 +120,7 @@ class Listing_Engine extends Page
 	* backward compatibilty purposes with Asset Listing. {@internal If this
 	* mapping is not required then this function can be removed}
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function lockTypes()
@@ -139,15 +139,15 @@ class Listing_Engine extends Page
 	* should be checked to work out what side of the link this asset is on. The return value should indicate
 	* if any of the link fields were changed.
 	*
-	* @param object Asset	$asset			the major or minor asset that we are linking to
-	* @param string			$side_of_link	the side of the link we are on (major or minor)
-	* @param string			$link_type		the type of link we are creating
-	* @param string			$value			the value that is to be associated with the link
-	* @param string			$sort_order		the position in the links list that this link should take,
-	* @param string			$dependant		'0' / '1' on whether the this asset is dependant on the
-	*										asset that will be linked by the new link
-	* @param string			$exclusive		'0' / '1' on whether the this asset is linked exclusivly
-	*										to the asset that will be linked by the new link
+	* @param object	&$asset			the major or minor asset that we are linking to
+	* @param string	$side_of_link	the side of the link we are on (major or minor)
+	* @param string	&$link_type		the type of link we are creating
+	* @param string	&$value			the value that is to be associated with the link
+	* @param string	&$sort_order	the position in the links list that this link should take,
+	* @param string	&$dependant		'0' / '1' on whether the this asset is dependant on the
+	*								asset that will be linked by the new link
+	* @param string	&$exclusive		'0' / '1' on whether the this asset is linked exclusivly
+	*								to the asset that will be linked by the new link
 	*
 	* @return boolean
 	* @access public
@@ -193,7 +193,7 @@ class Listing_Engine extends Page
 	*
 	* @param int	$linkid	the link id of the link to remove
 	*
-	* @return mixed TRUE or error msg string
+	* @return mixed boolean|string
 	* @access public
 	*/
 	function isDeletableLink($linkid)
@@ -216,7 +216,7 @@ class Listing_Engine extends Page
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @return Array()
+	* @return array
 	* @access private
 	* @see Asset::_getAllowedLinks()
 	*/
@@ -233,9 +233,9 @@ class Listing_Engine extends Page
 	/**
 	* Return a reference to a folder linked to this asset determined by the passed in value on the link
 	*
-	* @param string $type the value on the link for this folder
+	* @param string	$type	the value on the link for this folder
 	*
-	* @return object Folder
+	* @return object
 	* @access public
 	*/
 	function &getFolder($type='type_formats')
@@ -259,8 +259,8 @@ class Listing_Engine extends Page
 	*
 	* @param string	$type	the value on the link for the formats folder
 	*
-	* @access public
 	* @return array
+	* @access public
 	*/
 	function getFormats($type='type_formats')
 	{
@@ -334,8 +334,8 @@ class Listing_Engine extends Page
 	*
 	* All extending assets should override this
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function printContents()
 	{
@@ -405,11 +405,12 @@ class Listing_Engine extends Page
 	/**
 	* Sort the list of assets
 	*
-	* @param array			$asset_list 	an array of assets to be sorted
-	* @param string			$sort_info		sorting information as provided by getSortInfo()
+	* @param array	$asset_list	an array of assets to be sorted
+	* @param string	$sort_info	sorting information as provided by getSortInfo()
 	*
-	* @see    Listing_Engine::getSortInfo()
 	* @return array
+	* @access public
+	* @see Listing_Engine::getSortInfo()
 	*/
 	function sortAssetList($asset_list, $sort_info)
 	{
@@ -688,7 +689,6 @@ class Listing_Engine extends Page
 	* Because presentation (type format) is defined only for each of $this->attr('types'),
 	* this helps determine the handler of the presentation for a particular type
 	* Also, if a particular asset type is defined as the index, that type is allowed to be displayed
-	*
 	* Handler Asset Type can be the same as Asset Type. Resulting array is in following format:
 	* Array['Asset Type'] = 'Handler Asset Type'
 	* where Handler Asset Types are unique
@@ -802,8 +802,11 @@ class Listing_Engine extends Page
 	*								printed
 	* @param array	&$replacements	the current replacements array, which will
 	*								be added to by this function
+	* @param array	$result_page	result page
+	* @param array	$num_per_page	number of assets per page
+	* @param array	$group_by		what to group by
 	*
-	* @return array	the chunk that we are going to work with
+	* @return array
 	* @access public
 	*/
 	function &getChunk(&$children, &$replacements, $result_page, $num_per_page, $group_by=null)
@@ -815,6 +818,8 @@ class Listing_Engine extends Page
 		if (is_null($group_by)) {
 			$group_by = $this->attr('group_by');
 		}
+
+		$this->_tmp['result_page'] = 1;
 
 		switch ($group_by) {
 			case 'number' :
@@ -844,7 +849,7 @@ class Listing_Engine extends Page
 					$replacements['next_page'] = '<a href="'.replace_query_string_vars(Array('result_page' => $result_page+1)).'">'.$this->attr('next_page_text').'</a>';
 				}
 
-				$replacements['current_page'] = (int)$result_page;
+				$this->_tmp['result_page'] = (int)$result_page;
 				$replacements['total_pages'] = count($chunks);
 
 				// list of pages and links to them
@@ -862,62 +867,81 @@ class Listing_Engine extends Page
 
 
 			case 'letter' :
+				// other stuff here refers to the situation where there are assets to list that do not start with A-Z
+				// currently 'other_letter' stuff is hardcoded, but can be parametrised later
+				// progression ideas: make 'other' links appear only when there is OTHER stuff
+				$other_letter = '@';
+				$other_letter_ascii = 91;
 				foreach ($children as $childid => $data) {
-					$todo[strtolower($data['first_letter'])][$childid] = $data['type_code'];
+					$letter = strtoupper($data['first_letter']);
+					$letter_ascii = ord($letter);
+					if ($letter_ascii < 65 || $letter_ascii > 90) {
+						$letter_ascii = $other_letter_ascii;
+						$letter = $other_letter;
+					}
+					$letters[$letter_ascii] = $letter_ascii;
+					$todo[$letter][$childid] = $data['type_code'];
 				}
 
-				$result_page = (isset($_REQUEST['result_page'])) ? $_REQUEST['result_page'] : '';
-				if (empty($result_page)) {
-					for ($i = 65; $i <= 90; $i++) {
-						if (isset($todo[strtolower(chr($i))])) {
-							$result_page = chr($i);
-							break;
-						}
+				ksort($letters);
+				$letter_sequence = array_keys($letters);
+				reset($letters);
+				$first_available_letter = key($letters);
+
+				$result_page = array_get_index($_REQUEST, 'result_page');
+
+				// by default, result letter is the first letter
+				if (!empty($result_page)) {
+					if ($result_page == $other_letter) {
+						$result_page_letter = $other_letter_ascii;
+						$current_letter = $other_letter;
+					} else {
+						$result_page_letter = ord($result_page);
+						$current_letter = $result_page;
 					}
 				}
+
+				if (empty($result_page_letter) || empty($letters[$result_page_letter])) {
+					$result_page_letter = $first_available_letter;
+					$current_letter = chr($first_available_letter);
+				}
+
+				$this_letter_key = array_search($result_page_letter, $letter_sequence);
 
 				// previous page link
-				$result_letter = ord(strtoupper($result_page));
-				$replacements['previous_page'] = $this->attr('prev_page_text');
-				if ($result_letter > 65) {
-					for ($i = ($result_letter-1); $i >= 65; $i--) {
-						if (isset($todo[strtolower(chr($i))])) {
-							$replacements['previous_page'] = '<a href="'.replace_query_string_vars(Array('result_page' => chr($i))).'">'.$this->attr('prev_page_text').'</a>';
-							break;
-						}
-					}
+				$prev_page_text = $this->attr('prev_page_text');
+				if ($result_page_letter > $first_available_letter) {
+					$previous_page_letter = $letter_sequence[$this_letter_key-1];
+					$prev_page_text = '<a href="'.replace_query_string_vars(Array('result_page' => chr($previous_page_letter))).'">'.$prev_page_text.'</a>';
 				}
+				$replacements['previous_page'] = $prev_page_text;
 
 				// next page link
-				$replacements['next_page'] = $this->attr('next_page_text');
-				if ($result_letter < 90) {
-					for ($i = ($result_letter+1); $i <= 90; $i++) {
-						if (isset($todo[strtolower(chr($i))])) {
-							$replacements['next_page'] = '<a href="'.replace_query_string_vars(Array('result_page' => chr($i))).'">'.$this->attr('next_page_text').'</a>';
-							break;
-						}
-					}
+				$next_page_text = $this->attr('next_page_text');
+				if ($result_page_letter < end($letter_sequence)) {
+					$next_page_letter = $letter_sequence[$this_letter_key + 1];
+					$next_letter_char = ($next_page_letter < $other_letter_ascii)? chr($next_page_letter): $other_letter;
+					$next_page_text = '<a href="'.replace_query_string_vars(Array('result_page' => $next_letter_char)).'">'.$next_page_text.'</a>';
 				}
+				$replacements['next_page'] = $next_page_text;
 
-				$replacements['current_page'] = strtoupper($result_page);
-				$replacements['total_pages'] = 26;
+				$replacements['total_pages'] = count($letters);
+				$this->_tmp['result_page'] = $this_letter_key + 1;
 
 				// list of pages and links to them
 				$page_list = '';
-				for ($i = 65; $i <= 90; $i++) {
-					if (isset($todo[strtolower(chr($i))])) {
-						$page_list .= ' <a href="'.replace_query_string_vars(Array('result_page' => chr($i))).'">'.chr($i).'</a> ';
+				$letter_range = range('A','Z');
+				$letter_range[] = $other_letter;
+				foreach ($letter_range as $one_letter) {
+					if (isset($todo[$one_letter])) {
+						$page_list .= ' <a href="'.replace_query_string_vars(Array('result_page' => $one_letter)).'">'.$one_letter.'</a> ';
 					} else {
-						$page_list .= ' '.chr($i).' ';
+						$page_list .= ' '.$one_letter.' ';
 					}
 				}
-				$replacements['page_list'] = $page_list;
 
-				if (isset($todo[strtolower($result_page)])) {
-					$todo = $todo[strtolower($result_page)];
-				} else {
-					$todo = Array();
-				}
+				$todo = $todo[$current_letter];
+				$replacements['page_list'] = $page_list;
 
 			break;
 
@@ -992,7 +1016,7 @@ class Listing_Engine extends Page
 					$replacements['next_page'] = '<a href="'.replace_query_string_vars(Array('result_page' => $result_page+1)).'">'.$this->attr('next_page_text').'</a>';
 				}
 
-				$replacements['current_page'] = (int)$result_page;
+				$this->_tmp['result_page'] = (int)$result_page;
 				$replacements['total_pages'] = $num_pages;
 
 				// list of pages and links to them
@@ -1010,24 +1034,31 @@ class Listing_Engine extends Page
 
 		}//end switch
 
+		$replacements['page_number'] = $this->_tmp['result_page'];
+
+		// do this for compatibility - deprecated. not sure if any clients
+		// are using this, since 'current_page' is not one of the advertised keywords
+		$replacements['current_page'] = $replacements['page_number'];
+
 		return $todo;
 
 	}//end getChunk()
 
 
 	/**
-	* returns a specified chunk of elements
+	* Returns a specified chunk of elements
 	*
 	* will traverse a multidimensional array and return a chunk equal to the
 	* size the user specifies, works for single and multi dimensional arrays
 	*
-	* @param array  &$todo           pointer to the array we want to traverse
-	* @param array  &$chunk          pointer to array we want to fill
-	* @param int    $remainingCount  how many assets in we want our chunk
-	*                                including the chunk we want
-	* @param mixed  $num_per_page    the number of assets we want returned
+	* @param array	&$todo				pointer to the array we want to traverse
+	* @param array	&$chunk				pointer to array we want to fill
+	* @param int	&$remaining_count	how many assets in we want our chunk including the chunk we want
+	* @param mixed	$num_per_page		the number of assets we want returned
+	* @param int	$group_limit		group limit
 	*
-	*
+	* @return void
+	* @access private
 	*/
 	 function _groupChunk(&$todo, &$chunk, &$remaining_count, $num_per_page, $group_limit=null)
 	 {
@@ -1060,8 +1091,7 @@ class Listing_Engine extends Page
 	/**
 	* Print the list of assets that we are listing
 	*
-	* @param array	&$todo	an array of assets to list in the same format as the return
-	*						value of getAssetList()
+	* @param array	$todo	an array of assets to list in the same format as the return value of getAssetList()
 	*
 	* @return void
 	* @access public
@@ -1112,11 +1142,11 @@ class Listing_Engine extends Page
 	* with groups then it will just skip and call _printAssetList as if
 	* nothing happened
 	*
-	* @param Array &$todo         Our list of groups/assets to print
-	* @param Array $group_info    Current group information we are working with
+	* @param array	&$todo		Our list of groups/assets to print
+	* @param array	$group_info	Current group information we are working with
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _printGroups(&$todo, $group_info)
 	{
@@ -1181,7 +1211,9 @@ class Listing_Engine extends Page
 					$selection_defaults = $this->getAssetSelectionDefaults();
 
 					foreach ($selections as $selection_name => $settings) {
-						if (!in_array($selection_name.'_check_all_in_group', $format_keywords)) continue;
+						if (!in_array($selection_name.'_check_all_in_group', $format_keywords)) {
+							continue;
+						}
 						$this->registerFormField($selection_name.'_check_all_in_group');
 
 						// predefine some commonly used settings, for brevity's sake
@@ -1223,8 +1255,7 @@ class Listing_Engine extends Page
 	* This method ensures the list is printed in columns if required, and keeps
 	* track of what position in the list we are printing
 	*
-	* @param array	&$todo	an array of assets to list in the same format as the return
-	*						value of getAssetList()
+	* @param array	$todo	an array of assets to list in the same format as the return value of getAssetList()
 	*
 	* @return void
 	* @access private
@@ -1516,8 +1547,13 @@ class Listing_Engine extends Page
 			}
 		}
 
-		$keywords['page_href']       = $this->getHref();
-		$keywords['asset_position']  = (array_get_index($_REQUEST, 'result_page', 1) - 1) * $this->attr('num_per_page') + $list_position;
+		$keywords['page_href'] = $this->getHref();
+
+		if ($this->attr('group_by') == 'letter') {
+			$keywords['asset_position'] = $list_position;
+		} else {
+			$keywords['asset_position']  = ($this->_tmp['result_page'] - 1) * $this->attr('num_per_page') + $list_position;
+		}
 
 		// asset selections
 		$selections         = $this->attr('asset_selections');
@@ -1630,7 +1666,7 @@ class Listing_Engine extends Page
 	/**
 	* Gets the list of available asset info fields that can be used
 	*
-	* @return Array(string)
+	* @return array
 	* @access public
 	*/
 	function getSortableAssetInfo()
@@ -1648,7 +1684,7 @@ class Listing_Engine extends Page
 	/**
 	* Gets the list of current root nodes
 	*
-	* @return Array(string)
+	* @return array
 	* @access public
 	*/
 	function getRootNodes()
@@ -1711,9 +1747,9 @@ class Listing_Engine extends Page
 	*
 	* This allows search page, for instance, to define its result number and
 	* score fields so they don't blank out when keywords are replaced in listing
-	* engine.
+	* engine. Return data format: Array(string => string)	keyword name => replacement
 	*
-	* @return Array(string => string)	keyword name => replacement
+	* @return array
 	* @access public
 	*/
 	function getExtendedAssetKeywordReplacements()
@@ -1797,23 +1833,23 @@ class Listing_Engine extends Page
 	*
 	* Looks at the state to determine which sort option is currently selected
 	* Returns one entry from  the 'sort_by' attribute or an empty Array.
-	*
-	*
+	* -
+	* -
 	* Array(
 	*	name => String
 	*	type => String
 	*	params => Array()
 	*  )
-	*
+	* -
 	* params array changes depending on the type value
 	* valid types are: field, asset_attrib
-	*
+	* -
 	* if type = "field", params is
 	* Array(
 	*	field => 'assetid'
 	* )
 	* where field contains has a name of db column in the asset table to sort by
-	*
+	* -
 	* if type is "asset_attrib" params is
 	* Array(
 	*	type_code => 'page'
@@ -1822,8 +1858,8 @@ class Listing_Engine extends Page
 	* where type_code is the type code of the asset whose attribute is being used
 	* and 'attribute' is the name of that attribute (as defined by the management class)
 	*
+	* @return array
 	* @access public
-	* @return Array
 	*/
 	function getSortInfo()
 	{
@@ -1845,7 +1881,7 @@ class Listing_Engine extends Page
 	* Recursive function to build multi level grouping
 	*
 	* (actually this is now non-recursive, function name will have to be fixed!)
-	*
+	* .
 	* Will construct an array in the following form:
 	* if it is a  group its index will be group name (assetid or string) and its
 	* contents an array if its an asset in a group its index will be an assetid
@@ -1857,8 +1893,8 @@ class Listing_Engine extends Page
 	* @param array	$assetids		asset ids that we are working with in this iteration
 	* @param array	&$results		reference to the array/section of array we are working on
 	*
+	* @return void
 	* @access public
-	* @return void	but returns a modified array in &$results
 	*/
 	function groupAssetsRecursively($group_levels, $assetids, &$results)
 	{
@@ -1962,8 +1998,8 @@ class Listing_Engine extends Page
 	*
 	* @param array	$child_assetid	the asset to find the parents of
 	*
+	* @return array
 	* @access public
-	* @return Array	returns a list of valid groupable parents
 	*/
 	function getGroupableParentAssetids($child_assetid)
 	{
@@ -1982,15 +2018,17 @@ class Listing_Engine extends Page
 	/**
 	* Recursive function to sort the group keys
 	*
+	* Returns void but returns a modified array (in sort order only, contents
+	* themselves are unaffected) in &$results
+	*
 	* @param array	$group_levels	remaining group levels to iterate
 	* @param array	$assetids		asset ids that we are working with in this
 	*								iteration
 	* @param array	&$results		reference to the array/section of array we are
 	*								working on
 	*
+	* @return void
 	* @access public
-	* @return void	but returns a modified array (in sort order only, contents
-	*				themselves are unaffected) in &$results
 	*/
 	function sortGroups($group_levels, $assetids, &$results)
 	{
@@ -2093,7 +2131,7 @@ class Listing_Engine extends Page
 	* Preprocess the Asset Selection values before displaying the page or redirecting
 	* Overwritten by the children
 	*
-	* @return boolean    to indicate success
+	* @return boolean
 	* @access public
 	*/
 	function processAssetSelections()
@@ -2107,10 +2145,10 @@ class Listing_Engine extends Page
 	* Provide the default values for each of the selection fields
 	* Overwritten by the children
 	*
-	* @param string		$selection_name
-	* @param string		$assetid
+	* @param string	$selection_name	name
+	* @param string	$assetid		asset id
 	*
-	* @return mixed
+	* @return int
 	* @access public
 	*/
 	function getAssetSelectionValue($selection_name, $assetid)
@@ -2123,7 +2161,7 @@ class Listing_Engine extends Page
 	/**
 	* List the default settings format for Asset Selections
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getAssetSelectionDefaults()
@@ -2148,7 +2186,7 @@ class Listing_Engine extends Page
 	/**
 	* List the default settings format for Asset Targets
 	*
-	* @return Array
+	* @return array
 	* @access private
 	*/
 	function getAssetTargetDefaults()
@@ -2166,6 +2204,15 @@ class Listing_Engine extends Page
 	}//end getAssetTargetDefaults()
 
 
+	/**
+	* Recursively count array elements
+	*
+	* @param array	&$array	Array to count
+	* @param string	$limit	Number of levels to traverse
+	*
+	* @return int
+	* @access private
+	*/
 	function _arrayCountRecursive(&$array, $limit=null)
 	{
 		$count = 0;
@@ -2187,7 +2234,7 @@ class Listing_Engine extends Page
 	/**
 	* Return a list of position formats
 	*
-	* @return Array
+	* @return array
 	* @access private
 	*/
 	function _getPositionFormats()
@@ -2214,8 +2261,8 @@ class Listing_Engine extends Page
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
 	*								we add keywords to the $vars['keywords'] array
 	*
 	* @return boolean
@@ -2294,8 +2341,8 @@ class Listing_Engine extends Page
 	* )
 	* </pre>
 	*
+	* @return array
 	* @access public
-	* @return array(string => string)
 	*/
 	function getAvailableKeywords()
 	{
@@ -2315,8 +2362,8 @@ class Listing_Engine extends Page
 	* )
 	* </pre>
 	*
+	* @return array
 	* @access public
-	* @return array(string => string)
 	*/
 	function _getContentsKeywords()
 	{
@@ -2363,8 +2410,8 @@ class Listing_Engine extends Page
 	/**
 	* Get the keywords which are specific in Type Formats
 	*
+	* @return array
 	* @access protected
-	* @return array(keyword => replacement)
 	*/
 	function _getTypeFormatsKeywords()
 	{
@@ -2390,8 +2437,8 @@ class Listing_Engine extends Page
 	/**
 	* Get the keywords which are specific in Group Folder
 	*
+	* @return array
 	* @access protected
-	* @return array(keyword => replacement)
 	*/
 	function _getGroupFolderKeywords()
 	{
@@ -2428,7 +2475,7 @@ class Listing_Engine extends Page
 	* so an asset wishing to add support for 'best_ever' custom keyword
 	* should implement a function getBestEverKeywordReplacement()
 	* which returns a replacement string
-	*
+	* -
 	* Overridden in listing_engine to handle dynamic keywords in the page
 	* contents, such as Asset Targets
 	*
@@ -2479,8 +2526,8 @@ class Listing_Engine extends Page
 	*
 	* @param array	$keywords	the keywords from the content
 	*
+	* @return array
 	* @access public
-	* @return array(string => string)
 	*/
 	function getContentsKeywordReplacements($keywords=Array())
 	{
@@ -2491,7 +2538,9 @@ class Listing_Engine extends Page
 
 		foreach ($selections as $selection_name => $settings) {
 
-			if (!in_array($selection_name.'_check_all', $keywords)) continue;
+			if (!in_array($selection_name.'_check_all', $keywords)) {
+				continue;
+			}
 			$this->registerFormField($selection_name.'_check_all');
 
 			// predefine some commonly used settings, for brevity's sake
@@ -2633,6 +2682,8 @@ class Listing_Engine extends Page
 	/**
 	* Get the replacements for the dynamic "_asset_target" keyword
 	*
+	* @param string	$name	name
+	*
 	* @return string
 	* @access public
 	*/
@@ -2680,7 +2731,7 @@ class Listing_Engine extends Page
 	* @return string
 	* @access public
 	*/
-	function getstructuredRootNodeKeywordReplacement()
+	function getStructuredRootNodeKeywordReplacement()
 	{
 		$options = $this->attr('structured_dropdown_options');
 
@@ -2699,7 +2750,7 @@ class Listing_Engine extends Page
 		ob_end_clean();
 		return $replacement;
 
-	}//end getstructuredRootNodeKeywordReplacement()
+	}//end getStructuredRootNodeKeywordReplacement()
 
 
 //--        ASSET SELECTION HELPERS        --//
@@ -2707,6 +2758,11 @@ class Listing_Engine extends Page
 
 	/**
 	* Analyse "check-all" relations recursively
+	*
+	* @param array	&$todo		assets to list
+	* @param array	&$relations	relations
+	* @param string	$prefix		prefix
+	* @param int	$limit		limit
 	*
 	* @return void
 	* @access private
@@ -2739,6 +2795,8 @@ class Listing_Engine extends Page
 	*
 	* The results of this function are cached in the _tmp member variable as
 	* $this->_tmp['check_all_relations'].
+	*
+	* @param array	$todo	assets to check
 	*
 	* @return void
 	* @access private

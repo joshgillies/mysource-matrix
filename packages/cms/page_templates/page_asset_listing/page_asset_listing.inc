@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.90 2005/08/31 04:57:46 ndvries Exp $
+* $Id: page_asset_listing.inc,v 1.91 2005/09/07 07:07:15 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -60,7 +60,7 @@ class Page_Asset_Listing extends Listing_Engine
 	*
 	* Creates the page contents bodycopy
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access private
@@ -104,7 +104,7 @@ class Page_Asset_Listing extends Listing_Engine
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @return array()
+	* @return array
 	* @access private
 	* @see Asset::_getAllowedLinks()
 	*/
@@ -157,14 +157,6 @@ class Page_Asset_Listing extends Listing_Engine
 			$this->filterAssetList($children);
 			$num_kids = count($children);
 
-			// the list is sorted and positions set, now we can split to groups
-			if ($this->attr('group_by') == 'grouped') {
-				$this->groupAssetsRecursively($this->attr('asset_grouping'), $children, $children);
-				$this->sortGroups($this->attr('asset_grouping'), $children, $children);
-			}
-			foreach ($keywords as $word) {
-				$replacements[$word] = $this->getKeywordReplacement($word);
-			}
 			// if there are no children available, just print the page bodycopy
 			if (empty($children)) {
 				$replacements['asset_count']			= 0;
@@ -188,6 +180,17 @@ class Page_Asset_Listing extends Listing_Engine
 				$format_bodycopy->printBody();
 				return;
 			}
+
+			// the list is sorted and positions set, now we can split to groups
+			if ($this->attr('group_by') == 'grouped') {
+				$this->groupAssetsRecursively($this->attr('asset_grouping'), $children, $children);
+				$this->sortGroups($this->attr('asset_grouping'), $children, $children);
+			}
+
+			foreach ($keywords as $word) {
+				$replacements[$word] = $this->getKeywordReplacement($word);
+			}
+
 			$num_per_page = $this->attr('num_per_page');
 			$result_page = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
 			if ($result_page <= 0) $result_page = 1;
@@ -215,14 +218,17 @@ class Page_Asset_Listing extends Listing_Engine
 				$replacements['unique_asset_count'] = $num_kids;
 			}
 
+			/*
 			// if the result page is too high, set to last page
 			if ($num_per_page == 0) {
 				$result_page = 1;
 			} else {
 				$result_page = min($result_page, ceil($replacements['asset_count'] / $num_per_page));
 			}
+			*/
+			$result_page = $replacements['page_number'];
 			$replacements['page_asset_count'] = $num_assets_showing;
-			$replacements['page_number'] = $result_page;
+			// compatibility
 			$replacements['first_asset_position'] = $num_per_page * ($result_page - 1) + 1;
 			if ($num_per_page == 0) {
 				$replacements['last_asset_position'] = $replacements['asset_count'];
@@ -239,15 +245,15 @@ class Page_Asset_Listing extends Listing_Engine
 				}
 			ob_end_flush();
 
+			// clean up after ourselves
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($format_bodycopy);
+
 		} else {
 
 			// the contents have already been cached, so just output them
 			echo $cached_contents;
 
 		}//end if no cache
-
-		// clean up after ourselves
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
 
 	}//end printContents()
 
@@ -265,7 +271,7 @@ class Page_Asset_Listing extends Listing_Engine
 	*		);
 	* </pre>
 	*
-	* @return array()
+	* @return array
 	* @access protected
 	*/
 	function getAssetList()
@@ -395,7 +401,7 @@ class Page_Asset_Listing extends Listing_Engine
 	/**
 	* Gets the list of current root nodes
 	*
-	* @return array()
+	* @return array
 	* @access public
 	*/
 	function getRootNodes()
@@ -445,7 +451,7 @@ class Page_Asset_Listing extends Listing_Engine
 	* )
 	* </pre>
 	*
-	* @return array()
+	* @return array
 	* @access public
 	*/
 	function _getContentsKeywords()
