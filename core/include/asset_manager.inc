@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.371 2005/09/05 01:50:31 dmckee Exp $
+* $Id: asset_manager.inc,v 1.372 2005/09/07 23:41:02 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.371 $
+* @version $Revision: 1.372 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4799,6 +4799,8 @@ class Asset_Manager extends MySource_Object
 			$result = $db->getCol($in_sql);
 			assert_valid_db_result($result);
 
+			if (empty($result)) return Array();
+
 			for (reset($result); null !== ($key = key($result)); next($result)) {
 				$result[$key] = $db->quoteSmart($result[$key]);
 			}
@@ -5609,6 +5611,8 @@ class Asset_Manager extends MySource_Object
 			$in_sql = 'SELECT * FROM table('.$in_sql.')';
 			$result = $db->getCol($in_sql);
 			assert_valid_db_result($result);
+
+			if (empty($result)) return Array();
 
 			for (reset($result); null !== ($key = key($result)); next($result)) {
 				$result[$key] = $db->quoteSmart($result[$key]);
