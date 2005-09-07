@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.100.2.11 2005/08/22 04:04:48 dheppell Exp $
+* $Id: form.inc,v 1.100.2.12 2005/09/07 23:53:31 mmcintyre Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.100.2.11 $
+* @version $Revision: 1.100.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -214,6 +214,8 @@ class Form extends Asset
 			// we are getting this type?
 			if ($get_type) {
 				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($assetid, $link_types & $allowed_link_types, $real_type_code, false);
+				if (empty($query)) return Array();
+				
 				$type_links = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
 
 				foreach (array_keys($type_links) as $key) {
@@ -360,6 +362,8 @@ class Form extends Asset
 	{
 		// basically get the parents of the section, and add itself in the
 		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
+		if (empty($query)) return Array();
+		
 		$queried_parents = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
 		$parents = Array();
 
