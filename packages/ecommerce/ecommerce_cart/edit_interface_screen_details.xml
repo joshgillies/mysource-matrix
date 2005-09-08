@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2005/08/02 07:52:45 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10 2005/09/08 04:28:34 skim Exp $
 *
 */
 -->
@@ -27,6 +27,9 @@
 	<section name="Cart Settings" write_access="write:attributes">
 		<field attribute="ecommerce_checkout_id">
 			<assetid type_codes="ecommerce_checkout:D" />
+		</field>
+		<field attribute="use_local_cart">
+			<boolean true_text="ecom_cart_local_cart" false_text="ecom_cart_global_cart" />
 		</field>
 		<field>
 			<function_call>

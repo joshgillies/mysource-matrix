@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.18 2005/08/26 06:41:45 mmcintyre Exp $
+* $Id: ecommerce_cart.inc,v 1.19 2005/09/08 04:28:34 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -96,6 +96,11 @@ class Ecommerce_Cart extends Listing_Engine
 			$cart =& new Ecommerce_Cart_Processor();
 		}
 
+		//if (!empty($_SESSION['sq_local_cart_contents'])) {
+		if ($this->attr('use_local_cart')) {
+			$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
+		}
+
 		return $cart;
 
 	}//end _getCart()
@@ -121,7 +126,7 @@ class Ecommerce_Cart extends Listing_Engine
 	*/
 	function getAssetList()
 	{
-		$cart =& new Ecommerce_Cart_Processor();
+		$cart =& $this->_getCart();
 		$cart_contents = $cart->getCart();
 
 		$asset_list = Array();
@@ -348,6 +353,69 @@ class Ecommerce_Cart extends Listing_Engine
 
 
 	/**
+	* Prints the individual asset in the asset list
+	*
+	* This is being overridden to cache the results of each asset, and add
+	* the score and result number keyword replacements
+	*
+	* Note that the second parameter is score and not type code. This is because
+	* we send the search results which is (assetid => score) instead of
+	* (assetid => type_code). It still works - and allows us to add the score
+	* keyword easily - but we turn it into the correct format when sending to
+	* the listing engine.
+	*
+	* @param string	$assetid		The assetid of the asset we are printing
+	* @param string $score			The score of the
+	* @param string $list_position
+	*
+	* @return void
+	* @access protected
+	*/
+	function _printAsset($assetid, $type_code, $list_position, $keywords=Array())
+	{
+		ob_start();
+		parent::_printAsset($assetid, $type_code, $list_position, $keywords);
+		$element_contents = ob_get_contents();
+		ob_end_clean();
+
+		// summon the quantities
+		$cart =& $this->_getCart();
+		$cart_contents = $cart->getCart();
+
+		$element_replacements = Array(
+									'product_quantity' => $cart_contents[$assetid]['quantity'],
+								);
+
+		$element_contents = replace_keywords($element_contents, $element_replacements);
+
+		echo $element_contents;
+
+	}//end _printAsset()
+
+
+	/**
+	* Returns a list of extra keywords that should be replaced for a particular
+	* listing asset
+	*
+	* This allows search page, for instance, to define its result number and
+	* score fields so they don't blank out when keywords are replaced in listing
+	* engine.
+	*
+	* @return Array(string => string)	keyword name => replacement
+	* @access public
+	*/
+	function getExtendedAssetKeywordReplacements()
+	{
+		// We are only replacing them with their own replacement so they can be
+		// cached out like this, then score and result number can be added later
+		return Array(
+				'product_quantity'	=> '%product_quantity%',
+			   );
+
+	}//end getExtendedAssetKeywordReplacements()
+
+
+	/**
 	* Preprocess the Asset Selection values before displaying the page or redirecting
 	* Overwritten by the cart to handle the processing of cart updates using
 	* preset asset selections and dynamic parameters
@@ -514,6 +582,23 @@ class Ecommerce_Cart extends Listing_Engine
 				return;
 			}
 		}
+
+		// type folder links
+		$folder = &$this->getFolder();
+		if (!is_null($folder)) {
+			$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
+			foreach ($type_links as $link_info) {
+				if (isset($parents[$link_info['minorid']])) {
+					$type_formats[] = $link_info['value'];
+				}
+			}
+		}
+
+		if (count($type_formats) > 0) {
+			$keywords['product_quantity'] = translate('ecom_cart_keyword_product_quantity');
+		}
+
+		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
 		// if it's not the page contents bodycopy, it's something that we've
 		// inherited from the listing engine, so pass it on

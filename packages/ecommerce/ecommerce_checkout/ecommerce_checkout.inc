@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.40 2005/09/08 02:18:47 skim Exp $
+* $Id: ecommerce_checkout.inc,v 1.41 2005/09/08 04:28:33 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -57,8 +57,8 @@ class Ecommerce_Checkout extends Page
 	function Ecommerce_Checkout($assetid=0)
 	{
 		// initialise the temporary order container so as to avoid extra checking
-		if (!isset($_SESSION['SQ_TEMP_ORDER'])) {
-			$_SESSION['SQ_TEMP_ORDER'] = Array();
+		if (!isset($_SESSION['sq_local_cart_contents'])) {
+			$_SESSION['sq_local_cart_contents'] = Array();
 		}
 
 		$this->Page($assetid);
@@ -140,7 +140,7 @@ class Ecommerce_Checkout extends Page
 		$this->_printContext();
 		if (array_get_index($this->_tmp, 'delete_all_orders_after_printing', false)) {
 
-			if (!isset($_SESSION['SQ_TEMP_ORDER']['editing_order'])) {
+			if (!isset($_SESSION['sq_local_cart_contents']['editing_order'])) {
 				// clear global cart
 				$cart =& new Ecommerce_Cart_Processor();
 				$cart->clearCart();
@@ -148,7 +148,7 @@ class Ecommerce_Checkout extends Page
 			}
 
 			// clear local cart
-			$_SESSION['SQ_TEMP_ORDER'] = Array();
+			$_SESSION['sq_local_cart_contents'] = Array();
 		}
 
 	}//end printBody()
@@ -177,15 +177,15 @@ class Ecommerce_Checkout extends Page
 			if (!empty($order) && $order->writeAccess()) {
 
 				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($order->id, 'attribute')) {
-					$_SESSION['SQ_TEMP_ORDER']['order_id']			= $order->id;
-					$_SESSION['SQ_TEMP_ORDER']['delivery_id']		= $order->attr('delivery_id');
-					$_SESSION['SQ_TEMP_ORDER']['delivery_state']	= $order->attr('delivery_state');
-					$_SESSION['SQ_TEMP_ORDER']['cart_contents']		= $order->attr('products');
+					$_SESSION['sq_local_cart_contents']['order_id']			= $order->id;
+					$_SESSION['sq_local_cart_contents']['delivery_id']		= $order->attr('delivery_id');
+					$_SESSION['sq_local_cart_contents']['delivery_state']	= $order->attr('delivery_state');
+					$_SESSION['sq_local_cart_contents']['cart_contents']		= $order->attr('products');
 
 					$this->print_context = 'checkout';
 
 					// set edit flag true
-					$_SESSION['SQ_TEMP_ORDER']['editing_order'] = true;
+					$_SESSION['sq_local_cart_contents']['editing_order'] = true;
 
 				} else {
 					echo 'This order is currently being edited';
@@ -210,12 +210,12 @@ class Ecommerce_Checkout extends Page
 				$global_cart =& new Ecommerce_Cart_Processor();
 
 				// unset previous order id and delivery information
-				unset($_SESSION['SQ_TEMP_ORDER']['order_id']);
-				unset($_SESSION['SQ_TEMP_ORDER']['delivery_id']);
-				unset($_SESSION['SQ_TEMP_ORDER']['delivery_state']);
-				unset($_SESSION['SQ_TEMP_ORDER']['editing_order']);
+				unset($_SESSION['sq_local_cart_contents']['order_id']);
+				unset($_SESSION['sq_local_cart_contents']['delivery_id']);
+				unset($_SESSION['sq_local_cart_contents']['delivery_state']);
+				unset($_SESSION['sq_local_cart_contents']['editing_order']);
 
-				$local_cart_empty = empty($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
+				$local_cart_empty = empty($_SESSION['sq_local_cart_contents']['cart_contents']);
 
 				$need_update = false;
 				if ($local_cart_empty) {
@@ -226,7 +226,7 @@ class Ecommerce_Checkout extends Page
 				} else {
 					// if global and local carts are different, update
 					$local_cart =& new Ecommerce_Cart_Processor();
-					$local_cart->setCartContainer($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
+					$local_cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
 
 					if (strcmp($global_cart->hashCart(), $local_cart->hashCart()) != 0) {
 						$need_update = true;
@@ -235,7 +235,7 @@ class Ecommerce_Checkout extends Page
 
 				// update the local cart
 				if ($need_update) {
-					$_SESSION['SQ_TEMP_ORDER']['cart_contents'] = $global_cart->getCart();
+					$_SESSION['sq_local_cart_contents']['cart_contents'] = $global_cart->getCart();
 				}
 
 			}
@@ -248,7 +248,7 @@ class Ecommerce_Checkout extends Page
 		switch ($action) {
 			case 'go_to_confirmation':
 				$delivery_method_id = array_get_index($_REQUEST, 'sq_delivery_method_id');
-				if (!empty($delivery_method_id)) {
+				if (!empty($delivery_method_id) && !empty($_SESSION['sq_local_cart_contents']['cart_contents'])) {
 
 					$delivery_method =& $GLOBALS['SQ_SYSTEM']->am->getAsset($delivery_method_id);
 					if (empty($delivery_method)) {
@@ -257,8 +257,8 @@ class Ecommerce_Checkout extends Page
 					}
 
 					// delivery method state has cart contents
-					$_SESSION['SQ_TEMP_ORDER']['delivery_state']['cart_contents'] = $_SESSION['SQ_TEMP_ORDER']['cart_contents'];
-					$delivery_method->setState($_SESSION['SQ_TEMP_ORDER']['delivery_state']);
+					$_SESSION['sq_local_cart_contents']['delivery_state']['cart_contents'] = $_SESSION['sq_local_cart_contents']['cart_contents'];
+					$delivery_method->setState($_SESSION['sq_local_cart_contents']['delivery_state']);
 
 					if (!$delivery_method->processInputInterface()){
 						$this->_tmp['delivery_method_errors'] = $delivery_method->getErrors();
@@ -267,13 +267,13 @@ class Ecommerce_Checkout extends Page
 
 
 					// create a temporary order
-					$_SESSION['SQ_TEMP_ORDER']['delivery_id']		= $delivery_method_id;
-					$_SESSION['SQ_TEMP_ORDER']['delivery_state']	= $delivery_method->getState();
+					$_SESSION['sq_local_cart_contents']['delivery_id']		= $delivery_method_id;
+					$_SESSION['sq_local_cart_contents']['delivery_state']	= $delivery_method->getState();
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($delivery_method);
 				}
 
 				// if cart is empty, there's no point in checking out
-				if ($success && empty($_SESSION['SQ_TEMP_ORDER']['cart_contents'])) {
+				if ($success && empty($_SESSION['sq_local_cart_contents']['cart_contents'])) {
 					$this->_tmp['delivery_method_errors'][] = 'The ecommerce cart is empty, cannot checkout';
 					$success = false;
 				}
@@ -283,8 +283,8 @@ class Ecommerce_Checkout extends Page
 					$this->print_context = 'checkout';
 				}
 
-				if (isset($_SESSION['SQ_TEMP_ORDER']['editing_order'])) {
-					$_SESSION['SQ_TEMP_ORDER']['editing_order'] = true;
+				if (isset($_SESSION['sq_local_cart_contents']['editing_order'])) {
+					$_SESSION['sq_local_cart_contents']['editing_order'] = true;
 				}
 
 			break;
@@ -302,14 +302,13 @@ class Ecommerce_Checkout extends Page
 					$this->print_context = 'failure';
 					break;
 				}
-
 				// check whether we're editing an order or creating a new one
-				if (isset($_SESSION['SQ_TEMP_ORDER']['order_id'])) {
-					$order_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['SQ_TEMP_ORDER']['order_id']);
+				if (isset($_SESSION['sq_local_cart_contents']['order_id'])) {
+					$order_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['sq_local_cart_contents']['order_id']);
 				}
 
 				if (empty($order_asset)) {
-					$order_asset =& $this->_createOrder($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
+					$order_asset =& $this->_createOrder($_SESSION['sq_local_cart_contents']['cart_contents']);
 					if (is_null($order_asset)){
 						$this->_tmp['delivery_method_errors'][] = 'Unable to create Ecommerce Order';
 						$this->print_context = 'failure';
@@ -317,11 +316,11 @@ class Ecommerce_Checkout extends Page
 					}
 				}
 
-				$delivery_method->setState($_SESSION['SQ_TEMP_ORDER']['delivery_state']);
+				$delivery_method->setState($_SESSION['sq_local_cart_contents']['delivery_state']);
 
 				$delivery_processing_status = $delivery_method->processDelivery($order_asset);
 
-				$_SESSION['SQ_TEMP_ORDER']['delivery_state'] = $delivery_method->getState();
+				$_SESSION['sq_local_cart_contents']['delivery_state'] = $delivery_method->getState();
 
 				// set the order summary
 				$order_summary     = $this->_getCartSummary();
@@ -330,8 +329,8 @@ class Ecommerce_Checkout extends Page
 
 				$order_asset->setAttrValue('summary',			$order_summary);
 				$order_asset->setAttrValue('internal_summary',	$internal_summary);
-				$order_asset->setAttrValue('delivery_id',		$_SESSION['SQ_TEMP_ORDER']['delivery_id']);
-				$order_asset->setAttrValue('delivery_state',	$_SESSION['SQ_TEMP_ORDER']['delivery_state']);
+				$order_asset->setAttrValue('delivery_id',		$_SESSION['sq_local_cart_contents']['delivery_id']);
+				$order_asset->setAttrValue('delivery_state',	$_SESSION['sq_local_cart_contents']['delivery_state']);
 
 				// delivery failed
 				if (!$delivery_processing_status) {
@@ -652,7 +651,7 @@ class Ecommerce_Checkout extends Page
 		$delivery_method_id = $this->_getActiveDeliveryMethodId();
 		if (!is_null($delivery_method_id)) {
 			$delivery_method =& $GLOBALS['SQ_SYSTEM']->am->getAsset($delivery_method_id);
-			$delivery_method_state = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'delivery_state', Array());
+			$delivery_method_state = array_get_index($_SESSION['sq_local_cart_contents'], 'delivery_state', Array());
 			$delivery_method->setState($delivery_method_state);
 		}
 
@@ -673,7 +672,8 @@ class Ecommerce_Checkout extends Page
 	{
 		$delivery_method_id = null;
 
-		return array_get_index($_SESSION['SQ_TEMP_ORDER'], 'delivery_id');
+		// TODO: this does not seem to be coming through...
+		return array_get_index($_SESSION['sq_local_cart_contents'], 'delivery_id');
 
 	}//end _getActiveDeliveryMethodId()
 
@@ -702,7 +702,7 @@ class Ecommerce_Checkout extends Page
 	function _getCartSummary($html=true)
 	{
 		$cart =& new Ecommerce_Cart_Processor();
-		$cart->setCartContainer($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
+		$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
 		ob_start();
 			if ($html) echo '<pre>';
 			echo $cart->printReceipt();
@@ -746,8 +746,8 @@ class Ecommerce_Checkout extends Page
 			$replacement = $this->$func_name();
 		} else {
 
-			if (isset($_SESSION['SQ_TEMP_ORDER']['editing_order']) && !empty($_SESSION['SQ_TEMP_ORDER']['editing_order'])) {
-				$orderid = $_SESSION['SQ_TEMP_ORDER']['order_id'];
+			if (isset($_SESSION['sq_local_cart_contents']['editing_order']) && !empty($_SESSION['sq_local_cart_contents']['editing_order'])) {
+				$orderid = $_SESSION['sq_local_cart_contents']['order_id'];
 				$order =& $GLOBALS['SQ_SYSTEM']->am->getAsset($orderid);
 
 				if (!empty($order)) {
@@ -1153,7 +1153,7 @@ class Ecommerce_Checkout extends Page
 	function getItemsCountKeywordReplacement()
 	{
 		$cart =& new Ecommerce_Cart_Processor();
-		$cart->setCartContainer($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
+		$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
 		return $cart->getUniqueCount();
 
 	}//end getItemsCountKeywordReplacement()
@@ -1168,7 +1168,7 @@ class Ecommerce_Checkout extends Page
 	function getItemsTotalCountKeywordReplacement()
 	{
 		$cart =& new Ecommerce_Cart_Processor();
-		$cart->setCartContainer($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
+		$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
 		return $cart->getCount();
 
 	}//end getItemsTotalCountKeywordReplacement()

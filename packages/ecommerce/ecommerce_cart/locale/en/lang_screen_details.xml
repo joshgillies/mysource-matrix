@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2005/08/03 05:04:59 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.7 2005/09/08 04:28:33 skim Exp $
 *
 */
 -->
@@ -39,6 +39,11 @@
 		<field attribute="ecommerce_checkout_id">
 			<display_name>Ecommerce Checkout Asset</display_name>
 			<note>The Ecommerce Checkout asset we want to link this cart to</note>
+		</field>
+		<field attribute="use_local_cart">
+			<display_name>Cart Source</display_name>
+			<note>Set this option to "Local Cart" to make the cart use items from
+			the order currently being edited, instead of the logged in user's items.</note>
 		</field>
 		<field>
 			<display_name>Cart Items to List</display_name>

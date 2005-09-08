@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_management.inc,v 1.9 2005/08/02 07:52:45 lwright Exp $
+* $Id: ecommerce_cart_management.inc,v 1.10 2005/09/08 04:28:34 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -132,6 +132,16 @@ class Ecommerce_Cart_Management extends Asset_Management
 																					   ),
 																	   ),
 													'description'	=> 'Sets of named checkboxes, drop-down lists, etc',
+												   ),
+						'use_local_cart'		=> Array(
+													'added'			=> '0.4',
+													'type'			=> 'boolean',
+													'default'		=> false,
+													'description'	=> 'If yes, use the ecommerce_checkout local cart instead of the global cart',
+													'parameters'	=> Array(
+																		'allow_empty'	=> false,
+																	   ),
+													'update_fn'		=> '',
 												   ),
 					  );
 
