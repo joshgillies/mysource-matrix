@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.61 2005/08/23 01:58:09 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.62 2005/09/08 23:40:20 dmckee Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -196,7 +196,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			<script type="text/javascript"><!--
 				function sq_set_check_all(form, prefix, value) {
 					set_els = form.elements[prefix];
-					
+
 					if (set_els.length) {
 						for (k = 0; k < set_els.length; k++) {
 							set_els[k].checked = value;
@@ -205,11 +205,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						set_els.checked = value;
 					}
 				}
-				
+
 				function sq_test_check_all(form, prefix, set_el) {
 					test_els = form.elements[prefix];
 					set_el = form.elements[set_el];
-					
+
 					if (test_els.length) {
 						test = true;
 						for (k = 0; k < test_els.length; k++) {
@@ -221,7 +221,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					} else {
 						test = test_els.checked;
 					}
-					
+
 					set_el.checked = test;
 				}
 			//--></script>
@@ -399,9 +399,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			//--></script>
 		<?php
 		}
-		
+
 		return true;
-		
+
 	}//end paintSubmissions()
 
 
@@ -419,28 +419,28 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	{
 		$delete_list = isset($_POST[$prefix.'_delete']) ? $_POST[$prefix.'_delete'] : Array();
 		if (empty($delete_list)) return false;
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		// acquire the links lock on the form
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'links')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		
+
 		foreach($delete_list as $delete_assetid) {
 			// is the assetid a valid one?
 			if (!assert_valid_assetid($delete_assetid, '', false, false)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
-			
+
 			// acquire the links lock on the submission to delete
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($delete_assetid, 'links')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
-			
+
 			$submission_link =& $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $delete_assetid, SQ_LINK_TYPE_3);
 			if (!$submission_link) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -451,22 +451,22 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					return false;
 				}
 			}
-			
+
 			// release the links lock
 			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($delete_assetid, 'links')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 		}
-		
+
 		// now release the links lock on the form itself
 		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'links')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		
+
 		return true;
 
 	}//end processSubmissions()
@@ -1392,6 +1392,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$prefix = $asset->getPrefix();
 
 		// delete rules first
+		if (empty($rules)) $rules = Array();
 		foreach (array_keys($rules) as $k) {
 			$rule_prefix = $prefix.'_rule_'.$k;
 			if (!isset($_POST[$rule_prefix])) {
