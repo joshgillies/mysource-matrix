@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.93 2005/08/29 04:36:46 dheppell Exp $
+* $Id: metadata_manager.inc,v 1.94 2005/09/08 04:14:40 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -533,6 +533,7 @@ class Metadata_Manager extends MySource_Object
 							COALESCE()
 						';
 				$field = &$am->getAsset($fieldid, $type_code);
+
 				if (is_null($field)) {
 					trigger_localised_error('SYS0041', E_USER_WARNING, $schemaid);
 					continue;
@@ -540,9 +541,18 @@ class Metadata_Manager extends MySource_Object
 
 				$field_values[$field->name] = $field->getMetadataValue($asset, (isset($values[$field->id]) ? $values[$field->id]['value'] : null));
 
+				$am->forgetAsset($field);
+				unset($field);
+
 			}// end for
 
+			$am->forgetAsset($schema);
+			unset($schema);
+
 		}// end schema
+
+		$am->forgetAsset($asset);
+		unset($asset);
 
 		return $field_values;
 
@@ -874,11 +884,11 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_version_major'    :
 					echo 'list($metadata_replacements['.var_export($keyword, 1).'],,) = explode(\'.\',$metadata_asset->version);'."\n";
 				break;
-				
+
 				case 'asset_version_minor'    :
 					echo 'list(,$metadata_replacements['.var_export($keyword, 1).'],) = explode(\'.\',$metadata_asset->version);'."\n";
 				break;
-				
+
 				case 'asset_version_micro'    :
 					echo 'list(,,$metadata_replacements['.var_export($keyword, 1).']) = explode(\'.\',$metadata_asset->version);'."\n";
 				break;
