@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date.inc,v 1.10 2005/09/08 00:39:12 rong Exp $
+* $Id: metadata_field_date.inc,v 1.11 2005/09/08 04:56:31 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -148,15 +148,26 @@ class Metadata_Field_Date extends Metadata_Field
 			}
 		}
 
-		$date = getdate(iso8601_ts($value));
-		$value_arr = Array(
-						'y'	=> $date['year'],
-						'm'	=> $date['mon'],
-						'd'	=> $date['mday'],
-						'h'	=> $date['hours'],
-						'i'	=> $date['minutes'],
-						's'	=> $date['seconds'],
-					 );
+		if ($value == '---------- --:--:--') {
+			$value_arr = Array(
+							'y'	=> '',
+							'm'	=> '',
+							'd'	=> '',
+							'h'	=> '',
+							'i'	=> '',
+							's'	=> '',
+						 );
+		} else {
+			$date = getdate(iso8601_ts($value));
+			$value_arr = Array(
+							'y'	=> $date['year'],
+							'm'	=> $date['mon'],
+							'd'	=> $date['mday'],
+							'h'	=> $date['hours'],
+							'i'	=> $date['minutes'],
+							's'	=> $date['seconds'],
+						 );
+		}
 
 		$value = '';
 		$field =& new DateTime_Field($prefix.'_datetime', $value, $parameters);
