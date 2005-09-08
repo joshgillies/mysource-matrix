@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.10 2005/08/09 00:05:40 dheppell Exp $
+* $Id: edit_interface_screen_details.xml,v 1.11 2005/09/08 00:35:41 rong Exp $
 *
 */
 -->
@@ -33,6 +33,12 @@
 		</field>
 		<field attribute="name">
 			<text width="30" height="1" />
+		</field>
+		<field attribute="friendly_name">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="description">
+			<text width="30" height="5" />
 		</field>
 		<field attribute="scheme">
 			<text width="30" height="1" />
@@ -73,12 +79,6 @@
 		</field>
 		<field attribute="visible_part">
 			<selection style="boxes" columns="1" extras="" />
-		</field>			
-		<field>
-			<function_call>
-				<paint_function		name="paintWeighting" />
-				<process_function	name="processWeighting" />
-			</function_call>
 		</field>
 	</section>
 </contents>

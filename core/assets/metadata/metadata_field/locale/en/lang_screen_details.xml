@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/03/30 00:39:47 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.2 2005/09/08 00:35:41 rong Exp $
 *
 */
 -->
@@ -35,6 +35,14 @@
 		</field>
 		<field attribute="name">
 			<display_name>Field Name</display_name>
+			<note />
+		</field>
+		<field attribute="friendly_name">
+			<display_name>Friendly Name</display_name>
+			<note>Friendly Name will be used as the caption for metadata fields in the edit interface. If it is left empty, Field Name will be used instead.</note>
+		</field>
+		<field attribute="description">
+			<display_name>Description</display_name>
 			<note />
 		</field>
 		<field attribute="default">
@@ -76,14 +84,6 @@
 		<field attribute="frontend">
 			<display_name>Show On Frontend</display_name>
 			<note>&lt;b&gt;Always:&lt;/b&gt; this metadata field will always be printed on the frontend.&lt;br&gt;&lt;b&gt;Only If Filled:&lt;/b&gt; this metadata field will only be printed on the frontend if data is entered in that field for that asset.&lt;br&gt;&lt;b&gt;Never:&lt;/b&gt; this metadata field will not be printed on the frontend.</note>
-		</field>
-		<field>
-			<display_name>Relevance Weighting</display_name>
-			<note />
-			<function_call>
-				<paint_function		name="paintWeighting" />
-				<process_function	name="processWeighting" />
-			</function_call>
 		</field>
 	</section>
 </contents>

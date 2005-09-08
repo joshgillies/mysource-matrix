@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.37 2005/07/26 05:45:14 tbarrett Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.38 2005/09/08 00:35:41 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,6 +43,8 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Constructor
 	*
+	* @return object
+	* @access public
 	*/
 	function Metadata_Field_Edit_Fns()
 	{
@@ -55,9 +57,9 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for viewing keyword instructions
 	*
-	* @param object Metadata_Field		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -79,11 +81,11 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* Note that keyword instructions are not processed so this function always
 	* returns false
 	*
-	* @param object Metadata_Field		$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
-	* @return boolean (false always)
+	* @return boolean
 	* @access public
 	*/
 	function processKeywordInstructions(&$asset, &$o, $prefix)
@@ -96,9 +98,9 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for editing value components
 	*
-	* @param object Metadata_Field		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -170,9 +172,9 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for editing value components
 	*
-	* @param object Metadata_Field		$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -243,24 +245,28 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the field with the interface for filling in metadata values
 	*
-	* @param object Metadata_Field		&$asset			the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o				the outputter class
-	* @param string						$value_str		the current value for this field in the asset (NOT $asset)
-	*													NULL means that there is no current value set
-	* @param boolean					$write_access	does the current user have write access to the asset
-	*													that we are setting metadata for (NOT THE SAME AS $asset)
+	* @param object		&$asset			the asset whose interface we are painting
+	* @param object		&$o				the outputter class
+	* @param string		$value_str		the current value for this field in the asset (NOT $asset)
+	*									NULL means that there is no current value set
+	* @param boolean	$write_access	does the current user have write access to the asset
+	*									that we are setting metadata for (NOT THE SAME AS $asset)
 	*
 	* @return boolean
 	* @access public
 	*/
 	function paintInlineValueInterface(&$asset, &$o, $value_str, $write_access)
 	{
+		// set field header to friendly_name if it is not empty
+		$field_name = $asset->attr('friendly_name');
+		if (!$field_name) $field_name = $asset->name;
 
-		$field_name = $asset->name;
 		if ($asset->attr('required')) {
 			$field_name .= ' <span style="color: #FF0000">*</span>';
 		}
-		$o->openField($field_name);
+
+		// use description as the note for this field
+		$o->openField($field_name, '', $asset->attr('description'));
 		$res = $this->paintValueInterface($asset, $o, $value_str, $write_access);
 		$o->closeField();
 		return $res;
@@ -271,12 +277,12 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for filling in metadata values
 	*
-	* @param object Metadata_Field		&$asset			the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o				the outputter class
-	* @param string						$value_str		the current value for this field in the asset (NOT $asset)
-	*													NULL means that there is no current value set
-	* @param boolean					$write_access	does the current user have write access to the asset
-	*													that we are setting metadata for (NOT THE SAME AS $asset)
+	* @param object		&$asset			the asset whose interface we are painting
+	* @param object		&$o				the outputter class
+	* @param string		$value_str		the current value for this field in the asset (NOT $asset)
+	*									NULL means that there is no current value set
+	* @param boolean	$write_access	does the current user have write access to the asset
+	*									that we are setting metadata for (NOT THE SAME AS $asset)
 	*
 	* @return boolean
 	* @access public
@@ -291,8 +297,8 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the interface for filling in metadata values
 	*
-	* @param object Metadata_Field	&$asset				the asset whose interface we are processing
-	* @param string					&$new_value_str		a string by reference that we can store the new values in
+	* @param object	&$asset			the asset whose interface we are processing
+	* @param string	&$new_value_str	a string by reference that we can store the new values in
 	*
 	* @return boolean
 	* @access public
@@ -305,67 +311,11 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Paint the interface for adjusting the weighting and/or including this in a search.
-	* @param object Metadata_Field		&$asset			the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o				the outputter class
-	* @param array						$values			current metadata values set for this asset
-	* @param boolean					$write_access	does the current user have write access to the asset
-	*													that we are setting metadata for (NOT THE SAME AS $asset)
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintWeighting(&$asset, &$o, $prefix)
-	{
-		$weighting = $asset->attr('weighting');
-
-		if ($asset->writeAccess('attributes')) {
-			echo combo_box('weighting_include', Array('0' => translate('do_not_include_in_searches'), '1' => translate('include_in_searches')), false, ($weighting >= 0)?'1':'0');
-
-			if ($weighting >= 0) {
-				echo text_box('weight', $weighting, 5);
-			}
-
-		} else {
-			echo ($weighting >= 0) ? $weighting : translate('not_included_in_searches');
-
-		}
-
-	}//end paintWeighting()
-
-
-	/**
-	* Paint the interface for adjusting the weighting and/or including this in a search.
-	*
-	*/
-	function processWeighting(&$asset, &$o, $write_access)
-	{
-		if (!isset($_POST['weighting_include'])) return false;
-
-		$oldWeighting = $asset->attr('weighting');
-		if ($_POST['weighting_include']) {
-			if (isset($_POST['weight'])) {
-				$newWeighting = max(0, $_POST['weight']);
-			} else {
-				$newWeighting = 1;
-			}
-		} else {
-			$newWeighting = -1;
-		}
-
-		$asset->setAttrValue('weighting', $newWeighting);
-
-		return true;
-
-	}//end processWeighting()
-
-
-	/**
 	* Check if all required fields have been completed in the values supplied
 	*
-	* @param object Metadata_Field	&$asset		the asset whose metadata we are checking
-	* @param string					$value_str	the current value for this field in the asset (NOT $asset)
-	*											NULL means that there is no current value set
+	* @param object	&$asset		the asset whose metadata we are checking
+	* @param string	$value_str	the current value for this field in the asset (NOT $asset)
+	*							NULL means that there is no current value set
 	*
 	* @return boolean
 	* @access public
@@ -399,11 +349,11 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Output the complete metadata tag for this field
 	*
-	* @param object Metadata_Field	&$asset		the asset whose interface we are painting
-	* @param string					$value_str	the current value for this field in the asset (NOT $asset)
-	*											NULL means that there is no current value set
-	* @param array					&$tag_value	the metadata tag value
-	* @param array					&$keywords	an array we can put keywords in that need replacing
+	* @param object	&$asset		the asset whose interface we are painting
+	* @param string	$value_str	the current value for this field in the asset (NOT $asset)
+	*							NULL means that there is no current value set
+	* @param array	&$tag_value	the metadata tag value
+	* @param array	&$keywords	an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.13 2005/05/20 01:46:14 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.14 2005/09/08 00:35:41 rong Exp $
 *
 */
 -->
@@ -33,6 +33,12 @@
 		</field>
 		<field attribute="name">
 			<text width="30" height="1" />
+		</field>
+		<field attribute="friendly_name">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="description">
+			<text width="30" height="5" />
 		</field>
 		<field attribute="default">
 			<text width="30" height="5" />
@@ -53,10 +59,10 @@
 		</field>
 	</section>
 	<section name="Options" write_access="write:attributes">
-		<field attribute="multi_line">
+		<field attribute="editable">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-		<field attribute="editable">
+		<field attribute="multi_line">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="required">
@@ -64,12 +70,6 @@
 		</field>
 		<field attribute="frontend">
 			<selection style="list" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function		name="paintWeighting" />
-				<process_function	name="processWeighting" />
-			</function_call>
 		</field>
 	</section>
 </contents>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.13 2005/06/27 02:57:24 dmckee Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.14 2005/09/08 00:35:41 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,12 +54,12 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Paint the interface for filling in metadata values
 	*
-	* @param object Metadata_Field		&$asset			the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o				the outputter class
-	* @param string						$value_str		the current value for this field in the asset (NOT $asset)
-	*													NULL means that there is no current value set
-	* @param boolean					$write_access	does the current user have write access to the asset
-	*													that we are setting metadata for (NOT THE SAME AS $asset)
+	* @param object		&$asset			the asset whose interface we are painting
+	* @param object		&$o				the outputter class
+	* @param string		$value_str		the current value for this field in the asset (NOT $asset)
+	*									NULL means that there is no current value set
+	* @param boolean	$write_access	does the current user have write access to the asset
+	*									that we are setting metadata for (NOT THE SAME AS $asset)
 	*
 	* @return boolean
 	* @access public
@@ -80,12 +80,16 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 		$value_components = $asset->attr('value_components');
 		Metadata_Field::decodeValueString($value_str, $value, $value_components);
 
-		$field_name = $asset->name;
+		// set field header to friendly_name if it is not empty
+		$field_name = $asset->attr('friendly_name');
+		if (!$field_name) $field_name = $asset->name;
+
 		if ($asset->attr('required')) {
 			$field_name .= ' <span style="color: #FF0000">*</span>';
 		}
 
-		$o->openField($field_name);
+		// use description as the note for this field
+		$o->openField($field_name, '', $asset->attr('description'));
 			if ($asset->attr('editable')) {
 				if ($write_access) {
 					if ($asset->attr('multi_line')) {
@@ -179,8 +183,8 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Process the interface for filling in metadata values
 	*
-	* @param object Metadata_Field	&$asset				the asset whose interface we are processing
-	* @param string					&$new_value_str		a string by reference that we can store the new values in
+	* @param object	&$asset			the asset whose interface we are processing
+	* @param string	&$new_value_str	a string by reference that we can store the new values in
 	*
 	* @return boolean
 	* @access public

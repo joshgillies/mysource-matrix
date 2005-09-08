@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2005/05/17 07:01:44 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.3 2005/09/08 00:35:41 rong Exp $
 *
 */
 -->
@@ -27,6 +27,14 @@
 	<section name="Details">
 		<field attribute="name">
 			<display_name>Field Name</display_name>
+			<note />
+		</field>
+		<field attribute="friendly_name">
+			<display_name>Friendly Name</display_name>
+			<note>Friendly Name will be used as the caption for metadata fields in the edit interface. If it is left empty, Field Name will be used instead.</note>
+		</field>
+		<field attribute="description">
+			<display_name>Description</display_name>
 			<note />
 		</field>
 		<field>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_management.inc,v 1.15 2005/04/13 01:58:37 ndvries Exp $
+* $Id: metadata_field_management.inc,v 1.16 2005/09/08 00:35:41 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,6 +49,14 @@ class Metadata_Field_Management extends Asset_Management
 
 		$this->vars = Array(
 						'name'				=> Array(
+												'added'	=> '0.1',
+												'type'	=> 'text', 'default'	=> '',
+											   ),
+						'friendly_name'		=> Array(
+												'added'	=> '0.1',
+												'type'	=> 'text', 'default'	=> '',
+											   ),
+						'description'		=> Array(
 												'added'	=> '0.1',
 												'type'	=> 'text', 'default'	=> '',
 											   ),
@@ -81,10 +89,6 @@ class Metadata_Field_Management extends Asset_Management
 												'parameters'	=> Array('allow_empty' => false),
 												'description'	=> 'If this field is Required, then either the value or any one of the value components must be set for an asset to be approved',
 											   ),
-						'weighting'			=> Array(
-												'added'	=> '0.1',
-												'type'	=> 'int', 'default'	=> '-1',
-											   ),
 						'frontend'			=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'selection',
@@ -106,8 +110,8 @@ class Metadata_Field_Management extends Asset_Management
 	/**
 	* Gets a list of all metadata files that we want web accessable
 	*
+	* @return array
 	* @access private
-	* @return array(string)
 	*/
 	function _getFileList()
 	{

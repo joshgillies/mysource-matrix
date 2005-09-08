@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2005/05/20 01:46:15 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10 2005/09/08 00:35:41 rong Exp $
 *
 */
 -->
@@ -27,6 +27,12 @@
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
 			<text width="30" height="1" />
+		</field>
+		<field attribute="friendly_name">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="description">
+			<text width="30" height="5" />
 		</field>
 		<field>
 			<function_call>
