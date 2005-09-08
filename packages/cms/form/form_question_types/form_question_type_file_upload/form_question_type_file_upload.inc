@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.4.2.6 2005/06/20 02:17:53 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.4.2.7 2005/09/08 23:51:52 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4.2.6 $
+* @version $Revision: 1.4.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -118,7 +118,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 		// there was an error
 		if ($file === false) {
-			$form->failed_rules[] = 'There was an error uploading the file for File Upload question "'.$this->attr('name').'"';
+			$this->failed_rules[] = 'There was an error uploading the file for File Upload question "'.$this->attr('name').'"';
 			return false;
 		}
 
