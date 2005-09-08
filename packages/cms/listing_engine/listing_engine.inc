@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.90 2005/09/08 04:25:17 arailean Exp $
+* $Id: listing_engine.inc,v 1.91 2005/09/08 04:27:55 arailean Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1554,7 +1554,7 @@ class Listing_Engine extends Page
 		if ($this->attr('group_by') == 'letter') {
 			$keywords['asset_position'] = $list_position;
 		} else {
-			$keywords['asset_position']  = ($this->_tmp['result_page'] - 1) * $this->attr('num_per_page') + $list_position;
+			$keywords['asset_position']  = (array_get_index($this->_tmp, 'result_page', 1) - 1) * $this->attr('num_per_page') + $list_position;
 		}
 
 		// asset selections
