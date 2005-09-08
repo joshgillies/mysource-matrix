@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.38.2.15 2005/08/08 06:35:57 dmckee Exp $
+* $Id: form_email_edit_fns.inc,v 1.38.2.16 2005/09/08 23:37:03 dmckee Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.38.2.15 $
+* @version $Revision: 1.38.2.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1284,6 +1284,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$prefix = $asset->getPrefix();
 
 		// delete rules first
+		if (empty($rules)) $rules = Array();
 		foreach (array_keys($rules) as $k) {
 			$rule_prefix = $prefix.'_rule_'.$k;
 			if (!isset($_POST[$rule_prefix])) {
