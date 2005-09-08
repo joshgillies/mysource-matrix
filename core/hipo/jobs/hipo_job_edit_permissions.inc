@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.32.2.3 2005/07/11 04:47:52 pgannavarapu Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.32.2.4 2005/09/08 23:14:56 dheppell Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -281,69 +281,72 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset)) {
-				foreach ($this->_running_vars['permission_changes'] as $perm => $perm_data) {
-					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-					$perm_name = permission_type_name($perm);
+				// check we can change permissions, otherwise silently pass by
+				if ($asset->adminAccess('permissions')) {
+					foreach ($this->_running_vars['permission_changes'] as $perm => $perm_data) {
+						require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+						$perm_name = permission_type_name($perm);
 
-					foreach ($perm_data as $set_data) {
-						if ($set_data['userid']) {
-							// use getAssetInfo() because deleting permissions
-							// held by deleted users (eg.LDAP) will cause an assertion
-							$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($set_data['userid']), 'user', false);
+						foreach ($perm_data as $set_data) {
+							if ($set_data['userid']) {
+								// use getAssetInfo() because deleting permissions
+								// held by deleted users (eg.LDAP) will cause an assertion
+								$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($set_data['userid']), 'user', false);
 
-							// check that the passed userid is a user or user_group
-							if (empty($user_info)) {
-								$user_name = 'Unknown User';
+								// check that the passed userid is a user or user_group
+								if (empty($user_info)) {
+									$user_name = 'Unknown User';
+								} else {
+									$user_name = $user_info[$set_data['userid']]['name'];
+								}
 							} else {
-								$user_name = $user_info[$set_data['userid']]['name'];
-							}
-						} else {
-							$user_name = 'General Public';
-						}
-
-						if ($set_data['previous_access'] === null) {
-							// to edit this permission, there must not currently be a permission set
-							// at all - either grant OR deny - for this user
-							$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm, !(bool)$set_data['granted'], false, false, true);
-							if (isset($current[$set_data['userid']])) {
-								$new_access     = ($set_data['granted']) ? 'grant' : 'revoke';
-								$current_access = ($current[$set_data['userid']]) ? 'granted' : 'revoked';
-								$this->_addError('Could not '.$new_access.' '.$perm_name.' access for "'.$user_name.'" on "'.$asset->name.'" because this asset already has '.$current_access.' '.$perm_name.' access to "'.$user_name.'". The current permission for "'.$asset->name.'" has been retained.', true);
-								continue;
-							}
-						} else {
-							// we need to have a permission set and the access level be the same
-							$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm, null, false, false, true);
-							if (!isset($current[$set_data['userid']])) {
-								continue;
-							} elseif ($current[$set_data['userid']] != $set_data['previous_access']) {
-								$new_access     = ($set_data['previous_access']) ? 'grant'   : 'revoke';
-								$current_access = ($set_data['previous_access']) ? 'revoked' : 'granted';
-								$this->_addError('Could not '.$new_access.' '.$perm_name.' access for "'.$user_name.'" on "'.$asset->name.'" because this asset already has '.$current_access.' '.$perm_name.' access to "'.$user_name.'". The current permission for "'.$asset->name.'" has been retained.', true);
-								continue;
+								$user_name = 'General Public';
 							}
 
-						}
+							if ($set_data['previous_access'] === null) {
+								// to edit this permission, there must not currently be a permission set
+								// at all - either grant OR deny - for this user
+								$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm, !(bool)$set_data['granted'], false, false, true);
+								if (isset($current[$set_data['userid']])) {
+									$new_access     = ($set_data['granted']) ? 'grant' : 'revoke';
+									$current_access = ($current[$set_data['userid']]) ? 'granted' : 'revoked';
+									$this->_addError('Could not '.$new_access.' '.$perm_name.' access for "'.$user_name.'" on "'.$asset->name.'" because this asset already has '.$current_access.' '.$perm_name.' access to "'.$user_name.'". The current permission for "'.$asset->name.'" has been retained.', true);
+									continue;
+								}
+							} else {
+								// we need to have a permission set and the access level be the same
+								$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm, null, false, false, true);
+								if (!isset($current[$set_data['userid']])) {
+									continue;
+								} elseif ($current[$set_data['userid']] != $set_data['previous_access']) {
+									$new_access     = ($set_data['previous_access']) ? 'grant'   : 'revoke';
+									$current_access = ($set_data['previous_access']) ? 'revoked' : 'granted';
+									$this->_addError('Could not '.$new_access.' '.$perm_name.' access for "'.$user_name.'" on "'.$asset->name.'" because this asset already has '.$current_access.' '.$perm_name.' access to "'.$user_name.'". The current permission for "'.$asset->name.'" has been retained.', true);
+									continue;
+								}
 
-						switch ($set_data['granted']) {
-							case -1 :
-								// delete a permission
-								$GLOBALS['SQ_SYSTEM']->am->deletePermission($asset->id, $set_data['userid'], $perm);
-							break;
+							}
 
-							case 0  :
-							case 1  :
-								// deny a permission
-								// grant a permission
-								$GLOBALS['SQ_SYSTEM']->am->setPermission($asset->id, $set_data['userid'], $perm, $set_data['granted']);
-							break;
+							switch ($set_data['granted']) {
+								case -1 :
+									// delete a permission
+									$GLOBALS['SQ_SYSTEM']->am->deletePermission($asset->id, $set_data['userid'], $perm);
+								break;
+
+								case 0  :
+								case 1  :
+									// deny a permission
+									// grant a permission
+									$GLOBALS['SQ_SYSTEM']->am->setPermission($asset->id, $set_data['userid'], $perm, $set_data['granted']);
+								break;
+							}
 						}
 					}
-				}
 
-				$step_data['message'] = 'Editing Permissions for "'.$asset->name.'"';
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-				unset($asset);
+					$step_data['message'] = 'Editing Permissions for "'.$asset->name.'"';
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+					unset($asset);
+				}
 			} else {
 				$step_data['message'] = 'Skipping asset '.$assetid;
 				$this->_addError('Could not edit permissions for asset #'.$assetid.', asset does not exist');
