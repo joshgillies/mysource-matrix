@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.89 2005/09/07 07:07:15 arailean Exp $
+* $Id: listing_engine.inc,v 1.90 2005/09/08 04:25:17 arailean Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -931,7 +931,9 @@ class Listing_Engine extends Page
 				// list of pages and links to them
 				$page_list = '';
 				$letter_range = range('A','Z');
-				$letter_range[] = $other_letter;
+				if (isset($todo[$other_letter])) {
+					$letter_range[] = $other_letter;
+				}
 				foreach ($letter_range as $one_letter) {
 					if (isset($todo[$one_letter])) {
 						$page_list .= ' <a href="'.replace_query_string_vars(Array('result_page' => $one_letter)).'">'.$one_letter.'</a> ';
