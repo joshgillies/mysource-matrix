@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_ecommerce_cart.inc,v 1.8 2005/08/26 06:43:58 mmcintyre Exp $
+* $Id: design_area_ecommerce_cart.inc,v 1.9 2005/09/08 04:30:40 skim Exp $
 *
 */
 
@@ -70,7 +70,7 @@ class Design_Area_Ecommerce_Cart extends Design_Area
 				?>
 					require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 					$cart =& new Ecommerce_Cart_Processor();
-					echo ' '.($cart->getCount() == 1) ? translate('item') : translate('items');
+					echo (($cart->getCount() == 1) ? translate('item') : translate('items'));
 				<?php
 				echo '?','>';
 				break;
