@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.276 2005/09/06 00:03:36 ndvries Exp $
+* $Id: asset_edit_interface.inc,v 1.277 2005/09/08 02:34:45 ndvries Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.276 $
+* @version $Revision: 1.277 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1264,36 +1264,41 @@ class Asset_Edit_Interface extends MySource_Object
 			$keywords['layout'] = Array();
 		}
 
-		// we have printed an editable interface on a static screen - show the commit button
-		if (in_array('commit_button', $keywords['layout']) && $print_commit_button) {
-			ob_start();
-				$o->commitButton('', false);
-				$this->_tmp['layout_keyword_replacements']['commit_button'] = ob_get_contents();
-			ob_end_clean();
-		}
+		// set keywords for the commit button, screen menu dropdown, or any of the
+		// available keywords for asset being exposed
+		foreach ($keywords['layout'] as $keyword) {
+			if (($keyword == 'commit_button') && $print_commit_button) {
+				ob_start();
+					$o->commitButton('', false);
+					$this->_tmp['layout_keyword_replacements']['commit_button'] = ob_get_contents();
+				ob_end_clean();
+				continue;
 
-		// show the screen selection menu
-		if (in_array('screen_menu', $keywords['layout'])) {
-			$lm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
-			$current_location = $o->getCurrentLocation();
-			$current_location .= (strstr($current_location, '?')) ? '&' : '?';
+			} else if ($keyword == 'screen_menu') {
+				$lm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
+				$current_location = $o->getCurrentLocation();
+				$current_location .= (strstr($current_location, '?')) ? '&' : '?';
 
-			for (reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
-				if (!$lm->hasLayout($owner->type(), $code)) continue;
-				$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name']);
-			}
-			foreach ($this->_edit_fns->static_screens as $code_name => $data) {
-				if (!$lm->hasLayout($owner->type(), $code_name)) {
-					continue;
+				for (reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
+					if (!$lm->hasLayout($owner->type(), $code)) continue;
+					$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name']);
 				}
-				$url = $current_location.'asset_ei_screen='.rawurlencode($code_name);
-				$o->addStaticScreen($url, $data['name']);
-			}
+				foreach ($this->_edit_fns->static_screens as $code_name => $data) {
+					if (!$lm->hasLayout($owner->type(), $code_name)) {
+						continue;
+					}
+					$url = $current_location.'asset_ei_screen='.rawurlencode($code_name);
+					$o->addStaticScreen($url, $data['name']);
+				}
+				ob_start();
+					$o->printScreenMenu();
+					$this->_tmp['layout_keyword_replacements']['screen_menu'] = ob_get_contents();
+				ob_end_clean();
+				continue;
 
-			ob_start();
-				$o->printScreenMenu();
-				$this->_tmp['layout_keyword_replacements']['screen_menu'] = ob_get_contents();
-			ob_end_clean();
+			} else {
+				$this->_tmp['layout_keyword_replacements'][$keyword] = $owner->getKeywordReplacement($keyword);
+			}
 		}
 
 		// turn buffering back on so the output is not malformed
