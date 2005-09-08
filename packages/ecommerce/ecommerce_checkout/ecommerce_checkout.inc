@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.39 2005/08/26 07:14:34 skim Exp $
+* $Id: ecommerce_checkout.inc,v 1.40 2005/09/08 02:18:47 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -719,6 +719,71 @@ class Ecommerce_Checkout extends Page
 
 
 	/**
+	* Get bodycopy keyword replacement
+	*
+	* Provides a mechanism for providing keyword replacement functions by
+	* looking up the function named 'getKeywordNameKeywordReplacement'
+	* so an asset wishing to add support for 'best_ever' custom keyword
+	* should implement a function getBestEverKeywordReplacement()
+	* which returns a replacement string
+	*
+	* @param string	$keyword	Keyword to find a replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function getKeywordReplacement($keyword)
+	{
+		if (empty($keyword)) return '';
+
+		$replacement = "%$keyword%";
+
+		$tmp_keyword = strtr($keyword, '_', ' ');
+		$tmp_keyword = ucwords($tmp_keyword);
+		$tmp_keyword = preg_replace('/\s+/', '', $tmp_keyword);
+		$func_name = 'get'.$tmp_keyword.'KeywordReplacement';
+		if (method_exists($this, $func_name)) {
+			$replacement = $this->$func_name();
+		} else {
+
+			if (isset($_SESSION['SQ_TEMP_ORDER']['editing_order']) && !empty($_SESSION['SQ_TEMP_ORDER']['editing_order'])) {
+				$orderid = $_SESSION['SQ_TEMP_ORDER']['order_id'];
+				$order =& $GLOBALS['SQ_SYSTEM']->am->getAsset($orderid);
+
+				if (!empty($order)) {
+					if (strcmp('asset_assetid', $keyword) == 0) {
+						$replacement = $order->id;
+					} else if (0 === strpos($keyword, 'asset_attribute_')) {
+						$attr_name = substr($keyword, strlen('asset_attribute_'));
+						if (array_key_exists($attr_name, $order->vars)) {
+							$attr = &$order->getAttribute($attr_name);
+							if (!$attr->is_admin) {
+								$replacement = $this->attr($attr_name);
+							}
+						}
+					} else {
+						$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$dummy_array = Array($keyword);
+						$mm_keyword = $mm->generateKeywordReplacements($order, $dummy_array, false);
+						if (isset($mm_keyword[$keyword])) {
+							$replacement = $mm_keyword[$keyword];
+						}
+					}
+				} else {
+					$replacement = '';
+				}
+
+			} else {
+				$replacement = '';
+			}
+		}
+
+		return $replacement;
+
+	}//end getKeywordReplacement()
+
+
+	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
 	* @param &object Asset	$asset	the asset that triggered the event
@@ -778,6 +843,8 @@ class Ecommerce_Checkout extends Page
 	*/
 	function _getCheckoutContextKeywords()
 	{
+		$keywords = parent::getAvailableKeywords();
+
 		$keywords['delivery_selector']			= translate('ecom_checkout_keyword_delivery_selector');
 		$keywords['delivery_interface'] 		= translate('ecom_checkout_keyword_delivery_interface');
 		$keywords['error_messages']				= translate('ecom_checkout_keyword_error_messages');
@@ -1105,6 +1172,7 @@ class Ecommerce_Checkout extends Page
 		return $cart->getCount();
 
 	}//end getItemsTotalCountKeywordReplacement()
+
 
 
 }//end class
