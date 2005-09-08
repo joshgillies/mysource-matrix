@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section.inc,v 1.14 2005/04/13 01:58:37 ndvries Exp $
+* $Id: metadata_section.inc,v 1.15 2005/09/08 00:39:12 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,8 +55,9 @@ class Metadata_Section extends Folder
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -77,15 +78,15 @@ class Metadata_Section extends Folder
 	* should be checked to work out what side of the link this asset is on. The return value should indicate
 	* if any of the link fields were changed.
 	*
-	* @param object Asset	$asset			the major or minor asset that we are linking to
-	* @param string			$side_of_link	the side of the link we are on (major or minor)
-	* @param string			$link_type		the type of link we are creating
-	* @param string			$value			the value that is to be associated with the link
-	* @param string			$sort_order		the position in the links list that this link should take,
-	* @param string			$dependant		'0' / '1' on whether the this asset is dependant on the
-	*										asset that will be linked by the new link
-	* @param string			$exclusive		'0' / '1' on whether the this asset is linked exclusivly
-	*										to the asset that will be linked by the new link
+	* @param object	&$asset			the major or minor asset that we are linking to
+	* @param string	$side_of_link	the side of the link we are on (major or minor)
+	* @param string	&$link_type		the type of link we are creating
+	* @param string	&$value			the value that is to be associated with the link
+	* @param string	&$sort_order	the position in the links list that this link should take,
+	* @param string	&$dependant		'0' / '1' on whether the this asset is dependant on the
+	*								asset that will be linked by the new link
+	* @param string	&$exclusive		'0' / '1' on whether the this asset is linked exclusivly
+	*								to the asset that will be linked by the new link
 	*
 	* @return boolean
 	* @access public

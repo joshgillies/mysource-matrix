@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date.inc,v 1.9 2005/07/19 07:19:53 skim Exp $
+* $Id: metadata_field_date.inc,v 1.10 2005/09/08 00:39:12 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,12 +56,12 @@ class Metadata_Field_Date extends Metadata_Field
 	/**
 	* Generate an array of current values for the passed metadata field names
 	*
-	* @param object Asset			&$asset		the asset whose field values we are getting
-	* @param string					$value_str	the current value for this field in the asset (NOT $asset)
-	*											NULL means that there is no current value set
+	* @param object	&$asset		the asset whose field values we are getting
+	* @param string	$value_str	the current value for this field in the asset (NOT $asset)
+	*							NULL means that there is no current value set
 	*
+	* @return string
 	* @access public
-	* @return string	the metadata value for the passed asset
 	*/
 	function getMetadataValue(&$asset, $value_str)
 	{
@@ -108,11 +108,10 @@ class Metadata_Field_Date extends Metadata_Field
 	/**
 	* Getting the date-time field
 	*
-	* @param object Asset	&$asset	the owning asset
-	* @param string			$prefix	prefix for form elements
-	* @param string			$value	the value to place in the datetime field
+	* @param string	$prefix	prefix for form elements
+	* @param string	$value	the value to place in the datetime field
 	*
-	* @return object DateTime_Field
+	* @return object
 	* @access private
 	*/
 	function _getDateTimeField($prefix, $value=null)

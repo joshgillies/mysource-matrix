@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.37 2005/05/17 07:05:04 ndvries Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.38 2005/09/08 00:39:12 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,9 +55,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Paint the interface for creating a new metadata section
 	*
-	* @param object Metadata_Schema		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -75,9 +75,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Processes the interface for creating a new metadata section
 	*
-	* @param object Metadata_Schema		$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -104,9 +104,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Paint the interface for regenerating metadata files
 	*
-	* @param object Metadata_Schema		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -130,9 +130,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Processes the interface for regenerating metadata files
 	*
-	* @param object Metadata_Schema		$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -156,9 +156,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Paint the interface for editing metadata sections
 	*
-	* @param object Metadata_Schema		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -195,9 +195,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Processes the interface for editing metadata sections
 	*
-	* @param object Metadata_Schema		$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -235,11 +235,12 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Paint the interface for filling in metadata values
 	*
-	* @param object Metadata_Schema		&$asset			the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o				the outputter class
-	* @param array						$values			current metadata values set for this asset
-	* @param boolean					$write_access	does the current user have write access to the asset
-	*													that we are setting metadata for (NOT THE SAME AS $asset)
+	* @param object		&$asset			the asset whose interface we are painting
+	* @param object		&$o				the outputter class
+	* @param string		$values			the current value for this field in the asset (NOT $asset)
+	*									NULL means that there is no current value set
+	* @param boolean	$write_access	does the current user have write access to the asset
+	*									that we are setting metadata for (NOT THE SAME AS $asset)
 	*
 	* @return boolean
 	* @access public
@@ -266,8 +267,8 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Process the interface for filling in metadata values
 	*
-	* @param object Metadata_Schema	&$asset			the asset whose interface we are painting
-	* @param array					&$new_values	an array we can store the new values in
+	* @param object	&$asset			the asset whose interface we are painting
+	* @param array	&$new_values	an array we can store the new values in
 	*
 	* @return boolean
 	* @access public
@@ -292,8 +293,8 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Check if all required fields have been completed in the values supplied
 	*
-	* @param object Metadata_Schema	&$asset		the asset whose metadata we are checking
-	* @param array					$values		the current metadata values
+	* @param object	&$asset	the asset whose metadata we are checking
+	* @param array	$values	the current metadata values
 	*
 	* @return boolean
 	* @access public
@@ -318,10 +319,10 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Output the complete metadata tags for this schema
 	*
-	* @param object Metadata_Schema	&$asset			the asset whose interface we are painting
-	* @param array					&$values		the current metadata values
-	* @param array					&$tag_values	the metadata tag values
-	* @param array					&$keywords		an array we can put keywords in that need replacing
+	* @param object	&$asset			the asset whose interface we are painting
+	* @param array	&$values		the current metadata values
+	* @param array	&$tag_values	the metadata tag values
+	* @param array	&$keywords		an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public
@@ -355,9 +356,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Displays the checkbox saying that a default XML namespace definition shouild be used
 	*
-	* @param object	  &$rootid	 asset being painted
-	* @param object	  &$o		 some mysterious object
-	* @param String   $prefix	 prefix for the html doc element name
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the html doc element name
 	*
 	* @return boolean
 	* @access private
@@ -383,9 +384,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Checks if client wants to use default XML namespace definition
 	*
-	* @param object	  &$rootid	 asset being painted
-	* @param object	  &$o		 some mysterious object
-	* @param String   $prefix	 prefix for the html doc element name
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the html doc element name
 	*
 	* @return boolean
 	* @access private
@@ -420,9 +421,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Displays the textbox containing namespace, accepts input from user
 	*
-	* @param object	  &$rootid	 asset being painted
-	* @param object	  &$o		 some mysterious object
-	* @param String   $prefix	 prefix for the html doc element name
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the html doc element name
 	*
 	* @return boolean
 	* @access private
@@ -452,9 +453,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	* Processes any values submitted via namespace textbox. If checkbox above
 	* is checked, exit function because we will store default values instead.
 	*
-	* @param object	  &$rootid	 asset being painted
-	* @param object	  &$o		 some mysterious object
-	* @param String   $prefix	 prefix for the html doc element name
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the html doc element name
 	*
 	* @return void
 	* @access private
@@ -476,9 +477,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Displays textbox with XML namespace URI
 	*
-	* @param object	  &$rootid	 asset being painted
-	* @param object	  &$o		 some mysterious object
-	* @param String   $prefix	 prefix for the html doc element name
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the html doc element name
 	*
 	* @return boolean
 	* @access private
@@ -508,9 +509,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	* Stores the value in Namespace URI textbox if user
 	* doesn't want to use default values
 	*
-	* @param object	  &$rootid	 asset being painted
-	* @param object	  &$o		 some mysterious object
-	* @param String   $prefix	 prefix for the html doc element name
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		some mysterious object
+	* @param string	$prefix	prefix for the html doc element name
 	*
 	* @return void
 	* @access private

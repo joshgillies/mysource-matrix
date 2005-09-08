@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_management.inc,v 1.7 2005/04/13 01:58:37 ndvries Exp $
+* $Id: metadata_field_date_management.inc,v 1.8 2005/09/08 00:39:12 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,8 +71,8 @@ class Metadata_Field_Date_Management extends Asset_Management
 	/**
 	* Gets a list of all metadata files that we want web accessable
 	*
+	* @return array
 	* @access private
-	* @return array(string)
 	*/
 	function _getFileList()
 	{

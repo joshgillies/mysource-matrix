@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.29 2005/06/02 06:06:33 lwright Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.30 2005/09/08 00:39:12 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,8 +54,8 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Paint the interface for editing metadata fields
 	*
-	* @param object Metadata_Section	&$asset			the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o				the outputter class
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
 	*
 	* @return boolean
 	* @access public
@@ -140,8 +140,8 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Process the interface for editing metadata fields
 	*
-	* @param object Metadata_Section	&$asset			the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o				the outputter class
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
 	*
 	* @return boolean
 	* @access public
@@ -189,11 +189,11 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Paint the interface for filling in metadata values
 	*
-	* @param object Metadata_Section	&$asset			the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o				the outputter class
-	* @param array						$values			current metadata values set for this asset
-	* @param boolean					$write_access	does the current user have write access to the asset
-	*													that we are setting metadata for (NOT THE SAME AS $asset)
+	* @param object		&$asset			the asset whose interface we are painting
+	* @param object		&$o				the outputter class
+	* @param array		$values			current metadata values set for this asset
+	* @param boolean	$write_access	does the current user have write access to the asset
+	*									that we are setting metadata for (NOT THE SAME AS $asset)
 	*
 	* @return boolean
 	* @access public
@@ -233,8 +233,8 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Process the interface for filling in metadata values
 	*
-	* @param object Metadata_Section	&$asset			the asset whose interface we are painting
-	* @param array						&$new_values	an array we can store the new values in
+	* @param object	&$asset			the asset whose interface we are painting
+	* @param array	&$new_values	an array we can store the new values in
 	*
 	* @return boolean
 	* @access public
@@ -270,8 +270,8 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Check if all required fields have been completed in the values supplied
 	*
-	* @param object Metadata_Section	&$asset		the asset whose metadata we are checking
-	* @param array						$values		the current metadata values
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param array	$values	the current metadata values
 	*
 	* @return boolean
 	* @access public
@@ -296,10 +296,10 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Output the complete metadata tags for this section
 	*
-	* @param object Metadata_Section	&$asset			the asset whose interface we are painting
-	* @param array						&$values		the current metadata values
-	* @param array						&$tag_values	the metadata tag values
-	* @param array						&$keywords		an array we can put keywords in that need replacing
+	* @param object	&$asset			the asset whose interface we are painting
+	* @param array	&$values		the current metadata values
+	* @param array	&$tag_values	the metadata tag values
+	* @param array	&$keywords		an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public

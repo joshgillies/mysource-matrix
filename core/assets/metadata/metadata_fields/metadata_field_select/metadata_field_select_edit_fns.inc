@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.24 2005/08/09 00:05:40 dheppell Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.25 2005/09/08 00:39:12 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,12 +54,12 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Paint the interface for filling in metadata values
 	*
-	* @param object Metadata_Field		&$asset			the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o				the outputter class
-	* @param string						$value_str		the current value for this field in the asset (NOT $asset)
-	*													NULL means that there is no current value set
-	* @param boolean					$write_access	does the current user have write access to the asset
-	*													that we are setting metadata for (NOT THE SAME AS $asset)
+	* @param object		&$asset			the asset whose interface we are painting
+	* @param object		&$o				the outputter class
+	* @param string		$value_str		the current value for this field in the asset (NOT $asset)
+	*									NULL means that there is no current value set
+	* @param boolean	$write_access	does the current user have write access to the asset
+	*									that we are setting metadata for (NOT THE SAME AS $asset)
 	*
 	* @return boolean
 	* @access public
@@ -78,6 +78,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		$value = '';
 		$value_components = $asset->attr('value_components');
+
 		Metadata_Field::decodeValueString($value_str, $value, $value_components);
 
 			$select_options = $asset->attr('select_options');
@@ -94,7 +95,6 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 
 				</script>
 			<?php
-
 			if ($asset->attr('multiple')) {
 				// if there is no value we need a blank array...not an array with one element (a blank string)
 				if ($value == '') {
@@ -143,8 +143,8 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Process the interface for filling in metadata values
 	*
-	* @param object Metadata_Field	&$asset				the asset whose interface we are processing
-	* @param string					&$new_value_str		a string by reference that we can store the new values in
+	* @param object	&$asset			the asset whose interface we are processing
+	* @param string	&$new_value_str	a string by reference that we can store the new values in
 	*
 	* @return boolean
 	* @access public
@@ -177,9 +177,9 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Paint the interface for dropdown selection box
 	*
-	* @param object Metadata_Field_Selection	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -271,9 +271,9 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Processes the interface for dropdown selection box
 	*
-	* @param object Metadata_Field_Selection	$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -325,9 +325,9 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Paint the interface for setting selection edit params
 	*
-	* @param object Metadata_Field_Selection	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter			&$o		the outputter class
-	* @param string								$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -343,9 +343,9 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Processes the interface for setting selection edit params
 	*
-	* @param object Metadata_Field_Selection	&$asset	the asset to which we belong
-	* @param object	Backend_Outputter			&$o		the outputter class
-	* @param string								$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -364,11 +364,11 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Output the complete metadata tag for this field
 	*
-	* @param object Metadata_Field	&$asset		the asset whose interface we are painting
-	* @param string					$value_str	the current value for this field in the asset (NOT $asset)
-	*											NULL means that there is no current value set
-	* @param array					&$tag_value	the metadata tag value
-	* @param array					&$keywords	an array we can put keywords in that need replacing
+	* @param object	&$asset		the asset whose interface we are painting
+	* @param string	$value_str	the current value for this field in the asset (NOT $asset)
+	*							NULL means that there is no current value set
+	* @param array	&$tag_value	the metadata tag value
+	* @param array	&$keywords	an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public

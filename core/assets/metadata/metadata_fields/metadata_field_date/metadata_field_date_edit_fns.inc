@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.26 2005/07/26 05:45:14 tbarrett Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.27 2005/09/08 00:39:12 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,9 +53,9 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Paint the interface for viewing available date format keys
 	*
-	* @param object Metadata_Field		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -79,11 +79,11 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	* Note that keyword instructions are not processed so this function always
 	* returns false
 	*
-	* @param object Metadata_Field		$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
-	* @return boolean (false always)
+	* @return boolean
 	* @access public
 	*/
 	function processDateFormatKeys(&$asset, &$o, $prefix)
@@ -96,9 +96,9 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Print the interface for editing the default date
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -137,9 +137,9 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Processes the interface for editing the default date
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -161,9 +161,9 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Print the interface for editing the time offset
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -183,9 +183,9 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Processes the interface for editing the time offset
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -201,9 +201,9 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Paint the interface for dropdown selection box
 	*
-	* @param object Metadata_Field_Selection	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -241,9 +241,9 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Process the interface for dropdown selection box
 	*
-	* @param object Metadata_Field_Selection	$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -267,9 +267,9 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	* Print the interface for editing how the editing interface parameters for the date time field that is used
 	* to enter the metadata value for an individual asset
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -294,9 +294,9 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Processes the interface for editing the Setup Params
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -317,12 +317,12 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Paint the interface for filling in metadata values
 	*
-	* @param object Metadata_Field		&$asset			the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o				the outputter class
-	* @param string						$value_str		the current value for this field in the asset (NOT $asset)
-	*													NULL means that there is no current value set
-	* @param boolean					$write_access	does the current user have write access to the asset
-	*													that we are setting metadata for (NOT THE SAME AS $asset)
+	* @param object		&$asset			the asset whose interface we are painting
+	* @param object		&$o				the outputter class
+	* @param string		$value_str		the current value for this field in the asset (NOT $asset)
+	*									NULL means that there is no current value set
+	* @param boolean	$write_access	does the current user have write access to the asset
+	*									that we are setting metadata for (NOT THE SAME AS $asset)
 	*
 	* @return boolean
 	* @access public
@@ -400,14 +400,14 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		return true;
 
-	}//end paintInlineValueInterface()
+	}//end paintValueInterface()
 
 
 	/**
 	* Process the interface for filling in metadata values
 	*
-	* @param object Metadata_Field	&$asset				the asset whose interface we are processing
-	* @param string					&$new_value_str		a string by reference that we can store the new values in
+	* @param object	&$asset			the asset whose interface we are processing
+	* @param string	&$new_value_str	a string by reference that we can store the new values in
 	*
 	* @return boolean
 	* @access public
@@ -450,11 +450,11 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Output the complete metadata tag for this field
 	*
-	* @param object Metadata_Field	&$asset		the asset whose interface we are painting
-	* @param string					$value_str	the current value for this field in the asset (NOT $asset)
-	*											NULL means that there is no current value set
-	* @param array					&$tag_value	the metadata tag value
-	* @param array					&$keywords	an array we can put keywords in that need replacing
+	* @param object	&$asset		the asset whose interface we are painting
+	* @param string	$value_str	the current value for this field in the asset (NOT $asset)
+	*							NULL means that there is no current value set
+	* @param array	&$tag_value	the metadata tag value
+	* @param array	&$keywords	an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public

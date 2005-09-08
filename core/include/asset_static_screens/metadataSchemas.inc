@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.14 2005/06/29 07:21:24 ndvries Exp $
+* $Id: metadataSchemas.inc,v 1.15 2005/09/08 00:39:12 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 
@@ -188,7 +188,7 @@ function paintMetadataSchemas(&$owner, &$o, &$ei)
 	if ($admin_access) {
 		$o->openField(translate('new_question'), 'new_line');
 			combo_box($prefix.'_metadata[new][granted]', Array('' => '', '1' => translate('apply'), '0' => translate('deny')), false, '');
-			echo translate('metadata_schema');
+			echo ' '.translate('metadata_schema').' ';
 			asset_finder($prefix.'_metadata[new][schemaid]', 0, Array('metadata_schema' => 'D'), 'sq_sidenav', false, 'null', Array('clear'));
 		$o->closeField();
 	}

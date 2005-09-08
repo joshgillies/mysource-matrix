@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.10 2005/08/09 00:05:40 dheppell Exp $
+* $Id: metadata_field_select.inc,v 1.11 2005/09/08 00:39:12 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Metadata_Field_Select extends Metadata_Field
 	/**
 	* Get a selection attribute that can be used to paint and process the values of this field
 	*
-	* @return object Asset_Attribute_Selection
+	* @return object
 	* @access public
 	*/
 	function getSelectionAttribute()
@@ -86,12 +86,14 @@ class Metadata_Field_Select extends Metadata_Field
 	/**
 	* Generate an array of current values for the passed metadata field names
 	*
-	* @param object Asset			&$asset		the asset whose field values we are getting
-	* @param string					$value_str	the current value for this field in the asset (NOT $asset)
-	*											NULL means that there is no current value set
+	* Returns the metadata value for the passed asset
 	*
+	* @param object	&$asset		the asset whose field values we are getting
+	* @param string	$value_str	the current value for this field in the asset (NOT $asset)
+	*							NULL means that there is no current value set
+	*
+	* @return string
 	* @access public
-	* @return string	the metadata value for the passed asset
 	*/
 	function getMetadataValue(&$asset, $value_str)
 	{
@@ -101,14 +103,15 @@ class Metadata_Field_Select extends Metadata_Field
 
 
 	/**
-	 * Returns the option value corresponding to the given option key
-	 * If no corresponding value is found, the option_key is returned
-	 *
-	 * @param string $option_key	an option key
-	 *
-	 * @return string
-	 * @access public
-	 */
+	* Returns the option value corresponding to the given option key
+	*
+	* If no corresponding value is found, the option_key is returned
+	*
+	* @param string	$option_key	an option key
+	*
+	* @return string
+	* @access public
+	*/
 	function getValueFromKey($option_key)
 	{
 		$ret = $option_key;
