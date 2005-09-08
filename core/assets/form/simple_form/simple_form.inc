@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.7 2005/08/19 01:54:44 lwright Exp $
+* $Id: simple_form.inc,v 1.8 2005/09/08 00:10:23 mmcintyre Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -350,6 +350,8 @@ class Simple_Form extends Asset
 	{
 		// basically get the parents of the section, and add itself in the
 		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
+		if (empty($query)) return Array();
+		
 		$queried_parents = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
 		$parents = Array();
 
