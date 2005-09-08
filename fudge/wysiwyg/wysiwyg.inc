@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.33.2.5 2005/06/28 02:06:50 dmckee Exp $
+* $Id: wysiwyg.inc,v 1.33.2.6 2005/09/08 01:21:00 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -978,6 +978,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							} else if (HTMLArea.is_ie) {
 								retVal = this._docContent.innerHTML;
 							}
+							retVal = this.replace_entities(retVal);
 						break;
 						default:
 							alert("Mode <" + this._editMode + "> not defined!");
@@ -1046,6 +1047,43 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 					}
 
 					return html;
+				};
+
+				// We want to replace actual entities in the html(like ©) with
+				// Their correct &bla; representations
+				HTMLArea.prototype.replace_entities = function(html_code) {
+
+					var search_for = new Array(
+						'À','à', 'Á', 'á', 'Â', 'â', 'Ã', 'ã', 'Ä', 'ä', 'Å', 'å', 'Æ', 'æ', 'Ç',
+						'ç', 'Ð', 'ð', 'È', 'è', 'É', 'é', 'Ê', 'ê', 'Ë', 'ë', 'Ì', 'ì', 'Í', 'í', 'Î',
+						'î', 'Ï', 'ï', 'µ', 'Ñ', 'ñ', 'Ò', 'ò', 'Ó', 'ó', 'Ô', 'ô', 'Õ', 'õ', 'Ö', 'ö',
+						'Ø', 'ø', 'ß', 'Þ', 'þ', 'Ù', 'ù', 'Ú', 'ú', 'Û', 'û', 'Ü', 'ü', 'Ý', 'ý', 'ÿ',
+						'¨', '¯', '´', '¸', '¡', '¿', '·', '¦', '«', '»', '¶', '§', '©', '®', '¹', '²',
+						'³', '×', '÷', '¼', '½', '¾', 'ª', 'º', '¬', '°', '±', '¤', '¢', '£', '¥', '?',
+						'ƒ', '?', 'Œ', 'œ', 'Š', 'š', 'Ÿ', 'ˆ', '˜', '–', '—', '†', '‡', '•', '…', '‘',
+						'’', '“', '”', '‹', '›', '™', '?', '?', '?', '?', '?', '?', '?', '?', '‰', '?',
+						'?', '?', '­'
+					);
+
+					var replacements = new Array(
+						'&Agrave;','&agrave;','&Aacute;','&aacute;','&Acirc;','&acirc;','&Atilde;','&atilde;','&Auml;','&auml;',
+						'&Aring;','&aring;','&AElig;','&aelig;','&Ccedil;','&ccedil;','&ETH;','&eth;','&Egrave;','&egrave;','&Eacute;',
+						'&eacute;','&Ecirc;','&ecirc;','&Euml;','&euml;','&Igrave;','&igrave;','&Iacute;','&iacute','&Icirc;','&icirc;','&Iuml;',
+						'&iuml;','&micro;','&Ntilde;','&ntilde;','&Ograve;','&ograve;','&Oacute;','&oacute;','&Ocirc;','&ocirc;','&Otilde;','&otilde;','&Ouml;',
+						'&ouml;','&Oslash;','&oslash;','&szlig;','&THORN;','&thorn;','&Ugrave;','&ugrave;','&Uacute;','&uacute;','&Ucirc;','&ucirc;','&Uuml;',
+						'&uuml;','&Yacute;','&yacute;','&yuml;','&uml;','&macr;','&acute;','&cedil;','&iexcl;','&iquest;','&middot;','&brvbar;','&laquo;',
+						'&raquo;','&para;','&sect;','&copy;','&reg;','&sup1;','&sup2;','&sup3;','&times;','&divide;','&frac14;','&frac12;','&frac34;','&ordf;',
+						'&ordm;','&not;','&deg;','&plusmn;','&curren;','&cent;','&pound;','&yen;','&Delta;','&fnof;','&Omega;','&OElig;','&oelig;','&Scaron;',
+						'&scaron;','&Yuml;','&circ;','&tilde;','&ndash;','&mdash;','&dagger;','&Dagger;','&bull;','&hellip;','&lsquo;','&rsquo;','&ldquo;',
+						'&rdquo;','&lsaquo;','&rsaquo;','&trade;','&radic;','&infin;','&int;','&part;','&ne;','&le;','&ge;','&sum;','&permil;','&prod;','&pi;','&loz;','&shy;'
+					);
+
+					for(var i = 0; i < replacements.length; i++) {
+						var re = new RegExp('\\'+search_for[i], "g");
+						html_code = html_code.replace(re, replacements[i]);
+					}
+
+					return html_code;
 				};
 
 			</script>
