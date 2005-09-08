@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: dev.inc,v 1.19 2005/05/17 01:32:35 tbarrett Exp $
+* $Id: dev.inc,v 1.20 2005/09/08 04:23:11 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 *     Generic functions that are useful for developers
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package Fudge
 * @subpackage dev
 */
@@ -378,4 +378,16 @@ function get_calling_func()
 }//end get_calling_func()
 
 
+/**
+* Combine the two parts of a microtime() call into one value depicting the current time with fractional seconds
+*
+* @access public
+* @return float
+*/
+function get_microtime()
+{
+	list($usec, $sec) = explode(' ', microtime());
+	return $sec + $usec;
+
+}//end get_microtime()
 ?>
