@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.27 2005/09/08 00:39:12 rong Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.28 2005/09/08 04:11:15 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -149,7 +149,6 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		$field = $asset->_getDateTimeField($prefix);
 
 		if ($asset->writeAccess('attributes') && $field->processField()) {
-#			$default = strtotime($field->value);
 			return $asset->setAttrValue('default', $field->value);
 		}
 
