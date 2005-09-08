@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order.inc,v 1.9 2005/08/26 06:48:30 mmcintyre Exp $
+* $Id: ecommerce_order.inc,v 1.10 2005/09/08 04:30:04 skim Exp $
 *
 */
 
@@ -129,7 +129,9 @@ class Ecommerce_Order extends Asset
 	{
 		switch ($name) {
 			case 'products':
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$this->_linkProducts($value);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			break;
 		}
 		return parent::setAttrValue($name, $value);
