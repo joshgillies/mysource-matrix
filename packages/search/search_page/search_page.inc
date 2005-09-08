@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.135 2005/09/01 04:18:48 rhoward Exp $
+* $Id: search_page.inc,v 1.136 2005/09/08 05:27:29 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.135 $
+* @version $Revision: 1.136 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -293,17 +293,6 @@ class Search_Page extends Listing_Engine
 			$_REQUEST['search_category'] = $submitted_category;
 		}
 
-		// pagination
-		if ($results_per_page > 0) {
-			$this->registerFormField('result_page');
-			?>
-			<input type="hidden" name="current_result_page" value="<?php echo $current_result_page; ?>" />
-			<input type="hidden" name="results_per_page" value="<?php echo $results_per_page; ?>" />
-			<input type="hidden" name="submitted_search_category" value="<?php echo $submitted_category; ?>" />
-			<input type="hidden" name="mode" value="" />
-			<?php
-		}
-
 		switch ($mode) {
 			case 'results':
 			case 'sis'    :
@@ -314,6 +303,24 @@ class Search_Page extends Listing_Engine
 			default:
 				echo $this->getBodycopyContents('initial', $this->getInitialBodyReplacements());
 			break;
+		}
+
+		// only print if submit buttons are printed
+		if (!empty($this->_tmp['prints_submit'])) {
+			?>
+			<input type="hidden" name="current_result_page" value="<?php echo $current_result_page; ?>" />
+			<input type="hidden" name="results_per_page" value="<?php echo $results_per_page; ?>" />
+			<?php
+			$this->registerFormField('result_page');
+			$this->registerFormField('current_result_page');
+			$this->registerFormField('results_per_page');
+
+			?>
+			<input type="hidden" name="submitted_search_category" value="<?php echo $submitted_category; ?>" />
+			<input type="hidden" name="mode" value="" />
+			<?php
+			$this->registerFormField('submitted_search_category');
+			$this->registerFormField('mode');
 		}
 
 	}//end printContents()
@@ -1107,9 +1114,9 @@ class Search_Page extends Listing_Engine
 
 			case 'search_button' :
 			case 'submit_button' :
-
 				$field_name = $prefix.'_submit_button';
 				$this->registerFormField($field_name);
+				$this->_tmp['prints_submit'] = true;
 
 				// if we are on the initial search page, don't use javascript
 				// for the submit button so enter will submit the form
@@ -1129,6 +1136,8 @@ class Search_Page extends Listing_Engine
 			case 'search_in_search_button' :
 				$field_name = 'sis_search_button';
 				$this->registerFormField($field_name);
+				$this->_tmp['prints_submit'] = true;
+
 				$replacement  = '<input type="submit" name="'.$field_name.'" onclick="
 					document.listing_form.current_result_page.value=\'0\';
 					document.listing_form.mode.value = \'sis\';
