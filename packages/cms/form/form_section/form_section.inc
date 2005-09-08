@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.40.2.3 2005/08/19 01:52:46 lwright Exp $
+* $Id: form_section.inc,v 1.40.2.4 2005/09/08 00:13:48 mmcintyre Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.40.2.3 $
+* @version $Revision: 1.40.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -316,6 +316,9 @@ class Form_Section extends Asset
 	{
 		// basically get the parents of the section, and add itself
 		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
+		if (empty($query)) return Array();
+		
+		
 		$queried_parents = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
 		$parents = Array();
 
