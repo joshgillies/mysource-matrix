@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.21 2005/08/22 23:27:55 dmckee Exp $
+* $Id: listing_engine.inc,v 1.38.2.22 2005/09/08 05:36:01 dheppell Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.21 $
+* @version $Revision: 1.38.2.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1047,6 +1047,7 @@ class Listing_Engine extends Page
 			return;
 		}
 
+		$todo = $this->sortAssetList($todo, $this->getSortInfo());
 		foreach ($todo as $index => $value) {
 			if (($remaining_count > 0) && ($remaining_count <= $num_per_page)) {
 				$chunk[$index] = $value;
