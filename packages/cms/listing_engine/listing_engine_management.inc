@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.41 2005/08/16 04:20:43 pgannavarapu Exp $
+* $Id: listing_engine_management.inc,v 1.42 2005/09/09 06:00:30 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -270,7 +270,7 @@ class Listing_Engine_Management extends Asset_Management
 									   );
 
 		$this->vars['structured_dropdown_options'] = Array(
-														'added'			=> '1.0',
+														'added'			=> '0.10',
 														'type'			=> 'serialise',
 														'default'		=> Array(
 																			'name'			=> 'root_node_selection',
@@ -285,7 +285,7 @@ class Listing_Engine_Management extends Asset_Management
 														'description'	=> 'Options for the Structured Drop Down',
 													 );
 		$this->vars['check_boxes'] = Array(
-										'added'			=> '1.0',
+										'added'			=> '0.10',
 										'type'			=> 'boolean',
 										'default'		=> false,
 										'parameters'	=> Array(
@@ -293,14 +293,20 @@ class Listing_Engine_Management extends Asset_Management
 														   ),
 									 );
 
+		$this->vars['other_page_text'] = Array(
+											'added'		=> '0.11',
+											'type'		=> 'text',
+											'default'	=> '[Other]',
+										 );
+
 	}//end constructor
 
 
 	/**
 	* Return an array with information about the events that this page is listening for
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function getEventList()
 	{
@@ -326,8 +332,8 @@ class Listing_Engine_Management extends Asset_Management
 	/**
 	* Gets a list of all files that we want web accessable
 	*
+	* @return array
 	* @access private
-	* @return array(string)
 	*/
 	function _getFileList()
 	{
@@ -381,6 +387,14 @@ class Listing_Engine_Management extends Asset_Management
 	}//end _install()
 
 
+	/**
+	* Upgrade this asset to the most current version
+	*
+	* @param string	$current_version	The version this asset should be upgraded to
+	*
+	* @return boolean
+	* @access public
+	*/
 	function _upgrade($current_version)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -607,6 +621,15 @@ class Listing_Engine_Management extends Asset_Management
 	}//end _upgrade()
 
 
+	/**
+	* Hoard an attribute from another asset type
+	*
+	* @param string	$attr_name	Attribute Name
+	* @param string	$from		Asset type to hoard from
+	*
+	* @return array
+	* @access public
+	*/
 	function _hoardAttribute($attr_name, $from)
 	{
 		if (!$GLOBALS['SQ_SYSTEM']->am->installed($from)) {
@@ -625,6 +648,14 @@ class Listing_Engine_Management extends Asset_Management
 	}//end _hoardAttribute()
 
 
+	/**
+	* Removes attributes from this asset type
+	*
+	* @param array	$attrs	Attributes to remove
+	*
+	* @return boolean
+	* @access public
+	*/
 	function _removeAttributes($attrs)
 	{
 		if (empty($attrs)) return true;
@@ -648,6 +679,14 @@ class Listing_Engine_Management extends Asset_Management
 	}//end _removeAttributes()
 
 
+	/**
+	* Restore attributes
+	*
+	* @param array	$attrs	Attributes to restore
+	*
+	* @return boolean
+	* @access public
+	*/
 	function _restoreAttributes($attrs)
 	{
 		if (empty($attrs)) return true;
