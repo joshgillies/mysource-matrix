@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.45.2.3 2005/09/08 01:20:28 dmckee Exp $
+* $Id: wysiwyg.inc,v 1.45.2.4 2005/09/09 03:17:42 dmckee Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45.2.3 $
+* @version $Revision: 1.45.2.4 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1062,10 +1062,11 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 						'î', 'Ï', 'ï', 'µ', 'Ñ', 'ñ', 'Ò', 'ò', 'Ó', 'ó', 'Ô', 'ô', 'Õ', 'õ', 'Ö', 'ö',
 						'Ø', 'ø', 'ß', 'Þ', 'þ', 'Ù', 'ù', 'Ú', 'ú', 'Û', 'û', 'Ü', 'ü', 'Ý', 'ý', 'ÿ',
 						'¨', '¯', '´', '¸', '¡', '¿', '·', '¦', '«', '»', '¶', '§', '©', '®', '¹', '²',
-						'³', '×', '÷', '¼', '½', '¾', 'ª', 'º', '¬', '°', '±', '¤', '¢', '£', '¥', '?',
-						'ƒ', '?', 'Œ', 'œ', 'Š', 'š', 'Ÿ', 'ˆ', '˜', '–', '—', '†', '‡', '•', '…', '‘',
-						'’', '“', '”', '‹', '›', '™', '?', '?', '?', '?', '?', '?', '?', '?', '‰', '?',
-						'?', '?', '­'
+						'³', '×', '÷', '¼', '½', '¾', 'ª', 'º', '¬', '°', '±', '¤', '¢', '£', '¥', 'sssssdummynotreplacedsssss',
+						'ƒ', 'sssssdummynotreplacedsssss', 'Œ', 'œ', 'Š', 'š', 'Ÿ', 'ˆ', '˜', '–', '—', '†', '‡', '•', '…', '‘',
+						'’', '“', '”', '‹', '›', '™', 'sssssdummynotreplacedsssss', 'sssssdummynotreplacedsssss', 'sssssdummynotreplacedsssss',
+						'sssssdummynotreplacedsssss', 'sssssdummynotreplacedsssss', 'sssssdummynotreplacedsssss', 'sssssdummynotreplacedsssss',
+						'sssssdummynotreplacedsssss', '‰', 'sssssdummynotreplacedsssss', 'sssssdummynotreplacedsssss', 'sssssdummynotreplacedsssss', '­'
 					);
 
 					var replacements = new Array(
