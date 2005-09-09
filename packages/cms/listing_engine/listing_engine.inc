@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.91 2005/09/08 04:27:55 arailean Exp $
+* $Id: listing_engine.inc,v 1.92 2005/09/09 06:07:16 arailean Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -867,61 +867,58 @@ class Listing_Engine extends Page
 
 
 			case 'letter' :
-				// other stuff here refers to the situation where there are assets to list that do not start with A-Z
-				// currently 'other_letter' stuff is hardcoded, but can be parametrised later
-				// progression ideas: make 'other' links appear only when there is OTHER stuff
+				// other letter here refers to the situation where there are assets to list that do not start with A-Z
+				$other_letter_value = $this->attr('other_page_text');
+
+				// '@' symbol is chosen here out of the blue, this is used only as a value of the request var
 				$other_letter = '@';
-				$other_letter_ascii = 91;
+				foreach (range('A','Z') as $one_letter) {
+					$all_letters[$one_letter] = $one_letter;
+				}
+
 				foreach ($children as $childid => $data) {
 					$letter = strtoupper($data['first_letter']);
-					$letter_ascii = ord($letter);
-					if ($letter_ascii < 65 || $letter_ascii > 90) {
-						$letter_ascii = $other_letter_ascii;
+					if (!isset($all_letters[$letter])) {
 						$letter = $other_letter;
 					}
-					$letters[$letter_ascii] = $letter_ascii;
 					$todo[$letter][$childid] = $data['type_code'];
 				}
 
-				ksort($letters);
-				$letter_sequence = array_keys($letters);
-				reset($letters);
-				$first_available_letter = key($letters);
+				// 'other' letter is only displayed if there are assets that start with non A-Z chars
+				if (isset($todo[$other_letter])) {
+					$all_letters[$other_letter] = $other_letter_value;
+				}
 
-				$result_page = array_get_index($_REQUEST, 'result_page');
-
-				// by default, result letter is the first letter
-				if (!empty($result_page)) {
-					if ($result_page == $other_letter) {
-						$result_page_letter = $other_letter_ascii;
-						$current_letter = $other_letter;
-					} else {
-						$result_page_letter = ord($result_page);
-						$current_letter = $result_page;
+				// here we generate a list of only active letters
+				$letters = Array();
+				foreach ($all_letters as $one_letter => $text) {
+					if (isset($todo[$one_letter])) {
+						$letters[] = $one_letter;
 					}
 				}
 
-				if (empty($result_page_letter) || empty($letters[$result_page_letter])) {
-					$result_page_letter = $first_available_letter;
-					$current_letter = chr($first_available_letter);
+				$first_available_letter = $letters[0];
+
+				$result_page = array_get_index($_REQUEST, 'result_page', $first_available_letter);
+
+				// by default, result letter is the first letter
+				if (!isset($todo[$result_page])) {
+					$result_page = $first_available_letter;
 				}
 
-				$this_letter_key = array_search($result_page_letter, $letter_sequence);
+				$this_letter_key = array_search($result_page, $letters);
 
 				// previous page link
 				$prev_page_text = $this->attr('prev_page_text');
-				if ($result_page_letter > $first_available_letter) {
-					$previous_page_letter = $letter_sequence[$this_letter_key-1];
-					$prev_page_text = '<a href="'.replace_query_string_vars(Array('result_page' => chr($previous_page_letter))).'">'.$prev_page_text.'</a>';
+				if ($this_letter_key > 0) {
+					$prev_page_text = '<a href="'.replace_query_string_vars(Array('result_page' => $letters[$this_letter_key - 1])).'">'.$prev_page_text.'</a>';
 				}
 				$replacements['previous_page'] = $prev_page_text;
 
 				// next page link
 				$next_page_text = $this->attr('next_page_text');
-				if ($result_page_letter < end($letter_sequence)) {
-					$next_page_letter = $letter_sequence[$this_letter_key + 1];
-					$next_letter_char = ($next_page_letter < $other_letter_ascii)? chr($next_page_letter): $other_letter;
-					$next_page_text = '<a href="'.replace_query_string_vars(Array('result_page' => $next_letter_char)).'">'.$next_page_text.'</a>';
+				if ($this_letter_key < (sizeof($letters) - 1)) {
+					$next_page_text = '<a href="'.replace_query_string_vars(Array('result_page' => $letters[$this_letter_key + 1])).'">'.$next_page_text.'</a>';
 				}
 				$replacements['next_page'] = $next_page_text;
 
@@ -930,19 +927,15 @@ class Listing_Engine extends Page
 
 				// list of pages and links to them
 				$page_list = '';
-				$letter_range = range('A','Z');
-				if (isset($todo[$other_letter])) {
-					$letter_range[] = $other_letter;
-				}
-				foreach ($letter_range as $one_letter) {
+				foreach ($all_letters as $one_letter => $text_value) {
 					if (isset($todo[$one_letter])) {
-						$page_list .= ' <a href="'.replace_query_string_vars(Array('result_page' => $one_letter)).'">'.$one_letter.'</a> ';
+						$page_list .= ' <a href="'.replace_query_string_vars(Array('result_page' => $one_letter)).'">'.$text_value.'</a> ';
 					} else {
-						$page_list .= ' '.$one_letter.' ';
+						$page_list .= ' '.$text_value.' ';
 					}
 				}
 
-				$todo = $todo[$current_letter];
+				$todo = $todo[$result_page];
 				$replacements['page_list'] = $page_list;
 
 			break;
@@ -972,8 +965,7 @@ class Listing_Engine extends Page
 			break;
 
 			case 'grouped' :
-				//we need to do an element count so we can work out the page
-				//stuff
+				//we need to do an element count so we can work out the page stuff
 				$total_assets = $this->_arrayCountRecursive($children, count($this->attr('asset_grouping')));
 				$count = $num_per_page * $result_page;
 
