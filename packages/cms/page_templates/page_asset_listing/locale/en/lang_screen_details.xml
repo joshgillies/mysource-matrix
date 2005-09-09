@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.9 2005/08/04 23:02:08 dmckee Exp $
+* $Id: lang_screen_details.xml,v 1.10 2005/09/09 06:10:06 arailean Exp $
 *
 */
 -->
@@ -34,39 +34,7 @@
 			<note />
 		</field>
 	</section>
-	<section name="List Settings">
-		<field>
-			<display_name>Root Nodes</display_name>
-			<note>Leave blank to list the sub assets/children of this asset listing page</note>
-			<function_call>
-				<paint_function   name="paintRootNode"  />
-				<process_function name="processRootNode" />
-			</function_call>
-		</field>
-		<field attribute="subs_only">
-			<display_name>Direct Links Only</display_name>
-			<note>If set to 'Yes', only directly linked assets of the root node will be printed (direct parents or children). Otherwise, all assets above or below the root node will be printed.</note>
-		</field>
-		<field attribute="direction">
-			<display_name>Lookup Direction</display_name>
-			<note>Select 'Up the tree' to list assets above the root nodes, or 'Down the tree' to list assets below.</note>
-		</field>
-		<field attribute="group_by">
-			<display_name>List Format</display_name>
-			<note>A standard list displays all assets on a single page or can be broken up into multiple pages.
-			&lt;br/&gt;An A-Z listing displays assets grouped by the first letter of their name or short name, as defined by the 'Sort By' field.
-			&lt;br/&gt;A Random listing displays one or more assets in random order.
-			&lt;br/&gt;Custom Grouping allows a list based on user specifed grouping conditions.
-			</note>
-		</field>
-		<field attribute="prev_page_text">
-			<display_name>Previous Link</display_name>
-			<note>This is the text that will be printed to link to the previous results page</note>
-		</field>
-		<field attribute="next_page_text">
-			<display_name>Next Link</display_name>
-			<note>This is the text that will be printed to link to the next results page</note>
-		</field>
+	<section name="Asset Selection" write_access="write:content">
 		<field>
 			<display_name>Asset Types to List</display_name>
 			<note></note>
@@ -83,10 +51,50 @@
 			<display_name>Asset Statuses to List</display_name>
 			<note>Assets will only be shown if their status is listed here</note>
 		</field>
+	</section>
+	<section name="Asset Locations" write_access="write:content">
+		<field>
+			<display_name>Root Nodes</display_name>
+			<note>Leave blank to list the sub assets/children of this asset listing page</note>
+			<function_call>
+				<paint_function   name="paintRootNode"  />
+				<process_function name="processRootNode" />
+			</function_call>
+		</field>
+		<field attribute="subs_only">
+			<display_name>Direct Links Only</display_name>
+			<note>If set to 'Yes', only directly linked assets of the root node will be printed (direct parents or children). Otherwise, all assets above or below the root node will be printed.</note>
+		</field>
+		<field attribute="direction">
+			<display_name>Lookup Direction</display_name>
+			<note>Select 'Up the tree' to list assets above the root nodes, or 'Down the tree' to list assets below.</note>
+		</field>
+	</section>
+	<section name="List Formatting">
+		<field attribute="group_by">
+			<display_name>List Format</display_name>
+			<note>A standard list displays all assets on a single page or can be broken up into multiple pages.
+			&lt;br/&gt;An A-Z listing displays assets grouped by the first letter of their name or short name, as defined by the 'Sort By' field.
+			&lt;br/&gt;A Random listing displays one or more assets in random order.
+			&lt;br/&gt;Custom Grouping allows a list based on user specifed grouping conditions.
+			</note>
+		</field>
 		<field attribute="num_per_page">
 			<display_name>Assets Per Page</display_name>
 			<note>Set to '0' (zero) to list all assets on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard or custom grouping list formats..
 			&lt;br/&gt;If the listing type is Random, this defines how many assets are randomly displayed ('0' displays a single asset).</note>
+		</field>
+		<field attribute="prev_page_text">
+			<display_name>Previous Link</display_name>
+			<note>This is the text that will be printed to link to the previous results page</note>
+		</field>
+		<field attribute="next_page_text">
+			<display_name>Next Link</display_name>
+			<note>This is the text that will be printed to link to the next results page</note>
+		</field>
+		<field attribute="other_page_text">
+			<display_name>Non A-Z page text</display_name>
+			<note>Link text to a page containg assets in the A-Z list format which do not begin with A-Z, i.e. numbers or other characters</note>
 		</field>
 	</section>
 	<section name="List Position Settings">

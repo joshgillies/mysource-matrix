@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.42 2005/09/06 01:29:53 arailean Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.43 2005/09/09 06:10:06 arailean Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2916,6 +2916,24 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		return true;
 
 	}//end processStructuredDropdownOptions()
+
+
+	/**
+	* Returns true if this is A-Z listing format
+	*
+	* Even though it looks trivial, this is required to perfom some show_if checks on the backend edit interface
+	*
+	* @param object	&$asset	The asset that we are using for this interface
+	* @param string	$prefix	the prefix for this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isAZListing(&$asset, $prefix)
+	{
+		return ($asset->attr('group_by') == 'letter');
+
+	}//end isAZListing()
 
 
 }//end class

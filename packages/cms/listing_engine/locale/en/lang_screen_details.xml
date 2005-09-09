@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.9 2005/07/21 23:41:18 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.10 2005/09/09 06:10:06 arailean Exp $
 *
 */
 -->
@@ -34,7 +34,15 @@
 			<note />
 		</field>
 	</section>
-	<section name="List Settings">
+	<section name="Asset Selection">
+		<field>
+			<display_name>Asset Types to List</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintAssetTypes"   />
+				<process_function name="processAssetTypes" />
+			</function_call>
+		</field>
 		<field>
 			<display_name>Root Nodes</display_name>
 			<note>Leave blank to list the sub assets/children of this asset listing page</note>
@@ -51,6 +59,8 @@
 			<display_name>Lookup Direction</display_name>
 			<note>Select 'Up the tree' to list assets above the root nodes, or 'Down the tree' to list assets below.</note>
 		</field>
+	</section>
+	<section name="List Settings">
 		<field attribute="group_by">
 			<display_name>List Format</display_name>
 			<note>A standard list displays all assets on a single page or can be broken up into multiple pages.
@@ -58,14 +68,6 @@
 			&lt;br/&gt;A Random listing displays one or more assets in random order.
 			&lt;br/&gt;Custom Grouping allows a list based on user specifed grouping conditions.
 			</note>
-		</field>
-		<field>
-			<display_name>Asset Types to List</display_name>
-			<note></note>
-			<function_call>
-				<paint_function   name="paintAssetTypes"   />
-				<process_function name="processAssetTypes" />
-			</function_call>
 		</field>
 		<field attribute="num_per_page">
 			<display_name>Assets Per Page</display_name>

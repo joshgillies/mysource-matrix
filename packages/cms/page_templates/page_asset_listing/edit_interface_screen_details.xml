@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.24 2005/08/04 23:02:08 dmckee Exp $
+* $Id: edit_interface_screen_details.xml,v 1.25 2005/09/09 06:10:06 arailean Exp $
 *
 */
 -->
@@ -32,28 +32,7 @@
 			<text width="25" height="1" />
 		</field>
 	</section>
-	<section name="List Settings" write_access="write:content">
-		<field>
-			<function_call>
-				<paint_function   name="paintRootNode"  />
-				<process_function name="processRootNode" />
-			</function_call>
-		</field>
-		<field attribute="subs_only">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="direction">
-			<selection style="list" />
-		</field>
-		<field attribute="group_by">
-			<selection style="list" />
-		</field>
-		<field attribute="prev_page_text">
-			<text width="30" />
-		</field>
-		<field attribute="next_page_text">
-			<text width="30" />
-		</field>
+	<section name="Asset Selection" write_access="write:content">
 		<field>
 			<function_call>
 				<paint_function   name="paintAssetTypes"   />
@@ -66,9 +45,37 @@
 				<process_function name="processStatus" />
 			</function_call>
 		</field>
+	</section>
+	<section name="Asset Locations" write_access="write:content">
+		<field>
+			<function_call>
+				<paint_function   name="paintRootNode"  />
+				<process_function name="processRootNode" />
+			</function_call>
+		</field>
+		<field attribute="subs_only">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="direction">
+			<selection style="list" />
+		</field>
+	</section>
+	<section name="List Formatting" write_access="write:content">
+		<field attribute="group_by">
+			<selection style="list" />
+		</field>
 		<field attribute="num_per_page">
 			<display_name>Assets Per Page</display_name>
 			<int width="5" />
+		</field>
+		<field attribute="prev_page_text">
+			<text width="30" />
+		</field>
+		<field attribute="next_page_text">
+			<text width="30" />
+		</field>
+		<field attribute="other_page_text" show_if="isAZListing">
+			<text width="30" />
 		</field>
 	</section>
 	<section name="List Position Settings" write_access="write:attributes">
