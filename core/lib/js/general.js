@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.js,v 1.14 2005/07/13 00:18:11 lwright Exp $
+* $Id: general.js,v 1.15 2005/09/09 01:02:31 ndvries Exp $
 *
 */
 
@@ -148,8 +148,16 @@ function img_roll(id, src) {
 }// end img_roll()
 
 
- ///////////////////////////////////////////////////////
-// check all checkboxes that match a certain name
+/*
+* Check all checkboxes that match a certain name. This is usually added to the
+* onClick event of a "Check All" style checkbox
+*
+* @param HTMLFormElement	f			the form that the checkbox is in
+* @param string				match_name	regular expression matching the controlled checkboxes
+* @param boolean			on			the checked state of the check all checkbox
+*
+* @return null
+*/
 function check_all(f, match_name, on) {
 	re = new RegExp(match_name);
 	for(i=0; i < f.elements.length; i++){
@@ -157,9 +165,33 @@ function check_all(f, match_name, on) {
 			f.elements[i].checked = on;
 		}
 	}
+
 }//end check_all()
 
 
+/*
+* Add this function to the onClick event of all checkboxes controlled by a
+* "check all" checkbox
+*
+* @param HTMLFormElement	f			the form that the checkbox is in
+* @param string				match_name	regular expression matching the controlled checkboxes
+* @param string				dec_point	elementID of the "check all" checkbox
+*
+* @return null
+*/
+function update_checked(f, match_name, check_all_id) {
+	var all_checked = true;
+	re = new RegExp(match_name);
+	for (i=0; i < f.elements.length; i++){
+		if (re.test(f.elements[i].name)) {
+			if (f.elements[i].checked == false) {
+				all_checked = false;
+			}
+		}
+	}
+	document.getElementById(check_all_id).checked = all_checked;
+
+}//end update_checked()
 
 /*
 * format a number into a string to the specified number of decimal places
