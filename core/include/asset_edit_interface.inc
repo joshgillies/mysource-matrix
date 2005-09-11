@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.277 2005/09/08 02:34:45 ndvries Exp $
+* $Id: asset_edit_interface.inc,v 1.278 2005/09/11 23:18:28 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.277 $
+* @version $Revision: 1.278 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1303,6 +1303,10 @@ class Asset_Edit_Interface extends MySource_Object
 
 		// turn buffering back on so the output is not malformed
 		$o->setBuffering(true);
+
+		if (!$print_commit_button) {
+			$this->_tmp['layout_keyword_replacements']['commit_button'] = '';
+		}
 
 		// tell the layout what the keyword replacements are
 		$layout->setKeywordReplacements($this->_tmp['layout_keyword_replacements']);
