@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.75 2005/08/29 05:06:43 dmckee Exp $
+* $Id: search_manager.inc,v 1.76 2005/09/12 01:23:58 mmcintyre Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -377,6 +377,14 @@ class Search_Manager extends Asset
 
 			$comp_name = 'attr:'.$var_name;
 
+			// if the type is text and its just a number representation
+			// index the number as a whole (remove spaces so that the number does
+			// not get indexed as two seperate entries)
+
+			if ($var_data['type'] == 'text') {
+				$value = $this->_getRawNumberInText($value);
+			}
+
 			foreach (get_word_counts($value) as $word => $count) {
 				$index_content[] = Array(
 									'value'		=> $word,
@@ -426,6 +434,7 @@ class Search_Manager extends Asset
 				break;
 
 				case 'text':
+
 					// filter noise words
 					if (!$this->isWordIndexable($value)) continue 2; //continue the foreach loop
 
@@ -612,6 +621,36 @@ class Search_Manager extends Asset
 	}//end isWordIndexable()
 
 
+	/**
+	* Checks to see if the specified text is just a number representation.
+	*
+	* If the text is just a number representation, the number is returned with its
+	* spaces and delimiters stripped, otherwise the string is returned unchanged
+	*
+	* @param string	$value	the text to check
+	*
+	* @return string
+	* @access private
+	*/
+	function _getRawNumberInText($value)
+	{
+		// check to see if this value is a raw number
+		if (!preg_match('/[a-zA-Z]+/', $value)) {
+			$pattern = Array(',', '+');
+			$new_value = str_replace($pattern, '', $value);
+			$new_value = preg_replace('/\s+/', '', $new_value);
+
+			// if after removal of whitespace and , and + characters
+			// this is just a raw number, index it without spaces
+			if (preg_match('/^\d+$/', $new_value)) {
+				$value = $new_value;
+			}
+		}
+		return $value;
+
+	}//end _checkRawNumberInText()
+
+
 //--        METADATA INDEXING        --//
 
 
@@ -680,6 +719,8 @@ class Search_Manager extends Asset
 		$metadata = $mm->getMetadata($asset->id);
 		foreach ($fieldids as $fieldid => $field_type) {
 
+			$this->flushIndexableContent($asset->id, 'metadata:'.$fieldid);
+
 			// dont index this fieldid if getMetadataWeighting return false
 			if (false === ($weighting = $this->getMetadataWeighting($asset->id, $fieldid))) {
 				continue;
@@ -708,6 +749,10 @@ class Search_Manager extends Asset
 									'score'		=> $weighting,
 								   );
 			} else {
+
+				$keywords = retrieve_keywords_replacements($value, '.');
+				$value = replace_keywords($value, $mm->generateKeywordReplacements($asset, $keywords, false));
+
 				switch ($field_type) {
 					case 'metadata_field_select':
 						$key_type = 'selection';
@@ -719,13 +764,10 @@ class Search_Manager extends Asset
 
 					default:
 						$key_type = 'text';
+						$value = $this->_getRawNumberInText($value);
 				}
 
-				$keywords = retrieve_keywords_replacements($value, '.');
-				$value = replace_keywords($value, $mm->generateKeywordReplacements($asset, $keywords, false));
-
 				$word_counts = get_word_counts(strtolower($value));
-
 
 				foreach ($word_counts as $word => $count) {
 					$index_content[] = Array(
@@ -853,6 +895,8 @@ class Search_Manager extends Asset
 							'Asset'		=> $assetid,
 							'AssetTree'	=> $assetid,
 							'AssetType'	=> $type_code,
+							// also check the global metadata weightings
+							'AssetTree'	=> $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder'),
 						  );
 
 		foreach ($weight_sources as $type => $key) {
@@ -919,9 +963,8 @@ class Search_Manager extends Asset
 							}
 						}
 					}
-					if (!$index) return false;
-					if ($highest_weight != -1) return $highest_weight;
-
+					if (!$index && $highest_weight !== -1) return false;
+					if ($highest_weight !== -1) return $highest_weight;
 				}
 			}
 		}
@@ -1026,9 +1069,11 @@ class Search_Manager extends Asset
 								$type_hier = Array($type_code);
 							}
 							foreach ($type_hier as $type_code) {
-								if (in_array($type_code, array_keys($asset_tree_weightings[$parentid]['type_weights']))) {
-									$closest_parentid = $parentid;
-									break;
+								if (isset($asset_tree_weightings[$parentid]['type_weights'])) {
+									if (in_array($type_code, array_keys($asset_tree_weightings[$parentid]['type_weights']))) {
+										$closest_parentid = $parentid;
+										break;
+									}
 								}
 							}
 						}
@@ -1525,6 +1570,8 @@ class Search_Manager extends Asset
 		} else {
 			// remove unindexable words
 			$words = Array();
+			$field_details['words'] = $this->_getRawNumberInText($field_details['words']);
+
 			foreach ($this->generateWordList($field_details['words']) as $word) {
 				if ($this->isWordIndexable($word)) $words[] = $word;
 			}
@@ -1608,6 +1655,7 @@ class Search_Manager extends Asset
 			} else {
 				$result = $db->getAssoc($sql);
 			}
+
 			assert_valid_db_result($result);
 			$r = $this->_tmp['cm']->saveToCache($this->id, $this->type(), $cache_key, serialize($result));
 			assert_valid_cache_result($r);
