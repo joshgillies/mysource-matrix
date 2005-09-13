@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step.inc,v 1.9 2005/01/20 13:07:40 brobertson Exp $
+* $Id: workflow_step.inc,v 1.10 2005/09/13 07:39:53 rhoward Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Workflow_Step extends Folder
 {
+
 
 	/**
 	* Constructor
@@ -60,11 +61,17 @@ class Workflow_Step extends Folder
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array('workflow_step_condition' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_3 => Array(),
-					 SQ_LINK_NOTICE => Array()
-					);
+		return Array(
+				SQ_LINK_TYPE_1	=> Array(),
+				SQ_LINK_TYPE_2	=> Array(
+									'workflow_step_condition'	=> Array(
+																	'card'		=> 'M',
+																	'exclusive'	=> false,
+																   ),
+								   ),
+				SQ_LINK_TYPE_3	=> Array(),
+				SQ_LINK_NOTICE	=> Array(),
+			   );
 
 	}//end _getAllowedLinks()
 

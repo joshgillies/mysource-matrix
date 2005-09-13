@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema.inc,v 1.10 2005/01/20 13:07:40 brobertson Exp $
+* $Id: workflow_schema.inc,v 1.11 2005/09/13 07:39:53 rhoward Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Workflow_Schema extends Folder
 {
+
 
 	/**
 	* Constructor
@@ -74,11 +75,17 @@ class Workflow_Schema extends Folder
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array('workflow_step' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_3 => Array(),
-					 SQ_LINK_NOTICE => Array()
-					);
+		return Array(
+				SQ_LINK_TYPE_1	=> Array(),
+				SQ_LINK_TYPE_2	=> Array(
+									'workflow_step'	=> Array(
+														'card'		=> 'M',
+														'exclusive'	=> false,
+													   ),
+								   ),
+				SQ_LINK_TYPE_3	=> Array(),
+				SQ_LINK_NOTICE	=> Array(),
+			   );
 
 	}//end _getAllowedLinks()
 

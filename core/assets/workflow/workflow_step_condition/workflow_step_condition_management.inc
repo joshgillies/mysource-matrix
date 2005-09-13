@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_management.inc,v 1.11 2005/01/20 13:07:40 brobertson Exp $
+* $Id: workflow_step_condition_management.inc,v 1.12 2005/09/13 07:39:54 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,30 +48,38 @@ class Workflow_Step_Condition_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'userid'	=>  Array (
-												'added'   => '0.1',
-												'type'    => 'assetid',
-												'default' => 0,
-												),
-							'logic'		=>  Array (
-												'added'   => '0.1',
-												'type'    => 'text',
-												'default' => '>=',
-												),
-							'logic_num'	=> Array (
-												'added'   => '0.1',
-												'type'    => 'int',
-												'default' => 1,
-												),
-							'notify'	=> Array (
-												'added'   => '0.2',
-												'type'    => 'boolean',
-												'default' => false,
-												'parameters' => Array(
-													'allow_empty' => false,
-													)
-												),
-							);
+						'userid'			=> Array (
+												'added'		=> '0.1',
+												'type'		=> 'assetid',
+												'default'	=> 0,
+											   ),
+						'logic'				=> Array (
+												'added'		=> '0.1',
+												'type'		=> 'text',
+												'default'	=> '>=',
+											   ),
+						'logic_num'			=> Array (
+												'added'		=> '0.1',
+												'type'		=> 'int',
+												'default'	=> 1,
+											   ),
+						'notify'			=> Array (
+												'added'			=> '0.2',
+												'type'			=> 'boolean',
+												'default'		=> false,
+												'parameters'	=> Array(
+																	'allow_empty'	=> false,
+																   ),
+											   ),
+						'require_comment'	=> Array (
+												'added'			=> '0.3',
+												'type'			=> 'boolean',
+												'default'		=> false,
+												'parameters'	=> Array(
+																	'allow_empty'	=> false,
+																   ),
+											   ),
+					  );
 
 	}//end constructor
 

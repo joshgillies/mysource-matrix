@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition.inc,v 1.7 2004/12/06 14:38:11 brobertson Exp $
+* $Id: workflow_step_condition.inc,v 1.8 2005/09/13 07:39:54 rhoward Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Workflow_Step_Condition extends Asset
 {
+
 
 	/**
 	* Constructor
@@ -75,11 +76,12 @@ class Workflow_Step_Condition extends Asset
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array(),
-					 SQ_LINK_TYPE_3 => Array(),
-					 SQ_LINK_NOTICE => Array()
-					);
+		return Array(
+				SQ_LINK_TYPE_1	=> Array(),
+				SQ_LINK_TYPE_2	=> Array(),
+				SQ_LINK_TYPE_3	=> Array(),
+				SQ_LINK_NOTICE	=> Array(),
+			   );
 
 	}//end _getAllowedLinks()
 

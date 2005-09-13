@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.25 2005/05/11 06:28:19 dmckee Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.26 2005/09/13 07:39:53 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,7 +78,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			if (!$write_access) {
 				echo '<i>'.$wfm->_valid_step_logic[$step_logic];
 				if ($step_logic_num) {
-					echo " $step_logic_num condition".(($step_logic_num > 1) ? 's' : '')." must be met</i>";
+					echo ' '.$step_logic_num.' condition'.(($step_logic_num > 1) ? 's' : '').' must be met</i>';
 				}
 			} else {
 				combo_box($prefix.'_logic', $wfm->_valid_step_logic, false, $step_logic);
@@ -96,6 +96,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 					<tr>
 						<td class="sq-backend-table-header">&nbsp;</td>
 						<td class="sq-backend-table-header"><?php echo translate('notify_when_live'); ?></td>
+						<td class="sq-backend-table-header"><?php echo translate('require_comment'); ?></td>
 						<td class="sq-backend-table-header" width="270"><?php echo translate('group_logic'); ?></td>
 						<?php
 						if ($write_access) {
@@ -134,8 +135,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			$o->note(translate('step_not_completed_in_time_explanation'));
 		$o->closeField();
 
-
-		return true;
+		return $write_access;
 
 	}//end paintStep()
 

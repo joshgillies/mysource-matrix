@@ -18,18 +18,18 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.29 2005/09/08 04:16:52 lwright Exp $
+* $Id: workflow.inc,v 1.30 2005/09/13 07:39:53 rhoward Exp $
 *
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once DIRNAME(__FILE__).'/details.inc';
 
-/**a
+/**
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 */
 
@@ -227,7 +227,13 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 							}
 
 							text_area($prefix.'_workflow_new_log_message', '', 60, 6);
-							echo '<br/>'.translate('workflow_enter_reason_for_decision');
+							echo '<br/>';
+
+							if ($wfm->requiresComment($owner->id, $GLOBALS['SQ_SYSTEM']->user->id)) {
+								echo translate('workflow_must_enter_reason_for_decision');
+							} else {
+								echo translate('workflow_may_enter_reason_for_decision');
+							}
 
 							// if there is a keyword replacement for this, add it to the replacements
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_log_message'])) {
@@ -252,7 +258,12 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 								ob_start();
 							}
 
-							normal_button($prefix.'_workflow_status_update', translate('commit_button'), 'submit_form()');
+							$require_comment = $wfm->requiresComment($owner->id, $GLOBALS['SQ_SYSTEM']->user->id);
+							$button_js = 'submit_form()';
+							if ($require_comment) {
+								$button_js = "elt = document.getElementById('".$prefix."_workflow_new_log_message'); if (elt && elt.value.replace(".'/^\s+|\s+$/g'.", '').length == 0) alert(js_translate('must_enter_comment_error')); else submit_form();";
+							}
+							normal_button($prefix.'_workflow_status_update', translate('commit_button'), $button_js);
 
 							// if there is a keyword replacement for this, add it to the replacements
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_status_commit'])) {
@@ -766,35 +777,33 @@ function processWorkflow(&$owner, &$o, &$ei)
 	// process a status change on this screen if workflow is running
 	$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 	$running_schemas = $wfm->getSchemas($owner->id, true, true);
-	if (!empty($running_schemas)) {
+
+	// has a message been entered?
+	$message_body = '';
+	if (isset($_POST[$prefix.'_workflow_new_log_message'])) {
+		$message_body = trim($_POST[$prefix.'_workflow_new_log_message']);
+	}
+
+	// are comments required?
+	$require_comment = $wfm->requiresComment($owner->id, $GLOBALS['SQ_SYSTEM']->user->id);
+
+	// process the status, but only if the required comment conditions are met
+	if (!empty($running_schemas) && !($require_comment && empty($message_body))) {
 		_processStatusChange($owner, $o, $prefix);
 		$updated = true;
 	}
 
-	// first we need to process any messages that may have been submitted
-	if (isset($_POST[$prefix.'_workflow_new_log_message'])) {
-		$message_body = trim($_POST[$prefix.'_workflow_new_log_message']);
-		if (!empty($message_body)) {
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$msg_reps = Array(
-							'message'	=> $message_body,
-						);
-			$message = $ms->newMessage(Array(), 'asset.workflow.userlog', $msg_reps);
-			$message->parameters['assetid'] = $owner->id;
-			$message->parameters['version'] = substr($owner->version, 0, strrpos($owner->version, '.'));
-			$message->send();
-
-			$updated = true;
-		}
-	}
-
-	// from here on in, if we dont have admin access - piss off
-	if ($owner->id && !$owner->adminAccess('')) {
-		if (!$updated) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
-			exit();
-		}
-		return $updated;
+	// process any messages that may have been submitted
+	if (!empty($message_body)) {
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$msg_reps = Array(
+						'message'	=> $message_body,
+					);
+		$message = $ms->newMessage(Array(), 'asset.workflow.userlog', $msg_reps);
+		$message->parameters['assetid'] = $owner->id;
+		$message->parameters['version'] = substr($owner->version, 0, strrpos($owner->version, '.'));
+		$message->send();
+		$updated = true;
 	}
 
 	// if we dont have admin access, dont process anything

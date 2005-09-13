@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.20 2005/05/11 06:05:06 lwright Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.21 2005/09/13 07:39:53 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -209,8 +209,12 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 			if (is_null($step)) continue;
 			$edit_fns = $step->getEditFns();
 			$workflow_array['steps'][$i] = Array();
-			if (!$edit_fns->generateWorkflowArray($step, $workflow_array['steps'][$i])) return false;
-			if ($i == 1) $workflow_array['steps'][$i]['started'] = time();
+			if (!$edit_fns->generateWorkflowArray($step, $workflow_array['steps'][$i])) {
+				return false;
+			}
+			if ($i == 1) {
+				$workflow_array['steps'][$i]['started'] = time();
+			}
 			$i++;
 		}
 		return $workflow_array;

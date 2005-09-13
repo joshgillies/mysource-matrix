@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.76 2005/09/06 00:08:30 lwright Exp $
+* $Id: workflow_manager.inc,v 1.77 2005/09/13 07:39:53 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -512,6 +512,56 @@ class Workflow_Manager extends MySource_Object
 		return true;
 
 	}//end notifyOnLive()
+
+
+	/**
+	* Determines whether commenting is mandatory for a particular user
+	*
+	* @param string		$assetid	the ID of the asset to check
+	* @param string		$userid		the ID of the user to check
+	* @param string		$mode		either 'approval' or 'rejection'
+	*
+	* @return boolean
+	* @access public
+	*/
+	function requiresComment($assetid, $userid)
+	{
+		// TODO: Does this apply to us?
+		if ($this->silentWorkflowParty($assetid)) return true;
+
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) {
+			// TODO: Check error
+			trigger_localised_error('SYS0180', E_USER_WARNING, $assetid);
+			return false;
+		}
+
+		// if there are no workflows, we dont notify anyone
+		$schemas = $this->getSchemas($assetid, true);
+		if (empty($schemas)) return true;
+
+		// these will be the people who to notify (some may be groups)
+		$require_comment = false;
+
+		foreach ($schemas as $schemaid) {
+			$conditions = $GLOBALS['SQ_SYSTEM']->am->getChildren($schemaid, 'workflow_step_condition');
+			foreach ($conditions as $cond_id => $type_code) {
+				// checks whether this step requires a comment
+				$condition = &$GLOBALS['SQ_SYSTEM']->am->getAsset($cond_id, 'workflow_step_condition');
+				if (is_null($condition)) continue;
+				if ($condition->attr('require_comment')) {
+					if ($condition->attr('userid') == $userid) {
+						$require_comment = true;
+					}
+				}
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($condition);
+				if ($require_comment) break;
+			}
+		}
+
+		return $require_comment;
+
+	}//end requiresComment()
 
 
 	/**

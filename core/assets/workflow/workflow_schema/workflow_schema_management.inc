@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_management.inc,v 1.6 2005/01/20 13:07:40 brobertson Exp $
+* $Id: workflow_schema_management.inc,v 1.7 2005/09/13 07:39:53 rhoward Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Workflow_Schema_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -46,12 +47,16 @@ class Workflow_Schema_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('name' => Array(
-											'added'     => '0.1',
-											'type'      => 'text', 'default'   => ''
-											)
-							);
+		$this->vars = Array(
+						'name'	=> Array(
+									'added'		=> '0.1',
+									'type'		=> 'text',
+									'default'	=> '',
+								   ),
+					  );
+
 	}//end constructor
+
 
 }//end class
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_edit_fns.inc,v 1.17 2005/05/31 06:50:20 rhoward Exp $
+* $Id: workflow_step_condition_edit_fns.inc,v 1.18 2005/09/13 07:39:54 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -91,13 +91,25 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 		</td>
 		<td class="sq-backend-table-cell">
 			<?php
+			$require_comment = $asset->attr('require_comment');
+			if (!$write_access) {
+				echo ($require_comment) ? translate('yes') : translate('no');
+			} else {
+				check_box($prefix.'_require_comment', '1', $require_comment);
+			}
+			?>
+		</td>
+		<td class="sq-backend-table-cell">
+			<?php
 			if (!$write_access) {
 				if (is_a($user, 'user')) {
 					echo '&nbsp;';
 				} else {
 					if (isset($wfm->_valid_cond_logic[$cond_logic])) {
 						echo '<i>'.$wfm->_valid_cond_logic[$cond_logic];
-						if ($cond_logic_num) echo " $cond_logic_num group member".(($cond_logic_num > 1) ? 's' : '')." must approve</i>";
+						if ($cond_logic_num) {
+							echo ' '.$cond_logic_num.' group member'.(($cond_logic_num > 1) ? 's' : '').' must approve</i>';
+						}
 					}
 				}
 			} else {
@@ -160,6 +172,12 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 
 		$notify = (bool) array_get_index($_POST, $prefix.'_notify', false);
 		if (!$asset->setAttrValue('notify', $notify)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$require_comment = (bool) array_get_index($_POST, $prefix.'_require_comment', false);
+		if (!$asset->setAttrValue('require_comment', $require_comment)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
