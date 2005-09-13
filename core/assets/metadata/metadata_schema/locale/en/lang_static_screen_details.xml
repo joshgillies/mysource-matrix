@@ -18,9 +18,19 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_static_screen_details.xml,v 1.1 2005/03/30 00:39:49 lwright Exp $
+* $Id: lang_static_screen_details.xml,v 1.2 2005/09/13 07:03:22 rong Exp $
 *
 */
 -->
-
-<contents />
+<contents>
+	<section name="Status">
+		<field code="status_current">
+			<display_name>Current</display_name>
+			<note />
+		</field>
+		<field code="status_change">
+			<display_name>Change ?</display_name>
+			<note />
+		</field>
+	</section>
+</contents>

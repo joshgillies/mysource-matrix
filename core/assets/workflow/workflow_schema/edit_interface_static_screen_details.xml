@@ -18,9 +18,14 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_static_screen_details.xml,v 1.2 2005/01/20 13:07:40 brobertson Exp $
+* $Id: edit_interface_static_screen_details.xml,v 1.3 2005/09/13 07:03:23 rong Exp $
 *
 */
 -->
 
-<contents />
+<contents>
+	<section name="Status">
+		<field code="status_current" />
+		<field code="status_change" />
+	</section>
+</contents>
