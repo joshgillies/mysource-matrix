@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.92 2005/09/09 06:07:16 arailean Exp $
+* $Id: listing_engine.inc,v 1.93 2005/09/13 02:12:39 ndvries Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1094,7 +1094,6 @@ class Listing_Engine extends Page
 	*/
 	function printAssetList($todo)
 	{
-
 		$this->_tmp['formats']        = Array();
 		$this->_tmp['default_format'] = '';
 		$this->_tmp['is_default']     = Array();
@@ -1168,6 +1167,7 @@ class Listing_Engine extends Page
 									$replacements[$format_keyword] = $asset->getKeywordReplacement($keyword);
 								}
 							}
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 						break;
 
 						case 'metadata':
@@ -1190,6 +1190,15 @@ class Listing_Engine extends Page
 						$this->_tmp['group_info'] = Array($group_level);
 					}
 
+					// the selection stuff needs the group_info array popped for
+					// each group level selection, so we need a copy for _printAsset()
+					// too
+					if (isset($this->_tmp['group_levels'])) {
+						array_push($this->_tmp['group_levels'], $group_level);
+					} else {
+						$this->_tmp['group_levels'] = Array($group_level);
+					}
+
 					ob_start();
 						$this->_printGroups($todo[$group_level], $group_info);
 						$group_contents = ob_get_contents();
@@ -1200,7 +1209,6 @@ class Listing_Engine extends Page
 					$replacements['group_name']    = $group_name;
 
 					// only print the 'check all' checkbox if we're only dealing with checkboxes
-
 					$selections = $this->attr('asset_selections');
 					$selection_defaults = $this->getAssetSelectionDefaults();
 
@@ -1419,7 +1427,6 @@ class Listing_Engine extends Page
 			}
 
 			// stuff carried over results body replacements
-
 			$keywords['asset_name_linked'] = '<a href="'.$asset->getUrl().'">'.$asset->name.'</a>';
 			$keywords['asset_short_name_linked'] = '<a href="'.$asset->getUrl().'">'.$asset->short_name.'</a>';
 
@@ -1521,7 +1528,31 @@ class Listing_Engine extends Page
 				$keywords['asset_'.$field] = $value;
 			}
 			$keywords['asset_assetid'] = $assetid;
+
 		}//end if needs asset
+
+		$group_keywords = preg_grep('/group[0-9]+.*/', $bc_keywords);
+		foreach ($group_keywords as $group_keyword) {
+			preg_match('/group([0-9]+)_(.*)/', $group_keyword, $matches);
+			if (isset($this->_tmp['group_levels'][$matches[1] - 1])) {
+				$parent_id = $this->_tmp['group_levels'][$matches[1] - 1];
+				if (assert_valid_assetid($parent_id, '', true, false)) {
+					// we have an assetid, so do what we want with the parent
+					switch ($matches[2]) {
+						case 'link_value':
+							$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($parent_id, $assetid);
+							$keywords[$group_keyword] = $link['value'];
+						break;
+						case 'link_type':
+						case 'dependant':
+						case 'exclusive':
+						default:
+							// other possible uses
+						break;
+					}
+				}
+			}
+		}
 
 		$metadata_keywords = Array();
 		foreach ($bc_keywords as $keyword) {
