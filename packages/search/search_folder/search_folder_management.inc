@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_management.inc,v 1.11 2005/06/20 04:06:32 dheppell Exp $
+* $Id: search_folder_management.inc,v 1.12 2005/09/13 00:02:48 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -71,7 +71,7 @@ class Search_Folder_Management extends Asset_Management
 			// version 0.2->0.3 upgrade - sees $this->attr('settings')['types']
 			// being stored differently - as Array(typecode => inherits) instead
 			// of Array(typecode) - due to search manager upgrades
-			bam('STARTING SEARCH FOLDER UPGRADE - VERSION '.$current_version.' => 0.3');
+			bam('STARTING SEARCH FOLDER UPGRADE - VERSION 0.2 => 0.3');
 
 			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
 			foreach ($children as $assetid) {
@@ -107,7 +107,37 @@ class Search_Folder_Management extends Asset_Management
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
 
-			bam('SEARCH FOLDER UPGRADE COMPLETE - VERSION '.$current_version.' => 0.3');
+			bam('SEARCH FOLDER UPGRADE COMPLETE - VERSION 0.2 => 0.3');
+
+		}
+
+		if (version_compare($current_version, '0.3', '<=')) {
+			// version 0.3->0.4 upgrade - changes to accept multiple root nodes.
+			// The variable $settings['root'] is now stored as an array of
+			// assetids, rather than a single value.
+			bam('STARTING SEARCH FOLDER UPGRADE - VERSION 0.3 => 0.4');
+
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			foreach ($children as $assetid) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$settings = $asset->attr('settings');
+
+				// only need to save this attribute
+				if (!is_array($settings['root'])) {
+					$settings['root'] = Array($settings['root']);
+					$asset->setAttrValue('settings', $settings);
+
+					if (!$asset->saveAttributes()) {
+						trigger_localised_error('SCH0009', E_USER_WARNING);
+						return false;
+					}
+				}
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				$asset = null;
+			}
+
+			bam('SEARCH FOLDER UPGRADE COMPLETE - VERSION 0.3 => 0.4');
 
 		}
 

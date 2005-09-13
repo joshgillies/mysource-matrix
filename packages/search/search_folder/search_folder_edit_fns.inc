@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_edit_fns.inc,v 1.16 2005/08/10 04:12:29 tbarrett Exp $
+* $Id: search_folder_edit_fns.inc,v 1.17 2005/09/13 00:02:48 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -84,7 +84,7 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 		$current = (isset($settings['root'])) ? $settings['root'] : '';
 
 		if ($write_access) {
-			asset_finder($prefix.'_rootid', $current);
+			multiple_asset_finder($prefix.'_roots', $current);
 		} else {
 			$root_asset = null;
 			if (!empty($current)) {
@@ -119,11 +119,14 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 		if (!$asset->writeAccess('attributes')) return false;
 
 		$settings = $asset->attr('settings');
+		$settings['root'] = Array();
 
-		if (isset($_POST[$prefix.'_rootid']['assetid'])) {
-			$settings['root'] = $_POST[$prefix.'_rootid']['assetid'];
-		} else {
-			$settings['root'] = '';
+		if (is_array($_POST[$prefix.'_roots'])) {
+			foreach ($_POST[$prefix.'_roots'] as $root_node) {
+				if (!empty($root_node['assetid'])) {
+					$settings['root'][] = $root_node['assetid'];
+				}
+			}
 		}
 
 		return $asset->setAttrValue('settings', $settings);

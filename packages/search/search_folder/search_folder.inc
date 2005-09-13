@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.22 2005/08/16 06:49:04 ndvries Exp $
+* $Id: search_folder.inc,v 1.23 2005/09/13 00:02:48 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -146,7 +146,7 @@ class Search_Folder extends Asset
 
 			$search_info['roots'] = Array();
 			if (!empty($settings['root'])) {
-				$search_info['roots'][] = $settings['root'];
+				$search_info['roots'] = $settings['root'];
 			} else {
 				$search_info['roots'][] = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder');
 			}
@@ -209,9 +209,10 @@ class Search_Folder extends Asset
 			$search_info['field_logic'] = (isset($settings['logic'])) ? strtoupper($settings['logic']) : 'AND';
 			$search_info['asset_types'] = (isset($settings['types'])) ? $settings['types'] : Array();
 			$search_info['statuses'] = (isset($settings['statuses'])) ? $settings['statuses'] : Array();
+
 			$search_info['roots'] = Array();
 			if (!empty($settings['root'])) {
-				$search_info['roots'][] = $settings['root'];
+				$search_info['roots'] = $settings['root'];
 			}
 
 			$search_info['requester'] = $this->id;
