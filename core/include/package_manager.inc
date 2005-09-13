@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.74 2005/08/11 04:55:32 mmcintyre Exp $
+* $Id: package_manager.inc,v 1.75 2005/09/13 07:00:20 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -583,11 +583,6 @@ class Package_Manager extends MySource_Object
 				break;
 
 				case 'asset':
-					if ($deferred_assets === true) {
-						bam(debug_backtrace());
-						bam('STOP!!!');
-						die;
-					}
 					if (in_array($req['code']['value'], $deferred_assets)) {
 						// we have to defer an asset that depends on another deferred asset
 						$ok = false;
