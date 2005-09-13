@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.372 2005/09/07 23:41:02 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.373 2005/09/13 07:00:00 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.372 $
+* @version $Revision: 1.373 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -473,7 +473,7 @@ class Asset_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql = 'SELECT a.assetid, at.inhd_type_code
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a INNER JOIN sq_ast_typ_inhd at ON a.type_code = at.type_code
-				'.$where.' ORDER BY a.assetid';
+				'.$where.' ORDER BY a.assetid ASC, at.inhd_type_code_lvl DESC';
 
 		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
 		assert_valid_db_result($result);
