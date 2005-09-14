@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.453 2005/09/06 00:58:47 mmcintyre Exp $
+* $Id: asset.inc,v 1.454 2005/09/14 06:17:03 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.453 $
+* @version $Revision: 1.454 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1158,16 +1158,21 @@ class Asset extends MySource_Object
 			assert_valid_db_result($result);
 
 			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
-			$data = Array(
-						'old_name'				=> $this->name,
-						'new_name'				=> $name,
-						'old_short_name'		=> $this->short_name,
-						'new_short_name'		=> $short_name,
-						'old_updated'			=> $this->updated,
-						'new_updated'			=> $updated,
-						'old_updated_userid'	=> $this->updated_userid,
-						'new_updated_userid'	=> $updated_userid,
-					);
+
+			$fields = Array(
+						'name',
+						'short_name',
+						'updated',
+						'updated_userid',
+					 );
+
+			$changed_data = Array();
+
+			foreach ($fields as $field) {
+				if ($this->$field != $$field) {
+					$changed_data[] = $field;
+				}
+			}
 
 			// set these components before broadcasting the event
 			$this->name           = $name;
@@ -1175,7 +1180,7 @@ class Asset extends MySource_Object
 			$this->updated        = $updated;
 			$this->updated_userid = $updated_userid;
 
-			$em->broadcastEvent($this, 'AssetUpdate', $data);
+			$em->broadcastEvent($this, 'AssetUpdate', $changed_data);
 
 			// increment the micro version number
 			if (!$this->incrementVersion('micro', $update_parents)) {
@@ -2122,7 +2127,7 @@ class Asset extends MySource_Object
 		eval('$this->'.$date_type.'_userid = $userid;');
 
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
-		$em->broadcastEvent($this, 'AssetUpdate', $msg_reps);
+		$em->broadcastEvent($this, 'AssetUpdate', $date_type);
 
 
 		return true;
@@ -2557,8 +2562,8 @@ class Asset extends MySource_Object
 
 			// add attribute to the event broadcaster array (for notification of what has changed)
 			// this allows event listener to act only on what has changed
-			$changed_array[$attribute->name]['old'] = $var_data['old_value'];
-			$changed_array[$attribute->name]['new'] = $attr_value;
+
+			$changed_array[] = $attribute->name;
 		}
 
 		// open the transaction
@@ -3093,10 +3098,35 @@ class Asset extends MySource_Object
 			$replacement = $this->id;
 		} else if (0 === strpos($keyword, 'asset_attribute_')) {
 			$attr_name = substr($keyword, strlen('asset_attribute_'));
+			preg_match('/(_([^_]*)){0,1}$/', $attr_name, $matches);
+
 			if (array_key_exists($attr_name, $this->vars)) {
 				$attr = &$this->getAttribute($attr_name);
 				if (!$attr->is_admin) {
 					$replacement = $this->attr($attr_name);
+				}
+			} else if (!empty($matches[1])) {
+				// we might have a datetime attribute with a date formatting suffix (readable, iso8601 etc)
+				$date_formats = Array(
+									'short'		=> 'Y-m-d',
+									'readable'	=> 'd M Y g:ia',
+									'iso8601'	=> 'Y-m-d\TH:i:s',
+									'rfc2822'	=> 'r',
+									'ical'		=> 'Ymd\THis',
+								);
+
+				$suffix = $matches[1];
+				$date_format = $matches[2];
+				$attr_name_cropped = substr($attr_name, 0, (strlen($attr_name) - strlen($matches[1])));
+				if (array_key_exists($attr_name_cropped, $this->vars)) {
+					$attr = &$this->getAttribute($attr_name_cropped);
+					if (!$attr->is_admin && ($attr->type() == 'datetime')) {
+						if (array_key_exists($date_format, $date_formats)) {
+							$attr_value = $this->attr($attr_name_cropped);
+							$format_value = (empty($attr_value)) ? '' : date($date_formats[$date_format], iso8601_ts($attr_value));
+							$replacement = $format_value;
+						}
+					}
 				}
 			}
 		} else {
