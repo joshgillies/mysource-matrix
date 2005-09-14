@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.136 2005/09/08 05:27:29 rhoward Exp $
+* $Id: search_page.inc,v 1.137 2005/09/14 07:30:01 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.136 $
+* @version $Revision: 1.137 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -408,7 +408,6 @@ class Search_Page extends Listing_Engine
 				}
 
 				$children = $GLOBALS['SQ_SYSTEM']->am->getLinks($result_assetids, SQ_SC_LINK_SIGNIFICANT, $converted_types);
-
 				if (count($result_assetids) == 1) {
 					$children = Array($result_assetids[0] => $children);
 				}
@@ -420,6 +419,9 @@ class Search_Page extends Listing_Engine
 						$this->_tmp['proxy_grouping'][$link['minorid']] = $orig_assetid;
 					}
 				}
+
+				// filterAssetStatuses is overridden in search_page, so call it directly
+				Listing_Engine::filterAssetStatuses($new_results);
 			}
 		}
 
