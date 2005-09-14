@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.18 2005/08/30 07:31:39 ndvries Exp $
+* $Id: file_versioning.inc,v 1.19 2005/09/14 00:18:09 dheppell Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -85,9 +85,10 @@ class File_Versioning
 	/**
 	* Creates a repository for the file versioning system
 	*
-	* @param object	DB	$db			the PEAR::DB object representing the DB to use for storing our information
+	* @param object	&$db	the PEAR::DB object representing the DB to use for storing our information
 	*
 	* @return boolean
+	* @access public
 	*/
 	function initRepository(&$db)
 	{
@@ -116,6 +117,7 @@ class File_Versioning
 	*
 	* @deprecated use iso8601_ts() in core/include/general.inc instead
 	* @return int
+	* @access private
 	*/
 	function _iso8601Ts($iso8601)
 	{
@@ -131,6 +133,7 @@ class File_Versioning
 	*
 	* @deprecated use ts_iso8601() in core/include/general.inc instead
 	* @return string
+	* @access private
 	*/
 	function _tsIso8601($timestamp)
 	{
@@ -146,7 +149,7 @@ class File_Versioning
 	* @param int	$fileid		the id of the file to retrieve
 	* @param int	$version	the version, NULL to get the latest version
 	*
-	* @return Array()
+	* @return mixed array
 	* @access private
 	*/
 	function _getFileInfoAtVersion($fileid, $version=null)
@@ -168,6 +171,7 @@ class File_Versioning
 			}
 			$result['file_size'] = (int) $result['file_size'];
 		}
+
 		return $result;
 
 	}//end _getFileInfoAtVersion()
@@ -179,7 +183,7 @@ class File_Versioning
 	*
 	* @param string	$real_file	the checked out filename (ie the path to it on the filesystem)
 	*
-	* @return mixed FUDGE_FV_NOT_CHECKED_OUT or FUDGE_FV_ERROR or Array()
+	* @return mixed int|array
 	* @access private
 	* @see _getFileInfoAtVersion()
 	*/
@@ -210,8 +214,9 @@ class File_Versioning
 			return FUDGE_FV_ERROR;
 		}
 
-		$rep_file = $this->_dir.'/'.$info['path'].'/'.$info['filename'].',ffv'.$info['version'];
-		if (empty($info['removal']) && (!is_dir($this->_dir.'/'.$info['path']) || !is_file($rep_file))) {
+		$rep_file = $this->_dir.'/'.$info['path'].'/'.$info['filename'];
+
+		if (!$this->_validateFileVersion($rep_file, $info)) {
 			trigger_localised_error('FVER0027', E_USER_NOTICE, $info['path'], $info['filename'], $info['version']);
 			return FUDGE_FV_ERROR;
 		}
@@ -226,10 +231,10 @@ class File_Versioning
 	*
 	* Returns either an error code or the info
 	*
-	* @param string	$file_path		the path to the file in the repository
-	* @param int	$version		the version
+	* @param string	$file_path	the path to the file in the repository
+	* @param int	$version	the version
 	*
-	* @return Array()
+	* @return array
 	* @access private
 	* @see _getFileInfoAtVersion()
 	*/
@@ -251,7 +256,7 @@ class File_Versioning
 	/**
 	* Attempt to lock a file
 	*
-	* @param int	$fileid		the id of the file to lock
+	* @param int $fileid	the id of the file to lock
 	*
 	* @return boolean
 	* @access private
@@ -573,7 +578,7 @@ class File_Versioning
 	* @param string		$version	Check out this version of the file (null means latest version)
 	* @param string		$date		Check out the file as it was at this date (null means latest version) - doesn't override $version
 	*
-	* @return mixed		Array of info about file, or FALSE on error
+	* @return mixed array|int
 	* @access private
 	* @see checkOut() output()
 	*/
@@ -646,14 +651,159 @@ class File_Versioning
 
 		}//end if
 
+
 		$info['version']     = $ver_info['version'];
 		$info['removal']     = $ver_info['removal'];
 		$info['source_file'] = $this->_dir.'/'.$rep_file.',ffv'.$ver_info['version'];
 
 		$this->_releaseFile($info['fileid']);
-		return $info;
+
+		if ($this->_validateFileVersion($rep_file, $info)) {
+			return $info;
+		} else {
+			return false;
+		}
+
 
 	}//end _checkOutCheck()
+
+
+	/**
+	* Asserts file exists and is valid
+	*
+	* Validate the integrity of a given file from the file respiratory
+	* If the given file does not exist (or fails its integrity checks)
+	* we attempt to replace with the private or public file version.
+	* otherwise we find the last valid previous version of this file in
+	* the respiratory and replace this version with it.
+	*
+	*
+	* @param string $rep_file	the file we are checking
+	* @param array  $info		related file information we are working with
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _validateFileVersion($rep_file, $info)
+	{
+		// work out if its a relative or absolute path
+		if (substr($rep_file, 0, 1) != '/') {
+			$rep_file = $this->_dir.'/'.$rep_file;
+		}
+
+		$existing_version = $info['version'];
+		$exists = file_exists($rep_file.',ffv'.$existing_version);
+
+		// we our file is real, so lets do some hash checks
+		if ($exists) {
+			if ($info['md5'] && $info['sha1']) {
+				$current = $rep_file.',ffv'.$existing_version;
+
+				// verify its md5 and sha1 values, throw a warning to the user if something is amiss
+				if (md5_file($current) != $info['md5'] || sha1_file($current) != $info['sha1']) {
+					$exists = false;
+				}
+			}
+		}
+
+		// file either had no integrity to check, or passed, eitherway its a success
+		if ($exists) return true;
+
+		$destination = $rep_file.',ffv'.$info['version'];
+
+		// attempt recovery from private
+		if (copy(SQ_DATA_PATH.'/private/'.$info['path'].'/'.$info['filename'], $destination)) {
+			if ($this->_updateFileVersion($destination, $info['fileid'], $info['version'])) {
+				trigger_localised_error('FVER0029', E_USER_WARNING, $info['version'], translate('data').' '.translate('private'));
+				return true;
+			}
+		}
+
+		// attempt recovery from public
+		if (@copy(SQ_DATA_PATH.'/public/'.$info['path'].'/'.$info['filename'], $destination)) {
+			if ($this->_updateFileVersion($destination, $info['fileid'], $info['version'])) {
+				trigger_localised_error('FVER0029', E_USER_WARNING, $info['version'], translate('data').' '.translate('public'));
+				return true;
+			}
+		}
+
+		// if the file is missing or damaged, loop through previous versions
+		// until we find a version thats valid (passes its md5 and sha1 checks)
+		while (!$exists && $existing_version > 0) {
+			$existing_version--;
+			$current = $rep_file.',ffv'.$existing_version;
+
+			//assert file at version exists
+			$exists = file_exists($current);
+
+			//file exists, ensure integrity
+			if ($exists) {
+				$ver_info = $this->_getFileInfoAtVersion($info['fileid'], $existing_version);
+
+				// check md5 and sha1 values if we have them
+				if (isset($ver_info['md5']) && isset($ver_info['sha1'])) {
+					$exists = md5_file($current) == $ver_info['md5'] && sha1_file($current) == $ver_info['sha1'];
+				}
+			}
+		}
+
+		// attempt recovery from a previous version, if we found a valid one
+		if ($exists && @copy($current,  $destination)) {
+			if ($this->_updateFileVersion($destination, $info['fileid'], $info['version'])) {
+				trigger_localised_error('FVER0029', E_USER_WARNING, $info['version'], 'ffv'.$existing_version);
+				return true;
+			}
+		} else {
+			// we could do nothing to save it, manual user recovery time
+			trigger_localised_error('FVER0030', E_USER_WARNING);
+			return false;
+		}
+
+
+	}//end _validateFileVersion()
+
+
+	/**
+	* Updates the filesize and hash info for a given file/version
+	*
+	* @param String $real_file
+	* @param int    $fileid
+	* @param int    $version
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _updateFileVersion($real_file, $fileid, $version)
+	{
+		// regenerate integrity info for this version
+		$filesize = filesize($real_file);
+		$md5      = md5_file($real_file);
+		$sha1     = sha1_file($real_file);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+			$sql = 'UPDATE 
+						sq_file_vers_history
+					SET 
+						md5= '.$db->quote($md5).',
+						sha1='.$db->quote($sha1).', 
+						file_size='.$db->quote($filesize).'
+					WHERE 
+						fileid='.$db->quote($fileid).' 
+						AND version='.$db->quote($version);
+
+			$result = $db->query($sql);
+
+		// close transaction accordingly
+		if (assert_valid_db_result($result)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return true;
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+	}//end _updateFileVersion()
 
 
 	/**
@@ -675,9 +825,10 @@ class File_Versioning
 			return false;
 		}
 
-
 		$info = $this->_checkOutCheck($rep_file, $version, $date);
-		if (empty($info)) return false;
+		if (empty($info) || $info == FUDGE_FV_NOT_CHECKED_OUT) {
+			return false;
+		}
 
 		$dest_file   = $dest_dir.'/'.basename($rep_file);
 
@@ -741,7 +892,7 @@ class File_Versioning
 	*
 	* @param string	$real_file		the checked out filename (ie the path to it on the filesystem)
 	*
-	* @return int bit mask of the FUDGE_FV_* constants
+	* @return int
 	* @access public
 	*/
 	function upToDate($real_file)
@@ -888,10 +1039,10 @@ class File_Versioning
 	/**
 	* Removes a file from the repository
 	*
-	* @param string		$real_file	the checked out filename (ie the path to it on the filesystem)
-	* @param string		$extra_info	any extra info that can be stored with this version of the file (eg who actually added it)
+	* @param	string		$real_file	the checked out filename (ie the path to it on the filesystem)
+	* @param	string		$extra_info	any extra info that can be stored with this version of the file (eg who actually added it)
 	*
-	* @return int FUDGE_FV_NOT_CHECKED_OUT|FUDGE_FV_ERROR|FUDGE_FV_OK
+	* @return int
 	* @access public
 	*/
 	function remove($real_file, $extra_info='')

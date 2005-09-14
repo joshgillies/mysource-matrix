@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.16 2005/08/30 09:08:06 brobertson Exp $
+* $Id: lang_errors.xml,v 1.17 2005/09/14 00:18:10 dheppell Exp $
 *
 */
 
@@ -654,7 +654,8 @@
 
 	<error code="FVER0028">File versioning information at version %1$s missing for file #%2$s</error>
 		<!-- core/lib/file_versioning/file_versioning.inc:216: -->
-
+	<error code="FVER0029">File version ffv%1$s was found to be corrupt. System has reverted to %2$s version</error>
+	<error code="FVER0030">Unable to recover file from any known source, you will have to add this file again yourself</error>
 	<!-- SYSTEM -->
 
 	<!--<error code="SYS0001">Password validation failed - please ensure your password is at least %s characters long</error>--><!-- core/attributes/password/password.inc:135: -->
