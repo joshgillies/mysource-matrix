@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_management.inc,v 1.12 2005/09/13 00:02:48 lwright Exp $
+* $Id: search_folder_management.inc,v 1.13 2005/09/14 05:57:05 ndvries Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -124,7 +124,7 @@ class Search_Folder_Management extends Asset_Management
 
 				// only need to save this attribute
 				if (!is_array($settings['root'])) {
-					$settings['root'] = Array($settings['root']);
+					$settings['root'] = (empty($settings['root'])) ? Array() : Array($settings['root']);
 					$asset->setAttrValue('settings', $settings);
 
 					if (!$asset->saveAttributes()) {
