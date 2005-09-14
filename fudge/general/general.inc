@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.34 2005/08/26 05:30:37 mmcintyre Exp $
+* $Id: general.inc,v 1.35 2005/09/14 05:18:23 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package Fudge
 * @subpackage General
 */
@@ -265,9 +265,15 @@ function ellipsisize($string, $length)
 		return '';
 	}
 
-	// boundary check
-	if ($length < 0 || $length > strlen($string)) {
+	// boundary check #1 - length needs to be at least zero
+	if ($length < 0) {
 		return '';
+	}
+
+	// boundary check #2 - if the string isn't long enough to contract, return
+	// it unedited
+	if (strlen($string) <= $length) {
+		return $string;
 	}
 
 	$full_length = strlen((string) $string);
