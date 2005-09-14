@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.101 2005/08/16 00:33:14 ndvries Exp $
+* $Id: html_form.inc,v 1.102 2005/09/14 05:02:29 ndvries Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1048,15 +1048,16 @@ function url_tester($name, $value='', $protocols=Array('http'), $width=50)
 	?><script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/JsHttpConnector.js"></script><?php
 	?><script type="text/javascript">
 
-		function getFullUrl() {
-			var protocol = document.getElementById("<?php echo $name.'_protocol'; ?>").value;
-			var url = document.getElementById("<?php echo $name.'_url'; ?>").value;
+		function getFullUrl(id_name) {
+			var elementName = id_name + "_protocol";
+			var protocol = document.getElementById(elementName).value;
+			var url = document.getElementById(id_name + "_url").value;
 			var fullUrl = protocol + url;
 
 			return fullUrl;
 		}
 
-		function changeStatusText(responseState)
+		function <?php echo $name; ?>changeStatusText(responseState)
 		{
 			switch (responseState) {
 				case "0":
@@ -1073,31 +1074,29 @@ function url_tester($name, $value='', $protocols=Array('http'), $width=50)
 
 		}//end changeStatusText()
 
-		function checkUrlExists()
+		function checkUrlExists(id_name)
 		{
-			document.getElementById('<?php echo $name.'_status_text'; ?>').innerHTML = js_translate('testing');
-			var testUrl = "<?php echo sq_web_path('lib').'/web/connectivity.php'; ?>" + "?connect_url=" + getFullUrl();
-			JsHttpConnector.submitRequest(testUrl, changeStatusText);
+			document.getElementById(id_name + "_status_text").innerHTML = js_translate('testing');
+			var testUrl = "<?php echo sq_web_path('lib').'/web/connectivity.php'; ?>" + "?connect_url=" + getFullUrl(id_name);
+			JsHttpConnector.submitRequest(testUrl, eval(id_name + "changeStatusText"));
 
 		}//end checkUrlExists()
 
-
-		function protocolChanged()
+		function protocolChanged(id_name)
 		{
-			var protocol = document.getElementById('<?php echo $name.'_protocol'; ?>').value;
+			var protocol = document.getElementById(id_name + "_protocol").value;
 			if (protocol == "http://") {
-				document.getElementById("<?php echo $name.'_button_auto'; ?>").disabled = "";
+				document.getElementById(id_name + "_button_auto").disabled = "";
 			} else {
-				document.getElementById("<?php echo $name.'_button_auto'; ?>").disabled = "disabled";
+				document.getElementById(id_name + "_button_auto").disabled = "disabled";
 			}
-			document.getElementById('<?php echo $name.'_status_text'; ?>').innerHTML = "";
+			document.getElementById(id_name + "_status_text").innerHTML = "";
 
 		}//end protocolChanged()
 
-
-		function testUrl()
+		function testUrl(id_name)
 		{
-			window.open(getFullUrl());
+			window.open(getFullUrl(id_name));
 
 		}
 	</script><?php
@@ -1124,14 +1123,14 @@ function url_tester($name, $value='', $protocols=Array('http'), $width=50)
 		}
 	}
 
-	combo_box($name.'_protocol', $dd_values, false, $default_prot, 0, 'onChange="protocolChanged()";');
+	combo_box($name.'_protocol', $dd_values, false, $default_prot, 0, 'onChange="protocolChanged(\''.$name.'\')";');
 	echo '&nbsp;';
 
 	text_box($name.'_url', $value, $width);
 	echo '&nbsp;';
 
-	normal_button($name.'_button_auto', 'Auto-Test', 'javascript: checkUrlExists();');
-	normal_button($name.'button_manual', 'Open URL', 'javascript: testUrl();');
+	normal_button($name.'_button_auto', 'Auto-Test', 'javascript: checkUrlExists(\''.$name.'\');');
+	normal_button($name.'button_manual', 'Open URL', 'javascript: testUrl(\''.$name.'\');');
 
 	?><div id="<?php echo $name; ?>_status_text"></div><?php
 
