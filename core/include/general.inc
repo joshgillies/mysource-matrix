@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.100 2005/09/06 01:57:43 rhoward Exp $
+* $Id: general.inc,v 1.101 2005/09/14 01:43:41 dmckee Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix
 */
 
@@ -488,7 +488,6 @@ function current_url($inc_protocol=true, $strip_backend_suffix=false)
 				trigger_localised_error('SYS0107', E_USER_ERROR);
 			}
 		}
-
 		$url = (($inc_protocol) ? current_protocol().'://' : '').$host.$_SERVER['PHP_SELF'];
 
 		// if we are in the backend remove the suffix
@@ -496,6 +495,7 @@ function current_url($inc_protocol=true, $strip_backend_suffix=false)
 			$url = preg_replace('/'.SQ_CONF_BACKEND_SUFFIX.'\/?$/', '', $url);
 			$url = preg_replace('/'.SQ_CONF_LIMBO_SUFFIX.'\/?$/', '', $url);
 		}
+		$url = preg_replace('/'.SQ_CONF_NOCACHE_SUFFIX.'\/?$/', '', $url);
 	}
 
 	if (empty($url)) {	// url empty, just use the first system root url
@@ -527,6 +527,7 @@ function clean_url($url)
 				'__fudge',
 				SQ_CONF_LIMBO_SUFFIX,
 				SQ_CONF_BACKEND_SUFFIX,
+				SQ_CONF_NOCACHE_SUFFIX,
 			);
 
 	foreach ($bits as $bit) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.18 2005/07/01 05:46:52 tbarrett Exp $
+* $Id: metadata.inc,v 1.19 2005/09/14 01:43:48 dmckee Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 
@@ -268,7 +268,6 @@ function processMetadata(&$owner, &$o, $ei)
 			$edit_fns = $schema->getEditFns();
 			$edit_fns->processInlineValueInterface($schema, $new_values);
 		}
-
 		if (!$mm->setMetadata($owner->id, $new_values)) {
 			return false;
 		}
