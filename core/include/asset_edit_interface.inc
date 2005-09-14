@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.278 2005/09/11 23:18:28 lwright Exp $
+* $Id: asset_edit_interface.inc,v 1.279 2005/09/14 07:21:44 rhoward Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.278 $
+* @version $Revision: 1.279 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1339,12 +1339,6 @@ class Asset_Edit_Interface extends MySource_Object
 		$print_commit_button = false;
 
 		ob_start();
-			if (isset($_POST['am_form_submitted']) && $_POST['am_form_submitted']) {
-				// the form was submitted, so we need to process the static screen as well
-				$process_function = 'process'.$screen;
-				$process_function($owner, $o, $this, $static_keywords);
-			}
-
 			$paint_function = 'paint'.$screen;
 
 			if ($paint_function($owner, $o, $this, $static_keywords)) {
@@ -1354,7 +1348,6 @@ class Asset_Edit_Interface extends MySource_Object
 			if ($get_screen) {
 				$this->_tmp['layout_keyword_replacements'][$screen.'-'] = ob_get_contents();
 			}
-
 		ob_end_clean();
 
 		return $print_commit_button;
