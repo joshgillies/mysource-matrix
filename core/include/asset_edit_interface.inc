@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.260.2.6 2005/08/26 04:58:29 dheppell Exp $
+* $Id: asset_edit_interface.inc,v 1.260.2.7 2005/09/14 05:25:37 dheppell Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.260.2.6 $
+* @version $Revision: 1.260.2.7 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1213,6 +1213,7 @@ class Asset_Edit_Interface extends MySource_Object
 			// Metadata doesn't have an xml file defined, so to avoid any file not found errors below,
 			// Lets skip this bit, and move onto the next screen.
 			if ($screen == 'metadata') continue;
+			if ($screen == 'workflow') continue;
 
 			// its not a static screen, so get the xml file and parse it for
 			// the keywords that we want, if the xml file exists
