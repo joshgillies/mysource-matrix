@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type.inc,v 1.11 2005/05/11 06:04:49 lwright Exp $
+* $Id: content_type.inc,v 1.12 2005/09/14 04:35:36 dmckee Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,6 +45,7 @@ class Content_Type extends Asset
 	* Constructor
 	*
 	* @param int	$assetid	the asset id to be loaded
+	* @access public
 	*
 	*/
 	function Content_Type($assetid=0)
@@ -124,7 +125,7 @@ class Content_Type extends Asset
 	/**
 	* Returns the editable content of this asset
 	*
-	* @return String
+	* @return string
 	* @access public
 	*/
 	function getContent()
@@ -137,7 +138,7 @@ class Content_Type extends Asset
 	/**
 	* Sets the editable content of this asset
 	*
-	* @param String
+	* @param string $content
 	*
 	* @return boolean
 	* @access public
@@ -150,6 +151,32 @@ class Content_Type extends Asset
 		return true;
 
 	}//end setContent()
+
+
+	/**
+	* Save attributes set with setAttrValue to the database
+	*
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
+	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
+	*
+	* @return boolean
+	* @access public
+	* @see setAttrValue()
+	*/
+	function saveAttributes($dont_run_updated=false)
+	{
+		//Want to see if the content has been changed.
+		if (isset($this->_tmp['vars_set']['html'])) {
+			//Yep, so we need to (re)generate our bodycopy container's content file
+			$bc_container_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', false, 'minor');
+			if (!empty($bc_container_link)) {
+				$container =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bc_container_link[0]['majorid']);
+				$edit_fns = $container->getEditFns();
+				$edit_fns->generateContentFile($container);
+			}
+		}
+		return parent::saveAttributes($dont_run_updated);
+	}//end saveAttributes()
 
 
 }//end class
