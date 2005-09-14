@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.62.2.1 2005/07/05 04:17:37 dmckee Exp $
+* $Id: system_config.inc,v 1.62.2.2 2005/09/14 01:48:48 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.62.2.1 $
+* @version $Revision: 1.62.2.2 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -49,6 +49,7 @@ class System_Config extends Config
 						'SQ_CONF_PEAR_PATH'					=> Array('editable' => 0, 'default' => ''),
 						'SQ_CONF_BACKEND_SUFFIX'			=> Array('editable' => 1, 'default' => '_admin'),
 						'SQ_CONF_LIMBO_SUFFIX'				=> Array('editable' => 1, 'default' => '_edit'),
+						'SQ_CONF_NOCACHE_SUFFIX'			=> Array('editable' => 1, 'default' => '_nocache'),
 						'SQ_CONF_ASSET_TREE_BASE'			=> Array('editable' => 0, 'default' => 64),
 						'SQ_CONF_ASSET_TREE_SIZE'			=> Array('editable' => 0, 'default' =>  4),
 						'SQ_CONF_ASSET_CACHE_SIZE_WEB'		=> Array('editable' => 0, 'default' =>  -1),
@@ -350,6 +351,13 @@ class System_Config extends Config
 				text_box($class.'[SQ_CONF_LIMBO_SUFFIX]', SQ_CONF_LIMBO_SUFFIX, 15);
 			} else {
 				echo nl2br(SQ_CONF_LIMBO_SUFFIX);
+			}
+
+			$o->openField(translate('system_nocache_suffix'));
+			if ($write_access) {
+				text_box($class.'[SQ_CONF_NOCACHE_SUFFIX]', SQ_CONF_NOCACHE_SUFFIX, 15);
+			} else {
+				echo nl2br(SQ_CONF_NOCACHE_SUFFIX);
 			}
 
 		$o->closeSection();

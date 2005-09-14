@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18.2.16 2005/09/05 00:00:36 mmcintyre Exp $
+* $Id: lang_strings.xml,v 1.18.2.17 2005/09/14 01:48:57 dmckee Exp $
 *
 */
 
@@ -205,6 +205,7 @@
 	<string source="system_root">System Root</string>
 	<string source="system_settings">System Settings</string>
 	<string source="system_simple_edit_suffix">System Simple Edit Suffix</string>
+	<string source="system_nocache_suffix">System Bypass Cache Suffix</string>
 	<string source="system_tools">System Tools</string>
 	<string source="system_wide">System Wide</string>
 	<string source="target_node">Target Node</string>

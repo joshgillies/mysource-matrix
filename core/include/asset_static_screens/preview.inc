@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.8.2.1 2005/06/08 00:31:48 dmckee Exp $
+* $Id: preview.inc,v 1.8.2.2 2005/09/14 01:48:52 dmckee Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.8.2.1 $
+* @version $Revision: 1.8.2.2 $
 * @package MySource_Matrix
 */
 
@@ -121,7 +121,7 @@ function paintPreview(&$owner, &$o, &$ei)
 					var previewURL = document.getElementById('preview_url').value;
 					var queryStringStarted = false;
 					if (document.getElementById('use_cache').checked == false) {
-						previewURL += '?no_cache=1';
+						previewURL += '/<?php echo SQ_CONF_NOCACHE_SUFFIX; ?>';
 						queryStringStarted = true;
 					}
 					if (document.getElementById('preview_design').value != '') {
@@ -189,7 +189,7 @@ function paintPreview(&$owner, &$o, &$ei)
 				<p class="sq-backend-field">
 					<?php echo translate('currently_previewing', $owner->name, $replacements_link); ?>
 				</p>
-				<iframe id="sq_preview_frame" src="<?php echo $primary_url; ?>?no_cache=1" style="width: 100%; height: 400px; border: 1px solid #C3C3C3;"></iframe>
+				<iframe id="sq_preview_frame" src="<?php echo $primary_url; ?>/<?php echo SQ_CONF_NOCACHE_SUFFIX; ?>" style="width: 100%; height: 400px; border: 1px solid #C3C3C3;"></iframe>
 				<?php
 			$o->closeRaw();
 		$o->closeSection();

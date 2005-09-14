@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.91.2.1 2005/08/15 13:48:21 brobertson Exp $
+* $Id: general.inc,v 1.91.2.2 2005/09/14 01:48:48 dmckee Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.91.2.1 $
+* @version $Revision: 1.91.2.2 $
 * @package MySource_Matrix
 */
 
@@ -456,6 +456,7 @@ function current_url($inc_protocol=true, $strip_backend_suffix=false)
 			$url = preg_replace('/'.SQ_CONF_BACKEND_SUFFIX.'\/?$/', '', $url);
 			$url = preg_replace('/'.SQ_CONF_LIMBO_SUFFIX.'\/?$/', '', $url);
 		}
+		$url = preg_replace('/'.SQ_CONF_NOCACHE_SUFFIX.'\/?$/', '', $url);
 	}
 
 	if (empty($url)) {	// url empty, just use the first system root url
@@ -487,6 +488,7 @@ function clean_url($url)
 				'__fudge',
 				SQ_CONF_LIMBO_SUFFIX,
 				SQ_CONF_BACKEND_SUFFIX,
+				SQ_CONF_NOCACHE_SUFFIX,
 			);
 
 	foreach ($bits as $bit) {
@@ -912,7 +914,7 @@ function trigger_localised_error($code, $error_level)
 * @access public
 * @return void
 */
-function sq_print_icon($path, $width, $height, $alt='', $title=null, $extras='') 
+function sq_print_icon($path, $width, $height, $alt='', $title=null, $extras='')
 {
 	if (is_null($title) && !empty($alt)) $title = $alt;
 	if (is_null($title)) $title = '';
@@ -925,10 +927,10 @@ function sq_print_icon($path, $width, $height, $alt='', $title=null, $extras='')
 	}
 	?>
 
-	<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" 
-	     alt="<?php echo $alt; ?>" 
-	     title="<?php echo $title; ?>"
-	     <?php echo $extras; ?> />
+	<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif"
+		 alt="<?php echo $alt; ?>"
+		 title="<?php echo $title; ?>"
+		 <?php echo $extras; ?> />
 	<?php
 
 } //end sq_print_icon()
