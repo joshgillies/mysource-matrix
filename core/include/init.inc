@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.87 2005/08/02 03:35:10 gsherwood Exp $
+* $Id: init.inc,v 1.88 2005/09/14 03:44:24 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix
 */
 
@@ -89,10 +89,13 @@ require_once SQ_FUDGE_PATH.'/dev/dev.inc';
 
 
 // nice little boolean to use for testing whether we happen to be in the backend or not
-define('SQ_IN_BACKEND', (basename($_SERVER['PHP_SELF']) == SQ_CONF_BACKEND_SUFFIX));
+$in_backend = (trim(SQ_CONF_BACKEND_SUFFIX) != '') && (basename($_SERVER['PHP_SELF']) == SQ_CONF_BACKEND_SUFFIX);
+define('SQ_IN_BACKEND', $in_backend);
 
 // nice little boolean to use for testing whether we happen to be in limbo (frontend editing) or not
-define('SQ_IN_LIMBO', (basename($_SERVER['PHP_SELF']) == SQ_CONF_LIMBO_SUFFIX));
+$in_limbo = (trim(SQ_CONF_LIMBO_SUFFIX) != '') && (basename($_SERVER['PHP_SELF']) == SQ_CONF_LIMBO_SUFFIX);
+define('SQ_IN_LIMBO', $in_limbo);
+
 
 // make sure there is a trailing slash if we are in the backend
 if (SQ_IN_BACKEND && substr($_SERVER['PHP_SELF'], -1) != '/') {
