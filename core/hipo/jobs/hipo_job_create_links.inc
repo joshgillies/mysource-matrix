@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.15 2005/05/17 06:58:42 ndvries Exp $
+* $Id: hipo_job_create_links.inc,v 1.15.2.1 2005/09/15 04:40:47 ndvries Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -350,7 +350,6 @@ class HIPO_Job_Create_Links extends HIPO_Job
 						$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_LINK_TYPE_1 + SQ_LINK_TYPE_2, '', true, $current['linkid']);
 
 						if (!empty($trash_link)) $num_other_links--;
-
 						if (!$num_other_links) {
 
 							// now lets get all the other links this asset has in the system and
@@ -375,7 +374,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 								foreach ($links as $link_data) {
 									$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['majorid'], $link_data['major_type_code']);
 									$link_description = $major->describeLink($link_data['linkid']);
-									$link_lineage = $link_lineages[$link_data['linkid']]['lineage'];
+									$link_lineage = array_pop($link_lineages);
+									$link_lineage = $link_lineages['lineage'];
 
 									// construct a human readable lineage
 									$num_in_lineage = count($link_lineage);
