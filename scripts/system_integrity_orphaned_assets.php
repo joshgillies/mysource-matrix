@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_orphaned_assets.php,v 1.5.2.1 2005/08/04 06:09:22 mmcintyre Exp $
+* $Id: system_integrity_orphaned_assets.php,v 1.5.2.2 2005/09/15 06:01:28 ndvries Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 * the minor) underneath a specified asset id, preferably a folder
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5.2.1 $
+* @version $Revision: 1.5.2.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -54,7 +54,7 @@ if (empty($MAP_ASSETID) || empty($map_asset_info)) {
 
 $ROOT_ASSETID = (isset($_SERVER['argv'][3])) ? $_SERVER['argv'][3] : '1';
 if ($ROOT_ASSETID == 1) {
-	echo "\nWARNING: You are running this integrity checker on the whole system.\nThis is fine but:\n\tit may take a long time; and\n\tit will acquire locks on many of your assets (meaning you wont be able to edit content for a while)\n\n";
+	echo "\nWARNING: You are running this integrity checker on the whole system.\nThis is fine, but it may take a long time\n\n";
 }
 
 // ask for the root password for the system
@@ -75,19 +75,14 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 
 $db =& $GLOBALS['SQ_SYSTEM']->db;
 
+$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
 // go trough each wysiwyg in the system, lock it, validate it, unlock it
 $assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID, 'asset', false);
 foreach ($assets as $assetid => $type_code) {
 
 	$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 	printAssetName($asset);
-
-	// try to lock the asset
-	if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'links')) {
-		printUpdateStatus('LOCK');
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-		continue;
-	}
 
 	$sql = 'SELECT
 				linkid,
@@ -232,13 +227,6 @@ foreach ($assets as $assetid => $type_code) {
 		$updated = true;
 	}
 
-	// try to unlock the asset
-	if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'links')) {
-		printUpdateStatus('!!');
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-		continue;
-	}
-
 	if ($updated) {
 		printUpdateStatus('OK');
 	} else {
@@ -247,6 +235,8 @@ foreach ($assets as $assetid => $type_code) {
 	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
 }//end foreach
+
+$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 
 /**
