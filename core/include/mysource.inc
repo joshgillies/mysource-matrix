@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.141 2005/09/01 03:13:56 tbarrett Exp $
+* $Id: mysource.inc,v 1.142 2005/09/15 23:00:51 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.141 $
+* @version $Revision: 1.142 $
 * @package MySource_Matrix
 */
 class MySource
@@ -194,6 +194,7 @@ class MySource
 	* in order to load the asset types but if initialise the Asset_Manager in our constructor
 	* we don't exist and therefore cannot be accessed to get the DB for the Asset_Manager to use
 	*
+	* @return void
 	* @access public
 	*/
 	function init()
@@ -308,6 +309,7 @@ class MySource
 	/**
 	* From here is where everything else happens, it starts the ball rolling
 	*
+	* @return void
 	* @access public
 	*/
 	function start()
@@ -413,6 +415,7 @@ class MySource
 	* @param string	$heading	a heading to print on the form
 	* @param string	$msg		a msg to print with the form
 	*
+	* @return void
 	* @access public
 	*/
 	function paintLogin($heading, $msg)
@@ -475,6 +478,7 @@ class MySource
 	* @param string	$heading	a heading to print on the form
 	* @param string	$msg		a msg to print with the form
 	*
+	* @return void
 	* @access public
 	*/
 	function paintPasswordChange($heading, $msg)
@@ -521,8 +525,8 @@ class MySource
 	/**
 	* Set up the current user, reading from the session and checking that conditions are satisfied
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function _setupUser()
 	{
@@ -615,6 +619,7 @@ class MySource
 	/**
 	* Processes any global actions that need to be taken care of
 	*
+	* @return void
 	* @access private
 	*/
 	function _processGlobalActions()
@@ -808,8 +813,8 @@ class MySource
 	/**
 	* Log in the public user
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function _loginPublicUser()
 	{
@@ -826,8 +831,8 @@ class MySource
 	/**
 	* Try to login a user who has already been HTTP-authenticated by some external mechanism
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function _loginHttpAuthenticatedUser()
 	{
@@ -857,8 +862,8 @@ class MySource
 	/**
 	* Check the user authentication. If the user is authenticated then it assigns the user and returns true else returns false
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function _authenticateHttpUser()
 	{
@@ -892,10 +897,10 @@ class MySource
 	*
 	* SHOULD BE USED WITH CAUTION - the assumption is that this user has already been authenticated
 	*
-	* @param Object	$user	The user to log in
+	* @param object	&$user	The user to log in
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function loginUser(&$user)
 	{
@@ -933,10 +938,10 @@ class MySource
 	* SHOULD BE USED WITH CAUTION - no authentication is done inside here
 	* This is generally to be used by scripts etc - the session is not updated with the new user's details
 	*
-	* @param object User	$user	the user to make current
+	* @param object	&$user	the user to make current
 	*
+	* @return boolean
 	* @access public
-	* @return boolean true on success
 	*/
 	function setCurrentUser(&$user)
 	{
@@ -969,8 +974,8 @@ class MySource
 	*
 	* SHOULD BE USED WITH CAUTION
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function restoreCurrentUser()
 	{
@@ -1027,9 +1032,10 @@ class MySource
 	/**
 	* Generates a new login key and returns it
 	*
-	* @param boolean 	$force_new_key 	if true the key will regenerated even if
-	* 					there is already a value save in the session
+	* @param boolean	$force_new_key	if true the key will regenerated even if
+	*									there is already a value save in the session
 	*
+	* @return string
 	* @access public
 	*/
 	function generateLoginKey($force_new_key=false)
@@ -1048,6 +1054,7 @@ class MySource
 	/**
 	* Returns the current login key
 	*
+	* @return string
 	* @access public
 	*/
 	function loginKey()
@@ -1062,8 +1069,8 @@ class MySource
 	*
 	* Note: this function must be called before any other cookies are set or it will clear their set-cookie headers
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function _updateSessionCookie()
 	{
@@ -1099,13 +1106,16 @@ class MySource
 	/**
 	* Clear the user's session of all data
 	*
-	* @access public
 	* @return void
+	* @access private
 	*/
 	function _clearSession()
 	{
 		foreach (array_keys($_SESSION) as $key) {
-			unset($_SESSION[$key]);
+			// do not reset the unsuccessful attempt, unset in &authenticateUser
+			if ($key != 'user_login_attempts'){
+				unset($_SESSION[$key]);
+			}
 		}
 
 	}//end _clearSession()
@@ -1114,11 +1124,11 @@ class MySource
 	/**
 	* Log a message to do with system security (logging in / out)
 	*
-	* @param string	$code					The message code for the message
-	* @param array	$extra_replacemements	Extra keyword replacements to use in the message (user_name is already there)
+	* @param string	$code				The message code for the message
+	* @param array	$extra_replacements	Extra keyword replacements to use in the message (user_name is already there)
 	*
-	* @access public
 	* @return void
+	* @access private
 	*/
 	function _logSecurityMsg($code, $extra_replacements=Array())
 	{
@@ -1139,7 +1149,7 @@ class MySource
 	/**
 	* Returns true if the passed user is the logged in user
 	*
-	* @param object User	$user	the user to check
+	* @param object	$user	the user to check
 	*
 	* @return boolean
 	* @access public
@@ -1154,8 +1164,8 @@ class MySource
 	/**
 	* Returns the userid of the current user, or zero if none present
 	*
+	* @return mixed int|string
 	* @access public
-	* @return int|string	Current user's ID
 	*/
 	function currentUserId()
 	{
@@ -1167,7 +1177,7 @@ class MySource
 	/**
 	* Returns the userid of the public access user, if it exists in the system
 	*
-	* @return string	userid or zero if not found for some reason
+	* @return string
 	* @access public
 	*/
 	function &getPublicUser()
@@ -1180,7 +1190,7 @@ class MySource
 	/**
 	* Is the passed/current user the root user?
 	*
-	* @param object User	$user	the user object you want to test for root access
+	* @param object	$user	the user object you want to test for root access
 	*
 	* @return boolean
 	* @access public
@@ -1202,7 +1212,7 @@ class MySource
 	* equal to system_user - ie root user and any users that inherit from system_user
 	* will return false.
 	*
-	* @param object User	$user	the user object you want to test for sysadmin access
+	* @param object	$user	the user object you want to test for sysadmin access
 	*
 	* @return boolean
 	* @access public
@@ -1228,7 +1238,7 @@ class MySource
 	/**
 	* Is the passed/current user the public user?
 	*
-	* @param object User	$user	the user object you want to test for root access
+	* @param object	$user	the user object you want to test for root access
 	*
 	* @return boolean
 	* @access public
@@ -1246,11 +1256,11 @@ class MySource
 	/**
 	* Get user preferences (user specific config settings) for the current user
 	*
-	* @param string		$asset_type		Asset type whose preferences we want (leave NULL to get all prefs)
-	* @param string		$pref			Name of the preference var we want (leave NULL for all prefs for the asset type)
-	* @param boolean	$value_only		If true, returns the value of the pref only, rather than all its details
+	* @param string		$asset_type	Asset type whose preferences we want (leave NULL to get all prefs)
+	* @param string		$pref		Name of the preference var we want (leave NULL for all prefs for the asset type)
+	* @param boolean	$value_only	If true, returns the value of the pref only, rather than all its details
 	*
-	* @return mixed array | string | false if no file exists
+	* @return mixed array|string|boolean
 	* @access public
 	*/
 	function getUserPrefs($asset_type=null, $pref=null, $value_only=true)
@@ -1340,7 +1350,7 @@ class MySource
 	*
 	* Always call this function to get the messaging service, dont use $this->ms directly
 	*
-	* @return object Messaging_Service
+	* @return object
 	* @access public
 	*/
 	function &getMessagingService()
@@ -1359,7 +1369,7 @@ class MySource
 	*
 	* Always call this function to get the file versioning object, dont use $this->fv directly
 	*
-	* @return object File_Versioning
+	* @return object
 	* @access public
 	*/
 	function &getFileVersioning()
@@ -1380,7 +1390,7 @@ class MySource
 	*
 	* Always call this function to get the HIPO herder, dont use $this->hh directly
 	*
-	* @return object Hipo_Herder
+	* @return object
 	* @access public
 	*/
 	function &getHipoHerder()
@@ -1399,7 +1409,7 @@ class MySource
 	*
 	* Always call this function to get the metadata manager, dont use $this->mm directly
 	*
-	* @return object Metadata_Manager
+	* @return object
 	* @access public
 	*/
 	function &getMetadataManager()
@@ -1418,7 +1428,7 @@ class MySource
 	*
 	* Always call this function to get the workflow manager, dont use $this->wm directly
 	*
-	* @return object Workflow_Manager
+	* @return object
 	* @access public
 	*/
 	function &getWorkflowManager()
@@ -1437,8 +1447,8 @@ class MySource
 	*
 	* Always call this function to get the event manager, dont use $this->em directly
 	*
+	* @return object
 	* @access public
-	* @return object Event_Manager
 	*/
 	function &getEventManager()
 	{
@@ -1456,7 +1466,7 @@ class MySource
 	*
 	* Always call this function to get the trigger manager, dont use $this->wm directly
 	*
-	* @return object Trigger_Manager
+	* @return object
 	* @access public
 	*/
 	function &getTriggerManager()
@@ -1474,8 +1484,8 @@ class MySource
 	/**
 	* Get the Log Manager
 	*
+	* @return object
 	* @access public
-	* @return object Trigger_Manager
 	*/
 	function &getLogManager()
 	{
@@ -1502,12 +1512,12 @@ class MySource
 	/**
 	* Set the current run level
 	*
-	* @param int $run_level	a combination of any of the SQ_SECURITY_* constants that determine
-	* 						which security sub-systems will be enabled (can also use the
-	* 						SQ_RUN_LEVEL_* constants as short-cuts)
+	* @param int	$run_level	a combination of any of the SQ_SECURITY_* constants that determine
+	*							which security sub-systems will be enabled (can also use the
+	*							SQ_RUN_LEVEL_* constants as short-cuts)
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function setRunLevel($run_level)
 	{
@@ -1519,8 +1529,8 @@ class MySource
 	/**
 	* Restore the run level to the previously set one
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function restoreRunLevel()
 	{
@@ -1539,8 +1549,8 @@ class MySource
 	*
 	* Returns NULL if no run level has been set
 	*
+	* @return mixed int|null
 	* @access public
-	* @return int | NULL
 	*/
 	function getRunLevel()
 	{
@@ -1558,11 +1568,11 @@ class MySource
 	/**
 	* Check if the current run level enables a particular security sub-system
 	*
-	* @param int $security_system	one of the SQ_SECURITY_* constants thats represents
-	*								the security sub-system we want to check is enabled
+	* @param int	$security_system	one of the SQ_SECURITY_* constants thats represents
+	*									the security sub-system we want to check is enabled
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function runLevelEnables($security_system)
 	{
@@ -1818,13 +1828,15 @@ class MySource
 	/**
 	* Attempts to acquire a lock
 	*
-	* @param string		$lockid			the id of the lock
-	* @param string		$source_lockid	the id of the lock that started this locking process
-	* @param int|NULL	$expires		when the lock expires (timestamp or NULL)
-	*									If expires is set to NULL, the lock will be acquired indefinitely (ie. it will never expire).
-	*									If expires is set to zero, the lock will be acquired for the current time plus SQ_CONF_LOCK_LENGTH
+	* returns true on success or the error message on failure
 	*
-	* @return TRUE|string	returns true on success or the error message on failure
+	* @param string	$lockid			the id of the lock
+	* @param string	$source_lockid	the id of the lock that started this locking process
+	* @param int	$expires		when the lock expires (timestamp or NULL)
+	*								If expires is set to NULL, the lock will be acquired indefinitely (ie. it will never expire).
+	*								If expires is set to zero, the lock will be acquired for the current time plus SQ_CONF_LOCK_LENGTH
+	*
+	* @return mixed boolean|string
 	* @access public
 	*/
 	function acquireLock($lockid, $source_lockid='', $expires=0)
@@ -1878,9 +1890,9 @@ class MySource
 	/**
 	* Release the passed lock
 	*
-	* @param string	$lockid		the id of the lock to release
+	* @param string	$lockid	the id of the lock to release
 	*
-	* @return true|string	true on success, error message on failure
+	* @return mixed boolean|string
 	* @access public
 	*/
 	function releaseLock($lockid)
@@ -1913,11 +1925,12 @@ class MySource
 	* If the current lock is being held indefinitely (ie. expires = NULL), the lock
 	* expiry time will not be updated but the function will return true. You must release
 	* an indefinite lock before updating its expiry date.
+	* returns true on success, error message on failure
 	*
-	* @param string		$lockid		the id of the lock
-	* @param int|NULL	$expires	when the lock expires (timestamp or NULL)
+	* @param string	$lockid		the id of the lock
+	* @param int	$expires	when the lock expires (timestamp or NULL)
 	*
-	* @return true|string	true on success, error message on failure
+	* @return mixed boolean|string
 	* @access public
 	*/
 	function updateLock($lockid, $expires=0)
@@ -2012,6 +2025,9 @@ class MySource
 	/**
 	* Add a system message
 	*
+	* @param string	$msg	message
+	*
+	* @return void
 	* @access public
 	*/
 	function addMessage($msg)
@@ -2022,9 +2038,9 @@ class MySource
 
 
 	/**
-	* Returns the system messages
+	* Returns the system messages, array(string)
 	*
-	* @return Array(string)
+	* @return array
 	* @access public
 	*/
 	function messages()
@@ -2111,12 +2127,12 @@ class MySource
 	/**
 	* Broadcast a trigger event
 	*
-	* @param string         $event_name     a valid trigger event name
-	* @param object Asset   &$broadcaster   an asset that broadcast the event
-	* @param array          $parameters     an array of parameters that trigger conditions are expected to understand
+	* @param string	$event_name		a valid trigger event name
+	* @param object	&$broadcaster	an asset that broadcast the event
+	* @param array	$parameters		an array of parameters that trigger conditions are expected to understand
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function broadcastTriggerEvent($event_name, &$broadcaster, $parameters=null)
 	{

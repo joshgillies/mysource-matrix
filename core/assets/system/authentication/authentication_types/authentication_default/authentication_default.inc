@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default.inc,v 1.9 2005/05/30 05:19:59 rhoward Exp $
+* $Id: authentication_default.inc,v 1.10 2005/09/15 23:00:50 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authent
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,11 +59,12 @@ class Authentication_Default extends Authentication
 	*
 	* If the wrong password is supllied, the user account will be locked after
 	* a system defined number of incorrect login attempts
+	* returns user or null
 	*
 	* @param string	$username	the user name to search for
 	* @param string	$password	the password to match
 	*
-	* @return object User | NULL
+	* @return object
 	* @access public
 	*/
 	function &authenticateUser($username, $password)
@@ -113,19 +114,29 @@ class Authentication_Default extends Authentication
 	/**
 	* Registers that an invalid login attempt has been made and locks the user account if required
 	*
-	* @param object User	&$user	the user account upon which an invalid login attempt was made
+	* @param object	&$user	the user account upon which an invalid login attempt was made
 	*
 	* @return void
 	* @access private
 	*/
 	function _registerInvalidLogin(&$user)
 	{
+		// Zero (0) is unlimited attempts
+		if (SQ_CONF_MAX_LOGIN_ATTEMPTS == 0) return;
+
 		$username = $user->attr('username');
-		if (!isset($_SESSION['user_login_attempts'])) $_SESSION['user_login_attempts'] = Array();
-		if (empty($_SESSION['user_login_attempts'][$username])) $_SESSION['user_login_attempts'][$username] = 1;
-		else $_SESSION['user_login_attempts'][$username]++;
+		if (!isset($_SESSION['user_login_attempts'])) {
+			$_SESSION['user_login_attempts'] = Array();
+		}
+		if (!isset($_SESSION['user_login_attempts'][$username])) {
+			$_SESSION['user_login_attempts'][$username] = 1;
+		} else {
+			$_SESSION['user_login_attempts'][$username]++;
+		}
 
 		if ($_SESSION['user_login_attempts'][$username] >= SQ_CONF_MAX_LOGIN_ATTEMPTS) {
+			unset($_SESSION['user_login_attempts']);
+
 			if (!is_null($user) && $user->canLogin()) {
 				// pretend to be the root user so we can lock the account
 				$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
@@ -142,7 +153,7 @@ class Authentication_Default extends Authentication
 
 					// lock the user
 					if ($user->processStatusChange(SQ_STATUS_UNDER_CONSTRUCTION)) {
-						$GLOBALS['SQ_SYSTEM']->addMessage('User "'.$username.'" locked');
+						// $GLOBALS['SQ_SYSTEM']->addMessage('User "'.$username.'" locked, '.SQ_CONF_MAX_LOGIN_ATTEMPTS." unsuccessful login attempt(s)");
 						$success = true;
 					}
 					$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
@@ -157,11 +168,12 @@ class Authentication_Default extends Authentication
 					// we are actually logged in as ROOT
 					if ($success) {
 						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+						$name = $user->name." (Id: #".$user->id.")";
 						$msg_reps = Array(
-								'user_name'		=> $username,
-								'num_attempts'	=> (int)SQ_CONF_MAX_LOGIN_ATTEMPTS,
-							);
-						$log = $ms->newMessage(Array(), 'system.security.login', $msg_reps);
+										'user_name'		=> $name,
+										'num_attempts'	=> (int)SQ_CONF_MAX_LOGIN_ATTEMPTS,
+									);
+						$log = $ms->newMessage(Array(), 'system.security.locked', $msg_reps);
 						$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
 						$log->parameters['sessionid'] = session_id();
 						$log->send();
@@ -176,8 +188,8 @@ class Authentication_Default extends Authentication
 	/**
 	* If this authentication has a user matching the username in $_SERVER['REMOTE_USER'], return that user
 	*
+	* @return object
 	* @access public
-	* @return Object | null
 	*/
 	function &authenticateHttpUser()
 	{
