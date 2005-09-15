@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.17 2005/08/19 01:23:36 mmcintyre Exp $
+* $Id: hipo_job_create_links.inc,v 1.18 2005/09/15 04:41:38 ndvries Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -367,12 +367,12 @@ class HIPO_Job_Create_Links extends HIPO_Job
 								echo $asset->name;
 
 								$link_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE);
-
 								?><table class="sq-backend-table"><?php
 								foreach ($links as $link_data) {
 									$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['majorid'], $link_data['major_type_code']);
 									$link_description = $major->describeLink($link_data['linkid']);
-									$link_lineage = $link_lineages[$link_data['linkid']]['lineage'];
+									$link_lineage = array_pop($link_lineages);
+									$link_lineage = $link_lineage['lineage'];
 
 									// construct a human readable lineage
 									$num_in_lineage = count($link_lineage);
