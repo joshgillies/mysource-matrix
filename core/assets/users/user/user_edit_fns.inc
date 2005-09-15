@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.19 2005/06/27 00:07:19 ndvries Exp $
+* $Id: user_edit_fns.inc,v 1.20 2005/09/15 06:46:56 ndvries Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -92,7 +92,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 			return false;
 		}
 
-		if ($asset->writeAccess('attributes')) {
+		if ($asset->adminAccess('attributes')) {
 
 			foreach ($groups as $group_assetid => $group) {
 				$group_menu[$group_assetid] = $group['name'];
@@ -121,7 +121,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 		// get a list of directly linked groups
 		$groups = $this->_getLinkedGroups($asset);
 
-		$write_access = $asset->writeAccess('attributes');
+		$admin_access = $asset->adminAccess('attributes');
 
 		// get a list of user restrictions
 		$restrictions = $asset->attr('restrictions');
@@ -149,9 +149,9 @@ class User_Edit_Fns extends Asset_Edit_Fns
 					$condition =& new $type_code();
 					$edit_fns =& $condition->getEditFns();
 
-					$edit_fns->paintEditInterface($condition,  $o, $condition_prefix, $value, $write_access);
+					$edit_fns->paintEditInterface($condition,  $o, $condition_prefix, $value, $admin_access);
 
-					if ($write_access) {
+					if ($admin_access) {
 						$o->openField(translate('delete_question'));
 						check_box($condition_prefix.'[delete]', '1');
 						$o->closeField();
@@ -183,7 +183,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 	{
 		// get a list of directly linked groups
 		$groups = $this->_getLinkedGroups($asset);
-		$write_access = $asset->writeAccess('attributes');
+		$admin_access = $asset->adminAccess('attributes');
 		$restrictions = $asset->attr('restrictions');
 
 		// -- PROCESS CONDITIONS --//
@@ -208,7 +208,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 						$edit_fns =& $condition->getEditFns();
 
 						// query the condition to retrieve the paramaters it needs
-						$results = $edit_fns->processEditInterface($condition,  $o, $condition_prefix, $value, $write_access);
+						$results = $edit_fns->processEditInterface($condition,  $o, $condition_prefix, $value, $admin_access);
 						$restrictions[$group_assetid][$key]['condition_data'] = array_get_index($results, 'condition_data', Array());
 						$restrictions[$group_assetid][$key]['match'] = array_get_index($results, 'match', '1');
 					}
