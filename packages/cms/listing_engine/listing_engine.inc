@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.93 2005/09/13 02:12:39 ndvries Exp $
+* $Id: listing_engine.inc,v 1.94 2005/09/15 06:39:25 arailean Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1114,9 +1114,11 @@ class Listing_Engine extends Page
 		// in case it wasn't done beforehand in printContents() or something
 		$relations = $this->_analyseCheckAllRelations($todo);
 		?>
-		<script type="text/javascript"><!--
+		<script type="text/javascript">
+		<!--
 			<?php echo $this->_buildRelationsJS(); ?>
-		//--></script>
+		//-->
+		</script>
 		<?php
 		if ($this->attr('group_by') == 'grouped') {
 			$this->_printGroups($todo, $this->attr('asset_grouping'));
@@ -2304,56 +2306,101 @@ class Listing_Engine extends Page
 		// it must be from one of our format bodycopies, or something else altogether,
 		// so we'll try to find out which of the format types it is.
 		$group_folder = &$this->getFolder('group_formats');
+		$position_folder = &$this->getFolder('position_formats');
+		$type_folder = &$this->getFolder('type_formats');
+
+		$keywords = Array();
 		if (in_array($group_folder->id, array_keys($parent_folders))) {
+			// group format
 			$keywords = $this->_getGroupFolderKeywords();
-		} else {
-			$folder = &$this->getFolder();
-			if (is_null($folder)) {
-				// it doesn't have Type Format folder
-				$keywords = $this->getAvailableKeywords();
-			} else {
-				// link to Default Format
-				$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
-				$type_codes = Array();
-				foreach ($type_links as $link_info) {
-					if (isset($parents[$link_info['minorid']])) {
-						$type_codes[] = $link_info['value'];
-					}
-				}
-				$keywords = Array();
-				if (empty($type_codes)) {
-					// Page Contents
-					$keywords = $this->_getContentsKeywords();
 
-				} else {
-					// this bodycopy belongs to only one type code
-					if (count($type_codes) == 1) {
-						$type_name = $type_codes[0];
-						if ($type_name == 'default_format') {
-							$type_keywords = Asset::getAvailableKeywords();
-						} else {
-							$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_name);
-							$dummy_asset =& new $type_name();
-							$type_keywords = $dummy_asset->getAvailableKeywords();
-							unset($dummy_asset);
-						}
-					// this bodycopy is being shared by more than one type codes
-					} else if (count($type_codes) > 1) {
-						$type_keywords = Asset::getAvailableKeywords();
-					}
+		} else if (in_array($position_folder->id, array_keys($parent_folders))) {
+			// position format
+			$keywords = $this->_getGenericSingleAssetFormatKeywords();
 
-					foreach ($type_keywords as $keyword => $description) {
-						$keywords[$keyword] = $description;
-					}
-					$keywords['asset_lineage'] = translate('asset_lineage');
-					$keywords['asset_lineage_linked'] = translate('asset_lineage_linked');
-					$keywords += $this->_getTypeFormatsKeywords();
+		} else if (in_array($type_folder->id, array_keys($parent_folders))) {
+			// specific or default type format
+			$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($type_folder->id, SQ_LINK_TYPE_2, 'bodycopy');
+			$type_codes = Array();
+			foreach ($type_links as $link_info) {
+				if (isset($parents[$link_info['minorid']])) {
+					$type_codes[] = $link_info['value'];
 				}
 			}
+
+			$type_name = null;
+			if ((count($type_codes) == 1) && ($type_codes[0] != 'default_format')) {
+				$type_name = $type_codes[0];
+			}
+			$keywords = $this->_getGenericSingleAssetFormatKeywords($type_name);
+
+		} else {
+			// page contents format
+			$keywords = $this->_getContentsKeywords();
 		}
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 	}//end onRequestKeywords()
+
+
+	/**
+	* Get keywords from another asset
+	*
+	* Gets a list of keywords either from a base asset or a specified asset type
+	*
+	* @param string	$type	Asset type to get keywords from
+	*
+	* @return array
+	* @access private
+	*/
+	function _getGenericSingleAssetFormatKeywords($type=null)
+	{
+		$keywords = $this->_getAdditionalSingleAssetFormatKeywords();
+
+		if (!empty($type)) {
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type);
+			$dummy_asset =& new $type();
+			$keywords += $dummy_asset->getAvailableKeywords();
+			unset($dummy_asset);
+		} else {
+			$keywords += Asset::getAvailableKeywords();
+		}
+
+		return $keywords;
+
+	}//end _getGenericSingleAssetFormatKeywords()
+
+
+	/**
+	* Get additional keywords to be used in the single-asset format
+	*
+	* Provides keywords to be used alongside those provided by assets themselves.
+	* These keywords are understood only by this asset
+	*
+	* @return void
+	* @access private
+	*/
+	function _getAdditionalSingleAssetFormatKeywords()
+	{
+		$keywords['asset_lineage'] = translate('asset_lineage');
+		$keywords['asset_lineage_linked'] = translate('asset_lineage_linked');
+		$keywords['asset_contents'] = translate('cms_listing_asset_contents');
+		$keywords['asset_name_linked'] = translate('cms_listing_asset_name_linked');
+		$keywords['asset_short_name_linked'] = translate('cms_listing_asset_short_name_linked');
+		$keywords['asset_position'] = translate('cms_listing_asset_position');
+		$keywords['root_nodes'] = translate('cms_listing_keyword_root_nodes');
+
+		// asset selections
+		$selections = $this->attr('asset_selections');
+		if (is_array($selections) && !empty($selections)) {
+			foreach ($selections as $name => $settings) {
+				$keywords[$name.'_asset_selection'] = translate('cms_listing_keyword_asset_selection', $name);
+			}
+		}
+
+		return $keywords;
+
+	}//end _getAdditionalSingleAssetFormatKeywords()
 
 
 	/**
@@ -2435,11 +2482,16 @@ class Listing_Engine extends Page
 	/**
 	* Get the keywords which are specific in Type Formats
 	*
+	* Marked deprecated on 15/09/2005
+	*
 	* @return array
 	* @access protected
+	* @deprecated
 	*/
 	function _getTypeFormatsKeywords()
 	{
+		$keywords['asset_lineage'] = translate('asset_lineage');
+		$keywords['asset_lineage_linked'] = translate('asset_lineage_linked');
 		$keywords['asset_contents'] = translate('cms_listing_asset_contents');
 		$keywords['asset_name_linked'] = translate('cms_listing_asset_name_linked');
 		$keywords['asset_short_name_linked'] = translate('cms_listing_asset_short_name_linked');
