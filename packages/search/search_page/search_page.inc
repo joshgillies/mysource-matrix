@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.137 2005/09/14 07:30:01 rhoward Exp $
+* $Id: search_page.inc,v 1.138 2005/09/15 06:43:47 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.137 $
+* @version $Revision: 1.138 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -106,8 +106,8 @@ class Search_Page extends Listing_Engine
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
@@ -141,15 +141,15 @@ class Search_Page extends Listing_Engine
 	* should be checked to work out what side of the link this asset is on. The return value should indicate
 	* if any of the link fields were changed.
 	*
-	* @param object Asset	$asset			the major or minor asset that we are linking to
-	* @param string			$side_of_link	the side of the link we are on (major or minor)
-	* @param string			$link_type		the type of link we are creating
-	* @param string			$value			the value that is to be associated with the link
-	* @param string			$sort_order		the position in the links list that this link should take,
-	* @param string			$dependant		'0' / '1' on whether the this asset is dependant on the
-	*										asset that will be linked by the new link
-	* @param string			$exclusive		'0' / '1' on whether the this asset is linked exclusivly
-	*										to the asset that will be linked by the new link
+	* @param object	&$asset			the major or minor asset that we are linking to
+	* @param string	$side_of_link	the side of the link we are on (major or minor)
+	* @param string	&$link_type		the type of link we are creating
+	* @param string	&$value			the value that is to be associated with the link
+	* @param string	&$sort_order	the position in the links list that this link should take,
+	* @param string	&$dependant		'0' / '1' on whether the this asset is dependant on the
+	*								asset that will be linked by the new link
+	* @param string	&$exclusive		'0' / '1' on whether the this asset is linked exclusivly
+	*								to the asset that will be linked by the new link
 	*
 	* @return boolean
 	* @access public
@@ -172,7 +172,7 @@ class Search_Page extends Listing_Engine
 	*
 	* @param int	$linkid	the link id of the link to remove
 	*
-	* @return mixed TRUE or error msg string
+	* @return mixed string|boolean
 	* @access public
 	*/
 	function isDeletableLink($linkid)
@@ -193,8 +193,9 @@ class Search_Page extends Listing_Engine
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -234,6 +235,7 @@ class Search_Page extends Listing_Engine
 	/**
 	* Called by the design to print the body of this asset
 	*
+	* @return void
 	* @access public
 	*/
 	function printContents()
@@ -329,8 +331,8 @@ class Search_Page extends Listing_Engine
 	/**
 	* Prints the results bodycopy
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function printResultsBody()
 	{
@@ -373,8 +375,10 @@ class Search_Page extends Listing_Engine
 	* with its children of specified type_code. The children inherit the score
 	* from the proxy
 	*
-	* @access private
+	* @param array	&$results	Proxy Types
+	*
 	* @return array
+	* @access private
 	*/
 	function &convertProxyAssetTypes(&$results)
 	{
@@ -433,12 +437,13 @@ class Search_Page extends Listing_Engine
 	/**
 	* Sort the list of assets
 	*
-	* @param array			$asset_list 	an array of assets to be sorted
-	* @param string			$sort_info		sorting information as provided by getSortInfo()
+	* @param array	$asset_list	an array of assets to be sorted
+	* @param string	$sort_info	sorting information as provided by getSortInfo()
 	*
-	* @see    Listing_Engine::sortAssetList()
-	* @see    Listing_Engine::getSortInfo()
 	* @return array
+	* @access public
+	* @see Listing_Engine::sortAssetList()
+	* @see Listing_Engine::getSortInfo()
 	*/
 	function sortAssetList($asset_list, $sort_info)
 	{
@@ -466,9 +471,11 @@ class Search_Page extends Listing_Engine
 	/**
 	* Retrieves a bodycopy by name
 	*
-	* @param string		$name	the name of the bodycopy to retrieve
+	* Returns the bodycopy, or null if the name does not match any bodycopies
 	*
-	* @return [object|null] The bodycopy, or null if the name does not match any bodycopies.
+	* @param string	$name	the name of the bodycopy to retrieve
+	*
+	* @return mixed object|null
 	* @access private
 	* @see Search_Page::bodycopies
 	*/
@@ -489,9 +496,10 @@ class Search_Page extends Listing_Engine
 	/**
 	* Retrieves a bodycopy's contents by name
 	*
-	* @param string		$name	the name of the bodycopy to retrieve
+	* @param string	$name			the name of the bodycopy to retrieve
+	* @param array	$replacements	replacements
 	*
-	* @return [string|null] the bodycopy's contents, or empty string if the name does not match any bodycopies
+	* @return mixed string|null
 	* @access private
 	* @see Search_Page::bodycopies
 	* @see Search_Page::getBodycopy
@@ -517,9 +525,8 @@ class Search_Page extends Listing_Engine
 	* Get a datetime field for painting and processing
 	*
 	* @param string	$field_name	the name of the field we are creating
-	* @param string	$value		the current value of this field
 	*
-	* @return object Datetime_Field
+	* @return object
 	* @access private
 	*/
 	function _getDateField($field_name)
@@ -693,7 +700,7 @@ class Search_Page extends Listing_Engine
 	/**
 	* Print a date range selection
 	*
-	* @param string	$prefix	the name of the field we are processing
+	* @param string	$field_name	the name of the field we are processing
 	*
 	* @return array
 	* @access private
@@ -718,10 +725,13 @@ class Search_Page extends Listing_Engine
 
 
 	/**
+	* Get Category Chooser Replacement
 	*
+	* @param string	$cat_set_name		Category Name
+	* @param array	$cat_set_details	Category details
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function getCategoryChooserReplacement($cat_set_name, $cat_set_details)
 	{
@@ -743,7 +753,7 @@ class Search_Page extends Listing_Engine
 	/**
 	* Returns the replacement for the specified field
 	*
-	* @param string $field name the name of the field to get the replacement for
+	* @param string	$field_name	the name of the field to get the replacement for
 	*
 	* @return string
 	* @access public
@@ -850,7 +860,7 @@ class Search_Page extends Listing_Engine
 	/**
 	* Returns the replacement for the specified field in a search in search form
 	*
-	* @param string $field name the name of the field to get the replacement for
+	* @param string	$field_name	the name of the field to get the replacement for
 	*
 	* @return string
 	* @access public
@@ -1010,7 +1020,7 @@ class Search_Page extends Listing_Engine
 	/**
 	* Returns the current search terms for the passed field
 	*
-	* @param string	$field	name the name of the field to get the replacement for
+	* @param string	$field_name	the name of the field to get the replacement for
 	*
 	* @return string
 	* @access public
@@ -1103,7 +1113,7 @@ class Search_Page extends Listing_Engine
 	/**
 	* Returns replacements that that are common to the bodycopies
 	*
-	* @param string $keyword the keyword of the wanted replacement
+	* @param string	$keyword	the keyword of the wanted replacement
 	*
 	* @return string
 	* @access public
@@ -1209,7 +1219,7 @@ class Search_Page extends Listing_Engine
 				$current_logic = array_get_index($_REQUEST, $keyword, array_get_index($fields[$matches[1]], 'word_logic'));
 				$options = Array(
 							'AND'	=> translate('sch_page_format_logic_and'),
-							'OR'	=> translate('sch_page_format_logic_or')
+							'OR'	=> translate('sch_page_format_logic_or'),
 						   );
 				ob_start();
 					$this->registerFormField($keyword);
@@ -1233,7 +1243,7 @@ class Search_Page extends Listing_Engine
 	/**
 	* Returns the keyword replacements for the specified format bodycopy
 	*
-	* @param string $form_name the name of the form to get the replacements for
+	* @param string	$form_name	the name of the form to get the replacements for
 	*
 	* @return array
 	* @access public
@@ -1283,8 +1293,8 @@ class Search_Page extends Listing_Engine
 	* Returns the contents of the specified bodycopy with its keywords
 	* replaced with the specified replacements
 	*
-	* @param string 	$form_name 		the name of the format to get the contents for
-	* @param array		$replacements 	the array of replacements to replace in the content
+	* @param string	$form_name		the name of the format to get the contents for
+	* @param array	$replacements	the array of replacements to replace in the content
 	*
 	* @return string
 	* @access public
@@ -1333,7 +1343,7 @@ class Search_Page extends Listing_Engine
 	/**
 	* Keyword-replaces for the results mode
 	*
-	* @param array	$results	the results returned
+	* @param array	&$results	the results returned
 	* @param string	$bc_name	the name of the bodycopy to be printed (results | no_results)
 	*
 	* @return void
@@ -1654,8 +1664,8 @@ class Search_Page extends Listing_Engine
 	*
 	* @param array	$child_assetid	the asset to find the parents of
 	*
+	* @return array
 	* @access public
-	* @return Array	returns a list of valid groupable parents
 	*/
 	function getGroupableParentAssetids($child_assetid)
 	{
@@ -1677,10 +1687,10 @@ class Search_Page extends Listing_Engine
 	/**
 	* Keyword-replaces for the result element
 	*
-	* @param int		$assetid		the asset ID of the result element
+	* @param int	$assetid	the asset ID of the result element
 	*
-	* @return void
-	* @access private
+	* @return array
+	* @access public
 	*/
 	function getResultElementBodyReplacements($assetid)
 	{
@@ -1780,7 +1790,7 @@ class Search_Page extends Listing_Engine
 	* score fields so they don't blank out when keywords are replaced in listing
 	* engine.
 	*
-	* @return Array(string => string)	keyword name => replacement
+	* @return array
 	* @access public
 	*/
 	function getExtendedAssetKeywordReplacements()
@@ -1799,7 +1809,6 @@ class Search_Page extends Listing_Engine
 	* Processes a search request
 	*
 	* Note that all search queries are constructed and run in the Search Manager
-	*
 	* From the posted variables, it formulates search info and returns results
 	*
 	* @return array
@@ -2117,7 +2126,7 @@ class Search_Page extends Listing_Engine
 	/**
 	* Returns the link for the format folder
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function getFormatFolderLink()
@@ -2131,7 +2140,7 @@ class Search_Page extends Listing_Engine
 	/**
 	* Returns the format folder where the format bodycopies live
 	*
-	* @return &object asset
+	* @return object
 	* @access public
 	*/
 	function &getFormatFolder()
@@ -2151,9 +2160,9 @@ class Search_Page extends Listing_Engine
 	/**
 	* Returns the link for a bodycopy with the specified link value
 	*
-	* @param string $link_value the link value of the link of the wanted bodycopy
+	* @param string	$link_value	the link value of the link of the wanted bodycopy
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function getFormatBodycopyLink($link_value)
@@ -2173,9 +2182,9 @@ class Search_Page extends Listing_Engine
 	* If the bodycopy does not exist, or it have a link type 3, null is returned
 	* as either no format has been customised, or the format feature has been disbled
 	*
-	* @param string $link_value the link value of the wanted bodycopy
+	* @param string	$link_value	the link value of the wanted bodycopy
 	*
-	* @return &object asset
+	* @return object
 	* @access public
 	*/
 	function &getFormatBodycopy($link_value)
@@ -2197,7 +2206,6 @@ class Search_Page extends Listing_Engine
 	*
 	* This is being overridden to cache the results of each asset, and add
 	* the score and result number keyword replacements
-	*
 	* Note that the second parameter is score and not type code. This is because
 	* we send the search results which is (assetid => score) instead of
 	* (assetid => type_code). It still works - and allows us to add the score
@@ -2205,8 +2213,9 @@ class Search_Page extends Listing_Engine
 	* the listing engine.
 	*
 	* @param string	$assetid		The assetid of the asset we are printing
-	* @param string $score			The score of the
-	* @param string $list_position
+	* @param string	$type_code		Asset's type code
+	* @param int	$list_position	Asset's position in the list
+	* @param array	$keywords		Keywords
 	*
 	* @return void
 	* @access protected
@@ -2291,8 +2300,8 @@ class Search_Page extends Listing_Engine
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
 	*								we add keywords to the $vars['keywords'] array
 	*
 	* @return boolean
@@ -2314,67 +2323,51 @@ class Search_Page extends Listing_Engine
 			}
 		}
 
-		// type folder links
-		$folder = &$this->getFolder();
-		if (!is_null($folder)) {
-			$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
-			foreach ($type_links as $link_info) {
-				if (isset($parents[$link_info['minorid']])) {
-					$type_formats[] = $link_info['value'];
-				}
-			}
-		}
-
-		if (empty($bodycopies) && empty($type_formats)) {
-			return;
-		}
-
-		if (empty($bodycopies) && !empty($type_formats)) {
+		// ATTENTION!
+		// this check relies on the fact that ALL single asset formats like type, default or position
+		// are located in subfolders of this asset, and only its context bodycopies are its direct children
+		if (empty($bodycopies)) {
 			parent::onRequestKeywords($broadcaster, $vars);
 			return;
-		} else {
-			// work out if forms are customised
-			$search_bodycopy_link = &$this->getFormatBodycopyLink('search_form');
-			$sis_bodycopy_link    = &$this->getFormatBodycopyLink('sis_form'); //search in search
-			$search_customised    = !empty($search_bodycopy_link) && $search_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
-			$sis_customised       = !empty($sis_bodycopy_link) && $sis_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
+		}
 
-			foreach ($bodycopies as $bodycopy) {
-				if ($bodycopy == 'initial') {
-					// work out the query field keywords
-					$fields = $this->attr('fields');
-					foreach ($fields as $field => $field_data) {
-						$keywords[$field.'_query'] = translate('sch_page_keyword_search_field', $field);
-						$keywords[$field.'_query_logic'] = translate('sch_page_keyword_search_field_logic', $field);
-					}
+		// work out if forms are customised
+		$search_bodycopy_link = &$this->getFormatBodycopyLink('search_form');
+		$sis_bodycopy_link    = &$this->getFormatBodycopyLink('sis_form'); //search in search
+		$search_customised    = !empty($search_bodycopy_link) && $search_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
+		$sis_customised       = !empty($sis_bodycopy_link) && $sis_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
 
-					// work out search category keywords
-					foreach ($this->attr('categories') as $cat_name => $cat_details) {
-						$keywords[$cat_name.'_category_chooser'] = 'Dropdown box for category set '.$cat_name;
-					}
-
+		foreach ($bodycopies as $bodycopy) {
+			if ($bodycopy == 'initial') {
+				// work out the query field keywords
+				$fields = $this->attr('fields');
+				foreach ($fields as $field => $field_data) {
+					$keywords[$field.'_query'] = translate('sch_page_keyword_search_field', $field);
+					$keywords[$field.'_query_logic'] = translate('sch_page_keyword_search_field_logic', $field);
 				}
 
-				foreach ($this->keywords[$bodycopy] as $keyword) {
-					$keywords[$keyword] = ucwords(str_replace('_', ' ', $keyword));
+				// work out search category keywords
+				foreach ($this->attr('categories') as $cat_name => $cat_details) {
+					$keywords[$cat_name.'_category_chooser'] = 'Dropdown box for category set '.$cat_name;
 				}
 
-				// customised forms
-				if ($search_customised) {
-					$keywords += $this->_getCustomisedFormKeywords();
-				}
-
-				// search in search
-				if ($sis_customised) {
-					$keywords += $this->_getSearchInSearchKeywords();
-				}
 			}
 
-			if (count($type_formats) > 0) {
-				$keywords['result_number'] = translate('sch_page_keyword_result_number');
-				$keywords['score'] = translate('sch_page_keyword_search_score');
+			foreach ($this->keywords[$bodycopy] as $keyword) {
+				$keywords[$keyword] = ucwords(str_replace('_', ' ', $keyword));
+			}
+
+			// customised forms
+			if ($search_customised) {
+				$keywords += $this->_getCustomisedFormKeywords();
+			}
+
+			// search in search
+			if ($sis_customised) {
+				$keywords += $this->_getSearchInSearchKeywords();
 			}
 		}
+
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
@@ -2382,10 +2375,31 @@ class Search_Page extends Listing_Engine
 
 
 	/**
+	* Get additional keywords to be used in the single-asset format
+	*
+	* Provides keywords to be used alongside those provided by assets themselves.
+	* These keywords are understood only by this asset
+	*
+	* @return array
+	* @access protected
+	*/
+	function _getAdditionalSingleAssetFormatKeywords()
+	{
+		$keywords = parent::_getAdditionalSingleAssetFormatKeywords();
+
+		$keywords['result_number'] = translate('sch_page_keyword_result_number');
+		$keywords['score'] = translate('sch_page_keyword_search_score');
+
+		return $keywords;
+
+	}//end _getAdditionalSingleAssetFormatKeywords()
+
+
+	/**
 	* Get the keyword for Customised Form
 	*
+	* @return array
 	* @access protected
-	* @return array(keyword => replacement)
 	*/
 	function _getCustomisedFormKeywords()
 	{
@@ -2401,8 +2415,8 @@ class Search_Page extends Listing_Engine
 	/**
 	* Get the keyword for Search In Search
 	*
+	* @return array
 	* @access protected
-	* @return array(keyword => replacement)
 	*/
 	function _getSearchInSearchKeywords()
 	{
