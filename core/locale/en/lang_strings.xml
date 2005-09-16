@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.56 2005/09/14 01:47:21 dmckee Exp $
+* $Id: lang_strings.xml,v 1.57 2005/09/16 03:14:47 ndvries Exp $
 *
 */
 
@@ -768,7 +768,7 @@
 	<string source="csv_upload_instructions_example_2">&lt;b&gt;Example 2 (no expiry date):&lt;/b&gt; http://www.mysite.com/page_1, http://www.mysite.com/home,</string>
 	<string source="404_remap_description">The page where 404 requests are remapped to</string>
 	<string source="redirecting_you_to">Redirecting you to %s</string>
-	<string source="trash_purge_warning">This will purge all assets from the trash and make then unavailable for restoring or editing.</string>
+	<string source="trash_purge_warning">This will purge all assets from the trash and make them unavailable for restoring or editing.</string>
 	<string source="trash_is_empty">The trash is currently empty</string>
 	<string source="minor_not_asset">Minor is not an asset</string>
 
