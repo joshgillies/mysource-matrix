@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.128.2.1 2005/09/05 07:06:39 ndvries Exp $
+* $Id: backend.inc,v 1.128.2.2 2005/09/16 06:51:52 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.128.2.1 $
+* @version $Revision: 1.128.2.2 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -608,7 +608,7 @@ class Backend extends MySource_Object
 							$options[] = Array(
 											'url'		=> $this->getBackendUrl('main').'&backend_section=maps',
 											'target'	=> 'sq_main',
-											'title'		=> translate('automated_packaging_system'),
+											'title'		=> translate('automated_patching_system'),
 											'icon'		=> 'maps.png',
 										 );
 						}
