@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.57 2005/09/16 03:14:47 ndvries Exp $
+* $Id: lang_strings.xml,v 1.58 2005/09/16 06:47:41 bcaldwell Exp $
 *
 */
 
@@ -331,7 +331,6 @@
 	<string source="hipo_configuration">HIPO Configuration</string>
 	<string source="external_tools_configuration">External Tools Configuration</string>
 	<string source="global_preferences">Global Preferences</string>
-	<string source="automated_packaging_system">Automated Packaging System</string>
 	<string source="tools">Tools</string>
 	<string source="hipo_herder">HIPO Herder</string>
 	<string source="asset_tree">Asset Tree</string>
@@ -1628,7 +1627,7 @@ Items to delete: %s</string>
 	<string source="asset_status_changed_iso8601">The date when the asset was last changed (ISO8601 format)</string>
 	<string source="asset_status_changed_rfc2822">The date when the asset was last changed (RFC2822 format)</string>
 	<string source="asset_status_changed_ical">The date when the asset was changed (iCalendar format)</string>
-	
+
 	<string source="private">private</string>
 	<string source="public">public</string>
 	<string source="data">data</string>
