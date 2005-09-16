@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.94 2005/09/15 06:39:25 arailean Exp $
+* $Id: listing_engine.inc,v 1.95 2005/09/16 07:01:57 arailean Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1054,8 +1054,8 @@ class Listing_Engine extends Page
 	* @return void
 	* @access private
 	*/
-	 function _groupChunk(&$todo, &$chunk, &$remaining_count, $num_per_page, $group_limit=null)
-	 {
+	function _groupChunk(&$todo, &$chunk, &$remaining_count, $num_per_page, $group_limit=null)
+	{
 		$pointer =& reset($todo);
 
 		//keep calling this for each group until we get to the actual assets
@@ -1079,7 +1079,7 @@ class Listing_Engine extends Page
 			$remaining_count--;
 		}
 
-	 }//end _groupChunk()
+	}//end _groupChunk()
 
 
 	/**
@@ -1908,7 +1908,6 @@ class Listing_Engine extends Page
 	* Recursive function to build multi level grouping
 	*
 	* (actually this is now non-recursive, function name will have to be fixed!)
-	* .
 	* Will construct an array in the following form:
 	* if it is a  group its index will be group name (assetid or string) and its
 	* contents an array if its an asset in a group its index will be an assetid
