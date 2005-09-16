@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.14 2005/07/21 01:37:31 dheppell Exp $
+* $Id: page_standard.inc,v 1.15 2005/09/16 07:02:07 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,8 +61,8 @@ class Page_Standard extends Page
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
@@ -91,15 +91,15 @@ class Page_Standard extends Page
 	* should be checked to work out what side of the link this asset is on. The return value should indicate
 	* if any of the link fields were changed.
 	*
-	* @param object Asset	$asset			the major or minor asset that we are linking to
-	* @param string			$side_of_link	the side of the link we are on (major or minor)
-	* @param string			$link_type		the type of link we are creating
-	* @param string			$value			the value that is to be associated with the link
-	* @param string			$sort_order		the position in the links list that this link should take,
-	* @param string			$dependant		'0' / '1' on whether the this asset is dependant on the
-	*										asset that will be linked by the new link
-	* @param string			$exclusive		'0' / '1' on whether the this asset is linked exclusivly
-	*										to the asset that will be linked by the new link
+	* @param object	&$asset			the major or minor asset that we are linking to
+	* @param string	$side_of_link	the side of the link we are on (major or minor)
+	* @param string	&$link_type		the type of link we are creating
+	* @param string	&$value			the value that is to be associated with the link
+	* @param string	&$sort_order	the position in the links list that this link should take,
+	* @param string	&$dependant		'0' / '1' on whether the this asset is dependant on the
+	*								asset that will be linked by the new link
+	* @param string	&$exclusive		'0' / '1' on whether the this asset is linked exclusivly
+	*								to the asset that will be linked by the new link
 	*
 	* @return boolean
 	* @access public
@@ -122,7 +122,7 @@ class Page_Standard extends Page
 	*
 	* @param int	$linkid	the link id of the link to remove
 	*
-	* @return mixed TRUE or error msg string
+	* @return mixed boolean|string
 	* @access public
 	*/
 	function isDeletableLink($linkid)
@@ -142,8 +142,9 @@ class Page_Standard extends Page
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -157,7 +158,7 @@ class Page_Standard extends Page
 	/**
 	* Prints out the backend interface for the asset
 	*
-	* @param object Backend_Outputter $o
+	* @param object	&$o	Backend_Outputter
 	*
 	* @return void
 	* @access public
@@ -206,9 +207,18 @@ class Page_Standard extends Page
 
 		// if the cache is empty, go ahead and regenerate a new version
 		if (empty($cached_contents)) {
+			$bodycopy = &$this->getBodycopy();
+			if (is_null($bodycopy)) return;
 			ob_start();
-				$bodycopy = &$this->getBodycopy();
-				if (!is_null($bodycopy)) $bodycopy->printBody();
+				// set the keyword replacements
+				$keywords = $bodycopy->getKeywords();
+				$replacements = Array();
+				foreach ($keywords as $word) {
+					$replacements[$word] = $this->getKeywordReplacement($word);
+				}
+				$bodycopy->setKeywordReplacements($replacements);
+
+				$bodycopy->printBody();
 				$cm->saveToCache($this->id, $this->type(), 'default', ob_get_contents());
 			ob_end_flush();
 		} else {
@@ -299,7 +309,7 @@ class Page_Standard extends Page
 	/**
 	* Return the bodycopy linked to this page
 	*
-	* @return &object Asset
+	* @return object
 	* @access public
 	*/
 	function &getBodycopy()
@@ -315,11 +325,10 @@ class Page_Standard extends Page
 	/**
 	* Get replacements for keywords that are specific to this asset
 	*
-	* @param Array $keywords the keywords to get replacements for
+	* @param array	$keywords	the keywords to get replacements for
 	*
 	* @return array
 	* @access public
-	*
 	* @see Asset::getCustomKeywordReplacements()
 	*/
 	function getCustomKeywordReplacements($keywords)
@@ -358,11 +367,10 @@ class Page_Standard extends Page
 	/**
 	* Process anything that was previously printed for a custom keyword
 	*
-	* @param Array $keywords the keywords that were originally printed
+	* @param array	$keywords	the keywords that were originally printed
 	*
 	* @return boolean
 	* @access public
-	*
 	* @see Asset::processCustomKeywords()
 	*/
 	function processCustomKeywords($keywords)
