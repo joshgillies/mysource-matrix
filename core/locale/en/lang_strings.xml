@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18.2.17 2005/09/14 01:48:57 dmckee Exp $
+* $Id: lang_strings.xml,v 1.18.2.18 2005/09/16 06:51:32 bcaldwell Exp $
 *
 */
 
@@ -317,7 +317,6 @@
 	<string source="hipo_configuration">HIPO Configuration</string>
 	<string source="external_tools_configuration">External Tools Configuration</string>
 	<string source="global_preferences">Global Preferences</string>
-	<string source="automated_packaging_system">Automated Packaging System</string>
 	<string source="tools">Tools</string>
 	<string source="hipo_herder">HIPO Herder</string>
 	<string source="asset_tree">Asset Tree</string>
