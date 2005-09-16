@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.454 2005/09/14 06:17:03 ndvries Exp $
+* $Id: asset.inc,v 1.455 2005/09/16 04:24:10 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.454 $
+* @version $Revision: 1.455 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3029,42 +3029,6 @@ class Asset extends MySource_Object
 		return $keywords;
 
 	}//end getAvailableKeywords()
-
-
-	/**
-	* Compares the result from getAssetKeywords() and getAvailableKeywords()
-	*
-	* @return void
-	* @access private
-	*/
-	function _keywordsCompare()
-	{
-		$ori_set = $this->getAssetKeywords(true);
-		$new_set = $this->getAvailableKeywords();
-
-		foreach ($new_set as $key => $value) {
-			if (array_key_exists($key, $ori_set)) {
-				if ($value != $ori_set[$key]['description']) {
-					error_log('[DEBUG _keywordsCompare] The value in new_set for the key, '.$key.' is not same as one in ori_set');
-				}
-			}
-			else {
-				error_log('[DEBUG _keywordsCompare] The key in new_set, '.$key.' does not exist in ori_set.');
-			}
-		}
-
-		foreach ($ori_set as $key => $value) {
-			if (array_key_exists($key, $new_set)) {
-				if ($value['description'] != $new_set[$key]) {
-					error_log('[DEBUG _keywordsCompare] The value in ori_set for the key, '.$key.' is not same as one in new_set');
-				}
-			}
-			else {
-				error_log('[DEBUG _keywordsCompare] The key in ori_set, '.$key.' does not exist in new_set.');
-			}
-		}
-
-	}//end _keywordsCompare()
 
 
 	/**
