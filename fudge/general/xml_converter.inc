@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_converter.inc,v 1.4 2005/08/16 05:28:56 skim Exp $
+* $Id: xml_converter.inc,v 1.5 2005/09/19 12:57:28 gnoel Exp $
 *
 */
 
@@ -55,7 +55,7 @@ require_once 'XML/Parser.php';
 *
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package Fudge
 * @subpackage General
 */
@@ -321,7 +321,7 @@ class XML_Converter extends XML_Parser
 		$element = &$this->array_xml[$element_index];
 		if (isset($element['-content'])) {
 			$element['-content'] = trim($element['-content']);
-			if (empty($element['-content'])) {
+			if ($element['-content'] == '') {
 				unset($this->array_xml[$element_index]['-content']);
 			}
 		}
@@ -342,7 +342,7 @@ class XML_Converter extends XML_Parser
 	*/
 	function cdataHandler($xp, $data)
 	{
-		if (!empty($data)) {
+		if (isset($data)) {
 			$element = &$this->array_xml[count($this->array_xml) - 1];
 			if (!isset($element['-content'])) {
 				$element['-content'] = '';
