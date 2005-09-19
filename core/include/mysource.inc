@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.60.2.8 2005/07/14 01:23:32 dmckee Exp $
+* $Id: mysource.inc,v 1.60.2.9 2005/09/19 05:50:59 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -445,10 +445,15 @@ class MySource
 						$system = &$GLOBALS['SQ_SYSTEM']->am->getAsset($systemid);
 						if (is_null($system)) continue;
 						$user = &$system->authenticateUser($_POST['SQ_LOGIN_USERNAME'], $_POST['SQ_LOGIN_PASSWORD']);
-						if (!is_null($user)) break;
+
+						// check that the user exists AND that it can login
+						// (ie. it is not yet live, or has been locked)
+						if (!is_null($user) && $user->canLogin()) {
+							break;
+						}
 					}
 
-					if (!is_null($user)) {
+					if (!is_null($user) && $user->canLogin()) {
 						if ($this->setCurrentUser($user)) {
 							$_SESSION['userid']         = $user->id;
 							$_SESSION['user_type_code'] = $user->type();

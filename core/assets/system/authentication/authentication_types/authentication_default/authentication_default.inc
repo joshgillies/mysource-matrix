@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default.inc,v 1.3.2.1 2005/04/13 04:48:40 ndvries Exp $
+* $Id: authentication_default.inc,v 1.3.2.2 2005/09/19 05:51:04 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -131,7 +131,6 @@ class Authentication_Default extends Authentication
 				if ($GLOBALS['SQ_SYSTEM']->setCurrentUser($GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user'))) {
 					$success = false;
 					if ($user->processStatusChange(SQ_STATUS_UNDER_CONSTRUCTION)) {
-						$GLOBALS['SQ_SYSTEM']->addMessage('User "'.$username.'" locked');
 						$success = true;
 					}
 					$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
