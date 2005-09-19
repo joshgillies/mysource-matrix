@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_converter.inc,v 1.2.2.3 2005/08/15 03:50:34 mmcintyre Exp $
+* $Id: xml_converter.inc,v 1.2.2.4 2005/09/19 12:45:18 gnoel Exp $
 *
 */
 
@@ -30,15 +30,15 @@ require_once 'XML/Parser.php';
 * Purpose
 * Converts an xml document from a string to an array or from an array to a
 * string
-* 
+*
 * <root>
-*  		<b attr="val">vb1</b>  		 		  				
+*  		<b attr="val">vb1</b>
 * 		<b>vb2</b>
 * 		<c> <d/> </c>
 * </root>
 *
 * is equivalent to:
-* 
+*
 *		Array (
 *		    'root' => Array (
 *		        Array (
@@ -50,12 +50,12 @@ require_once 'XML/Parser.php';
 *		                    	Array ('d' => Array (Array ()))
 *		                	)
 *		       	)
-*		    )		
+*		    )
 *		)
 *
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.2.2.3 $
+* @version $Revision: 1.2.2.4 $
 * @package Fudge
 * @subpackage General
 */
@@ -64,7 +64,7 @@ class XML_Converter extends XML_Parser
 
 	/**
 	 * Holds the last converted xml array
-	 * 
+	 *
 	 * @var Array
 	 */
 	var $array_xml;
@@ -72,7 +72,7 @@ class XML_Converter extends XML_Parser
 
 	/**
 	 * Tells whether the conversion to a string includes indentation
-	 * 
+	 *
 	 * @var boolean
 	 */
 	var $indent_xml = false;
@@ -80,7 +80,7 @@ class XML_Converter extends XML_Parser
 
 	/**
 	 * Generates compact arrays (Not implemented yet)
-	 * 
+	 *
 	 * @var boolean
 	 */
 	var $compact_array = false;
@@ -89,7 +89,7 @@ class XML_Converter extends XML_Parser
 	/**
 	 * Level of recursivity during conversion
 	 * @see _getStringFromArrayInternal
-	 * 
+	 *
 	 * @var int
 	 */
 	var $tag_level = 0;
@@ -97,10 +97,10 @@ class XML_Converter extends XML_Parser
 
 	/**
 	 * Converts a xml-array into a xml-string
-	 * 
+	 *
 	 * @param Array		$xml		xml-array to convert
 	 * @param boolean	$no_header	if true, add a xml header
-	 * 
+	 *
 	 * @return string
 	 * @access public
 	 */
@@ -122,9 +122,9 @@ class XML_Converter extends XML_Parser
 
 	/**
 	 * Converts a file containing a xml-string into a xml-array
-	 * 
+	 *
 	 * @param string	$xml_file	file name
-	 * 
+	 *
 	 * @return Array
 	 * @access public
 	 */
@@ -143,9 +143,9 @@ class XML_Converter extends XML_Parser
 
 	/**
 	 * Converts a xml-string into a xml-array
-	 * 
+	 *
 	 * @param string 	$xml	a well formed xml-string to convert
-	 *  
+	 *
 	 * @return Array
 	 * @access public
 	 */
@@ -162,33 +162,33 @@ class XML_Converter extends XML_Parser
 
 	/**
 	 * Returns the content of an element
-	 * 
+	 *
 	 * @param Array		$parent			the parent element as a xml-array
 	 * @param string	$element_name	element name
 	 * @param boolean	$default_value	default value if the element doesn't
 	 * exists
-	 * 
+	 *
 	 * @return string
 	 * @access public
 	 */
 	function getElementContent(&$parent, $element_name, $default_value=NULL)
 	{
 		$ret = $default_value;
-		
+
 		if (isset($parent[$element_name][0]['-content']))
 			$ret = $parent[$element_name][0]['-content'];
-			
-		return $ret; 
-		
+
+		return $ret;
+
 	}
 
 
 	/**
 	 * Internal function to converts an xml-array into a string
-	 * 
+	 *
 	 * @param mixed		$xml			part of a xml-array
 	 * @param string 	$parent_tag		name of the parent element
-	 * 
+	 *
 	 * @return Array
 	 * @access private
 	 */
@@ -200,27 +200,27 @@ class XML_Converter extends XML_Parser
 		$optional_rc = '';
 		$ret = '';
 
-		if (is_array($xml)) {			
+		if (is_array($xml)) {
 			foreach ($xml as $xml_key => $xml_val) {
 
 				$is_tag_open |= !is_integer($xml_key);
 
 				if (is_array($xml_val)) {
 					// empty element (no attr or subelement), we force to print the tag name
-					if (count($xml_val)) {						
+					if (count($xml_val)) {
 						$optional_rc = $rc;
 						$tag_name = $xml_key;
-	
+
 						if (is_integer($xml_key))
 							$tag_name = $parent_tag;
 						else
 							$this->tag_level++;
-	
+
 						$ret .= $this->_getStringFromArrayInternal($xml_val, $tag_name);
-	
+
 						if (!is_integer($xml_key)) $this->tag_level--;
 					}
-					else 
+					else
 						$is_tag_open = true;
 				}
 				else {
@@ -250,7 +250,7 @@ class XML_Converter extends XML_Parser
 
 	/**
 	 * clean up object
-	 * 
+	 *
 	 * @return void
 	 * @access public
 	 */
@@ -263,7 +263,7 @@ class XML_Converter extends XML_Parser
 
 	/**
 	 * reset object, prepare it to be used
-	 * 
+	 *
 	 * @return void
 	 * @access private
 	 */
@@ -278,10 +278,10 @@ class XML_Converter extends XML_Parser
 
 	}
 
-	
+
 	/**
 	 * Start element event handler for the XML parser
-	 * 	 
+	 *
 	 * @return void
 	 * @access private
 	 */
@@ -300,7 +300,7 @@ class XML_Converter extends XML_Parser
 
 	/**
 	 * End element event handler for the XML parser
-	 * 
+	 *
 	 * @return void
 	 * @access private
 	 */
@@ -310,11 +310,11 @@ class XML_Converter extends XML_Parser
 		$element = &$this->array_xml[$element_index];
 		if (isset($element['-content'])) {
 			$element['-content'] = trim($element['-content']);
-			if (empty($element['-content'])) {
+			if ($element['-content'] == '') {
 				unset($this->array_xml[$element_index]['-content']);
 			}
 		}
-		
+
 		$this->array_xml[$element_index - 1][$elem][] = $element;
 
 		array_pop($this->array_xml);
@@ -325,15 +325,15 @@ class XML_Converter extends XML_Parser
 	/**
 	 * Element Content event handler for the XML parser
 	 * No need to decode entities, the default php parser already does it.
-	 * 
+	 *
 	 * @return void
 	 * @access private
 	 */
 	function cdataHandler($xp, $data)
 	{
-		if (!empty($data)) {
+		if (isset($data)) {
 			$element = &$this->array_xml[count($this->array_xml) - 1];
-			if (!isset($element['-content'])) 
+			if (!isset($element['-content']))
 				$element['-content'] = '';
 			$element['-content'] .= $data;
 		}
