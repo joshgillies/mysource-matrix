@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.95 2005/09/16 07:01:57 arailean Exp $
+* $Id: listing_engine.inc,v 1.96 2005/09/19 04:30:06 sdanis Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -599,6 +599,7 @@ class Listing_Engine extends Page
 		}
 
 		$wanted_statuses = $this->attr('statuses');
+
 		if (!empty($wanted_statuses)) {
 			$sql = 'SELECT
 						assetid
@@ -634,14 +635,14 @@ class Listing_Engine extends Page
 
 			$wanted_assets = $db->getAssoc($sql);
 			assert_valid_db_result($wanted_assets);
-		}
 
-		foreach ($todo as $assetid => $v) {
-			if (isset($wanted_assets[$assetid])) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $wanted_assets[$assetid]);
-				if (!$asset->writeAccess()) unset($todo[$assetid]);
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-				unset($asset);
+			foreach ($todo as $assetid => $v) {
+				if (isset($wanted_assets[$assetid])) {
+					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $wanted_assets[$assetid]);
+					if (!$asset->writeAccess()) unset($todo[$assetid]);
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+					unset($asset);
+				}
 			}
 		}
 
