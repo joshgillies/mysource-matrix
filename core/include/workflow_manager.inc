@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.77 2005/09/13 07:39:53 rhoward Exp $
+* $Id: workflow_manager.inc,v 1.78 2005/09/19 06:30:41 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -550,8 +550,21 @@ class Workflow_Manager extends MySource_Object
 				$condition = &$GLOBALS['SQ_SYSTEM']->am->getAsset($cond_id, 'workflow_step_condition');
 				if (is_null($condition)) continue;
 				if ($condition->attr('require_comment')) {
-					if ($condition->attr('userid') == $userid) {
-						$require_comment = true;
+					$condition_userid = $condition->attr('userid');
+					if (!empty($condition_userid)) {
+						// if the currently logged-in user is the specified user,
+						if ($condition->attr('userid') == $userid) {
+							$require_comment = true;
+						} else {
+							$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+							if (!empty($user)) {
+								$user_groups = $user->getUserGroups();
+								// ... or in the specifed group
+								if (in_array($condition_userid, $user_groups)) {
+									$require_comment = true;
+								}
+							}
+						}
 					}
 				}
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($condition);

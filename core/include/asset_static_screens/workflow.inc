@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.30 2005/09/13 07:39:53 rhoward Exp $
+* $Id: workflow.inc,v 1.31 2005/09/19 06:30:38 rhoward Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 
@@ -257,7 +257,6 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_status_commit'])) {
 								ob_start();
 							}
-
 							$require_comment = $wfm->requiresComment($owner->id, $GLOBALS['SQ_SYSTEM']->user->id);
 							$button_js = 'submit_form()';
 							if ($require_comment) {
