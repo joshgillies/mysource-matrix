@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.142 2005/09/15 23:00:51 rong Exp $
+* $Id: mysource.inc,v 1.143 2005/09/19 04:36:13 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.142 $
+* @version $Revision: 1.143 $
 * @package MySource_Matrix
 */
 class MySource
@@ -713,7 +713,12 @@ class MySource
 						$system = &$this->am->getAsset($systemid);
 						if (is_null($system)) continue;
 						$user = &$system->authenticateUser($login_username, $login_password);
-						if (!is_null($user)) return $this->loginUser($user);
+
+						// check that the user exists AND that it can login
+						// (ie. it is not yet live, or has been locked)
+						if (!is_null($user) && $user->canLogin()) {
+							return $this->loginUser($user);
+						}
 					}
 
 					$this->addMessage('User not found');
