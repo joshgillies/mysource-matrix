@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.7 2005/08/31 00:19:38 dheppell Exp $
+* $Id: report_links_edit_fns.inc,v 1.8 2005/09/19 00:41:53 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -529,7 +529,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 								<td class="sq-backend-table-cell" style="width: 190px; padding-right: 1px; padding-top:6px; text-align: left;">
 									<?php echo $to_string; ?>
 								</td>
-								
+
 								<!-- COMMENT -->
 								<td class="sq-backend-table-cell">
 									<?php
@@ -714,8 +714,12 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		}
 		if (is_null($asset)) {
 			$asset_type = '';
-			$asset_string = 'Unkown asset #'.$assetid;
+			$asset_name = 'Unknown asset #'.$assetid;
+			$asset_string = 'Unknown asset #'.$assetid;
 			$asset_bg = 'FFFFFF';
+			$asset_status = '';
+			$asset_url = '';
+			$asset_preview_url = '';
 		} else {
 			$dependants = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($asset->id);
 			$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset(array_pop($dependants));
