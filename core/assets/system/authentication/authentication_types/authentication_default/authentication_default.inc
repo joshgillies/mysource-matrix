@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default.inc,v 1.9 2005/05/30 05:19:59 rhoward Exp $
+* $Id: authentication_default.inc,v 1.9.2.1 2005/09/19 05:31:51 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authent
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -142,7 +142,6 @@ class Authentication_Default extends Authentication
 
 					// lock the user
 					if ($user->processStatusChange(SQ_STATUS_UNDER_CONSTRUCTION)) {
-						$GLOBALS['SQ_SYSTEM']->addMessage('User "'.$username.'" locked');
 						$success = true;
 					}
 					$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();

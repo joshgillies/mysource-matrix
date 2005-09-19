@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18.2.18 2005/09/16 06:51:32 bcaldwell Exp $
+* $Id: lang_strings.xml,v 1.18.2.19 2005/09/19 05:32:01 lwright Exp $
 *
 */
 
@@ -138,6 +138,7 @@
 	<string source="logical_keyword">Logical Keyword</string>
 	<string source="logical_keywords">Logical Keywords</string>
 	<string source="login/session_settings">Login/Session Settings</string>
+	<string source="login_key_incorrect">Login Key incorrect</string>
 	<string source="lookups_updating_threshold">Lookups Updating Threshold</string>
 	<string source="manually_cascade_permissions">Manually Cascade Permissions?</string>
 	<string source="match_condition">Match Condition</string>
@@ -224,6 +225,7 @@
 	<string source="upload_patch">Upload Patch</string>
 	<string source="use_cache">Use Cache</string>
 	<string source="user_groups">User Groups</string>
+	<string source="user_not_found">User not found</string>
 	<string source="value">Value</string>
 	<string source="key">Key</string>
 	<string source="variety_type">Variety Type</string>

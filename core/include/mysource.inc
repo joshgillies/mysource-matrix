@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.119.2.12 2005/08/26 04:17:37 dmckee Exp $
+* $Id: mysource.inc,v 1.119.2.13 2005/09/19 05:31:50 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.119.2.12 $
+* @version $Revision: 1.119.2.13 $
 * @package MySource_Matrix
 */
 class MySource
@@ -701,15 +701,20 @@ class MySource
 						$system = &$this->am->getAsset($systemid);
 						if (is_null($system)) continue;
 						$user = &$system->authenticateUser($login_username, $login_password);
-						if (!is_null($user)) return $this->loginUser($user);
+
+						// check that the user exists AND that it can login
+						// (ie. it is not yet live, or has been locked)
+						if (!is_null($user) && $user->canLogin()) {
+							return $this->loginUser($user);
+						}
 					}
 
-					$this->addMessage('User not found');
+					$this->addMessage(translate('user_not_found'));
 
 				} else {
 
 					// incorrect login key
-					$this->addMessage('Login Key incorrect');
+					$this->addMessage(translate('login_key_incorrect'));
 				}
 
 				// deliberalty don't have a break here so it the
