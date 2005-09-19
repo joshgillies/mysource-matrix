@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.96 2005/09/19 04:30:06 sdanis Exp $
+* $Id: listing_engine.inc,v 1.97 2005/09/19 23:39:54 lwright Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1299,7 +1299,7 @@ class Listing_Engine extends Page
 						if ($assetid == null) {
 							echo '&nbsp;';
 						} else {
-							$this->_printAsset($assetid, $todo[$assetid], $list_position);
+							$this->_printAsset($assetid, $list_position);
 							next($todo);
 							$assetid = key($todo);
 							$list_position++;
@@ -1314,14 +1314,8 @@ class Listing_Engine extends Page
 
 			echo '</table>';
 		} else {
-
-			//$this->_tmp['group_todo'] = ;
 			foreach ($todo as $assetid => $type_code) {
-				if ($using_groups) {
-					$this->_printAsset($assetid, $type_code['type_code'], $list_position);
-				} else {
-					$this->_printAsset($assetid, $type_code, $list_position);
-				}
+				$this->_printAsset($assetid, null, $list_position);
 				$list_position++;
 			}
 		}
@@ -1333,16 +1327,13 @@ class Listing_Engine extends Page
 	* Print a single asset from the list
 	*
 	* @param string	$assetid		the ID of the asset we are printing
-	* @param string	$type_code		the type code of the asset we are printing
-	*								(CURRENTLY IGNORED - TO BE REMOVED as this does not
-	*								always contain type code anymore - eg. search page)
 	* @param int	$list_position	the position of this asset in the list
 	*
 	* @return void
 	* @access private
 	* @see printAssetList()
 	*/
-	function _printAsset($assetid, $type_code, $list_position)
+	function _printAsset($assetid, $list_position)
 	{
 		$mm         = null;
 		$contents   = '';

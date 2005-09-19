@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list.inc,v 1.10 2005/07/29 05:30:40 tbarrett Exp $
+* $Id: search_list.inc,v 1.11 2005/09/19 23:40:01 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -204,7 +204,7 @@ class Search_List extends Page_Asset_Listing
 	* @access private
 	* @see printAssetList()
 	*/
-	function _printAsset($word, $type_code, $list_position)
+	function _printAsset($word, $list_position)
 	{
 		$format = $this->attr('default_format');
 		$keywords = Array(
