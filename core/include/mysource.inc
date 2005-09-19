@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.143 2005/09/19 04:36:13 lwright Exp $
+* $Id: mysource.inc,v 1.144 2005/09/19 05:31:00 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.143 $
+* @version $Revision: 1.144 $
 * @package MySource_Matrix
 */
 class MySource
@@ -721,12 +721,12 @@ class MySource
 						}
 					}
 
-					$this->addMessage('User not found');
+					$this->addMessage(translate('user_not_found'));
 
 				} else {
 
 					// incorrect login key
-					$this->addMessage('Login Key incorrect');
+					$this->addMessage(translate('login_key_incorrect'));
 				}
 
 				// deliberalty don't have a break here so it the
