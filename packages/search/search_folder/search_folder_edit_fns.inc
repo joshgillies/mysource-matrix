@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_edit_fns.inc,v 1.17 2005/09/13 00:02:48 lwright Exp $
+* $Id: search_folder_edit_fns.inc,v 1.18 2005/09/19 02:13:04 sdanis Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -86,16 +86,20 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 		if ($write_access) {
 			multiple_asset_finder($prefix.'_roots', $current);
 		} else {
-			$root_asset = null;
-			if (!empty($current)) {
-				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current);
-			}
+			?><ul><?php
+			foreach ($current as $assetid) {
+				$root_asset = null;
+				if (!empty($assetid)) {
+					$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				}
 
-			if (!is_null($root_asset)) {
-				echo $root_asset->name.' (Id: #'.$root_asset->id.')';
-			} else {
-				echo translate('sch_folder_no_search_root');
+				if (!is_null($root_asset)) {
+					?><li><?php echo $root_asset->name ?> (Id: #<?php echo $root_asset->id; ?>)</li><?php
+				} else {
+					echo translate('sch_folder_no_search_root');
+				}
 			}
+			?></ul><?php
 		}
 
 		return $write_access;
