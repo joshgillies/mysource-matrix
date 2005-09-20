@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.375 2005/09/20 06:01:02 ndvries Exp $
+* $Id: asset_manager.inc,v 1.376 2005/09/20 23:51:48 dheppell Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.375 $
+* @version $Revision: 1.376 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -791,6 +791,9 @@ class Asset_Manager extends MySource_Object
 	*/
 	function assetExists($assetids)
 	{
+		$shadows = Array();
+		$shadow_asset_ids = Array();
+
 		// number of assetids
 		$count = count($assetids);
 
@@ -801,10 +804,31 @@ class Asset_Manager extends MySource_Object
 		if ($is_array && !$is_empty) {
 			foreach ($assetids as $key => $value) {
 				assert_valid_assetid($value);
+
+				//catch the shadow assets
+				$id_parts = explode(':', $value);
+				if (isset($id_parts[1])) {
+					$shadows[$id_parts[0]][] = $id_parts[1];
+				}
 			}
 		} else if (!$is_empty) {
 			assert_valid_assetid($assetids);
+			//catch the shadow assets
+			$id_parts = explode(':', $assetids);
+			if (isset($id_parts[1])) {
+				$shadows[$id_parts[0]][] = $id_parts[1];
+			}
 		}
+
+
+		// pipe it off to the real asset
+		if (!empty($shadows)) {
+			foreach ($shadows as $shadow_id => $shadow) {
+				$asset = &$this->getAsset($shadow_id);
+				$shadow_asset_ids += $asset->assetExists($shadow);
+			}
+		}
+
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT assetid
@@ -816,7 +840,11 @@ class Asset_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quoteSmart($assetids));
 			$db_assetids = $db->getOne($sql.$where);
 			assert_valid_db_result($db_assetids);
-			return ($db_assetids == $assetids);
+			if (!empty($shadow_asset_ids)) {
+				$shadow_asset_ids[] = $db_assetids;
+			} else {
+				return ($db_assetids == $assetids);
+			}
 		}
 
 		// array of asset ids
@@ -836,6 +864,11 @@ class Asset_Manager extends MySource_Object
 				$existing_asset_ids[] = $db_id['assetid'];
 			}
 		}
+
+		for ($i = 0; $i < count($shadow_asset_ids); $i++) {
+			$existing_asset_ids[] = $shadow_asset_ids[$i];
+		}
+
 		return $existing_asset_ids;
 
 	}//end assetExists()
@@ -848,8 +881,8 @@ class Asset_Manager extends MySource_Object
 	* @param object Asset	&$obj	the asset to be registered
 	*
 	* @see forgetAsset()
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function rememberAsset(&$obj)
 	{
@@ -875,8 +908,8 @@ class Asset_Manager extends MySource_Object
 	*										during a purge)
 	*
 	* @see rememberAsset()
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function forgetAsset(&$obj, $force_clean=false)
 	{
@@ -1074,10 +1107,43 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=true, $field='')
 	{
+		$shadow_results = Array();
 		assert_type($assetids, 'array');
 		if (empty($assetids)) return Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$shadowids = Array();
+		$normalids = Array();
+		$shadow_results = Array();
+
+		// create a list of (hopefully) seperated assetids and shadow assetids
+		for ($i = 0; $i < count($assetids); $i++) {
+			$id_parts = explode(':', $assetids[$i]);
+
+			if(isset($id_parts[1])) {
+				$shadowids[$id_parts[0]][] = $id_parts[1];
+			} else {
+				$normalids[] = $assetids[$i];
+			}
+		}
+
+		// set it to the array minus the shadowids
+		$assetids = $normalids;
+
+		// we have picked up some shadow assets
+		if(!empty($shadowids)) {
+			$shadow_result = Array();
+
+			// make each bridge get its info
+			foreach($shadowids as $assetid => $shadows) {
+				$asset = &$this->getAsset($assetid);
+				$shadow_results += $asset->getAssetInfo($shadows, $type_code, $strict_type_code, $field);
+			}
+		}
+
+		// breakout if nothing left to do
+		if(empty($assetids)) return $shadow_results;
 
 		// need to do some checking on the field to make sure it's in the table
 		// but only do it if the field is specified
@@ -1137,9 +1203,12 @@ class Asset_Manager extends MySource_Object
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a
 				'.$where.'
 				ORDER BY a.assetid';
-		$result = $db->getAssoc($sql);
 
+		$result = $db->getAssoc($sql);
 		assert_valid_db_result($result);
+
+		// add the shadow assets info
+		$result += $shadow_results;
 
 		return $result;
 
@@ -1950,6 +2019,14 @@ class Asset_Manager extends MySource_Object
 	function getLink($assetid, $link_type=null, $type_code='', $strict_type_code=true, $value=null, $side_of_link='major', $exclusive=null)
 	{
 		assert_valid_assetid($assetid);
+
+		// if its a shadow assetid pipe it off to bridge
+		$id_parts = explode(':', $assetid);
+		if (isset($id_parts[1])) {
+			$asset = &$this->getAsset($id_parts[0]);
+			return $asset->getLink($assetid, $link_type, $type_code, $strict_type_code, $value, $side_of_link, $exclusive);
+		}
+
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
@@ -4285,6 +4362,23 @@ class Asset_Manager extends MySource_Object
 		$permission = (int) $permission;
 		if (!is_null($granted)) $granted = (bool) $granted;
 
+		// check if we are getting permissions for a shadow asset, and palm the request off to the
+		// handler of the shadow asset if we are
+		$id_parts = explode(':', $assetid);
+
+		if (isset($id_parts[1])) {
+			$real_assetid = $id_parts[0];
+			$asset = &$this->getAsset($real_assetid);
+
+			if (is_null($asset)) continue;
+
+			$ret_val = $asset->getPermission($id_parts[1], $permission, $granted, $and_greater, $expand_groups, $all_info);
+			$this->forgetAsset($asset);
+
+			return $ret_val;
+		}
+
+
 		if (($and_greater || $expand_groups) && $all_info) {
 			trigger_localised_error('SYS0273', E_USER_NOTICE, __CLASS__, __FUNCTION__);
 			$all_info = false;
@@ -4375,6 +4469,22 @@ class Asset_Manager extends MySource_Object
 	{
 		$permission = (int)  $permission;
 		$granted    = (bool) $granted;
+
+		// check if we are getting links for a shadow asset, and palm the request off to the
+		// handler of the shadow asset if we are
+		$id_parts = explode(':', $assetid);
+
+		if (isset($id_parts[1])) {
+			$real_assetid = $id_parts[0];
+			$asset = &$this->getAsset($real_assetid);
+
+			if (is_null($asset)) continue;
+			
+			$ret_val = $asset->setPermission($id_parts[1], $userid, $permission, $granted);
+			$this->forgetAsset($asset);
+
+			return $ret_val;
+		}
 
 		$asset = &$this->getAsset($assetid);
 		if (is_null($asset)) return false;
@@ -4482,6 +4592,22 @@ class Asset_Manager extends MySource_Object
 	function deletePermission($assetid, $userid, $permission)
 	{
 		$permission = (int) $permission;
+
+		// check if we are getting links for a shadow asset, and palm the request off to the
+		// handler of the shadow asset if we are
+		$id_parts = explode(':', $assetid);
+
+		if (isset($id_parts[1])) {
+			$real_assetid = $id_parts[0];
+			$asset = &$this->getAsset($real_assetid);
+
+			if (is_null($asset)) continue;
+
+			$ret_val = $asset->deletePermission($id_parts[1], $userid, $permission);
+			$this->forgetAsset($asset);
+
+			return $ret_val;
+		}
 
 		$asset = &$this->getAsset($assetid);
 		if (is_null($asset)) return false;
