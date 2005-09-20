@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2005/05/20 01:46:35 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2005/09/20 03:36:23 arailean Exp $
 *
 */
 -->
@@ -54,12 +54,6 @@
 		</field>
 		<field attribute="frontend">
 			<selection style="list" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function		name="paintWeighting" />
-				<process_function	name="processWeighting" />
-			</function_call>
 		</field>
 	</section>
 
