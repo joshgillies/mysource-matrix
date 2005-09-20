@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus.inc,v 1.7 2005/08/08 06:38:32 lwright Exp $
+* $Id: metadata_field_thesaurus.inc,v 1.8 2005/09/20 04:07:46 arailean Exp $
 *
 */
 
@@ -24,12 +24,13 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
 class Metadata_Field_Thesaurus extends Metadata_Field
 {
+
 
 	/**
 	* Constructor
@@ -47,10 +48,10 @@ class Metadata_Field_Thesaurus extends Metadata_Field
 	/**
 	* Backend Painter
 	*
-	* @param object Backend_Outputter	$o	the appropriate backend outputter
+	* @param object	&$o	the appropriate backend outputter
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function paintBackend(&$o)
 	{
@@ -75,12 +76,11 @@ class Metadata_Field_Thesaurus extends Metadata_Field
 	*
 	* Performs the direct communication necessary the edit interface JS to
 	* be updated with new content dynamically
-	*
 	* This function outputs JavaScript and assumes the echo statements to
 	* produce a complete response - i.e. no more output needs to be done by matrix
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function _directCommunicator()
 	{
@@ -92,17 +92,19 @@ class Metadata_Field_Thesaurus extends Metadata_Field
 		$request_info   = array_get_index($_REQUEST, $prefix.'_info', false);
 		$request_init   = array_get_index($_REQUEST, $prefix.'_init', false);
 
+		$init_list = Array();
+
 		if ($request_init) {
 			if (!empty($term_name)) {
 				$init_list_full = $thesaurus->searchEntities($term_name);
-			}
-			elseif ($thesaurus->isRelationEnabled($thesaurus->REL_CATEGORY)) {
+			} else if ($thesaurus->isRelationEnabled($thesaurus->REL_CATEGORY)) {
 				$rel = $thesaurus->getRelationByName($thesaurus->REL_CATEGORY);
-				$init_list_full = $thesaurus->getAbsoluteParentsInRelation($rel["id"]);
+				$init_list_full = $thesaurus->getAbsoluteParentsInRelation($rel['id']);
 			}
+
 			if (isset($init_list_full)) {
 				foreach ($init_list_full as $child) {
-					$init_list[] = $child["name"];
+					$init_list[] = $child['name'];
 				}
 			}
 			$out = 'parent.Browser.setNewList(Array(Array("'.translate('result').'"), Array(Array("'.implode('","', $init_list).'"))))';
@@ -133,7 +135,7 @@ class Metadata_Field_Thesaurus extends Metadata_Field
 					}
 
 					$js_relation_array = "Array('".implode("','",$child_relation_names)."')";
-					$js_r_entity_array = "Array(".implode(",",$js_relation_entity_array).")";
+					$js_r_entity_array = 'Array('.implode(',',$js_relation_entity_array).')';
 					$js = "$js_relation_array,$js_r_entity_array";
 				} else {
 					$js = '';
@@ -155,15 +157,14 @@ class Metadata_Field_Thesaurus extends Metadata_Field
 	}//end _directCommunicator()
 
 
-
 	/**
 	* Get URL of this asset for direct communication
 	*
 	* Returns a backend URL of this asset that can service direct connections
 	* (ignoring backend frames). This function is used by the JS browser
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function getCommunicatorUrl()
 	{
@@ -175,16 +176,13 @@ class Metadata_Field_Thesaurus extends Metadata_Field
 	/**
 	* Returns a reference to the parent thesaurus asset
 	*
+	* @return object
 	* @access public
-	* @return object Thesaurus
 	*/
 	function &getThesaurusRef()
 	{
 		$th_id = $this->attr('thesaurus_assetid');
-		if ($th_id == -1) {
-			return false;
-
-		}
+		if ($th_id == -1) return false;
 
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($th_id);
 
@@ -194,8 +192,8 @@ class Metadata_Field_Thesaurus extends Metadata_Field
 	/**
 	* Check if thesaurus is active
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function isThesaurusActive()
 	{
