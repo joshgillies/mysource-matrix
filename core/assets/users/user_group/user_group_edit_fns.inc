@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.22.2.3 2005/08/26 04:58:29 dheppell Exp $
+* $Id: user_group_edit_fns.inc,v 1.22.2.4 2005/09/20 06:36:33 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22.2.3 $
+* @version $Revision: 1.22.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,76 +73,6 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		return $result;
 
 	}//end getCurrentRestrictions()
-
-
-	/**
-	* Prints the interface for granting unrestricted access
-	*
-	* @param object User_Group			&$asset	the user group asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintUnrestricted(&$asset, &$o, $prefix)
-	{
-		$current = $this->getCurrentRestrictions($asset);
-		$admin_access = $asset->adminAccess('security');
-
-		if (!$admin_access) {
-			if (!$this->isRestricted($asset, $prefix)) {
-				echo $o->note(translate('user_group_unrestricted_access_granted'));
-			} else {
-				echo $o->note(translate('user_group_unrestricted_access_denied'));
-			}
-		} else {
-			check_box($prefix.'_unrestricted', '1', !$this->isRestricted($asset, $prefix));
-			label(translate('grant_unrestricted_access'), $prefix.'_unrestricted');
-			$o->note(translate('grant_unrestricted_access_note'));
-		}
-
-		return $admin_access;
-
-	}//end paintUnrestricted()
-
-
-	/**
-	* Processes the interface for granting unrestricted access
-	*
-	* @param object User_Group			&$asset	the user group asset
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processUnrestricted(&$asset, &$o, $prefix)
-	{
-		// work out if we wanna do any processing
-		$release_restrictions = (isset($_REQUEST[$prefix.'_unrestricted']) && $this->isRestricted($asset, $prefix));
-
-		if($release_restrictions) {
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
-			$sql = 'DELETE FROM
-						sq_ast_edit_access
-					WHERE
-						userid = '.$db->quoteSmart($asset->id).'
-			';
-
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
-			
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		}
-
-		
-
-		return true;
-
-	}//end processUnrestricted()
 
 
 	/**
