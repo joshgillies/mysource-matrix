@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.374 2005/09/19 06:57:14 sdanis Exp $
+* $Id: asset_manager.inc,v 1.375 2005/09/20 06:01:02 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.374 $
+* @version $Revision: 1.375 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5058,9 +5058,8 @@ class Asset_Manager extends MySource_Object
 
 			foreach ($the_rest as $assetid) {
 				if (!isset($result[$assetid])) {
-					$current_site = $this->getRootUrl(current_url(false, true));
-					$curr_proto = current_protocol();
-					$this->_tmp['urls'][$assetid][$base_url] = $curr_proto.'://'.$current_site['url'].'?a='.$assetid;
+					$root_url = sq_web_path('root_url');
+					$this->_tmp['urls'][$assetid][$base_url] = $root_url.'?a='.$assetid;
 				} else {
 					$this->_tmp['urls'][$assetid][$base_url] = $result[$assetid][0]['protocol'].'://'.$result[$assetid][0]['url'];
 				}
