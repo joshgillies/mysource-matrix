@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.3 2005/05/11 06:04:56 lwright Exp $
+* $Id: cache_manager_edit_fns.inc,v 1.4 2005/09/20 05:05:05 rong Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */
@@ -44,7 +44,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 
 	/**
 	* Constructor
-	* 
+	*
 	* @see Asset_Edit_Fns::Asset_Edit_Fns
 	*/
 	function Cache_Manager_Edit_Fns()
@@ -57,9 +57,9 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface for selecting an asset type to customise
 	*
-	* @param &object Asset				$asset		the asset of the layout manager
-	* @param &object Backend_Outputter	$o			the backend outputter
-	* @param string						$prefix		a unique prefix for variables
+	* @param object	&$asset	the asset of the layout manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
@@ -113,9 +113,9 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for selecting an asset type to customise
 	*
-	* @param &object Asset				$asset		the asset of the layout manager
-	* @param &object Backend_Outputter	$o			the backend outputter
-	* @param string						$prefix		a unique prefix for variables
+	* @param object	&$asset	the asset of the layout manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
@@ -130,9 +130,9 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface for customising an individual asset type's cache options
 	*
-	* @param &object Asset				$asset		the asset of the layout manager
-	* @param &object Backend_Outputter	$o			the backend outputter
-	* @param string						$prefix		a unique prefix for variables
+	* @param object	&$asset	the asset of the layout manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
@@ -172,7 +172,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			$o->openField(translate('default_expiry'), '', translate('valid_cache_length'));
 				$using_default = !isset($type_codes[$selected]['expiry']);
 				if ($using_default) {
-					echo 'Using default value of '.$asset->attr('expiry'). ' seconds<br/>';
+					echo 'Using default value of '.$asset->attr('expiry').' seconds<br/>';
 				} else {
 					if ($write_access) {
 						text_box($prefix.'_expiry', $type_codes[$selected]['expiry'], 5);
@@ -200,9 +200,9 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for customising an individual asset type's cache options
 	*
-	* @param &object Asset				$asset		the asset of the layout manager
-	* @param &object Backend_Outputter	$o			the backend outputter
-	* @param string						$prefix		a unique prefix for variables
+	* @param object	&$asset	the asset of the layout manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
@@ -226,7 +226,9 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				} else {
 					$save = true;
 					$using_default = true;
-					if (isset($type_codes[$type][$default])) unset($type_codes[$type][$default]);
+					if (isset($type_codes[$type][$default])) {
+						unset($type_codes[$type][$default]);
+					}
 				}
 				if (isset($_POST[$prefix.'_'.$default]) && !$using_default) {
 					if (!isset($type_codes[$type][$default]) || $type_codes[$type][$default] != $_POST[$prefix.'_'.$default]) {
@@ -235,7 +237,9 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 					}
 				}
 			}
-			if (isset($type_codes[$type]) && empty($type_codes[$type])) unset($type_codes[$type]);
+			if (isset($type_codes[$type]) && empty($type_codes[$type])) {
+				unset($type_codes[$type]);
+			}
 			return ($save) ? $asset->setAttrValue('type_codes', $type_codes) : false;
 		}
 		return false;
@@ -246,9 +250,9 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface for clearing the cache files
 	*
-	* @param &object Asset				$asset		the asset of the layout manager
-	* @param &object Backend_Outputter	$o			the backend outputter
-	* @param string						$prefix		a unique prefix for variables
+	* @param object	&$asset	the asset of the layout manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
@@ -263,10 +267,10 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$o->openField(translate('level'));
 			$options = Array(
-				'single'     => translate('this_asset'),
-				'dependants' => translate('this_asset_and_dependants'),
-				'children'   => translate('this_asset_and_children'),
-			);
+						'single'		=> translate('this_asset'),
+						'dependants'	=> translate('this_asset_and_dependants'),
+						'children'		=> translate('this_asset_and_children'),
+					   );
 			combo_box($prefix.'_level', $options, '', false);
 		$o->closeField();
 
@@ -294,9 +298,9 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for clearing the cache files, and starts the clear cache hipo
 	*
-	* @param &object Asset				$asset		the asset of the layout manager
-	* @param &object Backend_Outputter	$o			the backend outputter
-	* @param string						$prefix		a unique prefix for variables
+	* @param object	&$asset	the asset of the layout manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
@@ -316,10 +320,10 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
 			$vars = Array(
-				'assetid'    => $assetid,
-				'level'      => $level,
-				'type_codes' => $type_codes
-			);
+						'assetid'		=> $assetid,
+						'level'			=> $level,
+						'type_codes'	=> $type_codes,
+					);
 			$hh->queueHipo('hipo_job_clear_cache', $vars);
 
 			return true;

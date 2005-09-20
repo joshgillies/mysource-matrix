@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_management.inc,v 1.5 2005/03/29 06:45:43 lwright Exp $
+* $Id: cache_manager_management.inc,v 1.6 2005/09/20 05:05:05 rong Exp $
 *
 */
 
@@ -32,12 +32,14 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $ - 0.1
+* @version $Revision: 1.6 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Cache_Manager_Management extends Asset_Management
 {
+
+
 	/**
 	* Constructor
 	*/
@@ -46,58 +48,50 @@ class Cache_Manager_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-			'enabled' => Array(
-				'added'       => '0.1',
-				'type'        => 'boolean',
-				'default'     => false,
-				'description' => 'Turns caching on or off',
-				'parameters'  => Array(
-					'allow_empty' => false
-				),
-			),
-			'public_caching' => Array (
-				'added'			=> '0.1',
-				'type'			=> 'boolean',
-				'default'		=> false,
-				'description'	=> 'Turns caching on or off for not logged in users',
-				'parameters' 	=> Array(
-										'allow_empty' => false
-									),
-			),
-			'permission_caching' => Array (
-				'added'			=> '0.1',
-				'type'			=> 'boolean',
-				'default'		=> false,
-				'description'	=> 'Turns read/write/admin level caching on or off',
-				'parameters' 	=> Array(
-										'allow_empty' => false
-									),
-			),
-			'group_caching' => Array (
-				'added'			=> '0.1',
-				'type'			=> 'boolean',
-				'default'		=> false,
-				'description'	=> 'Turns group level caching on or off',
-				'parameters' 	=> Array(
-											'allow_empty' => false
-										),
-			),
-			'num_cache_dirs' => Array(
-					'added'		=> '0.1',
-					'type'		=> 'int',
-					'default'	=> '20',
-			),
-			'expiry' => Array(
-					'added'		=> '0.1',
-					'type'		=> 'int',
-					'default'	=> '86400',
-			),
-			'type_codes' => Array(
-					'added'		=> '0.1',
-					'type'		=> 'serialise',
-					'default'	=> Array(),
-			),
-		);
+						'enabled'				=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> false,
+													'description'	=> 'Turns caching on or off',
+													'parameters'	=> Array('allow_empty'	=> false),
+												   ),
+						'public_caching'		=> Array (
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> false,
+													'description'	=> 'Turns caching on or off for not logged in users',
+													'parameters'	=> Array('allow_empty'	=> false),
+												   ),
+						'permission_caching'	=> Array (
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> false,
+													'description'	=> 'Turns read/write/admin level caching on or off',
+													'parameters'	=> Array('allow_empty' => false),
+												   ),
+						'group_caching'			=> Array (
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> false,
+													'description'	=> 'Turns group level caching on or off',
+													'parameters'	=> Array('allow_empty' => false),
+												   ),
+						'num_cache_dirs'		=> Array(
+													'added'		=> '0.1',
+													'type'		=> 'int',
+													'default'	=> '20',
+												   ),
+						'expiry'				=> Array(
+													'added'		=> '0.1',
+													'type'		=> 'int',
+													'default'	=> '86400',
+												   ),
+						'type_codes'			=> Array(
+													'added'		=> '0.1',
+													'type'		=> 'serialise',
+													'default'	=> Array(),
+												   ),
+					  );
 
 	}//end constructor
 
