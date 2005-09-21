@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_metadata_storage.php,v 1.2 2005/02/23 05:49:03 gsherwood Exp $
+* $Id: upgrade_metadata_storage.php,v 1.2.2.1 2005/09/21 21:39:29 amiller Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Upgrade the wayt that the metadata storage is done.
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -63,7 +63,7 @@ $am->includeAsset('metadata_field');
 // first check that the new table we need exists
 $tables = $db->getListOf('tables');
 assert_valid_db_result($tables);
-if (!in_array(SQ_TABLE_PREFIX.'ast_metadata_value', $tables)) {
+if (!in_array(SQ_TABLE_PREFIX.'ast_mdata_val', $tables)) {
 	trigger_error('You need to run install/step_02.php to install the new table required for the new metadata storage', E_USER_ERROR);
 }
 unset($tables);
@@ -116,7 +116,7 @@ foreach ($date_fields as $assetid => $type_code) {
 
 echo "\n\n\n";
 echo "+---------------------------------------------+\n";
-echo "| Putting metadata into sq_ast_metadata_value |\n";
+echo "| Putting metadata into sq_ast_mdata_val |\n";
 echo "+---------------------------------------------+\n";
 
 $sql = 'SELECT DISTINCT m.assetid, a.type_code

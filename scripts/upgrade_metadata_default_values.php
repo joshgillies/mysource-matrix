@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_metadata_default_values.php,v 1.1 2005/06/03 00:39:45 lwright Exp $
+* $Id: upgrade_metadata_default_values.php,v 1.1.2.1 2005/09/21 21:40:49 amiller Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 * metadata value table
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix
 * @since   MySource 3.5.0
 */
@@ -65,7 +65,7 @@ $am->includeAsset('metadata_field');
 // first check that the new table we need exists
 $tables = $db->getListOf('tables');
 assert_valid_db_result($tables);
-if (!in_array(SQ_TABLE_PREFIX.'ast_metadata_dflt_val', $tables)) {
+if (!in_array(SQ_TABLE_PREFIX.'ast_mdata_dflt_val', $tables)) {
 	trigger_error('You need to run install/step_02.php to install the new table required for the new metadata storage', E_USER_ERROR);
 }
 unset($tables);
@@ -85,7 +85,7 @@ foreach ($metadata_fields as $assetid => $type_code) {
 	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 	$sql = 'INSERT INTO
-				sq_ast_metadata_dflt_val
+				sq_ast_mdata_dflt_val
 				(
 					assetid,
 					default_val
