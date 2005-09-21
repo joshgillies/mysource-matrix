@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.28 2005/05/16 06:36:41 lwright Exp $
+* $Id: page_account_manager.inc,v 1.28.2.1 2005/09/21 05:20:38 dheppell Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -186,7 +186,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 					if (empty($default_screen)) $default_screen = 'details';
 
 					$check_screen_restrictions = (!($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()));
-					if ($check_screen_restrictions) if (isset($allowed_screens['0']['0'])) $check_screen_restrictions = false;
+					if ($check_screen_restrictions) if (isset($allowed_screens)) $check_screen_restrictions = false;
 
 					if ($check_screen_restrictions && !isset($allowed_screens[$default_screen])) {
 						$this->_replacements['edit_details_invite'] = '<p>'.translate('cms_account_manager_cannot_edit_details').'</p>';
@@ -492,8 +492,11 @@ class Page_Account_Manager extends Page_Asset_Builder
 	*/
 	function backendAccess()
 	{
-		if (SQ_IN_LIMBO) return is_a($GLOBALS['SQ_SYSTEM']->user, 'user');
-		else return parent::backendAccess();
+		if (SQ_IN_LIMBO) {
+			return is_a($GLOBALS['SQ_SYSTEM']->user, 'user');
+		} else {
+			return parent::backendAccess();
+		}
 
 	}//end backendAccess()
 
