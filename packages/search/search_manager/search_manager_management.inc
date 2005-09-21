@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_management.inc,v 1.14 2005/07/13 04:47:56 mmcintyre Exp $
+* $Id: search_manager_management.inc,v 1.15 2005/09/21 01:49:52 mmcintyre Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.14 $ - 0.1
+* @version $Revision: 1.15 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -102,7 +102,47 @@ class Search_Manager_Management extends Asset_Management
 													   ),
 				),
 				Array(
-					'event_name'					=> 'indexMetadata',
+					'event_name'					=> 'AssetCreate',
+					'broadcast_type_code'			=> 'global',
+					'broadcast_strict_type_code'	=> true,
+					'options'						=> Array(
+														'global'	=> true,
+													   ),
+				),
+				Array(
+					'event_name'					=> 'ContentsUpdated',
+					'broadcast_type_code'			=> 'global',
+					'broadcast_strict_type_code'	=> true,
+					'options'						=> Array(
+														'global'	=> true,
+													   ),
+				),
+				Array(
+					'event_name'					=> 'AssetStatusUpdate',
+					'broadcast_type_code'			=> 'global',
+					'broadcast_strict_type_code'	=> true,
+					'options'						=> Array(
+														'global'	=> true,
+													   ),
+				),
+				Array(
+					'event_name'					=> 'attributeChange',
+					'broadcast_type_code'			=> 'global',
+					'broadcast_strict_type_code'	=> true,
+					'options'						=> Array(
+														'global'	=> true,
+													   ),
+				),
+				Array(
+					'event_name'					=> 'MetadataUpdate',
+					'broadcast_type_code'			=> 'global',
+					'broadcast_strict_type_code'	=> true,
+					'options'						=> Array(
+														'global'	=> true,
+													   ),
+				),
+				Array(
+					'event_name'					=> 'MetadataDeleted',
 					'broadcast_type_code'			=> 'global',
 					'broadcast_strict_type_code'	=> true,
 					'options'						=> Array(

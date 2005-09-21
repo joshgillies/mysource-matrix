@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.76 2005/09/12 01:23:58 mmcintyre Exp $
+* $Id: search_manager.inc,v 1.77 2005/09/21 01:49:33 mmcintyre Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -134,12 +134,11 @@ class Search_Manager extends Asset
 	}//end canClone()
 
 
-//--        ASSET INDEXING        --//
+//--        EVENT STUBS        --//
 
 
 	/**
-	* Event fired when an asset messages that it requires its internals
-	* to be reindexed
+	* Event fired when an asset is updated
 	*
 	* @param &object Asset	&$broadcaster	the asset that triggered the event
 	* @param Array			$vars			the vars that get submitted by the broadcaster
@@ -150,13 +149,112 @@ class Search_Manager extends Asset
 	*/
 	function onAssetUpdate(&$broadcaster, $vars=Array())
 	{
-		// don't run if indexing turned OFF
 		if (!$this->attr('indexing')) return false;
-		$this->reindexAsset($broadcaster, Array('asset'));
+		$this->reindexAsset($broadcaster, $vars);
 
 		return true;
 
 	}//end onAssetUpdate()
+
+
+	/**
+	* Event fired when an asset is created
+	*
+	* @param &object Asset	&$broadcaster	the asset that triggered the event
+	* @param Array			$vars			the vars that get submitted by the broadcaster
+	*										Component is set as $vars['component']
+	*
+	* @return boolean
+	* @access public
+	*/
+	function onAssetCreate(&$broadcaster, $vars=Array())
+	{
+		if (!$this->attr('indexing')) return false;
+		$this->reindexAsset($broadcaster, $vars);
+
+		return true;
+
+	}//end onAssetCreate()
+
+
+	/**
+	* Event fired when an asset has its status changed
+	*
+	* @param &object Asset	&$broadcaster	the asset that triggered the event
+	* @param Array			$vars			the vars that get submitted by the broadcaster
+	*										Component is set as $vars['component']
+	*
+	* @return boolean
+	* @access public
+	*/
+	function onAssetStatusUpdate(&$broadcaster, $vars=Array())
+	{
+		if (!$this->attr('indexing')) return false;
+		$this->reindexAsset($broadcaster, Array('status_changed', 'published'));
+
+		return true;
+
+	}//end onAssetStatusUpdate()
+
+
+	/**
+	* Event fired when an assets atrtributes have changed
+	*
+	* @param &object Asset	&$broadcaster	the asset that triggered the event
+	* @param Array			$vars			a list of attributes that have changed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function onAttributeChange(&$broadcaster, $vars=Array())
+	{
+		if (!$this->attr('indexing')) return false;
+		$this->reindexAttributes($broadcaster, $vars);
+
+		return true;
+
+	}//end onAttributeChange()
+
+
+	/**
+	* Event fired when an asset is created
+	*
+	* @param &object Asset	&$broadcaster	the asset that triggered the event
+	* @param Array			$vars			the vars that get submitted by the broadcaster
+	*										Component is set as $vars['component']
+	*
+	* @return boolean
+	* @access public
+	*/
+	function onContentsUpdated(&$broadcaster, $vars=Array())
+	{
+		if (!$this->attr('indexing')) return false;
+		$this->reindexContents($broadcaster, $vars);
+
+		return true;
+
+	}//end onContentsUpdated()
+
+
+	/**
+	* Event fired when an asset gets deleted. We want to flush ank key data in the index table
+	*
+	* @param &object Asset	&$broadcaster	the asset that triggered the event
+	* @param Array		$vars				the vars that get submitted by the broadcaster
+	*										Component is set as $vars['component']
+	*
+	* @return void
+	* @access public
+	*/
+	function onAssetDeleted(&$broadcaster, $vars=Array())
+	{
+		if (!$this->attr('indexing')) return false;
+		return $this->flushIndexableContent($broadcaster->id);
+
+	}//end onAssetDeleted()
+
+
+//--        ASSET INDEXING        --//
 
 
 	/**
@@ -170,78 +268,98 @@ class Search_Manager extends Asset
 	* @return void
 	* @access public
 	*/
-	function reindexAsset(&$asset, $components=Array('all'))
+	function reindexAsset(&$asset, $vars=Array())
 	{
 		// if search manager is reindexed then there is infinite recursion!!!
 		if ($asset->id == $this->id) return false;
 
-		// check to see that there is an asset to index this data under
-		if (!$indexing_assetid = $this->getIndexingAssetid($asset)) {
-			return false;
+		// only delete the vars that have changed
+		$flush_vars = Array();
+		if (!in_array('all', $vars)) {
+			foreach ($vars as $var) {
+				$flush_vars[] = '__'.$var.'__';
+			}
+		} else {
+			// flush all the assets vars
+			$flush_vars = array_keys($this->getIndexableAssetComponents());
 		}
+		if (!empty($flush_vars)) {
+			$this->flushIndexableContent($asset->id, $flush_vars);
+		}
+		$index_content = $this->getIndexableAssetContent($asset, $vars);
+		$this->addIndexableContent($asset->id, $index_content);
 
-		if (in_array('all', $components) || in_array('asset', $components)) {
-			$this->flushIndexableContent($indexing_assetid);
-			$indexing_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($indexing_assetid);
-			$new_key_data = $this->getIndexableContent($indexing_asset);
-			$this->addIndexableContent($indexing_assetid, $new_key_data);
-		}
-		if (in_array('all', $components) || in_array('metadata', $components)) {
-			$this->reindexMetadata($indexing_assetid);
-		}
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($assetid);
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($indexing_asset);
+
 
 	}//end reindexAsset()
 
 
 	/**
-	* Event fired when an asset gets deleted. We want to flush ank key data in the index table
+	* Reindex the specified asset's attributes
 	*
-	* @param &object Asset	&$broadcaster	the asset that triggered the event
-	* @param Array		$vars		the vars that get submitted by the broadcaster
-	*					Component is set as $vars['component']
+	* @param &object Asset		$asset		the asset to reindex
+	* @param Array				$vars		a list of attribute names that have
+	*										changed
 	*
 	* @return void
 	* @access public
 	*/
-	function onAssetDeleted(&$broadcaster, $vars=Array())
+	function reindexAttributes(&$asset, $vars=Array())
 	{
-		return $this->flushIndexableContent($broadcaster->id);
+		// if search manager is reindexed then there is infinite recursion!!!
+		if ($asset->id == $this->id) return false;
 
-	}//end onAssetDeleted()
+		// only delete the attributes that have changed
+		$flush_vars = Array();
+		if (!in_array('all', $vars)) {
+			$flush_vars = $vars;
+		} else {
+			// flush all the indexable attributes for this asset type
+			$flush_vars = array_keys($this->getIndexableAttributes($asset->type()));
+		}
+
+		for (reset($flush_vars); null !== ($key = key($flush_vars)); next($flush_vars)) {
+			$flush_vars[$key] = 'attr:'.$flush_vars[$key];
+		}
+		if (!empty($flush_vars)) {
+			$this->flushIndexableContent($asset->id, $flush_vars);
+		}
+
+		$index_content = $this->getIndexableAttributeContent($asset, $vars);
+		$this->addIndexableContent($asset->id, $index_content);
+
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+
+	}//end reindexAttributes()
 
 
 	/**
-	* Flush the keydata for an asset
+	* Reindex the specified asset's attributes
 	*
-	* @param int		$assetid	ID of the asset
-	* @param string		$component	the component to which the keydata pertains (e.g. metadata or attribute)
+	* @param &object Asset		$asset		the asset to reindex
+	* @param Array				$vars		a list of attribute names that have
+	*										changed
 	*
 	* @return void
 	* @access public
 	*/
-	function flushIndexableContent($assetid, $component=null)
+	function reindexContents(&$asset, $vars=Array())
 	{
-		// don't run if indexing turned OFF
-		if (!$this->attr('indexing')) return;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'DELETE FROM
-					sq_sch_idx
-				WHERE
-					assetid = '.$db->quoteSmart($assetid);
-		if (!is_null($component)) {
-			$sql .= ' AND component = '.$db->quoteSmart($component);
+		// Find the asset that we want to index the content under.
+		// this will be the top most dependant asset above this asset
+		if (!$indexing_assetid = $this->getIndexingAssetid($asset)) {
+			return false;
 		}
+		$indexing_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($indexing_assetid);
+		$index_content  = $this->getIndexableContent($indexing_asset);
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		$this->flushIndexableContent($indexing_assetid, Array('__contents__'));
+		$this->addIndexableContent($indexing_assetid, $index_content);
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($indexing_asset);
 
-	}//end flushIndexableContent()
+	}//end reindexContents()
 
 
 	/**
@@ -259,6 +377,7 @@ class Search_Manager extends Asset
 
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($asset->id);
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($parents, Array(), false, 'type_code');
+
 		if (empty($parents)) return $asset->id;
 
 		// the first dependant parent will be the first element on the array
@@ -272,22 +391,26 @@ class Search_Manager extends Asset
 	/**
 	* Returns the indexable content for the specified asset
 	*
-	* @param &object	Asset $asset	the asset to obtain the dineavle content for
-	*
+	* @param &object	Asset	$asset			the asset to obtain the indexable content for
+	* @param Array				$changed_vars	the asset vars that have changed
 	* @return Array
 	* @access public
 	*/
-	function getIndexableContent(&$asset)
+	function getIndexableAssetContent(&$asset, $changed_vars)
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 
-		$index_content = $this->getIndexableMetadataContent($asset);
 		$weightings    = $this->getWeightings($asset->id);
-
-		$type_code = $asset->type();
+		$type_code     = $asset->type();
+		$index_content = Array();
+		$reindex_all   = in_array('all', $changed_vars);
+		$indexed_components = $this->getIndexedComponents($asset->id);
 
 		// index the name and the short name
 		foreach (Array('name', 'short_name') as $name_type) {
+
+			if (!in_array($name_type, $changed_vars) && !$reindex_all) continue;
+
 			$name_index = '__'.$name_type.'__';
 			// if there are no weightings, we dont want to index this name
 			if (!isset($weightings[$name_index])) continue;
@@ -304,60 +427,71 @@ class Search_Manager extends Asset
 			}
 		}
 
-		if (isset($weightings['__assetid__'])) {
-			$index_content[] = Array(
-								'value'		=> $asset->id,
-								'type_code'	=> $type_code,
-								'type'		=> 'int',
-								'component'	=> '__assetid__',
-								'score'		=> $weightings['__assetid__'],
-							   );
-		}
-
 		$dates = Array(
-					'__created__'	=> $asset->created,
-					'__updated__'	=> $asset->updated,
+					'created'	=> $asset->created,
+					'updated'	=> $asset->updated,
 				 );
 		if (!is_null($this->published)) {
-			$dates['__published__'] = $asset->published;
+			$dates['published'] = $asset->published;
 		}
 		if (!is_null($this->status_changed)) {
-			$dates['__status_changed__'] = $asset->status_changed;
+			$dates['status_changed'] = $asset->status_changed;
 		}
 
 		foreach ($dates as $type => $date) {
+
+			if (!in_array($type, $changed_vars)  && !$reindex_all) continue;
+
 			// if there are no weightings, we don't want to index this date
-			if (!isset($weightings[$type])) continue;
+			if (!isset($weightings['__'.$type.'__'])) continue;
 
 			$index_content[] = Array(
 								'value'		=> ts_iso8601($date),
 								'type_code'	=> $type_code,
 								'type'		=> 'datetime',
-								'component'	=> $type,
-								'score'		=> $weightings[$type],
+								'component'	=> '__'.$type.'__',
+								'score'		=> $weightings['__'.$type.'__'],
 							   );
 		}
 
-		// only index this if there is a weighting set
-		if (isset($weightings['contents'])) {
-			// ask the asset for its content, and store it under a contents component
-			// we don't want to index any tags so strip them
-			$contents = strtolower(strip_tags(html_entity_decode($asset->getContent())));
+		if (isset($weightings['__assetid__'])) {
 
-			if (trim($contents) != '') {
-				foreach (get_word_counts($contents) as $word => $count) {
-					$index_content[] = Array(
-										'value'		=> $word,
-										'type_code'	=> $type_code,
-										'type'		=> 'text',
-										'component'	=> '__contents__',
-										'score'		=> $count * $weightings['contents'],
-									   );
-				}
+			if (in_array('__assetid__', $changed_vars) || $reindex_all) {
+
+				$index_content[] = Array(
+									'value'		=> $asset->id,
+									'type_code'	=> $type_code,
+									'type'		=> 'int',
+									'component'	=> '__assetid__',
+									'score'		=> $weightings['__assetid__'],
+								   );
 			}
 		}
 
+		return $index_content;
+
+	}//end getIndexableContent()
+
+
+	/**
+	* Returns the indexable content for the specified asset's attributes
+	*
+	* @param &object	Asset $asset	the asset to obtain the indexable content for
+	*
+	* @return Array
+	* @access public
+	*/
+	function getIndexableAttributeContent(&$asset, $changed_vars)
+	{
+		$weightings    = $this->getWeightings($asset->id);
+		$index_content = Array();
+		$type_code     = $asset->type();
+		$reindex_all   = in_array('all', $changed_vars);
+
 		foreach ($asset->vars as $var_name => $var_data) {
+
+			// only reindex the attributes that have been changed
+			if (!in_array($var_name, $changed_vars) && !$reindex_all) continue;
 
 			// if there is no weightings for this attribute, then its not indexable
 			if (!isset($weightings[$var_name])) continue;
@@ -394,7 +528,46 @@ class Search_Manager extends Asset
 									'score'		=> $count * $weightings[$var_name],
 								   );
 			}
-		}//end foreach asset vars
+		}//end foreach
+
+		return $index_content;
+
+	}//end getIndexableAttributeContent()
+
+
+	/**
+	* Returns the content for the specfied asset
+	*
+	* @param &object	Asset $asset	the asset to obtain the indexable content for
+	*
+	* @return Array
+	* @access public
+	*/
+	function getIndexableContent(&$asset)
+	{
+		$index_content = Array();
+		$weightings    = $this->getWeightings($asset->id);
+		$type_code     = $asset->type();
+
+		// only index this if there is a weighting set
+		if (isset($weightings['__contents__'])) {
+
+			// ask the asset for its content, and store it under a contents component
+			// we don't want to index any tags so strip them
+			$contents = strtolower(strip_tags(html_entity_decode($asset->getContent())));
+
+			if (trim($contents) != '') {
+				foreach (get_word_counts($contents) as $word => $count) {
+					$index_content[] = Array(
+										'value'		=> $word,
+										'type_code'	=> $type_code,
+										'type'		=> 'text',
+										'component'	=> '__contents__',
+										'score'		=> $count * $weightings['__contents__'],
+									   );
+				}
+			}
+		}
 
 		return $index_content;
 
@@ -418,6 +591,7 @@ class Search_Manager extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$param_data = Array();
+
 		$keys = array_keys($index_content);
 		foreach ($keys as $key) {
 			$data = &$index_content[$key];
@@ -435,20 +609,10 @@ class Search_Manager extends Asset
 
 				case 'text':
 
+					$value = $this->_getRawNumberInText($value);
+
 					// filter noise words
 					if (!$this->isWordIndexable($value)) continue 2; //continue the foreach loop
-
-					require_once SQ_FUDGE_PATH.'/general/text.inc';
-					foreach (get_word_counts($value) as $word => $count) {
-						$param_data[] = Array(
-											$word,
-											$data['type_code'],
-											$data['type'],
-											$data['component'],
-											$count * $data['score'],
-										);
-					}
-					continue 2;
 
 				// NOTE: break is omitted on purpose
 				case 'thesaurus':
@@ -460,48 +624,111 @@ class Search_Manager extends Asset
 					// nothing yet
 			}
 
+
 			$param_data[] = Array(
-								$value,
-								$data['type_code'],
-								$data['type'],
-								$data['component'],
-								$data['score'],
+								'value'		=> $value,
+								'type_code'	=> $data['type_code'],
+								'type'		=> $data['type'],
+								'component'	=> $data['component'],
+								'score'		=> $data['score'],
 							);
-		}
+
+
+		}//end foreach
 
 		if (empty($param_data)) return false;
+		$insert_st = $db->prepare(
+					'INSERT INTO
+						sq_sch_idx
+						(
+							value,
+							type_code,
+							type,
+							assetid,
+							component,
+							score
+						)
+						VALUES
+						(
+							?,
+							?,
+							?,
+							'.$db->quote($assetid).',
+							?,
+							?
+						)'
+					);
 
-		$st = $db->prepare(
-				'INSERT INTO
-					sq_sch_idx
-					(
-						value,
-						type_code,
-						type,
-						assetid,
-						component,
-						score
-					)
-					VALUES
-					(
-						?,
-						?,
-						?,
-						'.$db->quote($assetid).',
-						?,
-						?
-					)'
-				);
-
-		assert_valid_db_result($st);
-		$result = $db->executeMultiple($st, $param_data);
+		assert_valid_db_result($insert_st);
+		$result = $db->executeMultiple($insert_st, $param_data);
 		assert_valid_db_result($result);
 
-		$db->freePrepared($st);
+		$db->freePrepared($insert_st);
 
 		return true;
 
 	}//end addIndexableContent()
+
+
+	/**
+	* Flush the keydata for an asset
+	*
+	* @param int		$assetid	ID of the asset
+	* @param string		$component	the component to which the keydata pertains (e.g. metadata or attribute)
+	*
+	* @return void
+	* @access public
+	*/
+	function flushIndexableContent($assetid, $components=Array())
+	{
+		// don't run if indexing turned OFF
+		if (!$this->attr('indexing')) return;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'DELETE FROM
+					sq_sch_idx
+				WHERE
+					assetid = '.$db->quoteSmart((string) $assetid);
+		if (!empty($components)) {
+			for (reset($components); null !== ($key = key($components)); next($components)) {
+				$components[$key] = $db->quoteSmart((string) $components[$key]);
+			}
+			$sql .= ' AND component IN ('.implode(',', $components).')';
+		}
+
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+	}//end flushIndexableContent()
+
+
+	/**
+	* Returns a list of components that the specified asset has indexed
+	*
+	* @param string $assetid the assetid of the wanted components
+	*
+	* @return Array()
+	* @access public
+	*/
+	function getIndexedComponents($assetid) {
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'SELECT
+					component
+				FROM
+					sq_sch_idx
+				WHERE
+					assetid = '.$db->quoteSmart((string) $assetid);
+
+		$components = $db->getCol($sql);
+		assert_valid_db_result($components);
+
+		return $components;
+
+	}//end getIndexedComponents()
 
 
 	/**
@@ -520,7 +747,7 @@ class Search_Manager extends Asset
 						'__updated__'			=> 'Updated Date',
 						'__published__'			=> 'Published Date',
 						'__status_changed__'	=> 'Status Changed Date',
-						'contents'				=> 'Asset Contents',
+						'__contents__'			=> 'Asset Contents',
 					  );
 
 		return $components;
@@ -561,7 +788,7 @@ class Search_Manager extends Asset
 	*/
 	function isAttributeIndexable($attrid)
 	{
-		$info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($attrid));
+		$info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo($attrid);
 		return !$info[$attrid]['is_admin'];
 
 	}//end isAttributeIndexable()
@@ -665,11 +892,35 @@ class Search_Manager extends Asset
 	* @access public
 	* @return void
 	*/
-	function onIndexMetadata(&$broadcaster, $vars=Array())
+	function onMetadataUpdate(&$broadcaster, $vars=Array())
 	{
-		$this->reindexMetadata($vars['assetid']);
+		$this->reindexMetadata($broadcaster->id, $vars);
 
-	}//end onIndexMetadata()
+	}//end onMetadataUpdate()
+
+
+	/**
+	* Event fired when metadata manager wants some metadata deleted
+	*
+	* @param &object Asset	&$broadcaster	the asset that triggered the event (should be meta. mgr)
+	* @param Array			$vars			the vars that get submitted by the broadcaster
+	*										Asset ID is set as $vars['assetid']
+	*										Schema Asset IDs is set as $vars['schemaids']
+	*
+	* @access public
+	* @return void
+	*/
+	function onMetadataDeleted(&$broadcaster, $vars=Array())
+	{
+		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$fieldids = array_keys($mm->getMetadataFields(Array($vars['schemaid'])));
+		for (reset($fieldids); null !== ($key = key($fieldids)); next($fieldids)) {
+			$fieldids[$key] = 'metadata:'.$fieldids[$key];
+		}
+
+		$this->flushIndexableContent($broadcaster->id, $fieldids);
+
+	}//end onMetadataDeleted()
 
 
 	/**
@@ -680,14 +931,25 @@ class Search_Manager extends Asset
 	* @return void
 	* @access public
 	*/
-	function reindexMetadata($assetid)
+	function reindexMetadata($assetid, $vars=Array())
 	{
 		assert_valid_assetid($assetid);
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		$fieldids = $mm->getMetadataFields($mm->getSchemas($assetid, true));
 
-		foreach ($fieldids as $fieldid => $field_type) {
-			$this->flushIndexableContent($assetid, 'metadata:'.$fieldid);
+		if (in_array('all', $vars)) {
+			$fieldids = $mm->getMetadataFields($mm->getSchemas($assetid));
+		} else if (in_array('schemaid', array_keys($vars))) {
+			$fieldids = $mm->getMetadataFields($vars['schemaid'], true);
+		} else {
+			$fieldids = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($vars['fieldids'], Array(), true, 'type_code');
+		}
+		$flush_fieldids = Array();
+		foreach (array_keys($fieldids) as $fieldid) {
+			$flush_fieldids[] = 'metadata:'.$fieldid;
+		}
+
+		if (!empty($flush_fieldids)) {
+			$this->flushIndexableContent($assetid, $flush_fieldids);
 		}
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -716,10 +978,10 @@ class Search_Manager extends Asset
 		if (empty($fieldids)) {
 			$fieldids = $mm->getMetadataFields($mm->getSchemas($asset->id, true));
 		}
-		$metadata = $mm->getMetadata($asset->id);
-		foreach ($fieldids as $fieldid => $field_type) {
 
-			$this->flushIndexableContent($asset->id, 'metadata:'.$fieldid);
+		$metadata = $mm->getMetadata($asset->id);
+
+		foreach ($fieldids as $fieldid => $field_type) {
 
 			// dont index this fieldid if getMetadataWeighting return false
 			if (false === ($weighting = $this->getMetadataWeighting($asset->id, $fieldid))) {
@@ -735,9 +997,6 @@ class Search_Manager extends Asset
 			}
 			$value_components = Array();
 			Metadata_Field::decodeValueString($value, $value, $value_components);
-
-
-			$force_processing = 1; // will tell the function to process values in any case
 
 			// check field_type to define the indexing way
 			if ($field_type == 'metadata_field_date') {
@@ -779,6 +1038,10 @@ class Search_Manager extends Asset
 									   );
 				}
 			}//end if metadata_date
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($field);
+			unset($field);
+
 		}//end foreach fieldids
 
 		return $index_content;
@@ -814,6 +1077,7 @@ class Search_Manager extends Asset
 		$weightings = $this->getAssetWeightings($assetid);
 
 		if (empty($weightings)) {
+
 			// if we can't find any weightings specific to this asset, check
 			// to see if there are any tree weightings for this asset
 			$weightings = $this->getAssetTreeWeightings($assetid, false);
@@ -850,6 +1114,7 @@ class Search_Manager extends Asset
 				}
 			}
 		}
+
 		return $indexed_weightings;
 
 	}//end getWeightings()
@@ -1610,6 +1875,8 @@ class Search_Manager extends Asset
 			break;
 		}
 		$cache_key .= $search_term;
+
+		$serch_term = $this->_getRawNumberInText($search_term);
 
 		$result = $this->_tmp['cm']->loadFromCache($this->id, $this->type(), $cache_key);
 		if (empty($result)) {
