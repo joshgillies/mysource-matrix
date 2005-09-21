@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type.inc,v 1.12 2005/09/14 04:35:36 dmckee Exp $
+* $Id: content_type.inc,v 1.13 2005/09/21 01:41:49 mmcintyre Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -165,8 +165,10 @@ class Content_Type extends Asset
 	*/
 	function saveAttributes($dont_run_updated=false)
 	{
+		$contents_changed = isset($this->_tmp['vars_set']['html']);
+
 		//Want to see if the content has been changed.
-		if (isset($this->_tmp['vars_set']['html'])) {
+		if ($contents_changed) {
 			//Yep, so we need to (re)generate our bodycopy container's content file
 			$bc_container_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', false, 'minor');
 			if (!empty($bc_container_link)) {
@@ -175,7 +177,16 @@ class Content_Type extends Asset
 				$edit_fns->generateContentFile($container);
 			}
 		}
-		return parent::saveAttributes($dont_run_updated);
+
+		$success = parent::saveAttributes($dont_run_updated);
+
+		if ($contents_changed && $success) {
+			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em->broadcastEvent($this, 'ContentsUpdated');
+		}
+
+		return $success;
+
 	}//end saveAttributes()
 
 
