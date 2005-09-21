@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.32 2005/08/01 05:08:51 lwright Exp $
+* $Id: int.inc,v 1.33 2005/09/21 04:14:09 bcaldwell Exp $
 *
 */
 
@@ -29,7 +29,10 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 * Integer Asset Attribute
 *
 * parameters => Array(
-*                     'allow_negative' => [true|false]
+* 					'allow_negative'	=> [true|false],
+*					'allow_empty'		=> [true|false],
+* 					'range_lower'		=> [int],				// optional
+* 					'range_upper'		=> [int],				// optional
 *               )
 *
 *
@@ -37,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <int width="10" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -55,12 +58,23 @@ class Asset_Attribute_Int extends Asset_Attribute
 	function Asset_Attribute_Int($attributeid=0, $value=null)
 	{
 		$this->Asset_Attribute($attributeid, $value);
+
+		// apply default params where necessary
 		if (!isset($this->_params['allow_negative'])) {
 			$this->_params['allow_negative'] = true;
 		}
 		if (!isset($this->_params['allow_empty'])) {
 			$this->_params['allow_empty'] = false;
 		}
+		if (!isset($this->_params['range_lower'])) {
+			$this->_params['range_lower'] = false;
+		}
+		if (!isset($this->_params['range_upper'])) {
+			$this->_params['range_upper'] = false;
+		}
+
+		// set default edit parameters
+		$this->_edit_params['width']  = 0;
 
 	}//end constructor
 
@@ -69,7 +83,7 @@ class Asset_Attribute_Int extends Asset_Attribute
 	* Takes an XML_Tree_Node from an edit interface XML file and creates
 	* the params array from it
 	*
-	* @param object XML_Tree_Node	$node
+	* @param object	&$node	XML_Tree_Node object to generate params from.
 	*
 	* @return boolean
 	* @access public
@@ -90,20 +104,30 @@ class Asset_Attribute_Int extends Asset_Attribute
 	* @param string		$prefix		prefix for the form element
 	* @param boolean	$read_only	are we just printing the value
 	*
+	* @return void
 	* @access public
 	*/
 	function paint($prefix, $read_only=false)
 	{
-		if ($this->value !== '') $this->value = (int)$this->value;
+		if ($this->value !== '') {
+			$this->value = (int)$this->value;
+		}
 		if ($read_only) {
 			echo $this->value;
 			return;
 		}
 
+		$range_lower = $this->_params['range_lower'];
+		$range_upper = $this->_params['range_upper'];
+
+		// We don't want to inforce a range on the integer field.
+		if (!is_int($range_lower)) $range_lower = null;
+		if (!is_int($range_upper)) $range_upper = null;
+
 		$allow_negative = array_get_index($this->_params, 'allow_negative', true);
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		int_text_box($prefix, $this->value, $allow_negative, $this->_edit_params['width'], null, null, 0, false, '');
+		int_text_box($prefix, $this->value, $allow_negative, $this->_edit_params['width'], $range_lower, $range_upper, 0, false, '');
 		//text_box($prefix, $this->value, $this->_edit_params['width'], 0, false, $javascript);
 
 	}//end paint()
@@ -112,8 +136,9 @@ class Asset_Attribute_Int extends Asset_Attribute
 	/**
 	* Prints the interface for filling in a value
 	*
-	* @param string	prefix	prefix for the form element
+	* @param string	$prefix	prefix for the form element
 	*
+	* @return void
 	* @access public
 	*/
 	function process($prefix)
