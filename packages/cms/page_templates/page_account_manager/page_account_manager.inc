@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.29 2005/07/19 07:20:23 skim Exp $
+* $Id: page_account_manager.inc,v 1.30 2005/09/21 05:14:46 dheppell Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -190,7 +190,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 					$check_screen_restrictions = (!($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()));
 					if ($check_screen_restrictions) {
-						if (isset($allowed_screens['0']['0'])) {
+						if (empty($allowed_screens)) {
 							$check_screen_restrictions = false;
 						}
 					}
