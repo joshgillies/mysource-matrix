@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.456 2005/09/21 01:44:27 mmcintyre Exp $
+* $Id: asset.inc,v 1.457 2005/09/21 02:15:37 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.456 $
+* @version $Revision: 1.457 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -500,6 +500,11 @@ class Asset extends MySource_Object
 		unset($this->_tmp['__creating__']);
 		if (!$this->_updated()) return $this->_abortCreate();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		// because we are inheriting statuses, perhaps we are in safe edit now?
+		if ($this->status == SQ_STATUS_EDITING) {
+			$this->saveSystemVersion();
+		}
 
 		// fire the 'Asset Created' event
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_created', $this);
