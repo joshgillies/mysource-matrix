@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.54 2005/09/06 01:23:33 dheppell Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.55 2005/09/21 03:43:13 sdanis Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -97,7 +97,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	/**
 	* Sets some info about thresholds that this hipo requires.
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getConfigVars()
@@ -269,6 +269,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 			$child_assets[$assetid] = $asset_info[$assetid]['type_code'];
 		}
 
+		$child_assets = array_reverse($child_assets,true);
 		$this->_running_vars['todo_assetids'] = $child_assets;
 		$this->_running_vars['done_assetids'] = Array();
 		return parent::prepare();
@@ -279,8 +280,8 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	/**
 	* Edit permissions for a single asset in the to-do list
 	*
-	* @param array()	&$step_data	a reference to the array of information about the current step
-	* @param string		$prefix		prefix for form vars
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
@@ -358,6 +359,9 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 					$step_data['message'] = translate('hipo_edit_permission', $asset->name);
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					unset($asset);
+				} else {
+						// we do not have admin access
+						trigger_localised_error('SYS0111', E_USER_WARNING, $asset->name);
 				}
 			} else {
 				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
@@ -387,9 +391,9 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	/**
 	* This function is used to set-up the details for the locking the assets by the nested HIPO_Job
 	*
-	* @param string		&$job_type
-	* @param Array()	&$running_vars
-	* @param Array()	&$options
+	* @param string	&$job_type
+	* @param array	&$running_vars
+	* @param array	&$options
 	*
 	* @return void
 	* @access public
@@ -412,8 +416,8 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	/**
 	* Release the locks we acquired while setting the permissions
 	*
-	* @param array()	&$step_data	a reference to the array of information about the current step
-	* @param string		$prefix		prefix for form vars
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
