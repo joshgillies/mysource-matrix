@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_design_lookup.php,v 1.4 2005/02/23 05:49:03 gsherwood Exp $
+* $Id: upgrade_design_lookup.php,v 1.4.2.1 2005/09/21 21:38:34 amiller Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Upgrade the *_ast_lookup_design table to *_ast_lookup_value
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -106,6 +106,7 @@ assert_valid_db_result($design_lookups);
 
 foreach ($design_lookups as $row) {
 
+	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	// OK, this is a bit crass, but there isn't really anything else we can do...
 
 	// get the designid that we would use on the frontend for this url
@@ -122,6 +123,7 @@ foreach ($design_lookups as $row) {
 
 	$delete_result = $db->query($sql);
 	assert_valid_db_result($delete_result);
+	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 }// end foreach
 
@@ -139,6 +141,8 @@ $design_lookups = $db->getAll($sql);
 assert_valid_db_result($design_lookups);
 
 foreach ($design_lookups as $row) {
+	
+	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 	// OK, this is a bit crass, but there isn't really anything else we can do...
 
@@ -197,6 +201,7 @@ foreach ($design_lookups as $row) {
 
 	$delete_result = $db->query($sql);
 	assert_valid_db_result($delete_result);
+	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 }// end foreach
 
@@ -205,10 +210,10 @@ unset($design_lookups);
 
 //--        COPY DATA        --//
 
-
 require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 foreach (Array(SQ_TABLE_PREFIX, SQ_TABLE_ROLLBACK_PREFIX) as $prefix) {
 
+	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	$extra = ($prefix == SQ_TABLE_ROLLBACK_PREFIX) ? ', sq_eff_from, sq_eff_to' : '';
 
 	printName('Copying from '.$prefix.'ast_lookup_design to '.$prefix.'ast_lookup_value');
@@ -217,6 +222,7 @@ foreach (Array(SQ_TABLE_PREFIX, SQ_TABLE_ROLLBACK_PREFIX) as $prefix) {
 	$select_sql = 'SELECT url, '.$db->quote('design::').' || replace(name, '.$db->quote('_design::').', '.$db->quote('::').'), designid, '.$db->quote('0').$extra.' FROM '.$prefix.'ast_lookup_design';
 	$result = db_extras_insert_select($db, $insert_sql, $select_sql);
 	assert_valid_db_result($result);
+	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 	printUpdateStatus('OK');
 
@@ -226,10 +232,15 @@ foreach (Array(SQ_TABLE_PREFIX, SQ_TABLE_ROLLBACK_PREFIX) as $prefix) {
 
 
 printName('Dropping ast_lookup_design');
+$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 $result = $db->query('DROP TABLE '.SQ_TABLE_PREFIX.'ast_lookup_design');
 assert_valid_db_result($result);
+$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 $result = $db->query('DROP TABLE '.SQ_TABLE_ROLLBACK_PREFIX.'ast_lookup_design');
 assert_valid_db_result($result);
+$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 printUpdateStatus('OK');
 
 
@@ -237,6 +248,7 @@ printUpdateStatus('OK');
 
 foreach (Array(SQ_TABLE_PREFIX, SQ_TABLE_ROLLBACK_PREFIX) as $prefix) {
 
+	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	$extra = ($prefix == SQ_TABLE_ROLLBACK_PREFIX) ? ', sq_eff_from, sq_eff_to' : '';
 
 	printName('Updating '.$prefix.'ast_lnk');
@@ -248,6 +260,7 @@ foreach (Array(SQ_TABLE_PREFIX, SQ_TABLE_ROLLBACK_PREFIX) as $prefix) {
 
 	$result = $result = $db->query($sql);
 	assert_valid_db_result($result);
+	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 	printUpdateStatus('OK');
 
