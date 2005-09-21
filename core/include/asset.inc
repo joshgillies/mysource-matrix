@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.455 2005/09/16 04:24:10 ndvries Exp $
+* $Id: asset.inc,v 1.456 2005/09/21 01:44:27 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.455 $
+* @version $Revision: 1.456 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -503,6 +503,26 @@ class Asset extends MySource_Object
 
 		// fire the 'Asset Created' event
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_created', $this);
+		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+
+		// create a list of asset vars that have changed
+		// only published and published_userid is
+		$vars = Array(
+					'assetid',
+					'version',
+					'type_code',
+					'name',
+					'short_name',
+					'status',
+					'created',
+					'created_userid',
+					'updated',
+					'updated_userid',
+					'status_changed',
+					'status_changed_userid',
+				);
+
+		$em->broadcastEvent($this, 'AssetCreate', $vars);
 		$ms->closeLog();
 
 		if (!empty($link)) {
@@ -2127,7 +2147,7 @@ class Asset extends MySource_Object
 		eval('$this->'.$date_type.'_userid = $userid;');
 
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
-		$em->broadcastEvent($this, 'AssetUpdate', $date_type);
+		$em->broadcastEvent($this, 'AssetUpdate', Array($date_type));
 
 
 		return true;
