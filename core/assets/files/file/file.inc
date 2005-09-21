@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.112 2005/09/05 07:01:13 arailean Exp $
+* $Id: file.inc,v 1.113 2005/09/21 01:42:14 mmcintyre Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.112 $
+* @version $Revision: 1.113 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1052,7 +1052,7 @@ class File extends Asset
 
 		$keywords['asset_file_size_in_bytes'] = translate('core_file_keyword_size_in_bytes');
 		$keywords['asset_file_size_readable'] = translate('core_file_keyword_size_readable');
-//minibam($keywords);
+
 		return $keywords;
 
 	}//end getAvailableKeywords()
