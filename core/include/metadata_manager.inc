@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.94 2005/09/08 04:14:40 lwright Exp $
+* $Id: metadata_manager.inc,v 1.95 2005/09/21 01:45:33 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -216,10 +216,9 @@ class Metadata_Manager extends MySource_Object
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
-		// add defaults to the indexing service
 		if ($granted) {
 			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
-			$em->broadcastEvent($asset, 'indexMetadata', Array('assetid' => $asset->id, 'schemaids' => Array($schemaid)));
+			$em->broadcastEvent($asset, 'MetadataUpdate', Array('schemaid' => $schemaid));
 			$this->generateContentFile($assetid, false);
 		}
 
@@ -264,7 +263,7 @@ class Metadata_Manager extends MySource_Object
 		assert_valid_db_result($result);
 
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
-		$em->broadcastEvent($asset, 'indexMetadata', Array('assetid' => $asset->id, 'schemaids' => Array($schemaid)));
+		$em->broadcastEvent($asset, 'MetadataDeleted', Array('schemaid' => $schemaid));
 		$this->generateContentFile($assetid, false);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -695,7 +694,8 @@ class Metadata_Manager extends MySource_Object
 		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		$asset->_updated();
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
-		$em->broadcastEvent($asset, 'indexMetadata', Array('assetid' => $assetid));
+		// broadcasted the assetids of the updated fields
+		$em->broadcastEvent($asset, 'MetadataUpdate', Array('fieldids' => array_keys($metadata)));
 
 		return true;
 
