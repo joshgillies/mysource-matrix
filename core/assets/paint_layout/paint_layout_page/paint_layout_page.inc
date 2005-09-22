@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page.inc,v 1.7 2005/08/09 05:23:53 dheppell Exp $
+* $Id: paint_layout_page.inc,v 1.8 2005/09/22 05:56:53 tbarrett Exp $
 *
 */
 
@@ -41,7 +41,7 @@ define('SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME', 'default_format');
 * Those bodycopies also support conditions.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -164,7 +164,6 @@ class Paint_Layout_Page extends Page_Standard
 	function printBody()
 	{
 		$assetid = $this->_getAssetToPaint();
-
 		$this->paintAssetFromId($assetid);
 
 	}//end printBody()
@@ -184,9 +183,7 @@ class Paint_Layout_Page extends Page_Standard
 	{
 		if (!isset($vars['keywords'])) return;
 
-		$is_main_content_type = true;
-
-		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE, true);
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id);
 
 		// if we're being handled here (instead of one of our extensions),
 		// it must be from one of our format bodycopies, or something else altogether,
@@ -194,24 +191,25 @@ class Paint_Layout_Page extends Page_Standard
 		$folder = &$this->getFolder();
 		if (is_null($folder)) return;
 
-		$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE);
+		if (isset($parents[$folder->id])) {
+			$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE);
 
-		foreach ($type_links as $link_info) {
-			if (isset($parents[$link_info['minorid']])) {
-				$type_code = $link_info['value'];
-				if ($type_code == SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME) {
-					$type_code = '';
+			foreach ($type_links as $link_info) {
+				if (isset($parents[$link_info['minorid']])) {
+					$type_code = $link_info['value'];
+					if ($type_code == SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME) {
+						$type_code = '';
+					}
+
+					$type_format = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_info['minorid']);
+					if (!empty($type_format)) $type_format->getKeywordsDescription($vars['keywords'], $type_code);
+
+					break;
 				}
-
-				$type_format = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_info['minorid']);
-				if (!empty($type_format)) $type_format->getKeywordsDescription($vars['keywords'], $type_code);
-
-				$is_main_content_type = false;
-				break;
 			}
-		}
-
-		if ($is_main_content_type) {
+						
+		} else {
+			// must be our page contents bodycopy
 			$vars['keywords']['paint_layout'] = 'Paint Layout';
 		}
 
@@ -249,9 +247,9 @@ class Paint_Layout_Page extends Page_Standard
 	{
 		if (!empty($assetid)) {
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-
 			$this->paint($asset);
 		}
+
 
 	}//end paintAssetFromId()
 
