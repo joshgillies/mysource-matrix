@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_update_lookups.php,v 1.2 2005/02/23 05:49:03 gsherwood Exp $
+* $Id: system_update_lookups.php,v 1.2.2.1 2005/09/22 05:50:28 amiller Exp $
 *
 */
 
@@ -26,10 +26,11 @@
 * Upgrade the *_ast_lookup_design table to *_ast_lookup_value
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
+ini_set('memory_limit', '-1');
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
