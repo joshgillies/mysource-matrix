@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_management.inc,v 1.14 2005/06/02 04:42:00 ndvries Exp $
+* $Id: image_management.inc,v 1.14.2.1 2005/09/22 05:32:10 amiller Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,9 +113,13 @@ class Image_Management extends Asset_Management
 			// Added the attributes of which alt, title, width, height, size need to be set
 			bam('STARTING '.$asset_name.' UPGRADE - FROM VERSION 0.1');
 			$images = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false, true);
+			$total_images = count($images);
+			$i = 1;
 			foreach ($images as $assetid => $type_code) {
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				if (is_null($asset)) continue;
+
+				bam('Processing: '.$asset->name.' (#'.$asset->id.') -- Image '.$i.' of '.$total_images);
 
 				if (!$asset->setAttrValue('alt',   $asset->name) || !$asset->setAttrValue('title', $asset->name)) {
 					echo 'Asset #', $asset->id, ' (', $asset->name,') Unable to set alt and/or title', "\n";
@@ -134,8 +138,11 @@ class Image_Management extends Asset_Management
 					echo 'Asset #', $asset->id, ' (', $asset->name,') Unable to save attributes', "\n";
 					continue;
 				}
+
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
+
+				$i++;
 
 			}//end foreach
 			bam($asset_name.' UPGRADE COMPLETE - FROM VERSION 0.1');
