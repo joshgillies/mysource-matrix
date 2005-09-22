@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.30 2005/08/24 03:14:23 skim Exp $
+* $Id: datetime.inc,v 1.31 2005/09/22 00:07:48 bcaldwell Exp $
 *
 */
 
@@ -46,7 +46,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    </datetime>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -74,6 +74,17 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		$this->_edit_params['allow_period'] = false;
 		$this->_edit_params['use_picker']   = false;
 
+		// default date format and display style.
+		$this->_edit_params['show']			= Array('y', 'm', 'd', 'h', 'i', 's');
+		$this->_edit_params['style']		= Array(
+												'y'	=> 's',
+												'm'	=> 's',
+												'd'	=> 's',
+												'h'	=> 's',
+												'i'	=> 's',
+												's'	=> 's',
+											  );
+
 	}//end constructor
 
 
@@ -81,7 +92,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	* Takes an XML_Tree_Node from an edit interface XML file and creates
 	* the params array from it
 	*
-	* @param object XML_Tree_Node	$node
+	* @param object	&$node	XML_Tree_Node object.
 	*
 	* @return boolean
 	* @access public
@@ -147,6 +158,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	* @param string		$prefix		prefix for the form element
 	* @param boolean	$read_only	are we just printing the value
 	*
+	* @return void
 	* @access public
 	*/
 	function paint($prefix, $read_only=false)
@@ -275,8 +287,9 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	/**
 	* Prints the interface for filling in a value
 	*
-	* @param string	prefix	prefix for the form element
+	* @param string	$prefix	prefix for the form element
 	*
+	* @return void
 	* @access public
 	*/
 	function process($prefix)
@@ -438,7 +451,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	/**
 	* Return valid period type options for the datetime field
 	*
-	* @return Array
+	* @return array
 	* @access private
 	*/
 	function _getPeriodOptions()
@@ -458,7 +471,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	/**
 	* Return valid period age options for the datetime field
 	*
-	* @return Array
+	* @return array
 	* @access private
 	*/
 	function _getAgeOptions()
