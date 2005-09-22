@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.26 2005/09/13 07:39:53 rhoward Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.27 2005/09/22 07:35:32 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -124,6 +124,12 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			$o->closeField();
 		}
 
+		$o->openField(translate('require_comment_from_unlisted_users'));
+			$require_comment_attr =& $asset->getAttribute('require_comment_from_unlisted_users');
+			$require_comment_attr->paint($prefix.'_require_comment_from_unlisted_users', !$write_access);
+			$o->note(translate('require_comment_from_unlisted_users_explanation'));
+		$o->closeField();
+
 		if ($write_access) {
 			$o->openField(translate('new_condition_question'));
 				asset_finder($prefix.'_new_condition', 0, Array('user' => 'D', 'user_group' => 'D'), 'sq_sidenav', false, 'null', Array('clear'));
@@ -184,6 +190,15 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
+
+		// require comment from unlisted users
+		$require_comment_attr =& $asset->getAttribute('require_comment_from_unlisted_users');
+		$require_comment_attr->process($prefix.'_require_comment_from_unlisted_users');
+		if ($require_comment_attr->processed) {
+			$asset->setAttrValue('require_comment_from_unlisted_users', $require_comment_attr->value);
+			$updated = true;
+		}
+
 		// update expiry date
 		$expiry_time_attr =& $asset->getAttribute('expiry_time');
 		$expiry_time_attr->process($prefix.'_expiry_time');
@@ -248,11 +263,12 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 	function generateWorkflowArray($asset, &$workflow_array)
 	{
 		$workflow_array = Array();
-		$workflow_array['conditions']  = Array();
-		$workflow_array['step_name']   = $asset->name;
-		$workflow_array['started']     = 0;
-		$workflow_array['expiry_time'] = $asset->attr('expiry_time');
-		$workflow_array['completed']   = 0;
+		$workflow_array['conditions']                          = Array();
+		$workflow_array['step_name']                           = $asset->name;
+		$workflow_array['started']                             = 0;
+		$workflow_array['expiry_time']                         = $asset->attr('expiry_time');
+		$workflow_array['completed']                           = 0;
+		$workflow_array['require_comment_from_unlisted_users'] = $asset->attr('require_comment_from_unlisted_users');
 
 		// work out the logic expression
 		$logic = $asset->attr('logic');
@@ -271,6 +287,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			}
 			$i++;
 		}
+
 		return true;
 
 	}//end generateWorkflowArray()

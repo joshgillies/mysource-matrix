@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_management.inc,v 1.9 2005/09/13 07:39:53 rhoward Exp $
+* $Id: workflow_step_management.inc,v 1.10 2005/09/22 07:35:32 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,24 +48,32 @@ class Workflow_Step_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-						'name'			=> Array(
-											'default'	=> '',
-										   ),
-						'logic'			=> Array(
-											'added'		=> '0.1',
-											'type'		=> 'text',
-											'default'	=> 'all',
-										   ),
-						'logic_num'		=> Array(
-											'added'		=> '0.1',
-											'type'		=> 'int',
-											'default'	=> '0',
-										   ),
-						'expiry_time'	=> Array(
-											'added'		=> '0.1',
-											'type'		=> 'duration',
-											'default'	=> '0',
-										   ),
+						'name'									=> Array(
+																	'default'	=> '',
+																   ),
+						'logic'									=> Array(
+																	'added'		=> '0.1',
+																	'type'		=> 'text',
+																	'default'	=> 'all',
+																   ),
+						'logic_num'								=> Array(
+																	'added'		=> '0.1',
+																	'type'		=> 'int',
+																	'default'	=> '0',
+																   ),
+						'expiry_time'							=> Array(
+																	'added'		=> '0.1',
+																	'type'		=> 'duration',
+																	'default'	=> '0',
+																   ),
+						'require_comment_from_unlisted_users'	=> Array(
+																	'added'			=> '0.2',
+																	'type'			=> 'boolean',
+																	'default'		=> '0',
+																	'parameters'	=> Array(
+																						'allow_empty'	=> false,
+																					   ),
+																   ),
 					  );
 
 	}//end constructor

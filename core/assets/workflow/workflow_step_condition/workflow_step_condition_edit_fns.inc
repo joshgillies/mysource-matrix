@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_edit_fns.inc,v 1.18 2005/09/13 07:39:54 rhoward Exp $
+* $Id: workflow_step_condition_edit_fns.inc,v 1.19 2005/09/22 07:35:36 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -214,6 +214,9 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 
 		$publisher = $asset->attr('userid');
 		$workflow_array[$publisher] = Array('logic' => $logic, 'published_by' => Array());
+
+		// commenting
+		$workflow_array[$publisher]['require_comment'] = $asset->attr('require_comment');
 
 		return true;
 

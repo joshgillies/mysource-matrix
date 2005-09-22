@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.78 2005/09/19 06:30:41 rhoward Exp $
+* $Id: workflow_manager.inc,v 1.79 2005/09/22 07:37:19 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -324,6 +324,7 @@ class Workflow_Manager extends MySource_Object
 		if (!isset($this->_tmp['schema_workflows'][$assetid][$schemaid])) {
 			return Array();
 		}
+
 		return $this->_tmp['schema_workflows'][$assetid][$schemaid];
 
 	}//end getSchemaWorkflows()
@@ -526,8 +527,7 @@ class Workflow_Manager extends MySource_Object
 	*/
 	function requiresComment($assetid, $userid)
 	{
-		// TODO: Does this apply to us?
-		if ($this->silentWorkflowParty($assetid)) return true;
+		if ($this->silentWorkflowParty($assetid)) return false;
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
@@ -536,43 +536,56 @@ class Workflow_Manager extends MySource_Object
 			return false;
 		}
 
-		// if there are no workflows, we dont notify anyone
+		// if there are no workflows, we can't require comments
 		$schemas = $this->getSchemas($assetid, true);
-		if (empty($schemas)) return true;
+		if (empty($schemas)) return false;
 
-		// these will be the people who to notify (some may be groups)
-		$require_comment = false;
+		$schema_workflows       = $this->getSchemaWorkflows($assetid);
+		$current_workflow_steps = $this->getWorkflowCurrentSteps($assetid);
 
 		foreach ($schemas as $schemaid) {
-			$conditions = $GLOBALS['SQ_SYSTEM']->am->getChildren($schemaid, 'workflow_step_condition');
-			foreach ($conditions as $cond_id => $type_code) {
-				// checks whether this step requires a comment
-				$condition = &$GLOBALS['SQ_SYSTEM']->am->getAsset($cond_id, 'workflow_step_condition');
-				if (is_null($condition)) continue;
-				if ($condition->attr('require_comment')) {
-					$condition_userid = $condition->attr('userid');
-					if (!empty($condition_userid)) {
-						// if the currently logged-in user is the specified user,
-						if ($condition->attr('userid') == $userid) {
-							$require_comment = true;
-						} else {
-							$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-							if (!empty($user)) {
-								$user_groups = $user->getUserGroups();
-								// ... or in the specifed group
-								if (in_array($condition_userid, $user_groups)) {
-									$require_comment = true;
-								}
-							}
-						}
+			// nothing in this schema, try the next
+			if (empty($schema_workflows[$schemaid])) {
+				continue;
+			}
+
+			// get the current step for this schema
+			$current_step =& $schema_workflows[$schemaid]['steps'][$current_workflow_steps[$schemaid]];
+
+			// is the user listed in the conditions?
+			$listed_user = false;
+
+			// loop through the conditions for the current ste
+			$condition_type_info = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo(array_keys($current_step['conditions']));
+			foreach ($current_step['conditions'] as $conditionid => $condition_details) {
+				// is a user_group
+				if (in_array('user_group', $condition_type_info[$conditionid])) {
+					$group_users = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($conditionid, Array('user'), false));
+					if (in_array($userid, $group_users)) {
+						$listed_user = true;
+					}
+				} else {
+					// assume user
+					if ($conditionid == $userid) {
+						$listed_user = true;
 					}
 				}
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($condition);
-				if ($require_comment) break;
+
+				if ($condition_details['require_comment']) {
+					// no point going through the rest if we know we need to comment
+					return true;
+				}
+
+			}
+
+			// if the user wasn't listed, then check if unlisted users need to comment
+			// if so, return: there's no point checking the rest
+			if (!$listed_user && $current_step['require_comment_from_unlisted_users']) {
+				return true;
 			}
 		}
 
-		return $require_comment;
+		return false;
 
 	}//end requiresComment()
 
@@ -1185,7 +1198,7 @@ class Workflow_Manager extends MySource_Object
 	*
 	* @param int	$assetid	the ID of the asset to check workflow completness for
 	*
-	* @return boolean
+	* @return Array(schemaid=>step_no)
 	* @access public
 	*/
 	function getWorkflowCurrentSteps($assetid)
