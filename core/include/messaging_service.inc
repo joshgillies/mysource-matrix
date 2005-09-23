@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.45 2005/08/15 11:50:24 brobertson Exp $
+* $Id: messaging_service.inc,v 1.46 2005/09/23 05:43:31 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -680,7 +680,8 @@ class Messaging_Service extends MySource_Object
 					$to_email = trim($user->attr('email'));
 				}
 
-				if (!empty($to_email)) continue;
+				if (empty($to_email)) continue;
+
 				foreach ($to_emails as $subject => $bodies) {
 
 					$body = implode("\n\n".str_repeat('-', 50)."\n\n", $bodies);
