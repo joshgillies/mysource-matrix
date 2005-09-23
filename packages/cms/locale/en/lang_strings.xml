@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2005/05/12 05:12:03 rhoward Exp $
+* $Id: lang_strings.xml,v 1.4.2.1 2005/09/23 06:52:36 arailean Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -38,6 +38,7 @@
 <string source="cms_page_contents">Page Contents</string>
 <string source="clear_form">Clear Form</string>
 <string source="submission_time">Submission Time</string>
+<string source="submission_id">Submission ID</string>
 <string source="asset_id">Asset ID</string>
 <string source="expand_question">Expand ?</string>
 <string source="user">User</string>
