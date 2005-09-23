@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.53.2.7 2005/09/08 23:40:48 dmckee Exp $
+* $Id: form_email_edit_fns.inc,v 1.53.2.8 2005/09/23 06:58:10 arailean Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.53.2.7 $
+* @version $Revision: 1.53.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -52,9 +52,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Paints the submissions block
 	*
-	* @param object Form_Email			&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -84,16 +84,14 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from_value = isset($_POST[$prefix.'_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_fromvalue']['m'],$_POST[$prefix.'_fromvalue']['d'],$_POST[$prefix.'_fromvalue']['y'])) : date('Y-m-d',time()-7*86400).' --:--:--';
 		$to_value = isset($_POST[$prefix.'_tovalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_tovalue']['m'],$_POST[$prefix.'_tovalue']['d'],$_POST[$prefix.'_tovalue']['y'])) : date('Y-m-d').' --:--:--';
 
-		$from = new Datetime_Field($prefix.'_from', $from_value, $parameters);
-		$to = new Datetime_Field($prefix.'_to', $to_value, $parameters);
+		$from =& new Datetime_Field($prefix.'_from', $from_value, $parameters);
+		$to =& new Datetime_Field($prefix.'_to', $to_value, $parameters);
 
 		// grab the number of assets per page, defaulting to 50 at a time
 		$num_per_page = array_get_index($_REQUEST, $prefix.'_per_page', 50);
 		$submission_offset = array_get_index($_REQUEST, $prefix.'_submission_offset', 0);
 
-		if ($num_per_page < 1) {
-			$num_per_page = 50;
-		}
+		if ($num_per_page < 1) $num_per_page = 50;
 
 		// grab the fields for printing as a substitution
 		ob_start();
@@ -154,6 +152,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		// grab the number of assets
 		$asset_count = $GLOBALS['SQ_SYSTEM']->db->getOne($count_sql.$where);
+		assert_valid_db_result($asset_count);
+
 		$num_pages = ceil($asset_count / $num_per_page);
 
 
@@ -161,9 +161,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			$submission_offset = $submission_offset - ($submission_offset % $num_per_page);
 		}
 
-		if ($submission_offset < 0) {
-			$submission_offset = 0;
-		}
+		if ($submission_offset < 0) $submission_offset = 0;
 
 		if ($submission_offset >= $asset_count) {
 			$submission_offset = ($num_pages - 1) * $num_per_page;
@@ -278,6 +276,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			// For memory reasons, we are going to fetch this one row at a time
 			// because we could be displaying a lot on this page
 			$result = $GLOBALS['SQ_SYSTEM']->db->query($sql);
+			assert_valid_db_result($result);
 			while ($asset_info = $result->fetchRow()) {
 				$assetid = $asset_info['assetid'];
 
@@ -288,7 +287,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				$sub_expanded = array_search($assetid, $expand_list) !== false;
 				$num_subs++;
 				if ($num_subs <= $submission_offset) continue;
-				if ($num_subs > $submission_offset + $num_per_page) break;
+				if ($num_subs > $submission_offset + $num_per_page) {
+					break;
+				}
 				?>
 				<tr<?php
 					echo ($sub_expanded) ? ' class="alt"' : '';
@@ -305,7 +306,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						if (!empty($sub_user)) {
 							$sub_user_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
 							if (!empty($sub_user_asset)) {
-								echo $sub_user_asset->name . ' (Id: #'.$sub_user.')';
+
+								echo $sub_user_asset->name.' (Id: #'.$sub_user.')';
 								$valid_user = true;
 							}
 						}
@@ -315,7 +317,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						?>
 					</td>
 					<td>
-						<input type="checkbox" name="<?php echo $prefix ?>_viewsub[<?php echo $assetid ?>]" value="1" <?php if ($sub_expanded) echo ' checked="checked"' ?>>
+						<input type="checkbox" name="<?php echo $prefix ?>_viewsub[<?php echo $assetid ?>]" value="1" <?php if ($sub_expanded) echo ' checked="checked"'; ?>>
 					</td>
 					<td>[ <a href="<?php echo $sub_asset->getBackendHref(); ?>"><?php echo translate('edit') ?></a> ]</td>
 				</tr>
@@ -365,9 +367,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Processes the submissions block (nothing to process!)
 	*
-	* @param object Form_Email			&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -382,9 +384,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Paints the export block
 	*
-	* @param object Form_Email			&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -411,8 +413,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from_value = isset($_POST[$prefix.'_export_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_fromvalue']['m'],$_POST[$prefix.'_export_fromvalue']['d'],$_POST[$prefix.'_export_fromvalue']['y'])) : date('Y-m-d', time()-7*86400).' --:--:--';
 		$to_value = isset($_POST[$prefix.'_export_tovalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_tovalue']['m'],$_POST[$prefix.'_export_tovalue']['d'],$_POST[$prefix.'_export_tovalue']['y'])) : date('Y-m-d').' --:--:--';
 
-		$from = new Datetime_Field($prefix.'_export_from', $from_value, $parameters);
-		$to = new Datetime_Field($prefix.'_export_to', $to_value, $parameters);
+		$from =& new Datetime_Field($prefix.'_export_from', $from_value, $parameters);
+		$to =& new Datetime_Field($prefix.'_export_to', $to_value, $parameters);
 
 		$from->printField();
 		echo ' to ';
@@ -462,9 +464,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* This function will pass off the work to processExportCSV() or processExportXML(), as appropriate.
 	* If we aren't downloading a file, this function will silently return a success.
 	*
-	* @param object Form_Email			&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -500,10 +502,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* Will only perform export for the date range which was
 	* selected in the Export block.
 	*
-	* @param object Form_Email			&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
-	* @param boolean					$header_row whether the header row is filled in
+	* @param object		&$asset		the asset whose interface we are painting
+	* @param object		&$o			the outputter class
+	* @param string		$prefix		prefix for the form elements
+	* @param boolean	$header_row	whether the header row is filled in
+	* @param string		$delimiter	delimiter
 	*
 	* @return boolean
 	* @access public
@@ -511,7 +514,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	function processExportCSV(&$asset, &$o, $prefix, $header_row=true, $delimiter=',')
 	{
 		require_once SQ_FUDGE_PATH.'/csv/csv.inc';
-		$csv = new CSV();
+		$csv =& new CSV();
 		$csv->setFilename('submission_log.csv');
 		$csv->setDeliminator($delimiter);
 
@@ -528,7 +531,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$to_ts   = mktime(23,59,59,$to_value[1],$to_value[2],$to_value[0]);
 
 		$logs = Array();
-		$headers = Array('__time__' => translate('submission_time'), '__user__' => translate('cms_form_user_submitting'));
+		$headers = Array(
+					'__id__'	=> translate('submission_id'),
+					'__time__'	=> translate('submission_time'),
+					'__user__'	=> translate('cms_form_user_submitting'),
+				   );
 
 		$sql = 'SELECT
 					a.assetid, a.type_code, a.created, a.created_userid
@@ -546,19 +553,25 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		// Going to fetch this one row at a time for memory reasons, because this
 		// could potentially be a very big download
 		$result = $GLOBALS['SQ_SYSTEM']->db->query($sql.$where);
+		assert_valid_db_result($result);
 		while ($asset_info = $result->fetchRow()) {
 			$assetid = $asset_info['assetid'];
 			$type_code = $asset_info['type_code'];
 			$create_time = strtotime($asset_info['created']);
 
 			$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+
 			if (!$sub_asset->attr('complete')) continue;
+
 			$summary = $sub_asset->getSummary();
 
 			$logs[$assetid] = Array(
+								'__id__'	=> $assetid,
 								'__time__'	=> date('Y-m-d H:i:s', $create_time),
 								'__user__'	=> $asset_info['created_userid'],
 							  );
+
+
 			if (empty($summary)) $summary = Array();
 			foreach ($summary as $id => $element) {
 				if (!isset($headers[$id])) {
@@ -569,9 +582,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			}
 		}
 
-		if ($header_row) {
-			$csv->setFieldHeaders($headers);
-		}
+		if ($header_row) $csv->setFieldHeaders($headers);
+
 		$csv->setValues($logs);
 		$csv->export();
 		exit(0);
@@ -588,9 +600,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* "submissions" root tag around it. Will only perform export for the date range which was
 	* selected in the Export block.
 	*
-	* @param object Form_Email			&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -636,6 +648,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		// Going to fetch this one row at a time for memory reasons, because this
 		// could potentially be a very big download
 		$result = $GLOBALS['SQ_SYSTEM']->db->query($sql.$where);
+		assert_valid_db_result($result);
 		while ($asset_info = $result->fetchRow()) {
 			$assetid = $asset_info['assetid'];
 			$type_code = $asset_info['type_code'];
@@ -643,8 +656,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 			$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 			if (!$sub_asset->attr('complete')) continue;
-			if (trim($sub_asset->attr('xml')) == '') continue;
-			echo $sub_asset->attr('xml');
+			echo $this->_getSubmissionXML($sub_asset);
 		}
 
 		echo '</submissions>';
@@ -656,11 +668,30 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 
 	/**
+	* Get XML of a submission asset
+	*
+	* @param object	&$submission	Submission asset to get XML from
+	*
+	* @return string
+	* @access private
+	*/
+	function _getSubmissionXML(&$submission)
+	{
+		$xml = $submission->getXML();
+
+		return $xml;
+
+	}//end _getSubmissionXML()
+
+
+	/**
 	* Returns a list of name-value pairs for a submission result
 	*
-	* @param object XML_Tree_Node &$tree_root the XML node that we are going to process
+	* return: array with each element containing indices ('name', 'id', 'content')
 	*
-	* @return array with each element containing indices ('name', 'id', 'content')
+	* @param object	&$tree_root	the XML node that we are going to process
+	*
+	* @return array
 	* @access private
 	*/
 	function &_generateSubmissionList(&$tree_root)
@@ -715,9 +746,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Paints the interface for selecting a field containing send to a friend entries
 	*
-	* @param object Form_Email			&$asset		the form involved
-	* @param object Backend_Outputter	&$o			the backend outputter
-	* @param string						$prefix		a unique prefix for variables
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -736,23 +767,29 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Processes the interface for selecting a field containing a receipt email
 	*
-	* @param object Form_Email			&$asset		the form involved
-	* @param object Backend_Outputter	&$o			the backend outputter
-	* @param string						$prefix		a unique prefix for variables
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processReceiptField(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_rec_field'])) return false;
+		if (!isset($_POST[$prefix.'_rec_field'])) {
+			return false;
+		}
 		$assetid = $_POST[$prefix.'_rec_field']['assetid'];
 
 		// add check that this is in the same form
 
 		// if we already have this as the not found asset, don't set it again
-		if ($assetid == $asset->attr('receipt_field')) return false;
-		if (!$asset->setAttrValue('receipt_field', $assetid)) return false;
+		if ($assetid == $asset->attr('receipt_field')) {
+			return false;
+		}
+		if (!$asset->setAttrValue('receipt_field', $assetid)) {
+			return false;
+		}
 
 		return true;
 
@@ -765,9 +802,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Paints the interface for selecting a field containing send to a friend entries
 	*
-	* @param object Form_Email			&$asset		the form involved
-	* @param object Backend_Outputter	&$o			the backend outputter
-	* @param string						$prefix		a unique prefix for variables
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -786,24 +823,29 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Processes the interface for selecting a field containing send to a friend entries
 	*
-	* @param object Form_Email			&$asset		the form involved
-	* @param object Backend_Outputter	&$o			the backend outputter
-	* @param string						$prefix		a unique prefix for variables
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processSTAFField(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_staf_field'])) return false;
+		if (!isset($_POST[$prefix.'_staf_field'])) {
+			return false;
+		}
 		$assetid = $_POST[$prefix.'_staf_field']['assetid'];
 
 		// todo: add check that this is in the same form
 
 		// if we already have this as the not found asset, don't set it again
-		if ($assetid == $asset->attr('staf_field')) return false;
-		if (!$asset->setAttrValue('staf_field', $assetid)) return false;
-
+		if ($assetid == $asset->attr('staf_field')) {
+			return false;
+		}
+		if (!$asset->setAttrValue('staf_field', $assetid)) {
+			return false;
+		}
 		return true;
 
 	}//end processSTAFField()
@@ -815,9 +857,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Paints the interface for creating a new Selective Email rule
 	*
-	* @param object Form_Email			&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -836,16 +878,18 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Processes the interface for creating a new, blank Selective Email rule
 	*
-	* @param object Form_Email			&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processAddSelectiveEmailRule(&$asset, &$o, $prefix)
 	{
-		if (!isset($_REQUEST[$prefix.'_new_se_rule'])) return false;
+		if (!isset($_REQUEST[$prefix.'_new_se_rule'])) {
+			return false;
+		}
 		$all_se = $asset->attr('selective_emails');
 
 		// pull out a new index for this question
@@ -871,7 +915,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$_POST[$prefix.'_send']		 = 'recipient';
 		$_POST[$prefix.'_address']	 = '';
 
-		if (!$asset->setAttrValue('selective_emails', $all_se)) return false;
+		if (!$asset->setAttrValue('selective_emails', $all_se)) {
+			return false;
+		}
 		return $asset->saveAttributes();
 
 	}//end processAddSelectiveEmailRule()
@@ -880,9 +926,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* paint the current rules
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -934,7 +980,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				<?php
 				if ($admin_access) {
 					?>
-					<td valign="top" align="center" width="30" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt' ?>"><a href="<?php echo $o->getCurrentLocation(); ?>&<?php echo $prefix?>_se_active_ruleid=<?php echo $k ?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/edit_mode.png" width="15" height="15" border="0" /></a></td>
+					<td valign="top" align="center" width="30" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt'; ?>"><a href="<?php echo $o->getCurrentLocation(); ?>&<?php echo $prefix?>_se_active_ruleid=<?php echo $k ?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/edit_mode.png" width="15" height="15" border="0" /></a></td>
 					<?php
 				}
 				?>
@@ -966,7 +1012,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 							}
 
 							$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-							$rule_asset = new $type_code();
+							$rule_asset =& new $type_code();
 							$descriptions[] = $rule_asset->ruleDescription($q_asset, $rule);
 
 							$i++;
@@ -1003,10 +1049,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					echo '</b>';
 					?>
 				</td>
-				<td valign="top" align="center" width="70" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt' ?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $valid ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /></td>
+				<td valign="top" align="center" width="70" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt'; ?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $valid ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /></td>
 				<?php
 				if ($admin_access) {
-					?><td valign="top"  align="center" width="50" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt' ?>"><?php check_box($prefix.'_deletes[]', $k); ?></td><?php
+					?>
+					<td valign="top"  align="center" width="50" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt'; ?>"><?php check_box($prefix.'_deletes[]', $k); ?></td><?php
 				}
 				?>
 			</tr>
@@ -1024,9 +1071,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Processes the interface for deleting current selective email rules
 	*
-	* @param object Form_Email			&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -1057,9 +1104,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Processes the interface for selecting a question for a rule part
 	*
-	* @param object Form_Email			&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -1082,9 +1129,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Processes the interface for selecting active question (no implementation required)
 	*
-	* @param object Form_Email			&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -1099,9 +1146,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Paint the dropdowns to add rule parts to a Selective Email rule
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -1109,7 +1156,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	function paintAddRulePart(&$asset, &$o, $prefix)
 	{
 		if (!$asset->adminAccess('attributes')) return false;
-		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) return false;
+		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) {
+			return false;
+		}
 
 		// we cleared the asset finder for adding a new rule part
 		if (isset($_POST[$prefix.'_se_new_qid']) && $_POST[$prefix.'_se_new_qid']['assetid'] == 0) {
@@ -1143,9 +1192,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Process the interface for adding a rule part to a Selective Email rule
 	*
-	* @param object Form_Section		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -1194,9 +1243,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Paints the interface for editing and deleting Rule Parts
 	*
-	* @param object Form_Email			&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -1238,7 +1287,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			// let the rule paint itself here!!
 			$type_code = 'form_question_rule_type_'.$rule['name'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-			$rule_asset = new $type_code();
+			$rule_asset =& new $type_code();
 			$edit_fns = $rule_asset->getEditFns();
 
 			if (!isset($descs[$type_code])) {
@@ -1279,9 +1328,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Processes the interface for editing and deleting Rule Parts
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -1289,7 +1338,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	function processRuleParts(&$asset, &$o, $prefix)
 	{
 		$all_se = $asset->attr('selective_emails');
-		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) return false;
+		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) {
+			return false;
+		}
 
 		$ruleid = $_REQUEST[$prefix.'_se_active_ruleid'];
 		if (!isset($all_se[$ruleid])) return false;
@@ -1302,9 +1353,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		if (empty($rules)) $rules = Array();
 		foreach (array_keys($rules) as $k) {
 			$rule_prefix = $prefix.'_rule_'.$k;
-			if (!isset($_POST[$rule_prefix])) {
-				continue;
-			}
+			if (!isset($_POST[$rule_prefix])) continue;
+
 			if (array_get_index($_POST[$rule_prefix], 'delete', 0)) {
 				unset($rules[$k]);
 			}
@@ -1316,7 +1366,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			// let the rule paint itself here!!
 			$type_code = 'form_question_rule_type_'.$rule['name'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-			$rule_asset = new $type_code();
+			$rule_asset =& new $type_code();
 			$edit_fns = $rule_asset->getEditFns();
 
 			$edit_fns->processRule($rule_asset, $o, $prefix.'_rule_'.$k, $rule);
@@ -1332,18 +1382,21 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* Paint the dropdowns etc for the rule logic
 	*
 	* "When <all|any> rule parts are matched, send an <email type> email to <email address>
+	* Returns false if no questions in this section, true otherwise
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
-	* @return boolean false if no questions in this section, true otherwise
+	* @return boolean
 	* @access public
 	*/
 	function paintActiveSend(&$asset, &$o, $prefix)
 	{
 		if (!$asset->adminAccess('attributes')) return false;
-		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) return false;
+		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) {
+			return false;
+		}
 
 		$ruleid = $_REQUEST[$prefix.'_se_active_ruleid'];
 		$all_se = $asset->attr('selective_emails');
@@ -1375,9 +1428,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Process the newly added questions
 	*
-	* @param object Form_Section		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -1385,7 +1438,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	function processActiveSend(&$asset, &$o, $prefix)
 	{
 		if (!$asset->adminAccess('attributes')) return false;
-		if (!isset($_REQUEST[$prefix.'_se_active_ruleid']) || !isset($_POST[$prefix.'_address'])) return false;
+		if (!isset($_REQUEST[$prefix.'_se_active_ruleid']) || !isset($_POST[$prefix.'_address'])) {
+			return false;
+		}
 
 		$ruleid = $_REQUEST[$prefix.'_se_active_ruleid'];
 		$all_se = $asset->attr('selective_emails');
@@ -1403,9 +1458,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Paint a note giving instructions for complex formatting
 	*
-	* @param object Form				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -1426,11 +1481,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	*
 	* Nothing to process, so return false always.
 	*
-	* @param object Metadata_Field		$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
-	* @return boolean (false always)
+	* @return boolean
 	* @access public
 	*/
 	function processKeywordReplacementText(&$asset, &$o, $prefix)
