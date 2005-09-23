@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing_approved.inc,v 1.16 2005/06/29 23:44:12 ndvries Exp $
+* $Id: asset_status_editing_approved.inc,v 1.17 2005/09/23 01:31:29 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status_approved.inc';
 *    EDITING_APPROVED -> EDITING if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing_Approved extends Asset_Status_Approved
@@ -114,17 +114,6 @@ class Asset_Status_Editing_Approved extends Asset_Status_Approved
 		if ($new_status == SQ_STATUS_LIVE) {
 			// safe edit is finished, so we dont need the system version any more
 			if (!$this->owner->clearSystemVersion()) return false;
-
-			// notify people that the asset has gone live
-			$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-			if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) {
-				return false;
-			}
-
-			// update the last published date
-			if (!$this->owner->setDate('published', time())) {
-				return false;
-			}
 		}
 		return true;
 
