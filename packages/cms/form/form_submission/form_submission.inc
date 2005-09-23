@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.24 2005/05/20 05:27:37 tbarrett Exp $
+* $Id: form_submission.inc,v 1.24.2.1 2005/09/23 06:54:37 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.24.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -37,7 +37,6 @@ class Form_Submission extends Asset
 	* Constructor
 	*
 	* @param int	$assetid	the asset id to be loaded
-	*
 	*/
 	function Form_Submission($assetid=0)
 	{
@@ -48,11 +47,11 @@ class Form_Submission extends Asset
 
 
 	/**
-	* returns the answer of an question
+	* Returns the answer of an question
 	*
-	* @param int $id the id of the question
+	* @param int	$id	the id of the question
 	*
-	* @return mixed answer
+	* @return mixed string|array|int|boolean
 	* @access public
 	*/
 	function getAnswer($id)
@@ -69,9 +68,9 @@ class Form_Submission extends Asset
 	/**
 	* returns the name of an question
 	*
-	* @param int $id the id of the question
+	* @param int	$id	the id of the question
 	*
-	* @return string name
+	* @return string
 	* @access public
 	*/
 	function getName($id)
@@ -86,11 +85,10 @@ class Form_Submission extends Asset
 
 
 	/**
-	* sets the answer of a question in this submission object
+	* Sets the answer of a question in this submission object
 	*
-	* @param integer	$id		the id of the question
-	* @param string		$name	the name of the question (useful for printing form summary)
-	* @param mixed		$value	the value of the question
+	* @param int	$id		the id of the question
+	* @param mixed	$value	the value of the question
 	*
 	* @return boolean
 	* @access public
@@ -112,12 +110,12 @@ class Form_Submission extends Asset
 
 
 	/**
-	* set a form error into the error store
+	* Set a form error into the error store
 	*
-	* @param string		$error	the error to set
+	* @param string	$error	the error to set
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function setError($error)
 	{
@@ -137,10 +135,10 @@ class Form_Submission extends Asset
 
 
 	/**
-	* get the form errors from the store
+	* Get the form errors from the store
 	*
+	* @return array
 	* @access public
-	* @return Array(string)
 	*/
 	function getErrors()
 	{
@@ -151,10 +149,10 @@ class Form_Submission extends Asset
 
 
 	/**
-	* flush the errors in the store
+	* Flush the errors in the store
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function flushErrors()
 	{
@@ -172,10 +170,10 @@ class Form_Submission extends Asset
 
 
 	/**
-	* returns true if there is a form error
+	* Returns true if there is a form error
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function isError()
 	{
@@ -186,10 +184,10 @@ class Form_Submission extends Asset
 
 
 	/**
-	* returns the answers for question in the form:
+	* Returns the answers for question in the form:
 	*
+	* @return array
 	* @access public
-	* @return Array()
 	*/
 	function getAnswers()
 	{
@@ -200,14 +198,14 @@ class Form_Submission extends Asset
 
 
 	/**
-	* sets a summary about a question used to print a complete summary of the answers of this form
+	* Sets a summary about a question used to print a complete summary of the answers of this form
 	*
-	* @param integer	$question_id	the id of the question
-	* @param string		$name			the name of the question
-	* @param string		$value			the value of the question
+	* @param int	$question_id	the id of the question
+	* @param string	$name			the name of the question
+	* @param string	$value			the value of the question
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function setSummary($question_id, $name, $value)
 	{
@@ -228,10 +226,13 @@ class Form_Submission extends Asset
 
 
 	/**
-	* returns an Array with summary information
+	* Returns an Array with summary information
 	*
+	* @param int	$q_id	the id of the question
+	* @param string	$value	the value of the question
+	*
+	* @return array
 	* @access public
-	* @return Array()
 	*/
 	function getSummary($q_id=null, $value='answer')
 	{
@@ -281,7 +282,6 @@ class Form_Submission extends Asset
 	*									NOTE: this is passed to incrementVersion to let it know that the parents
 	*									should have their versions updated as well.
 	*
-	*
 	* @return boolean
 	* @access public
 	*/
@@ -290,6 +290,19 @@ class Form_Submission extends Asset
 		return parent::incrementVersion($number, false);
 
 	}//end incrementVersion()
+
+
+	/**
+	* Get XML contents of this submission
+	*
+	* @return void
+	* @access public
+	*/
+	function getXML()
+	{
+		return $this->attr('xml');
+
+	}//end getXML()
 
 
 }//end class
