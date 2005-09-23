@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_edit_fns.inc,v 1.8 2005/05/13 05:01:13 lwright Exp $
+* $Id: form_ecommerce_edit_fns.inc,v 1.8.2.1 2005/09/23 07:01:05 arailean Exp $
 *
 */
 
@@ -29,18 +29,23 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
 class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 {
 
+
 	/**
 	* Paint e-commerce rules selector
 	*
-	* @access public
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
 	* @return boolean
+	* @access public
 	*/
 	function paintEcommerceQuestionLinks(&$asset, &$o, $prefix)
 	{
@@ -128,7 +133,9 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 			$to_output = '';
 			foreach ($all_questions as $qid => $qattr)
 			{
-				if ($qattr['selected']) $to_output .= $qattr['name']."<br />\n";
+				if ($qattr['selected']) {
+					$to_output .= $qattr['name']."<br />\n";
+				}
 			}
 		}
 
@@ -142,7 +149,7 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 		$active_rule_id   = array_get_index($_REQUEST, $active_rule_name, $edited_rule_id);
 
 		if ($active_rule_id && (($rule = $asset->_getEcommerceRule($active_rule_id)) !== false)) {
-			$question = $am->getAsset($active_rule_id);
+			$question =& $am->getAsset($active_rule_id);
 			$edit_form = '<div>';
 			if ($question->isSelection()) {
 				$edit_form .= '<h3>'.translate('ecom_form_currency_for_question', $question->attr('name')).'</h3>';
@@ -169,11 +176,16 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 
 	}//end paintEcommerceQuestionLinks()
 
+
 	/**
 	* Assign setted rules to form's questions
 	*
-	* @access public
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
 	* @return boolean
+	* @access public
 	*/
 	function processEcommerceQuestionLinks(&$asset, &$o, $prefix)
 	{
@@ -216,43 +228,28 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 	}//end processEcommerceQuestionLinks()
 
 
-	 //temp draw-up just for future notice
-	 function paintExport(&$asset, &$o, $prefix)
-	 {
-		 if (!$asset->writeAccess('attributes')) return false;
-		 if (array_get_index($_POST, $prefix.'_export_switch', 0) == 1) $this->processExport($asset, $o, $prefix);
+	/**
+	* Get XML of a submission asset
+	*
+	* @param object	&$submission	Submission asset to get XML from
+	*
+	* @return string
+	* @access private
+	*/
+	function _getSubmissionXML(&$submission)
+	{
+		$xml = $submission->getXML();
+		if ($submission->type() != 'order') {
+			return parent::_getSubmissionXML($submission);
+		}
 
-		 //paint option goes here
-		 echo hidden_field($prefix.'_export_switch', '0');
+		ob_start();
 
-		 echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
-
-		 return true;
-
-	 }//end paintExport()
-
-
-	 function processExport(&$asset, &$o, $prefix)
-	 {
-		 if (!$_POST[$prefix.'_export_switch']) return true;
-
-		 //begin and populate order object
-		 header('Content-Type: application/xml');
-
-		 // defining the file as attachment forces most browsers to offer it for download
-		 header('Content-Disposition: attachment; filename=order-summary-'.$asset->id.'.xml;');
-
-		 echo '<orders>'."\n";
-
-		 //get each order
-		 $children_id = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'order', false);
-
-		 foreach ($children_id as $child_id => $assettype) {
-			//retrieve asset with this id
-			echo "\t".'<order id="'.$child_id.'">'."\n";
+			echo '<order id="'.$submission->id.'">'."\n";
+			echo $xml."\n";
 
 			//get this orders children
-			$order_lines = $GLOBALS['SQ_SYSTEM']->am->getChildren($child_id, 'order_line', false);
+			$order_lines = $GLOBALS['SQ_SYSTEM']->am->getChildren($submission->id, 'order_line', false);
 
 			foreach ($order_lines as $line_id => $assettype) {
 
@@ -265,19 +262,14 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 			<quantity><?php echo $child->attr('quantity'); ?></quantity>
 			<price><?php echo $child->attr('price'); ?></price>
 		</order_line>
-					<?php
+				<?php
 			}
 
-			echo "\t".'</order>'."\n";
+			echo '</order>'."\n";
 
-		 }
+		return ob_get_clean();
 
-		 echo '</orders>'."\n";
-		 exit(0);
-
-		 return true;
-
-	 }//end processExport()
+	}//end _getSubmissionXML()
 
 
 }//end class
