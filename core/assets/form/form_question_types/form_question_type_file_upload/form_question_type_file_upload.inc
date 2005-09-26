@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.3 2005/09/26 05:28:31 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,8 +58,9 @@ class Form_Question_Type_File_Upload extends Form_Question
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -71,8 +72,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 	/**
 	* generates the html for this question to display it in the frontend
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function getHtmlField()
 	{
@@ -89,6 +90,12 @@ class Form_Question_Type_File_Upload extends Form_Question
 	}//end getHtmlField()
 
 
+	/**
+	* Returns the value of value var
+	*
+	* @return string
+	* @access public
+	*/
 	function getValue()
 	{
 		if (is_null($this->value)) {
@@ -103,8 +110,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 	/**
 	* Look at user-specified and internal rules to see if this question currently has a valid value
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function hasValidValue()
 	{
@@ -151,8 +158,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 	/**
 	* Look at user-specified and internal rules to see if this question currently has a valid value
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function populate()
 	{
@@ -170,8 +177,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 	*
 	* Returned array is 'short name' => 'full name'
 	*
+	* @return array
 	* @access public
-	* @return Array(string => string)
 	*/
 	function getAllowedRules()
 	{
@@ -180,6 +187,12 @@ class Form_Question_Type_File_Upload extends Form_Question
 	}//end getAllowedRules()
 
 
+	/**
+	* returns a summary about the answers in this question
+	*
+	* @return string
+	* @access public
+	*/
 	function getSummary()
 	{
 		if (!isset($this->_tmp['summary'])) {
@@ -202,8 +215,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 	/**
 	* Returns whether questions of this type can be edited once the form has been initially submitted
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function isEditable()
 	{
@@ -217,15 +230,15 @@ class Form_Question_Type_File_Upload extends Form_Question
 	*
 	* This gets called once we know the whole form is valid and we want to save all the values.
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function saveValue()
 	{
 		$create_loc = $this->attr('create_location');
 		$create_loc_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($create_loc);
-		if (is_null($create_loc_asset)) {
-			// we shouldn't get to this point if there is no create loc
+		if (is_null($create_loc_asset) || !isset($this->_tmp['file_info']['name'])) {
+			// we shouldn't get to this point if there is no create loc or no file was uploaded
 			return;
 		}
 
