@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.376 2005/09/20 23:51:48 dheppell Exp $
+* $Id: asset_manager.inc,v 1.377 2005/09/26 23:27:17 dheppell Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.376 $
+* @version $Revision: 1.377 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -97,6 +97,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Loads all the assets types into the asset array
 	*
+	* @return void
 	* @access private
 	*/
 	function _loadAssetTypes()
@@ -127,7 +128,7 @@ class Asset_Manager extends MySource_Object
 	* @param boolean	$instantiable		does the asset type need to instanstiable or not ? NULL = don't care
 	* @param boolean	$non_system_access	we don't want assets that only have system access
 	*
-	* @return Array(type_code => Array(info))
+	* @return array
 	* @access public
 	*/
 	function getAssetTypes($instantiable=null, $non_system_access=false)
@@ -166,6 +167,7 @@ class Asset_Manager extends MySource_Object
 	*
 	* @param string	$type_code	the code name for the asset type that you want to refresh
 	*
+	* @return void
 	* @access public
 	*/
 	function refreshAssetType($type_code)
@@ -249,7 +251,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns whether the passed asset is installed in the system or not
 	*
-	* @param string $type_code  the code name for the asset that you want to check
+	* @param string $type_code	the code name for the asset that you want to check
 	*
 	* @return boolean
 	* @access public
@@ -277,11 +279,13 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns an array of asset information or a specific piece of information
 	*
-	* @param array|string	$type_code	the code name (or array of code names) for the asset that you want to check
-	* @param string			$field		if exists, returns this information from the array for this specific field
+	* on success: field value if field specified, array of field values if field blank
+	* on failure: null if field specified, empty array otherwise
 	*
-	* @return mixed - on success: field value if field specified, array of field values if field blank
-	*				  on failure: null if field specified, empty array otherwise
+	* @param mixed	$type_code	the code name (or array of code names) for the asset that you want to check
+	* @param string	$field		if exists, returns this information from the array for this specific field
+	*
+	* @return mixed string|array|null
 	* @access public
 	*/
 	function getTypeInfo($type_code, $field='')
@@ -369,7 +373,7 @@ class Asset_Manager extends MySource_Object
 	* or for under the the passed asset type
 	*
 	* @param string	$base_type_code	the asset type's hierarchy to return
-	* @param string	$allowed_access
+	* @param string	$allowed_access	the access type to return
 	*
 	* @return array
 	* @access public
@@ -407,6 +411,15 @@ class Asset_Manager extends MySource_Object
 	}//end getAssetTypeHierarchy()
 
 
+	/**
+	* Private function called by getAssetTypeHierarchy()
+	*
+	* @param array	$offspring		offspring
+	* @param string	$base_type_code	the asset type's hierarchy to return
+	*
+	* @return array
+	* @access private
+	*/
 	function _recurseGetAssetTypeHierarchy($offspring, $base_type_code)
 	{
 		if (empty($offspring[$base_type_code])) return Array();
@@ -430,7 +443,7 @@ class Asset_Manager extends MySource_Object
 	* @param array(string)	$type_code			an array of types codes to limit the results to
 	* @param boolean		$strict_type_code	ensure returned assets are of the passed type codes
 	*
-	* @return mixed
+	* @return array
 	* @access public
 	*/
 	function getAssetTypeInfo($assetids, $type_code=Array(), $strict_type_code=true)
@@ -720,6 +733,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function &getAsset($assetid, $type_code='', $mute_errors=false)
 	{
+	//	$assetid = preg_replace('/%3A/', ':', $assetid);//REMOVE
 		assert_valid_assetid($assetid);
 
 		$asset = &$this->_asset_cache->get($assetid);
@@ -826,6 +840,7 @@ class Asset_Manager extends MySource_Object
 			foreach ($shadows as $shadow_id => $shadow) {
 				$asset = &$this->getAsset($shadow_id);
 				$shadow_asset_ids += $asset->assetExists($shadow);
+				$this->forgetAsset($asset);
 			}
 		}
 
@@ -1121,7 +1136,7 @@ class Asset_Manager extends MySource_Object
 		for ($i = 0; $i < count($assetids); $i++) {
 			$id_parts = explode(':', $assetids[$i]);
 
-			if(isset($id_parts[1])) {
+			if (isset($id_parts[1])) {
 				$shadowids[$id_parts[0]][] = $id_parts[1];
 			} else {
 				$normalids[] = $assetids[$i];
@@ -1132,18 +1147,18 @@ class Asset_Manager extends MySource_Object
 		$assetids = $normalids;
 
 		// we have picked up some shadow assets
-		if(!empty($shadowids)) {
+		if (!empty($shadowids)) {
 			$shadow_result = Array();
 
 			// make each bridge get its info
-			foreach($shadowids as $assetid => $shadows) {
+			foreach ($shadowids as $assetid => $shadows) {
 				$asset = &$this->getAsset($assetid);
 				$shadow_results += $asset->getAssetInfo($shadows, $type_code, $strict_type_code, $field);
 			}
 		}
 
 		// breakout if nothing left to do
-		if(empty($assetids)) return $shadow_results;
+		if (empty($assetids)) return $shadow_results;
 
 		// need to do some checking on the field to make sure it's in the table
 		// but only do it if the field is specified
@@ -2024,7 +2039,9 @@ class Asset_Manager extends MySource_Object
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) {
 			$asset = &$this->getAsset($id_parts[0]);
-			return $asset->getLink($assetid, $link_type, $type_code, $strict_type_code, $value, $side_of_link, $exclusive);
+			$link =  $asset->getLink($id_parts[1], $link_type, $type_code, $strict_type_code, $value, $side_of_link, $exclusive);
+			$this->forgetAsset($asset);
+			return $link;
 		}
 
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
@@ -2106,6 +2123,14 @@ class Asset_Manager extends MySource_Object
 
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
+		$id_parts = explode(':', $linkid);
+		if (isset($id_parts[1])) {
+			$asset = &$this->getAsset($id_parts[0]);
+			$link = $asset->getLinkById(substr($linkid, (count($id_parts[0]) + 2)), $assetid, $side_of_link);
+			$this->forgetAsset($asset);
+			return $link;
+		}
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT  l.linkid, l.value, l.link_type, l.sort_order, l.is_dependant, l.is_exclusive, ';
@@ -2170,6 +2195,14 @@ class Asset_Manager extends MySource_Object
 		if (!$other_assetid || is_object($other_assetid)) {
 			trigger_localised_error('SYS0108', E_USER_WARNING);
 			return Array();
+		}
+
+		$id_parts = explode(':', $assetid);
+		if (isset($id_parts[1])) {
+			$asset = &$this->getAsset($id_parts[0]);
+			$link = $asset->getLinkByAsset($id_parts[1], $other_assetid, $link_types, $value, $side_of_link, $force_array, $dependant, $exclusive);
+			$this->forgetAsset($asset);
+			return $link;
 		}
 
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
@@ -2324,6 +2357,14 @@ class Asset_Manager extends MySource_Object
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		if (!isset($this->_tmp['child_links'][$assetid])) {
+
+			$id_parts = explode(':', $assetid);
+			if (isset($id_parts[1])) {
+				$asset = &$this->getAsset($id_parts[0]);
+				$links = $asset->getAllChildLinks($id_parts[1], $link_type);
+				$this->forgetAsset($asset);
+				return $links;
+			}
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -2884,6 +2925,8 @@ class Asset_Manager extends MySource_Object
 	*/
 	function assetInTrash($assetid, $exclusively=false)
 	{
+		$id_parts = explode(':', $assetid);
+		if (isset($id_parts[1])) return false;
 		$trash = &$this->getSystemAsset('trash_folder');
 
 		// if we are being asked "Is the trash in the trash"
@@ -2948,6 +2991,18 @@ class Asset_Manager extends MySource_Object
 		assert_valid_assetid($assetid);
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 
+		$id_parts = explode(':', $assetid);
+
+		// shadow asset found, pipe the request of to the bridge
+		if (isset($id_parts[1])) {
+			$real_assetid = $id_parts[0];
+			$asset = &$this->getAsset($real_assetid);
+			$results = &$asset->countLinks($id_parts[1], $side_of_link, $link_types, $type_code, $strict_type_code, $ignore_linkid);
+
+			$this->forgetAsset($asset);
+			return $results;
+		}
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$extra_table = '';
@@ -3009,6 +3064,7 @@ class Asset_Manager extends MySource_Object
 	*									if null or less than zero places at end of list
 	* @param string			$dependant	'0' / '1' - whether the minor asset is dependant on the major
 	* @param string			$exclusive	'0' / '1' - whether the major asset is to be the minor's only parent
+	* @param boolean		$moving		whether or not this asset is being moved
 	*
 	* @return int the linkid of the created link
 	* @access public
@@ -3020,6 +3076,37 @@ class Asset_Manager extends MySource_Object
 		if (!is_null($sort_order)) {
 			$sort_order = (int) $sort_order;
 		}
+
+		// shadow asset work
+		$majorid_parts = explode(':', $major->id);
+		$minorid_parts = explode(':', $minor->id);
+
+		if (isset($majorid_parts[1])) {
+			$asset = &$this->getAsset($majorid_parts[0]);
+			$major = &$this->getAsset($majorid_parts[1]);
+
+			$linkid = $asset->createAssetLink($major, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
+
+			$this->forgetAsset($major);
+			$this->forgetAsset($minor);
+			$this->forgetAsset($asset);
+			return $linkid;
+		}
+
+		if (isset($minorid_parts[1])) {
+			$asset = &$this->getAsset($minorid_parts[0]);
+			$minor = &$this->getAsset($minorid_parts[1]);
+
+			$linkid = $asset->createAssetLink($major, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
+
+			$this->forgetAsset($major);
+			$this->forgetAsset($minor);
+			$this->forgetAsset($asset);
+			return $linkid;
+		}
+
+
+		// end shadow asset work
 
 		$original_link_type = $link_type;
 		$link_type = (int) $link_type;
@@ -3495,7 +3582,7 @@ class Asset_Manager extends MySource_Object
 	* @param int			$exclusive	(0|1) whether this will be the only significant link
 	*									with $minor as the minor asset
 	*
-	* @return mixed TRUE or error message string
+	* @return mixed boolean|string
 	* @access public
 	* @protected
 	*/
@@ -3518,6 +3605,34 @@ class Asset_Manager extends MySource_Object
 		// check if we are allowed to link to these type of assets
 		if (($err_msg = $this->canLinkToType($major, $minor->type(), $link_type, 0, $exclusive)) !== true) {
 			return $err_msg;
+		}
+
+		// shadow asset work
+		$majorid_parts = explode(':', $major->id);
+		$minorid_parts = explode(':', $minor->id);
+
+		if (isset($majorid_parts[1])) {
+			$asset = &$this->getAsset($majorid_parts[0]);
+			$major = &$this->getAsset($majorid_parts[1]);
+
+			$linkid = $asset->canCreateLink($major, $minor, $link_type, $exclusive);
+
+			$this->forgetAsset($major);
+			$this->forgetAsset($minor);
+			$this->forgetAsset($asset);
+			return $linkid;
+		}
+
+		if (isset($minorid_parts[1])) {
+			$asset = &$this->getAsset($minorid_parts[0]);
+			$minor = &$this->getAsset($minorid_parts[1]);
+
+			$linkid = $asset->canCreateLink($major, $minor, $link_type, $exclusive);
+
+			$this->forgetAsset($major);
+			$this->forgetAsset($minor);
+			$this->forgetAsset($asset);
+			return $linkid;
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -3800,6 +3915,16 @@ class Asset_Manager extends MySource_Object
 			return false;
 		}
 
+		$id_parts = explode(':', $linkid);
+
+		// shadow asset found, pipe the request of to the bridge
+		if (isset($id_parts[1])) {
+			$asset = $this->getAsset($id_parts[0]);
+			$result =  $asset->updateLink(substr($linkid, (count($id_parts[0]) + 2)), $link_type, $value, $sort_order);
+			$this->forgetAsset($asset);
+			return $result;
+		}
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$set_clauses = Array();
@@ -4059,6 +4184,16 @@ class Asset_Manager extends MySource_Object
 				trigger_localised_error('SYS0302', E_USER_WARNING, $err_msg);
 				return false;
 			}
+		}
+
+		$id_parts = explode(':', $linkid);
+
+		// shadow asset found, pipe the request of to the bridge
+		if (isset($id_parts[1])) {
+			$asset = $this->getAsset($id_parts[0]);
+			$result =  $asset->deleteAssetLink(substr($linkid, (count($id_parts[0]) + 2)), $moving);
+			$this->forgetAsset($asset);
+			return $result;
 		}
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
@@ -4479,7 +4614,7 @@ class Asset_Manager extends MySource_Object
 			$asset = &$this->getAsset($real_assetid);
 
 			if (is_null($asset)) continue;
-			
+
 			$ret_val = $asset->setPermission($id_parts[1], $userid, $permission, $granted);
 			$this->forgetAsset($asset);
 
@@ -4897,9 +5032,7 @@ class Asset_Manager extends MySource_Object
 			//Lets use our parent's url to get our lineage
 			$parent_url = str_replace(Array('http://', 'https://'), '', $parent_url);
 
-			if (empty($parent_url)) {
-				return Array();
-			}
+			if (empty($parent_url)) return Array();
 
 			//Now lets set the url to our parents url, and continue with the rest of the function as normal
 			$root_url = $this->getRootURL($parent_url);
