@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.88 2005/09/14 03:44:24 gsherwood Exp $
+* $Id: init.inc,v 1.89 2005/09/26 23:35:04 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.88 $
+* @version $Revision: 1.89 $
 * @package MySource_Matrix
 */
 
@@ -102,6 +102,7 @@ if (SQ_IN_BACKEND && substr($_SERVER['PHP_SELF'], -1) != '/') {
 	header('Location: '.$_SERVER['PHP_SELF'].'/'.(($_SERVER['QUERY_STRING']) ? '?'.$_SERVER['QUERY_STRING'] : ''));
 	exit();
 }
+
 
 
 // the current output type for the system, can be changed during run-time (eg to XML)

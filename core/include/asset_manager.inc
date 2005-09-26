@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.377 2005/09/26 23:27:17 dheppell Exp $
+* $Id: asset_manager.inc,v 1.378 2005/09/26 23:35:04 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.377 $
+* @version $Revision: 1.378 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2925,8 +2925,9 @@ class Asset_Manager extends MySource_Object
 	*/
 	function assetInTrash($assetid, $exclusively=false)
 	{
-		$id_parts = explode(':', $assetid);
-		if (isset($id_parts[1])) return false;
+		if (false !== strpos($assetid, ':')) {
+			return $this->assetInTrash(strtok($assetid, ':'), $exclusively);
+		}
 		$trash = &$this->getSystemAsset('trash_folder');
 
 		// if we are being asked "Is the trash in the trash"
