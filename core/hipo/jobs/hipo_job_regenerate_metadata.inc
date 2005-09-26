@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.24 2005/05/17 06:58:42 ndvries Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.25 2005/09/26 00:02:39 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -83,7 +83,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	/**
 	* Sets some info about thresholds that this hipo requires.
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getConfigVars()
@@ -243,8 +243,8 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	/**
 	* Regenerate Metatdata for a single asset in the todo list
 	*
-	* @param array()	&$step_data	a reference to the array of information about the current step
-	* @param string		$prefix		prefix for form vars
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
@@ -261,7 +261,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			if (!is_null($asset)) {
-				if (!$mm->regenerateMetadata($asset->id)) return false;
+				if (!$mm->regenerateMetadata($asset->id)) return true;
 				$step_data['message'] = translate('hipo_generate_metadata', $asset->name);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
@@ -292,9 +292,9 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	/**
 	* This function is used to set-up the details for the locking the assets by the nested HIPO_Job
 	*
-	* @param string		&$job_type
-	* @param Array()	&$running_vars
-	* @param Array()	&$options
+	* @param string	&$job_type
+	* @param array	&$running_vars
+	* @param array	&$options
 	*
 	* @return void
 	* @access public
@@ -324,8 +324,8 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	/**
 	* Release the locks we acquired while setting the schemas
 	*
-	* @param array()	&$step_data	a reference to the array of information about the current step
-	* @param string		$prefix		prefix for form vars
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
