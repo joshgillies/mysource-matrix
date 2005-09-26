@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.12.2.1 2005/06/15 04:05:56 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.12.2.2 2005/09/26 05:48:53 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.12.2.1 $
+* @version $Revision: 1.12.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -216,8 +216,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 	{
 		$create_loc = $this->attr('create_location');
 		$create_loc_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($create_loc);
-		if (is_null($create_loc_asset)) {
-			// we shouldn't get to this point if there is no create loc
+		if (is_null($create_loc_asset) || !isset($this->_tmp['file_info']['name'])) {
+			// we shouldn't get to this point if there is no create loc or no file was uploaded
 			return;
 		}
 
