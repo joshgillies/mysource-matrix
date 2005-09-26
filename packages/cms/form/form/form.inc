@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.117 2005/09/26 23:40:57 dheppell Exp $
+* $Id: form.inc,v 1.118 2005/09/26 23:55:22 dheppell Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.117 $
+* @version $Revision: 1.118 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1653,30 +1653,7 @@ class Form extends Asset
 	*/
 	function getLineageFromURL($assetid, $protocol, $url)
 	{
-		$lineage = Array();
-
-		$groups = split(',', $assetid);
-		for (reset($groups); null !== ($k = key($groups));) {
-			$dn = implode(',', $groups);
-			if ($dn == $this->attr('root_dn')) break;
-
-			$asset = &$this->getAsset($dn);
-			$url = substr($asset->getURL(), strlen(current_protocol()) +3);
-
-			$lineage[] = Array (
-							'url'			=> $url,
-							'assetid'		=> $this->id.':'.$dn,
-							'name'			=> $asset->name,
-							'short_name'	=> $asset->short_name,
-							'type_code'		=> $asset->type(),
-							'link_type'		=> SQ_LINK_TYPE_1,
-							'protocol'		=> current_protocol(),
-						 );
-
-			unset($groups[$k]);
-		}
-		return array_reverse($lineage);
-
+		return Array();
 	}//end getLineageFromURL()
 
 
@@ -1695,7 +1672,7 @@ class Form extends Asset
 	*									When true fn returns all info about the permission in the form of
 	*									Array(userid => granted)
 	*									(NOTE: TRUE is only valid if $and_greater and
-										 *									$expand_groups are false)
+	*									$expand_groups are false)
 	*
 	* @return array
 	* @access public
