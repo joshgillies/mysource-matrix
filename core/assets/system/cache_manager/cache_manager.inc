@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.14 2005/09/20 05:05:05 rong Exp $
+* $Id: cache_manager.inc,v 1.15 2005/09/26 05:49:42 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once 'Cache.php';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -207,7 +207,11 @@ class Cache_Manager extends Asset
 		$group = $this->getAssetHash($assetid_code).$this->getAssetHash($cacheid_code);
 		$expiry = time() + $this->getExpiry($asset_type);
 
-		return $this->cache->save($final_key, $contents, $expiry, $group);
+		$old_umask = umask(0);
+		$return = $this->cache->save($final_key, $contents, $expiry, $group);
+		umask($old_umask);
+
+		return $return;
 
 	}//end saveToCache()
 
