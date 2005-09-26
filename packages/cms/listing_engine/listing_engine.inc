@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.97 2005/09/19 23:39:54 lwright Exp $
+* $Id: listing_engine.inc,v 1.98 2005/09/26 06:42:28 sdanis Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1535,7 +1535,7 @@ class Listing_Engine extends Page
 					switch ($matches[2]) {
 						case 'link_value':
 							$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($parent_id, $assetid);
-							$keywords[$group_keyword] = $link['value'];
+							$keywords[$group_keyword] = array_get_index($link, 'value', '');
 						break;
 						case 'link_type':
 						case 'dependant':
@@ -2475,9 +2475,9 @@ class Listing_Engine extends Page
 	*
 	* Marked deprecated on 15/09/2005
 	*
+	* @deprecated
 	* @return array
 	* @access protected
-	* @deprecated
 	*/
 	function _getTypeFormatsKeywords()
 	{
