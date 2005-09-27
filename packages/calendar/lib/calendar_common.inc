@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.31.2.2 2005/08/31 03:39:45 mmcintyre Exp $
+* $Id: calendar_common.inc,v 1.31.2.3 2005/09/27 07:14:17 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.31.2.2 $
+* @version $Revision: 1.31.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -83,6 +83,23 @@ function build_join_statements()
 	return '('.$base.' JOIN ('.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON l.linkid = t.linkid) ON l.minorid = a.assetid) JOIN '.SQ_TABLE_RUNNING_PREFIX.'cal_date_val cd ON a.assetid = cd.assetid';
 
 }//end build_join_statements()
+
+
+/**
+* Build SQL to express the unix timestamp represented by the supplied date component expressions
+*
+* @param string	$y	Expression for the year component of the date
+* @param string	$m	Expression for the month component of the date
+* @param string	$d	Expression for the day component of the date
+*
+* @access public
+* @return void
+*/
+function make_timestamp_sql($y, $m, $d)
+{
+	return "EXTRACT(epoch from DATE (($y) || '-' || ($m) || '-' || ($d)))";
+
+}//end make_timestamp_sql()
 
 
 /**
@@ -152,7 +169,6 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 			$prev_month_length = date('t', strtotime('-1 month', $now['ts']));
 			$prev_month_start_wday = date('w', strtotime(sprintf('%04d-%02d-%02d', $year, $month, 1).' -1 month'));
 			$prev_month_end_wday = date('w', strtotime(sprintf('%04d-%02d-%02d', $year, $month, 1).' -1 day'));
-			$make_timestamp_func = create_function('$y, $m, $d', 'return "EXTRACT(epoch from DATE (\'$y\' || \'-\' || \'$m\' || \'-\' || \'$d\'))";');
 
 			if (($now['wday'] != 0) && ($now['wday'] != 6)) {
 				$sql_freqs[] = 'frequency = '.$db->quote('DWD');
@@ -183,13 +199,13 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 				   AND (
 					   /* its end is PROBABLY after our view date - we can only be ~90% sure here */
 						((frequency = '.$db->quote('MFN').')
-						   AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.$db->quote($now['ts']).' - '.$make_timestamp_func('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', '(('.$now['mon'].' + 10 - (('.($now['ms']-1).' - start_date_ms) % period)) % 12) + 1', 'start_date_mday').') / 86400)))
+						   AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.$db->quote($now['ts']).' - '.make_timestamp_sql('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', '(('.$now['mon'].' + 10 - (('.($now['ms']-1).' - start_date_ms) % period)) % 12) + 1', 'start_date_mday').') / 86400)))
 						OR ((frequency = '.$db->quote('MRN').')
-							AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.$db->quote($now['ts']).' - '.$make_timestamp_func('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', '(('.$now['mon'].' + 10 - (('.($now['ms']-1).' - start_date_ms) % period)) % 12) + 1', '((start_date_mday + 3) - (FLOOR((start_date_mday + 3) / 31) * ((start_date_mday + 3) % 31)))').') / 86400)))
+							AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.$db->quote($now['ts']).' - '.make_timestamp_sql('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', '(('.$now['mon'].' + 10 - (('.($now['ms']-1).' - start_date_ms) % period)) % 12) + 1', '((start_date_mday + 3) - (FLOOR((start_date_mday + 3) / 31) * ((start_date_mday + 3) % 31)))').') / 86400)))
 						OR ((frequency = '.$db->quote('MFW').')
-							AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.$db->quote($now['ts']).' - '.$make_timestamp_func('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', '(('.$now['mon'].' + 10 - (('.($now['ms']-1).' - start_date_ms) % period)) % 12) + 1', '(7 * start_date_wdom) - (FLOOR((7 * start_date_wdom) / 31) * ((7 * start_date_wdom) % 31))').') / 86400)))
+							AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.$db->quote($now['ts']).' - '.make_timestamp_sql('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', '(('.$now['mon'].' + 10 - (('.($now['ms']-1).' - start_date_ms) % period)) % 12) + 1', '(7 * start_date_wdom) - (FLOOR((7 * start_date_wdom) / 31) * ((7 * start_date_wdom) % 31))').') / 86400)))
 						OR ((frequency = '.$db->quote('MRW').')
-							AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.$db->quote($now['ts']).' - '.$make_timestamp_func('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', '(('.$now['mon'].' + 10 - (('.($now['ms']-1).' - start_date_ms) % period)) % 12) + 1', '(31 - ((start_date_rwdom - 1) * 7))').') / 86400)))
+							AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.$db->quote($now['ts']).' - '.make_timestamp_sql('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', '(('.$now['mon'].' + 10 - (('.($now['ms']-1).' - start_date_ms) % period)) % 12) + 1', '(31 - ((start_date_rwdom - 1) * 7))').') / 86400)))
 					)
 				) OR (
 						/* An instance that started last month has run into our month
