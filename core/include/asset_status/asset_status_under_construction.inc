@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.34 2005/06/29 23:44:12 ndvries Exp $
+* $Id: asset_status_under_construction.inc,v 1.35 2005/09/27 01:16:25 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                           the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
@@ -188,7 +188,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 						$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details');
 					}
 
-					$log->type = 'asset.workflow.started';
+					$log->type = 'asset.workflow.log.started';
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$ms->enqueueMessage($log);

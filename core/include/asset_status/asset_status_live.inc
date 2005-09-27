@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live.inc,v 1.29 2005/06/29 23:44:12 ndvries Exp $
+* $Id: asset_status_live.inc,v 1.30 2005/09/27 01:16:25 lwright Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    LIVE -> UNDER_CONSTRUCTION if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live extends Asset_Status
@@ -163,13 +163,14 @@ class Asset_Status_Live extends Asset_Status
 
 				if (!$wfm->silentWorkflowParty($this->owner->id)) {
 					$log = $ms->newMessage();
-					$log->type = 'asset.workflow.review';
+					$log->type = 'asset.workflow.log.review';
 					$msg_reps = Array(
 									'user_name'		=> $user->name,
 									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
 									'asset_name'	=> $this->owner->name,
 									'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow'),
 								);
+					//$log->to = Array(0);
 					$log->replacements = $msg_reps;
 					$asset_edt_fns = $this->owner->getEditFns();
 					if (isset($asset_edt_fns->static_screens['preview'])) {

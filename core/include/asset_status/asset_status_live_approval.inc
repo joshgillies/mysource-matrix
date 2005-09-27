@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.39 2005/09/20 02:04:25 lwright Exp $
+* $Id: asset_status_live_approval.inc,v 1.40 2005/09/27 01:16:25 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                   there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live_Approval extends Asset_Status
@@ -218,7 +218,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 					$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details');
 				}
 
-				$log->type = 'asset.workflow.review.cancel';
+				$log->type = 'asset.workflow.log.review.cancel';
 				$log->parameters['assetid'] = $this->owner->id;
 				$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 				$log->send();
@@ -284,7 +284,8 @@ class Asset_Status_Live_Approval extends Asset_Status
 										'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow'),
 									);
 						$log->replacements = $msg_reps;
-						$log->type = 'asset.workflow.review.complete';
+						//$log->to = Array(0);
+						$log->type = 'asset.workflow.log.review.complete';
 						$asset_edt_fns = $this->owner->getEditFns();
 						if (isset($asset_edt_fns->static_screens['preview'])) {
 							$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview');

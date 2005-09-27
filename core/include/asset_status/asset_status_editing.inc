@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.30 2005/06/29 23:44:12 ndvries Exp $
+* $Id: asset_status_editing.inc,v 1.31 2005/09/27 01:16:25 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -171,7 +171,7 @@ class Asset_Status_Editing extends Asset_Status
 									'status'		=> get_status_description($new_status),
 								);
 					$log->replacements = $msg_reps;
-					$log->type = 'asset.workflow.safeedit.cancel';
+					$log->type = 'asset.workflow.log.safeedit.cancel';
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$log->send();
@@ -213,7 +213,7 @@ class Asset_Status_Editing extends Asset_Status
 					} else {
 						$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details');
 					}
-					$log->type    = 'asset.workflow.started';
+					$log->type    = 'asset.workflow.log.started';
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$ms->enqueueMessage($log);

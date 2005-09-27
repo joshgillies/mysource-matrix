@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_pending_approval.inc,v 1.33 2005/06/29 23:44:12 ndvries Exp $
+* $Id: asset_status_pending_approval.inc,v 1.34 2005/09/27 01:16:25 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                           there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 */
 class Asset_Status_Pending_Approval extends Asset_Status
@@ -176,7 +176,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 									'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow'),
 								);
 					$log->replacements = $msg_reps;
-					$log->type    = 'asset.workflow.reject';
+					$log->type    = 'asset.workflow.log.reject';
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$log->send();
@@ -238,7 +238,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 							$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details');
 						}
 
-						$log->type    = 'asset.workflow.complete';
+						$log->type    = 'asset.workflow.log.complete';
 						$log->parameters['assetid'] = $this->owner->id;
 						$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 						$ms->enqueueMessage($log);
