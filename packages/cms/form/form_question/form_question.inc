@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.41.2.7 2005/06/15 05:22:32 lwright Exp $
+* $Id: form_question.inc,v 1.41.2.8 2005/09/27 06:28:54 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.41.2.7 $
+* @version $Revision: 1.41.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -768,6 +768,11 @@ class Form_Question extends Asset
 	{
 		if (is_null($answer)) {
 			$answer = $this->getValue();
+		}
+
+		// if the question is optional and answer is empty then dont check this rule
+		if (empty($answer) && !$this->attr('required')) {
+			return true;
 		}
 
 		$rules = &$this->getRules();
