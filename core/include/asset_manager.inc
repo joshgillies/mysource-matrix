@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.378 2005/09/26 23:35:04 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.379 2005/09/27 06:43:28 dheppell Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.378 $
+* @version $Revision: 1.379 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -733,7 +733,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function &getAsset($assetid, $type_code='', $mute_errors=false)
 	{
-	//	$assetid = preg_replace('/%3A/', ':', $assetid);//REMOVE
 		assert_valid_assetid($assetid);
 
 		$asset = &$this->_asset_cache->get($assetid);
@@ -749,7 +748,7 @@ class Asset_Manager extends MySource_Object
 				if (!method_exists($asset, 'getAsset')) {
 					trigger_localised_error('SYS0203', E_USER_WARNING, $asset->name);
 				} else {
-					$asset = &$asset->getAsset($id_parts[1]);
+					$asset = &$asset->getAsset($assetid);
 				}
 
 			} else {
@@ -822,7 +821,7 @@ class Asset_Manager extends MySource_Object
 				//catch the shadow assets
 				$id_parts = explode(':', $value);
 				if (isset($id_parts[1])) {
-					$shadows[$id_parts[0]][] = $id_parts[1];
+					$shadows[$id_parts[0]][] = $value;
 				}
 			}
 		} else if (!$is_empty) {
@@ -830,7 +829,7 @@ class Asset_Manager extends MySource_Object
 			//catch the shadow assets
 			$id_parts = explode(':', $assetids);
 			if (isset($id_parts[1])) {
-				$shadows[$id_parts[0]][] = $id_parts[1];
+				$shadows[$id_parts[0]][] = $value;
 			}
 		}
 
@@ -1111,7 +1110,7 @@ class Asset_Manager extends MySource_Object
 	*
 	* If one value in $field then the return value is Array(assetid => '[field]'), otherwise Array(assetid => Array())
 	*
-	* @param array(int)		$assetids			an array of assets to limit
+	* @param array			$assetids			an array of assets to limit
 	* @param string|array	$type_code			an asset type code, or array of typecodes, to limit results to
 	* @param boolean		$strict_type_code	ensure returned assets are of the passed type codes
 	* @param string			$field				single field from the asset table to return (along with the assetid)
@@ -1137,7 +1136,7 @@ class Asset_Manager extends MySource_Object
 			$id_parts = explode(':', $assetids[$i]);
 
 			if (isset($id_parts[1])) {
-				$shadowids[$id_parts[0]][] = $id_parts[1];
+				$shadowids[$id_parts[0]][] = $assetids[$i];
 			} else {
 				$normalids[] = $assetids[$i];
 			}
@@ -2039,7 +2038,7 @@ class Asset_Manager extends MySource_Object
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) {
 			$asset = &$this->getAsset($id_parts[0]);
-			$link =  $asset->getLink($id_parts[1], $link_type, $type_code, $strict_type_code, $value, $side_of_link, $exclusive);
+			$link =  $asset->getLink($assetid, $link_type, $type_code, $strict_type_code, $value, $side_of_link, $exclusive);
 			$this->forgetAsset($asset);
 			return $link;
 		}
@@ -2126,7 +2125,7 @@ class Asset_Manager extends MySource_Object
 		$id_parts = explode(':', $linkid);
 		if (isset($id_parts[1])) {
 			$asset = &$this->getAsset($id_parts[0]);
-			$link = $asset->getLinkById(substr($linkid, (count($id_parts[0]) + 2)), $assetid, $side_of_link);
+			$link = $asset->getLinkById($linkid, $assetid, $side_of_link);
 			$this->forgetAsset($asset);
 			return $link;
 		}
@@ -2200,7 +2199,7 @@ class Asset_Manager extends MySource_Object
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) {
 			$asset = &$this->getAsset($id_parts[0]);
-			$link = $asset->getLinkByAsset($id_parts[1], $other_assetid, $link_types, $value, $side_of_link, $force_array, $dependant, $exclusive);
+			$link = $asset->getLinkByAsset($assetid, $other_assetid, $link_types, $value, $side_of_link, $force_array, $dependant, $exclusive);
 			$this->forgetAsset($asset);
 			return $link;
 		}
@@ -2304,7 +2303,7 @@ class Asset_Manager extends MySource_Object
 				$real_assetid = $id_parts[0];
 				$asset = &$this->getAsset($real_assetid);
 				if (is_null($asset)) continue;
-				$links[$assetid] = $asset->getLinks($id_parts[1], $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by);
+				$links[$assetid] = $asset->getLinks($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by);
 				$this->forgetAsset($asset);
 				continue;
 			}
@@ -2361,7 +2360,7 @@ class Asset_Manager extends MySource_Object
 			$id_parts = explode(':', $assetid);
 			if (isset($id_parts[1])) {
 				$asset = &$this->getAsset($id_parts[0]);
-				$links = $asset->getAllChildLinks($id_parts[1], $link_type);
+				$links = $asset->getAllChildLinks($assetid, $link_type);
 				$this->forgetAsset($asset);
 				return $links;
 			}
@@ -2542,7 +2541,7 @@ class Asset_Manager extends MySource_Object
 		if (isset($id_parts[1])) {
 			$real_assetid = $id_parts[0];
 			$asset = &$this->getAsset($real_assetid);
-			$parents = $asset->getParents($id_parts[1], $type_code, $strict_type_code);
+			$parents = $asset->getParents($assetid, $type_code, $strict_type_code);
 			$this->forgetAsset($asset);
 			return $parents;
 		}
@@ -2600,7 +2599,7 @@ class Asset_Manager extends MySource_Object
 				if (!method_exists($asset, 'getChildren')) {
 					trigger_localised_error('SYS0204', E_USER_WARNING, $asset->name);
 				} else {
-					$children = $asset->getChildren($id_parts[1], $type_code, $strict_type_code, $sort_by);
+					$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $sort_by);
 				}
 				$this->forgetAsset($asset);
 			} else {
@@ -2998,7 +2997,7 @@ class Asset_Manager extends MySource_Object
 		if (isset($id_parts[1])) {
 			$real_assetid = $id_parts[0];
 			$asset = &$this->getAsset($real_assetid);
-			$results = &$asset->countLinks($id_parts[1], $side_of_link, $link_types, $type_code, $strict_type_code, $ignore_linkid);
+			$results = &$asset->countLinks($assetid, $side_of_link, $link_types, $type_code, $strict_type_code, $ignore_linkid);
 
 			$this->forgetAsset($asset);
 			return $results;
@@ -3921,7 +3920,7 @@ class Asset_Manager extends MySource_Object
 		// shadow asset found, pipe the request of to the bridge
 		if (isset($id_parts[1])) {
 			$asset = $this->getAsset($id_parts[0]);
-			$result =  $asset->updateLink(substr($linkid, (count($id_parts[0]) + 2)), $link_type, $value, $sort_order);
+			$result =  $asset->updateLink($linkid, $link_type, $value, $sort_order);
 			$this->forgetAsset($asset);
 			return $result;
 		}
@@ -4192,7 +4191,7 @@ class Asset_Manager extends MySource_Object
 		// shadow asset found, pipe the request of to the bridge
 		if (isset($id_parts[1])) {
 			$asset = $this->getAsset($id_parts[0]);
-			$result =  $asset->deleteAssetLink(substr($linkid, (count($id_parts[0]) + 2)), $moving);
+			$result =  $asset->deleteAssetLink($linkid, $moving);
 			$this->forgetAsset($asset);
 			return $result;
 		}
@@ -4508,7 +4507,7 @@ class Asset_Manager extends MySource_Object
 
 			if (is_null($asset)) continue;
 
-			$ret_val = $asset->getPermission($id_parts[1], $permission, $granted, $and_greater, $expand_groups, $all_info);
+			$ret_val = $asset->getPermission($assetid, $permission, $granted, $and_greater, $expand_groups, $all_info);
 			$this->forgetAsset($asset);
 
 			return $ret_val;
@@ -4616,7 +4615,7 @@ class Asset_Manager extends MySource_Object
 
 			if (is_null($asset)) continue;
 
-			$ret_val = $asset->setPermission($id_parts[1], $userid, $permission, $granted);
+			$ret_val = $asset->setPermission($assetid, $userid, $permission, $granted);
 			$this->forgetAsset($asset);
 
 			return $ret_val;
@@ -4739,7 +4738,7 @@ class Asset_Manager extends MySource_Object
 
 			if (is_null($asset)) continue;
 
-			$ret_val = $asset->deletePermission($id_parts[1], $userid, $permission);
+			$ret_val = $asset->deletePermission($assetid, $userid, $permission);
 			$this->forgetAsset($asset);
 
 			return $ret_val;

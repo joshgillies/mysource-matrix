@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.118 2005/09/26 23:55:22 dheppell Exp $
+* $Id: form.inc,v 1.119 2005/09/27 06:45:19 dheppell Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.118 $
+* @version $Revision: 1.119 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -106,7 +106,13 @@ class Form extends Asset
 	function &getAsset($shadowid, $type_code='', $mute_errors=false)
 	{
 		$asset = null;
-		if (empty($shadowid)) return $asset;
+		$id_parts = explode(':', $shadowid);
+
+		if (isset($id_parts[1])){
+			$shadowid = $id_parts[1];
+		} else {
+			return $asset;
+		}
 
 		// Questions follow the format '<assetid>:q<shadowid>'
 		if ($shadowid{0} == 'q') {
@@ -158,6 +164,9 @@ class Form extends Asset
 	*/
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
 	{
+		$id_parts = explode(':', $assetid);
+		if (isset($id_parts[1])) $assetid = $id_parts[1];
+
 		$links = Array();
 		$new_sort_order = 0;
 
@@ -360,6 +369,9 @@ class Form extends Asset
 	*/
 	function getParents($shadowid, $type_code='', $strict_type_code=true)
 	{
+		$id_parts = explode(':', $shadowid);
+		if (isset($id_parts[1])) $shadowid = $id_parts[1];
+
 		// basically get the parents of the section, and add itself in the
 		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
 		
@@ -1680,6 +1692,7 @@ class Form extends Asset
 	function getPermission($assetid, $permission, $granted=null, $and_greater=true, $expand_groups=false, $all_info=false)
 	{
 		return Array();
+
 	}//end getPermission()
 
 
@@ -1697,6 +1710,7 @@ class Form extends Asset
 	function setPermission($assetid, $userid, $permission, $granted)
 	{
 		return false;
+
 	}//end setPermission()
 
 
@@ -1713,6 +1727,7 @@ class Form extends Asset
 	function deletePermission($assetid, $userid, $permission)
 	{
 		return false;
+
 	}//end deletePermission()
 
 
@@ -1733,6 +1748,7 @@ class Form extends Asset
 	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=true, $field='')
 	{
 		return Array();
+
 	}//end getAssetInfo()
 
 
@@ -1750,6 +1766,7 @@ class Form extends Asset
 	function assetExists($assetids)
 	{
 		return false;
+
 	}//end assetExists()
 
 
@@ -1777,6 +1794,7 @@ class Form extends Asset
 	function getLink($assetid, $link_type=null, $type_code='', $strict_type_code=true, $value=null, $side_of_link='major', $exclusive=null)
 	{
 		return Array();
+
 	}//end getLink()
 
 
@@ -1794,6 +1812,7 @@ class Form extends Asset
 	function getLinkById($linkid, $assetid=0, $side_of_link='major')
 	{
 		return Array();
+
 	}//end getLinkById()
 
 
@@ -1821,6 +1840,7 @@ class Form extends Asset
 	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=true, $ignore_linkid=0)
 	{
 		return 0;
+
 	}//end countLinks()
 
 
@@ -1847,6 +1867,7 @@ class Form extends Asset
 	function getLinkByAsset($assetid, $other_assetid, $link_types=null, $value=null, $side_of_link='major', $force_array=false, $dependant=null, $exclusive=null)
 	{
 		return Array();
+
 	}//end getLinkByAsset()
 
 
@@ -1862,6 +1883,7 @@ class Form extends Asset
 	function getAllChildLinks($assetid, $link_type=0)
 	{
 		return Array();
+
 	}//end getAllChildLinks()
 
 
@@ -1882,6 +1904,7 @@ class Form extends Asset
 	function updateLink($linkid, $link_type=null, $value=null, $sort_order=null)
 	{
 		return false;
+
 	}//end updateLink()
 
 
@@ -1897,6 +1920,7 @@ class Form extends Asset
 	function deleteAssetLink($linkid, $moving=false)
 	{
 		return false;
+
 	}//end deleteAssetLink()
 
 
@@ -1919,6 +1943,7 @@ class Form extends Asset
 	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0', $moving=false)
 	{
 		return 0;
+
 	}//end createAssetLink()
 
 

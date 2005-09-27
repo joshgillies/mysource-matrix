@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.33 2005/09/27 01:43:09 sdanis Exp $
+* $Id: ldap_bridge.inc,v 1.34 2005/09/27 06:47:06 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -133,7 +133,14 @@ class LDAP_Bridge extends Asset
 	function &getAsset($shadowid, $type_code='', $mute_errors=false)
 	{
 		$asset = null;
-		if (empty($shadowid)) return $asset;
+		$id_parts = explode(':', $shadowid);
+
+		if (isset($id_parts[1])){
+			$shadowid = $id_parts[1];
+		} else {
+			return $asset;
+		}
+
 
 		$ldap = @$this->connectToLdap();
 			if (is_null($ldap->ptr)) return $asset;
@@ -189,6 +196,9 @@ class LDAP_Bridge extends Asset
 	*/
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
 	{
+		$id_parts = explode(':', $assetid);
+		if (isset($id_parts[1])) $assetid = $id_parts[1];
+
 		if (!is_array($type_code)) {
 			if (empty($type_code)) {
 				$type_code = Array();
@@ -452,6 +462,9 @@ class LDAP_Bridge extends Asset
 	*/
 	function getParents($assetid, $type_code='', $strict_type_code=true)
 	{
+		$id_parts = explode(':', $assetid);
+		if (isset($id_parts[1])) $assetid = $id_parts[1];
+
 		$parents = Array();
 		if (!is_array($type_code)) {
 			$type_code = Array($type_code);
@@ -542,6 +555,9 @@ class LDAP_Bridge extends Asset
 	*/
 	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
 	{
+		$id_parts = explode(':', $assetid);
+		if (isset($id_parts[1])) $assetid = $id_parts[1];
+
 		if ($assetid != $this->id) {
 			// if we are using Active Directory, the tree structure does not quite work the same
 			// as openLDAP, so we can only do one level for now
@@ -710,6 +726,7 @@ class LDAP_Bridge extends Asset
 	function getPermission($assetid, $permission, $granted=null, $and_greater=true, $expand_groups=false, $all_info=false)
 	{
 		return Array();
+
 	}//end getPermission()
 
 
@@ -727,6 +744,7 @@ class LDAP_Bridge extends Asset
 	function setPermission($assetid, $userid, $permission, $granted)
 	{
 		return false;
+
 	}//end setPermission()
 
 
@@ -743,6 +761,7 @@ class LDAP_Bridge extends Asset
 	function deletePermission($assetid, $userid, $permission)
 	{
 		return false;
+
 	}//end deletePermission()
 
 
@@ -763,6 +782,7 @@ class LDAP_Bridge extends Asset
 	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=true, $field='')
 	{
 		return Array();
+
 	}//end getAssetInfo()
 
 
@@ -780,6 +800,7 @@ class LDAP_Bridge extends Asset
 	function assetExists($assetids)
 	{
 		return false;
+
 	}//end assetExists()
 
 
@@ -807,6 +828,7 @@ class LDAP_Bridge extends Asset
 	function getLink($assetid, $link_type=null, $type_code='', $strict_type_code=true, $value=null, $side_of_link='major', $exclusive=null)
 	{
 		return Array();
+
 	}//end getLink()
 
 
@@ -824,6 +846,7 @@ class LDAP_Bridge extends Asset
 	function getLinkById($linkid, $assetid=0, $side_of_link='major')
 	{
 		return Array();
+
 	}//end getLinkById()
 
 
@@ -851,6 +874,7 @@ class LDAP_Bridge extends Asset
 	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=true, $ignore_linkid=0)
 	{
 		return 0;
+
 	}//end countLinks()
 
 
@@ -877,6 +901,7 @@ class LDAP_Bridge extends Asset
 	function getLinkByAsset($assetid, $other_assetid, $link_types=null, $value=null, $side_of_link='major', $force_array=false, $dependant=null, $exclusive=null)
 	{
 		return Array();
+
 	}//end getLinkByAsset()
 
 
@@ -892,6 +917,7 @@ class LDAP_Bridge extends Asset
 	function getAllChildLinks($assetid, $link_type=0)
 	{
 		return Array();
+
 	}//end getAllChildLinks()
 
 
@@ -912,6 +938,7 @@ class LDAP_Bridge extends Asset
 	function updateLink($linkid, $link_type=null, $value=null, $sort_order=null)
 	{
 		return false;
+
 	}//end updateLink()
 
 
@@ -927,6 +954,7 @@ class LDAP_Bridge extends Asset
 	function deleteAssetLink($linkid, $moving=false)
 	{
 		return false;
+
 	}//end deleteAssetLink()
 
 
@@ -945,6 +973,7 @@ class LDAP_Bridge extends Asset
 	function canCreateLink(&$major, &$minor, $link_type, $exclusive)
 	{
 		return false;
+
 	}//end canCreateLink()
 
 
@@ -967,6 +996,7 @@ class LDAP_Bridge extends Asset
 	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0', $moving=false)
 	{
 		return 0;
+
 	}//end createAssetLink()
 
 
