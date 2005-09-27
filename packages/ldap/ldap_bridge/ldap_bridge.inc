@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.19.2.2 2005/05/01 23:15:40 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.19.2.3 2005/09/27 01:34:22 sdanis Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,7 +46,7 @@ class LDAP_Bridge extends Bridge
 							  'container'          => 'cn',
 							  'organization'       => 'o'
 							);
-	
+
 	/**
 	* An array of objectclass values that represent users in LDAP
 	* All values must be lowercase
@@ -101,7 +101,7 @@ class LDAP_Bridge extends Bridge
 	{
 		$asset = null;
 		if (empty($shadowid)) return $asset;
-		
+
 		$ldap = @$this->connectToLdap();
 			if (is_null($ldap->ptr)) return $asset;
 
@@ -113,7 +113,7 @@ class LDAP_Bridge extends Bridge
 
 			$data = $data[0];
 		$ldap->disconnect();
-	
+
 		unset($data['objectclass']['count']);
 		foreach ($data['objectclass'] as $class) {
 			$class = strtolower($class);
@@ -168,7 +168,7 @@ class LDAP_Bridge extends Bridge
 				// attribute of the group instead of using tree searches
 				if ($this->attr('system_type') == 'activedirectory') {
 					$asset = &$this->getAsset($assetid);
-					if ($asset->type() == 'ldap_user_group' && in_array('group', $asset->vars['objectclass'])) {
+					if ($asset->type() == 'ldap_user_group' && in_array('group', $asset->vars['objectclass']) && isset($asset->vars['member'])) {
 						$members = $asset->vars['member'];
 						$entries = Array();
 						foreach ($members as $dn) {
@@ -185,7 +185,7 @@ class LDAP_Bridge extends Bridge
 
 				if ($assetid == $this->id) $base_dn = $this->attr('root_dn');
 				else $base_dn = $assetid;
-				
+
 				$filter = '';
 				foreach ($this->_group_types as $key => $value) {
 					if (empty($filter)) $filter = '(objectClass='.$key.')';
@@ -195,23 +195,23 @@ class LDAP_Bridge extends Bridge
 					if (empty($filter)) $filter = '(objectClass='.$key.')';
 					else $filter = '(|'.$filter.'(objectClass='.$key.'))';
 				}
-	
+
 				$user_attrs = $this->attr('user_attributes');
 				$sort_by = (isset($user_attrs['sort_by'])) ? $user_attrs['sort_by'] : '';
-	
+
 				$result = $ldap->search($base_dn, $filter, $sort_by, false);
 				if (!$result) {
 					$ldap->disconnect();
 					return Array();
 				}
-	
+
 				$entries = $ldap->getEntries($result);
 				if (!$entries['count']) {
 					$ldap->disconnect();
 					return Array();
 				}
 				unset($entries['count']);
-				
+
 				$ldap->disconnect();
 			}
 
@@ -220,7 +220,7 @@ class LDAP_Bridge extends Bridge
 			$i = 0;
 			foreach ($entries as $data) {
 
-				$type = '';	
+				$type = '';
 				if (isset($data['objectclass']['count'])) unset($data['objectclass']['count']);
 				foreach ($data['objectclass'] as $class) {
 					$class = strtolower($class);
@@ -231,7 +231,7 @@ class LDAP_Bridge extends Bridge
 							$type = 'ldap_user_group';
 						}
 					}
-					
+
 					// if this container is not a group, check to see if it is a user
 					if (empty($type)) {
 						foreach ($this->_user_types as $key => $value) {
@@ -245,7 +245,7 @@ class LDAP_Bridge extends Bridge
 					if (!empty($type)) break;
 				}
 				if (empty($type)) continue;
-				
+
 				// find the DN for the asset
 				if (is_array($data['dn'])) $dn = array_shift($data['dn']);
 				else $dn = $data['dn'];
@@ -299,7 +299,7 @@ class LDAP_Bridge extends Bridge
 
 			$result = $ldap->search($assetid,'(objectClass=*)');
 			if (!$result) return $asset;
-			
+
 			$data = $ldap->getEntries($result);
 			if (!$data['count']) {
 				$ldap->disconnect();
@@ -438,7 +438,7 @@ class LDAP_Bridge extends Bridge
 					}
 				}
 				if (empty($attr)) continue;
-				
+
 				$sorted_array[strtolower($data[$attrs[$attr]][0])] = Array('dn' => $data['dn'],
 																		   'objectclass' => $data['objectclass']
 																		   );
