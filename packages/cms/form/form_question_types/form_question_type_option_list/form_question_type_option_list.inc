@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list.inc,v 1.11 2005/05/20 05:27:37 tbarrett Exp $
+* $Id: form_question_type_option_list.inc,v 1.11.2.1 2005/09/27 05:02:48 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../form_question_type_tickbox_list/form_questio
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -74,7 +74,7 @@ class Form_Question_Type_Option_List extends Form_Question_Type_Tickbox_List
 	*/
 	function getAllowedRules()
 	{
-		return Array();
+		return Array('selection');
 
 	}//end getAllowedRules()
 
