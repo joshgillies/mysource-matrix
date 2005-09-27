@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.98 2005/09/26 06:42:28 sdanis Exp $
+* $Id: listing_engine.inc,v 1.99 2005/09/27 03:12:19 sdanis Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.98 $
+* @version $Revision: 1.99 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -600,7 +600,7 @@ class Listing_Engine extends Page
 
 		$wanted_statuses = $this->attr('statuses');
 
-		if (!empty($wanted_statuses)) {
+		if (!empty($wanted_statuses) && !empty($todo_keys)) {
 			$sql = 'SELECT
 						assetid
 					FROM
