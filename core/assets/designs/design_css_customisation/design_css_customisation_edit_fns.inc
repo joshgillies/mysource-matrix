@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_customisation_edit_fns.inc,v 1.8.2.2 2005/06/28 04:18:41 mnyeholt Exp $
+* $Id: design_css_customisation_edit_fns.inc,v 1.8.2.3 2005/09/27 23:29:18 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_css/design_css_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.8.2.2 $
+* @version $Revision: 1.8.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -219,10 +219,14 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 		$existing_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($existing_ids));
 		foreach ($existing_info as $assetid => $existing_info) {
 			// if the name is the same, delete the link
-			if ($existing_info['name'] == $info['name']) {
+			if ($existing_info['name'] == strtolower($info['name'])) {
 				$linkid = $existing_ids[$assetid];
 				$asset->deleteExistingLink($linkid);
-				$asset->updateLookups();
+
+				// We need to update the lookups of the old linked asset
+				$minor_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$minor_asset->updateLookups();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($minor_asset);
 			}
 		}
 
