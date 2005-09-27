@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.30 2005/05/17 06:29:57 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.30.2.1 2005/09/27 01:49:47 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.30.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -247,7 +247,7 @@ class LDAP_Bridge extends Asset
 					// attribute of the group instead of using tree searches
 					if ($this->attr('system_type') == 'activedirectory') {
 						$asset = &$this->getAsset($assetid);
-						if ($asset->type() == 'ldap_user_group' && in_array('group', $asset->vars['objectclass'])) {
+						if ($asset->type() == 'ldap_user_group' && in_array('group', $asset->vars['objectclass']) && isset($asset->vars['member'])) {
 							$members = $asset->vars['member'];
 							$entries = Array();
 							foreach ($members as $dn) {
