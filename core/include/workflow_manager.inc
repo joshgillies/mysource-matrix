@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.79 2005/09/22 07:37:19 rhoward Exp $
+* $Id: workflow_manager.inc,v 1.80 2005/09/27 01:15:10 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -841,7 +841,7 @@ class Workflow_Manager extends MySource_Object
 						'workflow_url'	=> current_url().$asset->getBackendHref('workflow'),
 					);
 		$log->replacements = $msg_reps;
-		$log->type = 'asset.workflow.announce.approve';
+		$log->type = 'asset.workflow.log.approve';
 		$log->parameters['assetid'] = $asset->id;
 		$log->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
 		$log->send();
