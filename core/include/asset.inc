@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.457 2005/09/21 02:15:37 ndvries Exp $
+* $Id: asset.inc,v 1.458 2005/09/27 01:25:38 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.457 $
+* @version $Revision: 1.458 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3202,6 +3202,8 @@ class Asset extends MySource_Object
 	* @param array	$assetids	An array of user_group and/or user ids to check for read access
 	*							If the array is empty, the current user will be checked
 	*
+	*
+	*
 	* @return boolean
 	* @access public
 	*/
@@ -3222,9 +3224,9 @@ class Asset extends MySource_Object
 			// if we are in rollback view mode, bypass extra write access checks or we
 			// we always be returning false here (writeAccess returns false)
 			if (SQ_ROLLBACK_VIEW) {
-				return $this->_checkPermissionAccess(SQ_PERMISSION_WRITE, $assetids);
+				return $this->_checkPermissionAccess(SQ_PERMISSION_WRITE, $assetids, false);
 			}
-			return $this->writeAccess('', $assetids);
+			return $this->writeAccess('', $assetids, false);
 		}
 
 		return $this->_checkPermissionAccess(SQ_PERMISSION_READ, $assetids);
@@ -3235,16 +3237,22 @@ class Asset extends MySource_Object
 	/**
 	* Returns true if at least one of the passed assetids has write access to this asset
 	*
-	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
-	*							permissions set for this asset, otherwise returns effective access based on locking
-	*							and status
-	* @param array	$assetids	An array of user_group and/or user ids to check for write access
-	*							If the array is empty, the current user will be checked
+	* The extra parameter, $only_workflow, is currently only be used in
+	* determining read access for an asset before it goes live.
+	*
+	* @param string		$lock_type		the type of write access required - if blank returns a plain check against
+	*									permissions set for this asset, otherwise returns effective access based
+	*									on locking and status
+	* @param array		$assetids		An array of user_group and/or user ids to check for write access
+	*									If the array is empty, the current user will be checked
+	* @param boolean	$only_workflow	If true (default), users with write access normally will be denied write access
+	*									if outside the current step of the workflow. If false, both those in the workflow
+	*									and those with normal write access will be granted write access.
 	*
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess($lock_type='', $assetids=Array())
+	function writeAccess($lock_type='', $assetids=Array(), $only_workflow=true)
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
 
@@ -3256,7 +3264,7 @@ class Asset extends MySource_Object
 		if ($this->status == SQ_STATUS_LIVE) {
 			return $this->liveEditAccess($lock_type);
 		}
-		return $this->checkAccess(SQ_PERMISSION_WRITE, $lock_type, $assetids);
+		return $this->checkAccess(SQ_PERMISSION_WRITE, $lock_type, $assetids, $only_workflow);
 
 	}//end writeAccess()
 
@@ -3402,13 +3410,13 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function checkAccess($perm, $lock_type, $assetids=Array())
+	function checkAccess($perm, $lock_type, $assetids=Array(), $only_workflow=true)
 	{
 		if ($perm == SQ_PERMISSION_READ) {
 			trigger_localised_error('SYS0172', E_USER_ERROR, __CLASS__, __FUNCTION__);
 		}
 		if ($lock_type == '') {
-			return $this->_checkPermissionAccess($perm, $assetids);
+			return $this->_checkPermissionAccess($perm, $assetids, $only_workflow);
 
 		} else {
 			// effective access is only valid for the current user
@@ -3436,7 +3444,7 @@ class Asset extends MySource_Object
 			}
 
 			// otherwise they can edit if they have permission access
-			return $this->_checkPermissionAccess($perm);
+			return $this->_checkPermissionAccess($perm, Array(), $only_workflow);
 
 		}// end if
 
@@ -3454,7 +3462,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function _checkPermissionAccess($perm, $assetids=Array())
+	function _checkPermissionAccess($perm, $assetids=Array(), $only_workflow=true)
 	{
 		if (empty($assetids)) {
 
@@ -3488,13 +3496,13 @@ class Asset extends MySource_Object
 						return true;
 					}
 
-					if (empty($publishers)) {
-						// nobody can publish - great
-						// better let admins take a punt
-						if ($this->_checkPermissionAccess(SQ_PERMISSION_ADMIN, $assetids)) {
-							return true;
-						}
+					// Those with admin permissions are now allowed to have a
+					// crack at write permission throughout the workflow
+					if ($this->_checkPermissionAccess(SQ_PERMISSION_ADMIN, $assetids)) {
+						return true;
 					}
+
+					if ($only_workflow) return false;
 				}
 			}
 		}
