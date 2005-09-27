@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_customisation_edit_fns.inc,v 1.10 2005/06/28 04:18:14 mnyeholt Exp $
+* $Id: design_css_customisation_edit_fns.inc,v 1.11 2005/09/27 23:27:27 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_css/design_css_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,9 +55,9 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 	/**
 	* Paints the interface for customising the design areas
 	*
-	* @param object Asset				$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -77,9 +77,9 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 	/**
 	* Processes the customising of design areas
 	*
-	* @param object Asset				$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -118,9 +118,9 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 	/**
 	* Paints the interface for customising the design areas
 	*
-	* @param object Asset				$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -140,9 +140,9 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 	/**
 	* Processes the customising of design areas
 	*
-	* @param object Asset				$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -201,8 +201,9 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 
 	/**
 	* Creates a new file asset, populates it, and links it to $asset
-	* @param object Asset	$asset	the asset to link the file to
-	* @param array			$info	info about the uploaded file
+	*
+	* @param object	&$asset	the asset to link the file to
+	* @param array	$info	info about the uploaded file
 	*
 	* @return boolean
 	* @access public
@@ -219,10 +220,14 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 		$existing_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($existing_ids));
 		foreach ($existing_info as $assetid => $existing_info) {
 			// if the name is the same, delete the link
-			if ($existing_info['name'] == $info['name']) {
+			if ($existing_info['name'] == strtolower($info['name'])) {
 				$linkid = $existing_ids[$assetid];
 				$asset->deleteExistingLink($linkid);
-				$asset->updateLookups();
+
+				// We need to update the lookups of the old linked asset
+				$minor_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$minor_asset->updateLookups();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($minor_asset);
 			}
 		}
 
@@ -234,10 +239,10 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 	/**
 	* Recursivly updates all links to a design area from under this asset
 	*
-	* @param object Asset	$asset	the asset to which we belong
-	* @param Array			$data	array of Array([id_name] => Array([assetid], [type_code]));
-	*								where key is the id_name, whose link needs to be updated and the value
-	*								is an array with assetid and type_code
+	* @param object	&$asset	the asset to which we belong
+	* @param array	$data	array of Array([id_name] => Array([assetid], [type_code]));
+	*						where key is the id_name, whose link needs to be updated and the value
+	*						is an array with assetid and type_code
 	*
 	* @return boolean
 	* @access public
@@ -296,11 +301,14 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 	/**
 	* Paints a list of design areas out
 	*
-	* @param Array	$links			the links pointing to the design areas to paint
-	* @param string	$check_box_col	the title to put in the check box column
-	* @param string	$check_box_name	the form name to give the check box for each design area entry
-	* @param bool	$link_name		whether to link the name to the edit interface for the design area
+	* @param array		$links				the links pointing to the design areas to paint
+	* @param string		$check_box_col		the title to put in the check box column
+	* @param string		$check_box_name		the form name to give the check box for each design area entry
+	* @param boolean	$write_access		if you have write access or not
+	* @param boolean	$link_name			whether to link the name to the edit interface for the design area
+	* @param boolean	$show_specialised	whether to print if the design area is specialised or not
 	*
+	* @return void
 	* @access private
 	*/
 	function _paintDesignAreaList($links, $check_box_col, $check_box_name, $write_access, $link_name=false, $show_specialised=false)
@@ -311,9 +319,13 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 			<tr>
 				<td class="sq-backend-data" width="25%"><b><?php echo translate('type'); ?></b></td>
 				<td class="sq-backend-data" width="25%"><b><?php echo translate('core_design_area'); ?></b></td>
-			<?php if ($write_access) {?>
+			<?php
+				if ($write_access) {
+			?>
 				<td class="sq-backend-data" width="25%" style="text-align: center;"><b><?php echo $check_box_col; ?></b></td>
-			<?php }// end if ?>
+			<?php
+				}// end if
+			?>
 				<td class="sq-backend-data" width="25%" style="text-align: center;"><b><?php echo ($show_specialised) ? 'Specialised ?' : '&nbsp;'; ?></b></td>
 			</tr>
 		<?php
@@ -360,17 +372,25 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 					if ($link_name) echo '</a>';
 					?>
 				</td>
-			<?php if ($write_access) { ?>
+			<?php
+				if ($write_access) {
+			?>
 				<td class="sq-backend-data" style="text-align: center;">
 					<input type="checkbox" name="<?php echo $check_box_name; ?>[]" value="<?php echo $da->attr('id_name');; ?>">
 				</td>
-			<?php }// end if ?>
+			<?php
+				}// end if
+			?>
 				<td class="sq-backend-data" style="text-align: center;">
-				<?php if ($show_specialised && $da->attr('specialised')) { ?>
+				<?php
+					if ($show_specialised && $da->attr('specialised')) {
+				?>
 					<img src="<?php echo sq_web_path('lib'); ?>/web/images/tick.gif" width="15" height="15" />
-				<?php } else {?>
-					&nbsp;
-				<?php }// end if ?>
+				<?php
+					} else {
+				?>&nbsp;<?php
+					}// end if
+				?>
 				</td>
 			</tr>
 		<?php
@@ -385,10 +405,11 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 	/**
 	* This is the static comparing function called by uasort() in _paintDesignAreaList()
 	*
-	* @param Array	$a	array of link information
-	* @param Array	$b	array of link information
+	* @param array	$a	array of link information
+	* @param array	$b	array of link information
 	*
 	* @return int
+	* @access private
 	* @see _paintDesignAreaList()
 	*/
 	function linkCompare($a, $b)
