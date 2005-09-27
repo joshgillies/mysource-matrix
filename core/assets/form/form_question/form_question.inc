@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.1 2005/07/20 00:02:37 lwright Exp $
+* $Id: form_question.inc,v 1.2 2005/09/27 06:44:54 sdanis Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -618,6 +618,11 @@ class Form_Question extends Asset
 	function hasValidValue()
 	{
 		$answer = $this->getValue();
+
+		// if the question is optional and answer is empty then dont check this rule
+		if (empty($answer) && !$this->attr('required')) {
+			return true;
+		}
 
 		$rules = &$this->getRules();
 		$ok = true;						// We start as being all OK
