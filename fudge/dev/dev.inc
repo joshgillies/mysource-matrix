@@ -3,22 +3,22 @@
 * +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
 * +--------------------------------------------------------------------+
-* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).       |
 * +--------------------------------------------------------------------+
 * | This source file may be used subject to, and only in accordance    |
 * | with, the Squiz Open Source Licence Agreement found at             |
-* | http://www.squiz.net/licence.                                      |
+* | http://www.squiz.net/licence.                                 |
 * | Make sure you have read and accept the terms of that licence,      |
 * | including its limitations of liability and disclaimers, before     |
-* | using this software in any way. Your use of this software is       |
-* | deemed to constitute agreement to be bound by that licence. If you |
+* | using this software in any way.Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence.If you |
 * | modify, adapt or enhance this software, you agree to assign your   |
 * | intellectual property rights in the modification, adaptation and   |
 * | enhancement to Squiz Pty Ltd for use and distribution under that   |
-* | licence.                                                           |
+* | licence.                                                      |
 * +--------------------------------------------------------------------+
 *
-* $Id: dev.inc,v 1.20 2005/09/08 04:23:11 lwright Exp $
+* $Id: dev.inc,v 1.21 2005/09/28 04:14:44 arailean Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 *     Generic functions that are useful for developers
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package Fudge
 * @subpackage dev
 */
@@ -39,9 +39,9 @@
 * Recursively prints array contents - works goodly on
 * associative arrays
 *
-* @param Array		$array			the array to create the contents of
+* @param array		&$array			the array to create the contents of
 * @param int		$max_depth		the maximum depth to decend into the array
-* @param bool		$ignore_ints	whether to ignore integer keys or not
+* @param boolean	$ignore_ints	whether to ignore integer keys or not
 * @param int		$depth			the current depth in the array
 *
 * @return string
@@ -66,18 +66,18 @@ function array_contents(&$array, $max_depth=0, $ignore_ints=false, $depth=0)
 		$type = gettype($value);
 		if ($type == 'array' || $type == 'object') {
 			$string .= $indent
-					.  ((is_string($key)) ? "\"$print_key\"": $key) . ' => '
-					.  (($type == 'array')?"array (\n":'')
-					.  (($type == 'object')?'new '.get_class($value)." Object (\n":'');
+					.((is_string($key)) ? "\"$print_key\"": $key).' => '
+					.(($type == 'array')?"array (\n":'')
+					.(($type == 'object')?'new '.get_class($value)." Object (\n":'');
 			$string .= array_contents($value, $max_depth, $ignore_ints, $depth + 1);
-			$string .= $indent . "),\n";
+			$string .= $indent."),\n";
 		} else {
 			if (is_string($value)) {
 				$value = str_replace("\n","\\n",str_replace("\r","\\r",str_replace("\t","\\t",addslashes($value))));
 			}
 			$string .= $indent
-					.  ((is_string($key)) ? "\"$print_key\"": $key) . ' => '
-					.  ((is_string($value)) ? "\"$value\"": $value) . ",\n";
+					.((is_string($key)) ? "\"$print_key\"": $key).' => '
+					.((is_string($value)) ? "\"$value\"": $value).",\n";
 		}
 	}
 	$string[ strlen($string) - 2 ] = ' ';
@@ -90,6 +90,7 @@ function array_contents(&$array, $max_depth=0, $ignore_ints=false, $depth=0)
 * One-line ASCII Chart !
 * courtesy of Agi
 *
+* @return void
 * @access public
 */
 function ascii_chart()
@@ -104,6 +105,7 @@ function ascii_chart()
 /**
 * Inject some beef into your day
 *
+* @return void
 * @access public
 * @see pre_echo()
 */
@@ -131,7 +133,7 @@ function inject_beef()
 		.--,       '.str_repeat(' ',$len).'       ,--.
 		l_/ \     _'.str_repeat('_',$len).'_     / \_J
 		 \   `-./__'.str_repeat('_',$len).'__\.-\'   /
-		  `.   .---'.str_repeat('-',$len).'----.  .\'
+		  `..---'.str_repeat('-',$len).'----..\'
 			`-/    '.str_repeat(' ',$len).'     \'
 			  |    '.$check.'     |
 			   `.__'.str_repeat('_',$len).'___.\'
@@ -145,6 +147,11 @@ function inject_beef()
 * Alias for {@link pre_echo()}
 * courtesy of Agi
 *
+* @param mixed	$x			var to print
+* @param int	$max_depth	max depth
+* @param mixed	$style		css style to use
+*
+* @return void
 * @access public
 * @see pre_echo()
 */
@@ -164,8 +171,8 @@ function bam($x='BAM!', $max_depth=0, $style='')
 * @param mixed	$contents	The thing to bam, can be almost any data type
 * @param string	$title		Title for the block (optional)
 *
-* @access public
 * @return void
+* @access public
 */
 function minibam($contents, $title='BAM')
 {
@@ -193,6 +200,11 @@ function minibam($contents, $title='BAM')
 /**
 * Take any kind of variable and tries to print it out
 *
+* @param mixed	$x			var to print
+* @param int	$max_depth	max depth
+* @param mixed	$style		css style to use
+*
+* @return void
 * @access public
 */
 function pre_echo($x, $max_depth=0, $style='')
@@ -231,6 +243,7 @@ function pre_echo($x, $max_depth=0, $style='')
 *
 * @param string	$str	a comment that you want to have displayed with the speed result
 *
+* @return void
 * @access public
 */
 function speed_check($str='')
@@ -253,9 +266,9 @@ function speed_check($str='')
 /**
 * Returns or prints out the memory usage for the current script
 *
-* @param bool	$return_value	whether to return the value or just print it
-* @param bool	$start_over		clear current memory stats amd start fresh
-* @param array	$print			an array of parts to print (current, change, total)
+* @param array		$print			an array of parts to print (current, change, total)
+* @param boolean	$return_value	whether to return the value or just print it
+* @param boolean	$start_over		clear current memory stats amd start fresh
 *
 * @return string
 * @access public
@@ -312,6 +325,7 @@ function mem_check($print=null, $return_value=false, $start_over=false)
 * Print a list of all user defined functions, both procedural and in classes
 * Only work in unixey systems
 *
+* @return void
 * @access public
 */
 function print_function_list()
@@ -337,10 +351,9 @@ function print_function_list()
 * Spews out a string to a PTS
 *
 * @param int	$i	your pts number
-* @param int	$i	your pts number
-* @param bool	$return_value	whether to return the value or just print it
+* @param int	$s	s
 *
-*
+* @return void
 * @access public
 */
 function pts_spew($i,$s)
@@ -360,8 +373,8 @@ function pts_spew($i,$s)
 /**
 * Get the details of the function that called the currently-running function
 *
-* @access public
 * @return string
+* @access public
 */
 function get_calling_func()
 {
@@ -381,8 +394,8 @@ function get_calling_func()
 /**
 * Combine the two parts of a microtime() call into one value depicting the current time with fractional seconds
 *
-* @access public
 * @return float
+* @access public
 */
 function get_microtime()
 {
@@ -390,4 +403,25 @@ function get_microtime()
 	return $sec + $usec;
 
 }//end get_microtime()
+
+
+/**
+* Dump a variable to error log
+*
+* @param mixed	$var	variable to dump
+*
+* @return void
+* @access public
+*/
+function log_dump($var=null)
+{
+	static $count = 0;
+	if (empty($var)) {
+		$var = '---------- Debug: '.date('r').' -- '.__FILE__.':'.__LINE__.' ----------';
+	}
+	error_log($count++.': '.print_r($var, 1));
+
+}//end log_dump()
+
+
 ?>
