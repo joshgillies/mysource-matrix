@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form_edit_fns.inc,v 1.12 2005/02/21 19:21:05 brobertson Exp $
+* $Id: design_area_login_form_edit_fns.inc,v 1.12.2.1 2005/09/28 05:25:20 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,6 +54,8 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 		if (!$this->_setVariables($asset, $contents)) return false;
 
 		$indexes = Array('login' => -1, 'logout' => -1);
+		$section_contents = Array('login' => null, 'logout' => null);
+
 		// see if our page element has any sub's in it
 		foreach ($contents as $index => $element) {
 			if ($element['_type'] != 'TAG') continue;
@@ -67,13 +69,20 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 			// if there is some contents then save it to our arrays
 			if (!$element['self_terminating'] && !empty($element['contents'])) {
 				if (!$this->_setVariables($asset, $element['contents'])) return false;
-				if (!$asset->setAttrValue($section.'_contents', $element['contents'])) return false;
+				$section_contents[$section] = $element['contents'];
 			}
 
 			// now all that is done we don't need to keep going through the array
 			if ($indexes['login'] >= 0 && $indexes['logout'] >= 0) break;
 
 		}//end foreach
+
+		foreach($section_contents as $section => $value) {
+			if (!is_null($value)) {
+				if (!$asset->setAttrValue($section.'_contents', $value)) return false;
+			}
+		}
+
 
 		// OK, get the lowest/first index so that we can replace that one and remove the other from the contents array
 		$lowest_index = count($contents);
