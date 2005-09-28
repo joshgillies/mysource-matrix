@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content.inc,v 1.17 2005/05/17 02:46:22 dmckee Exp $
+* $Id: design_area_nest_content.inc,v 1.18 2005/09/28 06:21:12 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -146,7 +146,28 @@ class Design_Area_Nest_Content extends Design_Area
 		$nest_content_'.$this->attr('id_name').'_asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$assetid.');
 		if (!is_null($nest_content_'.$this->attr('id_name').'_asset)) {
 			if ($nest_content_'.$this->attr('id_name').'_asset->readAccess()) {
-				$nest_content_'.$this->attr('id_name').'_asset->printBody();
+				ob_start();
+					$nest_content_'.$this->attr('id_name').'_asset->printBody();
+				$body = ob_get_clean();
+
+				// global keyword replacements
+				if (!empty($body)) {
+					require_once SQ_FUDGE_PATH.\'/general/text.inc\';
+					$keywords = retrieve_keywords_replacements($body);
+					if (!empty($keywords)) {
+						$keyword_replacements = Array();
+						foreach ($keywords as $global_keyword) {
+							$keyword = preg_replace(\'/^globals_user_/\', \'asset_\', $global_keyword);
+							$keyword_replacements[$global_keyword] = $GLOBALS[\'SQ_SYSTEM\']->user->getKeywordReplacement($keyword);
+							if ($keyword_replacements[$global_keyword] == \'%\'.$keyword.\'%\') {
+								$keyword_replacements[$global_keyword] = \'%\'.$global_keyword.\'%\';
+							}
+						}
+						$body = replace_keywords($body, $keyword_replacements);
+					}
+				}
+
+				echo $body;
 			}
 		}
 		?', '>';

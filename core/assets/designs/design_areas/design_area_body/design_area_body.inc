@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body.inc,v 1.20 2005/07/21 01:02:17 dheppell Exp $
+* $Id: design_area_body.inc,v 1.21 2005/09/28 06:21:10 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -104,7 +104,23 @@ class Design_Area_Body extends Design_Area
 				}
 
 				$body = ob_get_clean();
+			}
 
+			// global keyword replacements
+			if (!empty($body)) {
+				require_once SQ_FUDGE_PATH.\'/general/text.inc\';
+				$keywords = retrieve_keywords_replacements($body);
+				if (!empty($keywords)) {
+					$keyword_replacements = Array();
+					foreach ($keywords as $global_keyword) {
+						$keyword = preg_replace(\'/^globals_user_/\', \'asset_\', $global_keyword);
+						$keyword_replacements[$global_keyword] = $GLOBALS[\'SQ_SYSTEM\']->user->getKeywordReplacement($keyword);
+						if ($keyword_replacements[$global_keyword] == \'%\'.$keyword.\'%\') {
+							$keyword_replacements[$global_keyword] = \'%\'.$global_keyword.\'%\';
+						}
+					}
+					$body = replace_keywords($body, $keyword_replacements);
+				}
 			}
 		';
 
@@ -150,7 +166,7 @@ class Design_Area_Body extends Design_Area
 	function canBeCached()
 	{
 		return 0;
-	
+
 	}//end canBeCached()
 
 
