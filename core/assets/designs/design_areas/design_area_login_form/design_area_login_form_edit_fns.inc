@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form_edit_fns.inc,v 1.10 2004/12/03 15:29:22 brobertson Exp $
+* $Id: design_area_login_form_edit_fns.inc,v 1.10.2.1 2005/09/28 06:21:55 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,7 +54,9 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 		if (!$this->_setVariables($asset, $contents)) return false;
 
 		$indexes = Array('login' => -1, 'logout' => -1);
-		// see if our page element has any sub's in it 
+		$section_contents = Array('login' => null, 'logout' => null);
+
+		// see if our page element has any sub's in it
 		foreach ($contents as $index => $element) {
 			if ($element['_type'] != 'TAG') continue;
 			if ($element['operation'] != 'login_section' && $element['operation'] != 'logout_section') continue;
@@ -67,13 +69,20 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 			// if there is some contents then save it to our arrays
 			if (!$element['self_terminating'] && !empty($element['contents'])) {
 				if (!$this->_setVariables($asset, $element['contents'])) return false;
-				if (!$asset->setAttrValue($section.'_contents', $element['contents'])) return false;
+				$section_contents[$section] = $element['contents'];
 			}
 
 			// now all that is done we don't need to keep going through the array
 			if ($indexes['login'] >= 0 && $indexes['logout'] >= 0) break;
 
 		}//end foreach
+
+		foreach($section_contents as $section => $value) {
+			if (!is_null($value)) {
+				if (!$asset->setAttrValue($section.'_contents', $value)) return false;
+			}
+		}
+
 
 		// OK, get the lowest/first index so that we can replace that one and remove the other from the contents array
 		$lowest_index = count($contents);
@@ -92,11 +101,11 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 										'self_terminating' => 1
 									);
 			// remove the other one
-			} else { 
+			} else {
 				array_splice($contents, $i, 1);
 			}
 		}// end foreach
-	
+
 		$asset->setAttrValue('contents', $contents);
 
 		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
@@ -119,7 +128,7 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$asset->_tmp['painting_section'] = '';
 		return parent::_createDesignFileOutput($contents, $asset, $design);
-		
+
 	}//end _createDesignFileOutput()
 
 
@@ -142,13 +151,13 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 				$logout_contents = $asset->attr('logout_contents');
 				if (empty($login_contents) && empty($logout_contents)) return true;
 
-				echo '<', '?php 
+				echo '<', '?php
 				if (!empty($GLOBALS[\'SQ_LOGIN_FORM\'])) {
 					$'.$asset->attr('id_name').'_paint_login = ($GLOBALS[\'SQ_LOGIN_FORM\'][\'paint\'] == \'login\');
 				} else {
 					$'.$asset->attr('id_name').'_paint_login = !$GLOBALS[\'SQ_SYSTEM\']->currentUserId();
 				}
-				if (', ((empty($login_contents)) ? '!' : ''), '$'.$asset->attr('id_name').'_paint_login) { 
+				if (', ((empty($login_contents)) ? '!' : ''), '$'.$asset->attr('id_name').'_paint_login) {
 				?', '>';
 
 				if (!empty($login_contents)) {
@@ -158,8 +167,8 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 				}// end if
 
 				if (!empty($login_contents) && !empty($logout_contents)) {
-					echo '<', '?php 
-				} else { 
+					echo '<', '?php
+				} else {
 				?', '>';
 				}// end if
 
@@ -170,8 +179,8 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 				}// end if
 
 
-				echo '<', '?php 
-				}// end if 
+				echo '<', '?php
+				}// end if
 				?', '>';
 				return true;
 
