@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.139 2005/09/19 23:39:59 lwright Exp $
+* $Id: search_page.inc,v 1.140 2005/09/28 07:33:41 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.139 $
+* @version $Revision: 1.140 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -762,6 +762,7 @@ class Search_Page extends Listing_Engine
 	{
 		$query_var = $field_name.'_query';
 		$fields = $this->attr('fields');
+		if (!isset($fields[$field_name])) return;
 		$query = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, '');
 		$read_only = false;
 
@@ -1226,10 +1227,11 @@ class Search_Page extends Listing_Engine
 					combo_box($keyword, $options, false, $current_logic);
 					$replaces[$keyword] = ob_get_contents();
 				ob_end_clean();
-			} else if (ereg('(.+)_query', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
-				$replaces[$keyword] = $this->getFieldReplacement($matches[1]);
-			} else if (ereg('(.+)_category_chooser', $keyword, $matches) && array_key_exists($matches[1], $categories)) {
-				$replaces[$keyword] = $this->getCategoryChooserReplacement($matches[1], $categories[$matches[1]]);
+			} else if (substr($keyword, -6) == '_query') {
+				$replaces[$keyword] = $this->getFieldReplacement(substr($keyword, 0, -6));
+			} else if (substr($keyword, -17) == '_category_chooser') {
+				$cat_name = substr($keyword, 0, -17);
+				$replaces[$keyword] = $this->getCategoryChooserReplacement($cat_name, $categories[$cat_name]);
 			} else {
 				$replaces[$keyword] = $this->getGeneralReplacement($keyword);
 			}
