@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.1.1.1 2005/09/28 05:35:28 pgannavarapu Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.2 2005/09/28 06:58:48 pgannavarapu Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -893,7 +893,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 					}
 					$result = $conn->getAll($sql);
 					if (!is_object($result) || $result->gettype() != 'db_error') {
-						error_log('writing to cache');
 						//if the result is a valid result then save it to cache
 						assert_valid_db_result($result);
 						$r = $cm->saveToCache($asset->id, $asset->type(), $cache_key, serialize($result));
@@ -903,7 +902,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 					}
 				}
 			} else {
-				error_log('reading from cache');
 				$result = unserialize($result);
 			}
 			if (!empty($result)) {
@@ -1697,7 +1695,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	function processShadow(&$asset, &$o, $prefix)
 	{
-		error_log('in process shadow');
 		$new_name = null;
 		$name = $asset->attr('shadow_name');
 		if (!empty($_POST['shadow_name'])) {
@@ -1705,7 +1702,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		}
 		if (($name != $new_name) && (!empty($new_name))) {
 			$res = $asset->setAttrValue('shadow_name', $new_name);
-			error_log(__LINE__);
 			return true;
 		} else {
 			return false;
