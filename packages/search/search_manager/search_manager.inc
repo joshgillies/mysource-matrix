@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.56.2.9 2005/08/29 05:08:27 dmckee Exp $
+* $Id: search_manager.inc,v 1.56.2.10 2005/09/28 13:17:49 gnoel Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.56.2.9 $
+* @version $Revision: 1.56.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -410,7 +410,7 @@ class Search_Manager extends Asset
 		foreach ($results as $result) {
 			$weightings[$result['component']] =
 				Array(
-					'default'		=> ($result['def']) ? 1 : 0,
+					'default'		=> ($result['def']) ? 0 : 1,
 					'weight'		=> $result['weight'],
 					'description'	=> $result['description'],
 				);
