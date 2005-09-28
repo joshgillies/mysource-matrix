@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.21 2005/08/10 04:12:39 tbarrett Exp $
+* $Id: design_area_searchbox.inc,v 1.22 2005/09/28 07:24:25 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -97,41 +97,6 @@ class Design_Area_Searchbox extends Design_Area
 				echo '</form>';
 			break;
 
-			case 'box' :
-
-				$class = isset($args['class']) ? ' class="'.$args['class'].'"' : '';
-				echo '
-				<input type="hidden" name="mode" value="results" />
-				<?php
-					$asset = &$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');
-
-					$field_name = "'.$this->attr('field_name').'";
-					$box_width  = '.$this->attr('querybox_width').';
-
-					$form_field_name = "queries_".$field_name."_query";
-					$field_value     = $asset->getQueryFieldValue($field_name);
-
-					if (empty($field_value)) {
-						$field_value = "'.$this->attr('default_text').'";
-						$hide_default = true;
-					} else {
-						$hide_default = false;
-					}
-
-					require_once SQ_LIB_PATH."/html_form/html_form.inc";
-					text_box($form_field_name, $field_value, $box_width, "", $hide_default, \''.$class.'\');
-				?>
-				';
-			break;
-
-			case 'category_list' :
-				echo '
-				<?php
-					$asset = &$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');
-					echo $asset->getGeneralReplacement("category_list");
-				?>';
-			break;
-
 			case 'submit' :
 				if ($this->attr('submit_button')) {
 					$class = isset($args['class']) ? ' class="'.$args['class'].'"' : '';
@@ -152,6 +117,50 @@ class Design_Area_Searchbox extends Design_Area
 					} else {
 						// no image defined
 					}
+				}
+			break;
+
+			case 'box' :
+				$class = isset($args['class']) ? ' class="'.$args['class'].'"' : '';
+				echo '
+				<input type="hidden" name="mode" value="results" />
+				<?php
+					$asset = &$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');
+
+					$field_name = "'.$this->attr('field_name').'";
+					$box_width  = '.$this->attr('querybox_width').';
+					if (!empty($field_name)) {
+						$form_field_name = "queries_".$field_name."_query";
+						$field_value     = $asset->getQueryFieldValue($field_name);
+
+						if (empty($field_value)) {
+							$field_value = "'.$this->attr('default_text').'";
+							$hide_default = true;
+						} else {
+							$hide_default = false;
+						}
+
+						require_once SQ_LIB_PATH."/html_form/html_form.inc";
+						text_box($form_field_name, $field_value, $box_width, "", $hide_default, \''.$class.'\');
+					}
+				?>
+				';
+			break;
+
+			default:
+				if (substr($var, -6) == '_query') {
+					echo '
+					<?php
+						$asset = &$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');
+						echo $asset->getFieldReplacement("'.substr($var, 0, -6).'");
+					?>';
+				} else if (substr($var, -17) == '_category_chooser') {
+					echo '
+					<?php
+						$asset = &$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');
+						$categories = $asset->attr("categories");
+						echo $asset->getCategoryChooserReplacement("'.substr($var, 0, -17).'", $categories["'.substr($var, 0, -17).'"]);
+					?>';
 				}
 			break;
 
