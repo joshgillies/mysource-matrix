@@ -1,0 +1,98 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_query.xml,v 1.1.1.1 2005/09/28 05:35:28 pgannavarapu Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Choose Your Mode" write_access="write:attributes" limbo_access="1" show_if="notEditMode">
+		<field attribute="mode">
+			<selection style="list" />
+		</field>
+	</section>
+	<section name="query" write_access="write:attributes" limbo_access="1" show_if="NotEditModeAndTablesNotEmpty">
+		<field>
+			<function_call>
+				<paint_function   name="paintTables"   />
+				<process_function name="processTables" />
+			</function_call>
+		</field>
+		<field show_if="tablesSelected">
+			<function_call>
+				<paint_function   name="paintFields" />
+				<process_function name="processFields" />
+			</function_call>
+		</field>
+		<field show_if="tablesSelectedWithAggregates">
+			<function_call>
+				<paint_function   name="paintAggregateFunctions"   />
+				<process_function name="processAggregateFunctions" />
+			</function_call>
+		</field>
+		<field show_if="multiTablesSelectedWithWriteAccess">
+			<function_call>
+				<paint_function   name="paintNewJoin"/>
+				<process_function name="processNewJoin" />
+			</function_call>
+		</field>
+		<field show_if="multiTablesSelectedWithJoinsOrWriteAccess">
+			<function_call>
+				<paint_function   name="paintJoins"   />
+				<process_function name="processJoins" />
+			</function_call>
+		</field>
+		<field show_if="tablesSelectedWithWhereHaving">
+			<function_call>
+				<paint_function   name="paintWhereHaving"   />
+				<process_function name="processWhereHaving" />
+			</function_call>
+		</field>
+		<field show_if="tablesSelectedWithGroupbyOrderby">
+			<function_call>
+				<paint_function   name="paintGroupbyOrderby"   />
+				<process_function name="processGroupbyOrderby" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Current SQL" write_access="write:attributes" limbo_access="1" show_if="queryNotEmpty">
+		<field>
+			<function_call>
+				<paint_function   name="paintQuerySoFar"   />
+				<process_function name="processQuerySoFar" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Shadow Asset name" write_access="write:attributes" show_if="resultSetExists">
+		<field>
+			<function_call>
+				<paint_function   name="paintShadow"   />
+				<process_function name="processShadow" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintKeywords"   />
+				<process_function name="processKeywords" />
+			</function_call>
+		</field>
+	</section>
+</contents>

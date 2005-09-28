@@ -1,0 +1,122 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_query.xml,v 1.1.1.1 2005/09/28 05:35:28 pgannavarapu Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Choose Your Mode">
+		<field attribute="mode">
+			<display_name>Choose The Mode!</display_name>
+			<note >The default mode is the query builder mode that allows you to use the visual interface to build the query!</note>
+			<note >You can choose to edit the query manually by selecting 'Edit Manually' or choose the execute the query by using 'Edit Query' option</note>
+		</field>
+	</section>
+	<section name="query">
+		<field>
+			<function_call>
+				<paint_function name="paintTables" />
+				<process_function name="processTables" />
+			</function_call>
+			<display_name>Select Tables</display_name>
+			<note />
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintFields" />
+				<process_function name="processFields" />
+			</function_call>
+			<display_name>Select Fields</display_name>
+			<note />
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintNewJoin" />
+				<process_function name="processNewJoin" />
+			</function_call>
+			<display_name>New Join? Select Tables Here To Create A Join!</display_name>
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintJoins" />
+				<process_function name="processJoins" />
+			</function_call>
+			<display_name>Joins Enetered!</display_name>
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintAggregateFunctions" />
+				<process_function name="processAggregateFunctions" />
+			</function_call>
+			<display_name>Select Aggregate Functions(Optional)</display_name>
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintWhereHaving" />
+				<process_function name="processWhereHaving" />
+			</function_call>
+			<display_name>Where/Having Conditions</display_name>
+			<note />
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintGroupbyOrderby" />
+				<process_function name="processGroupbyOrderby" />
+			</function_call>
+			<display_name>Group By/Order by</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="Current SQL">
+		<field>
+			<function_call>
+				<paint_function name="paintQuerySoFar" />
+				<process_function name="processQuerySoFar" />
+			</function_call>
+			<display_name>SQL Query</display_name>
+			<note />
+		</field>
+	</section>
+	<section name ="Shadow Asset name">
+		<field>
+			<function_call>
+				<paint_function name="paintShadow" />
+				<process_function name="processShadow" />
+			</function_call>
+			<display_name>Enter The Name Of The Shadow Assets</display_name>
+			<note>You can choose the name of the shadow assets. It can either be a normal string or a combination of string and keywords.
+			For example you can enter 'Result Of Query1' or you can enter '%asset_data_source_id%(%asset_short_name%)Result'
+			to have the 'datasourceid(short name of the asset)Result' as the name of your Shadow Asset. Please have a look in the
+			Available Keywords Section and do not forget to enter '%' before and after the keyword or else the keyword is considered as a normal string.</note>
+		</field>
+		<field>
+		<function_call>
+			<paint_function name="paintKeywords" />
+			<process_function name="processKeywords" />
+		</function_call>
+		<display_name>Available Keywords For the Data Source RecordSet Asset</display_name>
+		<note>The above are the avaialable keywords for the record set assets. You can choose to have one or more keywords
+		or a combination of strings and keywords as the name of the record set assets. Please remember that the keywords
+		have to be preceded and succeeded with a '%' sign or else it can be considered as a normal string.  </note>
+		</field>
+	</section>
+</contents>
