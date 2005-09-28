@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.95 2005/09/21 01:45:33 mmcintyre Exp $
+* $Id: metadata_manager.inc,v 1.96 2005/09/28 05:17:25 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -528,9 +528,7 @@ class Metadata_Manager extends MySource_Object
 			assert_valid_db_result($fields);
 
 			foreach ($fields as $fieldid => $type_code) {
-				$sql = 'SELECT
-							COALESCE()
-						';
+
 				$field = &$am->getAsset($fieldid, $type_code);
 
 				if (is_null($field)) {
