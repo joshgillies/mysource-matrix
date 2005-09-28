@@ -1,0 +1,29 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2005/09/28 04:09:22 pgannavarapu Exp $
+*
+*
+* DB DataSource Localised Strings File
+*/
+-->
+
+<strings>
+<string source="record_set_id">ID of the Record Set</string>
+<string source="record_set_version">Version of the Record Set</string>
+<string source="record_set_status">Status of the Record Set</string>
+<string source="record_set_name">Name of the Record Set</string>
+<string source="record_set_short_name">Short Name of the Record Set</string>
+<string source="data_source_id">ID of the Data Source For The Record Set</string>
+<string source="record_set_attribute">Record Set Attribute</string>
+</strings>
