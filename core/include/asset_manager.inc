@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.380 2005/09/27 22:39:43 lwright Exp $
+* $Id: asset_manager.inc,v 1.381 2005/09/28 04:44:24 dheppell Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.380 $
+* @version $Revision: 1.381 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -733,6 +733,15 @@ class Asset_Manager extends MySource_Object
 	*/
 	function &getAsset($assetid, $type_code='', $mute_errors=false)
 	{
+		// NOTE: currently there are problems with the asset map
+		// where shadowassetids have the : character swapped out to
+		// a html friendly value, this means when performing move/link/clone
+		// actions on a shadow asset the assetids will be considered invalid
+		// to assert_valid_assetid, this ensures the assetid is back to its
+		// correct format. This is only temporary until changes in the asset
+		// map occur
+		$assetid = rawurldecode($assetid); //REMOVE
+
 		assert_valid_assetid($assetid);
 
 		$asset = &$this->_asset_cache->get($assetid);
