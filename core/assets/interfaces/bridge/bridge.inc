@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bridge.inc,v 1.2 2005/01/20 13:07:34 brobertson Exp $
+* $Id: bridge.inc,v 1.3 2005/09/29 06:57:39 emcdonald Exp $
 *
 */
 
@@ -29,15 +29,18 @@
 *    Provides an interface bridging between the MySource system some other external system
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Bridge
 {
 
+
 	/**
 	* Returns a reference to the asset represented by the passed assetid
+	*
+	* Returns null on error
 	*
 	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
 	* @param string		$type_code		if this exists then this object is used to
@@ -46,7 +49,7 @@ class Bridge
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
-	* @return object Asset or null on error
+	* @return mixed object|null
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
@@ -58,19 +61,19 @@ class Bridge
 	/**
 	* Return all links that this asset has to other assets
 	*
-	* @param int			$assetid			id of the the $side_of_link asset
-	* @param int			$link_types			integer that can be the product of bitwise operations
-	*											on the SQ_LINK_* constants
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	* @param string			$side_of_link		Which side of the link this (the current) asset
-	*											is on ('major' or 'minor')
-	* @param string			$sort_by			a field in the asset table you would like the results
-	*											sorted by (eg. name, short_name etc)
+	* @param int		$assetid			id of the the $side_of_link asset
+	* @param int		$link_types			integer that can be the product of bitwise operations
+	*										on the SQ_LINK_* constants
+	* @param mixed		$type_code			the type of asset that is linked
+	*										(eg 'Page', 'File', etc)
+	*										if an array returns link if matches any
+	*										of the array values
+	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
+	*										or $type_code and any of it's sub-classes
+	* @param string		$side_of_link		Which side of the link this (the current) asset
+	*										is on ('major' or 'minor')
+	* @param string		$sort_by			a field in the asset table you would like the results
+	*										sorted by (eg. name, short_name etc)
 	*
 	* @return array
 	* @access public
@@ -84,13 +87,13 @@ class Bridge
 	/**
 	* Get all asset ids that are above the passed assetid in the various trees in which it exists
 	*
-	* @param int			$assetid			the id of the asset to get its parents for
-	* @param string|array	$type_code			the type of asset that is linked (eg 'User', 'User_Group', etc)
-	*											if an array returns link if matches any of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
+	* @param int		$assetid			the id of the asset to get its parents for
+	* @param mixed		$type_code			the type of asset that is linked (eg 'User', 'User_Group', etc)
+	*										if an array returns link if matches any of the array values
+	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
+	*										or $type_code and any of it's sub-classes
 	*
-	* @return array(int)
+	* @return array
 	* @access public
 	* @see Asset_Manager::getParents()
 	*/
@@ -102,17 +105,19 @@ class Bridge
 	/**
 	* Get all asset ids that are below the passed assetid in the various trees in which it exists
 	*
-	* @param int			$assetid			the id of the asset to get its children for
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	* @param string			$sort_by			a field in the asset table you would like the results
-	*											sorted by (eg. name, short_name etc)
+	* Returns an array of assetids and their type code
 	*
-	* @return array(int => string)	returns an array of assetids and their type code
+	* @param int		$assetid			the id of the asset to get its children for
+	* @param mixed		$type_code			the type of asset that is linked
+	*										(eg 'Page', 'File', etc)
+	*										if an array returns link if matches any
+	*										of the array values
+	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
+	*										or $type_code and any of it's sub-classes
+	* @param string		$sort_by			a field in the asset table you would like the results
+	*										sorted by (eg. name, short_name etc)
+	*
+	* @return array
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
