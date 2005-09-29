@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.13 2005/09/14 01:43:48 dmckee Exp $
+* $Id: preview.inc,v 1.14 2005/09/29 04:53:14 lwright Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 
@@ -96,30 +96,41 @@ function paintPreview(&$owner, &$o, &$ei)
 		$primary_url = &$GLOBALS['SQ_SYSTEM']->am->getAssetURL($owner->id,$root_urls[0]);
 
 		foreach ($url_data as $url_info) {
-			$protocol = ($url_info['https']) ? 'https://' : 'http://';
-			$preview_urls[$protocol.$url_info['url']] = $protocol.$url_info['url'];
+			$protocol_list = Array();
 
-			if (empty($primary_url)) {
-				$primary_url = $protocol.$url_info['url'];
+			if ($url_info['https']) {
+				$protocol_list['https'] = 'https://';
+			}
+			if ($url_info['http']) {
+				$protocol_list['http'] = 'http://';
 			}
 
-			$url_pieces = parse_url($protocol.$url_info['url']);
-			if ($url_pieces['host'] != $current_url['host']) {
-				$contains_diff_domain = true;
-			}
+			foreach($protocol_list as $protocol) {
+				$preview_urls[$protocol.$url_info['url']] = $protocol.$url_info['url'];
 
-			if (!empty($url_info['name'])) {
-				$design_name = $url_info['name'];
-				if (!preg_match('/^design::(system|user)::(.*)$/', $design_name, $matches)) {
-					continue;
+				if (empty($primary_url)) {
+					$primary_url = $protocol.$url_info['url'];
 				}
-				if ($matches[1] == 'user') {
-					$preview_designs[$matches[2]] = ucwords(str_replace('_', ' ', $matches[2]));
-				} else if ($design_name == 'design::system::frontend') {
-					$has_default_design = true;
+
+				$url_pieces = parse_url($protocol.$url_info['url']);
+				if ($url_pieces['host'] != $current_url['host']) {
+					$contains_diff_domain = true;
 				}
-			}
-		}
+
+				if (!empty($url_info['name'])) {
+					$design_name = $url_info['name'];
+					if (!preg_match('/^design::(system|user)::(.*)$/', $design_name, $matches)) {
+						continue;
+					}
+					if ($matches[1] == 'user') {
+						$preview_designs[$matches[2]] = ucwords(str_replace('_', ' ', $matches[2]));
+					} else if ($design_name == 'design::system::frontend') {
+						$has_default_design = true;
+					}
+				}
+			}//end for each protocol
+		}//end for each url
+
 		if (!$has_default_design) {
 			$preview_designs[''] = 'None';
 		}
