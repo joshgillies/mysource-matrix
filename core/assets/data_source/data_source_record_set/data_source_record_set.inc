@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_record_set.inc,v 1.1 2005/09/28 04:09:22 pgannavarapu Exp $
+* $Id: data_source_record_set.inc,v 1.2 2005/09/29 00:29:20 pgannavarapu Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -135,19 +135,14 @@ class Data_Source_Record_Set extends Asset
 	* @access public
 	* @return array
 	*/
-	function getAvailableKeywords($assetid=0)
+	function getAvailableKeywords()
 	{
 		$keywords = Array();
-		if (empty($this->vars) && !empty($assetid)) {
-			$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			$children = $bridge->getChildren($assetid);
-			//get Column names for the record set asset by calling the function in the data source
-			if (in_array($this->type(), $children)) {
-				$columns = $bridge->getColumnNames();
-			}
-		} else if (!empty($this->vars)) {
-			$columns = array_keys($this->vars);
+		if (empty($this->vars)) {
+			$keywords = parent::getAvailableKeywords();
+			return $keywords;
 		}
+		$columns = array_keys($this->vars);
 		$keywords['asset_assetid'] = translate('record_set_id');
 		$keywords['asset_version'] = translate('record_set_version');
 		$keywords['asset_status'] = translate('record_set_status');
@@ -193,7 +188,7 @@ class Data_Source_Record_Set extends Asset
 				case 'data_source_id':
 					$replacement = $this->_data_sourceid;
 				break;
-				default: $replacement = null;
+				default: $replacement = parent::getKeywordReplacement($keyword);
 			}
 		}
 		return $replacement;
