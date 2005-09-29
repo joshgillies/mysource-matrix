@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.2 2005/09/28 06:58:48 pgannavarapu Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.3 2005/09/29 00:34:14 pgannavarapu Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1596,7 +1596,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	function paintKeywords(&$asset, &$o, $prefix)
 	{
-		$shadow_asset = $asset->getAsset('0');
+		$shadow_asset = $asset->getAsset($asset->id.':0');
 		$keywords = $shadow_asset->getAvailableKeywords();
 		$wa = $asset->writeAccess('attributes');
 		?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.1.1.1 2005/09/28 05:35:28 pgannavarapu Exp $
+* $Id: data_source_db.inc,v 1.2 2005/09/29 00:34:14 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -187,7 +187,7 @@ class Data_Source_DB extends Data_Source
 		if (!empty($result)) {
 			$name = $this->attr('shadow_name');
 			foreach ($result as $index => $record) {
-				if ($index == $shadowid) {
+				if ($this->id.':'.$index == $shadowid) {
 					$record['shadow_asset_name'] = $name;
 					$record['shadow_asset_id'] = $index;
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('data_source_record_set');
@@ -203,12 +203,12 @@ class Data_Source_DB extends Data_Source
 
 
 	/**
-	* Called by the design to print the body of this asset
+	* Returns an array of the column names of the result set
 	*
-	* @return void
+	* @return Array
 	* @access public
 	*/
-	function getColumnNames()
+	function getResultSetMetaInfo()
 	{
 		$result_set = $this->attr('result');
 		$record = $result_set[0];
@@ -218,7 +218,7 @@ class Data_Source_DB extends Data_Source
 		}
 		return $columns;
 
-	}//end getColumnNames()
+	}//end getResultSetMetaInfo()
 
 
 }//end class
