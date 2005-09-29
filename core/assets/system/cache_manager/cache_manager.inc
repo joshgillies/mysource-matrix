@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.10.2.3 2005/09/14 01:48:53 dmckee Exp $
+* $Id: cache_manager.inc,v 1.10.2.4 2005/09/29 23:40:17 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once 'Cache.php';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10.2.3 $
+* @version $Revision: 1.10.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,7 +57,7 @@ class Cache_Manager extends Asset
 		$this->_ser_attrs = true;
 
 		// the cache object REQUIRES a slash on the end
-		$this->cache = new Cache('file', Array('cache_dir' => SQ_CACHE_PATH.'/'));
+		$this->cache =& new Cache('file', Array('cache_dir' => SQ_CACHE_PATH.'/'));
 		$this->Asset($assetid);
 
 	}//end constructor
@@ -68,7 +68,7 @@ class Cache_Manager extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @return mixed int or false
+	* @return mixed int|boolean
 	* @access public
 	* @see Asset::create()
 	*/
@@ -100,7 +100,7 @@ class Cache_Manager extends Asset
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @return string
 	* @access private
@@ -142,11 +142,11 @@ class Cache_Manager extends Asset
 	* Loads the contents from a cache file for the specified asset
 	* and unique key
 	*
-	* @param string 	$assetid 	id of the the asset that owns the cache file
-	* @param string 	$asset_type 	type_code of that asset
-	* @param string 	$key		the unique identifer for the cache file
+	* @param string	$assetid	id of the the asset that owns the cache file
+	* @param string	$asset_type	type_code of that asset
+	* @param string	$key		the unique identifer for the cache file
 	*
-	* @return string or false if no cache version exist
+	* @return mixed string|boolean
 	* @access public
 	*/
 	function loadFromCache($assetid, $asset_type, $key='')
@@ -177,11 +177,10 @@ class Cache_Manager extends Asset
 	* Saves the specified contents to the cache, which will be identified
 	* by the specfied asset and key
 	*
-	* @param string			$assetid 	id of the the asset that owns the cache
-	* file
-	* @param string			$asset_type 	type_code of that asset
-	* @param string			$key		the unique key for this cache entry
-	* @param string			$contents 	the contents to save to cache
+	* @param string	$assetid	id of the the asset that owns the cache file
+	* @param string	$asset_type	type_code of that asset
+	* @param string	$key		the unique key for this cache entry
+	* @param string	$contents	the contents to save to cache
 	*
 	* @return boolean
 	* @access public
@@ -205,7 +204,11 @@ class Cache_Manager extends Asset
 		$group = $this->getAssetHash($assetid_code).$this->getAssetHash($cacheid_code);
 		$expiry = time() + $this->getExpiry($asset_type);
 
-		return $this->cache->save($final_key, $contents, $expiry, $group);
+		$old_umask = umask(0);
+		$return = $this->cache->save($final_key, $contents, $expiry, $group);
+		umask($old_umask);
+
+		return $return;
 
 	}//end saveToCache()
 
@@ -216,8 +219,8 @@ class Cache_Manager extends Asset
 	* Takes logged in status, permissions and user groups in account
 	* Also takes the type of asset being cached into account (standard or listing based)
 	*
-	* @param string $assetid	the id of asset that identifies this cache entry
-	* @param string	$key	the cache key passed by the asset being cached
+	* @param string	$assetid	the id of asset that identifies this cache entry
+	* @param string	$key		the cache key passed by the asset being cached
 	*
 	* @return string
 	* @access private
@@ -286,7 +289,7 @@ class Cache_Manager extends Asset
 	*
 	* @param string	$assetid	the assetid to create the hash from
 	*
-	* @return string the hash of the assetid
+	* @return string
 	* @access public
 	*/
 	function getAssetHash($assetid=0)
@@ -340,7 +343,7 @@ class Cache_Manager extends Asset
 	* If the expiry value for that type code has not been customised,
 	* then the default expiry is returned
 	*
-	* $param string	$type_code	the type code of the wanted expiry value
+	* @param string	$type_code	the type code of the wanted expiry value
 	*
 	* @return int
 	* @access public
