@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.21 2005/09/13 07:39:53 rhoward Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.22 2005/09/29 01:58:21 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -119,6 +119,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$write_access = $asset->writeAccess('links');
+		$ok = $write_access;
 
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'workflow_step', true, 'major', null, true, false);
 		$i = 1;
@@ -134,13 +135,13 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 					$o->closeField();
 				}
 				$edit_fns = $step->getEditFns();
-				if (!$edit_fns->paintStep($step, $o)) return false;
+				if (!$edit_fns->paintStep($step, $o)) $ok = false;
 			$o->closeSection();
 
 			$i++;
 		}
 
-		return true;
+		return $ok;
 
 	}//end paintSteps()
 
