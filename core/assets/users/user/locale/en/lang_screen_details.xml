@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1.2.1 2005/07/27 09:21:59 brobertson Exp $
+* $Id: lang_screen_details.xml,v 1.1.2.2 2005/09/29 00:18:04 lwright Exp $
 *
 */
 -->
@@ -44,16 +44,6 @@
 		<field attribute="email">
 			<display_name>Email</display_name>
 			<note />
-		</field>
-	</section>
-	<section name="Internationalisation Settings">
-		<field>
-			<display_name>User Locale</display_name>
-			<note />
-			<function_call>
-				<paint_function   name="paintLocale"   />
-				<process_function name="processLocale" />
-			</function_call>
 		</field>
 	</section>
 </contents>
