@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.20 2005/09/15 06:46:56 ndvries Exp $
+* $Id: user_edit_fns.inc,v 1.21 2005/09/29 00:19:22 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -286,7 +286,9 @@ class User_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processLocale(&$asset, &$o, $prefix)
 	{
-		return false;
+		if (!$asset->writeAccess('attributes')) return false;
+		$asset->setAttrValue('locale', $_POST[$prefix.'_locale']);
+		return $asset->saveAttributes();
 
 	}//end processLocale()
 

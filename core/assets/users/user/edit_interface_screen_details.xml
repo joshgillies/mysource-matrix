@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.20 2005/07/27 10:45:20 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.21 2005/09/29 00:19:22 lwright Exp $
 *
 */
 -->
@@ -39,14 +39,6 @@
 		</field>
 		<field attribute="email">
 			<email width="25" />
-		</field>
-	</section>
-	<section name="Internationalisation Settings" read_access="write:" write_access="write:attributes" limbo_access="1">
-		<field>
-			<function_call>
-				<paint_function   name="paintLocale"   />
-				<process_function name="processLocale" />
-			</function_call>
 		</field>
 	</section>
 </contents>
