@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.23 2005/09/16 06:55:43 arailean Exp $
+* $Id: listing_engine.inc,v 1.38.2.24 2005/09/29 05:24:07 sdanis Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.23 $
+* @version $Revision: 1.38.2.24 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1135,8 +1135,8 @@ class Listing_Engine extends Page
 
 						case 'parent_asset':
 							// we need to get info from the parent asset
-							$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($group_level));
-							$group_name = $asset_info[$group_level]['name'];
+							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($group_level);
+							$group_name = $asset->attr('name');
 						break;
 
 						case 'metadata':
