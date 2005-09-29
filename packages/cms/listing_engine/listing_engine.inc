@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.100 2005/09/29 05:17:18 sdanis Exp $
+* $Id: listing_engine.inc,v 1.101 2005/09/29 06:29:09 pgannavarapu Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -600,6 +600,22 @@ class Listing_Engine extends Page
 
 		$wanted_statuses = $this->attr('statuses');
 
+		//push all the shoadow assets into the respective array
+		//change the todo_keys array so that instead of shadow assets the query checks on the parent asset's status
+		$shadow_assets = Array();
+		$dummy_to_do = array_keys($todo);
+		foreach ($todo as $key => $value) {
+			if (strpos($key, ':') !== false) {
+				$shadow_assets[$key] = $value;
+				foreach ($dummy_to_do as $index => $key_new) {
+					if ($key_new == $key) {
+						$key_new = $db->quoteSmart(substr($key, 0, strpos($key, ':')));
+						$todo_keys[$index] = $key_new;
+					}
+				}
+			}
+		}
+
 		if (!empty($wanted_statuses) && !empty($todo_keys)) {
 			$sql = 'SELECT
 						assetid
@@ -611,6 +627,16 @@ class Listing_Engine extends Page
 
 			$wanted_assets = $db->getCol($sql);
 			assert_valid_db_result($wanted_assets);
+
+			//now checking if the parent is existing in the wanted assets array
+			//if yes then the shadow assets are added to the wanted assets array as well
+			foreach ($wanted_assets as $wanted) {
+				foreach ($shadow_assets as $key => $value) {
+					if (strpos($key, $wanted) !== false) {
+						$wanted_assets[] = $key;
+					}
+				}
+			}
 
 			foreach ($todo as $assetid => $v) {
 				if (!in_array($assetid, $wanted_assets)) {
@@ -635,6 +661,14 @@ class Listing_Engine extends Page
 
 			$wanted_assets = $db->getAssoc($sql);
 			assert_valid_db_result($wanted_assets);
+
+			foreach ($wanted_assets as $wanted) {
+				foreach ($shadow_assets as $key => $value) {
+					if (strpos($key, $wanted) !== false) {
+						$wanted_assets[] = $key;
+					}
+				}
+			}
 
 			foreach ($todo as $assetid => $v) {
 				if (isset($wanted_assets[$assetid])) {
@@ -1274,7 +1308,6 @@ class Listing_Engine extends Page
 		$using_columns = (count($column_layout) > 1 || $column_layout['0'] > 1);
 
 		$list_position = 1;
-
 		if ($using_columns) {
 			$num_rows = max(array_keys($column_layout)) + 1;
 			$num_columns = max(array_values($column_layout));
@@ -1314,12 +1347,34 @@ class Listing_Engine extends Page
 			echo '</table>';
 		} else {
 			foreach ($todo as $assetid => $type_code) {
-				$this->_printAsset($assetid, null, $list_position);
+				$this->_printAsset($assetid, $list_position);
 				$list_position++;
 			}
 		}
 
 	}//end _printAssetList()
+
+
+	/**
+	* Print a shadow asset from the list
+	*
+	* @param string	$assetid		the ID of the asset we are printing
+	* @param array	$bc_keywords	the tyope format body copy keywords that are to be replaced
+	*
+	* @return array
+	* @access private
+	* @see printAssetList()
+	*/
+	function _getShadowAssetKeywordReplacements($assetid, $bc_keywords)
+	{
+		$keywords = Array();
+		$shadow_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		foreach ($bc_keywords as $key => $keyword) {
+			$keywords[$keyword] = $shadow_asset->getKeywordReplacement($keyword);
+		}
+		return $keywords;
+
+	}//end _getShadowAssetKeywordReplacements()
 
 
 	/**
@@ -1342,10 +1397,20 @@ class Listing_Engine extends Page
 		$asset_info_fields = $this->getSortableAssetInfo();
 		$bodycopy = null;
 
-		// we can get the type code from the asset info array
-		$info = array_get_index($this->_tmp['assets_info'], $assetid, Array('type_code' => ''));
-		$type_code = $info['type_code'];
+		//if a ':' exists in the assetid, then it is a shadow asset
+		$is_shadow = strpos($assetid, ':');
 
+		// we can get the type code from the asset info array
+		//if the asset info array is empty then there is a possibility that we are trying to print a shadow asset
+		//so we load the asset and get its typecode
+		$type_code = null;
+		$info = array_get_index($this->_tmp['assets_info'], $assetid, Array('type_code' => ''));
+		if (!empty($info['type_code'])) {
+			$type_code = $info['type_code'];
+		} else {
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$type_code = $asset->type();
+		}
 		// check to see if there is a specific position format for us
 		if (isset($this->_tmp['position_formats'][$list_position])) {
 			$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_tmp['position_formats'][$list_position], 'bodycopy');
@@ -1359,7 +1424,13 @@ class Listing_Engine extends Page
 				$type_key = array_search($this->_tmp['type_formats'][$type_code], $customised);
 				$type_code = $this->_tmp['type_formats'][$type_code];
 			} else {
-				$parents = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
+
+				$parent = null;
+				//get the Ancestors only when the asset is not a shadow assset
+				if (!$is_shadow) {
+					$parents = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
+				}
+
 				if (($type_key = array_search($type_code, $customised)) === false) {
 					foreach ($parents as $parent) {
 						// any of parent in the custom format?
@@ -1398,131 +1469,137 @@ class Listing_Engine extends Page
 		// by the time we reach this point we already have a bodycopy for this asset
 		$this_needs_asset = false;
 		$bc_keywords = $bodycopy->getKeywords();
-		foreach ($bc_keywords as $keyword) {
-			if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
-				$this_needs_asset = true;
-				break;
-			}
-		}
-
-		if ($this_needs_asset) {
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			if (is_null($asset)) return;
+		$keywords = Array();
+		//if the asset is a shadow asset  then get the keywords separately
+		if ($is_shadow) {
+			$keywords = $this->_getShadowAssetKeywordReplacements($assetid, $bc_keywords);
+		} else {
 			foreach ($bc_keywords as $keyword) {
-				$keywords[$keyword] = $asset->getKeywordReplacement($keyword);
-			}
-			if (preg_match('|%asset_contents%|is', $bodycopy->getRawBodycopyContent())) {
-				ob_start();
-					if ($asset->id != $this->id) $asset->printBody();
-					$keywords['asset_contents'] = ob_get_contents();
-				ob_end_clean();
-
+				if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
+					$this_needs_asset = true;
+					break;
+				}
 			}
 
-			// stuff carried over results body replacements
-			$keywords['asset_name_linked'] = '<a href="'.$asset->getUrl().'">'.$asset->name.'</a>';
-			$keywords['asset_short_name_linked'] = '<a href="'.$asset->getUrl().'">'.$asset->short_name.'</a>';
+			if ($this_needs_asset) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if (is_null($asset)) return;
+				foreach ($bc_keywords as $keyword) {
+					$keywords[$keyword] = $asset->getKeywordReplacement($keyword);
+				}
+				if (preg_match('|%asset_contents%|is', $bodycopy->getRawBodycopyContent())) {
+					ob_start();
+						if ($asset->id != $this->id) $asset->printBody();
+						$keywords['asset_contents'] = ob_get_contents();
+					ob_end_clean();
 
-			if (in_array('asset_lineage', $bc_keywords) || in_array('asset_lineage_linked', $bc_keywords)) {
-				// There is a lineage keyword in the bodycopy
-				$lineage = '';
-				$linked_lineage = '';
-				$first = true;
-				$found_root = false;
+				}
 
-				//Prepare the url for getLineageFromUrl
-				$nurl = $asset->getUrl();
-				$nurl = strip_url($nurl);
-				$nurl = stristr($nurl,'/');
-				$nurl = substr($nurl,2);
+				// stuff carried over results body replacements
+				$keywords['asset_name_linked'] = '<a href="'.$asset->getUrl().'">'.$asset->name.'</a>';
+				$keywords['asset_short_name_linked'] = '<a href="'.$asset->getUrl().'">'.$asset->short_name.'</a>';
 
-				//No URL, have to use get Parents
-				if (empty($nurl)) {
+				if (in_array('asset_lineage', $bc_keywords) || in_array('asset_lineage_linked', $bc_keywords)) {
+					// There is a lineage keyword in the bodycopy
+					$lineage = '';
+					$linked_lineage = '';
+					$first = true;
+					$found_root = false;
 
-					$parent_asset_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id));
+					//Prepare the url for getLineageFromUrl
+					$nurl = $asset->getUrl();
+					$nurl = strip_url($nurl);
+					$nurl = stristr($nurl,'/');
+					$nurl = substr($nurl,2);
 
-					// searching for the root asset
-					$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
-					$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
-					foreach ($parent_asset_ids as $parent_asset_id) {
-						if ($parent_asset_id == $root_assetid) {
-							$found_root = true;
-						}
-						if (!$found_root) continue;
-						if (!$first) {
-							$lineage .= $this->attr('lineage_seperator');
-							$linked_lineage .= $this->attr('lineage_seperator');
-						}
-						$first = false;
-						$ancestor_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_asset_id);
-						$linked_lineage .= '<a href="'.$ancestor_asset->getUrl().'">'.$ancestor_asset->name.'</a>';
-						$lineage .= $ancestor_asset->short_name;
-						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ancestor_asset);
-					}
-				} else {
-					$parent_assets = $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(null, $nurl);
+					//No URL, have to use get Parents
+					if (empty($nurl)) {
 
-					// searching for the root asset
-					$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
-					$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
-					$show_root = $this->attr('root_in_lineage');
-					$started = false;
-					foreach ($parent_assets as $data) {
-						if ($data['assetid'] == $root_assetid) {
-							$found_root = true;
-						}
-						if (!$found_root) continue;
-						if ($first && !$show_root) {
+						$parent_asset_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id));
+
+						// searching for the root asset
+						$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
+						$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
+						foreach ($parent_asset_ids as $parent_asset_id) {
+							if ($parent_asset_id == $root_assetid) {
+								$found_root = true;
+							}
+							if (!$found_root) continue;
+							if (!$first) {
+								$lineage .= $this->attr('lineage_seperator');
+								$linked_lineage .= $this->attr('lineage_seperator');
+							}
 							$first = false;
-							continue;
+							$ancestor_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_asset_id);
+							$linked_lineage .= '<a href="'.$ancestor_asset->getUrl().'">'.$ancestor_asset->name.'</a>';
+							$lineage .= $ancestor_asset->short_name;
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ancestor_asset);
 						}
+					} else {
+						$parent_assets = $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(null, $nurl);
 
-						// If this is the asset itself, don't put it in the lineage.
-						if ($data['assetid'] == $assetid) continue;
-						if (!$first && $lineage != '') {
-							$lineage .= $this->attr('lineage_seperator');
-							$linked_lineage .= $this->attr('lineage_seperator');
-						}
-						$linked_lineage .= '<a href="'.$data['protocol'].'://'.$data['url'].'">'.$data['short_name'].'</a>';
-						$lineage .= $data['short_name'];
-						$first = false;
-					}
-
-					// We didn't find the search_root in the lineage, it's probably a file
-					// It is a valid lineage valid though, so lets print it, as it's better than the
-					// warning messages it used to spit out
-					if (!$found_root) {
-						$first = true;
+						// searching for the root asset
+						$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
+						$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
+						$show_root = $this->attr('root_in_lineage');
+						$started = false;
 						foreach ($parent_assets as $data) {
+							if ($data['assetid'] == $root_assetid) {
+								$found_root = true;
+							}
+							if (!$found_root) continue;
+							if ($first && !$show_root) {
+								$first = false;
+								continue;
+							}
+
+							// If this is the asset itself, don't put it in the lineage.
+							if ($data['assetid'] == $assetid) continue;
 							if (!$first && $lineage != '') {
 								$lineage .= $this->attr('lineage_seperator');
 								$linked_lineage .= $this->attr('lineage_seperator');
 							}
-							$lineage .= $data['short_name'];
 							$linked_lineage .= '<a href="'.$data['protocol'].'://'.$data['url'].'">'.$data['short_name'].'</a>';
+							$lineage .= $data['short_name'];
 							$first = false;
 						}
+
+						// We didn't find the search_root in the lineage, it's probably a file
+						// It is a valid lineage valid though, so lets print it, as it's better than the
+						// warning messages it used to spit out
+						if (!$found_root) {
+							$first = true;
+							foreach ($parent_assets as $data) {
+								if (!$first && $lineage != '') {
+									$lineage .= $this->attr('lineage_seperator');
+									$linked_lineage .= $this->attr('lineage_seperator');
+								}
+								$lineage .= $data['short_name'];
+								$linked_lineage .= '<a href="'.$data['protocol'].'://'.$data['url'].'">'.$data['short_name'].'</a>';
+								$first = false;
+							}
+						}
 					}
-				}
-				$keywords['asset_lineage'] = $lineage;
-				$keywords['asset_lineage_linked'] = $linked_lineage;
+					$keywords['asset_lineage'] = $lineage;
+					$keywords['asset_lineage_linked'] = $linked_lineage;
+				} else {
+					$keywords['asset_lineage'] = '';
+					$keywords['asset_lineage_linked'] = '';
+				}// end if lineage keyword present
+
+				// end results body stuff
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				unset($asset);
 			} else {
-				$keywords['asset_lineage'] = '';
-				$keywords['asset_lineage_linked'] = '';
-			}// end if lineage keyword present
+				$keywords = Array();
+				foreach ($this->_tmp['assets_info'][$assetid] as $field => $value) {
+					$keywords['asset_'.$field] = $value;
+				}
+				$keywords['asset_assetid'] = $assetid;
 
-			// end results body stuff
-
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-			unset($asset);
-		} else {
-			$keywords = Array();
-			foreach ($this->_tmp['assets_info'][$assetid] as $field => $value) {
-				$keywords['asset_'.$field] = $value;
-			}
-			$keywords['asset_assetid'] = $assetid;
-
-		}//end if needs asset
+			}//end if needs asset
+		}
 
 		$group_keywords = preg_grep('/group[0-9]+.*/', $bc_keywords);
 		foreach ($group_keywords as $group_keyword) {
