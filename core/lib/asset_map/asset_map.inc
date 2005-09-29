@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.189 2005/09/28 06:12:26 dheppell Exp $
+* $Id: asset_map.inc,v 1.190 2005/09/29 00:59:37 dheppell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.189 $
+* @version $Revision: 1.190 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -54,8 +54,9 @@ class Asset_Map
 	/**
 	* Print out the code for the asset map
 	*
-	* @param object Backend the backend object
+	* @param object	&$backend	the backend object
 	*
+	* @return void
 	* @access public
 	*/
 	function paint(&$backend)
@@ -135,7 +136,7 @@ class Asset_Map
 		}
 
 		// we want to use current_url()
-		require_once SQ_INCLUDE_PATH."/general.inc";
+		require_once SQ_INCLUDE_PATH.'/general.inc';
 		?>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/detect.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
@@ -197,11 +198,12 @@ class Asset_Map
 	*
 	* @param object XML_Tree $output
 	*
+	* @return void
 	* @access private
 	*/
 	function _send($output)
 	{
-		header("Content-Type: text/xml");
+		header('Content-Type: text/xml');
 		$output->dump();
 
 	}//end _send()
@@ -212,6 +214,7 @@ class Asset_Map
 	*
 	* @param string $code	the error code
 	*
+	* @return void
 	* @access private
 	*/
 	function _error($code)
@@ -236,8 +239,9 @@ class Asset_Map
 	/**
 	* Processes requests from the Flash and returns XML replies
 	*
-	* @param object Backend
+	* @param object	&$backend	the backend object
 	*
+	* @return void
 	* @access public
 	*/
 	function process(&$backend)
@@ -295,6 +299,8 @@ class Asset_Map
 	* java applet
 	*
 	* @param object XML_Tree $input	the request info from the Java
+	*
+	* @return void
 	* @access private
 	*/
 	function _getTranslations(&$input)
@@ -312,13 +318,13 @@ class Asset_Map
 							echo file_get_contents($file_name)."\n\n";
 						}
 					}
-				echo "]]>";
+				echo ']]>';
 			echo "</translations>\n";
 			$out = ob_get_contents();
 		ob_end_clean();
 
 		echo $out;
-	}// end _getTranslations()
+	}//end _getTranslations()
 
 
 	/**
@@ -326,6 +332,7 @@ class Asset_Map
 	*
 	* @param object XML_Tree $input	the request info from the Flash
 	*
+	* @return void
 	* @access private
 	*/
 	function _doInitialise(&$input)
@@ -353,14 +360,16 @@ class Asset_Map
 		// bigger things and we dont want the version info
 		$assets_xml = $root->get();
 
-		header("Content-Type: text/xml");
+		header('Content-Type: text/xml');
 		ob_start();
 			echo "<initialisation>\n";
 				echo "<asset_types>\n";
 					$dir = SQ_DATA_PATH.'/private/asset_map';
 					if ($d = @opendir($dir)) {
 						while (($file = readdir($d)) !== false) {
-							if (substr($file, -4) == '.xml') @readfile($dir.'/'.$file);
+							if (substr($file, -4) == '.xml') {
+								@readfile($dir.'/'.$file);
+							}
 						}
 						closedir($d);
 					}
@@ -381,7 +390,7 @@ class Asset_Map
 	*
 	* @param string $assetid the assetid of the asset's wanted info
 	*
-	* @return Array()
+	* @return array
 	* @access private
 	*/
 	function _getAssetInfo($assetid)
@@ -649,21 +658,21 @@ class Asset_Map
 
 		// gather links for shadowed assets - only if asset descends from a bridge
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
-		$is_a_bridge = false;
-		if (isset($asset_info[$assetid]['type_code'])) {
-			$type_code = $asset_info[$assetid]['type_code'];
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-			$is_a_bridge = implements_interface($type_code, 'bridge');
-		} else if (strpos($assetid, ':') !== false) {
+		$implements_shadow_assets = false;
+		 if (strpos($assetid, ':') !== false) {
 			// this is a shadow asset itself, so it will work the same way as a bridge
-			$is_a_bridge = true;
-		}
+			$implements_shadow_assets = true;
+		 } else if (isset($asset_info[$assetid]['type_code'])) {
+			 $type_code = $asset_info[$assetid]['type_code'];
+			 $GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+			 $implements_shadow_assets = implements_interface($type_code, 'bridge');
+		 }
 
-		if ($is_a_bridge) {
-			$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if ($implements_shadow_assets) {
+			$links_handler = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			// it may be able to handle this itself, lets check
-			if (method_exists($bridge, 'getAssetMapLinks')) {
-				$result = array_merge($result, $bridge->getAssetMapLinks());
+			if (method_exists($links_handler, 'getAssetMapLinks')) {
+				$result = array_merge($result, $links_handler->getAssetMapLinks());
 
 			} else {
 				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
@@ -702,7 +711,9 @@ class Asset_Map
 				if (isset($asset['type_code'])) {
 					$type_code = $asset['type_code'];
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-					if (implements_interface($type_code, 'bridge')) $default_kids = -1;
+					if (implements_interface($type_code, 'bridge')) {
+						$default_kids = -1;
+					}
 				}
 				$asset['num_kids'] = array_get_index($num_kids, $asset['assetid'], $default_kids);
 			}
