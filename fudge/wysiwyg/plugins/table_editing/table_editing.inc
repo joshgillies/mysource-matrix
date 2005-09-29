@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table_editing.inc,v 1.26 2005/09/01 23:48:53 dmckee Exp $
+* $Id: table_editing.inc,v 1.27 2005/09/29 23:43:24 dmckee Exp $
 *
 */
 
@@ -392,7 +392,6 @@ class Table_Editing extends WYSIWYG_Plugin
 				} else {
 					var doco = this._iframe.contentWindow;
 				}
-				this._nullBorders(doco, 'show');
 				this.config._showborders = true;
 			}
 		break;
