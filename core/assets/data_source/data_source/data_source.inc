@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.1 2005/09/28 04:09:22 pgannavarapu Exp $
+* $Id: data_source.inc,v 1.2 2005/09/29 00:24:29 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,6 +68,19 @@ class Data_Source extends Asset
 		return ($this->attr('name'));
 
 	}//end _getName()
+
+
+	/**
+	* Returns an array of the column names of the result set
+	* Its upto the kids to override this functioon
+	* @return Array
+	* @access public
+	*/
+	function getResultSetMetaInfo()
+	{
+		return Array();
+
+	}//end getResultSetMetaInfo()
 
 
 	/**
