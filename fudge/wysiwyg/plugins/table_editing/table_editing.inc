@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table_editing.inc,v 1.17.2.5 2005/09/01 23:48:05 dmckee Exp $
+* $Id: table_editing.inc,v 1.17.2.6 2005/09/29 23:46:20 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -257,7 +257,6 @@ class Table_Editing extends WYSIWYG_Plugin
 				} else {
 					var doco = this._iframe.contentWindow;
 				}
-				this._nullBorders(doco, 'show');
 				this.config._showborders = true;
 			}
 		break;
