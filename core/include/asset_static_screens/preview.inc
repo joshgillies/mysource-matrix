@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.8.2.2 2005/09/14 01:48:52 dmckee Exp $
+* $Id: preview.inc,v 1.8.2.3 2005/09/29 05:07:40 lwright Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.8.2.2 $
+* @version $Revision: 1.8.2.3 $
 * @package MySource_Matrix
 */
 
@@ -94,23 +94,32 @@ function paintPreview(&$owner, &$o, &$ei)
 		$current_url = parse_url(current_url());
 
 		foreach ($url_data as $url_info) {
-			$protocol = ($url_info['https']) ? 'https://' : 'http://';
-			$preview_urls[$protocol.$url_info['url']] = $protocol.$url_info['url'];
-			if (empty($primary_url)) $primary_url = $protocol.$url_info['url'];
-
-			$url_pieces = parse_url($protocol.$url_info['url']);
-			if ($url_pieces['host'] != $current_url['host']) $contains_diff_domain = true;
-
-			if (!empty($url_info['name'])) {
-				$design_name = $url_info['name'];
-				if (!preg_match('/^design::(system|user)::(.*)$/', $design_name, $matches)) continue;
-				if ($matches[1] == 'user') {
-					$preview_designs[$matches[2]] = ucwords(str_replace('_', ' ', $matches[2]));
-				} else if ($design_name == 'design::system::frontend') {
-					$has_default_design = true;
-				}
+			if ($url_info['https']) {
+				$protocol_list['https'] = 'https://';
 			}
-		}
+			if ($url_info['http']) {
+				$protocol_list['http'] = 'http://';
+			}
+
+			foreach($protocol_list as $protocol) {
+				$preview_urls[$protocol.$url_info['url']] = $protocol.$url_info['url'];
+				if (empty($primary_url)) $primary_url = $protocol.$url_info['url'];
+
+				$url_pieces = parse_url($protocol.$url_info['url']);
+				if ($url_pieces['host'] != $current_url['host']) $contains_diff_domain = true;
+
+				if (!empty($url_info['name'])) {
+					$design_name = $url_info['name'];
+					if (!preg_match('/^design::(system|user)::(.*)$/', $design_name, $matches)) continue;
+					if ($matches[1] == 'user') {
+						$preview_designs[$matches[2]] = ucwords(str_replace('_', ' ', $matches[2]));
+					} else if ($design_name == 'design::system::frontend') {
+						$has_default_design = true;
+					}
+				}
+			}//end for each protocol
+		}//end for each url
+
 		if (!$has_default_design) $preview_designs[''] = 'None';
 
 		$o->openRaw();
