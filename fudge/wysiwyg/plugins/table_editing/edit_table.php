@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.23 2005/07/13 22:54:54 dmckee Exp $
+* $Id: edit_table.php,v 1.24 2005/09/30 00:57:54 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 
@@ -260,7 +260,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		<label for="caption"><?php echo translate('caption'); ?></label>
 		<input id="caption" name="caption" onkeyup="table.setCaption(this.value)"/><br />
 		<hr />
-		<label for="width"><?php echo translate('width'); ?></label>
+		<label for="width"><?php echo translate('css').' '; echo translate('width'); ?></label>
 		<input id="width" name="width" onkeyup="table.setWidth(parseInt(document.getElementById('width').value) + document.getElementById('widthtype').value)" style="width:100px" value="100" />
 		<select id="widthtype" name="widthtype" style="width:50px" onchange="table.setWidth(parseInt(document.getElementById('width').value) + document.getElementById('widthtype').value)">
 			<option value="px">px</option>
@@ -268,6 +268,12 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			<option value="pt">pt</option>
 			<option value="em">em</option>
 			<option value="ex">ex</option>
+		</select><br />
+		<label for="htmlwidth"><?php echo translate('htmlwidth'); ?></label>
+		<input id="htmlwidth" name="htmlwidth" onkeyup="table.setHTMLWidth(parseInt(document.getElementById('htmlwidth').value) + document.getElementById('htmlwidthtype').value)" style="width:100px" value="100" />
+		<select id="htmlwidthtype" name="htmlwidthtype" style="width:50px" onchange="table.setHTMLWidth(parseInt(document.getElementById('htmlwidth').value) + document.getElementById('htmlwidthtype').value)">
+			<option value="" selected="selected"> </option>
+			<option value="%">%</option>
 		</select><br />
 		<label for="html_table_border"><?php echo translate('html_border'); ?></label>
 		<input id="html_table_border" name="html_table_border" style="width: 50px" onkeyup="table.setTableHtmlBorder(parseInt(document.getElementById('html_table_border').value))" value="0" /><br />
