@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.7.2.10 2005/07/03 23:31:00 dmckee Exp $
+* $Id: edit_table.php,v 1.7.2.11 2005/09/30 01:07:20 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.7.2.10 $
+* @version $Revision: 1.7.2.11 $
 * @package MySource_Matrix
 */
 
@@ -268,6 +268,12 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			<option value="pt">pt</option>
 			<option value="em">em</option>
 			<option value="ex">ex</option>
+		</select><br />
+		<label for="htmlwidth">HTML Width</label>
+		<input id="htmlwidth" name="htmlwidth" onkeyup="table.setHTMLWidth(parseInt(document.getElementById('htmlwidth').value) + document.getElementById('htmlwidthtype').value)" style="width:100px" value="100" />
+		<select id="htmlwidthtype" name="htmlwidthtype" style="width:50px" onchange="table.setHTMLWidth(parseInt(document.getElementById('htmlwidth').value) + document.getElementById('htmlwidthtype').value)">
+			<option value="" selected="selected"> </option>
+			<option value="%">%</option>
 		</select><br />
 		<label for="html_table_border"><?php echo 'HTML Border'; ?></label>
 		<input id="html_table_border" name="html_table_border" style="width: 50px" onkeyup="table.setTableHtmlBorder(parseInt(document.getElementById('html_table_border').value))" value="0" /><br />
