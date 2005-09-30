@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.458 2005/09/27 01:25:38 lwright Exp $
+* $Id: asset.inc,v 1.459 2005/09/30 05:48:07 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.458 $
+* @version $Revision: 1.459 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1963,10 +1963,11 @@ class Asset extends MySource_Object
 	{
 		$old_status = $this->status;
 
-		if ($this->status != $new_status) {
-			// if we are dependant minor assets, we can only change
-			// our status to a status higher than or equal to all
-			// the statii of our parents
+		if ($this->status > $new_status) {
+			// if we are dependant minor assets, we can only change our status
+			// to a status higher than or equal to all the statii of our parents -
+			// BUT only if we are going down status - we are allowed to play
+			// 'catch-up' to a parent status but not retreat from it
 			$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'minor', null, 1);
 			if (!empty($dependant_parents)) {
 				$am = &$GLOBALS['SQ_SYSTEM']->am;
@@ -1987,6 +1988,7 @@ class Asset extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		if ($new_status != $this->status) {
 			// the status has actually changed to a different one
@@ -2933,43 +2935,51 @@ class Asset extends MySource_Object
 		$keywords['asset_assetid']['value'] = $this->id;
 
 		if ($descriptions) {
-			$keywords['asset_assetid']['description']				= 'The ID of the asset';
-			$keywords['asset_name']['description']                  = 'Full name of the asset';
-			$keywords['asset_short_name']['description']            = 'Short name of the asset';
-			$keywords['asset_version']['description']               = 'Version of the asset being displayed';
-			$keywords['asset_version_major']['description']         = 'Major version number of the asset being displayed';
-			$keywords['asset_version_minor']['description']         = 'Minor version number of the asset being displayed';
-			$keywords['asset_version_micro']['description']         = 'Micro version number of the asset being displayed';
-			$keywords['asset_created']['description']               = 'The date and time the asset was created (yyyy-mm-dd hh:mm:ss)';
-			$keywords['asset_updated']['description']               = 'The date and time the asset was last updated (yyyy-mm-dd hh:mm:ss)';
-			$keywords['asset_status_updated']['description']        = 'The date and time the asset\'s status was last updated (yyyy-mm-dd hh:mm:ss)';
-			$keywords['asset_published']['description']             = 'The date and time the asset was last published (yyyy-mm-dd hh:mm:ss)';
-			$keywords['asset_created_short']['description']         = 'The date when the asset was created (yyyy-mm-dd)';
-			$keywords['asset_updated_short']['description']         = 'The date when the asset was last updated (yyyy-mm-dd)';
-			$keywords['asset_published_short']['description']       = 'The date when the asset was last published (yyyy-mm-dd)';
-			$keywords['asset_status_updated_short']['description']  = 'The date when the asset\'s status was last changed (yyyy-mm-dd)';
-			$keywords['asset_created_readable']['description']      = 'The date when the asset was created (dd m yyyy h:mm[am pm])';
-			$keywords['asset_updated_readable']['description']      = 'The date when the asset was last updated (dd m yyyy h:mm[am pm])';
-			$keywords['asset_created_iso8601']['description']      = 'The date when the asset was created (ISO8601 format)';
-			$keywords['asset_updated_iso8601']['description']      = 'The date when the asset was last updated (ISO8601 format)';
-			$keywords['asset_published_iso8601']['description']      = 'The date when the asset was last published (ISO8601 format)';
-			$keywords['asset_created_rfc2822']['description']      = 'The date when the asset was created (RFC2822 format)';
-			$keywords['asset_updated_rfc2822']['description']      = 'The date when the asset was last updated (RFC2822 format)';
-			$keywords['asset_published_rfc2822']['description']      = 'The date when the asset was last published (RFC2822 format)';
-			$keywords['asset_created_ical']['description']      = 'The date when the asset was created (iCalendar format)';
-			$keywords['asset_updated_ical']['description']      = 'The date when the asset was last updated (iCalendar format)';
-			$keywords['asset_published_ical']['description']      = 'The date when the asset was last published (iCalendar format)';
-			$keywords['asset_published_readable']['description']    = 'The date when the asset was last published (dd m yyyy h:mm[am pm])';
-			$keywords['asset_status_changed_readable']['description'] = 'The date when the asset\'s status was last changed (dd m yyyy h:mm[am pm])';
-			$keywords['asset_created_by_name']['description']       = 'The name of the user who created this asset';
-			$keywords['asset_updated_by_name']['description']       = 'The name of the user who last updated this asset';
-			$keywords['asset_published_by_name']['description']     = 'The name of the user who last published this asset';
-			$keywords['asset_status_changed_by_name']['description'] = 'The name of the user who last changed the status of this asset';
-			$keywords['asset_url']['description']                   = 'The absolute url to the asset';
-			$keywords['asset_href']['description']                  = 'The relative href to the asset';
-			$keywords['asset_thumbnail']['description']             = 'The img tag for the thumbnail attached to the asset';
-			$keywords['asset_thumbnail_url']['description']         = 'The URL only for the thumbnail attached to the asset';
-			$keywords['asset_thumbnail_caption']['description']     = 'The caption for the thumbnail attached to the asset';
+			$keywords['asset_assetid']['description']                     = 'The ID of the asset';
+			$keywords['asset_name']['description']                        = 'Full name of the asset';
+			$keywords['asset_short_name']['description']                  = 'Short name of the asset';
+			$keywords['asset_version']['description']                     = 'Version of the asset being displayed';
+			$keywords['asset_version_major']['description']               = 'Major version number of the asset being displayed';
+			$keywords['asset_version_minor']['description']               = 'Minor version number of the asset being displayed';
+			$keywords['asset_version_micro']['description']               = 'Micro version number of the asset being displayed';
+			$keywords['asset_created']['description']                     = 'The date and time the asset was created (yyyy-mm-dd hh:mm:ss)';
+			$keywords['asset_updated']['description']                     = 'The date and time the asset was last updated (yyyy-mm-dd hh:mm:ss)';
+			$keywords['asset_status_updated']['description']              = 'The date and time the asset\'s status was last updated (yyyy-mm-dd hh:mm:ss)';
+			$keywords['asset_published']['description']                   = 'The date and time the asset was last published (yyyy-mm-dd hh:mm:ss)';
+			$keywords['asset_created_short']['description']               = 'The date when the asset was created (yyyy-mm-dd)';
+			$keywords['asset_updated_short']['description']               = 'The date when the asset was last updated (yyyy-mm-dd)';
+			$keywords['asset_published_short']['description']             = 'The date when the asset was last published (yyyy-mm-dd)';
+			$keywords['asset_status_updated_short']['description']        = 'The date when the asset\'s status was last changed (yyyy-mm-dd)';
+			$keywords['asset_created_readable']['description']            = 'The date when the asset was created (dd m yyyy h:mm[am pm])';
+			$keywords['asset_updated_readable']['description']            = 'The date when the asset was last updated (dd m yyyy h:mm[am pm])';
+			$keywords['asset_created_readabledate']['description']        = 'The date when the asset was created (date only - dd m yyyy)';
+			$keywords['asset_updated_readabledate']['description']        = 'The date when the asset was last updated (date only - dd m yyyy)';
+			$keywords['asset_created_readabletime']['description']        = 'The date when the asset was created (time only - h:mm[am pm])';
+			$keywords['asset_updated_readabletime']['description']        = 'The date when the asset was last updated (time only - h:mm[am pm])';
+			$keywords['asset_created_iso8601']['description']             = 'The date when the asset was created (ISO8601 format)';
+			$keywords['asset_updated_iso8601']['description']             = 'The date when the asset was last updated (ISO8601 format)';
+			$keywords['asset_published_iso8601']['description']           = 'The date when the asset was last published (ISO8601 format)';
+			$keywords['asset_created_rfc2822']['description']             = 'The date when the asset was created (RFC2822 format)';
+			$keywords['asset_updated_rfc2822']['description']             = 'The date when the asset was last updated (RFC2822 format)';
+			$keywords['asset_published_rfc2822']['description']           = 'The date when the asset was last published (RFC2822 format)';
+			$keywords['asset_created_ical']['description']                = 'The date when the asset was created (iCalendar format)';
+			$keywords['asset_updated_ical']['description']                = 'The date when the asset was last updated (iCalendar format)';
+			$keywords['asset_published_ical']['description']              = 'The date when the asset was last published (iCalendar format)';
+			$keywords['asset_published_readable']['description']          = 'The date when the asset was last published (dd m yyyy h:mm[am pm])';
+			$keywords['asset_status_changed_readable']['description']     = 'The date when the asset\'s status was last changed (dd m yyyy h:mm[am pm])';
+			$keywords['asset_published_readabledate']['description']      = 'The date when the asset was last published (date only - dd m yyyy)';
+			$keywords['asset_status_changed_readabledate']['description'] = 'The date when the asset\'s status was last changed (date only - dd m yyyy)';
+			$keywords['asset_published_readabletime']['description']      = 'The date when the asset was last published (time only - h:mm[am pm])';
+			$keywords['asset_status_changed_readabletime']['description'] = 'The date when the asset\'s status was last changed (time only - h:mm[am pm])';
+			$keywords['asset_created_by_name']['description']             = 'The name of the user who created this asset';
+			$keywords['asset_updated_by_name']['description']             = 'The name of the user who last updated this asset';
+			$keywords['asset_published_by_name']['description']           = 'The name of the user who last published this asset';
+			$keywords['asset_status_changed_by_name']['description']      = 'The name of the user who last changed the status of this asset';
+			$keywords['asset_url']['description']                         = 'The absolute url to the asset';
+			$keywords['asset_href']['description']                        = 'The relative href to the asset';
+			$keywords['asset_thumbnail']['description']                   = 'The img tag for the thumbnail attached to the asset';
+			$keywords['asset_thumbnail_url']['description']               = 'The URL only for the thumbnail attached to the asset';
+			$keywords['asset_thumbnail_caption']['description']           = 'The caption for the thumbnail attached to the asset';
 		}
 
 		return $keywords;
@@ -3009,6 +3019,10 @@ class Asset extends MySource_Object
 								'asset_updated_short',
 								'asset_created_readable',
 								'asset_updated_readable',
+								'asset_created_readabledate',
+								'asset_updated_readabledate',
+								'asset_created_readabletime',
+								'asset_updated_readabletime',
 								'asset_created_iso8601',
 								'asset_updated_iso8601',
 								'asset_created_rfc2822',
@@ -3020,6 +3034,8 @@ class Asset extends MySource_Object
 								'asset_published',
 								'asset_published_short',
 								'asset_published_readable',
+								'asset_published_readabledate',
+								'asset_published_readabletime',
 								'asset_published_iso8601',
 								'asset_published_rfc2822',
 								'asset_published_ical',
@@ -3027,6 +3043,8 @@ class Asset extends MySource_Object
 								'asset_status_changed',
 								'asset_status_changed_short',
 								'asset_status_changed_readable',
+								'asset_status_changed_readabledate',
+								'asset_status_changed_readabletime',
 								'asset_status_changed_iso8601',
 								'asset_status_changed_rfc2822',
 								'asset_status_changed_ical',
@@ -3097,11 +3115,13 @@ class Asset extends MySource_Object
 			} else if (!empty($matches[1])) {
 				// we might have a datetime attribute with a date formatting suffix (readable, iso8601 etc)
 				$date_formats = Array(
-									'short'		=> 'Y-m-d',
-									'readable'	=> 'd M Y g:ia',
-									'iso8601'	=> 'Y-m-d\TH:i:s',
-									'rfc2822'	=> 'r',
-									'ical'		=> 'Ymd\THis',
+									'short'			=> 'Y-m-d',
+									'readable'		=> 'd M Y g:ia',
+									'readabledate'	=> 'd M Y',
+									'readabletime'	=> 'g:ia',
+									'iso8601'		=> 'Y-m-d\TH:i:s',
+									'rfc2822'		=> 'r',
+									'ical'			=> 'Ymd\THis',
 								);
 
 				$suffix = $matches[1];
