@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.44 2005/09/08 00:05:06 mmcintyre Exp $
+* $Id: form_section.inc,v 1.45 2005/09/30 06:29:58 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -98,7 +98,13 @@ class Form_Section extends Asset
 	function &getAsset($shadowid, $type_code='', $mute_errors=false)
 	{
 		$asset = null;
-		if (empty($shadowid)) return $asset;
+		$id_parts = explode(':', $shadowid);
+
+		if (isset($id_parts[1])){
+			$shadowid = $id_parts[1];
+		} else {
+			return $asset;
+		}
 
 		// Questions follow the format '<assetid>:q<shadowid>'
 		if ($shadowid{0} == 'q') {
@@ -316,8 +322,8 @@ class Form_Section extends Asset
 	{
 		// basically get the parents of the section, and add itself
 		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
-		if (empty($query)) return Array(); 
-		
+		if (empty($query)) return Array();
+
 		$queried_parents = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
 		$parents = Array();
 
@@ -366,7 +372,7 @@ class Form_Section extends Asset
 		$children = Array();
 
 		// we don't have to get any real links, sections only have question children
-		
+
 		// now questions
 		$entries = $this->attr('questions');
 		if (empty($type_code)) {
