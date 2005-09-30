@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.7.2.11 2005/09/30 01:07:20 dmckee Exp $
+* $Id: edit_table.php,v 1.7.2.12 2005/09/30 05:28:21 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.7.2.11 $
+* @version $Revision: 1.7.2.12 $
 * @package MySource_Matrix
 */
 
@@ -260,7 +260,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		<label for="caption"><?php echo 'Caption'; ?></label>
 		<input id="caption" name="caption" onkeyup="table.setCaption(this.value)"/><br />
 		<hr />
-		<label for="width">Width</label>
+		<label for="width">CSS Width</label>
 		<input id="width" name="width" onkeyup="table.setWidth(parseInt(document.getElementById('width').value) + document.getElementById('widthtype').value)" style="width:100px" value="100" />
 		<select id="widthtype" name="widthtype" style="width:50px" onchange="table.setWidth(parseInt(document.getElementById('width').value) + document.getElementById('widthtype').value)">
 			<option value="px">px</option>
