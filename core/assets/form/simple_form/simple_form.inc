@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.8 2005/09/08 00:10:23 mmcintyre Exp $
+* $Id: simple_form.inc,v 1.9 2005/09/30 06:29:09 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -97,7 +97,13 @@ class Simple_Form extends Asset
 	function &getAsset($shadowid, $type_code='', $mute_errors=false)
 	{
 		$asset = null;
-		if (empty($shadowid)) return $asset;
+		$id_parts = explode(':', $shadowid);
+
+		if (isset($id_parts[1])){
+			$shadowid = $id_parts[1];
+		} else {
+			return $asset;
+		}
 
 		// Questions follow the format '<assetid>:q<shadowid>'
 		if ($shadowid{0} == 'q') {
@@ -351,7 +357,7 @@ class Simple_Form extends Asset
 		// basically get the parents of the section, and add itself in the
 		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
 		if (empty($query)) return Array();
-		
+
 		$queried_parents = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
 		$parents = Array();
 
