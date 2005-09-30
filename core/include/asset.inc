@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.459 2005/09/30 05:48:07 lwright Exp $
+* $Id: asset.inc,v 1.460 2005/09/30 06:08:44 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.459 $
+* @version $Revision: 1.460 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1963,20 +1963,24 @@ class Asset extends MySource_Object
 	{
 		$old_status = $this->status;
 
+		// if we are dependant minor assets, we can only change our status
+		// to a status higher than or equal to all the statii of our parents -
+		// BUT only if we are going down status - we are allowed to play
+		// 'catch-up' to a parent status but not retreat from it
 		if ($this->status > $new_status) {
-			// if we are dependant minor assets, we can only change our status
-			// to a status higher than or equal to all the statii of our parents -
-			// BUT only if we are going down status - we are allowed to play
-			// 'catch-up' to a parent status but not retreat from it
-			$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'minor', null, 1);
-			if (!empty($dependant_parents)) {
-				$am = &$GLOBALS['SQ_SYSTEM']->am;
-				foreach ($dependant_parents as $link) {
-					$asset = &$am->getAsset($link['majorid'], $link['major_type_code']);
-					if ($asset->status > $new_status) {
-						// we dont want to rollback, but we dont
-						// want to change our status for real
-						return true;
+			// Allow downgrades anyway if in a workflow status - we still want
+			// people to reject a workflow in this situation
+			if ($this->status & ~(SQ_SC_STATUS_PENDING | SQ_SC_STATUS_ALL_APPROVED)) {
+				$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'minor', null, 1);
+				if (!empty($dependant_parents)) {
+					$am = &$GLOBALS['SQ_SYSTEM']->am;
+					foreach ($dependant_parents as $link) {
+						$asset = &$am->getAsset($link['majorid'], $link['major_type_code']);
+						if ($asset->status > $new_status) {
+							// we dont want to rollback, but we dont
+							// want to change our status for real
+							return true;
+						}
 					}
 				}
 			}
