@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.24 2005/09/29 05:24:07 sdanis Exp $
+* $Id: listing_engine.inc,v 1.38.2.25 2005/09/30 05:24:11 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.24 $
+* @version $Revision: 1.38.2.25 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -625,6 +625,7 @@ class Listing_Engine extends Page
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$assetids = array_keys($todo);
+		if (empty($assetids)) return;
 
 		for (reset($assetids); null !== ($k = key($assetids)); next($assetids)) {
 			$assetids[$k] = $db->quote($assetids[$k]);
