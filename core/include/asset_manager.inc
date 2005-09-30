@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.382 2005/09/28 05:08:17 dheppell Exp $
+* $Id: asset_manager.inc,v 1.383 2005/09/30 00:06:45 bcaldwell Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.382 $
+* @version $Revision: 1.383 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5786,7 +5786,11 @@ class Asset_Manager extends MySource_Object
 			$userid_cond = '';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
-				array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+
+				$userid = $GLOBALS['SQ_SYSTEM']->user->id;
+				if (is_numeric($userid)) $userid = (int) $userid;
+
+				array_push($userids, 0, $userid);
 				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 					$userids[$i] = $db->quote($userids[$i]);
 				}
