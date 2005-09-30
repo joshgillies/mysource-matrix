@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_link_tree.php,v 1.16 2005/09/05 23:23:27 amiller Exp $
+* $Id: recreate_link_tree.php,v 1.17 2005/09/30 02:54:05 lwright Exp $
 *
 */
 
@@ -34,7 +34,9 @@
 * SQ_CONF_ASSET_TREE_BASE or SQ_CONF_ASSET_TREE_SIZE config options change
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @author  Luke Wright <lwright@squiz.net>
+* @author  Avi Miller <avi.miller@squiz.net>
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -109,7 +111,7 @@ echo_headline('CREATING INSERTS');
 // if the DB is postgres use the COPY syntax for quicker insert
 if ($pgdb) {
 	$sql = "COPY sq_ast_lnk_tree (treeid, linkid, num_kids) FROM stdin;\n"
-			.$db->quoteSmart('-')."\t".$db->quoteSmart(1)."\t".$db->quoteSmart(count($index[1]));
+			.'-'."\t".'1'."\t".(string)count($index[1]);
 
 } else {
 	$sql = 'INSERT INTO sq_ast_lnk_tree (treeid, linkid, num_kids) VALUES ('.$db->quoteSmart('-').', '.$db->quoteSmart(1).', '.$db->quoteSmart(count($index[1])).');';
@@ -183,7 +185,7 @@ function recurse_tree_create($majorid, $path)
 		$num_kids = (empty($index[$data['minorid']])) ? 0 : count($index[$data['minorid']]);
 
 		if ($pgdb) {
-			$sql = $db->quoteSmart($treeid)."\t".$db->quoteSmart((int) $data['linkid'])."\t".$db->quoteSmart($num_kids);
+			$sql = $treeid."\t".(string)$data['linkid']."\t".(string)$num_kids;
 		} else {
 			$sql = 'INSERT INTO sq_ast_lnk_tree (treeid, linkid, num_kids) VALUES ('.$db->quoteSmart($treeid).','.$db->quoteSmart((int) $data['linkid']).','.$db->quoteSmart($num_kids).');';
 		}
