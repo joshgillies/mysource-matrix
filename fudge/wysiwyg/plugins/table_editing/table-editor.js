@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.5.2.7 2005/07/27 13:09:22 brobertson Exp $
+* $Id: table-editor.js,v 1.5.2.8 2005/09/30 00:57:18 dmckee Exp $
 *
 */
 
@@ -396,7 +396,8 @@ TTable = function(name, rows, cols)
 	this.cols		= cols;
 	this.varname	= name;
 	this.id			= "";
-	this.width		= "0%";
+	this.width		= "";
+	this.htmlwidth	= "";
 	this.frame		= "";
 	this.rules		= "";
 	this.style		= "";
@@ -431,6 +432,7 @@ TTable = function(name, rows, cols)
 	this.toString = function()
 	{
 		var out = '<table id="js_' + this.id + '" cellpadding="' + this.cellpadding + '" cellspacing="' + this.cellspacing + '"';
+		if (this.htmlwidth != "") out += ' width=' + this.htmlwidth;
 		if (this.htmlborder != null) out += ' border=' + this.htmlborder;
 		out += ' style="width:' + this.width + ';';
 		if (this.borderColor != null) out += 'border-color:' + this.borderColor + ';';
@@ -453,6 +455,7 @@ TTable = function(name, rows, cols)
 	this.Export = function()
 	{
 		var out = '<table id="' + this.id + '" cellpadding="' + this.cellpadding + '" cellspacing="' + this.cellspacing + '"';
+		if (this.htmlwidth != "") out += ' width=' + this.htmlwidth;
 		if (this.htmlborder != null) out += ' border=' + this.htmlborder;
 		out += ' style="width:' + this.width + ';' + this.style + ';';
 		if (this.borderColor != null) out += 'border-color:' + this.borderColor + ';';
@@ -1159,8 +1162,8 @@ TTable = function(name, rows, cols)
 		this.cellspacing= (table.cellSpacing == "")?2:table.cellSpacing;
 		this.cellpadding= (table.cellPadding == "")?2:table.cellPadding;
 		if (table.style.width != "") this.width = table.style.width;
+		if (table.width != "") this.htmlwidth = table.width;
 		this.extra = getExtra(table);
-
 
 		this.style = "";
 		if (table.style.background != "")		this.style += "background: " + table.style.background + ";";
@@ -1284,6 +1287,13 @@ TTable = function(name, rows, cols)
 		document.getElementById("html_table_border").value = (this.htmlborder == null)? "" : this.htmlborder;
 		document.getElementById("table_border").value = (this.border == null)? "" : this.border;
 		document.getElementById("table_bordertype").value = (this.borderStyle == null)? "" : this.borderStyle;
+		if (this.htmlwidth.indexOf('%') != -1) {
+			document.getElementById("htmlwidth").value = this.htmlwidth.substring(0, (this.htmlwidth.length - 1));
+			document.getElementById("htmlwidthtype").value = "%";
+		} else {
+			document.getElementById("htmlwidth").value = this.htmlwidth;
+			document.getElementById("htmlwidthtype").value = "";
+		}
 
 		this.refresh();
 	}
@@ -1326,6 +1336,12 @@ TTable = function(name, rows, cols)
 	this.setWidth = function(val)
 	{
 		this.width = val;
+		this.refresh();
+	}
+
+	this.setHTMLWidth = function(val)
+	{
+		this.htmlwidth = val;
 		this.refresh();
 	}
 
