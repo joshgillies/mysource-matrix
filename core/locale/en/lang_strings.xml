@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.60 2005/09/28 06:21:14 rhoward Exp $
+* $Id: lang_strings.xml,v 1.61 2005/09/30 00:16:39 dmckee Exp $
 *
 */
 
@@ -947,6 +947,8 @@
 	<string source="style">Style</string>
 	<string source="height">Height</string>
 	<string source="width">Width</string>
+	<string source="htmlwidth">HTML Width</string>
+	<string source="css">CSS</string>
 	<string source="not">Not</string>
 	<string source="error">ERROR</string>
 	<string source="assets">assets</string>
