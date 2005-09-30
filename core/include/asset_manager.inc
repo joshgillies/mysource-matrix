@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.384 2005/09/30 01:02:33 bcaldwell Exp $
+* $Id: asset_manager.inc,v 1.385 2005/09/30 05:38:49 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.384 $
+* @version $Revision: 1.385 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1785,6 +1785,7 @@ class Asset_Manager extends MySource_Object
 					$msg_reps = Array(
 									'user_name'		=> $GLOBALS['SQ_SYSTEM']->user->name,
 									'type_code'		=> $this->getTypeInfo($locked_asset->type(), 'name'),
+									'lock_type'		=> ucwords($lock_type),
 									'asset_name'	=> $locked_asset->name,
 									'old_user_name'	=> $user->name,
 								);
