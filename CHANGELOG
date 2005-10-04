@@ -1,5 +1,59 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.6.1
+
+Featured Changes
+----------------------
+
+NEW WAY TO CHECK UNCACHED CONTENT
+
+	Previously, to check the uncached version of an asset you appended ?no_cache=1 to the URL. Now, you need to add /_nocache to the end of the URL. This works in the same way as the current /_admin and/_edit suffixes. Like these suffixes, the _nocache suffix is configurable and can be changed on the system configuration screen.
+
+
+Complete Changelog
+----------------------
+
+Core
+
+* Fixed bug #903: Various issues with messages relating to status change/workflow
+* Fixed bug #904: Permissions HIPO and Archived Assets
+* Fixed bug #905: Updating a file can lead to old versions files being orphaned but accessible
+* Fixed bug #906: 3.6 uses postgres non Postgresql 7.3 function
+* Fixed bug #909: Workflow report has interface imbalance when printing
+* Fixed bug #910: HTML entities in the wysiwyg are not preserved during view source mode
+* Fixed bug #914: Wysiwyg editor converts question marks to delta characters
+* Fixed bug #917: Denied public read access hides asset from frontend menu
+* Fixed bug #922: Workflow Keywords not working in simple edit layouts
+* Fixed bug #930: Two security issues with repeatedly incorrect logins
+* Fixed bug #946: Internal Message emails not sent
+* Fixed bug #915: recreate_link_tree.php incorrectly quotes treeids in PgSQL
+* Fixed bug #927: Login_Form design area does not allow both login and logout sections
+* Fixed bug #948: With HTTPS enabled, only HTTPS url shown on Preview page
+* Fixed bug #951: Table editor does not maintain width=100%
+
+CMS
+
+* Fixed bug #901: Backslash appearing in drop down lists (custom form)
+* Fixed bug #907: Error on selective emails screen.... "Rule valid ?" (custom form)
+* Fixed bug #908: Unable to change asset sorting in grouped asset listings (listing engine)
+* Fixed bug #913: File upload question omitted from custom form bodycopy causes submission error (custom form)
+* Fixed bug #924: Can't create selective email rule for option list question (custom form)
+* Fixed bug #933: Rules fire when form question is optional (custom form)
+* Fixed bug #938: File Upload field error (custom form)
+
+LDAP
+
+* Fixed bug #899: LDAP bridge throws error when there are zero people in a AD group (ldap bridge)
+* Fixed bug #941: LDAP user cannot edit created assets (ldap user)
+* Fixed bug #947: LDAP users name credentials not being accessed for asset listings and paint layouts (ldap user)
+
+ECOMMERCE
+
+* Fixed bug #940: E-commerce form does not present option to export to CSV (ecommerce form)
+
+
+
+
 VERSION 3.6.0
 
 Featured Changes
@@ -54,6 +108,10 @@ IMPROVED RECREATE LINK TREE SCRIPT
 	The biggest change to this script is that it now does NOT run the insert queries. It just sends them to STDOUT. If you are using PostgreSQL, the script will output the queries in COPY format because pgsql inserts much quicker with that.
 
 	Usage: php scripts/recreate_link_tree.php . > tmp.sql
+
+ASSET MAP TABS IMPROVED
+
+	The asset maps tabs were previously similar shades of purple, which made it hard to determine the active tab. The tabs are now grey and fit in with the menu bar of the asset map to clearly show the active tab.
 
 
 Complete Changelog
