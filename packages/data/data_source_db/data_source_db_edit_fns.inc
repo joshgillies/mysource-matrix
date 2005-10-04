@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.3 2005/09/29 00:34:14 pgannavarapu Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.4 2005/10/04 05:00:30 pgannavarapu Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -150,31 +150,29 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		$db_type = $asset->attr('db_type');
 		$dsn = $asset->attr('dsn');
 		$new_dsn_string = null;
-		if (isset($_POST['dsn'])) {
-			if (!empty($_POST['dsn']['dsn'])) {
-				$new_dsn_string = $_POST['dsn']['dsn'];
-			} else {
-				$new_dsn = $_POST['dsn'];
-				$n_dsn = null;
-				switch ($db_type) {
-					case 'postgres':
-						$n_dsn = "pgsql://$new_dsn[user]";
-						break;
-					case 'mysql':
-						$n_dsn = "mysql://$new_dsn[user]";
-						break;
-				}
-				!empty($new_dsn['password'])?$n_dsn .= ":$new_dsn[password]":null;
-				$n_dsn .= "@$new_dsn[host]/$new_dsn[database]";
-				if (strcasecmp($dsn, $n_dsn) !=0) {
-					foreach ($new_dsn as $key => $value) {
-						$asset->setAttrValue($key, $value);
-					}
-					$new_dsn_string = $n_dsn;
-				}
+		$new_dsn = $_POST['dsn'];
+		if (!empty($_POST['dsn']['dsn'])) {
+			$new_dsn_string = $_POST['dsn']['dsn'];
+			$new_dsn['user'] = null;
+			$new_dsn['password'] = null;
+			$new_dsn['host'] = null;
+			$new_dsn['database'] = null;
+		} else {
+			switch ($db_type) {
+				case 'postgres':
+					$new_dsn_string = "pgsql://$new_dsn[user]";
+					break;
+				case 'mysql':
+					$new_dsn_string = "mysql://$new_dsn[user]";
+					break;
 			}
+			!empty($new_dsn['password'])?$new_dsn_string .= ":$new_dsn[password]":null;
+			$new_dsn_string .= "@$new_dsn[host]/$new_dsn[database]";
 		}
 		if (strcasecmp($dsn, $new_dsn_string) != 0) {
+			foreach ($new_dsn as $key => $value) {
+				$asset->setAttrValue($key, $value);
+			}
 			$asset->setAttrValue('dsn', $new_dsn_string);
 			$res = $this->_resetAttributes($asset);
 			return true;
@@ -199,8 +197,9 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	{
 		$dsn = $asset->attr('dsn');
 		$wa = $asset->writeAccess('attributes');
+		$user = $asset->attr('user');
 		if ($wa) {
-			text_area('dsn[dsn]', $dsn, 70, 5);
+			text_area('dsn[dsn]', empty($user)? $dsn: '', 70, 5);
 			return true;
 		} else {
 			if (!empty($dsn)) {
@@ -472,7 +471,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		$conn = null;
 		if (!empty($dsn)) {
 			if (empty($this->conn)) {
-				$conn =& $this->_connectToDB($asset);
+				$conn =& $asset->connectToDB();
 			} else {
 				$conn = $this->conn;
 			}
@@ -497,34 +496,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		return $tables;
 
 	}//end _getAllTables()
-
-
-	/**
-	* Function to connect to the db and return the db object
-	*
-	* @param object Search_Page			&$asset	the Data Sourcee asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
-	*
-	* @return Array			Returns the reference of the db object
-	* @access public
-	*
-	*/
-	function _connectToDB($asset)
-	{
-		$dsn = $asset->attr('dsn');
-		if (!empty($dsn)) {
-			$conn = DB::connect($dsn);
-			if (DB::isError($conn)) {
-				trigger_error($conn->message, E_USER_ERROR);
-				return false;
-			}
-			$conn->setFetchMode(DB_FETCHMODE_ASSOC);
-			$this->conn =& $conn;
-			return $conn;
-		}
-
-	}// end _connectToDB()
 
 
 	/**
@@ -804,10 +775,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	function _getFields($tables, &$asset)
 	{
-		$conn = $this->conn;
-		if (empty($conn)) {
-			$conn =& $this->_connectToDB($asset);
-		}
+		$conn =& $asset->connectToDB();
 		$fields = Array();
 		if (!is_array($tables)) $tables = Array($tables);
 		foreach ($tables as $key =>  $table) {
@@ -843,7 +811,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	{
 		if ($mode != 'edit') {
 			$asset->setAttrValue('sql', null);
-			$asset->setAttrValue('result', Array());
+			$asset->setAttrValue('shadow_name', null);
 		}
 		$asset->setAttrValue('where', Array());
 		$asset->setAttrValue('join', Array());
@@ -859,61 +827,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 
 	/**
-	* Function that executes the query and assigns the result set to the result attribute
-	*
-	* @param object Data_Source_DB			&$asset	the DB Data source asset
-	*
-	* @return boolean
-	* @access public
-	*
-	*/
-	function _executeQuery(&$asset)
-	{
-		$sql = null;
-		if (isset($_POST['sql'])) {
-			$sql = $_POST['sql'];
-		} else {
-			$sql = $asset->attr('sql');
-		}
-		$sql = str_replace('<br />', ' ', $sql);
-		$result = null;
-		if (!empty($sql)) {
-			$asset->setAttrValue('sql', $sql);
-			$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-			$cache_key = $sql.$asset->id;
-			$result = $cm->loadFromCache($asset->id, $asset->type(), $cache_key);
-			//if the query is already excuted then we get results from cache otherwise we execute the
-			//query and store the results in cache
-			if (empty($result)) {
-				$dsn = $asset->attr('dsn');;
-				if (!empty($dsn)) {
-					$conn = $this->conn;
-					if (empty($conn)) {
-						$conn =& $this->_connectToDB($asset);
-					}
-					$result = $conn->getAll($sql);
-					if (!is_object($result) || $result->gettype() != 'db_error') {
-						//if the result is a valid result then save it to cache
-						assert_valid_db_result($result);
-						$r = $cm->saveToCache($asset->id, $asset->type(), $cache_key, serialize($result));
-						assert_valid_cache_result($r);
-					} else {
-						$result = null;
-					}
-				}
-			} else {
-				$result = unserialize($result);
-			}
-			if (!empty($result)) {
-				$asset->setAttrValue('result', $result);
-				$asset->saveAttributes();
-			}
-		}
-
-	}//end _executeQuery()
-
-
-	/**
 	* Paints the interface for painting the query
 	*
 	* @param object Search_Page			&$asset	the DB Data source asset
@@ -926,10 +839,10 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	function paintQuerySoFar(&$asset, &$o, $prefix)
 	{
-		$this->_queryProcessing($asset, $prefix);
-		$sql = $asset->attr('sql');
 		$mode = $asset->attr('mode');
 		$wa = $asset->writeAccess('attributes');
+		$this->_queryProcessing($asset, $prefix);
+		$sql = $asset->attr('sql');
 		if (($wa) && ($mode == 'edit')){
 			$wa = true;
 		} else {
@@ -1009,7 +922,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 		//start query
 		$sql = '';
-
 		if (!empty($tables)) {
 			$sql = 'SELECT ';
 			if (isset($_POST['show']) && $fields != '*') {
@@ -1669,7 +1581,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	function paintShadow(&$asset, &$o, $prefix)
 	{
 		$name = $asset->attr('shadow_name');
-		//combo_box('keyword',$keywords, false, in_array($name, array_keys($keywords))? $name: '', 0, 'onChange=addToText()');
 		$wa = $asset->writeAccess('attributes');
 		if ($wa) {
 			text_box('shadow_name', !empty($name)? $name: '', 80);
@@ -1700,7 +1611,10 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		if (!empty($_POST['shadow_name'])) {
 			$new_name = $_POST['shadow_name'];
 		}
-		if (($name != $new_name) && (!empty($new_name))) {
+		if (empty($new_name)) {
+			$new_name = 'Data Source Record Set';
+		}
+		if ($name != $new_name) {
 			$res = $asset->setAttrValue('shadow_name', $new_name);
 			return true;
 		} else {
@@ -2075,7 +1989,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				if ($mode == 'execute') {
 					if ($wa) {
 						//speed_check('BEFORE QUERYNOTEMPTY');
-						$this->_executeQuery($asset);
+						$result = $asset->getResultSet();
 						//speed_check('AFTER QUERYNOTEMPTY');
 					}
 				}
@@ -2114,7 +2028,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 			} else {
 				if ($wa) {
 					//speed_check();
-					$this->_executeQuery($asset);
+					$result = $asset->getResultSet();
 					//speed_check();
 				}
 				return true;
@@ -2137,7 +2051,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	function resultSetExists(&$asset, $prefix)
 	{
-		$result = $asset->attr('result');
+		$result = $asset->getResultSet();
 		if (empty($result)) {
 			return false;
 		} else {

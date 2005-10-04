@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.2 2005/09/29 00:34:14 pgannavarapu Exp $
+* $Id: data_source_db.inc,v 1.3 2005/10/04 05:00:30 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,7 +42,6 @@
 
 class Data_Source_DB extends Data_Source
 {
-	var $dn;
 
 
 	/**
@@ -54,7 +53,6 @@ class Data_Source_DB extends Data_Source
 	function Data_Source_DB($assetid=0)
 	{
 		$this->Data_Source($assetid);
-		//$this->dn = 'record';
 
 	}//end constructor
 
@@ -96,17 +94,17 @@ class Data_Source_DB extends Data_Source
 
 			if ($side_of_link == 'major') {
 				if ($assetid == $this->id) {
-					if (count($this->attr('result')) == 0) {
+					$result = $this->getResultSet();
+					if (empty($result)) {
 						return Array();
 					} else {
-						$result = $this->attr('result');
-						$dn = 0;
+						$identity = 0;
 						$index = 0;
 						foreach ($result as $record) {
 							$links[] = Array(
 										'linkid'			=> 0,
 										'majorid'			=> $this->id,
-										'minorid'			=> $this->id.':'.$dn,
+										'minorid'			=> $this->id.':'.$identity,
 										'minor_type_code'	=> 'data_source_record_set',
 										'value'				=> '',
 										'link_type'			=> SQ_LINK_TYPE_1,
@@ -115,7 +113,7 @@ class Data_Source_DB extends Data_Source
 										'sort_order'		=> $index,
 									   );
 							$index++;
-							$dn++;
+							$identity++;
 						}
 					}
 				} else {
@@ -183,7 +181,7 @@ class Data_Source_DB extends Data_Source
 	{
 		$asset = null;
 		if (is_null($shadowid)) return $asset;
-		$result = $this->attr('result');
+		$result = $this->getResultSet();
 		if (!empty($result)) {
 			$name = $this->attr('shadow_name');
 			foreach ($result as $index => $record) {
@@ -208,17 +206,109 @@ class Data_Source_DB extends Data_Source
 	* @return Array
 	* @access public
 	*/
-	function getResultSetMetaInfo()
+	function getFieldNamesFromRecordSet()
 	{
-		$result_set = $this->attr('result');
-		$record = $result_set[0];
-		$columns = Array();
-		foreach ($record as $key => $value) {
-			$columns[] = $key;
+		$fields = $this->attr('fields');
+		if ($fields != '*') {
+			$fields = explode(', ', $fields);
+			return $fields;
+		} else {
+			$tables = explode(', ', $this->attr('tables'));
+			$fields = Array();
+			$conn =& $this->connectToDB();
+			foreach ($tables as $table) {
+				$query = 'select * from '.$table;
+				$result = $conn->getAll($query);
+				assert_valid_db_result($result);
+				if (!empty($result)) {
+					$record = $result(0);
+					foreach ($record as $key => $value) {
+						$field[] = $key;
+					}
+				}
+			}
 		}
-		return $columns;
 
-	}//end getResultSetMetaInfo()
+	}//end getFieldNamesFromRecordSet()
+
+	/**
+	* Returns an array of the result of query execution
+	*
+	* @return Array
+	* @access public
+	*/
+	function getResultSet()
+	{
+		$result = Array();
+		$sql = $this->attr('sql');
+		$sql = str_replace('<br />', ' ', $sql);
+		if (!empty($sql)) {
+			//if the query is already excuted then we get results from cache otherwise we execute the
+			//query (only if in execute mode or the cache manager returns aan empty string instead of an empty array)
+			$result = parent::getResultSet();
+			$mode = $this->attr('mode');
+			if ((empty($result) && !is_array($result)) || ($mode == 'execute')) {
+				$result = $this->_executeQuery($sql);
+				assert_valid_db_result($result);
+				$this->setResultSet($result);
+			}
+		}
+		return $result;
+
+	}// end getResultSet()
+
+
+	/**
+	* Function that executes the query and assigns the result set to the result attribute
+	*
+	* @param object Data_Source_DB			&$asset	the DB Data source asset
+	*
+	* @return boolean
+	* @access public
+	*
+	*/
+	function _executeQuery($sql)
+	{
+		$result = Array();
+		$dsn = $this->attr('dsn');
+		if (!empty($dsn)) {
+			$conn =& $this->connectToDB();
+			$result = $conn->getAll($sql);
+			if (!is_object($result) || $result->gettype() != 'db_error') {
+				//if the result is a valid result then return it so that it can be cached.
+				return $result;
+			}
+		}
+		return Array();
+
+	}//end _executeQuery()
+
+
+	/**
+	* Function to connect to the db and return the db object
+	*
+	* @param object Search_Page			&$asset	the Data Sourcee asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return Object					Returns the reference of the db object
+	* @access public
+	*
+	*/
+	function connectToDB()
+	{
+		$dsn = $this->attr('dsn');
+		if (!empty($dsn)) {
+			$conn = DB::connect($dsn);
+			if (DB::isError($conn)) {
+				trigger_error($conn->message, E_USER_ERROR);
+				return false;
+			}
+			$conn->setFetchMode(DB_FETCHMODE_ASSOC);
+			return $conn;
+		}
+
+	}// end connectToDB()
 
 
 }//end class
