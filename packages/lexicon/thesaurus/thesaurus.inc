@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.17 2005/10/04 05:54:27 arailean Exp $
+* $Id: thesaurus.inc,v 1.18 2005/10/04 08:35:55 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -113,6 +113,7 @@ class Thesaurus extends Asset
 	function finishImport()
 	{
 		$builtin_relations = $relation_settings = Array();
+		$primary_relation_id = $this->attr('primary_relation_id');
 
 		// ABBREVIATION support
 		$rel = $this->getRelationByName($this->REL_ABBREVIATION);
@@ -128,10 +129,14 @@ class Thesaurus extends Asset
 			$relation_settings[$this->REL_CATEGORY]['top_categories'] = $top_categories;
 
 			$builtin_relations[$this->REL_CATEGORY] = $rel['id'];
+			if (empty($primary_relation_id)) {
+				$primary_relation_id = $rel['id'];
+			}
 		}
 
 		$this->setAttrValue('builtin_relations', $builtin_relations);
 		$this->setAttrValue('relation_settings', $relation_settings);
+		$this->setAttrValue('primary_relation_id', $primary_relation_id);
 		$this->setAttrValue('active', true);
 		$this->saveAttributes();
 

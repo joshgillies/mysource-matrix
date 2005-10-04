@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.8 2005/10/04 05:54:27 arailean Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.9 2005/10/04 08:35:55 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -155,10 +155,6 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access_allowed = $asset->writeAccess();
 
-		if ($write_access_allowed) {
-			;
-		}
-
 		if (is_readable($asset->getXmlFilePath())) {
 			echo hidden_field($prefix.'_process_export', '0');
 			echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_process_export.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_process_export.value = 0; return true;');
@@ -225,6 +221,80 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 		exit;
 
 	}//end outputXmlDirect()
+
+
+	/**
+	* Returns true thesaurus is enabled
+	*
+	* @param object	&$asset	The asset that we are using for this interface
+	* @param string	$prefix	the prefix for this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isThesaurusEnabled(&$asset, $prefix)
+	{
+		return $asset->attr('active');
+
+	}//end isThesaurusEnabled()
+
+
+	/**
+	* Paint interface for showing the example xml file
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintPrimaryRelation(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$relations = $asset->attr('relations');
+		if (empty($relations)) return $write_access;
+
+		$primary_relation = $asset->attr('primary_relation_id');
+
+		$flipped_relations = array_flip($relations);
+		if ($write_access) {
+			combo_box($prefix.'_primary_relation', $flipped_relations, false, $primary_relation);
+		} else {
+			if (!empty($primary_relation)) {
+				echo array_get_index($flipped_relations, $primary_relation);
+			}
+		}
+
+		return $write_access;
+
+	}//end paintPrimaryRelation()
+
+
+	/**
+	* Paint interface for showing the example xml file
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processPrimaryRelation(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$primary_relation = array_get_index($_REQUEST, $prefix.'_primary_relation');
+
+		if ($write_access) {
+			$asset->setAttrValue('primary_relation_id', $primary_relation);
+		}
+
+		return $write_access;
+
+	}//end processPrimaryRelation()
 
 
 }//end class

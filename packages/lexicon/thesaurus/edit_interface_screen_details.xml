@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2005/10/04 05:54:27 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2005/10/04 08:35:55 arailean Exp $
 *
 */
 -->
@@ -45,7 +45,16 @@
 		</field>
 	</section>
 
-	<section name="Export XML" write_access="write:attributes">
+	<section name="Configuration" write_access="write:attributes" show_if="isThesaurusEnabled">
+		<field>
+			<function_call>
+				<paint_function		name="paintPrimaryRelation" />
+				<process_function	name="processPrimaryRelation" />
+			</function_call>
+		</field>
+	</section>
+
+	<section name="Export XML" write_access="write:attributes" show_if="isThesaurusEnabled">
 		<field>
 			<function_call>
 				<paint_function		name="paintExportXMLfile" />

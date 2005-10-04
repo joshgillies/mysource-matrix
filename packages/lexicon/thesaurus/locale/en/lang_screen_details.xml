@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2005/10/04 05:54:27 arailean Exp $
+* $Id: lang_screen_details.xml,v 1.5 2005/10/04 08:35:55 arailean Exp $
 *
 */
 -->
@@ -48,6 +48,16 @@
 			<note />
 			<function_call>
 				<paint_function		name="paintExampleXMLFile" />
+			</function_call>
+		</field>
+	</section>
+
+	<section name="Configuration">
+		<field>
+			<display_name>Primary Relation</display_name>
+			<function_call>
+				<paint_function		name="paintPrimaryRelation" />
+				<process_function	name="processPrimaryRelation" />
 			</function_call>
 		</field>
 	</section>
