@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replace_text.inc,v 1.1 2005/07/07 06:39:23 dmckee Exp $
+* $Id: replace_text.inc,v 1.2 2005/10/04 00:11:00 dmckee Exp $
 *
 */
 
@@ -33,8 +33,8 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *		A WYSIWYG plugin to separate text replace
 *		from other formatting functions
 *
-* @author  Darren McKee <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @author  Darren McKee <dmckee@squiz.net>
+* @version $Revision: 1.2 $
 * @package Fudge
 * @subpackage wysiwyg
 */
