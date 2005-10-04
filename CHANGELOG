@@ -1,5 +1,33 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.4.7
+
+Complete Changelog
+----------------------
+
+Core
+
+* Fixed bug #899: LDAP bridge throws error when there are zero people in a AD group
+* Fixed bug #904: Permissions HIPO and Archived Assets
+* Fixed bug #909: Workflow report has interface imbalance when printing
+* Fixed bug #910: HTML entities in the wysiwyg are not preserved during view source mode
+* Fixed bug #914: Wysiwyg editor converts question marks to delta characters
+* Fixed bug #927: Login_Form design area does not allow both login and logout sections
+* Fixed bug #930: Two security issues with repeatedly incorrect logins
+* Fixed bug #951: Table editor does not maintain width=100%
+
+CMS
+
+* Fixed bug #901: Backslash appearing in drop down lists (Custom Form)
+* Fixed bug #907: Error on selective emails screen.... "Rule valid ?" (Custom Form)
+* Fixed bug #918: Account Manager email validation not working (Asset Builder)
+* Fixed bug #919: Account Manager doesn't print Created Live bodycopy (Asset Builder)
+* Fixed bug #924: Can't create selective email rule for option list question (Custom Form)
+* Fixed bug #933: Rules fire when form question is optional (Custom Form)
+
+
+
+
 VERSION 3.4.6
 
 Complete Changelog
