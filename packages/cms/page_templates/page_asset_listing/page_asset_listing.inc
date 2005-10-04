@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.91 2005/09/07 07:07:15 arailean Exp $
+* $Id: page_asset_listing.inc,v 1.92 2005/10/04 06:19:48 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -204,9 +204,6 @@ class Page_Asset_Listing extends Listing_Engine
 				$this->printAssetList($todo);
 				$global_contents = ob_get_contents();
 			ob_end_clean();
-
-			// if we have any blank keywords, replace them with nothing
-			$global_contents = preg_replace('|%[^%\W]+%|', '', $global_contents);
 
 			// the global replacement to print the asset listing
 			$replacements['asset_listing'] = $global_contents;

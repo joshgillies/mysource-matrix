@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.28 2005/07/21 00:45:12 gsherwood Exp $
+* $Id: bodycopy_container.inc,v 1.29 2005/10/04 06:19:47 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -288,9 +288,20 @@ class Bodycopy_Container extends Asset
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_2 => Array('content_type' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_NOTICE => Array('asset' => Array('card' => 'M', 'exclusive' => false))
-					 );
+		return Array(
+				SQ_LINK_TYPE_2	=> Array(
+									'content_type'	=> Array(
+														'card'		=> 'M',
+														'exclusive' => false,
+													   ),
+								   ),
+				SQ_LINK_NOTICE	=> Array(
+									'asset'			=> Array(
+														'card'		=> 'M',
+														'exclusive' => false,
+													   ),
+								   ),
+			   );
 
 	}//end _getAllowedLinks()
 
