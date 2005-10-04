@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.15 2005/09/26 05:49:42 ndvries Exp $
+* $Id: cache_manager.inc,v 1.16 2005/10/04 05:14:28 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once 'Cache.php';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -151,25 +151,36 @@ class Cache_Manager extends Asset
 	* @return string
 	* @access public
 	*/
-	function loadFromCache($assetid, $asset_type, $key='')
+	function loadFromCache($assetid, $asset_type, $key='', $use_url = true)
 	{
 		if (SQ_ROLLBACK_VIEW) return '';
 		if (basename($_SERVER['PHP_SELF']) == '_nocache') {
 			return '';
 		}
-
-		if (!$this->cacheEnabled($asset_type)) return '';
-
+		if (!$this->cacheEnabled($asset_type)) {
+			return '';
+		}
 		$suffix = $this->_getCacheKey($assetid, $key);
-		if (empty($suffix)) return '';
-		$assetid_code = md5($assetid);
-		$cacheid_code = $this->cache->generateID($assetid.$key.$suffix);
-		$url_code = $this->cache->generateID(current_url());
-		$final_key = $assetid_code.':'.$cacheid_code.':'.$url_code;
+		if (empty($suffix)) {
+			return '';
+		}
 
+
+
+		$assetid_code = md5($assetid);
+
+		$cacheid_code = $this->cache->generateID($assetid.$key.$suffix);
+		$url_code = '';
+		if ($use_url) {
+			$url_code = $this->cache->generateID(current_url());
+		}
+
+		$final_key = $assetid_code.':'.$cacheid_code;
+		if (!empty($url_code)) {
+			$final_key .= ':'.$url_code;
+		}
 		$group = $this->getAssetHash($assetid_code).$this->getAssetHash($cacheid_code);
 		$contents = $this->cache->get($final_key, $group);
-
 		return ($contents) ? $contents : '';
 
 	}//end loadFromCache()
@@ -188,7 +199,7 @@ class Cache_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function saveToCache($assetid, $asset_type, $key, $contents)
+	function saveToCache($assetid, $asset_type, $key, $contents, $use_url = true)
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
 		if (isset($_REQUEST['no_cache']) && $_REQUEST['no_cache']) {
@@ -201,9 +212,14 @@ class Cache_Manager extends Asset
 		if (empty($suffix)) return false;
 		$assetid_code = md5($assetid);
 		$cacheid_code = $this->cache->generateID($assetid.$key.$suffix);
-		$url_code = $this->cache->generateID(current_url());
-		$final_key = $assetid_code.':'.$cacheid_code.':'.$url_code;
-
+		$url_code = '';
+		if ($use_url) {
+			$url_code = $this->cache->generateID(current_url());
+		}
+		$final_key = $assetid_code.':'.$cacheid_code;
+		if (!empty($url_code)) {
+			$final_key .= ':'.$url_code;
+		}
 		$group = $this->getAssetHash($assetid_code).$this->getAssetHash($cacheid_code);
 		$expiry = time() + $this->getExpiry($asset_type);
 
