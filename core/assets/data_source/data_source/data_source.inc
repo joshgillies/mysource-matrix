@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.2 2005/09/29 00:24:29 pgannavarapu Exp $
+* $Id: data_source.inc,v 1.3 2005/10/04 04:51:03 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,16 +71,60 @@ class Data_Source extends Asset
 
 
 	/**
+	* Returns an array of all the permitted link type, the type asset and the cardinality
+	*
+	* @see Asset::_getAllowLinks()
+	* @access private
+	*/
+	function _getAllowedLinks()
+	{
+		return Array();
+
+	}//end _getAllowedLinks()
+
+
+	/**
 	* Returns an array of the column names of the result set
 	* Its upto the kids to override this functioon
 	* @return Array
 	* @access public
 	*/
-	function getResultSetMetaInfo()
+	function getFieldNamesFromRecordSet()
 	{
 		return Array();
 
-	}//end getResultSetMetaInfo()
+	}//end getFieldNamesFromRecordSet()
+
+
+	/**
+	* Returns an array of the result of query execution
+	*
+	* @return Array
+	* @access public
+	*/
+	function getResultSet()
+	{
+		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$result = $cm->loadFromCache($this->id, $this->type(), '', false);
+		$result = unserialize($result);
+		return $result;
+
+	}//getResultSet()
+
+
+	/**
+	* Accepts an array of info and saves it to cache
+	*
+	* @return Void
+	* @access public
+	*/
+	function setResultSet($result)
+	{
+		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$r = $cm->saveToCache($this->id, $this->type(), '', serialize($result), false);
+		assert_valid_cache_result($r);
+
+	}//setResultSet()
 
 
 	/**
