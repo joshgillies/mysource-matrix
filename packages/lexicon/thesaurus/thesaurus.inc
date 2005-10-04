@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.16 2005/06/02 06:21:02 tbarrett Exp $
+* $Id: thesaurus.inc,v 1.17 2005/10/04 05:54:27 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -1255,14 +1255,14 @@ class Thesaurus extends Asset
 	/**
 	* Get the path to the imported xml file
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
-	function getImportPath()
+	function getXmlFilePath()
 	{
-		return $this->data_path.'/import.xml';
+		return $this->data_path.'/content.xml';
 
-	}//end getImportPath()
+	}//end getXmlFilePath()
 
 
 	/**
