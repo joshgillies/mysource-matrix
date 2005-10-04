@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.21 2005/08/01 11:33:29 brobertson Exp $
+* $Id: details.inc,v 1.22 2005/10/04 06:59:34 ndvries Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 
@@ -66,6 +66,10 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 
 		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
 			ob_start();
+		}
+
+		if (!$ei->_getAccess($owner, $section, $prefix)) {
+			continue;
 		}
 
 		$o->openSection(array_get_index($section->attributes, 'display_name', $section->attributes['name']));
