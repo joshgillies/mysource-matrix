@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.23 2005/08/18 04:33:51 dheppell Exp $
+* $Id: page_site_map.inc,v 1.24 2005/10/05 06:44:59 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -202,7 +202,7 @@ class Page_Site_Map extends Page
 		if ($top_level == 0) {
 			$level = -1;
 		}
-		
+
 		if (!$generating) global $SQ_SITE_MAP_ASSET_URLS;
 
 		?>
@@ -211,9 +211,9 @@ class Page_Site_Map extends Page
 		foreach ($chunks as $item) {
 			$url = ($generating) ? '<'.'?php echo $SQ_SITE_MAP_ASSET_URLS[$item[\'assetid\']] ?'.'>' : $SQ_SITE_MAP_ASSET_URLS[$item['assetid']];
 ?>
-			<li><?php 
+			<li><?php
 				if ($this->attr('icons')) {
-					?><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($item['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;<?php 
+					?><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($item['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;<?php
 				}
 			?><a href="<?php echo $url;?>"><?php echo $item['name']; ?></a></li>
 <?php
@@ -241,7 +241,7 @@ class Page_Site_Map extends Page
 	function _paintDefault($chunks=Array(), $page_data, $siteid)
 	{
 		?>
-		
+
 		<table cellpadding="0" cellspacing="0" border="0">
 		<tr>
 		<?php
@@ -298,7 +298,7 @@ class Page_Site_Map extends Page
 					<td <?php echo $bg; ?>>
 					<img src="<?php echo sq_web_path('lib').'/web/images/'.$image2; ?>" width="20" height="20" border="0" alt="Level <?php echo $level; ?> Item" /></td>
 					<td >
-						<?php 
+						<?php
 						if ($this->attr('icons')) {
 ?>
 							<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;
