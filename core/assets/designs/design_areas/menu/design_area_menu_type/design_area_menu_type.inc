@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.56.2.7 2005/10/05 06:14:30 dmckee Exp $
+* $Id: design_area_menu_type.inc,v 1.56.2.8 2005/10/05 06:38:06 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -406,9 +406,6 @@ class Design_Area_Menu_Type extends Design_Area
 							$userids = $GLOBALS[\'SQ_SYSTEM\']->am->getParents($GLOBALS[\'SQ_SYSTEM\']->user->id, \'user_group\', false);
 							array_push($userids, 0, $GLOBALS[\'SQ_SYSTEM\']->user->id);
 							for (reset($userids); null !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
-							//Need to include public user in permissions to check for
-							$public_userid = $GLOBALS[\'SQ_SYSTEM\']->am->getSystemAssetid(\'public_user\');
-							$userids[] = $public_userid;
 							$USERIDS_COND = \'AND p.userid  IN (\'.implode(\',\', $userids).\')\';
 						}
 					} else {
