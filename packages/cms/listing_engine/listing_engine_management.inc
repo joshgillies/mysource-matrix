@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.42 2005/09/09 06:00:30 arailean Exp $
+* $Id: listing_engine_management.inc,v 1.43 2005/10/05 06:48:46 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -298,6 +298,20 @@ class Listing_Engine_Management extends Asset_Management
 											'type'		=> 'text',
 											'default'	=> '[Other]',
 										 );
+
+		$this->vars['form_submit_method'] = Array(
+												'added'      => '0.12',
+												'type'       => 'selection',
+												'default'    => 'get',
+												'parameters' => Array(
+																	'multiple'    => false,
+																	'allow_empty' => false,
+																	'options'     => Array(
+																						'get'  => 'GET',
+																						'post' => 'POST',
+																				     ),
+															   ),
+											);
 
 	}//end constructor
 

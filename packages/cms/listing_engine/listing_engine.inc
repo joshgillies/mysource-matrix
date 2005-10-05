@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.101 2005/09/29 06:29:09 pgannavarapu Exp $
+* $Id: listing_engine.inc,v 1.102 2005/10/05 06:48:46 lwright Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -317,8 +317,15 @@ class Listing_Engine extends Page
 				}
 			}
 
+			// if we are posting, we really shouldn't be having anything in the GET
+			if ($this->_getFormSubmitMethod() == 'post') {
+				$form_url = htmlspecialchars($this->getURL());
+			} else {
+				$form_url = htmlspecialchars(replace_query_string_vars($keys_to_remove, $this->getURL()));
+			}
+
 			?>
-			<form name="listing_form" method="get" action="<?php echo htmlspecialchars(replace_query_string_vars($keys_to_remove, $this->getURL())); ?>">
+			<form name="listing_form" method="<?php echo $this->_getFormSubmitMethod() ?>" action="<?php echo $form_url; ?>">
 			<?php echo $contents; ?>
 			</form>
 			<?php
@@ -1723,10 +1730,9 @@ class Listing_Engine extends Page
 
 							if ($buffering) {
 								check_box($selection_id, '1', ($selection_value > 0 ? true : false), "sq_listing_check_state(this, '".$selection_name."')");
-
 								// the flag is used to determine whether a checkbox is
 								// present and not ticked, or not present at all
-								hidden_field($selection_name.'_flag', '1');
+								//hidden_field($selection_name.'_flag', '1');
 							}
 						} else {
 							$selection_id = str_replace(' ', '_', $selection_name);
@@ -3002,6 +3008,19 @@ class Listing_Engine extends Page
 		return $code;
 
 	}//end _buildRelationsJS()
+
+
+	/**
+	* Get the current form submit method
+	*
+	* @return string
+	* @access protected
+	*/
+	function _getFormSubmitMethod()
+	{
+		return $this->attr('form_submit_method');
+
+	}//end _getFormSubmitMethod()
 
 
 }//end class
