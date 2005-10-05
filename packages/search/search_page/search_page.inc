@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.140 2005/09/28 07:33:41 tbarrett Exp $
+* $Id: search_page.inc,v 1.141 2005/10/05 06:41:18 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.140 $
+* @version $Revision: 1.141 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1479,7 +1479,7 @@ class Search_Page extends Listing_Engine
 
 					} else if (ereg('(.+)_query_terms$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
-						$replacement = $this->getSearchedFieldReplacement($matches[1]);
+						$replacement = htmlspecialchars($this->getSearchedFieldReplacement($matches[1]));
 
 					} else if (ereg('(.+)_query_suggestions$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
@@ -1487,7 +1487,7 @@ class Search_Page extends Listing_Engine
 						$field_name = $matches[1];
 						if (isset($this->_tmp['search_suggestions'][$field_name])) {
 							$queries_temp = str_replace('queries_'.$field_name.'_query='.urlencode($this->getSearchedFieldReplacement($field_name)), 'queries_'.$field_name.'_query='.urlencode($this->_tmp['search_suggestions'][$field_name]), $queries);
-							$replacement = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries_temp.'">'.$this->_tmp['search_suggestions'][$field_name].'</a>';
+							$replacement = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries_temp.'">'.htmlspecialchars($this->_tmp['search_suggestions'][$field_name]).'</a>';
 						} else {
 							$replacement = '';
 						}
@@ -1501,7 +1501,7 @@ class Search_Page extends Listing_Engine
 							foreach ($synonyms as $synonym) {
 								$synonym = $synonym['name'];
 								$queries_temp = str_replace('queries_'.$field_name.'_query='.urlencode($this->getSearchedFieldReplacement($field_name)), 'queries_'.$field_name.'_query='.urlencode($synonym), $queries);
-								$suggestion_string[] = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries_temp.'">'.$synonym.'</a>';
+								$suggestion_string[] = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries_temp.'">'.htmlspecialchars($synonym).'</a>';
 							}
 						}
 
@@ -1509,7 +1509,7 @@ class Search_Page extends Listing_Engine
 
 					} else if (ereg('(.+)_query$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
-						$replacement = $this->getFieldReplacement($matches[1]);
+						$replacement = htmlspecialchars($this->getFieldReplacement($matches[1]));
 
 					} else if (substr($keyword, -7) == '_linked') {
 
