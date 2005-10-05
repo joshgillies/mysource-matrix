@@ -14,7 +14,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.7 2005/09/08 04:30:57 skim Exp $
+* $Id: asset.xml,v 1.8 2005/10/05 06:50:56 lwright Exp $
 *
 */
 -->
@@ -22,7 +22,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>ecommerce</package>
 	<type_code>ecommerce_cart</type_code>
-	<version>0.4</version>
+	<version>0.5</version>
 	<name>Cart</name>
 	<description>Cart object for E-Commerce package</description>
 	<instantiable>yes</instantiable>
@@ -31,11 +31,11 @@
 	<requirements>
 		<requirement type="system">
 			<code>System</code>
-			<version>3.5.0 b1</version>
+			<version>3.7.0</version>
 		</requirement>
 		<requirement type="asset">
 			<code>listing_engine</code>
-			<version>0.3</version>
+			<version>0.12</version>
 		</requirement>
 	</requirements>
 	<flash_menu_path>E-Commerce</flash_menu_path>
