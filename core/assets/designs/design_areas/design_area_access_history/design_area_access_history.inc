@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history.inc,v 1.2 2005/06/29 07:02:17 pgannavarapu Exp $
+* $Id: design_area_access_history.inc,v 1.3 2005/10/05 06:13:29 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,10 +58,10 @@ class Design_Area_Access_History extends Design_Area
 			case 'asset_short_name' :
 			case 'asset_name' :
 			case 'access_time' :
-				echo '<?php echo array_get_index($asset_info,"'.$var.'"); ?>';
+				echo '<?php echo htmlspecialchars(array_get_index($asset_info,"'.$var.'")); ?>';
 			break;
 			case 'query_var' :
-				echo '<?php 
+				echo '<?php
 						$url = array_get_index($asset_info,\'asset_link\');
 						$position = strpos($url,"?");
 						if ($position !== false) {
@@ -70,7 +70,7 @@ class Design_Area_Access_History extends Design_Area
 							preg_match_all(\'(([^=^&]+)=([^&]+))is\', $query_string, $matches);
 							foreach ($matches[1] as $key => $value) {
 								if ($value == \''.$args['name'].'\') {
-									echo urldecode($matches[2][$key]);
+									echo htmlspecialchars(urldecode($matches[2][$key]));
 									break;
 								}
 							}
