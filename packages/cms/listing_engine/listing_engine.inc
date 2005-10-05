@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.25 2005/09/30 05:24:11 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.38.2.26 2005/10/05 23:56:03 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.25 $
+* @version $Revision: 1.38.2.26 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -632,20 +632,22 @@ class Listing_Engine extends Page
 		}
 
 		// get a list of assets that are not live
-		$sql = 'SELECT assetid from sq_ast
-				WHERE assetid IN ('.implode(',', $assetids).')
-				  AND status < '.$db->quote(SQ_STATUS_LIVE);
-		$non_live_assets = $db->getCol($sql);
-		assert_valid_db_result($non_live_assets);
+		if (!empty($assetids)) {
+			$sql = 'SELECT assetid from sq_ast
+					WHERE assetid IN ('.implode(',', $assetids).')
+					  AND status < '.$db->quote(SQ_STATUS_LIVE);
+			$non_live_assets = $db->getCol($sql);
+			assert_valid_db_result($non_live_assets);
 
-		foreach ($non_live_assets as $assetid) {
-			//we get the type code from a different place for letters
-			$type_code = ($this->attr('group_by') == 'letter') ? $todo[$assetid]['type_code'] : $todo[$assetid];
+			foreach ($non_live_assets as $assetid) {
+				//we get the type code from a different place for letters
+				$type_code = ($this->attr('group_by') == 'letter') ? $todo[$assetid]['type_code'] : $todo[$assetid];
 
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
-			if (!$asset->writeAccess()) unset($todo[$assetid]);
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-			unset($asset);
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				if (!$asset->writeAccess()) unset($todo[$assetid]);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				unset($asset);
+			}
 		}
 
 		return;
