@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.62 2005/09/08 23:40:20 dmckee Exp $
+* $Id: form_email_edit_fns.inc,v 1.63 2005/10/05 06:49:24 lwright Exp $
 *
 */
 
@@ -19,6 +19,7 @@
 require_once dirname(__FILE__).'/../form/form_edit_fns.inc';
 require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 /**
 * Form_Email_Edit_Fns
@@ -27,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -84,16 +85,14 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from_value = isset($_POST[$prefix.'_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_fromvalue']['m'],$_POST[$prefix.'_fromvalue']['d'],$_POST[$prefix.'_fromvalue']['y'])) : date('Y-m-d',time()-7*86400).' --:--:--';
 		$to_value = isset($_POST[$prefix.'_tovalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_tovalue']['m'],$_POST[$prefix.'_tovalue']['d'],$_POST[$prefix.'_tovalue']['y'])) : date('Y-m-d').' --:--:--';
 
-		$from = new Datetime_Field($prefix.'_from', $from_value, $parameters);
-		$to = new Datetime_Field($prefix.'_to', $to_value, $parameters);
+		$from =& new Datetime_Field($prefix.'_from', $from_value, $parameters);
+		$to =& new Datetime_Field($prefix.'_to', $to_value, $parameters);
 
 		// grab the number of assets per page, defaulting to 50 at a time
 		$num_per_page = array_get_index($_REQUEST, $prefix.'_per_page', 50);
 		$submission_offset = array_get_index($_REQUEST, $prefix.'_submission_offset', 0);
 
-		if ($num_per_page < 1) {
-			$num_per_page = 50;
-		}
+		if ($num_per_page < 1) $num_per_page = 50;
 
 		// grab the fields for printing as a substitution
 		ob_start();
@@ -145,8 +144,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).')
 					AND i.inhd_type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote('form_submission').'
-					AND a.created BETWEEN '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart($from_value).'
-					AND '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart($to_value);
+					AND a.created BETWEEN '.db_extras_todate($GLOBALS['SQ_SYSTEM']->db, $from_value).'
+					AND '.db_extras_todate($GLOBALS['SQ_SYSTEM']->db, $to_value);
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'i');
@@ -154,6 +153,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		// grab the number of assets
 		$asset_count = $GLOBALS['SQ_SYSTEM']->db->getOne($count_sql.$where);
+		assert_valid_db_result($asset_count);
+
 		$num_pages = ceil($asset_count / $num_per_page);
 
 
@@ -161,9 +162,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			$submission_offset = $submission_offset - ($submission_offset % $num_per_page);
 		}
 
-		if ($submission_offset < 0) {
-			$submission_offset = 0;
-		}
+		if ($submission_offset < 0) $submission_offset = 0;
 
 		if ($submission_offset >= $asset_count) {
 			$submission_offset = ($num_pages - 1) * $num_per_page;
@@ -323,7 +322,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				$sub_expanded = array_search($assetid, $expand_list) !== false;
 				$num_subs++;
 				if ($num_subs <= $submission_offset) continue;
-				if ($num_subs > $submission_offset + $num_per_page) break;
+				if ($num_subs > $submission_offset + $num_per_page) {
+					break;
+				}
 				?>
 				<tr<?php
 					echo ($sub_expanded) ? ' class="alt"' : '';
@@ -340,7 +341,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						if (!empty($sub_user)) {
 							$sub_user_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
 							if (!empty($sub_user_asset)) {
-								echo $sub_user_asset->name . ' (Id: #'.$sub_user.')';
+								echo $sub_user_asset->name.' (Id: #'.$sub_user.')';
 								$valid_user = true;
 							}
 						}
@@ -428,7 +429,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			return false;
 		}
 
-		foreach($delete_list as $delete_assetid) {
+		foreach ($delete_list as $delete_assetid) {
 			// is the assetid a valid one?
 			if (!assert_valid_assetid($delete_assetid, '', false, false)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -504,8 +505,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from_value = isset($_POST[$prefix.'_export_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_fromvalue']['m'],$_POST[$prefix.'_export_fromvalue']['d'],$_POST[$prefix.'_export_fromvalue']['y'])) : date('Y-m-d', time()-7*86400).' --:--:--';
 		$to_value = isset($_POST[$prefix.'_export_tovalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_tovalue']['m'],$_POST[$prefix.'_export_tovalue']['d'],$_POST[$prefix.'_export_tovalue']['y'])) : date('Y-m-d').' --:--:--';
 
-		$from = new Datetime_Field($prefix.'_export_from', $from_value, $parameters);
-		$to = new Datetime_Field($prefix.'_export_to', $to_value, $parameters);
+		$from =& new Datetime_Field($prefix.'_export_from', $from_value, $parameters);
+		$to =& new Datetime_Field($prefix.'_export_to', $to_value, $parameters);
 
 		$from->printField();
 		echo ' to ';
@@ -604,7 +605,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	function processExportCSV(&$asset, &$o, $prefix, $header_row=true, $delimiter=',')
 	{
 		require_once SQ_FUDGE_PATH.'/csv/csv.inc';
-		$csv = new CSV();
+		$csv =& new CSV();
 		$csv->setFilename('submission_log.csv');
 		$csv->setDeliminator($delimiter);
 
@@ -662,9 +663,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			}
 		}
 
-		if ($header_row) {
-			$csv->setFieldHeaders($headers);
-		}
+		if ($header_row) $csv->setFieldHeaders($headers);
+
 		$csv->setValues($logs);
 		$csv->export();
 		exit(0);
@@ -844,8 +844,12 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		// add check that this is in the same form
 
 		// if we already have this as the not found asset, don't set it again
-		if ($assetid == $asset->attr('receipt_field')) return false;
-		if (!$asset->setAttrValue('receipt_field', $assetid)) return false;
+		if ($assetid == $asset->attr('receipt_field')) {
+			return false;
+		}
+		if (!$asset->setAttrValue('receipt_field', $assetid)) {
+			return false;
+		}
 
 		return true;
 
@@ -888,14 +892,20 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	*/
 	function processSTAFField(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_staf_field'])) return false;
+		if (!isset($_POST[$prefix.'_staf_field'])) {
+			return false;
+		}
 		$assetid = $_POST[$prefix.'_staf_field']['assetid'];
 
 		// todo: add check that this is in the same form
 
 		// if we already have this as the not found asset, don't set it again
-		if ($assetid == $asset->attr('staf_field')) return false;
-		if (!$asset->setAttrValue('staf_field', $assetid)) return false;
+		if ($assetid == $asset->attr('staf_field')) {
+			return false;
+		}
+		if (!$asset->setAttrValue('staf_field', $assetid)) {
+			return false;
+		}
 
 		return true;
 
@@ -938,7 +948,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	*/
 	function processAddSelectiveEmailRule(&$asset, &$o, $prefix)
 	{
-		if (!isset($_REQUEST[$prefix.'_new_se_rule'])) return false;
+		if (!isset($_REQUEST[$prefix.'_new_se_rule'])) {
+			return false;
+		}
 		$all_se = $asset->attr('selective_emails');
 
 		// pull out a new index for this question
@@ -964,7 +976,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$_POST[$prefix.'_send']		 = 'recipient';
 		$_POST[$prefix.'_address']	 = '';
 
-		if (!$asset->setAttrValue('selective_emails', $all_se)) return false;
+		if (!$asset->setAttrValue('selective_emails', $all_se)) {
+			return false;
+		}
 		return $asset->saveAttributes();
 
 	}//end processAddSelectiveEmailRule()
