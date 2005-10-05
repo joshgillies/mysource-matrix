@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata_edit_fns.inc,v 1.9 2005/08/30 00:53:24 dheppell Exp $
+* $Id: report_incomplete_metadata_edit_fns.inc,v 1.10 2005/10/05 07:03:53 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,6 +67,9 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$owner = &$GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['assetid'], 'report_incomplete_metadata');
+		error_log(var_export($job->_running_vars,true));
+
+		$asset_types = $owner->getAllowedAssetTypeMap();
 
 		if (!isset($job->_running_vars['results'])) {
 			$job->_running_vars['todo'] = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->getRootAssetid($owner));
@@ -101,29 +104,37 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset)) {
-				$step_data['message'] = translate('core_checking_for_metadata', $asset->name);
+				// If asset type list is empty, then none were set and therefore we do all asset
+				// types. If set, then it needs to be a key in the $asset_types
+				error_log('asset types empty = '.var_export(empty($asset_types),true));
+				error_log('asset type '.$asset->type().' found = '.var_export(isset($asset_types[$asset->type()]),true));
+				if (empty($asset_types) || isset($asset_types[$asset->type()])) {
+					$step_data['message'] = translate('core_checking_for_metadata', $asset->name);
 
-				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-				$field_values = $mm->getMetadataFieldValues($asset->id);
+					$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+					$field_values = $mm->getMetadataFieldValues($asset->id);
 
-				$empty_fields = false;
-				$content = "\t".'<asset assetid="'.$asset->id.'" name="'.htmlSpecialChars($asset->name).'" short_name="'.htmlSpecialChars($asset->short_name).'" type_code="'.$asset->type().'" status="'.$asset->status.'">'."\n";
-				foreach ($field_values as $field_name => $value) {
-					$value = trim($value);
-					if (empty($value)) {
-						$content .= "\t\t".'<field>'.$field_name.'</field>'."\n";
-						$empty_fields = true;
+					$empty_fields = false;
+					$content = "\t".'<asset assetid="'.$asset->id.'" name="'.htmlSpecialChars($asset->name).'" short_name="'.htmlSpecialChars($asset->short_name).'" type_code="'.$asset->type().'" status="'.$asset->status.'">'."\n";
+					foreach ($field_values as $field_name => $value) {
+						$value = trim($value);
+						if (empty($value)) {
+							$content .= "\t\t".'<field>'.$field_name.'</field>'."\n";
+							$empty_fields = true;
+						}
 					}
+					$content .= "\t".'</asset>'."\n";
+
+					// write out the XML if there were empty fields
+					if ($empty_fields) fwrite($temp_file, $content);
+
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+					unset($asset);
+				} else {
+					$step_data['message'] = translate('hipo_skipping_asset', $assetid);
 				}
-				$content .= "\t".'</asset>'."\n";
-
-				// write out the XML if there were empty fields
-				if ($empty_fields) fwrite($temp_file, $content);
-
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-				unset($asset);
 			} else {
-				$step_data['message'] = translate('skipping_asset', $assetid);
+				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
 				$job->_addError(translate('core_cannot_generate_incomplete_metadata_report', $assetid));
 			}
 
@@ -150,7 +161,6 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 			$step_data['percent_done'] = (count($job->_running_vars['done']) / $total) * 100;
 			$step_data['complete']     = false;
 		}
-
 		fclose($temp_file);
 		return true;
 
@@ -169,6 +179,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 	*/
 	function paintReport(&$asset, &$o, $prefix)
 	{
+		error_log('Start  '.memory_get_usage());
 		require_once 'XML/Tree.php';
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
@@ -180,6 +191,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 
 		$input = new XML_Tree($report_path);
 		$root  = &$input->getTreeFromFile();
+		error_log('Load '.memory_get_usage());
 		if (PEAR::isError($root)) {
 			trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
 			return;
@@ -218,7 +230,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 					}
 					if (is_null($asset)) {
 						$asset_type = '';
-						$asset_string = 'Unkown asset #'.$assetid;
+						$asset_string = 'Unknown asset #'.$assetid;
 						$asset_bg = 'FFFFFF';
 						$asset_status = '';
 					} else {
@@ -270,6 +282,173 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 				?></table><?php
 
 	}//end paintReport()
+
+
+/**
+	* Paint the current asset types that have been added
+	*
+	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCurrentAssetTypes(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('content');
+
+		$types = $asset->attr('types');
+		if (empty($types)) {
+			echo translate('core_no_types_defined');
+			return false;
+		}
+
+		?>
+		<table class="sq-backend-table">
+		<tr>
+			<td class="sq-backend-table-header"><?php echo translate('asset_type'); ?></td>
+			<td class="sq-backend-table-header"><?php echo translate('inherit_types'); ?></td>
+			<?php
+			if ($write_access) {
+				?>
+				<td class="sq-backend-table-header"><?php echo translate('remove_question'); ?></td>
+				<?php
+			}
+			?>
+		</tr>
+			<?php
+			foreach ($types as $type => $inherit) {
+				?>
+				<tr>
+					<td class="sq-backend-table-cell">
+						<?php
+						echo ucwords(str_replace('_',' ', $type));
+						?>
+					</td>
+					<td class="sq-backend-table-cell">
+						<?php
+						if ($write_access) {
+							check_box($prefix."_inherit_types[$type]", $type, $inherit);
+						} else {
+							echo ($inherit) ? translate('yes') : translate('no');
+						}
+						?>
+					</td>
+					<?php
+					if ($write_access) {
+						?>
+						<td class="sq-backend-table-cell">
+							<?php
+							check_box($prefix."_remove[$type]", $type, false);
+							?>
+						</td>
+						<?php
+					}
+					?>
+				</tr>
+				<?php
+			}
+		?>
+		</table>
+		<?php
+
+	}//end paintCurrentAssetTypes()
+
+
+	/**
+	* Process the current asset types that have been added
+	*
+	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCurrentAssetTypes(&$asset, &$o, $prefix)
+	{
+		$types = $asset->attr('types');
+
+		// we are looking to see if any types have been removed
+		if (isset($_POST[$prefix.'_remove'])) {
+
+			foreach ($_POST[$prefix.'_remove'] as $type) {
+				if (isset($types[$type])) {
+					unset($types[$type]);
+				}
+			}
+		}
+
+		$inherit_types = array_get_index($_POST, $prefix.'_inherit_types', Array());
+		foreach ($types as $key => $val) {
+			$types[$key] = isset($inherit_types[$key]) ? true : false;
+		}
+
+		$asset->setAttrValue('types', $types);
+
+		return true;
+
+	}//end processCurrentAssetTypes()
+
+
+	/**
+	* Paint section to add an asset type
+	*
+	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAddAssetType(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('content')) return false;
+
+		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
+		$types = array_diff($types, $asset->attr('types'));
+		asort($types);
+
+		$uc_types = Array('' => '');
+		foreach ($types as $type) {
+			$uc_types[$type] = ucwords(str_replace('_',' ', $type));
+		}
+		combo_box($prefix.'_new_type', $uc_types, false, '');
+
+	}//end paintAddAssetType()
+
+
+	/**
+	* Process the section to add a new format for an asset
+	*
+	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAddAssetType(&$asset, &$o, $prefix)
+	{
+		if (isset($_POST[$prefix.'_new_type'])) {
+			$type = trim($_POST[$prefix.'_new_type']);
+
+			if (empty($type)) {
+				return false;
+			}
+
+			$types = $asset->attr('types');
+
+			if (!isset($types[$type])) {
+				$types[$type] = true;
+				$asset->setAttrValue('types', $types);
+				return true;
+			}
+		}
+		return false;
+
+	}//end processAddAssetType()
 
 
 }//end class

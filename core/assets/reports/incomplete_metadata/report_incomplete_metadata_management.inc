@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata_management.inc,v 1.3 2005/01/20 13:07:36 brobertson Exp $
+* $Id: report_incomplete_metadata_management.inc,v 1.4 2005/10/05 07:03:53 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,6 +46,12 @@ class Report_Incomplete_Metadata_Management extends Asset_Management
 	function Report_Incomplete_Metadata_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
+
+		$this->vars['types']	= Array(
+									'added'   => '0.2',
+									'type'    => 'serialise',
+									'default' => Array(),
+								  );
 
 	}//end constructor
 

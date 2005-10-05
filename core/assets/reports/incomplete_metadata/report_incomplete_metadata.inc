@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata.inc,v 1.5 2005/02/16 22:48:30 dbaranovskiy Exp $
+* $Id: report_incomplete_metadata.inc,v 1.6 2005/10/05 07:03:53 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,6 +49,7 @@ class Report_Incomplete_Metadata extends Report
 	*/
 	function Report_Incomplete_Metadata($assetid=0)
 	{
+		$this->_ser_attrs = true;
 		$this->Report($assetid);
 
 	}//end constructor
@@ -254,6 +255,52 @@ class Report_Incomplete_Metadata extends Report
 	function getLineageFromURL($assetid, $protocol, $url)
 	{
 	}//end getLineageFromURL()
+
+
+/**
+	* Get the mapping from assets type to the parent type that is handling presentation
+	*
+	* Returns the map in array format, with allowed asset type as an index
+	* with the parent asset being one of the elements of $this->attr('types');
+	* Because presentation (type format) is defined only for each of $this->attr('types'),
+	* this helps determine the handler of the presentation for a particular type
+	* Also, if a particular asset type is defined as the index, that type is allowed to be displayed
+	* Handler Asset Type can be the same as Asset Type. Resulting array is in following format:
+	* Array['Asset Type'] = 'Handler Asset Type'
+	* where Handler Asset Types are unique
+	*
+	* @return array
+	* @access public
+	*/
+	function getAllowedAssetTypeMap()
+	{
+		if (isset($this->_tmp['allowed_asset_map'])) {
+			return $this->_tmp['allowed_asset_map'];
+		}
+
+		$wanted_types = $this->attr('types');
+		if (empty($wanted_types)) return Array();
+
+		$allowed_asset_map = Array();
+		foreach ($wanted_types as $allowed_parent_type => $inherit) {
+			if (trim($allowed_parent_type) == '') {
+				continue;
+			} else if (!$inherit) {
+				$allowed_asset_map[$allowed_parent_type] = $allowed_parent_type;
+			} else {
+				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($allowed_parent_type, true);
+				foreach ($descendants as $allowed_type) {
+					if (!isset($allowed_asset_map[$allowed_type])){
+						$allowed_asset_map[$allowed_type] = $allowed_parent_type;
+					}
+				}
+			}
+		}
+
+		$this->_tmp['allowed_asset_map'] = $allowed_asset_map;
+		return $allowed_asset_map;
+
+	}//end getAllowedAssetTypeMap()
 
 
 }//end class
