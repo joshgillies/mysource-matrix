@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.2 2005/01/17 18:35:31 brobertson Exp $
+* $Id: edit_interface_screens.xml,v 1.3 2005/10/05 04:45:19 lwright Exp $
 *
 */
 -->
@@ -26,5 +26,4 @@
 <screens>
 	<screen code_name="report" display_name="Report" icon="web" lock_type="none"/>
 	<screen code_name="paths" display_name="Web Paths" icon="web" lock_type="lookups"/>
-	<screen code_name="weights" display_name="Relevance Weights" icon="web" lock_type="weights"/>
 </screens>

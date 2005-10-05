@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.7 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: edit_interface_screens.xml,v 1.8 2005/10/05 04:45:27 lwright Exp $
 *
 */
 -->
@@ -21,5 +21,4 @@
 	<screen code_name="required" display_name="Required Attributes" icon="edit" lock_type="attributes" force_unlock="0" />
 	<screen code_name="messages" display_name="Messages" icon="edit" lock_type="attributes" />
 	<screen code_name="paths" display_name="Web Paths" icon="web" lock_type="lookups"/>
-	<screen code_name="weights" display_name="Relevance Weights" icon="web" lock_type="weights"/>
 </screens>
