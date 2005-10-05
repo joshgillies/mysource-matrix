@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.83.2.7 2005/09/30 00:30:07 rhoward Exp $
+* $Id: metadata_manager.inc,v 1.83.2.8 2005/10/05 02:13:29 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.83.2.7 $
+* @version $Revision: 1.83.2.8 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -997,7 +997,7 @@ class Metadata_Manager extends MySource_Object
 				break;
 
 				case 'asset_published_by_name' :
-					echo 'if (is_null($metadata_asset->published_userid)) {'."\n";
+					echo 'if (empty($metadata_asset->published_userid)) {'."\n";
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'Never Published\';'."\n";
 					echo '} else { if (!isset($metadata_published_by_user)) {
 					$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n";
@@ -1011,7 +1011,7 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_published_by_first_name' :
 				case 'asset_published_by_last_name'  :
 				case 'asset_published_by_email'      :
-					echo 'if (is_null($metadata_asset->published_userid)) {'."\n";
+					echo 'if (empty($metadata_asset->published_userid)) {'."\n";
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
 					echo '} else { if (!isset($metadata_published_by_user)) {
 					$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n";
