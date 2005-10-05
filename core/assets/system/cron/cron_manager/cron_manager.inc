@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.56 2005/09/07 06:16:44 dmckee Exp $
+* $Id: cron_manager.inc,v 1.57 2005/10/05 23:06:27 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -397,7 +397,6 @@ class Cron_Manager extends Asset
 
 		// if we are currently running then we should just leave this alone
 		if ($this->attr('running')) {
-
 			// if we have been stopped too many times without the while loop below
 			// looping over
 			if ((int) $this->attr('run_check') >= (int) $this->attr('warn_after_num_run_checks')) {
@@ -620,6 +619,27 @@ class Cron_Manager extends Asset
 
 
 	/**
+	* Converts a CLOB expression to a varchar for comarisons with other varchar fields
+	*
+	* @param string	$expression	the expression to convert to a varchar
+	*
+	* @return string	the sql to convert to a varchar
+	*					or the expression if no conversion is needed
+	* @access private
+	*/
+	function _clob2Str($expression)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		if ($db->phptype == 'oci8') {
+			return 'DBMS_LOB.SUBSTR('.$expression.', DBMS_LOB.GETLENGTH('.$expression.'), 1)';
+		} else {
+			return $expression;
+		}
+
+	}//end _clob2str()
+
+
+	/**
 	* Get the jobs that need to be run for the passed time period
 	*
 	* @param int		$start_ts		the starting timestamp of the time period
@@ -688,8 +708,14 @@ class Cron_Manager extends Asset
 
 		$build_up = Array();
 
-		$build_up['hour']['bridge'] = '(COALESCE(av.custom_val, at.default_val)) BETWEEN '.$db->quote('%A%'.$start_f['minutes']).' AND '.$db->quote('%B%59').' OR (COALESCE(av.custom_val, at.default_val)) BETWEEN '.$db->quote('%C%00').' AND '.$db->quote('%D%'.$end_f['minutes']);
-		$build_up['hour']['all'] = '(COALESCE(av.custom_val, at.default_val)) BETWEEN '.$db->quote('%A%'.$start_f['minutes']).' AND '.$db->quote('%B%'.$end_f['minutes']);
+		$build_up['hour']['bridge'] = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').')
+										BETWEEN '.$db->quote('%A%'.$start_f['minutes']).'
+										AND '.$db->quote('%B%59').'
+										OR ('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').')
+										BETWEEN '.$db->quote('%C%00').' AND '.$db->quote('%D%'.$end_f['minutes']);
+
+		$build_up['hour']['all'] = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') BETWEEN '.$db->quote('%A%'.$start_f['minutes']).'
+									AND '.$db->quote('%B%'.$end_f['minutes']);
 
 		$build_up['day']['bridge'] = str_replace(Array('%A%', '%B%', '%C%', '%D%'), Array('%A%'.$start_f['hours'].':', '%B%23:', '%C%00:', '%D%'.$end_f['hours'].':'), $build_up['hour']['bridge']);
 		$build_up['day']['all'] = str_replace(Array('%A%', '%B%'), Array('%A%'.$start_f['hours'].':', '%B%'.$end_f['hours'].':'), $build_up['hour']['all']);
@@ -725,7 +751,7 @@ class Cron_Manager extends Asset
 		$type = 'all';
 
 		if ($over_one_hour_ago) {
-			$hourly = '(COALESCE(av.custom_val, at.default_val)) LIKE '.$db->quote('HR=%');
+			$hourly = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') LIKE '.$db->quote('HR=%');
 		} else {
 			// if it has ticked over the hour since the last call
 			$type = ($end['minutes'] < $start['minutes']) ? 'bridge' : 'all';
@@ -734,7 +760,7 @@ class Cron_Manager extends Asset
 
 
 		if ($over_one_day_ago) {
-			$daily = '(COALESCE(av.custom_val, at.default_val)) LIKE '.$db->quote('DL=%');
+			$daily = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') LIKE '.$db->quote('DL=%');
 		} else {
 			// if it has ticked over the day since the last call
 			$type = ($end['hours'] < $start['hours']) ? 'bridge' : 'all';
@@ -743,7 +769,7 @@ class Cron_Manager extends Asset
 
 
 		if ($over_one_week_ago) {
-			$weekly = '(COALESCE(av.custom_val, at.default_val)) LIKE '.$db->quote('WK=%');
+			$weekly = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') LIKE '.$db->quote('WK=%');
 		} else {
 			// if it has ticked over the week since the last call
 			$type = ($end['wday'] < $start['wday']) ? 'bridge' : 'all';
@@ -752,7 +778,7 @@ class Cron_Manager extends Asset
 
 
 		if ($over_one_month_ago) {
-			$monthly = '(COALESCE(av.custom_val, at.default_val)) LIKE '.$db->quote('MT=%');
+			$monthly = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') LIKE '.$db->quote('MT=%');
 		} else {
 			// if it has ticked over the month since the last call
 			$type = ($end['mday'] < $start['mday']) ? 'bridge' : 'all';
@@ -761,7 +787,7 @@ class Cron_Manager extends Asset
 
 
 		if ($over_one_year_ago) {
-			$yearly = '(COALESCE(av.custom_val, at.default_val)) LIKE '.$db->quote('YR=%');
+			$yearly = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') LIKE '.$db->quote('YR=%');
 		} else {
 			// if it has ticked over the year since the last call
 			$type = ($end['mon'] < $start['mon']) ? 'bridge' : 'all';
@@ -770,7 +796,7 @@ class Cron_Manager extends Asset
 
 		$one_off = preg_replace('/%[ABCD]%/', 'OO=', $build_up['one_off']['all']);
 
-		$every_time = '(COALESCE(av.custom_val, at.default_val)) = '.$db->quote('ET=');
+		$every_time = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') = '.$db->quote('ET=');
 
 		$sql   = 'SELECT l.linkid, a.assetid, a.type_code
 				  FROM ('.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
