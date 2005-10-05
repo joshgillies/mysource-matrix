@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.41 2005/09/08 04:28:33 skim Exp $
+* $Id: ecommerce_checkout.inc,v 1.42 2005/10/05 06:52:05 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -248,6 +248,13 @@ class Ecommerce_Checkout extends Page
 		switch ($action) {
 			case 'go_to_confirmation':
 				$delivery_method_id = array_get_index($_REQUEST, 'sq_delivery_method_id');
+
+				// if we're already at confirmation, why are we going again?
+				if ($_SESSION['sq_local_cart_contents']['delivery_state']['last_context'] == 'confirmation') {
+					$this->print_context = 'confirmation';
+					break;
+				}
+
 				if (!empty($delivery_method_id) && !empty($_SESSION['sq_local_cart_contents']['cart_contents'])) {
 
 					$delivery_method =& $GLOBALS['SQ_SYSTEM']->am->getAsset($delivery_method_id);
@@ -356,6 +363,12 @@ class Ecommerce_Checkout extends Page
 				}
 			break;
 
+		}
+
+		// set the last context we saw to this one
+		$_SESSION['sq_local_cart_contents']['delivery_state']['last_context'] = $this->print_context;
+		if (isset($delivery_method)) {
+			$delivery_method->setState($_SESSION['sq_local_cart_contents']['delivery_state']);
 		}
 
 		return;
@@ -1117,7 +1130,7 @@ class Ecommerce_Checkout extends Page
 			if (!empty($this->_tmp['delivery_method_errors'])) {
 				echo '<ul>';
 				foreach ($this->_tmp['delivery_method_errors'] as $message) {
-					echo '<li>'.htmlspecialchars($message).'</li>';
+					echo '<li>'.$message.'</li>';
 				}
 				echo '</ul>';
 			}
