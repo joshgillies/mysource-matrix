@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.19 2005/09/08 04:28:34 skim Exp $
+* $Id: ecommerce_cart.inc,v 1.20 2005/10/05 06:50:17 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -474,14 +474,14 @@ class Ecommerce_Cart extends Listing_Engine
 					$this->_tmp['cart_updated'] = true;
 				}
 			}
-		} else if (isset($_REQUEST[SQ_CART_PRESET_QUANTITY.'_flag'])) {
+		/*} else if (isset($_REQUEST[SQ_CART_PRESET_QUANTITY.'_flag'])) {
 			// field is present, but no boxes have been ticked
 			$asset_list = $this->getAssetList();
 			foreach ($asset_list as $assetid => $type_code) {
 				if ($cart->removeItem($assetid)) {
 					$this->_tmp['cart_updated'] = true;
 				}
-			}
+			}*/
 		}
 
 		// delete
@@ -647,6 +647,18 @@ class Ecommerce_Cart extends Listing_Engine
 
 	}//end getContentsKeywords()
 
+
+	/**
+	* Get the current form submit method (always POST)
+	*
+	* @return string
+	* @access protected
+	*/
+	function _getFormSubmitMethod()
+	{
+		return 'post';
+
+	}//end _getFormSubmitMethod()
 
 }//end class
 
