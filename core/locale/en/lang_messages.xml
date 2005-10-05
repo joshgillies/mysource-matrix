@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.6 2005/09/02 04:33:05 lwright Exp $
+* $Id: lang_messages.xml,v 1.7 2005/10/05 07:01:30 lwright Exp $
 *
 * Core Internal Messages File
 */
@@ -54,7 +54,7 @@
 	</message>
 	<message type="asset.locking.forced">
 		<subject>Asset Lock Forcibly Acquired</subject>
-		<body>User "%user_name%" has forcibly acquired the lock on %type_code% "%asset_name%", formerly held by user "%old_user_name%"</body><!-- user-name, type-code, name, old-user-name -->
+		<body>User "%user_name%" has forcibly acquired the %lock_type% lock on %type_code% "%asset_name%", formerly held by user "%old_user_name%"</body><!-- user-name, type-code, name, old-user-name -->
 	</message>
 	<message type="asset.linking.create">
 		<subject>Asset Link Created</subject>
@@ -250,19 +250,6 @@ Trigger "%trigger_name%" (#%triggerid%), Event: "%event%" broadcast by Asset: "%
 
 You can view the asset <![CDATA[<a href="%asset_url%">here</a>]]>.</body>
 	</message><!-- type-code, name, old-status, asset-url -->
-	<message type="asset.workflow.announce.approve">
-		<subject>Asset Changes Approved</subject>
-		<body>User "%user_name%" has approved the changes to %type_code% "%asset_name%".
-
-A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]></body><!-- user-name, asset-type, asset-name, asset-name*, workflow-screen-url -->
-	</message>
-	<message type="asset.workflow.announce.reject">
-		<subject>Asset Changes Rejected</subject>
-		<body>User "%user_name%" has rejected the changes made to %type_code% "%asset_name%". The workflow process has been cancelled.
-
-A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.
-{You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]>}</body><!-- user-name, asset-type, asset-name, asset-name*, workflow-screen-url, (preview-screen-url) -->
-	</message>
 	<message type="asset.workflow.invitation">
 		<subject>Workflow Approval Required</subject>
 		<body>%type_code% "%asset_name%" is currently in workflow.
@@ -279,9 +266,16 @@ You are now required to approve or reject the changes made to "%asset_name%" so 
 A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.
 You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]></body><!--  asset-type, asset-name, old_step, new_step, asset-name*, asset-name**, workflow-screen-url, (preview-screen-url) -->
 	</message>
-	<message type="asset.workflow.safeedit.cancel">
+	<message type="asset.workflow.log.safeedit.cancel">
 		<subject>Asset Safe Edit Cancelled</subject>
 	<body>User "%user_name%" has cancelled the safe edit of %type_code% "%asset_name%". "%asset_name%" has reverted to the previously saved version and the status of "%asset_name%" is now %status%</body><!-- user, asset-type, asset-name, asset-name*, asset-name**, new-status -->
+	</message>
+	<message type="asset.workflow.log.review.cancel">
+		<subject>Asset Review Cancelled</subject>
+		<body>User "%user_name%" has started a safe edit of %type_code% "%asset_name%" during a review. The review has been cancelled and the status of "%asset_name%" is now %status%.
+
+A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.
+You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]></body><!-- user-name, asset-type, asset-name, asset-name*, asset-name**, workflow-screen-url, (preview-screen-url) -->
 	</message>
 	<message type="asset.workflow.review.cancel">
 		<subject>Asset Review Cancelled</subject>
@@ -290,32 +284,60 @@ You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_
 A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.
 You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]></body><!-- user-name, asset-type, asset-name, asset-name*, asset-name**, workflow-screen-url, (preview-screen-url) -->
 	</message>
-	<message type="asset.workflow.review.complete">
+	<message type="asset.workflow.log.review.complete">
 		<subject>Review Complete</subject>
 		<body>The review process for %type_code% "%asset_name%" has been completed. "%asset_name%" is now live.
 
 A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.
 You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]></body><!-- asset-type, asset-name, asset-name*, asset-name**, workflow-screen-url, (preview-screen-url) -->
 	</message>
-	<message type="asset.workflow.started">
+	<message type="asset.workflow.log.started">
 		<subject>Workflow Started</subject>
 		<body>User "%user_name%" has requested %type_code% "%asset_name%" to go live from %status%.
 
 A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.
 You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]></body><!-- user-name, asset-type, asset-name, old-status, asset-name*, workflow-scren-url, (preview-screen-url) -->
 	</message>
+	<message type="asset.workflow.log.approve">
+		<subject>Asset Changes Approved</subject>
+		<body>User "%user_name%" has approved the changes to %type_code% "%asset_name%".
+
+A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]></body><!-- user-name, asset-type, asset-name, asset-name*, workflow-screen-url -->
+	</message>
+	<message type="asset.workflow.announce.approve">
+		<subject>Asset Changes Approved</subject>
+		<body>User "%user_name%" has approved the changes to %type_code% "%asset_name%".
+
+A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]></body><!-- user-name, asset-type, asset-name, asset-name*, workflow-screen-url -->
+	</message>
 	<message type="asset.workflow.review">
+		<subject>Asset Up For Review</subject>
+		<body>User "%user_name%" has placed %type_code% "%asset_name%" up for review.
+You are now required to approve or reject the changes made to "%asset_name%" so the workflow process can continue.
+
+<![CDATA[<SQ_MSG_LINK href="%workflow_url%">Click here for the Workflow Screen for this asset</SQ_MSG_LINK>]]>.
+You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]></body><!-- user-name, asset-type, asset-name, (workflow-screen-url, (preview-screen-url)) -->
+	</message>
+	<message type="asset.workflow.log.review">
 		<subject>Asset Up For Review</subject>
 		<body>User "%user_name%" has placed %type_code% "%asset_name%" up for review.
 
 <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Click here for the Workflow Screen for this asset</SQ_MSG_LINK>]]>.
 You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]></body><!-- user-name, asset-type, asset-name, (workflow-screen-url, (preview-screen-url)) -->
 	</message>
-	<message type="asset.workflow.reject">
+	<message type="asset.workflow.log.reject">
 		<subject>Asset Changes Rejected</subject>
 		<body>User "%user_name%" has rejected the changes made to %type_code% "%asset_name%". The status of "%asset_name%" has reverted to %status%.
 
-A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.</body><!-- user-name, asset-type, asset-name, asset-name*, new-status, asset-name**, workflow-screen-url -->
+A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.
+{You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]>}</body><!-- user-name, asset-type, asset-name, asset-name*, workflow-screen-url, (preview-screen-url) -->
+	</message>
+	<message type="asset.workflow.announce.reject">
+		<subject>Asset Changes Rejected</subject>
+		<body>User "%user_name%" has rejected the changes made to %type_code% "%asset_name%". The workflow process has been cancelled.
+
+A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.
+{You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]>}</body><!-- user-name, asset-type, asset-name, asset-name*, workflow-screen-url, (preview-screen-url) -->
 	</message>
 	<message type="asset.workflow.complete">
 		<subject>Workflow Completed</subject>
