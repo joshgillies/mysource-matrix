@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.134 2005/09/16 06:46:05 bcaldwell Exp $
+* $Id: backend.inc,v 1.135 2005/10/05 04:09:59 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.134 $
+* @version $Revision: 1.135 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -221,10 +221,17 @@ class Backend extends MySource_Object
 
 		$limbo_hipo = SQ_IN_LIMBO && (strpos($main_url, 'SQ_ACTION=hipo') !== false);
 
+		// Give the page the appropriate title based on whether we are in limbo or backend
+		if (SQ_IN_LIMBO) {
+			$page_title = translate('page_title_simple_edit_interface', SQ_SYSTEM_LONG_NAME);
+		} else {
+			$page_title = translate('page_title_admin_interface', SQ_SYSTEM_LONG_NAME);
+		}
+
 		?>
 		<html>
 			<head>
-				<title><?php echo SQ_SYSTEM_LONG_NAME; ?> Backend</title>
+				<title><?php echo $page_title; ?></title>
 				<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 				<?php
 				if ($limbo_hipo) {
