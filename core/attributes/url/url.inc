@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: url.inc,v 1.4 2005/07/13 02:58:49 mmcintyre Exp $
+* $Id: url.inc,v 1.5 2005/10/06 04:32:41 bcaldwell Exp $
 *
 */
 
@@ -30,10 +30,10 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * URL Attribute
 *
 * <!-- Sample Edit Interface XML Node -->
-*    <text width="40" protocols="http,https,ftp,mailto" />
+*    <url width="40" protocols="http,https,ftp,mailto" />
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
