@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.42 2005/08/22 03:46:58 dheppell Exp $
+* $Id: form_email.inc,v 1.43 2005/10/06 01:39:54 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -166,11 +166,18 @@ class Form_Email extends Form
 				$sel[$key]['assetid'] = str_replace($this->id.':q', $clone->id.':q', $sel[$key]['assetid']);
 			}
 
+			$staf_field = str_replace($this->id.':q', $clone->id.':q', $this->attr('staf_field'));
+			$receipt_field = str_replace($this->id.':q', $clone->id.':q', $this->attr('receipt_field'));
+
 			// save the information
 			$clone->setAttrValue('recipient_emails_format', serialize($recip));
 			$clone->setAttrValue('receipt_emails_format', serialize($rec));
 			$clone->setAttrValue('staf_format', serialize($staf));
 			$clone->setAttrValue('selective_emails', $sel);
+
+			$clone->setAttrValue('staf_field', $staf_field);
+			$clone->setAttrValue('receipt_field', $receipt_field);
+
 			$clone->saveAttributes();
 
 		}
