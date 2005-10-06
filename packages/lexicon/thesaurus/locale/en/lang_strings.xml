@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.3 2005/10/04 05:54:27 arailean Exp $
+* $Id: lang_strings.xml,v 1.4 2005/10/06 04:48:40 emcdonald Exp $
 *
 */
 
@@ -22,5 +22,5 @@ LDAP Localised String File
 <string source="lexicon_thesaurus_enabled">Enabled. Thesaurus has been imported and is enabled. Uploading a new file will erase the existing thesaurus.</string>
 <string source="lexicon_thesaurus_disabled">Disabled. Thesaurus has not yet been imported. Please import a thesaurus XML file before using this asset.</string>
 <string source="lexicon_example_xml_file">To demonstrate the expected structure of the imported XML file, an <![CDATA[<a href="%s" target="_blank">example file</a>]]> is available.</string>
-<string source="lexicon_thesaurus_not_generated">XML file is not in sync with thesaurus. Thesaurus contents were changed since the last time the XML file was generated. Please re-generate the file.</string>
+<string source="lexicon_thesaurus_not_generated">XML file is not in sync with thesaurus. Thesaurus contents have been changed. Please acquire lock to download the file.</string>
 </strings>

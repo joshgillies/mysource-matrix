@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2005/10/04 08:35:55 arailean Exp $
+* $Id: lang_screen_details.xml,v 1.6 2005/10/06 04:48:40 emcdonald Exp $
 *
 */
 -->
@@ -69,6 +69,10 @@
 				<paint_function		name="paintExportXMLfile" />
 				<process_function	name="processExportXMLfile" />
 			</function_call>
+		</field>
+		<field attribute="contents_changed">
+			<display_name>Contents Changed</display_name>
+			<note />
 		</field>
 	</section>
 
