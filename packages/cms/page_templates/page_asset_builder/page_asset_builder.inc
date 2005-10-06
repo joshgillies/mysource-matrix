@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.42.2.3 2005/05/02 02:44:58 gsherwood Exp $
+* $Id: page_asset_builder.inc,v 1.42.2.4 2005/10/06 00:42:50 sdanis Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -410,7 +410,7 @@ class Page_Asset_Builder extends Page
 									continue;
 								}
 							}
-							
+
 							// we need to update lookups to make sure the URLs for the
 							// new create locations are set correctly
 							$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
@@ -463,7 +463,7 @@ class Page_Asset_Builder extends Page
 		$all_selected_locations = Array();
 		foreach ($this->attr('create_location_optional') as $set_name => $details) {
 			$selected_locations = Array();
-			$code_name = str_replace(' ', '_', strtolower($set_name));
+			$code_name = str_replace(Array(' ','\''), '_', strtolower($set_name));
 			if (isset($_POST[$code_name])) {
 				if ($details['allow_multiple'] && is_array($_POST[$code_name])) {
 					foreach ($_POST[$code_name] as $location_id) {
@@ -526,11 +526,11 @@ class Page_Asset_Builder extends Page
 	*
 	* @access protected
 	* @return array(assetid => link_type)
-	*/	
+	*/
 	function getFixedCreateLocations()
 	{
 		return $this->attr('create_location');
-	
+
 	}//end getFixedCreateLocations()
 
 
@@ -599,7 +599,7 @@ class Page_Asset_Builder extends Page
 
 	}//end getRuleMatchCreateLocations()
 
-	
+
 	/**
 	* Get the relevant create locations for a new asset
 	*
@@ -611,7 +611,7 @@ class Page_Asset_Builder extends Page
 	function getCreateLocations($create_type)
 	{
 		if (is_array($selected_locs = $this->getSelectedCreateLocations())) {
-			return $this->getFixedCreateLocations() 
+			return $this->getFixedCreateLocations()
 				+ $selected_locs
 				+ $this->getRuleMatchCreateLocations($create_type)
 				+ $this->getAdditionalCreateLocations();
@@ -619,7 +619,7 @@ class Page_Asset_Builder extends Page
 			// failed to select some compulsory selectable locations
 			return false;
 		}
-	
+
 	}//end _getAllCreateLocations()
 
 
@@ -761,7 +761,7 @@ class Page_Asset_Builder extends Page
 		$this->_replacements['created_asset_name']       = $this->_tmp['created_asset']->name;
 		$this->_replacements['created_asset_short_name'] = $this->_tmp['created_asset']->short_name;
 		$this->_replacements['created_asset_url']        = $this->_tmp['created_asset']->getURL();
-		
+
 	}//end _loadAssetReplacements()
 
 
@@ -785,9 +785,9 @@ class Page_Asset_Builder extends Page
 			$o->_paintJsInclude(sq_web_path('lib').'/js/general.js');
 			$o->_paintJsInclude(sq_web_path('lib').'/html_form/html_form.js');
 			$o->_paintJsInclude(sq_web_path('lib').'/js/debug.js');
-			$o->_paintJsInclude(sq_web_path('lib').'/js/edit.js');	
+			$o->_paintJsInclude(sq_web_path('lib').'/js/edit.js');
 
-			
+
 			// print the create interface for the asset
 			?><input type="hidden" name="asset_action" value="create"><?php
 			$create_types = $this->attr('create_type');
@@ -867,12 +867,12 @@ class Page_Asset_Builder extends Page
 		}
 
 		foreach ($this->attr('create_location_optional') as $name => $data) {
-			$code_name = str_replace(' ', '_', strtolower($name));
+			$code_name = str_replace(Array(' ','\''), '_', strtolower($name));
 			$options = $data['locations'];
 
 			ob_start();
 				switch ($data['input_style']) {
-	
+
 					case 'dropdown':
 						if ($data['allow_empty'] && !$data['allow_multiple']) {
 							$options = Array(''=>'') + $options;
@@ -881,7 +881,7 @@ class Page_Asset_Builder extends Page
 						$height = $data['allow_multiple'] ? 4 : 1;
 						combo_box($code_name, $options, $data['allow_multiple'], $default,  $height);
 					break;
-	
+
 					case 'radio':
 						if ($data['allow_multiple']) {
 							// print checkboxes
@@ -902,7 +902,7 @@ class Page_Asset_Builder extends Page
 							}
 						}
 					break;
-	
+
 					default:
 						echo '(UNDEFINED INPUT STYLE ' . $data['input_style'] . ')';
 					break;
@@ -1024,7 +1024,7 @@ class Page_Asset_Builder extends Page
 	{
 		$keywords = Array();
 		foreach ($this->attr('create_location_optional') as $name => $data) {
-			$keyword_name = str_replace(' ', '_', strtolower($name)).'_field';
+			$keyword_name = str_replace(Array(' ','\''), '_', strtolower($name)).'_field';
 			$keywords[$keyword_name] = $name.' Field';
 		}
 		return $keywords;
