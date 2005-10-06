@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.76 2005/08/25 00:53:33 pgannavarapu Exp $
+* $Id: page_asset_builder.inc,v 1.77 2005/10/06 00:27:05 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -84,8 +84,8 @@ class Page_Asset_Builder extends Page
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
@@ -144,7 +144,7 @@ class Page_Asset_Builder extends Page
 	*
 	* @param int	$linkid	the link id of the link to remove
 	*
-	* @return mixed TRUE or error msg string
+	* @return mixed boolean|string
 	* @access public
 	*/
 	function isDeletableLink($linkid)
@@ -164,8 +164,9 @@ class Page_Asset_Builder extends Page
 	/**
 	* Returns an array of all the permitted link types, the asset type and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -260,7 +261,7 @@ class Page_Asset_Builder extends Page
 	*
 	* These actions include logging into the system and creating an asset
 	*
-	* @return boolean	indicating success
+	* @return boolean
 	* @access private
 	*/
 	function _processGlobalActions()
@@ -379,7 +380,7 @@ class Page_Asset_Builder extends Page
 					}
 
 					if (!$new_asset->processBackend($o, $link)) {
-						$this->_tmp['new_asset_created_'.$create_type] =& $new_asset; 
+						$this->_tmp['new_asset_created_'.$create_type] =& $new_asset;
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 
 					} else {
@@ -448,15 +449,15 @@ class Page_Asset_Builder extends Page
 	* @param string		$create_type	The type of the asset being created
 	* @param array		$attributes		The attributes of the new asset.  (If blank, attributes read from POST)
 	*
+	* @return array
 	* @access protected
-	* @return array(assetid => link_type)
 	*/
 	function getSelectedCreateLocations()
 	{
 		$all_selected_locations = Array();
 		foreach ($this->attr('create_location_optional') as $set_name => $details) {
-			$selected_locations = Array();
-			$code_name = str_replace(' ', '_', strtolower($set_name));
+			$selected_locations = Array();bam();
+			$code_name = str_replace(Array(' ','\''), '_', strtolower($set_name));
 			if (isset($_POST[$code_name])) {
 				if ($details['allow_multiple'] && is_array($_POST[$code_name])) {
 					foreach ($_POST[$code_name] as $location_id) {
@@ -488,8 +489,8 @@ class Page_Asset_Builder extends Page
 	/**
 	* Get all the create locations that could ever be selected by the user, with their max link type
 	*
+	* @return array
 	* @access protected
-	* @return array		array(assetid => link_type)
 	*/
 	function getAllSelectableCreateLocations()
 	{
@@ -519,8 +520,8 @@ class Page_Asset_Builder extends Page
 	* @param string		$create_type	The type of the asset being created
 	* @param array		$attributes		The attributes of the new asset.  (If blank, attributes read from POST)
 	*
+	* @return array
 	* @access protected
-	* @return array(assetid => link_type)
 	*/
 	function getFixedCreateLocations()
 	{
@@ -532,11 +533,11 @@ class Page_Asset_Builder extends Page
 	/**
 	* Get the create locations determined by rule matches
 	*
-	* @param string		$create_type	The type of the asset being created
-	* @param array		$attributes		The attributes of the new asset.  (If blank, attributes read from POST)
+	* @param string	$create_type	The type of the asset being created
+	* @param array	$attributes		The attributes of the new asset.  (If blank, attributes read from POST)
 	*
+	* @return array
 	* @access protected
-	* @return array(assetid => link_type)
 	*/
 	function getRuleMatchCreateLocations($create_type, $attributes=Array())
 	{
@@ -606,7 +607,7 @@ class Page_Asset_Builder extends Page
 	*
 	* @param string	$create_type	the type of asset we are getting create locations for
 	*
-	* @return array					parentid => link_type
+	* @return array
 	* @access protected
 	*/
 	function getCreateLocations($create_type)
@@ -631,7 +632,7 @@ class Page_Asset_Builder extends Page
 	* Also ensures the passed additional locations are valid by checking the allowed
 	* additional create locations that have been set in the asset
 	*
-	* @return array(parentid => link_type)
+	* @return array
 	* @access protected
 	*/
 	function getAdditionalCreateLocations()
@@ -678,14 +679,14 @@ class Page_Asset_Builder extends Page
 	/**
 	* Get a list of dynamic create locations from the REQUEST var
 	*
-	* @return array(parentid => link_type)
+	* @return array
 	* @access protected
 	*/
 	function getDynamicCreateLocations()
 	{
 		$all_selected_locations = Array();
 		foreach ($this->attr('create_location_dynamic') as $set_name => $details) {
-			$code_name = str_replace(' ', '_', strtolower($set_name));
+			$code_name = str_replace(Array(' ','\''), '_', strtolower($name));
 			if (isset($_POST[$code_name]) && !empty($_POST[$code_name])) {
 				$locations = $_POST[$code_name];
 				if (!is_array($locations)) {
@@ -785,7 +786,7 @@ class Page_Asset_Builder extends Page
 		 // SELECTABLE CREATE LOCATIONS KEYWORDS //
 		//////////////////////////////////////////
 		foreach ($this->attr('create_location_optional') as $name => $data) {
-			$code_name = str_replace(' ', '_', strtolower($name));
+			$code_name = str_replace(Array(' ','\''), '_', strtolower($name));
 			$options = $data['locations'];
 			ob_start();
 				switch ($data['input_style']) {
@@ -828,7 +829,7 @@ class Page_Asset_Builder extends Page
 		}//end foreach selectable create location
 
 		foreach ($this->attr('create_location_dynamic') as $name => $data) {
-			$code_name = str_replace(' ', '_', strtolower($name));
+			$code_name = str_replace(Array(' ','\''), '_', strtolower($name));
 
 			// get the selected asset types and inherited types if necessary
 			$types = Array();
@@ -893,7 +894,7 @@ class Page_Asset_Builder extends Page
 	* @param string	$err_file	The file the error occured in
 	* @param string	$err_line	The line the error occured on
 	*
-	* @returns void
+	* @return void
 	* @access private
 	* @see HIPO_Job::process()
 	*/
@@ -928,7 +929,7 @@ class Page_Asset_Builder extends Page
 	/**
 	* Return an array of bodycopies that need to be created
 	*
-	* @return Array
+	* @return array
 	* @access private
 	*/
 	function _getBodycopies()
@@ -949,7 +950,7 @@ class Page_Asset_Builder extends Page
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
 	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
+	* @param array			$vars	the vars that get submitted by the broadcaster
 	*								we add keywords to the $vars['keywords'] array
 	*
 	* @return boolean
@@ -989,8 +990,8 @@ class Page_Asset_Builder extends Page
 	/**
 	* Get the keyword used in not_logged_in bodycopy
 	*
+	* @return array
 	* @access protected
-	* @return array(keyword => replacement)
 	*/
 	function _getNotLoggedInKeywords()
 	{
@@ -1010,8 +1011,8 @@ class Page_Asset_Builder extends Page
 	/**
 	* Get the keyword used in logged_in bodycopy
 	*
+	* @return array
 	* @access protected
-	* @return array(keyword => replacement)
 	*/
 	function _getLoggedInKeywords()
 	{
@@ -1028,8 +1029,8 @@ class Page_Asset_Builder extends Page
 	/**
 	* Get the keyword used in created bodycopy
 	*
+	* @return array
 	* @access protected
-	* @return array(keyword => replacement)
 	*/
 	function _getCreatedKeywords()
 	{
@@ -1050,14 +1051,14 @@ class Page_Asset_Builder extends Page
 	/**
 	* Get the keyword used to select selectable create locations
 	*
+	* @return array
 	* @access protected
-	* @return array(keyword => replacement)
 	*/
 	function _getSelectableLocationKeywords()
 	{
 		$keywords = Array();
 		foreach ($this->attr('create_location_optional') as $name => $data) {
-			$keyword_name = str_replace(' ', '_', strtolower($name)).'_field';
+			$keyword_name = str_replace(Array(' ','\''), '_', strtolower($name)).'_field';
 			$keywords[$keyword_name] = translate('cms_asset_builder_field_keyword', $name);
 		}
 		return $keywords;
@@ -1068,14 +1069,14 @@ class Page_Asset_Builder extends Page
 	/**
 	* Get the keyword used to select dynamic create locations
 	*
+	* @return array
 	* @access protected
-	* @return array(keyword => replacement)
 	*/
 	function _getDynamicLocationKeywords()
 	{
 		$keywords = Array();
 		foreach ($this->attr('create_location_dynamic') as $name => $data) {
-			$keyword_name = str_replace(' ', '_', strtolower($name)).'_field';
+			$keyword_name = str_replace(Array(' ','\''), '_', strtolower($name)).'_field';
 			$keywords[$keyword_name] = translate('cms_asset_builder_field_keyword', $name);
 		}
 		return $keywords;
