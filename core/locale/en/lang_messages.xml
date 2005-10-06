@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.7 2005/10/05 07:01:30 lwright Exp $
+* $Id: lang_messages.xml,v 1.8 2005/10/06 04:59:15 mmcintyre Exp $
 *
 * Core Internal Messages File
 */
@@ -352,7 +352,7 @@ You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_
 	</message>
 	<message type="asset.workflow.stale">
 		<subject>Stale Workflow Step</subject>
-		<body>Asset "%asset_name%" [#%assetid%] has been in step "%step%" of workflow schema "%schema%" since %started_time%, and has exceeded the %expiry_time% within which this step is meant to be completed.  You may want to consider intervening to progress this workflow by visiting the asset's <![CDATA[<SQ_MSG_LINK href="%workflow_url%">workflow screen</SQ_MSG_LINK>]]>.</body>
+		<body>Asset "%asset_name%" [#%assetid%] has been in step "%step%" of workflow schema "%schema%" since %started_time%, and has exceeded the %expiry_time% timeframe within which this step is meant to be completed.  You may want to consider intervening to progress this workflow by visiting the asset's <![CDATA[<SQ_MSG_LINK href="%workflow_url%">workflow screen</SQ_MSG_LINK>]]>.</body>
 	</message>
 	<message type="config.system_config">
 		<subject>System Config Updated</subject>
