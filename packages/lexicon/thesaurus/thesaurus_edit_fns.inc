@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.10 2005/10/06 04:57:26 emcdonald Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.11 2005/10/06 07:04:33 emcdonald Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -217,7 +217,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 		$filepath = realpath($filepath);
 
 		if (!is_writable($filepath)) {
-			trigger_error('Unable to open XML file '.$filepath.' for writing', E_USER_WARNING);
+			trigger_localised_error('LEX0009', E_USER_WARNING, $filepath);
 		}
 		$filehandle = fopen($filepath, 'wb');
 
@@ -229,14 +229,14 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 
 		$tag = $this->_buildXmlTag('thesaurus', 'open', $indent);
 		fwrite($filehandle, $tag);
-		echo($tag);
+		echo $tag;
 
 		// add Relations
 		$all_relations = $asset->getAllRelations();
 
 		$tag = $this->_buildXmlTag('relations', 'open', $indent);
 		fwrite($filehandle, $tag);
-		echo($tag);
+		echo $tag;
 
 		foreach ($all_relations as $relation){
 			$tag = $this->_buildXmlTag('relation name = "'.$relation['name'].'"', 'self_close', $indent);
@@ -246,12 +246,12 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 
 		$tag = $this->_buildXmlTag('relations', 'close', $indent);
 		fwrite($filehandle, $tag);
-		echo($tag);
+		echo $tag;
 
 		// add Entities
 		$tag = $this->_buildXmlTag('entities', 'open', $indent);
 		fwrite($filehandle, $tag);
-		echo($tag);
+		echo $tag;
 
 		// iterate over all entities and export them
 		$all_entities = $asset->getAllEntities();
@@ -262,55 +262,54 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 			if (count($entities_relations) + count($entity['description']) > 0){
 				$tag = $this->_buildXmlTag('entity name = "'.$entity['name'].'"', 'open', $indent);
 				fwrite($filehandle, $tag);
-				echo($tag);
+				echo $tag;
 
 				if (count($entity['description']) > 0){
 					// include a description of this entity
 					$tabs = str_pad('', $indent, "\t");
 					$description = $tabs.'<description>'.$entity['description'].'</description>'."\n";
 					fwrite($filehandle, $description);
-					echo($description);
+					echo $description;
 				}
 				if (count($entities_relations)>0){
 					// list the relations for this entity
 					foreach ($entities_relations as $relation){
-
 						$tag = $this->_buildXmlTag('relation name = "'.$relation['name'].'"', 'open', $indent);
 						fwrite($filehandle, $tag);
-						echo($tag);
+						echo $tag;
 
 						$relation_children = $asset->getChildEntitiesInRelation($relation['id'], $entity['id']);
 
 						foreach ($relation_children as $relation_child_entity){
 							$tag = $this->_buildXmlTag('entity name = "'.$relation_child_entity['name'].'"', 'self_close', $indent);
 							fwrite($filehandle, $tag);
-							echo($tag);
+							echo $tag;
 						}
 
 						$tag = $this->_buildXmlTag('relation', 'close', $indent);
 						fwrite($filehandle, $tag);
-						echo($tag);
+						echo $tag;
 					}
 				}
 				$tag = $this->_buildXmlTag('entity', 'close', $indent);
 				fwrite($filehandle, $tag);
-				echo($tag);
+				echo $tag;
 
 			} else {
 				// no description and no relations, so this entity appears only in a self closing tag
 				$tag = $this->_buildXmlTag('entity name = "'.$entity['name'].'"', 'self_close', $indent);
 				fwrite($filehandle, $tag);
-				echo($tag);
+				echo $tag;
 			}
 		}
 
-		$tag = $this->_buildXmlTag('entities',' close', $indent);
+		$tag = $this->_buildXmlTag('entities', 'close', $indent);
 		fwrite($filehandle, $tag);
-		echo($tag);
+		echo $tag;
 
 		$tag = $this->_buildXmlTag('thesaurus', 'close', $indent);
 		fwrite($filehandle, $tag);
-		echo($tag);
+		echo $tag;
 
 		fclose($filehandle);
 		exit;
