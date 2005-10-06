@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.63.2.3 2005/08/25 00:48:45 pgannavarapu Exp $
+* $Id: page_asset_builder.inc,v 1.63.2.4 2005/10/06 00:36:22 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.63.2.3 $
+* @version $Revision: 1.63.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -453,7 +453,7 @@ class Page_Asset_Builder extends Page
 		$all_selected_locations = Array();
 		foreach ($this->attr('create_location_optional') as $set_name => $details) {
 			$selected_locations = Array();
-			$code_name = str_replace(' ', '_', strtolower($set_name));
+			$code_name = str_replace(Array(' ','\''), '_', strtolower($set_name));
 			if (isset($_POST[$code_name])) {
 				if ($details['allow_multiple'] && is_array($_POST[$code_name])) {
 					foreach ($_POST[$code_name] as $location_id) {
@@ -682,7 +682,7 @@ class Page_Asset_Builder extends Page
 	{
 		$all_selected_locations = Array();
 		foreach ($this->attr('create_location_dynamic') as $set_name => $details) {
-			$code_name = str_replace(' ', '_', strtolower($set_name));
+			$code_name = str_replace(Array(' ','\''), '_', strtolower($set_name));
 			if (isset($_POST[$code_name]) && !empty($_POST[$code_name])) {
 				$locations = $_POST[$code_name];
 				if (!is_array($locations)) {
@@ -895,7 +895,7 @@ class Page_Asset_Builder extends Page
 		 // SELECTABLE CREATE LOCATIONS KEYWORDS //
 		//////////////////////////////////////////
 		foreach ($this->attr('create_location_optional') as $name => $data) {
-			$code_name = str_replace(' ', '_', strtolower($name));
+			$code_name = str_replace(Array(' ','\''), '_', strtolower($name));
 			$options = $data['locations'];
 			ob_start();
 				switch ($data['input_style']) {
@@ -938,7 +938,7 @@ class Page_Asset_Builder extends Page
 		}//end foreach selectable create location
 
 		foreach ($this->attr('create_location_dynamic') as $name => $data) {
-			$code_name = str_replace(' ', '_', strtolower($name));
+			$code_name = str_replace(Array(' ','\''), '_', strtolower($name));
 
 			// get the selected asset types and inherited types if necessary
 			$types = Array();
@@ -1083,7 +1083,7 @@ class Page_Asset_Builder extends Page
 	{
 		$keywords = Array();
 		foreach ($this->attr('create_location_optional') as $name => $data) {
-			$keyword_name = str_replace(' ', '_', strtolower($name)).'_field';
+			$keyword_name = str_replace(Array(' ','\''), '_', strtolower($name)).'_field';
 			$keywords[$keyword_name] = translate('cms_asset_builder_field_keyword', $name);
 		}
 		return $keywords;
@@ -1101,7 +1101,7 @@ class Page_Asset_Builder extends Page
 	{
 		$keywords = Array();
 		foreach ($this->attr('create_location_dynamic') as $name => $data) {
-			$keyword_name = str_replace(' ', '_', strtolower($name)).'_field';
+			$keyword_name = str_replace(Array(' ','\''), '_', strtolower($name)).'_field';
 			$keywords[$keyword_name] = translate('cms_asset_builder_field_keyword', $name);
 		}
 		return $keywords;

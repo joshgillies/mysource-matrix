@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.34 2005/05/31 01:30:34 ndvries Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.34.2.1 2005/10/06 00:36:22 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.34.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -302,7 +302,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	function _paintSelectableLocationSet(&$asset, &$o, $prefix, $name, &$data)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		$code_name = str_replace(' ', '_', strtolower($name));
+		$code_name = str_replace(Array(' ','\''), '_', strtolower($name));
 		?>
 		<table class="sq-backend-table">
 			<tr>
@@ -456,7 +456,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 		// see if there is a set to delete altogether
 		foreach (array_keys($sets) as $name) {
-			$code_name = str_replace(' ', '_', strtolower($name));
+			$code_name = str_replace(Array(' ','\''), '_', strtolower($name));
 			if ($_POST[$prefix.'_'.$code_name.'_delete']) {
 				unset($sets[$name]);
 				$asset->setAttrValue('create_location_optional', $sets);
@@ -468,7 +468,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 		// update the details for existing sets
 		foreach ($sets as $name => $details) {
-			$code_name = str_replace(' ', '_', strtolower($name));
+			$code_name = str_replace(Array(' ','\''), '_', strtolower($name));
 
 			// location options
 			if (is_array($new_options = array_values($_POST[$prefix.'_'.$code_name.'_location_options']))) {
@@ -889,7 +889,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	function _paintDynamicCreateLocationSet(&$asset, &$o, $prefix, $name, &$data)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		$code_name    = 'dynamic_location_'.str_replace(' ', '_', strtolower($name));
+		$code_name    = 'dynamic_location_'.str_replace(Array(' ','\''), '_', strtolower($name));
 		?>
 		<table class="sq-backend-table">
 			<tr>
@@ -1133,7 +1133,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 		// see if there is a set to delete altogether
 		foreach (array_keys($sets) as $name) {
-			$code_name = 'dynamic_location_'.str_replace(' ', '_', strtolower($name));
+			$code_name = 'dynamic_location_'.str_replace(Array(' ','\''), '_', strtolower($name));
 
 			if ($_POST[$prefix.'_'.$code_name.'_delete']) {
 				unset($sets[$name]);
@@ -1147,7 +1147,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 		// update the details for existing sets
 		foreach ($sets as $name => $details) {
-			$code_name = 'dynamic_location_'.str_replace(' ', '_', strtolower($name));
+			$code_name = 'dynamic_location_'.str_replace(Array(' ','\''), '_', strtolower($name));
 
 			// root
 			if (isset($_POST[$prefix.'_'.$code_name.'_root']['assetid'])) {
