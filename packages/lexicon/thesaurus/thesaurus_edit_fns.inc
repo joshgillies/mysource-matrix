@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.9 2005/10/04 08:35:55 arailean Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.10 2005/10/06 04:57:26 emcdonald Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -153,19 +153,19 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintExportXMLfile(&$asset, &$o, $prefix)
 	{
-		$write_access_allowed = $asset->writeAccess();
-
-		if (is_readable($asset->getXmlFilePath())) {
-			echo hidden_field($prefix.'_process_export', '0');
-			echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_process_export.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_process_export.value = 0; return true;');
-		} else {
-			if ($asset->isActive()) {
-				echo translate('lexicon_thesaurus_not_generated');
+		$write_access_allowed = $asset->writeAccess('attributes');
+		if ($asset->isActive()) {
+			if ((is_readable($asset->getXmlFilePath()) && (!$asset->attr('contents_changed'))) || $write_access_allowed) {
+				// download
+				echo hidden_field($prefix.'_process_export', '0');
+				echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_process_export.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_process_export.value = 0; return true;');
 			} else {
-				echo translate('lexicon_thesaurus_disabled');
+				// a new file needs to be generated and we don't have a lock
+				echo translate('lexicon_thesaurus_not_generated');
 			}
+		} else {
+			echo translate('lexicon_thesaurus_disabled');
 		}
-
 		return $write_access_allowed;
 
 	}//end paintExportXMLfile()
@@ -183,15 +183,178 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processExportXMLfile(&$asset, &$o, $prefix)
 	{
-		$write_access_allowed = $asset->writeAccess();
+		$write_access_allowed = $asset->writeAccess('attributes');
+
+		if (!$write_access_allowed) {
+			return $write_access_allowed;
+		}
 
 		if (!empty($_REQUEST[$prefix.'_process_export'])) {
-			$this->outputXmlDirect($asset);
+			if ($asset->attr('contents_changed')){
+				$this->createAndOutputXml($asset);
+				$asset->setAttrValue('contents_changed', false);
+			} else {
+				$this->outputXmlDirect($asset);
+			}
 		}
 
 		return $write_access_allowed;
 
 	}//end processExportXMLfile()
+
+
+	/**
+	* Exports chosen submissions to an XML format
+	*
+	* @param object	&$asset	the asset this function is editing
+	*
+	* @return boolean
+	* @access public
+	*/
+	function createAndOutputXml(&$asset)
+	{
+		$filepath = $asset->getXmlFilePath();
+		$filepath = realpath($filepath);
+
+		if (!is_writable($filepath)) {
+			trigger_error('Unable to open XML file '.$filepath.' for writing', E_USER_WARNING);
+		}
+		$filehandle = fopen($filepath, 'wb');
+
+		header('Content-Type: application/xml');
+		// defining the file as attachment forces most browsers to offer it for download
+		header('Content-Disposition: attachment; filename = '.basename($filepath).';');
+
+		$indent = 0; // we start the XML file with an indent of 0
+
+		$tag = $this->_buildXmlTag('thesaurus', 'open', $indent);
+		fwrite($filehandle, $tag);
+		echo($tag);
+
+		// add Relations
+		$all_relations = $asset->getAllRelations();
+
+		$tag = $this->_buildXmlTag('relations', 'open', $indent);
+		fwrite($filehandle, $tag);
+		echo($tag);
+
+		foreach ($all_relations as $relation){
+			$tag = $this->_buildXmlTag('relation name = "'.$relation['name'].'"', 'self_close', $indent);
+			fwrite($filehandle, $tag);
+			echo $tag;
+		}
+
+		$tag = $this->_buildXmlTag('relations', 'close', $indent);
+		fwrite($filehandle, $tag);
+		echo($tag);
+
+		// add Entities
+		$tag = $this->_buildXmlTag('entities', 'open', $indent);
+		fwrite($filehandle, $tag);
+		echo($tag);
+
+		// iterate over all entities and export them
+		$all_entities = $asset->getAllEntities();
+		foreach ($all_entities as $entity){
+			$entities_relations = $asset->getChildRelationsForEntity($entity['id']);
+
+			// if an entity has no relations or description, export it in a self closing tag, otherwise list it's relations.
+			if (count($entities_relations) + count($entity['description']) > 0){
+				$tag = $this->_buildXmlTag('entity name = "'.$entity['name'].'"', 'open', $indent);
+				fwrite($filehandle, $tag);
+				echo($tag);
+
+				if (count($entity['description']) > 0){
+					// include a description of this entity
+					$tabs = str_pad('', $indent, "\t");
+					$description = $tabs.'<description>'.$entity['description'].'</description>'."\n";
+					fwrite($filehandle, $description);
+					echo($description);
+				}
+				if (count($entities_relations)>0){
+					// list the relations for this entity
+					foreach ($entities_relations as $relation){
+
+						$tag = $this->_buildXmlTag('relation name = "'.$relation['name'].'"', 'open', $indent);
+						fwrite($filehandle, $tag);
+						echo($tag);
+
+						$relation_children = $asset->getChildEntitiesInRelation($relation['id'], $entity['id']);
+
+						foreach ($relation_children as $relation_child_entity){
+							$tag = $this->_buildXmlTag('entity name = "'.$relation_child_entity['name'].'"', 'self_close', $indent);
+							fwrite($filehandle, $tag);
+							echo($tag);
+						}
+
+						$tag = $this->_buildXmlTag('relation', 'close', $indent);
+						fwrite($filehandle, $tag);
+						echo($tag);
+					}
+				}
+				$tag = $this->_buildXmlTag('entity', 'close', $indent);
+				fwrite($filehandle, $tag);
+				echo($tag);
+
+			} else {
+				// no description and no relations, so this entity appears only in a self closing tag
+				$tag = $this->_buildXmlTag('entity name = "'.$entity['name'].'"', 'self_close', $indent);
+				fwrite($filehandle, $tag);
+				echo($tag);
+			}
+		}
+
+		$tag = $this->_buildXmlTag('entities',' close', $indent);
+		fwrite($filehandle, $tag);
+		echo($tag);
+
+		$tag = $this->_buildXmlTag('thesaurus', 'close', $indent);
+		fwrite($filehandle, $tag);
+		echo($tag);
+
+		fclose($filehandle);
+		exit;
+
+	}//end createAndOutputXml()
+
+
+	/**
+	* Builds an XML tag
+	*
+	* Returns a string including the specified number of indent tabs, the tag itself and a line break
+	* Also alters the indent for subsequent tags
+	*
+	* @param string	$contents	The contents of the tag
+	* @param string	$type		What type of tag this is - open|close|self_close
+	* @param int	&$indent	How far indented the tag should be
+	*
+	* @return string
+	* @access private
+	*/
+	function _buildXmlTag($contents, $type='self_close', &$indent)
+	{
+		$tabs = '';
+		$indent_this = $indent; // how much should this tag be indented?
+		switch ($type){
+			case 'open':
+				$indent_this = $indent;
+				$tag = '<'.$contents.'>';
+				$indent++;
+			break;
+			case 'close':
+				$indent_this = $indent-1;
+				$tag = '</'.$contents.'>';
+				$indent--;
+			break;
+			case 'self_close':
+				$indent_this = $indent;
+				$tag = '<'.$contents.' />';
+			break;
+		}
+		// build a string of tabs for indenting
+		$tabs = str_pad('', $indent_this, "\t");
+		return $tabs.$tag."\n";
+	}//end _buildXmlTag()
 
 
 	/**
