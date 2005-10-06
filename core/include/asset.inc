@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.398.2.14 2005/09/06 00:57:18 mmcintyre Exp $
+* $Id: asset.inc,v 1.398.2.15 2005/10/06 06:39:59 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.398.2.14 $
+* @version $Revision: 1.398.2.15 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3870,6 +3870,7 @@ class Asset extends MySource_Object
 		$current_urls = Array();
 		foreach ($old_urls as $url_data) {
 			$current_urls[] = $db->quoteSmart($url_data['url']);
+			$tmp_old_urls[] = $url_data['url'];
 		}
 
 		if (!empty($current_urls)) {
@@ -3959,7 +3960,9 @@ class Asset extends MySource_Object
 						$result = $db->query($sql);
 						assert_valid_db_result($result);
 
-						$lookup_values = (isset($our_lookup_values[$new_url])) ? $our_lookup_values[$new_url] : Array();
+						if (!isset($tmp_old_urls[$j])) $tmp_old_urls[$j] = '';
+
+						$lookup_values = (isset($our_lookup_values[$tmp_old_urls[$j]])) ? $our_lookup_values[$tmp_old_urls[$j]] : Array();
 
 						// all designs go to all urls (at the moment anyway), so merge them all in
 						foreach ($our_designs as $name => $data) {
