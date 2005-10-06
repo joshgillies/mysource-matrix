@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.190 2005/09/29 00:59:37 dheppell Exp $
+* $Id: asset_map.inc,v 1.191 2005/10/06 05:24:28 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.190 $
+* @version $Revision: 1.191 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -92,16 +92,14 @@ class Asset_Map
 	*
 	* NB. this function does not attempt to print any form tags. It is up the the printing entity to do this.
 	* The form needs to be in the form:
-	*
-	* &gt;form name="main_form"&lt;
+	* <form name="main_form">
 	*    ...
-	* &gt;/form&lt;
-	*
+	* </form>
 	* The form name needs to be 'main_form'.
 	*
-	* @param string	$type		the type of asset map to embed, eg. simple, complex, etc. (there could be more later)
-	* @param int	$width		the width of the asset map
-	* @param int	$height		the height of the asset map
+	* @param string	$type	the type of asset map to embed, eg. simple, complex, etc. (there could be more later)
+	* @param int	$width	the width of the asset map
+	* @param int	$height	the height of the asset map
 	*
 	* @return void
 	* @access public
@@ -196,7 +194,7 @@ class Asset_Map
 	/**
 	* Sends an XML Tree down the line
 	*
-	* @param object XML_Tree $output
+	* @param object	$output	output
 	*
 	* @return void
 	* @access private
@@ -212,7 +210,7 @@ class Asset_Map
 	/**
 	* Creates and error message, and returns it to the asset map
 	*
-	* @param string $code	the error code
+	* @param string	$code	the error code
 	*
 	* @return void
 	* @access private
@@ -295,10 +293,9 @@ class Asset_Map
 
 
 	/**
-	* Grab the translations from the pre-generated .properties file and send it to the
-	* java applet
+	* Grab the translations from the pre-generated .properties file and send it to the java applet
 	*
-	* @param object XML_Tree $input	the request info from the Java
+	* @param object	&$input	the request info from the Java
 	*
 	* @return void
 	* @access private
@@ -330,7 +327,7 @@ class Asset_Map
 	/**
 	* Get's all the asset types and the root folder and the current user asset's
 	*
-	* @param object XML_Tree $input	the request info from the Flash
+	* @param object	&$input	the request info from the Flash
 	*
 	* @return void
 	* @access private
@@ -388,7 +385,7 @@ class Asset_Map
 	/**
 	* Returns an array of the asset's information to be used by the asset map
 	*
-	* @param string $assetid the assetid of the asset's wanted info
+	* @param string	$assetid	the assetid of the asset's wanted info
 	*
 	* @return array
 	* @access private
@@ -403,6 +400,7 @@ class Asset_Map
 			// load all their kids - we dont know what kind of speed hit we get for the different
 			// types of shadow assets
 			$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
 			$attrs = Array(
 						'assetid'		=> urlencode($assetid),
 						'name'			=> urlencode($link_asset->short_name),
@@ -413,7 +411,6 @@ class Asset_Map
 						'web_path'		=> '',
 						'num_kids'		=> -1,
 					 );
-
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($link_asset);
 
 		} else {
@@ -545,9 +542,9 @@ class Asset_Map
 	/**
 	* Appends the child assets of the specified asset in xml form to the specified node
 	*
-	* @param &object XML_Tree	$root				the root to append the child assets to
-	* @param string				$assetid			the asset of the parent asset
-	* @param boolean			$dependants_only	if TRUE only the dependants will be retreived
+	* @param object		&$root				the root to append the child assets to
+	* @param string		$assetid			the asset of the parent asset
+	* @param boolean	$dependants_only	if TRUE only the dependants will be retreived
 	*
 	* @return void
 	* @access private
@@ -756,7 +753,7 @@ class Asset_Map
 	/**
 	* Processes the get assets request and outputs the xml to stardard out
 	*
-	* @param &object XML_Tree $input the request info from the Flash
+	* @param object	&$input	the request info from the Flash
 	*
 	* @return void
 	* @access private
@@ -789,7 +786,8 @@ class Asset_Map
 	/**
 	* Processes the get url request
 	*
-	* @param object XML_Tree $input	the request info from the Flash
+	* @param object	&$input		the request info from the Flash
+	* @param object	&$backend	backend
 	*
 	* @return void
 	* @access private
@@ -888,8 +886,10 @@ class Asset_Map
 	/**
 	* Attempts to move an asset from one position to another
 	*
-	* @param object XML_Tree $input	the request info from the Flash
+	* @param object	&$input		the request info from the Flash
+	* @param object	&$backend	backend
 	*
+	* @return void
 	* @access private
 	*/
 	function _moveAsset(&$input, &$backend)
@@ -900,6 +900,7 @@ class Asset_Map
 
 		// ensure no url friendly values exists for assetids
 		$input->root->attributes['to_parent_assetid'] = rawurldecode($input->root->attributes['to_parent_assetid']);
+		$input->root->attributes['from_parent_assetid'] = rawurldecode($input->root->attributes['from_parent_assetid']);
 		foreach ($input->root->children as $index =>$child) {
 			$input->root->children[$index]->attributes['assetid'] = rawurldecode($child->attributes['assetid']);
 		}
@@ -985,7 +986,8 @@ class Asset_Map
 	/**
 	* Attempts to move an asset from one position to another
 	*
-	* @param object XML_Tree $input	the request info from the Flash
+	* @param object	&$input		the request info from the Flash
+	* @param object	&$backend	backend
 	*
 	* @return void
 	* @access private
@@ -998,6 +1000,7 @@ class Asset_Map
 
 		// ensure no url friendly values exists for assetids
 		$input->root->attributes['to_parent_assetid'] = rawurldecode($input->root->attributes['to_parent_assetid']);
+		$input->root->attributes['from_parent_assetid'] = rawurldecode($input->root->attributes['from_parent_assetid']);
 		foreach ($input->root->children as $index =>$child) {
 			$input->root->children[$index]->attributes['assetid'] = rawurldecode($child->attributes['assetid']);
 		}
@@ -1060,7 +1063,7 @@ class Asset_Map
 	/**
 	* Attempts to create a new link
 	*
-	* @param object XML_Tree $input	the request info from the Flash
+	* @param object	&$input	the request info from the Flash
 	*
 	* @return void
 	* @access private
@@ -1073,6 +1076,7 @@ class Asset_Map
 
 		// ensure no url friendly values exists for assetids
 		$input->root->attributes['to_parent_assetid'] = rawurldecode($input->root->attributes['to_parent_assetid']);
+		$input->root->attributes['from_parent_assetid'] = rawurldecode($input->root->attributes['from_parent_assetid']);
 		foreach ($input->root->children as $index =>$child) {
 			$input->root->children[$index]->attributes['assetid'] = rawurldecode($child->attributes['assetid']);
 		}
@@ -1132,8 +1136,6 @@ class Asset_Map
 	/**
 	* Attempts to move one or more assets from one position to another
 	*
-	* @param object XML_Tree $input	the request info from the Asset Map in the form:
-	*
 	* <pre>
 	*    <command action="move_asset", to_parent_assetid="" to_parent_pos="">
 	*       <asset assetid="" linkid="" parentid="" />
@@ -1141,6 +1143,8 @@ class Asset_Map
 	*       <... />
 	*    </command>
 	* </pre>
+	*
+	* @param object	$input	the request info from the Asset Map in the form:
 	*
 	* @return void
 	* @access private
@@ -1170,7 +1174,7 @@ class Asset_Map
 
 		foreach ($input->root->children as $asset_node) {
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset_node->attributes['assetid']);
-			$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset_node->attributes['parentid']);
+			$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset(rawurldecode($asset_node->attributes['parentid']));
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($asset_node->attributes['linkid'], $old_parent->id);
 
 			if (is_null($old_parent)) {
@@ -1277,8 +1281,6 @@ class Asset_Map
 	/**
 	* Attempts to clone one or more assets
 	*
-	* @param object XML_Tree $input	the request info from the Asset Map in the form:
-	*
 	* <pre>
 	*    <command action="clone_asset", to_parent_assetid="" to_parent_pos="">
 	*       <asset assetid="" linkid="" parentid="" />
@@ -1286,6 +1288,8 @@ class Asset_Map
 	*       <... />
 	*    </command>
 	* </pre>
+	*
+	* @param object	&$input	the request info from the Asset Map in the above form
 	*
 	* @return void
 	* @access private
@@ -1311,7 +1315,7 @@ class Asset_Map
 
 		foreach ($input->root->children as $asset_node) {
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset_node->attributes['assetid']);
-			$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset_node->attributes['parentid']);
+			$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset(rawurldecode($asset_node->attributes['parentid']));
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($asset_node->attributes['linkid'], $old_parent->id);
 
 			if (is_null($old_parent)) {
@@ -1369,8 +1373,6 @@ class Asset_Map
 	/**
 	* Attempts to create multiple new links
 	*
-	* @param object XML_Tree $input	the request info from the Asset Map in the form:
-	*
 	* <pre>
 	*    <command action="new_link", to_parent_assetid="" to_parent_pos="">
 	*       <asset assetid="" linkid="" parentid="" />
@@ -1378,6 +1380,8 @@ class Asset_Map
 	*       <... />
 	*    </command>
 	* </pre>
+	*
+	* @param object	&$input	the request info from the Asset Map in the form:
 	*
 	* @return void
 	* @access private
@@ -1404,7 +1408,7 @@ class Asset_Map
 		$assets = Array();
 
 		foreach ($input->root->children as $asset_node) {
-			$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset_node->attributes['parentid']);
+			$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset(rawurldecode($asset_node->attributes['parentid']));
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($asset_node->attributes['linkid'], $old_parent->id);
 			$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 
