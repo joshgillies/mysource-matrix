@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.42 2005/10/05 06:52:05 lwright Exp $
+* $Id: ecommerce_checkout.inc,v 1.43 2005/10/07 03:29:14 gsherwood Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -180,9 +180,10 @@ class Ecommerce_Checkout extends Page
 					$_SESSION['sq_local_cart_contents']['order_id']			= $order->id;
 					$_SESSION['sq_local_cart_contents']['delivery_id']		= $order->attr('delivery_id');
 					$_SESSION['sq_local_cart_contents']['delivery_state']	= $order->attr('delivery_state');
-					$_SESSION['sq_local_cart_contents']['cart_contents']		= $order->attr('products');
+					$_SESSION['sq_local_cart_contents']['cart_contents']	= $order->attr('products');
 
 					$this->print_context = 'checkout';
+					$_SESSION['sq_local_cart_contents']['delivery_state']['last_context'] = 'checkout';
 
 					// set edit flag true
 					$_SESSION['sq_local_cart_contents']['editing_order'] = true;
@@ -250,9 +251,11 @@ class Ecommerce_Checkout extends Page
 				$delivery_method_id = array_get_index($_REQUEST, 'sq_delivery_method_id');
 
 				// if we're already at confirmation, why are we going again?
-				if ($_SESSION['sq_local_cart_contents']['delivery_state']['last_context'] == 'confirmation') {
-					$this->print_context = 'confirmation';
-					break;
+				if (isset($_SESSION['sq_local_cart_contents']['delivery_state'])) {
+					if ($_SESSION['sq_local_cart_contents']['delivery_state']['last_context'] == 'confirmation') {
+						$this->print_context = 'confirmation';
+						break;
+					}
 				}
 
 				if (!empty($delivery_method_id) && !empty($_SESSION['sq_local_cart_contents']['cart_contents'])) {
