@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.48 2005/08/16 04:24:22 tbarrett Exp $
+* $Id: selection.inc,v 1.49 2005/10/07 03:41:09 ndvries Exp $
 *
 */
 
@@ -47,7 +47,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" extras="" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -325,7 +325,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 				echo '<ul>';
 				foreach ($value as $k) {
 					if (!isset($options[$k])) continue; // "other" not allowed with multiple
-					echo '<li class="sq-backend-data">'.$options[$k].'</li>';
+					echo '<li class="sq-backend-data">'.htmlspecialchars($options[$k]).'</li>';
 				}
 				echo '</ul>';
 
