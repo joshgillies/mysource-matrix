@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_begins_with.inc,v 1.2 2005/07/20 00:40:28 lwright Exp $
+* $Id: form_question_rule_type_begins_with.inc,v 1.3 2005/10/07 00:01:25 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -112,13 +112,13 @@ class Form_Question_Rule_Type_Begins_With extends Form_Question_Rule
 			}
 
 			if ($cq_id != 0) {
-				$comparison = 'document.getElementById("'.$cq_id.'").value';
+				$comparison = 'form.elements["q'.$cq_id.'"].value';
 			} else {
 				$comparison = '"'.addslashes($value).'"';
 			}
 
 			?>
-				if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_begins_with(document.getElementById("<?php echo $q_asset->id; ?>").value, <?php echo $comparison ?>, <?php echo (int)$case_sensitive; ?>)) {
+				if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_begins_with(form.elements["q<?php echo $q_asset->id; ?>"].value, <?php echo $comparison ?>, <?php echo (int)$case_sensitive; ?>)) {
 					submission_errors[submission_errors.length] = "<?php
 						if (empty($rule_data['custom_text'])) {
 							echo addslashes($this->defaultError($q_asset, $rule_data));
@@ -206,7 +206,7 @@ class Form_Question_Rule_Type_Begins_With extends Form_Question_Rule
 			$value = array_get_index($rule_data, 'value', '');
 		}
 
-		$error_str = translate($string_code, $q_asset->name, $value).' ('.translate('core_form_'.($case_sensitive ? '' : 'not_').'case_sensitive').')';
+		$error_str = translate($string_code, $q_asset->name, $value).' '.translate('core_form_'.($case_sensitive ? '' : 'not_').'case_sensitive');
 
 		return $error_str;
 

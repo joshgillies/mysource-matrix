@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_select_limit.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
+* $Id: form_question_rule_type_select_limit.inc,v 1.3 2005/10/07 00:01:25 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -117,13 +117,13 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 
 			<?php
 			if (is_a($q_asset, 'form_question_type_select')) {
-				?>var select = form.elements["<?php echo $q_id ?>"];
+				?>var select = form.elements["q<?php echo $q_id ?>"];
 				for(i=0; i<select.options.length; i++) {
 					if (select.options[i].selected) selectCount++;
 				}<?php
 			} else {			// tickbox (or option) list needs something else
 				foreach ($q_asset->getOptions() as $key => $option) {
-					?>if (document.getElementById('<?php echo $q_asset->id.'_'.$key ?>').checked) selectCount++;
+					?>if (form.elements["q<?php echo $q_asset->id.'_'.$key ?>"].checked) selectCount++;
 					<?php
 				}
 			}

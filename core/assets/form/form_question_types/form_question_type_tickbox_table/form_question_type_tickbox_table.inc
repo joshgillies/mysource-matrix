@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table.inc,v 1.2 2005/07/20 00:40:30 lwright Exp $
+* $Id: form_question_type_tickbox_table.inc,v 1.3 2005/10/07 00:01:27 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -291,7 +291,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	*/
 	function getSafePrefix()
 	{
-		return $prefix = str_replace(':', '_', $this->getPrefix());
+		return $prefix = 'q'.str_replace(':', '_', $this->getPrefix());
 
 	}//end getSafePrefix()
 
@@ -394,7 +394,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 
 	function populate()
 	{
-		$prefix = str_replace(':', '_', $this->getPrefix());
+		$prefix = $this->getSafePrefix();
 		$this->setValue(array_get_index($_POST, $prefix, Array()));
 		return true;
 

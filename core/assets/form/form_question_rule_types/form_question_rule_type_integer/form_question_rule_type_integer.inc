@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_integer.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
+* $Id: form_question_rule_type_integer.inc,v 1.3 2005/10/07 00:01:25 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -107,7 +107,7 @@ class Form_Question_Rule_Type_Integer extends Form_Question_Rule
 			}
 
 			?>
-				if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_integer(document.getElementById("<?php echo $q_asset->id; ?>").value)) {
+				if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_integer(form.elements["q<?php echo $q_asset->id; ?>"].value)) {
 					submission_errors[submission_errors.length] = "<?php
 						if (empty($rule_data['custom_text'])) {
 							echo addslashes($this->defaultError($q_asset, $rule_data));

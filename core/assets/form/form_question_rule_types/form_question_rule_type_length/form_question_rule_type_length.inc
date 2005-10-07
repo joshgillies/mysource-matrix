@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_length.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
+* $Id: form_question_rule_type_length.inc,v 1.3 2005/10/07 00:01:25 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,7 +83,7 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 		ob_start();			// buffer this please
 
 			?>
-				if (!(document.getElementById("<?php echo $q_asset->id; ?>").value.length <?php echo $operator ?> <?php echo $value ?>)) {
+				if (!(form.elements["q<?php echo $q_asset->id; ?>"].value.length <?php echo $operator ?> <?php echo $value ?>)) {
 					submission_errors[submission_errors.length] = "<?php
 						if (empty($rule_data['custom_text'])) {
 							echo addslashes($this->defaultError($q_asset, $rule_data));
@@ -137,7 +137,6 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
 	{
-		$operator_list = $this->_getOperators();
 		$operator = array_get_index($rule_data, 'operator', '==');
 
 		$value = array_get_index($rule_data, 'value', '');

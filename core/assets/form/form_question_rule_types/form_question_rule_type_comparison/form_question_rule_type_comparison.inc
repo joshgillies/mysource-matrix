@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.3 2005/10/07 00:01:25 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -84,7 +84,7 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 		ob_start();			// buffer this please
 
 			if ($cq_id != 0) {
-				$comparison = 'document.getElementById("'.$cq_id.'").value';
+				$comparison = 'form.elements["q'.$cq_id.'"].value';
 			} else {
 				$comparison = '"'.addslashes($value).'"';
 			}
@@ -92,9 +92,9 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 			// if it's a numeric field, make sure that JavaScript
 			// interprets it as a number
 			if (is_a($q_asset, 'form_question_type_numeric')) {
-				?>if (!(parseFloat(document.getElementById("<?php echo $q_asset->id; ?>").value) <?php echo $operator ?> parseFloat(<?php echo $comparison ?>))) {<?php
+				?>if (!(parseFloat(form.elements["q<?php echo $q_asset->id; ?>"].value) <?php echo $operator ?> parseFloat(<?php echo $comparison ?>))) {<?php
 			} else {
-				?>if (!(document.getElementById("<?php echo $q_asset->id; ?>").value <?php echo $operator ?> <?php echo $comparison ?>)) {<?php
+				?>if (!(form.elements["q<?php echo $q_asset->id; ?>"].value <?php echo $operator ?> <?php echo $comparison ?>)) {<?php
 			}
 			?>submission_errors[submission_errors.length] = "<?php
 						if (empty($rule_data['custom_text'])) {
