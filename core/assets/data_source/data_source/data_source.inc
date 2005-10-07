@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.3 2005/10/04 04:51:03 pgannavarapu Exp $
+* $Id: data_source.inc,v 1.4 2005/10/07 04:26:54 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,8 +60,9 @@ class Data_Source extends Asset
 	*
 	* @param boolean	$short_name	whether or not we are after the short name or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
 	function _getName($short_name=false)
 	{
@@ -73,8 +74,9 @@ class Data_Source extends Asset
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -84,9 +86,9 @@ class Data_Source extends Asset
 
 
 	/**
-	* Returns an array of the column names of the result set
-	* Its upto the kids to override this functioon
-	* @return Array
+	* Returns an array of the column names of the result set. Upto kids to override this
+	*
+	* @return array
 	* @access public
 	*/
 	function getFieldNamesFromRecordSet()
@@ -99,7 +101,7 @@ class Data_Source extends Asset
 	/**
 	* Returns an array of the result of query execution
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getResultSet()
@@ -109,13 +111,15 @@ class Data_Source extends Asset
 		$result = unserialize($result);
 		return $result;
 
-	}//getResultSet()
+	}//end getResultSet()
 
 
 	/**
 	* Accepts an array of info and saves it to cache
 	*
-	* @return Void
+	* @param array	$result	the result set that has to be cached
+	*
+	* @return void
 	* @access public
 	*/
 	function setResultSet($result)
@@ -124,7 +128,7 @@ class Data_Source extends Asset
 		$r = $cm->saveToCache($this->id, $this->type(), '', serialize($result), false);
 		assert_valid_cache_result($r);
 
-	}//setResultSet()
+	}//end setResultSet()
 
 
 	/**
@@ -157,10 +161,10 @@ class Data_Source extends Asset
 	/**
 	* Sets a permission for the passed data_source_record_set
 	*
-	* @param int		$assetid	the assetid for asset whose permissions to set
-	* @param int		$data_source_record_setid		the id of the data_source_record_set to add the permission for
-	* @param string		$permission	the permission code you are adding
-	* @param boolean	$granted	whether this permission grants access or not
+	* @param int		$assetid					the assetid for asset whose permissions to set
+	* @param int		$data_source_record_setid	the id of the data_source_record_set to add the permission for
+	* @param string		$permission					the permission code you are adding
+	* @param boolean	$granted					whether this permission grants access or not
 	*
 	* @return boolean
 	* @access public
@@ -175,9 +179,9 @@ class Data_Source extends Asset
 	/**
 	* Deletes a permission with the passed data_source_record_set
 	*
-	* @param int	$assetid		the assetid for asset whose permissions to delete
-	* @param int	$data_source_record_setid			the id of the data_source_record_set to remove the permission from
-	* @param string	$permission		the permission code you are deleting
+	* @param int	$assetid					the assetid for asset whose permissions to delete
+	* @param int	$data_source_record_setid	the id of the data_source_record_set to remove the permission from
+	* @param string	$permission					the permission code you are deleting
 	*
 	* @return boolean
 	* @access public
@@ -304,19 +308,19 @@ class Data_Source extends Asset
 	/**
 	* Get details of the link(s) between the two specified assets
 	*
-	* @param int		$assetid			id of the the $side_of_link asset
-	* @param int		$other_assetid		the asset on the other side of the link
-	* @param int		$link_types			integer that can be the product of bitwise operations
-	*										on the SQ_LINK_* constants
-	* @param string		$value				the value that is associated with this link
-	* @param string		$side_of_link		Which side of the link the first assetid is on
-	*										('major' or 'minor')
-	* @param boolean	$force_array		force the results to return an array of links
-	*										even if there is only one link
-	* @param boolean	$dependant			The dependant status for all the links must be
-	*										this (if not null)
-	* @param boolean	$exclusive			The exclusive status for all the links must be
-	*										this (if not null)
+	* @param int		$assetid		id of the the $side_of_link asset
+	* @param int		$other_assetid	the asset on the other side of the link
+	* @param int		$link_types		integer that can be the product of bitwise operations
+	*									on the SQ_LINK_* constants
+	* @param string		$value			the value that is associated with this link
+	* @param string		$side_of_link	Which side of the link the first assetid is on
+	*									('major' or 'minor')
+	* @param boolean	$force_array	force the results to return an array of links
+	*									even if there is only one link
+	* @param boolean	$dependant		The dependant status for all the links must be
+	*									this (if not null)
+	* @param boolean	$exclusive		The exclusive status for all the links must be
+	*									this (if not null)
 	*
 	* @return array
 	* @access public
@@ -331,8 +335,8 @@ class Data_Source extends Asset
 	/**
 	* Get details of the links from the specified asset to all its children
 	*
-	* @param string		$assetid	the assetid of the asset to find the child links for
-	* @param int		$link_type	the type of links to get
+	* @param string	$assetid	the assetid of the asset to find the child links for
+	* @param int	$link_type	the type of links to get
 	*
 	* @return array
 	* @access public
@@ -351,7 +355,7 @@ class Data_Source extends Asset
 	*
 	* @param int	$linkid		the link id of the link to update
 	* @param int	$link_type	the type of the link (one of the SQ_LINK_* constants)
-	* @param string $value		the value to place on the link
+	* @param string	$value		the value to place on the link
 	* @param int	$sort_order	the position in the links list that this link should take,
 	*							if less than zero places at end of list
 	*
@@ -421,6 +425,7 @@ class Data_Source extends Asset
 		return 0;
 
 	}//end createAssetLink()
+
 
 }//end class
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_record_set_edit_fns.inc,v 1.1 2005/09/28 04:09:22 pgannavarapu Exp $
+* $Id: data_source_record_set_edit_fns.inc,v 1.2 2005/10/07 04:26:55 pgannavarapu Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -47,9 +47,9 @@ class Data_Source_Record_Set_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for editing user details
 	*
-	* @param object Data_Source_Record_Set	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter		&$o		the outputter class
-	* @param string							$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return void
 	* @access public
@@ -83,12 +83,11 @@ class Data_Source_Record_Set_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for editing user details
 	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
-	* @param object Data_Source_Record_Set	&$asset	the asset to which we belong
-	* @param object	Backend_Outputter		&$o		the outputter class
-	* @param string							$prefix	prefix for the form element
-	*
-	* @return boolean (false always)
+	* @return boolean
 	* @access public
 	*/
 	function processDetails(&$asset, &$o, $prefix)

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_management.inc,v 1.2 2005/10/04 04:51:03 pgannavarapu Exp $
+* $Id: data_source_management.inc,v 1.3 2005/10/07 04:26:54 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,16 +48,16 @@ class Data_Source_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-						'name'		=> Array(
-										'added'		=> '0.1',
-										'type'		=> 'text',
-										'default'	=> '',
-									   ),
-						'dsn'		=> Array(
-										'added'		=> '0.1',
-										'type'		=> 'text',
-										'default'	=> '',
-									   ),
+						'name'			=> Array(
+											'added'		=> '0.1',
+											'type'		=> 'text',
+											'default'	=> '',
+										   ),
+						'dsn'			=> Array(
+											'added'		=> '0.1',
+											'type'		=> 'text',
+											'default'	=> '',
+										   ),
 						'shadow_name'	=> Array(
 											'added'		=> '0.1',
 											'type'		=> 'text',

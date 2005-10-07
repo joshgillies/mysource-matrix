@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_record_set.inc,v 1.2 2005/09/29 00:29:20 pgannavarapu Exp $
+* $Id: data_source_record_set.inc,v 1.3 2005/10/07 04:26:54 pgannavarapu Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -107,7 +107,7 @@ class Data_Source_Record_Set extends Asset
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @return string
 	* @access private
@@ -122,7 +122,6 @@ class Data_Source_Record_Set extends Asset
 
 	/**
 	* Return the keywords for this asset type.
-	*
 	* This function is called in asset-listing situations like the asset listing, search page etc
 	*
 	* The return value is in the form:
@@ -132,8 +131,8 @@ class Data_Source_Record_Set extends Asset
 	* );
 	* </pre>
 	*
-	* @access public
 	* @return array
+	* @access public
 	*/
 	function getAvailableKeywords()
 	{
