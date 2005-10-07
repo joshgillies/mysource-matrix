@@ -21,7 +21,7 @@
 	<action_type>create_asset</action_type>
 	<type_code>user_group</type_code>
 	<link_type>1</link_type>
-	<parentid>>[[system://web_folder_users]]</</parentid>
+	<parentid>[[system://web_folder_users]]</parentid>
 </action>
 <!-- Set Name Attribute -->
 <action>
