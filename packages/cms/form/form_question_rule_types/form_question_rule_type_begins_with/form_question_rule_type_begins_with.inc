@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_begins_with.inc,v 1.11 2005/05/11 06:07:30 lwright Exp $
+* $Id: form_question_rule_type_begins_with.inc,v 1.11.2.1 2005/10/07 03:51:37 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -105,13 +105,13 @@ class Form_Question_Rule_Type_Begins_With extends Form_Question_Rule
 			}
 
 			if ($cq_id != 0) {
-				$comparison = 'document.getElementById("'.$cq_id.'").value';
+				$comparison = 'form.elements["q'.$cq_id.'"].value';
 			} else {
 				$comparison = '"'.addslashes($value).'"';
 			}
 
 			?>
-				if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_begins_with(document.getElementById("<?php echo $q_asset->id; ?>").value, <?php echo $comparison ?>, <?php echo (int)$case_sensitive; ?>)) {
+				if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_begins_with(form.elements["q<?php echo $q_asset->id; ?>"].value, <?php echo $comparison ?>, <?php echo (int)$case_sensitive; ?>)) {
 					submission_errors[submission_errors.length] = "<?php
 						if (empty($rule_data['custom_text'])) {
 							echo addslashes($this->defaultError($q_asset, $rule_data));
@@ -199,7 +199,7 @@ class Form_Question_Rule_Type_Begins_With extends Form_Question_Rule
 			$value = array_get_index($rule_data, 'value', '');
 		}
 
-		$error_str = translate($string_code, $q_asset->name, $value).' ('.translate('cms_form_'.($case_sensitive ? '' : 'not_').'case_sensitive').')';
+		$error_str = translate($string_code, $q_asset->name, $value).' '.translate('cms_form_'.($case_sensitive ? '' : 'not_').'case_sensitive');
 
 		return $error_str;
 

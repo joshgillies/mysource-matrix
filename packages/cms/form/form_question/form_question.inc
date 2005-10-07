@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.57.2.4 2005/09/29 01:50:28 arailean Exp $
+* $Id: form_question.inc,v 1.57.2.5 2005/10/07 03:51:37 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.57.2.4 $
+* @version $Revision: 1.57.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -578,8 +578,8 @@ class Form_Question extends Asset
 	*/
 	function populate()
 	{
-		if (isset($_POST[$this->id])) {
-			$this->setValue($_POST[$this->id]);
+		if (isset($_POST['q'.$this->id])) {
+			$this->setValue($_POST['q'.$this->id]);
 		}
 		return true;
 

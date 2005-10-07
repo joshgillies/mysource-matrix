@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_regexp.inc,v 1.16 2005/05/11 06:07:31 lwright Exp $
+* $Id: form_question_rule_type_regexp.inc,v 1.16.2.1 2005/10/07 03:51:38 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -81,7 +81,7 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 
 			// JavaScript only accepts forward slashes for their regexs
 			?>
-				if (<?php echo ($operator == 1) ? '!' : ''; ?>document.getElementById("<?php echo $q_asset->id; ?>").value.match(/<?php echo str_replace('/', '\/', $value) ?>/)) {
+				if (<?php echo ($operator == 1) ? '!' : ''; ?>form.elements["q<?php echo $q_asset->id; ?>"].value.match(/<?php echo str_replace('/', '\/', $value) ?>/)) {
 					submission_errors[submission_errors.length] = "<?php
 						if (empty($rule_data['custom_text'])) {
 							echo addslashes($this->defaultError($q_asset, $rule_data));

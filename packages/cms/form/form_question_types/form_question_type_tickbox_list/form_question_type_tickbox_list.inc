@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.37.2.2 2005/09/02 03:55:57 dheppell Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.37.2.3 2005/10/07 03:51:40 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.37.2.2 $
+* @version $Revision: 1.37.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -90,7 +90,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		if (!stristr($extras, 'class=')) {
 			$extras .= ' class="sq-form-field"';
 		}
-		$name  = $this->id;
+		$name  = 'q'.$this->id;
 
 		$html  = '
 			<style type="text/css">
@@ -112,15 +112,15 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 			$html .= '<li>';
 
 			$html .= '<input type="'.$type.'" ';
-			$html .= 'name="'.$this->id.(($multiple) ? '[]' : '').'" ';
-			$html .= 'id="'.$this->id.'_'.$key.'"';
+			$html .= 'name="'.$name.(($multiple) ? '[]' : '').'" ';
+			$html .= 'id="'.$name.'_'.$key.'"';
 			$html .= 'value="'.htmlspecialchars($key).'"';
 			if (in_array($key, $defaults)) {
 				$html .= ' checked="checked"';
 			}
 			$html .= ($extras == '') ? '/>' : ' '.$extras.' />';
 
-			$html .= '&nbsp;<label for="'.$this->id.'_'.$key.'">'.$value.'</label>';
+			$html .= '&nbsp;<label for="'.$name.'_'.$key.'">'.$value.'</label>';
 
 			$html .= '</li>';
 		}

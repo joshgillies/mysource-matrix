@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.12.2.2 2005/09/26 05:48:53 sdanis Exp $
+* $Id: form_question_type_file_upload.inc,v 1.12.2.3 2005/10/07 03:51:38 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.12.2.2 $
+* @version $Revision: 1.12.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -68,7 +68,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 	function getHtmlField()
 	{
 		$extras = $this->attr('extra');
-		$name   = $this->id;
+		$name   = 'q'.$this->id;
 
 		ob_start();
 		file_upload($name, $extras);
@@ -148,7 +148,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 	*/
 	function populate()
 	{
-		$this->_tmp['file_info'] = get_file_upload_info($this->id);
+		$this->_tmp['file_info'] = get_file_upload_info('q'.$this->id);
 		$this->setValue(array_get_index($this->_tmp['file_info'], 'name', translate('cms_form_file_upload_none')));
 		if (isset($this->_tmp['file_info']['name'])) {
 			$this->_tmp['summary'] = $this->_tmp['file_info']['name'].', type '.$this->_tmp['file_info']['type'].', '.easy_filesize($this->_tmp['file_info']['size']);

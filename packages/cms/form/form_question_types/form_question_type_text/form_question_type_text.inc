@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.33 2005/05/20 05:27:37 tbarrett Exp $
+* $Id: form_question_type_text.inc,v 1.33.2.1 2005/10/07 03:51:40 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -72,7 +72,7 @@ class Form_Question_Type_Text extends Form_Question
 		$width  = $this->attr('width');
 		$max    = $this->attr('max');
 		$extras = $this->attr('extra');
-		$name   = $this->id;
+		$name   = 'q'.$this->id;
 
 		$value = $this->getValue();
 

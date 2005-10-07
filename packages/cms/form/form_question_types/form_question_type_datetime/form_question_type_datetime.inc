@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.23 2005/05/20 05:27:37 tbarrett Exp $
+* $Id: form_question_type_datetime.inc,v 1.23.2.1 2005/10/07 03:51:38 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -70,7 +70,7 @@ class Form_Question_Type_Datetime extends Form_Question
 	function getHtmlField()
 	{
 		$extras = $this->attr('extra');
-		$name   = $this->id;
+		$name   = 'q'.$this->id;
 
 		$html = '';
 		$value = $this->getValue();
@@ -102,7 +102,7 @@ class Form_Question_Type_Datetime extends Form_Question
 			if ($null_params[$t]) $parameters['null'][$t] = 1;
 		}
 
-		$dt_field = new Datetime_Field($this->id, $value, $parameters);
+		$dt_field =& new Datetime_Field($name, $value, $parameters);
 
 		ob_start();
 		$dt_field->printField();
@@ -337,13 +337,14 @@ class Form_Question_Type_Datetime extends Form_Question
 	function populate()
 	{
 		$val = '';
-		$value = $_POST[$this->id.'value'];
-		$show = $_POST[$this->id.'show'];
+		$name = 'q'.$this->id;
+		$value = $_POST[$name.'value'];
+		$show = $_POST[$name.'show'];
 
 		if (strpos($show, 'y') === false) {
 			$val .= '----';
 		} else {
-			$val .= str_pad($_POST[$this->id.'value']['y'], 4, '0', STR_PAD_LEFT);
+			$val .= str_pad($_POST[$name.'value']['y'], 4, '0', STR_PAD_LEFT);
 		}
 
 		$val .= '-';
@@ -351,7 +352,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		if (strpos($show, 'm') === false) {
 			$val .= '--';
 		} else {
-			$val .= str_pad($_POST[$this->id.'value']['m'], 2, '0', STR_PAD_LEFT);
+			$val .= str_pad($_POST[$name.'value']['m'], 2, '0', STR_PAD_LEFT);
 		}
 
 		$val .= '-';
@@ -359,7 +360,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		if (strpos($show, 'd') === false) {
 			$val .= '--';
 		} else {
-			$val .= str_pad($_POST[$this->id.'value']['d'], 2, '0', STR_PAD_LEFT);
+			$val .= str_pad($_POST[$name.'value']['d'], 2, '0', STR_PAD_LEFT);
 		}
 
 		$val .= ' ';
@@ -367,7 +368,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		if (strpos($show, 'h') === false) {
 			$val .= '--';
 		} else {
-			$val .= str_pad($_POST[$this->id.'value']['h'], 2, '0', STR_PAD_LEFT);
+			$val .= str_pad($_POST[$name.'value']['h'], 2, '0', STR_PAD_LEFT);
 		}
 
 		$val .= ':';
@@ -375,7 +376,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		if (strpos($show, 'i') === false) {
 			$val .= '--';
 		} else {
-			$val .= str_pad($_POST[$this->id.'value']['i'], 2, '0', STR_PAD_LEFT);
+			$val .= str_pad($_POST[$name.'value']['i'], 2, '0', STR_PAD_LEFT);
 		}
 
 		$val .= ':';
@@ -383,7 +384,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		if (strpos($show, 's') === false) {
 			$val .= '--';
 		} else {
-			$val .= str_pad($_POST[$this->id.'value']['s'], 2, '0', STR_PAD_LEFT);
+			$val .= str_pad($_POST[$name.'value']['s'], 2, '0', STR_PAD_LEFT);
 		}
 
 		$this->setValue($val);

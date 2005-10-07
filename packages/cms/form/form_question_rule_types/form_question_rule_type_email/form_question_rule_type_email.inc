@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email.inc,v 1.17.2.2 2005/07/29 01:12:55 dmckee Exp $
+* $Id: form_question_rule_type_email.inc,v 1.17.2.3 2005/10/07 03:51:38 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.17.2.2 $
+* @version $Revision: 1.17.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -101,7 +101,7 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 			}
 
 			?>
-				if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_email(document.getElementById("<?php echo $q_asset->id; ?>").value)) {
+				if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_email(form.elements["q<?php echo $q_asset->id; ?>"].value)) {
 					submission_errors[submission_errors.length] = "<?php
 						if (empty($rule_data['custom_text'])) {
 							echo addslashes($this->defaultError($q_asset, $rule_data));

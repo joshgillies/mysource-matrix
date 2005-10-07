@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password.inc,v 1.21 2005/05/20 05:27:37 tbarrett Exp $
+* $Id: form_question_type_password.inc,v 1.21.2.1 2005/10/07 03:51:40 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -71,8 +71,8 @@ class Form_Question_Type_Password extends Form_Question
 		$width  = $this->attr('width');
 		$max    = $this->attr('max');
 		$extras = $this->attr('extra');
-		$name   = $this->id.'_1';
-		$name2   = $this->id.'_2';
+		$name   = 'q'.$this->id;
+		$name2   = 'q'.$this->id.'_2';
 
 		$value = $this->attr('default');
 
@@ -127,10 +127,12 @@ class Form_Question_Type_Password extends Form_Question
 	*/
 	function populate()
 	{
-		if (isset($_POST[$this->id.'_1'])) {
-			$this->setValue($_POST[$this->id.'_1']);
+		$name = 'q'.$this->id;
+
+		if (isset($_POST[$name])) {
+			$this->setValue($_POST[$name]);
 			if ($this->attr('verify')) {
-				$this->_tmp['verify_value'] = $_POST[$this->id.'_2'];
+				$this->_tmp['verify_value'] = $_POST[$name.'_2'];
 			}
 		}
 		return true;
