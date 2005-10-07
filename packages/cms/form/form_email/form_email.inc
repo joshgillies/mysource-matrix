@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.43 2005/10/06 01:39:54 lwright Exp $
+* $Id: form_email.inc,v 1.44 2005/10/07 05:40:08 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -166,6 +166,7 @@ class Form_Email extends Form
 				$sel[$key]['assetid'] = str_replace($this->id.':q', $clone->id.':q', $sel[$key]['assetid']);
 			}
 
+			// field selections for STAF and receipt
 			$staf_field = str_replace($this->id.':q', $clone->id.':q', $this->attr('staf_field'));
 			$receipt_field = str_replace($this->id.':q', $clone->id.':q', $this->attr('receipt_field'));
 
@@ -189,6 +190,43 @@ class Form_Email extends Form
 
 
 	/**
+	* delete a question to this form
+	*
+	* @param Form_Question &$question the question object to delete
+	*
+	* @access public
+	* @return boolean false if database problem or question already deleted, true if sucessful
+	*/
+	function deleteQuestion(&$question)
+	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (!parent::deleteQuestion($question)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		if ($this->attr('staf_field') == $question->id) {
+			$this->setAttrValue('staf_field', '');
+		}
+
+		if ($this->attr('receipt_field') == $question->id) {
+			$this->setAttrValue('receipt_field', '');
+		}
+
+		if (!$this->saveAttributes()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end deleteQuestion()
+
+
+	/**
 	* Mail a receipt to the user if a receipt email field has been assigned in Email Options
 	*
 	* @access public
@@ -200,6 +238,7 @@ class Form_Email extends Form
 		if (empty($email_field_assetid)) return false;
 
 		$email_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($email_field_assetid);
+		if (empty($email_field)) return false;
 		$address = $email_field->getValue();
 
 		// get the form info (in both formats)
@@ -354,6 +393,7 @@ class Form_Email extends Form
 		if (empty($email_field_assetid)) return false;
 
 		$email_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($email_field_assetid);
+		if (empty($email_field)) return false;
 		$addresses = preg_split('/[\s;,]+/',$email_field->getValue());
 
 		// get the form info
