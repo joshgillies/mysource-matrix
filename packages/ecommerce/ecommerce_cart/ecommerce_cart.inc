@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.20 2005/10/05 06:50:17 lwright Exp $
+* $Id: ecommerce_cart.inc,v 1.21 2005/10/07 03:28:07 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -365,16 +365,15 @@ class Ecommerce_Cart extends Listing_Engine
 	* the listing engine.
 	*
 	* @param string	$assetid		The assetid of the asset we are printing
-	* @param string $score			The score of the
 	* @param string $list_position
 	*
 	* @return void
 	* @access protected
 	*/
-	function _printAsset($assetid, $type_code, $list_position, $keywords=Array())
+	function _printAsset($assetid, $list_position, $keywords=Array())
 	{
 		ob_start();
-		parent::_printAsset($assetid, $type_code, $list_position, $keywords);
+		parent::_printAsset($assetid, $list_position, $keywords);
 		$element_contents = ob_get_contents();
 		ob_end_clean();
 
