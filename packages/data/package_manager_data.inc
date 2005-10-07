@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_data.inc,v 1.1.1.1 2005/09/28 05:35:28 pgannavarapu Exp $
+* $Id: package_manager_data.inc,v 1.2 2005/10/07 03:43:22 pgannavarapu Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
 class Package_Manager_Data extends Package_Manager
 {
+
 
 	/**
 	* Constructor
@@ -49,6 +50,7 @@ class Package_Manager_Data extends Package_Manager
 		$this->Package_Manager();
 
 	}//end constructor
+
 
 }//end class
 

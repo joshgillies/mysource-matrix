@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.3 2005/10/04 05:00:30 pgannavarapu Exp $
+* $Id: data_source_db.inc,v 1.4 2005/10/07 03:41:21 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,19 +60,19 @@ class Data_Source_DB extends Data_Source
 	/**
 	* Return all links that this asset has to other assets
 	*
-	* @param int			$assetid			id of the the $side_of_link asset
-	* @param int			$link_types			integer that can be the product of bitwise operations
-	*											on the SQ_LINK_* constants
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	* @param string			$side_of_link		Which side of the link this (the current) asset
-	*											is on ('major' or 'minor')
-	* @param string			$sort_by			a field in the asset table you would like the results
-	*											sorted by (eg. name, short_name etc)
+	* @param int		$assetid			id of the the $side_of_link asset
+	* @param int		$link_types			integer that can be the product of bitwise operations
+	*										on the SQ_LINK_* constants
+	* @param string		$type_code			the type of asset that is linked
+	*										(eg 'Page', 'File', etc)
+	*										if an array returns link if matches any
+	*										of the array values
+	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
+	*										or $type_code and any of it's sub-classes
+	* @param string		$side_of_link		Which side of the link this (the current) asset
+	*										is on ('major' or 'minor')
+	* @param string		$sort_by			a field in the asset table you would like the results
+	*										sorted by (eg. name, short_name etc)
 	*
 	* @return array
 	* @access public
@@ -130,17 +130,17 @@ class Data_Source_DB extends Data_Source
 	/**
 	* Get all asset ids that are below the passed assetid in the various trees in which it exists
 	*
-	* @param int			$assetid			the id of the asset to get its children for
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	* @param string			$sort_by			a field in the asset table you would like the results
-	*											sorted by (eg. name, short_name etc)
+	* @param int		$assetid			the id of the asset to get its children for
+	* @param string		$type_code			the type of asset that is linked
+	*										(eg 'Page', 'File', etc)
+	*										if an array returns link if matches any
+	*										of the array values
+	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
+	*										or $type_code and any of it's sub-classes
+	* @param string		$sort_by			a field in the asset table you would like the results
+	*										sorted by (eg. name, short_name etc)
 	*
-	* @return array(int => string)	returns an array of assetids and their type code
+	* @return array
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
@@ -173,7 +173,7 @@ class Data_Source_DB extends Data_Source
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
-	* @return object Asset or null on error
+	* @return object
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
@@ -203,7 +203,7 @@ class Data_Source_DB extends Data_Source
 	/**
 	* Returns an array of the column names of the result set
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getFieldNamesFromRecordSet()
@@ -231,10 +231,11 @@ class Data_Source_DB extends Data_Source
 
 	}//end getFieldNamesFromRecordSet()
 
+
 	/**
 	* Returns an array of the result of query execution
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getResultSet()
@@ -255,17 +256,16 @@ class Data_Source_DB extends Data_Source
 		}
 		return $result;
 
-	}// end getResultSet()
+	}//end getResultSet()
 
 
 	/**
 	* Function that executes the query and assigns the result set to the result attribute
 	*
-	* @param object Data_Source_DB			&$asset	the DB Data source asset
+	* @param string	$sql	the sql query to be executed
 	*
 	* @return boolean
 	* @access public
-	*
 	*/
 	function _executeQuery($sql)
 	{
@@ -287,13 +287,8 @@ class Data_Source_DB extends Data_Source
 	/**
 	* Function to connect to the db and return the db object
 	*
-	* @param object Search_Page			&$asset	the Data Sourcee asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
-	*
-	* @return Object					Returns the reference of the db object
+	* @return object
 	* @access public
-	*
 	*/
 	function connectToDB()
 	{
@@ -308,7 +303,7 @@ class Data_Source_DB extends Data_Source
 			return $conn;
 		}
 
-	}// end connectToDB()
+	}//end connectToDB()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.4 2005/10/04 05:00:30 pgannavarapu Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.5 2005/10/07 03:41:21 pgannavarapu Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,13 +58,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Paints the interface for entering Data Source details
 	*
-	* @param object Data_Source_DB		&$asset	the Data_Source_DB asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the Data_Source_DB asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
-	*
 	*/
 	function paintDSN(&$asset, &$o, $prefix)
 	{
@@ -137,13 +136,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Processes the interface for entering DSN
 	*
-	* @param object Data_Source_DB		&$asset	the Data_Source_DB asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the Data_Source_DB asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
-	*
 	*/
 	function processDSN(&$asset, &$o, $prefix)
 	{
@@ -161,10 +159,10 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 			switch ($db_type) {
 				case 'postgres':
 					$new_dsn_string = "pgsql://$new_dsn[user]";
-					break;
+				break;
 				case 'mysql':
 					$new_dsn_string = "mysql://$new_dsn[user]";
-					break;
+				break;
 			}
 			!empty($new_dsn['password'])?$new_dsn_string .= ":$new_dsn[password]":null;
 			$new_dsn_string .= "@$new_dsn[host]/$new_dsn[database]";
@@ -185,13 +183,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Paints the interface for entering Data Source details
 	*
-	* @param object Data_Source_DB		&$asset	the Data_Source_DB asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the Data_Source_DB asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
-	*
 	*/
 	function paintDSNAlone(&$asset, &$o, $prefix)
 	{
@@ -202,9 +199,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 			text_area('dsn[dsn]', empty($user)? $dsn: '', 70, 5);
 			return true;
 		} else {
-			if (!empty($dsn)) {
-				echo $dsn;
-			}
+			if (!empty($dsn)) echo $dsn;
 			return false;
 		}
 
@@ -214,13 +209,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Processes the interface for entering DSN
 	*
-	* @param object Data_Source_DB		&$asset	the Data_Source_DB asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the Data_Source_DB asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
-	*
 	*/
 	function processDSNAlone(&$asset, &$o, $prefix)
 	{
@@ -232,13 +226,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Paints the interface for selecting the tables
 	*
-	* @param object Data_Source_DB		&$asset	the Data_Source_DB asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the Data_Source_DB asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
-	*
 	*/
 	function paintTables(&$asset, &$o, $prefix)
 	{
@@ -279,13 +272,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Processes the interface for selecting the tables
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
-	*
 	*/
 	function processTables(&$asset, &$o, $prefix)
 	{
@@ -306,13 +298,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Paints the interface for entering and processing the fields
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
-	*
 	*/
 	function paintFields(&$asset, &$o, $prefix)
 	{
@@ -415,13 +406,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Processes the interface for processing the fields
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
-	*
 	*/
 	function processFields(&$asset, &$o, $prefix)
 	{
@@ -433,12 +423,9 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 			}
 			$string_fields = substr($string_fields, 0, strlen($string_fields)-2);
-		} else  {
+		} else {
 			$string_fields = $asset->attr('fields');
-			if (empty($string_fields)) {
-				$string_fields = '*';
-			}
-
+			if (empty($string_fields)) $string_fields = '*';
 		}
 		$old_string_fields = $asset->attr('fields');
 		if (strcasecmp($old_string_fields, $string_fields) != 0) {
@@ -454,13 +441,10 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Function to get all the tables of the database
 	*
-	* @param object Search_Page			&$asset	the Data Sourcee asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the Data Source asset
 	*
-	* @return Array			Returns an array of all the tables or an empty Array
+	* @return array
 	* @access public
-	*
 	*/
 	function _getAllTables(&$asset)
 	{
@@ -501,13 +485,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Paints the interface for choosng to enter a new join
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
-	*
 	*/
 	function paintNewJoin(&$asset, &$o, $prefix)
 	{
@@ -546,13 +529,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* processes the interface for choosng to enter a new join
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
-	*
 	*/
 	function processNewJoin(&$asset, &$o, $prefix)
 	{
@@ -564,18 +546,17 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Paints the interface for entering Data Source details
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
-	*
 	*/
 	function paintJoins(&$asset, &$o, $prefix)
 	{
 		$type_joins = Array(
-						'left_join'	=> translate('left_join'),
+						'left_join'		=> translate('left_join'),
 						'right_join'	=> translate('right_join'),
 						'inner_join'	=> translate('inner_join'),
 						'cross_join'	=> translate('cross_join'),
@@ -722,13 +703,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Paints the interface for entering Data Source details
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
-	*
 	*/
 	function processJoins(&$asset, &$o, $prefix)
 	{
@@ -756,22 +736,13 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 
 	/**
-	* Function that takes the tables names and returns their column names
+	* Function that takes the tables names and returns associative array of column names with table names as key
 	*
-	* @param Array		$tables	the array of table names
-	*					this function returns the fields in the form of an array
-	*					Array(
-	*						table1name => Array(
-	*										key => field name of table1
-	*									 ),
-	*						table2name => Array(
-	*										key => field name of table2
-	*									 ),
-	*					)
+	* @param array	$tables	the array of table names
+	* @param object	&$asset	the data_source_db asset
 	*
-	* @return Array		array of field names
+	* @return array
 	* @access public
-	*
 	*/
 	function _getFields($tables, &$asset)
 	{
@@ -789,9 +760,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 			foreach ($record as $key => $value) {
 				$fields[$table][$table.'.'.$key] = $key;
 			}
-			if (empty($record)) {
-				$fields[$table] = '';
-			}
+			if (empty($record)) $fields[$table] = '';
 		}
 		return $fields;
 
@@ -801,13 +770,13 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Function that assigns null and empty array to the query attributes of the asset
 	*
-	* @param object Data_Source_DB			&$asset	the DB Data source asset
+	* @param object	&$asset	the DB Data source asset
+	* @param string	$mode	the mdoe in which the query buidler is
 	*
 	* @return boolean
 	* @access public
-	*
 	*/
-	function _resetAttributes(&$asset, $mode = '')
+	function _resetAttributes(&$asset, $mode='')
 	{
 		if ($mode != 'edit') {
 			$asset->setAttrValue('sql', null);
@@ -829,13 +798,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Paints the interface for painting the query
 	*
-	* @param object Search_Page			&$asset	the DB Data source asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the DB Data source asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
-	*
 	*/
 	function paintQuerySoFar(&$asset, &$o, $prefix)
 	{
@@ -870,13 +838,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Processes the interface for entering and reassigning the sql query
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
-	*
 	*/
 	function processQuerySoFar(&$asset, &$o, $prefix)
 	{
@@ -888,15 +855,11 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Processes the current sql by taking all the attributes
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
-	* This function takes in all of the attributes of the asset and builds a valid sql and assigns it to the 'sql'
-	* attribute os the asset. The paint function no displays the value in a text box!
-	*
 	*/
 	function _queryProcessing(&$asset, $prefix)
 	{
@@ -963,9 +926,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 							$temp = substr($column, 0, strpos($column, '.'));
 							$table[] = $temp;
 							$i = array_search($temp, $tab_array);
-							if ($i !== false) {
-								unset($tab_array[$i]);
-							}
+							if ($i !== false) unset($tab_array[$i]);
 						} else {
 							$table['type'] = ucwords(str_replace('_', ' ', $column));
 						}
@@ -1083,19 +1044,18 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		}
 		return false;
 
-	}// end _queryProcessing()
+	}//end _queryProcessing()
 
 
 	/**
 	* Paints the interface for entering and changing the where clause
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
-	*
 	*/
 	function paintWhereHaving(&$asset, &$o, $prefix)
 	{
@@ -1280,13 +1240,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Processes the interface for entering and changin the where clause.
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
-	*
 	*/
 	function processWhereHaving(&$asset, &$o, $prefix)
 	{
@@ -1325,13 +1284,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Paints the interface for entering and changing the where clause
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
-	*
 	*/
 	function paintGroupbyOrderby(&$asset, &$o, $prefix)
 	{
@@ -1354,7 +1312,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		}
 		$priority = Array();
 		$order = Array('ASC' => translate('order_asc'), 'DESC' => translate('order_desc'));
-		for($i = 1; $i <= count($fields); $i++) {
+		for ($i = 1; $i <= count($fields); $i++) {
 			$priority[$i] = $i;
 		}
 		$clauses = Array('order_by', 'group_by');
@@ -1446,13 +1404,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Processes the interface for entering and changin the where clause.
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
-	*
 	*/
 	function processGroupbyOrderby(&$asset, &$o, $prefix)
 	{
@@ -1494,21 +1451,19 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	}//end processGroupbyOrderby()
 
 
-
 	/**
 	* Paints the interface for entering the name of the shadow asset
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
-	*
 	*/
 	function paintKeywords(&$asset, &$o, $prefix)
 	{
-		$shadow_asset = $asset->getAsset($asset->id.':0');
+		$shadow_asset =& $asset->getAsset($asset->id.':0');
 		$keywords = $shadow_asset->getAvailableKeywords();
 		$wa = $asset->writeAccess('attributes');
 		?>
@@ -1525,7 +1480,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 					unset($keywords[$key]);
 					continue;
 				} else {
-					if(strpos($key, 'data_source_record_set') === false) {
+					if (strpos($key, 'data_source_record_set') === false) {
 						unset($keywords[$key]);
 						continue;
 					}
@@ -1552,13 +1507,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Processes the interface for entering and changin the where clause.
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
-	*
 	*/
 	function processKeywords(&$asset, &$o, $prefix)
 	{
@@ -1570,13 +1524,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Paints the interface for entering the name of the shadow asset
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
-	*
 	*/
 	function paintShadow(&$asset, &$o, $prefix)
 	{
@@ -1596,13 +1549,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Processes the interface for entering and changin the where clause.
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
-	*
 	*/
 	function processShadow(&$asset, &$o, $prefix)
 	{
@@ -1627,13 +1579,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Paints the interface for entering the name of the shadow asset
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
-	*
 	*/
 	function paintAggregateFunctions(&$asset, &$o, $prefix)
 	{
@@ -1652,7 +1603,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 						'COUNT'		=> 'COUNT(column)',
 						'SUM'		=> 'SUM(column)',
 						'MAX'		=> 'MAX(column)',
-						'MIN'		=> 'MIN(column)'
+						'MIN'		=> 'MIN(column)',
 					  );
 		if ($wa) {
 			$tables = $asset->attr('tables');
@@ -1724,7 +1675,9 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				$function = $_POST['aggregate_func'];
 				$new_table= null;
 				isset($_POST['aggregate_table'])? $new_table = $tables[$_POST['aggregate_table']] : $new_table = null;
-				if (($function != 'COUNT(*)') && empty($new_table)) return false;
+				if (($function != 'COUNT(*)') && empty($new_table)) {
+					return false;
+				}
 				?>
 				<tr>
 					<td><?php combo_box('aggregate['.$i.'][function]', $aggregates, false, $function); ?></td>
@@ -1783,13 +1736,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Processes the interface for entering and changin the where clause.
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
-	*
 	*/
 	function processAggregateFunctions(&$asset, &$o, $prefix)
 	{
@@ -1817,11 +1769,11 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Find out if the asset is n query mode or not
 	*
-	* @param object Asset	&$asset		The asset that might use the files
-	* @param string			$prefix		the prefix for this asset
+	* @param object	&$asset	The asset that might use the files
+	* @param string	$prefix	the prefix for this asset
 	*
+	* @return boolean
 	* @access protected
-	* @return boolean	true if not in edit mode
 	*/
 	function notEditMode(&$asset, $prefix)
 	{
@@ -1849,9 +1801,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				if (($mode == 'execute') && !empty($tables)) {
 					return true;
 				} else {
-					if ($mode == 'builder') {
-						return true;
-					}
+					if ($mode == 'builder') return true;
 				}
 			}
 			return false;
@@ -1863,11 +1813,11 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Find out if there are any tables selected or not
 	*
-	* @param object Asset	&$asset		The asset that might use the files
-	* @param string			$prefix		the prefix for this asset
+	* @param object	&$asset	The asset that might use the files
+	* @param string	$prefix	the prefix for this asset
 	*
+	* @return boolean
 	* @access protected
-	* @return boolean	true if there are some tables selected
 	*/
 	function tablesSelectedWithAggregates(&$asset, $prefix)
 	{
@@ -1889,11 +1839,11 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Find out if there are any tables selected or not
 	*
-	* @param object Asset	&$asset		The asset that might use the files
-	* @param string			$prefix		the prefix for this asset
+	* @param object	&$asset	The asset that might use the files
+	* @param string	$prefix	the prefix for this asset
 	*
+	* @return boolean
 	* @access protected
-	* @return boolean	true if there are some tables selected
 	*/
 	function tablesSelectedWithWhereHaving(&$asset, $prefix)
 	{
@@ -1916,11 +1866,11 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Find out if there are any tables selected or not
 	*
-	* @param object Asset	&$asset		The asset that might use the files
-	* @param string			$prefix		the prefix for this asset
+	* @param object	&$asset	The asset that might use the files
+	* @param string	$prefix	the prefix for this asset
 	*
+	* @return boolean
 	* @access protected
-	* @return boolean	true if there are some tables selected
 	*/
 	function tablesSelectedWithGroupbyOrderby(&$asset, $prefix)
 	{
@@ -1943,11 +1893,11 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Find out if there are any tables selected or not
 	*
-	* @param object Asset	&$asset		The asset that might use the files
-	* @param string			$prefix		the prefix for this asset
+	* @param object	&$asset	The asset that might use the files
+	* @param string	$prefix	the prefix for this asset
 	*
+	* @return boolean
 	* @access protected
-	* @return boolean	true if there are some tables selected
 	*/
 	function tablesSelected(&$asset, $prefix)
 	{
@@ -1964,11 +1914,11 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* If the mode is edit then the sql section is shown but if it is not edit and the query is empty then sql section is hidden
 	*
-	* @param object Asset	&$asset		The asset that might use the files
-	* @param string			$prefix		the prefix for this asset
+	* @param object	&$asset	The asset that might use the files
+	* @param string	$prefix	the prefix for this asset
 	*
+	* @return boolean
 	* @access protected
-	* @return boolean	true if there are some tables selected
 	*/
 	function queryNotEmpty(&$asset, $prefix)
 	{
@@ -1999,14 +1949,15 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 	}//end queryNotEmpty()
 
+
 	/**
 	* Find out if there are any tables selected or not
 	*
-	* @param object Asset	&$asset		The asset that might use the files
-	* @param string			$prefix		the prefix for this asset
+	* @param object	&$asset	The asset that might use the files
+	* @param string	$prefix	the prefix for this asset
 	*
+	* @return boolean
 	* @access protected
-	* @return boolean	true if there are some tables selected
 	*/
 	function NotEditModeAndTablesNotEmpty(&$asset, $prefix)
 	{
@@ -2043,11 +1994,11 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Find out if there are any tables selected or not
 	*
-	* @param object Asset	&$asset		The asset that might use the files
-	* @param string			$prefix		the prefix for this asset
+	* @param object	&$asset	The asset that might use the files
+	* @param string	$prefix	the prefix for this asset
 	*
+	* @return boolean
 	* @access protected
-	* @return boolean	true if there is a result set
 	*/
 	function resultSetExists(&$asset, $prefix)
 	{
@@ -2064,11 +2015,11 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Find out if there are any tables selected or not
 	*
-	* @param object Asset	&$asset		The asset that might use the files
-	* @param string			$prefix		the prefix for this asset
+	* @param object	&$asset	The asset that might use the files
+	* @param string	$prefix	the prefix for this asset
 	*
+	* @return boolean
 	* @access protected
-	* @return boolean	true if there is a result set
 	*/
 	function multiTablesSelected(&$asset, $prefix)
 	{
@@ -2083,11 +2034,11 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Find out if there are any tables selected or not
 	*
-	* @param object Asset	&$asset		The asset that might use the files
-	* @param string			$prefix		the prefix for this asset
+	* @param object	&$asset	The asset that might use the files
+	* @param string	$prefix	The prefix for this asset
 	*
+	* @return boolean
 	* @access protected
-	* @return boolean	true if there is a result set
 	*/
 	function multiTablesSelectedWithWriteAccess(&$asset, $prefix)
 	{
@@ -2106,11 +2057,11 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	/**
 	* Find out if there are any tables selected or not
 	*
-	* @param object Asset	&$asset		The asset that might use the files
-	* @param string			$prefix		the prefix for this asset
+	* @param object	&$asset	The asset that might use the files
+	* @param string	$prefix	the prefix for this asset
 	*
+	* @return boolean
 	* @access protected
-	* @return boolean	true if there is a result set
 	*/
 	function multiTablesSelectedWithJoinsOrWriteAccess(&$asset, $prefix)
 	{
@@ -2124,13 +2075,11 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 			}
 		} else {
 			$joins = $asset->attr('join');
-			if (!empty($joins)) {
-				return true;
-			}
+			if (!empty($joins)) return true;
 		}
 		return false;
 
-	}//end multiTablesSelectedWithWriteAccess()
+	}//end multiTablesSelectedWithJoinsOrWriteAccess()
 
 
 }//end class
