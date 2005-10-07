@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.141 2005/10/05 06:41:18 lwright Exp $
+* $Id: search_page.inc,v 1.142 2005/10/07 04:00:55 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.141 $
+* @version $Revision: 1.142 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1099,7 +1099,7 @@ class Search_Page extends Listing_Engine
 				}//end switch field type
 			} else {
 				// many (or zero) data sources for this field, so we'll assume it was just text
-				echo $query;
+				echo htmlspecialchars($query);
 			}
 
 			$replacement = ob_get_contents();
@@ -1405,6 +1405,7 @@ class Search_Page extends Listing_Engine
 
 					if ($this->attr('group_by') == 'grouped') {
 						$this->groupAssetsRecursively($this->attr('asset_grouping'), $result_list, $result_list);
+						$this->sortGroups($this->attr('asset_grouping'), $result_list, $result_list);
 					}
 
 					// print the asset list from the listing engine
@@ -1479,7 +1480,7 @@ class Search_Page extends Listing_Engine
 
 					} else if (ereg('(.+)_query_terms$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
-						$replacement = htmlspecialchars($this->getSearchedFieldReplacement($matches[1]));
+						$replacement = $this->getSearchedFieldReplacement($matches[1]);
 
 					} else if (ereg('(.+)_query_suggestions$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
