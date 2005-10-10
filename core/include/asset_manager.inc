@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.385 2005/09/30 05:38:49 lwright Exp $
+* $Id: asset_manager.inc,v 1.386 2005/10/10 01:22:17 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.385 $
+* @version $Revision: 1.386 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2125,9 +2125,9 @@ class Asset_Manager extends MySource_Object
 
 		$id_parts = explode(':', $linkid);
 		if (isset($id_parts[1])) {
-			$asset = &$this->getAsset($id_parts[0]);
-			$link = $asset->getLinkById($linkid, $assetid, $side_of_link);
-			$this->forgetAsset($asset);
+			$bridge = &$this->getAsset($id_parts[0]);
+			$link = $bridge->getLinkById($linkid, $assetid, $side_of_link);
+			$this->forgetAsset($bridge);
 			return $link;
 		}
 
@@ -2994,7 +2994,7 @@ class Asset_Manager extends MySource_Object
 
 		$id_parts = explode(':', $assetid);
 
-		// shadow asset found, pipe the request of to the bridge
+		// shadow asset found, pipe the request off to the bridge
 		if (isset($id_parts[1])) {
 			$real_assetid = $id_parts[0];
 			$asset = &$this->getAsset($real_assetid);
@@ -3084,11 +3084,9 @@ class Asset_Manager extends MySource_Object
 
 		if (isset($majorid_parts[1])) {
 			$asset = &$this->getAsset($majorid_parts[0]);
-			$major = &$this->getAsset($majorid_parts[1]);
 
 			$linkid = $asset->createAssetLink($major, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
 
-			$this->forgetAsset($major);
 			$this->forgetAsset($minor);
 			$this->forgetAsset($asset);
 			return $linkid;
@@ -3096,12 +3094,10 @@ class Asset_Manager extends MySource_Object
 
 		if (isset($minorid_parts[1])) {
 			$asset = &$this->getAsset($minorid_parts[0]);
-			$minor = &$this->getAsset($minorid_parts[1]);
 
 			$linkid = $asset->createAssetLink($major, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
 
 			$this->forgetAsset($major);
-			$this->forgetAsset($minor);
 			$this->forgetAsset($asset);
 			return $linkid;
 		}
@@ -3607,35 +3603,29 @@ class Asset_Manager extends MySource_Object
 		if (($err_msg = $this->canLinkToType($major, $minor->type(), $link_type, 0, $exclusive)) !== true) {
 			return $err_msg;
 		}
-
+/*
 		// shadow asset work
 		$majorid_parts = explode(':', $major->id);
 		$minorid_parts = explode(':', $minor->id);
+		$bridge_id = null;
 
 		if (isset($majorid_parts[1])) {
-			$asset = &$this->getAsset($majorid_parts[0]);
-			$major = &$this->getAsset($majorid_parts[1]);
-
-			$linkid = $asset->canCreateLink($major, $minor, $link_type, $exclusive);
-
-			$this->forgetAsset($major);
-			$this->forgetAsset($minor);
-			$this->forgetAsset($asset);
-			return $linkid;
+			$major->->canCreateLink($major, $minor, $link_type, $exclusive);
+			$bridge_id = $majorid_parts[0];
 		}
 
 		if (isset($minorid_parts[1])) {
-			$asset = &$this->getAsset($minorid_parts[0]);
-			$minor = &$this->getAsset($minorid_parts[1]);
-
-			$linkid = $asset->canCreateLink($major, $minor, $link_type, $exclusive);
-
-			$this->forgetAsset($major);
-			$this->forgetAsset($minor);
-			$this->forgetAsset($asset);
-			return $linkid;
+			$bridge_id = $minorid_parts[0];
 		}
 
+		if (!is_null($bridge_id)) {
+			$bridge = &$this->getAsset($bridge_id);
+			$response = $bridge->canCreateLink($major, $minor, $link_type, $exclusive);
+			$this->forgetAsset($bridge);
+			return $response;
+		}
+		// end shadow assets
+*/
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// check for web path conflicts with the new parents children
@@ -4191,9 +4181,9 @@ class Asset_Manager extends MySource_Object
 
 		// shadow asset found, pipe the request of to the bridge
 		if (isset($id_parts[1])) {
-			$asset = $this->getAsset($id_parts[0]);
-			$result =  $asset->deleteAssetLink($linkid, $moving);
-			$this->forgetAsset($asset);
+			$bridge = $this->getAsset($id_parts[0]);
+			$result = $bridge->deleteAssetLink($linkid, $moving);
+			$this->forgetAsset($bridge);
 			return $result;
 		}
 
