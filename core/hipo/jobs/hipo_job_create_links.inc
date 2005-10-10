@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.19 2005/10/10 01:18:36 arailean Exp $
+* $Id: hipo_job_create_links.inc,v 1.20 2005/10/10 01:30:28 arailean Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -316,7 +316,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				$o->openField('&nbsp;');
 					if ($new_parent->id == $trash_folder->id) {
 						?><p><?php echo translate('hipo_confirm_move_trash', count($assets));?></p><?php
-						$shadow_assets = null;
+						$shadow_assets = Array();
 						foreach ($assets as $one_id => $one_info) {
 							if (strpos($one_id,':')) $shadow_assets[] = $one_id;
 						}
