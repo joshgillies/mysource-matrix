@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_static_screen_details.xml,v 1.16 2005/08/25 05:11:14 dmckee Exp $
+* $Id: edit_interface_static_screen_details.xml,v 1.17 2005/10/10 04:03:06 sdanis Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Status" read_access="write:" write_access="write:attributes" limbo_access="1">
+	<section name="Status" limbo_access="1">
 		<field code="status_current" />
-		<field code="status_change" />
+		<field code="status_change" read_access="write:" write_access="write:attributes" />
 	</section>
 	<section name="Future Status">
 		<field code="status_future_status" />
