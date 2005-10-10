@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.18 2005/09/15 04:41:38 ndvries Exp $
+* $Id: hipo_job_create_links.inc,v 1.19 2005/10/10 01:18:36 arailean Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -213,9 +213,11 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	/**
 	* Set up vars and database information that the HIPO will need to run
 	*
+	* Returns the code_name for the new job
+	*
 	* @param string	$source_code_name	the code name of another job that wants to use this job
 	*
-	* @return string	returns the code_name for the new job
+	* @return string
 	* @access public
 	*/
 	function initialise($source_code_name=null)
@@ -246,12 +248,12 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	* This allows the user to back out if they want to, as well as be presented
 	* with any information/warnings regarding the new link (eg. move to trash)
 	*
-	* @param array							&$step_data	a reference to the array of information about the current step
-	* @param object Hipo_Backend_Outputter	&$o			the backend outputter class
-	* @param string							$prefix		prefix for form vars
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param object	&$o			the backend outputter class
+	* @param string	$prefix		prefix for form vars
 	*
-	* @access Public
 	* @return boolean
+	* @access public
 	*/
 	function paintConfirmation(&$step_data, &$o, $prefix)
 	{
@@ -313,7 +315,20 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 				$o->openField('&nbsp;');
 					if ($new_parent->id == $trash_folder->id) {
-						?><p><?php echo translate('hipo_confirm_move_trash', count($assets)); ?></p><?php
+						?><p><?php echo translate('hipo_confirm_move_trash', count($assets));?></p><?php
+						$shadow_assets = null;
+						foreach ($assets as $one_id => $one_info) {
+							if (strpos($one_id,':')) $shadow_assets[] = $one_id;
+						}
+						if (!empty($shadow_assets)) {
+							$shadow_info_array = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($shadow_assets);
+							echo '<p><strong class="sq-backend-warning">'.translate('hipo_immediate_delete_shadow').':</strong>';
+							echo '<ul>';
+							foreach ($shadow_info_array as $shadow_info) {
+								echo '<li>'.$shadow_info['short_name'].'</li>';
+							}
+							echo '</ul></p>';
+						}
 					} else {
 						echo '<p>'.translate('hipo_confirm_move_under', $new_parent->name).'</p>';
 						echo '<ul>';
@@ -425,11 +440,11 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	/**
 	* Does nothing
 	*
-	* @param	&array	$step_data		the step data for this job
-	* @param	string	$prefix			prefix to be used with this job
+	* @param array	&$step_data	the step data for this job
+	* @param string	$prefix		prefix to be used with this job
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processConfirmation(&$step_data, $prefix)
 	{
@@ -445,6 +460,15 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	}//end processConfirmation()
 
 
+	/**
+	* Create Links
+	*
+	* @param array	&$step_data	Step Data
+	* @param string	$prefix		prefix
+	*
+	* @return boolean
+	* @access public
+	*/
 	function processCreateLinks(&$step_data, $prefix)
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -497,6 +521,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			// if we are moving to the trash, we want to skip all the steps that ask us if we want
 			// to cascade permissions, metadata, and workflow. We also need to get all the children
 			// so the lookups can be updated later
+			$moving_to_trash = false;
+			$bridge = null;
+
 			$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 			if ($this->_running_vars['to_parent_assetid'] == $trash_folder->id) {
 				$this->skipStep(3);
@@ -504,33 +531,53 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				$this->skipStep(5);
 				$this->skipStep(6);
 
+				$moving_to_trash = true;
+
+				$id_parts = explode(':', $assetid);
+				if (isset($id_parts[1])) {
+					$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id_parts[0]);
+				}
+
 				$children = &$GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
 				$this->_running_vars['assets_children'] = array_merge($this->_running_vars['assets_children'], array_keys($children));
 			}
 
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid'], $value['parentid']);
+			// if we are moving a shadow asset to the trash, the bridge is responsible for deletion of links
+			// and determining whether the shadow asset itself should be deleted
+			// NOTE: a shadow asset CANNOT be linked to the Trash, therefore it (or the link) must be deleted
+			if ($moving_to_trash && !is_null($bridge)) {
+				if (!$bridge->deleteAssetLink($value['linkid'])){
+					trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bridge);
 
-			$linkid = $GLOBALS['SQ_SYSTEM']->am->moveLink($value['linkid'], $this->_running_vars['to_parent_assetid'], $link['link_type'], $this->_running_vars['to_parent_pos']);
+			} else {
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid'], $value['parentid']);
 
-			if (!$linkid) {
-				trigger_localised_error('HIPO0020', E_USER_WARNING, $assetid, $this->_running_vars['to_parent_assetid']);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+				$linkid = $GLOBALS['SQ_SYSTEM']->am->moveLink($value['linkid'], $this->_running_vars['to_parent_assetid'], $link['link_type'], $this->_running_vars['to_parent_pos']);
+
+				if (!$linkid) {
+					trigger_localised_error('HIPO0020', E_USER_WARNING, $assetid, $this->_running_vars['to_parent_assetid']);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+
+				$new_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_link['minorid'], $new_link['minor_type_code']);
+
+				if (is_null($asset)) {
+					trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+				$new_parent_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($this->_running_vars['to_parent_assetid']));
+				$step_data['message'] = translate('hipo_move', $asset->name, $new_parent_info[$this->_running_vars['to_parent_assetid']]['name']);
+
+				$this->_running_vars['to_parent_pos']++;
 			}
-
-			$new_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
-
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_link['minorid'], $new_link['minor_type_code']);
-
-			if (is_null($asset)) {
-				trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-			$new_parent_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($this->_running_vars['to_parent_assetid']));
-			$step_data['message'] = translate('hipo_move', $asset->name, $new_parent_info[$this->_running_vars['to_parent_assetid']]['name']);
-
-			$this->_running_vars['to_parent_pos']++;
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		}
@@ -557,12 +604,12 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	/**
 	* Paint the interface for accepting user input on what to cascade (permissions/metadata/workflow)
 	*
-	* @param array							&$step_data	a reference to the array of information about the current step
-	* @param object Hipo_Backend_Outputter	&$o			the backend outputter class
-	* @param string							$prefix		prefix for form vars
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param object	&$o			the backend outputter class
+	* @param string	$prefix		prefix for form vars
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function paintInterface(&$step_data, &$o, $prefix)
 	{
@@ -639,11 +686,11 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	/**
 	* Process the user's selections to cascade whatever, and skip those steps that they don't want to run
 	*
-	* @param	&array	$step_data		the step data for this job
-	* @param	string	$prefix			prefix to be used with this job
+	* @param array	&$step_data	the step data for this job
+	* @param string	$prefix		prefix to be used with this job
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processInterface(&$step_data, $prefix)
 	{
@@ -682,9 +729,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	* Run as Step 1 (before cascading) because this step is critical.
 	* We dont want them to bail out before doing this.
 	*
-	* @param string		&$job_type
-	* @param array		&$running_vars
-	* @param array		&$options
+	* @param string	&$job_type		job type
+	* @param array	&$running_vars	running vars
+	* @param array	&$options		options
 	*
 	* @return void
 	* @access public
@@ -713,9 +760,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	/**
 	* Cascade permissions (if not skipped)
 	*
-	* @param string		&$job_type
-	* @param array		&$running_vars
-	* @param array		&$options
+	* @param string	&$job_type		job type
+	* @param array	&$running_vars	running vars
+	* @param array	&$options		options
 	*
 	* @return void
 	* @access public
@@ -745,9 +792,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	/**
 	* Cascade metadata (if not skipped)
 	*
-	* @param string		&$job_type
-	* @param array		&$running_vars
-	* @param array		&$options
+	* @param string	&$job_type		job type
+	* @param array	&$running_vars	running vars
+	* @param array	&$options		options
 	*
 	* @return void
 	* @access public
@@ -775,9 +822,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	/**
 	* Cascade workflow (if not skipped)
 	*
-	* @param string		&$job_type
-	* @param array		&$running_vars
-	* @param array		&$options
+	* @param string	&$job_type		job type
+	* @param array	&$running_vars	running vars
+	* @param array	&$options		options
 	*
 	* @return void
 	* @access public
@@ -805,12 +852,12 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	/**
 	* Refreshes the asset map to reflect the new link changes we made
 	*
-	* @param array							&$step_data	a reference to the array of information about the current step
-	* @param object Hipo_Backend_Outputter	&$o			the backend outputter class
-	* @param string							$prefix		prefix for form vars
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param object	&$o			the backend outputter class
+	* @param string	$prefix		prefix for form vars
 	*
-	* @access Public
 	* @return boolean
+	* @access public
 	*/
 	function paintRefresh(&$step_data, &$o, $prefix)
 	{
@@ -833,11 +880,11 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	/**
 	* Does nothing
 	*
-	* @param	&array	$step_data	the step data for this job
-	* @param	string	$prefix		prefix to be used with this job
+	* @param array	&$step_data	the step data for this job
+	* @param string	$prefix		prefix to be used with this job
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processRefresh(&$step_data, $prefix)
 	{
