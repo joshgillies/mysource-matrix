@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.62 2005/10/05 04:10:02 lwright Exp $
+* $Id: lang_strings.xml,v 1.63 2005/10/10 01:15:36 arailean Exp $
 *
 */
 
@@ -576,6 +576,7 @@
 	<string source="hipo_skipping">Skipping "%1$s" %2$s</string>
 	<string source="hipo_skipping_already_deleted">as it has already been deleted</string>
 	<string source="hipo_skipping_link">Skipping link #%1$s %2$s</string>
+	<string source="hipo_immediate_delete_shadow">The following assets cannot be moved to trash and will be deleted immediately</string>
 	<string source="hipo_skipping_exists_outside_trash">as it also exists outside of the trash</string>
 	<string source="hipo_deleting_link">Deleting link #%s</string>
 	<string source="hipo_deleting">Deleting "%1$s" [%2$s]</string>
