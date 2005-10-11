@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.71 2005/10/11 02:07:38 tbarrett Exp $
+* $Id: design_area_menu_type.inc,v 1.72 2005/10/11 02:51:51 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -896,10 +896,8 @@ class Design_Area_Menu_Type extends Design_Area
 				return true;
 
 			case 'sub' :
-				error_log("---FOUND SUB MENU");
 				$sub = &$this->getSubMenu();
 				if (is_null($sub)) return true;
-				error_log("---PRINTING SUB MENU");
 				return $sub->printAreaCode();
 
 			default :
