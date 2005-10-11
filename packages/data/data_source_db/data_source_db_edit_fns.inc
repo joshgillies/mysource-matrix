@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.5 2005/10/07 03:41:21 pgannavarapu Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.6 2005/10/11 02:30:28 pgannavarapu Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -172,7 +172,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				$asset->setAttrValue($key, $value);
 			}
 			$asset->setAttrValue('dsn', $new_dsn_string);
-			$res = $this->_resetAttributes($asset);
+			$res = $this->_resetAttributes($asset, 'reset');
 			return true;
 		}
 		return false;
@@ -504,6 +504,10 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		$tables = $asset->attr('tables');
 		if (($wa) && !empty($tables)) {
 			$tables = explode(', ', $tables);
+			foreach ($tables as $index => $table) {
+				$tables[$table] = $table;
+				unset($tables[$index]);
+			}
 			$tables['select'] = translate('select');
 			?>
 			<table class="sq-backend-table">
@@ -749,18 +753,28 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		$conn =& $asset->connectToDB();
 		$fields = Array();
 		if (!is_array($tables)) $tables = Array($tables);
+		$db_type = $asset->attr('db_type');
+		$query = '';
 		foreach ($tables as $key =>  $table) {
 			if ($table == 'select') {
 				unset($tables[$key]);
 				continue;
 			}
-			$query = 'select * from '.$table;
-			$result = $conn->getAll($query);
-			if (!empty($result)) $record = $result[0];
-			foreach ($record as $key => $value) {
-				$fields[$table][$table.'.'.$key] = $key;
+			if ($db_type == 'mysql') {
+				$query = 'show columns from '.$table;
+			} else {
+				if ($db_type == 'postgres') {
+					$query = "SELECT column_name FROM information_schema.columns where table_name = '$table'";
+				}
 			}
-			if (empty($record)) $fields[$table] = '';
+			$result = $conn->getAll($query);
+			assert_valid_db_result($result);
+			if (!empty($result)) {
+				foreach ($result as $record) {
+					$fields[$table][$table.'.'.$record['Field']] = $record['Field'];
+				}
+				if (empty($record)) $fields[$table] = '';
+			}
 		}
 		return $fields;
 
@@ -874,6 +888,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				$res = $this->_resetAttributes($asset, 'reset');
 			}
 			$asset->setAttrValue('sql', $sql);
+			$asset->saveAttributes();
 			return true;
 		}
 
@@ -934,9 +949,11 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 					if ($index != 0) {
 						$sql .= ' ,<br />';
 					} else {
+
 						$sql .= '<br />'.implode(', ', $tab_array);
 					}
-					$sql .= empty($tab_array)? ' ':', '.$table[0].' '.$table['type'].' '.$table[1].' ON '.$join[0].' = '.$join[1];
+					$sql .= empty($tab_array)? ' ':', ';
+					$sql .= $table[0].' '.$table['type'].' '.$table[1].' ON '.$join[0].' = '.$join[1];
 				}
 			} else {
 				$sql .= ' '.$tables;
@@ -1028,6 +1045,8 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				}
 
 			}//end for
+			$limit = $asset->attr('limit');
+			if (!empty($limit)) $sql .= ' LIMIT '.$limit;
 
 		}//end of if where checking if tables is not empty
 		$old_sql = $asset->attr('sql');
@@ -1310,6 +1329,17 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				unset($fields[$table]);
 			}
 		}
+		$aggregates = $asset->attr('aggregates');
+		if (!empty($aggregates)) {
+			foreach ($aggregates as $aggregate) {
+				if (isset($aggregate['alias'])) {
+					$fields[$aggregate['alias']] = $aggregate['alias'];
+				} else {
+					$fields[$aggregate['function']] = $aggregate['function'];
+				}
+			}
+		}
+
 		$priority = Array();
 		$order = Array('ASC' => translate('order_asc'), 'DESC' => translate('order_desc'));
 		for ($i = 1; $i <= count($fields); $i++) {
@@ -1811,6 +1841,34 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 
 	/**
+	* Find out if there are any tables selected or not and if not in edit mode
+	*
+	* @param object	&$asset	The asset that might use the files
+	* @param string	$prefix	the prefix for this asset
+	*
+	* @return boolean
+	* @access protected
+	*/
+	function tablesSelectedAndNotEditMode(&$asset, $prefix)
+	{
+		$res = $this->tablesSelected($asset, $prefix);
+		$mode = $asset->attr('mode');
+		$edit_on = $asset->attr('edit_on');
+		if (($mode == 'execute') || ($mode == 'edit')) {
+			return false;
+		} else {
+			if ($edit_on) {
+				return false;
+			} else {
+				return $res;
+			}
+		}
+
+
+	}//end tablesSelectedAndNotEditMode()
+
+
+	/**
 	* Find out if there are any tables selected or not
 	*
 	* @param object	&$asset	The asset that might use the files
@@ -1959,7 +2017,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	* @return boolean
 	* @access protected
 	*/
-	function NotEditModeAndTablesNotEmpty(&$asset, $prefix)
+	function notEditModeAndTablesNotEmpty(&$asset, $prefix)
 	{
 		$mode = $asset->attr('mode');
 		$wa = $asset->writeAccess('attributes');
@@ -1988,7 +2046,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 			return true;
 		}
 
-	}//end NotEditModeAndTablesNotEmpty()
+	}//end notEditModeAndTablesNotEmpty()
 
 
 	/**

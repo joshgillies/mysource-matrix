@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_query.xml,v 1.1.1.1 2005/09/28 05:35:28 pgannavarapu Exp $
+* $Id: lang_screen_query.xml,v 1.2 2005/10/11 02:30:30 pgannavarapu Exp $
 *
 */
 -->
@@ -83,6 +83,10 @@
 				<process_function name="processGroupbyOrderby" />
 			</function_call>
 			<display_name>Group By/Order by</display_name>
+			<note />
+		</field>
+		<field attribute="limit">
+			<display_name>Number Of Data Source Record Sets To Be Retrieved</display_name>
 			<note />
 		</field>
 	</section>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_management.inc,v 1.3 2005/10/07 03:41:21 pgannavarapu Exp $
+* $Id: data_source_db_management.inc,v 1.4 2005/10/11 02:30:28 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -146,6 +146,15 @@ class Data_Source_DB_Management extends Asset_Management
 											'added'		=> '0.1',
 											'type'		=> 'boolean',
 											'default'	=> false,
+										   ),
+						'limit'			=> Array(
+											'added'			=> '0.1',
+											'type'			=> 'int',
+											'default'		=> '',
+											'parameters'	=> Array(
+																'allow_empty'		=> true,
+																'allow_negative'	=> false,
+															   ),
 										   ),
 					  );
 

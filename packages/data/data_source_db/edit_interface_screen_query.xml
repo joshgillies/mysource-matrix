@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_query.xml,v 1.1.1.1 2005/09/28 05:35:28 pgannavarapu Exp $
+* $Id: edit_interface_screen_query.xml,v 1.2 2005/10/11 02:30:28 pgannavarapu Exp $
 *
 */
 -->
@@ -29,7 +29,7 @@
 			<selection style="list" />
 		</field>
 	</section>
-	<section name="query" write_access="write:attributes" limbo_access="1" show_if="NotEditModeAndTablesNotEmpty">
+	<section name="query" write_access="write:attributes" limbo_access="1" show_if="notEditModeAndTablesNotEmpty">
 		<field>
 			<function_call>
 				<paint_function   name="paintTables"   />
@@ -71,6 +71,9 @@
 				<paint_function   name="paintGroupbyOrderby"   />
 				<process_function name="processGroupbyOrderby" />
 			</function_call>
+		</field>
+		<field attribute="limit" show_if="tablesSelectedAndNotEditMode">
+			<int width="5" />
 		</field>
 	</section>
 	<section name="Current SQL" write_access="write:attributes" limbo_access="1" show_if="queryNotEmpty">
