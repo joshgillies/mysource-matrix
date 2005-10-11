@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_custom_image.inc,v 1.11 2005/07/03 23:45:59 dheppell Exp $
+* $Id: design_area_custom_image.inc,v 1.12 2005/10/11 02:05:33 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,18 +47,19 @@ class Design_Area_Custom_Image extends Design_Area
 
 
 	/*
-	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
+	* Print code that actually results in HTML output to the browser for this design area
 	*
-	* @param object Design	$design the design for which we are currently printing
+	* This function is called at the AREA tag if print != no, and at the point of any PRINT
+	* tags that reference this area.
 	*
-	* @return boolean
-	* @access public
+	* @access protected
+	* @return void
 	*/
-	function printArea(&$design)
+	function _printPaintingCode()
 	{
 		$image_path = $this->data_path_public.'/'.$this->attr('image');
 		// return true because it just means that they haven't uploaded the file yet
-		if (!file_exists($image_path)) return true;
+		if (!file_exists($image_path)) return;
 
 		$image = '<'.'?php echo $DATA_PATH; ?'.'>/assets/'.$this->type().'/'.$this->id.'/'.$this->attr('image');
 		// if they only want us to echo out the filename
@@ -72,10 +73,8 @@ class Design_Area_Custom_Image extends Design_Area
 			echo '<img src="', $image, '" ', $this->attr('extra'), ' alt="', $alt, '"', (($image_size) ? $image_size[3] : ''), '/>';
 		}
 
-		return true;
+	}//end _printPaintingCode()
 
-	}//end printArea()
 
 }//end class
-
 ?>

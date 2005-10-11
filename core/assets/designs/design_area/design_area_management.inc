@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_management.inc,v 1.14 2005/07/04 06:21:48 tbarrett Exp $
+* $Id: design_area_management.inc,v 1.15 2005/10/11 02:04:50 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,15 +63,7 @@ class Design_Area_Management extends Asset_Management
 												'added'			=> '0.0.1',
 												'type'			=> 'serialise',
 												'default'		=> Array(),
-												'description'	=> 'Holds the names for all variables that are "references" to values in other',
-											   ),
-						'specialised'		=> Array(
-												'added'			=> '0.0.1',
-												'type'			=> 'boolean',
-												'default'		=> false,
-												'parameters'	=> Array(
-																	'allow_empty'	=> false,
-																   ),
+												'description'	=> 'Holds the names for all variables that are "references" to values in other DAs',
 											   ),
 						'print'				=> Array(
 												'added'			=> '0.0.1',
@@ -80,6 +72,16 @@ class Design_Area_Management extends Asset_Management
 												'parameters'	=> Array(
 																	'allow_empty'	=> false,
 																   ),
+												'description'	=> 'Whether this DA should print output from its AREA tag or just initialise itself for later reference',
+											   ),
+						'cache'				=> Array(
+												'added'			=> '0.0.1',
+												'type'			=> 'boolean',
+												'default'		=> false,
+												'parameters'	=> Array(
+																	'allow_empty'	=> false,
+																   ),
+												'description'	=> 'Whether this DA should cache its output',
 											   ),
 					  );
 

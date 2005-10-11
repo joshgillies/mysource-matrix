@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.96 2005/09/01 01:14:32 arailean Exp $
+* $Id: design_edit_fns.inc,v 1.97 2005/10/11 02:04:45 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -298,382 +298,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 
 	/**
-	* Parses the parse file and processes the contents
-	*
-	* @param object	&$asset	the asset to which we belong
-	*
-	* @return boolean
-	* @access public
-	*/
-	function parseAndProcessFile(&$asset)
-	{
-		$parse_file = $asset->data_path.'/parse.txt';
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$str = file_to_string($parse_file);
-		$contents = $this->_parseString($asset, $str);
-		return (!is_null($contents) && $this->_processContents($asset, $contents) && $asset->saveAttributes());
-
-	}//end parseAndProcessFile()
-
-
-	/**
-	* Parses the string into an array recursively cut up into html and tag pieces
-	*
-	* @param object	&$asset			the asset to which we belong
-	* @param string	$file_contents	the contents to parse
-	*
-	* @return array
-	* @access private
-	*/
-	function _parseString(&$asset, $file_contents)
-	{
-		// convert the head and body tags to lowercase
-		$file_contents = preg_replace(	Array('/<head/i', '/<\\/head/i', '/<body/i', '/<\\/body/i'),
-										Array('<head', '</head', '<body', '</body'),
-										$file_contents);
-
-
-		// Let's place an print operation after the head tag
-		// to allow us to print the default header stuff like
-		// style sheets, JS files and meta tag stuff
-		$temp = explode('<head>', $file_contents, 2);
-		if (sizeof($temp) > 1) {
-			$file_contents= $temp[0]
-							."<head>\n<".$this->tag_name."_PRINT id_name='__global__' var='html_header' />\n"
-							.$temp[1];
-		}
-
-		// Let's place an print operation after the termination body tag
-		// to allow us to print the anything that has come to our attention
-		// like image rollovers
-		$temp = explode('</body>', $file_contents, 2);
-		if (sizeof($temp) > 1) {
-			$file_contents= $temp[0]
-							."\n<".$this->tag_name."_PRINT id_name='__global__' var='html_footer' />\n</body>"
-							.$temp[1];
-		}
-
-		return parent::_parseString($file_contents);
-
-	}//end _parseString()
-
-
-	/**
-	* Loops through the contents array and creates the necessary objects
-	*
-	* @param object	&$asset		the asset to which we belong
-	* @param array	$contents	the contents array we generated with _parseString()
-	*
-	* @return boolean
-	* @access private
-	*/
-	function _processContents(&$asset, $contents)
-	{
-		$id_names = Array();
-		// let's check to see if all the design areas have unique names
-		foreach ($contents as $index => $element) {
-			if ($element['_type'] != 'TAG' || $element['operation'] != 'area') {
-				continue;
-			}
-
-			// if there is a name and it's not the the same type as the current design area
-			if (empty($element['attributes']['id_name']) || empty($element['attributes']['design_area'])) {
-				trigger_localised_error('CORE0143', E_USER_WARNING);
-				return false;
-			}//end if
-
-			// validate id name
-			if (!preg_match('/^[a-z][a-z0-9_]*$/i', $element['attributes']['id_name']) || $element['attributes']['id_name'] != preg_replace('/__+/', '', $element['attributes']['id_name'])) {
-				trigger_localised_error('CORE0181', E_USER_WARNING, $element['attributes']['id_name']);
-				return false;
-			}
-
-			$element['attributes']['design_area'] = 'design_area_'.strtolower($element['attributes']['design_area']);
-
-			// if there is a name and it's not the the same type as the current design area
-			if (isset($id_names[$element['attributes']['id_name']])) {
-				trigger_localised_error('CORE0142', E_USER_WARNING, $element['attributes']['id_name']);
-				return false;
-			}//end if
-
-			$id_names[$element['attributes']['id_name']] = $element['attributes']['design_area'];
-
-		}//end foreach
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		if (isset($GLOBALS['SQ_PROCESSED_DESIGN_AREAS'])) {
-			// let's remove any design area links that we aren't going to be using any more
-			$existing_da_links = $asset->getDesignAreaLink();
-			$existing_id_names = Array();
-			foreach ($existing_da_links as $link) {
-				$existing_id_names[$link['value']] = $link['linkid'];
-			}
-
-			$removed_id_names = array_diff(array_keys($existing_id_names), array_keys($GLOBALS['SQ_PROCESSED_DESIGN_AREAS']));
-
-			// now remove any unused design area customisations
-			foreach ($removed_id_names as $id_name) {
-				if (!$asset->deleteLink($existing_id_names[$id_name])) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-			}//end foreach
-		} else {
-			$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'] = Array();
-		}
-
-		// validate the design areas that we are going to use
-
-		$design_areas = Array();
-
-		// now let's check to see if any existing design areas exists
-		// and check if they are the same type as the one in the contents
-		foreach ($id_names as $id_name => $design_area) {
-
-			$da = &$asset->getDesignArea($id_name);
-
-			// if it's a different type, then convert them
-			if (!is_null($da) && $da->type() !== $design_area) {
-				$link = &$asset->getDesignAreaLink($id_name, false);
-				if (!$asset->deleteLink($link['linkid'])) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-				unset($da); // unset so we don't set the value or all ref's to null
-				$da = null; // do this so a new version will be created
-			}
-
-			// if it doesn't exist, create it, and acquire the lock
-			if (is_null($da)) {
-				$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
-				$da =& new $design_area();
-				$da_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_3, 'value' => $id_name, 'is_dependant' => '1');
-				$da->setAttrValue('id_name', $id_name);
-				if (!$da->create($da_link)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($da->id, 'parsing')) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-			}
-
-			$design_areas[$id_name] = &$da;
-
-		}//end foreach
-
-
-		// Now that we have set all the design areas up we can get on with the processing of the contents array
-		$remove_indexes = Array();
-		foreach ($contents as $index => $element) {
-			if ($element['_type'] != 'TAG' || $element['operation'] != 'area') {
-				continue;
-			}
-
-			$edit_fns = $design_areas[$element['attributes']['id_name']]->getEditFns();
-			if (!$edit_fns->_processContents($design_areas[$element['attributes']['id_name']], $element['contents'])) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-
-			if (in_array(array_get_index($element['attributes'], 'print'), Array('no', 'false', '0'))) {
-				$design_areas[$element['attributes']['id_name']]->setAttrValue('print', false);
-			}
-
-			if (!$design_areas[$element['attributes']['id_name']]->saveAttributes()) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-
-			// if they want this design area to be printed then what we need to do is alter the contents
-			// array to become a _PRINT operation
-
-			// Now what we do is morph it so that this element is now a print tag
-			$contents[$index] = Array(
-									'_type'				=> 'TAG',
-									'attributes'		=> Array ('id_name' => $element['attributes']['id_name']),
-									'operation'			=> 'print',
-									'self_terminating'	=> 1,
-									'cache'				=> (isset($element['attributes']['cache']) && in_array($element['attributes']['cache'], Array('yes', '1', 'true'))) ? 1 : 0,
-								);
-
-		}//end foreach
-
-		// Now remove the elems
-		// reverse the order so we don't throw the numbers out of whack by removing one from the start
-		rsort($remove_indexes, SORT_NUMERIC);
-		foreach ($remove_indexes as $i) {
-			array_splice($contents, $i, 1);
-		}
-
-		// now just set the contents and we are away...
-		if ($asset->setAttrValue('contents', $contents)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-	}//end _processContents()
-
-
-	/**
-	* Creates the (hopefully ;) single accumulated design file for this design
-	*
-	* @param object	&$asset	the asset to which we belong
-	*
-	* @return boolean
-	* @access private
-	*/
-	function createDesignFile(&$asset)
-	{
-		$design_area_links = $asset->getDesignAreaLink();
-		// Firstly we need to set all the var_reference variables so that when the design areas are
-		// printed they can work correctly
-		//
-		// This is a two stage process, one to set any normal vars and two to set any vars that want DA
-		// output
-
-		$var_ref_values = Array();
-		$da_refs = Array();
-		foreach ($design_area_links as $link) {
-			$da = &$asset->getDesignArea($link['value']);
-			if (is_null($da)) continue;
-
-			$da_var_refs = $da->getVarReferences();
-			for (reset($da_var_refs); null !== ($id_name = key($da_var_refs)); next($da_var_refs)) {
-				$var_da = &$asset->getDesignArea($id_name);
-				if (is_null($var_da)) continue;
-				if (!isset($var_ref_values[$id_name])) {
-					$var_ref_values[$id_name] = Array();
-				}
-				foreach ($da_var_refs[$id_name] as $var) {
-					// does this var want the whole design area ?
-					if ($var === '') {
-						$da_refs[] = $id_name;
-					// else just a normal var (make sure we don't have it already)
-					} else if (!isset($var_ref_values[$id_name][$var])) {
-						$var_ref_values[$id_name][$var] = $var_da->attr($var);
-
-					}//end if
-
-				}//end foreach
-
-			}//end foreach
-
-		}//end foreach
-
-		// OK, now that we have all the var reference values we can just set them for all the DA's
-		foreach ($design_area_links as $link) {
-			$da = &$asset->getDesignArea($link['value']);
-			if (is_null($da)) continue;
-			$da->setVarReferenceValues($var_ref_values);
-		}
-
-		// Now that all the all the DA's have their vars set, we can do the DA output ones
-		$da_ref_values = Array();
-		foreach ($da_refs as $id_name) {
-			$da = &$asset->getDesignArea($id_name);
-			if (is_null($da)) continue;
-			ob_start();
-				$da->printArea($asset);
-				// NOTE: format like this because we are calling setVarReferenceValues()
-				$da_ref_values[$id_name] = Array('' => ob_get_contents());
-			ob_end_clean();
-		}
-
-		// OK, now that we have all the da reference values we can just set them for all the DA's
-		foreach ($design_area_links as $link) {
-			$da = &$asset->getDesignArea($link['value']);
-			if (is_null($da)) continue;
-			$da->setVarReferenceValues($da_ref_values);
-		}
-
-		// we are checking to see if there is a global $ASSET_LINEAGE here
-		// because we need other assets to be able to modify the lineage, for
-		// instance 404 pages.
-		$pre_str = '<?php
-		global $ASSET_LINEAGE;
-		$am = &$GLOBALS[\'SQ_SYSTEM\']->am;
-		if (!isset($ASSET_LINEAGE) || empty($ASSET_LINEAGE)) $ASSET_LINEAGE = @$am->getLineageFromURL(null, null);
-
-		global $SQ_SITE_NETWORK, $SQ_PRIMARY_URL;
-		$SQ_PRIMARY_URL = \'\';
-		$SQ_SITE_NETWORK = null;
-
-		if (isset($ASSET_LINEAGE[0])) {
-			$site = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($ASSET_LINEAGE[0][\'assetid\'], $ASSET_LINEAGE[0][\'type_code\']);
-			if (!is_null($site)) {
-				$SQ_SITE_NETWORK = &$site->getSiteNetwork();
-				if (!is_null($SQ_SITE_NETWORK)) {
-					$SQ_PRIMARY_URL = $SQ_SITE_NETWORK->getPrimaryURL();
-					if (!empty($SQ_PRIMARY_URL)) {
-						if (sq_web_path(\'root_url\') != $SQ_PRIMARY_URL) {
-							require_once SQ_LIB_PATH.\'/session/pre_session.php\';
-						}
-					}
-				}
-			}
-		}
-
-		define(\'SQ_LIMBO_EDITING\', (SQ_IN_LIMBO && (!isset($_REQUEST[\'ignore_frames\']) || !$_REQUEST[\'ignore_frames\'])));
-		?>';
-
-		$str = '';
-		ob_start();
-		if ($this->_createDesignFileOutput($asset->attr('contents'), $asset, $asset)) {
-			// get the contents, removing any close then open tags that happen right next to each other
-			// (more for code neatness than anything :)
-			$str = str_replace('?'.'><'.'?php', '', ob_get_contents());
-
-		}
-		ob_end_clean();
-		if (!$str) return false;
-		$str = $pre_str."\n".$str;
-		$str = preg_replace('|\?>([\s]+)?<\?php|', '', $str);
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		create_directory($asset->data_path);
-		$file = $asset->data_path.'/design_file.php';
-		$new_file = !file_exists($file);
-		if (!string_to_file($str, $file)) return false;
-
-
-		//// FILE VERSIONING ////
-
-		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
-
-		if ($new_file) {
-			// attempt to add the file to the repository
-			if (!$fv->add($asset->data_path_suffix, $file, '')) {
-				trigger_localised_error('CORE0156', E_USER_WARNING);
-				return false;
-			}
-		} else {
-			// updating existing file
-			$file_status = $fv->upToDate($file);
-			if (FUDGE_FV_MODIFIED & $file_status) {
-				if (!$fv->commit($file, '')) {
-					trigger_localised_error('CORE0159', E_USER_WARNING);
-					return false;
-				}
-			}
-		}
-
-		// make sure we have the latest version of our file
-		if (!$fv->checkOut($asset->data_path_suffix.'/design_file.php', $asset->data_path)) {
-			trigger_localised_error('CORE0031', E_USER_WARNING);
-			return false;
-		}
-
-		return true;
-
-	}//end createDesignFile()
-
-
-	/**
 	* Paint New Files
 	*
 	* @param object	&$asset	the asset whose interface we are painting
@@ -688,7 +312,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		if (!$asset->writeAccess('links')) return false;
 		for ($i = 0; $i < 2; $i++) {
 			file_upload($prefix.'_assoc_file_'.$i);
-			echo "<br>\n";
+			echo "<br />\n";
 		}
 
 	}//end paintNewFiles()
@@ -1025,6 +649,224 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}
 
 	}//end paintCurrentCustomisations()
+
+
+	/**
+	* Parses the parse file and processes the contents
+	*
+	* @param object	&$asset	the asset to which we belong
+	*
+	* @return boolean
+	* @access public
+	*/
+	function parseAndProcessFile(&$asset)
+	{
+		$parse_file = $asset->data_path.'/parse.txt';
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		$str = file_to_string($parse_file);
+		$contents = $this->_parseString($asset, $str);
+		$res = (!is_null($contents) && $this->_processContents($asset, $contents) && $asset->saveAttributes());
+		return $res;
+
+	}//end parseAndProcessFile()
+
+
+	/**
+	* Parses the string into an array recursively cut up into html and tag pieces
+	*
+	* @param object	&$asset			the asset to which we belong
+	* @param string	$file_contents	the contents to parse
+	*
+	* @return array
+	* @access private
+	*/
+	function _parseString(&$asset, $file_contents)
+	{
+		// convert the head and body tags to lowercase
+		$file_contents = preg_replace(	Array('/<head/i', '/<\\/head/i', '/<body/i', '/<\\/body/i'),
+										Array('<head', '</head', '<body', '</body'),
+										$file_contents);
+
+
+		// Let's place an print operation after the head tag
+		// to allow us to print the default header stuff like
+		// style sheets, JS files and meta tag stuff
+		$temp = explode('<head>', $file_contents, 2);
+		if (sizeof($temp) > 1) {
+			$file_contents= $temp[0]
+							."<head>\n<".$this->tag_name."_PRINT id_name='__global__' var='html_header' />\n"
+							.$temp[1];
+		}
+
+		// Let's place an print operation after the termination body tag
+		// to allow us to print the anything that has come to our attention
+		// like image rollovers
+		$temp = explode('</body>', $file_contents, 2);
+		if (sizeof($temp) > 1) {
+			$file_contents= $temp[0]
+							."\n<".$this->tag_name."_PRINT id_name='__global__' var='html_footer' />\n</body>"
+							.$temp[1];
+		}
+
+		return parent::_parseString($file_contents);
+
+	}//end _parseString()
+
+
+	/**
+	* Loops through the contents array and creates the necessary objects
+	*
+	* @param object	&$asset		the asset to which we belong
+	* @param array	$contents	the contents array we generated with _parseString()
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _processContents(&$asset, $contents)
+	{
+		$id_names = Array();
+		// let's check to see if all the design areas have unique names
+		foreach ($contents as $index => $element) {
+			if ($element['_type'] != 'TAG' || $element['operation'] != 'area') {
+				continue;
+			}
+
+			// if there is a name and it's not the the same type as the current design area
+			if (empty($element['attributes']['id_name']) || empty($element['attributes']['design_area'])) {
+				trigger_localised_error('CORE0143', E_USER_WARNING);
+				return false;
+			}//end if
+
+			// validate id name
+			if (!preg_match('/^[a-z][a-z0-9_]*$/i', $element['attributes']['id_name']) || $element['attributes']['id_name'] != preg_replace('/__+/', '', $element['attributes']['id_name'])) {
+				trigger_localised_error('CORE0181', E_USER_WARNING, $element['attributes']['id_name']);
+				return false;
+			}
+
+			$element['attributes']['design_area'] = 'design_area_'.strtolower($element['attributes']['design_area']);
+
+			// if there is a name and it's not the the same type as the current design area
+			if (isset($id_names[$element['attributes']['id_name']])) {
+				trigger_localised_error('CORE0142', E_USER_WARNING, $element['attributes']['id_name']);
+				return false;
+			}//end if
+
+			$id_names[$element['attributes']['id_name']] = $element['attributes']['design_area'];
+
+		}//end foreach
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (isset($GLOBALS['SQ_PROCESSED_DESIGN_AREAS'])) {
+			// let's remove any design area links that we aren't going to be using any more
+			$existing_da_links = $asset->getDesignAreaLink();
+			$existing_id_names = Array();
+			foreach ($existing_da_links as $link) {
+				$existing_id_names[$link['value']] = $link['linkid'];
+			}
+
+			$removed_id_names = array_diff(array_keys($existing_id_names), array_keys($GLOBALS['SQ_PROCESSED_DESIGN_AREAS']));
+
+			// now remove any unused design area customisations
+			foreach ($removed_id_names as $id_name) {
+				if (!$asset->deleteLink($existing_id_names[$id_name])) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}//end foreach
+		} else {
+			$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'] = Array();
+		}
+
+		// validate the design areas that we are going to use
+
+		$design_areas = Array();
+
+		// now let's check to see if any existing design areas exists
+		// and check if they are the same type as the one in the contents
+		foreach ($id_names as $id_name => $design_area) {
+
+			$da = &$asset->getDesignArea($id_name);
+
+			// if it's a different type, then convert them
+			if (!is_null($da) && $da->type() !== $design_area) {
+				$link = &$asset->getDesignAreaLink($id_name, false);
+				if (!$asset->deleteLink($link['linkid'])) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+				unset($da); // unset so we don't set the value or all ref's to null
+				$da = null; // do this so a new version will be created
+			}
+
+			// if it doesn't exist, create it, and acquire the lock
+			if (is_null($da)) {
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
+				$da =& new $design_area();
+				$da_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_3, 'value' => $id_name, 'is_dependant' => '1');
+				$da->setAttrValue('id_name', $id_name);
+				if (!$da->create($da_link)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($da->id, 'parsing')) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}
+
+			$design_areas[$id_name] = &$da;
+
+		}//end foreach
+
+
+		// Now that we have set all the design areas up we can get on with the processing of the contents array
+		foreach ($contents as $index => $element) {
+			if ($element['_type'] != 'TAG' || $element['operation'] != 'area') {
+				continue;
+			}
+
+			$edit_fns = $design_areas[$element['attributes']['id_name']]->getEditFns();
+			if (!$edit_fns->_processContents($design_areas[$element['attributes']['id_name']], $element['contents'])) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+
+			$print = !in_array(array_get_index($element['attributes'], 'print', 'yes'), Array('no', 'false', '0'));
+			$design_areas[$element['attributes']['id_name']]->setAttrValue('print', $print);
+			$cache = in_array(array_get_index($element['attributes'], 'cache', false), Array('yes', 'true', '1'));
+			$design_areas[$element['attributes']['id_name']]->setAttrValue('cache', $cache);
+
+			if (!$design_areas[$element['attributes']['id_name']]->saveAttributes()) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+
+			// if they want this design area to be printed then what we need to do is alter the contents
+			// array to become a _PRINT operation
+
+			// Now what we do is morph it so that this element is now a print tag
+/*
+			$contents[$index] = Array(
+									'_type'				=> 'TAG',
+									'attributes'		=> Array ('id_name' => $element['attributes']['id_name']),
+									'operation'			=> 'print',
+									'self_terminating'	=> 1,
+									'cache'				=> (isset($element['attributes']['cache']) && in_array($element['attributes']['cache'], Array('yes', '1', 'true'))) ? 1 : 0,
+								);
+*/
+		}//end foreach
+
+		// now just set the contents and we are away...
+		if ($asset->setAttrValue('contents', $contents)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return true;
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+	}//end _processContents()
 
 
 }//end class

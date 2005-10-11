@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage.inc,v 1.9 2005/04/13 06:22:50 ndvries Exp $
+* $Id: design_area_asset_lineage.inc,v 1.10 2005/10/11 02:05:14 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,6 +75,129 @@ class Design_Area_Asset_Lineage extends Design_Area
 	}//end printVar()
 
 
-}//end class
+	/**
+	* Print code that outputs a given element from this DA's contents
+	*
+	* @param array	$item	An entry from our contents array
+	*
+	* @access private
+	* @return void
+	*/
+	function _printContentItemCode($element)
+	{
+		switch (array_get_index($element, 'operation')) {
+			case 'asset' :
 
+				// because the page lineage array contains the site index, all we need to do to have or not have
+				// the home link is start the loop at a different position
+				$start_index = ($this->attr('prefix_with_home_link')) ? 0 : 1;
+
+
+				$total = 'count($ASSET_LINEAGE)';
+				// because the page lineage array contains the current page, all we need to do to have or not have
+				// the current link is end the loop at a different position
+				if (!$this->attr('suffix_with_current_link')) {
+					$total .= ' - 1';
+				}
+
+				$levels_to_print = (int) $this->attr('levels_to_print');
+
+				if (is_int($levels_to_print)) {
+					// if we have pages to print, we just adjust the total count factor
+					if ($levels_to_print > 0) {
+						$total = 'min('.$total.', '.($levels_to_print + $start_index).')';
+					} else if ($levels_to_print < 0) {
+						// need to minus 1 because the current link is included in the lineage count
+						$start_index = 'max(0, (count($ASSET_LINEAGE) - 1 - '.abs($levels_to_print).'))';
+					}
+				}
+
+				if ($divider_contents = $this->attr('divider_contents')) {
+					ob_start();
+					foreach ($divider_contents as $item) {
+						$this->_printContentItemCode($item);
+					}
+					$divider = ob_get_contents();
+					ob_end_clean();
+				} else {
+					$divider = '';
+				}
+
+				if ($divider != '' && $this->attr('prefix_with_divider')) {
+					echo $divider;
+				}
+
+				echo '<', '?php
+
+				for ($'.$this->attr('id_name').'_i = '.$start_index.', $'.$this->attr('id_name').'_total = '.$total.';
+					$'.$this->attr('id_name').'_i < $'.$this->attr('id_name').'_total;
+					$'.$this->attr('id_name').'_i++) {
+					';
+
+				if (!$this->attr('show_hidden_links')) {
+					echo 'if ($ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'link_type\'] != SQ_LINK_TYPE_1) continue;
+					';
+				}
+
+				if ($asset_contents = $this->attr('asset_contents')) {
+					echo '?','>';
+					foreach ($asset_contents as $item) {
+						$this->_printContentItemCode($item);
+					}
+					echo '<','?php ';
+				}
+
+				// if there is a divider to deal with
+				if ($divider != '') {
+
+					// if there is not divider at the end we need to check that we aren't at the end of the list
+					if (!$this->attr('suffix_with_divider')) {
+					echo '
+						if ($'.$this->attr('id_name').'_i != $'.$this->attr('id_name').'_total - 1) {
+						';
+					}
+
+					echo '?','>', $divider, '<','?php ';
+
+					// if there is not divider at the end we need to check that we aren't at the end of the list
+					if (!$this->attr('suffix_with_divider')) {
+					echo '
+						}//end if';
+					}
+
+				}//end if divider
+
+				echo '
+				}//end for
+				?','>';
+
+				return true;
+
+			default :
+				return parent::_printContentItemCode($element);
+		}//end switch
+
+	}//end _printContentItemCode()
+
+
+	/**
+	* Get the names of attributes for this DA that cannot be set in the parse file
+	*
+	* Design Area attributes that can be set in the parse file but aren't are set to defaults
+	* when parsing the design.  Attributes returned by this function are exempted from this process.
+	*
+	* @access public
+	* @return array(string)
+	*/
+	function getProtectedAttrs()
+	{
+		$res = parent::getProtectedAttrs();
+		$res[] = 'asset_contents';
+		$res[] = 'divider_contents';
+		return $res;
+
+	}//end getProtectedAttrs()
+
+
+}//end class
 ?>

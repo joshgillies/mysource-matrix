@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_datetime.inc,v 1.8 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_area_datetime.inc,v 1.9 2005/10/11 02:05:48 tbarrett Exp $
 *
 */
 
@@ -32,21 +32,24 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_DateTime extends Design_Area
 {
+
+
 	/*
-	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
+	* Print code that actually results in HTML output to the browser for this design area
 	*
-	* @param object Design	$design the design for which we are currently printing
+	* This function is called at the AREA tag if print != no, and at the point of any PRINT
+	* tags that reference this area.
 	*
-	* @return boolean
-	* @access public
+	* @access protected
+	* @return void
 	*/
-	function printArea(&$design)
+	function _printPaintingCode()
 	{
 		$format = addslashes($this->attr('format'));
 		switch ($this->attr('datetime')) {
@@ -60,7 +63,9 @@ class Design_Area_DateTime extends Design_Area
 
 		echo '<', '?php echo date("'.$format.'", '.$datetime.'); ?', '>';
 		return true;
-	}//end printArea()
+
+	}//end _printPaintingCode()
+
 
 }//end class
 ?>

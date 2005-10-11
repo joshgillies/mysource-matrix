@@ -18,10 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_metadata_edit_fns.inc,v 1.7 2005/01/20 13:07:32 brobertson Exp $
+* $Id: design_area_metadata_edit_fns.inc,v 1.8 2005/10/11 02:06:07 tbarrett Exp $
 *
 */
-
 
 require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc';
 
@@ -32,14 +31,12 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Metadata_Edit_Fns extends Design_Area_Edit_Fns
 {
 
-
 }//end class
-
 ?>

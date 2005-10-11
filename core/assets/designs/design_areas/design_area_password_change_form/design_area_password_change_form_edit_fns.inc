@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_password_change_form_edit_fns.inc,v 1.1 2005/05/12 23:51:06 ndvries Exp $
+* $Id: design_area_password_change_form_edit_fns.inc,v 1.2 2005/10/11 02:06:24 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,173 +52,36 @@ class Design_Area_Password_Change_Form_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function _processContents(&$asset, &$contents)
 	{
-		if (!$this->_setVariables($asset, $contents)) {
-			return false;
-		}
+		$all_contents = Array();
 
-		$indexes = Array('password_change' => -1, 'logout' => -1);
 		// see if our page element has any sub's in it
 		foreach ($contents as $index => $element) {
 			if ($element['_type'] != 'TAG') continue;
-			if ($element['operation'] != 'password_change_section' && $element['operation'] != 'logout_section') {
+			if ($element['operation'] != 'password_change_section') {
+				$all_contents[] = $element;
 				continue;
 			}
 
-			// get 'password_change' or 'logout'
-			$section = substr($element['operation'], 0, -8);
-
-			$indexes[$section] = $index;
-
 			// if there is some contents then save it to our arrays
 			if (!$element['self_terminating'] && !empty($element['contents'])) {
-				if (!$this->_setVariables($asset, $element['contents'])) {
+				$all_contents = array_merge($all_contents, $element['contents']);
+				if (!$asset->setAttrValue('password_change_contents', $element['contents'])) {
 					return false;
 				}
-				if (!$asset->setAttrValue($section.'_contents', $element['contents'])) {
-					return false;
-				}
 			}
 
-			// now all that is done we don't need to keep going through the array
-			if ($indexes['password_change'] >= 0 && $indexes['logout'] >= 0) {
-				break;
-			}
-
-		}//end foreach
-
-		// OK, get the lowest/first index so that we can replace that one and remove the other from the contents array
-		$lowest_index = count($contents);
-		foreach ($indexes as $i) {
-			if ($i >= 0 && $lowest_index > $i) {
-				$lowest_index = $i;
-			}
-		}
-
-		foreach ($indexes as $i) {
-			if ($i < 0) continue;
-			if ($lowest_index == $i) {
-				// Now what we do is morph it so that this element doesn't contain all the un-necessary contents stuff
-				$contents[$i] = Array(
-									'_type'				=> 'TAG',
-									'attributes'		=> Array (),
-									'operation'			=> 'sections',
-									'self_terminating'	=> 1,
-								);
-			// remove the other one
-			} else {
-				array_splice($contents, $i, 1);
-			}
 		}//end foreach
 
 		$asset->setAttrValue('contents', $contents);
 
 		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
+		if (!$this->_setVariables($asset, $all_contents)) {
+			return false;
+		}
 		return $asset->saveAttributes();
 
 	}//end _processContents()
 
 
-	/**
-	* Outputs the PHP/HTML code that will hopefully form part of the creating the design file
-	*
-	* @param Array			$contents	the parse contents to use in the output
-	* @param object Asset	$asset		the asset to which we belong
-	* @param object Design	$design		the design object that is painting us
-	*
-	* @return boolean
-	* @access private
-	*/
-	function _createDesignFileOutput($contents, &$asset, &$design)
-	{
-		$asset->_tmp['painting_section'] = '';
-		return parent::_createDesignFileOutput($contents, $asset, $design);
-
-	}//end _createDesignFileOutput()
-
-
-	/**
-	* Used by _outputContents() to deal with a print tag
-	*
-	* @param array			$element	the print element tag
-	* @param object Asset	$asset		the asset to which we belong
-	* @param object Design	$design		the design object that is painting us
-	*
-	* @return boolean
-	* @access private
-	* @see Design_Area_Edit_Fns::_outputContents()
-	*/
-	function _outputElement($element, &$asset, &$design)
-	{
-		switch ($element['operation']) {
-			case 'sections' :
-				$password_change_contents  = $asset->attr('password_change_contents');
-				$logout_contents = $asset->attr('logout_contents');
-				if (empty($password_change_contents) && empty($logout_contents)) {
-					return true;
-				}
-
-				echo '<', '?php
-				if (!empty($GLOBALS[\'SQ_PASSWORD_CHANGE_FORM\'])) {
-					$'.$asset->attr('id_name').'_paint_password_change = ($GLOBALS[\'SQ_PASSWORD_CHANGE_FORM\'][\'paint\'] == \'password_change\');
-				} else {
-					$'.$asset->attr('id_name').'_paint_password_change = $GLOBALS[\'SQ_SYSTEM\']->userPublic();
-				}
-				if (', ((empty($password_change_contents)) ? '!' : ''), '$'.$asset->attr('id_name').'_paint_password_change) {
-				?', '>';
-
-				if (!empty($password_change_contents)) {
-					$asset->_tmp['painting_section'] = 'password_change';
-					if (!$this->_outputContents($password_change_contents, $asset, $design)) {
-						return false;
-					}
-					$asset->_tmp['painting_section'] = '';
-				}//end if
-
-				if (!empty($password_change_contents) && !empty($logout_contents)) {
-					echo '<', '?php
-				} else {
-				?', '>';
-				}//end if
-
-				if (!empty($logout_contents)) {
-					$asset->_tmp['painting_section'] = 'logout';
-					if (!$this->_outputContents($logout_contents, $asset, $design)) {
-						return false;
-					}
-					$asset->_tmp['painting_section'] = '';
-				}//end if
-
-
-				echo '<', '?php
-				}//end if
-				?', '>';
-				return true;
-
-			default :
-				return parent::_outputElement($element, $asset, $design);
-		}//end switch
-
-	}//end _outputElement()
-
-
-	/**
-	* Returns an array of vars that are setable, used to create the parseString
-	*
-	* @param object Asset	$asset	the asset whose interface we are painting
-	*
-	* @return Array
-	* @access public
-	* @see Design_Area_Edit_Fns::createParseString()
-	*/
-	function getSetableVars(&$asset)
-	{
-		$vars = parent::getSetableVars($asset);
-		unset($vars['password_change_contents']);
-		unset($vars['logout_contents']);
-		return $vars;
-	}//end getSetableVars()
-
-
 }//end class
-
 ?>

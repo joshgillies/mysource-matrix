@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.45 2005/08/24 06:57:41 dmckee Exp $
+* $Id: design_area.inc,v 1.46 2005/10/11 02:04:50 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,8 +61,8 @@ class Design_Area extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _preCreateCheck(&$link)
 	{
@@ -98,13 +98,14 @@ class Design_Area extends Asset
 		// don't update the parent asset when this asset is updated as it starts a recusion
 		// that takes way too long
 		return parent::_updated(false);
+
 	}//end _updated()
 
 
 	/**
 	* Returns a list of lock types available for this asset type
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function lockTypes()
@@ -119,10 +120,11 @@ class Design_Area extends Asset
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
 	function _getName($short_name=false)
 	{
@@ -138,8 +140,8 @@ class Design_Area extends Asset
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
-	* @param object Backend_Outputter	$o
-	* @param array(string)				&$link	information used to create the initial link
+	* @param object	&$o		Backend outputter
+	* @param array	&$link	Information used to create the initial link
 	*
 	* @return boolean
 	* @access public
@@ -166,7 +168,7 @@ class Design_Area extends Asset
 	/**
 	* Returns all the designs that this design area is used in
 	*
-	* @return Array() array of Design objects
+	* @return array
 	* @access public
 	*/
 	function &getDesigns()
@@ -184,6 +186,7 @@ class Design_Area extends Asset
 	/**
 	* Returns an array of Array(id_name => Array(var)) for all var references that are needed by this design area
 	*
+	* @return array
 	* @access public
 	*/
 	function getVarReferences()
@@ -202,10 +205,11 @@ class Design_Area extends Asset
 
 
 	/**
-	* Set's the values for the var references values (registered in $this->var_references)
+	* Sets the values for the var references values (registered in $this->var_references)
 	*
-	* @param array $var_ref_values	array of values - Array(id_name => Array(var => [value]))
+	* @param array	$var_ref_values	array of values - Array(id_name => Array(var => [value]))
 	*
+	* @return void
 	* @access public
 	*/
 	function setVarReferenceValues($var_ref_values)
@@ -242,73 +246,31 @@ class Design_Area extends Asset
 
 
 	/**
-	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
-	* And cache the output using the Cache Manager.
+	* Get the names of attributes for this DA that cannot be set in the parse file
 	*
-	* @param object Design	$design the design for which we are currently printing
-	* @param boolean 			$cache true this design area should be cached
+	* Design Area attributes that are not mentioned in the parse file are normally set to defaults
+	* when parsing the design.  Attributes returned by this function are exempted from that process.
 	*
-	* @return boolean
+	* @return array
 	* @access public
 	*/
-	function printCachedArea(&$design, $cache=false)
+	function getProtectedAttrs()
 	{
-		$instance_id = '_'.$this->id.'_'.$design->id;
+		return $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes('design_area', Array('name'));
 
-		if ($cache && $this->canBeCached()) {
-			echo '
-			<?php
-				$cm = &$GLOBALS[\'SQ_SYSTEM\']->am->getSystemAsset(\'cache_manager\');
-				$asset_contents'.$instance_id.' = $cm->loadFromCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'\');
-
-				if (empty($asset_contents'.$instance_id.')) {
-					ob_start();
-			?>
-			';
-		}
-
-		$ret = $this->printArea($design);
-
-		if ($cache && $this->canBeCached()) {
-			echo '
-			<?php
-						$asset_contents'.$instance_id.' = ob_get_contents();
-					ob_end_clean();
-					$cm->saveToCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'\', $asset_contents'.$instance_id.');
-				}
-
-				echo $asset_contents'.$instance_id.';
-			?>
-			';
-		}
-
-		return $ret;
-
-	}//end printCachedArea()
+	}//end getProtectedAttrs()
 
 
-	/**
-	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
-	*
-	* @param object Design	$design the design for which we are currently printing
-	*
-	* @return boolean
-	* @access public
-	*/
-	function printArea(&$design)
-	{
-		$edit_fns = $this->getEditFns();
-		return $edit_fns->_createDesignFileOutput($this->attr('contents'), $this, $design);
-
-	}//end printArea()
+//--        PARSE FILE GENERATION        --//
 
 
 	/**
 	* Outputs the var either as straight HTML or PHP code, depending on the type
 	*
 	* @param string	$var	the name of the var to print out
-	* @param Array	$args	array of any extra arguments that existed in the print command
+	* @param array	$args	array of any extra arguments that existed in the print command
 	*
+	* @return void
 	* @access public
 	*/
 	function printVar($var, $args)
@@ -322,8 +284,9 @@ class Design_Area extends Asset
 	* Escapes a simple var (if requested) that is going to be printed in the PHP
 	*
 	* @param string	$value	the value
-	* @param Array	$args	array of any extra arguments that existed in the print command
+	* @param array	$args	array of any extra arguments that existed in the print command
 	*
+	* @return string
 	* @access public
 	*/
 	function _escapeVar($value, $args)
@@ -338,18 +301,226 @@ class Design_Area extends Asset
 
 
 	/**
-	 * Returns true if this content generated by this design area can be cached
-	 *
-	 * @return boolean
-	 * @access public
-	 */
-	function canBeCached()
+	* Returns true if this content generated by this design area's code in the design file can be cached
+	*
+	* This function should be overriden by children if they don't want the cache=1 attribute to be accepted
+	*
+	* @return boolean
+	* @access protected
+	*/
+	function _canBeCached()
 	{
-		return 1;
+		return true;
 
-	}//end canBeCached()
+	}//end _canBeCached()
+
+
+	/**
+	* Return whether this DA has been given sufficient details to be able to print stuff
+	*
+	* This function can be overriden by children to enforce required attributes etc
+	*
+	* @return boolean
+	* @access protected
+	*/
+	function _canInit()
+	{
+		return true;
+
+	}//end _canInit()
+
+
+	/**
+	* Print code that initialises this design area and should always be printed in place of the AREA tag
+	*
+	* The protected version of this function, rather than this one, should be overridden by children
+	*
+	* @return void
+	* @access public
+	*/
+	function printInitCode()
+	{
+		$design =& $GLOBALS['DESIGN_BEING_GENERATED'];
+		$instance_id = '_init_'.$this->id.'_'.$design->id;
+		if ($this->attr('cache') && $this->_canBeCached()) {
+			echo '
+			<?php
+				$cm = &$GLOBALS[\'SQ_SYSTEM\']->am->getSystemAsset(\'cache_manager\');
+				$asset_contents'.$instance_id.' = $cm->loadFromCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'\');
+
+				if (empty($asset_contents'.$instance_id.')) {
+					ob_start();
+			?>
+			';
+		}
+
+		$this->_printInitCode();
+
+		if ($this->attr('cache') && $this->_canBeCached()) {
+			echo '
+			<?php
+					$asset_contents'.$instance_id.' = ob_get_contents();
+					ob_end_clean();
+					$cm->saveToCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'\', $asset_contents'.$instance_id.');
+				}
+
+				echo $asset_contents'.$instance_id.';
+			?>
+			';
+		}
+
+	}//end printInitCode()
+
+
+	/**
+	* Print code that initialises this design area and should always be printed in place of the AREA tag
+	*
+	* This function can be overridden by children
+	*
+	* @return void
+	* @access protected
+	*/
+	function _printInitCode()
+	{
+
+	}//end _printInitCode()
+
+
+	/**
+	* Print code that actually results in HTML output to the browser for this design area
+	*
+	* This function is called at the AREA tag if print != no, and at the point of any PRINT
+	* tags that reference this area. The protected version of this function, rather that this one,
+	* should overridden by children
+	*
+	* @return void
+	* @access public
+	*/
+	function printPaintingCode()
+	{
+		if (!array_get_index($this->_tmp, 'ready_to_paint')) {
+			return;
+		}
+		$design =& $GLOBALS['DESIGN_BEING_GENERATED'];
+		$instance_id = '_paint_'.$this->id.'_'.$design->id;
+		if ($this->attr('cache') && $this->_canBeCached()) {
+			echo '
+			<?php
+				$cm = &$GLOBALS[\'SQ_SYSTEM\']->am->getSystemAsset(\'cache_manager\');
+				$asset_contents'.$instance_id.' = $cm->loadFromCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'\');
+
+				if (empty($asset_contents'.$instance_id.')) {
+					ob_start();
+			?>
+			';
+		}
+
+		$this->_printPaintingCode();
+
+		if ($this->attr('cache') && $this->_canBeCached()) {
+			echo '
+			<?php
+					$asset_contents'.$instance_id.' = ob_get_contents();
+					ob_end_clean();
+					$cm->saveToCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'\', $asset_contents'.$instance_id.');
+				}
+
+				echo $asset_contents'.$instance_id.';
+			?>
+			';
+		}
+
+	}//end printPaintingCode()
+
+
+	/**
+	* Print code that actually results in HTML output to the browser for this design area
+	*
+	* This function is called at the AREA tag if print != no, and at the point of any PRINT
+	* tags that reference this area. This function can be overridden (partially) by children
+	*
+	* @return void
+	* @access protected
+	*/
+	function _printPaintingCode()
+	{
+		foreach ($this->attr('contents') as $item) {
+			$this->_printContentItemCode($item);
+		}
+
+	}//end _printPaintingCode()
+
+
+	/**
+	* Print code that outputs a given element from this DA's contents
+	*
+	* @param array	$item	An entry from our contents array
+	*
+	* @return void
+	* @access private
+	*/
+	function _printContentItemCode($item)
+	{
+		if ($item['_type'] == 'HTML') {
+			// just some HTML content to echo out
+			echo $item['contents'];
+		} else if ($item['_type'] == 'TAG') {
+			if ($item['operation'] == 'print') {
+				$design =& $GLOBALS['DESIGN_BEING_GENERATED'];
+				if (empty($item['attributes']['id_name'])) {
+					$args = $item['attributes'];
+					unset($args['id_name']);
+					unset($args['var']);
+					$this->printVar($item['attributes']['var'], $args);
+				} else {
+					if ($item['attributes']['id_name'] == '__global__') {
+						// printing a global var
+						$args = $item['attributes'];
+						unset($args['id_name']);
+						unset($args['var']);
+						$design->printVar($item['attributes']['var'], $args);
+					} else {
+						// referencing another design area (which should already have been defined)
+						$da =& $design->getDesignArea($item['attributes']['id_name']);
+						if (!is_null($da)) {
+							if (isset($item['attributes']['var'])) {
+								// printing a particular var from the design area
+								$args = $item['attributes'];
+								unset($args['id_name']);
+								unset($args['var']);
+								$da->printVar($item['attributes']['var'], $args);
+							} else {
+								// printing the whole other design area
+								$da->printPaintingCode();
+							}
+						}
+					}
+				}
+			}
+		}
+
+	}//end _printContentItemCode()
+
+
+	/**
+	* Print the replacement for the AREA tag in the parse file
+	*
+	* This will always print the init code for the DA;  unless the Area tag has a
+	* negative print attribute the painting code is printed too.
+	*
+	* @return void
+	* @access public
+	*/
+	function printAreaCode()
+	{
+		if ($this->_canInit()) {
+			$this->printInitCode();
+			$this->_tmp['ready_to_paint'] = true;
+			if ($this->attr('print')) $this->printPaintingCode();
+		}
+
+	}//end printAreaCode()
 
 
 }//end class
-
 ?>

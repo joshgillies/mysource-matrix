@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_normal_edit_fns.inc,v 1.9 2005/01/20 13:07:32 brobertson Exp $
+* $Id: design_area_menu_normal_edit_fns.inc,v 1.10 2005/10/11 02:06:39 tbarrett Exp $
 *
 */
 
@@ -32,11 +32,12 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Menu_Normal_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 {
+
 }//end class
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if.inc,v 1.7 2005/07/20 23:51:49 dheppell Exp $
+* $Id: design_area_show_if.inc,v 1.8 2005/10/11 02:06:36 tbarrett Exp $
 *
 */
 
@@ -29,10 +29,10 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 * Design_Area_Show_If
 *
 * Purpose
-*
+*	Show different content depending on certain conditions evaluated at runtime
 *
 * @author  Avi Miller <Avi Miller@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,9 +42,6 @@ class Design_Area_Show_If extends Design_Area
 
 	/**
 	* Queue the setting of the value of an attribute
-	*
-	* This function sets the value of the attribute locally, but does not database updating.
-	* The change is queued awaiting the call of saveAttributes()
 	*
 	* @param string		$name	the name of the attribute
 	* @param string		$value	the new value of the attribute
@@ -69,15 +66,16 @@ class Design_Area_Show_If extends Design_Area
 	}//end setAttrValue()
 
 
-	/**
-	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
+	/*
+	* Print code that actually results in HTML output to the browser for this design area
 	*
-	* @param object Design	$design the design for which we are currently printing
+	* This function is called at the AREA tag if print != no, and at the point of any PRINT
+	* tags that reference this area.
 	*
-	* @return boolean
-	* @access public
+	* @access protected
+	* @return void
 	*/
-	function printArea(&$design)
+	function _printPaintingCode()
 	{
 		$condition = $this->attr('condition');
 		$then = $this->attr('then_contents');
@@ -87,7 +85,7 @@ class Design_Area_Show_If extends Design_Area
 		
 		$condition_data = $this->attr('condition_data');
 		if (!empty($condition_data)) {
-			
+			// DO STUFF HERE!!
 		}
 
 		$id_name = $this->attr('id_name');
@@ -99,42 +97,14 @@ class Design_Area_Show_If extends Design_Area
 			if (condition_'.$condition.'::evaluate($ASSET, $'.$id_name.'_condition_data)) {
 		';
 
-		$then_contents = '';
-		$else_contents = '';
-
-		foreach ($then as $index => $element) {
-			$edit_fns = $this->getEditFns();
-			if ($element['_type'] != 'TAG') {
-				$then_contents .= $element['contents'];
-				continue;
-			}
-
-			ob_start();
-				if (!$edit_fns->_outputElement($element, $asset, $design)) return false;
-				$then_contents .= ob_get_contents();
-			ob_end_clean();
-		}
-
-		foreach ($else as $index => $element) {
-			$edit_fns = $this->getEditFns();
-			if ($element['_type'] != 'TAG') {
-				$else_contents .= $element['contents'];
-				continue;
-			}
-
-			ob_start();
-				if (!$edit_fns->_outputElement($element, $asset, $design)) return false;
-				$else_contents .= ob_get_contents();
-			ob_end_clean();
-		}
-
-
 		// the multiple echo statements are required to get content to print at line 1,
 		// character 1 of the potential output (i.e. the DocType). Otherwise, it may get
 		// ignored
-		if (!empty($then_contents)) {
+		if (!empty($then)) {
 			echo '?', '>'."\n";
-			echo $then_contents;
+			foreach ($then as $index => $element) {
+				$this->_printContentItemCode($element);
+			}
 			echo '<', '?php ; '."\n";
 		} else {
 			echo 'echo \'\';'."\n";
@@ -142,9 +112,11 @@ class Design_Area_Show_If extends Design_Area
 
 		echo '} else {'."\n";
 
-		if (!empty($else_contents)) {
+		if (!empty($else)) {
 			echo '?', '>'."\n";
-			echo $else_contents;
+			foreach ($else as $index => $element) {
+				$this->_printContentItemCode($element);
+			}
 			echo '<', '?php ; ';
 		} else {
 			echo 'echo \'\';';
@@ -153,7 +125,7 @@ class Design_Area_Show_If extends Design_Area
 		echo '}	?','>';
 		return true;
 
-	}//end printArea()
+	}//end _printPaintingCode()
 
 
 	/**
@@ -164,11 +136,10 @@ class Design_Area_Show_If extends Design_Area
 	*/
 	function canBeCached()
 	{
-		return 0;
+		return false;
 	
 	}//end canBeCached()
 
 
 }//end class
-
 ?>

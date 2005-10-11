@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if_edit_fns.inc,v 1.7 2005/05/11 06:04:49 lwright Exp $
+* $Id: design_area_show_if_edit_fns.inc,v 1.8 2005/10/11 02:06:36 tbarrett Exp $
 *
 */
 
@@ -31,31 +31,12 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 {
-
-
-	/**
-	* Returns an array of vars that are setable, used to create the parseString
-	*
-	* @param object Asset	$asset	the asset whose interface we are painting
-	*
-	* @return Array
-	* @access public
-	* @see Design_Area_Edit_Fns::createParseString()
-	*/
-	function getSetableVars(&$asset)
-	{
-		$vars = parent::getSetableVars($asset);
-		unset($vars['then_contents']);
-		unset($vars['else_contents']);
-		return $vars;
-
-	}//end getSetableVars()
 
 
 	/**
@@ -133,45 +114,5 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 	}//end _processContents()
 
 
-	/**
-	* Used by _outputContents() to deal with a print tag
-	*
-	* @param array			$element	the print element tag
-	* @param object Asset	$asset		the asset to which we belong
-	* @param object Design	$design		the design object that is painting us
-	*
-	* @return boolean
-	* @access private
-	* @see Design_Area_Edit_Fns::_outputContents()
-	*/
-	function _outputElement($element, &$asset, &$design)
-	{
-		switch ($element['operation']) {
-			case 'then' :
-				if ($then_contents = $asset->attr('then_contents')) {
-					$asset->_tmp['outputting_then_section'] = true;
-					if (!$this->_outputContents($then_contents, $asset, $design)) return false;
-					unset($asset->_tmp['outputting_then_section']);
-				}
-
-			return true;
-
-			case 'else' :
-				if ($else_contents = $asset->attr('else_contents')) {
-					$asset->_tmp['outputting_else_section'] = true;
-					if (!$this->_outputContents($else_contents, $asset, $design)) return false;
-					unset($asset->_tmp['outputting_else_section']);
-				}
-
-			return true;
-
-			default :
-				return parent::_outputElement($element, $asset, $design);
-		}// end switch
-
-	}//end _outputElement()
-
-
 }//end class
-
 ?>

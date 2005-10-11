@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_custom_image_edit_fns.inc,v 1.16 2005/05/11 06:04:49 lwright Exp $
+* $Id: design_area_custom_image_edit_fns.inc,v 1.17 2005/10/11 02:05:33 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -163,26 +163,6 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 		if (empty($extensions)) return $last;
 		else return implode(', ', $extensions).' and '.$last;
 	}//end _getExtensionString()
-
-
-	/**
-	* Returns an array of vars that are setable, used to create the parseString
-	*
-	* @param object Asset	$asset	the asset whose interface we are painting
-	*
-	* @return Array
-	* @access public
-	* @see Design_Area_Edit_Fns::createParseString()
-	*/
-	function getSetableVars(&$asset)
-	{
-		$vars = parent::getSetableVars($asset);
-		// remove the image attribute
-		unset($vars['image']);
-		return $vars;
-
-	}//end getSetableVars()
-
 
 
 }//end class

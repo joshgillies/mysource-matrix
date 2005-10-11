@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content.inc,v 1.18 2005/09/28 06:21:12 rhoward Exp $
+* $Id: design_area_nest_content.inc,v 1.19 2005/10/11 02:06:09 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -128,22 +128,47 @@ class Design_Area_Nest_Content extends Design_Area
 
 
 	/*
-	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
-	*
-	* @param object Design	$design the design for which we are currently printing
+	* Return whether this DA has been given sufficient details to be able to print stuff
 	*
 	* @return boolean
-	* @access public
+	* @access protected
 	*/
-	function printArea(&$design)
+	function _canInit()
 	{
 		$assetid = (int) $this->_getNestAssetInfo('minorid');
+		return !(empty($assetid));
 
-		// return true because it just means that they haven't set anything yet
-		if (empty($assetid)) return true;
+	}//end _canInit()
 
+
+	/**
+	* Print code that initialises this design area and should always be printed in place of the AREA tag
+	*
+	* @access protected
+	* @return void
+	*/
+	function _printInitCode()
+	{
+		$assetid = (int) $this->_getNestAssetInfo('minorid');
 		echo '<', '?php
 		$nest_content_'.$this->attr('id_name').'_asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$assetid.');
+		?', '>';
+
+	}//end _printInitCode()
+
+
+	/*
+	* Print code that actually results in HTML output to the browser for this design area
+	*
+	* This function is called at the AREA tag if print != no, and at the point of any PRINT
+	* tags that reference this area.
+	*
+	* @access protected
+	* @return void
+	*/
+	function _printPaintingCode()
+	{
+		echo '<', '?php
 		if (!is_null($nest_content_'.$this->attr('id_name').'_asset)) {
 			if ($nest_content_'.$this->attr('id_name').'_asset->readAccess()) {
 				ob_start();
@@ -172,11 +197,8 @@ class Design_Area_Nest_Content extends Design_Area
 		}
 		?', '>';
 
-		return true;
-
-	}//end printArea()
+	}//end _printPaintingCode()
 
 
 }//end class
-
 ?>

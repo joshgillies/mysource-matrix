@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars_edit_fns.inc,v 1.23 2005/05/30 04:49:20 dmckee Exp $
+* $Id: design_area_declared_vars_edit_fns.inc,v 1.24 2005/10/11 02:05:51 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -109,30 +109,6 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 
 
 	/**
-	* Creates a string that would be able to be parsed to recreate this design area in its current form
-	*
-	* @param object Asset	$asset	the asset whose interface we are painting
-	*
-	* @return boolean
-	* @access public
-	*/
-	function createParseString(&$asset)
-	{
-		$text = '';
-		foreach ($asset->vars['declared_vars']['value'] as $name => $data) {
-			$text .= '<'.$this->tag_name.'_DECLARE name="'.htmlentities($name).'"';
-			foreach ($data as $k => $v) {
-				$text .= ' '.$k.'="'.htmlentities($v).'"';
-			}
-			$text .= " />\n";
-		}//end foreach
-
-		return $text;
-
-	}//end createParseString()
-
-
-	/**
 	* Paint declared variables
 	*
 	* @param object Asset				$asset	the asset whose interface we are painting
@@ -196,5 +172,4 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 
 
 }//end class
-
 ?>

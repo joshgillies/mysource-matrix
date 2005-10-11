@@ -18,19 +18,20 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/03/30 00:39:38 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.2 2005/10/11 02:04:55 tbarrett Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Details">
-		<field>
-			<display_name>Id Name</display_name>
-			<note />
-			<function_call>
-				<paint_function name="paintIdName" />
-			</function_call>
+	<section name="General">
+		<field attribute="print">
+			<display_name>Print</display_name>
+			<note>Select whether this design area should be printed or hidden in this design customisation</note>
+		</field>
+		<field attribute="cache">
+			<display_name>Cache?</display_name>
+			<note>Select whether this design area should be cached in this design customisation.  Caching improves performance but can reduce the currency of frontend output.</note>
 		</field>
 	</section>
 </contents>

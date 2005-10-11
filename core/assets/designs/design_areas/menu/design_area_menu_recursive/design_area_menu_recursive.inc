@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive.inc,v 1.21 2005/04/15 00:37:24 lwright Exp $
+* $Id: design_area_menu_recursive.inc,v 1.22 2005/10/11 02:06:44 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,48 +40,22 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 {
 
 	/**
-	* Set the value for the passed variable to the passed value
-	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
-	*
-	* @return boolean
-	* @access public
-	*/
-	function setAttrValue($name, $value)
-	{
-		// make sure the aligment is lower case
-		switch ($name) {
-			case 'show_subs' :
-				trigger_localised_error("CORE0176", E_USER_NOTICE, $name, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-				break;
-
-		}//end switch
-
-		return parent::setAttrValue($name, $value);
-
-	}//end setAttrValue()
-
-
-	/**
 	* Performs any outputting needed to by all design areas of this menu type
 	* NOTE: assumes PHP tags are open
 	*
-	* @param object Design	$design			the design for which we are currently printing
-	*
 	* @access public
 	*/
-	function printStaticInitOutput(&$design)
+	function printStaticInitOutput()
 	{
-		parent::printStaticInitOutput($design);
+		parent::printStaticInitOutput();
 
 		// Stuff that is only needed once per design file
-		if (empty($GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$design->id])) {
+		if (empty($GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$GLOBALS['DESIGN_BEING_GENERATED']->id])) {
 			echo '
 			// because we need to be able to get to this with the recurse fn
 			$GLOBALS[\'RECURSIVE_MENU_ASSET_LINEAGE\'] = &$ASSET_LINEAGE;
 			';
-			$GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$design->id] = true;
+			$GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$GLOBALS['DESIGN_BEING_GENERATED']->id] = true;
 		}
 
 	}//end printStaticInitOutput()
@@ -90,14 +64,13 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	/**
 	* Performs any outputting needed to intialise this instance of the menu type
 	*
-	* @param object Design	$design			the design for which we are currently printing
-	*
 	* @access public
 	*/
-	function printInitOutput(&$design)
+	function printInitOutput()
 	{
-		parent::printInitOutput($design);
-		$this->printRecursiveFn($design);
+		parent::printInitOutput();
+		$this->printRecursiveFn();
+
 	}//end printInitOutput()
 
 
@@ -105,11 +78,9 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	* Prints the recursive fn that will be used by this menu to printout its details
 	* NOTE: to be overridden by our children, this can be used as an example of how to recurse
 	*
-	* @param object Design	$design			the design for which we are currently printing
-	*
 	* @access public
 	*/
-	function printRecursiveFn(&$design)
+	function printRecursiveFn()
 	{
 		echo '
 
@@ -144,10 +115,11 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 			?', '>
 			';
 		if ($asset_contents = $this->attr('asset_contents')) {
-			$edit_fns = $this->getEditFns();
-			$asset->_tmp['outputting_asset_section'] = true;
-			if (!$edit_fns->_outputContents($asset_contents, $this, $design)) return false;
-			unset($asset->_tmp['outputting_asset_section']);
+			$this->_tmp['outputting_asset_section'] = true;
+			foreach ($asset_contents as $item) {
+				$this->_printContentItemCode($item);
+			}
+			unset($this->_tmp['outputting_asset_section']);
 		}//	end if
 		echo '
 			<', '?php
@@ -186,11 +158,9 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	* Outputs the way for this menu type to get their information and place it in the
 	* $GLOBALS['MENU_DATA'] array
 	*
-	* @param object Design	$design the design for which we are currently printing
-	*
 	* @access public
 	*/
-	function printDataCollection(&$design)
+	function printDataCollection()
 	{
 		$parent_menu = &$this->getParentMenu();
 
@@ -221,7 +191,6 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 		}//end if
 
 		echo '
-#pre_echo("NR:  ".$'.$this->attr('id_name').'_num_repeats);
 		for ($'.$this->attr('id_name').'_i = 0; $'.$this->attr('id_name').'_i < $'.$this->attr('id_name').'_num_repeats; $'.$this->attr('id_name').'_i++) {
 
 		';
@@ -278,7 +247,62 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 		}//end if
 
 		parent::printVar($var, $args, $value_prefix, $value_suffix);
+
 	}//end printVar()
+
+
+	/**
+	* Print code that outputs a given element from this DA's contents
+	*
+	* @param array	$item	An entry from our contents array
+	*
+	* @access private
+	* @return void
+	*/
+	function _printContentItemCode($element)
+	{
+		switch (array_get_index($element, 'operation')) {
+			case 'asset' :
+
+				echo '<', '?php
+				';
+
+				$parent_menu = &$this->getParentMenu();
+				// if we aren't a sub menu
+				if (is_null($parent_menu)) {
+					$parent_assetid_name = '$ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']';
+
+					echo '
+				$'.$this->attr('id_name').'_base_url = (empty($ASSET_LINEAGE[$'.$this->attr('id_name').'_level])) ? \'\' : current_protocol().\'://\'.$ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'url\'];
+					';
+
+				// else  we are a sub menu
+				} else {
+					$parent_assetid_name = '$'.$parent_menu->attr('id_name').'_row[\'assetid\']';
+
+					echo '
+				$'.$this->attr('id_name').'_base_url = $'.$parent_menu->attr('id_name').'_urls[$'.$parent_menu->attr('id_name').'_row[\'assetid\']];
+					';
+
+				}//end if
+
+				echo '
+				'.$this->attr('id_name').'_recursive_fn($'.$this->attr('id_name').'_level, '.$parent_assetid_name.', $'.$this->attr('id_name').'_base_url);
+				?', '>';
+
+				return true;
+
+
+			case 'sub' :
+				# there ain't going to be any subs :)
+				return true;
+
+			default :
+				return parent::_printContentItemCode($element);
+		}//end switch
+
+	}//end _printContentItemCode()
+
 
 }//end class
 ?>

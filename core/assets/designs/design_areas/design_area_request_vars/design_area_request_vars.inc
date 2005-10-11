@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_request_vars.inc,v 1.3 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_area_request_vars.inc,v 1.4 2005/10/11 02:06:30 tbarrett Exp $
 *
 */
 
@@ -29,63 +29,15 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 * Design_Area_Request_Vars
 *
 * Purpose
+*	Display something from the request (GET or POST) in the design
 *
-*
-* @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.3 $
+* @author  Luke Wright <lwright@squiz.net>
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Request_Vars extends Design_Area
 {
-
-	/**
-	* Easy way to get the value of an attribute
-	*
-	* @param string	$name
-	*
-	* @return mixed
-	* @access public
-	*/
-	/*function attr($name)
-	{
-		if (in_array($name, Array('method','id_name'))) {
-			return $this->vars[$name]['value'];
-		}
-
-		switch ($this->vars['method']['value']) {
-			case 'get':
-				$target_vars =& $_GET;
-			break;
-
-			case 'post':
-				$target_vars =& $_POST;
-			break;
-
-			case 'request':
-			default:
-				$target_vars =& $_REQUEST;
-			break;
-
-		}
-
-		return array_get_index($target_vars, $name, '');
-
-	}*///end attr()
-
-
-	/**
-	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
-	*
-	* @param object Design	$design the design for which we are currently printing
-	*
-	* @return boolean
-	* @access public
-	*/
-	function printArea(&$design)
-	{
-		return true;
-	}//end printArea()
 
 
 	/**

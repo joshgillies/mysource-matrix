@@ -18,17 +18,18 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2005/03/30 00:39:40 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2005/10/11 02:05:57 tbarrett Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Details">
-		<field>
-			<function_call>
-				<paint_function name="paintIdName" />
-			</function_call>
+	<section name="General" write_access="write:attributes">
+		<field attribute="print">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="cache">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Link" write_access="write:links" read_access="write:">

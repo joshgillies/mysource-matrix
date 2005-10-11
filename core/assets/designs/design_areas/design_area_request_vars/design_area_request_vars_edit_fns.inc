@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_request_vars_edit_fns.inc,v 1.2 2005/01/20 13:07:32 brobertson Exp $
+* $Id: design_area_request_vars_edit_fns.inc,v 1.3 2005/10/11 02:06:30 tbarrett Exp $
 *
 */
 
@@ -31,15 +31,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 * Purpose
 *
 *
-* @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.2 $
+* @author  Luke Wright <lwright@squiz.net>
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Request_Vars_Edit_Fns extends Design_Area_Edit_Fns
 {
 
-
 }//end class
-
 ?>

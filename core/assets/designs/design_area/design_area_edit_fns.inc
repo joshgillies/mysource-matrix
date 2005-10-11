@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.51 2005/09/20 04:17:44 lwright Exp $
+* $Id: design_area_edit_fns.inc,v 1.52 2005/10/11 02:04:50 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,9 +60,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Echo the Design Area's ID name
 	*
-	* @param object Asset				$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return void
 	* @access public
@@ -78,9 +78,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Parse the string into an array recursively cut up into html and tag pieces
 	*
-	* @param string	$file_contents		the contents to parse
+	* @param string	$file_contents	the contents to parse
 	*
-	* @return Array
+	* @return array
 	* @access private
 	*/
 	function _parseString($file_contents)
@@ -128,11 +128,11 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* if code is nested between open and terminate tags this function is called
 	* recursivley
 	*
-	* @param string	$file_contents	the raw contents to parse file
-	* @param int	$cur_pos		the current position in $file_contents that we are
-	* @param int	$cur_pos		the current position in $file_contents that we are
+	* @param string	&$file_contents	the raw contents to parse file
+	* @param int	&$cur_pos		the current position in $file_contents that we are
+	* @param int	&$nest_level	the current position in $file_contents that we are
 	*
-	* @returns Array
+	* @return array
 	* @access private
 	*/
 	function _parseStringContents(&$file_contents, &$cur_pos, &$nest_level)
@@ -231,8 +231,8 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	*
 	* Returns the type and sets the current position to the start of the tag
 	*
-	* @param string	$file_contents	the raw contents to parse file
-	* @param int	$cur_pos		the current position in $file_contents that we are
+	* @param string	&$file_contents	the raw contents to parse file
+	* @param int	&$cur_pos		the current position in $file_contents that we are
 	*
 	* @return string
 	* @access private
@@ -272,8 +272,8 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	*
 	* Also assigns any attributes that the tag may have contained
 	*
-	* @param string	$file_contents	the raw contents to parse file
-	* @param int	$cur_pos		the current position in $file_contents that we are
+	* @param string	&$file_contents	the raw contents to parse file
+	* @param int	&$cur_pos		the current position in $file_contents that we are
 	*
 	* @return array
 	* @access private
@@ -388,9 +388,10 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Keep counting the characters until we hit a close bracket
 	*
-	* @param string	$file_contents	the raw contents to parse file
-	* @param int	$cur_pos		the current position in $file_contents that we are
+	* @param string	&$file_contents	the raw contents to parse file
+	* @param int	&$cur_pos		the current position in $file_contents that we are
 	*
+	* @return void
 	* @access private
 	*/
 	function _parseTerminateTag(&$file_contents, &$cur_pos)
@@ -405,9 +406,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Return true if the whole string is whitespace of somekind
+	* Return true if the whole string is whitespace of some kind
 	*
-	* @param string	$str
+	* @param string	$str	The string to check
 	*
 	* @return boolean
 	* @access private
@@ -420,11 +421,12 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Recurses through the contents array and removes any HTML tags contain only whitespace
+	* Recurses through the contents array and removes any HTML tags that contain only whitespace
 	* and are set between two tags
 	*
-	* @param array	$contents	the contents array we are currently checking
+	* @param array	&$contents	the contents array we are currently checking
 	*
+	* @return void
 	* @access private
 	*/
 	function _parserCleanupContents(&$contents)
@@ -444,8 +446,8 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Loop through the contents array and create the necessary objects
 	*
-	* @param object Asset	$asset		the asset to which we belong
-	* @param array			$contents	the contents array we generated with _parseString()
+	* @param object	&$asset		the asset to which we belong
+	* @param array	$contents	the contents array we generated with _parseString()
 	*
 	* @return boolean
 	* @access private
@@ -470,11 +472,11 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* Also anything with 'image' contained in it will have the file root removed
 	* from its value
 	*
-	* @param object Asset	$asset		the asset to which we belong
-	* @param array			$contents	the contents array from _parseString
+	* @param object	&$asset		the asset to which we belong
+	* @param array	&$contents	the contents array from _parseString
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _setVariables(&$asset, &$contents)
 	{
@@ -542,23 +544,24 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 		// Now we need to ensure that any attributes that weren't set in the parse file
 		// are returned to their default values
-
 		// Design Area attributes that shouldn't be reset
-		$not_setable_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes('design_area', Array('name'));
 
-		// add any attributes that shouldn't be set to default here
-		$additional_attrs = Array('asset_contents', 'divider_contents', 'type_codes', 'settings');
+		$not_setable_attrs = $asset->getProtectedAttrs();
 		$current_asset_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($asset->type(), Array('name'));
 
 		// Now compute the remaining attributes, by subtracting all that shouldn't be deleted
 		// and all that are set in the parse file
-		$set_to_default = array_diff($current_asset_attrs, $not_setable_attrs, $set_attrs, $additional_attrs);
+		$set_to_default = array_diff($current_asset_attrs, $not_setable_attrs, $set_attrs);
 
-		// Now iterate through each variable that is setable and doesn't exist in the design file,
+		// Now iterate through each variable that is setable and doesn't exist in the parse file,
 		// find and retrieve its attribute and set its current value to the default
 		foreach ($set_to_default as $i => $attr_name) {
 			$attr_to_set =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($asset->vars[$attr_name]['attrid']);
-			$asset->setAttrValue($attr_name, $attr_to_set->_default_value);
+			$default_val = $attr_to_set->_default_value;
+			if (is_a($attr_to_set, 'Asset_Attribute_Serialise')) {
+				$default_val = unserialize($default_val);
+			}
+			$asset->setAttrValue($attr_name, $default_val);
 			$attr_to_set = null;
 		}
 		return true;
@@ -585,13 +588,13 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 	/**
 	* Returns a default contents for the passed type
+	*
 	* Can be used when there is no contents supplied in parse file
 	*
-	* @param object Asset	$asset			the asset to which we belong
-	* @param string			$content_type	the name that forms the filename 'default_'.$content_type.'_contents.html'
-	*										in the asset types directory
+	* @param object	&$asset			the asset to which we belong
+	* @param string	$content_type	the name that forms the filename 'default_'.$content_type.'_contents.html' in the asset types directory
 	*
-	* @return Array()
+	* @return array
 	* @access private
 	* @see _parseString();
 	* @see _processContents();
@@ -619,238 +622,5 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	}//end _getDefaultContents()
 
 
-	/**
-	* Output the PHP/HTML code that will hopefully form part of the creating the design file
-	*
-	* @param Array			$contents	the parse contents to use in the output
-	* @param object Asset	$asset		the asset to which we belong
-	* @param object Design	$design		the design object that is painting us
-	*
-	* @return boolean
-	* @access private
-	*/
-	function _createDesignFileOutput($contents, &$asset, &$design)
-	{
-		return $this->_outputContents($contents, $asset, $design);
-
-	}//end _createDesignFileOutput()
-
-
-	/**
-	* Outputs the PHP/HTML code that will hopefully form part of the creating the design file
-	*
-	* @param Array			$contents	the parse contents to use in the output
-	* @param object Asset	$asset		the asset to which we belong
-	* @param object Design	$design		the design object that is painting us
-	*
-	* @return boolean
-	* @access private
-	*/
-	function _outputContents($contents, &$asset, &$design)
-	{
-		// right, just loop over the contents and output each of the elements
-		foreach ($contents as $index => $element) {
-
-			if ($element['_type'] == 'HTML') {
-				echo $element['contents'];
-			} else {
-				if (!$this->_outputElement($element, $asset, $design)) {
-					return false;
-				}
-			}// end if
-
-		}// end foreach
-
-		return true;
-
-	}//end _outputContents()
-
-
-	/**
-	* Used by _outputContents() to deal with a print tag
-	*
-	* @param array			$element	the print element tag
-	* @param object Asset	$asset		the asset to which we belong
-	* @param object Design	$design		the design object that is painting us
-	*
-	* @return boolean
-	* @access private
-	* @see _outputContents()
-	*/
-	function _outputElement($element, &$asset, &$design)
-	{
-		switch ($element['operation']) {
-			case 'print' :
-				// if there isn't a id_name we are using the current asset
-				if (empty($element['attributes']['id_name']) && empty($element['attributes']['var'])) {
-					$attr_str = '';
-					foreach ($element['attributes'] as $k => $v) {
-						$attr_str .= $k.'="'.$v.'"';
-					}
-					trigger_localised_error('CORE0171', E_USER_WARNING, $attr_str);
-					return false;
-				}
-
-				// if there isn't a id_name we are using the current asset
-				if (empty($element['attributes']['id_name'])) {
-					$id_obj = &$asset;
-
-				// this is the global design var ?
-				} else if ($element['attributes']['id_name'] == '__global__') {
-					$id_obj = &$design;
-
-				// otherwise we have to find the design area
-				} else {
-					$id_obj = &$design->getDesignArea($element['attributes']['id_name']);
-					if (is_null($id_obj)) {
-						trigger_localised_error('CORE0153', E_USER_WARNING, $element['attributes']['id_name']);
-						return false;
-					}
-				}
-
-				// if there is no var then print the asset
-				if (empty($element['attributes']['var'])) {
-					// we don't want recursion, so only print if the id_obj is not the asset
-					if ($id_obj !== $asset) {
-						$cache = isset($element['cache']) ? $element['cache'] : false;
-  	                    if (!$id_obj->printCachedArea($design, $cache)) return false;
-					}
-				} else {
-					$args = $element['attributes'];
-					unset($args['id_name']);
-					unset($args['var']);
-					$id_obj->printVar($element['attributes']['var'], $args);
-				}// endif
-
-				return true;
-
-			default :
-				trigger_localised_error('CORE0175', E_USER_WARNING, $element['operation']);
-				return false;
-
-		}// end switch
-
-	}//end _outputElement()
-
-
-	/**
-	* Create a string that is able to be parsed to recreate this design area in its current form
-	*
-	* @param object Asset	$asset	the asset whose interface we are painting
-	*
-	* @return boolean
-	* @access public
-	*/
-	function createParseString(&$asset)
-	{
-		$text = '';
-		$vars = $this->getSetableVars($asset);
-		require_once SQ_FUDGE_PATH.'/general/general.inc';
-		foreach ($vars as $name => $data) {
-			$text .= '<'.$this->tag_name.'_SET name="'.$name.'"';
-
-			// if this is this a var reference ?
-			if (!empty($asset->vars['var_references']['value'][$name])) {
-				$text .= ' id_name="'.htmlentities($asset->vars['var_references']['value'][$name]['id_name']).'" var="'.htmlentities($asset->vars['var_references']['value'][$name]['var']).'"';
-			} else {
-				$text .= ' value="'.htmlentities_array($data['value']).'"';
-			}
-			$text .= " />\n";
-		}
-
-		foreach ($asset->vars['contents']['value'] as $data) {
-			switch ($data['_type']) {
-				case 'HTML' :
-					$text .= $data['contents'];
-				break;
-				case 'TAG' :
-					$text .= '<'.$this->tag_name.'_'.strtoupper($data['operation']);
-					foreach ($data['attributes'] as $k => $v) {
-						$text .= ' '.$k.'="'.htmlentities($v).'"';
-					}
-					$text .= ' />';
-				break;
-			}// end switch
-		}// end foreach
-
-		#pre_echo($text);
-
-		return $text;
-
-	}//end createParseString()
-
-
-	/**
-	* Returns an array of vars that are setable, used to create the parseString
-	*
-	* @param object Asset	$asset	the asset whose interface we are painting
-	*
-	* @return Array
-	* @access public
-	* @see createParseString()
-	*/
-	function getSetableVars(&$asset)
-	{
-		$vars = $asset->vars;
-		unset($vars['id_name']);
-		unset($vars['contents']);
-		unset($vars['var_references']);
-		unset($vars['specialised']);
-		return $vars;
-
-	}//end getSetableVars()
-
-
-	/**
-	* Paint the interface for the specialising this design area
-	*
-	* @param object Asset				$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintSpecialisation(&$asset, &$o, $prefix)
-	{
-		if (!$asset->writeAccess('parsing')) return;
-		$text = $this->createParseString($asset);
-		hidden_field($prefix.'_specialisation_orig', $text);
-		text_area($prefix.'_specialisation', $text, 75, 20, 0, 'wrap="off" style="font-family: courier new, courier, monospace; font-size: 9pt;"');
-
-	}//end paintSpecialisation()
-
-
-	/**
-	* Process the specialisation, ie call _parseString() and set the specialised flag to true
-	*
-	* @param object Asset				$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processSpecialisation(&$asset, &$o, $prefix)
-	{
-		// if nothing changed then do nothing
-		if ($_POST[$prefix.'_specialisation_orig'] == $_POST[$prefix.'_specialisation']) {
-			return false;
-		}
-
-		#pre_echo($_POST[$prefix.'_specialisation']);
-		$contents = $this->_parseString($_POST[$prefix.'_specialisation']);
-		#pre_echo($contents);
-		if (!is_null($contents) && $this->_processContents($asset, $contents)) {
-			#pre_echo("PROCESS OK");
-			return $asset->setAttrValue('specialised', 1);
-		}
-
-		return false;
-
-	}//end processSpecialisation()
-
-
 }//end class
-
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_constant_button.inc,v 1.20 2005/07/04 06:21:48 tbarrett Exp $
+* $Id: design_area_constant_button.inc,v 1.21 2005/10/11 02:05:26 tbarrett Exp $
 *
 */
 
@@ -32,22 +32,23 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Constant_Button extends Design_Area
 {
 
+
 	/*
-	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
+	* Prints code in place of the AREA tag
 	*
-	* @param object Design	$design the design for which we are currently printing
+	* The protected version of this function, rather than this one, should be overridden by children
 	*
-	* @return boolean
+	* @return void
 	* @access public
 	*/
-	function printArea(&$design)
+	function printInitCode()
 	{
 		$assetid = (int) $this->attr('assetid');
 		$url     = $this->attr('url');
@@ -62,12 +63,20 @@ class Design_Area_Constant_Button extends Design_Area
 			?', '>';
 		}// end if
 
-		if ($this->attr('print')) {
-			return parent::printArea($design);
-		}
-		return true;
+	}//end _printInitCode()
 
-	}//end printArea()
+
+	/**
+	* Can we initialise this DA?
+	*
+	* @access protected
+	* @return boolean
+	*/
+	function _canInit()
+	{
+		return ($this->attr('url')) || ($this->attr('assetid'));
+
+	}//end _canInit()
 
 
 	/*
@@ -113,9 +122,5 @@ class Design_Area_Constant_Button extends Design_Area
 	}//end printVar()
 
 
-
-
-
 }//end class
-
 ?>

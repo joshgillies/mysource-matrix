@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_password_change_form_management.inc,v 1.1 2005/05/12 23:51:06 ndvries Exp $
+* $Id: design_area_password_change_form_management.inc,v 1.2 2005/10/11 02:06:24 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,12 +54,6 @@ class Design_Area_Password_Change_Form_Management extends Asset_Management
 														'type'			=> 'serialise',
 														'default'		=> Array(),
 														'description'	=> 'Holds the processed contents array for the password change section',
-													   ),
-						'logout_contents'			=> Array(
-														'added'			=> '0.0.1',
-														'type'			=> 'serialise',
-														'default'		=> Array(),
-														'description'	=> 'Holds the processed contents array for the logout section',
 													   ),
 						'give_password_old_focus'	=> Array(
 														'added'			=> '0.0.1',

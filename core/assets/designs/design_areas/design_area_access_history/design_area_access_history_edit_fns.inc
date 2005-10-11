@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history_edit_fns.inc,v 1.5 2005/08/04 23:43:06 pgannavarapu Exp $
+* $Id: design_area_access_history_edit_fns.inc,v 1.6 2005/10/11 02:05:03 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *	Print the last N assets viewed
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,26 +50,6 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 							SQ_DESIGN_AREA_HISTORY_STATUS_PRESENT	=> 'Must exist',
 							SQ_DESIGN_AREA_HISTORY_STATUS_ABSENT	=> 'Must NOT exist',
 						  );
-
-
-	/**
-	* Returns an array of vars that are setable, used to create the parseString
-	*
-	* @param object Asset	$asset	the asset whose interface we are painting
-	*
-	* @return Array
-	* @access public
-	* @see Design_Area_Edit_Fns::createParseString()
-	*/
-	function getSetableVars(&$asset)
-	{
-		$vars = parent::getSetableVars($asset);
-		unset($vars['asset_types']);
-		unset($vars['asset_count']);
-		unset($vars['asset_contents']);
-		return $vars;
-
-	}//end getSetableVars()
 
 
 	/**
@@ -117,152 +97,6 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 
 	}//end _processContents()
 
-
-	/**
-	* Used by _outputContents() to deal with a print tag
-	*
-	* @param array			$element	the print element tag
-	* @param object Asset	$asset		the asset to which we belong
-	* @param object Design	$design		the design object that is painting us
-	*
-	* @return boolean
-	* @access private
-	* @see Design_Area_Edit_Fns::_outputContents()
-	*/
-	function _outputElement($element, &$asset, &$design)
-	{
-		$area_id = $asset->attr('id_name');
-
-		switch ($element['operation']) {
-			case 'asset' :
-
-				echo '
-					<?php
-						foreach($history as $position => $asset_info) {
-					?>
-				';
-				if ($asset_contents = $asset->attr('asset_contents')) {
-					if (!$this->_outputContents($asset_contents, $asset, $design)) {
-						return false;
-					}
-				}
-				echo '
-					<?
-						}//end foreach
-					?>
-				';
-				return true;
-			default :
-				return parent::_outputElement($element, $asset, $design);
-		}//end switch
-
-	}//end _outputElement()
-
-
-	/**
-	* Output the PHP/HTML code that will hopefully form part of the creating the design file
-	*
-	* @param Array			$contents	the parse contents to use in the output
-	* @param object Asset	$asset		the asset to which we belong
-	* @param object Design	$design		the design object that is painting us
-	*
-	* @return boolean
-	* @access private
-	*/
-	function _createDesignFileOutput($contents, &$asset, &$design)
-	{
-		$area_id = $asset->attr('id_name');
-		$exclude_assets = $asset->attr('exclude_assets');
-		$asset_types = $asset->attr('asset_types');
-		$max_count = $asset->attr('asset_count');
-		$time_format = $asset->attr('time_format');
-
-		// if the design area was not properly set-up, we don't want to output anything
-		if (empty($asset_types) || !($max_count > 0)) {
-			return true;
-		}
-
-		echo '
-			<?php
-				$exclude_assets = '.var_export($exclude_assets,true).';
-				$allowed_asset_types = '.var_export($asset_types,true).';
-				$max_asset_count = '.$max_count.';
-				//// Access History Design Area
-
-				// initialise the history data
-				if (!isset($_SESSION["design_areas"]["'.$area_id.'"])) {
-					$_SESSION["design_areas"]["'.$area_id.'"] = Array();
-				}
-				$saved_data = $_SESSION["design_areas"]["'.$area_id.'"];
-				$history = array_get_index($saved_data, "history", Array());
-				$history_hash = array_get_index($saved_data, "history_hash", Array());
-
-				// check if this asset type is being tracked
-				$require_query_vars = array_get_index($allowed_asset_types, $ASSET->type());
-
-				$excluded = in_array($ASSET->id, $exclude_assets);
-				if (!is_null($require_query_vars) && (!$excluded)) {
-					// check how existence of query vars influences history recording
-					$url = null;
-					$query_var = array_get_index($_SERVER, "QUERY_STRING");
-					if (!empty($query_var)) {
-						$query = true;
-						$query_var = "?".$query_var;
-					} else {
-						$query = false;
-					}
-					$current_url = current_url();
-
-					if ((($require_query_vars == '.SQ_DESIGN_AREA_HISTORY_STATUS_PRESENT.') && $query) || ($require_query_vars == '.SQ_DESIGN_AREA_HISTORY_STATUS_IGNORE.')) {
-						$url = $current_url.$query_var;
-					} else if (($require_query_vars == '.SQ_DESIGN_AREA_HISTORY_STATUS_ABSENT.') && !$query) {
-						$url = $current_url;
-					}
-
-					// now update history if necessary
-					if (!is_null($url)){
-						// if this url already exists in history, remove it
-						$history_index = array_get_index($history_hash, $url);
-
-						if (!is_null($history_index)) {
-							unset($history[$history_index]);
-						}
-
-						if (count($history) > $max_asset_count) {
-							array_pop($history);
-						}
-
-						// create a new history entry
-						$new_entry["assetid"] 			= $ASSET->id;
-						$new_entry["asset_link"] 		= $url;
-						$new_entry["asset_name"] 		= $ASSET->name;
-						$new_entry["asset_short_name"]	= $ASSET->short_name;
-						$new_entry["access_time"]		= date("'.$time_format.'");
-
-						array_unshift($history, $new_entry);
-
-						// update history hash
-						foreach ($history as $index => $contents) {
-							$new_history_hash[$contents["asset_link"]] = $index;
-						}
-
-						$_SESSION["design_areas"]["'.$area_id.'"]["history"] = $history;
-						$_SESSION["design_areas"]["'.$area_id.'"]["history_hash"] = $new_history_hash;
-
-						// now that the session is saved, we want to remove the first item because
-						// we do not want to list the current page
-						array_shift($history);
-					}
-				}
-
-				$history = array_slice($history, 0, $max_asset_count);
-				$history_count = count($history);
-			?>
-		';
-
-		return parent::_createDesignFileOutput($contents, $asset, $design);
-
-	}//end _createDesignFileOutput()
 
 
 	/**

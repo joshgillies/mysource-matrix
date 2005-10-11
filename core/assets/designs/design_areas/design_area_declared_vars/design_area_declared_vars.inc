@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars.inc,v 1.16 2005/06/15 06:52:10 lwright Exp $
+* $Id: design_area_declared_vars.inc,v 1.17 2005/10/11 02:05:51 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,22 +58,22 @@ class Design_Area_Declared_Vars extends Design_Area
 	}//end attr()
 
 
-	/**
-	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
+	/*
+	* Print code that actually results in HTML output to the browser for this design area
 	*
-	* @param object Design	$design the design for which we are currently printing
+	* Declared Vars DAs never show any direct HTML output
 	*
-	* @return boolean
-	* @access public
+	* @access protected
+	* @return void
 	*/
-	function printArea(&$design)
+	function _printPaintingCode()
 	{
-		return true;
-	}//end printArea()
+
+	}//end _printPaintingCode()
 
 
 	/**
-	* Returns an array of Asset_Attribute object, one foreach declared var
+	* Returns an array of Asset_Attribute object, one for each declared var
 	*
 	* @return Array(object Asset_Attribute)
 	* @access public
@@ -114,6 +114,7 @@ class Design_Area_Declared_Vars extends Design_Area
 			}
 		}
 		$this->setAttrValue('declared_vars', $parent_attrs);
+
 	}//end mergeParentDeclaredVars()
 
 

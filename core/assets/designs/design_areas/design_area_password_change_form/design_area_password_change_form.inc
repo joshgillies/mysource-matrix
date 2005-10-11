@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_password_change_form.inc,v 1.1 2005/05/12 23:51:06 ndvries Exp $
+* $Id: design_area_password_change_form.inc,v 1.2 2005/10/11 02:06:24 tbarrett Exp $
 *
 */
 
@@ -29,11 +29,11 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 * Design_Area_Password_Change_Form
 *
 * Purpose
-*
+*	Show the change-password interface in the change-password design
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,12 +59,6 @@ class Design_Area_Password_Change_Form extends Design_Area
 			case 'form_open' :
 			case 'form_close' :
 			case 'submit_button' :
-				if ($this->_tmp['painting_section'] != 'password_change' && $this->_tmp['painting_section'] != 'logout') {
-					trigger_localised_error('CORE0178', E_USER_WARNING, $var, $this->attr('id_name'));
-					return false;
-				}
-				break;
-
 			case 'password_change_message' :
 			case 'password_old_box' :
 			case 'password_new_box' :
@@ -135,7 +129,7 @@ class Design_Area_Password_Change_Form extends Design_Area
 
 			case 'password_old_box' :
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-				$extras = 'onfocus="javascript: this.select();"';
+				$extras = 'onfocus="this.select();"';
 				foreach ($args As $k => $v) {
 					if ($k = 'size') continue;
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
@@ -156,7 +150,7 @@ class Design_Area_Password_Change_Form extends Design_Area
 
 			case 'password_new_box' :
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-				$extras = 'onfocus="javascript: this.select();"';
+				$extras = 'onfocus="this.select();"';
 				foreach ($args As $k => $v) {
 					if ($k = 'size') continue;
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
@@ -166,7 +160,7 @@ class Design_Area_Password_Change_Form extends Design_Area
 
 			case 'password_confirm_box' :
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-				$extras = 'onfocus="javascript: this.select();"';
+				$extras = 'onfocus="this.select();"';
 				foreach ($args As $k => $v) {
 					if ($k = 'size') continue;
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
@@ -189,6 +183,51 @@ class Design_Area_Password_Change_Form extends Design_Area
 		}// end switch
 
 	}//end printVar()
+
+
+	/**
+	* Print code that outputs a given element from this DA's contents
+	*
+	* @param array	$item	An entry from our contents array
+	*
+	* @access private
+	* @return void
+	*/
+	function _printContentItemCode($element)
+	{
+		switch (array_get_index($element, 'operation')) {
+			case 'password_change_section':
+				$this->_tmp['painting_section'] = 'password_change';
+				foreach ($this->attr('password_change_contents') as $item) {
+					parent::_printContentItemCode($item);
+				}
+				$this->_tmp['painting_section'] = '';
+			break;
+
+			default :
+				return parent::_printContentItemCode($element);
+
+		}//end switch
+
+	}//end _printContentItemCode()
+
+
+	/**
+	* Get the names of attributes for this DA that cannot be set in the parse file
+	*
+	* Design Area attributes that are not mentioned in the parse file are normally set to defaults
+	* when parsing the design.  Attributes returned by this function are exempted from that process.
+	*
+	* @access public
+	* @return array(string)
+	*/
+	function getProtectedAttrs()
+	{
+		$res = parent::getProtectedAttrs();
+		$res[] = 'password_change_contents';
+		return $res;
+
+	}//end getProtectedAttrs()
 
 
 }//end class

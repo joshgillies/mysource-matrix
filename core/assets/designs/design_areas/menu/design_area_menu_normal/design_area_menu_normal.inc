@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_normal.inc,v 1.14 2005/01/20 13:07:32 brobertson Exp $
+* $Id: design_area_menu_normal.inc,v 1.15 2005/10/11 02:06:39 tbarrett Exp $
 *
 */
 
@@ -32,21 +32,21 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 {
+
+
 	/**
 	* Outputs the way for this menu type to get their information and place it in the
 	* $GLOBALS['MENU_DATA'] array
 	*
-	* @param object Design	$design the design for which we are currently printing
-	*
 	* @access public
 	*/
-	function printDataCollection(&$design)
+	function printDataCollection()
 	{
 		$parent_menu = &$this->getParentMenu();
 
@@ -73,13 +73,14 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 			echo '
 		if (!empty($'.$this->attr('id_name').'_assetids)) {
 		';
-			$sub_menu->printDataCollection($design);
+			$sub_menu->printDataCollection();
 			echo '
 		}// end if $'.$this->attr('id_name').'_assetids not empty
 		';
 		}// end if
 
 	}//end printDataCollection()
+
 
 }//end class
 ?>

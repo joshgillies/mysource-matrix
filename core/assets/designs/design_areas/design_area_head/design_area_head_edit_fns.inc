@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_head_edit_fns.inc,v 1.2 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_area_head_edit_fns.inc,v 1.3 2005/10/11 02:05:55 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,5 +41,4 @@ class Design_Area_head_Edit_Fns extends Design_Area_Edit_Fns
 
 
 }//end class
-
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content_edit_fns.inc,v 1.10 2005/01/20 13:07:32 brobertson Exp $
+* $Id: design_area_nest_content_edit_fns.inc,v 1.11 2005/10/11 02:06:12 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -119,6 +119,6 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 
 	}//end processAssetid()
 
-}//end class
 
+}//end class
 ?>

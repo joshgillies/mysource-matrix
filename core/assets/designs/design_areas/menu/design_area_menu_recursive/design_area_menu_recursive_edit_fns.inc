@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive_edit_fns.inc,v 1.21 2005/04/15 00:37:24 lwright Exp $
+* $Id: design_area_menu_recursive_edit_fns.inc,v 1.22 2005/10/11 02:06:46 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,62 +69,9 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 		// we just want to ignore any stupid sub menu's in our asset contents
 		trigger_localised_error("CORE0215", E_USER_WARNING);
 		return false;
+
 	}//end _processSubMenu()
 
-
-	/**
-	* Used by _outputContents() to deal with a print tag
-	*
-	* @param array			$element	the print element tag
-	* @param object Asset	$asset		the asset to which we belong
-	* @param object Design	$design		the design object that is painting us
-	*
-	* @access private
-	* @see Design_Area_Edit_Fns::_outputContents()
-	*/
-	function _outputElement($element, &$asset, &$design)
-	{
-		switch ($element['operation']) {
-			case 'asset' :
-
-				echo '<', '?php
-				';
-
-				$parent_menu = &$asset->getParentMenu();
-				// if we aren't a sub menu
-				if (is_null($parent_menu)) {
-					$parent_assetid_name = '$ASSET_LINEAGE[$'.$asset->attr('id_name').'_level][\'assetid\']';
-
-					echo '
-				$'.$asset->attr('id_name').'_base_url = (empty($ASSET_LINEAGE[$'.$asset->attr('id_name').'_level])) ? \'\' : current_protocol().\'://\'.$ASSET_LINEAGE[$'.$asset->attr('id_name').'_level][\'url\'];
-					';
-
-				// else  we are a sub menu
-				} else {
-					$parent_assetid_name = '$'.$parent_menu->attr('id_name').'_row[\'assetid\']';
-
-					echo '
-				$'.$asset->attr('id_name').'_base_url = $'.$parent_menu->attr('id_name').'_urls[$'.$parent_menu->attr('id_name').'_row[\'assetid\']];
-					';
-
-				}//end if
-
-				echo '
-				'.$asset->attr('id_name').'_recursive_fn($'.$asset->attr('id_name').'_level, '.$parent_assetid_name.', $'.$asset->attr('id_name').'_base_url);
-				?', '>';
-
-				return true;
-
-
-			case 'sub' :
-				# there ain't going to be any subs :)
-				return true;
-
-			default :
-				return parent::_outputElement($element, $asset, $design);
-		}//end switch
-
-	}//end _outputElement()
 
 }//end class
 ?>

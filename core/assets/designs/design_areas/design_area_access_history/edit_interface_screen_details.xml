@@ -18,11 +18,19 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2005/06/29 23:37:18 pgannavarapu Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2005/10/11 02:05:03 tbarrett Exp $
 *
 */
 -->
 <contents>
+	<section name="General" write_access="write:attributes">
+		<field attribute="print">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="cache">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+	</section>
 	<section name="Options" write_access="write:attributes">
 		<field attribute="asset_count">
 			<int width="2" />

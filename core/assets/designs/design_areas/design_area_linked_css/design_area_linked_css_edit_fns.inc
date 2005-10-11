@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css_edit_fns.inc,v 1.3 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_area_linked_css_edit_fns.inc,v 1.4 2005/10/11 02:05:57 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -218,6 +218,6 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 
 	}//end processAssetid()
 
-}//end class
 
+}//end class
 ?>

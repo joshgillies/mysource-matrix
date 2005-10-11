@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage_edit_fns.inc,v 1.13 2005/07/11 04:21:18 dheppell Exp $
+* $Id: design_area_asset_lineage_edit_fns.inc,v 1.14 2005/10/11 02:05:14 tbarrett Exp $
 *
 */
 
@@ -32,31 +32,12 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 {
-
-
-	/**
-	* Returns an array of vars that are setable, used to create the parseString
-	*
-	* @param object Asset	$asset	the asset whose interface we are painting
-	*
-	* @return Array
-	* @access public
-	* @see Design_Area_Edit_Fns::createParseString()
-	*/
-	function getSetableVars(&$asset)
-	{
-		$vars = parent::getSetableVars($asset);
-		unset($vars['asset_contents']);
-		unset($vars['divider_contents']);
-		return $vars;
-
-	}//end getSetableVars()
 
 
 	/**
@@ -138,114 +119,6 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 		return $asset->setAttrValue('contents', $contents);
 
 	}//end _processContents()
-
-
-	/**
-	* Used by _outputContents() to deal with a print tag
-	*
-	* @param array			$element	the print element tag
-	* @param object Asset	$asset		the asset to which we belong
-	* @param object Design	$design		the design object that is painting us
-	*
-	* @return boolean
-	* @access private
-	* @see Design_Area_Edit_Fns::_outputContents()
-	*/
-	function _outputElement($element, &$asset, &$design)
-	{
-		switch ($element['operation']) {
-			case 'asset' :
-
-				// because the page lineage array contains the site index, all we need to do to have or not have
-				// the home link is start the loop at a different position
-				$start_index = ($asset->attr('prefix_with_home_link')) ? 0 : 1;
-
-
-				$total = 'count($ASSET_LINEAGE)';
-				// because the page lineage array contains the current page, all we need to do to have or not have
-				// the current link is end the loop at a different position
-				if (!$asset->attr('suffix_with_current_link')) {
-					$total .= ' - 1';
-				}
-
-				$levels_to_print = (int) $asset->attr('levels_to_print');
-
-				if (is_int($levels_to_print)) {
-					// if we have pages to print, we just adjust the total count factor
-					if ($levels_to_print > 0) {
-						$total = 'min('.$total.', '.($levels_to_print + $start_index).')';
-					} else if ($levels_to_print < 0) {
-						// need to minus 1 because the current link is included in the lineage count
-						$start_index = 'max(0, (count($ASSET_LINEAGE) - 1 - '.abs($levels_to_print).'))';
-					}
-				}
-
-				if ($divider_contents = $asset->attr('divider_contents')) {
-					ob_start();
-					if (!$this->_outputContents($divider_contents, $asset, $design)) {
-						return false;
-					}
-					$divider = ob_get_contents();
-					ob_end_clean();
-				} else {
-					$divider = '';
-				}
-
-				if ($divider != '' && $asset->attr('prefix_with_divider')) {
-					echo $divider;
-				}
-
-				echo '<', '?php
-
-				for ($'.$asset->attr('id_name').'_i = '.$start_index.', $'.$asset->attr('id_name').'_total = '.$total.';
-					$'.$asset->attr('id_name').'_i < $'.$asset->attr('id_name').'_total;
-					$'.$asset->attr('id_name').'_i++) {
-					';
-
-				if (!$asset->attr('show_hidden_links')) {
-					echo 'if ($ASSET_LINEAGE[$'.$asset->attr('id_name').'_i][\'link_type\'] != SQ_LINK_TYPE_1) continue;
-					';
-				}
-
-				if ($asset_contents = $asset->attr('asset_contents')) {
-					echo '?','>';
-					if (!$this->_outputContents($asset_contents, $asset, $design)) {
-						return false;
-					}
-					echo '<','?php ';
-				}
-
-				// if there is a divider to deal with
-				if ($divider != '') {
-
-					// if there is not divider at the end we need to check that we aren't at the end of the list
-					if (!$asset->attr('suffix_with_divider')) {
-					echo '
-						if ($'.$asset->attr('id_name').'_i != $'.$asset->attr('id_name').'_total - 1) {
-						';
-					}
-
-					echo '?','>', $divider, '<','?php ';
-
-					// if there is not divider at the end we need to check that we aren't at the end of the list
-					if (!$asset->attr('suffix_with_divider')) {
-					echo '
-						}//end if';
-					}
-
-				}//end if divider
-
-				echo '
-				}//end for
-				?','>';
-
-				return true;
-
-			default :
-				return parent::_outputElement($element, $asset, $design);
-		}//end switch
-
-	}//end _outputElement()
 
 
 }//end class

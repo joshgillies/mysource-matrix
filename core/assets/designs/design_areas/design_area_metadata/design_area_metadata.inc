@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_metadata.inc,v 1.8 2005/01/20 13:07:32 brobertson Exp $
+* $Id: design_area_metadata.inc,v 1.9 2005/10/11 02:06:07 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,15 +40,16 @@ class Design_Area_Metadata extends Design_Area
 {
 
 
-	/**
-	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
+	/*
+	* Print code that actually results in HTML output to the browser for this design area
 	*
-	* @param object Design	$design the design for which we are currently printing
+	* This function is called at the AREA tag if print != no, and at the point of any PRINT
+	* tags that reference this area.
 	*
-	* @return boolean
-	* @access public
+	* @access protected
+	* @return void
 	*/
-	function printArea(&$design)
+	function _printPaintingCode()
 	{
 		echo '<', '?php'."\n";
 		$field_name = $this->attr('metadata_field');
@@ -70,9 +71,8 @@ class Design_Area_Metadata extends Design_Area
 		echo '?', ">\n";
 		return true;
 
-	}//end printArea()
+	}//end _printPaintingCode()
 
 
 }//end class
-
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form.inc,v 1.19 2005/07/20 23:51:49 dheppell Exp $
+* $Id: design_area_login_form.inc,v 1.20 2005/10/11 02:06:02 tbarrett Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Login_Form extends Design_Area
 {
+
 
 	/*
 	* Outputs the var either as straight HTML or PHP code, depending on the type
@@ -51,8 +52,7 @@ class Design_Area_Login_Form extends Design_Area
 	*/
 	function printVar($var, $args, $value_prefix='', $value_suffix='')
 	{
-
-		// make sure that this var is being painted only within it's valid sections
+		// make sure that this var is being painted only within its valid sections
 		switch ($var) {
 			case 'form_open' :
 			case 'form_close' :
@@ -99,7 +99,9 @@ class Design_Area_Login_Form extends Design_Area
 
 				// open login form
 				if ($this->_tmp['painting_section'] == 'login') {
-					echo '<form action="<', '?php echo $_SERVER[\'PHP_SELF\']; ?','>?SQ_ACTION=login'.$qry_str_extra.'" id="'.$this->attr('id_name').'_login_prompt" method="post" onsubmit="return checkEntry();">';
+					echo '
+						<form action="<', '?php echo $_SERVER[\'PHP_SELF\']; ?','>?SQ_ACTION=login'.$qry_str_extra.'" id="'.$this->attr('id_name').'_login_prompt" method="post" onsubmit="return checkEntry();">
+					';
 				// open logout form
 				} else {
 					echo '<form action="<', '?php echo $_SERVER[\'PHP_SELF\']; ?','>?SQ_ACTION=logout'.$qry_str_extra.'" name="'.$this->attr('id_name').'_login_prompt" method="post">
@@ -123,20 +125,21 @@ class Design_Area_Login_Form extends Design_Area
 				break;
 
 			case 'form_close' :
-				echo '</form>
-				<script type="text/javascript"><!--
-				//<![CDATA[
-				var loginForm = document.forms[\''.$this->attr('id_name').'_login_prompt\'];
-					function checkEntry() {
-						return (loginForm.SQ_LOGIN_USERNAME.value.length > 0 && loginForm.SQ_LOGIN_PASSWORD.value.length > 1);
-					}
-				//]]> -->
-				</script>
+				echo '
+					</form>
+					<script type="text/javascript"><!--
+					//<![CDATA[
+						var loginForm = document.forms[\''.$this->attr('id_name').'_login_prompt\'];
+						function checkEntry() {
+							return (loginForm.SQ_LOGIN_USERNAME.value.length > 0 && loginForm.SQ_LOGIN_PASSWORD.value.length > 1);
+						}
+					//]]> -->
+					</script>
 				';
 				break;
 
 			case 'system_messages' :
-				echo '<', '?php echo implode(\'<br/>\', $GLOBALS[\'SQ_SYSTEM\']->messages()); ?', '>';
+				echo '<', '?php echo implode(\'<br />\', $GLOBALS[\'SQ_SYSTEM\']->messages()); ?', '>';
 				break;
 
 			case 'username_box' :
@@ -151,25 +154,24 @@ class Design_Area_Login_Form extends Design_Area
 
 				text_box('SQ_LOGIN_USERNAME', '', empty($args['size']) ? 10 : $args['size'], 0, false, $extras);
 				if ($this->attr('give_username_focus')) {
-					echo '<script type="text/javascript"><!--
+					echo '
+						<script type="text/javascript"><!--
 						//<![CDATA[
-						function set_'.$this->attr('id_name').'_username_box_focus() {
-							'.$this->attr('id_name').'_username_box_other_onload();
-							document.getElementById("'.$this->attr('id_name').'_login_prompt").elements["SQ_LOGIN_USERNAME"].focus();
-						}
-						var '.$this->attr('id_name').'_username_box_other_onload = (window.onload) ? window.onload : new Function;
-						window.onload = set_'.$this->attr('id_name').'_username_box_focus;
-						//]]>
-						-->
-						</script>';
+							var '.$this->attr('id_name').'_username_box_other_onload = (window.onload) ? window.onload : new Function;
+							function set_'.$this->attr('id_name').'_username_box_focus() {
+								'.$this->attr('id_name').'_username_box_other_onload();
+								document.getElementById("'.$this->attr('id_name').'_login_prompt").elements["SQ_LOGIN_USERNAME"].focus();
+							}
+							window.onload = set_'.$this->attr('id_name').'_username_box_focus;
+						//]]>-->
+						</script>
+					';
 				}
-
-
 				break;
 
 			case 'password_box' :
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-				$extras = 'onfocus="javascript: this.select();"';
+				$extras = 'onfocus="this.select();"';
 				foreach ($args As $k => $v) {
 					if ($k == 'size') continue;
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
@@ -202,9 +204,100 @@ class Design_Area_Login_Form extends Design_Area
 	*/
 	function canBeCached()
 	{
-		return 0;
-	
+		return false;
+
 	}//end canBeCached()
+
+
+	/**
+	* Print code that initialises this design area and should always be printed in place of the AREA tag
+	*
+	* @access protected
+	* @return void
+	*/
+	function _printInitCode()
+	{
+		echo '<', '?php
+		if (!empty($GLOBALS[\'SQ_LOGIN_FORM\'])) {
+			$'.$this->attr('id_name').'_paint_login = ($GLOBALS[\'SQ_LOGIN_FORM\'][\'paint\'] == \'login\');
+		} else {
+			$'.$this->attr('id_name').'_paint_login = $GLOBALS[\'SQ_SYSTEM\']->userPublic();
+		}
+		?', '>';
+
+	}//end _printInitCode()
+
+	
+	/**
+	* Print code that outputs a given element from this DA's contents
+	*
+	* @param array	$item	An entry from our contents array
+	*
+	* @access private
+	* @return void
+	*/
+	function _printContentItemCode($element)
+	{
+		switch (array_get_index($element, 'operation')) {
+			case 'login_section':
+				$this->_tmp['painting_section'] = 'login';
+				echo '<', '?php
+				if ($'.$this->attr('id_name').'_paint_login) {
+					// login section
+					?', '>
+					';
+				foreach ($this->attr('login_contents') as $item) {
+					parent::_printContentItemCode($item);
+				}
+				echo '
+					<', '?php
+				}//end login section
+				?', '>';
+				$this->_tmp['painting_section'] = '';
+			break;
+
+			case 'logout_section':
+				$this->_tmp['painting_section'] = 'logout';
+				echo '<', '?php
+				if (!$'.$this->attr('id_name').'_paint_login) {
+					// logout section
+					?', '>
+					';
+				foreach ($this->attr('logout_contents') as $item) {
+					parent::_printContentItemCode($item);
+				}
+				echo '
+					<', '?php
+				}//end logout section
+				?', '>';
+				$this->_tmp['painting_section'] = '';
+			break;
+
+			default :
+				return parent::_printContentItemCode($element);
+
+		}//end switch
+
+	}//end _printContentItemCode()
+
+
+	/**
+	* Get the names of attributes for this DA that cannot be set in the parse file
+	*
+	* Design Area attributes that are not mentioned in the parse file are normally set to defaults
+	* when parsing the design.  Attributes returned by this function are exempted from that process.
+	*
+	* @access public
+	* @return array(string)
+	*/
+	function getProtectedAttrs()
+	{
+		$res = parent::getProtectedAttrs();
+		$res[] = 'login_contents';
+		$res[] = 'logout_contents';
+		return $res;
+
+	}//end getProtectedAttrs()
 
 
 }//end class
