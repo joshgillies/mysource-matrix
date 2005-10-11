@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.46 2005/10/11 02:04:50 tbarrett Exp $
+* $Id: design_area.inc,v 1.47 2005/10/11 03:04:49 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -482,7 +482,9 @@ class Design_Area extends Asset
 					} else {
 						// referencing another design area (which should already have been defined)
 						$da =& $design->getDesignArea($item['attributes']['id_name']);
-						if (!is_null($da)) {
+						if (is_null($da)) {
+							trigger_localised_error('CORE0153', E_USER_NOTICE, $item['attributes']['id_name']);
+						} else {
 							if (isset($item['attributes']['var'])) {
 								// printing a particular var from the design area
 								$args = $item['attributes'];

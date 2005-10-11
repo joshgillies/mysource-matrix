@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.95 2005/10/11 02:04:44 tbarrett Exp $
+* $Id: design.inc,v 1.96 2005/10/11 03:04:47 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -813,7 +813,11 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 				if ($item['operation'] == 'area') {
 					// defining a design area
 					$da =& $this->getDesignArea($item['attributes']['id_name']);
-					$da->printAreaCode();
+					if (is_null($da)) {
+						trigger_localised_error('CORE0234', E_USER_WARNING, $item['attributes']['id_name']);
+					} else {
+						$da->printAreaCode();
+					}
 				} else if ($item['operation'] == 'print') {
 					if ((!isset($item['attributes']['id_name'])) || ($item['attributes']['id_name'] == '__global__')) {
 						// printing a global var
@@ -823,15 +827,19 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 						$this->printVar($item['attributes']['var'], $args);
 					} else {
 						$da =& $this->getDesignArea($item['attributes']['id_name']);
-						if (isset($item['attributes']['var'])) {
-							// printing a var from a certain design area
-							$args = $item['attributes'];
-							unset($args['id_name']);
-							unset($args['var']);
-							$da->printVar($item['attributes']['var'], $args);
+						if (is_null($da)) {
+							trigger_localised_error('CORE0153', E_USER_NOTICE, $item['attributes']['id_name']);
 						} else {
-							// printing a whole design area (which should already have been defined)
-							$da->printPaintingCode();
+							if (isset($item['attributes']['var'])) {
+								// printing a var from a certain design area
+								$args = $item['attributes'];
+								unset($args['id_name']);
+								unset($args['var']);
+								$da->printVar($item['attributes']['var'], $args);
+							} else {
+								// printing a whole design area (which should already have been defined)
+								$da->printPaintingCode();
+							}
 						}
 					}
 				}
