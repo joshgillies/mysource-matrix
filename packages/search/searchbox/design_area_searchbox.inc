@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.22 2005/09/28 07:24:25 tbarrett Exp $
+* $Id: design_area_searchbox.inc,v 1.23 2005/10/11 02:09:10 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -56,16 +56,12 @@ class Design_Area_Searchbox extends Design_Area
 	* @access public
 	* @see Design_Area::printArea()
 	*/
-	function printArea(&$design)
+	function _canInit()
 	{
 		$assetid = $this->attr('search_page_assetid');
-		if ($assetid <= 0) {
-			return true;
-		} else {
-			return parent::printArea($design);
-		}
+		return !($assetid <= 0);
 
-	}//end printArea()
+	}//end _canInit()
 
 
 	/**
@@ -81,6 +77,7 @@ class Design_Area_Searchbox extends Design_Area
 	function printVar($var, $args, $value_prefix='', $value_suffix='')
 	{
 		$assetid = $this->attr('search_page_assetid');
+		if (empty($assetid)) return;
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$asset =& $am->getAsset($assetid);
 

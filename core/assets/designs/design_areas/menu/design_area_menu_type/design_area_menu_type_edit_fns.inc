@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.45 2005/06/17 06:35:27 dmckee Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.46 2005/10/11 02:07:39 tbarrett Exp $
 *
 */
 
@@ -32,31 +32,12 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 {
-
-
-	/**
-	* Returns an array of vars that are setable, used to create the parseString
-	*
-	* @param object Asset	$asset	the asset whose interface we are painting
-	*
-	* @return Array
-	* @access public
-	* @see Design_Area_Edit_Fns::createParseString()
-	*/
-	function getSetableVars(&$asset)
-	{
-		$vars = parent::getSetableVars($asset);
-		unset($vars['asset_contents']);
-		unset($vars['divider_contents']);
-		return $vars;
-
-	}//end getSetableVars()
 
 
 	/**
@@ -229,6 +210,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function _processSubMenu(&$asset, &$contents, $design_area)
 	{
+		error_log("Creating sub menu");
 		// let's see if we already have a sub menu
 		$sub = &$asset->getSubMenu();
 		// nup ? create one now
@@ -273,126 +255,6 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	}//end _processSubMenu()
 
 
-	/**
-	* Used by _outputContents() to deal with a print tag
-	*
-	* @param array			$element	the print element tag
-	* @param object Asset	$asset		the asset to which we belong
-	* @param object Design	$design		the design object that is painting us
-	*
-	* @return boolean
-	* @access private
-	* @see Design_Area_Edit_Fns::_outputContents()
-	*/
-	function _outputElement($element, &$asset, &$design)
-	{
-		switch ($element['operation']) {
-			case 'asset' :
-				if ($divider_contents = $asset->attr('divider_contents')) {
-					ob_start();
-					if (!$this->_outputContents($divider_contents, $asset, $design)) {
-						return false;
-					}
-					$divider = ob_get_contents();
-					ob_end_clean();
-				} else {
-					$divider = '';
-				}
-
-				// should we start with a divider ?
-				if ($asset->attr('prefix_with_divider')) {
-					echo $divider;
-				}
-
-				echo '<', '?php
-
-				$'.$asset->attr('id_name').'_lineage_assetid = (empty($ASSET_LINEAGE[$'.$asset->attr('id_name').'_level + 1])) ? 0 : $ASSET_LINEAGE[$'.$asset->attr('id_name').'_level + 1][\'assetid\'];
-				$'.$asset->attr('id_name').'_lineage_setting = (count($ASSET_LINEAGE) - 1 == $'.$asset->attr('id_name').'_level + 1) ? \'current\' : \'hierarchy\';
-
-				';
-				$parent_menu = &$asset->getParentMenu();
-				// if we aren't a sub menu
-				if (is_null($parent_menu)) {
-					$parent_assetid_name = '$ASSET_LINEAGE[$'.$asset->attr('id_name').'_level][\'assetid\']';
-
-					echo '
-				$'.$asset->attr('id_name').'_base_url = (empty($ASSET_LINEAGE[$'.$asset->attr('id_name').'_level])) ? \'\' : current_protocol().\'://\'.$ASSET_LINEAGE[$'.$asset->attr('id_name').'_level][\'url\'];
-				$'.$asset->attr('id_name').'_urls     = $am->getAssetURL(array_keys($GLOBALS[\'MENU_DATA\'][$ASSET_LINEAGE[$'.$asset->attr('id_name').'_level][\'assetid\']]), $'.$asset->attr('id_name').'_base_url);
-					';
-
-				} else {
-					$parent_assetid_name = '$'.$parent_menu->attr('id_name').'_row[\'assetid\']';
-
-					echo '
-				$'.$asset->attr('id_name').'_base_url = $'.$parent_menu->attr('id_name').'_urls[$'.$parent_menu->attr('id_name').'_row[\'assetid\']];
-				$'.$asset->attr('id_name').'_urls     = $am->getAssetURL(array_keys($GLOBALS[\'MENU_DATA\'][$'.$parent_menu->attr('id_name').'_row[\'assetid\']]), $'.$asset->attr('id_name').'_base_url);
-					';
-
-				}// end if
-
-				// if there is a divider to deal with and
-				// if there is not divider at the end we these vars
-				if ($divider != '' && !$asset->attr('suffix_with_divider')) {
-					echo '
-
-				$'.$asset->attr('id_name').'_i = -1;
-				$'.$asset->attr('id_name').'_total = count($GLOBALS[\'MENU_DATA\']['.$parent_assetid_name.']);
-					';
-				}
-
-				echo '
-
-				foreach ($GLOBALS[\'MENU_DATA\']['.$parent_assetid_name.'] as $'.$asset->attr('id_name').'_row) {
-					$'.$asset->attr('id_name').'_current_setting = ($'.$asset->attr('id_name').'_lineage_assetid == $'.$asset->attr('id_name').'_row[\'assetid\']) ? $'.$asset->attr('id_name').'_lineage_setting : \'normal\';
-				?', '>';
-				if ($asset_contents = $asset->attr('asset_contents')) {
-					$asset->_tmp['outputting_asset_section'] = true;
-					if (!$this->_outputContents($asset_contents, $asset, $design)) {
-						return false;
-					}
-					unset($asset->_tmp['outputting_asset_section']);
-				}
-
-
-				// if there is a divider to deal with
-				if ($divider != '') {
-
-					// if there is not divider at the end we need to check that we aren't at the end of the list
-					if (!$asset->attr('suffix_with_divider')) {
-						echo '<', '?php
-							$'.$asset->attr('id_name').'_i++;
-							if ($'.$asset->attr('id_name').'_i != $'.$asset->attr('id_name').'_total - 1) {
-							?','>';
-					}
-
-					echo $divider;
-
-					// if there is not divider at the end we need to check that we aren't at the end of the list
-					if (!$asset->attr('suffix_with_divider')) {
-						echo '<','?php
-							}// end if
-						?','>';
-					}
-
-				}// end if divider
-
-				echo '<', '?php
-				}// end foreach '.$asset->attr('id_name').' data
-				?', '>';
-
-				return true;
-
-			case 'sub' :
-
-				$sub = &$asset->getSubMenu();
-				if (is_null($sub)) return true;
-				return $sub->printArea($design);
-
-			default :
-				return parent::_outputElement($element, $asset, $design);
-		}// end switch
-
-	}//end _outputElement()
 
 
 	/**
@@ -455,5 +317,4 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 
 }//end class
-
 ?>

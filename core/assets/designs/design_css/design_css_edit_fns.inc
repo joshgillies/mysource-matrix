@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_edit_fns.inc,v 1.11 2005/08/30 07:31:32 ndvries Exp $
+* $Id: design_css_edit_fns.inc,v 1.12 2005/10/11 02:07:49 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,25 +50,6 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		$this->static_screens['details']['force_unlock'] = false;
 
 	}//end constructor
-
-
-	/**
-	* Parses the parse file and processes the contents
-	*
-	* @param object Asset	$asset	the asset to which we belong
-	*
-	* @return boolean
-	* @access public
-	*/
-	function parseAndProcessFile(&$asset)
-	{
-		$parse_file = $asset->data_path.'/parse.txt';
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$str = file_to_string($parse_file);
-		$contents = $this->_parseString($asset, $str);
-		return (!is_null($contents) && $this->_processContents($asset, $contents) && $asset->saveAttributes());
-
-	}//end parseAndProcessFile()
 
 
 	/**
@@ -124,140 +105,6 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		return parent::_processUploadedFile($asset, $info);
 
 	}//end _processUploadedFile()
-
-
-	/**
-	* Creates the (hopefully ;) single accumulated design file for this design
-	*
-	* @param object Asset	$asset	the asset to which we belong
-	*
-	* @return boolean
-	* @access private
-	*/
-	function createDesignFile(&$asset)
-	{
-		$design_area_links = $asset->getDesignAreaLink();
-
-		// Firstly we need to set all the var_reference variables so that when the design areas are
-		// printed they can work correctly
-		//
-		// This is a two stage process, one to set any normal vars and two to set any vars that want DA
-		// output
-
-		$var_ref_values = Array();
-		$da_refs = Array();
-		foreach ($design_area_links as $link) {
-			$da = &$asset->getDesignArea($link['value']);
-			if (is_null($da)) continue;
-
-			$da_var_refs = $da->getVarReferences();
-			for (reset($da_var_refs); null !== ($id_name = key($da_var_refs)); next($da_var_refs)) {
-				$var_da = &$asset->getDesignArea($id_name);
-				if (is_null($var_da)) continue;
-				if (!isset($var_ref_values[$id_name])) {
-					$var_ref_values[$id_name] = Array();
-				}
-				foreach ($da_var_refs[$id_name] as $var) {
-					// does this var want the whole design area ?
-					if ($var === '') {
-						$da_refs[] = $id_name;
-					// else just a normal var (make sure we don't have it already)
-					} else if (!isset($var_ref_values[$id_name][$var])) {
-						$var_ref_values[$id_name][$var] = $var_da->attr($var);
-
-					}// end if
-
-				}// end foreach
-
-			}// end foreach
-
-		}// end foreach
-
-		// OK, now that we have all the var reference values we can just set them for all the DA's
-		foreach ($design_area_links as $link) {
-			$da = &$asset->getDesignArea($link['value']);
-			if (is_null($da)) continue;
-			$da->setVarReferenceValues($var_ref_values);
-		}// end foreach
-
-		// Now that all the all the DA's have their vars set, we can do the DA output ones
-		$da_ref_values = Array();
-		foreach ($da_refs as $id_name) {
-			$da = &$asset->getDesignArea($id_name);
-			if (is_null($da)) continue;
-			ob_start();
-			$da->printArea($asset);
-			// NOTE: format like this because we are calling setVarReferenceValues()
-			$da_ref_values[$id_name] = Array('' => ob_get_contents());
-			ob_end_clean();
-		}// end foreach
-
-		// OK, now that we have all the da reference values we can just set them for all the DA's
-		foreach ($design_area_links as $link) {
-			$da = &$asset->getDesignArea($link['value']);
-			if (is_null($da)) continue;
-			$da->setVarReferenceValues($da_ref_values);
-		}// end foreach
-
-		// we are checking to see if there is a global $ASSET_LINEAGE here
-		// because we need other assets to be able to modify the lineage, for
-		// instance 404 pages.
-		$pre_str = '<?php
-		header("Content-type: text/css");
-		global $ASSET_LINEAGE;
-		$am = &$GLOBALS[\'SQ_SYSTEM\']->am;
-		if (!isset($ASSET_LINEAGE) || empty($ASSET_LINEAGE)) $ASSET_LINEAGE = @$am->getLineageFromURL(null, null);
-		define(\'SQ_LIMBO_EDITING\', (SQ_IN_LIMBO && (!isset($_REQUEST[\'ignore_frames\']) || !$_REQUEST[\'ignore_frames\'])));
-		?>';
-
-		$str = '';
-		ob_start();
-		if ($this->_createDesignFileOutput($asset->attr('contents'), $asset, $asset)) {
-			// get the contents, removing any close then open tags that happen right next to each other
-			// (more for code neatness than anything :)
-			$str = str_replace('?'.'><'.'?php', '', ob_get_contents());
-		}
-		ob_end_clean();
-		if (!$str) return false;
-		$str = $pre_str."\n".$str;
-
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		create_directory($asset->data_path);
-		$file = $asset->data_path.'/design_file.php';
-		$new_file = !file_exists($file);
-		if (!string_to_file($str, $file)) return false;
-
-
-		//// FILE VERSIONING ////
-
-		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
-
-		if ($new_file) {
-			// attempt to add the file to the repository
-			if (!$fv->add($asset->data_path_suffix, $file, '')) {
-				trigger_localised_error('CORE0165', E_USER_WARNING);
-				return false;
-			}
-		} else {
-			// updating existing file
-			$file_status = $fv->upToDate($file);
-			if (FUDGE_FV_MODIFIED & $file_status) {
-				if (!$fv->commit($file, '')) {
-					trigger_localised_error('CORE0159', E_USER_WARNING);
-					return false;
-				}
-			}
-		}
-
-		// make sure we have the latest version of our file
-		if (!$fv->checkOut($asset->data_path_suffix.'/design_file.php', $asset->data_path)) {
-			trigger_localised_error('CORE0031', E_USER_WARNING);
-			return false;
-		}
-
-		return true;
-
-	}//end createDesignFile()
 
 
 	/**

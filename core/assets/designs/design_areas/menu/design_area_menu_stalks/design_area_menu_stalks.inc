@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks.inc,v 1.21 2005/05/11 06:04:50 lwright Exp $
+* $Id: design_area_menu_stalks.inc,v 1.22 2005/10/11 02:07:33 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_r
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,11 +64,6 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 	{
 		// make sure the aligment is lower case
 		switch ($name) {
-			case 'prefix_with_divider' :
-			case 'suffix_with_divider' :
-				trigger_localised_error('CORE0180', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $name);
-				break;
-
 			case 'alignment' :
 				$value = strtolower($value);
 				break;
@@ -91,11 +86,9 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 	* Prints the recursive fn that will be used by this menu to printout its details
 	* NOTE: to be overridden by our children
 	*
-	* @param object Design	$design			the design for which we are currently printing
-	*
 	* @access public
 	*/
-	function printRecursiveFn(&$design)
+	function printRecursiveFn()
 	{
 		$use_blanks  = !$this->attr('show_stalks');
 		$cell_class = '';
@@ -124,9 +117,10 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 
 		ob_start();
 		if ($asset_contents = $this->attr('asset_contents')) {
-			$edit_fns = $this->getEditFns();
 			$this->_tmp['outputting_asset_section'] = true;
-			if (!$edit_fns->_outputContents($asset_contents, $this, $design)) return false;
+			foreach ($asset_contents as $item) {
+				$this->_printContentItemCode($item);
+			}
 			unset($this->_tmp['outputting_asset_section']);
 		}//	end if
 
@@ -274,23 +268,114 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 
 
 	/**
-	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
+	* Print code that initialises this design area and should always be printed in place of the AREA tag
 	*
-	* @param object Design	$design the design for which we are currently printing
-	*
-	* @return boolean
-	* @access public
+	* @access protected
+	* @return void
 	*/
-	function printArea(&$design)
+	function _printInitCode()
 	{
 		if ($this->attr('show_stalks') && $this->attr('indent') && $this->attr('min_height')) {
-			$edit_fns = $this->getEditFns();
-			if (!$edit_fns->_createStalkImages($this)) return false;
+			if (!$this->_createStalkImages($this)) return false;
+		}
+		return parent::_printInitCode();
+
+	}//end _printInitCode()
+
+
+	/**
+	* Creates the stalk images for this asset, based upon what the current settings are
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _createStalkImages()
+	{
+
+		$bg_colour = $this->attr('stalk_bg_colour');
+		$fg_colour = $this->attr('stalk_fg_colour');
+
+		$w = $this->attr('indent');
+		$h = $this->attr('min_height');
+
+		if (!$w || !$h) return false;
+
+
+		$direction = ($this->attr('alignment') == 'left') ? 'right' : 'left';
+
+		$image_path = $this->data_path_public;
+
+		//------------------------------------//
+
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		require_once SQ_FUDGE_PATH.'/colour/colour.inc';
+
+		if (!create_directory($image_path)) return false;
+
+		$transparent = false;
+		if (trim($bg_colour) == '') {
+			// get a nice contrasting shade so we don't pick a colour to close to the FG
+			// to use for transperancy
+			$bg_colour = Colour::contrastingShade($fg_colour);
+			$transparent = true;
 		}
 
-		return parent::printArea($design);
+		$bg_rgb = Colour::htmlToRgb($bg_colour, false);
+		$fg_rgb = Colour::htmlToRgb($fg_colour, false);
 
-	}//end printArea()
+		foreach (Array('stalk', 'arrow', 'branch', 'endbranch') as $image_name) {
+
+			// create the image
+			$img = ImageCreate(($image_name == 'arrow') ? $this->arrow_width : $w, $h);
+			$bg  = ImageColorAllocate($img, $bg_rgb['r'], $bg_rgb['g'], $bg_rgb['b']);
+			$fg  = ImageColorAllocate($img, $fg_rgb['r'], $fg_rgb['g'], $fg_rgb['b']);
+
+			if ($transparent) ImageColorTransparent($img, $bg);
+
+			if ($image_name == 'branch' || $image_name == 'endbranch' ) {
+				if ($direction == 'left') {
+					$x1 = 0;
+					$x2 = floor($w / 2);
+				} else {
+					$x1 = floor($w / 2);
+					$x2 = $w - 1;
+				}
+				ImageFilledRectangle($img, $x1, floor($h / 2), $x2, floor($h / 2), $fg);
+			}//end if
+
+			if ($image_name == 'branch' || $image_name == 'stalk' ) {
+				ImageFilledRectangle($img, floor($w / 2), 0, floor($w / 2), $h - 1, $fg);
+			}//end if
+
+			if ($image_name == 'endbranch') {
+				ImageFilledRectangle($img, floor($w / 2), 0, floor($w / 2), floor($h / 2), $fg);
+			}//end if
+
+			if ($image_name == 'arrow') {
+				if ($direction == 'left') {
+					$x1  = $this->arrow_width - 1;
+					$multiplier = -1;
+				} else {
+					$x1  = 0;
+					$multiplier = 1;
+				}
+				$y1 = floor($h / 2) - ($this->arrow_height / 2);
+
+				$points = Array($x1, $y1, // x1, y1
+								$x1 + ($multiplier * ($this->arrow_width - 1)),  $y1 + ($this->arrow_height / 2), // x2, y2
+								$x1,  $y1 + $this->arrow_height, // x3, y3
+								);
+				ImageFilledPolygon($img, $points, 3, $fg);
+			}//end if
+
+			ImagePng($img, $image_path.'/'.$image_name.'.png');
+			ImageDestroy($img);
+
+		}//end foreach
+
+		return true;
+
+	}//end _createStalkImages()
 
 
 }//end class

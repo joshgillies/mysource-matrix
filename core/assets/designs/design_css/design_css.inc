@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.16 2005/08/30 01:04:22 lwright Exp $
+* $Id: design_css.inc,v 1.17 2005/10/11 02:07:48 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -313,6 +313,7 @@ class Design_Css extends Design
 	function printFrontend()
 	{
 		$this->paint($this);
+
 	}//end printFrontend()
 
 
@@ -363,6 +364,21 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 
 
 	/**
+	* 
+	*
+	* @access public
+	* @return void
+	*/
+	function _getDesignFileHeader()
+	{
+		return '<?php header("Content-type: text/css"); ?>
+		'.parent::_getDesignFileHeader();
+
+	}//end _getDesignFileHeader()
+
+
+
+	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
 	* @param object Backend_Outputter	$o
@@ -408,23 +424,12 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 	*/
 	function generateDesignFile($do_customisations=true)
 	{
-		$edit_fns = $this->getEditFns();
-		$edit_fns->createDesignFile($this);
-
-		if ($do_customisations) {
-			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css_customisation', true, 'major', 'customisation');
-			$am = &$GLOBALS['SQ_SYSTEM']->am;
-
-			foreach ($customisation_links as $link) {
-				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
-				if (is_null($customisation)) continue;
-				$customisation->generateDesignFile(true);
-			}// end foreach
-		}// end if
+		parent::generateDesignFile($do_customisations);
 
 		if ($this->attr('cache_css')) {
 			$this->generateStaticFile();
 		}
+
 	}//end generateDesignFile()
 
 

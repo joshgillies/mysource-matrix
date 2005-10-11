@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.70 2005/10/05 05:37:06 dmckee Exp $
+* $Id: design_area_menu_type.inc,v 1.71 2005/10/11 02:07:38 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -180,7 +180,7 @@ class Design_Area_Menu_Type extends Design_Area
 
 
 	/**
-	* Set's the values for the var references values (registered in $this->var_references)
+	* Sets the values for the var references values (registered in $this->var_references)
 	*
 	* @param array $var_ref_values	array of values - Array(id_name => Array(var => [value]))
 	*
@@ -307,42 +307,59 @@ class Design_Area_Menu_Type extends Design_Area
 
 	}//end settingExists()
 
-
-	/**
-	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
+	
+	/*
+	* Print code that initialises this design area and should always be printed in place of the AREA tag
 	*
-	* @param object Design	$design the design for which we are currently printing
+	* This public version is overridden here only because menus print some code 
+	* that is shared by all menu DAs and should never be cached
 	*
-	* @return boolean
+	* @return void
 	* @access public
 	*/
-	function printArea(&$design)
+	function printInitCode()
+	{
+		// Print output that is only required once per parse file (shared by all menu DAs)
+		echo '<', '?php
+		';
+		$this->printStaticInitOutput();
+		echo '
+		?', '>
+		';
+
+		parent::printInitCode();
+
+	}//end printInitCode()
+
+
+
+	/**
+	* Print code that initialises this design area and should always be printed in place of the AREA tag
+	*
+	* @access protected
+	* @return void
+	*/
+	function _printInitCode()
 	{
 		echo '<', '?php
 		';
-		$this->printStaticInitOutput($design);
-
 		$parent_menu = &$this->getParentMenu();
 		// if we aren't a sub menu
 		if (is_null($parent_menu)) {
-			$this->printInitOutput($design);
+			$this->printInitOutput();
 			echo '
 		if (!empty($ASSET_LINEAGE) && !empty($ASSET_LINEAGE[$'.$this->attr('id_name').'_level])) {
 			';
-			$this->printDataCollection($design);
-			$parent_assetid_name = '$ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']';
+			$this->printDataCollection();
+			$this->_tmp['parent_assetid_name'] = '$ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']';
 		} else {
-			$parent_assetid_name = '$'.$parent_menu->attr('id_name').'_row[\'assetid\']';
+			$this->_tmp['parent_assetid_name'] = '$'.$parent_menu->attr('id_name').'_row[\'assetid\']';
 		}// end if
 
 		echo '
 			$'.$this->attr('id_name').'_settings = '.var_export($this->_getSettingsArray(), true).';
-			if (!empty($GLOBALS[\'MENU_DATA\']['.$parent_assetid_name.'])) {
-		?', '>';
-		if (!parent::printArea($design)) return false;
-		echo '<', '?php
-			}// end if subs '.$this->attr('id_name').'
 		';
+
 		// if we aren't a sub menu
 		if (is_null($parent_menu)) {
 			echo '
@@ -355,72 +372,51 @@ class Design_Area_Menu_Type extends Design_Area
 
 		return true;
 
-	}//end printArea()
+	}//end _printInitCode()
 
 
-	/**
-	* Overrides the parent function, in order to display our static functions correctly
-	* In the global scope
+	/*
+	* Print code that actually results in HTML output to the browser for this design area
 	*
-	* @param object Design	$design the design for which we are currently printing
-	* @param boolean 			$cache true this design area should be cached
+	* This function is called at the AREA tag if print != no, and at the point of any PRINT
+	* tags that reference this area.
 	*
-	* @return boolean
-	* @access public
+	* This function can be overridden (partially) by children
+	*
+	* @access protected
+	* @return void
 	*/
-	function printCachedArea(&$design, $cache=false)
+	function _printPaintingCode()
 	{
-		$instance_id = '_'.$this->id.'_'.$design->id;
-
-		if ($cache && $this->canBeCached()) {
-			echo '<?php ';
-			// Prints menu_get_assets() before caching, and the duplicate call inside the printArea
-			// below, will bug out before printing as it will find its already defined
-			$this->printStaticInitOutput($design);
-			echo '?>';
-			echo '
+		echo '
 			<?php
-				$cm = &$GLOBALS[\'SQ_SYSTEM\']->am->getSystemAsset(\'cache_manager\');
-				$asset_contents'.$instance_id.' = $cm->loadFromCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'\');
+			if (!empty($GLOBALS[\'MENU_DATA\']['.$this->_tmp['parent_assetid_name'].'])) {
+				?', '>
+		';
 
-				if (empty($asset_contents'.$instance_id.')) {
-					ob_start();
+		parent::_printPaintingCode();
+
+		echo '
+				<', '?php
+			}// end if subs '.$this->attr('id_name').'
 			?>
-			';
-		}
+		';
 
-		$ret = $this->printArea($design);
-
-		if ($cache && $this->canBeCached()) {
-			echo '
-			<?php
-						$asset_contents'.$instance_id.' = ob_get_contents();
-					ob_end_clean();
-					$cm->saveToCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'\', $asset_contents'.$instance_id.');
-				}
-
-				echo $asset_contents'.$instance_id.';
-			?>
-			';
-		}
-
-		return $ret;
-
-	}//end printCachedArea()
+	}//end _printPaintingCode()
 
 
 	/**
 	* Performs any outputting needed to by all design areas of this menu type
+	*
 	* NOTE: assumes PHP tags are open
 	*
-	* @param object Design	$design	the design for which we are currently printing
-	*
 	* @access public
+	* @return void
 	*/
-	function printStaticInitOutput(&$design)
+	function printStaticInitOutput()
 	{
 		// Stuff that is only needed once per design file
-		if (empty($GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$design->id])) {
+		if (empty($GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$GLOBALS['DESIGN_BEING_GENERATED']->id])) {
 			echo '
 			$db = &$GLOBALS[\'SQ_SYSTEM\']->db;
 
@@ -523,12 +519,12 @@ class Design_Area_Menu_Type extends Design_Area
 			}// end menu_get_assets()
 
 			';
-			$GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$design->id] = true;
+			$GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$GLOBALS['DESIGN_BEING_GENERATED']->id] = true;
 		}
 
 		$sub_menu = &$this->getSubMenu();
 		if (!is_null($sub_menu)) {
-			$sub_menu->printStaticInitOutput($design);
+			$sub_menu->printStaticInitOutput();
 		}
 
 	}//end printStaticInitOutput()
@@ -537,11 +533,10 @@ class Design_Area_Menu_Type extends Design_Area
 	/**
 	* Performs any outputting needed to intialise this instance of the menu type
 	*
-	* @param object Design	$design	the design for which we are currently printing
-	*
 	* @access public
+	* @return void
 	*/
-	function printInitOutput(&$design)
+	function printInitOutput()
 	{
 		$level = (int) $this->attr('level');
 		$parent_menu = &$this->getParentMenu();
@@ -568,7 +563,7 @@ class Design_Area_Menu_Type extends Design_Area
 
 		$sub_menu = &$this->getSubMenu();
 		if (!is_null($sub_menu)) {
-			$sub_menu->printInitOutput($design);
+			$sub_menu->printInitOutput();
 		}
 
 	}//end printInitOutput()
@@ -578,11 +573,10 @@ class Design_Area_Menu_Type extends Design_Area
 	* Outputs the way for this menu type to get their information and place it in the
 	* $GLOBALS['MENU_DATA'] array
 	*
-	* @param object Design	$design the design for which we are currently printing
-	*
 	* @access public
+	* @return void
 	*/
-	function printDataCollection(&$design)
+	function printDataCollection()
 	{
 		//// SHOULD BE OVERRIDDEN ////
 
@@ -596,7 +590,7 @@ class Design_Area_Menu_Type extends Design_Area
 
 		$sub_menu = &$this->getSubMenu();
 		if (!is_null($sub_menu)) {
-			$sub_menu->printDataCollection($design);
+			$sub_menu->printDataCollection();
 		}
 
 	}//end printDataCollection()
@@ -611,6 +605,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @param string	$value_suffix	PHP code to wrap put after  the value before outputting it
 	*
 	* @access public
+	* @return void
 	*/
 	function printVar($var, $args, $value_prefix='', $value_suffix='')
 	{
@@ -736,6 +731,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* Returns the settings array that will be need to be var_exported
 	*
 	* @access public
+	* @return boolean
 	*/
 	function _settingHasPHPCode($setting_name)
 	{
@@ -754,6 +750,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* Returns the settings array that will be need to be var_exported
 	*
 	* @access public
+	* @return array
 	*/
 	function _getSettingsArray()
 	{
@@ -772,6 +769,145 @@ class Design_Area_Menu_Type extends Design_Area
 	}//end _getSettingsArray()
 
 
-}//end class
+	/**
+	* Get the names of attributes for this DA that cannot be set in the parse file
+	*
+	* Design Area attributes that are not mentioned in the parse file are normally set to defaults
+	* when parsing the design.  Attributes returned by this function are exempted from that process.
+	*
+	* @access public
+	* @return array(string)
+	*/
+	function getProtectedAttrs()
+	{
+		$res = parent::getProtectedAttrs();
+		$res[] = 'asset_contents';
+		$res[] = 'divider_contents';
+		$res[] = 'settings';
+		return $res;
 
+	}//end getProtectedAttrs()
+
+
+	/**
+	* Print code that outputs a given element from this DA's contents
+	*
+	* @param array	$item	An entry from our contents array
+	*
+	* @access private
+	* @return void
+	*/
+	function _printContentItemCode($element)
+	{
+		switch (array_get_index($element, 'operation')) {
+			case 'asset' :
+				if ($divider_contents = $this->attr('divider_contents')) {
+					ob_start();
+						foreach ($divider_contents as $item) {
+							$this->_printContentItemCode($item);
+						}
+						$divider = ob_get_contents();
+					ob_end_clean();
+				} else {
+					$divider = '';
+				}
+
+				// should we start with a divider ?
+				if ($this->attr('prefix_with_divider')) {
+					echo $divider;
+				}
+
+				echo '<', '?php
+
+				$'.$this->attr('id_name').'_lineage_assetid = (empty($ASSET_LINEAGE[$'.$this->attr('id_name').'_level + 1])) ? 0 : $ASSET_LINEAGE[$'.$this->attr('id_name').'_level + 1][\'assetid\'];
+				$'.$this->attr('id_name').'_lineage_setting = (count($ASSET_LINEAGE) - 1 == $'.$this->attr('id_name').'_level + 1) ? \'current\' : \'hierarchy\';
+
+				';
+				$parent_menu = &$this->getParentMenu();
+				// if we aren't a sub menu
+				if (is_null($parent_menu)) {
+					$this->_tmp['parent_assetid_name'] = '$ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']';
+
+					echo '
+				$'.$this->attr('id_name').'_base_url = (empty($ASSET_LINEAGE[$'.$this->attr('id_name').'_level])) ? \'\' : current_protocol().\'://\'.$ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'url\'];
+				$'.$this->attr('id_name').'_urls     = $am->getAssetURL(array_keys($GLOBALS[\'MENU_DATA\'][$ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']]), $'.$this->attr('id_name').'_base_url);
+					';
+
+				} else {
+					$this->_tmp['parent_assetid_name'] = '$'.$parent_menu->attr('id_name').'_row[\'assetid\']';
+
+					echo '
+				$'.$this->attr('id_name').'_base_url = $'.$parent_menu->attr('id_name').'_urls[$'.$parent_menu->attr('id_name').'_row[\'assetid\']];
+				$'.$this->attr('id_name').'_urls     = $am->getAssetURL(array_keys($GLOBALS[\'MENU_DATA\'][$'.$parent_menu->attr('id_name').'_row[\'assetid\']]), $'.$this->attr('id_name').'_base_url);
+					';
+
+				}// end if
+
+				// if there is a divider to deal with and
+				// if there is not divider at the end we these vars
+				if ($divider != '' && !$this->attr('suffix_with_divider')) {
+					echo '
+
+				$'.$this->attr('id_name').'_i = -1;
+				$'.$this->attr('id_name').'_total = count($GLOBALS[\'MENU_DATA\']['.$this->_tmp['parent_assetid_name'].']);
+					';
+				}
+
+				echo '
+
+				foreach ($GLOBALS[\'MENU_DATA\']['.$this->_tmp['parent_assetid_name'].'] as $'.$this->attr('id_name').'_row) {
+					$'.$this->attr('id_name').'_current_setting = ($'.$this->attr('id_name').'_lineage_assetid == $'.$this->attr('id_name').'_row[\'assetid\']) ? $'.$this->attr('id_name').'_lineage_setting : \'normal\';
+				?', '>';
+				if ($this_contents = $this->attr('asset_contents')) {
+					$this->_tmp['outputting_asset_section'] = true;
+					foreach ($this_contents as $item) {
+						$this->_printContentItemCode($item);
+					}
+					unset($this->_tmp['outputting_asset_section']);
+				}
+
+
+				// if there is a divider to deal with
+				if ($divider != '') {
+
+					// if there is not divider at the end we need to check that we aren't at the end of the list
+					if (!$this->attr('suffix_with_divider')) {
+						echo '<', '?php
+							$'.$this->attr('id_name').'_i++;
+							if ($'.$this->attr('id_name').'_i != $'.$this->attr('id_name').'_total - 1) {
+							?','>';
+					}
+
+					echo $divider;
+
+					// if there is not divider at the end we need to check that we aren't at the end of the list
+					if (!$this->attr('suffix_with_divider')) {
+						echo '<','?php
+							}// end if
+						?','>';
+					}
+
+				}// end if divider
+
+				echo '<', '?php
+				}// end foreach '.$this->attr('id_name').' data
+				?', '>';
+
+				return true;
+
+			case 'sub' :
+				error_log("---FOUND SUB MENU");
+				$sub = &$this->getSubMenu();
+				if (is_null($sub)) return true;
+				error_log("---PRINTING SUB MENU");
+				return $sub->printAreaCode();
+
+			default :
+				return parent::_printContentItemCode($element);
+		}// end switch
+
+	}//end _printContentItemCode()
+
+
+}//end class
 ?>

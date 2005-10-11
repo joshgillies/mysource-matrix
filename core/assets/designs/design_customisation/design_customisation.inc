@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.37 2005/08/17 05:27:57 dmckee Exp $
+* $Id: design_customisation.inc,v 1.38 2005/10/11 02:07:54 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -359,12 +359,15 @@ class Design_Customisation extends Design
 		foreach ($links as $link) {
 			$da = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($da)) continue;
-			// you specialised ? well, buddy, you're on your own
-			if ($da->attr('specialised')) continue;
 
 			$parent_da = &$parent->getDesignArea($link['value']);
 			if (is_null($parent_da)) continue;
-			$da->setAttrValue('contents', $parent_da->attr('contents'));
+			foreach ($parent_da->vars as $name => $details) {
+				if (false !== strpos($name, 'contents')) {
+					$da->setAttrValue($name, $parent_da->attr($name));
+				}
+			}
+
 			// For updating design areas that don't set contents, such as Declared vars areas,
 			// we need to check for declared_vars as well
 			if (isset($da->vars['declared_vars'])) {
@@ -373,9 +376,10 @@ class Design_Customisation extends Design
 			// This is added to ensure access history design areas get updated when the main
 			// parse file is edited. The is_a call is to ensure other design areas that use asset_contents
 			// (and are currently working) are not affected by this change.
-			if (is_a($da, 'design_area_access_history') && isset($da->vars['asset_contents'])) {
-				$da->setAttrValue('asset_contents', $parent_da->attr('asset_contents'));
-			}
+			// NOT NEEDED ANY MORE BECAUSE OF ABOVE CHANGE
+			//if (is_a($da, 'design_area_access_history') && isset($da->vars['asset_contents'])) {
+			//	$da->setAttrValue('asset_contents', $parent_da->attr('asset_contents'));
+			//}
 			$da->saveAttributes();
 
 		}//end foreach
