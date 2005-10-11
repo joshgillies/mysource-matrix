@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if.inc,v 1.8 2005/10/11 02:06:36 tbarrett Exp $
+* $Id: design_area_show_if.inc,v 1.9 2005/10/11 02:54:00 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *	Show different content depending on certain conditions evaluated at runtime
 *
 * @author  Avi Miller <Avi Miller@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,6 +67,30 @@ class Design_Area_Show_If extends Design_Area
 
 
 	/*
+	* Print code that initialises this design area and should always be printed in place of the AREA tag
+	*
+	* This function can be overridden by children
+	*
+	* @return void
+	* @access protected
+	*/
+	function _printInitCode()
+	{
+		$condition = $this->attr('condition');
+		$condition_data = $this->attr('condition_data');
+		$id_name = $this->attr('id_name');
+		$cond_var_name = '$'.$this->attr('id_name').'_condition_result';
+		echo '<','?php
+		$GLOBALS[\'SQ_SYSTEM\']->am->includeAsset(\'condition_'.$condition.'\');
+		$'.$id_name.'_condition_data = '.var_export($condition_data, true).';
+		'.$cond_var_name.' = condition_'.$condition.'::evaluate($ASSET, $'.$id_name.'_condition_data);';
+		echo '?', '>
+		';
+
+	}//end _printInitCode()
+
+
+	/*
 	* Print code that actually results in HTML output to the browser for this design area
 	*
 	* This function is called at the AREA tag if print != no, and at the point of any PRINT
@@ -77,24 +101,13 @@ class Design_Area_Show_If extends Design_Area
 	*/
 	function _printPaintingCode()
 	{
-		$condition = $this->attr('condition');
 		$then = $this->attr('then_contents');
 		$else = $this->attr('else_contents');
+		$cond_var_name = '$'.$this->attr('id_name').'_condition_result';
 
 		echo '<','?php';
-		
-		$condition_data = $this->attr('condition_data');
-		if (!empty($condition_data)) {
-			// DO STUFF HERE!!
-		}
-
-		$id_name = $this->attr('id_name');
 		echo '
-		$'.$id_name.'_condition_data = '.var_export($condition_data, true).';';
-		
-		echo '
-			$GLOBALS[\'SQ_SYSTEM\']->am->includeAsset(\'condition_'.$condition.'\');
-			if (condition_'.$condition.'::evaluate($ASSET, $'.$id_name.'_condition_data)) {
+			if ('.$cond_var_name.') {
 		';
 
 		// the multiple echo statements are required to get content to print at line 1,
@@ -122,7 +135,9 @@ class Design_Area_Show_If extends Design_Area
 			echo 'echo \'\';';
 		}
 
-		echo '}	?','>';
+		echo '}
+		?','>
+		';
 		return true;
 
 	}//end _printPaintingCode()
@@ -137,7 +152,7 @@ class Design_Area_Show_If extends Design_Area
 	function canBeCached()
 	{
 		return false;
-	
+
 	}//end canBeCached()
 
 
