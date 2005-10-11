@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.461 2005/10/06 06:36:28 sdanis Exp $
+* $Id: asset.inc,v 1.462 2005/10/11 23:56:04 dmckee Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.461 $
+* @version $Revision: 1.462 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3058,6 +3058,8 @@ class Asset extends MySource_Object
 								'asset_thumbnail',
 								'asset_thumbnail_url',
 								'asset_thumbnail_caption',
+								'asset_status_description',
+								'asset_status_colour',
 							);
 
 		// add default keywords first
@@ -4382,6 +4384,33 @@ class Asset extends MySource_Object
 		return true;
 
 	}//end setLookupValues()
+
+
+	/**
+	* Returns a replacement for the asset_status_description keyword
+	* Will return 'Live', 'Under Construction' etc
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getAssetStatusDescriptionKeywordReplacement()
+	{
+		return get_status_description($this->status);
+	}//end getAssetStatusDescriptionKeywordReplacement()
+
+
+	/**
+	* Returns a replacement for the asset_status_colour keyword
+	* Returns it in '#RRGGBB' Hex form, and the colour corresponds
+	* to that seen in the asset map for statuses.
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getAssetStatusColourKeywordReplacement()
+	{
+		return '#'.get_status_colour($this->status);
+	}//end getAssetStatusColourKeywordReplacement()
 
 
 }//end class
