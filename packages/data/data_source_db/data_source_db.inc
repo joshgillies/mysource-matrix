@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.6 2005/10/11 23:24:15 pgannavarapu Exp $
+* $Id: data_source_db.inc,v 1.7 2005/10/11 23:28:56 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -123,7 +123,6 @@ class Data_Source_DB extends Data_Source
 			$this->_tmp['getLinks'][$assetid][$side_of_link][$type_code_key] = $links;
 		}
 		return $this->_tmp['getLinks'][$assetid][$side_of_link][$type_code_key];
-
 
 }//end getLinks()
 
