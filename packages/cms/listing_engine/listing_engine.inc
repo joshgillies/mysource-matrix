@@ -18,13 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.102 2005/10/05 06:48:46 lwright Exp $
+* $Id: listing_engine.inc,v 1.103 2005/10/11 06:33:44 dmckee Exp $
 *
 */
 
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
+require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 /**
 * Listing_Engine
@@ -43,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.102 $
+* @version $Revision: 1.103 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1412,6 +1413,7 @@ class Listing_Engine extends Page
 		//so we load the asset and get its typecode
 		$type_code = null;
 		$info = array_get_index($this->_tmp['assets_info'], $assetid, Array('type_code' => ''));
+
 		if (!empty($info['type_code'])) {
 			$type_code = $info['type_code'];
 		} else {
@@ -1606,6 +1608,13 @@ class Listing_Engine extends Page
 				$keywords['asset_assetid'] = $assetid;
 
 			}//end if needs asset
+
+			if (isset($keywords['asset_status_description'])) {
+				$keywords['asset_status_description'] = get_status_description($info['status']);
+			}
+			if (isset($keywords['asset_status_colour'])) {
+				$keywords['asset_status_colour'] = '#'.get_status_colour($info['status']);
+			}
 		}
 
 		$group_keywords = preg_grep('/group[0-9]+.*/', $bc_keywords);
@@ -2462,6 +2471,8 @@ class Listing_Engine extends Page
 		$keywords['asset_short_name_linked'] = translate('cms_listing_asset_short_name_linked');
 		$keywords['asset_position'] = translate('cms_listing_asset_position');
 		$keywords['root_nodes'] = translate('cms_listing_keyword_root_nodes');
+		$keywords['asset_status_description'] = translate('cms_listing_asset_status_description');
+		$keywords['asset_status_colour'] = translate('cms_listing_asset_status_colour');
 
 		// asset selections
 		$selections = $this->attr('asset_selections');
@@ -2876,7 +2887,7 @@ class Listing_Engine extends Page
 
 
 	/**
-	* Get the replacement for "structured_search_location" keyword
+	* Get the replacement for "structured_root_node" keyword
 	*
 	* @return string
 	* @access public
