@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.64 2005/10/11 23:48:51 dmckee Exp $
+* $Id: lang_strings.xml,v 1.65 2005/10/12 00:24:40 dmckee Exp $
 *
 */
 
@@ -1609,7 +1609,11 @@ Items to delete: %s</string>
 	<string source="asset_published_short">The date when the asset was last published (yyyy-mm-dd)</string>
 	<string source="asset_status_updated_short">The date when the asset's status was last changed (yyyy-mm-dd)</string>
 	<string source="asset_created_readable">The date when the asset was created (dd m yyyy h:mm[am pm])</string>
+	<string source="asset_created_readabletime">The date when the asset was created (time only - h:mm[am pm])</string>
+	<string source="asset_created_readabledate">The date when the asset was created (date only - dd m yyyy)</string>
 	<string source="asset_updated_readable">The date when the asset was last updated (dd m yyyy h:mm[am pm])</string>
+	<string source="asset_updated_readabletime">The date when the asset was last updated (time only - h:mm[am pm])</string>
+	<string source="asset_updated_readabledate">The date when the asset was last updated (date only - dd m yyyy)</string>
 	<string source="asset_created_iso8601">The date when the asset was created (ISO8601 format)</string>
 	<string source="asset_updated_iso8601">The date when the asset was last updated (ISO8601 format)</string>
 	<string source="asset_published_iso8601">The date when the asset was last published (ISO8601 format)</string>
@@ -1620,7 +1624,12 @@ Items to delete: %s</string>
 	<string source="asset_updated_ical">The date when the asset was last updated (iCalendar format)</string>
 	<string source="asset_published_ical">The date when the asset was last published (iCalendar format)</string>
 	<string source="asset_published_readable">The date when the asset was last published (dd m yyyy h:mm[am pm])</string>
+	<string source="asset_published_readabledate">The date when the asset was last published (date only - dd m yyyy)</string>
+	<string source="asset_published_readabletime">The date when the asset was last published (time only - h:mm[am pm])</string>
 	<string source="asset_status_changed_readable">The date when the asset's status was last changed (dd m yyyy h:mm[am pm])</string>
+	<string source="asset_status_changed_readabletime">The date when the asset's status was last changed (time only - h:mm[am pm])</string>
+	<string source="asset_status_changed_readabledate">The date when the asset's status was last changed (date only - dd m yyyy)</string>
+
 	<string source="asset_created_by_name">The name of the user who created this asset</string>
 	<string source="asset_updated_by_name">The name of the user who last updated this asset</string>
 	<string source="asset_published_by_name">The name of the user who last published this asset</string>
