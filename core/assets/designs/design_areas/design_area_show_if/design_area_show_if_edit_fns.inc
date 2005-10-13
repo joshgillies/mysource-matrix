@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if_edit_fns.inc,v 1.8 2005/10/11 02:06:36 tbarrett Exp $
+* $Id: design_area_show_if_edit_fns.inc,v 1.9 2005/10/13 02:20:59 tbarrett Exp $
 *
 */
 
@@ -31,12 +31,25 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 {
+
+	/**
+	* Constructor
+	*
+	* @access public
+	* @return void
+	*/
+	function Design_Area_Show_If_Edit_fns()
+	{
+		$this->static_screens['details']['force_unlock'] = false;
+		return $this->Design_Area_Edit_Fns();
+
+	}//end constructor
 
 
 	/**
@@ -112,6 +125,94 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 		return $asset->saveAttributes();
 
 	}//end _processContents()
+
+
+	/**
+	* Paint the interface for choosing the condition type
+	*
+	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintConditionType(&$asset, &$o, $prefix)
+	{
+		$names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('condition'), 'name');
+		if ($asset->writeAccess('attributes')) {
+			combo_box($prefix.'_condition_type', $names, false, 'condition_'.$asset->attr('condition'));
+			return true;
+		} else {
+			echo array_get_index($names, 'condition_'.$asset->attr('condition'), $asset->attr('condition'));
+			return false;
+		}
+
+	}//end paintConditionType()
+
+
+	/**
+	* Process the interface for choosing the condition type
+	*
+	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processConditionType(&$asset, &$o, $prefix)
+	{
+		if (isset($_POST[$prefix.'_condition_type']) && ($_POST[$prefix.'_condition_type'] != 'condition_'.$asset->attr('condition'))) {
+			$this->_tmp['condition_type_changed'] = true;
+			return $asset->setAttrValue('condition', substr($_POST[$prefix.'_condition_type'], strlen('condition_')));
+		}
+		return false;
+
+	}//end processConditionType()
+	
+	
+	/**
+	* Paint the interface for setting details of the condition
+	*
+	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintConditionDetails(&$asset, &$o, $prefix)
+	{
+		echo translate('condition_'.$asset->attr('condition').'_true');
+		$edit_fns_classname = 'condition_'.$asset->attr('condition').'_edit_fns';
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('condition_'.$asset->attr('condition'), true);
+		call_user_func(Array($edit_fns_classname, 'paintEditInterface'), $asset->attr('condition_data'), $o, $prefix.'_condition', $asset->writeAccess('attributes'));
+
+	}//end paintConditionDetails()
+
+
+	/**
+	* Process the interface for setting details of the condition
+	*
+	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processConditionDetails(&$asset, &$o, $prefix)
+	{
+		if (!array_get_index($this->_tmp, 'condition_type_changed')) {
+			$edit_fns_classname = 'condition_'.$asset->attr('condition').'_edit_fns';
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('condition_'.$asset->attr('condition'), true);
+			$res = call_user_func(Array($edit_fns_classname, 'processEditInterface'), $o, $prefix.'_condition');
+			return $asset->setAttrValue('condition_data', $res);
+		}
+		return false;
+
+	}//end processConditionDetails()
 
 
 }//end class

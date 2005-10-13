@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if.inc,v 1.9 2005/10/11 02:54:00 tbarrett Exp $
+* $Id: design_area_show_if.inc,v 1.10 2005/10/13 02:20:59 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *	Show different content depending on certain conditions evaluated at runtime
 *
 * @author  Avi Miller <Avi Miller@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,7 +52,7 @@ class Design_Area_Show_If extends Design_Area
 	*/
 	function setAttrValue($name, $value)
 	{
-		if (substr($name, 0, 10) == 'condition_') {
+		if ((substr($name, 0, 10) == 'condition_') && ($name != 'condition_data')) {
 			// this is some condition data we need to save and pass to the
 			//  condition asset's evaluate() function
 			$data_key = substr($name, 10);
