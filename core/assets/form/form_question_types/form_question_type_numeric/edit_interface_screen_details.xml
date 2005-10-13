@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2005/07/20 00:02:44 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2005/10/13 03:59:16 sdanis Exp $
 */
 -->
 
@@ -54,6 +54,9 @@
 	<section name="Simple Validation Rules" write_access="write:attributes">
 		<field attribute="is_required">
 			<boolean true_text="required" false_text="optional" />
+		</field>
+		<field attribute="cust_required_error">
+			<text width="60" />
 		</field>
 		<field attribute="is_int">
 			<boolean true_text="yes" false_text="no" />

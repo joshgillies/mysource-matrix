@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.3 2005/10/07 00:01:25 lwright Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.4 2005/10/13 03:52:44 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,11 +69,11 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 	* This function assumes the skeleton of a JS validation function has been created around this code
 	* with a form variable named 'form' passed (this is done when generating the content file).
 	*
-	* @param object Form_Question	&$q_asset		reference to the question asset
-	* @param Array					$rule_data		the rule data being used
+	* @param object	&$q_asset	reference to the question asset
+	* @param array	$rule_data	the rule data being used
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function generateJSCode(&$q_asset, $rule_data)
 	{
@@ -123,11 +123,11 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 	* [comparison_question_id] => comparison question assetid
 	* [case_sensitive] => whether the comparison is case sensitive
 	*
-	* @param mixed	$answer			the answer being passed to us
-	* @param string	$rule_data		the rule's data
+	* @param mixed	$answer		the answer being passed to us
+	* @param string	$rule_data	the rule's data
 	*
+	* @return boolean
 	* @access public
-	* @return boolean true only if rule succeeds
 	*/
 	function evaluate($answer, $rule_data)
 	{
@@ -174,10 +174,10 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 	/**
 	* returns a description of the rule
 	*
-	* @param object Form_Question	&$q_asset	the question asset that failed
-	* @param array					$rule_data	the rule data
+	* @param object	&$q_asset	the question asset that failed
+	* @param array	$rule_data	the rule data
 	*
-	* @return string	the error message
+	* @return string
 	* @access public
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
@@ -187,7 +187,11 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 		$value = array_get_index($rule_data, 'value', '');
 
 		if (($value == '') && ($operator == '!=')) {
-			$error_str = translate('core_form_rule_comparison_required', $q_asset->attr('name'));
+			if (strlen($q_asset->attr('cust_required_error'))) {
+				$error_str = $q_asset->attr('cust_required_error');
+			} else {
+				$error_str = translate('core_form_rule_comparison_required', $q_asset->attr('name'));
+			}
 		} else {
 			$operator_list = $this->getOperators();
 			$string_code = 'core_form_rule_comparison_desc_'.$operator;

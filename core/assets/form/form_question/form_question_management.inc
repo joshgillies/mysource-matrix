@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_management.inc,v 1.1 2005/07/20 00:02:37 lwright Exp $
+* $Id: form_question_management.inc,v 1.2 2005/10/13 03:51:37 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,26 +48,31 @@ class Form_Question_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-						'name'			=> Array(
-											'added'		=> '0.0.1',
-											'type'		=> 'text',
-											'default'	=> '',
-										   ),
-						'note'			=> Array(
-											'added'		=> '0.0.1',
-											'type'		=> 'text',
-											'default'	=> '',
-										   ),
-						'rules'			=> Array(
-											'added'		=> '0.0.1',
-											'type'		=> 'serialise',
-											'default'	=> Array(),
-										   ),
-						'is_required'	=> Array(
-											'added'		=> '0.3',
-											'type'		=> 'boolean',
-											'default'	=> '0',
-										   ),
+						'name'					=> Array(
+													'added'		=> '0.0.1',
+													'type'		=> 'text',
+													'default'	=> '',
+												   ),
+						'note'					=> Array(
+													'added'		=> '0.0.1',
+													'type'		=> 'text',
+													'default'	=> '',
+												   ),
+						'rules'					=> Array(
+													'added'		=> '0.0.1',
+													'type'		=> 'serialise',
+													'default'	=> Array(),
+												   ),
+						'is_required'			=> Array(
+													'added'		=> '0.3',
+													'type'		=> 'boolean',
+													'default'	=> '0',
+												   ),
+						'cust_required_error'	=> Array(
+													'added'		=> '0.5',
+													'type'		=> 'text',
+													'default'	=> '',
+												   ),
 					  );
 
 	}//end constructor

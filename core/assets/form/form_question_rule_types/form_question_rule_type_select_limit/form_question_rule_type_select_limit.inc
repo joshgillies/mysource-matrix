@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_select_limit.inc,v 1.3 2005/10/07 00:01:25 lwright Exp $
+* $Id: form_question_rule_type_select_limit.inc,v 1.4 2005/10/13 03:53:12 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,6 +45,8 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 	*
 	* @param int	$assetid	the asset id to be loaded
 	*
+	* @return void
+	* @access public
 	*/
 	function Form_Question_Rule_Type_Select_Limit($assetid=0)
 	{
@@ -87,8 +89,8 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 	* @param mixed					&$comparison	either a value or a form_question asset (based on
 	*												comparison question id), being used to compare
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function generateJSCode(&$q_asset, $rule_data)
 	{
@@ -180,11 +182,11 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 	* [operator] => operator to compare with (string, ==, !=, <, <=, >, >=)
 	* [value] => comparison static value
 	*
-	* @param mixed	$answer			the answer being passed to us
-	* @param string	$rule_data		the rule's data
+	* @param mixed	$answer		the answer being passed to us
+	* @param string	$rule_data	the rule's data
 	*
+	* @return boolean
 	* @access public
-	* @return boolean true only if rule succeeds
 	*/
 	function evaluate($answer, $rule_data)
 	{
@@ -200,20 +202,22 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 	/**
 	* returns a default error message for this rule
 	*
-	* @param object Form_Question	&$q_asset	the question asset that failed
-	* @param array					$rule_data	the rule data
+	* @param object	&$q_asset	the question asset that failed
+	* @param array	$rule_data	the rule data
 	*
-	* @return string	the error message
+	* @return string
 	* @access public
 	*/
 	function defaultError(&$q_asset, $rule_data)
 	{
 		$operator = array_get_index($rule_data, 'operator', '==');
 		$value = array_get_index($rule_data, 'value', '');
-
-		$selected_options = count($q_asset->getValue());
-		$error_str = translate('core_form_rule_select_limit_error_'.$operator, $selected_options, $value, $q_asset->attr('name'));
-
+		if ($operator == '>=' && $value == 1 && strlen($q_asset->attr('cust_required_error'))) {
+			$error_str = $q_asset->attr('cust_required_error');
+		} else {
+			$selected_options = count($q_asset->getValue());
+			$error_str = translate('core_form_rule_select_limit_error_'.$operator, $selected_options, $q_asset->attr('name'), $value);
+		}
 		return $error_str;
 
 	}//end defaultError()
@@ -222,10 +226,10 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 	/**
 	* returns a description for the rule
 	*
-	* @param object Form_Question	&$q_asset	the question asset that failed
-	* @param array					$rule_data	the rule data
+	* @param object	&$q_asset	the question asset that failed
+	* @param array	$rule_data	the rule data
 	*
-	* @return string	the error message
+	* @return string
 	* @access public
 	*/
 	function ruleDescription(&$q_asset, $rule_data)

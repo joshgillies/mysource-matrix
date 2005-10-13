@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.1 2005/07/20 00:02:44 lwright Exp $
+* $Id: form_question_type_email_address.inc,v 1.2 2005/10/13 03:57:26 sdanis Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,8 +61,8 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 	*
 	* Returned array is 'short name' => 'full name'
 	*
+	* @return array
 	* @access public
-	* @return Array(string => string)
 	*/
 	function getAllowedRules()
 	{
@@ -74,13 +74,13 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 	/**
 	* Look at user-specified and internal rules to see if this question currently has a valid value
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function hasValidValue()
 	{
 		$value = $this->getValue();
-		if (empty($value)) return true;
+		if (empty($value)) return parent::hasValidValue();
 
 		// Since we know the answer is not empty, borrow a 'valid email address' rule
 		$req_rule = Array('rule_code' => 'email', 'operator' => '1');
@@ -98,8 +98,8 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 	* This function assumes the skeleton of a JS validation function has been created around this code
 	* with a form variable named 'form' passed (this is done when generating the content file).
 	*
+	* @return string
 	* @access public
-	* @return string the javascript code used for client-side validation
 	*/
 	function generateJSCode()
 	{

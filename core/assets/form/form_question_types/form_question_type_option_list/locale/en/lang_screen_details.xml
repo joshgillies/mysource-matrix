@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/07/20 00:02:45 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.2 2005/10/13 03:59:29 sdanis Exp $
 */
 -->
 
@@ -67,6 +67,10 @@
 	    <field attribute="is_required">
 			<display_name>Required Entry?</display_name>
 			<note>If required, at least one radio button must be selected before the form can be submitted</note>
+		</field>
+		<field attribute="cust_required_error">
+			<display_name>Custom Required Error</display_name>
+			<note>This message will replace the default required error message</note>
 		</field>
 	</section>
 </contents>
