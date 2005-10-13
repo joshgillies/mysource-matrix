@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_management.inc,v 1.27 2005/08/05 00:51:34 dmckee Exp $
+* $Id: user_management.inc,v 1.28 2005/10/13 02:12:02 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,24 +90,6 @@ class User_Management extends Asset_Management
 										   ),
 					  );
 
-		$this->components = Array(
-								'username'		=> Array(
-													'description'		=> 'Username',
-													'default_weighting'	=> '1',
-												   ),
-								'first_name'	=> Array(
-													'description'		=> 'First Name',
-													'default_weighting'	=> '1',
-												   ),
-								'last_name'		=> Array(
-													'description'		=> 'Last Name',
-													'default_weighting'	=> '1',
-												   ),
-								'email'			=> Array(
-													'description'		=> 'Email Address',
-													'default_weighting'	=> '1',
-												   ),
-							);
 
 	}//end constructor
 

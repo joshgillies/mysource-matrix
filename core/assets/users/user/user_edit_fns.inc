@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.21 2005/09/29 00:19:22 lwright Exp $
+* $Id: user_edit_fns.inc,v 1.22 2005/10/13 02:12:02 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,7 +78,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Paints adding a new user condition
+	* Paints interface for managing user restrictions
 	*
 	* @access public
 	* @return void
@@ -94,28 +94,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 
 		if ($asset->adminAccess('attributes')) {
 
-			foreach ($groups as $group_assetid => $group) {
-				$group_menu[$group_assetid] = $group['name'];
-			}
-
-			$conditions = Array();
-			foreach ($GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('condition') as $type_code) {
-				$conditions[$type_code] = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name');
-			}
-
-			check_box($prefix.'_add_group');
-
-			ob_start();
-				combo_box($prefix.'_group_list', $group_menu, false, '');
-				$group_list = ob_get_contents();
-			ob_end_clean();
-
-			ob_start();
-				combo_box($prefix.'_restriction_list', $conditions, false, '');
-				$restriction_list = ob_get_contents();
-			ob_end_clean();
-
-			echo translate('add_group_restriction', $group_list, $restriction_list).' ';
+			$conditions = Array('' => '-- Select Type --') + $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('condition'), 'name');
 		}
 
 		// get a list of directly linked groups
@@ -125,44 +104,74 @@ class User_Edit_Fns extends Asset_Edit_Fns
 
 		// get a list of user restrictions
 		$restrictions = $asset->attr('restrictions');
-
 		foreach ($groups as $group_assetid => $group) {
-			$o->closeField();
-			$o->closeSection();
-
-			$usergroup =& $GLOBALS['SQ_SYSTEM']->am->getAsset($group_assetid);
-
-			$o->openSection(translate('group_membership_restrictions', $usergroup->name, $usergroup->id));
+			$o->openSection($group['name'].' (#'.$group_assetid.')');
 			$o->openField('');
 
 			//if user has restrictions related to this group
-			if (array_get_index($restrictions, $group_assetid, null)) {
-
-				//get array of restrictions for this group
-				foreach ($restrictions[$group_assetid] as $key => $value) {
-					$condition_prefix = $prefix.'_condition_'.$key;
-					$type_code = $value['name'];
-					$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-
-					$o->openSection($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name'));
-
-					$condition =& new $type_code();
-					$edit_fns =& $condition->getEditFns();
-
-					$edit_fns->paintEditInterface($condition,  $o, $condition_prefix, $value, $admin_access);
-
-					if ($admin_access) {
-						$o->openField(translate('delete_question'));
-						check_box($condition_prefix.'[delete]', '1');
-						$o->closeField();
-					}
-
-					$o->closeSection();
-				}
-
+			if (!array_get_index($restrictions, $group_assetid, false)) {
+				echo translate('no_membership_conditions', $group['name']);
 			} else {
-				echo translate('no_membership_conditions', $usergroup->name);
+				?>
+				This user is part of this group when...
+				<table class="sq-backend-table" border="1">
+					<tr>
+						<th>&nbsp;&nbsp;&nbsp;</th>
+						<th>Condition</th>
+					<?php
+					if ($admin_access) {
+						?>
+						<th>Delete</th>
+						<?php
+					}
+					?>
+					</tr>
+				<?php
+				foreach ($restrictions[$group_assetid] as $key => $restriction) {
+					$condition_prefix = $prefix.'_condition_'.$key;
+					?>
+					<tr>
+						<td><?php echo $key; ?></td>
+						<td>
+							<?php
+							if ($admin_access) {
+								$match_options = Array(
+													'1'	=> translate($restriction['name'].'_true'),
+													'0'	=> translate($restriction['name'].'_false'),
+												 );
+								combo_box($condition_prefix.'_match', $match_options, false, $restriction['match']);
+							} else {
+								echo translate($restriction['name'].'_'.($restriction['match'] ? 'true' : 'false'));
+							}
+							echo '<br />';
+							$edit_fns_classname = $restriction['name'].'_edit_fns';
+							$GLOBALS['SQ_SYSTEM']->am->includeAsset($restriction['name'], true);
+							call_user_func(Array($edit_fns_classname, 'paintEditInterface'), $restriction['condition_data'], $o, $condition_prefix, $admin_access);
+							?>
+						</td>
+					<?php
+					if ($admin_access) {
+						?>
+						<td><?php check_box($condition_prefix.'[delete]', '1'); ?></td>
+						<?php
+					}
+					?>
+					</tr>
+					<?php
+				}
+				?>
+				</table>
+				<?php
 			}
+
+			if ($admin_access) {
+				?>
+				<p>Add new condition: <?php combo_box($prefix.'_'.$group_assetid.'_new_condition', $conditions, false, ''); ?></p>
+				<?php
+			}
+
+			$o->closeField();
+			$o->closeSection();
 
 		}//end foreach $groups
 
@@ -174,7 +183,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Processses adding a new user condition
+	* Processses user restrictions
 	*
 	* @access public
 	* @return void
@@ -187,49 +196,36 @@ class User_Edit_Fns extends Asset_Edit_Fns
 		$restrictions = $asset->attr('restrictions');
 
 		// -- PROCESS CONDITIONS --//
-
 		foreach ($groups as $group_assetid => $group) {
 
 			// if user has restrictions related to this group
 			if (array_get_index($restrictions, $group_assetid, null)) {
 
 				// get array of restrictions for this group
-				foreach ($restrictions[$group_assetid] as $key => $value) {
+				foreach ($restrictions[$group_assetid] as $key => $restriction) {
 					$condition_prefix = $prefix.'_condition_'.$key;
 
 					// if this condition has been marked to delete, unset it now
-					if (array_get_index($_POST[$condition_prefix], 'delete', 0)) {
+					if (isset($_POST[$condition_prefix]) && array_get_index($_POST[$condition_prefix], 'delete', 0)) {
+						bam("Deleting $condition_prefix");
 						unset($restrictions[$group_assetid][$key]);
 					} else {
-						//prepare condition data
-						$type_code = $value['name'];
-						$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-						$condition =& new $type_code();
-						$edit_fns =& $condition->getEditFns();
+						// prepare condition data
 
-						// query the condition to retrieve the paramaters it needs
-						$results = $edit_fns->processEditInterface($condition,  $o, $condition_prefix, $value, $admin_access);
-						$restrictions[$group_assetid][$key]['condition_data'] = array_get_index($results, 'condition_data', Array());
-						$restrictions[$group_assetid][$key]['match'] = array_get_index($results, 'match', '1');
+						$dir = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($restriction['name'], 'dir');
+						$edit_fns_classname = $restriction['name'].'_edit_fns';
+						require_once SQ_SYSTEM_ROOT.'/'.$dir.'/'.$edit_fns_classname.'.inc';
+						$condition_data = call_user_func(Array($edit_fns_classname, 'processEditInterface'), $o, $condition_prefix);
+						$restrictions[$group_assetid][$key]['condition_data'] = $condition_data;
+						$restrictions[$group_assetid][$key]['match'] = array_get_index($_POST, $prefix.'_condition_'.$key.'_match', '1');
 					}
 				}
 			}
+			if ($new_name = array_get_index($_POST, $prefix.'_'.$group_assetid.'_new_condition')) {
+				bam("Adding cond $new_name");
+				$restrictions[$group_assetid][] = Array('name' => $new_name, 'match' => 1, 'condition_data' => Array());
+			}
 		}
-
-
-		// -- ADD CONDITIONS --//
-
-		// make sure we did want to add a condition
-		if (isset($_POST[$prefix.'_add_group'])) {
-			$restrictions = $asset->attr('restrictions');
-			$group_list = $_POST[$prefix.'_group_list'];
-			$restrictions[$group_list][] = Array(
-											'name'				=> $_POST[$prefix.'_restriction_list'],
-											'condition_data'	=> Array(),
-											'match'				=> true,
-										   );
-		}
-
 
 		return $asset->setAttrValue('restrictions', $restrictions);
 

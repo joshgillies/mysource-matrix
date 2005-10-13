@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.9 2005/02/22 22:57:35 lwright Exp $
+* $Id: edit_interface_screens.xml,v 1.10 2005/10/13 02:12:02 tbarrett Exp $
 *
 */
 -->
 
 <screens>
-	<screen code_name="restrictions" display_name="Restrictions" icon="web" />
+	<screen code_name="restrictions" display_name="Restrictions" icon="web" force_unlock="0" />
 	<screen code_name="paths" display_name="Web Paths" icon="web" />
 </screens>
