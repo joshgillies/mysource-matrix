@@ -11,14 +11,14 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2005/06/03 06:11:21 tbarrett Exp $
+* $Id: lang_screen_details.xml,v 1.6.2.1 2005/10/13 04:14:12 sdanis Exp $
 *
 */
 -->
 
 <contents>
 	<section name="Locking / Editing">
-	    <field>
+		<field>
 			<display_name></display_name>
 			<note></note>
 			<function_call>
@@ -28,7 +28,7 @@
 		</field>
 	</section>
 	<section name="Question Options">
-	    <field attribute="name">
+		<field attribute="name">
 			<display_name>Title</display_name>
 			<note></note>
 		</field>
@@ -58,9 +58,13 @@
 		</field>
 	</section>
 	<section name="Simple Validation Rules">
-	    <field attribute="is_required">
+		<field attribute="is_required">
 			<display_name>Required Entry?</display_name>
 			<note>If required, at least one radio button must be selected before the form can be submitted</note>
+		</field>
+		<field attribute="cust_required_error">
+			<display_name>Custom Required Error</display_name>
+			<note>This message will replace the default required error message</note>
 		</field>
 	</section>
 </contents>

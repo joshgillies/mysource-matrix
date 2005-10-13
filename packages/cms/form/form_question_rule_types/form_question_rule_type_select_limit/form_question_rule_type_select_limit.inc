@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_select_limit.inc,v 1.12.2.1 2005/10/07 03:51:38 lwright Exp $
+* $Id: form_question_rule_type_select_limit.inc,v 1.12.2.2 2005/10/13 04:14:11 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.12.2.1 $
+* @version $Revision: 1.12.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -204,9 +204,12 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 		$operator = array_get_index($rule_data, 'operator', '==');
 		$value = array_get_index($rule_data, 'value', '');
 
-		$selected_options = count($q_asset->getValue());
-		$error_str = translate('cms_form_rule_select_limit_error_'.$operator, $selected_options, $value, $q_asset->attr('name'));
-
+		if ($operator == '>=' && $value == 1 && strlen($q_asset->attr('cust_required_error'))) {
+			$error_str = $q_asset->attr('cust_required_error');
+		} else {
+			$selected_options = count($q_asset->getValue());
+			$error_str = translate('cms_form_rule_select_limit_error_'.$operator, $selected_options, $q_asset->attr('name'), $value);
+		}
 		return $error_str;
 
 	}//end defaultError()

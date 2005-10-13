@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.16 2005/05/18 23:44:38 tbarrett Exp $
+* $Id: form_question_type_email_address.inc,v 1.16.2.1 2005/10/13 04:14:12 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -72,7 +72,7 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 	function hasValidValue()
 	{
 		$value = $this->getValue();
-		if (empty($value)) return true;
+		if (empty($value)) return parent::hasValidValue();
 
 		// Since we know the answer is not empty, borrow a 'valid email address' rule
 		$req_rule = Array('rule_code' => 'email', 'operator' => '1');

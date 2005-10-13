@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.27.2.1 2005/10/07 03:51:37 lwright Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.27.2.2 2005/10/13 04:14:11 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.27.2.1 $
+* @version $Revision: 1.27.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -180,7 +180,11 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 		$value = array_get_index($rule_data, 'value', '');
 
 		if (($value == '') && ($operator == '!=')) {
-			$error_str = translate('cms_form_rule_comparison_required', $q_asset->attr('name'));
+			if (strlen($q_asset->attr('cust_required_error'))) {
+				$error_str = $q_asset->attr('cust_required_error');
+			} else {
+				$error_str = translate('cms_form_rule_comparison_required', $q_asset->attr('name'));
+			}
 		} else {
 			$operator_list = $this->getOperators();
 			$string_code = 'cms_form_rule_comparison_desc_'.$operator;

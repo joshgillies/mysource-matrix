@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.12.2.3 2005/10/07 03:51:38 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.12.2.4 2005/10/13 04:14:12 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.12.2.3 $
+* @version $Revision: 1.12.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -116,7 +116,11 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 		if (is_array($this->_tmp['file_info']) && empty($this->_tmp['file_info']) && $this->attr('is_required')) {
 			// no file uploaded to required field
-			$this->failed_rules[] = translate('cms_form_file_upload_none_rule', $this->attr('name'));
+			if (strlen($this->attr('cust_required_error'))) {
+				$this->failed_rules[] = $this->attr('cust_required_error');
+			} else {
+				$this->failed_rules[] = translate('cms_form_file_upload_none_rule', $this->attr('name'));
+			}
 			$ok = false;
 		}
 

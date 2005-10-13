@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2005/06/03 06:11:21 tbarrett Exp $
+* $Id: lang_screen_details.xml,v 1.6.2.1 2005/10/13 04:14:12 sdanis Exp $
 *
 */
 -->
@@ -58,9 +58,13 @@
 		</field>
 	</section>
 	<section name="Simple Validation Rules">
-	    <field attribute="is_required">
+		<field attribute="is_required">
 			<display_name>Required Entry?</display_name>
 			<note>If required, at least one tick-box must be chosen before the form can be submitted</note>
+		</field>
+		<field attribute="cust_required_error">
+			<display_name>Custom Required Error</display_name>
+			<note>This message will replace the default required error message</note>
 		</field>
 	</section>
 	<section name="Complex Validation Rules" />
