@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: login_styles.css,v 1.1 2005/10/13 03:54:46 tbarrett Exp $
+* $Id: login_styles.css,v 1.2 2005/10/13 04:16:12 tbarrett Exp $
 *
 */
 body {
@@ -88,13 +88,11 @@ h3 {
 	background-position: 2px 50%;
 	background-image: url(mysource_files/login_image.gif);
 	background-repeat: no-repeat;
-	padding: 2px 2px 2px 170px;
+	padding: 2px 2px 2px 195px;
 	height: 90px;
-	text-align: right;
 }
 .sq-credentials-section table {
-	float: right;
-	margin: 22px;
+	margin: 23px 5px;
 }
 .sq-credentials-section td, .sq-credentials-section th {
 	font-weight: bold;
