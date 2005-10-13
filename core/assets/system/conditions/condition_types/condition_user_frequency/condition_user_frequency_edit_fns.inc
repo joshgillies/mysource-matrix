@@ -19,21 +19,21 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_frequency_edit_fns.inc,v 1.2 2005/10/13 02:07:38 tbarrett Exp $
+* $Id: condition_user_frequency_edit_fns.inc,v 1.3 2005/10/13 05:16:34 dheppell Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_fns.inc';
 
 /**
-* Condition_User_IP_Edit_Fns
+* Condition_User_Frequency_Edit_Fns
 *
-* Edit functions for the user IP condition
+* Edit functions for the user Frequency condition
 *
 * @see Asset_Edit_Fns
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,7 +66,30 @@ class Condition_User_Frequency_Edit_Fns extends Condition_Edit_Fns
 	*/
 	function paintEditInterface(&$condition_data, &$o, $prefix, $write_access)
 	{
-		bam("Edit interface for user freq cond");
+		$options = Array(
+					'hits'		=> 'Hits',
+					'session'	=> 'Session',
+					'days'		=> 'Days',
+					'hours'		=> 'Hours',
+					'minutes'	=> 'Minutes',
+				   );
+		?>
+		<table>
+		<tr>
+			<td>units</td>
+			<td>
+				<?php combo_box($prefix.'[units]', $options, 0, $condition_data['units']); ?>
+			</td>
+		</tr>
+		<tr>
+			<td>value</td>
+			<td><?php text_box($prefix.'[value]', $condition_data['value'], 10);?></td>
+		</tr>
+		</table>
+		<?php
+
+		$o->note(translate('condition_user_frequency_description'));
+		$o->sectionNote(translate('condition_user_frequency_note'));
 
 	}//end paintEditInterface()
 
@@ -74,15 +97,20 @@ class Condition_User_Frequency_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Process the backend editing interface for this condition
 	*
-	* @param object		&$o		Backend outputter to use
-	* @param string		$prefix	Prefix for form elements
+	* @param object	&$o		Backend outputter to use
+	* @param string	$prefix	Prefix for form elements
 	*
 	* @return array
 	* @access public
 	*/
 	function processEditInterface(&$o, $prefix)
 	{
-		return true;
+		$results = Array(
+					'units'	=> $_REQUEST[$prefix]['units'],
+					'value'	=> $_REQUEST[$prefix]['value'],
+				   );
+
+		return $results;
 
 	}//end processEditInterface()
 

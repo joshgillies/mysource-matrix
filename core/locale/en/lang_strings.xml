@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.66 2005/10/13 02:19:48 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.67 2005/10/13 05:16:34 dheppell Exp $
 *
 */
 
@@ -116,7 +116,7 @@
 	<string source="format">Format</string>
 	<string source="freestyle_threshold">Freestyle threshold</string>
 	<string source="future_linking">Future Linking</string>
-	<string source="grant_access_to_new_type">Grant Access to New Type</string>
+	<string source="restrict_access_to_new_type">Restrict Access to New Type</string>
 	<string source="hide_errors_on_the_frontend">Hide Errors on the Frontend</string>
 	<string source="id">ID:</string>
 	<string source="important_notice">Important Notice</string>
@@ -735,6 +735,8 @@
 	<string source="condition_in_user_group_false">The user is not in any of the following user groups</string>
 	<string source="condition_user_ip_true">The user's IP address matches the following pattern</string>
 	<string source="condition_user_ip_false">The user's IP address does not match the following pattern</string>
+	<string source="condition_user_frequency_true"> </string>
+	<string source="condition_user_frequency_false"> </string>
 	<string source="condition_server_variable_true">The following server variable matches the specified pattern</string>
 	<string source="condition_server_variable_false">The following server variable does not match the specified pattern</string>
 	<string source="condition_logical_true">The following combination of keywords evaluates to True</string>
@@ -748,8 +750,8 @@
 	<string source="condition_user_agent_is_regular_expression_enabled">This condition matches using a regular expression. You can enter a simple string (eg. "MSIE") to match that in any part of the user agent. Or, you can use a more advanced pattern.</string>
 	<string source="condition_server_variable_is_regular_expression_enabled">This condition matches using a regular expression. You can enter a simple string (eg. "MSIE") to match that in any part of the server variable chosen. Or, you can use a more advanced pattern.</string>
 	<string source="condition_user_ip_wildcard_enabled">In the IP address expression you can use an asterisk ("*") in place of a number to match all possible numbers within that octet.</string>
-
-
+	<string source="condition_user_frequency_description">For "Session" and "Hits", value refers to the number of times the condition is checked before returning true.&lt;br /&gt;For the rest it represents the period of time to pass before the condition returns true.</string>
+	<string source="condition_user_frequency_note">"Session" works the same as "Hits" but will record only 1 hit per day</string>
 
 
 
@@ -800,7 +802,7 @@
 	<string source="cannot_delete_workspace-user_link">You cant delete the link between a user and their workspace</string>
 	<string source="user_group_unrestricted_access_granted">Unrestricted access has been granted. No security restrictions apply on this user group.</string>
 	<string source="user_group_unrestricted_access_denied">Unrestricted access has not been granted. Security restrictions do apply on this user group.</string>
-	<string source="grant_screen_access">Grant access for screen</string>
+	<string source="restrict_screen_access">Restrict access for screen</string>
 	<string source="granted_unrestricted_acces_explanation">You have granted access to all screens so you cannot grant access to any more. Remove the "All Screens" option to futher customise this asset type</string>
 	<string source="remove_all_screens_explanation">If you delete the "All Screens" option, the "Details" screen will be added as a default. You can choose to remove this later.</string>
 	<string source="preference_currently_customised">This preference is currently customised. The global preference setting is currently being overridden for users in this user group.</string>
