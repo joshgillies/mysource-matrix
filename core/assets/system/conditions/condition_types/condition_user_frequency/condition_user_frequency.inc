@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_frequency.inc,v 1.1 2005/10/06 01:01:40 dheppell Exp $
+* $Id: condition_user_frequency.inc,v 1.2 2005/10/13 00:05:07 dheppell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,15 +75,11 @@ class Condition_User_Frequency extends Condition
 	/**
 	* Evaluate this condition
 	*
-	* when more than 1 condition is specified, all conditions must be met to return true
-	* Condition data can contain several values being:
-	*<pre>
-	* ['area_hits']                 for the increment of how many hits until this returns true
-	* ['session_hits'] and
-	* ['session_units']             for the incrememnt with a limit of 1 per period
-	* ['time_difference'] and
-	* ['time_difference_units']     for the period and units until this returns true
-	*</pre>
+	* Takes "units" and "value" data with units being one of "hits", "session"
+	* "days", "hours" or "minutes" and a value for whichever unit is selected
+	* Hits and Sessions take value as a number of times this condition
+	* is resolved before returning true (Session limits to 1 per day)
+	* For the rest value represents a unit of time
 	*
 	* @param object	&$asset			Reference to any asset we need to work with
 	* @param array	$condition_data	The data we need to evaluate this condition
@@ -98,73 +94,61 @@ class Condition_User_Frequency extends Condition
 		// Retrieve the cookie or initialise it
 		if (!($data = @unserialize($_COOKIE['user_frequency']))) {
 			$data = Array(
-						'area_hits'		=> 0,
-						'session_hits'	=> 0,
-						'last_date'		=> time(),
+						'value'		=> 0,
+						'last_date'	=> time(),
 					);
 		}
 
-		// time difference between now and last update
-		$difference = time() - $data['last_date'];
+		// time difference between now and last update in days
+		$difference = (time() - $data['last_date']) / 86400;
 
 		// EVERY X HITS
 		// Condition evaluates to true every x hits, for example when
 		// x is 20, it will return true on hit 20, 40, 60... etc
-		if (isset($condition_data['area_hits'])) {
-			$hits = (int) $condition_data['area_hits'];
+		if ($condition_data['units'] == 'hits') {
+			$hits = (int) $condition_data['value'];
 
-			//if the current counter divides evenly into condition return true
-			if (($data['area_hits'] % $hits) == 0) {
+			// if the current counter divides evenly into condition return true
+			if (($data['value'] % $hits) == 0) {
 				$result = true;
 			} else {
 				$result = false;
 			}
 
-			$data['area_hits']++;
+			$data['value']++;
 		}
 
-		// EVERY X HITS LIMIT 1 PER PERIOD
-		// Condition evaluates to true every x hits, hits are only recorded
-		// however once per period i.e. per day, per hour etc
-		if (isset($condition_data['session_hits'])) {
-			//if the current counter divides evenly into condition return true
-			if (($data['session_hits'] % $condition_data['session_hits']) == 0) {
+		// EVERY X HITS LIMIT 1 PER DAY
+		// same as above limit 1 hit per day
+		if ($condition_data['units'] == 'session') {
+			$hits = (int) $condition_data['value'];
+
+			// if the current counter divides evenly into condition return true
+			if (($data['value'] % $hits) == 0) {
 				$result = true;
 			} else {
 				$result = false;
 			}
 
-			// convert the difference into the appropiate unit
-			if ($condition_data['session_units'] == 'days') {
-				$difference = (int) $difference / 60 / 60 / 24;
-			} else if ($condition_data['session_units'] == 'hours') {
-				$difference = (int) $difference / 60 / 60;
-			} else if ($condition_data['session_units'] == 'minutes') {
-				$difference = (int) $difference / 60;
-			}
-
-			// we only increment the count if were on a different unit
-			if ($idfference) $data['session_hits']++;
+			// we only increment the count if a day has passed
+			if ((int) $idfference) $data['value']++;
 		}
 
 		// EVERY X TIME PERIOD UNITS
 		// Condition evaluates true every x period of time
 		// for example when x is 3 days, condition will be true
 		// if more than 3 days have passed since last check
-		if (isset($condition_data['time_difference'])) {
-			$units = $condition_data['time_difference_units'];
+		if ($condition_data['units'] == 'days' || $condition_data['units'] == 'hours' || $condition_data['units'] == 'minutes') {
+			if ($condition_data['units'] == 'hours') {
+				$difference *= 60;
+			}
 
-			// convert the difference into the appropiate unit
-			if ($units == 'days') {
-				$difference = (int) $difference / 60 / 60 / 24;
-			} else if ($units == 'hours') {
-				$difference = (int) $difference / 60 / 60;
-			} else if ($units == 'minutes') {
-				$difference = (int) $difference / 60;
+			if ($condition_data['units'] == 'minutes') {
+				$difference *= 3600;
 			}
 
 			// if more units have passed than the required difference
-			if ($difference > $condition_data['time_difference']) {
+			if (((int) $difference) > $condition_data['value']) {
 				$result = true;
 			} else {
 				$result = false;
