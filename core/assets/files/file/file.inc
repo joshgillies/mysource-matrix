@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.113 2005/09/21 01:42:14 mmcintyre Exp $
+* $Id: file.inc,v 1.114 2005/10/13 05:15:30 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.113 $
+* @version $Revision: 1.114 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -127,7 +127,10 @@ class File extends Asset
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
+		// Save return value of acquireLock(), if it is 1 then lock was newly acquired
+		// and we have to give it back at the end, if it is 2 then it's already taken
+		// and we should leave it be
+		if (!$lock_held = $GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
 			return false;
 		}
 
@@ -143,7 +146,10 @@ class File extends Asset
 		$ret_val = $edit->processFileChooser($this, $o, $prefix, true) || $edit->processFileUpload($this, $o, $prefix, $info, false);
 
 		$this->saveAttributes();
-		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
+
+		if ($lock_held == 1) {
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
+		}
 
 		return $ret_val;
 
