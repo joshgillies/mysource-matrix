@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.386 2005/10/10 01:22:17 arailean Exp $
+* $Id: asset_manager.inc,v 1.387 2005/10/13 01:38:36 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.386 $
+* @version $Revision: 1.387 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -499,17 +499,22 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Includes the class file for the passed asset
 	*
-	* @param string	$type_code	the code name for the asset that you want to check
+	* @param string		$type_code	the code name for the asset that you want to check
+	* @param boolean	$with_edit_fns	Whether to include the Edit_Fns class file too
 	*
+	* @return void
 	* @access public
 	*/
-	function includeAsset($type_code)
+	function includeAsset($type_code, $with_edit_fns=false)
 	{
 		$error_msg = 'Asset "'.$type_code.'" is not installed on the system, unable to include its source file';
 
 		$type_code = strtolower($type_code);
 		assert_isset_array_index($this->_asset_types, $type_code, $error_msg);
 		require_once SQ_SYSTEM_ROOT.'/'.$this->_asset_types[$type_code]['dir'].'/'.$type_code.'.inc';
+		if ($with_edit_fns) {
+			require_once SQ_SYSTEM_ROOT.'/'.$this->_asset_types[$type_code]['dir'].'/'.$type_code.'_edit_fns.inc';
+		}
 
 		// include the language strings
 		$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings($type_code);
@@ -556,6 +561,7 @@ class Asset_Manager extends MySource_Object
 	* @param string|Array	$type_code		the type code that you want the decendants of
 	* @param boolean		$include_passed	when true includes the passed $type_code in the result
 	*
+	* @return Array(string)
 	* @access public
 	*/
 	function getTypeDescendants($type_code, $include_passed=false)
