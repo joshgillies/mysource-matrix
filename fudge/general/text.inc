@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.18 2005/08/22 07:19:21 skim Exp $
+* $Id: text.inc,v 1.19 2005/10/13 23:52:13 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package Fudge
 * @subpackage Text
 */
@@ -130,7 +130,7 @@ function retrieve_keywords_replacements($text, $additional='')
 * @return array
 * @access public
 */
-function get_word_counts($text, $split_regexp='[^A-z0-9]+', $word_match_regexp='[A-z0-9]+', $min_length=1)
+function get_word_counts($text, $split_regexp='[ -]+', $word_match_regexp='[^ -]+', $min_length=1)
 {
 	// type verification
 	if (!is_string($text) || !is_string($split_regexp) || !is_string($word_match_regexp) || !is_int($min_length)) {
@@ -140,6 +140,11 @@ function get_word_counts($text, $split_regexp='[^A-z0-9]+', $word_match_regexp='
 	}
 
 	$words = split($split_regexp, $text);
+
+	foreach ($words as $key => $word) {
+		$words[$key] = trim($word, " .:;,!?'\"\t\n\r\0");
+	}
+
 	$word_counts = array_count_values($words);
 	foreach ($word_counts as $word => $count) {
 		if (strlen($word) < $min_length || !ereg($word_match_regexp, $word, $matches)) {
