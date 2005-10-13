@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18.2.20 2005/09/30 00:55:30 dmckee Exp $
+* $Id: lang_strings.xml,v 1.18.2.21 2005/10/13 23:23:11 sdanis Exp $
 *
 */
 
@@ -1411,6 +1411,7 @@ Items to delete: %s</string>
 	<string source="warn_delete_all_files_associated_to_patch" js="1">This will delete all files associated with this patch.</string>
 	<string source="confirm_delete_event" js="1">Are you sure you want to delete this event altogether?</string>
 	<string source="confirm_move_event_to" js="1">Move this event to %s</string>
+	<string source="confirm_delete_rule" js="1">Are you sure you want to delete this rule?</string>
 	<string source="more_info" js="1">More Info</string>
 	<string source="less_info" js="1">Less Info</string>
 	<string source="hide_lock_details" js="1">Hide Lock Details</string>
