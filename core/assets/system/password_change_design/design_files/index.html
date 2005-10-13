@@ -18,172 +18,68 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: index.html,v 1.1 2005/05/12 23:57:36 ndvries Exp $
+* $Id: index.html,v 1.2 2005/10/13 03:55:33 tbarrett Exp $
 *
 */
 -->
-
+<!doctype html public "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
 <html>
 <head>
-	<title>Change Password</title>
-	<style type="text/css">
-		body {
-			background-color: #ffffff;
-		}
-		body, p, td, ul, li, input, select, textarea {
-			color: #000000;
-			font-family: Verdana, Arial, Helvetica, sans-serif;
-			font-size: 12px;
-		}
-
-		td {
-			padding: 2px;
-		}
-
-		td.sq-title {
-			color: #000000;
-			background-color: #ffffff;
-			font-weight: bold;
-			font-size: 12px;
-		}
-
-		td.sq-warning {
-			font-size: 12px;
-			color: #ff0000;
-			background-color: #ffffff;
-			padding: 1px;
-		}
-
-		td.sq-current-user {
-			background-color: #725b7d;
-			color: #ffffff;
-			font-weight: bold;
-			font-size: 11px;
-		}
-
-		td.sq-message {
-			font-size: 10px;
-			background-color: #ffffff;
-		}
-
-		td.sq-main-field {
-			color: #ffffff;
-			background-color: #402F48;
-			font-weight: bold;
-		}
-
-		td.sq-bottom-field {
-			color: #000000;
-			background-color: #a596ac;
-		}
-
-		.sq-field {
-			color: #000000;
-			background-color: #e0e0e0;
-			font-family:  Verdana, Arial, Helvetica, sans-serif;
-			font-size: 11px;
-			font-weight: bold;
-		}
-
-		.sq-data {
-			color: #000000;
-			background-color: #ffffff;
-			font-family: Verdana, Arial, Helvetica, sans-serif;
-			font-size: 11px;
-		}
-	</style>
+    <title>Change Password</title>
+    <link rel="stylesheet" type="text/css" href="mysource_files/password_change_styles.css" />
+    <style type="text/css">
+        h3 {
+            background-image: url(mysource_files/swish.gif);
+        }
+        .sq-credentials-section {
+            background-image: url(mysource_files/login_image.gif);
+        }
+    </style>
 </head>
-<body marginwidth="0" marginheight="0" leftmargin="0" topmargin="0">
-<MySource_AREA id_name="password_change_form" design_area="password_change_form">
-<table height="100%" width="100%"cellspacing="0" cellpadding="0" border="0"><tr><td align="center" valign="middle">
-<script language="JavaScript" type="text/javascript">
-	<!--
-		var system_messages = '<MySource_PRINT var="system_messages" escape="yes" />';
-		if (system_messages.length) {
-			document.writeln('<table width="400" style="border-style: solid; border-color: #ff0000; border-width: 1px; padding: 1px;"><tr><td class="sq-warning">');
-			document.writeln(system_messages);
-			document.writeln('</td></tr></table><br>');
-		}
-	// -->
-</script>
-<table width="400" style="border-style: solid; border-color: #000000; border-width: 1px; padding: 1px;">
-	<tr>
-		<td style="padding: 0px;">
-			<table border="0" cellspacing="0" cellpadding="0">
-				<tr>
-					<td style="padding: 0px; vertical-align: middle;"><img src="mysource_files/swish.gif" width="20" height="20" border="0" align="left" alt="Logo" /></td>
-					<td class="sq-title">
-						<MySource_PRINT var="password_change_heading" />
-					</td>
-				</tr>
-			</table>
-		</td>
-	</tr>
-<MySource_PASSWORD_CHANGE_SECTION>
-	<MySource_SET name="give_password_old_focus" value="true" />
-	<MySource_SET name="forward_www_vars"    value="true" />
-	<MySource_PRINT var="form_open" />
-	<tr>
-		<td class="sq-current-user">
-			Currently Logged in as : <MySource_PRINT id_name="__global__" var="current_user" default="[Not Logged In]" attr="name" />
-		</td>
-	</tr>
-	<tr>
-		<td class="sq-message">
-			<MySource_PRINT var="password_change_message" />
-		</td>
-	</tr>
-	<tr>
-		<td class="sq-main-field">
-			<table cellpadding="0" cellspacing="0" border="0" width="100%">
-				<tr>
-					<td>
-						<img src="mysource_files/login_image.gif" width="157" height="87" border="0" alt="Password Change Icon" />
-					</td>
-					<td>
-						<table width="100%" border="0" cellspacing="0" cellpadding="3">
-							<tr>
-								<td nowrap class="sq-main-field">
-									Old Password:
-								</td>
-								<td width="100%">
-									<MySource_PRINT var="password_old_box" size="10" class="sq-data" />
-								</td>
-							</tr>
-							<tr>
-								<td nowrap class="sq-main-field">
-									New Password:
-								</td>
-								<td width="100%">
-									<MySource_PRINT var="password_new_box" size="10" class="sq-data" />
-								</td>
-							</tr>
-							<tr>
-								<td nowrap class="sq-main-field">
-									Confirm New Password:
-								</td>
-								<td width="100%">
-									<MySource_PRINT var="password_confirm_box" size="10" class="sq-data" />
-								</td>
-							</tr>
-						</table>
-					</td>
-				</tr>
-			</table>
-		</td>
-	</tr>
-	<tr>
-		<td style="padding: 0px; background-color: #ffffff;"><img src="mysource_files/blank.gif" width="1" height="1" alt="blank" border="0" /></td>
-	</tr>
-	<tr>
-		<td class="sq-bottom-field" style="text-align: right;">
-			<MySource_PRINT var="submit_button" value="Change Password -&gt;" class="sq-data" />
-		</td>
-	</tr>
-	<MySource_PRINT var="form_close" />
-</MySource_PASSWORD_CHANGE_SECTION>
-</table>
-</td></tr></table>
-</MySource_AREA>
+
+<body>
+    <MySource_AREA id_name="password_change_form" design_area="password_change_form">
+        <div id="sq-messages"><MySource_PRINT var="system_messages" /></div>
+        <script type="text/javascript"><!--
+        //<![CDATA[
+            var msgsDiv = document.getElementById('sq-messages');
+            if (msgsDiv.innerHTML.replace( /\s/g, '') == '') {
+                msgsDiv.style.display = 'none';
+            }
+        //]]> -->
+        </script>
+
+        <MySource_PASSWORD_CHANGE_SECTION>
+            <MySource_SET name="give_password_old_focus" value="true" />
+            <MySource_SET name="forward_www_vars"    value="true" />
+            <MySource_PRINT var="form_open" />
+                <h3><MySource_PRINT var="password_change_heading" /></h3>
+                <p class="sq-current-user">Currently Logged in as
+                <MySource_PRINT id_name="__global__" var="current_user" default="[Not Logged In]" attr="name" /></p>
+                <p class="sq-login-message"><MySource_PRINT var="password_change_message" /></p>
+                <div class="sq-credentials-section">
+                    <table border="0">
+                        <tr>
+                            <th>Old Password:</th>
+                            <td><MySource_PRINT var="password_old_box" size="10" class="sq-data" /></td>
+                        </tr>
+                        <tr>
+                            <th>New Password:</th>
+                            <td><MySource_PRINT var="password_new_box" size="10" class="sq-data" /></td>
+                        </tr>
+                        <tr>
+                            <th>Confirm New Password:</th>
+                            <td><MySource_PRINT var="password_confirm_box" size="10" class="sq-data" /></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="sq-commit-section">
+                    <MySource_PRINT var="submit_button" value="Update Password -&gt;" class="sq-data" />
+                </div>
+                
+            <MySource_PRINT var="form_close" />
+        </MySource_PASSWORD_CHANGE_SECTION>
+    </MySource_AREA>
 </body>
 </html>
