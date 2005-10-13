@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: index.html,v 1.3 2005/10/13 04:17:14 tbarrett Exp $
+* $Id: index.html,v 1.4 2005/10/13 04:46:48 tbarrett Exp $
 *
 */
 -->
@@ -40,10 +40,10 @@
 
 <body>
     <MySource_AREA id_name="password_change_form" design_area="password_change_form">
-        <div id="sq-messages"><MySource_PRINT var="system_messages" /></div>
+        <div id="sq-message" class="sq-message"><MySource_PRINT var="system_messages" /></div>
         <script type="text/javascript"><!--
         //<![CDATA[
-            var msgsDiv = document.getElementById('sq-messages');
+            var msgsDiv = document.getElementById('sq-message');
             if (msgsDiv.innerHTML.replace( /\s/g, '') == '') {
                 msgsDiv.style.display = 'none';
             }
