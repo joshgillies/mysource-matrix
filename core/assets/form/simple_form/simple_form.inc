@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.9 2005/09/30 06:29:09 lwright Exp $
+* $Id: simple_form.inc,v 1.10 2005/10/13 05:42:00 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -634,11 +634,12 @@ class Simple_Form extends Asset
 		foreach ($this->attr('questions') as $shadowid => $data) {
 			// get the question
 			$assetid = $this->id.':q'.$shadowid;
+			$name = 'q'.$assetid;
 			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			// set the value and check whether it's valid
-			if (isset($_POST[$assetid])) {
-				$q->setValue($_POST[$assetid]);
+			if (isset($_POST[$name])) {
+				$q->setValue($_POST[$name]);
 			}
 			$valid = $q->hasValidValue();
 
