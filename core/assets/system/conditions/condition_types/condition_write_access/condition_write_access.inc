@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_write_access.inc,v 1.7 2005/05/11 06:04:57 lwright Exp $
+* $Id: condition_write_access.inc,v 1.8 2005/10/13 02:07:38 tbarrett Exp $
 *
 */
 
@@ -33,12 +33,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Condition_Write_Access extends Condition
 {
+
 
 	/**
 	* Constructor
@@ -54,32 +55,15 @@ class Condition_Write_Access extends Condition
 
 
 	/**
-	* Get list of match options
-	*
-	* @return Array
-	* @access public
-	*/
-	function getOptions()
-	{
-		$options = Array(
-					   '1' => translate('condition_has_write_access'),
-					   '0' => translate('condition_not_write_access'),
-					   );
-		
-		return $options;
-		
-	}//end getOptions()
-
-
-	/**
 	* Evaluate this condition
 	*
-	* @param object Asset	&$asset	the asset to evaluate against
+	* @param object Asset	&$asset			the asset to evaluate against
+	* @param array			$condition_data	the condition details to use when evaluating
 	*
 	* @return boolean
 	* @access public
 	*/
-	function evaluate(&$asset)
+	function evaluate(&$asset, $condition_data)
 	{
 		// first, check if someone's logged in
 		if ($GLOBALS['SQ_SYSTEM']->userPublic()) return false;
@@ -94,5 +78,4 @@ class Condition_Write_Access extends Condition
 
 
 }//end class
-
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition.inc,v 1.6 2005/05/11 06:04:56 lwright Exp $
+* $Id: condition.inc,v 1.7 2005/10/13 02:07:36 tbarrett Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Condition extends Asset
 {
+
 
 	/**
 	* Constructor
@@ -50,42 +51,23 @@ class Condition extends Asset
 
 	}//end constructor
 
-	
-	/**
-	 * Returns the list of possible result value with their description.
-	 * 
-	 * @return Array(value => description)
-	 * @access public
-	 */
-	function getOperators()
-	{
-		return Array(
-						'1' => translate('matches'),
-						'0' => translate('does_not_match'),
-					);
-		
-	}//end getOperators()
-	
-	
+
 	/**
 	* Static function to evaluates a particular condition.
-	*  
+	*
 	* Like evaluate() but takes the whole restriction into account.
-	* 
+	*
 	* This helps making the condition restrictions totally transparant for the
 	* client class (i.e. they don't need to understand or manipulate its
 	* content).
-	* 
-	* @param User	$asset			a user asset (or child of User class)
-	* @param Array	$restriction 	a restriction array as returned by
-	* 
-	* 									processEditInterface()
-	* 									Array(
+	*
+	* @param object	&$asset					a user asset (or child of User class)
+	* @param array	&$restriction			a restriction array as returned by processEditInterface()
+	* 										Array(
 	* 											'match' => 1|0,
 	* 											'condition_data'=> Array()
-	* 									)
-	* @param string	$condition_type_code	condition type code to evaluate,
-	* 								class name of an extended condition
+	* 										)
+	* @param string	$condition_type_code	condition type code to evaluate
 	*
 	* @return boolean
 	* @access public
@@ -93,24 +75,25 @@ class Condition extends Asset
 	function evaluateRestriction(&$asset, &$restriction, $condition_type_code)
 	{
 		$condition_data = empty($restriction['condition_data']) ? Array() : $restriction['condition_data'];
-		$evaluation_instruction = '$ret = ' . $condition_type_code . '::evaluate($asset, $condition_data);';
-		
+		$evaluation_instruction = '$ret = '.$condition_type_code.'::evaluate($asset, $condition_data);';
+
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($condition_type_code);
 		eval($evaluation_instruction);
 
-		if (isset($restriction) && (isset($restriction['match'])) && !$restriction['match']) $ret = !$ret;
-		
+		if (isset($restriction) && (isset($restriction['match'])) && !$restriction['match']) {
+			$ret = !$ret;
+		}
+
 		return $ret;
 
 	}//end evaluateRestriction()
-	
+
 
 	/**
-	* Evaluate this condition - needs to be overriden by the conditions themselves
+	* Evaluate this condition
 	*
-	* @param User Asset $asset			a user asset
-	* @param Array		$condition_data	a the condition configuration Array
-	* 									content is specific to the condition.
+	* @param object	&$asset			the asset to evaluate against
+	* @param array	$condition_data	the condition details to use when evaluating
 	*
 	* @return boolean
 	* @access public

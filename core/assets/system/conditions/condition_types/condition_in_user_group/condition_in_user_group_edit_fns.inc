@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_in_user_group_edit_fns.inc,v 1.2 2005/05/11 06:04:56 lwright Exp $
+* $Id: condition_in_user_group_edit_fns.inc,v 1.3 2005/10/13 02:07:37 tbarrett Exp $
 *
 */
 
@@ -33,12 +33,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Condition_In_User_Group_Edit_Fns extends Condition_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -48,69 +49,81 @@ class Condition_In_User_Group_Edit_Fns extends Condition_Edit_Fns
 	function Condition_In_User_Group_Edit_Fns()
 	{
 		$this->Condition_Edit_Fns();
-		
+
 	}//end constructor
 
-	
+
 	/**
 	* Paint the backend editing interface for this condition
+	*
+	* @param array		&$condition_data	Array of settings for this condition
+	* @param object		&$o					Backend outputter to use
+	* @param string		$prefix				Prefix for form elements
+	* @param boolean	$write_access		Whether we have access to edit the field values
 	*
 	* @return void
 	* @access public
 	*/
-	function paintEditInterface(&$asset, &$o, $prefix, &$restriction, $write_access)
+	function paintEditInterface(&$condition_data, &$o, $prefix, $write_access)
 	{
-		$options = $asset->getOptions();
-		
-		if (!$write_access) {
-			$o->openField(translate('condition_details'));
-				$o->note(translate('condition_user_is', strtolower($options[$restriction['match']])));
-			$o->closeField();
-		} else {
-			$o->openField(translate('match_condition'));
-				combo_box($prefix.'[match]', $options, false, $restriction['match']);
-			$o->closeField();
-			
-			$o->openField(translate('user_groups'));
-				multiple_asset_finder($prefix.'[groupids]', array_get_index($restriction['condition_data'], 'groupids', Array()), Array('user_group' => 'D'));
-			$o->closeField();
-		}
-		return true;
-		
+		?>
+		<table class="no-borders">
+			<tr>
+				<td><strong><?php echo translate('user_groups'); ?></strong>&nbsp;</td>
+				<td>
+					<?php
+						if ($write_access) {
+							multiple_asset_finder($prefix.'[groupids]', array_get_index($condition_data, 'groupids', Array()), Array('user_group' => 'D'));
+						} else {
+							if (empty($condition_data['groupids'])) {
+								echo translate('no_user_groups_selected');
+							} else {
+								$names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($condition_data['groupids'], 'user_group', false, 'name');
+								?>
+								<ul>
+								<?php
+								foreach ($names as $id => $name) {
+									?>
+									<li><?php echo $name; ?> (ID #<?php echo $id; ?>)</li>
+									<?php
+								}
+								?>
+								</ul>
+								<?php
+							}
+						}
+					?>
+				</td>
+			</tr>
+		</table>
+		<?php
+
 	}//end paintEditInterface()
 
-	
+
 	/**
 	* Process the backend editing interface for this condition
 	*
-	* @return Array 
+	* @param object		&$o		Backend outputter to use
+	* @param string		$prefix	Prefix for form elements
+	*
+	* @return array
 	* @access public
 	*/
-	function processEditInterface(&$asset, &$o, $prefix, &$restriction, $write_access)
+	function processEditInterface(&$o, $prefix)
 	{
 		if (empty($_POST[$prefix])) return Array();
 
 		$groupids = Array();
-		foreach($_POST[$prefix]['groupids'] as $data) {
+		foreach ($_POST[$prefix]['groupids'] as $data) {
 			if (empty($data['assetid'])) continue;
 			$groupids[] = $data['assetid'];
 		}
 
-		// construct and return data required by this condition
-		// as found in the post data, array required consists of
-		// 'match' and 'condition_data'
-		$results = Array(
-			'condition_data' => Array(
-				'groupids' => $groupids,
-			),
-			'match' => $_POST[$prefix]['match'],
-		);
-		
-		return $results;
-		
-	}//end processEditInterface()
-	
-	
-}//end class
+		return Array('groupids' => $groupids);
 
+	}//end processEditInterface()
+
+
+}//end class
 ?>

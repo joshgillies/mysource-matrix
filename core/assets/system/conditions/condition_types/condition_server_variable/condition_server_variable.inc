@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_server_variable.inc,v 1.2 2005/08/08 06:15:39 dmckee Exp $
+* $Id: condition_server_variable.inc,v 1.3 2005/10/13 02:07:37 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,31 +55,15 @@ class Condition_Server_Variable extends Condition
 
 
 	/**
-	* Get list of match options
-	*
-	* @return Array
-	* @access public
-	*/
-	function getOptions()
-	{
-		$options = Array(
-					'match_options'		=> Array(
-											'1'	=> translate('matches'),
-											'0'	=> translate('does_not_match'),
-										   ),
-				   );
-
-		return $options;
-	}//end getOptions()
-
-
-	/**
 	* Evaluate this condition
+	*
+	* @param object Asset	&$asset			the asset to evaluate against
+	* @param array			$condition_data	the condition details to use when evaluating
 	*
 	* @return boolean
 	* @access public
 	*/
-	function evaluate($asset, $condition_data)
+	function evaluate(&$asset, $condition_data)
 	{
 		if (!isset($condition_data['server_variable']) || !isset($condition_data['server_variable_match'])) {
 			return false;

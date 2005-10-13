@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_in_user_group_management.inc,v 1.1 2005/04/05 18:34:21 brobertson Exp $
+* $Id: condition_in_user_group_management.inc,v 1.2 2005/10/13 02:07:37 tbarrett Exp $
 *
 */
 
@@ -30,15 +30,18 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Condition_In_User_Group_Management extends Asset_Management
 {
 
+
 	/**
 	* Constructor
+	*
+	* @param object	&$pm	The package manager
 	*
 	*/
 	function Condition_In_User_Group_Management(&$pm)
@@ -46,6 +49,7 @@ class Condition_In_User_Group_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 	}//end constructor
+
 
 }//end class
 ?>

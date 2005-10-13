@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_write_access_edit_fns.inc,v 1.5 2005/05/11 06:04:57 lwright Exp $
+* $Id: condition_write_access_edit_fns.inc,v 1.6 2005/10/13 02:07:38 tbarrett Exp $
 *
 */
 
@@ -33,12 +33,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Condition_Write_Access_Edit_Fns extends Condition_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -50,50 +51,6 @@ class Condition_Write_Access_Edit_Fns extends Condition_Edit_Fns
 		$this->Condition_Edit_Fns();
 
 	}//end constructor
-
-
-	/**
-	* Paint the backend editing interface for this condition
-	*
-	* @return void
-	* @access public
-	*/
-	function paintEditInterface(&$asset, &$o, $prefix, &$restriction, $write_access)
-	{
-		$options = $asset->getOptions();
-
-		if (!$write_access) {
-			$o->openField(translate('condition_details'));
-				$o->note(translate('condition_user', strtolower($options[$restriction['match']])));
-			$o->closeField();
-		} else {
-			$o->openField(translate('match_condition'));
-				combo_box($prefix.'[match]', $options, false, $restriction['match']);
-			$o->closeField();
-		}
-		return true;
-
-	}//end paintEditInterface()
-
-
-	/**
-	* Process the backend editing interface for this condition
-	*
-	* @return Array
-	* @access public
-	*/
-	function processEditInterface(&$asset, &$o, $prefix, &$restriction, $write_access)
-	{
-		// construct and return data required by this condition
-		// as found in the post data, array required consists of
-		// 'match' and 'condition_data'
-		$results = Array(
-			'match' => $_POST[$prefix]['match'],
-		);
-
-		return $results;
-
-	}//end processEditInterface()
 
 
 }//end class

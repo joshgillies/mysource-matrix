@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_server_variable_edit_fns.inc,v 1.1 2005/08/08 05:54:21 dmckee Exp $
+* $Id: condition_server_variable_edit_fns.inc,v 1.2 2005/10/13 02:07:38 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_ATTRIBUTES_PATH.'/selection/selection.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,36 +57,45 @@ class condition_server_variable_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Paint the backend editing interface for this condition
 	*
+	* @param array		&$condition_data	Array of settings for this condition
+	* @param object		&$o					Backend outputter to use
+	* @param string		$prefix				Prefix for form elements
+	* @param boolean	$write_access		Whether we have access to edit the field values
+	*
 	* @return void
 	* @access public
 	*/
-	function paintEditInterface(&$asset, &$o, $prefix, &$restriction, $write_access)
+	function paintEditInterface(&$condition_data, &$o, $prefix, $write_access)
 	{
-		$options = $asset->getOptions();
-
-		if (!isset($restriction['condition_data'])) {
-			$restriction['condition_data'] = Array();
-		}
-
-		if (!$write_access) {
-			$o->openField(translate('condition_details'));
-				$o->note(translate('condition_server_variable', array_get_index($restriction['condition_data'], 'server_variable', ''), $options['match_options'][array_get_index($restriction, 'match', 1)], array_get_index($restriction['condition_data'], 'server_variable_match', '')));
-			$o->closeField();
-		} else {
-			$o->openField(translate('match_condition'));
-				combo_box($prefix.'[match]', $options['match_options'], false, $restriction['match']);
-			$o->closeField();
-
-			$o->openField(translate('server_variable'));
-				text_box($prefix.'[server_variable]', array_get_index($restriction['condition_data'], 'server_variable', ''), 30);
-			$o->closeField();
-
-			$o->openField(translate('condition'));
-				text_box($prefix.'[server_variable_match]', array_get_index($restriction['condition_data'], 'server_variable_match'), 30);
-			$o->closeField();
-		}
-		$o->sectionNote(translate('condition_server_variable_is_regular_expression_enabled'));
-		return true;
+		?>
+		<table style="width: auto" class="no-borders">
+			<tr>
+				<td><?php echo translate('server_variable'); ?>: </td>
+				<td>
+					<?php
+					if ($write_access) {
+						text_box($prefix.'[server_variable]', array_get_index($condition_data, 'server_variable', ''), 30);
+					} else {
+						echo array_get_index($condition_data, 'server_variable', '');
+					}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<td><?php echo translate('pattern'); ?>: </td>
+				<td>
+					<?php
+					if ($write_access) {
+						text_box($prefix.'[server_variable_match]', array_get_index($condition_data, 'server_variable_match'), 30);
+					} else {
+						echo array_get_index($condition_data, 'server_variable_match', '');
+					}
+					?>
+				</td>
+			</tr>
+		</table>
+		<?php echo translate('condition_server_variable_is_regular_expression_enabled'); ?>
+		<?php
 
 	}//end paintEditInterface()
 
@@ -94,19 +103,17 @@ class condition_server_variable_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Process the backend editing interface for this condition
 	*
-	* @return Array
+	* @param object		&$o		Backend outputter to use
+	* @param string		$prefix	Prefix for form elements
+	*
+	* @return array
 	* @access public
 	*/
-	function processEditInterface(&$asset, &$o, $prefix, &$restriction, $write_access)
+	function processEditInterface(&$o, $prefix)
 	{
-		// Construct condition_data from Edit Interface
-		// Condition needs 'match', 'server_variable' and 'server_variable_match'
 		$results = Array(
-					'condition_data'	=> Array(
-											'server_variable'		=> $_POST[$prefix]['server_variable'],
-											'server_variable_match'	=> $_POST[$prefix]['server_variable_match'],
-										   ),
-					'match'				=> $_POST[$prefix]['match'],
+					'server_variable'		=> $_POST[$prefix]['server_variable'],
+					'server_variable_match'	=> $_POST[$prefix]['server_variable_match'],
 				   );
 		return $results;
 

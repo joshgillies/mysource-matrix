@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_logged_in.inc,v 1.6 2005/05/11 06:04:56 lwright Exp $
+* $Id: condition_logged_in.inc,v 1.7 2005/10/13 02:07:37 tbarrett Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Condition_Logged_In extends Condition
 {
+
 
 	/**
 	* Constructor
@@ -52,30 +53,15 @@ class Condition_Logged_In extends Condition
 
 
 	/**
-	* Get list of match options
-	*
-	* @return Array
-	* @access public
-	*/
-	function getOptions()
-	{
-		$options = Array(
-					   '1' => translate('condition_logged_in'),
-					   '0' => translate('condition_not_logged_in'),
-					   );
-		
-		return $options;
-		
-	}//end getOptions()
-	
-	
-	/**
 	* Evaluate this condition
+	*
+	* @param object		&$asset			the asset to evaluate against
+	* @param array		$condition_data	the condition details to use when evaluating
 	*
 	* @return boolean
 	* @access public
 	*/
-	function evaluate()
+	function evaluate(&$asset, $condition_data)
 	{
 		return !$GLOBALS['SQ_SYSTEM']->userPublic();
 

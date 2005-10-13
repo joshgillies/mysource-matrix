@@ -18,22 +18,22 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_frequency.inc,v 1.2 2005/10/13 00:05:07 dheppell Exp $
+* $Id: condition_user_frequency.inc,v 1.3 2005/10/13 02:07:38 tbarrett Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 
 /**
-* Condition_User_IP
+* User Frequency Condition
 *
 * Purpose
-*     This condition compares the IP address of the current visitor against a
-*     specified comparison address
-*
+*    This condition returns true or false depending on the comparison between
+*    its parameters and the number of times the condition has been evaluated by
+*    the current user.  (It sets a cookie to keep track of this).
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,24 +52,6 @@ class Condition_User_Frequency extends Condition
 		$this->Condition($assetid);
 
 	}//end constructor
-
-
-	/**
-	* Get list of match options
-	*
-	* @return array
-	* @access public
-	*/
-	function getOptions()
-	{
-		$options = Array(
-					'1'	=> translate('matches'),
-					'0'	=> translate('does_not_match'),
-				   );
-
-		return $options;
-
-	}//end getOptions()
 
 
 	/**

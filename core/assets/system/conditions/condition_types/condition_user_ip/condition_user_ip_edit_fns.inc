@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_ip_edit_fns.inc,v 1.4 2005/05/11 06:04:56 lwright Exp $
+* $Id: condition_user_ip_edit_fns.inc,v 1.5 2005/10/13 02:07:38 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,29 +57,33 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Paint the backend editing interface for this condition
 	*
+	* @param array		&$condition_data	Array of settings for this condition
+	* @param object		&$o					Backend outputter to use
+	* @param string		$prefix				Prefix for form elements
+	* @param boolean	$write_access		Whether we have access to edit the field values
+	*
 	* @return void
 	* @access public
 	*/
-	function paintEditInterface(&$asset, &$o, $prefix, &$restriction, $write_access)
+	function paintEditInterface(&$condition_data, &$o, $prefix, $write_access)
 	{
-		$options = $asset->getOptions();
-
-		if (!$write_access) {
-			$o->openField(translate('condition_details'));
-
-				$o->note(translate('condition_user_ip', strtolower($options[$restriction['match']]), (isset($restriction['condition_data']['user_ip'])) ? $restriction['condition_data']['user_ip'] : ''));
-			$o->closeField();
-		} else {
-			$o->openField(translate('match_condition'));
-				combo_box($prefix.'[match]', $options, false, $restriction['match']);
-			$o->closeField();
-
-			$o->openField(translate('compare_to_ip'));
-				text_box($prefix.'[compare]', array_get_index($restriction['condition_data'], 'user_ip', ''), 30);
-			$o->closeField();
-		}
-		$o->sectionNote(translate('condition_user_ip_wildcard_enabled'));
-		return true;
+		?>
+		<table style="width: auto" class="no-borders">
+			<tr>
+				<td><?php echo translate('ip_address_expression'); ?>: </td>
+				<td>
+					<?php
+					if ($write_access) {
+						text_box($prefix.'[compare]', array_get_index($condition_data, 'user_ip', ''), 30);
+					} else {
+						echo array_get_index($condition_data, 'user_ip', '');
+					}
+					?>
+				</td>
+			</tr>
+		</table>
+		<?php echo translate('condition_user_ip_wildcard_enabled'); ?>
+		<?php
 
 	}//end paintEditInterface()
 
@@ -87,20 +91,20 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Process the backend editing interface for this condition
 	*
-	* @return Array
+	* @param object		&$o		Backend outputter to use
+	* @param string		$prefix	Prefix for form elements
+	*
+	* @return array
 	* @access public
 	*/
-	function processEditInterface(&$asset, &$o, $prefix, &$restriction, $write_access)
+	function processEditInterface(&$o, $prefix)
 	{
 		// construct and return data required by this condition
 		// as found in the post data, array required consists of
 		// 'match' and 'condition_data'
 		$results = Array(
-			'condition_data' => Array(
-				'user_ip' => $_POST[$prefix]['compare'],
-			),
-				'match' => $_POST[$prefix]['match'],
-		);
+					'user_ip'	=> $_POST[$prefix]['compare'],
+				   );
 
 		return $results;
 

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_frequency_edit_fns.inc,v 1.1 2005/10/06 01:01:40 dheppell Exp $
+* $Id: condition_user_frequency_edit_fns.inc,v 1.2 2005/10/13 02:07:38 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,18 +56,17 @@ class Condition_User_Frequency_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Paint the backend editing interface for this condition
 	*
-	* @param object		&$asset			The asset we are working with
-	* @param object		&$o				The backend outputter object
-	* @param string		$prefix			Contition prefix value
-	* @param array		&$restriction	The assets restriction data to work with
-	* @param boolean	$write_access	Whether or not we have write access
+	* @param array		&$condition_data	Array of settings for this condition
+	* @param object		&$o					Backend outputter to use
+	* @param string		$prefix				Prefix for form elements
+	* @param boolean	$write_access		Whether we have access to edit the field values
 	*
 	* @return void
 	* @access public
 	*/
-	function paintEditInterface(&$asset, &$o, $prefix, &$restriction, $write_access)
+	function paintEditInterface(&$condition_data, &$o, $prefix, $write_access)
 	{
-		return true;
+		bam("Edit interface for user freq cond");
 
 	}//end paintEditInterface()
 
@@ -75,16 +74,13 @@ class Condition_User_Frequency_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Process the backend editing interface for this condition
 	*
-	* @param object		&$asset			The asset we are working with
-	* @param object		&$o				The backend outputter object
-	* @param string		$prefix			Contition prefix value
-	* @param array		&$restriction	The assets restriction data to work with
-	* @param boolean	$write_access	Whether or not we have write access
+	* @param object		&$o		Backend outputter to use
+	* @param string		$prefix	Prefix for form elements
 	*
 	* @return array
 	* @access public
 	*/
-	function processEditInterface(&$asset, &$o, $prefix, &$restriction, $write_access)
+	function processEditInterface(&$o, $prefix)
 	{
 		return true;
 

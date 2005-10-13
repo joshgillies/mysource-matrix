@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_in_user_group.inc,v 1.2 2005/05/11 06:04:56 lwright Exp $
+* $Id: condition_in_user_group.inc,v 1.3 2005/10/13 02:07:37 tbarrett Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Condition_In_User_Group extends Condition
 {
+
 
 	/**
 	* Constructor
@@ -52,25 +53,10 @@ class Condition_In_User_Group extends Condition
 
 
 	/**
-	* Get list of match options
-	*
-	* @return Array
-	* @access public
-	*/
-	function getOptions()
-	{
-		$options = Array(
-					   '1' => translate('condition_in_user_group'),
-					   '0' => translate('condition_not_in_user_group'),
-					   );
-		
-		return $options;
-		
-	}//end getOptions()
-	
-	
-	/**
 	* Evaluate this condition
+	*
+	* @param object		&$asset			the asset to evaluate against
+	* @param array		$condition_data	the condition details to use when evaluating
 	*
 	* @return boolean
 	* @access public
@@ -80,7 +66,7 @@ class Condition_In_User_Group extends Condition
 		if ($GLOBALS['SQ_SYSTEM']->userPublic()) return false;
 		if (empty($condition_data['groupids'])) return false;
 
-		// because a user can theoretically use conditions to be part of groups 
+		// because a user can theoretically use conditions to be part of groups
 		// we need to make sure that we aren't going to recurse infinetly
 		static $evaluate_called = false;
 		if ($evaluate_called) return false;

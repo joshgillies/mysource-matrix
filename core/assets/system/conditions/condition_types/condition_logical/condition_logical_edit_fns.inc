@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_logical_edit_fns.inc,v 1.3 2005/05/11 06:04:56 lwright Exp $
+* $Id: condition_logical_edit_fns.inc,v 1.4 2005/10/13 02:07:37 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Condition_Edit_Fns
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,42 +55,32 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Paint the backend editing interface for this condition
 	*
+	* @param array		&$condition_data	Array of settings for this condition
+	* @param object		&$o					Backend outputter to use
+	* @param string		$prefix				Prefix for form elements
+	* @param boolean	$write_access		Whether we have access to edit the field values
+	*
 	* @return void
 	* @access public
 	*/
-	function paintEditInterface(&$asset, &$o, $prefix, &$restriction, $write_access, $allowed_keywords=Array())
+	function paintEditInterface(&$condition_data, &$o, $prefix, $write_access, $allowed_keywords)
 	{
-		$options = $asset->getOptions();
-
-		if (empty($restriction['condition_data'])) {
+		if (empty($condition_data)) {
 			$condition_data =  Array('logical_keywords' => Array('logical_keyword_1' => ''), 'operator' => 'ALL');
-		} else {
-			$condition_data = $restriction['condition_data'];
 		}
+		?>
+		<table class="no-borders">
+			<?php
+			$selected_keywords = array_keys($condition_data['logical_keywords']);
+			$selected_keywords['-- none --'] = '-- '.strtolower(translate('none')).' --';
 
-		if (!$write_access) {
-			$o->openField(translate('logical_keywords'));
-			echo join(array_keys($condition_data['logical_keywords']), ', ');
-			$o->closeField();
+			$keyword_options = Array();
+			foreach ($allowed_keywords as $keyword) {
+				$keyword_options[$keyword] = $keyword;
+			}
 
-			$o->openField(translate('operator'));
-			echo $condition_data['operator'];
-			$o->closeField();
-
-			$o->openField(translate('condition_details'));
-				$o->note(translate('expression_must_be', strtolower($options[$restriction['match']])));
-			$o->closeField();
-		} else {
+			$i = 0;
 			if (!empty($allowed_keywords)) {
-				$selected_keywords = array_keys($condition_data['logical_keywords']);
-				$selected_keywords['-- none --'] = '-- '.strtolower(translate('none')).' --';
-
-				$keyword_options = Array();
-				foreach ($allowed_keywords as $keyword) {
-					$keyword_options[$keyword] = $keyword;
-				}
-
-				$i = 0;
 				foreach ($selected_keywords as $keyword) {
 					$special_option = Array();
 					if ($i == (count($selected_keywords) - 1)) {
@@ -100,37 +90,47 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 					}
 
 					$keyword_info = $this->_getKeywordInfo($keyword, $allowed_keywords);
-
-					$o->openField(translate('logical_keyword').' ' . $i);
-					combo_box($prefix.'[keyword' . $i . ']', array_merge($special_option, $keyword_options), false, $keyword_info['constant_part']);
-					$o->closeField();
-
-					// This is a special case for generic/variable keywords (like asset_metadata_)
-					// which name must be completed.
-					// For those keywords, we show an additional box to type the rest of the name
-					if ($keyword_info['is_variable']) {
-						$o->openField($keyword_info['constant_part']);
-						text_box($prefix.'[name_extension_' . $i . ']', $keyword_info['variable_part'], 30);
-						$o->closeField();
-					}
-
+					?>
+					<tr>
+						<td><strong><?php echo translate('logical_keyword').' ' . $i; ?></strong>&nbsp;</td>
+						<td>
+							<?php
+							if ($write_access) {
+								combo_box($prefix.'[keyword' . $i . ']', array_merge($special_option, $keyword_options), false, $keyword_info['constant_part']);
+								// This is a special case for generic/variable keywords (like asset_metadata_)
+								// which name must be completed.
+								// For those keywords, we show an additional box to type the rest of the name
+								if ($keyword_info['is_variable']) {
+									text_box($prefix.'[name_extension_' . $i . ']', $keyword_info['variable_part'], 30);
+								}
+							} else {
+								echo ($keyword_info['constant_part']).array_get_index($keyword_info, 'variable_part', '');
+							}
+							?>
+						</td>
+					</tr>
+					<?php
 					$i++;
 				}
 			} else {
-				$o->openField(translate('keywords_list'));
 				echo(translate('core_keyword_list_empty'));
-				$o->closeField();
 			}
-
-			$o->openField(translate('operator'));
-			combo_box($prefix.'[operator]', Array('ALL' => 'ALL', 'ANY' => 'ANY'), false, $condition_data['operator']);
-			$o->closeField();
-
-			$o->openField(translate('match_condition'));
-			combo_box($prefix.'[match]', $options, false, $restriction['match']);
-			$o->closeField();
-		}
-		return true;
+			?>
+			<tr>
+				<td><strong><?php echo translate('operator'); ?></strong></td>
+				<td>
+					<?php
+					if ($write_access) {
+						combo_box($prefix.'[operator]', Array('ALL' => 'AND', 'ANY' => 'OR'), false, $condition_data['operator']);
+					} else {
+						echo $condition_data['operator'];
+					}
+					?>
+				</td>
+			</tr>
+		</table>
+		Keywords are considered TRUE if their value is non-empty and nonzero.  Keywords are considered FALSE if their value is empty or zero.
+		<?php
 
 	}//end paintEditInterface()
 
@@ -138,10 +138,13 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Process the backend editing interface for this condition
 	*
-	* @return Array
+	* @param object		&$o					Backend outputter to use
+	* @param string		$prefix				Prefix for form elements
+	*
+	* @return array
 	* @access public
 	*/
-	function processEditInterface(&$asset, &$o, $prefix, &$restriction, $write_access, $allowed_keywords=Array())
+	function processEditInterface(&$o, $prefix, $allowed_keywords)
 	{
 		$logical_keywords = Array();
 
@@ -164,11 +167,8 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 		if (empty($logical_keywords)) $logical_keywords = Array('logical_keyword_1' => '');
 
 		$results = Array(
-			'match' => $_POST[$prefix]['match'],
-			'condition_data' => Array(
-				'logical_keywords' => $logical_keywords,
-				'operator' => $_POST[$prefix]['operator'],
-			),
+			'logical_keywords' => $logical_keywords,
+			'operator' => $_POST[$prefix]['operator'],
 		);
 
 		return $results;

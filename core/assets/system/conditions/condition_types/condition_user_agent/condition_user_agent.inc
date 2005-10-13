@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_agent.inc,v 1.3 2005/05/11 06:04:56 lwright Exp $
+* $Id: condition_user_agent.inc,v 1.4 2005/10/13 02:07:38 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,31 +55,19 @@ class Condition_User_Agent extends Condition
 
 
 	/**
-	* Get list of match options
-	*
-	* @return Array
-	* @access public
-	*/
-	function getOptions()
-	{
-		$options = Array(
-					   '1' => translate('matches'),
-					   '0' => translate('does_not_match'),
-					   );
-		
-		return $options;
-	}
-	
-	
-	/**
 	* Evaluate this condition
+	*
+	* @param object &$asset			the asset to evaluate against
+	* @param array	$condition_data	the condition details to use when evaluating
 	*
 	* @return boolean
 	* @access public
 	*/
-	function evaluate($asset, $condition_data)
+	function evaluate(&$asset, $condition_data)
 	{
-		if (!isset($condition_data['user_agent'])) return false;
+		if (!isset($condition_data['user_agent'])) {
+			return false;
+		}
 		$matches = preg_match('|'.$condition_data['user_agent'].'|i', $_SERVER['HTTP_USER_AGENT']);
 		return ($matches > 0);
 
@@ -87,5 +75,4 @@ class Condition_User_Agent extends Condition
 
 
 }//end class
-
 ?>

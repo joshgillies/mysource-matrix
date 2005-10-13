@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_logical.inc,v 1.2 2005/05/11 06:04:56 lwright Exp $
+* $Id: condition_logical.inc,v 1.3 2005/10/13 02:07:37 tbarrett Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 * of logical keywords.
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Condition_Logical extends Condition
 {
+
 
 	/**
 	* Constructor
@@ -52,59 +53,43 @@ class Condition_Logical extends Condition
 
 
 	/**
-	* Get list of match options
+	* Returns the list of logical keywords contianed in a condition_data
+	* structure
 	*
-	* @return Array
-	* @access public
+	* @param Array $condition_data 	a condition logical condition_data
+	* structure
+	*
+	* @return array
+	* @acces public
 	*/
-	function getOptions()
-	{
-		$options = Array(
-					   '1' => translate('true'),
-					   '0' => translate('false'),
-					   );
-		
-		return $options;
-		
-	}//end getOptions()
-	
-	
-	/**
-	 * Returns the list of logical keywords contianed in a condition_data
-	 * structure
-	 * 
-	 * @param Array $condition_data 	a condition logical condition_data
-	 * structure
-	 *
-	 * @return Array(keyword_name => value);
-	 * @acces public
-	 */
 	function getLogicalKeywords(&$condition_data)
 	{
 		return $condition_data['logical_keywords'];
-		
-	}
-	
-	
+
+	}//end getLogicalKeywords()
+
+
 	/**
-	 * Sets the logical keywords in a condition_data structure
-	 *
-	 * @param Array $condition_data		a condition logical condition_data
-	 * structure
-	 * @param Array $logical_keywords	an array of logical keywords
-	 * 
-	 * @return void
-	 * @acces public
-	 */
+	* Sets the logical keywords in a condition_data structure
+	*
+	* @param Array $condition_data		a condition logical condition_data structure
+	* @param Array $logical_keywords	an array of logical keywords
+	*
+	* @return void
+	* @acces public
+	*/
 	function setLogicalKeywords(&$condition_data, $logical_keywords)
 	{
 		$condition_data['logical_keywords'] = $logical_keywords;
-		
-	}
+
+	}//end setLogicalKeywords()
 
 
 	/**
 	* Evaluate this condition
+	*
+	* @param object Asset	&$asset			the asset to evaluate against
+	* @param array			$condition_data	the condition details to use when evaluating
 	*
 	* @return boolean
 	* @access public
@@ -112,13 +97,13 @@ class Condition_Logical extends Condition
 	function evaluate(&$asset, $condition_data)
 	{
 		$ret = false;
-		
-		if (!empty($condition_data['operator']) && !empty($condition_data['logical_keywords'])) {			
+
+		if (!empty($condition_data['operator']) && !empty($condition_data['logical_keywords'])) {
 			switch ($condition_data['operator']) {
 				case 'ALL':
 					$ret = true;
 					foreach ($condition_data['logical_keywords'] as $logical_value) {
-						if (!$logical_value) { 
+						if (!$logical_value) {
 							$ret = false;
 							break;
 						}
@@ -127,7 +112,7 @@ class Condition_Logical extends Condition
 				case 'ANY':
 					$ret = false;
 					foreach ($condition_data['logical_keywords'] as $logical_value) {
-						if ($logical_value) { 
+						if ($logical_value) {
 							$ret = true;
 							break;
 						}
@@ -135,7 +120,7 @@ class Condition_Logical extends Condition
 					break;
 			}
 		}
-		
+
 		return $ret;
 
 	}//end evaluate()

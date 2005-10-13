@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_simple_edit_mode_management.inc,v 1.4 2005/01/20 13:07:37 brobertson Exp $
+* $Id: condition_simple_edit_mode_management.inc,v 1.5 2005/10/13 02:07:38 tbarrett Exp $
 *
 */
 
@@ -30,12 +30,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Condition_Simple_Edit_Mode_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -46,6 +47,7 @@ class Condition_Simple_Edit_Mode_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 	}//end constructor
+
 
 }//end class
 ?>
