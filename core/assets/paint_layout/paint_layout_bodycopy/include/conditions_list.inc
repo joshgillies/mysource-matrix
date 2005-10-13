@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: conditions_list.inc,v 1.5 2005/08/01 04:31:01 ndvries Exp $
+* $Id: conditions_list.inc,v 1.6 2005/10/13 02:12:40 tbarrett Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('SQ_KEYWORD_CONDITION_ELSE', 'else');
 * parameters in a single attribute (of type Array).
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class Conditions_List
@@ -359,19 +359,25 @@ class Conditions_List
 
 				$o->openSection(ucwords(str_replace('_', ' ', $parameters['type_code'])));
 
-				// paint extra info (keyword name)
-				if (!$write_access) {
-					$o->openField(translate('keyword_name'));
-					echo $condition_name;
-					$o->closeField();
-				} else {
-					$o->openField(translate('keyword_name'));
+				// paint keyword name
+				$o->openField(translate('keyword_name'));
+				if ($write_access) {
 					text_box($condition_prefix.'_keyword_name', $condition_name, 30);
-					$o->closeField();
+				} else {
+					echo $condition_name;
+				}
+				$o->closeField();
 
-					$o->openField(translate('delete'));
-					check_box($condition_prefix.'_delete', $value='1', $checked=false);
-					$o->closeField();
+				// paint true/false bit
+				$o->openField('Keyword is true if: ');
+				$match_options = Array(
+									'1'	=> translate($parameters['type_code'].'_true'),
+									'0'	=> translate($parameters['type_code'].'_false'),
+								 );
+				if ($write_access) {
+					combo_box($condition_prefix.'_match', $match_options, false, $parameters['restriction']['match']);
+				} else {
+					echo $match_options[$parameters['restriction']['match']];
 				}
 
 				// let the condition paint itself
@@ -383,7 +389,22 @@ class Conditions_List
 					$parameters['restriction']['condition_data'] = Array();
 				}
 
-				$condition_edit_fns->paintEditInterface($condition, $o, $condition_prefix, $parameters['restriction'], $write_access, $allowed_keywords);
+				ob_start();
+					$condition_edit_fns->paintEditInterface($parameters['restriction']['condition_data'], $o, $condition_prefix,  $write_access, $allowed_keywords);
+					$condition_interface = ob_get_contents();
+				ob_end_clean();
+
+				if (!empty($condition_interface)) {
+					$o->openField(translate('options'));
+					echo $condition_interface;
+					$o->closeField();
+				}
+
+				if ($write_access) {
+					$o->openField(translate('delete'));
+					check_box($condition_prefix.'_delete', $value='1', $checked=false);
+					$o->closeField();
+				}
 
 				unset($condition_edit_fns);
 				unset($condition);
@@ -448,8 +469,9 @@ class Conditions_List
 					$condition_type = $parameters['type_code'];
 					$condition = &$this->_getConditionAsset($condition_type);
 					$condition_edit_fns = &$this->_getConditionAsset($condition_type, true);
-					$conditions_parameters_new[$new_name]['restriction'] = $condition_edit_fns->processEditInterface($condition, $o, $condition_prefix, $parameters['restriction'], $write_access, $allowed_keywords);
+					$conditions_parameters_new[$new_name]['restriction']['condition_data'] = $condition_edit_fns->processEditInterface($o, $condition_prefix, $allowed_keywords);
 					$conditions_parameters_new[$new_name]['type_code'] = $condition_type;
+					$conditions_parameters_new[$new_name]['restriction']['match'] = array_get_index($_POST, $condition_prefix.'_match', true);
 				}
 			}
 

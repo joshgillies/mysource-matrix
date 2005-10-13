@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.12 2005/09/02 04:12:11 ndvries Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.13 2005/10/13 02:12:40 tbarrett Exp $
 *
 */
 
@@ -49,7 +49,7 @@ require_once 'include/conditions_list.inc';
 * If an attribute is not recognised, the condition will be evaluated as false.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -179,7 +179,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		 * 1. any asset keywords
 		 * 2. %asset_content%
 		 *
-		 * Condition
+		 * CONDITIONAL KEYWORDS:
 		 *
 		 * 3. %begin_SUBSTITUTION_KEYWORD% ... %end_SUBSTITUTION_KEYWORD%
 		 *
