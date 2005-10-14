@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.18 2005/10/11 03:04:16 tbarrett Exp $
+* $Id: lang_errors.xml,v 1.19 2005/10/14 02:08:05 lwright Exp $
 *
 */
 
@@ -544,7 +544,7 @@
 	<error code="AMAP0018">Unable to Move Asset, %s</error>
 	<error code="AMAP0019">Unable to Move Asset, new parent (Asset #%s) not found</error>
 	<error code="AMAP0020">Unable to Clone Asset, existing parent (Asset #%s) not found</error>
-	<error code="AMAP0021">Unable to Clone Asset, Link #%s) not found</error>
+	<error code="AMAP0021">Unable to Clone Asset, Link #%s not found</error>
 	<error code="AMAP0022">Unable to Clone Asset, asset to be cloned (Asset #%s) not found</error>
 	<error code="AMAP0023">Unable to Clone Asset %1$s, Assets of type %2$s cannot be cloned</error>
 	<error code="AMAP0024">Unable to Clone Asset, new parent (Asset #%s) not found</error>
@@ -555,17 +555,17 @@
 	<error code="AMAP0029">Unable to Create New Link, can't create a new link to the trash</error>
 	<error code="AMAP0030">Unable to Move Asset, new parent (Asset #%s) not found</error>
 	<error code="AMAP0031">Unable to Move Asset, existing parent (Asset #%s) not found</error>
-	<error code="AMAP0032">Unable to Move Asset, Link #%s) not found</error>
+	<error code="AMAP0032">Unable to Move Asset, Link #%s not found</error>
 	<error code="AMAP0033">Unable to Move Asset, %s</error>
 	<error code="AMAP0034">Unable to Move Asset, asset to be moved (Asset #%s) not found</error>
 	<error code="AMAP0035">Unable to Clone Asset, new parent (Asset #%s) not found</error>
 	<error code="AMAP0036">Unable to Clone Asset, existing parent (Asset #%s) not found</error>
-	<error code="AMAP0037">Unable to Clone Asset, Link #%s) not found</error>
+	<error code="AMAP0037">Unable to Clone Asset, Link #%s not found</error>
 	<error code="AMAP0038">Unable to Clone Asset, asset to be cloned (Asset #%s) not found</error>
 	<error code="AMAP0039">Unable to Clone Asset %1$s, Assets of type %2$s cannot be cloned</error>
 	<error code="AMAP0040">Unable to Clone Asset, new parent (Asset #%s) not found</error>
 	<error code="AMAP0041">Unable to Create New Link, existing parent (Asset #%s) not found</error>
-	<error code="AMAP0042">Unable to Create New Link, Link #%s) not found</error>
+	<error code="AMAP0042">Unable to Create New Link, Link #%s not found</error>
 	<error code="AMAP0043">Unable to Create New Link, can't create a new link to the trash</error>
 
 	<!-- FILE VERSIONING -->
