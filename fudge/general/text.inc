@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.15.2.1 2005/10/13 23:48:33 sdanis Exp $
+* $Id: text.inc,v 1.15.2.2 2005/10/14 03:17:49 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15.2.1 $
+* @version $Revision: 1.15.2.2 $
 * @package Fudge
 * @subpackage Text
 */
@@ -101,11 +101,11 @@ function retrieve_keywords_replacements($text, $additional='')
 * @return array Keys: words; values: the word counts
 * @access public
 */
-function get_word_counts($text, $split_regexp='[ -]+', $word_match_regexp='[^ -]+',$min_length=1)
+function get_word_counts($text, $split_regexp="[\t\n\r\f\v ]+", $word_match_regexp="[^ \t\n\r\f\v]+", $min_length=1)
 {
 	$words = split($split_regexp, $text);
 	foreach ($words as $key => $word) {
-		$words[$key] = trim($word, " .:;,!?\"\'\t\n\r\0");
+		$words[$key] = trim($word, '.:;,!?\'"');
 	}
 
 	$word_counts = array_count_values($words);
