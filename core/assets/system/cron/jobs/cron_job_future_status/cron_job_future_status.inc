@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.29 2005/09/07 06:16:47 dmckee Exp $
+* $Id: cron_job_future_status.inc,v 1.30 2005/10/14 00:46:29 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -109,6 +109,11 @@ class Cron_Job_Future_Status extends Cron_Job
 	function canDelete()
 	{
 		if (parent::canDelete()) return true;
+
+		// read-only?
+		if ($this->attr('read_only')) {
+			return false;
+		}
 
 		$asset = &$this->getAssetToUpdate();
 		if (!is_null($asset)) return $asset->adminAccess('');

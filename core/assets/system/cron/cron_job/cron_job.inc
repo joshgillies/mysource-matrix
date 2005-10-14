@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.38 2005/09/07 06:16:37 dmckee Exp $
+* $Id: cron_job.inc,v 1.39 2005/10/14 00:46:27 rhoward Exp $
 *
 */
 
@@ -40,7 +40,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -281,13 +281,19 @@ class Cron_Job extends Asset
 
 	/**
 	* Can this asset have its last significant link removed (putting it in the trash)?
-	* For Cron Jobs this can only be done by the running user or a sys admin
+	* For Cron Jobs this can only be done by the running user or a sys admin, and
+	* only if the Cron Job is not read-only
 	*
 	* @return boolean
 	* @access public
 	*/
 	function canDelete()
 	{
+		// read-only?
+		if ($this->attr('read_only')) {
+			return false;
+		}
+
 		$user = &$this->getRunningUser();
 		if (!is_null($user) && $GLOBALS['SQ_SYSTEM']->currentUser($user)) {
 			return true;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_management.inc,v 1.9 2005/04/14 04:30:21 rhoward Exp $
+* $Id: cron_job_management.inc,v 1.10 2005/10/14 00:46:27 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,6 +72,12 @@ class Cron_Job_Management extends Asset_Management
 											'type'			=> 'assetid',
 											'default'		=> '',
 											'description'	=> 'The user the cron job will run as when executed',
+										   ),
+						'read_only'		=> Array(
+											'added'			=> '0.3',
+											'type'			=> 'boolean',
+											'default'		=> 'false',
+											'description'	=> 'If true, only the system can delete this cron job',
 										   ),
 					  );
 

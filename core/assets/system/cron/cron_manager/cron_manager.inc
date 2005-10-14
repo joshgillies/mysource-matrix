@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.57 2005/10/05 23:06:27 mmcintyre Exp $
+* $Id: cron_manager.inc,v 1.58 2005/10/14 00:46:29 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -250,14 +250,15 @@ class Cron_Manager extends Asset
 	/**
 	* Adds a job to the cron manager
 	*
-	* @param object Cron_Job	$job		a reference to the cron job to add to add to the system
+	* @param object Cron_Job	$job		a reference to the cron job to add to the system
 	* @param object User		$user		a reference to the user that this job will run as
 	* @param string 			$link_type	type of the link between the cron manager and the job
+	* @param boolean			$read_only	if true, the cron job can only be removed by the system
 	*
 	* @return boolean
 	* @access public
 	*/
-	function addJob(&$job, &$user, $link_type=SQ_LINK_TYPE_3)
+	function addJob(&$job, &$user, $link_type=SQ_LINK_TYPE_3, $read_only=false)
 	{
 		if (!is_a($job, 'cron_job')) {
 			trigger_localised_error('CRON0001', E_USER_WARNING, $job->type());
@@ -265,6 +266,8 @@ class Cron_Manager extends Asset
 		}
 
 		$job->setAttrValue('running_as', $user->id);
+		$job->setAttrValue('read_only', $read_only);
+
 		$link = Array('asset' => &$this, 'link_type' => $link_type, 'is_exclusive' => '1');
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
