@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.31 2005/09/22 00:07:48 bcaldwell Exp $
+* $Id: datetime.inc,v 1.32 2005/10/14 00:11:42 tbarrett Exp $
 *
 */
 
@@ -46,7 +46,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    </datetime>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -73,6 +73,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		$this->_edit_params['print_format'] = 'l, F jS, Y H:i:s';
 		$this->_edit_params['allow_period'] = false;
 		$this->_edit_params['use_picker']   = false;
+		$this->_edit_params['show']			= Array();
 
 		// default date format and display style.
 		$this->_edit_params['show']			= Array('y', 'm', 'd', 'h', 'i', 's');
