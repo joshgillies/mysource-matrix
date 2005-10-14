@@ -18,14 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.104 2005/10/11 23:52:09 dmckee Exp $
+* $Id: listing_engine.inc,v 1.105 2005/10/14 04:18:50 lwright Exp $
 *
 */
 
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
-require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 /**
 * Listing_Engine
@@ -44,7 +43,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.104 $
+* @version $Revision: 1.105 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1413,7 +1412,6 @@ class Listing_Engine extends Page
 		//so we load the asset and get its typecode
 		$type_code = null;
 		$info = array_get_index($this->_tmp['assets_info'], $assetid, Array('type_code' => ''));
-
 		if (!empty($info['type_code'])) {
 			$type_code = $info['type_code'];
 		} else {
@@ -1608,7 +1606,6 @@ class Listing_Engine extends Page
 				$keywords['asset_assetid'] = $assetid;
 
 			}//end if needs asset
-
 		}
 
 		$group_keywords = preg_grep('/group[0-9]+.*/', $bc_keywords);
@@ -2106,11 +2103,19 @@ class Listing_Engine extends Page
 	*/
 	function getGroupableParentAssetids($child_assetid)
 	{
+		$root_nodes = $this->getRootNodes();
+
 		$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($child_assetid, SQ_SC_LINK_BACKEND_NAV, '', true, 'minor');
 
 		$parent_link_assetids = Array();
 		foreach ($parent_links as $parent_link) {
-			$parent_link_assetids[] = $parent_link['majorid'];
+			$parent_assetid = $parent_link['majorid'];
+
+			$parents_of_parent = $GLOBALS['SQ_SYSTEM']->am->getParents($parent_assetid);
+
+			if (count(array_intersect(array_keys($parents_of_parent), $root_nodes)) > 0) {
+				$parent_link_assetids[] = $parent_assetid;
+			}
 		}
 
 		return $parent_link_assetids;
@@ -2879,7 +2884,7 @@ class Listing_Engine extends Page
 
 
 	/**
-	* Get the replacement for "structured_root_node" keyword
+	* Get the replacement for "structured_search_location" keyword
 	*
 	* @return string
 	* @access public
