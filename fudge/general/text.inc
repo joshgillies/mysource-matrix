@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.19 2005/10/13 23:52:13 sdanis Exp $
+* $Id: text.inc,v 1.20 2005/10/14 01:16:14 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package Fudge
 * @subpackage Text
 */
@@ -142,7 +142,7 @@ function get_word_counts($text, $split_regexp='[ -]+', $word_match_regexp='[^ -]
 	$words = split($split_regexp, $text);
 
 	foreach ($words as $key => $word) {
-		$words[$key] = trim($word, " .:;,!?'\"\t\n\r\0");
+		$words[$key] = trim($word, '.:;,!?\'"');
 	}
 
 	$word_counts = array_count_values($words);
