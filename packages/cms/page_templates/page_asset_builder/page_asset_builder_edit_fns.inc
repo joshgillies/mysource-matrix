@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.35 2005/10/06 00:27:06 sdanis Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.36 2005/10/14 00:21:09 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -261,7 +261,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 		// add a new create location
 		if (isset($_POST[$prefix.'_new_create_location'])) {
-			$new_location =(int) $_POST[$prefix.'_new_create_location']['assetid'];
+			$new_location = $_POST[$prefix.'_new_create_location']['assetid'];
 			if ($new_location && !isset($new_locations[$new_location])) {
 				$link_type_name = link_type_name((int)$_POST[$prefix.'_new_link_type']);
 				if (!empty($link_type_name)) {
