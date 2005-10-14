@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.40 2005/08/10 09:46:29 gnoel Exp $
+* $Id: image_edit_fns.inc,v 1.41 2005/10/14 02:20:47 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -248,7 +248,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		$varieties = $asset->attr('varieties');
 		if (!empty($varieties)) {
 			foreach ($varieties['data'] as $varid => $data)  {
-				$variety = &$asset->getAsset($varid);
+				$variety = &$asset->getAsset($asset->id.':'.$varid);
 				if (is_null($variety)) continue;
 				$edit_fns = $variety->getEditFns();
 
@@ -297,7 +297,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		$varieties = $asset->attr('varieties');
 		if (!empty($varieties)) {
 			foreach ($varieties['data'] as $varid => $data)  {
-				$variety = &$asset->getAsset($varid);
+				$variety = &$asset->getAsset($asset->id.':'.$varid);
 				if (is_null($variety)) continue;
 				$edit_fns = $variety->getEditFns();
 				if ($edit_fns->processInlineInterface($variety, $o, $prefix.'_'.$variety->id)) {
@@ -558,7 +558,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		$varieties = $asset->attr('varieties');
 		if (!empty($varieties)) {
 			foreach ($varieties['data'] as $varid => $data)  {
-				$variety = &$asset->getAsset($varid);
+				$variety = &$asset->getAsset($asset->id.':'.$varid);
 				if (is_null($variety)) continue;
 				$asset->saveVariety($variety, true, false);
 			}// end foreach
