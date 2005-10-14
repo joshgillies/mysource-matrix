@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.191 2005/10/06 05:24:28 arailean Exp $
+* $Id: asset_map.inc,v 1.192 2005/10/14 02:11:05 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.191 $
+* @version $Revision: 1.192 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1183,7 +1183,7 @@ class Asset_Map
 			}
 
 			if (empty($link)) {
-				$this->_error('AMAP0032', $link['linkid']);
+				$this->_error('AMAP0032', $asset_node->attributes['linkid']);
 				return;
 			}
 
