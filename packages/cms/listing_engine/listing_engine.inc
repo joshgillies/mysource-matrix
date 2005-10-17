@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.105 2005/10/14 04:18:50 lwright Exp $
+* $Id: listing_engine.inc,v 1.106 2005/10/17 05:53:27 sdanis Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -607,8 +607,8 @@ class Listing_Engine extends Page
 
 		$wanted_statuses = $this->attr('statuses');
 
-		//push all the shoadow assets into the respective array
-		//change the todo_keys array so that instead of shadow assets the query checks on the parent asset's status
+		// push all the shoadow assets into the respective array
+		// change the todo_keys array so that instead of shadow assets the query checks on the parent asset's status
 		$shadow_assets = Array();
 		$dummy_to_do = array_keys($todo);
 		foreach ($todo as $key => $value) {
@@ -625,28 +625,28 @@ class Listing_Engine extends Page
 
 		if (!empty($wanted_statuses) && !empty($todo_keys)) {
 			$sql = 'SELECT
-						assetid
+						assetid, type_code
 					FROM
 						sq_ast
 					WHERE
 							assetid IN ('.implode(', ', $todo_keys).')
 						AND status IN ('.implode(', ', $wanted_statuses).')';
 
-			$wanted_assets = $db->getCol($sql);
+			$wanted_assets = $db->getAssoc($sql);
 			assert_valid_db_result($wanted_assets);
 
-			//now checking if the parent is existing in the wanted assets array
-			//if yes then the shadow assets are added to the wanted assets array as well
-			foreach ($wanted_assets as $wanted) {
+			// now checking if the parent is existing in the wanted assets array
+			// if yes then the shadow assets are added to the wanted assets array as well
+			foreach ($wanted_assets as $wanted => $type_code) {
 				foreach ($shadow_assets as $key => $value) {
 					if (strpos($key, $wanted) !== false) {
-						$wanted_assets[] = $key;
+						$wanted_assets[$key] = $type_code;
 					}
 				}
 			}
 
 			foreach ($todo as $assetid => $v) {
-				if (!in_array($assetid, $wanted_assets)) {
+				if (!isset($wanted_assets[$assetid])) {
 					unset($todo[$assetid]);
 				}
 			}
@@ -676,16 +676,18 @@ class Listing_Engine extends Page
 					}
 				}
 			}
+		}
 
-			foreach ($todo as $assetid => $v) {
-				if (isset($wanted_assets[$assetid])) {
-					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $wanted_assets[$assetid]);
-					if (!$asset->writeAccess()) unset($todo[$assetid]);
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-					unset($asset);
-				}
+		foreach ($todo as $assetid => $v) {
+			if (isset($wanted_assets[$assetid])) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $wanted_assets[$assetid]);
+				if (!$asset->readAccess()) unset($todo[$assetid]);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				unset($asset);
 			}
 		}
+
+
 
 	}//end filterAssetStatuses()
 
@@ -1036,7 +1038,9 @@ class Listing_Engine extends Page
 				}
 
 				// if the result page is too high, set to last page
-				$result_page = min($result_page, ceil($total_assets / $num_per_page));
+				if ($num_per_page) {
+					$result_page = min($result_page, ceil($total_assets / $num_per_page));
+				}
 
 				// previous page link
 				if ($result_page <= 1) {
@@ -2109,13 +2113,15 @@ class Listing_Engine extends Page
 
 		$parent_link_assetids = Array();
 		foreach ($parent_links as $parent_link) {
+			$parent_link_assetids[] = $parent_link['majorid'];
+			/*
+			Fix for Bug #970: removed for now.
 			$parent_assetid = $parent_link['majorid'];
 
 			$parents_of_parent = $GLOBALS['SQ_SYSTEM']->am->getParents($parent_assetid);
-
 			if (count(array_intersect(array_keys($parents_of_parent), $root_nodes)) > 0) {
 				$parent_link_assetids[] = $parent_assetid;
-			}
+			}*/
 		}
 
 		return $parent_link_assetids;
