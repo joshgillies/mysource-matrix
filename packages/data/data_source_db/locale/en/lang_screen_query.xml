@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_query.xml,v 1.2 2005/10/11 02:30:30 pgannavarapu Exp $
+* $Id: lang_screen_query.xml,v 1.3 2005/10/17 01:41:30 pgannavarapu Exp $
 *
 */
 -->
@@ -100,7 +100,7 @@
 			<note />
 		</field>
 	</section>
-	<section name ="Shadow Asset name">
+	<section name ="Shadow Asset Name">
 		<field>
 			<function_call>
 				<paint_function name="paintShadow" />

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.6 2005/10/11 02:30:28 pgannavarapu Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.7 2005/10/17 01:41:27 pgannavarapu Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1491,131 +1491,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function paintKeywords(&$asset, &$o, $prefix)
-	{
-		$shadow_asset =& $asset->getAsset($asset->id.':0');
-		$keywords = $shadow_asset->getAvailableKeywords();
-		$wa = $asset->writeAccess('attributes');
-		?>
-		<table class="sq-backend-table">
-			<tr>
-				<th><?php echo translate('keyword');?></th>
-				<th><?php echo translate('description');?></th>
-			</tr>
-			<?php
-			foreach ($keywords as $key => $desc) {
-				// all the keywords other than the shadow asset name are to be displayed for the user to choose the
-				//keywords or a combination of keywords and strings to set the shadow asset name
-				if ($key == 'data_source_record_set_shadow_asset_name') {
-					unset($keywords[$key]);
-					continue;
-				} else {
-					if (strpos($key, 'data_source_record_set') === false) {
-						unset($keywords[$key]);
-						continue;
-					}
-				}
-				?>
-				<tr>
-					<td><?php echo '%'.$key.'%';?> </td>
-					<td><?php echo $desc; ?> </td>
-				</tr>
-			<?php
-			}
-		?>
-		</table>
-		<?php
-		if ($wa) {
-			return true;
-		} else {
-			return false;
-		}
-
-	}//end paintKeywords()
-
-
-	/**
-	* Processes the interface for entering and changin the where clause.
-	*
-	* @param object	&$asset	the search page asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processKeywords(&$asset, &$o, $prefix)
-	{
-		return false;
-
-	}//end processKeywords()
-
-
-	/**
-	* Paints the interface for entering the name of the shadow asset
-	*
-	* @param object	&$asset	the search page asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
-	*
-	* @return void
-	* @access public
-	*/
-	function paintShadow(&$asset, &$o, $prefix)
-	{
-		$name = $asset->attr('shadow_name');
-		$wa = $asset->writeAccess('attributes');
-		if ($wa) {
-			text_box('shadow_name', !empty($name)? $name: '', 80);
-			return true;
-		} else if (!empty($name)) {
-			echo $name;
-			return false;
-		}
-
-	}//end paintShadow()
-
-
-	/**
-	* Processes the interface for entering and changin the where clause.
-	*
-	* @param object	&$asset	the search page asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processShadow(&$asset, &$o, $prefix)
-	{
-		$new_name = null;
-		$name = $asset->attr('shadow_name');
-		if (!empty($_POST['shadow_name'])) {
-			$new_name = $_POST['shadow_name'];
-		}
-		if (empty($new_name)) {
-			$new_name = 'Data Source Record Set';
-		}
-		if ($name != $new_name) {
-			$res = $asset->setAttrValue('shadow_name', $new_name);
-			return true;
-		} else {
-			return false;
-		}
-
-	}//end processShadow()
-
-
-	/**
-	* Paints the interface for entering the name of the shadow asset
-	*
-	* @param object	&$asset	the search page asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
-	*
-	* @return void
-	* @access public
-	*/
 	function paintAggregateFunctions(&$asset, &$o, $prefix)
 	{
 		$i = 0;
@@ -2047,27 +1922,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		}
 
 	}//end notEditModeAndTablesNotEmpty()
-
-
-	/**
-	* Find out if there are any tables selected or not
-	*
-	* @param object	&$asset	The asset that might use the files
-	* @param string	$prefix	the prefix for this asset
-	*
-	* @return boolean
-	* @access protected
-	*/
-	function resultSetExists(&$asset, $prefix)
-	{
-		$result = $asset->getResultSet();
-		if (empty($result)) {
-			return false;
-		} else {
-			return true;
-		}
-
-	}//end resultSetExists()
 
 
 	/**
