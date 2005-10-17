@@ -1,0 +1,35 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2005/10/17 01:56:36 pgannavarapu Exp $
+*
+*
+* DB DataSource Localised Strings File
+*/
+-->
+
+<strings>
+<string source="none">None</string>
+<string source="choose">Choose</string>
+<string source="x_axis">x-Axis</string>
+<string source="y_axis">y-Axis</string>
+<string source="graph_type">Type Of Graph</string>
+<string source="no_co_ordinates_entered">No Co-Ordinates Have Been Entered</string>
+<string source="no_data_sources_chosen">No Data Sources Have Been Choosen</string>
+<string source="current_data_source_id">Current DataSource ID</string>
+<string source="colour">Colour</string>
+<string source="delete_question">Delete?</string>
+<string source="no_valid_dataset">No Valid Dataset Found</string>
+<string source="no_results_for_graphing">No Data Source Result Sets Found For Graphing</string>
+<string source="data_source_asset_linked_to_graph">Data Source Asset Linked To The Graph Asset</string>
+</strings>

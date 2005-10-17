@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_edit_fns.inc,v 1.1.1.1 2005/09/28 05:35:28 pgannavarapu Exp $
+* $Id: data_source_graph_edit_fns.inc,v 1.2 2005/10/17 01:52:14 pgannavarapu Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,9 +54,9 @@ class Data_Source_Graph_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface for entering the Graph Details
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the graph asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
@@ -69,27 +69,29 @@ class Data_Source_Graph_Edit_Fns extends Asset_Edit_Fns
 		$wa = $asset->writeAccess('attributes');
 		if (!empty($data_source)) {
 			$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['minorid']);
-			$result = $data_source_asset->attr('result');
+			$result = $data_source_asset->getResultSet();
 			$keys = Array();
 			if (!empty($result)) {
 				$record = $result[0];
 				foreach ($record as $key => $value) {
-					if (is_numeric($value) && $key != 'dn') $keys[$key] = $key;
+					$keys[$key] = $key;
+					//if (is_numeric($value) && $key != 'dn') $keys[$key] = $key;
 				}
 			}
+			$keys['none'] = translate('none');
 			if ($wa) {
 				?>
 				<table>
 					<tr>
-						<td><b><?php echo 'Choose x-axis: '; ?></b></td>
+						<td><b><?php echo translate('choose').' '.translate('x_axis'); ?></b></td>
 						<td><?php combo_box('x_axis', $keys, false, !empty($graph_details) && in_array($graph_details['x_axis'], $keys)?$graph_details['x_axis']:''); ?></td>
 					</tr>
 					<tr>
-						<td><b><?php echo 'Choose y-axis: '; ?></b></td>
+						<td><b><?php echo translate('choose').' '.translate('y_axis');?></b></td>
 						<td><?php combo_box('y_axis', $keys, false, !empty($graph_details) && in_array($graph_details['y_axis'], $keys)?$graph_details['y_axis']:'');?></td>
 					</tr>
 					<tr>
-						<td><b><?php echo 'Choose Type Of Graph: '; ?></b></td>
+						<td><b><?php echo  translate('choose').' '.translate('graph_type'); ?></b></td>
 						<td><?php combo_box('graph_type', $types, false, !empty($graph_details) ? array_search($graph_details['type'], $types) :'');?></td>
 					</tr>
 				</table>
@@ -101,22 +103,24 @@ class Data_Source_Graph_Edit_Fns extends Asset_Edit_Fns
 					<table>
 						<?php
 						foreach ($graph_details as $key => $value) {
-							?>
-							<tr>
-								<td><b><?php echo (ucwords(strpos($key, '_') !== false? str_replace('_','-', $key) : $key));?></b></td>
-								<td><?php echo(ucwords($value));?></td>
-							</tr>
-						<?php
+							if ($key != 'colors') {
+								?>
+								<tr>
+									<td><b><?php echo (ucwords(strpos($key, '_') !== false? str_replace('_','-', $key) : $key));?></b></td>
+									<td><?php echo(ucwords($value));?></td>
+								</tr>
+							<?php
+							}
 						}
 					?>
 					</table>
 				<?php
 				} else {
-					echo('No Co-ordinates Entered');
+					echo translate('no_co_ordinates_entered');
 				}
 			}
 		} else {
-			echo 'No DataSource Chosen! PLease choose a datasource from the details screen';
+			echo translate('no_data_sources_chosen');
 		}
 		return false;
 
@@ -126,13 +130,12 @@ class Data_Source_Graph_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for entering graph details
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the graph asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
-	*
 	*/
 	function processGraphDetails(&$asset, &$o, $prefix)
 	{
@@ -161,9 +164,9 @@ class Data_Source_Graph_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface for entering the DataSource Details
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the graph asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
@@ -178,7 +181,7 @@ class Data_Source_Graph_Edit_Fns extends Asset_Edit_Fns
 				?>
 				<table>
 				<tr>
-					<td><?php asset_finder($prefix.'_data_source', !empty($already_linked)? $already_linked['minorid'] : 0, Array('db_data_source'	=> 'I'));?></td>
+					<td><?php asset_finder($prefix.'_data_source', !empty($already_linked)? $already_linked['minorid'] : 0, Array('data_source_db'	=> 'I', 'data_source_rss'	=> 'I'));?></td>
 				</tr>
 				</table>
 			<?php
@@ -187,7 +190,7 @@ class Data_Source_Graph_Edit_Fns extends Asset_Edit_Fns
 					?>
 					<table>
 					<tr>
-						<td><b>Current DataSource ID</b></td>
+						<td><b><?php echo translate('current_data_source_id');?></b></td>
 						<td><b><?php echo $already_linked['minorid'];?></b></td>
 					</tr>
 					</table>
@@ -202,13 +205,12 @@ class Data_Source_Graph_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for choosing the data source
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
-	*
 	*/
 	function processDataSourceChooser(&$asset, &$o, $prefix)
 	{
@@ -227,6 +229,135 @@ class Data_Source_Graph_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	}//end processDataSourceChooser()
+
+
+	/**
+	* Paints the interface for displaying the chosen fill colours and option to delete them
+	*
+	* @param object	&$asset	the graph asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintFillColour(&$asset, &$o, $prefix)
+	{
+		$fill_colours = $asset->attr('colour_array');
+		$wa = $asset->writeAccess('attributes');
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<?php
+				if (!empty($fill_colours)) {
+					?>
+					<th><?php echo translate('colour');?></th>
+					<?php
+					if ($wa) {
+						?>
+						<th><?php echo translate('delete_question');?></th>
+						<?php
+					}
+				}
+				?>
+			</tr>
+			<?php
+			foreach ($fill_colours as $i => $colour) {
+				?>
+				<tr>
+					<?php
+					if ($wa) {
+						?>
+						<td><?php colour_box('fill_colour['.$i.'][colour]', $colour, true);?></td>
+						<td><?php check_box('fill_colour['.$i.'][delete]', 'delete', false);?></td>
+					<?php
+					} else {
+						?>
+						<td><?php echo $colour;?></td>
+					<?php
+					}
+					?>
+				</tr>
+			<?php
+			}
+			?>
+			<tr>
+		</table>
+		<br />
+
+		<?php
+		if ($wa) {
+			return true;
+		} else {
+			return false;
+		}
+
+	}//end paintFillColour()
+
+
+	/**
+	* Processes the interface for fill colours
+	*
+	* @param object	&$asset	the graph asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processFillColour(&$asset, &$o, $prefix)
+	{
+		$colours = Array();
+		if (isset($_POST['fill_colour'])) {
+			$fill_colours = $_POST['fill_colour'];
+			$colours = Array();
+			foreach ($fill_colours as $i => $colour) {
+				if (!empty($colour['colour']) && !isset($colour['delete'])) {
+					$colours[] = '#'.$colour['colour'];
+				}
+			}
+		}
+		$colour = $asset->attr('fill_colour');
+		if (!empty($colour)) $colours[] = $colour;
+		$asset->setAttrValue('fill_colour', null);
+		$asset->setAttrValue('colour_array', $colours);
+		return true;
+
+	}//end processFillColour()
+
+
+	/**
+	* Check if the user has chosen to have a value marker
+	*
+	* @param object	&$asset	The asset that might use the files
+	* @param string	$prefix	The prefix for this asset
+	*
+	* @return boolean
+	* @access protected
+	*/
+	function valueMarkerNotEmpty(&$asset, $prefix)
+	{
+		$marker = $asset->attr('value_marker');
+		if (!empty($marker)) return true;
+		return false;
+
+	}//end valueMarkerNotEmpty()
+
+
+	/**
+	* Check if we have write access to the asset
+	*
+	* @param object	&$asset	The asset that might use the files
+	* @param string	$prefix	the prefix for this asset
+	*
+	* @return boolean
+	* @access protected
+	*/
+	function assetWriteAccess(&$asset, $prefix)
+	{
+		return $asset->writeAccess('attributes');
+
+	}//end assetWriteAccess()
 
 
 }//end class
