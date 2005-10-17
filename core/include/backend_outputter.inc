@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.113 2005/09/05 00:52:59 dmckee Exp $
+* $Id: backend_outputter.inc,v 1.114 2005/10/17 06:44:46 sdanis Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.113 $
+* @version $Revision: 1.114 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -743,7 +743,7 @@ class Backend_Outputter
 
 		} else {
 			// we are not buffering
-			$this->_nbOpenField($name, $format='', $note='', $hidden);
+			$this->_nbOpenField($name, $format, $note, $hidden);
 		}
 
 	}//end openField()
@@ -850,7 +850,7 @@ class Backend_Outputter
 		switch ($this->_current_field_type) {
 
 			case 'new_line' :
-					if ($this->_current_field_note) $this->note($note);
+					if ($this->_current_field_note) $this->note($this->_current_field_note);
 						?>
 									</td>
 								</tr>
@@ -862,7 +862,7 @@ class Backend_Outputter
 			break;
 
 			case 'commit' :
-					if ($this->_current_field_note) $this->note($note);
+					if ($this->_current_field_note) $this->note($this->_current_field_note);
 							?>
 						</td>
 					</tr>
@@ -874,7 +874,7 @@ class Backend_Outputter
 			break;
 
 			default :
-				if ($this->_current_field_note) $this->note($note);
+				if ($this->_current_field_note) $this->note($this->_current_field_note);
 				?>
 					</td>
 				</tr>
