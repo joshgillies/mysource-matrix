@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.53.2.8 2005/09/23 06:58:10 arailean Exp $
+* $Id: form_email_edit_fns.inc,v 1.53.2.9 2005/10/18 02:26:03 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.53.2.8 $
+* @version $Revision: 1.53.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -585,7 +585,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		if ($header_row) $csv->setFieldHeaders($headers);
 
 		$csv->setValues($logs);
-		$csv->export();
+
+		// export with keyed fields
+		$csv->export(true);
 		exit(0);
 
 		return true;
