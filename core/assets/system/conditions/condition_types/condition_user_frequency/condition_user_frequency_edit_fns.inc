@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_frequency_edit_fns.inc,v 1.3 2005/10/13 05:16:34 dheppell Exp $
+* $Id: condition_user_frequency_edit_fns.inc,v 1.4 2005/10/18 01:45:16 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,20 +76,32 @@ class Condition_User_Frequency_Edit_Fns extends Condition_Edit_Fns
 		?>
 		<table>
 		<tr>
-			<td>units</td>
+			<td><strong>Value</strong></td>
 			<td>
-				<?php combo_box($prefix.'[units]', $options, 0, $condition_data['units']); ?>
+				<?php
+				if ($write_access) {
+					text_box($prefix.'[value]', $condition_data['value'], 10);
+				} else {
+					echo $condition_data['value'];
+				}
+				?>
 			</td>
 		</tr>
 		<tr>
-			<td>value</td>
-			<td><?php text_box($prefix.'[value]', $condition_data['value'], 10);?></td>
+			<td><strong>Units</strong></td>
+			<td>
+				<?php
+				if ($write_access) {
+					combo_box($prefix.'[units]', $options, 0, $condition_data['units']); 
+				} else {
+					echo $options[$condition_data['units']];
+				}
+				?>
+			</td>
 		</tr>
 		</table>
 		<?php
-
-		$o->note(translate('condition_user_frequency_description'));
-		$o->sectionNote(translate('condition_user_frequency_note'));
+		echo translate('condition_user_frequency_note');
 
 	}//end paintEditInterface()
 
