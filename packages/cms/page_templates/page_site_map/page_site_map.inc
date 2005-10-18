@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.12.6.3 2005/05/02 02:44:58 gsherwood Exp $
+* $Id: page_site_map.inc,v 1.12.6.4 2005/10/18 04:15:09 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -97,8 +97,8 @@ class Page_Site_Map extends Page
 		}
 
 	}//end describeLink()
-	
-	
+
+
 	/**
 	* Called by the design to print the body of this asset
 	* it's up to the kids to override
@@ -152,7 +152,10 @@ class Page_Site_Map extends Page
 				<?php
 				// figure out the columns for the site map
 				$num_columns = ($this->attr('columns') > 0) ? $this->attr('columns') : 1;
-				if (empty($page_data)) return;
+				if (empty($page_data)) {
+					ob_end_clean();
+					return;
+				}
 				$num_pages = count(array_keys($page_data[$siteid]));
 
 				$num_chunks = ceil($num_pages / $num_columns);
