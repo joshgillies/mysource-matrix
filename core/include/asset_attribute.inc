@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.41 2005/09/20 05:58:32 tbarrett Exp $
+* $Id: asset_attribute.inc,v 1.42 2005/10/18 05:49:41 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -170,7 +170,9 @@ class Asset_Attribute extends MySource_Object
 
 		$class = 'Asset_Attribute_'.$type;
 		require_once SQ_ATTRIBUTES_PATH.'/'.$type.'/'.$type.'.inc';
-		return new $class($attributeid, $value, $default_params);
+		$attr =& new $class($attributeid, $value, $default_params);
+
+		return $attr;
 
 	}//end loadAttribute()
 

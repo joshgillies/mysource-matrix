@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.144 2005/09/19 05:31:00 lwright Exp $
+* $Id: mysource.inc,v 1.145 2005/10/18 05:50:06 mmcintyre Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.144 $
+* @version $Revision: 1.145 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1187,7 +1187,8 @@ class MySource
 	*/
 	function &getPublicUser()
 	{
-		return $this->am->getSystemAsset('public_user');
+		$public_user = &$this->am->getSystemAsset('public_user');
+		return $public_user;
 
 	}//end getPublicUser()
 

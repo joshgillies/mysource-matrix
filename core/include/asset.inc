@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.462 2005/10/11 23:56:04 dmckee Exp $
+* $Id: asset.inc,v 1.463 2005/10/18 05:49:21 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.462 $
+* @version $Revision: 1.463 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3775,7 +3775,9 @@ class Asset extends MySource_Object
 	{
 		$class_name = $this->type().'_edit_fns';
 		require_once SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'dir').'/'.$class_name.'.inc';
-		return new $class_name();
+		$edit_fns =& new $class_name();
+
+		return $edit_fns;
 
 	}//end getEditFns()
 

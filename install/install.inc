@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.54 2005/09/02 06:07:49 lwright Exp $
+* $Id: install.inc,v 1.55 2005/10/18 05:50:26 mmcintyre Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -671,7 +671,7 @@ function find_edit_interface_file($asset_type, $file_name)
 	$file_name = 'edit_interface_'.$file_name.'.xml';
 
 	$file = '';
-	$asset_dirs =& find_asset_type_dirs($asset_type);
+	$asset_dirs = find_asset_type_dirs($asset_type);
 	array_push($asset_dirs, SQ_INCLUDE_PATH.'/asset_edit');
 	for ($i = 0; $i < count($asset_dirs); $i++) {
 		if (file_exists($asset_dirs[$i].'/'.$file_name)) {
@@ -706,7 +706,7 @@ function find_edit_interface_language_files($asset_type, $file_name, $locale)
 	$file_name = 'lang_'.$file_name.'.xml';
 
 	$files = Array();
-	$asset_dirs =& find_asset_type_dirs($asset_type);
+	$asset_dirs = find_asset_type_dirs($asset_type);
 	array_push($asset_dirs, SQ_INCLUDE_PATH.'/asset_edit');
 
 	list($lang, $country, $variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($locale);
@@ -1154,7 +1154,7 @@ function build_locale_string_file($locale)
 	// run through each installed asset
 	foreach ($asset_types as $asset_type) {
 		$type_code = $asset_type['type_code'];
-		$asset_dirs =& find_asset_type_dirs($type_code);
+		$asset_dirs = find_asset_type_dirs($type_code);
 
 		$files_to_parse['assets'][$type_code] = find_string_language_files($asset_dirs, $locale);
 	}
@@ -1553,7 +1553,7 @@ function extract_internal_messages($file)
 
 		foreach ($string_node->children as $sub_node) {
 			if (($sub_node->name == 'subject') || ($sub_node->name == 'body')) {
-				$translation[$sub_node->name] =& html_entity_decode($sub_node->content);
+				$translation[$sub_node->name] = html_entity_decode($sub_node->content);
 			}
 		}
 
