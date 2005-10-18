@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.20.2.1 2005/07/21 01:05:43 dheppell Exp $
+* $Id: page_site_map.inc,v 1.20.2.2 2005/10/18 04:14:38 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20.2.1 $
+* @version $Revision: 1.20.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -135,7 +135,7 @@ class Page_Site_Map extends Page
 
 			$levels = ($this->attr('levels') != 0) ? $this->attr('levels') : null;
 
-			$page_data =   $GLOBALS['SQ_SYSTEM']->am->getAssetTree($siteid, $levels, array_keys($this->attr('exclude_list')), $this->attr('show_type_2') ? SQ_SC_LINK_BACKEND_NAV : SQ_SC_LINK_FRONTEND_NAV);
+			$page_data = $GLOBALS['SQ_SYSTEM']->am->getAssetTree($siteid, $levels, array_keys($this->attr('exclude_list')), $this->attr('show_type_2') ? SQ_SC_LINK_BACKEND_NAV : SQ_SC_LINK_FRONTEND_NAV);
 
 			$assetids = Array();
 
@@ -155,7 +155,10 @@ class Page_Site_Map extends Page
 				<?php
 				// figure out the columns for the site map
 				$num_columns = ($this->attr('columns') > 0) ? $this->attr('columns') : 1;
-				if (empty($page_data)) return;
+				if (empty($page_data)) {
+					ob_end_clean();
+					return;
+				}
 				$num_pages = count(array_keys($page_data[$siteid]));
 
 				$num_chunks = ceil($num_pages / $num_columns);
