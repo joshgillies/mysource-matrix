@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.106 2005/10/17 05:53:27 sdanis Exp $
+* $Id: listing_engine.inc,v 1.107 2005/10/18 01:02:49 lwright Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.106 $
+* @version $Revision: 1.107 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2113,16 +2113,25 @@ class Listing_Engine extends Page
 
 		$parent_link_assetids = Array();
 		foreach ($parent_links as $parent_link) {
-			$parent_link_assetids[] = $parent_link['majorid'];
-			/*
-			Fix for Bug #970: removed for now.
-			$parent_assetid = $parent_link['majorid'];
+			if (empty($root_nodes)) {
+				// if no root nodes set, allow all parents
+				$parent_link_assetids[] = $parent_link['majorid'];
+			} else {
+				$parent_assetid = $parent_link['majorid'];
 
-			$parents_of_parent = $GLOBALS['SQ_SYSTEM']->am->getParents($parent_assetid);
-			if (count(array_intersect(array_keys($parents_of_parent), $root_nodes)) > 0) {
-				$parent_link_assetids[] = $parent_assetid;
-			}*/
-		}
+				if (in_array($parent_assetid, $root_nodes)) {
+					// check if parent is a root node itself
+					$parent_link_assetids[] = $parent_assetid;
+				} else {
+					// check if the parent is within the root node
+					$parents_of_parent = $GLOBALS['SQ_SYSTEM']->am->getParents($parent_assetid);
+
+					if (count(array_intersect(array_keys($parents_of_parent), $root_nodes)) > 0) {
+						$parent_link_assetids[] = $parent_assetid;
+					}
+				}
+			}//end if empty root nodes
+		}//end foreach
 
 		return $parent_link_assetids;
 
