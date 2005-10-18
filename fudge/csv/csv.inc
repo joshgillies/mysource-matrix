@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv.inc,v 1.10 2005/04/04 04:07:33 lwright Exp $
+* $Id: csv.inc,v 1.11 2005/10/18 02:19:36 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     A class used to create and parse CSV files
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package Fudge
 * @subpackage CSV
 */
@@ -222,10 +222,15 @@ class CSV
 	*
 	* If no filepath then export to screen
 	*
+	* @param boolean	$ordered	if true, then use ordered export if possible.
+	*								if false/default, use standard export ('ordered' ==
+	*								use field headers as keys, as opposed to using
+	*								numeric indices)
+	*
 	* @return void
 	* @access public
 	*/
-	function export()
+	function export($ordered=false)
 	{
 		if (!$this->filepath) {
 			// no file to write to.....lets send the header and then the file
@@ -248,10 +253,10 @@ class CSV
 		foreach ($this->values as $value) {
 			// if field headers are there, use the ordered version of the
 			// format line method to export
-			if (!$this->field_headers) {
-				$line = $this->formatLine($value, $this->deliminator);
-			} else {
+			if ($this->field_headers && $ordered) {
 				$line = $this->formatOrderedLine($value, $this->deliminator);
+			} else {
+				$line = $this->formatLine($value, $this->deliminator);
 			}
 			if (isset($fp)) {
 				fputs($fp, $line."\n");
