@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.26 2005/10/05 23:56:03 lwright Exp $
+* $Id: listing_engine.inc,v 1.38.2.27 2005/10/18 01:08:37 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.26 $
+* @version $Revision: 1.38.2.27 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1958,19 +1958,7 @@ class Listing_Engine extends Page
 
 				switch ($group_level['group_type']) {
 					case 'parent_asset':
-						$is_sort_assetid = '';
-						$link_assetids = Array();
-
-						$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($current_parent, SQ_SC_LINK_BACKEND_NAV, '', true, 'minor');
-						$link_assetids = Array();
-
-						// remember we can have more than one direct parent
-						foreach ($links as $link) {
-							$link_assetids[] = $link['majorid'];
-						}
-
-						$value = $link_assetids;
-
+						$value = $this->getGroupableParentAssetids($current_parent);
 					break;
 
 					case 'metadata':
@@ -2102,6 +2090,49 @@ class Listing_Engine extends Page
 			}
 		}
 	}//end sortGroups()
+
+
+	/**
+	* Get all the parents of this asset which can be used for grouping. This
+	* function needs to be overridden in assets like Search_Page where the use
+	* of proxy search types require alternate logic to just getting ALL parents.
+	*
+	* @param array	$child_assetid	the asset to find the parents of
+	*
+	* @return array
+	* @access public
+	*/
+	function getGroupableParentAssetids($child_assetid)
+	{
+		$root_nodes = $this->getRootNodes();
+
+		$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($child_assetid, SQ_SC_LINK_BACKEND_NAV, '', true, 'minor');
+
+		$parent_link_assetids = Array();
+		foreach ($parent_links as $parent_link) {
+			if (empty($root_nodes)) {
+				// if no root nodes set, allow all parents
+				$parent_link_assetids[] = $parent_link['majorid'];
+			} else {
+				$parent_assetid = $parent_link['majorid'];
+
+				if (in_array($parent_assetid, $root_nodes)) {
+					// check if parent is a root node itself
+					$parent_link_assetids[] = $parent_assetid;
+				} else {
+					// check if the parent is within the root node
+					$parents_of_parent = $GLOBALS['SQ_SYSTEM']->am->getParents($parent_assetid);
+
+					if (count(array_intersect(array_keys($parents_of_parent), $root_nodes)) > 0) {
+						$parent_link_assetids[] = $parent_assetid;
+					}
+				}
+			}//end if empty root nodes
+		}//end foreach
+
+		return $parent_link_assetids;
+
+	}//end getGroupableParentAssetids()
 
 
 	/**
