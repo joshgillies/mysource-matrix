@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.119 2005/09/27 06:45:19 dheppell Exp $
+* $Id: form.inc,v 1.120 2005/10/19 04:15:07 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.119 $
+* @version $Revision: 1.120 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -374,9 +374,9 @@ class Form extends Asset
 
 		// basically get the parents of the section, and add itself in the
 		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
-		
+
 		if (empty($query)) return Array();
-		
+
 		$queried_parents = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
 		$parents = Array();
 
@@ -919,7 +919,7 @@ class Form extends Asset
 		}
 
 		ob_start();
-		echo '<form name="'.$prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$clientside.'>';
+		echo '<form id="'.$prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$clientside.'>';
 		if ($this->attr('use_client_side')) {
 			?><script type="text/javascript">
 			function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
@@ -1008,6 +1008,7 @@ class Form extends Asset
 				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 				$q_name = $q_asset->attr('name');
 				$replacements['question_field_'.$this->id.'_q'.$q_id] = $q_asset->getHtmlField();
+				$replacements['question_id_'.$section->id.'_q'.$q_id] = 'q'.$this->id.'_q'.$q_id;
 			}
 
 			foreach ($sections as $section) {
@@ -1017,6 +1018,7 @@ class Form extends Asset
 					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 					$q_name = $section->attr('name').': '.$q_asset->attr('name');
 					$replacements['question_field_'.$section->id.'_q'.$q_id] = $q_asset->getHtmlField();
+					$replacements['question_id_'.$section->id.'_q'.$q_id] = 'q'.$section->id.'_q'.$q_id;
 				}
 			}
 
@@ -1613,6 +1615,7 @@ class Form extends Asset
 					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 					$q_name = $q_asset->attr('name');
 					$keywords['question_field_'.$this->id.'_q'.$q_id] = translate('cms_form_question_field', ellipsisize($q_name,30));
+					$keywords['question_id_'.$this->id.'_q'.$q_id] = translate('cms_form_question_id', ellipsisize($q_name,30));
 				}
 
 				foreach ($sections as $section) {
@@ -1622,6 +1625,7 @@ class Form extends Asset
 						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 						$q_name = $q_asset->attr('name');
 						$keywords['question_field_'.$section->id.'_q'.$q_id] = translate('cms_form_section_field', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
+						$keywords['question_id_'.$section->id.'_q'.$q_id] = translate('cms_form_section_id', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
 					}
 				}
 

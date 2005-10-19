@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager.inc,v 1.2 2005/08/05 05:27:56 dheppell Exp $
+* $Id: page_user_group_manager.inc,v 1.3 2005/10/19 04:15:09 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Darren McKee <dmckee@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -119,7 +119,7 @@ class Page_User_Group_Manager extends Page
 		//Process any operations. Deleting, New links etc.
 		$this->processForm();
 		?>
-			<form name="<?php echo $this->getPrefix(); ?>" method="post">
+			<form id="<?php echo $this->getPrefix(); ?>" method="post">
 			<input type="hidden" name="submitted" value="1" />
 		<?php
 		//Print the form and details again

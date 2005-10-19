@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.5 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: page_poll.inc,v 1.6 2005/10/19 04:15:09 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -341,7 +341,7 @@ class Page_Poll extends Page
 		$options = $question->attr('options');
 
 		?>
-		<form name="<?php echo $this->getPrefix(); ?>_poll" action="<?php echo $this->getURL(); ?>" method="post" >
+		<form id="<?php echo $this->getPrefix(); ?>_poll" action="<?php echo $this->getURL(); ?>" method="post" >
 		<?php
 
 		// $option_values is an array of the options text and the options votes
@@ -369,7 +369,7 @@ class Page_Poll extends Page
 	{
 		ob_start();
 
-		submit_button($this->getPrefix().'_poll', 'Vote', 'document.'.$this->getPrefix().'_poll.submit();');
+		submit_button($this->getPrefix().'_poll', 'Vote', 'document.getElementById("'.$this->getPrefix().'_poll").submit();');
 
 		return ob_get_clean();
 
@@ -385,7 +385,7 @@ class Page_Poll extends Page
 	*/
 	function _componentVoteButtonJavascript()
 	{
-		return 'document.'.$this->getPrefix().'_poll.submit();';
+		return 'document.getElementById("'.$this->getPrefix().'_poll").submit();';
 
 	}//end _componentVoteButtonJavascript()
 

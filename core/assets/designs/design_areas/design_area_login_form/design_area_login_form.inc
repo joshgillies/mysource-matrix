@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form.inc,v 1.20 2005/10/11 02:06:02 tbarrett Exp $
+* $Id: design_area_login_form.inc,v 1.21 2005/10/19 04:17:31 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -104,7 +104,7 @@ class Design_Area_Login_Form extends Design_Area
 					';
 				// open logout form
 				} else {
-					echo '<form action="<', '?php echo $_SERVER[\'PHP_SELF\']; ?','>?SQ_ACTION=logout'.$qry_str_extra.'" name="'.$this->attr('id_name').'_login_prompt" method="post">
+					echo '<form action="<', '?php echo $_SERVER[\'PHP_SELF\']; ?','>?SQ_ACTION=logout'.$qry_str_extra.'" id="'.$this->attr('id_name').'_login_prompt" method="post">
 					<input type="hidden" name="SQ_LOGIN_REFERER"  value="<', '?php echo htmlspecialchars('.$referer.'); ?', '>" />';
 				}
 
@@ -227,7 +227,7 @@ class Design_Area_Login_Form extends Design_Area
 
 	}//end _printInitCode()
 
-	
+
 	/**
 	* Print code that outputs a given element from this DA's contents
 	*
