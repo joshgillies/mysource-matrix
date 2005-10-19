@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.398.2.15 2005/10/06 06:39:59 sdanis Exp $
+* $Id: asset.inc,v 1.398.2.16 2005/10/19 06:18:01 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.398.2.15 $
+* @version $Revision: 1.398.2.16 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3262,6 +3262,7 @@ class Asset extends MySource_Object
 				if ($perm == SQ_PERMISSION_WRITE) {
 					$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 					$publishers = $wfm->whoCanPublish($this->id);
+
 					if (in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) {
 						return true;
 					}
@@ -3273,6 +3274,8 @@ class Asset extends MySource_Object
 							return true;
 						}
 					}
+
+					return false;
 				}
 			}
 		}
