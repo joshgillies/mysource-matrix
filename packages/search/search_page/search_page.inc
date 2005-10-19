@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.142 2005/10/07 04:00:55 ndvries Exp $
+* $Id: search_page.inc,v 1.143 2005/10/19 01:06:56 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.142 $
+* @version $Revision: 1.143 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1138,9 +1138,9 @@ class Search_Page extends Listing_Engine
 					$replacement  = '<input type="submit" name="'.$field_name.'"
 						value="'.$this->attr('submit_button_text').'" />';
 				} else {
-					$replacement  = '<input type="submit" name="'.$field_name.'" onclick="
-						document.listing_form.current_result_page.value=\'0\';
-						if (typeof document.listing_form.mode != \'undefined\') document.listing_form.mode.value = \'results\';
+					$replacement  = '<input type="submit" name="'.$field_name.'" onclick="listing_form = document.getElementById(\''.$this->getPrefix().'\');
+						listing_form.current_result_page.value=\'0\';
+						if (typeof listing_form.mode != \'undefined\') listing_form.mode.value = \'results\';
 						return true;
 					" value="'.$this->attr('submit_button_text').'" />';
 				}
@@ -1151,9 +1151,9 @@ class Search_Page extends Listing_Engine
 				$this->registerFormField($field_name);
 				$this->_tmp['prints_submit'] = true;
 
-				$replacement  = '<input type="submit" name="'.$field_name.'" onclick="
-					document.listing_form.current_result_page.value=\'0\';
-					document.listing_form.mode.value = \'sis\';
+				$replacement  = '<input type="submit" name="'.$field_name.'" onclick="listing_form = document.getElementById(\''.$this->getPrefix().'\');
+					listing_form.current_result_page.value=\'0\';
+					listing_form.mode.value = \'sis\';
 					return true;
 				" value="'.$this->attr('sis_button_text').'" />';
 			break;
@@ -1184,8 +1184,8 @@ class Search_Page extends Listing_Engine
 				$results_per_page = array_get_index($_REQUEST, 'results_per_page', $this->attr('num_per_page'));
 				$field_name = 'results_per_page_text_box';
 				$this->registerFormField($field_name);
-				$replacement = '<input type="text" name="'.$field_name.'" onchange="
-					document.listing_form.results_per_page.value = this.value;
+				$replacement = '<input type="text" name="'.$field_name.'" onchange="listing_form = document.getElementById(\''.$this->getPrefix().'\');
+					listing_form.results_per_page.value = this.value;
 				" value="'.$results_per_page.'" size="5" />';
 			break;
 
