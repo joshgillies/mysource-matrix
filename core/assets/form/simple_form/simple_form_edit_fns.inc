@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form_edit_fns.inc,v 1.2 2005/08/09 23:24:06 lwright Exp $
+* $Id: simple_form_edit_fns.inc,v 1.3 2005/10/19 04:18:04 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -109,7 +109,7 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 		</thead>
 		<tbody>
 			<?php if (count($asset->attr('questions')) <= 0) {
-				?><tr><td colspan="<?php echo $write_access ? 8 : 3 ?>" style="font-style:italic;"><?php echo translate('cms_simple_form_no_questions'); ?></td></tr><?php
+				?><tr><td colspan="<?php echo $write_access ? 8 : 3 ?>" style="font-style:italic; text-align:center"><?php echo translate('core_simple_form_no_questions'); ?></td></tr><?php
 			} else {
 				foreach ($asset->attr('questions') as $shadowid => $asset_data) {
 				$assetid = $asset->id.':q'.$shadowid;
@@ -217,7 +217,7 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 	function paintAddQuestions(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) {
-			?><i><?php echo translate('cms_simple_form_lock_to_add_questions'); ?></i><?php
+			?><i><?php echo translate('core_simple_form_lock_to_add_questions'); ?></i><?php
 			return false;
 		}
 

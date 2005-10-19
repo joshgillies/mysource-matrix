@@ -18,11 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/07/20 00:02:46 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2005/10/19 04:18:04 lwright Exp $
 *
 * Localised Strings File for Simple Form Asset
 */
 -->
 
 <strings>
+<string source="core_simple_form_no_questions">This form contains no questions</string>
+<string source="core_simple_form_lock_to_add_questions">Lock this asset to add questions</string>
 </strings>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.10 2005/10/13 05:42:00 lwright Exp $
+* $Id: simple_form.inc,v 1.11 2005/10/19 04:18:04 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,7 +83,7 @@ class Simple_Form extends Asset
 	/**
 	* Returns a reference to the asset represented by the passed assetid
 	*
-	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
+	* @param int		$assetid		the asset id to be loaded
 	* @param string		$type_code		if this exists then this object is used to
 	*									load the asset, if not then the DB is queried
 	*									to find out the asset type
@@ -94,10 +94,10 @@ class Simple_Form extends Asset
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($shadowid, $type_code='', $mute_errors=false)
+	function &getAsset($assetid, $type_code='', $mute_errors=false)
 	{
 		$asset = null;
-		$id_parts = explode(':', $shadowid);
+		$id_parts = explode(':', $assetid);
 
 		if (isset($id_parts[1])){
 			$shadowid = $id_parts[1];
@@ -905,6 +905,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 		foreach ($questions as $shadowid => $question) {
 			$keywords[$prefix.$this->id.'_q'.$shadowid] = 'Question Field: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
 			$keywords[$prefix.$this->id.'_q'.$shadowid.'_note'] = 'Question Note: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
+			$keywords[$prefix.$this->id.'_q'.$shadowid.'_id'] = 'Question ID: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
 		}
 
 		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', false) as $link) {
@@ -986,6 +987,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$shadowid);
 			$keywords[$prefix.$this->id.'_q'.$shadowid] = $q->getHtmlField();
 			$keywords[$prefix.$this->id.'_q'.$shadowid.'_note'] = $q->attr('note');
+			$keywords[$prefix.$this->id.'_q'.$shadowid.'_id'] = 'q'.$this->id.'_q'.$shadowid;
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($q);
 			unset($q);
 		}
@@ -1214,7 +1216,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 				$client_side = '';
 			}
 			echo $client_side;
-			?><form name="<?php echo $this->getPrefix() ?>" enctype="multipart/form-data" action="<?php $_SERVER['PHP_SELF'] ?>" method="post"<?php echo empty($client_side) ? '' : ' onSubmit="return beforeSubmit_'.$this->getPrefix().'()"' ?>><?php
+			?><form id="<?php echo $this->getPrefix() ?>" enctype="multipart/form-data" action="<?php $_SERVER['PHP_SELF'] ?>" method="post"<?php echo empty($client_side) ? '' : ' onSubmit="return beforeSubmit_'.$this->getPrefix().'()"' ?>><?php
 		}
 
 		// if format bodycopy enabled, print with that, otherwise print default
