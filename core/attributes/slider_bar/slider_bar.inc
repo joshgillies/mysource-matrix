@@ -1,0 +1,203 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: slider_bar.inc,v 1.1 2005/10/19 06:59:31 tbarrett Exp $
+*
+*/
+
+
+require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
+
+/**
+* Slider Bar Asset Attribute
+*
+* parameters => Array(
+* 					'range_lower'		=> [int],
+* 					'range_upper'		=> [int],
+*				)
+* edit_params => Array(
+*					'lower_text'		=> [string],
+*					'upper_text'		=> [string],
+*				 )
+*
+*
+* <!-- Sample Edit Interface XML Node -->
+*    <slider_bar lower_text="slow" upper_text="fast">
+* (NB slow and fast are localised string codes)
+*
+* @author  Tom Barrett <tbarrett@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix
+* @subpackage attributes
+*/
+class Asset_Attribute_Slider_Bar extends Asset_Attribute_Int
+{
+
+
+	/**
+	* Constructor
+	*
+	* @param int	$attributeid	the attribute id to be loaded
+	* @param mixed	$value			the current value for the element
+	*
+	*/
+	function Asset_Attribute_Slider_Bar($attributeid=0, $value=null)
+	{
+		$this->Asset_Attribute($attributeid, $value);
+
+		// apply default params where necessary
+		$this->_params['allow_empty'] = false;
+		$this->_params['allow_negative'] = false;
+		if (!isset($this->_params['range_lower'])) {
+			$this->_params['range_lower'] = 0;
+		}
+		if (!isset($this->_params['range_upper'])) {
+			$this->_params['range_upper'] = 10;
+		}
+
+		// default edit params
+		if (!isset($this->_edit_params['lower_text'])) {
+			$this->_edit_params['lower_text'] = 'Lower';
+		}
+		if (!isset($this->_edit_params['upper_text'])) {
+			$this->_edit_params['upper_text'] = 'upper';
+		}
+
+
+	}//end constructor
+
+
+	/**
+	* Takes an XML_Tree_Node from an edit interface XML file and creates
+	* the params array from it
+	*
+	* @param object	&$node	XML_Tree_Node object to generate params from.
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setEditParams(&$node)
+	{
+		if (!Asset_Attribute::setEditParams($node)) return false;
+		$this->_edit_params['lower_text']  = $node->attributes['lower_text'];
+		$this->_edit_params['upper_text']  = $node->attributes['upper_text'];
+		return true;
+
+	}//end setEditParams()
+
+
+	/**
+	* Prints the interface for filling in a value
+	*
+	* @param string		$prefix		prefix for the form element
+	* @param boolean	$read_only	are we just printing the value
+	*
+	* @return void
+	* @access public
+	*/
+	function paint($prefix, $read_only=false)
+	{
+		if ($this->value !== '') {
+			$this->value = (int)$this->value;
+		}
+		$textbox_extras = $read_only ? 'disabled="disabled"' : '';
+		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+		?>
+		<div class="slider-container">
+			<div class="slider-label-left">
+				<?php echo $this->_edit_params['lower_text']; ?>
+				<span>= <?php echo $this->_params['range_lower']; ?></span>
+			</div>
+			<?php int_text_box($prefix, $this->value, true, 4, $this->_params['range_lower'], $this->_params['range_upper'], 0, false, $textbox_extras); ?>
+			<div class="slider-label-right">
+				<?php echo $this->_edit_params['upper_text']; ?>
+				<span>= <?php echo $this->_params['range_upper']; ?></span>
+			</div>
+			&nbsp;
+		</div>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/slider_bar.js"></script>
+		<style type="text/css">
+			@import url(<?php echo sq_web_path('lib');?>/web/css/slider_bar.css);
+		</style>
+		<?php
+
+	}//end paint()
+
+
+	/**
+	* Prints the interface for filling in a value
+	*
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return void
+	* @access public
+	*/
+	function process($prefix)
+	{
+		if (!isset($_REQUEST[$prefix])) return false;
+		$value = $_REQUEST[$prefix];
+		if ($value !== '') $value = (int)$value;
+		if ($this->value != $value && $this->setValue($value)) {
+			$this->processed = true;
+		} else {
+			$this->processed = false;
+		}
+
+	}//end process()
+
+
+	/**
+	* Ensure the attribute being set is an integer
+	*
+	* @param mixed	&$value	value to be validated
+	*
+	* @return boolean
+	* @access public
+	*/
+	function validateValue(&$value)
+	{
+		$value = trim($value);
+
+		$allow_negative = array_get_index($this->_params, 'allow_negative', true);
+		$allow_empty = array_get_index($this->_params, 'allow_empty', true);
+
+		if ($allow_empty && ($value === '')) {
+			return true;
+		}
+
+		if (!$allow_negative && $value < 0) {
+			$value = $this->_default_value;
+		}
+
+		$new_value = (int)$value;
+
+		// we are comparing by string here, reason is that passing in a string as $value
+		// becomes comparing $value with zero which is TRUE. So instead we would be comparing
+		// it with a string '0', which is FALSE and what we want for it to invalidate.
+		// Only genuine ints will pass through.
+		if ((string)$new_value != $value) return false;
+		return true;
+
+	}//end validateValue()
+
+
+}//end class
+
+?>

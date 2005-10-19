@@ -1,0 +1,34 @@
+.slider-container {
+	height: 26px;
+	line-height: 26px;
+	width: 430px; /* hopefully! */
+}
+.slider-box {
+	background: #ddd;
+	height: 26px;
+	padding: 0px 4px;
+	width: 300px;
+	float: left;
+}
+.slider-bar {
+	height: 4px;
+	background: #888;
+	margin-top: 11px;
+}
+.slider {
+	height: 20px;
+	position: absolute;
+	margin-top: -8px;
+	background: #aaa;
+	cursor: normal;
+}
+.slider-label-left {
+	float: left;
+	margin-right: 1ex;
+	text-align: right;
+}
+.slider-label-right {
+	float: left;
+	margin-left: 1ex;
+	text-align: left;
+}
