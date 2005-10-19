@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if.inc,v 1.10 2005/10/13 02:20:59 tbarrett Exp $
+* $Id: design_area_show_if.inc,v 1.11 2005/10/19 07:03:11 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *	Show different content depending on certain conditions evaluated at runtime
 *
 * @author  Avi Miller <Avi Miller@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,8 +60,9 @@ class Design_Area_Show_If extends Design_Area
 			$condition_data = $this->attr('condition_data');
 			$condition_data[$data_key] = $value;
 			return parent::setAttrValue('condition_data', $condition_data);
+		} else {
+			return parent::setAttrValue($name, $value);
 		}
-		return parent::setAttrValue($name, $value);
 
 	}//end setAttrValue()
 
@@ -78,6 +79,7 @@ class Design_Area_Show_If extends Design_Area
 	{
 		$condition = $this->attr('condition');
 		$condition_data = $this->attr('condition_data');
+		$condition_data['id_name'] = $this->attr('id_name');
 		$id_name = $this->attr('id_name');
 		$cond_var_name = '$'.$this->attr('id_name').'_condition_result';
 		echo '<','?php
@@ -154,6 +156,24 @@ class Design_Area_Show_If extends Design_Area
 		return false;
 
 	}//end canBeCached()
+
+
+	/**
+	* Get the names of attributes for this DA that cannot be set in the parse file
+	*
+	* Design Area attributes that are not mentioned in the parse file are normally set to defaults
+	* when parsing the design.  Attributes returned by this function are exempted from that process.
+	*
+	* @return array
+	* @access public
+	*/
+	function getProtectedAttrs()
+	{
+		$attrs = parent::getProtectedAttrs();
+		$attrs[] = 'condition_data';
+		return $attrs;
+
+	}//end getProtectedAttrs()
 
 
 }//end class
