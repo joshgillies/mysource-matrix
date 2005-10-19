@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.77 2005/10/06 00:27:05 sdanis Exp $
+* $Id: page_asset_builder.inc,v 1.78 2005/10/19 01:20:25 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -239,7 +239,7 @@ class Page_Asset_Builder extends Page
 	function _printBody()
 	{
 		?>
-		<form name="asset_builder_<?php echo $this->id; ?>" id="asset_builder_<?php echo $this->id; ?>" method="post" action="<?php echo replace_query_string_vars(Array()); ?>" enctype="multipart/form-data">
+		<form id="<?php echo $this->getPrefix() ?>" method="post" action="<?php echo replace_query_string_vars(Array()); ?>" enctype="multipart/form-data">
 			<?php
 			hidden_field('ASSET_BUILDER_ACTION', $this->_default_state);
 			$parameter_map = &$this->getAttribute('parameter_map');
