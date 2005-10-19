@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.30 2005/09/21 05:14:46 dheppell Exp $
+* $Id: page_account_manager.inc,v 1.31 2005/10/19 01:23:20 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -663,7 +663,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	{
 		ob_start();
 			?>
-			<form name="account_manager_logout" method="POST" action="<?php echo current_url(true, true); ?>?SQ_ACTION=logout">
+			<form id="<?php echo $this->getPrefix() ?>_logout" method="POST" action="<?php echo current_url(true, true); ?>?SQ_ACTION=logout">
 				<?php echo submit_button('logout', translate('logout')); ?>
 			</form>
 			<?php
