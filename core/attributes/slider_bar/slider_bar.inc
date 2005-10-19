@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: slider_bar.inc,v 1.1 2005/10/19 06:59:31 tbarrett Exp $
+* $Id: slider_bar.inc,v 1.2 2005/10/19 07:01:47 tbarrett Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
 * (NB slow and fast are localised string codes)
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -95,9 +95,11 @@ class Asset_Attribute_Slider_Bar extends Asset_Attribute_Int
 	*/
 	function setEditParams(&$node)
 	{
-		if (!Asset_Attribute::setEditParams($node)) return false;
-		$this->_edit_params['lower_text']  = $node->attributes['lower_text'];
-		$this->_edit_params['upper_text']  = $node->attributes['upper_text'];
+		if (!Asset_Attribute::setEditParams($node)) {
+			return false;
+		}
+		$this->_edit_params['lower_text']  = translate($node->attributes['lower_text']);
+		$this->_edit_params['upper_text']  = translate($node->attributes['upper_text']);
 		return true;
 
 	}//end setEditParams()
