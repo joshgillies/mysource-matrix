@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.107 2005/10/18 01:02:49 lwright Exp $
+* $Id: listing_engine.inc,v 1.108 2005/10/19 01:04:47 lwright Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.107 $
+* @version $Revision: 1.108 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -325,7 +325,7 @@ class Listing_Engine extends Page
 			}
 
 			?>
-			<form name="listing_form" method="<?php echo $this->_getFormSubmitMethod() ?>" action="<?php echo $form_url; ?>">
+			<form id="<?php echo $this->getPrefix() ?>" method="<?php echo $this->_getFormSubmitMethod() ?>" action="<?php echo $form_url; ?>">
 			<?php echo $contents; ?>
 			</form>
 			<?php
