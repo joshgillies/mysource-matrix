@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.387 2005/10/13 01:38:36 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.388 2005/10/20 23:41:41 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.387 $
+* @version $Revision: 1.388 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3609,29 +3609,7 @@ class Asset_Manager extends MySource_Object
 		if (($err_msg = $this->canLinkToType($major, $minor->type(), $link_type, 0, $exclusive)) !== true) {
 			return $err_msg;
 		}
-/*
-		// shadow asset work
-		$majorid_parts = explode(':', $major->id);
-		$minorid_parts = explode(':', $minor->id);
-		$bridge_id = null;
 
-		if (isset($majorid_parts[1])) {
-			$major->->canCreateLink($major, $minor, $link_type, $exclusive);
-			$bridge_id = $majorid_parts[0];
-		}
-
-		if (isset($minorid_parts[1])) {
-			$bridge_id = $minorid_parts[0];
-		}
-
-		if (!is_null($bridge_id)) {
-			$bridge = &$this->getAsset($bridge_id);
-			$response = $bridge->canCreateLink($major, $minor, $link_type, $exclusive);
-			$this->forgetAsset($bridge);
-			return $response;
-		}
-		// end shadow assets
-*/
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// check for web path conflicts with the new parents children
