@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.108 2005/10/19 01:04:47 lwright Exp $
+* $Id: listing_engine.inc,v 1.109 2005/10/21 05:35:42 lwright Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.108 $
+* @version $Revision: 1.109 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1102,8 +1102,6 @@ class Listing_Engine extends Page
 	*/
 	function _groupChunk(&$todo, &$chunk, &$remaining_count, $num_per_page, $group_limit=null)
 	{
-		$pointer =& reset($todo);
-
 		//keep calling this for each group until we get to the actual assets
 		if (($group_limit > 0) || is_null($group_limit)) {
 			foreach ($todo as $index => $child) {
@@ -2158,8 +2156,8 @@ class Listing_Engine extends Page
 		//we need assets, so if none given, let's bail
 		if (empty($assetids)) return;
 
-		//point us at the first element
-		$group_type =& reset($group_levels);
+		//point us at the first element, discarding it as we go
+		$group_type = array_shift($group_levels);
 
 		// sort the groups
 		switch ($group_type['group_type']) {
@@ -2196,9 +2194,6 @@ class Listing_Engine extends Page
 				// implementation reserved
 			break;
 		}
-
-		//we're done with this group level, so lets discard it
-		array_shift($group_levels);
 
 		//if their are group levels remaining, we want to call
 		//this function again for each of the groups we have made
