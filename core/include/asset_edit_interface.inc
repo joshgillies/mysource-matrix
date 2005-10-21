@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.281 2005/10/20 06:33:20 arailean Exp $
+* $Id: asset_edit_interface.inc,v 1.282 2005/10/21 02:03:24 gsherwood Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.281 $
+* @version $Revision: 1.282 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -2200,9 +2200,9 @@ class Asset_Edit_Interface extends MySource_Object
 						if (!empty($field->attributes['attribute'])) {
 							$create_sections[$section->attributes['name']][] = $field->attributes['attribute'];
 						} else {
-							$fn_call_node =& reset($field->children);
+							$fn_call_node = reset($field->children);
 							while ($fn_call_node->name != 'function_call') {
-								$fn_call_node =& next($field->children);
+								$fn_call_node = next($field->children);
 							}
 							$fn_node = &$fn_call_node->children[(($painting) ? 0 : 1)];
 							$create_sections[$section->attributes['name']][] = $fn_node->attributes['name'];

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.14 2005/09/29 04:53:14 lwright Exp $
+* $Id: preview.inc,v 1.15 2005/10/21 02:03:24 gsherwood Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 
@@ -93,7 +93,7 @@ function paintPreview(&$owner, &$o, &$ei)
 
 		// set the primary preview url to the first system root url
 		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
-		$primary_url = &$GLOBALS['SQ_SYSTEM']->am->getAssetURL($owner->id,$root_urls[0]);
+		$primary_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($owner->id,$root_urls[0]);
 
 		foreach ($url_data as $url_info) {
 			$protocol_list = Array();
