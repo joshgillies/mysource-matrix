@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.21 2005/10/21 06:18:13 ndvries Exp $
+* $Id: hipo_job_create_links.inc,v 1.22 2005/10/21 06:51:28 arailean Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -522,7 +522,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			// to cascade permissions, metadata, and workflow. We also need to get all the children
 			// so the lookups can be updated later
 			$moving_to_trash = false;
-			$bridge = null;
+			$bridge_id = null;
 
 			$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 			if ($this->_running_vars['to_parent_assetid'] == $trash_folder->id) {
@@ -535,7 +535,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 				$id_parts = explode(':', $assetid);
 				if (isset($id_parts[1])) {
-					$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id_parts[0]);
+					$bridge_id = $id_parts[0];
 				}
 
 				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
@@ -545,7 +545,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			// if we are moving a shadow asset to the trash, the bridge is responsible for deletion of links
 			// and determining whether the shadow asset itself should be deleted
 			// NOTE: a shadow asset CANNOT be linked to the Trash, therefore it (or the link) must be deleted
-			if ($moving_to_trash && !is_null($bridge)) {
+			if ($moving_to_trash && !is_null($bridge_id)) {
+				$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bridge_id);
 				if (!$bridge->deleteAssetLink($value['linkid'])){
 					trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -554,6 +555,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bridge);
 
 			} else {
+
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid'], $value['parentid']);
 
 				$linkid = $GLOBALS['SQ_SYSTEM']->am->moveLink($value['linkid'], $this->_running_vars['to_parent_assetid'], $link['link_type'], $this->_running_vars['to_parent_pos']);
