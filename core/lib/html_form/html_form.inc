@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.102 2005/09/14 05:02:29 ndvries Exp $
+* $Id: html_form.inc,v 1.103 2005/10/21 06:48:37 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.103 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -827,8 +827,8 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 		$type_codes_string = get_type_codes_string($type_codes);
 		echo '<input type="button" value="'.translate('more').'..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes_string).'\', \''.htmlentities($map_frame_exp).'\', '.$done_fn.', '.(in_array('clear', $buttons) ? 'true' : 'false').')" />';
 		echo '<br />';
-		echo '</div>';
 	}
+	echo '</div>';
 
 }//end multiple_asset_finder()
 
