@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.143 2005/10/19 01:06:56 lwright Exp $
+* $Id: search_page.inc,v 1.144 2005/10/21 06:59:58 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.143 $
+* @version $Revision: 1.144 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2335,8 +2335,8 @@ class Search_Page extends Listing_Engine
 		}
 
 		// work out if forms are customised
-		$search_bodycopy_link = &$this->getFormatBodycopyLink('search_form');
-		$sis_bodycopy_link    = &$this->getFormatBodycopyLink('sis_form'); //search in search
+		$search_bodycopy_link = $this->getFormatBodycopyLink('search_form');
+		$sis_bodycopy_link    =&$this->getFormatBodycopyLink('sis_form'); //search in search
 		$search_customised    = !empty($search_bodycopy_link) && $search_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
 		$sis_customised       = !empty($sis_bodycopy_link) && $sis_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
 
