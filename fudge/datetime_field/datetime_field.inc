@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.31 2005/07/14 00:32:12 tbarrett Exp $
+* $Id: datetime_field.inc,v 1.32 2005/10/23 23:00:25 dmckee Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -155,7 +155,8 @@ class DateTime_Field
 		if (isset($this->parameters[$code])) {
 			return $this->parameters[$code];
 		}
-		return;
+		$retvalue = null;
+		return $retvalue;
 
 	}//end getParam()
 
