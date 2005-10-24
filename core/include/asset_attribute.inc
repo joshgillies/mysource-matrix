@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.42 2005/10/18 05:49:41 mmcintyre Exp $
+* $Id: asset_attribute.inc,v 1.43 2005/10/24 23:17:09 dmckee Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -157,7 +157,8 @@ class Asset_Attribute extends MySource_Object
 	function &loadAttribute($attributeid=0, $value=null, $default_params=Array())
 	{
 		if ($attributeid == 0) {
-			return new Asset_Attribute(0, $value, $default_params);;
+			$empty_attr = new Asset_Attribute(0, $value, $default_params);
+			return $empty_attr;
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
