@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.25 2005/05/11 06:04:57 lwright Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.26 2005/10/24 04:46:50 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -143,7 +143,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	function paintJobs(&$asset, &$o, $prefix)
 	{
 
-		$jobs = &$asset->getJobs('cron_job', false);
+		$jobs = $asset->getJobs('cron_job', false);
 		if (empty($jobs)) {
 			$o->openField('');
 				$o->note(translate('cron_no_jobs_registered'));
