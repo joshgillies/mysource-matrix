@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.114 2005/10/13 05:15:30 lwright Exp $
+* $Id: file.inc,v 1.115 2005/10/24 00:48:29 dmckee Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.114 $
+* @version $Revision: 1.115 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -544,7 +544,10 @@ class File extends Asset
 	*/
 	function updateLookups()
 	{
-		if (!$this->usePublicPath()) {
+		if (!isset($this->_tmp['deleting_file'])) {
+			$this->_tmp['deleting_file'] = false;
+		}
+		if (!$this->usePublicPath() && !$this->_tmp['deleting_file']) {
 			// this file is either in a safe edit, restricted, or doesnt want to be unrestricted
 			// so we dont worry about __data paths
 			return parent::updateLookups();
@@ -573,6 +576,9 @@ class File extends Asset
 								assetid = '.$db->quoteSmart($this->id).'
 						)
 					AND	name LIKE '.$db->quoteSmart('design::%');
+		if ($this->_tmp['deleting_file']) {
+			$sql .= ' OR name LIKE '.$db->quoteSmart('paint_layout::%');
+		}
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
@@ -1090,6 +1096,34 @@ class File extends Asset
 		return easy_filesize($existing['size']);
 
 	}//end getAssetFileSizeReadableKeywordReplacement()
+
+
+	/**
+	* Delete this asset from the trash
+	*
+	* Note that the asset <i>MUST</i> be in the trash to delete it <i>FROM</i> the trash.
+	*
+	* @param boolean	$release_lock	should we release the lock after deleting
+	*
+	* @return boolean
+	* @access public
+	*/
+	function delete($release_lock=true)
+	{
+		$this->_tmp['deleting_file'] = true;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (!parent::delete($release_lock)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$this->_tmp['deleting_file'] = false;
+
+		return true;
+
+	}//end delete()
 
 
 }//end class
