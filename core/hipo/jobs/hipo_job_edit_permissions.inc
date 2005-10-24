@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.55 2005/09/21 03:43:13 sdanis Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.56 2005/10/24 00:28:49 dmckee Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -254,7 +254,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 		$assets = $this->_running_vars['assets'];
 		$child_assets = Array();
 		for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
-			$asset_info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
+			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 			if (empty($asset_info)) {
 				trigger_localised_error('HIPO0013', E_USER_WARNING, $assetid);
 				return '';
@@ -431,13 +431,13 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 		$assetid = key($this->_running_vars['re_lock_assets']);
 		unset($this->_running_vars['re_lock_assets'][$assetid]);
 
-		$children = &$GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
+		$children = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
 
 		foreach ($children as $dep_child_id => $dep_child_type_code) {
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($dep_child_id, 'permissions');
 		}
 
-		$asset_info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
 		$step_data['message'] = translate('hipo_release_locks', $asset_info[$assetid]['name']).translate('hipo_release_locks_dependents');
 
