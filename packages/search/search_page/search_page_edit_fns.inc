@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.64 2005/10/21 06:59:58 lwright Exp $
+* $Id: search_page_edit_fns.inc,v 1.65 2005/10/24 23:13:23 dmckee Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -385,29 +385,31 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	{
 		$old_fields = $asset->attr('fields');
 		$new_fields = Array();
-		foreach ($_POST[$prefix.'_fields'] as $field_name => $field) {
-			if (!isset($field['delete'])) {
-				$new_fields[$field_name]['name'] = $old_fields[$field_name]['name'];
-				$new_fields[$field_name]['word_logic'] = $field['word_logic'];
-				$field_datasources = array_get_index($field, 'data_sources', Array());
-				$new_fields[$field_name]['data_sources'] = Array();
-				foreach ($field_datasources as $i => $field_datasource) {
-					if (!isset($field_datasource['delete'])) {
-						$new_datasource = Array();
-						$new_datasource['type'] = $old_fields[$field_name]['data_sources'][$i]['type'];
-						if ($new_datasource['type'] != 'metadata') {
-							$new_datasource['params'] = $field_datasource['params'];
-						} else {
-							$new_datasource['params']['assetid'] = $field_datasource['params']['metadata_field']['assetid'];
+		if (isset($_POST[$prefix.'_fields'])) {
+			foreach ($_POST[$prefix.'_fields'] as $field_name => $field) {
+				if (!isset($field['delete'])) {
+					$new_fields[$field_name]['name'] = $old_fields[$field_name]['name'];
+					$new_fields[$field_name]['word_logic'] = $field['word_logic'];
+					$field_datasources = array_get_index($field, 'data_sources', Array());
+					$new_fields[$field_name]['data_sources'] = Array();
+					foreach ($field_datasources as $i => $field_datasource) {
+						if (!isset($field_datasource['delete'])) {
+							$new_datasource = Array();
+							$new_datasource['type'] = $old_fields[$field_name]['data_sources'][$i]['type'];
+							if ($new_datasource['type'] != 'metadata') {
+								$new_datasource['params'] = $field_datasource['params'];
+							} else {
+								$new_datasource['params']['assetid'] = $field_datasource['params']['metadata_field']['assetid'];
+							}
+							$new_fields[$field_name]['data_sources'][] = $new_datasource;
 						}
+					}
+					if (!empty($field['new_data_source_type']) && $field['new_data_source_type'] != 'none') {
+						$new_datasource = Array();
+						$new_datasource['type'] = $field['new_data_source_type'];
+						$new_datasource['params'] = Array();
 						$new_fields[$field_name]['data_sources'][] = $new_datasource;
 					}
-				}
-				if (!empty($field['new_data_source_type']) && $field['new_data_source_type'] != 'none') {
-					$new_datasource = Array();
-					$new_datasource['type'] = $field['new_data_source_type'];
-					$new_datasource['params'] = Array();
-					$new_fields[$field_name]['data_sources'][] = $new_datasource;
 				}
 			}
 		}
