@@ -18,7 +18,7 @@
 * | licence.                                                      |
 * +--------------------------------------------------------------------+
 *
-* $Id: dev.inc,v 1.24 2005/10/10 00:05:48 arailean Exp $
+* $Id: dev.inc,v 1.25 2005/10/24 23:32:34 arailean Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 *     Generic functions that are useful for developers
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package Fudge
 * @subpackage dev
 */
@@ -416,7 +416,7 @@ function get_microtime()
 function log_dump($var=null)
 {
 	static $count = 0;
-	if (empty($var)) {
+	if (is_null($var)) {
 		$var = '---------- Debugging ----------';
 	}
 	error_log($count++.': '.get_calling_func().': '.print_r($var, 1));
