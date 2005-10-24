@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.26 2005/10/24 04:46:50 rhoward Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.27 2005/10/24 23:39:18 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -438,8 +438,8 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 						</tr>
 						<tr>
 							<td valign="top" class="sq-backend-data">
-								<?php 
-									check_box($prefix.'_force_remove_lock'); 
+								<?php
+									check_box($prefix.'_force_remove_lock');
 									label(translate('cron_force_lock_removal'));
 								?>
 							</td>
