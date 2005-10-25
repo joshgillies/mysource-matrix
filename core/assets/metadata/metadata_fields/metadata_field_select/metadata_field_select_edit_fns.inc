@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.25 2005/09/08 00:39:12 rong Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.26 2005/10/25 04:49:45 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -116,7 +116,9 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 					if (!is_array($value)) $value = Array($value);
 					$value_output = '';
 					foreach ($value as $option) {
-						$value_output .= $select_options[$option].'; ';
+						if (isset($select_options[$option])) {
+							$value_output .= $select_options[$option].'; ';
+						}
 					}
 					echo trim($value_output, '; ');
 				}
