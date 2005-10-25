@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.192 2005/10/14 02:11:05 lwright Exp $
+* $Id: asset_map.inc,v 1.193 2005/10/25 01:00:17 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.192 $
+* @version $Revision: 1.193 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -394,12 +394,12 @@ class Asset_Map
 	{
 		if (strpos($assetid, ':') !== false) {
 			// this is a shadow asset so we need to get info differently
-			$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			// note that we pretend these assets have children so we dont have to actually
 			// load all their kids - we dont know what kind of speed hit we get for the different
 			// types of shadow assets
 			$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
 
 			$attrs = Array(
 						'assetid'		=> urlencode($assetid),
@@ -656,14 +656,14 @@ class Asset_Map
 		// gather links for shadowed assets - only if asset descends from a bridge
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 		$implements_shadow_assets = false;
-		 if (strpos($assetid, ':') !== false) {
+		if (strpos($assetid, ':') !== false) {
 			// this is a shadow asset itself, so it will work the same way as a bridge
 			$implements_shadow_assets = true;
-		 } else if (isset($asset_info[$assetid]['type_code'])) {
+		} else if (isset($asset_info[$assetid]['type_code'])) {
 			 $type_code = $asset_info[$assetid]['type_code'];
 			 $GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 			 $implements_shadow_assets = implements_interface($type_code, 'bridge');
-		 }
+		}
 
 		if ($implements_shadow_assets) {
 			$links_handler = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -1151,6 +1151,7 @@ class Asset_Map
 	*/
 	function _moveAssets($input)
 	{
+
 		$output =& new XML_Tree();
 		$output->addRoot('responses');
 		$response_count = 0;
@@ -1211,38 +1212,18 @@ class Asset_Map
 		}
 
 		// process the re-ordering
-		if (count($reordered_assets) > 0) {
-
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-			$assetids = array_keys($reordered_assets);
-			for (reset($assetids); null !== ($key = key($assetids)); next($assetids)) {
-				$assetids[$key] = $db->quote($assetids[$key]);
+		foreach ($reordered_assets as $assetid => $link_info) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->moveLinkPos($link_info['linkid'], $new_parent_pos++)) {
+				return;
 			}
 
-			$sql = 'SELECT minorid, sort_order
-					FROM sq_ast_lnk
-					WHERE majorid = '.$new_parent->id.' AND minorid IN ('.implode(', ', $assetids).')
-					ORDER BY sort_order ASC';
-			$result = $db->getAssoc($sql);
-			assert_valid_db_result($result);
-
-			foreach ($result as $assetid => $sort_order) {
-				if (!$GLOBALS['SQ_SYSTEM']->am->moveLinkPos($reordered_assets[$assetid]['linkid'], $new_parent_pos)) {
-					return;
-				}
-
-				// moving up
-				if ($sort_order > $new_parent_pos) $new_parent_pos++;
-
-				$successTree =& new XML_Tree();
-				$successTree->addRoot('success', '', Array(
-														'linkid'	=> $reordered_assets[$assetid]['linkid'],
-														'assetid'	=> $assetid,
-													 )
-									);
-				$output->insertChild(Array('responses'), $response_count++, $successTree);
-			}
+			$successTree =& new XML_Tree();
+			$successTree->addRoot('success', '', Array(
+													'linkid'	=> $link_info['linkid'],
+													'assetid'	=> $assetid,
+												 )
+								);
+			$output->insertChild(Array('responses'), $response_count++, $successTree);
 		}
 
 		// Only run the HIPO if assets need to be moved from one parent to another
