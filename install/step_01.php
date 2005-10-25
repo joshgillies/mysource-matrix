@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_01.php,v 1.37 2005/03/21 06:24:50 gsherwood Exp $
+* $Id: step_01.php,v 1.38 2005/10/25 02:02:24 mmcintyre Exp $
 *
 */
 
@@ -28,14 +28,38 @@
 * Purpose
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 * @subpackage install
 */
 ini_set('memory_limit', -1);
 error_reporting(E_ALL);
+$SYSTEM_ROOT = '';
 
-define('SQ_SYSTEM_ROOT',  dirname(dirname(realpath(__FILE__))));
+if ((php_sapi_name() == 'cli')) {
+    if (isset($_SERVER['argv'][1])) {
+        $SYSTEM_ROOT = $_SERVER['argv'][1];
+    }
+
+    $err_msg = "You need to supply the path to the System Root as the first argument\n";
+
+} else {
+    if (isset($_GET['SYSTEM_ROOT'])) {
+        $SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
+    }
+
+    $err_msg = '
+    <div style="background-color: red; color: white; font-weight: bold;">
+        You need to supply the path to the System Root as a query string variable called SYSTEM_ROOT
+    </div>
+	';
+}
+
+if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
+	trigger_error($err_msg, E_USER_ERROR);
+}
+
+define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
 define('SQ_INCLUDE_PATH', SQ_SYSTEM_ROOT.'/core/include');
 define('SQ_LIB_PATH',     SQ_SYSTEM_ROOT.'/core/lib');
 define('SQ_DATA_PATH',    SQ_SYSTEM_ROOT.'/data');
