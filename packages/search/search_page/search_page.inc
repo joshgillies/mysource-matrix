@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.146 2005/10/25 03:42:03 dmckee Exp $
+* $Id: search_page.inc,v 1.147 2005/10/25 06:48:06 dmckee Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.146 $
+* @version $Revision: 1.147 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1872,45 +1872,47 @@ class Search_Page extends Listing_Engine
 		}//end foreach fields
 
 		// spell-check suggestions
-		foreach ($search_info['fields'] as $field_name => $field_content) {
-			$words = $field_content['words'];
-			if (!is_array($words)) $words = explode(' ', $words);
-			if ($sm->spellCheckAvailable()) {
-				// suggestion 'string' - this will be imploded later with spaces
-				$suggestion_string = Array();
-				$needs_suggestions = false;
+		if (!empty($search_info['fields'])) {
+			foreach ($search_info['fields'] as $field_name => $field_content) {
+				$words = $field_content['words'];
+				if (!is_array($words)) $words = explode(' ', $words);
+				if ($sm->spellCheckAvailable()) {
+					// suggestion 'string' - this will be imploded later with spaces
+					$suggestion_string = Array();
+					$needs_suggestions = false;
 
-				// loop over each word
-				foreach ($words as $word) {
-					$suggestions = $sm->spellCheckWord($word);
-					if (!empty($suggestions)) {
-						$needs_suggestions = true;
-						$suggestion_string[] = $suggestions[0];
-					} else {
-						$suggestion_string[] = $word;
+					// loop over each word
+					foreach ($words as $word) {
+						$suggestions = $sm->spellCheckWord($word);
+						if (!empty($suggestions)) {
+							$needs_suggestions = true;
+							$suggestion_string[] = $suggestions[0];
+						} else {
+							$suggestion_string[] = $word;
+						}
 					}
-				}
 
-				if ($needs_suggestions) {
-					$this->_tmp['search_suggestions'][$field_name] = implode(' ', $suggestion_string);
-				}
-			}//end if spell check available
-
-			// thesaurus synonym searching
-			$t_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', false, 'thesaurus');
-
-			if (!empty($t_link)) {
-				$t_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($t_link['minorid']);
-				$this->_tmp['search_synonyms'][$field_name] = Array();
-
-				// loop over each word, find synonyms
-				foreach ($words as $word) {
-					if (!isset($this->_tmp['search_synonyms'][$field_name][$word])) {
-						$suggestions = $sm->findSynonymsForWord($word, $t_asset);
-						$this->_tmp['search_synonyms'][$field_name][$word] = $suggestions;
+					if ($needs_suggestions) {
+						$this->_tmp['search_suggestions'][$field_name] = implode(' ', $suggestion_string);
 					}
-				}
-			}//end thesaurus exists
+				}//end if spell check available
+
+				// thesaurus synonym searching
+				$t_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', false, 'thesaurus');
+
+				if (!empty($t_link)) {
+					$t_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($t_link['minorid']);
+					$this->_tmp['search_synonyms'][$field_name] = Array();
+
+					// loop over each word, find synonyms
+					foreach ($words as $word) {
+						if (!isset($this->_tmp['search_synonyms'][$field_name][$word])) {
+							$suggestions = $sm->findSynonymsForWord($word, $t_asset);
+							$this->_tmp['search_synonyms'][$field_name][$word] = $suggestions;
+						}
+					}
+				}//end thesaurus exists
+			}
 		}
 
 		if ($query_fields_exist) {
