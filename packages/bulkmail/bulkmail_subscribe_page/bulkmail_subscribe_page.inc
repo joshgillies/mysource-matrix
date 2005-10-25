@@ -1,0 +1,744 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Commercial Module Licence                                |
+* +--------------------------------------------------------------------+
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +--------------------------------------------------------------------+
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +--------------------------------------------------------------------+
+*
+* $Id: bulkmail_subscribe_page.inc,v 1.1.1.1 2005/10/25 04:53:43 ndvries Exp $
+*
+*/
+
+
+require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_user_group_manager/page_user_group_manager.inc';
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once 'Mail.php';
+
+/**
+* Bulkmail_Subscribe_Page
+*
+* Purpose
+*
+*
+* @author  Nathan de Vries <ndvries@squiz.net>
+* @author  Rayne Ong <rong@squiz.net>
+* @version $Revision: 1.1.1.1 $
+* @package MySource_Matrix_Packages
+* @subpackage bulkmail
+*/
+class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
+{
+
+	var $keywords = Array(
+						'logged_in'		=> Array(
+											'error_messages_list',
+											'success_messages_list',
+											'current_subscriptions',
+											'subscriptions_picker',
+											'unsubscriptions_picker',
+											'user_name',
+											'user_short_name',
+											'user_email',
+											'subscribe_user_name',
+											'subscribe_email_address',
+											'commit_button',
+										   ),
+						'not_logged_in'	=> Array(
+											'error_messages_list',
+											'success_messages_list',
+											'subscribe_user_name',
+											'subscribe_email_address',
+											'commit_button',
+										   ),
+					);
+
+	/**
+	* Constructor
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	*/
+	function Bulkmail_Subscribe_Page($assetid=0)
+	{
+		$this->_ser_attrs = true;
+		$this->Page_User_Group_Manager($assetid);
+
+	}//end constructor
+
+
+	/**
+	* Returns an array of all the permitted link types, the type asset and the cardinality
+	*
+	* @return array
+	* @access private
+	* @see Asset::_getAllowLinks()
+	*/
+	function _getAllowedLinks()
+	{
+		return Array(
+				SQ_LINK_TYPE_2	=> Array(
+									'bodycopy'	=> Array(
+													'card'		=> 'M',
+													'exclusive'	=> false
+												   ),
+									'folder'	=> Array(
+													'card'		=> 'M',
+													'exclusive'	=> false
+												   ),
+								   ),
+			   );
+
+	}//end _getAllowedLinks()
+
+
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Search pages create a few bodycopy assets when they are created
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!parent::_createAdditional($link)) return false;
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
+
+		$copy_link = Array(
+						'asset'			=> &$this,
+						'link_type'		=> SQ_LINK_TYPE_2,
+						'is_dependant'	=> 1,
+						'is_exclusive'	=> 1,
+						'value'			=> 'unverified_users',
+					 );
+
+		$unverified_users =& new Folder();
+		$unverified_users->setAttrValue('name', 'Unverified Users');
+		if (!$unverified_users->create($copy_link)) return false;
+
+		return true;
+
+	}//end _createAdditional()
+
+
+	/**
+	* Retrieves the unverified users folder
+	*
+	* @return object	the folder
+	* @access private
+	*/
+	function &getUnverifiedUsersFolder()
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'unverified_users', 'major', '1');
+		$folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		return $folder;
+
+	}//end getUnverifiedUsersFolder()
+
+
+	/**
+	* Gets the assetid of the unique Bulkmail_User asset with an email of $value
+	*
+	* @param	string	the email address to look for (unique attribute value)
+	*
+	* @return	int		the Bulkmail_User assetid
+	* @access	private
+	*/
+	function getExistingBulkmailUserid($value)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'SELECT assetid
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_uniq_val uv
+					INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr oa ON uv.owning_attrid = oa.attrid
+					INNER JOIN sq_ast_attr a ON (oa.type_code = a.owning_type_code AND oa.name = a.name)
+				  ';
+		$where = ' uv.custom_val = '.$db->quote($value).'
+					AND a.name = '.$db->quote('email').'
+					AND a.type_code = '.$db->quote('bulkmail_user');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'uv');
+
+		$result = $db->getOne($sql.$where);
+		assert_valid_db_result($result);
+		return $result;
+
+	}//end getExistingBulkmailUserid()
+
+
+	/**
+	* Gets a list of the valid mailing lists, so that we can check if people are
+	* rewriting the GET vars to link themselves elsewhere
+	*
+	* @return	array	assets being listed by the location picker on this page
+	* @access	private
+	*/
+	function getAvailableLocations()
+	{
+		$all_child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($this->attr('root_node'));
+		$child_links = $all_child_links;
+
+		$search_tree = Array();
+		$asset_info_ids = Array();
+		$invalid = Array();
+
+		//weed out any unwanted entries
+		foreach ($all_child_links as $treeid => $data) {
+			// build an array of assetids as we go
+			$asset_info_ids[] = $data['assetid'];
+
+			if (!in_array($data['type_code'], Array('user_group'))) {
+				unset($child_links[$treeid]);
+				$invalid[] = $treeid;
+				continue;
+			}
+
+			if ($this->attr('structured_style')) {
+				foreach ($invalid as $banned) {
+					if (strlen($banned) > strlen($treeid)) continue;
+					if (substr($treeid, 0, strlen($banned)) == $banned) {
+						unset($child_links[$treeid]);
+						continue 1;
+					}
+				}
+			}
+		}
+
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset_info_ids);
+
+		// check if we have statuses we want to filter out
+		$statuses = $this->attr('statuses');
+		if (!empty($statuses)) {
+			foreach ($child_links as $treeid => $data) {
+				if (!in_array($asset_info[$data['assetid']]['status'], $statuses)) {
+					unset($child_links[$treeid]);
+				}
+			}
+		}
+
+		$available_locations = Array();
+		foreach ($child_links as $child_link) {
+			$available_locations[] = $child_link['assetid'];
+		}
+
+		return $available_locations;
+
+	}//end getAvailableLocations()
+
+	/**
+	* This is called before the bodycopy contents are printed. It decides which
+	* functions to call based on whether the user is logged in or not (or has
+	* has clicked on a link in a verification email)
+	*
+	* @return	null
+	* @access	private
+	*/
+	function processForm()
+	{
+		$public_user =& $GLOBALS['SQ_SYSTEM']->getPublicUser();
+		$email_address = array_get_index($_REQUEST, $this->getPrefix().'_email_address', '');
+
+		// Any user attempting verification
+		if (!empty($_GET['uniqid'])) {
+			$this->processVerification();
+		}
+
+		// Public user
+		if ($GLOBALS['SQ_SYSTEM']->currentUser($public_user)) {
+			$this->processPublicUserForm();
+
+		// Matrix User
+		} else {
+			$current_user =& $GLOBALS['SQ_SYSTEM']->user;
+			$current_user_email = $current_user->attr('email');
+
+			// The user is logged in, but wants to subscribe/unsubscribe a different email address
+			if (!empty($email_address) && ($email_address != $current_user_email)) {
+				$this->processPublicUserForm();
+
+			// Subscribe the logged in user to the list
+			} else {
+				$this->processMatrixUserForm();
+			}
+		}
+
+	}//end processForm()
+
+
+	/**
+	* Process a verification request. This will get called whenever the GET vars
+	* indicate that the user has done a click-through from a verification email.
+	*
+	* @return	null
+	* @access	private
+	*/
+	function processVerification()
+	{
+		$uniqid = array_get_index($_GET, 'uniqid', '');
+		if (empty($uniqid)) return;
+
+		$subscriptions = array_get_index($_GET, 'subscribe', Array());
+		$unsubscriptions = array_get_index($_GET, 'unsubscribe', Array());
+		$subscriptions = empty($subscriptions) ? Array() : explode(',', $subscriptions);
+		$unsubscriptions = empty($unsubscriptions) ? Array() : explode(',', $unsubscriptions);
+		if (empty($subscriptions) && empty($unsubscriptions)) return;
+
+		// OK, let's check if there is a user linked under the unverified users
+		// folder with $uniqid as the link value
+
+		$unverified_folder =& $this->getUnverifiedUsersFolder();
+		$type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('user', true);
+		$type_codes[] = 'bulkmail_user';
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($unverified_folder->id, null, $type_codes, true, $uniqid);
+
+		if (empty($link)) {
+			// Validating and sub/unsubscribing straight after will probably be
+			// confusing if we don't just return silently
+			//$this->errors[] = 'We have no record of your email address. You may need to subscribe again.';
+			return;
+		}
+
+		$bulkmail_user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bulkmail_user');
+
+		// This is to trip up all the sneaky bastards who want to
+		// try and re-write the URL to link themselves under other groups
+		$all_mailing_lists = $this->getAvailableLocations();
+		$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($bulkmail_user->id, 'user_group', false));
+		$current_subscriptions = array_intersect($all_mailing_lists, $parents);
+
+		$bad_subscriptions = array_diff($subscriptions, $all_mailing_lists);
+		$bad_unsubscriptions = array_diff($unsubscriptions, $all_mailing_lists);
+
+		$good_subscriptions = array_diff($subscriptions, $bad_subscriptions);
+		$good_unsubscriptions = array_diff($unsubscriptions, $bad_unsubscriptions);
+
+		$curr_plus_new = array_merge($current_subscriptions, $good_subscriptions);
+		$new_minus_old = array_diff($curr_plus_new, $good_unsubscriptions);
+		$new_subscriptions = array_unique($new_minus_old);
+
+		if (!empty($bad_subscriptions)) {
+			$this->errors[] = translate('bsp_bad_subscriptions');
+		}
+
+		if (!empty($bad_unsubscriptions)) {
+			$this->errors[] = translate('bsp_bad_unsubscriptions');
+		}
+
+		// Check if the subscriptions are empty because otherwise
+		// the Bulkmail_User will just go straight to the trash
+		if (!empty($good_subscriptions) || !empty($good_unsubscriptions)) {
+			$current_subscriptions[] = $unverified_folder->id;
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED + SQ_SECURITY_LINK_INTEGRITY);
+				$done = $this->processMinorLinks($link['minorid'], $current_subscriptions, $new_subscriptions, $this->attr('link_type'));
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+			// OK, let's get rid of the $unverifed_folder->id from
+			// $done so that it doesn't get shown to the frontend user
+			foreach ($done as $done_type => $done_ids) {
+				foreach ($done_ids as $index => $done_id) {
+					if ($done_id == $unverified_folder->id) {
+						unset($done[$done_type][$index]);
+					}
+					if (empty($done[$done_type])) {
+						unset($done[$done_type]);
+					}
+				}
+			}
+
+			$this->addLinkingMessages($done);
+
+		} else {
+			$this->errors[] = translate('bsp_no_valid_sub_unsub');
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($unverified_folder);
+
+	}// end processVerification()
+
+
+	/**
+	* Process a sub/unsubscribe request from a public user (ie, someone that just
+	* wants to key in their email address and hit subscribe / unsubscribe), or a
+	* logged in user who has specified a different email address
+	*
+	* @return	null
+	* @access	private
+	*/
+	function processPublicUserForm()
+	{
+		$email_address = array_get_index($_REQUEST, $this->getPrefix().'_email_address', '');
+		$user_name = array_get_index($_REQUEST, $this->getPrefix().'_user_name', '');
+		if (empty($email_address)) return;
+
+		$subscriptions = array_get_index($_REQUEST, $this->getPrefix().'_subscriptions', Array());
+		$unsubscriptions = array_get_index($_REQUEST, $this->getPrefix().'_unsubscriptions', Array());
+		if (empty($subscriptions) && empty($unsubscriptions)) return;
+
+		switch ($this->attr('verify_not_logged_in')) {
+			case 'always':
+				$sub_verify = !empty($subscriptions);
+				$unsub_verify = !empty($unsubscriptions);
+			break;
+			case 'subscribe':
+				$sub_verify = !empty($subscriptions);
+				$unsub_verify = false;
+			break;
+			case 'unsubscribe':
+				$sub_verify = false;
+				$unsub_verify = !empty($unsubscriptions);
+			break;
+			case 'never':
+			default:
+				$sub_verify = $unsub_verify = false;
+			break;
+		}
+
+		$unverified_folder =& $this->getUnverifiedUsersFolder();
+		$uniqid = md5(uniqid(''));
+
+		if ($sub_verify || $unsub_verify) {
+			$this->sendConfirmationEmail($email_address, 'Spammer Fred and hobo Mike <ndvries@squiz.net>', $subscriptions, $unsubscriptions, $uniqid);
+			$this->messages[] = translate('bsp_verification_email_sent', $email_address);
+		}
+
+		// We need to verify both subscribing and unsubscribing
+		if ($sub_verify && $unsub_verify) {
+			$subscriptions = Array($unverified_folder->id);
+			$unsubscriptions = Array();
+
+		// Only verify subscriptions
+		} else if ($sub_verify) {
+			$subscriptions = Array($unverified_folder->id);
+
+		// Only verify unsubscriptions
+		} else if ($unsub_verify) {
+			$subscriptions[] = $unverified_folder->id;
+			$unsubscriptions = Array();
+		}
+
+		$bulk_userid = $this->getExistingBulkmailUserid($email_address);
+
+		// The user doesn't exist at all, so we are going to create it
+		if (empty($bulk_userid) && !empty($subscriptions)) {
+			// We should clear the unsubscriptions considering you can't unsubscribe
+			// if you don't exist
+			$unsubscriptions = Array();
+
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bulkmail_user');
+			$bulkmail_user =& new Bulkmail_User();
+
+			$parent_assetid = array_shift($subscriptions);
+			$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
+			$link_value = $sub_verify ? $uniqid : '';
+			$link = Array(
+						'asset'		=> $parent_asset,
+						'link_type'	=> $this->attr('link_type'),
+						'value'		=> $link_value,
+					);
+
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED + SQ_SECURITY_LINK_INTEGRITY);
+				$bulkmail_user->setAttrValue('email', $email_address);
+				$bulkmail_user->setAttrValue('name', $user_name);
+				$bulkmail_user->create($link);
+				$done = $this->processMinorLinks($bulkmail_user->id, Array(), $subscriptions, $this->attr('link_type'));
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+			$done['add_success'][] = $parent_assetid;
+			$this->addLinkingMessages($done);
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent_asset);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bulkmail_user);
+
+		// The user already exists, so we need to shift them in and out of whatever groups they have selected
+		} else if ($bulk_userid) {
+			$bulkmail_user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bulk_userid, 'bulkmail_user');
+
+			foreach ($subscriptions as $index => $assetid) {
+				if ($assetid == $unverified_folder->id) {
+					// We need to manually create the link to the unverified users folder here
+					// because it needs a link value
+					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+						$GLOBALS['SQ_SYSTEM']->am->createAssetLink($unverified_folder, $bulkmail_user, $this->attr('link_type'), $uniqid);
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					unset ($subscriptions[$index]);
+				}
+			}
+
+			$all_mailing_lists = $this->getAvailableLocations();
+			$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($bulkmail_user->id, 'user_group', false));
+			$current_subscriptions = array_intersect($all_mailing_lists, $parents);
+
+			$curr_plus_new = array_merge($current_subscriptions, $subscriptions);
+			$new_minus_old = array_diff($curr_plus_new, $unsubscriptions);
+			$new_subscriptions = array_unique($new_minus_old);
+
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED + SQ_SECURITY_LINK_INTEGRITY);
+				$done = $this->processMinorLinks($bulkmail_user->id, $current_subscriptions, $new_subscriptions, $this->attr('link_type'));
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+			$this->addLinkingMessages($done);
+		}
+
+	}//end processPublicUserForm()
+
+
+	/**
+	* Process a sub/unsubscribe request from logged in user
+	*
+	* @return	null
+	* @access	private
+	*/
+	function processMatrixUserForm()
+	{
+		$subscriptions = array_get_index($_REQUEST, $this->getPrefix().'_subscriptions', Array());
+		$unsubscriptions = array_get_index($_REQUEST, $this->getPrefix().'_unsubscriptions', Array());
+		//if (empty($subscriptions) && empty($unsubscriptions)) return;
+
+		switch ($this->attr('verify_logged_in')) {
+			case 'always':
+				$sub_verify = !empty($subscriptions);
+				$unsub_verify = !empty($unsubscriptions);
+			break;
+			case 'subscribe':
+				$sub_verify = !empty($subscriptions);
+				$unsub_verify = false;
+			break;
+			case 'unsubscribe':
+				$sub_verify = false;
+				$unsub_verify = !empty($unsubscriptions);
+			break;
+			case 'never':
+			default:
+				$sub_verify = $unsub_verify = false;
+			break;
+		}
+
+		$unverified_folder =& $this->getUnverifiedUsersFolder();
+		$uniqid = md5(uniqid(''));
+
+		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
+		$current_user_email = $current_user->attr('email');
+		if (empty($current_user_email)) {
+			$this->errors[] = translate('bsp_email_not_configured');
+			return;
+		}
+
+		if ($sub_verify || $unsub_verify) {
+			$this->sendConfirmationEmail($current_user_email, 'Spammer Fred and hobo Mike <ndvries@squiz.net>', $subscriptions, $unsubscriptions, $uniqid);
+			$this->messages[] = translate('bsp_verification_email_sent', $current_user_email);
+		}
+
+		// We need to verify both subscribing and unsubscribing
+		if ($sub_verify && $unsub_verify) {
+			$subscriptions = Array($unverified_folder->id);
+			$unsubscriptions = Array();
+
+		// Only verify subscriptions
+		} else if ($sub_verify) {
+			$subscriptions = Array($unverified_folder->id);
+
+		// Only verify unsubscriptions
+		} else if ($unsub_verify) {
+			$subscriptions[] = $unverified_folder->id;
+			$unsubscriptions = Array();
+		}
+
+		foreach ($subscriptions as $index => $assetid) {
+			if ($assetid == $unverified_folder->id) {
+				// We need to manually create the link to the unverified users folder here
+				// because it needs a link value
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+					$GLOBALS['SQ_SYSTEM']->am->createAssetLink($unverified_folder, $current_user, $this->attr('link_type'), $uniqid);
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				unset ($subscriptions[$index]);
+			}
+		}
+
+		$all_mailing_lists = $this->getAvailableLocations();
+		$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($current_user->id, 'user_group', false));
+		$current_subscriptions = array_intersect($all_mailing_lists, $parents);
+
+		$curr_plus_new = array_merge($current_subscriptions, $subscriptions);
+		$new_minus_old = array_diff($curr_plus_new, $unsubscriptions);
+		$new_subscriptions = array_unique($new_minus_old);
+
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED + SQ_SECURITY_LINK_INTEGRITY);
+			$done = $this->processMinorLinks($current_user->id, $current_subscriptions, $new_subscriptions, $this->attr('link_type'));
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+		$this->addLinkingMessages($done);
+
+	}//end processMatrixUserForm()
+
+
+	/**
+	* Takes an associative array of assetids and writes relevant error/success
+	* messages to $this->[errors|messages] for later formatting
+	*
+	* @return void
+	* @access public
+	*/
+	function addLinkingMessages($fail_success)
+	{
+		foreach ($fail_success as $message_type => $assetids) {
+			switch ($message_type) {
+				case 'add_fail':
+					$this->errors[] = translate('bsp_add_failed').$this->_getCommaSeperatedNamesByAssetid($assetids);
+				break;
+				case 'add_success':
+					$this->messages[] = translate('bsp_add_successful').$this->_getCommaSeperatedNamesByAssetid($assetids);
+				break;
+				case 'delete_fail':
+					$this->errors[] = translate('bsp_remove_failed').$this->_getCommaSeperatedNamesByAssetid($assetids);
+				break;
+				case 'delete_success':
+					$this->messages[] = translate('bsp_remove_successful').$this->_getCommaSeperatedNamesByAssetid($assetids);
+				break;
+			}
+		}
+
+	}//end addLinkingMessages()
+
+
+	function sendConfirmationEmail($to, $from, $subscriptions, $unsubscriptions, $uniqid)
+	{
+		if (empty($subscriptions) && empty($unsubscriptions)) {
+			return;
+		}
+
+		$headers = Array(
+					'From'		=> $from,
+					'Subject'	=> translate('bsp_verification_email_subject'),
+				   );
+
+		$body = '';
+
+		$get_vars = Array(
+						'email'			=> $to,
+						'subscribe'		=> implode(',', $subscriptions),
+						'unsubscribe'	=> implode(',', $unsubscriptions),
+						'uniqid'		=> $uniqid,
+					);
+
+		$url = current_url().'?';
+		foreach ($get_vars as $key => $value) {
+			$url .= '&'.$key.'='.$value;
+		}
+
+		if (!empty($subscriptions) && !empty($unsubscriptions)) {
+			$body .= translate('bsp_verification_email_body_sub_unsub',
+									$this->_getCommaSeperatedNamesByAssetid($subscriptions),
+									$this->_getCommaSeperatedNamesByAssetid($unsubscriptions));
+		} else if (!empty($subscriptions)) {
+			$body .= translate('bsp_verification_email_body_sub', $this->_getCommaSeperatedNamesByAssetid($subscriptions));
+		} else if (!empty($unsubscriptions)) {
+			$body .= translate('bsp_verification_email_body_unsub', $this->_getCommaSeperatedNamesByAssetid($unsubscriptions));
+		}
+
+		$body .= translate('bsp_verification_email_body_part2', $url);
+
+		$mail = Mail::factory('mail');
+		$mail->send($to, $headers, $body);
+
+		return;
+
+	}//end sendConfirmationEmail()
+
+
+	/**
+	* Returns replacement for the subscribe_email_address keyword.
+	*
+	* @return string
+	* @access private
+	*/
+	function getSubscribeEmailAddressKeywordReplacement()
+	{
+		ob_start();
+			text_box($this->getPrefix().'_email_address', '', 30);
+			$email_address = ob_get_contents();
+		ob_end_clean();
+		return $email_address;
+
+	}//end getSubscribeEmailAddressKeywordReplacement()
+
+
+	/**
+	* Returns replacement for the subscribe_email_address keyword.
+	*
+	* @return string
+	* @access private
+	*/
+	function getSubscribeUserNameKeywordReplacement()
+	{
+		ob_start();
+			text_box($this->getPrefix().'_user_name', '', 30);
+			$user_name = ob_get_contents();
+		ob_end_clean();
+		return $user_name;
+
+	}//end getSubscribeUserNameAddressKeywordReplacement()
+
+
+	/**
+	* Returns replacement for the subscription_picker keyword.
+	*
+	* @return string
+	* @access private
+	*/
+	function getSubscriptionsPickerKeywordReplacement()
+	{
+		return $this->printAvailableLocations('_subscriptions');
+
+	}//end getSubscriptionPickerKeywordReplacement()
+
+
+	/**
+	* Returns replacement for the subscription_picker keyword.
+	*
+	* @return string
+	* @access private
+	*/
+	function getUnsubscriptionsPickerKeywordReplacement()
+	{
+		return $this->printAvailableLocations('_unsubscriptions');
+
+	}//end getUnsubscriptionPickerKeywordReplacement()
+
+
+	/**
+	* Returns replacement for the current_subscriptions keyword.
+	*
+	* @return string
+	* @access private
+	*/
+	function getCurrentSubscriptionsKeywordReplacement()
+	{
+		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
+		$all_mailing_lists = $this->getAvailableLocations();
+		$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($current_user->id, 'user_group', false));
+		$current_subscriptions = array_intersect($all_mailing_lists, $parents);
+		$string = '';
+		if (!empty($current_subscriptions)) {
+			$string .= '<ul>';
+			$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_values($current_subscriptions), Array(), true, 'name');
+			foreach ($current_subscriptions as $current_subscription) {
+				$string .= '<li class="'.$this->getPrefix().'_current_subscriptions">'.$info[$current_subscription].'</li>';
+			}
+			$string .= '</ul>';
+		}
+		return $string;
+
+	}//end getCurrentSubscriptionsKeywordReplacement()
+
+
+}//end class
+
+?>

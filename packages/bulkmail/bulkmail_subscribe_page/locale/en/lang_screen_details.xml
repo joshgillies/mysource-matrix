@@ -1,0 +1,35 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1.1.1 2005/10/25 04:53:43 ndvries Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Email Verification">
+		<note>If verification is enabled, the user will recieve a confirmation email. Clicking on the URL in the email will complete the subscription / unsubscriptions process.</note>
+		<field attribute="verify_from_address">
+			<display_name>From Address</display_name>
+			<note>Verification emails will be sent out using this as the from address.</note>
+		</field>
+		<field attribute="verify_logged_in">
+			<display_name>Logged In Users</display_name>
+			<note />
+		</field>
+		<field attribute="verify_not_logged_in">
+			<display_name>Public Users</display_name>
+			<note />
+		</field>
+	</section>
+</contents>

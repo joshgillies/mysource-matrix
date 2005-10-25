@@ -1,0 +1,40 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1.1.1 2005/10/25 04:53:43 ndvries Exp $
+*
+*
+* Bulkmail Package Localised Strings File
+*/
+-->
+
+<strings>
+	<string source="bsp_bad_subscriptions">You have attempted to subscribe to lists that are unavailable to you - these lists will be skipped.</string>
+	<string source="bsp_bad_unsubscriptions">You have attempted to unsubscribe from lists that are unavailable to you - these lists will be skipped.</string>
+	<string source="bsp_no_valid_sub_unsub">None of the subscriptions/unsubscriptions specified are valid.</string>
+	<string source="bsp_verification_email_sent">A verification email has been sent to %s. When you recieve the email, please follow the instructions carefully.</string>
+	<string source="bsp_email_not_configured">You do not currently have an email address configured for your user.</string>
+	<string source="bsp_add_failed">Unable to subscribe you to the following mailing lists: </string>
+	<string source="bsp_add_successful">You have been subscribed to the following mailing lists: </string>
+	<string source="bsp_remove_failed">Unable to unsubscribe you from the following mailing lists: </string>
+	<string source="bsp_remove_successful">You have been unsubscribed from the following mailing lists: </string>
+	<string source="bsp_verification_email_subject">Please confirm your subscription / unsubscription request</string>
+	<string source="bsp_verification_email_body_sub_unsub">Someone has requested for this email address to be subscribed to %1$s, and unsubscribed from %2$s.</string>
+	<string source="bsp_verification_email_body_sub">Someone has requested for this email address to be subscribed to %s.</string>
+	<string source="bsp_verification_email_body_unsub">Someone has requested for this email address to be unsubscribed from %s.</string>
+	<string source="bsp_verification_email_body_part2">
+
+Please click on the following link if you would like to proceed:
+
+%s</string>
+</strings>

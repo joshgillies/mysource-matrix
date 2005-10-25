@@ -1,0 +1,118 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Commercial Module Licence                                |
+* +--------------------------------------------------------------------+
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +--------------------------------------------------------------------+
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +--------------------------------------------------------------------+
+*
+* $Id: bulkmail_subscribe_page_management.inc,v 1.1.1.1 2005/10/25 04:53:43 ndvries Exp $
+*
+*/
+
+
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
+
+
+/**
+* Bulkmail_Subscribe_Page_Edit_Fns
+*
+* @see Page_User_Group_Manager_Management
+*
+* @author  Nathan de Vries <ndvries@squiz.net>
+* @author  Rayne Ong <rong@squiz.net>
+* @version $Revision: 1.1.1.1 $
+* @package MySource_Matrix_Packages
+* @subpackage bulkmail
+*/
+class Bulkmail_Subscribe_Page_Management extends Asset_Management
+{
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function Bulkmail_Subscribe_Page_Management(&$pm)
+	{
+		$this->Asset_Management($pm);
+
+		$this->vars = Array(
+						'verify_logged_in'		=> Array(
+													'added'			=> '0.0.1',
+													'type'			=> 'selection',
+													'default'		=> 'never',
+													'parameters'	=> Array(
+																		'options'		=> Array(
+																							'never'			=> 'Do not verify',
+																							'always'		=> 'Always verify',
+																							'subscribe'		=> 'Verify on subscription',
+																							'unsubscribe'	=> 'Verify on unsubscription',
+																						   ),
+																		'multiple'		=> false,
+																		'allow_empty'	=> false,
+																	   ),
+													'description'	=> '',
+												   ),
+						'verify_not_logged_in'	=> Array(
+													'added'			=> '0.0.1',
+													'type'			=> 'selection',
+													'default'		=> 'never',
+													'parameters'	=> Array(
+																		'options'		=> Array(
+																							'never'			=> 'Do not verify',
+																							'always'		=> 'Always verify',
+																							'subscribe'		=> 'Verify on subscription',
+																							'unsubscribe'	=> 'Verify on unsubscription',
+																						   ),
+																		'multiple'		=> false,
+																		'allow_empty'	=> false,
+																	   ),
+													'description'	=> '',
+												   ),
+						'verify_from_address'	=> Array(
+													'added'			=> '0.0.1',
+													'type'			=> 'text',
+													'default'		=> SQ_CONF_DEFAULT_EMAIL,
+													'description'	=> 'The email address to appear on the verification email.',
+												   ),
+					   );
+
+	}//end constructor
+
+
+	/**
+	* Return an array with information about the events that this page is listening for
+	*
+	* @access public
+	* @return boolean
+	*/
+	function getEventList()
+	{
+		return Array(
+				Array(
+					'event_name'					=> 'requestKeywords',
+					'broadcast_type_code'			=> 'content_type',
+					'broadcast_strict_type_code'	=> false,
+					'options'						=> Array(
+														'side_of_link'	=> 'major',
+														'indirect'		=> true,
+														'is_exclusive'	=> null,
+														'is_dependant'	=> 1,
+														'value'			=> '',
+														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+													   ),
+				),
+			   );
+
+	}//end getEventList()
+
+
+}//end class
+
+?>
