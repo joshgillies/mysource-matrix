@@ -1,0 +1,48 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.1 2005/10/25 23:37:05 rong Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Progress">
+		<function_call>
+			<paint_function name="paintProgress" />
+			<process_function name="processProgress" />
+		</function_call>
+	</section>
+	<section name="Details" write_access="write:attributes">
+		<field attribute="name">
+			<text width="30" height="1" />
+		</field>
+	</section>
+	<section name="Content Details" write_access="write:attributes">
+		<field write_access="write:attributes" attribute="content_assetid">
+			<assetid type_codes="page:D" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintContentDetails" />
+				<process_function name="processContentDetails" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Header Details" write_access="write:attributes">
+		<function_call>
+			<paint_function name="paintHeaderDetails" />
+			<process_function name="processHeaderDetails" />
+		</function_call>
+	</section>
+</contents>

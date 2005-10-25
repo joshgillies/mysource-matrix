@@ -1,0 +1,8 @@
+<errors>
+	<error code="BML0001">Post Office Server Details Error: Unable to create mail object, %s.</error>
+	<error code="BML0002">Post Office Server Details Error: Unable to send preview mail, %s.</error>
+	<error code="BML0003">No Content Page set for %1$s "%2$s" (Id #%3$s).</error>
+	<error code="BML0004">Bulkmail User for group based content generation is not set for %1$s "%2$s" (Id #%3$s).</error>
+	<error code="BML0005">No Post Office set for %1$s "%2$s" (Id #%3$s).</error>
+	<error code="BML0006">Unable to login as %1$s "%2$s" (Id #%3$s) for group based content generation of preview.</error>
+</errors>

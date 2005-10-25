@@ -1,0 +1,61 @@
+<strings>
+<string source="bulkmail_progress_current_state">Current State</string>
+<string source="bulkmail_progress_state_not_live">Not Live</string>
+<string source="bulkmail_progress_state_running">Running</string>
+<string source="bulkmail_progress_state_paused">Paused</string>
+<string source="bulkmail_progress_state_cancel">Cancel</string>
+<string source="bulkmail_progress_state_finished">Finished</string>
+<string source="bulkmail_progress_warning_save">This Bulkmail Job is currently Live, changes made to the detail fields will not be saved.</string>
+<string source="bulkmail_progress_note">Pause, resume or cancel a job.</string>
+<string source="bulkmail_progress_current_progress">Current Progress</string>
+<string source="bulkmail_progress_detailed_progress">Detailed Progress</string>
+
+<string source="bulkmail_content_detail_per_user">Per User</string>
+<string source="bulkmail_content_detail_per_group">Per Group</string>
+<string source="bulkmail_content_detail_bulkmail_user_field_name">Bulkmail User</string>
+<string source="bulkmail_content_detail_bulkmail_user_field_note">User permission for group based content generation.</string>
+<string source="bulkmail_content_detail_bulkmail_user_warning">Warning: Invalid Bulkmail User, user is either not live or in trash.</string>
+
+<string source="bulkmail_server_detail_mail_method_field_name">Mail Method</string>
+<string source="bulkmail_server_detail_host_field_name">Host</string>
+<string source="bulkmail_server_detail_port_field_name">Port</string>
+<string source="bulkmail_server_detail_auth_field_name">Auth</string>
+<string source="bulkmail_server_detail_path_field_name">Path</string>
+<string source="bulkmail_server_detail_arg_field_name">Arguments</string>
+
+<string source="bulkmail_header_detail_check_enabled">If you use Post Office header details, you must commit before the changes will take effect.</string>
+<string source="bulkmail_header_detail_check_disabled">Default setting not available, Bulkmail Job is not linked to any Bulkmail Post Office.</string>
+<string source="bulkmail_header_detail_check_field_name">Use Post Office Header Details</string>
+<string source="bulkmail_header_detail_field_name">Field Name</string>
+<string source="bulkmail_header_detail_field_body">Field Body</string>
+<string source="bulkmail_header_new_field_name">New Field Name</string>
+<string source="bulkmail_header_new_field_body">New Field Body</string>
+
+<string source="bulkmail_preview_address">Preview Address</string>
+<string source="bulkmail_preview_address_note">You can modify your email address in the User Details Page.</string>
+<string source="bulkmail_alternative_address">Alternative Preview Address</string>
+<string source="bulkmail_preview_message">Preview mail sent to: </string>
+
+<string source="bulkmail_preview_log">Preview Log</string>
+<string source="bulkmail_clear_log">Clear Preview Log</string>
+
+<string source="bulkmail_warning_job_live">Another Bulkmail Job (Id #%1$s) is currently Live.</string>
+<string source="bulkmail_warning_po_post_office_not_set">Post Office Error: Post Office not set.</string>
+<string source="bulkmail_warning_po_recipient_not_set">Post Office Error: Recipients no set.</string>
+<string source="bulkmail_warning_po_server_details">Post Office Server Details Error: "%1$s".</string>
+<string source="bulkmail_warning_header_from_field">Header Details Error: Missing 'From' field</string>
+<string source="bulkmail_warning_content_page_not_set">Content Details Error: Content Page not set.</string>
+<string source="bulkmail_warning_content_bmail_user_not_set">Content Details Error: Bulkmail User not set for group-based content generation method.</string>
+<string source="bulkmail_warning_content_bmail_user_login_failed">Content Details Error: Unable to generate content as %1$s "%2$s" (Id #%3$s), user is either in trash or not live.</string>
+
+
+
+
+
+
+
+
+
+
+
+</strings>
