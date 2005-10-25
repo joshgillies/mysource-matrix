@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.193 2005/10/25 01:00:17 arailean Exp $
+* $Id: asset_map.inc,v 1.194 2005/10/25 06:42:32 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.193 $
+* @version $Revision: 1.194 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -392,6 +392,7 @@ class Asset_Map
 	*/
 	function _getAssetInfo($assetid)
 	{
+		$attrs = Array();
 		if (strpos($assetid, ':') !== false) {
 			// this is a shadow asset so we need to get info differently
 
@@ -400,17 +401,18 @@ class Asset_Map
 			// types of shadow assets
 			$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
-
-			$attrs = Array(
-						'assetid'		=> urlencode($assetid),
-						'name'			=> urlencode($link_asset->short_name),
-						'type_code'		=> $link_asset->type(),
-						'accessible'	=> 1,
-						'status'		=> $link_asset->status,
-						'url'			=> $link_asset->getURL(),
-						'web_path'		=> '',
-						'num_kids'		=> -1,
-					 );
+			if (!is_null($link_asset)) {
+				$attrs = Array(
+							'assetid'		=> urlencode($assetid),
+							'name'			=> urlencode($link_asset->short_name),
+							'type_code'		=> $link_asset->type(),
+							'accessible'	=> 1,
+							'status'		=> $link_asset->status,
+							'url'			=> $link_asset->getURL(),
+							'web_path'		=> '',
+							'num_kids'		=> -1,
+						 );
+			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($link_asset);
 
 		} else {
@@ -667,37 +669,39 @@ class Asset_Map
 
 		if ($implements_shadow_assets) {
 			$links_handler = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			// it may be able to handle this itself, lets check
-			if (method_exists($links_handler, 'getAssetMapLinks')) {
-				$result = array_merge($result, $links_handler->getAssetMapLinks());
+			if (!is_null($links_handler)) {
+				// it may be able to handle this itself, lets check
+				if (method_exists($links_handler, 'getAssetMapLinks')) {
+					$result = array_merge($result, $links_handler->getAssetMapLinks());
 
-			} else {
-				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
+				} else {
+					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
 
-				foreach ($links as $link_data) {
-					// if the colon isn't there, this isn't a shadow asset - move on
-					if (strpos($link_data['minorid'], ':') === false) {
-						 continue;
+					foreach ($links as $link_data) {
+						// if the colon isn't there, this isn't a shadow asset - move on
+						if (strpos($link_data['minorid'], ':') === false) {
+							 continue;
+						}
+
+						// note that we pretend these assets have children so we dont have to actually
+						// load all their kids - we dont know what kind of speed hit we get for the different
+						// types of shadow assets
+						$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
+						$result[] = Array(
+										'assetid'		=> $link_data['minorid'],
+										'short_name'	=> $link_asset->short_name,
+										'accessible'	=> 1,
+										'type_code'		=> $link_data['minor_type_code'],
+										'status'		=> $link_asset->status,
+										'linkid'		=> $link_data['majorid'].':'.$link_data['minorid'],
+										'link_type'		=> $link_data['link_type'],
+										'num_kids'		=> -1,
+										'sort_order'	=> $link_data['sort_order'],
+										'url'			=> $link_asset->getURL(),
+										'path'			=> '',
+									);
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($link_asset);
 					}
-
-					// note that we pretend these assets have children so we dont have to actually
-					// load all their kids - we dont know what kind of speed hit we get for the different
-					// types of shadow assets
-					$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
-					$result[] = Array(
-									'assetid'		=> $link_data['minorid'],
-									'short_name'	=> $link_asset->short_name,
-									'accessible'	=> 1,
-									'type_code'		=> $link_data['minor_type_code'],
-									'status'		=> $link_asset->status,
-									'linkid'		=> $link_data['majorid'].':'.$link_data['minorid'],
-									'link_type'		=> $link_data['link_type'],
-									'num_kids'		=> -1,
-									'sort_order'	=> $link_data['sort_order'],
-									'url'			=> $link_asset->getURL(),
-									'path'			=> '',
-								);
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($link_asset);
 				}
 			}
 		}//end if a bridge
