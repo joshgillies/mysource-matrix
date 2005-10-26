@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.51.2.3 2005/09/02 06:55:22 lwright Exp $
+* $Id: install.inc,v 1.51.2.4 2005/10/26 04:02:26 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.51.2.3 $
+* @version $Revision: 1.51.2.4 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1550,7 +1550,7 @@ function extract_internal_messages($file)
 
 		foreach ($string_node->children as $sub_node) {
 			if (($sub_node->name == 'subject') || ($sub_node->name == 'body')) {
-				$translation[$sub_node->name] =& html_entity_decode($sub_node->content);
+				$translation[$sub_node->name] = html_entity_decode($sub_node->content);
 			}
 		}
 
