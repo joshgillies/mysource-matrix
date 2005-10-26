@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.2 2005/10/26 04:18:56 ndvries Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.3 2005/10/26 04:31:33 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -502,7 +502,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	{
 		$subscriptions = array_get_index($_REQUEST, $this->getPrefix().'_subscriptions', Array());
 		$unsubscriptions = array_get_index($_REQUEST, $this->getPrefix().'_unsubscriptions', Array());
-		//if (empty($subscriptions) && empty($unsubscriptions)) return;
+		if (empty($subscriptions) && empty($unsubscriptions)) return;
 
 		switch ($this->attr('verify_logged_in')) {
 			case 'always':
