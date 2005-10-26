@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.1.1.1 2005/10/25 04:53:43 ndvries Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.2 2005/10/26 04:18:56 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -405,7 +405,9 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$uniqid = md5(uniqid(''));
 
 		if ($sub_verify || $unsub_verify) {
-			$this->sendConfirmationEmail($email_address, 'Spammer Fred and hobo Mike <ndvries@squiz.net>', $subscriptions, $unsubscriptions, $uniqid);
+			$from_addr = $this->attr('verify_from_address');
+			$from_addr = empty($from_addr) ? SQ_CONF_DEFAULT_EMAIL : $from_addr;
+			$this->sendConfirmationEmail($email_address, $from_addr, $subscriptions, $unsubscriptions, $uniqid);
 			$this->messages[] = translate('bsp_verification_email_sent', $email_address);
 		}
 
@@ -532,7 +534,9 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		}
 
 		if ($sub_verify || $unsub_verify) {
-			$this->sendConfirmationEmail($current_user_email, 'Spammer Fred and hobo Mike <ndvries@squiz.net>', $subscriptions, $unsubscriptions, $uniqid);
+			$from_addr = $this->attr('verify_from_address');
+			$from_addr = empty($from_addr) ? SQ_CONF_DEFAULT_EMAIL : $from_addr;
+			$this->sendConfirmationEmail($current_user_email, $from_addr, $subscriptions, $unsubscriptions, $uniqid);
 			$this->messages[] = translate('bsp_verification_email_sent', $current_user_email);
 		}
 
@@ -556,7 +560,12 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 				// We need to manually create the link to the unverified users folder here
 				// because it needs a link value
 				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-					$GLOBALS['SQ_SYSTEM']->am->createAssetLink($unverified_folder, $current_user, $this->attr('link_type'), $uniqid);
+					$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($unverified_folder->id, $current_user->id);
+					if (!empty($link)) {
+						$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], $link['link_type'], $uniqid);
+					} else {
+						$GLOBALS['SQ_SYSTEM']->am->createAssetLink($unverified_folder, $current_user, $this->attr('link_type'), $uniqid);
+					}
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 				unset ($subscriptions[$index]);
 			}
