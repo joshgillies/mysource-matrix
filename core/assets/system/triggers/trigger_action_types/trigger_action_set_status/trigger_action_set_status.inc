@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_status.inc,v 1.10 2005/05/11 06:05:03 lwright Exp $
+* $Id: trigger_action_set_status.inc,v 1.11 2005/10/26 02:05:36 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -115,7 +115,7 @@ class Trigger_Action_Set_Status extends Trigger_Action
 			$selected_status = $settings['status'];
 		}
 
-		$status_list = &Trigger_Action_Set_Status::_getStatusList();
+		$status_list = Trigger_Action_Set_Status::_getStatusList();
 
 		if (!$write_access) {
 			$form_element_extras = 'disabled="disabled"';
@@ -150,7 +150,7 @@ class Trigger_Action_Set_Status extends Trigger_Action
 		$status = array_get_index($request_data, 'status', false);
 		if (!$status) return 'Status has not been specified';
 
-		$status_list = &Trigger_Action_Set_Status::_getStatusList();
+		$status_list = Trigger_Action_Set_Status::_getStatusList();
 
 		// check if the status is valid
 		if (isset($status_list[$status])) {
