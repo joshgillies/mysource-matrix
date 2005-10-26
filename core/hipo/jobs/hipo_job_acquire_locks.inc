@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_locks.inc,v 1.15 2005/05/17 06:58:42 ndvries Exp $
+* $Id: hipo_job_acquire_locks.inc,v 1.16 2005/10/26 00:05:23 sdanis Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -59,8 +59,8 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	/**
 	* Paints backend of this job
 	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
-	* @param string						$class		calling class name
+	* @param object	&$o		reference to the backend outputter
+	* @param string	$class	calling class name
 	*
 	* @return void
 	* @access private
@@ -87,7 +87,7 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	/**
 	* Sets some info about thresholds that this hipo requires.
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getConfigVars()
@@ -112,7 +112,7 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	*/
 	function getCodeName()
 	{
-		return parent::getCodeName().'-'.md5(implode(',', $this->_running_vars['assetids']).'-'.implode(',',array_keys($this->_running_vars['lock_types'])));
+		return parent::getCodeName().'-'.md5(implode(',', $this->_running_vars['assetids']));
 
 	}//end getCodeName()
 
@@ -158,46 +158,28 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 
 
 	/**
-	* Resets the vars that the HIPO steps use
+	* Returns asset lock types
 	*
-	* @param Array	$vars
+	* @param int	$assetid	Asset ID
 	*
 	* @return void
 	* @access public
 	*/
-	function setRunningVars($vars)
+	function getAssetLockTypes($assetid)
 	{
-
-		if (isset($vars['lock_type']) && isset($vars['assetids'])) {
-			// OK, the main reason that we are getting the lock types here is so that we don't end up
-			// with lock types in a child being locked that the parent doesn't have, because if they do then
-			// we end up with a source lockid that is not actually creatable
-			// EG. 'mail' lock is available in 'Inbox', but not 'User' and when you locked the user you would end
-			//     up with a lock 'asset.5.mail' and a source lock 'asset.4.mail' which is not available
-			// -- If this doesn't make sense ask me -- BCR
-
-			if (is_array($vars['lock_type'])) {
-				$vars['lock_types'] = Array();
-				foreach ($vars['lock_type'] as $lock_type) {
-					foreach ($vars['assetids'] as $assetid) {
-						if (!isset($vars['lock_types'][$assetid])) {
-							$vars['lock_types'][$assetid] = $GLOBALS['SQ_SYSTEM']->am->getLockTypes($assetid, $lock_type);
-						} else {
-							$vars['lock_types'][$assetid] = array_merge($vars['lock_types'][$assetid], $GLOBALS['SQ_SYSTEM']->am->getLockTypes($assetid, $lock_type));
-						}
-						$vars['lock_types'][$assetid] = array_unique($vars['lock_types'][$assetid]);
-					}
-
+		$types = Array();
+		if (isset($this->_running_vars['lock_type']) && isset($assetid)) {
+			if (is_array($this->_running_vars['lock_type'])) {
+				foreach ($this->_running_vars['lock_type'] as $lock_type) {
+					$types = $GLOBALS['SQ_SYSTEM']->am->getLockTypes($assetid, $lock_type);
 				}
 			} else {
-				foreach ($vars['assetids'] as $assetid) {
-					$vars['lock_types'][$assetid] = $GLOBALS['SQ_SYSTEM']->am->getLockTypes($assetid, $vars['lock_type']);
-				}
+				$types = $GLOBALS['SQ_SYSTEM']->am->getLockTypes($assetid, $this->_running_vars['lock_type']);
 			}
 		}
-		return parent::setRunningVars($vars);
+		return $types;
 
-	}//end setRunningVars()
+	}//end getAssetLockTypes()
 
 
 	/**
@@ -253,15 +235,6 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 			return false;
 		}
 
-		// we were passed an invalid lock type, bugger off
-		if (empty($this->_running_vars['lock_types'])) {
-			trigger_localised_error('HIPO0034', E_USER_WARNING, $this->_running_vars['lock_type']);
-			return false;
-		}
-
-		// we don't need this anymore, we use the array 'lock_types'
-		unset($this->_running_vars['lock_type']);
-
 		if (!isset($this->_running_vars['todo_assetids']) || empty($this->_running_vars['todo_assetids'])) {
 			// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
 			// we will be acquiring locks on
@@ -309,8 +282,8 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	/**
 	* Acquire a lock on a single asset in the to-do list
 	*
-	* @param array()	&$step_data	a reference to the array of information about the current step
-	* @param string		$prefix		prefix for form vars
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
@@ -331,7 +304,8 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 			}
 
 			if (!is_null($asset)) {
-				foreach ($this->_running_vars['lock_types'][$parent_assetid] as $lock_type) {
+				$lock_types = $this->getAssetLockTypes($parent_assetid);
+				foreach ($lock_types as $lock_type) {
 					$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, $lock_type, $parent_assetid, $this->_running_vars['forceably_acquire']);
 				}
 				$step_data['message'] = translate('hipo_acquire_lock', $asset->name);
