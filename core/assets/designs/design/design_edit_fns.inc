@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.97 2005/10/11 02:04:45 tbarrett Exp $
+* $Id: design_edit_fns.inc,v 1.98 2005/10/26 00:10:24 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -790,7 +790,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			// if it's a different type, then convert them
 			if (!is_null($da) && $da->type() !== $design_area) {
-				$link = &$asset->getDesignAreaLink($id_name, false);
+				$link = $asset->getDesignAreaLink($id_name, false);
 				if (!$asset->deleteLink($link['linkid'])) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
