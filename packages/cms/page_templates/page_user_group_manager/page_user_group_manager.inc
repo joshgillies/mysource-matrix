@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager.inc,v 1.3 2005/10/19 04:15:09 lwright Exp $
+* $Id: page_user_group_manager.inc,v 1.4 2005/10/26 00:18:24 ndvries Exp $
 *
 */
 
@@ -34,29 +34,34 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Darren McKee <dmckee@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_User_Group_Manager extends Page
 {
 
-
 	var $bodycopies = Array(
-						'linkman_bc'	=> 'Link Manager Layout',
+						'logged_in'		=> 'Logged In Layout',
+						'not_logged_in'	=> 'Not Logged In Layout',
 					  );
 
 	var $keywords = Array(
-						'linkman_bc'	=> Array(
-											'update_message',
-											'failure_message',
+						'logged_in'		=> Array(
+											'error_messages_list',
+											'success_messages_list',
 											'location_picker',
 											'user_name',
 											'user_short_name',
-											'user_id',
+											'user_email',
 											'commit_button',
 										   ),
+						'not_logged_in'	=> Array(),
 					);
+
+	var $errors;
+
+	var $messages;
 
 
 	/**
@@ -125,6 +130,7 @@ class Page_User_Group_Manager extends Page
 		//Print the form and details again
 		echo $this->printBodycopyContents();
 		?></form><?php
+
 	}//end printBody()
 
 
@@ -159,11 +165,16 @@ class Page_User_Group_Manager extends Page
 				//Change the single entruy into an array
 				$user_groups = Array($user_groups);
 			}
+
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-			$this->processMinorLinks($GLOBALS['SQ_SYSTEM']->currentUserId(), $current_groups, $user_groups, $link_type);
+				$done = $this->processMinorLinks($GLOBALS['SQ_SYSTEM']->currentUserId(), $current_groups, $user_groups, $link_type);
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+			$this->generateMessages($done);
 		}
+
 		return true;
+
 	}//end processForm()
 
 
@@ -186,11 +197,15 @@ class Page_User_Group_Manager extends Page
 		$to_create = array_diff($new_links, $old_links);
 		$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($minor_id);
 
+		$done = Array();
+
 		// loop through and link our minor under all majors
 		foreach ($to_create as $majorid) {
 			$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($majorid);
 			if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($major, $minor, $link_type)) {
-				$cannot_create[] = $majorid;
+				$done['add_fail'][] = $major->id;
+			} else {
+				$done['add_success'][] = $major->id;
 			}
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($major);
@@ -202,32 +217,47 @@ class Page_User_Group_Manager extends Page
 			$link_id = $curr_link['linkid'];
 
 			if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link_id)) {
-				$cannot_remove[] = $majorid;
+				$done['delete_fail'][] = $majorid;
+			} else {
+				$done['delete_success'][] = $majorid;
 			}
 		}
 
 		// cleanup
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($minor);
 
-		//create some messages for links we cant create/delte
-		if (!empty($cannot_create) || empty($cannot_delete)) {
-			$create_msg = 'The following assets could not be linked to: ';
-			$delete_msg = 'The following assets could not remove links from: ';
-			foreach ($cannot_create as $id) {
-				$create_msg .= $id.',';
-			}
+		return $done;
 
-			foreach ($cannot_delete as $id) {
-				$delete_msg .= $id.',';
-			}
+	}//end processMinorLinks()
 
-			$this->_tmp['success'] = $create_msg;
-			$this->_tmp['failure'] = $delete_msg;
+
+	/**
+	* Takes an associative array of assetids and writes relevant error/success
+	* messages to $this->[errors|messages] for later formatting
+	*
+	* @return void
+	* @access public
+	*/
+	function generateMessages($fail_success)
+	{
+		foreach ($fail_success as $message_type => $assetids) {
+			switch ($message_type) {
+				case 'add_fail':
+					$this->errors[] = 'Unable to add this user to the following groups: '.$this->_getCommaSeperatedNamesByAssetid($assetids);
+				break;
+				case 'add_success':
+					$this->messages[] = 'Successfully added this user to the following groups: '.$this->_getCommaSeperatedNamesByAssetid($assetids);
+				break;
+				case 'delete_fail':
+					$this->errors[] = 'Unable to remove this user from the following groups: '.$this->_getCommaSeperatedNamesByAssetid($assetids);
+				break;
+				case 'delete_success':
+					$this->messages[] = 'Successfully removed this user from the following groups: '.$this->_getCommaSeperatedNamesByAssetid($assetids);
+				break;
+			}
 		}
 
-		// Set selected var to newly created links
-		$this->_tmp['selected'] = $new_links;
-	}//end processMinorLinks()
+	}//end generateMessages()
 
 
 	/**
@@ -236,9 +266,8 @@ class Page_User_Group_Manager extends Page
 	* @return void
 	* @access public
 	*/
-	function printAvailableLocations()
+	function printAvailableLocations($suffix='')
 	{
-
 		//populate our list
 		$type_codes = Array('user_group' => '1');
 		$full_types = Array();
@@ -248,8 +277,11 @@ class Page_User_Group_Manager extends Page
 				$full_types += $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type);
 			}
 		}
+
 		ob_start();
-			structured_drop_down($this->getPrefix().'_location_selection', $this->attr('root_node'), $full_types, $this->_tmp['selected'], $this->attr('structured_width'), $this->attr('structured_height'), $this->attr('max_depth'), $this->attr('allow_multiple'), $this->attr('seperator'), $this->attr('include_root_node'), '', $this->attr('structured_style'), $this->attr('statuses'));
+			$root_node = $this->attr('root_node');
+			$default = array_get_index($this->_tmp, 'selected', Array());
+			structured_drop_down($this->getPrefix().$suffix, $root_node, $full_types, $default, $this->attr('structured_width'), $this->attr('structured_height'), $this->attr('max_depth'), $this->attr('allow_multiple'), $this->attr('seperator'), $this->attr('include_root_node'), '', $this->attr('structured_style'), $this->attr('statuses'));
 			$selector = ob_get_contents();
 		ob_end_clean();
 		return $selector;
@@ -267,7 +299,6 @@ class Page_User_Group_Manager extends Page
 	*/
 	function _getAllowedLinks()
 	{
-
 		return Array(SQ_LINK_TYPE_2 => Array('bodycopy' => Array('card' => 'M', 'exclusive' => false)));
 
 	}//end _getAllowedLinks()
@@ -369,7 +400,13 @@ class Page_User_Group_Manager extends Page
 	*/
 	function printBodycopyContents()
 	{
-		$bodycopy =& $this->getBodycopy('linkman_bc');
+		$public_user =& $GLOBALS['SQ_SYSTEM']->getPublicUser();
+		if ($GLOBALS['SQ_SYSTEM']->currentUser($public_user)) {
+			$bodycopy =& $this->getBodycopy('not_logged_in');
+		} else {
+			$bodycopy =& $this->getBodycopy('logged_in');
+		}
+
 		$keywords = $bodycopy->getKeywords();
 		$replacements = Array();
 		foreach ($keywords as $name) {
@@ -388,35 +425,26 @@ class Page_User_Group_Manager extends Page
 
 
 	/**
-	* Returns replacement for the update_message keyword.
+	* Takes an array of assetids and returns the asset names as a comma
+	* seperated string
 	*
 	* @return string
 	* @access private
-	* @see Asset::_getAllowLinks()
 	*/
-	function getUpdateMessageKeywordReplacement()
+	function _getCommaSeperatedNamesByAssetid($assetids)
 	{
-		if (isset($this->_tmp['update_message'])) {
-			return $this->_tmp['update_message'];
+		$string = '';
+		$names = Array();
+		foreach ($assetids as $assetid) {
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$names[] = $asset->name;
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 		}
-		return '';
-	}//end getUpdateMessageKeywordReplacement()
+		$string .= implode(', ', $names);
 
+		return $string;
 
-	/**
-	* Returns replacement for the update_message keyword.
-	*
-	* @return string
-	* @access private
-	* @see Asset::_getAllowLinks()
-	*/
-	function getFailureMessageKeywordReplacement()
-	{
-		if (isset($this->_tmp['failure_message'])) {
-			return $this->_tmp['failure_message'];
-		}
-		return '';
-	}//end getFailureMessageKeywordReplacement()
+	}//end _getCommaSeperatedNamesByAssetid()
 
 
 	/**
@@ -424,11 +452,11 @@ class Page_User_Group_Manager extends Page
 	*
 	* @return string
 	* @access private
-	* @see Asset::_getAllowLinks()
 	*/
 	function getLocationPickerKeywordReplacement()
 	{
 		return $this->printAvailableLocations();
+
 	}//end getLocationPickerKeywordReplacement()
 
 
@@ -437,12 +465,12 @@ class Page_User_Group_Manager extends Page
 	*
 	* @return string
 	* @access private
-	* @see Asset::_getAllowLinks()
 	*/
 	function getUserNameKeywordReplacement()
 	{
 		$user = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($GLOBALS['SQ_SYSTEM']->currentUserId()));
 		return $user[$GLOBALS['SQ_SYSTEM']->currentUserId()]['name'];
+
 	}//end getUserNameKeywordReplacement()
 
 
@@ -451,13 +479,28 @@ class Page_User_Group_Manager extends Page
 	*
 	* @return string
 	* @access private
-	* @see Asset::_getAllowLinks()
 	*/
 	function getUserShortNameKeywordReplacement()
 	{
 		$user = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($GLOBALS['SQ_SYSTEM']->currentUserId()));
 		return $user[$GLOBALS['SQ_SYSTEM']->currentUserId()]['short_name'];
+
 	}//end getUserShortNameKeywordReplacement()
+
+
+	/**
+	* Returns replacement for the user_email keyword.
+	*
+	* @return string
+	* @access private
+	*/
+	function getUserEmailKeywordReplacement()
+	{
+		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
+		$current_user_email = $current_user->attr('email');
+		return $current_user_email;
+
+	}//end getUserEmailKeywordReplacement()
 
 
 	/**
@@ -470,6 +513,7 @@ class Page_User_Group_Manager extends Page
 	function getUserIdKeywordReplacement()
 	{
 		return $GLOBALS['SQ_SYSTEM']->currentUserId();
+
 	}//end getUserIdKeywordReplacement()
 
 
@@ -487,7 +531,55 @@ class Page_User_Group_Manager extends Page
 			$button = ob_get_contents();
 		ob_end_clean();
 		return $button;
+
 	}//end getCommitButtonKeywordReplacement()
+
+
+	/**
+	* Returns replacement for the error_messages_list keyword.
+	*
+	* @return string
+	* @access private
+	*/
+	function getErrorMessagesListKeywordReplacement()
+	{
+		return $this->_generateMessageList($this->errors, '_errors');
+
+	}//end getErrorMessagesListKeywordReplacement()
+
+
+	/**
+	* Returns replacement for the error_messages_list keyword.
+	*
+	* @return string
+	* @access private
+	*/
+	function getSuccessMessagesListKeywordReplacement()
+	{
+		return $this->_generateMessageList($this->messages, '_success');
+
+	}//end getSuccessMessagesListKeywordReplacement()
+
+
+	/**
+	* Print out an unordered list
+	*
+	* @return string
+	* @access private
+	*/
+	function _generateMessageList($messages, $suffix)
+	{
+		$string = '';
+		if (!empty($messages)) {
+			$string .= '<ul>';
+			foreach ($messages as $message) {
+				$string .= '<li class="'.$this->getPrefix().'_'.$suffix.'">'.$message.'</li>';
+			}
+			$string .= '</ul>';
+		}
+		return $string;
+
+	}//end _generateMessageList()
 
 
 }//end class
