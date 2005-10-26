@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.51.2.4 2005/10/26 04:02:26 lwright Exp $
+* $Id: install.inc,v 1.51.2.5 2005/10/26 04:03:38 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.51.2.4 $
+* @version $Revision: 1.51.2.5 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -671,7 +671,7 @@ function find_edit_interface_file($asset_type, $file_name)
 	$file_name = 'edit_interface_'.$file_name.'.xml';
 
 	$file = '';
-	$asset_dirs =& find_asset_type_dirs($asset_type);
+	$asset_dirs = find_asset_type_dirs($asset_type);
 	array_push($asset_dirs, SQ_INCLUDE_PATH.'/asset_edit');
 	for ($i = 0; $i < count($asset_dirs); $i++) {
 		if (file_exists($asset_dirs[$i].'/'.$file_name)) {
@@ -706,7 +706,7 @@ function find_edit_interface_language_files($asset_type, $file_name, $locale)
 	$file_name = 'lang_'.$file_name.'.xml';
 
 	$files = Array();
-	$asset_dirs =& find_asset_type_dirs($asset_type);
+	$asset_dirs = find_asset_type_dirs($asset_type);
 	array_push($asset_dirs, SQ_INCLUDE_PATH.'/asset_edit');
 
 	list($lang, $country, $variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($locale);
