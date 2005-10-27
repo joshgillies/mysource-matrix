@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks.inc,v 1.21 2005/05/11 06:04:50 lwright Exp $
+* $Id: design_area_menu_stalks.inc,v 1.21.2.1 2005/10/27 01:18:43 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_r
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,11 +64,6 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 	{
 		// make sure the aligment is lower case
 		switch ($name) {
-			case 'prefix_with_divider' :
-			case 'suffix_with_divider' :
-				trigger_localised_error('CORE0180', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $name);
-				break;
-
 			case 'alignment' :
 				$value = strtolower($value);
 				break;

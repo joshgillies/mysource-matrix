@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive.inc,v 1.21 2005/04/15 00:37:24 lwright Exp $
+* $Id: design_area_menu_recursive.inc,v 1.21.2.1 2005/10/27 01:18:43 sdanis Exp $
 *
 */
 
@@ -32,36 +32,12 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 {
-
-	/**
-	* Set the value for the passed variable to the passed value
-	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
-	*
-	* @return boolean
-	* @access public
-	*/
-	function setAttrValue($name, $value)
-	{
-		// make sure the aligment is lower case
-		switch ($name) {
-			case 'show_subs' :
-				trigger_localised_error("CORE0176", E_USER_NOTICE, $name, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-				break;
-
-		}//end switch
-
-		return parent::setAttrValue($name, $value);
-
-	}//end setAttrValue()
-
 
 	/**
 	* Performs any outputting needed to by all design areas of this menu type
