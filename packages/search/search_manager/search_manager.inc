@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.77 2005/09/21 01:49:33 mmcintyre Exp $
+* $Id: search_manager.inc,v 1.78 2005/10/27 01:51:20 dmckee Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -861,6 +861,7 @@ class Search_Manager extends Asset
 	*/
 	function _getRawNumberInText($value)
 	{
+		if (is_array($value)) return $value;
 		// check to see if this value is a raw number
 		if (!preg_match('/[a-zA-Z]+/', $value)) {
 			$pattern = Array(',', '+');
