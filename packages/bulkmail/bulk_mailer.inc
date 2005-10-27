@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.3 2005/10/27 01:38:15 ndvries Exp $
+* $Id: bulk_mailer.inc,v 1.4 2005/10/27 03:32:44 rong Exp $
 *
 */
 
@@ -28,12 +28,13 @@ $job = null;
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
 class Bulk_Mailer
 {
+
 
 	/**
 	* Constructor
@@ -45,6 +46,13 @@ class Bulk_Mailer
 	}//end constructor
 
 
+	/**
+	* Starts the process, gets called from run.php
+	*
+	* @return void
+	* @access public
+	*
+	*/
 	function start()
 	{
 		declare(ticks=1);
@@ -85,8 +93,8 @@ class Bulk_Mailer
 
 		//mem_check();
 		echo "  start ".date('r')."\n";
-		$chunk_count = 4;
-		$timeout_threshold = 5;
+		$chunk_count = 2;
+		$timeout_threshold = 60;
 
 		require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_job/bulkmail_job.inc';
 		$job_id = Bulkmail_Job::getLiveJob();
@@ -100,7 +108,10 @@ class Bulk_Mailer
 		// job is paused, exit
 		$job = $am->getAsset($job_id); // cannot use & (global?)
 		$state = $job->getAttrDB('current_state');
-		if ($state == BML_JOB_STATE_PAUSED) exit;
+		if ($state == BML_JOB_STATE_PAUSED) {
+			echo "job is paused.\n";
+			exit;
+		}
 
 		// job is running, check for timeout threshold
 		if ($state == BML_JOB_STATE_RUNNING) {
@@ -267,9 +278,8 @@ class Bulk_Mailer
 		// other mail details
 		$content_details = $job->attr('content_details');
 		$content_details['content_page'] = $job->attr('content_assetid');
-		$hdrs = $job->getHeaderDetails();
+		$header_details = $job->getHeaderDetails();
 		$mime = new Mail_mime();
-		$hdrs = $mime->headers($hdrs);
 
 		// start or resume, load and process the correct chunk
 		$marker = 0;
@@ -286,6 +296,12 @@ class Bulk_Mailer
 			exit;
 		} else {
 			echo "Parent $pid exits, after cache content\n";
+		}
+
+		// resuming from a paused job, update marker
+		if (file_exists($info_path)) {
+			include $info_path;
+			if ($info['paused']) $marker--;
 		}
 
 		// read chunks from cache and process them
@@ -309,8 +325,6 @@ class Bulk_Mailer
 			if (file_exists($info_path)) {
 				include $info_path;
 				if($info['paused']) {
-					// load previous chunk of recipients
-					$marker--;
 					$recipient_chunk = $this->_resumeJob($info, $marker, $info_path, $recipient_path);
 				}
 			}
@@ -329,16 +343,19 @@ class Bulk_Mailer
 
 						// for testing purposes, set this to my email address
 						// use $email instead of $to
+						//$to = $email;
 						$to = 'rong@squiz.net';
-						// pass in custom_id as extra header details, for queue file naming
-						$hdrs['custom_id'] = $user_id;
 
 						// fork since we cannot call printFrontend multiple times
 						$pid = $this->fork();
 						if (!$pid) {
 							$content = $job->generateBmailContent($job, $content_details, $user_id);
-							$mime->setTXTBody($content);
+							$mime->setHtmlBody($content);
+							//$mime->setTXTBody($content);
 							$body = @$mime->get();
+							// pass in custom_id as extra header details, for queue file naming
+							$header_details['custom_id'] = $user_id;
+							$hdrs = @$mime->headers($header_details);
 							// note: 'from' field must be defined in the header details
 							$mail_id = $mail_queue->put('', $to, $hdrs, $body);
 							exit;
@@ -351,8 +368,8 @@ class Bulk_Mailer
 						$info['current_user'] = $user_id;
 						$output = '<?php $info = '.var_export($info, true).'; ?>';
 						string_to_file($output, $info_path);
-						echo " processed ".$info['total_sent']." (Id #$user_id) $email  ... sleep(5)\n"; //sleep(5);
-
+						echo " processed ".$info['total_sent']." (Id #$user_id) $email  ... sleep(5)\n";
+sleep(2);
 						// pause the job if status is not live, or current state is paused
 						$status = Bulkmail_Job::getStatusDB($job->id);
 						$state = $job->getAttrDB('current_state');
@@ -363,14 +380,13 @@ class Bulk_Mailer
 					} else {
 						echo " $user_id already in queue/sent (skip, using file_exists)\n";
 					}
-//sleep(1);
 				}
 				// proceed to next chunk in the next loop
 				$marker++;
 				$output = "<?php \$marker = $marker; ?>";
 				string_to_file($output, $recipient_path.'/marker');
 				echo " sendMailsInQueue\n";
-				$mail_queue->sendMailsInQueue();
+				//$mail_queue->sendMailsInQueue();
 				exit;
 
 			} else {
@@ -381,16 +397,22 @@ class Bulk_Mailer
 
 		}//end while()
 
-		// mark this job as finished, and set status to under construction
-		$this->_reconnectDB();
-		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-		$job->setAttrValue('current_state', BML_JOB_STATE_FINISHED);
-		$job->processStatusChange(SQ_STATUS_UNDER_CONSTRUCTION, false);
-		$job->setAttrValue('parent_process_pid', 0);
-		$job->setAttrValue('child_process_pids', Array());
-		$job->setAttrValue('last_processed', 0);
-		$job->saveAttributes();
-		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		 if (file_exists($info_path)) {
+			 include $info_path;
+			 // mark job state as 'Finished', and set job status to 'Under Construction'
+			 if ($info['total_sent'] == $info['total_recipient']) {
+				 echo "finished job\n";
+				 $this->_reconnectDB();
+				 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+				 $job->setAttrValue('current_state', BML_JOB_STATE_FINISHED);
+				 $job->processStatusChange(SQ_STATUS_UNDER_CONSTRUCTION, false);
+				 $job->setAttrValue('parent_process_pid', 0);
+				 $job->setAttrValue('child_process_pids', Array());
+				 $job->setAttrValue('last_processed', 0);
+				 $job->saveAttributes();
+				 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			 }
+		 }
 
 		return true;
 
@@ -425,6 +447,7 @@ class Bulk_Mailer
 	*/
 	function _pauseJob($info, $info_path)
 	{
+		global $job;
 		echo "Paused at user ".$info['current_user'].", child exit\n";
 		// set the pause flag
 		$info['paused'] = true;
