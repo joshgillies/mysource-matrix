@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.147 2005/10/25 06:48:06 dmckee Exp $
+* $Id: search_page.inc,v 1.148 2005/10/27 00:48:00 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.147 $
+* @version $Revision: 1.148 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -100,22 +100,15 @@ class Search_Page extends Listing_Engine
 
 
 	/**
-	* Perform any additional processing required during the creation of this asset
+	* Creates bodycopies for this asset
 	*
-	* Search pages create a few bodycopy assets when they are created
-	*
-	* @param array	&$link	information used to create the initial link
+	* Override if different bodycopies are needed (eg. in search page).
 	*
 	* @return boolean
-	* @access private
+	* @access protected
 	*/
-	function _createAdditional(&$link)
+	function _createBodycopies()
 	{
-		if (!parent::_createAdditional($link)) return false;
-
-		// add a bodycopy for the initial search page layout, result page layout, and result rows
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-
 		foreach ($this->bodycopies as $value => $name) {
 			$copy_link = Array(
 							'asset'			=> &$this,
@@ -129,9 +122,10 @@ class Search_Page extends Listing_Engine
 			$bodycopy->setAttrValue('name', $name);
 			if (!$bodycopy->create($copy_link)) return false;
 		}
+
 		return true;
 
-	}//end _createAdditional()
+	}//end _createBodycopies()
 
 
 	/**
@@ -1831,6 +1825,9 @@ class Search_Page extends Listing_Engine
 
 		// get the basic search settings based on the current category (if any)
 		$search_info = $this->populateBaseSearchInfo();
+		if (empty($search_info['fields'])) {
+			$search_info['fields'] = Array();
+		}
 
 		$query_fields_exist = false;
 
