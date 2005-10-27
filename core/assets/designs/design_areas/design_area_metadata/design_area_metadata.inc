@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_metadata.inc,v 1.8 2005/01/20 13:07:32 brobertson Exp $
+* $Id: design_area_metadata.inc,v 1.8.2.1 2005/10/27 01:15:25 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,7 +64,7 @@ class Design_Area_Metadata extends Design_Area
 			echo '
 					$METADATA_MANAGER = &$GLOBALS[\'SQ_SYSTEM\']->getMetadataManager();
 					$metadata_field_value = $METADATA_MANAGER->getMetadataFieldValues($ASSET->id, Array('.var_export($field_name, true).'));
-					echo $metadata_field_value['.var_export($field_name, true).']
+					echo $metadata_field_value['.var_export($field_name, true).'];
 				 ';
 		}
 		echo '?', ">\n";
