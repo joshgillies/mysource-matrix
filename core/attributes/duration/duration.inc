@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: duration.inc,v 1.5 2005/07/13 01:42:45 mmcintyre Exp $
+* $Id: duration.inc,v 1.6 2005/10/27 23:50:48 bcaldwell Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
 * @author	Tom Barrett			<tbarrett@squiz.net>
 *
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -63,6 +63,10 @@ class Asset_Attribute_Duration extends Asset_Attribute
 	function Asset_Attribute_Duration($attributeid=0, $value=null)
 	{
 		$this->Asset_Attribute($attributeid, (int) $value);
+
+		// Default display.
+		$this->_edit_params['biggest_units'] = 86400;
+		$this->_edit_params['smallest_units'] = 60;
 
 	}//end constructor
 
