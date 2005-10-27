@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.21 2005/10/14 03:17:03 sdanis Exp $
+* $Id: text.inc,v 1.22 2005/10/27 01:39:20 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package Fudge
 * @subpackage Text
 */
@@ -130,7 +130,7 @@ function retrieve_keywords_replacements($text, $additional='')
 * @return array
 * @access public
 */
-function get_word_counts($text, $split_regexp="[\t\n\r\f\v ]+", $word_match_regexp="[^ \t\n\r\f\v]+", $min_length=1)
+function get_word_counts($text, $split_regexp="[\t\n\r ]+", $word_match_regexp="[^ \t\n\r]+", $min_length=1)
 {
 	// type verification
 	if (!is_string($text) || !is_string($split_regexp) || !is_string($word_match_regexp) || !is_int($min_length)) {
