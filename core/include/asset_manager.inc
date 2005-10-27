@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.389 2005/10/27 02:06:25 skim Exp $
+* $Id: asset_manager.inc,v 1.390 2005/10/27 02:10:02 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.389 $
+* @version $Revision: 1.390 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3918,7 +3918,7 @@ class Asset_Manager extends MySource_Object
 
 		// shadow asset found, pipe the request of to the bridge
 		if (isset($id_parts[1])) {
-			$asset = $this->getAsset($id_parts[0]);
+			$asset =& $this->getAsset($id_parts[0]);
 			$result =  $asset->updateLink($linkid, $link_type, $value, $sort_order);
 			$this->forgetAsset($asset);
 			return $result;
@@ -4189,7 +4189,7 @@ class Asset_Manager extends MySource_Object
 
 		// shadow asset found, pipe the request of to the bridge
 		if (isset($id_parts[1])) {
-			$bridge = $this->getAsset($id_parts[0]);
+			$bridge =& $this->getAsset($id_parts[0]);
 			$result = $bridge->deleteAssetLink($linkid, $moving);
 			$this->forgetAsset($bridge);
 			return $result;
