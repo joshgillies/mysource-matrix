@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.463 2005/10/18 05:49:21 mmcintyre Exp $
+* $Id: asset.inc,v 1.464 2005/10/27 00:52:22 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.463 $
+* @version $Revision: 1.464 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3580,16 +3580,17 @@ class Asset extends MySource_Object
 	*/
 	function printFrontend()
 	{
+		if (!headers_sent()) {
+			if (!$this->readAccess()) {
+				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+				return;
+			}
 
-		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
-			return;
-		}
-
-		if ($this->charset) {
-			header('Content-type: text/html; charset='.$this->charset);
-		} else {
-			header('Content-type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
+			if ($this->charset) {
+				header('Content-type: text/html; charset='.$this->charset);
+			} else {
+				header('Content-type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
+			}
 		}
 
 		if ($this->languages) {
