@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.3 2005/10/27 01:38:15 ndvries Exp $
+* $Id: bulkmail_job.inc,v 1.4 2005/10/27 02:40:47 ndvries Exp $
 *
 */
 
@@ -29,12 +29,13 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
 class Bulkmail_Job extends Bulkmail_Post_Office
 {
+
 
 	/**
 	* Constructor
@@ -53,10 +54,11 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
 	function _getName($short_name=false)
 	{
@@ -85,19 +87,19 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 
 		return $post_office;
 
-	}//end _getPostOffice()
+	}//end getPostOffice()
 
 
 	/**
 	* Sends the bulkmail message using given PEAR mail driver params
 	*
-	* @param object				&$asset	the asset to which we belong
-	* @param mixed string|array	$recipient	an array or a string with comma separated recipients.
+	* @param object	&$asset		the asset to which we belong
+	* @param mixed	$recipient	an array or a string with comma separated recipients.
 	*
-	* @return bool
+	* @return boolean
 	* @access public
 	*/
-	function sendPreviewMail($asset, $recipient)
+	function sendPreviewMail(&$asset, $recipient)
 	{
 		$post_office = $this->getPostOffice();
 		if (!is_null($post_office)) {
@@ -151,7 +153,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 			$header_details = $asset->attr('header_details');
 			// removes fields with empty values, eg. empty 'From' field will cause problem
 			foreach ($header_details as $field => $value) {
-				if(empty($value)) unset($header_details[$field]);
+				if (empty($value)) unset($header_details[$field]);
 			}
 		}
 		return $header_details;
@@ -194,7 +196,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		$group_ids = Array();
 
 		foreach ($recipients as $recipient_id) {
-			$recipient = $am->getAsset($recipient_id);
+			$recipient =& $am->getAsset($recipient_id);
 
 			// store all users/bulkmail_users (user_id => email)
 			if (!is_null($recipient) && (is_a($recipient, 'user') || is_a($recipient, 'bulkmail_user'))) {
@@ -204,6 +206,8 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 			} else if (!is_null($recipient) && is_a($recipient, 'user_group')) {
 				$group_ids[] = $recipient_id;
 			}
+
+			$am->forgetAsset($recipient);
 		}
 
 		// expand groups and get all users/bulkmail_users from a query
@@ -237,17 +241,17 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	/**
 	* Generates the query to get chunk of recipient ids and email addresses
 	*
-	* @param array	$assetids		the id of the group assets to get their children for
-	* @param array	$type_codes		the type of asset that is linked
-	*								and whether we are finding assets that are just a $type_code (strict)
-	*								or $type_code and any of it's sub-classes (not strict)
-	*								format: type_code => strict ? true : false
+	* @param array	$group_ids	the id of the group assets to get their children for
+	* @param array	$type_codes	the type of asset that is linked
+	*							and whether we are finding assets that are just a $type_code (strict)
+	*							or $type_code and any of it's sub-classes (not strict)
+	*							format: type_code => strict ? true : false
 	*
 	* @return string
 	* @access public
 	*/
-	function generateGetRecipientsQuery($group_ids, $type_codes) {
-
+	function generateGetRecipientsQuery($group_ids, $type_codes)
+	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$select = 'SELECT DISTINCT l.minorid, val.custom_val';
 		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
@@ -276,7 +280,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		if (!empty($treeids)) {
 			$where .= ' AND (';
 			$count = 0;
-			foreach($treeids as $treeid) {
+			foreach ($treeids as $treeid) {
 				if ($count) $where .= 'OR ';
 				$where .= '(t.treeid LIKE '.$db->quote($treeid.'%').'AND t.treeid > '.$db->quote($treeid).') ';
 				$count++;
@@ -308,11 +312,11 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$query = (Array(
-				'select'	=> $select,
-				'from'		=> $from,
-				'where'		=> $where,
-			   ));
+		$query = Array(
+					'select'	=> $select,
+					'from'		=> $from,
+					'where'		=> $where,
+				 );
 
 		return implode(' ', $query);
 	}//end generateGetRecipientsQuery()
@@ -372,7 +376,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		// once the job is live, the only way to change it's status is by cancelling this job from the backend
 		if ($old_status == SQ_STATUS_LIVE) {
 			// maybe if the user set job to under construction, we cancel the job automatically?
-			if($state == BML_JOB_STATE_NOT_LIVE || $state == BML_JOB_STATE_FINISHED) {
+			if ($state == BML_JOB_STATE_NOT_LIVE || $state == BML_JOB_STATE_FINISHED) {
 				return parent::processStatusChange($new_status, $update_parents);
 			}
 
@@ -382,7 +386,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 			// can set live
 			if (empty($error)) {
 				// purge the data directory
-				if(is_dir($this->data_path.'/.data')) {
+				if (is_dir($this->data_path.'/.data')) {
 					delete_directory($this->data_path.'/.data');
 				}
 				// set the job to live and running
@@ -404,7 +408,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	/**
 	* Gets a custom attribute value directly from the database, as attr() doesn't return the updated value
 	*
-	* @param string	$name		the name of the custom attribute
+	* @param string	$name	the name of the custom attribute
 	*
 	* @return string
 	* @access public
@@ -419,7 +423,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 
 		return $result;
 
-	}//end getCustomAttrValue()
+	}//end getAttrDB()
 
 
 	/**
@@ -452,9 +456,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		// get live job (only one live job at any given point of time)
 		foreach ($jobs as $job_assetid => $type_code) {
 			$status = Bulkmail_Job::getStatusDB($job_assetid);
-			if($status == SQ_STATUS_LIVE) {
-				return $job_assetid;
-			}
+			if ($status == SQ_STATUS_LIVE) return $job_assetid;
 		}
 
 		return false;
@@ -475,14 +477,14 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		// is there another live job running?
 		// probably check this part when setting the status to live for real
 		$current_live_job = Bulkmail_Job::getLiveJob();
-		if(!empty($current_live_job) && $current_live_job != $this->id) {
+		if (!empty($current_live_job) && $current_live_job != $this->id) {
 			//$error[] = "Another Bulkmail Job (Id #$current_live_job) is currently Live.\n";
 			$error[] = translate('bulkmail_warning_job_live', $current_live_job);
 		}
 
 		// is this job linked under a post office?
 		$post_office =& $this->getPostOffice();
-		if(is_null($post_office)) {
+		if (is_null($post_office)) {
 			//$error[] = "Post Office Error: Post Office not set.\n";
 			$error[] = translate('bulkmail_warning_po_post_office_not_set');
 		} else {
@@ -490,7 +492,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 			$server_details = $this->getServerDetails();
 			$driver = array_get_index($server_details, 'driver', '');
 			$mail_object =& Mail::factory($driver, $server_details);
-			if(PEAR::isError($mail_object)) {
+			if (PEAR::isError($mail_object)) {
 				// cannot create a mail instance
 				//$error[] = "Post Office Server Details Error: ".$mail_object->getMessage().".\n";
 				$error[] = translate('bulkmail_warning_po_server_details', $mail_object->getMessage());
@@ -500,7 +502,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		// no recipient
 		// note: if expand $recipient, its equivalent to calling getRecipients() again (intensive process)
 		$recipients = $this->attr('recipients');
-		if(empty($recipients)) {
+		if (empty($recipients)) {
 			//$error[] = "Post Office Error: Recipients no set.\n";
 			$error[] = translate('bulkmail_warning_po_recipient_not_set');
 		}
@@ -508,7 +510,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		// get header details from post office or job
 		// check if minimum required fields (from field) are supplied
 		$header_details = $this->getHeaderDetails();
-		if(!isset($header_details['from']) && !isset($header_details['From'])) {
+		if (!isset($header_details['from']) && !isset($header_details['From'])) {
 			//$error[] = "Header Details Error: Missing 'From' field\n";
 			$error[] = translate('bulkmail_warning_header_from_field');
 		}
@@ -521,24 +523,25 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 */
 
 		// no content page
-		if(!$this->attr('content_assetid')) {
+		if (!$this->attr('content_assetid')) {
 			//$error[] = "Content Details Error: Content Page not set.\n";
 			$error[] = translate('bulkmail_warning_content_page_not_set');
 		}
 		$content_details = $this->attr('content_details');
 		$type = array_get_index($content_details, 'type', '');
 		$bmail_user = array_get_index($content_details, 'bulkmail_user', '');
-		if($type == 'pre_selected_user') {
+		if ($type == 'pre_selected_user') {
 			if (!$bmail_user) {
 				//$error[] = "Content Details Error: Bulkmail User not set for group-based content generation method.\n";
 				$error[] = translate('bulkmail_warning_content_bmail_user_not_set');
 			} else {
-				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($bmail_user);
-				if(!$user->canLogin()){
+				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bmail_user);
+				if (!$user->canLogin()){
 					$type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($user->type(), 'name');
 					//$error[] = "Content Details Error: Unable to generate content as $type \"".$user->name."\" (Id #$bmail_user), user is either in trash or not live.\n";
 					$error[] = translate('bulkmail_warning_content_bmail_user_login_failed', $type, $user->name, $user->id);
 				}
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 			}
 		}
 		// check threshold settings?

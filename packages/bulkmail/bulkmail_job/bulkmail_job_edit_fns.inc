@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.2 2005/10/27 01:38:15 ndvries Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.3 2005/10/27 02:40:47 ndvries Exp $
 *
 */
 
@@ -29,12 +29,13 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
 class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -64,10 +65,10 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 
 		$current_state = $asset->attr('current_state');
 		$options = Array(
-						BML_JOB_STATE_RUNNING	=> translate('bulkmail_progress_state_running'),
-						BML_JOB_STATE_PAUSED	=> translate('bulkmail_progress_state_paused'),
-						BML_JOB_STATE_NOT_LIVE	=> translate('bulkmail_progress_state_cancel'),
-					 );
+					BML_JOB_STATE_RUNNING	=> translate('bulkmail_progress_state_running'),
+					BML_JOB_STATE_PAUSED	=> translate('bulkmail_progress_state_paused'),
+					BML_JOB_STATE_NOT_LIVE	=> translate('bulkmail_progress_state_cancel'),
+				   );
 		$field_name = translate('bulkmail_progress_current_state');
 		//$field_note = translate('bulkmail_progress_note');
 		$o->openField($field_name); //, '', $field_note);
@@ -113,7 +114,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		$o->closeField();
 
 		// notify the user that changes will not be saved if the status is live
-		if($asset->status == SQ_STATUS_LIVE && $write_access) {
+		if ($asset->status == SQ_STATUS_LIVE && $write_access) {
 			$o->openField('Warning');
 				$warning = '<span class="sq-backend-warning">'.translate('bulkmail_progress_warning_save').'</span>';
 				$o->note($warning);
@@ -276,7 +277,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	function processHeaderDetails(&$asset, &$o, $prefix)
 	{
 		// once live, header details are not changeable
-		if($asset->status == SQ_STATUS_LIVE) return false;
+		if ($asset->status == SQ_STATUS_LIVE) return false;
 		if (!$asset->writeAccess('attributes')) return false;
 
 		// save whether to use post office header details

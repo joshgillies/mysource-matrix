@@ -32,12 +32,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
 class Bulkmail_Job_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -49,10 +50,10 @@ class Bulkmail_Job_Management extends Asset_Management
 
 		$this->vars = Array(
 						'name'					=> Array(
-													'added'			=> '0.1',
-													'type'			=> 'text',
-													'default'		=> '',
-											   ),
+													'added'		=> '0.1',
+													'type'		=> 'text',
+													'default'	=> '',
+												   ),
 						'details_setting'		=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'serialise',
@@ -60,33 +61,34 @@ class Bulkmail_Job_Management extends Asset_Management
 																		'use_post_office_header'	=> true,
 																	   ),
 													'description'	=> 'Whether to use the post office settings for various details.',
-											   ),
+												   ),
 						'current_state'			=> Array(
-													'added'			=> '0.1',
-													'type'			=> 'int',
-													'default'		=> 0,
-											   ),
+													'added'		=> '0.1',
+													'type'		=> 'int',
+													'default'	=> 0,
+												   ),
 						'last_processed'		=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'int',
 													'default'		=> 0,
 													'description'	=> 'Timestamp of when the last recipient is processed.',
-											   ),
+												   ),
 						'parent_process_pid'	=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'int',
 													'default'		=> 0,
 													'description'	=> 'The id of the parent process that last processed this asset.',
-											   ),
-						'child_process_pids'		=> Array(
+												   ),
+						'child_process_pids'	=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'serialise',
 													'default'		=> Array(),
 													'description'	=> 'The history of all the ids of the child processes that processed this asset.',
-											   ),
+												   ),
 					  );
 
 	}//end constructor
+
 
 }//end class
 ?>

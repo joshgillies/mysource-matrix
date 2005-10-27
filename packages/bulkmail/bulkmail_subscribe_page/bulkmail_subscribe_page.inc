@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.3 2005/10/26 04:31:33 rong Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.4 2005/10/27 02:41:00 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -58,6 +58,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 										   ),
 					);
 
+
 	/**
 	* Constructor
 	*
@@ -85,11 +86,11 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 				SQ_LINK_TYPE_2	=> Array(
 									'bodycopy'	=> Array(
 													'card'		=> 'M',
-													'exclusive'	=> false
+													'exclusive'	=> false,
 												   ),
 									'folder'	=> Array(
 													'card'		=> 'M',
-													'exclusive'	=> false
+													'exclusive'	=> false,
 												   ),
 								   ),
 			   );
@@ -104,8 +105,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
@@ -123,7 +124,9 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 
 		$unverified_users =& new Folder();
 		$unverified_users->setAttrValue('name', 'Unverified Users');
-		if (!$unverified_users->create($copy_link)) return false;
+		if (!$unverified_users->create($copy_link)) {
+			return false;
+		}
 
 		return true;
 
@@ -133,7 +136,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	/**
 	* Retrieves the unverified users folder
 	*
-	* @return object	the folder
+	* @return object
 	* @access private
 	*/
 	function &getUnverifiedUsersFolder()
@@ -148,10 +151,10 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	/**
 	* Gets the assetid of the unique Bulkmail_User asset with an email of $value
 	*
-	* @param	string	the email address to look for (unique attribute value)
+	* @param string	$value	the email address to look for (unique attribute value)
 	*
-	* @return	int		the Bulkmail_User assetid
-	* @access	private
+	* @return int
+	* @access private
 	*/
 	function getExistingBulkmailUserid($value)
 	{
@@ -178,8 +181,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	* Gets a list of the valid mailing lists, so that we can check if people are
 	* rewriting the GET vars to link themselves elsewhere
 	*
-	* @return	array	assets being listed by the location picker on this page
-	* @access	private
+	* @return array
+	* @access private
 	*/
 	function getAvailableLocations()
 	{
@@ -233,13 +236,14 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 
 	}//end getAvailableLocations()
 
+
 	/**
 	* This is called before the bodycopy contents are printed. It decides which
 	* functions to call based on whether the user is logged in or not (or has
 	* has clicked on a link in a verification email)
 	*
-	* @return	null
-	* @access	private
+	* @return null
+	* @access private
 	*/
 	function processForm()
 	{
@@ -277,8 +281,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	* Process a verification request. This will get called whenever the GET vars
 	* indicate that the user has done a click-through from a verification email.
 	*
-	* @return	null
-	* @access	private
+	* @return null
+	* @access private
 	*/
 	function processVerification()
 	{
@@ -289,7 +293,9 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$unsubscriptions = array_get_index($_GET, 'unsubscribe', Array());
 		$subscriptions = empty($subscriptions) ? Array() : explode(',', $subscriptions);
 		$unsubscriptions = empty($unsubscriptions) ? Array() : explode(',', $unsubscriptions);
-		if (empty($subscriptions) && empty($unsubscriptions)) return;
+		if (empty($subscriptions) && empty($unsubscriptions)) {
+			return;
+		}
 
 		// OK, let's check if there is a user linked under the unverified users
 		// folder with $uniqid as the link value
@@ -361,7 +367,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($unverified_folder);
 
-	}// end processVerification()
+	}//end processVerification()
 
 
 	/**
@@ -369,8 +375,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	* wants to key in their email address and hit subscribe / unsubscribe), or a
 	* logged in user who has specified a different email address
 	*
-	* @return	null
-	* @access	private
+	* @return null
+	* @access private
 	*/
 	function processPublicUserForm()
 	{
@@ -380,7 +386,9 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 
 		$subscriptions = array_get_index($_REQUEST, $this->getPrefix().'_subscriptions', Array());
 		$unsubscriptions = array_get_index($_REQUEST, $this->getPrefix().'_unsubscriptions', Array());
-		if (empty($subscriptions) && empty($unsubscriptions)) return;
+		if (empty($subscriptions) && empty($unsubscriptions)) {
+			return;
+		}
 
 		switch ($this->attr('verify_not_logged_in')) {
 			case 'always':
@@ -438,7 +446,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			$bulkmail_user =& new Bulkmail_User();
 
 			$parent_assetid = array_shift($subscriptions);
-			$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
+			$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
 			$link_value = $sub_verify ? $uniqid : '';
 			$link = Array(
 						'asset'		=> $parent_asset,
@@ -495,14 +503,16 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	/**
 	* Process a sub/unsubscribe request from logged in user
 	*
-	* @return	null
-	* @access	private
+	* @return null
+	* @access private
 	*/
 	function processMatrixUserForm()
 	{
 		$subscriptions = array_get_index($_REQUEST, $this->getPrefix().'_subscriptions', Array());
 		$unsubscriptions = array_get_index($_REQUEST, $this->getPrefix().'_unsubscriptions', Array());
-		if (empty($subscriptions) && empty($unsubscriptions)) return;
+		if (empty($subscriptions) && empty($unsubscriptions)) {
+			return;
+		}
 
 		switch ($this->attr('verify_logged_in')) {
 			case 'always':
@@ -592,6 +602,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	* Takes an associative array of assetids and writes relevant error/success
 	* messages to $this->[errors|messages] for later formatting
 	*
+	* @param array	$fail_success	associative array with failed and successful assetids
+	*
 	* @return void
 	* @access public
 	*/
@@ -617,6 +629,19 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	}//end addLinkingMessages()
 
 
+	/**
+	* Send an email to the user asking them to verify their subscription /
+	* unsubscription request
+	*
+	* @param string	$to					Recipent email address (either 'user@example.com' or 'User <user@example.com>')
+	* @param string	$from				Sending email address (formatted as above)
+	* @param array	$subscriptions		Assetids the user wanted to link under
+	* @param array	$unsubscriptions	Assetids the user wanted to remove himself from
+	* @param array	$uniqid				Unique identifier (value of the link between user & unverified user folder)
+	*
+	* @return void
+	* @access public
+	*/
 	function sendConfirmationEmail($to, $from, $subscriptions, $unsubscriptions, $uniqid)
 	{
 		if (empty($subscriptions) && empty($unsubscriptions)) {
@@ -693,7 +718,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		ob_end_clean();
 		return $user_name;
 
-	}//end getSubscribeUserNameAddressKeywordReplacement()
+	}//end getSubscribeUserNameKeywordReplacement()
 
 
 	/**
@@ -706,7 +731,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	{
 		return $this->printAvailableLocations('_subscriptions');
 
-	}//end getSubscriptionPickerKeywordReplacement()
+	}//end getSubscriptionsPickerKeywordReplacement()
 
 
 	/**
@@ -719,7 +744,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	{
 		return $this->printAvailableLocations('_unsubscriptions');
 
-	}//end getUnsubscriptionPickerKeywordReplacement()
+	}//end getUnsubscriptionsPickerKeywordReplacement()
 
 
 	/**
