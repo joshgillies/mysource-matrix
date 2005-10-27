@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.3 2005/10/27 02:40:47 ndvries Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.4 2005/10/27 02:52:56 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -167,6 +167,10 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	function processProgress(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return false;
+
+		// prevent the user from changing the state once the job is finished
+		$state = Bulkmail_Job::getStatusDB($asset->id);
+		if ($state == BML_JOB_STATE_FINISHED) return false;
 
 		$content_details = $asset->attr('content_details');
 		if (isset($_POST[$prefix.'_progress_current_state'])) {
