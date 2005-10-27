@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.19 2005/10/14 02:08:05 lwright Exp $
+* $Id: lang_errors.xml,v 1.20 2005/10/27 23:45:28 lwright Exp $
 *
 */
 
@@ -1301,6 +1301,8 @@ Full Node Contents %3$s</error>
 	<error code="SYS0308">Asset #%s is not a metadata field</error>
 
 	<error code="SYS0309">You do not have permission to change the status of "%1$s" (#%2$s)</error>
+
+	<error code="SYS0310">WARNING: The replacement character used for get_valid_html_id() is itself not valid in ID fields (%s). An empty string will be used instead</error>
 
 	<!-- CORE ASSETS -->
 
