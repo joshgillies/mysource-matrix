@@ -11,12 +11,12 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list_edit_fns.inc,v 1.8 2005/08/10 04:12:31 tbarrett Exp $
+* $Id: search_list_edit_fns.inc,v 1.9 2005/10/27 00:51:29 lwright Exp $
 *
 */
 
 
-require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset_listing_edit_fns.inc';
+require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 
 /**
 * Search_List_Edit_Fns
@@ -25,11 +25,11 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
-class Search_List_Edit_Fns extends Page_Asset_Listing_Edit_Fns
+class Search_List_Edit_Fns extends Listing_Engine_Edit_Fns
 {
 
 
@@ -39,7 +39,7 @@ class Search_List_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	*/
 	function Search_List_Edit_Fns()
 	{
-		$this->Page_Asset_Listing_Edit_Fns();
+		$this->Listing_Engine_Edit_Fns();
 
 	}//end constructor
 
@@ -158,29 +158,24 @@ class Search_List_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		}
 
 		if ($asset->writeAccess('attributes')) {
-
 			$fields = $search_page->attr('fields');
 
 			$options = Array();
 			foreach ($fields as $field_name => $field) {
-				$field_description = $fields[$field_name];
-				$field_description = $field_name.' ';
+				$can_use = true;
 
-				switch ($field['type']) {
-					case 'asset_attrib' :
-						$field_description .= '('.strtolower(translate('asset_attribute')).')';
-						$field_name = 'attribute:'.$field_name.':'.$field['params']['asset_type'];
-					break;
-					case 'metadata' :
-						$field_description .= '('.strtolower(translate('metadata')).')';
-						$field_name = 'metadata:'.$field_name.':'.$field['params']['assetid'];
-					break;
-					default:
-						// note that we cant use exclude fields because, by themsevles, they never return results
-						continue(2);
-					break;
+				// loop through each data source and if it contains an 'include all'
+				// or 'exclude' anywhere, then it cannot be used
+				foreach($field['data_sources'] as $data_source) {
+					if (($data_source['type'] == 'include_all') || ($data_source['type'] == 'exclude')) {
+						$can_use = false;
+						break;
+					}
 				}
-				$options[$field_name] = $field_description;
+
+				if ($can_use) {
+					$options[$field_name] = $field['name'];
+				}
 			}
 
 			$options = array_merge(Array('' => translate('none')), $options);

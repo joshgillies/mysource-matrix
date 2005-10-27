@@ -11,12 +11,12 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list.inc,v 1.11 2005/09/19 23:40:01 lwright Exp $
+* $Id: search_list.inc,v 1.12 2005/10/27 00:51:29 lwright Exp $
 *
 */
 
 
-require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset_listing.inc';
+require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 /**
@@ -26,11 +26,11 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
-class Search_List extends Page_Asset_Listing
+class Search_List extends Listing_Engine
 {
 
 
@@ -42,7 +42,7 @@ class Search_List extends Page_Asset_Listing
 	*/
 	function Search_List($assetid=0)
 	{
-		$this->Page_Asset_Listing($assetid);
+		$this->Listing_Engine($assetid);
 
 	}//end constructor
 
@@ -50,23 +50,17 @@ class Search_List extends Page_Asset_Listing
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
-	* Search lists create a bodycopy asset when they are created
+	* Override this to stop it creating type folders, etc but retain page contents
+	* and no results bodycopies
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!page::_createAdditional($link)) return false;
-
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$asset =& new Bodycopy();
-		$copy_link = Array('asset' => &$this, 'value' => 'page_contents', 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-		$asset->setAttrValue('name', 'Page Contents');
-
-		return $asset->create($copy_link);
+		return $this->_createBodycopies();
 
 	}//end _createAdditional()
 
@@ -96,36 +90,50 @@ class Search_List extends Page_Asset_Listing
 		}
 		if (is_null($search_page)) return Array();
 
-		$search_field = $this->attr('search_field');
-		$field_type = substr($search_field, 0, strpos($search_field, ':'));
-		$field_params = substr($search_field, strpos($search_field, ':') +1);
+		// get information about the search field
+		$search_page_fields = $search_page->attr('fields');
+		$search_field_name = $this->attr('search_field');
+		$search_field = $search_page_fields[$search_field_name];
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
 		$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 		$search_info = $search_page->populateBaseSearchInfo();
 		$query_comps = $sm->constructBaseSearchQuery($search_info);
+
 		$query_comps['from'][] = 'sq_sch_idx ai';
 		$query_comps['where'][] = 'ai.assetid = a.assetid';
 		$query_comps['select'][] = 'ai.value';
 		$query_comps['select'][] = 'ai.assetid';
 		$query_comps['select'][] = 'SUBSTR(ai.value, 1, 1) AS first_letter';
 
-		switch ($field_type) {
-			case 'attribute' :
-				list($name, $type_code) = split(':', $field_params);
-				$query_comps['where'][] = 'ai.component = '.$db->quote('attr:'.$name);
-				$this->_tmp['search_field_name'] = $name;
-			break;
-			case 'metadata' :
-				list($name, $attrid) = split(':', $field_params);
-				$query_comps['where'][] = 'ai.component = '.$db->quote('metadata:'.$attrid);
-				$this->_tmp['search_field_name'] = $name;
-			break;
-			default :
-				return Array();
-			break;
+		$data_source_comps = Array();
+
+		foreach($search_field['data_sources'] as $data_source) {
+			switch ($data_source['type']) {
+				case 'asset_attrib' :
+					$type_code = $data_source['params']['asset_type'];
+					$attrid = $data_source['params']['attrid'];
+
+					$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($attrid));
+					$name = $attr_info[$attrid]['name'];
+					$data_source_comps[] = 'ai.component = '.$db->quote('attr:'.$name);
+				break;
+				case 'metadata' :
+					$assetid = $data_source['params']['assetid'];
+					$data_source_comps[] = 'ai.component = '.$db->quote('metadata:'.$assetid);
+				break;
+				case 'standard' :
+					$param_field = $data_source['params']['field'];
+					$data_source_comps[] = 'ai.component = '.$db->quoteSmart('__'.$param_field.'__');
+				break;
+
+				default :
+					return Array();
+				break;
+			}
 		}
+
+		$query_comps['where'][] = '('.implode(') OR (', $data_source_comps).')';
 
 		$query_comps['group_by'][] = 'ai.value';
 		$query_comps['group_by'][] = 'ai.assetid';
@@ -177,7 +185,8 @@ class Search_List extends Page_Asset_Listing
 	*/
 	function printAssetList($todo)
 	{
-		if (!isset($this->_tmp['search_field_name'])) return;
+		$search_field_name = $this->attr('search_field');
+		if (empty($search_field_name)) return;
 
 		$search_page = null;
 		$search_page_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'search_page');
@@ -186,7 +195,7 @@ class Search_List extends Page_Asset_Listing
 		}
 		if (is_null($search_page)) return;
 
-		$this->_tmp['search_url'] = $search_page->getURL().'?mode=results&queries_'.$this->_tmp['search_field_name'].'_query=';
+		$this->_tmp['search_url'] = $search_page->getURL().'?mode=results&queries_'.$search_field_name.'_query=';
 
 		$this->_printAssetList($todo);
 

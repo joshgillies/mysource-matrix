@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: lang_screen_details.xml,v 1.3 2005/10/27 00:51:29 lwright Exp $
 *
 */
 -->
@@ -50,7 +50,7 @@
 		</field>
 		<field>
 			<display_name>Select Search Field</display_name>
-			<note>This is the field whose search terms will be listed.</note>
+			<note>This is the field whose search terms will be listed. Only search fields consisting entirely of Asset Attribute, Metadata Field or Standard Asset Field data sources will be available. Search fields containing an Include All data source cannot be used.</note>
 			<function_call>
 				<paint_function   name="paintSearchField"  />
 				<process_function name="processSearchField" />
