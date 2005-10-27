@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.41 2005/10/24 05:42:38 lwright Exp $
+* $Id: datetime.inc,v 1.42 2005/10/27 02:09:00 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     General function for manipulating dates and times
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package Fudge
 * @subpackage General
 */
@@ -694,6 +694,18 @@ function iso8601_time_component($iso8601)
 /**
 * Returns true if passed string is a valid ISO8601 time with at least a full date
 *
+* Currently valid
+* Date only (2005-10-27) - five digit dates (for 10000+ AD) are not permitted
+* Date and time without time zone (2005-10-27T09:16:00)
+* Date and time with time zone (2005-10-27T09:16:00+10:00)
+* Date and time with "Z" (Zulu) time zone for UTC (2005-10-26T23:16:00Z)
+*
+* The "T" can also be replaced by a space, for backward compatibility with
+* those using SQL
+*
+* Dates and times must be "full" - abbreviated versions (eg. omission of seconds)
+* are not permitted
+*
 * @param string	$iso8601	The date that we are going to check
 *
 * @return boolean
@@ -701,7 +713,7 @@ function iso8601_time_component($iso8601)
 */
 function is_iso8601($iso8601)
 {
-	return (boolean)preg_match("/^\-?[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}([ T]([0-9\-]{2}\:?){3})?([+-]([0-9\-]{2}\:?){2})?$/",$iso8601);
+	return (boolean)preg_match("/^\-?[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}([ T]([0-9\-]{2}\:?){3}(Z|([+-]([0-9\-]{2}\:?){2}))?)?$/",$iso8601);
 
 }//end is_iso8601()
 
