@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.1 2005/10/25 23:37:05 rong Exp $
+* $Id: bulk_mailer.inc,v 1.2 2005/10/27 00:58:07 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ $job = null;
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -85,8 +85,8 @@ class Bulk_Mailer
 
 		//mem_check();
 		echo "  start ".date('r')."\n";
-		$chunk_count = 2;
-		$timeout_threshold = 60;
+		$chunk_count = 4;
+		$timeout_threshold = 5;
 
 		require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_job/bulkmail_job.inc';
 		$job_id = Bulkmail_Job::getLiveJob();
@@ -268,7 +268,7 @@ class Bulk_Mailer
 		$content_details = $job->attr('content_details');
 		$content_details['content_page'] = $job->attr('content_assetid');
 		$hdrs = $job->getHeaderDetails();
-		$mime =& new Mail_mime();
+		$mime = new Mail_mime();
 		$hdrs = $mime->headers($hdrs);
 
 		// start or resume, load and process the correct chunk
@@ -276,6 +276,17 @@ class Bulk_Mailer
 		$recipient_path = $job->data_path.'/.data/cache/recipient';
 		$info_path = $job->data_path.'/.data/info';
 		if(file_exists($recipient_path.'/marker')) include $recipient_path.'/marker';
+
+		// update the cached content each time we run the script
+		// do this in a fork process, so that we cant call printFrontend again in the child process
+		$pid = $this->fork();
+		if (!$pid) {
+			$job->cacheContent($job, $content_details);
+			echo "cached content!\n";
+			exit;
+		} else {
+			echo "Parent $pid exits, after cache content\n";
+		}
 
 		// read chunks from cache and process them
 		while(file_exists($recipient_path.'/recipient_'.$marker)) {
@@ -305,12 +316,12 @@ class Bulk_Mailer
 			}
 
 			$pid = $this->fork();
-
 			if (!$pid) {
 				// store the child process id and timestamp for each chunk
 				$this->_setChildPid();
-
+				// update cache each time
 				$mail_queue =& new Mail_Queue($queue_options, $mail_options);
+
 				for ($recipient_chunk; null !== ($user_id = key($recipient_chunk)); next($recipient_chunk)) {
 					$email = $recipient_chunk[$user_id];
 
@@ -321,15 +332,19 @@ class Bulk_Mailer
 						$to = 'rong@squiz.net';
 						// pass in custom_id as extra header details, for queue file naming
 						$hdrs['custom_id'] = $user_id;
-						$content = $job->generateBmailContent($job, $content_details, $user_id);
-						//$content = '';
-						$mime->setTXTBody($content);
-						$body = @$mime->get();
 
-						// note: 'from' field must be defined in the header details
-						$mail_id = $mail_queue->put('', $to, $hdrs, $body);
+						// fork since we cannot call printFrontend multiple times
+						$pid = $this->fork();
+						if (!$pid) {
+							$content = $job->generateBmailContent($job, $content_details, $user_id);
+							$mime->setTXTBody($content);
+							$body = @$mime->get();
+							// note: 'from' field must be defined in the header details
+							$mail_id = $mail_queue->put('', $to, $hdrs, $body);
+							exit;
+						}
 
-
+						$this->_reconnectDB();
 						// update progress counter
 						if (file_exists($info_path)) include $info_path;
 						$info['total_sent']++;
@@ -348,15 +363,14 @@ class Bulk_Mailer
 					} else {
 						echo " $user_id already in queue/sent (skip, using file_exists)\n";
 					}
-sleep(5);
+//sleep(1);
 				}
 				// proceed to next chunk in the next loop
 				$marker++;
 				$output = "<?php \$marker = $marker; ?>";
 				string_to_file($output, $recipient_path.'/marker');
 				echo " sendMailsInQueue\n";
-				//$mail_queue->sendMailsInQueue();
-
+				$mail_queue->sendMailsInQueue();
 				exit;
 
 			} else {
@@ -372,6 +386,9 @@ sleep(5);
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		$job->setAttrValue('current_state', BML_JOB_STATE_FINISHED);
 		$job->processStatusChange(SQ_STATUS_UNDER_CONSTRUCTION, false);
+		$job->setAttrValue('parent_process_pid', 0);
+		$job->setAttrValue('child_process_pids', Array());
+		$job->setAttrValue('last_processed', 0);
 		$job->saveAttributes();
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
@@ -489,7 +506,8 @@ sleep(5);
 		global $job;
 		// keep maximum of 5 child pids
 		$max_child = 5;
-		$array = unserialize($job->getAttrDB('child_process_pids'));
+		$array = $job->getAttrDB('child_process_pids');
+		if(!empty($array)) $array = unserialize($array);
 		$array[] = posix_getpid();
 		if(count($array) > $max_child) array_shift($array);
 
