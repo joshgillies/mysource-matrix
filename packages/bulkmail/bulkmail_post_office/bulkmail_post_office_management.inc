@@ -13,7 +13,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -31,9 +31,9 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 
 		$this->vars = Array(
 						'name'				=> Array(
-												'added'			=> '0.1',
-												'type'			=> 'text',
-												'default'		=> '',
+												'added'		=> '0.1',
+												'type'		=> 'text',
+												'default'	=> '',
 											   ),
 						'recipients'		=> Array(
 												'added'			=> '0.1',
@@ -63,8 +63,8 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 												'added'			=> '0.1',
 												'type'			=> 'serialise',
 												'default'		=> Array(
-																	'From'			=> SQ_CONF_DEFAULT_EMAIL,
-																	'Subject'		=> '',
+																	'From'		=> SQ_CONF_DEFAULT_EMAIL,
+																	'Subject'	=> '',
 																   ),
 												'description'	=> 'The header information required by the PEAR send() function',
 											   ),
@@ -78,12 +78,12 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 												'added'			=> '0.1',
 												'type'			=> 'serialise',
 												'default'		=> Array(
-																	'type' => 'ASAP',
-																	'value' => ''
+																	'type'	=> 'ASAP',
+																	'value'	=> '',
 																   ),
 												'description'	=> 'Whether to spread out the sending over x amount of time',
 											   ),
-					   );
+					  );
 
 	}//end constructor
 

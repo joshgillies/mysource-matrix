@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.4 2005/10/27 02:40:47 ndvries Exp $
+* $Id: bulkmail_job.inc,v 1.5 2005/10/27 06:20:04 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -79,7 +79,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'bulkmail_post_office', true);
 		if (!empty($parents)) {
 			$assetid = array_pop(array_keys($parents));
-			// make sure post office is not in trash
+			// make sure the parent post office is not in trash
 			if (!$GLOBALS['SQ_SYSTEM']->am->assetInTrash($assetid)) {
 				$post_office =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			}
@@ -514,13 +514,6 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 			//$error[] = "Header Details Error: Missing 'From' field\n";
 			$error[] = translate('bulkmail_warning_header_from_field');
 		}
-/*
-		// check this part in the actual sending process
-		$status = $mail_object->send('dummy@email.com', $header_details, 'dummy content');
-		if (PEAR::isError($status)) {
-			$error[] = "Post Office Server Details Error: ".$status->getMessage()."\n";;
-		}
-*/
 
 		// no content page
 		if (!$this->attr('content_assetid')) {
@@ -529,22 +522,22 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		}
 		$content_details = $this->attr('content_details');
 		$type = array_get_index($content_details, 'type', '');
-		$bmail_user = array_get_index($content_details, 'bulkmail_user', '');
-		if ($type == 'pre_selected_user') {
-			if (!$bmail_user) {
-				//$error[] = "Content Details Error: Bulkmail User not set for group-based content generation method.\n";
-				$error[] = translate('bulkmail_warning_content_bmail_user_not_set');
-			} else {
-				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bmail_user);
-				if (!$user->canLogin()){
-					$type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($user->type(), 'name');
-					//$error[] = "Content Details Error: Unable to generate content as $type \"".$user->name."\" (Id #$bmail_user), user is either in trash or not live.\n";
-					$error[] = translate('bulkmail_warning_content_bmail_user_login_failed', $type, $user->name, $user->id);
-				}
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
+		$generate_as = array_get_index($content_details, 'pre_selected_user', '');
+
+		// pre-selected user not set
+		if (!$generate_as) {
+			//$error[] = "Content Details Error: Bulkmail User not set for group-based content generation method.\n";
+			$error[] = translate('bulkmail_warning_content_generate_as_not_set');
+		} else {
+			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($generate_as);
+			if (!$user->canLogin()){
+				$type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($user->type(), 'name');
+				//$error[] = "Content Details Error: Unable to generate content as $type \"".$user->name."\" (Id #$generate_as), user is either in trash or not live.\n";
+				$error[] = translate('bulkmail_warning_content_generate_as_login_failed', $type, $user->name, $user->id);
 			}
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 		}
-		// check threshold settings?
+
 		return $error;
 
 	}//end canSetLive()

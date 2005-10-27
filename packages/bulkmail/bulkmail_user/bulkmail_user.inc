@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_user.inc,v 1.2 2005/10/27 01:38:16 ndvries Exp $
+* $Id: bulkmail_user.inc,v 1.3 2005/10/27 06:20:04 rong Exp $
 *
 */
 
@@ -25,12 +25,13 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
 class Bulkmail_User extends Asset
 {
+
 
 	/**
 	* Constructor
@@ -53,17 +54,15 @@ class Bulkmail_User extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _preCreateCheck(&$link)
 	{
 		if (!parent::_preCreateCheck($link)) return false;
 
 		$email = trim($this->attr('email'));
-		if (empty($email)) {
-			return false;
-		}
+		if (empty($email)) return false;
 
 		return true;
 
@@ -73,9 +72,9 @@ class Bulkmail_User extends Asset
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
 	*/
 	function _getName($short_name=false)

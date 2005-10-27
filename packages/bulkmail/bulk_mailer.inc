@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.4 2005/10/27 03:32:44 rong Exp $
+* $Id: bulk_mailer.inc,v 1.5 2005/10/27 06:20:04 rong Exp $
 *
 */
 
@@ -19,16 +19,13 @@ require dirname(__FILE__).'/../../core/include/init.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 require_once  'Mail/Queue.php';
 
-// global job asset
-$job = null;
-
 /**
 * Bulk_Mailer
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -51,39 +48,48 @@ class Bulk_Mailer
 	*
 	* @return void
 	* @access public
-	*
 	*/
 	function start()
 	{
 		declare(ticks=1);
-		function sig_handler($signo)
+
+
+		/**
+		* Signal handler for the pcntl fork process
+		*
+		* @param int	$signo	the signals that are supported by the PHP Process Control functions
+		*
+		* @return void
+		* @access public
+		*/
+		function sigHandler($signo)
 		{
-			global $job;
 			switch ($signo) {
 				case SIGTERM:
 					// handle shutdown tasks
 					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-					$job->setAttrValue('last_processed', 0);
-					$job->saveAttributes();
+					$GLOBALS['BULKMAIL_JOB']->setAttrValue('last_processed', 0);
+					$GLOBALS['BULKMAIL_JOB']->saveAttributes();
 					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 					exit;
-					break;
+				break;
 				case SIGHUP:
 					// handle restart tasks
 					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-					$job->setAttrValue('last_processed', 0);
-					$job->saveAttributes();
+					$GLOBALS['BULKMAIL_JOB']->setAttrValue('last_processed', 0);
+					$GLOBALS['BULKMAIL_JOB']->saveAttributes();
 					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-					break;
+				break;
 				default:
 					// handle all other signals
 			}
-		}
-		// setup signal handlers
-		pcntl_signal(SIGTERM, "sig_handler");
-		pcntl_signal(SIGHUP, "sig_handler");
+		}//end sigHandler()
 
-		global $job;
+
+		// setup signal handlers
+		pcntl_signal(SIGTERM, 'sigHandler');
+		pcntl_signal(SIGHUP, 'sigHandler');
+
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$root_user =& $am->getSystemAsset('root_user');
 		if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
@@ -92,7 +98,7 @@ class Bulk_Mailer
 		}
 
 		//mem_check();
-		echo "  start ".date('r')."\n";
+		echo 'Process starts @ '.date('r')."\n";
 		$chunk_count = 2;
 		$timeout_threshold = 60;
 
@@ -106,8 +112,8 @@ class Bulk_Mailer
 		echo "getLiveJob returns Id#$job_id\n";
 
 		// job is paused, exit
-		$job = $am->getAsset($job_id); // cannot use & (global?)
-		$state = $job->getAttrDB('current_state');
+		$GLOBALS['BULKMAIL_JOB'] =& $am->getAsset($job_id); // cannot use & (global?)
+		$state = $GLOBALS['BULKMAIL_JOB']->getAttrDB('current_state');
 		if ($state == BML_JOB_STATE_PAUSED) {
 			echo "job is paused.\n";
 			exit;
@@ -115,21 +121,21 @@ class Bulk_Mailer
 
 		// job is running, check for timeout threshold
 		if ($state == BML_JOB_STATE_RUNNING) {
-			$last_processed = $job->getAttrDB('last_processed');
-			if($last_processed != 0) {
+			$last_processed = $GLOBALS['BULKMAIL_JOB']->getAttrDB('last_processed');
+			if ($last_processed != 0) {
 				$time_diff = time() - $last_processed;
 				echo " last processed $last_processed\ntime difference $time_diff\n";
 
 				// if timeout threshold not reached, we are safe, exit
-				if($time_diff < $timeout_threshold) {
+				if ( $time_diff < $timeout_threshold) {
 					exit;
 
 				// if timeout, kill old process and take over
 				} else {
 					echo "timeout!\n";
-					$parent_pid = $job->getAttrDB('parent_process_pid');
-					$child_pids = unserialize($job->getAttrDB('child_process_pids'));
-					if(!$this->_killOldProcess($parent_pid, $child_pids)) {
+					$parent_pid = $GLOBALS['BULKMAIL_JOB']->getAttrDB('parent_process_pid');
+					$child_pids = unserialize($GLOBALS['BULKMAIL_JOB']->getAttrDB('child_process_pids'));
+					if (!$this->_killOldProcess($parent_pid, $child_pids)) {
 						// probably exited abnormally, take over anyway
 						echo "process does not exist\n";
 					}
@@ -151,7 +157,7 @@ class Bulk_Mailer
 			}
 		}
 
-	}// end start()
+	}//end start()
 
 
 	/**
@@ -179,13 +185,12 @@ class Bulk_Mailer
 			break;
 		}
 
-	}// end fork()
+	}//end fork()
 
 
 	/**
 	* Cache recipients into chunks using a fork process
 	*
-	* @param object	&$job			the bulkmail job asset that we are processing
 	* @param int	$chunk_count	number of recipients in each chunk
 	*
 	* @return void
@@ -193,12 +198,11 @@ class Bulk_Mailer
 	*/
 	function chunkJob($chunk_count)
 	{
-		global $job;
-		$recipient_path = $job->data_path.'/.data/cache/recipient';
-		$info_path = $job->data_path.'/.data/info';
+		$recipient_path = $GLOBALS['BULKMAIL_JOB']->data_path.'/.data/cache/recipient';
+		$info_path = $GLOBALS['BULKMAIL_JOB']->data_path.'/.data/info';
 
 		// skip if cached
-		if(!file_exists($recipient_path.'/marker')) {
+		if (!file_exists($recipient_path.'/marker')) {
 
 			// chunkRecipients will load up a big array
 			// fork and exit to free up memory
@@ -211,12 +215,12 @@ class Bulk_Mailer
 				$this->_reconnectDB();
 
 				// create the directory for chunk cache
-				$recipient_path = $job->data_path.'/.data/cache/recipient';
+				$recipient_path = $GLOBALS['BULKMAIL_JOB']->data_path.'/.data/cache/recipient';
 				if (!create_directory($recipient_path)) {
 					create_directory($recipient_path);
 				}
 
-				$result = $job->getRecipients();
+				$result = $GLOBALS['BULKMAIL_JOB']->getRecipients();
 				// initialise progress information
 				$total_recipient = count($result);
 				$total_chunk = ceil($total_recipient / $chunk_count);
@@ -252,7 +256,6 @@ class Bulk_Mailer
 	*
 	* Also handles the pause/resume/skip processed recipients
 	*
-	* @param object	&$job			the bulkmail job asset that we are processing
 	* @param int	$chunk_count	number of recipients in each chunk
 	*
 	* @return boolean
@@ -260,13 +263,12 @@ class Bulk_Mailer
 	*/
 	function processJob($chunk_count)
 	{
-		global $job;
 		$this->_reconnectDB();
-		//echo "Processing ".$job->name." (Id #".$job->id.") in chunk of $chunk_count, starting with PID ".posix_getpid(), "\n";
+		//echo "Processing ".$GLOBALS['BULKMAIL_JOB']->name." (Id #".$GLOBALS['BULKMAIL_JOB']->id.") in chunk of $chunk_count, starting with PID ".posix_getpid(), "\n";
 
 		// information required to initialise mail queue
-		$queue_options = $job->getQueueOptions();
-		$mail_options = $job->getServerDetails();
+		$queue_options = $GLOBALS['BULKMAIL_JOB']->getQueueOptions();
+		$mail_options = $GLOBALS['BULKMAIL_JOB']->getServerDetails();
 		$queue_path = $queue_options['dir'];
 		if (!create_directory($queue_path)) {
 			create_directory($queue_path);
@@ -276,22 +278,24 @@ class Bulk_Mailer
 		}
 
 		// other mail details
-		$content_details = $job->attr('content_details');
-		$content_details['content_page'] = $job->attr('content_assetid');
-		$header_details = $job->getHeaderDetails();
-		$mime = new Mail_mime();
+		$content_details = $GLOBALS['BULKMAIL_JOB']->attr('content_details');
+		$content_details['content_page'] = $GLOBALS['BULKMAIL_JOB']->attr('content_assetid');
+		$header_details = $GLOBALS['BULKMAIL_JOB']->getHeaderDetails();
+		$mime =& new Mail_mime();
 
 		// start or resume, load and process the correct chunk
 		$marker = 0;
-		$recipient_path = $job->data_path.'/.data/cache/recipient';
-		$info_path = $job->data_path.'/.data/info';
-		if(file_exists($recipient_path.'/marker')) include $recipient_path.'/marker';
+		$recipient_path = $GLOBALS['BULKMAIL_JOB']->data_path.'/.data/cache/recipient';
+		$info_path = $GLOBALS['BULKMAIL_JOB']->data_path.'/.data/info';
+		if (file_exists($recipient_path.'/marker')) {
+			include $recipient_path.'/marker';
+		}
 
 		// update the cached content each time we run the script
 		// do this in a fork process, so that we cant call printFrontend again in the child process
 		$pid = $this->fork();
 		if (!$pid) {
-			$job->cacheContent($job, $content_details);
+			$GLOBALS['BULKMAIL_JOB']->cacheContent($GLOBALS['BULKMAIL_JOB'], $content_details);
 			echo "cached content!\n";
 			exit;
 		} else {
@@ -305,13 +309,13 @@ class Bulk_Mailer
 		}
 
 		// read chunks from cache and process them
-		while(file_exists($recipient_path.'/recipient_'.$marker)) {
+		while (file_exists($recipient_path.'/recipient_'.$marker)) {
 
 			$this->_reconnectDB();
 			// if not live and running, exit (paused/cancelled)
-			$status = Bulkmail_Job::getStatusDB($job->id);
-			$state = $job->getAttrDB('current_state');
-			if($status != SQ_STATUS_LIVE || $state != BML_JOB_STATE_RUNNING) {
+			$status = Bulkmail_Job::getStatusDB($GLOBALS['BULKMAIL_JOB']->id);
+			$state = $GLOBALS['BULKMAIL_JOB']->getAttrDB('current_state');
+			if ($status != SQ_STATUS_LIVE || $state != BML_JOB_STATE_RUNNING) {
 				echo "NOT LIVE OR RUNNING, EXIT\n";
 				exit;
 			}
@@ -324,7 +328,7 @@ class Bulk_Mailer
 			// resuming from a paused job, skip all processed recipients
 			if (file_exists($info_path)) {
 				include $info_path;
-				if($info['paused']) {
+				if ($info['paused']) {
 					$recipient_chunk = $this->_resumeJob($info, $marker, $info_path, $recipient_path);
 				}
 			}
@@ -339,17 +343,13 @@ class Bulk_Mailer
 				for ($recipient_chunk; null !== ($user_id = key($recipient_chunk)); next($recipient_chunk)) {
 					$email = $recipient_chunk[$user_id];
 
-					if(!$job->isUserInQueue($user_id) && !$job->isUserInSent($user_id)) {
-
-						// for testing purposes, set this to my email address
-						// use $email instead of $to
-						//$to = $email;
-						$to = 'rong@squiz.net';
-
+					if (!$GLOBALS['BULKMAIL_JOB']->isUserInQueue($user_id) && !$GLOBALS['BULKMAIL_JOB']->isUserInSent($user_id)) {
+						//$to = 'rong@squiz.net'; // for testing purposes
+						$to = $email;
 						// fork since we cannot call printFrontend multiple times
 						$pid = $this->fork();
 						if (!$pid) {
-							$content = $job->generateBmailContent($job, $content_details, $user_id);
+							$content = $GLOBALS['BULKMAIL_JOB']->generateBmailContent($GLOBALS['BULKMAIL_JOB'], $content_details, $user_id);
 							$mime->setHtmlBody($content);
 							//$mime->setTXTBody($content);
 							$body = @$mime->get();
@@ -368,12 +368,13 @@ class Bulk_Mailer
 						$info['current_user'] = $user_id;
 						$output = '<?php $info = '.var_export($info, true).'; ?>';
 						string_to_file($output, $info_path);
-						echo " processed ".$info['total_sent']." (Id #$user_id) $email  ... sleep(5)\n";
-sleep(2);
-						// pause the job if status is not live, or current state is paused
-						$status = Bulkmail_Job::getStatusDB($job->id);
-						$state = $job->getAttrDB('current_state');
-						if($status != SQ_STATUS_LIVE || $state == BML_JOB_STATE_PAUSED) {
+						echo ' processed '.$info['total_sent']." (Id #$user_id) $email  ... sleep(5)\n";
+//sleep(5); // for testing purpose
+
+						// pause the job
+						$status = Bulkmail_Job::getStatusDB($GLOBALS['BULKMAIL_JOB']->id);
+						$state = $GLOBALS['BULKMAIL_JOB']->getAttrDB('current_state');
+						if ($status != SQ_STATUS_LIVE || $state == BML_JOB_STATE_PAUSED) {
 							$this->_pauseJob($info, $info_path);
 							break;
 						}
@@ -386,12 +387,14 @@ sleep(2);
 				$output = "<?php \$marker = $marker; ?>";
 				string_to_file($output, $recipient_path.'/marker');
 				echo " sendMailsInQueue\n";
-				//$mail_queue->sendMailsInQueue();
+				$mail_queue->sendMailsInQueue();
 				exit;
 
 			} else {
 				// load the updated marker
-				if(file_exists($recipient_path.'/marker')) include $recipient_path.'/marker';
+				if (file_exists($recipient_path.'/marker')) {
+					include $recipient_path.'/marker';
+				}
 				echo "Parent $pid exits\n";
 			}
 
@@ -404,12 +407,12 @@ sleep(2);
 				 echo "finished job\n";
 				 $this->_reconnectDB();
 				 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-				 $job->setAttrValue('current_state', BML_JOB_STATE_FINISHED);
-				 $job->processStatusChange(SQ_STATUS_UNDER_CONSTRUCTION, false);
-				 $job->setAttrValue('parent_process_pid', 0);
-				 $job->setAttrValue('child_process_pids', Array());
-				 $job->setAttrValue('last_processed', 0);
-				 $job->saveAttributes();
+				 $GLOBALS['BULKMAIL_JOB']->setAttrValue('current_state', BML_JOB_STATE_FINISHED);
+				 $GLOBALS['BULKMAIL_JOB']->processStatusChange(SQ_STATUS_UNDER_CONSTRUCTION, false);
+				 $GLOBALS['BULKMAIL_JOB']->setAttrValue('parent_process_pid', 0);
+				 $GLOBALS['BULKMAIL_JOB']->setAttrValue('child_process_pids', Array());
+				 $GLOBALS['BULKMAIL_JOB']->setAttrValue('last_processed', 0);
+				 $GLOBALS['BULKMAIL_JOB']->saveAttributes();
 				 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 			 }
 		 }
@@ -439,24 +442,23 @@ sleep(2);
 	/**
 	* Pause job
 	*
-	* @param array	$info			the progress information
-	* @param string	$info_path		the file path to the progress info
+	* @param array	$info		the progress information
+	* @param string	$info_path	the file path to the progress info
 	*
 	* @return void
 	* @access private
 	*/
 	function _pauseJob($info, $info_path)
 	{
-		global $job;
-		echo "Paused at user ".$info['current_user'].", child exit\n";
+		echo 'Paused at user '.$info['current_user'].", child exit\n";
 		// set the pause flag
 		$info['paused'] = true;
 		$output = '<?php $info = '.var_export($info, true).'; ?>';
 		string_to_file($output, $info_path);
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-		$job->setAttrValue('last_processed', 0);
-		$job->saveAttributes();
+		$GLOBALS['BULKMAIL_JOB']->setAttrValue('last_processed', 0);
+		$GLOBALS['BULKMAIL_JOB']->saveAttributes();
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 	}//end _pauseJob()
@@ -489,7 +491,7 @@ sleep(2);
 
 		// move the array internal pointer to where we paused
 		while (key($recipient_chunk) != $info['current_user']) {
-			echo " ".key($recipient_chunk)." already processed (skip, using array next) ... sleep(3)\n";
+			echo ' '.key($recipient_chunk)." already processed (skip, using array next) ... sleep(3)\n";
 			next($recipient_chunk);
 			//sleep(3);
 		}
@@ -507,12 +509,11 @@ sleep(2);
 	*/
 	function _setParentPid()
 	{
-		global $job;
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-		$job->setAttrValue('parent_process_pid', posix_getpid());
-		$job->setAttrValue('child_process_pids', Array());
-		$job->setAttrValue('last_processed', time());
-		$job->saveAttributes();
+		$GLOBALS['BULKMAIL_JOB']->setAttrValue('parent_process_pid', posix_getpid());
+		$GLOBALS['BULKMAIL_JOB']->setAttrValue('child_process_pids', Array());
+		$GLOBALS['BULKMAIL_JOB']->setAttrValue('last_processed', time());
+		$GLOBALS['BULKMAIL_JOB']->saveAttributes();
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 	}//end _setParentPid()
@@ -526,18 +527,17 @@ sleep(2);
 	*/
 	function _setChildPid()
 	{
-		global $job;
 		// keep maximum of 5 child pids
 		$max_child = 5;
-		$array = $job->getAttrDB('child_process_pids');
-		if(!empty($array)) $array = unserialize($array);
+		$array = $GLOBALS['BULKMAIL_JOB']->getAttrDB('child_process_pids');
+		if (!empty($array)) $array = unserialize($array);
 		$array[] = posix_getpid();
-		if(count($array) > $max_child) array_shift($array);
+		if (count($array) > $max_child) array_shift($array);
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-		$job->setAttrValue('child_process_pids', $array);
-		$job->setAttrValue('last_processed', time());
-		$job->saveAttributes();
+		$GLOBALS['BULKMAIL_JOB']->setAttrValue('child_process_pids', $array);
+		$GLOBALS['BULKMAIL_JOB']->setAttrValue('last_processed', time());
+		$GLOBALS['BULKMAIL_JOB']->saveAttributes();
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 	}//end _setChildPid()
@@ -556,18 +556,18 @@ sleep(2);
 	{
 		$error = false;
 
-		if(!posix_kill($parent_pid, SIGTERM)) {
+		if (!posix_kill($parent_pid, SIGTERM)) {
 			echo "error: unable to kill parent process (pid=$parent_pid)\n";
 			$error = true;
-		} else{
+		} else {
 			echo "killed parent process (pid=$parent_pid)\n";
 		}
 
 		$child_pid = array_pop($child_pids);
-		if(!posix_kill($child_pid, SIGTERM)) {
+		if (!posix_kill($child_pid, SIGTERM)) {
 			echo "error: unable to kill child process (pid=$child_pid)\n";
 			$error = true;
-		} else{
+		} else {
 			echo "killed child process (pid=$child_pid)\n";
 		}
 

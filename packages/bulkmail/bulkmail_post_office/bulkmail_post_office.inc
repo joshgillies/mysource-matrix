@@ -20,7 +20,7 @@ define('BML_JOB_STATE_FINISHED', 4);
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -122,17 +122,17 @@ class Bulkmail_Post_Office extends Asset
 
 
 	/**
-	 * Ensures that bulkmail jobs can only be moved from one post office to another
-	 *
-	 * @param object	&$minor		the minor asset that we are linking to
-	 * @param object	&$old_major	the major asset that we are being moved from
-	 * @param string	$link_type	the type of link this is
-	 *
-	 * @return mixed string|boolean
-	 * @access public
-	 */
-	 function canMoveLink(&$minor, &$old_major, $link_type)
-	 {
+	* Ensures that bulkmail jobs can only be moved from one post office to another
+	*
+	* @param object	&$minor		the minor asset that we are linking to
+	* @param object	&$old_major	the major asset that we are being moved from
+	* @param string	$link_type	the type of link this is
+	*
+	* @return mixed boolean|string
+	* @access public
+	*/
+	function canMoveLink(&$minor, &$old_major, $link_type)
+	{
 		if (is_a($minor, 'bulkmail_job') && is_a($old_major, 'bulkmail_post_office') && ($link_type != SQ_LINK_NOTICE)) {
 			// if we are moving from a post office, we can tolerate one existing
 			// network link - the one being moved from
@@ -147,7 +147,7 @@ class Bulkmail_Post_Office extends Asset
 
 		return true;
 
-	 }//end canMoveLink()
+	}//end canMoveLink()
 
 
 	 /**
@@ -178,8 +178,8 @@ class Bulkmail_Post_Office extends Asset
 			// if user id is provided (preview mail), load the user instead of pre-selected user
 			$user =& $am->getAsset($user_id);
 		} else {
-			if (isset($content_details['bulkmail_user'])) {
-				$user =& $am->getAsset($content_details['bulkmail_user']);
+			if (isset($content_details['pre_selected_user'])) {
+				$user =& $am->getAsset($content_details['pre_selected_user']);
 			} else {
 				// error: no bulkmail user set
 				//trigger_localised_error('BML0004', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($job->type(), 'name'), $job->name, $job->id);
@@ -242,13 +242,12 @@ class Bulkmail_Post_Office extends Asset
 		$type = array_get_index($content_details, 'type', 'each_user');
 		$user = null;
 
-		// load the cached content, cache is always updated right before this function is called
+		// load the cached content
+		// note: cache is always updated right before this function is called
 		if (file_exists($job->data_path.'/.data/cache/content_file.html')) {
 			$content = file_to_string($job->data_path.'/.data/cache/content_file.html');
-			//echo "load cached content $user_id\n";bam($content);
 		} else {
-			//error
-			return 'error: no cache\n';
+			return 'error: no cache';
 		}
 
 		// load this user, for keyword replacement (or content generation)
@@ -260,8 +259,7 @@ class Bulkmail_Post_Office extends Asset
 			// login as this user and print page content
 			if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($user)){
 				// happens when the user is not live or in trash
-				//trigger_localised_error('BML0006', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($user->type(), 'name'), $user->name, $user->id);
-				return 'error: cannot set current user\n';
+				return 'error: cannot login current user';
 			}
 			if (isset($content_details['content_page'])) {
 				$page =& $am->getAsset($content_details['content_page']);
@@ -271,13 +269,11 @@ class Bulkmail_Post_Office extends Asset
 				@$page->printFrontend();
 				$content = ob_get_contents();
 			ob_end_clean();
-			//echo "per user $user_id\n";bam($content);
 		}
 
 		// keyword replacement
 		if ($user_id && !is_null($user)) {
 			$content = $this->replaceContentKeyword($content, $user);
-			//echo "keyword replacement $user_id\n"; bam($content);
 		}
 
 		return $content;
@@ -299,11 +295,11 @@ class Bulkmail_Post_Office extends Asset
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 
 		$name = '';
-		if (is_a($user, 'user')) {
+		if (is_a($user, 'User')) {
 			$name = $user->attr('first_name').' '.$user->attr('last_name');
-		} else if (is_a($user, 'bulkmail_user')) {
+		} else if (is_a($user, 'Bulkmail_User')) {
 			$name = $user->attr('name');
-			// if bulkmail user does not have a user name, use email address
+			// if use email address if name not found
 			if (empty($name)) $name = $user->attr('email');
 		}
 		$keyword_replacements = Array(
@@ -321,7 +317,7 @@ class Bulkmail_Post_Office extends Asset
 	/**
 	* Sends the bulkmail message using given PEAR mail driver params
 	*
-	* @param mixed	&$asset		the asset
+	* @param mixed	&$asset		the bulkmail job
 	* @param mixed	$recipient	an array or a string with comma separated recipients.
 	*
 	* @return boolean
@@ -356,7 +352,6 @@ class Bulkmail_Post_Office extends Asset
 		//$mime->setTxtBody($textMessage);
 		$mime->setHtmlBody($content);
 		$body = @$mime->get();
-		//$body = $content;
 
 		$header_details = $asset->getHeaderDetails();
 		// add 'Preview' to the subject of the email
@@ -364,10 +359,6 @@ class Bulkmail_Post_Office extends Asset
 			$header_details['Subject'] = $header_details['Subject'].' (Preview)';
 		}
 		$headers = @$mime->headers($header_details);
-		//$headers = $header_details;
-		minibam($header_details, 'header_details');
-		minibam($headers, 'headers');
-		//$content = $this->replaceContentKeyword($content, $user);
 		$status = $mail_object->send($recipient, $headers, $body);
 		if (PEAR::isError($status)) {
 			// unable to send bulkmail

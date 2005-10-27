@@ -45,8 +45,8 @@
 <string source="bulkmail_warning_po_server_details">Post Office Server Details: "%1$s".</string>
 <string source="bulkmail_warning_header_from_field">Header Details: Missing 'From' field</string>
 <string source="bulkmail_warning_content_page_not_set">Content Details: Content Page not set.</string>
-<string source="bulkmail_warning_content_bmail_user_not_set">Content Details: Custom Content User not set for custom content generation.</string>
-<string source="bulkmail_warning_content_bmail_user_login_failed">Content Details: Unable to generate content as %1$s "%2$s" (Id #%3$s), user is either in trash or not live.</string>
+<string source="bulkmail_warning_content_generate_as_not_set">Content Details: Pre-selected User not set.</string>
+<string source="bulkmail_warning_content_generate_as_login_failed">Content Details: Unable to generate content as %1$s "%2$s" (Id #%3$s), user is either in trash or not live.</string>
 
 
 

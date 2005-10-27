@@ -11,7 +11,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -19,6 +19,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 
 class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -32,6 +33,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 
 //--        DETAILS        --//
+
 
 	/**
 	* Paints the recipients which will recieve the bulkmail
@@ -109,7 +111,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 		return $asset->setAttrValue('recipients', $groups);
 
-	}//end paintRecipients()
+	}//end processRecipients()
 
 
 	/**
@@ -143,18 +145,15 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			$o->note(translate('bulkmail_content_detail_method_note'));
 		$o->closeField();
 
-		// only allow user to set bulkmail user for group based generation method
-		//$show_if_group =  !($value == 'pre_selected_user');
-		$user_id = array_get_index($content_details, 'bulkmail_user', '0');
+		$user_id = array_get_index($content_details, 'pre_selected_user', '0');
 		if ($user_id) {
 			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($user_id);
 		}
 
 		$name = translate('bulkmail_content_detail_generate_as_field_name');
-		//$o->openField($name, '', $note, $show_if_group, $prefix.'_content_detail_group');
 		$o->openField($name);
 			if ($write_access) {
-				asset_finder($prefix.'_content_detail_bulkmail_user', $user_id, Array('user' => 'D'));
+				asset_finder($prefix.'_content_detail_pre_selected_user', $user_id, Array('user' => 'D'));
 			} else {
 				if (!$user_id) {
 					echo translate('no_asset_selected');
@@ -167,20 +166,8 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 				}
 			}
 			$o->note(translate('bulkmail_content_detail_generate_as_field_note'));
-			//$o->note(translate('bulkmail_content_detail_generate_as_extra_note'));
 		//$o->closeField(); // This field is closed in the edit interface
-/*
-		// javascript to hide/show Bulkmail User field and it's asset finder
-		?>
-		<script type="text/javascript">
-			function switchContentType(type) {
-				var prefix = '<?php echo $prefix; ?>';
-				var bmailUserField = document.getElementById(prefix + '_content_detail_group');
-				bmailUserField.style['display'] = (type == 'pre_selected_user') ? '' : 'none';
-			}
-		</script>
-		<?php
-*/
+
 		return $write_access;
 
 	}//end paintContentDetails()
@@ -202,17 +189,17 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		if (!$asset->writeAccess('attributes')) return false;
 
 		// once live, content details are not changeable
-		if($asset->status == SQ_STATUS_LIVE) return false;
+		if ($asset->status == SQ_STATUS_LIVE) return false;
 
 		$content_details = $asset->attr('content_details');
 		if (isset($_POST[$prefix.'_content_det_type'])) {
-			// save type (user/group based)
+			// save content generation type (each user/pre-selected user)
 			$content_details['type'] = $_POST[$prefix.'_content_det_type'];
+		}
 
-			// save bulkmail user for group-based content generation
-			if (isset($_POST[$prefix.'_content_detail_bulkmail_user']) && $content_details['type'] == 'pre_selected_user') {
-				$content_details['bulkmail_user'] = $_POST[$prefix.'_content_detail_bulkmail_user']['assetid'];
-			}
+		// save bulkmail user for group-based content generation
+		if (isset($_POST[$prefix.'_content_detail_pre_selected_user'])) {
+			$content_details['pre_selected_user'] = $_POST[$prefix.'_content_detail_pre_selected_user']['assetid'];
 		}
 
 		$asset->setAttrValue('content_details', $content_details);
@@ -224,9 +211,9 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the email server details
 	*
-	* @param object	&$asset			the asset to which we belong
-	* @param object	&$o				the outputter class
-	* @param string	$prefix			prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return void
 	* @access public
@@ -419,19 +406,18 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		}
 		return $asset->setAttrValue('server_details', $server_details);
 
-	}// processServerDetails()
+	}//end processServerDetails()
 
 
 	/**
 	* Paints the header details interface for the bmail
 	*
-	* This function is called in bulkmail job too, since the layout is the same
+	* This paint function is used by bulkmail job too
 	*
-	*
-	* @param object		&$asset		the asset to which we belong
-	* @param object		&$o			the outputter class
-	* @param string		$prefix		prefix for the form element
-	* @param boolean	$hide		hide the header details?
+	* @param object		&$asset	the asset to which we belong
+	* @param object		&$o		the outputter class
+	* @param string		$prefix	prefix for the form element
+	* @param boolean	$hide	hide the header details?
 	*
 	* @return boolean
 	* @access public
@@ -488,7 +474,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			$o->closeField();
 		}
 
-		if(is_a($asset, 'Bulkmail_Post_office')) {
+		if (is_a($asset, 'Bulkmail_Post_office')) {
 			$job_id = $asset->hasLiveChild();
 			if ($job_id && $write_access) {
 				$o->openField('Warning');
@@ -505,9 +491,9 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the header details for the bmail
 	*
-	* @param object		&$asset	the asset to which we belong
-	* @param object		&$o		the outputter class
-	* @param string		$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -639,17 +625,17 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_user);
 		$email = $user->attr('email');
 
-		if(empty($email)) $email = 'none';
+		if (empty($email)) $email = 'none';
 
 		$field_name = translate('bulkmail_preview_address');
 		$field_note = translate('bulkmail_preview_address_note');
 		$o->openField($field_name, '', $field_note);
-			if($write_access) {
+			if ($write_access) {
 				echo $email.'&nbsp;';
 				// do not print the checkbox if no email is provided for current user
 				if ($email != 'none') {
 					check_box($prefix.'_use_default', true, true);
-					echo " Use default";
+					echo ' Use default';
 				}
 			} else {
 				echo $email;
@@ -720,7 +706,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 		$recipient = Array();
 		if (isset($_REQUEST[$prefix.'_alternative_address'])) {
-			if(!empty($_REQUEST[$prefix.'_alternative_address'])) {
+			if (!empty($_REQUEST[$prefix.'_alternative_address'])) {
 				$recipient[] = $_REQUEST[$prefix.'_alternative_address'];
 			}
 		}
@@ -741,13 +727,11 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			if (isset($_POST[$prefix.'_clear_log'])) {
 				// clear the log if checkbox is checked
 				$asset->setAttrValue('preview_log', Array());
-			} else{
+			} else {
 				$new_log = Array($asset->generateLog($recipient));
 				$preview_log = array_merge($new_log, $asset->attr('preview_log'));
 				// only keep the last 5 entries
-				if (count($preview_log) > 5) {
-					array_pop($preview_log);
-				}
+				if (count($preview_log) > 5) array_pop($preview_log);
 				$asset->setAttrValue('preview_log', $preview_log);
 
 				// send the actual preview mail
