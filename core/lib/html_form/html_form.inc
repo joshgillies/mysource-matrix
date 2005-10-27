@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.103 2005/10/21 06:48:37 arailean Exp $
+* $Id: html_form.inc,v 1.104 2005/10/27 23:54:59 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -404,12 +404,12 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 	if (!stristr($extras, 'class=')) {
 		$extras .= ' class="sq-form-field"';
 	}
+	if (!stristr($extras, 'id=')) {
+		$extras .= ' id="'.htmlspecialchars($name).'"';
+	}
 	if ($multiple) {
 		$extras .= ' multiple="multiple"';
 		$name .= '[]';
-	}
-	if (!stristr($extras, 'id=')) {
-		$extras .= ' id="'.htmlspecialchars($name).'"';
 	}
 
 	if (!is_array($contents)) $contents = Array($contents);
@@ -1341,5 +1341,35 @@ function draw_tree($tree, &$all_child_links, &$output_tree, $branch='', $level=0
 	}
 }//end draw_tree()
 
+
+/**
+* Make a valid (X)HTML ID from a string
+*
+* W3C's (X)HTML definition notes that ID field can only contain letters, numbers
+* and these punctuation marks [:_.-]. First character must be a letter.
+*
+* Rules for this function:
+* - Replace all characters of the ID with the $replace_char
+* - If the resulting first character of the ID is not a letter, drop it
+*   (regardless of $replace_char - we can't replace with $replace_char because
+*    it probably won't be a letter, more likely something like '_').
+*
+* @return string
+* @access public
+*/
+function make_valid_html_id($id, $replace_char='') {
+	if (!preg_match('/[A-Za-z0-9:_.-]*/', $replace_char)) {
+		trigger_localised_error('SYS0310', E_USER_WARNING, $replace_char);
+		$replace_char = '';
+	}
+	$id = preg_replace('/[^A-Za-z0-9:_.-]/', $replace_char, $id);
+
+	// keep dropping first character until we get a valid one
+	while (!empty($id) && preg_match('/[^A-Za-z]/', $id{0})) {
+		$id = substr($id, 1);
+	}
+	return $id;
+
+}//end make_valid_html_id()
 
 ?>
