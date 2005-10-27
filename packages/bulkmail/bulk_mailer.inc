@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.2 2005/10/27 00:58:07 rong Exp $
+* $Id: bulk_mailer.inc,v 1.3 2005/10/27 01:38:15 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ $job = null;
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */

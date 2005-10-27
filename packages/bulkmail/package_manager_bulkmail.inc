@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_bulkmail.inc,v 1.1.1.1 2005/10/25 04:53:43 ndvries Exp $
+* $Id: package_manager_bulkmail.inc,v 1.2 2005/10/27 01:38:15 ndvries Exp $
 *
 */
 
