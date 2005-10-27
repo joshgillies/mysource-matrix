@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.388 2005/10/20 23:41:41 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.389 2005/10/27 02:06:25 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.388 $
+* @version $Revision: 1.389 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -251,7 +251,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns whether the passed asset is installed in the system or not
 	*
-	* @param string $type_code	the code name for the asset that you want to check
+	* @param string	$type_code	the code name for the asset that you want to check
 	*
 	* @return boolean
 	* @access public
@@ -439,9 +439,9 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns an array of assetid => inherited_types for assets of the passed codes
 	*
-	* @param array(int)		$assetids			an array of assets to limit
-	* @param array(string)	$type_code			an array of types codes to limit the results to
-	* @param boolean		$strict_type_code	ensure returned assets are of the passed type codes
+	* @param array		$assetids			an array of assets to limit
+	* @param array		$type_code			an array of types codes to limit the results to
+	* @param boolean	$strict_type_code	ensure returned assets are of the passed type codes
 	*
 	* @return array
 	* @access public
@@ -499,7 +499,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Includes the class file for the passed asset
 	*
-	* @param string		$type_code	the code name for the asset that you want to check
+	* @param string		$type_code		the code name for the asset that you want to check
 	* @param boolean	$with_edit_fns	Whether to include the Edit_Fns class file too
 	*
 	* @return void
@@ -533,6 +533,7 @@ class Asset_Manager extends MySource_Object
 	* @param boolean	$include_asset	when true adds the "Asset" type to the parent list,
 	*									even though it's an unistantiable object
 	*
+	* @return array
 	* @access public
 	*/
 	function getTypeAncestors($type_code, $include_asset=true)
@@ -558,10 +559,10 @@ class Asset_Manager extends MySource_Object
 	* Returns an array of all assets types that are descendants for the passed asset type
 	* in the order Array ('type_code_sub_class_one', 'type_code_sub_class_two', ..., 'type_code_sub_class_one_sub_class_one', ...)
 	*
-	* @param string|Array	$type_code		the type code that you want the decendants of
+	* @param string|array	$type_code		the type code that you want the decendants of
 	* @param boolean		$include_passed	when true includes the passed $type_code in the result
 	*
-	* @return Array(string)
+	* @return array
 	* @access public
 	*/
 	function getTypeDescendants($type_code, $include_passed=false)
@@ -600,7 +601,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Checks the passed attribute type is valid type or not
 	*
-	* @param string	$attr_type		the type of asset represented by the id
+	* @param string	$attr_type	the type of asset represented by the id
 	*
 	* @return boolean
 	* @access public
@@ -621,9 +622,9 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns an array of information about attributes
 	*
-	* @param array(int)	$attrids	an array of assets to limit
+	* @param array	$attrids	an array of assets to limit
 	*
-	* @return array( int => array() )
+	* @return array
 	* @access public
 	*/
 	function getAttributeInfo($attrids)
@@ -660,11 +661,12 @@ class Asset_Manager extends MySource_Object
 	* Returns a reference to an attribute object
 	*
 	* @param string		$attrid			the id of the attribute
+	* @param string		$value			the value of the attribute
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed
 	*									because you can't use the '@' operator when
 	*									returning by reference
 	*
-	* @return mixed object Asset_Attribute or NULL
+	* @return mixed object|null
 	* @access public
 	*/
 	function &getAttribute($attrid, $value=null, $mute_errors=false)
@@ -692,8 +694,8 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Retrieves the attributes (with null values) for the asset type
 	*
-	* @param string			$type_code		the type of asset
-	* @param array(string)	$details		an array of columns from the DB table you want returned
+	* @param string	$type_code	the type of asset
+	* @param array	$details	an array of columns from the DB table you want returned
 	*
 	* @return array
 	* @access public
@@ -734,8 +736,8 @@ class Asset_Manager extends MySource_Object
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
+	* @return mixed object|null
 	* @access public
-	* @return &object Asset or null on error
 	*/
 	function &getAsset($assetid, $type_code='', $mute_errors=false)
 	{
@@ -802,10 +804,10 @@ class Asset_Manager extends MySource_Object
 	*
 	* Note that this will always return FALSE if you pass it a shadow asset
 	*
-	* @param mixed int or array	$assetids	the ID of the asset we are going to the check for existence
-	*										or an array of assetids we want to check
+	* @param int|array	$assetids	the ID of the asset we are going to the check for existence
+	*								or an array of assetids we want to check
 	*
-	* @return mixed boolean or array of existing assetids
+	* @return mixed boolean|array
 	* @access public
 	*/
 	function assetExists($assetids)
@@ -898,11 +900,11 @@ class Asset_Manager extends MySource_Object
 	* Registers the passed object in the store, for others to get
 	* Used when a new record has just been "created"
 	*
-	* @param object Asset	&$obj	the asset to be registered
+	* @param object	&$obj	the asset to be registered
 	*
-	* @see forgetAsset()
 	* @return void
 	* @access public
+	* @see forgetAsset()
 	*/
 	function rememberAsset(&$obj)
 	{
@@ -922,14 +924,14 @@ class Asset_Manager extends MySource_Object
 	* Tell the asset manager that you have finished with the asset, when everyone has finished with the
 	* asset is is removed from the asset store
 	*
-	* @param object Asset	&$obj			the asset to be unregistered
-	* @param boolean 		$force_clean	force the asset manager to forget this asset rather
-	*										than just reducing its entires (only used by the asset itself
-	*										during a purge)
+	* @param object		&$obj			the asset to be unregistered
+	* @param boolean	$force_clean	force the asset manager to forget this asset rather
+	*									than just reducing its entires (only used by the asset itself
+	*									during a purge)
 	*
-	* @see rememberAsset()
 	* @return void
 	* @access public
+	* @see rememberAsset()
 	*/
 	function forgetAsset(&$obj, $force_clean=false)
 	{
@@ -951,9 +953,9 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns an assetid for a system asset if it exists
 	*
-	* @param string		$name	the name of the system asset 'root_folder', 'trash_folder' etc
+	* @param string	$name	the name of the system asset 'root_folder', 'trash_folder' etc
 	*
-	* @return mixed [string|boolean] assetid if found, false if not
+	* @return mixed string|boolean
 	* @access public
 	*/
 	function getSystemAssetid($name)
@@ -1021,7 +1023,7 @@ class Asset_Manager extends MySource_Object
 	*
 	* @param string	$asset_type	typecode of asset in question
 	*
-	* @return bool
+	* @return boolean
 	* @access public
 	*/
 	function isSystemAssetType($asset_type)
@@ -1041,7 +1043,7 @@ class Asset_Manager extends MySource_Object
 	* @param string	$asset_type	asset typecode
 	* @param string	$assetid	asset id
 	*
-	* @return bool
+	* @return boolean
 	* @access public
 	*/
 	function registerSystemAsset($asset_type=null, $assetid=null)
@@ -1063,6 +1065,7 @@ class Asset_Manager extends MySource_Object
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
+	* @return mixed object|null
 	* @access public
 	*/
 	function &getSystemAsset($name, $mute_errors=false)
@@ -1083,6 +1086,8 @@ class Asset_Manager extends MySource_Object
 	* Determine if this asset can be purged from the trash
 	*
 	* The function stops system assets and their dependant children from being purged.
+	*
+	* @param object	&$asset	the asset to purge
 	*
 	* @return boolean
 	* @access public
@@ -1286,13 +1291,14 @@ class Asset_Manager extends MySource_Object
 	* The assetids supplied must be assets of the specified type, or assets which
 	* inherit the specified attribute from the specified asset type. You may use
 	* 'asset' for the $asset_type to skip asset type checking (recommended that this
-	* only be used for common attributes like name).
+	* only be used for common attributes like name). It returns the array of
+	* (string => mixed) representing assetid => attribute value
 	*
 	* @param string	$attr_name	The name of the attribute to get the values of
 	* @param string	$asset_type	The type code of the asset type that defines the attribute
 	* @param array	$assetids	IDs of the assets whose values we want
 	*
-	* @return array	(string => mixed) representing assetid => attribute value
+	* @return array
 	* @access public
 	*/
 	function getAttributeValuesByName($attr_name, $asset_type, $assetids)
@@ -1335,10 +1341,11 @@ class Asset_Manager extends MySource_Object
 
 	/**
 	* Get the editable content of any asset below the passed assetid
+	* It returns FALSE if assetid is invalid, Array(assetid=>content) otherwise
 	*
 	* @param int	$assetid	The asset we want to get the contents of
 	*
-	* @return bool|array	FALSE if assetid is invalid, Array(assetid=>content) otherwise
+	* @return mixed boolean|array
 	* @access public
 	*/
 	function getEditableContents($assetid)
@@ -1379,10 +1386,12 @@ class Asset_Manager extends MySource_Object
 
 	/**
 	* Set the editable content of the specified asset
+	* It returns FALSE if assetid is invalid, true if successful
 	*
 	* @param int	$assetid	The asset we want to set the contents of
+	* @param string	$content	The content of editable asset
 	*
-	* @return boolean	FALSE if assetid is invalid, true if successful
+	* @return boolean
 	* @access public
 	*/
 	function setEditableContents($assetid, $content)
@@ -1406,9 +1415,10 @@ class Asset_Manager extends MySource_Object
 	*
 	* The only child assets that are cloned are the ones that are <i>DEPENDANTLY</i> linked to this asset.
 	* <i>NO OTHER</i> linked assets are cloned.
+	* It returns the reference to the new object or NULL if an error occured
 	*
-	* @param object Asset	&$source			the source asset that we are creating a clone of
-	* @param Array			&$link				information used to create the initial link,
+	* @param object	&$source	the source asset that we are creating a clone of
+	* @param array	&$link		information used to create the initial link,
 	* <PRE>
 	* Array ('asset'         => [ref major asset to create link under],
 	*        'link_type'     => SQ_LINK_?,
@@ -1418,10 +1428,10 @@ class Asset_Manager extends MySource_Object
 	*        'is_exclusive'  => [0|1]
 	*        )
 	* </PRE>
-	* @param Array			&$clone_map			a map for that can be used for re-indexing data held in
-	*												assets of the form Array([old asset id] => [new asset id])
+	* @param array	&$clone_map	a map for that can be used for re-indexing data held in
+	*							assets of the form Array([old asset id] => [new asset id])
 	*
-	* @return mixed reference to the new object or NULL if an error occured
+	* @return mixed object|null
 	* @access private
 	*/
 	function &_cloneAsset(&$source, &$link, &$clone_map)
@@ -1561,9 +1571,10 @@ class Asset_Manager extends MySource_Object
 	*
 	* if $clone_dependants is set the true, the dependants of the source asset will be cloned,
 	* and the specified components will be cloned to them as well.
+	* It returns the clone of the source, NULL on error
 	*
-	* @param object Asset	&$source			the source asset that we are creating a clone of
-	* @param array			&$link				information used to create the initial link,
+	* @param object		&$source			the source asset that we are creating a clone of
+	* @param array		&$link				information used to create the initial link,
 	* <PRE>
 	* Array (
 	*   'asset'         => [ref major asset to create link under],
@@ -1574,9 +1585,9 @@ class Asset_Manager extends MySource_Object
 	*   'is_exclusive'  => [0|1]
 	* );
 	* </PRE>
-	* @param array			&$clone_map			a map for that can be used for re-indexing data held in
-	*											assets of the form Array([old asset id] => [new asset id])
-	* @param array			$components	the wanted components to clone,
+	* @param array		&$clone_map			a map for that can be used for re-indexing data held in
+	*										assets of the form Array([old asset id] => [new asset id])
+	* @param array		$components			the wanted components to clone,
 	* <PRE>
 	* Array(
 	*   'attributes',
@@ -1587,14 +1598,14 @@ class Asset_Manager extends MySource_Object
 	*   'data'// data directory
 	* );
 	* </PRE>
-	* or alternately
+	*										or alternately
 	* <PRE>
 	* Array('all');
 	* </PRE>
-	* @param boolean		$clone_dependants	if TRUE the dependants of the source asset will be cloned
-	*											and will have their sources components cloned
+	* @param boolean	$clone_dependants	if TRUE the dependants of the source asset will be cloned
+	*										and will have their sources components cloned
 	*
-	* @return &object Asset		the clone of the source, NULL on error
+	* @return object
 	* @access public
 	*/
 	function &cloneAsset(&$source, &$link, &$clone_map, $components, $clone_dependants=true)
@@ -1712,19 +1723,20 @@ class Asset_Manager extends MySource_Object
 	*
 	* Note that this method operates on a single asset only.  To get the locks on children
 	* too (as per backend behaviour), you need to use the acquire_locks HIPO job.
+	* It returns zero on failure, non-zero on success
+	* (1 on success if all lock types requested had to be acquired,
+	* 2 if any lock was updated [ie if at least one lock type was already held])
 	*
 	* @param int		$assetid		the assetid of the asset that we want to lock
 	* @param string		$lock_type		any valid lock type for the passed asset's type,
 	*									plus 'all' which will attempt to acquire all locks that this asset has
 	* @param int		$source_assetid	the id of the asset that started this locking process
 	* @param boolean	$force			attempt to forcibly acquire (if allowed)
-	* @param int|NULL	$expires		when the lock expires (timestamp or NULL)
+	* @param int|null	$expires		when the lock expires (timestamp or NULL)
 	*									If expires is null or zero, the lock will be acquired for the
 	*									current time plus SQ_CONF_LOCK_LENGTH
 	*
-	* @return int		zero on failure, non-zero on success
-						(1 on success if all lock types requested had to be acquired,
-	*					 2 if any lock was updated [ie if at least one lock type was already held])
+	* @return int
 	* @access public
 	*/
 	function acquireLock($assetid, $lock_type, $source_assetid=0, $force=false, $expires=0)
@@ -1840,8 +1852,8 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Release the locks that the passed asset holds
 	*
-	* @param int		$assetid	the assetid of the asset that we want to release
-	* @param string		$lock_type	the type of the lock (eg 'contents', 'permissions', etc)
+	* @param int	$assetid	the assetid of the asset that we want to release
+	* @param string	$lock_type	the type of the lock (eg 'contents', 'permissions', etc)
 	*
 	* @return boolean
 	* @access public
@@ -1893,7 +1905,7 @@ class Asset_Manager extends MySource_Object
 	*
 	* @param int		$assetid	the assetid of the asset that we want to release
 	* @param string		$lock_type	the type of the lock (eg 'contents', 'permissions', etc)
-	* @param int|NULL	$expires	when the lock expires (timestamp or NULL)
+	* @param int|null	$expires	when the lock expires (timestamp or NULL)
 	*
 	* @return boolean
 	* @access public
@@ -1974,8 +1986,8 @@ class Asset_Manager extends MySource_Object
 	* Returns an array of lock types strings that the passed lock type really represents for the passed asset
 	* eg 'content' could mean 'attributes' and 'links'
 	*
-	* @param int		$assetid		the assetid of the asset that we want lock info for
-	* @param string		$lock_type		any valid lock type for the passed asset's type, plus 'all' which will return all lock types that this asset has
+	* @param int	$assetid	the assetid of the asset that we want lock info for
+	* @param string	$lock_type	any valid lock type for the passed asset's type, plus 'all' which will return all lock types that this asset has
 	*
 	* @return array
 	* @access private
@@ -2025,7 +2037,7 @@ class Asset_Manager extends MySource_Object
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding an asset that
+	* @param boolean		$strict_type_code	whether we are finding an asset that
 	*											is just a $type_code or potentially an inherited type
 	*											or $type_code and any of it's sub-classes
 	* @param string			$value				the value that is associated with this link
@@ -2116,11 +2128,12 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Get details of the link with specified linkid
 	*
-	* @param int	$linkid
+	* @param int	$linkid			id of the link
 	* @param int	$assetid		id of the the $side_of_link asset
 	*								if zero no check is made and both major and minor information is returned
 	* @param string	$side_of_link	Which side of the link the asset represented by $assetid is on ('major' or 'minor')
-	* @return Array
+	*
+	* @return array
 	* @access public
 	*/
 	function getLinkById($linkid, $assetid=0, $side_of_link='major')
@@ -2172,22 +2185,24 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Get details of the link(s) between the two specified assets
 	*
-	* @param int		$assetid			id of the the $side_of_link asset
-	* @param int		$other_assetid		the asset on the other side of the link
-	* @param int		$link_types			integer that can be the product of bitwise operations
-	*										on the SQ_LINK_* constants
-	* @param string		$value				the value that is associated with this link
-	* @param string		$side_of_link		Which side of the link the first assetid is on
-	*										('major' or 'minor')
-	* @param boolean	$force_array		force the results to return an array of links
-	*										even if there is only one link
-	* @param boolean	$dependant			The dependant status for all the links must be
-	*										this (if not null)
-	* @param boolean	$exclusive			The exclusive status for all the links must be
-	*										this (if not null)
+	* It returns array of link info if only one link and force_array=false,
+	* array of arrays of link info otherwise
 	*
-	* @return array		array of link info if only one link and force_array=false,
-	* 					array of arrays of link info otherwise
+	* @param int		$assetid		id of the the $side_of_link asset
+	* @param int		$other_assetid	the asset on the other side of the link
+	* @param int		$link_types		integer that can be the product of bitwise operations
+	*									on the SQ_LINK_* constants
+	* @param string		$value			the value that is associated with this link
+	* @param string		$side_of_link	Which side of the link the first assetid is on
+	*									('major' or 'minor')
+	* @param boolean	$force_array	force the results to return an array of links
+	*									even if there is only one link
+	* @param boolean	$dependant		The dependant status for all the links must be
+	*									this (if not null)
+	* @param boolean	$exclusive		The exclusive status for all the links must be
+	*									this (if not null)
+	*
+	* @return array
 	* @access public
 	*/
 	function getLinkByAsset($assetid, $other_assetid, $link_types=null, $value=null, $side_of_link='major', $force_array=false, $dependant=null, $exclusive=null)
@@ -2269,7 +2284,7 @@ class Asset_Manager extends MySource_Object
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	* @param string			$side_of_link		Which side of the link this (the current) asset
 	*											is on ('major' or 'minor')
@@ -2281,8 +2296,8 @@ class Asset_Manager extends MySource_Object
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
-	* 											Specify that links should be returned for assets the user has read,
-	* 											write, or admin access for. Leave NULL to ignore permissions.
+	*											Specify that links should be returned for assets the user has read,
+	*											write, or admin access for. Leave NULL to ignore permissions.
 	*
 	* @return array
 	* @access public
@@ -2352,11 +2367,11 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Get details of the links from the specified asset to all its children
 	*
-	* @param string		$assetid	the assetid of the asset to find the child links for
-	* @param integer	$link_type	the type of links to get
+	* @param string	$assetid	the assetid of the asset to find the child links for
+	* @param int	$link_type	the type of links to get
 	*
-	* @access public
 	* @return array
+	* @access public
 	*/
 	function getAllChildLinks($assetid, $link_type=0)
 	{
@@ -2438,10 +2453,11 @@ class Asset_Manager extends MySource_Object
 	* For a given asset, get the lineages from the Root folder down to it
 	*
 	* Also returns basic information about the last link (linkid and link type)
+	* linkid => Array ('linkid' => linkid, 'link_type' => link_type, 'lineage' => Array(...))
 	*
-	* @param object	Asset	&$asset		the asset whose links lineages we are getting
+	* @param object	$assetid	the asset whose links lineages we are getting
 	*
-	* @return array	linkid => Array ('linkid' => linkid, 'link_type' => link_type, 'lineage' => Array(...))
+	* @return array
 	* @access public
 	*/
 	function getLinkLineages($assetid)
@@ -2509,9 +2525,9 @@ class Asset_Manager extends MySource_Object
 				$asset_lineage[$parent_data['assetid']] = $parent_data['name'];
 
 				$link_lineages[] = Array(
-										'linkid'	=> $linkid,
-										'link_type'	=> $link_type,
-										'lineage'	=> $asset_lineage,
+									'linkid'	=> $linkid,
+									'link_type'	=> $link_type,
+									'lineage'	=> $asset_lineage,
 								   );
 			}
 
@@ -2525,6 +2541,8 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Get all asset ids that are above the passed assetid in the various trees in which it exists
 	*
+	* It returns Array(int => string)	returns an array of assetids and their type code
+	*
 	* @param int			$assetid			the id of the asset to get its parents for
 	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
 	*											if an array returns link if matches any of the array values
@@ -2536,7 +2554,7 @@ class Asset_Manager extends MySource_Object
 	*											Specify that links should be returned for assets the user has read,
 	*											write, or admin access for. Leave NULL to ignore permissions.
 	*
-	* @return array	Array(int => string)	returns an array of assetids and their type code
+	* @return array
 	* @access public
 	* @see generateGetParentsQuery()
 	*/
@@ -2573,13 +2591,14 @@ class Asset_Manager extends MySource_Object
 	*
 	* The query generated to get the children is actually contructed in the Asset Manager's
 	* generateGetChildrenQuery function.
+	* It returns Array(int => string)	returns an array of assetids and their type code
 	*
 	* @param int|string		$assetid			the id of the asset to get its children for
 	* @param string|array	$type_code			the type of asset that is linked
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
@@ -2587,7 +2606,7 @@ class Asset_Manager extends MySource_Object
 	*											Specify that links should be returned for assets the user has read,
 	*											write, or admin access for. Leave NULL to ignore permissions.
 	*
-	* @return array	Array(int => string)	returns an array of assetids and their type code
+	* @return array
 	* @access public
 	* @see generateGetChildrenQuery()
 	*/
@@ -2649,15 +2668,17 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Get all dependant children of an asset in the various tress in which it exists
 	*
+	* It returns an array of the form Array([assetid] => [type_code])
+	*
 	* @param int			$assetid			the id of the asset to get its children for
 	* @param string|array	$type_code			the type of asset that is linked
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return array	an array of the form Array([assetid] => [type_code])
+	* @return array
 	* @access public
 	*/
 	function getDependantChildren($assetid, $type_code='', $strict_type_code=true)
@@ -2694,15 +2715,17 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Get all dependant parents of an asset in the various trees in which it exists
 	*
+	* It returns an array of assetids
+	*
 	* @param int			$assetid			the id of the asset to get its children for
 	* @param string|array	$type_code			the type of asset that is linked
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return array	returns an array of assetids
+	* @return array
 	* @access public
 	*/
 	function getDependantParents($assetid, $type_code='', $strict_type_code=true)
@@ -2745,13 +2768,13 @@ class Asset_Manager extends MySource_Object
 	* )
 	* </PRE>
 	*
-	* @param int|array(int)	$majorids		the majorids to traverse the tree from
-	* @param integer		$levels			the number of levels to traverse (if null, traverse all levels)
-	* @param array			$exclude_list	an array of assetid to exclude from the tree
-	* @param integer		$link_type		the type of wanted links
+	* @param int|array	$majorids		the majorids to traverse the tree from
+	* @param int		$levels			the number of levels to traverse (if null, traverse all levels)
+	* @param array		$exclude_list	an array of assetid to exclude from the tree
+	* @param int		$link_type		the type of wanted links
 	*
-	* @access public
 	* @return array
+	* @access public
 	*/
 	function getAssetTree($majorids, $levels=null, $exclude_list=Array(), $link_type=SQ_SC_LINK_FRONTEND_NAV)
 	{
@@ -2766,14 +2789,14 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Does the work for getAssetTree
 	*
-	* @param int|array(int)	$majorids		the majorids to traverse the tree from
-	* @param &Array			$tree_data		the data that is created recursively
-	* @param integer		$levels			the number of levels to traverse (if null, traverse all levels)
-	* @param Array			$exclude_list	an array of assetid to exclude from the tree
-	* @param integer		$link_type		the type of wanted links
+	* @param int|array	$majorids		the majorids to traverse the tree from
+	* @param array		&$tree_data		the data that is created recursively
+	* @param int		$levels			the number of levels to traverse (if null, traverse all levels)
+	* @param array		$exclude_list	an array of assetid to exclude from the tree
+	* @param int		$link_type		the type of wanted links
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _getAssetTree($majorids, &$tree_data, $levels, $exclude_list, $link_type)
 	{
@@ -2882,11 +2905,11 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns the treeids of any links between the passed assetid and any of its parents
 	*
-	* @param integer	$assetid	the id of the asset passed
-	* @param integer	$link_type	the type of wanted links
+	* @param int	$assetid	the id of the asset passed
+	* @param int	$link_type	the type of wanted links
 	*
-	* @access public
 	* @return array
+	* @access public
 	*/
 	function getAssetTreeids($assetid, $link_type=null)
 	{
@@ -2983,7 +3006,7 @@ class Asset_Manager extends MySource_Object
 	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	* @param int			$ignore_linkid		ignore the link represented by this link
 	*											id when returning the count
@@ -3063,17 +3086,19 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Create a link between the two supplied assets
 	*
-	* @param object Asset	&$major		the major asset that we are linking from
-	* @param object Asset	&$minor		the minor asset that we are linking to
-	* @param string			$link_type	the type of link this is
-	* @param string			$value		the value that is to be associated with this link
-	* @param string			$sort_order	the position in the links list that this link should take,
-	*									if null or less than zero places at end of list
-	* @param string			$dependant	'0' / '1' - whether the minor asset is dependant on the major
-	* @param string			$exclusive	'0' / '1' - whether the major asset is to be the minor's only parent
-	* @param boolean		$moving		whether or not this asset is being moved
+	* It returns the linkid of the created link
 	*
-	* @return int the linkid of the created link
+	* @param object		&$major		the major asset that we are linking from
+	* @param object		&$minor		the minor asset that we are linking to
+	* @param string		$link_type	the type of link this is
+	* @param string		$value		the value that is to be associated with this link
+	* @param string		$sort_order	the position in the links list that this link should take,
+	*								if null or less than zero places at end of list
+	* @param string		$dependant	'0' / '1' - whether the minor asset is dependant on the major
+	* @param string		$exclusive	'0' / '1' - whether the major asset is to be the minor's only parent
+	* @param boolean	$moving		whether or not this asset is being moved
+	*
+	* @return int
 	* @access public
 	*/
 	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0', $moving=false)
@@ -3579,15 +3604,14 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns TRUE if the supplied assets can be linked in the specified way
 	*
-	* @param object Asset	$major		the major asset in the proposed link
-	* @param object Asset	$minor		the minor asset in the proposed link
-	* @param string			$link_type	the type of link that is proposed
-	* @param int			$exclusive	(0|1) whether this will be the only significant link
-	*									with $minor as the minor asset
+	* @param object	&$major		the major asset in the proposed link
+	* @param object	&$minor		the minor asset in the proposed link
+	* @param string	$link_type	the type of link that is proposed
+	* @param int	$exclusive	(0|1) whether this will be the only significant link
+	*							with $minor as the minor asset
 	*
 	* @return mixed boolean|string
 	* @access public
-	* @protected
 	*/
 	function canCreateLink(&$major, &$minor, $link_type, $exclusive)
 	{
@@ -3656,15 +3680,15 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns TRUE if the supplied asset can have assets of the specified type linked under it
 	*
-	* @param object Asset	$major			the major asset that we are linking to
-	* @param string			$type_code		the type code of the proposed link
-	* @param string			$link_type		the type of the proposed link
-	* @param int			$ignore_linkid	if it gets down to the checking of the cardinality,
-	*										ignore the link represented by this link id
-	* @param int			$exclusive		(0|1) whether this will be the only significant link
-	*										with $minor as the minor asset
+	* @param object	&$major			the major asset that we are linking to
+	* @param string	$type_code		the type code of the proposed link
+	* @param string	$link_type		the type of the proposed link
+	* @param int	$ignore_linkid	if it gets down to the checking of the cardinality,
+	*								ignore the link represented by this link id
+	* @param int	$exclusive		(0|1) whether this will be the only significant link
+	*								with $minor as the minor asset
 	*
-	* @return mixed TRUE or error message string
+	* @return mixed boolean|string
 	* @access public
 	*/
 	function canLinkToType(&$major, $type_code, $link_type, $ignore_linkid=0, $exclusive=0)
@@ -3874,7 +3898,7 @@ class Asset_Manager extends MySource_Object
 	*
 	* @param int	$linkid		the link id of the link to update
 	* @param int	$link_type	the type of the link (one of the SQ_LINK_* constants)
-	* @param string $value		the value to place on the link
+	* @param string	$value		the value to place on the link
 	* @param int	$sort_order	the position in the links list that this link should take,
 	*							if less than zero places at end of list
 	*
@@ -4364,9 +4388,11 @@ class Asset_Manager extends MySource_Object
 	/**
 	* See whether we COULD send the specified asset to the trash IF we got the locks on its parents
 	*
+	* It reutns TRUE if we can trash, FALSE if assetid=0, Array(linkid=>problem) otherwise
+	*
 	* @param int	$assetid	The asset we want to trash
 	*
-	* @return bool|array	TRUE if we can trash, FALSE if assetid=0, Array(linkid=>problem) otherwise
+	* @return mixed boolean|array
 	* @access public
 	*/
 	function couldTrashAsset($assetid)
@@ -4692,9 +4718,9 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Deletes a permission with the passed user or user_group
 	*
-	* @param int	$assetid		the assetid for asset whose permissions to delete
-	* @param int	$userid			the id of the user or user_group to remove the permission from
-	* @param string	$permission		the permission code you are deleting
+	* @param int	$assetid	the assetid for asset whose permissions to delete
+	* @param int	$userid		the id of the user or user_group to remove the permission from
+	* @param string	$permission	the permission code you are deleting
 	*
 	* @return boolean
 	* @access public
@@ -4805,7 +4831,7 @@ class Asset_Manager extends MySource_Object
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
-	* @return mixed object Asset or null
+	* @return mixed object|null
 	* @access public
 	*/
 	function &getAssetFromURL($protocol=null, $url=null, $exact_match=true, $mute_errors=false)
@@ -4880,7 +4906,7 @@ class Asset_Manager extends MySource_Object
 	*
 	* @param string	$url	the urls to check for (excluding protocol) -> null defaults it to current url
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getRootURL($url=null)
@@ -5128,10 +5154,10 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Return the design for the passed URL
 	*
-	* @param string		$url			the url to get the design for
-	* @param string		$design_name	the code for the design (eg. design::system::frontend)
+	* @param string	$url			the url to get the design for
+	* @param string	$design_name	the code for the design (eg. design::system::frontend)
 	*
-	* @return array(designid, type_code)
+	* @return array
 	* @access public
 	*/
 	function getDesignFromURL($url, $design_name='design::system::frontend')
@@ -5160,10 +5186,10 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Return the lookup value for the passed URL
 	*
-	* @param string		$url		the url to get the design for
-	* @param string		$value_name	the code for the design (eg. design::system::frontend)
+	* @param string	$url		the url to get the design for
+	* @param string	$value_name	the code for the design (eg. design::system::frontend)
 	*
-	* @return string	the value
+	* @return string
 	* @access public
 	*/
 	function getValueFromURL($url, $value_name)
@@ -5190,12 +5216,14 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns the URL for an asset, closest to the $base_url
 	*
-	* @param int|array(int)		$assetids			the id of the asset you want the url for or an array
-	*												for a whole bunch of them
-	* @param string				$base_url			the url that we are want to match closest to
-	* @param boolean			$ignore_rollback	ignore rollback checks
+	* It returns string if $assetids is an int and an array(int => string) if $assetids is an array
 	*
-	* @return mixed returns string if $assetids is an int and an array(int => string) if $assetids is an array
+	* @param int|array	$assetids			the id of the asset you want the url for or an array
+	*										for a whole bunch of them
+	* @param string		$base_url			the url that we are want to match closest to
+	* @param boolean	$ignore_rollback	ignore rollback checks
+	*
+	* @return mixed int|array
 	* @access public
 	*/
 	function getAssetURL($assetids, $base_url=null, $ignore_rollback=false)
@@ -5312,12 +5340,14 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns the href for an asset closest to the $base_url, but relative to the current url
 	*
-	* @param int|array(int)		$assetids			the id of the asset you want the href for or an array
-	*												for a whole bunch of them
-	* @param string				$base_url			the url that we are want to match closest to
-	* @param boolean			$ignore_rollback	ignore rollback checks
+	* It returns string if $assetids is an in and an array(int => string) if $assetids is an array
 	*
-	* @return mixed returns string if $assetids is an in and an array(int => string) if $assetids is an array
+	* @param int|array	$assetids			the id of the asset you want the href for or an array
+	*										for a whole bunch of them
+	* @param string		$base_url			the url that we are want to match closest to
+	* @param boolean	$ignore_rollback	ignore rollback checks
+	*
+	* @return mixed int|array
 	* @access public
 	*/
 	function getAssetHref($assetids, $base_url=null, $ignore_rollback=false)
@@ -5394,8 +5424,8 @@ class Asset_Manager extends MySource_Object
 	*
 	* @param int	$assetid	The assetid whose cached lookup values we want cleared
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function clearLookupsCache($assetid)
 	{
@@ -5412,9 +5442,11 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns the href(s) of an asset based on its assetid and the wanted screen
 	*
-	* @param array(mixed)	$asset_info	an array of asset info in the form assetid => screen code name
+	* It reutrns an array of assetid and hrefs to the wanted screen
 	*
-	* @return array(int => string) returns an array of assetid and hrefs to the wanted screen
+	* @param array	$asset_info	an array of asset info in the form assetid => screen code name
+	*
+	* @return array
 	* @access public
 	*/
 	function getAssetBackendHref($asset_info)
@@ -5458,13 +5490,13 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns an array of the passed web paths that are currently in use by any the children of the major asset
 	*
-	* @param object Asset	$major					the major asset, whose children we are to check
-	* @param array			$paths					array of web paths to check
-	* @param int			$ignore_assetid			ignore this assetid when checking
-	* @param boolean		$return_alternatives	return all paths but replace the bad paths
-	*												with a valid alternative
+	* @param object		&$major					the major asset, whose children we are to check
+	* @param array		$paths					array of web paths to check
+	* @param int		$ignore_assetid			ignore this assetid when checking
+	* @param boolean	$return_alternatives	return all paths but replace the bad paths
+	*											with a valid alternative
 	*
-	* @return array(string)
+	* @return array
 	* @access protected
 	*/
 	function webPathsInUse(&$major, $paths, $ignore_assetid=0, $return_alternatives=false)
@@ -5527,8 +5559,9 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Prints out the interface for viewing and customising asset types
 	*
-	* @param object Backend &$backend
+	* @param object	&$backend	backend
 	*
+	* @return void
 	* @access public
 	*/
 	function paintBackend(&$backend)
@@ -5555,10 +5588,10 @@ class Asset_Manager extends MySource_Object
 	* @param int			$link_types			integer that can be the product of bitwise operations
 	*											on the SQ_LINK_* constants
 	* @param string|array	$type_code			the type of asset that is linked
-	* 											(eg 'Page', 'File', etc)
-	* 											if an array returns link if matches any
-	* 											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
+	*											of the array values
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	* @param string			$side_of_link		Which side of the link the specified asset
 	*											is on ('major' or 'minor')
@@ -5570,8 +5603,8 @@ class Asset_Manager extends MySource_Object
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
-	* 											Specify that links should be returned for assets the user has read,
-	* 											write, or admin access for. Leave NULL to ignore permissions.
+	*											Specify that links should be returned for assets the user has read,
+	*											write, or admin access for. Leave NULL to ignore permissions.
 	*
 	* @return array
 	* @access public
@@ -5692,12 +5725,12 @@ class Asset_Manager extends MySource_Object
 	* (which may be blank if we are not sorting). The return array is structed so you can implode
 	* it using ' ' as glue to form the full query.
 	*
-	* @param object Asset	&$asset				the asset to get its children for
+	* @param object			&$asset				the asset to get its children for
 	* @param string|array	$type_code			the type of asset that is linked
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
@@ -5706,7 +5739,7 @@ class Asset_Manager extends MySource_Object
 	*											write, or admin access for. Leave NULL to ignore permissions.
 	* @param boolean		$inc_type_code		whether to include the type code in the SELECT or not
 	*
-	* @return array		returns an array of parts of the SQL statment
+	* @return array
 	* @access public
 	* @see getChildren()
 	*/
@@ -5829,7 +5862,7 @@ class Asset_Manager extends MySource_Object
 	*											Specify that links should be returned for assets the user has read,
 	*											write, or admin access for. Leave NULL to ignore permissions.
 	*
-	* @return array(int)
+	* @return array
 	* @access public
 	* @see getParents()
 	*/
