@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.110 2005/10/27 00:01:30 sdanis Exp $
+* $Id: listing_engine.inc,v 1.111 2005/10/27 00:44:54 lwright Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.110 $
+* @version $Revision: 1.111 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -107,10 +107,40 @@ class Listing_Engine extends Page
 		$asset =& new Bodycopy();
 		$copy_link = Array('asset' => &$type_formats, 'value' => 'default_format' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', translate('default_format'));
+		if (!$asset->create($copy_link)) {
+			return false;
+		}
 
-		return $asset->create($copy_link);
+		return $this->_createBodycopies();
 
 	}//end _createAdditional()
+
+
+	/**
+	* Creates bodycopies for this asset
+	*
+	* Override if different bodycopies are needed (eg. in search page).
+	*
+	* @return boolean
+	* @access protected
+	*/
+	function _createBodycopies()
+	{
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+		$asset =& new Bodycopy();
+		$copy_link = Array('asset' => &$this, 'value' => 'page_contents' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
+		$asset->setAttrValue('name', 'Page Contents');
+		if (!$asset->create($copy_link)) {
+			return false;
+		}
+
+		if (!$this->createNoResultsBodycopy(true)) {
+			return false;
+		}
+
+		return true;
+
+	}//end _createBodycopies()
 
 
 	/**
@@ -208,6 +238,16 @@ class Listing_Engine extends Page
 			return translate('cms_listing_cannot_delete_position_formats_link', str_replace('_',' ', $this->type()));
 		}
 
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
+		if ($bodycopy_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
+			return translate('cms_cannot_delete_link', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		}
+
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'no_results');
+		if ($bodycopy_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
+			return translate('cms_cannot_delete_link', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		}
+
 		return parent::isDeletableLink($linkid);
 
 	}//end isDeletableLink()
@@ -225,6 +265,10 @@ class Listing_Engine extends Page
 		$page_links = parent::_getAllowedLinks();
 		$page_links[SQ_LINK_TYPE_2]['folder']   = Array('card' => 'M', 'exclusive' => false);
 		$page_links[SQ_LINK_NOTICE]['asset']    = Array('card' => 'M', 'exclusive' => false);
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 2,   'exclusive' => false);
+		$page_links[SQ_LINK_TYPE_3]['bodycopy'] = Array('card' => 1,   'exclusive' => false);
+		//$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 2,   'exclusive' => true);
+		//$page_links[SQ_LINK_TYPE_3]['bodycopy'] = Array('card' => 1,   'exclusive' => true);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -337,16 +381,141 @@ class Listing_Engine extends Page
 
 
 	/**
-	* Dummy function that is used by printBody to generate the page contents
+	* Called by the design to print the body of this asset
 	*
-	* All extending assets should override this
-	*
-	* @return string
+	* @return void
 	* @access public
 	*/
 	function printContents()
 	{
-		return '';
+		// we need a unique cache key to represent the current result page
+		$cache_key = $this->_getCacheKey();
+
+		$cached_contents = '';
+		if (!empty($cache_key)) {
+			$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
+		}
+
+		// if the cache is empty, go ahead and regenerate a new version
+		if (empty($cached_contents)) {
+
+			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
+			if (empty($bodycopy_link)) return false;
+
+			$format_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+			if (is_null($format_bodycopy)) return false;
+
+			require_once SQ_FUDGE_PATH.'/general/text.inc';
+			$keywords = $format_bodycopy->getKeywords();
+			$replacements = Array();
+
+			$children = $this->getAssetList();
+			$this->filterAssetList($children);
+			$num_kids = count($children);
+
+			// if there are no children available, just print the page bodycopy -
+			// or the NO RESULTS bodycopy if it exists
+			if (empty($children)) {
+				$no_results_bodycopy = $this->getNoResultsBodycopy();
+
+				$replacements['asset_count']			= 0;
+				$replacements['asset_listing']			= '';
+				$replacements['page_list']				= '';
+				$replacements['page_number']			= 0;
+				$replacements['page_asset_count']		= 0;
+				$replacements['total_pages']			= 0;
+				$replacements['first_asset_position']	= 0;
+				$replacements['last_asset_position']	= 0;
+				$replacements['previous_page']			= '';
+				$replacements['next_page']				= '';
+
+				if (!is_null($no_results_bodycopy)) {
+					$no_results_bodycopy->setKeywordReplacements($replacements);
+					$no_results_bodycopy->printBody();
+				} else {
+					$selections = $this->attr('asset_selections');
+					foreach ($selections as $selection_name => $settings) {
+						$replacements[$selection_name.'_check_all'] = '';
+						$replacements[$selection_name.'_check_all_in_group'] = '';
+					}
+
+					$format_bodycopy->setKeywordReplacements($replacements);
+					$format_bodycopy->printBody();
+				}
+				return;
+			}
+
+			if (!in_array('asset_listing', $keywords)) {
+				// there is no asset listing keyword in the contents, so we dont
+				// need to do all the extra processing for the listing
+				$format_bodycopy->printBody();
+				return;
+			}
+
+			// the list is sorted and positions set, now we can split to groups
+			if ($this->attr('group_by') == 'grouped') {
+				$this->groupAssetsRecursively($this->attr('asset_grouping'), $children, $children);
+				$this->sortGroups($this->attr('asset_grouping'), $children, $children);
+			}
+
+			foreach ($keywords as $word) {
+				$replacements[$word] = $this->getKeywordReplacement($word);
+			}
+
+			$num_per_page = $this->attr('num_per_page');
+			$result_page = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
+			if ($result_page <= 0) $result_page = 1;
+
+			// get our page chunk here
+			$todo =& $this->getChunk($children, $replacements, $result_page, $num_per_page);
+
+			// get any extra keyword replacements from this asset or asset_listing
+			$replacements = $this->getContentsKeywordReplacements($keywords) + $replacements;
+			$num_assets_showing = count($todo);
+			ob_start();
+				$this->printAssetList($todo);
+				$global_contents = ob_get_contents();
+			ob_end_clean();
+
+			// the global replacement to print the asset listing
+			$replacements['asset_listing'] = $global_contents;
+			if ($this->attr('group_by') != 'grouped') {
+				$replacements['asset_count'] = $num_kids;
+			} else {
+				$total_assets = $this->_arrayCountRecursive($children, count($this->attr('asset_grouping')));
+				$replacements['asset_count'] = $total_assets;
+				$replacements['unique_asset_count'] = $num_kids;
+			}
+
+			$result_page = $replacements['page_number'];
+			$replacements['page_asset_count'] = $num_assets_showing;
+			// compatibility
+			$replacements['first_asset_position'] = $num_per_page * ($result_page - 1) + 1;
+			if ($num_per_page == 0) {
+				$replacements['last_asset_position'] = $replacements['asset_count'];
+			} else {
+				$replacements['last_asset_position'] = min($replacements['asset_count'], $num_per_page * $result_page);
+			}
+
+			// print the contents of page - replacing the global keywords
+			$format_bodycopy->setKeywordReplacements($replacements);
+			ob_start();
+				$format_bodycopy->printBody();
+				if (!empty($cache_key)) {
+					$cm->saveToCache($this->id, $this->type(), $cache_key, ob_get_contents());
+				}
+			ob_end_flush();
+
+			// clean up after ourselves
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($format_bodycopy);
+
+		} else {
+
+			// the contents have already been cached, so just output them
+			echo $cached_contents;
+
+		}//end if no cache
 
 	}//end printContents()
 
@@ -378,6 +547,13 @@ class Listing_Engine extends Page
 		// cache key takes into account different sorting scenarios
 		$cache_key .= serialize($this->getSortInfo());
 		$cache_key .= (int)$this->isDescending();
+
+		// if we don't have a cache key from the listing it's because we shouldn't be caching
+		if ($cache_key) {
+			// because the root nodes can be dynamic we need to cache the results based upon root node
+			$root_nodes = $this->getRootNodes();
+			$cache_key .= '-'.implode('-', $root_nodes);
+		}
 
 		return $cache_key;
 
@@ -2586,6 +2762,7 @@ class Listing_Engine extends Page
 		$keywords['total_pages']			= translate('cms_listing_total_pages');
 		$keywords['first_asset_position']	= translate('cms_listing_first_asset_position');
 		$keywords['last_asset_position']	= translate('cms_listing_last_asset_position');
+		$keywords['unique_asset_count']     = translate('cms_listing_unique_asset_count');
 
 		$selections = $this->attr('asset_selections');
 		if (is_array($selections) && !empty($selections)) {
@@ -3077,6 +3254,139 @@ class Listing_Engine extends Page
 		return $this->attr('form_submit_method');
 
 	}//end _getFormSubmitMethod()
+
+
+//--        NO RESULTS BODYCOPY        --//
+
+
+	/**
+	* Creates the no-results bodycopy
+	*
+	* @param boolean	$enable_on_create	if true, will set the bodycopy to be enabled
+	*										(TYPE_2 link) when it is created. If false,
+	*										creates it disabled (TYPE_3 link).
+	*
+	* @return boolean	indicating success (false if bodycopy already exists)
+	* @access public
+	*/
+	function createNoResultsBodycopy($enable_on_create=true)
+	{
+		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', false, 'major', 'no_results'));
+
+		// we already have a bodycopy link?!
+		if ($bodycopy_link) {
+			return false;
+		} else {
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+
+			$link_type = ($enable_on_create ? SQ_LINK_TYPE_2 : SQ_LINK_TYPE_3);
+
+			$asset = new Bodycopy();
+			$copy_link = Array(
+							'asset'			=> &$this,
+							'value'			=> 'no_results',
+							'link_type'		=> $link_type,
+							'is_dependant'	=> 1,
+							'is_exclusive'	=> 1,
+						 );
+
+			$asset->setAttrValue('name', 'Page Contents (No Results)');
+			if (!$asset->create($copy_link)) return false;
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			unset($asset);
+		}
+
+		return true;
+
+	}//end createNoResultsBodycopy()
+
+
+	/**
+	* Returns the no-results bodycopy
+	*
+	* @param boolean	$only_if_enabled	if true, will return null if the bodycopy is
+	*										disabled. If false, will only return null if
+	*										never created.
+	*
+	* @return object Bodycopy or null
+	* @access public
+	*/
+	function &getNoResultsBodycopy($only_if_enabled=true)
+	{
+		$asset = null;
+
+		if ($only_if_enabled) {
+			$link_types = SQ_LINK_TYPE_2;
+		} else {
+			$link_types = SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3;
+		}
+
+		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_types, 'bodycopy', false, 'major', 'no_results'));
+
+		if ($bodycopy_link) {
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], 'bodycopy');
+		}
+
+		return $asset;
+
+	}//end getNoResultsBodycopy()
+
+
+	/**
+	* Returns whether the no-results bodycopy is enabled
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isNoResultsBodycopyEnabled()
+	{
+		$link_types = SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3;
+
+		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_types, 'bodycopy', false, 'major', 'no_results'));
+
+		if ($bodycopy_link) {
+			return ($bodycopy_link['link_type'] == SQ_LINK_TYPE_2);
+		} else {
+			return false;
+		}
+
+
+	}//end createNoResultsBodycopy()
+
+
+	/**
+	* Handles the enabling or disabling of the no-results bodycopy
+	*
+	* @param boolean	$enabled	set to true to enable the format bodycopy,
+	*								set to false to disable it
+	*
+	* @return boolean	indicating success
+	* @access public
+	*/
+	function setUseNoResultsBodycopy($enabled)
+	{
+		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', false, 'major', 'no_results'));
+
+		if (!$bodycopy_link) {
+			// no bodycopy yet? If we're trying to set to disabled, then we don't
+			// need to do anything - if not then we need to create it
+			if ($enabled) {
+				if (!$this->createNoResultsBodycopy()) {
+					return false;
+				}
+			}
+		} else {
+			// set link type to either TYPE_2 if enabled or TYPE_3 if disabled
+			$new_link_type = ($enabled) ? SQ_LINK_TYPE_2 : SQ_LINK_TYPE_3;
+			if ($bodycopy_link['link_type'] != $new_link_type) {
+				$GLOBALS['SQ_SYSTEM']->am->updateLink($bodycopy_link['linkid'], $new_link_type);
+			}
+		}
+
+		return true;
+
+	}//end setUseNoResultsBodycopy()
 
 
 }//end class

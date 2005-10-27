@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.44 2005/10/27 00:01:30 sdanis Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.45 2005/10/27 00:44:54 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -56,6 +56,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	function Listing_Engine_Edit_Fns($assetid=0)
 	{
 		$this->Page_Edit_Fns($assetid);
+		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['lock_type'] = 'content';
 
 	}//end constructor
 
@@ -85,7 +87,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		} else {
 			// print the read-only version
 			if (empty($types)) {
-				echo '<p class="sq-backend-warning">'.translate('cms_listing_no_asset_types_chosen').'</p>';
+				echo '<p class="sq-backend-warning">'.translate('cms_listing_no_asset_types_selected').'</p>';
 			} else {
 				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
 				?>
@@ -1517,7 +1519,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 											}
 
 											if ($i != count($sort_by_list) - 1) {
-												?><a href="#" onclick="sortOrderMoveDown(<?php echo $id ?>); return false;"><img src="<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>" width="16" height="16" border="0"alt="<?php echo translate('move_down'); ?>" /></a><?php
+												?><a href="#" onclick="sortOrderMoveDown(<?php echo $id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "<?php echo translate('move_down'); ?>");</script></a><?php
 											}
 											?>
 									</td>
@@ -3047,6 +3049,68 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		return ($asset->attr('group_by') == 'letter');
 
 	}//end isAZListing()
+
+
+	/**
+	* Process use format bodycopy dropdown
+	*
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean false if no questions in this section, true otherwise
+	* @access public
+	*/
+	function paintUseNoResultsBodycopy(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('links');
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'no_results');
+		$enabled = !empty($bodycopy_link);
+
+		if ($write_access) {
+			$options = Array(
+						'1'	=> translate('yes'),
+						'0'	=> translate('no'),
+					   );
+
+			combo_box($prefix.'_use_bodycopy', $options, false, Array($enabled));
+
+		} else {
+			echo $enabled ? translate('yes') : translate('no');
+		}
+
+		return $write_access;
+
+	}//end paintUseNoResultsBodycopy()
+
+
+	/**
+	* Process use format bodycopy
+	*
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processUseNoResultsBodycopy(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('links')) return false;
+		$enabled = $_POST[$prefix.'_use_bodycopy'];
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (!$asset->setUseNoResultsBodycopy($enabled)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end processUseNoResultsBodycopy()
 
 
 }//end class
