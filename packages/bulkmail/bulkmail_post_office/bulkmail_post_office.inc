@@ -20,12 +20,13 @@ define('BML_JOB_STATE_FINISHED', 4);
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
 class Bulkmail_Post_Office extends Asset
 {
+
 
 	/**
 	* Constructor
@@ -44,10 +45,11 @@ class Bulkmail_Post_Office extends Asset
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
 	function _getName($short_name=false)
 	{
@@ -59,17 +61,33 @@ class Bulkmail_Post_Office extends Asset
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
 		// ensure that each job is only linked to one post office in canCreateLink and canMoveLink
 		// see the relationship between site_network and site for more info
 		return Array(
-				SQ_LINK_TYPE_1 => Array('bulkmail_job' => Array('card' => 'M', 'exclusive' => false)),
-				SQ_LINK_TYPE_2 => Array('bulkmail_job' => Array('card' => 'M', 'exclusive' => false)),
-				SQ_LINK_NOTICE => Array('bulkmail_job' => Array('card' => 'M', 'exclusive' => false)),
+				SQ_LINK_TYPE_1	=> Array(
+									'bulkmail_job'	=> Array(
+														'card'		=> 'M',
+														'exclusive'	=> false,
+													   ),
+								   ),
+				SQ_LINK_TYPE_2	=> Array(
+									'bulkmail_job'	=> Array(
+														'card'		=> 'M',
+														'exclusive'	=> false,
+													   ),
+								   ),
+				SQ_LINK_NOTICE	=> Array(
+									'bulkmail_job'	=> Array(
+														'card'		=> 'M',
+														'exclusive'	=> false,
+													   ),
+								   ),
 			   );
 
 	}//end _getAllowedLinks()
@@ -78,7 +96,7 @@ class Bulkmail_Post_Office extends Asset
 	/**
 	* Ensures that a bulkmail job can only be linked to one unique post office
 	*
-	* @param object	$minor		the minor asset that we are linking to
+	* @param object	&$minor		the minor asset that we are linking to
 	* @param string	$link_type	the type of link this is
 	* @param int	$exclusive	the exclusive status of the link (gets passed to canLinkToType)
 	*
@@ -110,7 +128,7 @@ class Bulkmail_Post_Office extends Asset
 	 * @param object	&$old_major	the major asset that we are being moved from
 	 * @param string	$link_type	the type of link this is
 	 *
-	 * @return mixed boolean|string
+	 * @return mixed string|boolean
 	 * @access public
 	 */
 	 function canMoveLink(&$minor, &$old_major, $link_type)
@@ -149,19 +167,19 @@ class Bulkmail_Post_Office extends Asset
 		$user = null;
 
 		if (isset($content_details['content_page'])) {
-			$page = $am->getAsset($content_details['content_page']);
+			$page =& $am->getAsset($content_details['content_page']);
 		} else {
 			// error: no content page set
 			//trigger_localised_error('BML0003', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($job->type(), 'name'), $job->name, $job->id);
 			return false;
 		}
 
-		if($user_id) {
+		if ($user_id) {
 			// if user id is provided (preview mail), load the user instead of pre-selected user
-			$user = $am->getAsset($user_id);
+			$user =& $am->getAsset($user_id);
 		} else {
 			if (isset($content_details['bulkmail_user'])) {
-				$user = $am->getAsset($content_details['bulkmail_user']);
+				$user =& $am->getAsset($content_details['bulkmail_user']);
 			} else {
 				// error: no bulkmail user set
 				//trigger_localised_error('BML0004', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($job->type(), 'name'), $job->name, $job->id);
@@ -173,7 +191,7 @@ class Bulkmail_Post_Office extends Asset
 		if ($user_id) $old_session = $_SESSION;
 
 		// login as this user and print page content
-		if(!$GLOBALS['SQ_SYSTEM']->setCurrentUser($user)){
+		if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($user)){
 			// happens when the user is not live or in trash
 			//trigger_localised_error('BML0006', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($user->type(), 'name'), $user->name, $user->id);
 			return false;
@@ -192,7 +210,7 @@ class Bulkmail_Post_Office extends Asset
 		}
 
 		// cache html content
-		if(!is_dir($job->data_path.'/.data/cache')) {
+		if (!is_dir($job->data_path.'/.data/cache')) {
 			create_directory($job->data_path.'/.data/cache');
 		}
 		if (!string_to_file($content, $job->data_path.'/.data/cache/content_file.html')) {
@@ -201,7 +219,8 @@ class Bulkmail_Post_Office extends Asset
 		}
 
 		return true;
-	}
+	}//end cacheContent()
+
 
 	 /**
 	* Generates the html bulkmail content based on the user and content generation type
@@ -233,19 +252,19 @@ class Bulkmail_Post_Office extends Asset
 		}
 
 		// load this user, for keyword replacement (or content generation)
-		if($user_id) $user = $am->getAsset($user_id);
+		if ($user_id) $user =& $am->getAsset($user_id);
 
 		// always login and generate content for per user basis,
 		// unless the user is a subscriber (bulkmail user) with only an email address
 		if ($type == 'each_user' && !is_null($user) && !is_a($user, 'Bulkmail_User')) {
 			// login as this user and print page content
-			if(!$GLOBALS['SQ_SYSTEM']->setCurrentUser($user)){
+			if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($user)){
 				// happens when the user is not live or in trash
 				//trigger_localised_error('BML0006', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($user->type(), 'name'), $user->name, $user->id);
 				return 'error: cannot set current user\n';
 			}
 			if (isset($content_details['content_page'])) {
-				$page = $am->getAsset($content_details['content_page']);
+				$page =& $am->getAsset($content_details['content_page']);
 			}
 			ob_start();
 				// dont want any notice/warning here
@@ -285,12 +304,12 @@ class Bulkmail_Post_Office extends Asset
 		} else if (is_a($user, 'bulkmail_user')) {
 			$name = $user->attr('name');
 			// if bulkmail user does not have a user name, use email address
-			if(empty($name)) $name = $user->attr('email');
+			if (empty($name)) $name = $user->attr('email');
 		}
 		$keyword_replacements = Array(
-									'bmail_assetid'		=> $user->id,
-									'bmail_name'		=> $name,
-									'bmail_email'		=> $user->attr('email'),
+									'bmail_assetid'	=> $user->id,
+									'bmail_name'	=> $name,
+									'bmail_email'	=> $user->attr('email'),
 								);
 		$content = replace_keywords($content, $keyword_replacements);
 
@@ -302,27 +321,28 @@ class Bulkmail_Post_Office extends Asset
 	/**
 	* Sends the bulkmail message using given PEAR mail driver params
 	*
-	* @param mixed string|array	$recipient	an array or a string with comma separated recipients.
+	* @param mixed	&$asset		the asset
+	* @param mixed	$recipient	an array or a string with comma separated recipients.
 	*
-	* @return bool
+	* @return boolean
 	* @access public
 	*/
-	function sendPreviewMail($asset, $recipient)
+	function sendPreviewMail(&$asset, $recipient)
 	{
-		if(is_null($asset->getPostOffice()) ){
+		if (is_null($asset->getPostOffice()) ){
 			// unable to create mail object
 			trigger_localised_error('BML0005', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'), $asset->name, $asset->id);
-			exit;
+			return false;
 		}
 		// Create the mail object using server_details as parameter
 		$server_details = $asset->getServerDetails();
 		$driver = array_get_index($server_details, 'driver', '');
 		$mail_object =& Mail::factory($driver, $server_details);
 		// integrate PEAR error object's message with matrix's error reporting system
-		if(PEAR::isError($mail_object)) {
+		if (PEAR::isError($mail_object)) {
 			// unable to create mail object
 			trigger_localised_error('BML0001', E_USER_WARNING, $mail_object->getMessage());
-			exit;
+			return false;
 		}
 		$content_details = $asset->attr('content_details');
 		$content_details['content_page'] = $asset->attr('content_assetid');
@@ -332,7 +352,7 @@ class Bulkmail_Post_Office extends Asset
 
 
 		// We might do this later, texttohtml of some sort
-		$mime = new Mail_mime();
+		$mime =& new Mail_mime();
 		//$mime->setTxtBody($textMessage);
 		$mime->setHtmlBody($content);
 		$body = @$mime->get();
@@ -340,7 +360,7 @@ class Bulkmail_Post_Office extends Asset
 
 		$header_details = $asset->getHeaderDetails();
 		// add 'Preview' to the subject of the email
-		if(isset($header_details['Subject'])) {
+		if (isset($header_details['Subject'])) {
 			$header_details['Subject'] = $header_details['Subject'].' (Preview)';
 		}
 		$headers = @$mime->headers($header_details);
@@ -352,7 +372,7 @@ class Bulkmail_Post_Office extends Asset
 		if (PEAR::isError($status)) {
 			// unable to send bulkmail
 			trigger_localised_error('BML0002', E_USER_WARNING, $status->getMessage());
-			exit;
+			return false;
 		}
 		return true;
 
@@ -370,10 +390,10 @@ class Bulkmail_Post_Office extends Asset
 	function generateLog($recipient)
 	{
 		$msg = translate('bulkmail_preview_message');
-		$who = implode(", ", $recipient).'<br /> on ';
+		$who = implode(', ', $recipient).'<br /> on ';
 		$when = date('r');
 
-		return $msg."&nbsp; ".$who.$when;
+		return $msg.'&nbsp; '.$who.$when;
 	}//end generateLog()
 
 
@@ -395,7 +415,7 @@ class Bulkmail_Post_Office extends Asset
 
 		return $result;
 
-	}//end getStatus()
+	}//end getStatusDB()
 
 
 	/**
@@ -422,9 +442,7 @@ class Bulkmail_Post_Office extends Asset
 		// get live job (only one live job at any given point of time)
 		foreach ($jobs as $job_assetid => $type_code) {
 			$status = Bulkmail_Post_Office::getStatusDB($job_assetid);
-			if($status == SQ_STATUS_LIVE) {
-				return $job_assetid;
-			}
+			if ($status == SQ_STATUS_LIVE) return $job_assetid;
 		}
 
 		return false;
