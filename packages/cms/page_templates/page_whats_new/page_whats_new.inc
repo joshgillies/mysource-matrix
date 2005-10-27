@@ -11,12 +11,12 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.23 2005/08/22 08:08:45 gsherwood Exp $
+* $Id: page_whats_new.inc,v 1.24 2005/10/27 00:46:32 lwright Exp $
 *
 */
 
 
-require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset_listing.inc';
+require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 
 /**
 * Page_Whats_New
@@ -25,11 +25,11 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Page_Whats_New extends Page_Asset_Listing
+class Page_Whats_New extends Listing_Engine
 {
 
 
@@ -41,8 +41,7 @@ class Page_Whats_New extends Page_Asset_Listing
 	*/
 	function Page_Whats_New($assetid=0)
 	{
-		$this->_ser_attrs = true;
-		$this->Page_Asset_Listing($assetid);
+		$this->Listing_Engine($assetid);
 
 	}//end constructor
 

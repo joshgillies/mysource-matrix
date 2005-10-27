@@ -11,12 +11,12 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_edit_fns.inc,v 1.8 2005/07/21 07:41:54 lwright Exp $
+* $Id: page_whats_new_edit_fns.inc,v 1.9 2005/10/27 00:46:32 lwright Exp $
 *
 */
 
 
-require_once dirname(__FILE__).'/../../page_templates/page_asset_listing/page_asset_listing_edit_fns.inc';
+require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 
 /**
 * Page_Whats_New_Edit_Fns
@@ -26,11 +26,11 @@ require_once dirname(__FILE__).'/../../page_templates/page_asset_listing/page_as
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Page_Whats_New_Edit_Fns extends Page_Asset_Listing_Edit_Fns
+class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 {
 
 
@@ -40,7 +40,7 @@ class Page_Whats_New_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	*/
 	function Page_Whats_New_Edit_Fns()
 	{
-		$this->Page_Asset_Listing_Edit_Fns();
+		$this->Listing_Engine_Edit_Fns();
 
 	}//end constructor
 

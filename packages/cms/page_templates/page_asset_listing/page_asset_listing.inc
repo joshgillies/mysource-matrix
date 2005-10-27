@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.92 2005/10/04 06:19:48 rhoward Exp $
+* $Id: page_asset_listing.inc,v 1.93 2005/10/27 00:46:32 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -49,210 +49,9 @@ class Page_Asset_Listing extends Listing_Engine
 	*/
 	function Page_Asset_Listing($assetid=0)
 	{
-		$this->_ser_attrs = true;
 		$this->Listing_Engine($assetid);
 
 	}//end constructor
-
-
-	/**
-	* Perform any additional processing required during the creation of this asset
-	*
-	* Creates the page contents bodycopy
-	*
-	* @param array	&$link	information used to create the initial link
-	*
-	* @return boolean
-	* @access private
-	*/
-	function _createAdditional(&$link)
-	{
-		if (!parent::_createAdditional($link)) return false;
-
-		// add a bodycopy to this page when creating
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-
-		$asset =& new Bodycopy();
-		$copy_link = Array('asset' => &$this, 'value' => 'page_contents' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-		$asset->setAttrValue('name', 'Page Contents');
-
-		return $asset->create($copy_link);
-
-	}//end _createAdditional()
-
-
-	/**
-	* Returns TRUE if we can delete the passed link, or a string with the error msg
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return mixed boolean|string
-	* @access public
-	*/
-	function isDeletableLink($linkid)
-	{
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
-		if ($bodycopy_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-			return translate('cms_cannot_delete_link', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-		}
-
-		return parent::isDeletableLink($linkid);
-
-	}//end isDeletableLink()
-
-
-	/**
-	* Returns an array of all the permitted link type, the type asset and the cardinality
-	*
-	* @return array
-	* @access private
-	* @see Asset::_getAllowedLinks()
-	*/
-	function _getAllowedLinks()
-	{
-		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 1,   'exclusive' => true);
-		return $page_links;
-
-	}//end _getAllowedLinks()
-
-
-	/**
-	* Called by the design to print the body of this asset
-	*
-	* @return void
-	* @access public
-	*/
-	function printContents()
-	{
-		// we need a unique cache key to represent the current result page
-		$cache_key = $this->_getCacheKey();
-
-		$cached_contents = '';
-		if (!empty($cache_key)) {
-			$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-			$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
-		}
-
-		// if the cache is empty, go ahead and regenerate a new version
-		if (empty($cached_contents)) {
-
-			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
-			if (empty($bodycopy_link)) return false;
-
-			$format_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
-			if (is_null($format_bodycopy)) return false;
-
-			require_once SQ_FUDGE_PATH.'/general/text.inc';
-			$keywords = $format_bodycopy->getKeywords();
-			$replacements = Array();
-			if (!in_array('asset_listing', $keywords)) {
-				// there is no asset listing keyword in the contents, so we dont
-				// need to do all the extra processing for the listing
-				$format_bodycopy->printBody();
-				return;
-			}
-
-			$children = $this->getAssetList();
-			$this->filterAssetList($children);
-			$num_kids = count($children);
-
-			// if there are no children available, just print the page bodycopy
-			if (empty($children)) {
-				$replacements['asset_count']			= 0;
-				$replacements['asset_listing']			= '';
-				$replacements['page_list']				= '';
-				$replacements['page_number']			= 0;
-				$replacements['page_asset_count']		= 0;
-				$replacements['total_pages']			= 0;
-				$replacements['first_asset_position']	= '';
-				$replacements['last_asset_position']	= '';
-				$replacements['previous_page']			= '';
-				$replacements['next_page']				= '';
-
-				$selections = $this->attr('asset_selections');
-				foreach ($selections as $selection_name => $settings) {
-					$replacements[$selection_name.'_check_all'] = '';
-					$replacements[$selection_name.'_check_all_in_group'] = '';
-				}
-
-				$format_bodycopy->setKeywordReplacements($replacements);
-				$format_bodycopy->printBody();
-				return;
-			}
-
-			// the list is sorted and positions set, now we can split to groups
-			if ($this->attr('group_by') == 'grouped') {
-				$this->groupAssetsRecursively($this->attr('asset_grouping'), $children, $children);
-				$this->sortGroups($this->attr('asset_grouping'), $children, $children);
-			}
-
-			foreach ($keywords as $word) {
-				$replacements[$word] = $this->getKeywordReplacement($word);
-			}
-
-			$num_per_page = $this->attr('num_per_page');
-			$result_page = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
-			if ($result_page <= 0) $result_page = 1;
-
-			// get our page chunk here
-			$todo =& $this->getChunk($children, $replacements, $result_page, $num_per_page);
-			// get any extra keyword replacements from this asset or asset_listing
-			$replacements = $this->getContentsKeywordReplacements($keywords) + $replacements;
-			$num_assets_showing = count($todo);
-			ob_start();
-				$this->printAssetList($todo);
-				$global_contents = ob_get_contents();
-			ob_end_clean();
-
-			// the global replacement to print the asset listing
-			$replacements['asset_listing'] = $global_contents;
-			if ($this->attr('group_by') != 'grouped') {
-				$replacements['asset_count'] = $num_kids;
-			} else {
-				$total_assets = $this->_arrayCountRecursive($children, count($this->attr('asset_grouping')));
-				$replacements['asset_count'] = $total_assets;
-				$replacements['unique_asset_count'] = $num_kids;
-			}
-
-			/*
-			// if the result page is too high, set to last page
-			if ($num_per_page == 0) {
-				$result_page = 1;
-			} else {
-				$result_page = min($result_page, ceil($replacements['asset_count'] / $num_per_page));
-			}
-			*/
-			$result_page = $replacements['page_number'];
-			$replacements['page_asset_count'] = $num_assets_showing;
-			// compatibility
-			$replacements['first_asset_position'] = $num_per_page * ($result_page - 1) + 1;
-			if ($num_per_page == 0) {
-				$replacements['last_asset_position'] = $replacements['asset_count'];
-			} else {
-				$replacements['last_asset_position'] = min($replacements['asset_count'], $num_per_page * $result_page);
-			}
-
-			// print the contents of page - replacing the global keywords
-			$format_bodycopy->setKeywordReplacements($replacements);
-			ob_start();
-				$format_bodycopy->printBody();
-				if (!empty($cache_key)) {
-					$cm->saveToCache($this->id, $this->type(), $cache_key, ob_get_contents());
-				}
-			ob_end_flush();
-
-			// clean up after ourselves
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($format_bodycopy);
-
-		} else {
-
-			// the contents have already been cached, so just output them
-			echo $cached_contents;
-
-		}//end if no cache
-
-	}//end printContents()
 
 
 	/**
@@ -393,72 +192,6 @@ class Page_Asset_Listing extends Listing_Engine
 		return $assets_to_list;
 
 	}//end getAssetList()
-
-
-	/**
-	* Gets the list of current root nodes
-	*
-	* @return array
-	* @access public
-	*/
-	function getRootNodes()
-	{
-		if (!isset($this->_tmp['root_asset_ids'])) {
-			$root_asset_ids = parent::getRootNodes();
-
-			if (empty($root_asset_ids)) {
-				$root_asset_ids[] = $this->id;
-			}
-			$this->_tmp['root_asset_ids'] = $root_asset_ids;
-		}
-
-		return $this->_tmp['root_asset_ids'];
-
-	}//end getRootNodes()
-
-
-	/**
-	* Work out the unique cache key to represent the current page
-	*
-	* @return string
-	* @access private
-	*/
-	function _getCacheKey()
-	{
-		$cache_key = parent::_getCacheKey();
-
-		// if we don't have a cache key from the listing it's because we shouldn't be caching
-		if ($cache_key) {
-			// because the root nodes can be dynamic we need to cache the results based upon root node
-			$root_nodes = $this->getRootNodes();
-			$cache_key .= '-'.implode('-', $root_nodes);
-		}
-		return $cache_key;
-
-	}//end _getCacheKey()
-
-
-	/**
-	* Return the available keywords in the Page Contents Bodycopy for this asset
-	*
-	* The return value is in the form:
-	* <pre>
-	* Array(
-	*     'keyword' => 'name',
-	* )
-	* </pre>
-	*
-	* @return array
-	* @access public
-	*/
-	function _getContentsKeywords()
-	{
-		$keywords = parent::_getContentsKeywords();
-		$keywords['unique_asset_count']	= translate('cms_listing_unique_asset_count');
-
-		return $keywords;
-
-	}//end _getContentsKeywords()
 
 
 }//end class
