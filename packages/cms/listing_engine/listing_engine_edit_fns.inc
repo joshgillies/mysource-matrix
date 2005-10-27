@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.43 2005/09/09 06:10:06 arailean Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.44 2005/10/27 00:01:30 sdanis Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -943,6 +943,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	{
 		$write_access    = $asset->writeAccess('attributes');
 		$sort_by_list    = $asset->attr('sort_by');
+
 		$sort_by_options = $this->_getSortByOptions($asset);
 		$o->openField(translate('cms_listing_new_sort_by_field'));
 
@@ -951,7 +952,6 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				return false;
 			} else {
 				$sort_by_options = $this->_getSortByOptions($asset);
-				//unset($sort_by_options['no_sorting']);
 				$sort_by_options['no_sorting'] = '-- '.translate('select').' --';
 			}
 			if ($write_access) {
@@ -964,78 +964,75 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$o->closeField();
 		$o->openField('');
 
-			if (empty($sort_by_list)) {
-				$o->closeField();
-				return $write_access;
-			}
+			if (!empty($sort_by_list)) {
+				$o->openSection(translate('cms_listing_sort_by_asset_field'));
+					$o->openField('');
 
-			$o->openSection(translate('cms_listing_sort_by_asset_field'));
-				$o->openField('');
-
-					$fields = Array();
-					foreach ($sort_by_list as $option_id => $info) {
-						if ($info['type'] == 'field') {
-							$fields[$option_id] = $info;
-						}
-					}
-					?>
-				<?php
-
-					if (!empty($fields)) {
-						?>
-						<table class="sq-backend-table">
-							<tr>
-								<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('asset_field'); ?></td>
-								<td class="sq-backend-table-header"><?php echo translate('display_name') ?></td>
-								<td class="sq-backend-table-header">&nbsp;</td>
-								<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('remove_question'); ?></td>
-							</tr>
-						<?php
-
-						$combo_list = Array('' => '');
-						foreach ($fields as $id => $info) {
-							if (empty($sort_by_options[$info['params']['field']])) {
-								continue;
+						$fields = Array();
+						foreach ($sort_by_list as $option_id => $info) {
+							if ($info['type'] == 'field') {
+								$fields[$option_id] = $info;
 							}
+						}
+						?>
+					<?php
+
+						if (!empty($fields)) {
 							?>
+							<table class="sq-backend-table">
 								<tr>
-									<td class="sq-backend-table-cell">
-										<?php
-											if ($info['params']['field'] == 'no_sorting') continue;
-											hidden_field($prefix.'_fields['.$id.'][params][field]', $info['params']['field']);
-											hidden_field($prefix.'_fields['.$id.'][type]', 'field');
-											echo $sort_by_options[$info['params']['field']];
-										?>
-									</td>
-									<td class="sq-backend-table-cell">
-										<?php
-											if ($write_access) {
-												text_box($prefix.'_fields['.$id.'][name]', $info['name']);
-											} else {
-												echo array_get_index($info, 'name', '');
-											}
-										?>
-									</td>
-									<td class="sq-backend-table-cell"></td>
-									<td class="sq-backend-table-cell">
-										<?php
-											if ($write_access) {
-												check_box($prefix.'_remove['.$id.']', '');
-											}
-										?>
-									</td>
+									<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('asset_field'); ?></td>
+									<td class="sq-backend-table-header"><?php echo translate('display_name') ?></td>
+									<td class="sq-backend-table-header">&nbsp;</td>
+									<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('remove_question'); ?></td>
 								</tr>
 							<?php
-						}
-						?>
-						</table>
-					<?php
-					} else {
-						echo translate('cms_listing_no_field_sort_options');
-					}
 
-				$o->closeField();
-			$o->closeSection();
+							$combo_list = Array('' => '');
+							foreach ($fields as $id => $info) {
+								if (empty($sort_by_options[$info['params']['field']])) {
+									continue;
+								}
+								?>
+									<tr>
+										<td class="sq-backend-table-cell">
+											<?php
+												if ($info['params']['field'] == 'no_sorting') continue;
+												hidden_field($prefix.'_fields['.$id.'][params][field]', $info['params']['field']);
+												hidden_field($prefix.'_fields['.$id.'][type]', 'field');
+												echo $sort_by_options[$info['params']['field']];
+											?>
+										</td>
+										<td class="sq-backend-table-cell">
+											<?php
+												if ($write_access) {
+													text_box($prefix.'_fields['.$id.'][name]', $info['name']);
+												} else {
+													echo array_get_index($info, 'name', '');
+												}
+											?>
+										</td>
+										<td class="sq-backend-table-cell"></td>
+										<td class="sq-backend-table-cell">
+											<?php
+												if ($write_access) {
+													check_box($prefix.'_remove['.$id.']', '');
+												}
+											?>
+										</td>
+									</tr>
+								<?php
+							}
+							?>
+							</table>
+						<?php
+						} else {
+							echo translate('cms_listing_no_field_sort_options');
+						}
+
+					$o->closeField();
+				$o->closeSection();
+
 
 			$o->openSection(translate('cms_listing_sort_by_attribute'));
 				$o->openField('');
@@ -1112,11 +1109,93 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 							</table>
 						<?php
 					} else {
-						echo translate('cms_listing_no_attribute_sort_options');
+						echo translate('cms_listing_no_attribute_sort_options').'<br /><br /><br />';
 					}
 
 				$o->closeField();
 			$o->closeSection();
+			} else {
+				$o->closeField();
+			}
+
+		//-- METADATA --//
+		$o->openField(translate('cms_listing_new_sort_by_metadata'));
+			if ($write_access) {
+				echo ' '.translate('name').' ';
+				text_box($prefix.'_new_metadata', '');
+				echo ' '.translate('metadata_field').' ';
+				asset_finder($prefix.'_new_metadata_fieldid',0,Array('metadata_field' => 'D'));
+			}
+		$o->closeField();
+
+		if (!empty($sort_by_list)) {
+			$o->openSection(translate('cms_listing_sort_by_metadata'));
+				$o->openField('');
+
+					$meta_datas = Array();
+					foreach ($sort_by_list as $id => $info) {
+						if ($info['type'] == 'metadata') {
+							$meta_datas[$id] = $info;
+						}
+					}
+
+					if (!empty($meta_datas)) {
+						?>
+						<table class="sq-backend-table">
+							<tr>
+
+								<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('metadata_field'); ?></td>
+								<td class="sq-backend-table-header"><?php echo translate('display_name') ?></td>
+								<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('remove_question'); ?></td>
+								</tr>
+							<?php
+
+						foreach ($meta_datas as $id => $info) {
+							hidden_field($prefix.'_metadatas['.$id.'][type]', 'metadata');
+							?>
+							<tr>
+								<td class="sq-backend-table-cell">
+									<?php
+										if ($write_access) {
+											asset_finder($prefix.'_metadatas['.$id.'][field]',$info['field'],Array('metadata_field' => 'D'));
+										} else {
+											$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($info['field']), Array(), false, 'name');
+											echo translate('asset_format',$asset_info[$info['field']],$info['field']);
+										}
+									?>
+								</td>
+								<td class="sq-backend-table-cell">
+									<?php
+										if ($write_access) {
+											text_box($prefix.'_metadatas['.$id.'][name]', array_get_index($info,'name',''));
+										} else {
+											echo array_get_index($info, 'name', '');
+										}
+									?>
+								</td>
+							<?php
+
+							?>
+								<td class="sq-backend-table-cell">
+									<?php
+										if ($write_access) {
+											check_box($prefix.'_remove['.$id.']', '');
+										}
+									?>
+								</td>
+							</tr>
+							<?php
+						}
+						?>
+						</table>
+						<?php
+					} else {
+						echo translate('cms_listing_no_metadata_sort_options');
+					}
+				$o->closeField();
+			$o->closeSection();
+		}
+
 		$o->closeField();
 
 		return $write_access;
@@ -1136,13 +1215,17 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processSortBy(&$asset, &$o, $prefix)
 	{
-		$sort_by_list = $asset->attr('sort_by');
-
 		$sort_by = array_get_index($_POST, $prefix.'_sort_by', '');
+
 		$name    = array_get_index($_POST, $prefix.'_name', '');
-		if ($sort_by == 'no_sorting') return false;
+		$meta_data = array_get_index($_POST, $prefix.'_new_metadata', '');
+		$new_metadata = array_get_index($_POST, $prefix.'_new_metadata_fieldid', '');
+		if (isset($new_metadata['assetid'])) {
+			$metadata_fieldid = $new_metadata['assetid'];
+		}
+
 		$options = $this->_getSortByOptions($asset);
-		$save    = false;
+		$save    = true;
 		$invalid_name = false;
 
 		$remove      = array_get_index($_POST, $prefix.'_remove', Array());
@@ -1168,7 +1251,39 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			$save = true;
 		}
 
-		if (!empty($sort_by) && !empty($name)) {
+		// -- MetaData -- //
+		$posted_list = array_get_index($_POST, $prefix.'_metadatas', Array());
+
+		foreach ($posted_list as $id => $info) {
+			// skip ones that we are removing
+			if (in_array($id, array_keys($remove))) {
+				$save = true;
+				continue;
+			}
+
+			// dont allow blank names
+			if (!isset($info['name']) || !strlen($info['name'])) {
+				continue;
+			}
+
+			$info['field'] = $info['field']['assetid'];
+
+			$save_list[$id] = $info;
+			$save = true;
+		}
+
+		// add a new metadata field
+		if (!empty($sort_by) && !empty($meta_data)  && !empty($metadata_fieldid)) {
+			$type = 'metadata';
+			$new_index = count($save_list);
+			$save_list[$new_index] = Array();
+			$save_list[$new_index]['name'] = $meta_data;
+			$save_list[$new_index]['type'] = $type;
+			$save_list[$new_index]['field'] = $metadata_fieldid;
+		}
+
+		// --- Fields --- //
+		if (!empty($sort_by) && !empty($name) && $sort_by != 'no_sorting') {
 			if (!$invalid_name) {
 				$invalid = false;
 				$new_index = count($save_list);
@@ -1239,7 +1354,6 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$sort_by_list = $asset->attr('sort_by');
 
-
 		$o->openField(translate('cms_listing_default_sort_by_option'));
 
 			if (empty($sort_by_list)) {
@@ -1258,7 +1372,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			if ($write_access) {
 				combo_box($prefix.'_default', $names, '', $default);
 			} else {
-				echo $sort_by_list[$default]['name'];
+				if (isset($sort_by_list[$default]['name'])) {
+					echo $sort_by_list[$default]['name'];
+				}
 			}
 		$o->closeField();
 
@@ -1388,9 +1504,6 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 							<tr>
 								<td class="sq-backend-table-cell">
 									<?php
-									if (array_get_index($info['params'], 'field', false) == 'no_sorting') {
-										continue;
-									}
 									hidden_field($prefix.'_sort_order_list['.$id.']', $id); ?>
 									<span id ="<?php echo $prefix ?>_sort_order_<?php echo $id; ?>"><?php echo $info['name']; ?></span>
 								</td>

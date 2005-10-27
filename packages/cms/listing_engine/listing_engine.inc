@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.109 2005/10/21 05:35:42 lwright Exp $
+* $Id: listing_engine.inc,v 1.110 2005/10/27 00:01:30 sdanis Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.109 $
+* @version $Revision: 1.110 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -438,6 +438,7 @@ class Listing_Engine extends Page
 		// check and prepare sorting data
 		$is_sort_by_attribute = ($sort_info['type'] == 'asset_attrib');
 		$is_sort_by_field     = ($sort_info['type'] == 'field');
+		$is_sort_by_metadata     = ($sort_info['type'] == 'metadata');
 
 		$sort_params =& $sort_info['params'];
 
@@ -496,6 +497,40 @@ class Listing_Engine extends Page
 					// of used type codes
 					$skipped_assets = array_merge($skipped_assets, $rem_assetids);
 				}
+			}
+		} else if ($is_sort_by_metadata) {
+			// Sort by Metadata field
+			$sort_numeric = false;
+			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$fieldid = $sort_info['field'];
+
+			if (isset($sort_info['field'])) {
+				$fieldid = $sort_info['field'];
+			}
+
+			if ($fieldid) {
+				$field_default_val = $mm->getMetadataFieldDefaultValue($fieldid);
+			} else {
+				$field_default_val = '';
+			}
+
+			foreach ($asset_list as $assetid => $type) {
+				$meta_field_val = $mm->getMetadataValueByAssetid($assetid,$fieldid,true);
+				$field_value = $field_default_val;
+
+				if (isset($meta_field_val)) {
+					$field_value = $meta_field_val;
+
+					// get keyword replacements
+					if (preg_match('/^%(.*)%$/',$field_value,$matches)) {
+						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						if ($asset->id) {
+							$field_value = $asset->getKeywordReplacement($matches[1]);
+						}
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+					}
+				}
+				$sort_assets[$assetid] = strtolower($field_value);
 			}
 
 		} else {
@@ -1138,10 +1173,13 @@ class Listing_Engine extends Page
 	*/
 	function printAssetList($todo)
 	{
+		if (empty($todo)) return;
+
 		$this->_tmp['formats']        = Array();
 		$this->_tmp['default_format'] = '';
 		$this->_tmp['is_default']     = Array();
 		$this->_tmp['needs_asset']    = Array();
+
 		$this->_tmp['assets_info']    = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
 
 		$type_folder = &$this->getFolder('type_formats');
