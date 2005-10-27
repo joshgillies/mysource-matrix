@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.1 2005/10/25 23:37:05 rong Exp $
+* $Id: bulkmail_job.inc,v 1.2 2005/10/27 00:56:29 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -187,14 +187,8 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	*/
 	function getRecipients()
 	{
-		// post office not set, cannot get recipient info
-		$post_office =& $this->getPostOffice();
-		if (is_null($post_office)) {
-			return Array();
-		}
-
 		// handle groups and users/bulkmail_users separately
-		$recipients = $post_office->attr('groups');
+		$recipients = $this->attr('recipients');
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$user_list = Array();
 		$group_ids = Array();
@@ -492,14 +486,6 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 			//$error[] = "Post Office Error: Post Office not set.\n";
 			$error[] = translate('bulkmail_warning_po_post_office_not_set');
 		} else {
-			// no recipient
-			// note: if expand $recipient, its equivalent to calling getRecipients() again (intensive process)
-			$recipients = $post_office->attr('groups');
-			if(empty($recipients)) {
-				//$error[] = "Post Office Error: Recipients no set.\n";
-				$error[] = translate('bulkmail_warning_po_recipient_not_set');
-			}
-
 			// get server details from post office
 			$server_details = $this->getServerDetails();
 			$driver = array_get_index($server_details, 'driver', '');
@@ -511,11 +497,18 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 			}
 		}
 
+		// no recipient
+		// note: if expand $recipient, its equivalent to calling getRecipients() again (intensive process)
+		$recipients = $this->attr('recipients');
+		if(empty($recipients)) {
+			//$error[] = "Post Office Error: Recipients no set.\n";
+			$error[] = translate('bulkmail_warning_po_recipient_not_set');
+		}
+
 		// get header details from post office or job
 		// check if minimum required fields (from field) are supplied
 		$header_details = $this->getHeaderDetails();
-		$from = array_get_index($header_details, 'From', ''); // case sensitive
-		if(!$from) {
+		if(!isset($header_details['from']) && !isset($header_details['From'])) {
 			//$error[] = "Header Details Error: Missing 'From' field\n";
 			$error[] = translate('bulkmail_warning_header_from_field');
 		}
@@ -535,7 +528,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		$content_details = $this->attr('content_details');
 		$type = array_get_index($content_details, 'type', '');
 		$bmail_user = array_get_index($content_details, 'bulkmail_user', '');
-		if($type == 'group') {
+		if($type == 'pre_selected_user') {
 			if (!$bmail_user) {
 				//$error[] = "Content Details Error: Bulkmail User not set for group-based content generation method.\n";
 				$error[] = translate('bulkmail_warning_content_bmail_user_not_set');

@@ -4,6 +4,7 @@
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
+
 /**
 * Bulkmail_Post_Office_Management
 *
@@ -12,12 +13,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
 class Bulkmail_Post_Office_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -29,15 +31,15 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 
 		$this->vars = Array(
 						'name'				=> Array(
-												'added'		=> '0.1',
-												'type'		=> 'text',
-												'default'	=> '',
+												'added'			=> '0.1',
+												'type'			=> 'text',
+												'default'		=> '',
 											   ),
-						'groups'			=> Array(
+						'recipients'		=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'serialise',
 												'default'		=> Array(),
-												'description'	=> 'The groups to send this bulkmail to. All users in each group will become recipients',
+												'description'	=> 'The recipients to send this bulkmail to. All users/bulkmail_users in each group will become recipients',
 											   ),
 						'content_assetid'	=> Array(
 												'added'			=> '0.1',
@@ -49,7 +51,7 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 												'added'			=> '0.1',
 												'type'			=> 'serialise',
 												'default'		=> Array(),
-												'description'	=> 'User/Group based content generation and related details',
+												'description'	=> 'Use each user/pre-selected user for bulkmail content generation',
 											   ),
 						'server_details'	=> Array(
 												'added'			=> '0.1',
@@ -60,7 +62,10 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 						'header_details'	=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'serialise',
-												'default'		=> Array(),
+												'default'		=> Array(
+																	'From'			=> SQ_CONF_DEFAULT_EMAIL,
+																	'Subject'		=> '',
+																   ),
 												'description'	=> 'The header information required by the PEAR send() function',
 											   ),
 						'preview_log'		=> Array(
@@ -69,15 +74,19 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 												'default'		=> Array(),
 												'description'	=> 'Log of the last 5 preview records',
 											   ),
-						'threshold'		=> Array(
+						'threshold'			=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'serialise',
-												'default'		=> Array('type' => 'ASAP', 'value' => ''),
+												'default'		=> Array(
+																	'type' => 'ASAP',
+																	'value' => ''
+																   ),
 												'description'	=> 'Whether to spread out the sending over x amount of time',
 											   ),
 					   );
 
 	}//end constructor
+
 
 }//end class
 ?>

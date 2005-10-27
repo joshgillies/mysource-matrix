@@ -1,7 +1,9 @@
 <?php
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 require_once 'Mail.php';
+@require_once 'Mail/mime.php';
 
 define('BML_JOB_STATE_NEW',      0);
 define('BML_JOB_STATE_NOT_LIVE', 1);
@@ -18,7 +20,7 @@ define('BML_JOB_STATE_FINISHED', 4);
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -130,10 +132,84 @@ class Bulkmail_Post_Office extends Asset
 	 }//end canMoveLink()
 
 
-	/**
+	 /**
+	* Caches the bulkmail page content, returns false if any error occurs
+	*
+	* @param object	&$job				the bulkmial job that we are processing
+	* @param array	$content_details	information related to content generation
+	* @param int	$user_id			the recipient of this email, 0 means use pre-selected user
+	*
+	* @return boolean
+	* @access public
+	*/
+	function cacheContent(&$job, $content_details, $user_id=0)
+	{
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$page = null;
+		$user = null;
+
+		if (isset($content_details['content_page'])) {
+			$page = $am->getAsset($content_details['content_page']);
+		} else {
+			// error: no content page set
+			//trigger_localised_error('BML0003', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($job->type(), 'name'), $job->name, $job->id);
+			return false;
+		}
+
+		if($user_id) {
+			// if user id is provided (preview mail), load the user instead of pre-selected user
+			$user = $am->getAsset($user_id);
+		} else {
+			if (isset($content_details['bulkmail_user'])) {
+				$user = $am->getAsset($content_details['bulkmail_user']);
+			} else {
+				// error: no bulkmail user set
+				//trigger_localised_error('BML0004', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($job->type(), 'name'), $job->name, $job->id);
+				return false;
+			}
+		}
+
+		// stores the session data if generating content for preview email
+		if ($user_id) $old_session = $_SESSION;
+
+		// login as this user and print page content
+		if(!$GLOBALS['SQ_SYSTEM']->setCurrentUser($user)){
+			// happens when the user is not live or in trash
+			//trigger_localised_error('BML0006', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($user->type(), 'name'), $user->name, $user->id);
+			return false;
+		}
+
+		ob_start();
+			// dont want any notice/warning here
+			@$page->printFrontend();
+			$content = ob_get_contents();
+		ob_end_clean();
+
+		// restore the session data so that current user doesnt get invalid login key error for preview email
+		if ($user_id) {
+			$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
+			$_SESSION = $old_session;
+		}
+
+		// cache html content
+		if(!is_dir($job->data_path.'/.data/cache')) {
+			create_directory($job->data_path.'/.data/cache');
+		}
+		if (!string_to_file($content, $job->data_path.'/.data/cache/content_file.html')) {
+			//echo 'error: cannot cache content\n';
+			return false;
+		}
+
+		return true;
+	}
+
+	 /**
 	* Generates the html bulkmail content based on the user and content generation type
 	*
-	* @param object	&$asset				the asset to which we belong
+	* Used in previewing mail and sending actual bmails (custom content or per user)
+	* Custom content is used for bulkmail_users since we cannot log them in
+	*
+	* @param object	&$job				the asset to which we belong
 	* @param array	$content_details	information related to content generation
 	* @param int	$user_id			the recipient of this email
 	*
@@ -142,98 +218,47 @@ class Bulkmail_Post_Office extends Asset
 	*/
 	function generateBmailContent(&$job, $content_details, $user_id=0)
 	{
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
 		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$type = array_get_index($content_details, 'type', 'group');
-		$cache = false;
+		$type = array_get_index($content_details, 'type', 'each_user');
+		$user = null;
 
-		// check if the content is already cached for group-based
-		if ($type == 'group' && file_exists($this->data_path.'/.data/cache/content_file.html')) {
-			$content = file_to_string($this->data_path.'/.data/cache/content_file.html');
+		// load the cached content, cache is always updated right before this function is called
+		if (file_exists($job->data_path.'/.data/cache/content_file.html')) {
+			$content = file_to_string($job->data_path.'/.data/cache/content_file.html');
+			//echo "load cached content $user_id\n";bam($content);
+		} else {
+			//error
+			return 'error: no cache\n';
 		}
 
-		// get content page asset if necessary
-		if (empty($content)) {
-			if (isset($content_details['content_page'])) {
-				$page = $am->getAsset($content_details['content_page']);
-				//echo " LOADED Content Page (Id #$content_details[content_page]) from am\n";
-			} else {
-				// error: no content page set
-				trigger_localised_error('BML0003', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($job->type(), 'name'), $job->name, $job->id);
-				exit;
-			}
-		}
+		// load this user, for keyword replacement (or content generation)
+		if($user_id) $user = $am->getAsset($user_id);
 
-		// setup user according to generation type
-		switch ($type) {
-			case 'group':
-				// set user for keyword replacement if cached, do not need bulkmail_user to generate content
-				if (!empty($content)) {
-					if($user_id) $user = $am->getAsset($user_id);
-					//echo " LOADED User (Id #$user_id)\n";
-					break;
-				}
-				if (isset($content_details['bulkmail_user'])) {
-					$user = $am->getAsset($content_details['bulkmail_user']);
-					$cache = true;
-					//echo " LOADED Bulkmail User (Id #$content_details[bulkmail_user])\n";
-				} else {
-					// error: no bulkmail user set
-					trigger_localised_error('BML0004', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($job->type(), 'name'), $job->name, $job->id);
-					exit;
-				}
-				break;
-
-			case 'user':
-				if ($user_id) {
-					$user = $am->getAsset($user_id);
-					//echo " LOADED User (Id #$user_id)\n";
-				}
-				break;
-		}
-
-		// skip if content is already generated for group-based
-		// always execute this part for per-user generation
-		if(empty($content)){
-			//echo "create content ONCE\n";
-
-			// stores the session data if generating content for preview email
-			if (!$user_id) $old_session = $_SESSION;
-
+		// always login and generate content for per user basis,
+		// unless the user is a subscriber (bulkmail user) with only an email address
+		if ($type == 'each_user' && !is_null($user) && !is_a($user, 'Bulkmail_User')) {
 			// login as this user and print page content
 			if(!$GLOBALS['SQ_SYSTEM']->setCurrentUser($user)){
 				// happens when the user is not live or in trash
-				trigger_localised_error('BML0006', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($user->type(), 'name'), $user->name, $user->id);
-				return '';
+				//trigger_localised_error('BML0006', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($user->type(), 'name'), $user->name, $user->id);
+				return 'error: cannot set current user\n';
 			}
-
+			if (isset($content_details['content_page'])) {
+				$page = $am->getAsset($content_details['content_page']);
+			}
 			ob_start();
 				// dont want any notice/warning here
 				@$page->printFrontend();
 				$content = ob_get_contents();
 			ob_end_clean();
-
-			// restore the session data so that current user doesnt get invalid login key error for preview email
-			if (!$user_id) {
-				$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
-				$_SESSION = $old_session;
-			}
-
-			// cache html content for group-based
-			if($type == 'group') {
-				if ($cache) create_directory($this->data_path.'/.data/cache');
-				if (!string_to_file($content, $this->data_path.'/.data/cache/content_file.html')) {
-					echo 'error: cannot cache content\n';
-					return '';
-				}
-			}
-		}//end if(empty($content))
+			//echo "per user $user_id\n";bam($content);
+		}
 
 		// keyword replacement
 		if ($user_id && !is_null($user)) {
-			// otherwise will replace keyword for bmail_user instead of this user
-			if ($cache) $user = $am->getAsset($user_id);
 			$content = $this->replaceContentKeyword($content, $user);
+			//echo "keyword replacement $user_id\n"; bam($content);
 		}
 
 		return $content;
@@ -258,7 +283,9 @@ class Bulkmail_Post_Office extends Asset
 		if (is_a($user, 'user')) {
 			$name = $user->attr('first_name').' '.$user->attr('last_name');
 		} else if (is_a($user, 'bulkmail_user')) {
-			$name = $user->attr('username');
+			$name = $user->attr('name');
+			// if bulkmail user does not have a user name, use email address
+			if(empty($name)) $name = $user->attr('email');
 		}
 		$keyword_replacements = Array(
 									'bmail_assetid'		=> $user->id,
@@ -270,27 +297,6 @@ class Bulkmail_Post_Office extends Asset
 		return $content;
 
 	}//end replaceContentKeyword()
-
-
-	/**
-	* Generates a standard preview email
-	*
-	* @param object	&$asset	the asset to which we belong
-	*
-	* @return string
-	* @access public
-	*/
-	function generatePreviewEmail($asset)
-	{
-		$content_details = $asset->attr('content_details');
-		$content_details['content_page'] = $asset->attr('content_assetid');
-		$bmail_content = $this->generateBmailContent($asset, $content_details);
-		$preview_email = "This is a preview of Bulkmail Job (assetid:".$asset->id.")<br />";
-		$preview_email .= "<h1>raw html content</h1><br />".$bmail_content;
-
-		return $preview_email;
-
-	}//end generatePreviewEmail()
 
 
 	/**
@@ -308,7 +314,6 @@ class Bulkmail_Post_Office extends Asset
 			trigger_localised_error('BML0005', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'), $asset->name, $asset->id);
 			exit;
 		}
-
 		// Create the mail object using server_details as parameter
 		$server_details = $asset->getServerDetails();
 		$driver = array_get_index($server_details, 'driver', '');
@@ -319,16 +324,36 @@ class Bulkmail_Post_Office extends Asset
 			trigger_localised_error('BML0001', E_USER_WARNING, $mail_object->getMessage());
 			exit;
 		}
+		$content_details = $asset->attr('content_details');
+		$content_details['content_page'] = $asset->attr('content_assetid');
+		// cache the content as the current user/pre-selected user depending on the content generation method
+		$asset->cacheContent($asset, $content_details, $GLOBALS['SQ_SYSTEM']->currentUserId());
+		$content = $this->generateBmailContent($asset, $content_details);
+
+
+		// We might do this later, texttohtml of some sort
+		$mime = new Mail_mime();
+		//$mime->setTxtBody($textMessage);
+		$mime->setHtmlBody($content);
+		$body = @$mime->get();
+		//$body = $content;
 
 		$header_details = $asset->getHeaderDetails();
-		$content = $this->generatePreviewEmail($asset);
-		$status = $mail_object->send($recipient, $header_details, $content);
+		// add 'Preview' to the subject of the email
+		if(isset($header_details['Subject'])) {
+			$header_details['Subject'] = $header_details['Subject'].' (Preview)';
+		}
+		$headers = @$mime->headers($header_details);
+		//$headers = $header_details;
+		minibam($header_details, 'header_details');
+		minibam($headers, 'headers');
+		//$content = $this->replaceContentKeyword($content, $user);
+		$status = $mail_object->send($recipient, $headers, $body);
 		if (PEAR::isError($status)) {
 			// unable to send bulkmail
 			trigger_localised_error('BML0002', E_USER_WARNING, $status->getMessage());
 			exit;
 		}
-
 		return true;
 
 	}//end sendPreviewMail()
@@ -345,7 +370,7 @@ class Bulkmail_Post_Office extends Asset
 	function generateLog($recipient)
 	{
 		$msg = translate('bulkmail_preview_message');
-		$who = implode("&nbsp; ", $recipient).'<br /> on ';
+		$who = implode(", ", $recipient).'<br /> on ';
 		$when = date('r');
 
 		return $msg."&nbsp; ".$who.$when;

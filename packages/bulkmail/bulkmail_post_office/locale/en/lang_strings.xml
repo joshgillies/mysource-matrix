@@ -10,11 +10,11 @@
 <string source="bulkmail_progress_current_progress">Current Progress</string>
 <string source="bulkmail_progress_detailed_progress">Detailed Progress</string>
 
-<string source="bulkmail_content_detail_per_user">Per User</string>
-<string source="bulkmail_content_detail_per_group">Per Group</string>
-<string source="bulkmail_content_detail_bulkmail_user_field_name">Bulkmail User</string>
-<string source="bulkmail_content_detail_bulkmail_user_field_note">User permission for group based content generation.</string>
-<string source="bulkmail_content_detail_bulkmail_user_warning">Warning: Invalid Bulkmail User, user is either not live or in trash.</string>
+<string source="bulkmail_content_detail_generation_method_use_each_user">Use each User</string>
+<string source="bulkmail_content_detail_generation_method_preselected_user">Pre-selected User</string>
+<string source="bulkmail_content_detail_method_note">Generate content for each individual user, or use one user to generate all content.</string>
+<string source="bulkmail_content_detail_generate_as_field_name">Generate as</string>
+<string source="bulkmail_content_detail_generate_as_field_note">The user to generate content as for all bulkmail users, and all other users if "Pre-selected user" generation is selected.</string>
 
 <string source="bulkmail_server_detail_mail_method_field_name">Mail Method</string>
 <string source="bulkmail_server_detail_host_field_name">Host</string>
@@ -40,13 +40,13 @@
 <string source="bulkmail_clear_log">Clear Preview Log</string>
 
 <string source="bulkmail_warning_job_live">Another Bulkmail Job (Id #%1$s) is currently Live.</string>
-<string source="bulkmail_warning_po_post_office_not_set">Post Office Error: Post Office not set.</string>
-<string source="bulkmail_warning_po_recipient_not_set">Post Office Error: Recipients no set.</string>
-<string source="bulkmail_warning_po_server_details">Post Office Server Details Error: "%1$s".</string>
-<string source="bulkmail_warning_header_from_field">Header Details Error: Missing 'From' field</string>
-<string source="bulkmail_warning_content_page_not_set">Content Details Error: Content Page not set.</string>
-<string source="bulkmail_warning_content_bmail_user_not_set">Content Details Error: Bulkmail User not set for group-based content generation method.</string>
-<string source="bulkmail_warning_content_bmail_user_login_failed">Content Details Error: Unable to generate content as %1$s "%2$s" (Id #%3$s), user is either in trash or not live.</string>
+<string source="bulkmail_warning_po_post_office_not_set">Post Office: Post Office not set.</string>
+<string source="bulkmail_warning_po_recipient_not_set">Bulkmail Job: Recipients not set.</string>
+<string source="bulkmail_warning_po_server_details">Post Office Server Details: "%1$s".</string>
+<string source="bulkmail_warning_header_from_field">Header Details: Missing 'From' field</string>
+<string source="bulkmail_warning_content_page_not_set">Content Details: Content Page not set.</string>
+<string source="bulkmail_warning_content_bmail_user_not_set">Content Details: Custom Content User not set for custom content generation.</string>
+<string source="bulkmail_warning_content_bmail_user_login_failed">Content Details: Unable to generate content as %1$s "%2$s" (Id #%3$s), user is either in trash or not live.</string>
 
 
 

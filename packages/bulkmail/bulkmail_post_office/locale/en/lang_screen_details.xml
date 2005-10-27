@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/10/25 23:37:06 rong Exp $
+* $Id: lang_screen_details.xml,v 1.2 2005/10/27 00:56:30 rong Exp $
 *
 */
 -->
@@ -21,16 +21,6 @@
 		<field attribute="name">
 			<display_name>Name</display_name>
 			<note />
-		</field>
-	</section>
-	<section name="Recipients">
-		<field>
-			<display_name>To</display_name>
-			<note />
-			<function_call>
-				<paint_function name="paintGroups" />
-				<process_function name="processGroups" />
-			</function_call>
 		</field>
 	</section>
 	<section name="Server Details">

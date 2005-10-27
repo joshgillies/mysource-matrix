@@ -11,7 +11,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -34,7 +34,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 //--        DETAILS        --//
 
 	/**
-	* Paints the groups which will recieve the bulkmail
+	* Paints the recipients which will recieve the bulkmail
 	*
 	* @param object	&$asset	the asset to which we belong
 	* @param object	&$o		the outputter class
@@ -43,17 +43,16 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintGroups(&$asset, &$o, $prefix)
+	function paintRecipients(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-
-		$groups = $asset->attr('groups');
+		$recipients = $asset->attr('recipients');
 
 		if ($write_access) {
-			multiple_asset_finder($prefix.'_groups', $groups);
+			multiple_asset_finder($prefix.'_groups', $recipients);
 		} else {
 			?><ul><?php
-				foreach ($groups as $assetid) {
+				foreach ($recipients as $assetid) {
 					$group_asset = null;
 					if (!empty($assetid)) {
 						$group_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -78,7 +77,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 		return $write_access;
 
-	}//end paintGroups()
+	}//end paintRecipients()
 
 
 	/**
@@ -91,7 +90,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function processGroups(&$asset, &$o, $prefix)
+	function processRecipients(&$asset, &$o, $prefix)
 	{
 		// if any child job is currently live, do not save changes
 		if ($asset->hasLiveChild()) return false;
@@ -108,9 +107,9 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		return $asset->setAttrValue('groups', $groups);
+		return $asset->setAttrValue('recipients', $groups);
 
-	}//end processGroups()
+	}//end paintRecipients()
 
 
 	/**
@@ -130,28 +129,30 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 		//$o->openField('Content Generation Method'); // This field is opened in the edit interface
 			$options = Array(
-						'user'	=> translate('bulkmail_content_detail_per_user'),
-						'group'	=> translate('bulkmail_content_detail_per_group'),
+						'each_user'			=> translate('bulkmail_content_detail_generation_method_use_each_user'),
+						'pre_selected_user'	=> translate('bulkmail_content_detail_generation_method_preselected_user'),
 					   );
-			$onChange = 'onChange="switchContentType(this.value)"';
-			$value = array_get_index($content_details, 'type', 'user');
+			//$onChange = 'onChange="switchContentType(this.value)"';
+			$value = array_get_index($content_details, 'type', 'each_user');
 			if ($write_access) {
-				combo_box($prefix.'_content_det_type', $options, false, $value, 0, $onChange);
+				//combo_box($prefix.'_content_det_type', $options, false, $value, 0, $onChange);
+				combo_box($prefix.'_content_det_type', $options, false, $value);
 			} else {
 				echo $options[$value];
 			}
+			$o->note(translate('bulkmail_content_detail_method_note'));
 		$o->closeField();
 
 		// only allow user to set bulkmail user for group based generation method
-		$show_if_group =  !($value == 'group');
+		//$show_if_group =  !($value == 'pre_selected_user');
 		$user_id = array_get_index($content_details, 'bulkmail_user', '0');
 		if ($user_id) {
 			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($user_id);
 		}
 
-		$name = translate('bulkmail_content_detail_bulkmail_user_field_name');
-		$note = translate('bulkmail_content_detail_bulkmail_user_field_note');
-		$o->openField($name, '', $note, $show_if_group, $prefix.'_content_detail_group');
+		$name = translate('bulkmail_content_detail_generate_as_field_name');
+		//$o->openField($name, '', $note, $show_if_group, $prefix.'_content_detail_group');
+		$o->openField($name);
 			if ($write_access) {
 				asset_finder($prefix.'_content_detail_bulkmail_user', $user_id, Array('user' => 'D'));
 			} else {
@@ -165,19 +166,21 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 					}
 				}
 			}
+			$o->note(translate('bulkmail_content_detail_generate_as_field_note'));
+			//$o->note(translate('bulkmail_content_detail_generate_as_extra_note'));
 		//$o->closeField(); // This field is closed in the edit interface
-
+/*
 		// javascript to hide/show Bulkmail User field and it's asset finder
 		?>
 		<script type="text/javascript">
 			function switchContentType(type) {
 				var prefix = '<?php echo $prefix; ?>';
 				var bmailUserField = document.getElementById(prefix + '_content_detail_group');
-				bmailUserField.style['display'] = (type == 'group') ? '' : 'none';
+				bmailUserField.style['display'] = (type == 'pre_selected_user') ? '' : 'none';
 			}
 		</script>
 		<?php
-
+*/
 		return $write_access;
 
 	}//end paintContentDetails()
@@ -198,9 +201,6 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return false;
 
-		// do not save when the job is live
-		if($asset->status == SQ_STATUS_LIVE) return false;
-
 		// once live, content details are not changeable
 		if($asset->status == SQ_STATUS_LIVE) return false;
 
@@ -210,7 +210,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			$content_details['type'] = $_POST[$prefix.'_content_det_type'];
 
 			// save bulkmail user for group-based content generation
-			if (isset($_POST[$prefix.'_content_detail_bulkmail_user']) && $content_details['type'] == 'group') {
+			if (isset($_POST[$prefix.'_content_detail_bulkmail_user']) && $content_details['type'] == 'pre_selected_user') {
 				$content_details['bulkmail_user'] = $_POST[$prefix.'_content_detail_bulkmail_user']['assetid'];
 			}
 		}
@@ -219,41 +219,6 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	}//end processContentDetails()
-
-
-	/**
-	* View the current status of the job, and allow the user to start/pause/resume
-	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
-	*
-	* @return void
-	* @access public
-	*/
-	function paintStatus(&$asset, &$o, $prefix)
-	{
-		echo 'Start/Pause/Resume';
-		return true;
-
-	}//end paintStatus()
-
-
-	/**
-	* Process the start/pause/resuming of jobs
-	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
-	*
-	* @return void
-	* @access public
-	*/
-	function processStatus(&$asset, &$o, $prefix)
-	{
-		return true;
-
-	}//end processStatus()
 
 
 	/**
@@ -503,7 +468,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 						} else {
 							?><tr>
 								<td align="left" class="sq-backend-table-cell"><?php echo $field_name;?></td>
-								<td align="left" class="sq-backend-table-cell" colspan="2"><?php echo $field_body;?></td>
+								<td align="left" class="sq-backend-table-cell" colspan="2"><?php echo htmlspecialchars($field_body);?></td>
 							</tr><?php
 						}
 						$index++;
@@ -578,6 +543,79 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	}//end processHeaderDetails()
+
+
+	/**
+	* Paint the threshold settings
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintThresholds(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$threshold = $asset->attr('threshold');
+		if (empty($threshold)) {
+			$threshold = Array(
+							'type'	=> 'Chunk',
+							'value'	=> '0',
+						 );
+		}
+
+		$threshold_types = Array(
+							'Chunk'		=> 'Send&nbsp;%s&nbsp;emails per hour',
+							'Spread'	=> 'Send all emails over&nbsp;%s&nbsp;hours',
+							'ASAP'		=> 'Send all emails at once, don\'t worry about splitting it up',
+						   );
+
+		$o->openField('Type');
+			if ($write_access) {
+				foreach ($threshold_types as $threshold_type => $threshold_desc) {
+					if (isset($threshold['type']) && $threshold_type == $threshold['type']) {
+						$checked = true;
+						$value = $threshold['value'];
+					} else {
+						$checked = false;
+						$value = '';
+					}
+
+					ob_start();
+						int_text_box($prefix.'_threshold_'.$threshold_type, $value, false, 3);
+						$input_box = ob_get_contents();
+					ob_end_clean();
+					radio_button($prefix.'_threshold_type', $threshold_type, $checked);
+					echo sprintf($threshold_desc, $input_box), '<br />';
+				}
+				$o->note('Please select one of the following threshold types, and fill in a value:<br />');
+			} else {
+				echo 'The thresholding type is currently set to "'.$threshold['type'].'" - '.sprintf($threshold_types[$threshold['type']], $threshold['value']);
+			}
+		$o->closeField();
+		return true;
+
+	}//end paintThresholds()
+
+
+	/**
+	* Process the threshold settings
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processThresholds(&$asset, &$o, $prefix)
+	{
+		// this is done in processOptionalAddresses()
+		return true;
+
+	}//end processThresholds()
 
 
 //--        PREVIEW        --//
@@ -682,7 +720,9 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 		$recipient = Array();
 		if (isset($_REQUEST[$prefix.'_alternative_address'])) {
-			$recipient[] = $_REQUEST[$prefix.'_alternative_address'];
+			if(!empty($_REQUEST[$prefix.'_alternative_address'])) {
+				$recipient[] = $_REQUEST[$prefix.'_alternative_address'];
+			}
 		}
 
 		// if use_default box is checked, send the preview to default address too
@@ -694,7 +734,6 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 		// no duplicate copies to the same address
 		$recipient = array_unique($recipient);
-		sort($recipient);
 
 		if (!empty($recipient)) {
 
@@ -775,79 +814,6 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	}//end processPreviewLog()
-
-
-	/**
-	* Paint the threshold settings
-	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintThresholds(&$asset, &$o, $prefix)
-	{
-		$write_access = $asset->writeAccess('attributes');
-		$threshold = $asset->attr('threshold');
-		if (empty($threshold)) {
-			$threshold = Array(
-							'type'	=> 'Chunk',
-							'value'	=> '0',
-						 );
-		}
-
-		$threshold_types = Array(
-							'Chunk'		=> 'Send&nbsp;%s&nbsp;emails per hour',
-							'Spread'	=> 'Send all emails over&nbsp;%s&nbsp;hours',
-							'ASAP'		=> 'Send all emails at once, don\'t worry about splitting it up',
-						   );
-
-		$o->openField('Type');
-			if ($write_access) {
-				foreach ($threshold_types as $threshold_type => $threshold_desc) {
-					if (isset($threshold['type']) && $threshold_type == $threshold['type']) {
-						$checked = true;
-						$value = $threshold['value'];
-					} else {
-						$checked = false;
-						$value = '';
-					}
-
-					ob_start();
-						int_text_box($prefix.'_threshold_'.$threshold_type, $value, false, 3);
-						$input_box = ob_get_contents();
-					ob_end_clean();
-					radio_button($prefix.'_threshold_type', $threshold_type, $checked);
-					echo sprintf($threshold_desc, $input_box), '<br />';
-				}
-				$o->note('Please select one of the following threshold types, and fill in a value:<br />');
-			} else {
-				echo 'The thresholding type is currently set to "'.$threshold['type'].'" - '.sprintf($threshold_types[$threshold['type']], $threshold['value']);
-			}
-		$o->closeField();
-		return true;
-
-	}//end paintThresholds()
-
-
-	/**
-	* Process the threshold settings
-	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processThresholds(&$asset, &$o, $prefix)
-	{
-		// this is done in processOptionalAddresses()
-		return true;
-
-	}//end processThresholds()
 
 
 }//end class
