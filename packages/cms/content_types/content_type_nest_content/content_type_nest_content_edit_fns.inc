@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.31 2005/08/16 07:01:57 dmckee Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.32 2005/10/28 04:55:21 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -57,7 +57,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	{
 		if ($asset->writeAccess('links') && $asset->writeAccess('attributes')) {
 			$nested_asset = &$this->_getNestedAsset($asset);
-			$asset_link = &$GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
+			$asset_link = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
 			if (empty($asset_link)) {
 				$asset_link = strip_url(current_url(false, true)).'/?a='.$nested_asset->id;
 			}
@@ -269,7 +269,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		if (!empty($nested_link)) {
 			return $GLOBALS['SQ_SYSTEM']->am->getAsset($nested_link['minorid'], $nested_link['minor_type_code'], true);
 		} else {
-			return null;
+			$null_asset = null;
+			return $null_asset;
 		}
 
 	}//end _getNestedAsset()
