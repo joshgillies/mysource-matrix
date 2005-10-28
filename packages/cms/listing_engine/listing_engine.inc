@@ -18,13 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.111 2005/10/27 00:44:54 lwright Exp $
+* $Id: listing_engine.inc,v 1.112 2005/10/28 06:39:49 lwright Exp $
 *
 */
 
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
+require_once SQ_FUDGE_PATH.'/general/www.inc';
 
 /**
 * Listing_Engine
@@ -43,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.111 $
+* @version $Revision: 1.112 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -498,9 +499,16 @@ class Listing_Engine extends Page
 				$replacements['last_asset_position'] = min($replacements['asset_count'], $num_per_page * $result_page);
 			}
 
+			$replacements['select_all_js_code'] = $this->getSelectAllJSCodeKeywordReplacement();
+
 			// print the contents of page - replacing the global keywords
 			$format_bodycopy->setKeywordReplacements($replacements);
 			ob_start();
+				if (!in_array('select_all_js_code', $keywords)) {
+					// there is no asset listing keyword in the contents, so we dont
+					// need to do all the extra processing for the listing
+					echo $this->getSelectAllJSCodeKeywordReplacement();
+				}
 				$format_bodycopy->printBody();
 				if (!empty($cache_key)) {
 					$cm->saveToCache($this->id, $this->type(), $cache_key, ob_get_contents());
@@ -1371,6 +1379,7 @@ class Listing_Engine extends Page
 
 		// in case it wasn't done beforehand in printContents() or something
 		$relations = $this->_analyseCheckAllRelations($todo);
+		ob_start();
 		?>
 		<script type="text/javascript">
 		<!--
@@ -1378,6 +1387,8 @@ class Listing_Engine extends Page
 		//-->
 		</script>
 		<?php
+		$this->_tmp['js_relation_code'] = ob_get_clean();
+
 		if ($this->attr('group_by') == 'grouped') {
 			$this->_printGroups($todo, $this->attr('asset_grouping'));
 		} else {
@@ -1485,7 +1496,7 @@ class Listing_Engine extends Page
 							ob_start();
 							$onclick = Array();
 							$group_cb_id  = 'g_'.implode('_', $this->_tmp['group_info']);
-							$control_name = str_replace(' ', '_', $selection_name.'_'.$group_cb_id);
+							$control_name = make_valid_html_id(str_replace(' ', '_', $selection_name.$group_cb_id));
 							check_box($control_name, '1', false, 'sq_listing_check_state(this, \''.$selection_name.'\')');
 							$replacements[$selection_name.'_check_all_in_group'] = ob_get_clean();
 						}
@@ -1906,18 +1917,22 @@ class Listing_Engine extends Page
 
 				switch (array_get_index($settings, 'type', $selection_defaults['type'])) {
 					case 'textbox':
-						$selection_id = str_replace(' ', '_', $selection_name.'['.$assetid.']');
+						$selection_name_field = str_replace(' ', '_', $selection_name.'['.$assetid.']');
+						$selection_id = make_valid_html_id(str_replace(' ', '_', $selection_name.'_'.$assetid), '_');
+
 						if ($buffering) {
 							if ($selection_restrict_enable) {
-								int_text_box($selection_id, $selection_value, $selection_allow_negative, 3, $selection_restrict_min, $selection_restrict_max);
+								int_text_box($selection_name_field, $selection_value, $selection_allow_negative, 3, $selection_restrict_min, $selection_restrict_max, '', false, 'id="'.$selection_id.'"');
 							} else {
-								int_text_box($selection_id, $selection_value, $selection_allow_negative, 3);
+								int_text_box($selection_name_field, $selection_value, $selection_allow_negative, 3, null, null, '', false, 'id="'.$selection_id.'"');
 							}
 						}
 					break;
 
 					case 'selection':
-						$selection_id = str_replace(' ', '_', $selection_name.'['.$assetid.']');
+						$selection_name_field = str_replace(' ', '_', $selection_name.'['.$assetid.']');
+						$selection_id = make_valid_html_id(str_replace(' ', '_', $selection_name.'_'.$assetid), '_');
+
 						if ($buffering) {
 							// list contents
 							$selection_list = Array();
@@ -1935,25 +1950,28 @@ class Listing_Engine extends Page
 							}
 
 							// list display
-							combo_box($selection_id, $selection_list, $selection_allow_multiple, $selection_value);
+							combo_box($selection_name_field, $selection_list, $selection_allow_multiple, $selection_value, 0, 'id="'.$selection_id.'"');
 						}
 					break;
 
 					case 'radio':
 					default:
 						if ($selection_allow_multiple) {
-							$selection_id = str_replace(' ', '_', $selection_name.'['.$assetid.']');
+							$selection_name_field = str_replace(' ', '_', $selection_name.'['.$assetid.']');
+							$selection_id = make_valid_html_id(str_replace(' ', '_', $selection_name.'_'.$assetid), '_');
 
 							if ($buffering) {
-								check_box($selection_id, '1', ($selection_value > 0 ? true : false), "sq_listing_check_state(this, '".$selection_name."')");
+								check_box($selection_name_field, '1', ($selection_value > 0 ? true : false), "sq_listing_check_state(this, '".$selection_name."')", 'id="'.$selection_id.'"');
 								// the flag is used to determine whether a checkbox is
 								// present and not ticked, or not present at all
 								//hidden_field($selection_name.'_flag', '1');
 							}
 						} else {
-							$selection_id = str_replace(' ', '_', $selection_name);
+							$selection_name_field = str_replace(' ', '_', $selection_name);
+							$selection_id = make_valid_html_id(str_replace(' ', '_', $selection_name.'_'.$assetid), '_');
+
 							if ($buffering) {
-								radio_button($selection_id, $assetid, ($selection_value == $assetid ? true : false));
+								radio_button($selection_name_field, $assetid, ($selection_value == $assetid ? true : false), '', 'id="'.$selection_id.'"');
 							}
 						}
 					break;
@@ -1963,6 +1981,7 @@ class Listing_Engine extends Page
 				if ($buffering) {
 					$keywords[$selection_name.'_asset_selection'] = ob_get_clean();
 				}
+				$keywords[$selection_name.'_selection_name'] = $selection_name_field;
 				$keywords[$selection_name.'_selection_id'] = $selection_id;
 			}
 		}
@@ -2764,6 +2783,8 @@ class Listing_Engine extends Page
 		$keywords['last_asset_position']	= translate('cms_listing_last_asset_position');
 		$keywords['unique_asset_count']     = translate('cms_listing_unique_asset_count');
 
+		$keywords['select_all_js_code']		= 'Select All Script Code';
+
 		$selections = $this->attr('asset_selections');
 		if (is_array($selections) && !empty($selections)) {
 			foreach ($selections as $name => $settings) {
@@ -2838,7 +2859,7 @@ class Listing_Engine extends Page
 		if (is_array($selections) && !empty($selections)) {
 			foreach ($selections as $name => $settings) {
 				if (array_get_index($settings, 'type', '') == 'radio' && !empty($settings['options']['allow_multiple'])) {
-					$keywords[$name.'_check_all'] = translate('cms_listing_asset_selection_check_all_in_group', $name);
+					$keywords[$name.'_check_all_in_group'] = translate('cms_listing_asset_selection_check_all_in_group', $name);
 				}
 			}
 		}
@@ -2935,7 +2956,7 @@ class Listing_Engine extends Page
 				ob_start();
 				$onclick = Array();
 				$group_cb_id  = 'all';
-				$control_name = str_replace(' ', '_', $selection_name.'_'.$group_cb_id);
+				$control_name = str_replace(' ', '_', $selection_name.$group_cb_id);
 				check_box($control_name, '1', false, "sq_listing_check_state(this, '".$selection_name."')");
 				$replacements[$selection_name.'_check_all'] = ob_get_clean();
 			} else {
@@ -3136,6 +3157,13 @@ class Listing_Engine extends Page
 	}//end getStructuredRootNodeKeywordReplacement()
 
 
+	function getSelectAllJSCodeKeywordReplacement()
+	{
+		return array_get_index($this->_tmp, 'js_relation_code', '');
+
+	}//end getSelectAllJSCodeKeywordReplacement()
+
+
 //--        ASSET SELECTION HELPERS        --//
 
 
@@ -3192,7 +3220,7 @@ class Listing_Engine extends Page
 			if (($this->attr('group_by') == 'grouped') && (count($this->attr('asset_grouping')) > 0)) {
 				$new_rel = Array('parent' => '_all', 'children' => Array());
 				foreach (array_keys($todo) as $group_id) {
-					$new_rel['children'][] = '_g_'.$group_id;
+					$new_rel['children'][] = 'g_'.$group_id;
 				}
 			} else {
 				$new_rel = Array('parent' => '_all', 'children' => Array());
@@ -3203,7 +3231,7 @@ class Listing_Engine extends Page
 			}
 			$relations = Array($new_rel);
 
-			$this->_recurseCheckAllRelations($todo, $relations, '_g_', count($this->attr('asset_grouping')));
+			$this->_recurseCheckAllRelations($todo, $relations, 'g_', count($this->attr('asset_grouping')));
 			$this->_tmp['check_all_relations'] =& $relations;
 		}
 
@@ -3230,9 +3258,24 @@ class Listing_Engine extends Page
 		foreach ($rels as $rel) {
 			$parent_code = str_replace(' ', '_', $rel['parent']);
 			for (reset($rel['children']); null !== ($k = key($rel['children'])); next($rel['children'])) {
-				$rel['children'][$k] = str_replace(' ', '_', $rel['children'][$k]);
+				if (preg_match('|\[(.*)\]|', $rel['children'][$k], $matches)) {
+					$rel['children'][$k] = $matches[1];
+					$bracketed = true;
+				} else {
+					$bracketed = false;
+				}
+
+				if (is_numeric($rel['children'][$k])) {
+					$rel['children'][$k] = str_replace(' ', '_', $rel['children'][$k]);
+				} else {
+					$rel['children'][$k] = make_valid_html_id(str_replace(' ', '_', $rel['children'][$k]));
+				}
+
+				if ($bracketed) {
+					$rel['children'][$k] = '['.$rel['children'][$k].']';
+				}
 			}
-			$select_lines[] = "[['".$parent_code."'], ['".implode("', '", $rel['children'])."']]";
+			$select_lines[] = "[['".make_valid_html_id($parent_code)."'], ['".implode("', '", $rel['children'])."']]";
 		}
 		$code .= implode(', ', $select_lines);
 
