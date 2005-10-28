@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.33 2005/09/21 04:14:09 bcaldwell Exp $
+* $Id: int.inc,v 1.34 2005/10/28 01:56:58 tbarrett Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <int width="10" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -146,7 +146,7 @@ class Asset_Attribute_Int extends Asset_Attribute
 		if (!isset($_REQUEST[$prefix])) return false;
 		$value = $_REQUEST[$prefix];
 		if ($value !== '') $value = (int)$value;
-		if ($this->value != $value && $this->setValue($value)) {
+		if ($this->value !== $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {
 			$this->processed = false;
@@ -165,26 +165,41 @@ class Asset_Attribute_Int extends Asset_Attribute
 	*/
 	function validateValue(&$value)
 	{
-		$value = trim($value);
+		// zero is always OK
+		if ($value === 0) return true;
+		if ($value === '0') return true;
 
-		$allow_negative = array_get_index($this->_params, 'allow_negative', true);
+		// empty string is OK if enabled
 		$allow_empty = array_get_index($this->_params, 'allow_empty', true);
-
 		if ($allow_empty && ($value === '')) {
 			return true;
 		}
 
-		if (!$allow_negative && $value < 0) {
+
+		// anything else that equates to zero is not OK
+		if ($value == 0) {
 			$value = $this->_default_value;
+			return false;  // must be something else that equates to zero
 		}
 
-		$new_value = (int)$value;
+		$allow_negative = array_get_index($this->_params, 'allow_negative', true);
+		if (!$allow_negative && $value < 0) {
+			$value = $this->_default_value;
+			return false;
+		}
 
-		// we are comparing by string here, reason is that passing in a string as $value
-		// becomes comparing $value with zero which is TRUE. So instead we would be comparing
-		// it with a string '0', which is FALSE and what we want for it to invalidate.
-		// Only genuine ints will pass through.
-		if ((string)$new_value != $value) return false;
+		$range_lower = array_get_index($this->_params, 'range_lower', null);
+		if (!is_null($range_lower) && ($value < $range_lower)) {
+			$value = $this->_default_value;
+			return false;
+		}
+
+		$range_upper = array_get_index($this->_params, 'range_upper', null);
+		if (!is_null($range_upper) && ($value > $range_upper)) {
+			$value = $this->_default_value;
+			return false;
+		}
+
 		return true;
 
 	}//end validateValue()
