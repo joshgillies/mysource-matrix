@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.8 2005/10/17 01:41:26 pgannavarapu Exp $
+* $Id: data_source_db.inc,v 1.9 2005/10/28 06:51:02 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -103,11 +103,21 @@ class Data_Source_DB extends Data_Source
 		//if the query is already excuted then we get results from cache otherwise we execute the
 		//query (only if in execute mode or the cache manager returns aan empty string instead of an empty array)
 		$result = parent::getResultSet();
+		if (empty($result)) {
+			if (isset($this->_tmp[$sql])) {
+				$result = $this->_tmp[$sql];
+			}
+			if (!empty($result)) {
+				$this->setResultSet($result);
+			}
+		}
 		$mode = $this->attr('mode');
-		if ((empty($result) && !is_array($result)) || ($mode == 'execute')) {
+		//if ((empty($result) && !is_array($result)) || ($mode == 'execute')) {
+		if ($mode == 'execute') {
 			if (!empty($sql)) {
 				$result = $this->_executeQuery($sql);
 				$this->setResultSet($result);
+				$this->_tmp[$sql] = $result;
 			}
 		}
 		return $result;
@@ -128,7 +138,7 @@ class Data_Source_DB extends Data_Source
 		$result = Array();
 		$dsn = $this->attr('dsn');
 		if (!empty($dsn)) {
-			$conn =& $this->connectToDB();
+			$conn = $this->connectToDB();
 			$result = $conn->getAll($sql);
 			assert_valid_db_result($result);
 		}

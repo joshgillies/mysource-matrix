@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.7 2005/10/17 01:41:27 pgannavarapu Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.8 2005/10/28 06:51:02 pgannavarapu Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -455,7 +455,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		$conn = null;
 		if (!empty($dsn)) {
 			if (empty($this->conn)) {
-				$conn =& $asset->connectToDB();
+				$conn = $asset->connectToDB();
 			} else {
 				$conn = $this->conn;
 			}
@@ -750,7 +750,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	function _getFields($tables, &$asset)
 	{
-		$conn =& $asset->connectToDB();
+		$conn = $asset->connectToDB();
 		$fields = Array();
 		if (!is_array($tables)) $tables = Array($tables);
 		$db_type = $asset->attr('db_type');
@@ -771,7 +771,11 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 			assert_valid_db_result($result);
 			if (!empty($result)) {
 				foreach ($result as $record) {
-					$fields[$table][$table.'.'.$record['Field']] = $record['Field'];
+					if ($db_type == 'mysql') {
+						$fields[$table][$table.'.'.$record['Field']] = $record['Field'];
+					} else {
+						$fields[$table][$table.'.'.$record['column_name']] = $record['column_name'];
+					}
 				}
 				if (empty($record)) $fields[$table] = '';
 			}
@@ -984,6 +988,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 						$priority[] = $val['priority'];
 					}
 					$result = asort($groups);
+					/*
 					if ($fields != '*') {
 						$fields = explode(', ', $fields);
 					} else {
@@ -1001,7 +1006,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 								$groups[$field] = $last_priority + 1;
 							}
 						}
-					}
+					}*/
 					foreach ($groups as $field => $priority) {
 						$sql .= '<br />'.$field.',';
 					}
