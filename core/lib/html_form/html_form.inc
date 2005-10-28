@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.104 2005/10/27 23:54:59 lwright Exp $
+* $Id: html_form.inc,v 1.105 2005/10/28 00:12:09 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.105 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1341,35 +1341,5 @@ function draw_tree($tree, &$all_child_links, &$output_tree, $branch='', $level=0
 	}
 }//end draw_tree()
 
-
-/**
-* Make a valid (X)HTML ID from a string
-*
-* W3C's (X)HTML definition notes that ID field can only contain letters, numbers
-* and these punctuation marks [:_.-]. First character must be a letter.
-*
-* Rules for this function:
-* - Replace all characters of the ID with the $replace_char
-* - If the resulting first character of the ID is not a letter, drop it
-*   (regardless of $replace_char - we can't replace with $replace_char because
-*    it probably won't be a letter, more likely something like '_').
-*
-* @return string
-* @access public
-*/
-function make_valid_html_id($id, $replace_char='') {
-	if (!preg_match('/[A-Za-z0-9:_.-]*/', $replace_char)) {
-		trigger_localised_error('SYS0310', E_USER_WARNING, $replace_char);
-		$replace_char = '';
-	}
-	$id = preg_replace('/[^A-Za-z0-9:_.-]/', $replace_char, $id);
-
-	// keep dropping first character until we get a valid one
-	while (!empty($id) && preg_match('/[^A-Za-z]/', $id{0})) {
-		$id = substr($id, 1);
-	}
-	return $id;
-
-}//end make_valid_html_id()
 
 ?>
