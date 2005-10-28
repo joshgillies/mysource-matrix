@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.34 2005/10/28 01:56:58 tbarrett Exp $
+* $Id: int.inc,v 1.35 2005/10/28 03:10:47 tbarrett Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <int width="10" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -165,37 +165,41 @@ class Asset_Attribute_Int extends Asset_Attribute
 	*/
 	function validateValue(&$value)
 	{
-		// zero is always OK
+		// empty string is OK if enabled
+		if ($value === '') {
+			$allow_empty = array_get_index($this->_params, 'allow_empty', true);
+			if ($allow_empty && ($value === '')) {
+				return true;
+			} else {
+				// we'll be nice and turn this into int zero rather than erroring
+				$value = (int)$value;
+			}
+		}
+
+		$range_lower = array_get_index($this->_params, 'range_lower', false);
+		if (!empty($range_lower) && ($value < $range_lower)) {
+			$value = $this->_default_value;
+			return false;
+		}
+
+		$range_upper = array_get_index($this->_params, 'range_upper', false);
+		if (!empty($range_upper) && ($value > $range_upper)) {
+			$value = $this->_default_value;
+			return false;
+		}
+
+		// unless one of the range checks failed, zero is OK
 		if ($value === 0) return true;
 		if ($value === '0') return true;
 
-		// empty string is OK if enabled
-		$allow_empty = array_get_index($this->_params, 'allow_empty', true);
-		if ($allow_empty && ($value === '')) {
-			return true;
-		}
-
-
-		// anything else that equates to zero is not OK
+		// anything else that equates to int zero is not OK
 		if ($value == 0) {
 			$value = $this->_default_value;
-			return false;  // must be something else that equates to zero
+			return false;
 		}
 
 		$allow_negative = array_get_index($this->_params, 'allow_negative', true);
 		if (!$allow_negative && $value < 0) {
-			$value = $this->_default_value;
-			return false;
-		}
-
-		$range_lower = array_get_index($this->_params, 'range_lower', null);
-		if (!is_null($range_lower) && ($value < $range_lower)) {
-			$value = $this->_default_value;
-			return false;
-		}
-
-		$range_upper = array_get_index($this->_params, 'range_upper', null);
-		if (!is_null($range_upper) && ($value > $range_upper)) {
 			$value = $this->_default_value;
 			return false;
 		}
