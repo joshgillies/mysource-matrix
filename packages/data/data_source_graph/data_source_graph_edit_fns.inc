@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_edit_fns.inc,v 1.2 2005/10/17 01:52:14 pgannavarapu Exp $
+* $Id: data_source_graph_edit_fns.inc,v 1.3 2005/10/28 06:59:26 pgannavarapu Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -175,29 +175,27 @@ class Data_Source_Graph_Edit_Fns extends Asset_Edit_Fns
 	{
 		$wa = $asset->writeAccess('attributes');
 		$already_linked = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'data_source', false, 'data_source_for_graph');
-		?>
-			<?php
-			if ($wa) {
+		if ($wa) {
+			?>
+			<table>
+			<tr>
+				<td><?php asset_finder($prefix.'_data_source', !empty($already_linked)? $already_linked['minorid'] : 0, Array('data_source_db'	=> 'I', 'data_source_rss'	=> 'I'));?></td>
+			</tr>
+			</table>
+		<?php
+		} else {
+			if (!empty($already_linked)) {
 				?>
 				<table>
 				<tr>
-					<td><?php asset_finder($prefix.'_data_source', !empty($already_linked)? $already_linked['minorid'] : 0, Array('data_source_db'	=> 'I', 'data_source_rss'	=> 'I'));?></td>
+					<td><b><?php echo translate('current_data_source_id');?></b></td>
+					<td><b><?php echo $already_linked['minorid'];?></b></td>
 				</tr>
 				</table>
 			<?php
-			} else {
-				if (!empty($already_linked)) {
-					?>
-					<table>
-					<tr>
-						<td><b><?php echo translate('current_data_source_id');?></b></td>
-						<td><b><?php echo $already_linked['minorid'];?></b></td>
-					</tr>
-					</table>
-				<?php
-				}
 			}
-			return true;
+		}
+		return true;
 
 	}//end paintDataSourceChooser()
 

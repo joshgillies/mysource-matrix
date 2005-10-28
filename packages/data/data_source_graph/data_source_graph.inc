@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.2 2005/10/17 01:52:13 pgannavarapu Exp $
+* $Id: data_source_graph.inc,v 1.3 2005/10/28 06:59:26 pgannavarapu Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -197,9 +197,13 @@ class Data_Source_Graph extends Asset
 
 				//setting label intervals for axes
 				$interval = $this->attr('x_set_interval');
-				$x_axis->setLabelInterval($interval);
+				if (!empty($interval)) {
+					$x_axis->setLabelInterval($interval);
+				}
 				$interval = $this->attr('y_set_interval');
-				$y_axis->setLabelInterval($interval);
+				if (!empty($interval)) {
+					$y_axis->setLabelInterval($interval);
+				}
 
 				$dataset =& Image_Graph::factory('dataset');
 				$data = Array();
@@ -329,6 +333,30 @@ class Data_Source_Graph extends Asset
 		return ($this->attr('name'));
 
 	}//end _getName()
+
+
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Pages add a default web path when they are created
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!parent::_createAdditional($link)) return false;
+
+		// set an initial web path
+		$initial_path = strtolower($this->attr('name'));
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_paths = make_valid_web_paths(Array($initial_path));
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
+		return $this->saveWebPaths($good_paths);
+
+	}//end _createAdditional()
 
 
 	/**

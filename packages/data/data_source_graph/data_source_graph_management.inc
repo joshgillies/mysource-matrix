@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_management.inc,v 1.2 2005/10/17 01:52:14 pgannavarapu Exp $
+* $Id: data_source_graph_management.inc,v 1.3 2005/10/28 06:59:26 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -296,13 +296,13 @@ class Data_Source_Graph_Management extends Asset_Management
 						'x_set_interval'	=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'int',
-												'default'		=> 1,
+												'default'		=> 0,
 												'description'	=> 'x-axis set label interval',
 											   ),
 						'y_set_interval'	=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'int',
-												'default'		=> 1,
+												'default'		=> 0,
 												'description'	=> 'y-axis set label interval',
 											   ),
 					  );

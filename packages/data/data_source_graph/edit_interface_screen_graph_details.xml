@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_graph_details.xml,v 1.1 2005/10/17 01:56:35 pgannavarapu Exp $
+* $Id: edit_interface_screen_graph_details.xml,v 1.2 2005/10/28 06:59:26 pgannavarapu Exp $
 *
 */
 -->
@@ -117,7 +117,7 @@
 		<field attribute="value_marker">
 			<selection style="list" />
 		</field>
-		<field attribute="general_marker" >
+		<field attribute="general_marker">
 			<selection style="list" />
 		</field>
 		<field attribute="marker_type" show_if="valueMarkerNotEmpty">
