@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_management.inc,v 1.8 2005/10/06 00:09:53 emcdonald Exp $
+* $Id: thesaurus_management.inc,v 1.9 2005/10/28 03:09:35 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -83,7 +83,7 @@ class Thesaurus_Management extends Asset_Management
 													'added'			=> '0.2',
 													'type'			=> 'int',
 													'description'	=> 'The id of the primary relationship. For use by the asset map.',
-													'default'		=> null,
+													'default'		=> '',
 													'parameters'	=> Array(
 																		'allow_negative'	=> false,
 																		'allow_empty'		=> true,
