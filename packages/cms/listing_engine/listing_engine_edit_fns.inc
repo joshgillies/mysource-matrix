@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.45 2005/10/27 00:44:54 lwright Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.46 2005/10/28 04:20:04 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2299,7 +2299,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					<td class="sq-backend-table-cell">
 
 						<?php
-							$options =& array_get_index($settings, 'options', Array());
+							$options = array_get_index($settings, 'options', Array());
 						?>
 
 						<table style="width: 100%; border: 0;">
