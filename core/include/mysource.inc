@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.145 2005/10/18 05:50:06 mmcintyre Exp $
+* $Id: mysource.inc,v 1.146 2005/10/28 05:22:59 ndvries Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.145 $
+* @version $Revision: 1.146 $
 * @package MySource_Matrix
 */
 class MySource
@@ -176,6 +176,14 @@ class MySource
 	* @var array(string)
 	*/
 	var $_msgs;
+
+
+	/**
+	* Array of globally defined variables
+	*
+	* @var array(string)
+	*/
+	var $_global_defines;
 
 
 	/**
@@ -404,6 +412,74 @@ class MySource
 		$this->db->disconnect();
 
 	}//end start()
+
+
+//--        GLOBAL DEFINES        --//
+
+
+	/**
+	* Set a new global define, or overwrite the value of an existing one
+	*
+	* @param string	$index	the index of the variable
+	* @param string	$value	the value of the variable
+	*
+	* @return void
+	* @access public
+	*/
+	function setGlobalDefine($index, $value)
+	{
+		if (!empty($index)) {
+			$this->_global_defines[$index] = $value;
+		}
+
+	}//end setGlobalDefine()
+
+
+	/**
+	* Unset a global define
+	*
+	* @param string	$index	the index of the variable
+	*
+	* @return void
+	* @access public
+	*/
+	function unsetGlobalDefine($index)
+	{
+		unset($this->_global_defines[$index]);
+
+	}//end unsetGlobalDefine()
+
+
+	/**
+	* Get the value of a global define, or $default if the variable doesn't exist
+	*
+	* @param string	$index		the index of the variable
+	* @param string	$default	a default value to return if $index not set
+	*
+	* @return mixed int|float|string|boolean|array|object|void|null
+	* @access public
+	*/
+	function getGlobalDefine($index, $default=null)
+	{
+		if (!is_array($this->_global_defines)) return $default;
+		return $this->isGlobalDefineSet($index) ? $this->_global_defines[$index] : $default;
+
+	}//end getGlobalDefine()
+
+
+	/**
+	* Check if a globally defined variable has been set
+	*
+	* @param string	$index	the index of the variable
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isGlobalDefineSet($index)
+	{
+		return (isset($this->_global_defines[$index])) ? true : false;
+
+	}//end isGlobalDefineSet()
 
 
 //--        LOGGING USERS IN, OUT AND ABOUT        --//
