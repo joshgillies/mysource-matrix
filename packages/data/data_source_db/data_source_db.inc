@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.9 2005/10/28 06:51:02 pgannavarapu Exp $
+* $Id: data_source_db.inc,v 1.10 2005/10/30 23:15:43 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -107,9 +107,7 @@ class Data_Source_DB extends Data_Source
 			if (isset($this->_tmp[$sql])) {
 				$result = $this->_tmp[$sql];
 			}
-			if (!empty($result)) {
-				$this->setResultSet($result);
-			}
+			if (!empty($result)) $this->setResultSet($result);
 		}
 		$mode = $this->attr('mode');
 		//if ((empty($result) && !is_array($result)) || ($mode == 'execute')) {

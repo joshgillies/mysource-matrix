@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_rss.inc,v 1.1 2005/10/28 06:59:27 pgannavarapu Exp $
+* $Id: data_source_rss.inc,v 1.2 2005/10/30 23:15:43 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -73,9 +73,7 @@ class Data_Source_RSS extends Data_Source
 				if (isset($this->_tmp[$url])) {
 					$result = $this->_tmp[$url];
 				}
-				if (empty($result)) {
-					$result = $this->getItems();
-				}
+				if (empty($result)) $result = $this->getItems();
 				if (!empty($result)) {
 					parent::setResultSet($result);
 					$this->_tmp[$url] = $result;
@@ -106,7 +104,7 @@ class Data_Source_RSS extends Data_Source
 				//title, description and link
 				if ($type == 'atom_1.0') {
 					if (isset($val_array['value'])) {
-						switch($tag) {
+						switch ($tag) {
 							case 'content':
 								$new_result[$index]['description'] = $val_array['value'];
 							break;
