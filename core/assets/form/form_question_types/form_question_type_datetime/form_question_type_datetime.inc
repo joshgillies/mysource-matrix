@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.2 2005/10/07 00:01:25 lwright Exp $
+* $Id: form_question_type_datetime.inc,v 1.3 2005/10/30 23:26:29 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -189,6 +189,8 @@ class Form_Question_Type_Datetime extends Form_Question
 	*/
 	function getSummary()
 	{
+
+
 		$allow_circa = false;
 		$show_params = $this->attr('show');
 		if ($show_params['c']) $allow_circa = true;
@@ -204,9 +206,36 @@ class Form_Question_Type_Datetime extends Form_Question
 
 		// break apart the date into correct portions
 		list($val['y'], $val['m'], $val['d']) = sscanf($date, '%04s-%02s-%02s');
+		list($val['h'], $val['i'], $val['s']) = sscanf($time, '%02s:%02s:%02s');
+
+		// if blank, then fill date up (using bits and pieces from the date
+		// 2000-01-01 00:00:00 - year 2000 so leap year dates appear properly)
+		foreach($val as $val_key => $val_time) {
+			if (preg_match('|^-*$|', $val[$val_key])) {
+				switch($val_key) {
+					case 'y':
+						$val[$val_key] = 2000;
+					break;
+
+					case 'm':
+					case 'd':
+						$val[$val_key] = 1;
+					break;
+
+					case 'h':
+					case 'i':
+					case 's':
+						$val[$val_key] = 0;
+					break;
+				}
+			}
+		}
+
+		$temp_date = mktime($val['h'], $val['i'], $val['s'], $val['m'], $val['d'], $val['y']);
+		return ($circa ? 'circa ' : '').date($this->attr('print_format'), $temp_date);
 
 		// build the date string based on what wacky combinations we have
-		$show_date_str = (($val['y'] == '----') ? '' : 'y').(($val['m'] == '--') ? '' : 'm').(($val['d'] == '--') ? '' : 'd');
+		/*$show_date_str = (($val['y'] == '----') ? '' : 'y').(($val['m'] == '--') ? '' : 'm').(($val['d'] == '--') ? '' : 'd');
 
 		switch ($show_date_str) {
 			case 'ymd':
@@ -287,11 +316,11 @@ class Form_Question_Type_Datetime extends Form_Question
 				$show_time = '';
 			break;
 
-		}
+		}*/
 
 		// so we can extract the correct month and day-suffix- using 2000 as it's a leap year (so we can extract for Jan 29).
 
-		return ($circa ? 'circa ' : '').trim($show_date).(empty($show_date) || empty($show_time) ? '' : ', ').trim($show_time);
+		//return ($circa ? 'circa ' : '').trim($show_date).(empty($show_date) || empty($show_time) ? '' : ', ').trim($show_time);
 
 	}//end getSummary()
 
