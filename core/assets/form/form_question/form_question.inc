@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.4 2005/10/07 00:01:25 lwright Exp $
+* $Id: form_question.inc,v 1.5 2005/10/30 23:20:42 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -448,7 +448,7 @@ class Form_Question extends Asset
 	*/
 	function generateJSCode()
 	{
-		$rules = &$this->getRules();
+		$rules = $this->getRules();
 		$code = '';						// blank sheet of code to start with
 
 		foreach ($rules as $k => $rule) {
@@ -458,7 +458,6 @@ class Form_Question extends Asset
 			$rule_asset =& new $type_code();
 			$code .= $rule_asset->generateJSCode($this, $rule);
 			$code .= "\n";
-
 		}
 
 		return $code;
@@ -530,7 +529,7 @@ class Form_Question extends Asset
 	* @access public
 	* @return Array(link)
 	*/
-	function &getRules()
+	function getRules()
 	{
 		return $this->attr('rules');
 
@@ -624,7 +623,7 @@ class Form_Question extends Asset
 			return true;
 		}
 
-		$rules = &$this->getRules();
+		$rules = $this->getRules();
 		$ok = true;						// We start as being all OK
 
 		foreach ($rules as $k=>$rule) {
