@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.1.1.1 2005/10/28 07:04:58 pgannavarapu Exp $
+* $Id: rss_feed_reader.inc,v 1.2 2005/10/30 23:22:52 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -356,20 +356,18 @@ class RSS_Feed_Reader
 	/**
 	* Handles the data
 	*
-	* @param object	$xp				the xml parser
-	* @param string	$data			data inside the element
-	* @param boolean $attributes	default of false but becomes true when we are calling this to assign attributes
+	* @param object		$xp			the xml parser
+	* @param string		$data		data inside the element
+	* @param boolean	$attributes	default of false but becomes true when we are calling this to assign attributes
 	*
 	* @return void
 	* @access public
 	*/
-	function characterHandler($xp, $data, $attributes = false)
+	function characterHandler($xp, $data, $attributes=false)
 	{
 		$index = null;
 		//if the data is a string and has any white spaces then trim them off
-		if (is_string($data)) {
-			$data = trim($data);
-		}
+		if (is_string($data)) $data = trim($data);
 		if (!empty($data)) {
 			$element = $this->element;
 			$var = null;
@@ -385,7 +383,7 @@ class RSS_Feed_Reader
 			$key = array_search($element, $this->open_tags);
 
 			$class_vars = get_class_vars(get_class($this));
-			for( ; $key != -1; $key--) {
+			for ( ; $key != -1; $key--) {
 				if (isset($class_vars[strtolower($this->open_tags[$key])])) {
 					break;
 				}
