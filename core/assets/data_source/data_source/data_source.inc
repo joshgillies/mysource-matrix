@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.4 2005/10/07 04:26:54 pgannavarapu Exp $
+* $Id: data_source.inc,v 1.5 2005/10/30 22:36:14 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,6 +53,30 @@ class Data_Source extends Asset
 		$this->Asset($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Pages add a default web path when they are created
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!parent::_createAdditional($link)) return false;
+
+		// set an initial web path
+		$initial_path = strtolower($this->attr('name'));
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_paths = make_valid_web_paths(Array($initial_path));
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
+		return $this->saveWebPaths($good_paths);
+
+	}//end _createAdditional()
 
 
 	/**
@@ -425,6 +449,178 @@ class Data_Source extends Asset
 		return 0;
 
 	}//end createAssetLink()
+
+
+	/**
+	* Return all links that this asset has to other assets
+	*
+	* @param int		$assetid			id of the the $side_of_link asset
+	* @param int		$link_types			integer that can be the product of bitwise operations
+	*										on the SQ_LINK_* constants
+	* @param string		$type_code			the type of asset that is linked
+	*										(eg 'Page', 'File', etc)
+	*										if an array returns link if matches any
+	*										of the array values
+	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
+	*										or $type_code and any of it's sub-classes
+	* @param string		$side_of_link		Which side of the link this (the current) asset
+	*										is on ('major' or 'minor')
+	* @param string		$sort_by			a field in the asset table you would like the results
+	*										sorted by (eg. name, short_name etc)
+	*
+	* @return array
+	* @access public
+	* @see Asset_Manager::getLinks()
+	*/
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
+	{
+		if (!is_array($type_code)) {
+			if (empty($type_code)) {
+				$type_code = Array();
+			} else {
+				$type_code = Array($type_code);
+			}
+		}
+		$type_code_key = implode('-', $type_code);
+		$links = Array();
+
+		if (!isset($this->_tmp['getLinks'][$assetid][$side_of_link][$type_code_key])) {
+			if ($side_of_link == 'major') {
+				if ($assetid == $this->id) {
+					$result = $this->getResultSet();
+					if (empty($result)) {
+						return Array();
+					} else {
+						$identity = 0;
+						$index = 0;
+						foreach ($result as $record) {
+							$links[] = Array(
+										'linkid'			=> 0,
+										'majorid'			=> $this->id,
+										'minorid'			=> $this->id.':'.$identity,
+										'minor_type_code'	=> 'data_source_record_set',
+										'value'				=> '',
+										'link_type'			=> SQ_LINK_TYPE_1,
+										'is_dependant'		=> false,
+										'is_exclusive'		=> false,
+										'sort_order'		=> $index,
+									   );
+							$index++;
+							$identity++;
+						}
+					}
+				} else {
+					$links = Array();
+				}
+			}//end if side_of_link
+			$this->_tmp['getLinks'][$assetid][$side_of_link][$type_code_key] = $links;
+		}
+		return $this->_tmp['getLinks'][$assetid][$side_of_link][$type_code_key];
+
+	}//end getLinks()
+
+
+	/**
+	* Get all asset ids that are below the passed assetid in the various trees in which it exists
+	*
+	* @param int		$assetid			the id of the asset to get its children for
+	* @param string		$type_code			the type of asset that is linked
+	*										(eg 'Page', 'File', etc)
+	*										if an array returns link if matches any
+	*										of the array values
+	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
+	*										or $type_code and any of it's sub-classes
+	* @param string		$sort_by			a field in the asset table you would like the results
+	*										sorted by (eg. name, short_name etc)
+	*
+	* @return array
+	* @access public
+	* @see Asset_Manager::getChildren()
+	*/
+	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	{
+		// now that we have an array in the format we wanted (sorted or not)
+		// we can go through and construct our children array
+		$children = Array();
+		$links = Array();
+		if ($assetid == $this->id) {
+			$links = $this->getLinks($this->id, SQ_LINK_TYPE_1, 'data_source_record_set', true, 'major', null);
+		}
+		if (!empty($links)) {
+			foreach ($links as $link) {
+				$children[$link['minorid']] = $link['minor_type_code'];
+			}
+		}
+		return $children;
+
+	}//end getChildren()
+
+
+	/**
+	* Returns a reference to the asset represented by the passed assetid
+	*
+	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
+	* @param string		$type_code		if this exists then this object is used to
+	*									load the asset, if not then the DB is queried
+	*									to find out the asset type
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
+	*									you can't use the '@' operator when returning by reference
+	*
+	* @return object
+	* @access public
+	* @see Asset_Manager::&getAsset()
+	*/
+	function &getAsset($shadowid, $type_code='', $mute_errors=false)
+	{
+		$asset = null;
+		if (is_null($shadowid)) return $asset;
+		$result = $this->getResultSet();
+		if (!empty($result)) {
+			$name = $this->attr('shadow_name');
+			foreach ($result as $index => $record) {
+				if ($this->id.':'.$index == $shadowid) {
+					$record['shadow_asset_name'] = $name;
+					$record['shadow_asset_id'] = $index;
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('data_source_record_set');
+					$asset =& new Data_Source_Record_Set($this->id, $record);
+				}
+			}
+		} else {
+			return $asset;
+		}
+		return $asset;
+
+	}//end getAsset()
+
+
+	/**
+	* Get all asset ids that are above the passed assetid in the various trees in which it exists
+	*
+	* @param int			$assetid			the id of the asset to get its parents for
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
+	*											if an array returns link if matches any of the array values
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	* @param string			$sort_by			a field in the asset table you would like the results
+	*											sorted by (eg. name, short_name etc)
+	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
+	*											Specify that links should be returned for assets the user has read,
+	*											write, or admin access for. Leave NULL to ignore permissions.
+	*
+	* @return array	Array(int => string)	returns an array of assetids and their type code
+	* @access public
+	* @see generateGetParentsQuery()
+	*/
+	function getParents($assetid, $type_code='', $strict_type_code=true, $sort_by=null, $access=null)
+	{
+		//get its own (datasource's) parents first
+		$id_parts = explode(':', $assetid);
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($id_parts[0]);
+		//after getting its own parent, the data soure adds itself as a pareent into the array as the shadow asset is its child
+		$parents[$this->id] = $this->type();
+		return $parents;
+
+	}//end getparents()
 
 
 }//end class
