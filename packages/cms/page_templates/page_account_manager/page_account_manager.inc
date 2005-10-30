@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.31 2005/10/19 01:23:20 lwright Exp $
+* $Id: page_account_manager.inc,v 1.32 2005/10/30 22:16:08 dmckee Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -310,7 +310,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 						$this->_current_state = 'create_login';
 						$_POST['SQ_LOGIN_USERNAME'] = $user->attr('username');
-						$this->_loadLoginReplacements();
+						$this->_replacements['login_invite'] = $this->attr('login_invite');
+						$this->_replacements['login_form'] = $this->getKeywordReplacement('login_form');
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 						return true;
 					}
@@ -392,7 +393,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 						if ($this->attr('create_status') >= SQ_STATUS_LIVE && !$this->attr('use_email_validation')) {
 							$this->_current_state = 'create_login';
 							$_POST['SQ_LOGIN_USERNAME'] = $this->_tmp['created_asset']->attr('username');
-							$this->_loadLoginReplacements();
+							$this->_replacements['login_invite'] = $this->attr('login_invite');
+							$this->_replacements['login_form'] = $this->getKeywordReplacement('login_form');
 						} else {
 							$this->_current_state = 'create_no_login';
 						}
