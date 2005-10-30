@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.112 2005/10/28 06:39:49 lwright Exp $
+* $Id: listing_engine.inc,v 1.113 2005/10/30 23:55:10 pgannavarapu Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.112 $
+* @version $Revision: 1.113 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -858,7 +858,8 @@ class Listing_Engine extends Page
 			// if yes then the shadow assets are added to the wanted assets array as well
 			foreach ($wanted_assets as $wanted => $type_code) {
 				foreach ($shadow_assets as $key => $value) {
-					if (strpos($key, $wanted) !== false) {
+					$shadow_array = split(':', $key);
+					if ($shadow_array[0] == $wanted) {
 						$wanted_assets[$key] = $type_code;
 					}
 				}
