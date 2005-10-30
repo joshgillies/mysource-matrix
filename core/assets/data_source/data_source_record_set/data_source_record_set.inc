@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_record_set.inc,v 1.3 2005/10/07 04:26:54 pgannavarapu Exp $
+* $Id: data_source_record_set.inc,v 1.4 2005/10/30 22:33:36 pgannavarapu Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -83,7 +83,11 @@ class Data_Source_Record_Set extends Asset
 			$name_string = replace_keywords($name, $replacements);
 			$this->name = $name_string;
 		} else {
-			$this->name = 'Record Set '.$this->id;
+			if (isset($data['title'])) {
+				$this->name = $data['title'];
+			} else {
+				$this->name = 'Data Source Record Set '.$this->id;
+			}
 		}
 		$this->short_name = $this->name;
 
@@ -170,7 +174,11 @@ class Data_Source_Record_Set extends Asset
 		$replacement = null;
 		if (strpos($keyword, 'data_source_record_set_') !== false) {
 			$keyword = substr($keyword, strlen('data_source_record_set_'));
-			$replacement = $this->vars[$keyword];
+			if (isset($this->vars[$keyword])) {
+				$replacement = $this->vars[$keyword];
+			} else {
+				$replacement = '';
+			}
 		} else if (strpos($keyword, 'asset_') !== false) {
 			$key = substr($keyword, strlen('asset_'));
 			switch ($key) {
