@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.13 2005/10/13 02:12:40 tbarrett Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.14 2005/10/31 22:38:25 dmckee Exp $
 *
 */
 
@@ -49,7 +49,7 @@ require_once 'include/conditions_list.inc';
 * If an attribute is not recognised, the condition will be evaluated as false.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -316,7 +316,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		// 2. asset keywords (includes attributes)
 		$asset_keywords = $asset->getAvailableKeywords();
 		foreach ($required_keywords as $required_keyword) {
-			if (isset($asset_keywords[$required_keyword])) {
+			if ($required_keyword != 'asset_contents') {
 				$ret[$required_keyword] = $asset->getKeywordReplacement($required_keyword);
 			}
 		}
