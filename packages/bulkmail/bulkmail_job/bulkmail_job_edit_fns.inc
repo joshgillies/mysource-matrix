@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.6 2005/10/31 03:34:39 rong Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.7 2005/10/31 04:20:34 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -78,16 +78,11 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 					$name = $prefix.'_progress_current_state';
 					combo_box($name, $options, false, $current_state);
 				} else {
-					$options[BML_JOB_STATE_NEW] = translate('bulkmail_progress_state_not_live');
-					$options[BML_JOB_STATE_FINISHED] = translate('bulkmail_progress_state_finished');
+					$options[BML_JOB_STATE_NOT_LIVE] = translate('bulkmail_progress_state_not_live');
 					echo $options[$current_state];
 				}
 			} else {
-				if ($current_state == BML_JOB_STATE_FINISHED) {
-					echo translate('bulkmail_progress_state_finished');
-				} else {
-					echo translate('bulkmail_progress_state_not_live');
-				}
+				echo translate('bulkmail_progress_state_not_live');
 			}
 		$o->closeField();
 
@@ -164,9 +159,10 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return false;
 
+		// TODO: if this job is finished (live but not in db table)
 		// prevent the user from changing the state once the job is finished
-		$state = $asset->getAttrDB('current_state');
-		if ($state == BML_JOB_STATE_FINISHED) return false;
+		//$state = $asset->getAttrDB('current_state');
+		//if ($state == BML_JOB_STATE_FINISHED) return false;
 
 		if (isset($_POST[$prefix.'_progress_current_state'])) {
 

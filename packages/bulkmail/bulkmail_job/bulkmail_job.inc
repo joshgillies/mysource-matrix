@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.6 2005/10/31 03:34:39 rong Exp $
+* $Id: bulkmail_job.inc,v 1.7 2005/10/31 04:20:34 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -49,21 +49,6 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		$this->Asset($assetid);
 
 	}//end constructor
-
-
-	/**
-	* Returns name of the asset
-	*
-	* @param boolean	$short_name	whether or not we are after the shortname or the full name
-	*
-	* @return string
-	* @access private
-	*/
-	function _getName($short_name=false)
-	{
-		return $this->attr('name');
-
-	}//end _getName()
 
 
 	/**
@@ -408,7 +393,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		// once the job is live, the only way to change it's status is by cancelling this job from the backend
 		if ($old_status == SQ_STATUS_LIVE) {
 			// maybe if the user set job to under construction, we cancel the job automatically?
-			if ($state == BML_JOB_STATE_NOT_LIVE || $state == BML_JOB_STATE_FINISHED) {
+			if ($state == BML_JOB_STATE_NOT_LIVE) {
 				return parent::processStatusChange($new_status, $update_parents);
 			}
 
@@ -422,7 +407,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 					delete_directory($this->data_path.'/.data');
 				}
 				// set the job to live and running
-				if ($state == BML_JOB_STATE_NEW || $state == BML_JOB_STATE_NOT_LIVE || $state == BML_JOB_STATE_FINISHED) {
+				if ($state == BML_JOB_STATE_NOT_LIVE) {
 					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 					$this->setAttrValue('current_state', BML_JOB_STATE_RUNNING);
 					$this->saveAttributes();

@@ -5,11 +5,9 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 require_once 'Mail.php';
 @require_once 'Mail/mime.php';
 
-define('BML_JOB_STATE_NEW',      0);
-define('BML_JOB_STATE_NOT_LIVE', 1);
-define('BML_JOB_STATE_RUNNING',  2);
-define('BML_JOB_STATE_PAUSED',   3);
-define('BML_JOB_STATE_FINISHED', 4);
+define('BML_JOB_STATE_NOT_LIVE', 0);
+define('BML_JOB_STATE_RUNNING',  1);
+define('BML_JOB_STATE_PAUSED',   2);
 
 /**
 * Bulkmail_Post_Office
@@ -20,7 +18,7 @@ define('BML_JOB_STATE_FINISHED', 4);
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */

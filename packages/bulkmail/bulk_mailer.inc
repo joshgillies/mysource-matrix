@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.6 2005/10/31 03:36:51 rong Exp $
+* $Id: bulk_mailer.inc,v 1.7 2005/10/31 04:20:34 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once  'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -386,12 +386,9 @@ class Bulk_Mailer
 		if ($progress_info['current_count'] == $progress_info['total_count']) {
 			echo "finished job\n";
 			$this->_reconnectDB();
-			// mark job state as 'Finished', and set job status to 'Under Construction'
-			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-			$GLOBALS['BULKMAIL_JOB']->setAttrValue('current_state', BML_JOB_STATE_FINISHED);
-			$GLOBALS['BULKMAIL_JOB']->saveAttributes();
-			$GLOBALS['BULKMAIL_JOB']->processStatusChange(SQ_STATUS_UNDER_CONSTRUCTION, false);
-			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			// TODO: job is finished, remove it from the db table here
+			// ie. job is live and not in the db table = finished
+
 			// purge the data directory
 			if (is_dir($GLOBALS['BULKMAIL_JOB']->data_path.'/.data')) {
 				delete_directory($GLOBALS['BULKMAIL_JOB']->data_path.'/.data');
