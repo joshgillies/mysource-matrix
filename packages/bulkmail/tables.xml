@@ -1,0 +1,61 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: tables.xml,v 1.1 2005/10/31 22:47:05 rong Exp $
+*
+*/
+-->
+
+<schema>
+	<tables>
+		<table name="bulkmail_queue" require_rollback="0">
+			<columns>
+				<column name="id" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description>The assetid of the Bulkmail_Job asset, or none if this is an ad hoc bulkmail job</description>
+				</column>
+				<column name="post_office_id" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>The assetid of the Bulkmail_Post_Office asset (either the parent or the default system post office)</description>
+				</column>
+				<column name="status" allow_null="0">
+					<type>SMALLINT</type>
+					<type_variations />
+					<default>0</default>
+					<description>Current status of the job (Queued, Running and Paused)</description>
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="id" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="id" />
+				</index>
+				<index>
+					<column name="post_office_id" />
+				</index>
+				<index>
+					<column name="status" />
+				</index>
+			</indexes>
+		</table>
+	</tables>
+	<sequences />
+</schema>
