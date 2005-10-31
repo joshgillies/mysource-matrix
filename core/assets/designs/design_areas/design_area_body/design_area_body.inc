@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body.inc,v 1.22 2005/10/11 02:05:19 tbarrett Exp $
+* $Id: design_area_body.inc,v 1.23 2005/10/31 01:31:15 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -93,6 +93,11 @@ class Design_Area_Body extends Design_Area
 				// layout if we were not already trying to get it
 				if (empty($result) && $layout_name != \'paint_layout::system::frontend\') {
 					$result = $GLOBALS[\'SQ_SYSTEM\']->am->getValueFromURL($url, \'paint_layout::system::frontend\');
+				}
+
+				$global_def_layout_id = $GLOBALS[\'SQ_SYSTEM\']->getGlobalDefine(\'SQ_PAINT_LAYOUT_ID\', 0);
+				if (!$result && $global_def_layout_id) {
+					$result = $global_def_layout_id;
 				}
 
 				if ($result) {
