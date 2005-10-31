@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.8 2005/10/06 04:59:15 mmcintyre Exp $
+* $Id: lang_messages.xml,v 1.9 2005/10/31 00:23:53 lwright Exp $
 *
 * Core Internal Messages File
 */
@@ -340,6 +340,13 @@ A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<S
 {You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]>}</body><!-- user-name, asset-type, asset-name, asset-name*, workflow-screen-url, (preview-screen-url) -->
 	</message>
 	<message type="asset.workflow.complete">
+		<subject>Workflow Completed</subject>
+		<body>The workflow process for %type_code% "%asset_name%" has been completed. "%asset_name%" is now approved and can be made live by an administrator.
+
+A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.
+You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]></body><!-- asset-type, asset-name, asset-name*, asset-name**, workflow-screen-url, (preview-screen-url) -->
+	</message>
+	<message type="asset.workflow.log.complete">
 		<subject>Workflow Completed</subject>
 		<body>The workflow process for %type_code% "%asset_name%" has been completed. "%asset_name%" is now approved and can be made live by an administrator.
 
