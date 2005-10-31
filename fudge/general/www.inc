@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.18 2005/10/28 00:22:50 lwright Exp $
+* $Id: www.inc,v 1.19 2005/10/31 05:49:02 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package Fudge
 * @subpackage General
 */
@@ -237,7 +237,7 @@ function undo_htmlspecialchars($string)
 * @access public
 */
 function make_valid_html_id($id, $replace_char='') {
-	if (!preg_match('/[A-Za-z0-9:_.-]*/', $replace_char)) {
+	if (!preg_match('/^[A-Za-z0-9:_.-]*$/', $replace_char)) {
 		return false;
 	}
 	$id = preg_replace('/[^A-Za-z0-9:_.-]/', $replace_char, $id);
