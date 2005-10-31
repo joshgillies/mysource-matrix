@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_bulkmail.inc,v 1.2 2005/10/27 01:38:15 ndvries Exp $
+* $Id: package_manager_bulkmail.inc,v 1.3 2005/10/31 03:36:51 rong Exp $
 *
 */
 
@@ -40,6 +40,46 @@ class Package_Manager_Bulkmail extends Package_Manager
 		$this->Package_Manager();
 
 	}//end constructor
+
+
+	/**
+	* Returns an array of all the asset types in the package that are to be treated as system assets
+	* NOTE: Assets will be installed in the order they appear in this list
+	*
+	* @return Array()
+	* @access public
+	* @static
+	*/
+	function getSystemAssetTypes()
+	{
+		return Array('bulkmail_manager');
+
+	}//end getSystemAssetTypes()
+
+
+	/**
+	* Create the bulkmail manager system asset
+	*
+	* @return object Bulkmail_Manager
+	* @access public
+	*/
+	function &createBulkmailManager()
+	{
+		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bulkmail_manager');
+		$bulkmail_manager =& new Bulkmail_Manager();
+		$bulkmail_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
+		if (!$bulkmail_manager->create($bulkmail_manager_link)) {
+			trigger_localised_error('SCH0007', E_USER_ERROR);
+		}
+		pre_echo('Bulkmail Manager Asset Id : '.$bulkmail_manager->id);
+
+		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('bulkmail_manager', $bulkmail_manager->id);
+
+		return $bulkmail_manager;
+
+	}//end createBulkmailManager()
 
 
 }//end class
