@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.51.2.5 2005/10/26 04:03:38 lwright Exp $
+* $Id: install.inc,v 1.51.2.6 2005/10/31 03:39:33 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.51.2.5 $
+* @version $Revision: 1.51.2.6 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -954,10 +954,6 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 		return serialize($to_cache);
 	}
 
-	if ($asset_type == 'system_management_folder') {
-		bam($to_cache);
-	}
-
 	$lang_files = find_edit_interface_language_files($asset_type, $screen, $locale);
 
 	foreach ($lang_files as $lang_file) {
@@ -968,10 +964,6 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 		if (PEAR::isError($lang_root)) {
 			trigger_error('Unable to Read File : '.$lang_file."\n".$lang_root->getMessage()."\n".$lang_root->getUserInfo(), E_USER_WARNING);
 			continue;
-		}
-
-		if ($asset_type == 'system_management_folder') {
-			bam($lang_root);
 		}
 
 		// work through all the sections
@@ -1154,7 +1146,7 @@ function build_locale_string_file($locale)
 	// run through each installed asset
 	foreach ($asset_types as $asset_type) {
 		$type_code = $asset_type['type_code'];
-		$asset_dirs =& find_asset_type_dirs($type_code);
+		$asset_dirs = find_asset_type_dirs($type_code);
 
 		$files_to_parse['assets'][$type_code] = find_string_language_files($asset_dirs, $locale);
 	}
