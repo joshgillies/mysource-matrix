@@ -10,11 +10,19 @@
 <string source="bulkmail_progress_current_progress">Current Progress</string>
 <string source="bulkmail_progress_detailed_progress">Detailed Progress</string>
 
-<string source="bulkmail_content_detail_generation_method_use_each_user">Use each User</string>
-<string source="bulkmail_content_detail_generation_method_preselected_user">Pre-selected User</string>
+
+<string source="bulkmail_content_detail_page_name">Content Page</string>
+<string source="bulkmail_content_detail_page_note">Select the asset to be sent in the email</string>
+<string source="bulkmail_content_detail_method_name">Content Generation Method</string>
 <string source="bulkmail_content_detail_method_note">Generate content for each individual user, or use one user to generate all content.</string>
 <string source="bulkmail_content_detail_generate_as_field_name">Generate as</string>
 <string source="bulkmail_content_detail_generate_as_field_note">The user to generate content as for all bulkmail users, and all other users if "Pre-selected user" generation is selected.</string>
+<string source="bulkmail_content_detail_generation_method_use_each_user">Use each User</string>
+<string source="bulkmail_content_detail_generation_method_preselected_user">Pre-selected User</string>
+<string source="bulkmail_content_detail_design_field_name">Design</string>
+<string source="bulkmail_content_detail_design_field_note">Apply a design to the content of this job.</string>
+<string source="bulkmail_content_detail_layout_field_name">Layout</string>
+<string source="bulkmail_content_detail_layout_field_note">Apply a layout to the content of this job.</string>
 
 <string source="bulkmail_server_detail_mail_method_field_name">Mail Method</string>
 <string source="bulkmail_server_detail_host_field_name">Host</string>
@@ -39,10 +47,11 @@
 <string source="bulkmail_preview_log">Preview Log</string>
 <string source="bulkmail_clear_log">Clear Preview Log</string>
 
+<string source="bulkmail_warning">Warning</string>
 <string source="bulkmail_warning_job_live">Another Bulkmail Job (Id #%1$s) is currently Live.</string>
 <string source="bulkmail_warning_po_post_office_not_set">Post Office: Post Office not set.</string>
 <string source="bulkmail_warning_po_recipient_not_set">Bulkmail Job: Recipients not set.</string>
-<string source="bulkmail_warning_po_server_details">Post Office Server Details: "%1$s".</string>
+<string source="bulkmail_warning_po_server_details">Post Office Server Details: "%1$s", %2$s "%3$s" (Id #%4$s).</string>
 <string source="bulkmail_warning_header_from_field">Header Details: Missing 'From' field</string>
 <string source="bulkmail_warning_content_page_not_set">Content Details: Content Page not set.</string>
 <string source="bulkmail_warning_content_generate_as_not_set">Content Details: Pre-selected User not set.</string>

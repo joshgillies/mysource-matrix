@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2005/10/27 01:38:16 ndvries Exp $
+* $Id: lang_screen_details.xml,v 1.4 2005/10/31 03:34:39 rong Exp $
 *
 */
 -->
@@ -42,18 +42,10 @@
 		</field>
 	</section>
 	<section name="Content Details" write_access="write:attributes">
-		<field attribute="content_assetid">
-			<display_name>Content Page</display_name>
-			<note>Select the asset to be sent in the email</note>
-		</field>
-		<field>
-			<display_name>Content Generation Method</display_name>
-			<note />
-			<function_call>
-				<paint_function name="paintContentDetails" />
-				<process_function name="processContentDetails" />
-			</function_call>
-		</field>
+		<function_call>
+			<paint_function name="paintContentDetails" />
+			<process_function name="processContentDetails" />
+		</function_call>
 	</section>
 	<section name="Header Details" write_access="write:attributes">
 		<function_call>

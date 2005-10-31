@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.5 2005/10/27 06:20:04 rong Exp $
+* $Id: bulkmail_job.inc,v 1.6 2005/10/31 03:34:39 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -58,7 +58,6 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	*
 	* @return string
 	* @access private
-	* @see Asset::_getName()
 	*/
 	function _getName($short_name=false)
 	{
@@ -68,7 +67,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 
 
 	/**
-	* Returns parent asset if parent is a Bulkmail Post Office else returns null
+	* Returns parent asset Bulkmail Post Office or system default Post Office
 	*
 	* @return object
 	* @access public
@@ -85,31 +84,64 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 			}
 		}
 
+		// if we cant find a post office, use the system default post office
+		if (is_null($post_office)) {
+			//$post_office =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+		}
+
 		return $post_office;
 
 	}//end getPostOffice()
 
 
 	/**
-	* Sends the bulkmail message using given PEAR mail driver params
+	* Returns the progress path to the progress info file
 	*
-	* @param object	&$asset		the asset to which we belong
-	* @param mixed	$recipient	an array or a string with comma separated recipients.
-	*
-	* @return boolean
+	* @return string
 	* @access public
 	*/
-	function sendPreviewMail(&$asset, $recipient)
+	function getProgressPath()
 	{
-		$post_office = $this->getPostOffice();
-		if (!is_null($post_office)) {
-			return $post_office->sendPreviewMail($this, $recipient);
+		// ad-hoc job with assetid of zero, return data-dir path of the default system post office
+		// use a unique id to differentiate each ad-hoc job
+		if (!$this->id) {
+			$unique_id = uniqid('');
+			// TODO: create and use a default system asset - default_bulkmail_post_office, underneath bulkmail_manager
+			//$default_post_office =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+			//echo ' data path of this ad-hoc job => '.$default_post_office->data_path."$unique_id/.data/progress_info\n";
+			//return $default_post_office->data_path."$unique_id/.data/progress_info";
+			return '';
+
+		// normal job, store info in its data-dir
 		} else {
-			// error handling in parent's sendPreviewMail
-			return parent::sendPreviewMail($this, $recipient);
+			//echo ' data path of this normal job => '.$this->data_path."/.data/progress_info\n";
+			return $this->data_path.'/.data/progress_info';
 		}
 
-	}//end sendPreviewMail()
+	}//end getProgressPath()
+
+
+ /**
+		* Sends the bulkmail message using given PEAR mail driver params
+		*
+		* @param object &$asset         the asset to which we belong
+		* @param mixed  $recipient      an array or a string with comma separated recipients.
+		*
+		* @return boolean
+		* @access public
+		*/
+		function sendPreviewMail(&$asset, $recipient)
+		{
+				$post_office = $this->getPostOffice();
+				if (!is_null($post_office)) {
+						return $post_office->sendPreviewMail($this, $recipient);
+				} else {
+						// error handling in parent's sendPreviewMail
+						return parent::sendPreviewMail($this, $recipient);
+				}
+
+		}//end sendPreviewMail()
+
 
 
 	/**
@@ -361,7 +393,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 
 
 	/**
-	* Provides extra checking and disable some status change once the job is live and running
+	* Provides extra checking and disable invalid status change once the job is live and running
 	*
 	* @param int		$new_status		the new status to set for this asset
 	* @param boolean	$update_parents	Specify if we want to update the parent as well
@@ -474,6 +506,8 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	{
 		$error = Array();
 
+		/*
+		// db table allows multiple live jobs running at the same time
 		// is there another live job running?
 		// probably check this part when setting the status to live for real
 		$current_live_job = Bulkmail_Job::getLiveJob();
@@ -481,11 +515,13 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 			//$error[] = "Another Bulkmail Job (Id #$current_live_job) is currently Live.\n";
 			$error[] = translate('bulkmail_warning_job_live', $current_live_job);
 		}
+		*/
 
 		// is this job linked under a post office?
 		$post_office =& $this->getPostOffice();
 		if (is_null($post_office)) {
 			//$error[] = "Post Office Error: Post Office not set.\n";
+			// also Default System Post Office not set
 			$error[] = translate('bulkmail_warning_po_post_office_not_set');
 		} else {
 			// get server details from post office
@@ -495,7 +531,8 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 			if (PEAR::isError($mail_object)) {
 				// cannot create a mail instance
 				//$error[] = "Post Office Server Details Error: ".$mail_object->getMessage().".\n";
-				$error[] = translate('bulkmail_warning_po_server_details', $mail_object->getMessage());
+				$type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($post_office->type(), 'name');
+				$error[] = translate('bulkmail_warning_po_server_details', $mail_object->getMessage(), $type, $post_office->name, $post_office->id);
 			}
 		}
 
@@ -515,15 +552,16 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 			$error[] = translate('bulkmail_warning_header_from_field');
 		}
 
-		// no content page
-		if (!$this->attr('content_assetid')) {
-			//$error[] = "Content Details Error: Content Page not set.\n";
-			$error[] = translate('bulkmail_warning_content_page_not_set');
-		}
 		$content_details = $this->attr('content_details');
+		$page_id = array_get_index($content_details, 'content_page', 0);
 		$type = array_get_index($content_details, 'type', '');
 		$generate_as = array_get_index($content_details, 'pre_selected_user', '');
 
+		// no content page
+		if (!$page_id) {
+			//$error[] = "Content Details Error: Content Page not set.\n";
+			$error[] = translate('bulkmail_warning_content_page_not_set');
+		}
 		// pre-selected user not set
 		if (!$generate_as) {
 			//$error[] = "Content Details Error: Bulkmail User not set for group-based content generation method.\n";
@@ -541,6 +579,125 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		return $error;
 
 	}//end canSetLive()
+
+
+//--        PROGRESS        --//
+
+
+	/**
+	* Initialises the progress info file
+	*
+	* @param string		$progress_path	path to the progress info file
+	*									use job's data-dir path if it is a normal job
+	*									use system default post office data-dir path for an ad-hoc job
+	* @param int		$total_count	total number of recipients for a job
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _initProgressFile($progress_path, $total_count)
+	{
+		/*
+			available fields:
+			current_count		processed this number of mails
+			current_recip_id	assetid of the current recipient/user
+								keep track of this as recipients are not in numerical order
+			current_chunk		currently up to this chunk of recipient
+			last_updated		timestamp of when we last added a mail to the queue
+			total_count			total number of mails to send
+		*/
+		$progress_info = Array();
+		$progress_info['current_count'] = 0;
+		$progress_info['current_recip_id'] = 0;
+		$progress_info['current_chunk'] = 0;
+		$progress_info['last_updated'] = 0;
+		$progress_info['total_count'] = $total_count;
+
+		$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';
+		if (!string_to_file($output, $progress_path)) {
+			return false;
+		} else {
+			echo " init progress file\n";
+			return true;
+		}
+
+	}//end _initProgressFile()
+
+
+	/**
+	* Writes the progress info to a file after a mail has been added to the queue
+	*
+	* @param string		$progress_path	path to the progress info file
+	* @param int		$user_id		current recipient assetid
+	* @param string		$email			current recipient email address
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _updateProgressFile($progress_path, $user_id, $email)
+	{
+		if (file_exists($progress_path)) include $progress_path;
+		$progress_info['current_count']++;
+		$progress_info['current_recip_id'] = $user_id;
+		//$progress_info['current_recip_email'] = $email;
+		$progress_info['last_updated'] = time();
+
+		$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';
+		if (!string_to_file($output, $progress_path)) {
+			echo "bulk_mailer.inc:_updateProgressFile - Unable to write to file \"$progress_path\"\n";
+			return false;
+		} else {
+			echo ' processed '.$progress_info['current_count']." (Id #$user_id) $email  ... sleep(5)\n";
+			sleep(5); // for testing purposes
+			return true;
+		}
+
+	}//end _updateProgressFile()
+
+
+	/**
+	* Reads the progress info from a file
+	*
+	* @param string	$progress_path	path to the progress info file
+	*
+	* @return array
+	* @access private
+	*/
+	function _readProgressFile($progress_path)
+	{
+		$progress_info = Array();
+		if (file_exists($progress_path)) include $progress_path;
+
+		return $progress_info;
+
+	}//end _readProgressFile()
+
+
+	/**
+	* Proceed to next recipient chunk
+	*
+	* @param string	$progress_path	path to the progress info file
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _nextChunk($progress_path)
+	{
+		$progress_info = Array();
+		if (file_exists($progress_path)) include $progress_path;
+		$progress_info['current_chunk']++;
+		$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';
+		if (!string_to_file($output, $progress_path)) {
+			echo "bulk_mailer.inc:_nextChunk - Unable to write to file \"$progress_path\"\n";
+			return false;
+		} else {
+			echo ' proceed to next chunk'.$progress_info['current_chunk']."\n";
+			return true;
+		}
+
+		return $progress_info;
+
+	}//end _nextChunk()
 
 
 }//end class

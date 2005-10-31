@@ -20,7 +20,7 @@ define('BML_JOB_STATE_FINISHED', 4);
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -219,6 +219,7 @@ class Bulkmail_Post_Office extends Asset
 		}
 
 		return true;
+
 	}//end cacheContent()
 
 
@@ -341,7 +342,6 @@ class Bulkmail_Post_Office extends Asset
 			return false;
 		}
 		$content_details = $asset->attr('content_details');
-		$content_details['content_page'] = $asset->attr('content_assetid');
 		// cache the content as the current user/pre-selected user depending on the content generation method
 		$asset->cacheContent($asset, $content_details, $GLOBALS['SQ_SYSTEM']->currentUserId());
 		$content = $this->generateBmailContent($asset, $content_details);

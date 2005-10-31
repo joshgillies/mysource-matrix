@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2005/10/27 01:38:15 ndvries Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4 2005/10/31 03:34:39 rong Exp $
 *
 */
 -->
@@ -37,15 +37,10 @@
 		</field>
 	</section>
 	<section name="Content Details" write_access="write:attributes">
-		<field write_access="write:attributes" attribute="content_assetid">
-			<assetid type_codes="page:D" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function name="paintContentDetails" />
-				<process_function name="processContentDetails" />
-			</function_call>
-		</field>
+		<function_call>
+			<paint_function name="paintContentDetails" />
+			<process_function name="processContentDetails" />
+		</function_call>
 	</section>
 	<section name="Header Details" write_access="write:attributes">
 		<function_call>

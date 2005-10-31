@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.5 2005/10/27 03:32:44 rong Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.6 2005/10/31 03:34:39 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -92,45 +92,41 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		$o->closeField();
 
 		// get progress information from file
-		$info_path = $asset->data_path.'/.data/info';
-		if (file_exists($info_path)) {
-			include $info_path;
-			$percent_done = round(($info['total_sent'] / $info['total_recipient']) * 100, 2).'%';
-			$detailed_progress = $info['total_sent'].' of '.$info['total_recipient'];
-		} else {
-			// file does not exist
-			$percent_done = '0%';
-			$detailed_progress = '';
+		$progress_path = $asset->getProgressPath();
+		if (file_exists($progress_path)) {
+			include $progress_path;
+			$percent_done = round(($progress_info['current_count'] / $progress_info['total_count']) * 100, 2).'%';
+			$detailed_progress = $progress_info['current_count'].' of '.$progress_info['total_count'];
+
+			$field_name = translate('bulkmail_progress_current_progress');
+			$o->openField($field_name);
+				echo $percent_done;
+			$o->closeField();
+
+			$field_name = translate('bulkmail_progress_detailed_progress');
+			$o->openField($field_name);
+				echo $detailed_progress;
+			$o->closeField();
 		}
-
-		$field_name = translate('bulkmail_progress_current_progress');
-		$o->openField($field_name);
-			echo $percent_done;
-		$o->closeField();
-
-		$field_name = translate('bulkmail_progress_detailed_progress');
-		$o->openField($field_name);
-			echo $detailed_progress;
-		$o->closeField();
 
 		// notify the user that changes will not be saved if the status is live
 		if ($asset->status == SQ_STATUS_LIVE && $write_access) {
-			$o->openField('Warning');
+			$o->openField(translate('bulkmail_warning'));
 				$warning = '<span class="sq-backend-warning">'.translate('bulkmail_progress_warning_save').'</span>';
 				$o->note($warning);
 			$o->closeField();
 		}
+
 		// errors
 		$errors = $asset->canSetLive();
 		if (!empty($errors)) {
-			$o->openField('Warning:');
+			$o->openField(translate('bulkmail_warning'));
 			foreach ($errors as $error) {
 				$error = '<span class="sq-backend-warning">'.$error.'</span>';
 				$o->note($error);
 			}
 			$o->closeField();
 		}
-
 
 		/*
 		// debug
@@ -172,28 +168,31 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		$state = $asset->getAttrDB('current_state');
 		if ($state == BML_JOB_STATE_FINISHED) return false;
 
-		$content_details = $asset->attr('content_details');
 		if (isset($_POST[$prefix.'_progress_current_state'])) {
+
+			// load progress info from file
+			$progress_path = $asset->getProgressPath();
+			if (file_exists($progress_path)) include $progress_path;
+
 			$asset->setAttrValue('current_state', $_POST[$prefix.'_progress_current_state']);
 
 			// job is paused
 			if ($_POST[$prefix.'_progress_current_state'] == BML_JOB_STATE_PAUSED) {
 				// reset timestamp to prevent timeout issues
-				$asset->setAttrValue('last_processed', 0);
+				//$asset->setAttrValue('last_processed', 0);
+				$progress_info['last_updated'] = 0;
 			}
-
 			// job is cancelled, set to under construction
 			if ($_POST[$prefix.'_progress_current_state'] == BML_JOB_STATE_NOT_LIVE) {
-				// purge the data directory
-				if (is_dir($asset->data_path.'/.data')) {
-					delete_directory($asset->data_path.'/.data');
-				}
 				// reset the timestamp and process pid to initial state
-				$asset->setAttrValue('last_processed', 0);
-				$asset->setAttrValue('parent_process_pid', 0);
-				$asset->setAttrValue('child_process_pids', Array());
+				//$asset->setAttrValue('last_processed', 0);
+				$progress_info['last_updated'] = 0;
 				$asset->processStatusChange(SQ_STATUS_UNDER_CONSTRUCTION, false);
 			}
+
+			// write the updated progress info to file
+			$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';
+			string_to_file($output, $progress_path);
 		}
 
 		return true;

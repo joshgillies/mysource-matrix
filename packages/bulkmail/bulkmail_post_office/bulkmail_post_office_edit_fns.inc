@@ -11,7 +11,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -129,29 +129,53 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$content_details = $asset->attr('content_details');
 
-		//$o->openField('Content Generation Method'); // This field is opened in the edit interface
-			$options = Array(
-						'each_user'			=> translate('bulkmail_content_detail_generation_method_use_each_user'),
-						'pre_selected_user'	=> translate('bulkmail_content_detail_generation_method_preselected_user'),
-					   );
-			//$onChange = 'onChange="switchContentType(this.value)"';
-			$value = array_get_index($content_details, 'type', 'each_user');
+		// content page
+		$page_id = array_get_index($content_details, 'content_page', 0);
+		if ($page_id) {
+			$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($page_id);
+		}
+		$name = translate('bulkmail_content_detail_page_name');
+		$note = translate('bulkmail_content_detail_page_note');
+		$o->openField($name, '', $note);
 			if ($write_access) {
-				//combo_box($prefix.'_content_det_type', $options, false, $value, 0, $onChange);
-				combo_box($prefix.'_content_det_type', $options, false, $value);
+				asset_finder($prefix.'_content_detail_page', $page_id, Array('page' => 'D'));
 			} else {
-				echo $options[$value];
+				if (!$page_id) {
+					echo translate('no_asset_selected');
+				} else {
+					if (is_null($page)) {
+						echo translate('invalid_assetid');
+					} else {
+						echo $page->name.' (#'.$page->id.')';
+					}
+				}
 			}
-			$o->note(translate('bulkmail_content_detail_method_note'));
 		$o->closeField();
 
+		// generation method
+		$generation_method = array_get_index($content_details, 'type', 'each_user');
+		$options = Array(
+					'each_user'			=> translate('bulkmail_content_detail_generation_method_use_each_user'),
+					'pre_selected_user'	=> translate('bulkmail_content_detail_generation_method_preselected_user'),
+				   );
+		$name = translate('bulkmail_content_detail_method_name');
+		$note = translate('bulkmail_content_detail_method_note');
+		$o->openField($name, '', $note);
+			if ($write_access) {
+				combo_box($prefix.'_content_det_type', $options, false, $generation_method);
+			} else {
+				echo $options[$generation_method];
+			}
+		$o->closeField();
+
+		// pre-selected user
 		$user_id = array_get_index($content_details, 'pre_selected_user', '0');
 		if ($user_id) {
 			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($user_id);
 		}
-
 		$name = translate('bulkmail_content_detail_generate_as_field_name');
-		$o->openField($name);
+		$note = translate('bulkmail_content_detail_generate_as_field_note');
+		$o->openField($name, '', $note);
 			if ($write_access) {
 				asset_finder($prefix.'_content_detail_pre_selected_user', $user_id, Array('user' => 'D'));
 			} else {
@@ -165,8 +189,53 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 					}
 				}
 			}
-			$o->note(translate('bulkmail_content_detail_generate_as_field_note'));
-		//$o->closeField(); // This field is closed in the edit interface
+		$o->closeField();
+
+		// design
+		$design_id = array_get_index($content_details, 'design', '0');
+		if ($design_id) {
+			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($design_id);
+		}
+		$name = translate('bulkmail_content_detail_design_field_name');
+		$note = translate('bulkmail_content_detail_design_field_note');
+		$o->openField($name, '', $note);
+			if ($write_access) {
+				asset_finder($prefix.'_content_detail_design', $design_id, Array('design' => 'I'));
+			} else {
+				if (!$design_id) {
+					echo translate('no_asset_selected');
+				} else {
+					if (is_null($design)) {
+						echo translate('invalid_assetid');
+					} else {
+						echo $design->name.' (#'.$design->id.')';
+					}
+				}
+			}
+		$o->closeField();
+
+		// layout
+		$layout_id = array_get_index($content_details, 'layout', '0');
+		if ($layout_id) {
+			$layout = &$GLOBALS['SQ_SYSTEM']->am->getAsset($layout_id);
+		}
+		$name = translate('bulkmail_content_detail_layout_field_name');
+		$note = translate('bulkmail_content_detail_layout_field_note');
+		$o->openField($name, '', $note);
+			if ($write_access) {
+				asset_finder($prefix.'_content_detail_layout', $layout_id, Array('layout' => 'I'));
+			} else {
+				if (!$layout_id) {
+					echo translate('no_asset_selected');
+				} else {
+					if (is_null($layout)) {
+						echo translate('invalid_assetid');
+					} else {
+						echo $layout->name.' (#'.$layout->id.')';
+					}
+				}
+			}
+		$o->closeField();
 
 		return $write_access;
 
@@ -187,19 +256,29 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return false;
-
 		// once live, content details are not changeable
 		if ($asset->status == SQ_STATUS_LIVE) return false;
 
 		$content_details = $asset->attr('content_details');
+		// save content page id
+		if (isset($_POST[$prefix.'_content_detail_page'])) {
+			$content_details['content_page'] = $_POST[$prefix.'_content_detail_page']['assetid'];
+		}
+		// save content generation type (each user/pre-selected user)
 		if (isset($_POST[$prefix.'_content_det_type'])) {
-			// save content generation type (each user/pre-selected user)
 			$content_details['type'] = $_POST[$prefix.'_content_det_type'];
 		}
-
 		// save bulkmail user for group-based content generation
 		if (isset($_POST[$prefix.'_content_detail_pre_selected_user'])) {
 			$content_details['pre_selected_user'] = $_POST[$prefix.'_content_detail_pre_selected_user']['assetid'];
+		}
+		// design
+		if (isset($_POST[$prefix.'_content_detail_design'])) {
+			$content_details['design'] = $_POST[$prefix.'_content_detail_design']['assetid'];
+		}
+		// layout
+		if (isset($_POST[$prefix.'_content_detail_layout'])) {
+			$content_details['layout'] = $_POST[$prefix.'_content_detail_layout']['assetid'];
 		}
 
 		$asset->setAttrValue('content_details', $content_details);
