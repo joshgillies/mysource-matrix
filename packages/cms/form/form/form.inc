@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.120 2005/10/19 04:15:07 lwright Exp $
+* $Id: form.inc,v 1.121 2005/10/31 23:56:54 mmcintyre Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.120 $
+* @version $Revision: 1.121 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1008,7 +1008,7 @@ class Form extends Asset
 				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 				$q_name = $q_asset->attr('name');
 				$replacements['question_field_'.$this->id.'_q'.$q_id] = $q_asset->getHtmlField();
-				$replacements['question_id_'.$section->id.'_q'.$q_id] = 'q'.$this->id.'_q'.$q_id;
+				$replacements['question_id_'.$question->id.'_q'.$q_id] = 'q'.$this->id.'_q'.$q_id;
 			}
 
 			foreach ($sections as $section) {
