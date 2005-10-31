@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.26 2005/08/11 04:56:10 mmcintyre Exp $
+* $Id: db_install.inc,v 1.27 2005/10/31 22:31:10 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -906,8 +906,12 @@ function uninstall_rollback_triggers()
 		foreach ($triggers as $trigger_name) {
 			// we need to cascade the dropping of the trigger
 			// so that the postgres trigger functions are also dropped
-			preg_match('/^sq_(.*)_rb_trg$/i', $trigger_name, $matches=Array());
-			$sql = 'DROP TRIGGER '.$trigger_name.' on sq_'.$matches[1].' CASCADE';
+			$sql = 'DROP TRIGGER '.$trigger_name;
+			if ($db->phptype == 'pgsql') {
+				preg_match('/^sq_(.*)_rb_trg$/i', $trigger_name, $matches=Array());
+				$sql .= ' on sq_'.$matches[1].' CASCADE';
+			}
+
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 		}
