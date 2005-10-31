@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.96 2005/10/11 03:04:47 tbarrett Exp $
+* $Id: design.inc,v 1.97 2005/10/31 05:44:56 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -599,7 +599,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 						$res_exp .= '.((!empty($_SERVER[\'QUERY_STRING\'])) ? \'&\' : \'?\');';
 					}
 				}
-				echo '<', '?php echo '.$res_exp.'; ?', '>';
+				echo '<', '?php echo '.htmlentities($res_exp).'; ?', '>';
 			break;
 
 			case 'site_name' :
@@ -702,7 +702,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 
 			case 'asset_thumbnail' :
 					echo '<', '?php ';
-					echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink('.$this->_escapeVar('$ASSET->id', $args).', SQ_LINK_NOTICE, \'thumbnail\', true, \'thumbnail\');'."\n";
+					echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink('.$this->_escapeVar('$ASSET->id', $args).', SQ_LINK_NOTICE, \'image\', false, \'thumbnail\');'."\n";
 					echo 'if (!empty($link)) {'."\n";
 					echo '$thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
 					echo 'echo $thumbnail->printImageTag('.$this->_escapeVar('$ASSET->id', $args).', \'\', true);'."\n";
@@ -712,7 +712,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 
 			case 'asset_thumbnail_url' :
 					echo '<', '?php ';
-					echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink('.$this->_escapeVar('$ASSET->id', $args).', SQ_LINK_NOTICE, \'thumbnail\', true, \'thumbnail\');'."\n";
+					echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink('.$this->_escapeVar('$ASSET->id', $args).', SQ_LINK_NOTICE, \'image\', false, \'thumbnail\');'."\n;";
 					echo 'if (!empty($link)) {'."\n";
 					echo '$thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
 					echo 'echo $thumbnail->getURL('.$this->_escapeVar('$ASSET->id', $args).');'."\n";

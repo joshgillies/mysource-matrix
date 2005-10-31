@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.22 2005/10/04 06:59:34 ndvries Exp $
+* $Id: details.inc,v 1.23 2005/10/31 05:44:56 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 */
 
@@ -247,7 +247,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 							}
 
 							$edit_fns = $owner->getEditFns();
-							$edit_fns->paintNoticeLinkedAsset($owner, 'thumbnail', Array('thumbnail' => 'I'));
+							$edit_fns->paintNoticeLinkedAsset($owner, 'thumbnail', Array('image' => 'D'));
 
 							if (!is_null($keywords) && isset($keywords['fields']['thumbnail_change'])) {
 								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['thumbnail_change']] = ob_get_contents();
@@ -271,7 +271,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 							ob_start();
 						}
 
-						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'thumbnail', true, 'thumbnail');
+						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'image', false, 'thumbnail');
 						if (!empty($link)) {
 							$thumbnail = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 							$edit_fns = $thumbnail->getEditFns();

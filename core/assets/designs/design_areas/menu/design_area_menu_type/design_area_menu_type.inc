@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.72 2005/10/11 02:51:51 tbarrett Exp $
+* $Id: design_area_menu_type.inc,v 1.73 2005/10/31 05:49:11 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -307,11 +307,11 @@ class Design_Area_Menu_Type extends Design_Area
 
 	}//end settingExists()
 
-	
+
 	/*
 	* Print code that initialises this design area and should always be printed in place of the AREA tag
 	*
-	* This public version is overridden here only because menus print some code 
+	* This public version is overridden here only because menus print some code
 	* that is shared by all menu DAs and should never be cached
 	*
 	* @return void
@@ -698,7 +698,7 @@ class Design_Area_Menu_Type extends Design_Area
 				case 'asset_thumbnail' :
 					if ($id_name) {
 						echo '<', '?php ';
-						echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($'.$id_name.'_row[\'assetid\'], SQ_LINK_NOTICE, \'thumbnail\', true, \'thumbnail\');'."\n";
+						echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($'.$id_name.'_row[\'assetid\'], SQ_LINK_NOTICE, \'image\', false, \'thumbnail\');'."\n";
 						echo 'if (!empty($link)) {'."\n";
 						echo '$thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
 						echo 'echo $thumbnail->printImageTag($'.$id_name.'_row[\'name\'], \'\', true);'."\n";
@@ -710,7 +710,7 @@ class Design_Area_Menu_Type extends Design_Area
 				case 'asset_thumbnail_url' :
 					if ($id_name) {
 						echo '<', '?php ';
-						echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($'.$id_name.'_row[\'assetid\'], SQ_LINK_NOTICE, \'thumbnail\', true, \'thumbnail\');'."\n";
+						echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($'.$id_name.'_row[\'assetid\'], SQ_LINK_NOTICE, \'image\', false, \'thumbnail\');'."\n";
 						echo 'if (!empty($link)) {'."\n";
 						echo '$thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
 						echo 'echo $thumbnail->getURL($'.$id_name.'_row[\'name\']);'."\n";

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.98 2005/10/05 05:02:54 mmcintyre Exp $
+* $Id: metadata_manager.inc,v 1.99 2005/10/31 05:49:12 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.99 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -905,7 +905,7 @@ class Metadata_Manager extends MySource_Object
 					if (!$thumbnail_generated) {
 						echo '$thumbnail = null;';
 						echo 'if ($metadata_asset->id) {';
-						echo '    $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'thumbnail\', true, \'thumbnail\');'."\n";
+						echo '    $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'image\', false, \'thumbnail\');'."\n";
 						echo '    if (!empty($link)) {'."\n";
 						echo '        $thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\'], $link[\'minor_type_code\']);'."\n";
 						echo '    }'."\n";
