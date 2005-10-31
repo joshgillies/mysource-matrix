@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_bulkmail.inc,v 1.3 2005/10/31 03:36:51 rong Exp $
+* $Id: package_manager_bulkmail.inc,v 1.4 2005/10/31 03:38:56 rong Exp $
 *
 */
 
@@ -50,12 +50,13 @@ class Package_Manager_Bulkmail extends Package_Manager
 	* @access public
 	* @static
 	*/
+	/*
 	function getSystemAssetTypes()
 	{
 		return Array('bulkmail_manager');
 
 	}//end getSystemAssetTypes()
-
+	*/
 
 	/**
 	* Create the bulkmail manager system asset
@@ -63,6 +64,7 @@ class Package_Manager_Bulkmail extends Package_Manager
 	* @return object Bulkmail_Manager
 	* @access public
 	*/
+	/*
 	function &createBulkmailManager()
 	{
 		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
@@ -80,7 +82,7 @@ class Package_Manager_Bulkmail extends Package_Manager
 		return $bulkmail_manager;
 
 	}//end createBulkmailManager()
-
+	*/
 
 }//end class
 
