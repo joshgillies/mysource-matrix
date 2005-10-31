@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.27 2005/10/24 23:39:18 rong Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.28 2005/10/31 22:55:31 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -265,7 +265,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		}
 		if (!$asset->writeAccess('links')) return false;
 
-		$jobs = &$asset->getJobs('cron_job', false);
+		$jobs = $asset->getJobs('cron_job', false);
 		if (empty($jobs)) return false;
 
 		for ($i = 0, $total = count($jobs); $i < $total; $i++) {
