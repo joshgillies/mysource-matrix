@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.32 2005/10/14 00:11:42 tbarrett Exp $
+* $Id: datetime.inc,v 1.33 2005/10/31 00:23:40 bcaldwell Exp $
 *
 */
 
@@ -46,7 +46,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    </datetime>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -85,6 +85,8 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 												'i'	=> 's',
 												's'	=> 's',
 											  );
+
+		$this->_edit_params['null'] 		= Array();
 
 	}//end constructor
 
