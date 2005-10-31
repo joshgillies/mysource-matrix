@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.26 2005/10/27 00:46:32 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.27 2005/10/31 05:17:48 lwright Exp $
 *
 */
 -->
@@ -78,7 +78,7 @@
 			<text width="30" />
 		</field>
 	</section>
-	<section name="Customise Bodycopies">
+	<section name="Customise Bodycopies" write_access="write:links">
 		<field>
 			<function_call>
 				<paint_function   name="paintUseNoResultsBodycopy"   />
