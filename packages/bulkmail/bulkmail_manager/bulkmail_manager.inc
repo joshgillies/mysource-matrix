@@ -1,4 +1,4 @@
-<?php
+db_name<?php
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
@@ -12,7 +12,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -207,26 +207,25 @@ class Bulkmail_Manager extends Asset
 			// check if this id has been taken by another ad-hoc job
 			do {
 				$unique_id = md5(uniqid(''));
-				$data_dir = $post_office->data_path.'/.data/'.$unique_id.'/';
-			} while (is_dir($data_dir));
+			} while (is_dir($post_office->data_path.'/.data/'.$unique_id));
 		} else {
 			$unique_id = $job->id;
 		}
 
 		// get the effective data path for progress file
 		// initialise the progress file, set total count to zero
-		$data_dir = $post_office->data_path.'/.data/'.$unique_id.'/';
+		$data_dir = $post_office->data_path.'/.data/'.$unique_id;
 		echo "data dir = $data_dir\n";
 		$this->initProgressFile($data_dir);
 
 		// dump vars to file
 
 		// add entry to the database table
-		$db_name = SQ_TABLE_RUNNING_PREFIX.'bulkmail_queue';
+		$db_table = SQ_TABLE_RUNNING_PREFIX.'bulkmail_queue';
 		$fields = Array('id', 'post_office_id', 'status');
 		$db_values = "'$unique_id', '".$post_office->id."', '".BML_JOB_STATE_NOT_RUNNING."'";
 		$db_fields = implode(', ', $fields);
-		$sql = "INSERT INTO $db_name ($db_fields) VALUES ($db_values);";
+		$sql = "INSERT INTO $db_table ($db_fields) VALUES ($db_values);";
 		echo $sql;
 		$result = $GLOBALS['SQ_SYSTEM']->db->query($sql);
 
@@ -245,8 +244,8 @@ class Bulkmail_Manager extends Asset
 	*/
 	function deleteJob($job_id)
 	{
-		$db_name = SQ_TABLE_RUNNING_PREFIX.'bulkmail_queue';
-		$sql = "DELETE FROM $db_name WHERE id = $job_id;";
+		$db_table = SQ_TABLE_RUNNING_PREFIX.'bulkmail_queue';
+		$sql = "DELETE FROM $db_table WHERE id = $job_id;";
 		$result = $GLOBALS['SQ_SYSTEM']->db->query($sql);
 		echo " deleted $job_id\n";
 
@@ -266,8 +265,8 @@ class Bulkmail_Manager extends Asset
 	*/
 	function updateJob($job_id, $state)
 	{
-		$db_name = SQ_TABLE_RUNNING_PREFIX.'bulkmail_queue';
-		$sql = "UPDATE $db_name SET status = $state WHERE id = $job_id;";
+		$db_table = SQ_TABLE_RUNNING_PREFIX.'bulkmail_queue';
+		$sql = "UPDATE $db_table SET status = $state WHERE id = $job_id;";
 		$result = $GLOBALS['SQ_SYSTEM']->db->query($sql);
 		echo " updated state to $state\n";
 
@@ -287,7 +286,7 @@ class Bulkmail_Manager extends Asset
 	*/
 	function getQueuedJobs($job_id=null, $post_office_id=null)
 	{
-		$db_name = SQ_TABLE_RUNNING_PREFIX.'bulkmail_queue';
+		$db_table = SQ_TABLE_RUNNING_PREFIX.'bulkmail_queue';
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$where = '';
@@ -296,7 +295,7 @@ class Bulkmail_Manager extends Asset
 		} else if (!is_null($post_office_id)) {
 			$where = ' WHERE post_office_id = '.$db->quote($post_office_id);
 		}
-		$sql = 'SELECT id, post_office_id, status FROM sq_bulkmail_queue'.$where.';';
+		$sql = "SELECT id, post_office_id, status FROM $db_table $where;";
 
 		$result = $db->getAssoc($sql);
 		// add progress info here
@@ -309,23 +308,30 @@ class Bulkmail_Manager extends Asset
 
 
 	/**
-	* Returns an array of job ids and their states for a particular post office
+	* Gets the data path of a job
 	*
-	* @param int	$job_id	the unique id of the job entry
-	* @param int	$po_id	the asset id of the post office
+	* @param int	$job_id			the unique id of the job entry
 	*
-	* @return array
+	* @return string
 	* @access public
 	*/
-	function getJobInfo($job_id, $po_id)
+	function getJobDataPath($job_id)
 	{
-		$uniq_id = md5($job_id);
-		$post_office =& $GLOBALS['SQ_SYSTEM']->am->getAsset($po_id);
-		$data_dir = $post_office->data_path.'/'.$uniq_id.'/.data/progress_info';
-		echo "$data_dir\n";
-		return '';
+		$job_id_parts = explode(':', $job_id);
+		if (isset($jobid_parts[1])) {
+			$post_office =& $GLOBALS['SQ_SYSTEM']->am->getAsset($jobid_parts[0]);
+			$path = $post_office->data_path.'/'.$jobid_parts[1].'/.data';
+		} else {
+			$job =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id, 'bulkmail_job');
+			$post_office =& $job->getPostOffice();
+			$path = $post_office->data_path.'/'.$job_id.'/.data';
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($job);
+		}
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($post_office);
 
-	}//end getJobInfo()
+		return $path;
+
+	}//end getJobDataPath()
 
 
 //--        PROGRESS        --//
@@ -352,15 +358,16 @@ class Bulkmail_Manager extends Asset
 			last_updated		timestamp of when we last added a mail to the queue
 			total_count			total number of mails to send (to be updated when chunking recipient)
 		*/
-		$progress_info = Array();
-		$progress_info['current_count'] = 0;
-		$progress_info['current_recip_id'] = 0;
-		$progress_info['current_chunk'] = 0;
-		$progress_info['last_updated'] = 0;
-		$progress_info['total_count'] = 0;
+		$progress_info = Array(
+							'current_count'		=> 0,
+							'current_recip_id'	=> 0,
+							'current_chunk'		=> 0,
+							'last_updated'		=> 0,
+							'total_count'		=> 0,
+						 );
 
 		$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';
-		if (!create_directory($progress_path)) {
+		if (!is_dir($progress_path)) {
 			create_directory($progress_path);
 		}
 		if (!string_to_file($output, $progress_path.'/progress_info')) {
@@ -382,11 +389,14 @@ class Bulkmail_Manager extends Asset
 	* @return array
 	* @access public
 	*/
-	function readProgressFile($progress_path)
+	function getJobProgress($job_id)
 	{
+		$job_path = $this->getJobDataPath($job_id);
+		$progress_path = $job_path.'/progress_info';
+
 		$progress_info = Array();
-		if (file_exists($progress_path.'/progress_info')) {
-			include $progress_path.'/progress_info';
+		if (file_exists($progress_path)) {
+			include $progress_path;
 		}
 
 		return $progress_info;
