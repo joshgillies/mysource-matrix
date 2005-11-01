@@ -1,0 +1,51 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2005/11/01 22:24:01 pgannavarapu Exp $
+*
+*
+* DB DataSource Localised Strings File
+*/
+-->
+
+<strings>
+<string source="required_attribute">Required Attribute</string>
+<string source="missing_for_channel">Missing For Channel</string>
+<string source="missing_for_image">Missing For Image</string>
+<string source="select_asset_type">--SELECT ASSET TYPE--</string>
+<string source="choose_asset_type">Choose Asset Type</string>
+<string source="select_keyword">--SELECT KEYWORD--</string>
+<string source="choose_or_enter_keyword">Choose /Enter Keyword</string>
+<string source="choose_tag">Choose Tag</string>
+<string source="asset_type">Asset Type</string>
+<string source="keyword">Keyword</string>
+<string source="tag_represented">Tag Represented</string>
+<string source="delete_question">Delete?</string>
+<string source="tag">Tag</string>
+<string source="value">Value</string>
+<string source="add_new">Add New</string>
+<string source="info">Info</string>
+<string source="channel">Channel</string>
+<string source="image">Image</string>
+<string source="current_channel_info">Current Channel Info</string>
+<string source="current_image_info">Current Image Info</string>
+<string source="add_new_channel_info">Add New Channel Info</string>
+<string source="add_new_image_info">Add New Image Info</string>
+<string source="listing_engine_asset_link_description">This asset is used in RSS Feed generation by the RSS Page Feed</string>
+<string source="no_assets_found_for_items">No Assets  Found To Genereate RSS Items Or Entries</string>
+<string source="no_channel_or_items_found">No Channel Info Or Items Found To Genereate RSS</string>
+<string source="no_listing_engine_assets_linked">No Listing Engine Assets  Found To Get Assets For RSS</string>
+<string source="required_attr_term_unassigned">Required Attribute Term Is Not Assigned</string>
+<string source="required_tag_title_or_description_missing">Required Tag  Title Or Description Missing</string>
+<string source="missing_image_info">Missing Image Info</string>
+</strings>
