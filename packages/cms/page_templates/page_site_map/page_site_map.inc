@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.25 2005/10/18 04:13:32 lwright Exp $
+* $Id: page_site_map.inc,v 1.26 2005/11/01 00:00:42 mmcintyre Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -221,7 +221,11 @@ class Page_Site_Map extends Page
 			?><a href="<?php echo $url;?>"><?php echo $item['name']; ?></a></li>
 <?php
 			if (isset($page_data[$item['assetid']]) && $level + 1 <= $top_level) {
+?>
+			<li><?php
 				$this->_paintUnorderedList($page_data[$item['assetid']], $page_data, $level + 1, $generating);
+?>
+			</li><?php
 			}
 		}
 		?>
