@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: lang_screen_details.xml,v 1.3 2005/11/01 02:39:53 sdanis Exp $
 *
 */
 -->
@@ -38,9 +38,13 @@
 			<function_call>
 				<paint_function name="paintAddPollOptions" />
 				<process_function name="processAddPollOptions" />
-			</function_call>		
+			</function_call>
 		</field>
-	</section>	
+		<field attribute="allow_multiple">
+			<display_name>Allow Multiple Selections</display_name>
+			<note />
+		</field>
+	</section>
 	<section name="Voting Records">
 		<field>
 			<display_name>Delete users</display_name>

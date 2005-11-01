@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: poll_question_edit_fns.inc,v 1.4 2005/05/16 06:36:41 lwright Exp $
+* $Id: poll_question_edit_fns.inc,v 1.5 2005/11/01 02:39:53 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -41,6 +41,7 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 	function Poll_Question_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
+		$this->static_screens['details']['force_unlock'] = false;
 
 	}//end constructor
 
@@ -48,9 +49,9 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the poll options
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -162,9 +163,7 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 				// Grab array of options
 				$poll_options = $asset->attr('options');
 
-				if (is_null($poll_options)) {
-					return false;
-				}
+				if (is_null($poll_options)) return false;
 
 				$ii = 0;
 				foreach ($poll_options as $sort_id => $sort_data) {
@@ -209,9 +208,9 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 											?><a href="#" onclick="sortOrderMoveDown(<?php echo $sort_id ?>); return false;"><img src="<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>" width="16" height="16" border="0"alt="Move Down" /></a><?php
 										}
 										?>
-								</td>
-							<?php
-							}//end if admin access
+									</td>
+									<?php
+								}//end if admin access
 							?>
 						</tr>
 						<?php
@@ -228,9 +227,9 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process options for this poll
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -243,11 +242,11 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 		$option_updated = false;
 
 		// Re-order and re-name the list
-		if (isset($_POST[$prefix . '_order']['reorder'])) {
-			$reorder_array = $_POST[$prefix . '_order']['reorder'];
+		if (isset($_POST[$prefix.'_order']['reorder'])) {
+			$reorder_array = $_POST[$prefix.'_order']['reorder'];
 			$newArray = Array();
 			foreach ($reorder_array as $reorder_index => $reorder_data) {
-				$options[$reorder_data]['option_text'] = $_POST[$prefix . '_option_text'.$reorder_index];
+				$options[$reorder_data]['option_text'] = $_POST[$prefix.'_option_text'.$reorder_index];
 				array_push($newArray, $options[$reorder_data]);
 				$option_updated = true;
 			}
@@ -255,10 +254,10 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		// Delete any items flagged for deletion
-		if (isset($_POST[$prefix . '_order']['delete'])) {
+		if (isset($_POST[$prefix.'_order']['delete'])) {
 			foreach (array_keys($options) as $option_index ) {
-				if (isset($_POST[$prefix . '_order']['delete'][$option_index])) {
-					if ($_POST[$prefix . '_order']['delete'][$option_index] == '1') {
+				if (isset($_POST[$prefix.'_order']['delete'][$option_index])) {
+					if ($_POST[$prefix.'_order']['delete'][$option_index] == '1') {
 						$options[$option_index] = null;
 						unset($options[$option_index]);
 						$options = array_values($options);
@@ -268,9 +267,7 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		if ($option_updated) {
-			$asset->updateOptions($options);
-		}
+		if ($option_updated) $asset->updateOptions($options);
 		return true;
 
 
@@ -280,9 +277,9 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the add new poll options
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -302,9 +299,9 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process adding an option for this poll
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -314,8 +311,8 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 		$prefix = $asset->getPrefix();
 		$options = $asset->attr('options');
 
-		if (isset($_POST[$prefix . '_no_options'])) {
-			for ($ii = 0; $ii < $_POST[$prefix . '_no_options']; $ii++) {
+		if (isset($_POST[$prefix.'_no_options'])) {
+			for ($ii = 0; $ii < $_POST[$prefix.'_no_options']; $ii++) {
 				$new_option = Array('option_text' => 'Poll Option Text #'.($ii + 1), 'votes' => 0);
 				array_push($options, $new_option);
 			}
@@ -325,12 +322,13 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 
 	}//end processAddPollOptions()
 
+
 	/**
 	* Paint the add new poll options
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -355,13 +353,12 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 	}//end paintDeleteUsers()
 
 
-
 	/**
 	* Processes removing the list of users who have already voted
 	*
-	* @param object Form_Section        &$asset     the asset whose details were changing
-	* @param object	Backend_Outputter   &$o         the outputter class
-	* @param string                     $prefix     prefix for the form elements
+	* @param object	&$asset	the asset whose details were changing
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -371,10 +368,10 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 		$prefix = $asset->getPrefix();
 		$voters = $asset->attr('voters');
 
-		if (isset($_POST[$prefix . 'options']) == 'Delete All Users') {
+		if (isset($_POST[$prefix.'options']) == 'Delete All Users') {
 			$voters = null;
 		} else {
-			$voters[$_POST[$prefix . 'options']] == null;
+			$voters[$_POST[$prefix.'options']] == null;
 		}
 
 		$asset->setAttrValue('voters', $voters);

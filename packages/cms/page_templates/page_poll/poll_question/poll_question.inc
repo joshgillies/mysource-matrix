@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: poll_question.inc,v 1.2 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: poll_question.inc,v 1.3 2005/11/01 02:39:53 sdanis Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -50,7 +50,7 @@ class Poll_Question extends Asset
 	/**
 	* Get the name or short name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @return string
 	* @access private
@@ -66,11 +66,10 @@ class Poll_Question extends Asset
 	/**
 	* Delete an option from the array
 	*
-	* @param array 	&$option 	The array from which the option will be deleted
-	* @param int	$option_id	The ID of the option to delete
+	* @param array	&$poll_options	The array from which the option will be deleted
 	*
+	* @return boolean
 	* @access public
-	* @return boolean 			False if the option is not found, True if successful
 	*/
 	function updateOptions(&$poll_options)
 	{

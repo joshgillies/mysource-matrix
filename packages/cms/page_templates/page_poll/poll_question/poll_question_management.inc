@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: poll_question_management.inc,v 1.3 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: poll_question_management.inc,v 1.4 2005/11/01 02:39:53 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -41,22 +41,27 @@ class Poll_Question_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 		$this->vars = Array(
-				'name' 			=> Array(
-							 'added' => '0.1',
-							 'type'  => 'text',
-							 'default' => ''
-							 ),
-				'options'		=> Array(
-							 'added' => '0.1',
-							 'type'  => 'serialise',
-							 'default'	=> Array()
-							 ),
-				'voters'		=> Array(
-							 'added' => '0.1',
-							 'type'  => 'serialise',
-							 'default'	=> Array()
-							 )
-				);
+						'name'				=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'text',
+												'default'	=> '',
+											   ),
+						'options'			=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
+											   ),
+						'voters'			=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
+											   ),
+						'allow_multiple'	=> Array(
+												'added'		=> '0.2',
+												'type'		=> 'boolean',
+												'default'	=> false,
+											   ),
+					  );
 
 	}//end constructor
 

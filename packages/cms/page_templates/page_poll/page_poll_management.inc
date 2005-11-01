@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll_management.inc,v 1.3 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: page_poll_management.inc,v 1.4 2005/11/01 02:39:53 sdanis Exp $
 *
 */
 
@@ -25,12 +25,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Poll_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -40,109 +41,136 @@ class Page_Poll_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 		$this->vars = Array(
-					// currently active question
-					'active_question' => Array(
-								'added' => '0.1',
-								'type'  => 'assetid',
-								'default'	=> ''
-								),
-
-					// mode for voting
-					'Vote_Behaviour' => Array(
-								'added' => '0.1',
-								'type'  => 'selection',
-								'default'	=> 'sessions',
-								'parameters' => Array(
-											'options' => Array(
-														'sessions' => 'Sessions',
-														'login' => 'Login',
-														'none' => 'None',
-											),
-											'multiple' => false,
-											'allow_empty' => false
-								)
-					),
-
-					// graph box
-					'graph_box_width'	=> Array(
-								'added'	=> '0.1',
-								'type'	=> 'text',
-								'default'	=> '400'
-					),
-
-					'graph_box_height'	=> Array(
-								'added'	=> '0.1',
-								'type'	=> 'text',
-								'default'	=> '400'
-					),
-
-					'graph_box_colour_bar'	=> Array(
-								'added' => '0.1',
-								'type'  => 'colour',
-								'default'	=> '#0000cc'
-					),
-
-					// screen WYSIWYGs
-					'question_format' => Array(
-								'added'     => '0.1',
-								'type'      => 'wysiwyg',
-								'default'   =>
-									'<div style="border: 1px solid #000066; width: 420px; padding: 5px">
-										<div style="align: center;">
-										   <strong>%question%</strong> <em>(%date%)</em>
-										</div>
-										<div style="list-style: none">
-										   %option_list%
-										</div>
-										<div style="text-align: center;">
-											<div style="text-align: left; display: inline;">%view_results%</div>
-										<div style="text-align: center; display: inline;">%vote_button%</div>
-											<div style="text-align: right; display: inline;">%view_past_questions%</div>
-										</div>
-									</div>'
-					),
-
-					'results_format' => Array(
-								'added'     => '0.1',
-								'type'      => 'wysiwyg',
-								'default'   =>
-												'<div style="border: 1px solid #000066; width: 420px; padding: 5px">
-													<div style="align: center;">
-													   <strong>%question%</strong> <em>(%date%)</em>
-													</div>
-													<div style="list-style: none">
-													%graph%<br />
-													%key%
-													</div>
-													<div style="text-align: center;">
-													<div style="text-align: left; display: inline;">&nbsp;</div>
-													<div style="text-align: center; display: inline;">&nbsp;</div>
-														<div style="text-align: right; display: inline;">%view_past_questions%</div>
-													</div>
-												</div>'
-					),
-
-					'past_questions_format' => Array(
-								'added'     => '0.1',
-								'type'      => 'wysiwyg',
-								'default'   =>
-												'<div style="border: 1px solid #000066; width: 420px; padding: 5px">
-													<div style="align: center;">
-													   <strong>Past Questions</strong>
-													</div>
-													<div>
-													   <strong>Current Question:</strong><br />
-													   %active_question_date%
-													</div>
-													<div style="list-style: none">
-													   %question_list_date_no_active%
-													</div>
-												</div>'
-					)
-
-		);
+						// currently active question
+						'active_question'			=> Array(
+														'added'		=> '0.1',
+														'type'		=> 'assetid',
+														'default'	=> '',
+													   ),
+						'vote_button_text'			=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> 'Vote',
+													   ),
+						'allow_multiple_votes'		=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'boolean',
+														'default'	=> false,
+													   ),
+						'previous_questions_text'	=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> 'View Previous Questions',
+													   ),
+						'view_results_text'			=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> 'View Results',
+													   ),
+						'new_window_optionsss'		=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'serialise',
+														'default'	=> Array(
+																		'width'			=> 250,
+																		'height'		=> 400,
+																		'scrollbars'	=> 'no',
+																		'status'		=> 'no',
+																		'resizable'		=> 'no',
+																	   ),
+													   ),
+						'new_window'				=> Array(
+														'added'			=> '0.2',
+														'type'			=> 'boolean',
+														'default'		=> false,
+														'parameters'	=> Array(
+																			'allow_empty'	=> false,
+																		   ),
+													   ),
+						'new_window_options'		=> Array(
+														'added'			=> '0.2',
+														'type'			=> 'selection',
+														'default'		=> false,
+														'parameters'	=> Array(
+																			'multiple'		=> true,
+																			'allow_empty'	=> true,
+																			'options'		=> Array(
+																								'hide_location'		=> 'Hide Location Bar',
+																								'hide_menubar'		=> 'Hide Menubar',
+																								'hide_scrollbars'	=> 'Hide Scrollbars',
+																								'hide_status'		=> 'Hide Status Bar',
+																								'hide_toolbar'		=> 'Hide Tool Bar',
+																								'not_resizable'		=> 'Not Resizable',
+																							   ),
+																		   ),
+													   ),
+						'new_window_width'			=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'int',
+														'default'	=> 0,
+													   ),
+						'new_window_height'			=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'int',
+														'default'	=> 0,
+													   ),
+						'format_bodycopies'			=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'serialise',
+														'default'	=> Array(
+																		'question_format'				=> 'vote_formats',
+																		'option_list_format'			=> 'vote_formats',
+																		'results_format'				=> 'results_formats',
+																		'results_list_format'			=> 'results_formats',
+																		'past_questions_format'			=> 'past_questions_formats',
+																		'past_questions_list_format'	=> 'past_questions_formats',
+																	   ),
+													   ),
+						// graph box
+						'graph_box_width'			=> Array(
+														'added'		=> '0.1',
+														'type'		=> 'text',
+														'default'	=> '400',
+													   ),
+						'graph_box_height'			=> Array(
+														'added'		=> '0.1',
+														'type'		=> 'text',
+														'default'	=> '400',
+													   ),
+						'graph_box_colour_bar'		=> Array(
+														'added'		=> '0.1',
+														'type'		=> 'colour',
+														'default'	=> '#0000cc',
+													   ),
+					  );
 
 	}//end constructor
+
+
+	/**
+	* Return an array with information about the events that this page is listening for
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getEventList()
+	{
+		return Array(
+				Array(
+					'event_name'					=> 'requestKeywords',
+					'broadcast_type_code'			=> 'content_type',
+					'broadcast_strict_type_code'	=> false,
+					'options'						=> Array(
+														'side_of_link'	=> 'major',
+														'indirect'		=> true,
+														'is_exclusive'	=> null,
+														'is_dependant'	=> 1,
+														'value'			=> '',
+														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+													   ),
+				),
+			   );
+
+	}//end getEventList()
 
 
 }//end class

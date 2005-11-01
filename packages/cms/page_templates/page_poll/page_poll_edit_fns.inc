@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll_edit_fns.inc,v 1.3 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: page_poll_edit_fns.inc,v 1.4 2005/11/01 02:39:53 sdanis Exp $
 *
 */
 
@@ -27,12 +27,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Poll_Edit_Fns extends Page_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -41,6 +42,7 @@ class Page_Poll_Edit_Fns extends Page_Edit_Fns
 	function Page_Poll_Edit_Fns()
 	{
 		$this->Page_Edit_Fns();
+		$this->static_screens['details']['force_unlock'] = false;
 
 	}//end constructor
 
@@ -48,9 +50,9 @@ class Page_Poll_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for adding new polls
 	*
-	* @param object Page_Poll		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -73,9 +75,9 @@ class Page_Poll_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the output for adding a new poll question
 	*
-	* @param object Page_Poll		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -83,21 +85,17 @@ class Page_Poll_Edit_Fns extends Page_Edit_Fns
 	function processNewPollQuestion(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('menu')) {
-			return false;
-		}
+		if (!$asset->writeAccess('menu')) return false;
 
 		$poll_name = array_get_index($_POST, $prefix.'_poll_name', '');
 		$poll_name = trim($poll_name);
 
-		if ($poll_name == '') {
-			return false;
-		}
+		if ($poll_name == '') return false;
 
 		// create a question
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('poll_question');
 		$poll_question =& new Poll_Question();
-		$initial_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'is_dependant' => 1);
+		$initial_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 0, 'is_dependant' => 1);
 		$poll_question->setAttrValue('name', $poll_name);
 
 		if (!$poll_question->create($initial_link)) {

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2005/11/01 02:39:53 sdanis Exp $
 *
 */
 -->
@@ -37,8 +37,30 @@
 		</field>
 	</section>
 	<section name="Vote Options" write_access="write:attributes">
-		<field attribute="Vote_Behaviour">
-			<selection style="list"  height="1" />
+		<field attribute="allow_multiple_votes">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+	</section>
+	<section name="Label Options" write_access="write:attributes">
+		<field attribute="vote_button_text">
+			<text width="25" height="1" />
+		</field>
+		<field attribute="previous_questions_text">
+			<text width="25" height="1" />
+		</field>
+		<field attribute="view_results_text">
+			<text width="25" height="1" />
+		</field>
+	</section>
+	<section name="New Window" write_access="write:attributes">
+		<field attribute="new_window_options">
+			<selection style="boxes" />
+		</field>
+		<field attribute="new_window_width">
+			<int width="3" />
+		</field>
+		<field attribute="new_window_height">
+			<int width="3" />
 		</field>
 	</section>
 	<section name="Graph Options" write_access="write:attributes">

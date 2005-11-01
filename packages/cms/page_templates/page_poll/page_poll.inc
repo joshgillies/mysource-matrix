@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.6 2005/10/19 04:15:09 lwright Exp $
+* $Id: page_poll.inc,v 1.7 2005/11/01 02:39:53 sdanis Exp $
 *
 */
 
@@ -30,12 +30,13 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Poll extends Page
 {
+
 
 	/**
 	* Constructor
@@ -52,21 +53,77 @@ class Page_Poll extends Page
 
 
 	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Asset listings create bopycopy and folder asset when they are created
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!parent::_createAdditional($link)) return false;
+
+		// add a bodycopy to this page when creating
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
+
+		$folders = Array('vote_formats','results_formats','past_questions_formats');
+		$type = 'folder';
+
+		$formats = Array();
+		foreach ($folders as $name) {
+			$asset =& new $type();
+			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
+
+			$asset->setAttrValue('name', ucwords(str_replace('_',' ', $name)));
+			if (!$asset->create($copy_link)) return false;
+
+			$formats[$name] = $asset;
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			unset($asset);
+		}
+
+		//-- Create Bodycopies --/
+		$bodycopies = Array();
+		$bodycopies['question_format'] = 'vote_formats';
+		$bodycopies['option_list_format'] = 'vote_formats';
+		$bodycopies['results_format'] = 'results_formats';
+		$bodycopies['results_list_format'] = 'results_formats';
+		$bodycopies['past_questions_format'] = 'past_questions_formats';
+		$bodycopies['past_questions_list_format'] = 'past_questions_formats';
+
+		foreach ($bodycopies as $value => $folder_asset) {
+			$asset =& new Bodycopy();
+			$copy_link = Array('asset' => &$formats[$folder_asset], 'value' => $value ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
+			$asset->setAttrValue('name', ucwords(str_replace('_',' ',$value)));
+			if (!$asset->create($copy_link)) return false;
+		}
+
+		return true;
+
+	}//end _createAdditional()
+
+
+	/**
 	* Prepares for linking by checking that the link values are valid for this link
 	*
 	* This function will be called if this asset is the major or minor party in the link, so the side_of_link flag
 	* should be checked to work out what side of the link this asset is on. The return value should indicate
 	* if any of the link fields were changed.
 	*
-	* @param object Asset	$asset			the major or minor asset that we are linking to
+	* @param object 	$asset			the major or minor asset that we are linking to
 	* @param string		$side_of_link		the side of the link we are on (major or minor)
 	* @param string		$link_type		the type of link we are creating
 	* @param string		$value			the value that is to be associated with the link
 	* @param string		$sort_order		the position in the links list that this link should take,
 	* @param string		$dependant		'0' / '1' on whether the this asset is dependant on the
-	*						asset that will be linked by the new link
+	*									asset that will be linked by the new link
 	* @param string		$exclusive		'0' / '1' on whether the this asset is linked exclusivly
-	*						to the asset that will be linked by the new link
+	*									to the asset that will be linked by the new link
 	*
 	* @return boolean
 	* @access public
@@ -93,15 +150,21 @@ class Page_Poll extends Page
 
 
 	/**
-	* Returns an array of all the permitted links type, the type asset and the cardinality
+	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
 	* @return array
 	* @access private
-	* @see Asset::_getAllowLinks()
+	* @see Asset::_getAllowedLinks()
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_2 => Array('poll_question' => Array('card' => 'M', 'exclusive' => false)));
+		$page_links = parent::_getAllowedLinks();
+		$page_links[SQ_LINK_TYPE_2]['folder']   = Array('card' => 'M', 'exclusive' => false);
+		$page_links[SQ_LINK_TYPE_2]['poll_question']   = Array('card' => 'M', 'exclusive' => false);
+
+		$page_links[SQ_LINK_NOTICE]['asset']    = Array('card' => 'M', 'exclusive' => false);
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 3,   'exclusive' => false);
+		return $page_links;
 
 	}//end _getAllowedLinks()
 
@@ -118,7 +181,7 @@ class Page_Poll extends Page
 	function printBody()
 	{
 		// declaration
-		$active_question_id = $this->attr('active_question');
+		$active_question_id	= $this->attr('active_question');
 		$format_type 		= 'question_format';
 		$prefix 			= $this->getPrefix();
 		$can_vote 			= false;
@@ -131,11 +194,9 @@ class Page_Poll extends Page
 
 			// alias question to active_question
 			$question = &$active_question;
-
 			if (is_null($question) || $question->status < SQ_STATUS_LIVE) {
 				$valid = false;
 			}
-
 		} else {
 			$valid = false;
 		}
@@ -175,35 +236,28 @@ class Page_Poll extends Page
 		$format_type = 'results_format';
 
 		// determine which method is used to check if a user can vote
-		switch ($this->attr('Vote_Behaviour')) {
-			case 'sessions':
-				if (array_get_index($_SESSION, $prefix.'_VOTED') == false) {
+		if (!$this->attr('allow_multiple_votes')) {
+			if (!is_null($GLOBALS['SQ_SYSTEM']->user->name)) {
+				// if the user is logged in...
+				$voters = $question->attr('voters');
 
+				// if the user is not already listed...
+				if (!array_get_index($voters, $GLOBALS['SQ_SYSTEM']->user->name)) {
+					// add them to the array of previously-voted users
+					$voters[$GLOBALS['SQ_SYSTEM']->user->name] = true;
+
+					// setAttrValue() now, saveAttr() in _processVote later on.
+					$question->setAttrValue('voters', $voters);
 					$can_vote = true;
 				}
-				break;
-
-			case 'login':
-				// if the user is logged in...
-				if (!is_null($GLOBALS['SQ_SYSTEM']->user->name)) {
-					$voters = $question->attr('voters');
-
-					// if the user is not already listed...
-					if (!array_get_index($voters, $GLOBALS['SQ_SYSTEM']->user->name)) {
-						// add them to the array of previously-voted users
-						$voters[$GLOBALS['SQ_SYSTEM']->user->name] = true;
-
-						// setAttrValue() now, saveAttr() in _processVote later on.
-						$question->setAttrValue('voters', $voters);
-						$can_vote = true;
-					}
+			} else {
+				if (array_get_index($_SESSION, $prefix.'_VOTED') == false) {
+					$can_vote = true;
 				}
-				break;
-
-			default:
-				$can_vote = true;
-				break;
-		} //end switch ($this->attr('Vote_Behaviour'))
+			}
+		} else {
+			$can_vote = true;
+		}
 
 		// if the poll was just voted on...
 		if (isset($_POST['option_id'])) {
@@ -228,66 +282,153 @@ class Page_Poll extends Page
 
 		}//end if ($_POST['option_id'])
 
-
 		// define the keywords array
 		$keywords = Array(
-				'question'						=> $this->_componentQuestion($question),
-				'date' 							=> $this->_componentDate($question),
-				'option_list'					=> $this->_componentOptionList($question),
-				'vote_button' 					=> $this->_componentVoteButton(),
-				'vote_button_javascript'		=> $this->_componentVoteButtonJavascript(),
-				'view_results'					=> $this->_componentViewResults(),
-				'view_results_url'				=> $this->_componentViewResultsURL(),
-				'view_past_questions'			=> $this->_componentViewPastQuestions(),
-				'view_past_questions_url'		=> $this->_componentViewPastQuestionsURL(),
-				'graph'							=> $this->_componentGraph($question),
-				'key'							=> $this->_componentKey($question),
-				'question_list'					=> $this->_componentQuestionList($active_question_id, false, false),
-				'question_list_date'			=> $this->_componentQuestionList($active_question_id, false, true),
-				'question_list_no_active'		=> $this->_componentQuestionList($active_question_id, true, false),
-				'question_list_date_no_active'	=> $this->_componentQuestionList($active_question_id, true, true),
-				'active_question'				=> $this->_componentActiveQuestion($question, false),
-				'active_question_date'			=> $this->_componentActiveQuestion($question, true)
-		);
+						'poll_question'						=> $this->_componentQuestion($question),
+						'poll_date'							=> $this->_componentDate($question),
+						'poll_option_list'					=> $this->_componentOptionList($question),
+						'poll_vote_button'					=> $this->_componentVoteButton(),
+						'poll_vote_button_new_window'		=> $this->_componentVoteButton(true),
+						'poll_vote_button_js'				=> $this->_componentVoteButtonJavascript(),
+						'poll_vote_button_js_new_window'	=> $this->_componentVoteButtonJavascript(true),
+						'poll_view_results'					=> $this->_componentViewResults(),
+						'poll_view_results_url'				=> $this->_componentViewResultsURL(),
+						'poll_view_past_questions'			=> $this->_componentViewPastQuestions(),
+						'poll_view_past_questions_url'		=> $this->_componentViewPastQuestionsURL(),
+						'poll_results_list'					=> $this->_componentGraph($question),
+						'poll_question_list'				=> $this->_componentQuestionList($active_question_id, false, false),
+						'poll_question_list_date'			=> $this->_componentQuestionList($active_question_id, true, false),
+						'poll_question_list_no_active'		=> $this->_componentQuestionList($active_question_id, false, true),
+						'poll_question_list_date_no_active'=> $this->_componentQuestionList($active_question_id, true, true),
+						'poll_active_question'				=> $this->_componentActiveQuestion($question, false),
+						'poll_active_question_date'			=> $this->_componentActiveQuestion($question, true),
+					);
 
 
-		// keyword replacement
-		$format = $this->attr($format_type);
-		echo replace_keywords($format, $keywords);
+		$format_bodycopy = $this->getFormatAsset($format_type);
+		if (is_null($format_bodycopy)) return false;
+
+		$format_bodycopy->setKeywordReplacements($keywords);
+		$format_bodycopy->printBody();
 
 	}//end printBody()
 
 
 	/**
+	* Returns a list of keywords
+	*
+	* @param object	&$broadcaster	Broadcaster
+	* @param array	$vars			Keywords
+	*
+	* @return object
+	* @access public
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		$keywords = Array();
+
+		//-- Main keywords --//
+		$keywords['poll_question'] = translate('cms_poll_question');
+		$keywords['poll_date'] = translate('cms_poll_date');
+		$keywords['poll_option_list'] = translate('cms_poll_option_list');
+		$keywords['poll_vote_button'] = translate('cms_poll_vote_button');
+		$keywords['poll_vote_button_new_window'] = translate('cms_poll_vote_button_new_window');
+		$keywords['poll_vote_button_js'] = translate('cms_poll_vote_button_js');
+		$keywords['poll_vote_button_js_new_window'] = translate('cms_poll_vote_button_js_new_window');
+		$keywords['poll_view_results'] = translate('cms_poll_view_results');
+		$keywords['poll_view_results_url'] = translate('cms_poll_view_results_url');
+		$keywords['poll_view_past_questions'] = translate('cms_poll_view_past_questions');
+		$keywords['poll_view_past_questions_url'] = translate('cms_poll_view_past_questions_url');
+		$keywords['poll_results_list'] = translate('cms_poll_results_list');
+		$keywords['poll_question_list'] = translate('cms_poll_question_list');
+		$keywords['poll_question_list_date'] = translate('cms_poll_question_list_date');
+		$keywords['poll_question_list_no_active'] = translate('cms_poll_question_list_no_active');
+		$keywords['poll_question_list_date_no_active'] = translate('cms_poll_question_list_date_no_active');
+		$keywords['poll_active_question'] = translate('cms_poll_active_question');
+		$keywords['poll_active_question_date'] = translate('cms_poll_active_question_date');
+
+		//-- Option List Format Keywords --//
+		$keywords['poll_option_label'] = translate('cms_poll_option_label');
+		$keywords['poll_option_number'] = translate('cms_poll_option_number');
+		$keywords['poll_option_vote_selection_button'] = translate('cms_poll_option_vote_selection_button');
+
+		//-- Option Results List Format Keywords --//
+		$keywords['poll_option_number'] = translate('cms_poll_option_number');
+		$keywords['poll_option_label'] = translate('cms_poll_option_label');
+		$keywords['poll_option_bar'] = translate('cms_poll_option_bar');
+		$keywords['poll_option_votes_number'] = translate('cms_poll_option_votes_number');
+		$keywords['poll_option_votes_percent'] = translate('cms_poll_option_votes_percent');
+
+		$vars['keywords'] = $keywords;
+
+	}//end onRequestKeywords()
+
+
+	/**
+	* Return a reference to a format linked to this asset
+	*
+	* @param string	$type	the value on the link for this folder
+	*
+	* @return object
+	* @access public
+	*/
+	function &getFormatAsset($format='question_format')
+	{
+		$null = null;
+		$folders = $this->attr('format_bodycopies');
+
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, $folders[$format]);
+		if (empty($link)) return $null;
+
+		$folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		if (is_null($folder)) return $null;
+
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $format);
+		if (empty($bodycopy_link)) return $null;
+
+		$format_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+
+		return $format_bodycopy;
+
+	}//end getFormatAsset()
+
+
+	/**
 	* Increments the option voted for
 	*
-	* @param object Poll_Question &$question		reference to poll_question being voted on
-	* @param int $option_id		key index of the option voted for
+	* @param object	&$question	reference to poll_question being voted on
+	* @param array	$option_ids	key index of the option voted for
 	*
 	* @return void
 	* @access private
 	*/
-	function _processVote(&$question, $option_id)
+	function _processVote(&$question, $option_ids)
 	{
+		if (!is_array($option_ids)) {
+			$option_ids = Array($option_ids);
+		}
+
 		$options = $question->attr('options');
+		$save = false;
+		foreach ($option_ids as $option_id) {
+			// if a valid option was voted for...
+			if (isset($options[$option_id])) {
 
-		// if a valid option was voted for...
-		if (isset($options[$option_id])) {
+				// increase votes, and queue the result for saving
+				$options[$option_id]['votes']++;
+				$question->setAttrValue('options', $options);
+				$save = true;
+			}
+		}
 
-			// increase votes, and queue the result for saving
-			$options[$option_id]['votes']++;
-			$question->setAttrValue('options', $options);
-
+		if ($save) {
 			// override write-protection
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 			$question->saveAttributes();
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-			if ($this->attr('Vote_Behaviour') == 'sessions') {
-				$_SESSION[$this->getPrefix().'_VOTED'] = true;
-			}
-
-		}//end if (isset($options[$option_id]))
+			$_SESSION[$this->getPrefix().'_VOTED'] = true;
+		}
 
 	}//end _processVote()
 
@@ -298,10 +439,10 @@ class Page_Poll extends Page
 	/**
 	* Prints the name of the question
 	*
-	* @param object Poll_Question &$question	The question to grab the name from
+	* @param object	&$question	The question to grab the name from
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
 	function _componentQuestion(&$question)
 	{
@@ -313,10 +454,10 @@ class Page_Poll extends Page
 	/**
 	* Prints the formatted creation date of the question
 	*
-	* @param object Poll_Question &$question	The question to grab the creation date from
+	* @param object	&$question	The question to grab the creation date from
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
 	function _componentDate(&$question)
 	{
@@ -328,33 +469,55 @@ class Page_Poll extends Page
 	/**
 	* Returns a radio button and a label for every option in $question
 	*
-	* @param object Poll_Question &$question	The question containing the options to print
+	* @param object	&$question	The question containing the options to print
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
 	function _componentOptionList(&$question)
 	{
-		ob_start();
+		$format_bodycopy = $this->getFormatAsset('option_list_format');
+		if (is_null($format_bodycopy)) return false;
+		$keywords = Array();
 
 		// grab the option list
 		$options = $question->attr('options');
+		$output = '';
 
+		// form
+		ob_start();
 		?>
-		<form id="<?php echo $this->getPrefix(); ?>_poll" action="<?php echo $this->getURL(); ?>" method="post" >
+		<form id="<?php echo $this->getPrefix(); ?>_poll" action="<?php echo $this->getURL(); ?>" method="post">
 		<?php
+		$output .= ob_get_clean();
 
 		// $option_values is an array of the options text and the options votes
 		foreach ($options as $option_id => $option_values ) {
-			radio_button('option_id',$option_id);
-			echo '&nbsp;'.$option_values['option_text'] . '<br />';
+
+			$keywords['poll_option_label'] = $option_values['option_text'];
+			$keywords['poll_option_number'] = $option_id;
+			ob_start();
+			if ($question->attr('allow_multiple')) {
+				check_box('option_id[]',$option_id);
+			} else {
+				radio_button('option_id',$option_id);
+			}
+			$selection_button = ob_get_clean();
+			$keywords['poll_option_vote_selection_button'] = $selection_button;
+
+			ob_start();
+			$format_bodycopy->setKeywordReplacements($keywords);
+			$format_bodycopy->printBody();
+			$output .= ob_get_clean();
 		}
 
+		ob_start();
 		?>
 		</form>
 		<?php
+		$output .= ob_get_clean();
 
-		return ob_get_clean();
+		return $output;
 
 	}//end _componentOptionList()
 
@@ -362,14 +525,19 @@ class Page_Poll extends Page
 	/**
 	* Returns a button that submits the vote selected from _componentOptionList()
 	*
-	* @access private
+	* @param boolean	$new_window	If set to true then results will be displayed in a new browser window
+	*
 	* @return string
+	* @access private
 	*/
-	function _componentVoteButton()
+	function _componentVoteButton($new_window=false)
 	{
 		ob_start();
+		$xtras = '';
 
-		submit_button($this->getPrefix().'_poll', 'Vote', 'document.getElementById("'.$this->getPrefix().'_poll").submit();');
+		if ($new_window) $xtras .= $this->_newWindowOption();
+
+		submit_button($this->getPrefix().'_poll', $this->attr('vote_button_text'), $xtras.' document.getElementById("'.$this->getPrefix().'_poll").submit();');
 
 		return ob_get_clean();
 
@@ -380,28 +548,56 @@ class Page_Poll extends Page
 	* Returns the onClick javascript that submits the vote selected from _componentOptionList()
 	* eg. &lt;img src="Foo.jpg onClick="%vote_button_javascript%" /&gt;
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
-	function _componentVoteButtonJavascript()
+	function _componentVoteButtonJavascript($new_window=false)
 	{
-		return 'document.getElementById("'.$this->getPrefix().'_poll").submit();';
+		$xtras = '';
+
+		if ($new_window) $xtras .= $this->_newWindowOption();
+
+		return $xtras.' document.getElementById("'.$this->getPrefix().'_poll").submit();';
 
 	}//end _componentVoteButtonJavascript()
 
 
 	/**
+	* Returns javascript for opening new window on submit
+	*
+	* @return string
+	* @access private
+	*/
+	function _newWindowOption()
+	{
+		$width = $this->attr('new_window_width');
+		$height = $this->attr('new_window_height');
+		$options = $this->attr('new_window_options');
+
+		$params  =	'location='.((strpos($options, 'hide_location'  ) !== false) ? '0' : '1').','
+					.'menubar='.((strpos($options, 'hide_menubar'   ) !== false) ? '0' : '1').','
+					.'scrollbars='.((strpos($options, 'hide_scrollbars') !== false) ? '0' : '1').','
+					.'statusbar='.((strpos($options, 'hide_status'    ) !== false) ? '0' : '1').','
+					.'toolbar='.((strpos($options, 'hide_toolbar'   ) !== false) ? '0' : '1').','
+					.'resizable='.((strpos($options, 'not_resizable'  ) !== false) ? '0' : '1');
+
+		$xtras = ' window.open(\'\', \'results\', \'width='.$width.',height='.$height.','.$params.'\'); document.getElementById("'.$this->getPrefix().'_poll").target=\'results\';';
+		return $xtras;
+
+	}//end _newWindowOption()
+
+
+	/**
 	* Returns a link to the View Results screen
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
 	function _componentViewResults()
 	{
 		ob_start();
-
 		?>
-		<a href="<?php echo $this->getURL(); ?>?SQ_ACTION=<?php echo $this->getPrefix(); ?>_results">View Results</a>
+		<a href="<?php echo $this->getURL(); ?>?SQ_ACTION=<?php echo $this->getPrefix(); ?>_results"><?php echo $this->attr('view_results_text'); ?></a>
 		<?php
 
 		return ob_get_clean();
@@ -412,8 +608,8 @@ class Page_Poll extends Page
 	/**
 	* Returns the URL to the View Results screen
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
 	function _componentViewResultsURL()
 	{
@@ -425,15 +621,15 @@ class Page_Poll extends Page
 	/**
 	* Returns a link to the Previous Questions screen
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
 	function _componentViewPastQuestions()
 	{
 		ob_start();
 
 		?>
-		<a href="<?php echo $this->getURL(); ?>?SQ_ACTION=<?php echo $this->getPrefix(); ?>_past_polls">View Previous Questions</a>
+		<a href="<?php echo $this->getURL(); ?>?SQ_ACTION=<?php echo $this->getPrefix(); ?>_past_polls"><?php echo $this->attr('previous_questions_text'); ?></a>
 		<?php
 
 		return ob_get_clean();
@@ -444,8 +640,8 @@ class Page_Poll extends Page
 	/**
 	* Returns the URL to the Previous Questions screen
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
 	function _componentViewPastQuestionsURL()
 	{
@@ -461,10 +657,10 @@ class Page_Poll extends Page
 	* As this attribute hasn't been implemented, this function
 	* calls the HTML graph straight off.
 	*
-	* @param object Poll_Question &$question	The question to print the graph of
+	* @param object	&$question	The question to print the graph of
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
 	function _componentGraph(&$question)
 	{
@@ -476,13 +672,14 @@ class Page_Poll extends Page
 	/**
 	* Returns a graph formatted using user-defined colours
 	*
-	* @param object Poll_Question &$question	The question to print the graph of
+	* @param object	&$question	The question to print the graph of
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
 	function _componentGraphHTML(&$question)
 	{
+		$output = '';
 		ob_start();
 
 		$question_width = $this->attr('graph_box_width');
@@ -526,81 +723,69 @@ class Page_Poll extends Page
 		}
 
 		// ensure no division by zero
-		if ($poll_total == 0) {
-			$poll_total++;
-		}
+		if ($poll_total == 0) $poll_total++;
+
+		$format_bodycopy = $this->getFormatAsset('results_list_format');
+		if (is_null($format_bodycopy)) return false;
+		$keywords = Array();
+
+		$output .= ob_get_clean();
 
 		// foreach poll option, draw out a graph and its results
 		foreach ($options as $option_id => $option_values) {
+			ob_start();
 			$width = $option_values['votes'] / $poll_total;
-			?>
-			<div style="padding:5px; margin:5px;">
-				<div id="sq-page-poll-result" style="padding: 5px"><?php echo $option_values['votes']?></div>
-				<div id="sq-page-poll-key"><?php echo ($option_id + 1) . ') '; ?></div>
-				<div id="sq-page-poll-graph-bar" style="width: <?php echo round($width * $question_width / 2); ?>px">&nbsp;</div>
-			</div>
-			<?php
+
+			$keywords['poll_option_label'] = $option_values['option_text'];
+			$keywords['poll_option_number'] = $option_id;
+
+			ob_start();
+				?>
+					<div id="sq-page-poll-graph-bar" style="width: <?php echo round($width * $question_width / 2); ?>px">&nbsp;</div>
+				<?php
+			$bar_output = ob_get_clean();
+			$keywords['poll_option_bar'] = $bar_output;
+			$keywords['poll_option_votes_number'] = $option_values['votes'];
+			$keywords['poll_option_votes_percent'] = number_format(($width*100),0,'.',' ').'%';
+
+			$format_bodycopy->setKeywordReplacements($keywords);
+			$format_bodycopy->printBody();
+			$output .= ob_get_clean();
 		}//end foreach
 
+		ob_start();
 		?>
 		</div>
 		<?php
 
-		return ob_get_clean();
+		$output .= ob_get_clean();
+		return $output;
 
 	}//end _componentGraphHTML()
 
 
 	/**
-	* Returns a graph key (legend) using user-defined colours
-	*
-	* @param object Poll_Question &$question	The question to print the key of
-	*
-	* @access private
-	* @return string
-	*/
-	function _componentKey(&$question)
-	{
-		ob_start();
-
-		?>
-		<div>
-		<ul>
-		<?php
-
-		// list each of the options for the poll
-		foreach ($question->attr('options') as $option_id => $option_values) {
-			?>
-			<li><?php echo ($option_id + 1) .') '.$option_values['option_text']; ?></li>
-			<?php
-		}
-
-		?>
-		</ul>
-		</div>
-		<?php
-
-		return ob_get_clean();
-
-	}//end _componentKey()
-
-
-	/**
 	* Returns a list of child poll_questions
 	*
-	* @param int $active_question_id	The active question
-	* @param boolean $date				If true, print the date next to each item
-	* @param boolean $no_active			If true, do not include the active question in the list
+	* @param int		$active_question_id	The active question
+	* @param boolean	$date				If true, print the date next to each item
+	* @param boolean	$no_active			If true, do not include the active question in the list
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
 	function _componentQuestionList($active_question_id, $date=false, $no_active=false)
 	{
+		$output = '';
+
+		$format_bodycopy = $this->getFormatAsset('past_questions_list_format');
+		if (is_null($format_bodycopy)) return false;
+		$keywords = Array();
+
 		ob_start();
 
 		// grab all the children of the $this that are poll_questions, and order them by date (oldest -> newest)
-		$poll_children = &$GLOBALS['SQ_SYSTEM']->am->getLinks(	$this->id, SQ_LINK_TYPE_2,
+		$poll_children = $GLOBALS['SQ_SYSTEM']->am->getLinks(	$this->id, SQ_LINK_TYPE_2,
 																'poll_question',
 																false,
 																'major',
@@ -610,11 +795,6 @@ class Page_Poll extends Page
 																'created',
 																null
 															);
-
-
-		?>
-		<ul>
-		<?php
 
 		// format the array to pass to...
 		$asset_id_list = Array();
@@ -628,45 +808,48 @@ class Page_Poll extends Page
 
 		// loop through the array backwards (we want to order them newest -> oldest)
 		array_reverse($info);
+		$output = ob_get_clean();
+
 		foreach ($info as $info_index => $info_data) {
+			ob_start();
+				// if the asset is not live, skip it
+				if ($info_data['status'] < SQ_STATUS_LIVE) continue;
 
-			// if the asset is not live, skip it
-			if ($info_data['status'] < SQ_STATUS_LIVE) {
-				continue;
-			}
+				// if the poll is the active poll, and they don't want to print
+				// the active poll, jump to the next iteration.
+				if ($info_index == $active_question_id && $no_active) {
+					continue;
+				}
 
-			// if the poll is the active poll, and they don't want to print
-			// the active poll, jump to the next iteration.
-			if ($info_index == $active_question_id && $no_active) {
-				continue;
-			}
+				$link = '';
+				ob_start();
+				?>
+					<a href="<?php echo $this->getURL().'?SQ_ACTION='.$this->getPrefix().'_results&SQ_POLL_ID='.$info_index; ?>">
+				<?php
 
+				echo $info_data['name'];
+				if ($date) {
+					echo '&nbsp;('.easy_datetime(strtotime($info_data['created'])).')';
+				}
+				if ($info_index == $active_question_id) {
+					echo '&nbsp;(<strong>Active</strong>)';
+				}
 
-			?>
-			<li>
-				<a href="<?php echo $this->getURL().'?SQ_ACTION='.$this->getPrefix().'_results&SQ_POLL_ID='.$info_index; ?>">
-			<?php
+				?>
+					</a>
+				<?php
+				$link .= ob_get_clean();
+				$keywords['poll_question'] = $link;
 
-			echo $info_data['name'];
-			if ($date) {
-				echo '&nbsp;('.easy_datetime(strtotime($info_data['created'])).')';
-			}
-			if ($info_index == $active_question_id) {
-				echo '&nbsp;(<strong>Active</strong>)';
-			}
-
-			?>
-				</a>
-			</li>
-			<?php
-
-
+				$format_bodycopy->setKeywordReplacements($keywords);
+				$format_bodycopy->printBody();
+			$output .= ob_get_clean();
 		}// end foreach ($info as ...)
-		?>
-		</ul>
-		<?php
 
-		return ob_get_clean();
+		ob_start();
+
+		$output .= ob_get_clean();
+		return $output;
 
 	}//end _componentQuestionList()
 
@@ -674,11 +857,11 @@ class Page_Poll extends Page
 	/**
 	* Returns the name of the active question
 	*
-	* @param int $active_question_id	The active question
-	* @param boolean $date				If true, print the date next to the item
+	* @param int		&$active_question_id	The active question
+	* @param boolean	$date					If true, print the date next to the item
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
 	function _componentActiveQuestion(&$active_question, $date)
 	{
