@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assetid.inc,v 1.10 2005/07/25 06:43:10 lwright Exp $
+* $Id: assetid.inc,v 1.11 2005/11/01 04:45:52 rhoward Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <assetid type_codes="user_group:I,backend_user:A,page:D" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -53,6 +53,9 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 	function Asset_Attribute_Assetid($attributeid=0, $value=null)
 	{
 		$this->Asset_Attribute($attributeid, $value);
+		
+		// default values
+		$this->_edit_params['type_codes'] = Array();
 
 	}//end constructor
 
