@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_rss.inc,v 1.2 2005/10/30 23:15:43 pgannavarapu Exp $
+* $Id: data_source_rss.inc,v 1.3 2005/11/01 22:31:31 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -204,9 +204,6 @@ class Data_Source_RSS extends Data_Source
 	{
 		$replacement = null;
 		if (strpos( $keyword, 'data_source_rss') === false) {
-			if (strpos($keyword, 'asset_') !== false) {
-				$keyword = substr($keyword, strlen('asset_'));
-			}
 			$replacement = parent::getKeywordReplacement($keyword);
 		} else {
 			$keyword = substr($keyword, strlen('data_source_rss_'));
