@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assertions.inc,v 1.16 2005/07/13 03:38:52 mmcintyre Exp $
+* $Id: assertions.inc,v 1.17 2005/11/01 23:24:35 skim Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 
@@ -40,8 +40,8 @@
 * @param boolean	$silent	is this exception silent (ie not shown to the user)
 * @param boolean	$fatal	is this exception fatal (ie should the script exit)
 *
-* @access public
 * @return boolean
+* @access public
 */
 function assert_true($value, $msg='', $silent=false, $fatal=true)
 {
@@ -65,8 +65,8 @@ function assert_true($value, $msg='', $silent=false, $fatal=true)
 * @param boolean	$silent	is this exception silent (ie not shown to the user)
 * @param boolean	$fatal	is this exception fatal (ie should the script exit)
 *
-* @access public
 * @return boolean
+* @access public
 */
 function assert_false($value, $msg='', $silent=false, $fatal=true)
 {
@@ -90,8 +90,8 @@ function assert_false($value, $msg='', $silent=false, $fatal=true)
 * @param boolean	$silent	is this exception silent (ie not shown to the user)
 * @param boolean	$fatal	is this exception fatal (ie should the script exit)
 *
-* @access public
 * @return boolean
+* @access public
 */
 function assert_null($value, $msg='', $silent=false, $fatal=true)
 {
@@ -115,8 +115,8 @@ function assert_null($value, $msg='', $silent=false, $fatal=true)
 * @param boolean	$silent	is this exception silent (ie not shown to the user)
 * @param boolean	$fatal	is this exception fatal (ie should the script exit)
 *
-* @access public
 * @return boolean
+* @access public
 */
 function assert_not_null($value, $msg='', $silent=false, $fatal=true)
 {
@@ -140,8 +140,8 @@ function assert_not_null($value, $msg='', $silent=false, $fatal=true)
 * @param boolean	$silent	is this exception silent (ie not shown to the user)
 * @param boolean	$fatal	is this exception fatal (ie should the script exit)
 *
-* @access public
 * @return boolean
+* @access public
 */
 function assert_empty($value, $msg='', $silent=false, $fatal=true)
 {
@@ -165,8 +165,8 @@ function assert_empty($value, $msg='', $silent=false, $fatal=true)
 * @param boolean	$silent	is this exception silent (ie not shown to the user)
 * @param boolean	$fatal	is this exception fatal (ie should the script exit)
 *
-* @access public
 * @return boolean
+* @access public
 */
 function assert_not_empty($value, $msg='', $silent=false, $fatal=true)
 {
@@ -194,9 +194,9 @@ function assert_not_empty($value, $msg='', $silent=false, $fatal=true)
 * @param boolean	$silent		is this exception silent (ie not shown to the user)
 * @param boolean	$fatal		is this exception fatal (ie should the script exit)
 *
-* @see assertArrayContains(), assertArrayEquals()
-* @access public
 * @return boolean
+* @access public
+* @see assertArrayContains(), assertArrayEquals()
 */
 function assert_equals($test, $expected, $msg='', $silent=false, $fatal=true)
 {
@@ -214,14 +214,14 @@ function assert_equals($test, $expected, $msg='', $silent=false, $fatal=true)
 /**
 * Assert that the values passed in are not equal
 *
-* @param mixed		$value	the first value to compare
-* @param mixed		$value	the second value to compare
+* @param mixed		$value1	the first value to compare
+* @param mixed		$value2	the second value to compare
 * @param string		$msg	an error message to print on failure
 * @param boolean	$silent	is this exception silent (ie not shown to the user)
 * @param boolean	$fatal	is this exception fatal (ie should the script exit)
 *
-* @access public
 * @return boolean
+* @access public
 */
 function assert_not_equals($value1, $value2, $msg='', $silent=false, $fatal=true)
 {
@@ -242,7 +242,6 @@ function assert_not_equals($value1, $value2, $msg='', $silent=false, $fatal=true
 * The array_diff() function is used so that elements do not have to be in exact same key
 * order in both arrays. If $test does not have all of the values expected (it can have more, but it must
 * have the expected values as a minimum), the assertion is considered failed.
-*
 * For objects this function has no meaningful use; use assertArrayEquals() instead.
 *
 * @param array		$test		the array to test
@@ -251,8 +250,8 @@ function assert_not_equals($value1, $value2, $msg='', $silent=false, $fatal=true
 * @param boolean	$silent		is this exception silent (ie not shown to the user)
 * @param boolean	$fatal		is this exception fatal (ie should the script exit)
 *
-* @access public
 * @return boolean
+* @access public
 */
 function assert_array_contains($test, $expected, $msg='', $silent=false, $fatal=true)
 {
@@ -281,9 +280,9 @@ function assert_array_contains($test, $expected, $msg='', $silent=false, $fatal=
 * @param boolean	$silent		is this exception silent (ie not shown to the user)
 * @param boolean	$fatal		is this exception fatal (ie should the script exit)
 *
-* @see assertEquals()
-* @access public
 * @return boolean
+* @access public
+* @see assertEquals()
 */
 function assert_array_equals($test, $expected, $msg='', $silent=false, $fatal=true)
 {
@@ -304,14 +303,14 @@ function assert_array_equals($test, $expected, $msg='', $silent=false, $fatal=tr
 * Equivalent of assert_true(isset($test))
 * If you want to test the index of an array please use assert_isset_array_index()
 *
-* @param mixed		$test		the command normallt passed to PHP's isset fn
-* @param string		$msg		an error message to print on failure
-* @param boolean	$silent		is this exception silent (ie not shown to the user)
-* @param boolean	$fatal		is this exception fatal (ie should the script exit)
+* @param mixed		$test	the command normallt passed to PHP's isset fn
+* @param string		$msg	an error message to print on failure
+* @param boolean	$silent	is this exception silent (ie not shown to the user)
+* @param boolean	$fatal	is this exception fatal (ie should the script exit)
 *
-* @see assert_isset_array_index()
-* @access public
 * @return boolean
+* @access public
+* @see assert_isset_array_index()
 */
 function assert_isset($test, $msg='', $silent=false, $fatal=true)
 {
@@ -332,15 +331,15 @@ function assert_isset($test, $msg='', $silent=false, $fatal=true)
 * To test whether the array itself is set or other types of variables please use the
 * plain version of this function, assert_isset()
 *
-* @param mixed		$test		the array to test
-* @param mixed		$index		the index we want to make sure exists
-* @param string		$msg		an error message to print on failure
-* @param boolean	$silent		is this exception silent (ie not shown to the user)
-* @param boolean	$fatal		is this exception fatal (ie should the script exit)
+* @param mixed		$test	the array to test
+* @param mixed		$index	the index we want to make sure exists
+* @param string		$msg	an error message to print on failure
+* @param boolean	$silent	is this exception silent (ie not shown to the user)
+* @param boolean	$fatal	is this exception fatal (ie should the script exit)
 *
-* @see assert_isset()
-* @access public
 * @return boolean
+* @access public
+* @see assert_isset()
 */
 function assert_isset_array_index($test, $index, $msg='', $silent=false, $fatal=true)
 {
@@ -367,8 +366,8 @@ function assert_isset_array_index($test, $index, $msg='', $silent=false, $fatal=
 * @param boolean	$silent	is this exception silent (ie not shown to the user)
 * @param boolean	$fatal	is this exception fatal (ie should the script exit)
 *
-* @access public
 * @return boolean
+* @access public
 */
 function assert_is_a($obj, $class, $msg='', $silent=false, $fatal=true)
 {
@@ -389,13 +388,12 @@ function assert_is_a($obj, $class, $msg='', $silent=false, $fatal=true)
 *
 * @param object		$obj	the object we are checking
 * @param string		$type	the type we are checking
-* @param string		$class	the type to check for
 * @param string		$msg	an error message to print on failure
 * @param boolean	$silent	is this exception silent (ie not shown to the user)
 * @param boolean	$fatal	is this exception fatal (ie should the script exit)
 *
-* @access public
 * @return boolean
+* @access public
 */
 function assert_type($obj, $type, $msg='', $silent=false, $fatal=true)
 {
@@ -419,8 +417,8 @@ function assert_type($obj, $type, $msg='', $silent=false, $fatal=true)
 * @param boolean	$silent	is this exception silent (ie not shown to the user)
 * @param boolean	$fatal	is this exception fatal (ie should the script exit)
 *
-* @access public
 * @return boolean
+* @access public
 */
 function assert_valid_db_result($result, $msg='', $silent=false, $fatal=true)
 {
@@ -444,8 +442,8 @@ function assert_valid_db_result($result, $msg='', $silent=false, $fatal=true)
 * @param boolean	$silent	is this exception silent (ie not shown to the user)
 * @param boolean	$fatal	is this exception fatal (ie should the script exit)
 *
-* @access public
 * @return boolean
+* @access public
 */
 function assert_valid_cache_result($result, $msg='', $silent=false, $fatal=true)
 {
@@ -469,8 +467,8 @@ function assert_valid_cache_result($result, $msg='', $silent=false, $fatal=true)
 * @param boolean	$silent		is this exception silent (ie not shown to the user)
 * @param boolean	$fatal		is this exception fatal (ie should the script exit)
 *
-* @access public
 * @return boolean
+* @access public
 */
 function assert_valid_assetid($assetid, $msg='', $silent=false, $fatal=true)
 {
@@ -515,8 +513,8 @@ function assert_valid_assetid($assetid, $msg='', $silent=false, $fatal=true)
 * @param boolean	$silent	is this exception silent (ie not shown to the user)
 * @param boolean	$fatal	is this exception fatal (ie should the script exit)
 *
-* @access public
 * @return boolean
+* @access public
 */
 function trigger_exception($msg, $silent=false, $fatal=false)
 {

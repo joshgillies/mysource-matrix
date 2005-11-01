@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.465 2005/11/01 04:36:03 dmckee Exp $
+* $Id: asset.inc,v 1.466 2005/11/01 23:24:35 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.465 $
+* @version $Revision: 1.466 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1189,7 +1189,7 @@ class Asset extends MySource_Object
 						'short_name',
 						'updated',
 						'updated_userid',
-					 );
+					  );
 
 			$changed_data = Array();
 
@@ -3106,8 +3106,7 @@ class Asset extends MySource_Object
 		$func_name = 'get'.$tmp_keyword.'KeywordReplacement';
 		if (method_exists($this, $func_name)) {
 			$replacement = $this->$func_name();
-		}
-		else if (strcmp('asset_assetid', $keyword) == 0) {
+		} else if (strcmp('asset_assetid', $keyword) == 0) {
 			$replacement = $this->id;
 		} else if (0 === strpos($keyword, 'asset_attribute_')) {
 			$attr_name = substr($keyword, strlen('asset_attribute_'));
@@ -3227,8 +3226,6 @@ class Asset extends MySource_Object
 	*
 	* @param array	$assetids	An array of user_group and/or user ids to check for read access
 	*							If the array is empty, the current user will be checked
-	*
-	*
 	*
 	* @return boolean
 	* @access public
@@ -3426,12 +3423,13 @@ class Asset extends MySource_Object
 	* Can perform effective access check based on current status, lock, workflow, and metadata
 	* NOTE: Only for write and above access
 	*
-	* @param int	$perm		the permission to check access for
-	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
-	*							permissions set for this asset, otherwise returns effective access based on locking
-	*							and status
-	* @param array	$assetids	An array of user_group and/or user ids to check for permission
-	*							If the array is empty, the current user will be checked
+	* @param int		$perm			the permission to check access for
+	* @param string		$lock_type		the type of write access required - if blank returns a plain check against
+	*									permissions set for this asset, otherwise returns effective access based on locking
+	*									and status
+	* @param array		$assetids		An array of user_group and/or user ids to check for permission
+	*									If the array is empty, the current user will be checked
+	* @param boolean	$only_workflow	check only workflow
 	*
 	* @return boolean
 	* @access public
@@ -3481,9 +3479,10 @@ class Asset extends MySource_Object
 	* Returns true if at least one of the passed assetids has the passed permission
 	* Does not check current status of lock
 	*
-	* @param int	$perm		the permission to check access for
-	* @param array	$assetids	An array of user_group and/or user ids to check for permission
-	*							If the array is empty, the current user will be checked
+	* @param int		$perm			the permission to check access for
+	* @param array		$assetids		An array of user_group and/or user ids to check for permission
+	*									If the array is empty, the current user will be checked
+	* @param boolean	$only_workflow	check only workflow
 	*
 	* @return boolean
 	* @access public
@@ -3589,6 +3588,8 @@ class Asset extends MySource_Object
 	* Paint the passed asset on the frontend
 	* Override printFrontend() if you wish to pass a different asset to print
 	*
+	* @param object	$asset	the asset to print in frontend
+	*
 	* @return void
 	* @access public
 	*/
@@ -3649,7 +3650,7 @@ class Asset extends MySource_Object
 			$asset->printBody();
 		}
 
-	}//end printFrontend()
+	}//end printFrontendAsset()
 
 
 	/**

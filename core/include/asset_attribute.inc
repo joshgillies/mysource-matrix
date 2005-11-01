@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.43 2005/10/24 23:17:09 dmckee Exp $
+* $Id: asset_attribute.inc,v 1.44 2005/11/01 23:24:35 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -102,7 +102,7 @@ class Asset_Attribute extends MySource_Object
 	*
 	* @param int	$attributeid	the attribute id to be loaded
 	* @param mixed	$value			the current value for the element
-	* @param Array	$default_params	the default values for the params
+	* @param array	$default_params	the default values for the params
 	*
 	*/
 	function Asset_Attribute($attributeid=0, $value=null, $default_params=Array())
@@ -149,15 +149,19 @@ class Asset_Attribute extends MySource_Object
 
 	/**
 	*
-	* Retrieves subclasses of Asset_Attribute
+	* Retrieves subclasses of Asset_Attribute, static method
 	*
-	* @static
+	* @param int	$attributeid	the attribute id to be loaded
+	* @param mixed	$value			the current value for the element
+	* @param array	$default_params	the default values for the params
+	*
+	* @return mixed object
 	* @access public
 	*/
 	function &loadAttribute($attributeid=0, $value=null, $default_params=Array())
 	{
 		if ($attributeid == 0) {
-			$empty_attr = new Asset_Attribute(0, $value, $default_params);
+			$empty_attr =& new Asset_Attribute(0, $value, $default_params);
 			return $empty_attr;
 		}
 
@@ -213,7 +217,8 @@ class Asset_Attribute extends MySource_Object
 	*
 	* Attributes must override this function
 	*
-	* @param string		$prefix		prefix for the form element
+	* @param string		$prefix			prefix for the form element
+	* @param boolean	$write_access	write access
 	*
 	* @return boolean
 	* @access public
@@ -230,7 +235,7 @@ class Asset_Attribute extends MySource_Object
 	*
 	* Attributes must override this function
 	*
-	* @param string		$prefix		prefix for the form element
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -293,7 +298,7 @@ class Asset_Attribute extends MySource_Object
 	* Takes an XML_Tree_Node from an edit interface XML file and creates
 	* the params array from it
 	*
-	* @param object XML_Tree_Node	$node
+	* @param object	&$node	XML_Tree_Node
 	*
 	* @return boolean
 	* @access public
@@ -313,12 +318,13 @@ class Asset_Attribute extends MySource_Object
 	* Manually set the value of an edit parameter for this attribute
 	*
 	* The parameter must already contain a default value to be set with this function
+	* It returns True if parameter set successfully
 	*
-	* @field	The parameter field to set
-	* @value	The value to set it to
+	* @param string	$field	The parameter field to set
+	* @param mixed	$value	The value to set it to
 	*
+	* @return boolean
 	* @access public
-	* @return boolean	True if parameter set successfully
 	*/
 	function setEditParam($field, $value)
 	{
@@ -337,12 +343,13 @@ class Asset_Attribute extends MySource_Object
 	* Manually set the value of an  parameter for this attribute
 	*
 	* The parameter must already contain a default value to be set with this function
+	* It returns True if parameter set successfully
 	*
-	* @field	The parameter field to set
-	* @value	The value to set it to
+	* @param string	$field	The parameter field to set
+	* @param mixed	$value	The value to set it to
 	*
+	* @return boolean
 	* @access public
-	* @return boolean	True if parameter set successfully
 	*/
 	function setParam($field, $value)
 	{
@@ -360,7 +367,7 @@ class Asset_Attribute extends MySource_Object
 	/**
 	* Returns the raw content of this attribute type
 	*
-	* @return String
+	* @return string
 	* @access public
 	*/
 	function getContent()
