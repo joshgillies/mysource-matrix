@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.113 2005/10/30 23:55:10 pgannavarapu Exp $
+* $Id: listing_engine.inc,v 1.114 2005/11/01 01:07:17 dheppell Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.113 $
+* @version $Revision: 1.114 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -108,9 +108,7 @@ class Listing_Engine extends Page
 		$asset =& new Bodycopy();
 		$copy_link = Array('asset' => &$type_formats, 'value' => 'default_format' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', translate('default_format'));
-		if (!$asset->create($copy_link)) {
-			return false;
-		}
+		if (!$asset->create($copy_link)) return false;
 
 		return $this->_createBodycopies();
 
@@ -131,9 +129,7 @@ class Listing_Engine extends Page
 		$asset =& new Bodycopy();
 		$copy_link = Array('asset' => &$this, 'value' => 'page_contents' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', 'Page Contents');
-		if (!$asset->create($copy_link)) {
-			return false;
-		}
+		if (!$asset->create($copy_link)) return false;
 
 		if (!$this->createNoResultsBodycopy(true)) {
 			return false;
@@ -1664,20 +1660,20 @@ class Listing_Engine extends Page
 				//get the Ancestors only when the asset is not a shadow assset
 				if (!$is_shadow) {
 					$parents = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
-				}
 
-				if (($type_key = array_search($type_code, $customised)) === false) {
-					foreach ($parents as $parent) {
-						// any of parent in the custom format?
-						if (array_search($parent, $customised) !== false) {
-							$this->_tmp['type_formats'][$type_code] = $parent;
-							$type_key = array_search($this->_tmp['type_formats'][$type_code], $customised);
-							$type_code = $parent;
+					if (($type_key = array_search($type_code, $customised)) === false) {
+						foreach ($parents as $parent) {
+							// any of parent in the custom format?
+							if (array_search($parent, $customised) !== false) {
+								$this->_tmp['type_formats'][$type_code] = $parent;
+								$type_key = array_search($this->_tmp['type_formats'][$type_code], $customised);
+								$type_code = $parent;
+							}
 						}
 					}
 				}
 			}
-			if ($type_key !== false) {
+			if (isset($type_key) && $type_key !== false) {
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, $type_code);
 				if ($link) {
 					$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
@@ -3325,7 +3321,7 @@ class Listing_Engine extends Page
 
 			$link_type = ($enable_on_create ? SQ_LINK_TYPE_2 : SQ_LINK_TYPE_3);
 
-			$asset = new Bodycopy();
+			$asset =& new Bodycopy();
 			$copy_link = Array(
 							'asset'			=> &$this,
 							'value'			=> 'no_results',
@@ -3353,7 +3349,7 @@ class Listing_Engine extends Page
 	*										disabled. If false, will only return null if
 	*										never created.
 	*
-	* @return object Bodycopy or null
+	* @return mixed	object|null
 	* @access public
 	*/
 	function &getNoResultsBodycopy($only_if_enabled=true)
@@ -3396,7 +3392,7 @@ class Listing_Engine extends Page
 		}
 
 
-	}//end createNoResultsBodycopy()
+	}//end isNoResultsBodycopyEnabled()
 
 
 	/**
@@ -3416,9 +3412,7 @@ class Listing_Engine extends Page
 			// no bodycopy yet? If we're trying to set to disabled, then we don't
 			// need to do anything - if not then we need to create it
 			if ($enabled) {
-				if (!$this->createNoResultsBodycopy()) {
-					return false;
-				}
+				if (!$this->createNoResultsBodycopy()) return false;
 			}
 		} else {
 			// set link type to either TYPE_2 if enabled or TYPE_3 if disabled
