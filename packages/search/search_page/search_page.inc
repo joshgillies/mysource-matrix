@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.148 2005/10/27 00:48:00 lwright Exp $
+* $Id: search_page.inc,v 1.149 2005/11/01 03:11:31 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.148 $
+* @version $Revision: 1.149 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -338,7 +338,16 @@ class Search_Page extends Listing_Engine
 		$bc_name = 'results';
 		if (empty($results)) $bc_name = 'no_results';
 
+		$bodycopy =& $this->getBodycopy($bc_name);
+		$keywords = $bodycopy->getKeywords();
+
 		echo $this->getBodycopyContents($bc_name, $this->getResultsBodyReplacements($results, $bc_name));
+
+		// there is no asset listing keyword in the contents, so we dont
+		// need to do all the extra processing for the listing
+		if (!in_array('select_all_js_code', $keywords)) {
+			echo $this->getSelectAllJSCodeKeywordReplacement();
+		}
 
 	}//end printResultsBody()
 
@@ -414,7 +423,7 @@ class Search_Page extends Listing_Engine
 					foreach ($links as $link) {
 						// keep the original score
 						$new_results[$link['minorid']] = $results[$orig_assetid];
-						$this->_tmp['proxy_grouping'][$link['minorid']] = $orig_assetid;
+						$this->_tmp['proxy_grouping'][$link['minorid']][] = $orig_assetid;
 					}
 				}
 
@@ -1402,6 +1411,9 @@ class Search_Page extends Listing_Engine
 						$this->sortGroups($this->attr('asset_grouping'), $result_list, $result_list);
 					}
 
+					// For the 'select all' code
+					$relations = $this->_analyseCheckAllRelations($result_list);
+
 					// print the asset list from the listing engine
 					ob_start();
 						$this->printAssetList($result_list);
@@ -1672,7 +1684,7 @@ class Search_Page extends Listing_Engine
 		if (!empty($proxy_settings)) {
 			// this child became a search result by proxy
 			if (!empty($this->_tmp['proxy_grouping'][$child_assetid])) {
-				$valid_parents = array_unique(array_values($this->_tmp['proxy_grouping']));
+				$valid_parents = array_unique(array_values($this->_tmp['proxy_grouping'][$child_assetid]));
 				$parents = array_intersect($valid_parents, $parents);
 			}
 		}
