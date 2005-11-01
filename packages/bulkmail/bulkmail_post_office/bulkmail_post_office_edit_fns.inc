@@ -1,6 +1,22 @@
 <?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Commercial Module Licence                                |
+* +--------------------------------------------------------------------+
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +--------------------------------------------------------------------+
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +--------------------------------------------------------------------+
+*
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.6 2005/11/01 23:34:58 ndvries Exp $
+*
+*/
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+
 
 /**
 * Bulkmail_Post_Office_Edit_Fns
@@ -11,12 +27,10 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
-
-
 class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 {
 

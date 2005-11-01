@@ -1,13 +1,27 @@
 <?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Commercial Module Licence                                |
+* +--------------------------------------------------------------------+
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +--------------------------------------------------------------------+
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +--------------------------------------------------------------------+
+*
+* $Id: bulkmail_post_office.inc,v 1.8 2005/11/01 23:34:58 ndvries Exp $
+*
+*/
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 require_once 'Mail.php';
 @require_once 'Mail/mime.php';
 
-define('BML_JOB_STATE_NOT_LIVE', 0);
-define('BML_JOB_STATE_RUNNING',  1);
-define('BML_JOB_STATE_PAUSED',   2);
+require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
+
 
 /**
 * Bulkmail_Post_Office
@@ -18,7 +32,7 @@ define('BML_JOB_STATE_PAUSED',   2);
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
