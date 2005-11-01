@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.464 2005/10/27 00:52:22 rong Exp $
+* $Id: asset.inc,v 1.465 2005/11/01 04:36:03 dmckee Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.464 $
+* @version $Revision: 1.465 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3580,21 +3580,35 @@ class Asset extends MySource_Object
 	*/
 	function printFrontend()
 	{
+		$this->printFrontendAsset($this);
+
+	}//end printFrontend()
+
+
+	/**
+	* Paint the passed asset on the frontend
+	* Override printFrontend() if you wish to pass a different asset to print
+	*
+	* @return void
+	* @access public
+	*/
+	function printFrontendAsset($asset)
+	{
 		if (!headers_sent()) {
-			if (!$this->readAccess()) {
-				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+			if (!$asset->readAccess()) {
+				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $asset->name));
 				return;
 			}
 
-			if ($this->charset) {
-				header('Content-type: text/html; charset='.$this->charset);
+			if ($asset->charset) {
+				header('Content-type: text/html; charset='.$asset->charset);
 			} else {
 				header('Content-type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
 			}
 		}
 
-		if ($this->languages) {
-			header('Content-language: '.$this->languages);
+		if ($asset->languages) {
+			header('Content-language: '.$asset->languages);
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -3619,7 +3633,7 @@ class Asset extends MySource_Object
 
 		// if no design was found, try using the asset's URL from the DB
 		if (empty($result)) {
-			$url = strip_url($this->getUrl(), true);
+			$url = strip_url($asset->getUrl(), true);
 			$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, $design_name);
 			if (empty($result) && $design_name != 'design::system::frontend') {
 				$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, 'design::system::frontend');
@@ -3629,10 +3643,10 @@ class Asset extends MySource_Object
 		if ($result) {
 			// we have found the design to use
 			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
-			$design->paint($this);
+			$design->paint($asset);
 		} else {
 			// we can't find a design, oh well let's just print out our body
-			$this->printBody();
+			$asset->printBody();
 		}
 
 	}//end printFrontend()
