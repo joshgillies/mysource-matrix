@@ -1,4 +1,4 @@
-db_name<?php
+<?php
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
@@ -12,7 +12,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -318,9 +318,9 @@ class Bulkmail_Manager extends Asset
 	function getJobDataPath($job_id)
 	{
 		$job_id_parts = explode(':', $job_id);
-		if (isset($jobid_parts[1])) {
-			$post_office =& $GLOBALS['SQ_SYSTEM']->am->getAsset($jobid_parts[0]);
-			$path = $post_office->data_path.'/'.$jobid_parts[1].'/.data';
+		if (isset($job_id_parts[1])) {
+			$post_office =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id_parts[0]);
+			$path = $post_office->data_path.'/'.$job_id_parts[1].'/.data';
 		} else {
 			$job =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id, 'bulkmail_job');
 			$post_office =& $job->getPostOffice();
