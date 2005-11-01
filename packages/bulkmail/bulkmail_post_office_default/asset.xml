@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../../../packages/asset.xsl" type="text/xsl"?>
+
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: asset.xml,v 1.1 2005/11/01 22:13:13 rong Exp $
+*
+*/
+-->
+
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
+	<package>bulkmail</package>
+	<type_code>bulkmail_post_office_default</type_code>
+	<version>0.1</version>
+	<name>Default Bulkmail Post Office</name>
+	<description>The Default Bulkmail Post Office system asset.</description>
+	<instantiable>yes</instantiable>
+	<allowed_access>system</allowed_access>
+	<parent_type>bulkmail_post_office</parent_type>
+	<requirements>
+		<requirement type="asset">
+			<code>bulkmail_manager</code>
+			<version>0.1</version>
+		</requirement>
+	</requirements>
+</asset_info>
