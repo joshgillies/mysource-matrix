@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.5 2005/10/30 22:36:14 pgannavarapu Exp $
+* $Id: data_source.inc,v 1.6 2005/11/01 22:32:50 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,8 +62,8 @@ class Data_Source extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
@@ -607,7 +607,7 @@ class Data_Source extends Asset
 	*											Specify that links should be returned for assets the user has read,
 	*											write, or admin access for. Leave NULL to ignore permissions.
 	*
-	* @return array	Array(int => string)	returns an array of assetids and their type code
+	* @return array			$parent				Array(int => string)	returns an array of assetids and their type code
 	* @access public
 	* @see generateGetParentsQuery()
 	*/
@@ -620,7 +620,7 @@ class Data_Source extends Asset
 		$parents[$this->id] = $this->type();
 		return $parents;
 
-	}//end getparents()
+	}//end getParents()
 
 
 }//end class
