@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.26 2005/10/27 00:46:32 lwright Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.27 2005/11/02 05:40:47 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -51,6 +51,81 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 		$this->Listing_Engine_Edit_Fns();
 
 	}//end constructor
+
+
+	/**
+	* Paint the interface for selecting searched statuses
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintLinkTypes(&$asset, &$o, $prefix)
+	{
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$write_access = $asset->writeAccess('attributes');
+
+		$current = $asset->attr('link_types');
+		$link_types = get_link_type_names();
+
+		if ($write_access) {
+			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+
+			$selected = Array();
+			foreach ($link_types as $link_type => $link_type_name) {
+				if ($current & $link_type) {
+					$selected[] = $link_type;
+				}
+			}
+
+			combo_box($prefix.'_link_types', $link_types, true, $selected);
+		} else {
+			if ($current == 0) {
+				echo translate('cms_listing_no_link_types_selected');
+			} else {
+				echo '<ul>';
+				foreach ($link_types as $link_type => $link_type_name) {
+					if ($current & $link_type) {
+						echo '<li>'.$link_type_name.'</li>';
+					}
+				}
+				echo '</ul>';
+			}
+		}
+
+		return $write_access;
+
+	}//end paintLinkTypes()
+
+
+	/**
+	* Processes the interface for selecting searched statuses
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processLinkTypes(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return false;
+
+		$link_types = 0;
+		if (isset($_POST[$prefix.'_link_types'])) {
+			foreach ($_POST[$prefix.'_link_types'] as $link_type) {
+				$link_types |= $link_type;
+			}
+		}
+
+		return $asset->setAttrValue('link_types', $link_types);
+
+	}//end processLinkTypes()
 
 
 }//end class

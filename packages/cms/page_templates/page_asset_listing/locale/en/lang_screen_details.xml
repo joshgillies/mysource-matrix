@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.11 2005/10/27 00:46:32 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.12 2005/11/02 05:40:47 lwright Exp $
 *
 */
 -->
@@ -38,6 +38,16 @@
 		<field attribute="parameter_map">
 			<display_name />
 			<note />
+		</field>
+	</section>
+	<section name="Asset Locations">
+		<field>
+			<display_name>Link Types</display_name>
+			<note>Only assets that are linked underneath the root node(s) with the appropriate link types will be listed. The default is to show links visible in the asset map, that is TYPE_1 and TYPE_2 links. This setting only applies when &lt;b&gt;Direct Links Only&lt;/b&gt; is turned on.</note>
+			<function_call>
+				<paint_function   name="paintLinkTypes"  />
+				<process_function name="processLinkTypes" />
+			</function_call>
 		</field>
 	</section>
 	<section name="Button Text">

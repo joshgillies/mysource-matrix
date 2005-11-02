@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.93 2005/10/27 00:46:32 lwright Exp $
+* $Id: page_asset_listing.inc,v 1.94 2005/11/02 05:40:47 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -112,7 +112,7 @@ class Page_Asset_Listing extends Listing_Engine
 
 				case 'letter' :
 					foreach ($root_asset_ids as $root_asset_id) {
-						$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, $letter_sort_by, SQ_PERMISSION_READ);
+						$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), false, $side_of_link, null, null, null, $letter_sort_by, SQ_PERMISSION_READ);
 						if (empty($query)) return Array();
 						$query['select'] .= ', SUBSTR(a.'.$letter_sort_by.', 1, 1) AS first_letter';
 
@@ -133,7 +133,7 @@ class Page_Asset_Listing extends Listing_Engine
 				case 'number' :
 				case 'grouped' :
 					foreach ($root_asset_ids as $root_asset_id) {
-						$new_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset_id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, null, SQ_PERMISSION_READ);
+						$new_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), false, $side_of_link, null, null, null, null, SQ_PERMISSION_READ);
 						$links = array_merge($links, $new_links);
 					}
 					foreach ($links as $link_info) {

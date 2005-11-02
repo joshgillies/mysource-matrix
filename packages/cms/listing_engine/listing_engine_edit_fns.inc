@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.46 2005/10/28 04:20:04 lwright Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.47 2005/11/02 05:40:44 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1816,6 +1816,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					$option_name = 'asset_metadata';
 				break;
 
+				case 'standard_asset':
+					$option_name = 'standard_asset_field';
+				break;
+
 				case 'attribute':
 					$option_name = 'asset_attribute';
 				break;
@@ -1836,8 +1840,12 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						$commit_button |= $this->paintGroupByMetadata($asset, $o, $prefix.'['.$level.']', $group_by_option);
 					break;
 
+					case 'standard_asset':
+						$commit_button |= $this->paintGroupByStandardAssetField($asset, $o, $prefix.'['.$level.']', $group_by_option);
+					break;
+
 					case 'attribute':
-						// this is reserved for future use, no implementation yet
+						// $commit_button |= $this->paintGroupByAttribute($asset, $o, $prefix.'['.$level.']', $group_by_option);
 					break;
 				}
 
@@ -1855,6 +1863,19 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						echo $options[array_get_index($group_by_option, 'sort_order', 'asc')];
 					}
 
+				$o->closeField();
+
+				$o->openField(translate('cms_listing_max_children_per_group'));
+				$max_children = array_get_index($group_by_option, 'max_children', null);
+					if ($write_access) {
+						text_box($prefix.'['.$level.'][max_children]', $max_children, 5);
+					} else {
+						if (is_null($max_children)) {
+							echo '<em>'.translate('unlimited').'</em>';
+						} else {
+							echo $max_children;
+						}
+					}
 				$o->closeField();
 
 
@@ -1876,9 +1897,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 				}
 
-			$o->sectionNote(translate('cms_listing_engine_grouping_section_note'));
+
 			$o->closeSection();
 		}
+
+		$o->sectionNote(translate('cms_listing_engine_grouping_section_note'));
 
 		return $commit_button;
 
@@ -1931,8 +1954,12 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					$this->processGroupByMetadata($asset, $o, $prefix, $group_by_key, $group_by_details[$group_by_key]);
 				break;
 
+				case 'standard_asset':
+					$this->processGroupByStandardAssetField($asset, $o, $prefix, $group_by_key, $group_by_details[$group_by_key]);
+				break;
+
 				case 'attribute':
-					// this is reserved for future use, no implementation yet
+					// $this->processGroupByAttribute($asset, $o, $prefix, $group_by_key, $group_by_details[$group_by_key]);
 				break;
 			}
 		}
@@ -2006,9 +2033,96 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		}
 		$group_by_option['sort_order'] = $posted_option['sort_order'];
 
+		if (empty($posted_option['max_children'])) {
+			$group_by_option['max_children'] = null;
+		} else {
+			$group_by_option['max_children'] = $posted_option['max_children'];
+		}
+
 		return true;
 
 	}//end processGroupByMetadata()
+
+
+	/**
+	* Paint 'Group By Standard Asset Field' Option
+	*
+	* @param object	&$asset				asset being painted
+	* @param object	&$o					backend outputter
+	* @param string	$prefix				prefix for the html doc element name
+	* @param array	$group_by_option	the 'group by' array element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintGroupByStandardAssetField(&$asset, &$o, $prefix, $group_by_option)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$options = Array(
+					'assetid'        => translate('asset_id'),
+					'version'        => translate('version'),
+					'name'           => translate('name'),
+					'short_name'     => translate('short_name'),
+					'status'         => translate('asset_status'),
+					'created'        => translate('created_date'),
+					'updated'        => translate('last_updated_date'),
+					'published'      => translate('last_published_date'),
+					'status_changed' => translate('status_changed_date'),
+					'type_code'      => translate('type_code'),
+				   );
+		$field = array_get_index($group_by_option, 'field', '');
+
+		$o->openField(translate('standard_asset_field'));
+
+			if ($write_access) {
+				combo_box($prefix.'[standard_asset_field]', $options, false, $field);
+			} else {
+				if (empty($field)) {
+					echo '<em>'.translate('cms_listing_no_field_selected').'</em>';
+				} else {
+					echo $options[$field];
+				}
+			}
+
+		$o->closeField();
+
+		return $write_access;
+
+	}//end paintGroupByStandardAssetField()
+
+
+	/**
+	* Process 'Group By Standard Asset Field' Option
+	*
+	* @param object	&$asset				asset being painted
+	* @param object	&$o					backend outputter
+	* @param string	$prefix				prefix for the html doc element name
+	* @param int	$key				key
+	* @param array	&$group_by_option	the 'group by' array element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processGroupByStandardAssetField(&$asset, &$o, $prefix, $key, &$group_by_option)
+	{
+		$posted_option = array_get_index($_POST[$prefix], $key, null);
+		if (!is_array($posted_option)) return false;
+
+		if (isset($posted_option['standard_asset_field'])) {
+			$group_by_option['field'] = $posted_option['standard_asset_field'];
+		}
+		$group_by_option['sort_order'] = $posted_option['sort_order'];
+
+		if (empty($posted_option['max_children'])) {
+			$group_by_option['max_children'] = null;
+		} else {
+			$group_by_option['max_children'] = $posted_option['max_children'];
+		}
+
+		return true;
+
+	}//end processGroupByStandardAssetField()
 
 
 	/**
@@ -2080,7 +2194,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* Paint 'Group By Parent Asset' Option
+	* Process 'Group By Parent Asset' Option
 	*
 	* @param object	&$asset				asset being painted
 	* @param object	&$o					backend outputter
@@ -2110,6 +2224,12 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 			$group_by_option['sort_by']		= $posted_option['sort_by'];
 			$group_by_option['sort_order']	= $posted_option['sort_order'];
+
+			if (empty($posted_option['max_children'])) {
+				$group_by_option['max_children'] = null;
+			} else {
+				$group_by_option['max_children'] = $posted_option['max_children'];
+			}
 		}
 
 		return true;
@@ -2142,9 +2262,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 			?> of type <?php
 			$options = Array(
-						''				=> '-- '.translate('select').' --',
-						'parent_asset'	=> translate('cms_listing_parent_asset'),
-						'metadata'		=> translate('asset_metadata'),
+						''					=> '-- '.translate('select').' --',
+						'parent_asset'		=> translate('cms_listing_parent_asset'),
+						'metadata'			=> translate('asset_metadata'),
+						'standard_asset'	=> translate('standard_asset_field'),
 					   );
 
 			combo_box($prefix.'[new_type]', $options, false, '');

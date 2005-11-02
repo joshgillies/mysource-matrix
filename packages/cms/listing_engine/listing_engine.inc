@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.114 2005/11/01 01:07:17 dheppell Exp $
+* $Id: listing_engine.inc,v 1.115 2005/11/02 05:40:44 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.114 $
+* @version $Revision: 1.115 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1438,7 +1438,8 @@ class Listing_Engine extends Page
 						break;
 
 						case 'metadata':
-							// the metadata field value will have been the index
+						case 'standard_asset':
+							// the field value will have been the index
 							$group_name = $group_level;
 						break;
 
@@ -2245,7 +2246,10 @@ class Listing_Engine extends Page
 
 		// keep track of the last time we encountered a parent asset group
 		$last_parent_asset = false;
+		$limit_array = Array();
+
 		foreach ($group_levels as $group_key => $group_level) {
+			array_unshift($limit_array, $group_level['max_children']);
 			$new_asset_groups = Array();
 
 			foreach ($asset_groups as $key => $group_data) {
@@ -2281,6 +2285,29 @@ class Listing_Engine extends Page
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($current_parent->id);
 							}
 						}
+					break;
+
+					case 'standard_asset':
+						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
+						$asset_info = $asset_info[$assetid];
+
+						$standard_asset_field = $group_level['field'];
+
+						switch ($standard_asset_field) {
+							case 'assetid':
+								$value = $assetid;
+							break;
+
+							case 'status':
+								$value = get_status_description($asset_info['status']);
+							break;
+
+							default:
+								$value = $asset_info[$standard_asset_field];
+							break;
+						}
+						$asset = null;
+						unset($asset);
 					break;
 
 					case 'attribute':
@@ -2320,7 +2347,33 @@ class Listing_Engine extends Page
 			$base[$group_data['assetid']] = $assetids[$group_data['assetid']];
 		}
 
+		$this->limitAssetsRecursively($results, $limit_array);
+
 	}//end groupAssetsRecursively()
+
+
+	/**
+	* Recursive function to limit the number of assets in each group
+	*
+	* @return void
+	* @access public
+	*/
+	function limitAssetsRecursively(&$results, $limit_array)
+	{
+		$num = array_shift($limit_array);
+
+		foreach($results as $key => $val) {
+			if (!is_null($num) && ($num >= 1)) {
+				while(count($results[$key]) > $num) {
+					array_pop($results[$key]);
+				}
+			}
+
+			if (!empty($limit_array)) {
+				$this->limitAssetsRecursively($results[$key], $limit_array);
+			}
+		}
+	}
 
 
 	/**
@@ -2337,7 +2390,7 @@ class Listing_Engine extends Page
 	{
 		$root_nodes = $this->getRootNodes();
 
-		$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($child_assetid, SQ_SC_LINK_BACKEND_NAV, '', true, 'minor');
+		$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($child_assetid, $this->attr('link_types'), '', true, 'minor');
 
 		$parent_link_assetids = Array();
 		foreach ($parent_links as $parent_link) {
@@ -2417,6 +2470,15 @@ class Listing_Engine extends Page
 					ksort($results);
 				} else {
 					krsort($results);
+				}
+			break;
+
+			case 'standard_asset':
+				// standard asset groups are sorted just on the value
+				if (array_get_index($group_type, 'sort_order', 'asc') == 'asc') {
+					asort($results);
+				} else {
+					arsort($results);
 				}
 			break;
 

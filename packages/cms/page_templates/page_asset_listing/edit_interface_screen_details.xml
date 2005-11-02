@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.27 2005/10/31 05:17:48 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.28 2005/11/02 05:40:47 lwright Exp $
 *
 */
 -->
@@ -58,6 +58,12 @@
 		</field>
 		<field attribute="direction">
 			<selection style="list" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintLinkTypes" />
+				<process_function name="processLinkTypes" />
+			</function_call>
 		</field>
 	</section>
 	<section name="List Formatting" write_access="write:content">
