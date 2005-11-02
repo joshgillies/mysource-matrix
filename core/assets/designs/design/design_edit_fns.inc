@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.98 2005/10/26 00:10:24 rong Exp $
+* $Id: design_edit_fns.inc,v 1.99 2005/11/02 00:06:38 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.99 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -634,7 +634,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintCurrentCustomisations(&$asset, &$o, $prefix)
 	{
-		$customisation_links = &$GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
+		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
 		if ($customisation_links) {
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 			foreach ($customisation_links as $link) {
