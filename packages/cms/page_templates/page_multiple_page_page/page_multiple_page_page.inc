@@ -1,0 +1,197 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: page_multiple_page_page.inc,v 1.1 2005/11/02 05:56:57 dmckee Exp $
+*
+*/
+
+
+require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy.inc';
+require_once SQ_FUDGE_PATH.'/general/text.inc';
+
+/**
+* Page_Multiple_Page_Page
+*
+* Purpose
+*
+*
+* @author  Darren McKee <dmckee@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix_Packages
+* @subpackage CMS
+*/
+class Page_Multiple_Page_Page extends Bodycopy
+{
+
+
+	/**
+	* Constructor
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	*/
+	function Page_Multiple_Page_Page($assetid=0)
+	{
+		$this->Bodycopy($assetid);
+
+	}//end constructor
+
+
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Standard pages create a bodycopy asset when they are created
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!parent::_createAdditional($link)) return false;
+
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$multi_page = $link['asset'];
+
+		$new_page_number = strval($multi_page->getNumberOfPages());
+
+		return $this->saveWebPaths(Array($new_page_number));
+
+	}//end _createAdditional()
+
+
+	/**
+	* Called by the design to print the body of this asset
+	*
+	* @return void
+	* @access public
+	*/
+	function printBody()
+	{
+		//We have to redirect to our parent, so that page numbers, and other stuff can be printed
+		$parent = $this->getMultiplePageAsset();
+		$parent->printPage($this);
+
+	}//end printBody()
+
+
+	/**
+	* Return the ID of this assets parent multiple page
+	*
+	* @return string
+	* @access public
+	*/
+	function getMultiplePageId()
+	{
+		if ($this->id != '0') {
+			$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'page_multiple_page');
+			if (!empty($parents)) {
+				return current(array_keys($parents));
+			}
+		}
+		return '0';
+
+	}//end getMultiplePageId()
+
+
+	/**
+	* Return this assets parent multiple page
+	*
+	* @return string
+	* @access public
+	*/
+	function getMultiplePageAsset()
+	{
+		$multi_id = $this->getMultiplePageId();
+		if ($multi_id != '0') {
+			return $GLOBALS['SQ_SYSTEM']->am->getAsset($multi_id);
+		}
+		$null_minder = null;
+		return $null_minder;
+
+	}//end getMultiplePageAsset()
+
+
+	/**
+	* Return this assets parent multiple page
+	*
+	* @return string
+	* @access public
+	*/
+	function getRawContent()
+	{
+		return parent::getRawBodycopyContent();
+
+	}//end getRawContent()
+
+
+	/**
+	* As printBody() is overridden, this basically acts as that function
+	*
+	* @return string
+	* @access public
+	*/
+	function getContent()
+	{
+		ob_start();
+			parent::printBody();
+		$content = ob_get_contents();
+		ob_end_clean();
+
+		return $content;
+
+	}//end getContent()
+
+
+	/**
+	* Return the keywords for this asset type.
+	*
+	* @return array
+	* @access public
+	*/
+	function getAvailableKeywords()
+	{
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('page_multiple_page');
+		$parent =& new Page_Multiple_Page();
+		return $parent->getAvailableKeywords();
+
+	}//end getAvailableKeywords()
+
+
+	/**
+	* Performs a little bit of trickery, in order to get the parent to replace the keywords
+	*
+	* @param string	$value	The keyword to be replaced
+	*
+	* @return array
+	* @access public
+	*/
+	function getKeywordReplacement($value)
+	{
+		$parent = $this->getMultiplePageAsset();
+		return $parent->getKeywordReplacement($value);
+
+	}//end getKeywordReplacement()
+
+
+}//end class
+
+?>
