@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.105 2005/10/28 00:12:09 lwright Exp $
+* $Id: html_form.inc,v 1.106 2005/11/02 00:59:00 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -123,8 +123,9 @@ function normal_button($name, $value, $on_click='', $extras='')
 /**
 * Prints a hidden field
 *
-* @param string	$name		the form name to use for the hidden field
-* @param string	$value		the text that should stored in the hidden field
+* @param string	$name	the form name to use for the hidden field
+* @param string	$value	the text that should stored in the hidden field
+* @param string	$extras	the extra options to specify
 *
 * @return void
 * @access public
@@ -145,14 +146,14 @@ function hidden_field($name, $value='', $extras='')
 /**
 * Prints a simple single line text box
 *
-* @param string		$name			the form name to use for the text box
-* @param string		$value			the text that should be pre-entered in the text box
-* @param int		$size			the width of the text box
-* @param int		$max			the maximum number of characters allowed in the text box
-* @param boolean	$hide_value		use the default value as indicative text only (hide it onFocus and restore onBlur
-*									if needed) - useful if you want to use it as instructional text (as required by priority
-*									level 3 accessability standards)
-* @param string		$extras			any input field attributes that should be placed in the <input ... > tag
+* @param string		$name		the form name to use for the text box
+* @param string		$value		the text that should be pre-entered in the text box
+* @param int		$size		the width of the text box
+* @param int		$max		the maximum number of characters allowed in the text box
+* @param boolean	$hide_value	use the default value as indicative text only (hide it onFocus and restore onBlur
+*								if needed) - useful if you want to use it as instructional text (as required by priority
+*								level 3 accessability standards)
+* @param string		$extras		any input field attributes that should be placed in the <input ... > tag
 *
 * @return void
 * @access public
@@ -200,7 +201,9 @@ function text_box($name, $value, $size='', $max='', $hide_value=false, $extras='
 * @param string		$value			the text that should be pre-entered in the text box
 * @param boolean	$allow_negative	whether negative values are allowed
 * @param int		$size			the width of the text box
-* @param int		$max			the maximum number of characters allowed in the text box
+* @param int		$range_min		the minimum number of range
+* @param int		$range_max		the maximum number of range
+* @param int		$max_chars		the maximum number of characters allowed in the text box
 * @param boolean	$hide_value		use the default value as indicative text only (hide it onFocus and restore onBlur
 *									if needed) - useful if you want to use it as instructional text (as required by priority
 *									level 3 accessability standards)
@@ -248,11 +251,11 @@ function int_text_box($name, $value, $allow_negative=true, $size='', $range_min=
 /**
 * Prints a password box
 *
-* @param string	$name		the form name to use for the password box
-* @param string	$value		the text that should be pre-entered in the password box
-* @param int	$size		the width of the password box
-* @param int	$max		the maximum number of characters allowed in the password box
-* @param string	$extras		any input field attributes that should be placed in the <input ... > tag
+* @param string	$name	the form name to use for the password box
+* @param string	$value	the text that should be pre-entered in the password box
+* @param int	$size	the width of the password box
+* @param int	$max	the maximum number of characters allowed in the password box
+* @param string	$extras	any input field attributes that should be placed in the <input ... > tag
 *
 * @return void
 * @access public
@@ -317,11 +320,11 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 /**
 * Prints a radio button
 *
-* @param string	$name		the form name to use for the radio button
-* @param string	$value		the value that will come through when the button is selected
-* @param bool	$checked	whether the button is checked by default or not
-* @param string	$on_click	any JS that should be executed when the submit button is pressed
-* @param string	$extras		any input field attributes that should be placed in the <input ... > tag
+* @param string		$name		the form name to use for the radio button
+* @param string		$value		the value that will come through when the button is selected
+* @param boolean	$checked	whether the button is checked by default or not
+* @param string		$on_click	any JS that should be executed when the submit button is pressed
+* @param string		$extras		any input field attributes that should be placed in the <input ... > tag
 *
 * @return void
 * @access public
@@ -350,11 +353,11 @@ function radio_button($name, $value='1', $checked=false, $on_click='', $extras='
 /**
 * Prints a check box
 *
-* @param string	$name		the form name to use for the check box
-* @param string	$value		the value that will come through when the box is selected
-* @param bool	$checked	whether the button is checked by default or not
-* @param string	$on_click	any JS that should be executed when the submit button is pressed
-* @param string	$extras		any input field attributes that should be placed in the <input ... > tag
+* @param string		$name		the form name to use for the check box
+* @param string		$value		the value that will come through when the box is selected
+* @param boolean	$checked	whether the button is checked by default or not
+* @param string		$on_click	any JS that should be executed when the submit button is pressed
+* @param string		$extras		any input field attributes that should be placed in the <input ... > tag
 *
 * @return void
 * @access public
@@ -383,16 +386,16 @@ function check_box($name, $value='1', $checked=false, $on_click='', $extras='')
 /**
 * Given a name, an array of keys and values, and a default value, prints a dropdown box
 *
-* @param string	$name		the form name to use for the dropdown box
-* @param Array	$contents	an array of whose keys are values to be returned when that
-*							option is selected and whose values are the display text for the option
-* @param bool	$multiple	whether you can multiple selections can be made or not
-* @param mixed	$defaults	if there is only one default can be a string, or if there are
-*							multiple can be an array
-* @param int	$height		the height (in lines) of the combo box
-* @param string	$extras		any input field attributes that should be placed in the <input ... > tag
-* @param int	$maxlength	the maximum number of characters displayed for any option,
-*							anything over gets truncated with '...' appended
+* @param string		$name		the form name to use for the dropdown box
+* @param array		$contents	an array of whose keys are values to be returned when that
+*								option is selected and whose values are the display text for the option
+* @param boolean	$multiple	whether you can multiple selections can be made or not
+* @param mixed		$defaults	if there is only one default can be a string, or if there are
+*								multiple can be an array
+* @param int		$height		the height (in lines) of the combo box
+* @param string		$extras		any input field attributes that should be placed in the <input ... > tag
+* @param int		$maxlength	the maximum number of characters displayed for any option,
+*								anything over gets truncated with '...' appended
 *
 * @return void
 * @access public
@@ -444,7 +447,7 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 *
 * @param string	$text	The text to go inside the label
 * @param string	$for	The ID of the form element this label applies to
-* @param string $extras	Any extra HTML to put in the label tag
+* @param string	$extras	Any extra HTML to put in the label tag
 *
 * @return void
 * @access public
@@ -461,13 +464,13 @@ function label($text, $for='', $extras='')
 /**
 * Prints an entry box for a colour picker, requires javascript and colour_picker script
 *
-* @param string	$name					the form name to use for the colour box
-* @param Array	$default				the colour you want to display to begin with
-* @param bool	$allow_blanks			allow no colour to be selected ot not
-* @param mixed	$button_text			text on the button that displays the colour picker
-* @param int	$show_text_box			show the text box to allow manual entry of a colour
-* @param string	$show_current_colour	show a box with the current displayed
-* @param int	$show_change_colour		show a tick or cross to indicate if the colour has changed
+* @param string		$name					the form name to use for the colour box
+* @param array		$default				the colour you want to display to begin with
+* @param boolean	$allow_blanks			allow no colour to be selected ot not
+* @param mixed		$button_text			text on the button that displays the colour picker
+* @param int		$show_text_box			show the text box to allow manual entry of a colour
+* @param string		$show_current_colour	show a box with the current displayed
+* @param int		$show_change_colour		show a tick or cross to indicate if the colour has changed
 *
 * @return void
 * @access public
@@ -519,8 +522,9 @@ function colour_box($name, $default='000000', $allow_blanks=false, $button_text=
 
 /**
 * Returns a file upload box
-* @param string	$name		the form name to use for the file upload box
-* @param string	$extras		any input field attributes that should be placed in the <input ... > tag
+*
+* @param string	$name	the form name to use for the file upload box
+* @param string	$extras	any input field attributes that should be placed in the <input ... > tag
 *
 * @return void
 * @access public
@@ -538,9 +542,12 @@ function file_upload($name, $extras='')
 /**
 * Returns the information for an uploaded file if the upload was successful
 *
-* @param string	$name		the form name from the file upload box
+* It returns FALSE on error, blank array on no file upload and the $_FILES[$name]
+* if a file was uploaded successfully
 *
-* @return mixed (bool|array) FALSE on error, blank array on no file upload and the $_FILES[$name] if a file was uploaded successfully
+* @param string	$name	the form name from the file upload box
+*
+* @return mixed boolean|array
 * @access public
 */
 function get_file_upload_info($name)
@@ -585,17 +592,20 @@ function get_file_upload_info($name)
 /**
 * Commits an uploaded file to its intended place
 *
-* @param string	$name			the form name from the file upload box
-* @param string	$dest			the destination for the uploaded file, if this is a directory,
-*								the file is put in that directory if it is a file, it is written
-*								to that file (taking into account $overwrite)
-* @param bool	$overwrite		whether to overwrite any existing file or not
-* @param int	$max_size		the maximum number of bytes that the uploaded file can be
-* @param bool	$restrict_exts	if true extension MUST BE in $extensions,
-*								if false must NOT be in $extensions
-* @param Array	$extensions		if not empty, the only extensions that are not allowed to be uploaded
+* It returns FALSE on error, blank string on no file upload and the filename (basename)
+* if a file was uploaded
 *
-* @return mixed (bool|string) FALSE on error, blank string on no file upload and the filename (basename) if a file was uploaded
+* @param string		$name			the form name from the file upload box
+* @param string		$dest			the destination for the uploaded file, if this is a directory,
+*									the file is put in that directory if it is a file, it is written
+*									to that file (taking into account $overwrite)
+* @param boolean	$overwrite		whether to overwrite any existing file or not
+* @param int		$max_size		the maximum number of bytes that the uploaded file can be
+* @param boolean	$restrict_exts	if true extension MUST BE in $extensions,
+*									if false must NOT be in $extensions
+* @param array		$extensions		if not empty, the only extensions that are not allowed to be uploaded
+*
+* @return mixed boolean|string
 * @access public
 */
 function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restrict_exts=true, $extensions=Array())
@@ -679,10 +689,10 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 /**
 * Get a string version of the given array of type codes, for passing to the asset map
 *
-* @param array	$type_codes		The type codes to encode
+* @param array	$type_codes	The type codes to encode
 *
-* @access public
 * @return string
+* @access public
 */
 function get_type_codes_string($type_codes)
 {
@@ -718,16 +728,16 @@ function get_type_codes_string($type_codes)
 /**
 * Prints an interface for choosing an asset from the asset map
 *
-* @param string		$name			the name to use for the field
-* @param int		$assetid		current value for this field
-* @param array		$type_codes		Array('[type_code]' => '[flag]')
-*									where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
-* @param string		$map_frame		a reference to the map_frame so we can get the asset map
-									if this is an empty string, then the asset_finder will look for the asset map
-									in the frame where it was loaded
-* @param boolean	$new_window		is the asset finder in a different window than the asset map
-* @param string		$done_fn		a function to call when the asset finder is finished
-* @param array		$buttons		an array of which additional buttons to print (clear, reset)
+* @param string		$name		the name to use for the field
+* @param int		$assetid	current value for this field
+* @param array		$type_codes	Array('[type_code]' => '[flag]')
+*								where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
+* @param string		$map_frame	a reference to the map_frame so we can get the asset map
+*								if this is an empty string, then the asset_finder will look for the asset map
+*								in the frame where it was loaded
+* @param boolean	$new_window	is the asset finder in a different window than the asset map
+* @param string		$done_fn	a function to call when the asset finder is finished
+* @param array		$buttons	an array of which additional buttons to print (clear, reset)
 *
 * @return void
 * @access public
@@ -787,17 +797,16 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 /**
 * Prints an interface for choosing several assets from the asset map
 *
-*
-* @param string		$name			the base name to use for the form fields
-* @param array		$assetids		current values for this field
-* @param array		$type_codes		Array('[type_code]' => '[flag]')
-*									where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
-* @param string		$map_frame		Name of the frame containing the asset map
-									if this is an empty string, then the asset_finder will look for the asset map
-									in the frame where it was loaded
-* @param boolean	$new_window		is the asset finder in a different window than the asset map
-* @param string		$done_fn		a javascript function to call when the asset finder is finished
-* @param array		$buttons		an array of which additional buttons to print (clear and/or reset)
+* @param string		$name		the base name to use for the form fields
+* @param array		$assetids	current values for this field
+* @param array		$type_codes	Array('[type_code]' => '[flag]')
+*								where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
+* @param string		$map_frame	Name of the frame containing the asset map
+*								if this is an empty string, then the asset_finder will look for the asset map
+*								in the frame where it was loaded
+* @param boolean	$new_window	is the asset finder in a different window than the asset map
+* @param string		$done_fn	a javascript function to call when the asset finder is finished
+* @param array		$buttons	an array of which additional buttons to print (clear and/or reset)
 *
 * @return void
 * @access public
@@ -928,10 +937,8 @@ function validate_security_key()
 /**
 * Takes a variable and outputs as many hidden fields as necessary to recreate it
 *
-* @param string	$name			the form name to use for the field
-* @param int	$assetid		current value for this field
-* @param array	$type_codes		Array('[type_code]' => '[flag]')
-*								where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
+* @param array	$var	the array of variables to insert into the hidden fields
+* @param string	$name	the form name to use for the field
 *
 * @return void
 * @access public
@@ -957,14 +964,14 @@ function var_to_hidden_field($var, $name='')
 *
 * @param string		$name					Name for the field
 * @param boolean	$multiple				Whether we want to be able to choose several types
-* @param Array		$defaults				The default values
-* @param boolean	$instatiable			Do we want instantiable or non-instantiable assets? (null means both)
+* @param array		$defaults				The default values
+* @param boolean	$instantiable			Do we want instantiable or non-instantiable assets? (null means both)
 * @param boolean	$system_accessible		Do we want to include assets that only have system access?
 * @param boolean	$show_inherit_checkbox	Do we want to show a checkbox for inheriting from a type?
-* @param Array		$specified_types 		Limit the listing to specified types and their decendants
+* @param array		$specified_types		Limit the listing to specified types and their decendants
 *
-* @access public
 * @return void
+* @access public
 */
 function asset_type_chooser($name, $multiple=false, $defaults=Array(), $instantiable=null, $system_accessible=false, $show_inherit_checkbox=false, $specified_types=Array())
 {
@@ -1037,11 +1044,12 @@ function asset_type_chooser($name, $multiple=false, $defaults=Array(), $instanti
 * Print an interface widget to enter a URL
 *
 * @param string	$name		Name for the field
-* @param string	$url_value	Default value for the URL
-* @param Array	$protocols	Supported protocols. Ie, Array('http', 'mailto', 'ftp')
+* @param string	$value		Default value for the URL
+* @param array	$protocols	Supported protocols. Ie, Array('http', 'mailto', 'ftp')
+* @param int	$width		the width of the input box
 *
-* @access public
 * @return void
+* @access public
 */
 function url_tester($name, $value='', $protocols=Array('http'), $width=50)
 {
@@ -1140,9 +1148,11 @@ function url_tester($name, $value='', $protocols=Array('http'), $width=50)
 /**
 * Returns the full URL of the url_tester form entity
 *
-* @param string		$name		the form name of the url_tester
+* It returns Empty string if the POST var isn't set, or the full URL on success (eg. protocol://url)
 *
-* @return string	Empty string if the POST var isn't set, or the full URL on success (eg. protocol://url)
+* @param string	$name	the form name of the url_tester
+*
+* @return string
 * @access public
 */
 function get_url_tester_url($name)
@@ -1159,23 +1169,26 @@ function get_url_tester_url($name)
 /**
 * Draws a structured dropdown list for selecting assets
 *
-* @param int					$root_id		the ID of the asset to start from
-* @param Array(string)			$type_codes		An array of type codes to restrict
-*												options to.
-* @param bool					$include_root	Whether or not to list the root node
-* @param int					$max_depth		Maximum depth to display nodes to
-* @param string					$seperator		Character(s) to display between child branches
-* @param bool 					$allow_multiple	Allow Multiple Entries
-* @param string					$seperator		String to display between entries
-* @param bool					$include_root	Include root node in the search
-* @param string					$root_text		Text to display for root node
-* @param bool					$check_boxes	Display as check boxes (false = dropdown)
-* @param Array					$statuses		statuses to filter from list
-* @param Array					$link_types		Allowed link types(Empty for all types)
-* @param Array					$allow_empty	Add an empty entry at the start
+* @param string		$name			the name of the menu
+* @param int		$root_id		the ID of the asset to start from
+* @param array		$type_codes		An array of type codes to restrict
+*									options to.
+* @param array		$selected		Pre-selected value
+* @param int		$width			The width of the drop down
+* @param int		$height			The height of the drop down
+* @param int		$max_depth		Maximum depth to display nodes to
+* @param boolean	$allow_multiple	Allow Multiple Entries
+* @param string		$seperator		String to display between entries
+* @param boolean	$include_root	Whether or not to list the root node
+* @param string		$root_text		Text to display for root node
+* @param boolean	$check_boxes	Display as check boxes (false = dropdown)
+* @param array		$statuses		statuses to filter from list
+* @param boolean	$structured		draw the structured tree
+* @param array		$link_types		Allowed link types(Empty for all types)
+* @param array		$allow_empty	Add an empty entry at the start
 *
+* @return array
 * @access protected
-* @return array()
 */
 function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $width=0, $height=0, $max_depth=0, $allow_multiple=false, $seperator='-', $include_root=false, $root_text='', $check_boxes=false, $statuses=Array(), $structured=true, $link_types=Array(), $allow_empty=false)
 {
@@ -1278,12 +1291,12 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 * )
 * </pre>
 *
-* @param string		`			$treeid			the ID of the tree to format
-* @param Array(string=>mixed)	&$tree			the tree to insert the formatted ID into
-* @param string					$chunk_prefix	optional, used internally
+* @param string	$treeid			the ID of the tree to format
+* @param array	&$tree			the tree to insert the formatted ID into
+* @param string	$chunk_prefix	optional, used internally
 *
-* @access private
 * @return void
+* @access private
 */
 function id_list_to_tree($treeid, &$tree, $chunk_prefix='')
 {
@@ -1310,16 +1323,16 @@ function id_list_to_tree($treeid, &$tree, $chunk_prefix='')
 * Takes a tree array and an output array, and fills the output array with an ascii tree,
 * with each line of the tree as an element in the array
 *
-* @param Array(string=>mixed)	$tree				the tree to format
-* @param Array(string=>mixed)	$all_child_links	assetInfo() for use when printing
-* @param Array(string=>mixed)	$output_tree		the array to store the output array
-* @param string					$branch				optional, used internally
-* @param Array(string)			&$level				Level in the tree to print as the base
-* @param string					$seperator			String to display between
-* @param int					$max_depth			Maximum depth to print
+* @param array	$tree				the tree to format
+* @param array	&$all_child_links	assetInfo() for use when printing
+* @param array	&$output_tree		the array to store the output array
+* @param string	$branch				optional, used internally
+* @param array	$level				Level in the tree to print as the base
+* @param string	$seperator			String to display between
+* @param int	$max_depth			Maximum depth to print
 *
-* @access private
 * @return void
+* @access private
 */
 function draw_tree($tree, &$all_child_links, &$output_tree, $branch='', $level=0, $seperator='-', $max_depth=0)
 {
