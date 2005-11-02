@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.5 2005/08/04 23:00:18 dmckee Exp $
+* $Id: lang_strings.xml,v 1.6 2005/11/02 22:09:34 dmckee Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -78,5 +78,7 @@
 <string source="seperator">Seperator</string>
 <string source="fit_to_contents">Fit to contents</string>
 <string source="not_specified">Not Specified</string>
+<string source="currently_no_pages_to_display">There are currently no pages to display</string>
+<string source="create_new_page">Create New Page</string>
 
 </strings>
