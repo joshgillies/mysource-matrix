@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.2 2005/11/02 04:17:57 pgannavarapu Exp $
+* $Id: page_rss_feed.inc,v 1.3 2005/11/02 04:54:01 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -201,6 +201,11 @@ class Page_RSS_Feed extends Page
 						$sub_tag = explode('_', $tag);
 						$new_channel[$sub_tag[0]]['SUBTAGS'][$sub_tag[1]] = $value;
 					} else if (strpos($tag, '.') !== false) {
+						if ($tag == 'link.href') {
+							if (assert_valid_assetid($value, '', true, false)) {
+								$value = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($value);
+							}
+						}
 						$sub_tag = explode('.', $tag);
 						$new_channel[$sub_tag[0]]['ATTRIBUTES'][$sub_tag[1]] = $value;
 					} else {

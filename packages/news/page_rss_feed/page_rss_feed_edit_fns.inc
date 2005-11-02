@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed_edit_fns.inc,v 1.2 2005/11/02 04:17:57 pgannavarapu Exp $
+* $Id: page_rss_feed_edit_fns.inc,v 1.3 2005/11/02 04:54:01 pgannavarapu Exp $
 *
 */
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
@@ -29,7 +29,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -418,10 +418,6 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 					}
 				break;
 			}
-			foreach ($tags as $key => $val) {
-				$tags[$val] = strpos($val, '_') !== false? str_replace('_', ' ', $val): (strpos($val, '.') !== false? str_replace('.', ' ', $val).' = ':$val);
-				unset($tags[$key]);
-			}
 			$attr = substr($mode, strlen('add_'));
 			$attr_val = $asset->attr($attr);
 			$wa = $asset->writeAccess('attributes');
@@ -434,7 +430,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 						<th><?php echo translate('tag');?></th>
 						<th><?php echo translate('value');?></th>
 						<?php
-						if ($wa) {
+						if (($wa) && (in_array('link', $tags) || in_array('link.href', $tags))) {
 							?>
 							<th><?php echo translate('link_text_value');?></th>
 						<?php
@@ -453,12 +449,14 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 									//if the tag is not a link then just use the value normally
 									//else check if the value is a valid asset id and if yes then print the asset finder with the assetid
 									//else just print the value normally in a text box
-									if ($tag != 'link') {
+									if (($tag != 'link') && ($tag !== 'link.href')) {
 										text_box($attr.'['.$tag.']', isset($attr_val[$tag])? $attr_val[$tag]: '', 30);
-										?>
-										</td>
-										<td>&nbsp;
-										<?php
+										if (($wa) && (in_array('link', $tags) || in_array('link.href', $tags))) {
+											?>
+											</td>
+											<td>&nbsp;
+											<?php
+										}
 									} else {
 										$id = 0;
 										$url = null;
@@ -478,7 +476,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 									//if the tag is not a link then just use the value normally
 									//else check if the value is a valid asset id and if yes then print the asset's url
 									//else just print the value normally
-									if ($tag != 'link') {
+									if (($tag != 'link') && ($tag !== 'link.href')) {
 										echo isset($attr_val[$tag])? $attr_val[$tag]: '&nbsp;';
 									} else if (isset($attr_val[$tag])) {
 										if (assert_valid_assetid($attr_val[$tag], '', true, false)) {
@@ -537,7 +535,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 				foreach ($attr_val as $tag => $value) {
 					if ($tag == 'link_text') continue;
 					if (!empty($value)) {
-						if ($tag == 'link') {
+						if (in_array($tag, Array('link', 'link.href'))) {
 							//if there is a text value for the link then it is taken
 							// else the asset id is taken and its url is stored
 							if (!empty($attr_val['link_text'])) {
@@ -577,7 +575,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* Find out if we have write access to asset attributes
+	* Find out if we there is any items
 	*
 	* @param object	&$asset	The page_rss_feed asset
 	* @param string	$prefix	the prefix for this asset
