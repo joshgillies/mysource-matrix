@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.21 2005/10/07 03:28:07 gsherwood Exp $
+* $Id: ecommerce_cart.inc,v 1.22 2005/11/02 23:15:47 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -216,7 +216,6 @@ class Ecommerce_Cart extends Listing_Engine
 		$keywords = $format_bodycopy->getKeywords();
 		$replacements = Array();
 
-
 		if (!in_array('asset_listing', $keywords)) {
 			// there is no asset listing keyword in the contents, so we dont
 			// need to do all the extra processing for the listing
@@ -224,7 +223,7 @@ class Ecommerce_Cart extends Listing_Engine
 			return;
 		}
 
-		//the children here will refer to the contents of this cart
+		// the children here will refer to the contents of this cart
 		$children = $this->getAssetList();
 		$num_kids = count($children);
 		$this->filterAssetList($children);
@@ -264,6 +263,13 @@ class Ecommerce_Cart extends Listing_Engine
 			$global_contents = $replacements['asset_listing'];
 			$num_assets_showing = 0;
 			$num_kids = 0;
+			?>
+			<script type="text/javascript">
+			<!--
+				select_list = [];
+				//-->
+			</script>
+			<?php
 		} else {
 			$todo =& $this->getChunk($children, $replacements, $result_page, $num_per_page);
 			$num_assets_showing = count($todo);
@@ -287,7 +293,7 @@ class Ecommerce_Cart extends Listing_Engine
 			} else {
 				$checkout_cart_href = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($checkout_id);
 				ob_start();
-					?><input type="button" onclick="location.href = '<?php echo addslashes($checkout_cart_href); ?>'" value="<?php echo $this->attr('checkout_text'); ?>"><?php
+					?><input type="button" onclick="location.href = '<?php echo addslashes($checkout_cart_href); ?>'" value="<?php echo $this->attr('checkout_text'); ?>" /><?php
 					$checkout_cart_button = ob_get_contents();
 				ob_end_clean();
 			}
@@ -319,10 +325,17 @@ class Ecommerce_Cart extends Listing_Engine
 		$replacements['last_asset_position']   = min($num_kids, $num_per_page * $result_page);
 		$replacements['root_nodes']            = implode(',', $this->getRootNodes());
 
+		$replacements['select_all_js_code'] = $this->getSelectAllJSCodeKeywordReplacement();
+
 		// print the contents of page - replacing the global keywords
 		$format_bodycopy->setKeywordReplacements($replacements);
 
 		ob_start();
+			if (!in_array('select_all_js_code', $keywords)) {
+				// there is no asset listing keyword in the contents, so we dont
+				// need to do all the extra processing for the listing
+				echo $this->getSelectAllJSCodeKeywordReplacement();
+			}
 			$format_bodycopy->printBody();
 		ob_end_flush();
 
