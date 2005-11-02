@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_build_rss.xml,v 1.1 2005/11/01 22:24:01 pgannavarapu Exp $
+* $Id: edit_interface_screen_build_rss.xml,v 1.2 2005/11/02 04:17:57 pgannavarapu Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Keywords As Items" write_access="write:attributes" limbo_access="1">
+	<section name="Keywords As Items" write_access="write:attributes" limbo_access="1" show_if="ItemsNotEmpty">
 		<field>
 			<function_call>
 				<paint_function name="paintSelectedKeywords"     />

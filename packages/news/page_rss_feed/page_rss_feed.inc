@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.1 2005/11/01 22:24:01 pgannavarapu Exp $
+* $Id: page_rss_feed.inc,v 1.2 2005/11/02 04:17:57 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -196,28 +196,33 @@ class Page_RSS_Feed extends Page
 				$writer->setTypeVersion($type[0], $type[1]);
 				$new_channel = Array();
 				$rss_type = implode('_', $type);
-				foreach ($channel as $value) {
-					if (strpos($value['tag'], '_') !== false) {
-						$sub_tag = $value['tag'];
-						$sub_tag = explode('_', $sub_tag);
-						$new_channel[$sub_tag[0]]['SUBTAGS'][$sub_tag[1]] = $value['value'];
-					} else if (strpos($value['tag'], '.') !== false) {
-						$sub_tag = explode('.', $value['tag']);
-						$new_channel[$sub_tag[0]]['ATTRIBUTES'][$sub_tag[1]] = $value['value'];
+				foreach ($channel as $tag => $value) {
+					if (strpos($tag, '_') !== false) {
+						$sub_tag = explode('_', $tag);
+						$new_channel[$sub_tag[0]]['SUBTAGS'][$sub_tag[1]] = $value;
+					} else if (strpos($tag, '.') !== false) {
+						$sub_tag = explode('.', $tag);
+						$new_channel[$sub_tag[0]]['ATTRIBUTES'][$sub_tag[1]] = $value;
 					} else {
 						//converting date values into the respective formats
-						if (in_array($value['tag'], Array('updated', 'pubDate', 'lastBuildDate', 'published'))) {
-							$timestamp = strtotime($value['value']);
+						if (in_array($tag, Array('updated', 'pubDate', 'lastBuildDate', 'published'))) {
+							$timestamp = strtotime($value);
 							if (($timestamp == -1) ||($timestamp === false)) {
-								$timestamp = mktime($value['value']);
+								$timestamp = mktime($value);
 							}
 							if ($rss_type == 'rss_2.0') {
-								$value['value'] = date('D, j M Y H:i:s T', $timestamp);
+								$value = date('D, j M Y H:i:s T', $timestamp);
 							} else if ($rss_type == 'atom_1.0') {
-								$value['value'] = date('Y-m-j', $timestamp).'T'.date('H:i:s', $timestamp).'Z';
+								$value = date('Y-m-j', $timestamp).'T'.date('H:i:s', $timestamp).'Z';
+							}
+						} else {
+							if ($tag == 'link') {
+								if (assert_valid_assetid($value, '', true, false)) {
+									$value = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($value);
+								}
 							}
 						}
-						$new_channel[$value['tag']] = $value['value'];
+						$new_channel[$tag] = $value;
 					}
 				}
 				$no_errors = $this->validateChannel($new_channel);
@@ -225,13 +230,17 @@ class Page_RSS_Feed extends Page
 				//adding channel info to the writer
 				$writer->addChannel($new_channel);
 				$new_image = Array();
-				foreach ($image as $value) {
-					if (strpos($value['tag'], '_') !== false) {
-						$sub_tag = $value['tag'];
-						$sub_tag = explode('_', $sub_tag);
-						$new_image[$sub_tag[0]][$sub_tag[1]] = $value['value'];
+				foreach ($image as $tag => $value) {
+					if (strpos($tag, '_') !== false) {
+						$sub_tag = explode('_', $tag);
+						$new_image[$sub_tag[0]][$sub_tag[1]] = $value;
 					} else {
-						$new_image[$value['tag']] = $value['value'];
+						if ($tag == 'link') {
+							if (assert_valid_assetid($value, '', true, false)) {
+								$value = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($value);
+							}
+						}
+						$new_image[$tag] = $value;
 					}
 				}
 				if (!empty($new_image)) {

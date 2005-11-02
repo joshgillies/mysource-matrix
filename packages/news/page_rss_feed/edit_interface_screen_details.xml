@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2005/11/01 22:24:01 pgannavarapu Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2005/11/02 04:17:57 pgannavarapu Exp $
 *
 */
 -->
@@ -32,17 +32,17 @@
 			<text width="25" height="1" />
 		</field>
 	</section>
+	<section name="Choose RSS Formats And Version" write_access="write:attributes">
+		<field attribute="rss_types">
+			<selection style="list" />
+		</field>
+	</section>
 	<section name="Listing Engine Assets Selection" write_access="write:attributes">
 		<field>
 			<function_call>
 				<paint_function   name="paintLisitngChooser"   />
 				<process_function name="processLisitngChooser" />
 			</function_call>
-		</field>
-	</section>
-	<section name="Choose RSS Formats And Version" write_access="write:attributes">
-		<field attribute="rss_types">
-			<selection style="list" />
 		</field>
 	</section>
 </contents>

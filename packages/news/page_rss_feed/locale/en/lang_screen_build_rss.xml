@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_build_rss.xml,v 1.1 2005/11/01 22:24:01 pgannavarapu Exp $
+* $Id: lang_screen_build_rss.xml,v 1.2 2005/11/02 04:17:57 pgannavarapu Exp $
 *
 */
 -->
@@ -47,7 +47,7 @@
 	<section name="Add Channel And Image Info">
 		<field>
 			<display_name />
-			<note> You have to add information to the channel or the image tags like the links, descriptions, urls etc. </note>
+			<note> You have to add information to the channel or the image tags like the links, descriptions, urls etc. Please note that every RSS Feed should have a channel info. So its a must to enter the values for all of the required tags of the channel info to build the RSS. But its optional for the Image Info.</note>
 			<function_call>
 				<paint_function name="paintChannelImage"     />
 				<process_function name="processChannelImage" />

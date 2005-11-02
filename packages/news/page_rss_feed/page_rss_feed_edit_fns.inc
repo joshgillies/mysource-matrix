@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed_edit_fns.inc,v 1.1 2005/11/01 22:24:01 pgannavarapu Exp $
+* $Id: page_rss_feed_edit_fns.inc,v 1.2 2005/11/02 04:17:57 pgannavarapu Exp $
 *
 */
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
@@ -29,7 +29,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -61,45 +61,38 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 	function paintLisitngChooser(&$asset, &$o, $prefix)
 	{
 		$current_rss_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, 'listing_engine', false, 'major', 'generate_rss');
+		$rss_links = Array();
+		foreach ($current_rss_links as $i => $link) {
+			$rss_links[$link['minorid']] = $link['minor_type_code'];
+		}
 		$wa = $asset->writeAccess('attributes');
-		?>
-		<table>
+		if ($wa) {
+			multiple_asset_finder($prefix.'_listing_engines', array_keys($rss_links), Array('listing_engine' => 'D'));
+			return true;
+		} else {
+			$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($rss_links));
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header"><?php echo translate('id') ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('name') ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('type') ?></td>
+				</tr>
 			<?php
-			$i = 0;
-			if (!empty($current_rss_links)) {
-				foreach ($current_rss_links as $i => $links) {
-					?>
-					<tr><td>
-						<?php
-						if ($wa) {
-							asset_finder($prefix.'_listing_engines['.$i.']', $links['minorid'], Array('listing_engine' => 'D'));
-						} else {
-							echo $links['minorid'];
-						}
-					?>
-					</td></tr>
-				<?php
-				}
-			} else {
-				?>
-				<tr><td><?php echo 'No Listing Engine Assets Selected';?></td></tr>
-				<?php
-			}
-			if ($wa) {
-				?>
-				<tr><td>
-					<?php
-					$i++;
-					asset_finder($prefix.'_listing_engines['.$i.']', 0, Array('listing_engine' => 'D'));
-					?>
-				</td></tr>
+			foreach ($infos as $assetid => $info) {
+			?>
+			<tr>
+				<td class="sq-backend-table-cell"><?php echo $assetid ?></td>
+				<td class="sq-backend-table-cell"><?php echo $info['name'] ?></td>
+				<td class="sq-backend-table-cell"><?php echo ucwords(str_replace('_',' ', $info['type_code'])) ?></td>
+			</tr>
 			<?php
 			}
-		?>
-		</table>
-		<?php
-		if ($wa) return true;
-		return false;
+			?>
+			</table>
+			<?php
+			return false;
+		}
 
 	}//end paintLisitngChooser()
 
@@ -156,31 +149,35 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintKeywords(&$asset, &$o, $prefix)
 	{
+		$types = Array();
 		$rss_source_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, 'listing_engine', false, 'major', 'generate_rss');
 		if (!empty($rss_source_links)) {
 			$keywords = Array();
 			foreach ($rss_source_links as $links) {
 				$listing_engine =& $GLOBALS['SQ_SYSTEM']->am->getAsset($links['minorid']);
-				$types = array_keys($listing_engine->attr('types'));
-				if (!empty($types)) {
-					foreach ($types as $type) {
+				$attribute_types =  array_keys($listing_engine->attr('types'));
+				if (!empty($attribute_types)) {
+					foreach ($attribute_types as $type) {
 						if (!isset($keywords[$type])) {
 							$keywords[$type] = $asset->_getAvailableKeywordsOfType($type);
 						}
+						$types[$type] = $type;
 					}
 				}
-			}
-			foreach ($types as $key => $type) {
-				$types[$type] = $type;
-				unset($types[$key]);
 			}
 			$types['select'] = translate('select_asset_type');
 			$wa = $asset->writeAccess('attributes');
 			if ($wa) {
 				$type = null;
+				$tag = null;
 				if (isset($_POST['asset_type']) && ($_POST['asset_type'] != 'select')) {
 					$type = $_POST['asset_type'];
 				}
+				if (isset($_POST[$prefix.'_tag']) && !empty($_POST[$prefix.'_tag'])) {
+					$tag = $_POST[$prefix.'_tag'];
+					$type = null;
+				}
+
 				?>
 				<table class="sq-backend-table">
 					<tr>
@@ -199,9 +196,6 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 						$tag = null;
 						if (isset($_POST[$prefix.'_keyword']) && ($_POST[$prefix.'_keyword'] != 'select')) {
 							$keyword = $_POST[$prefix.'_keyword'];
-						}
-						if (isset($_POST[$prefix.'_tag']) && !empty($_POST[$prefix.'_tag'])) {
-							$tag = $_POST[$prefix.'_tag'];
 						}
 						if (empty($tag)) {
 							?>
@@ -394,26 +388,33 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 		$modes = Array('add_channel', 'add_image');
 		foreach ($modes as $mode) {
 			$tags = Array();
+			$required = Array();
 			$type = $asset->attr('rss_types');
 			switch ($mode) {
 				case 'add_channel':
 					if ($type == 'rss_1.0') {
 						$tags = Array('title', 'link', 'description');
+						$required = Array('title', 'link', 'description');
 					} else if ($type == 'rss_2.0') {
+						$required = Array('title', 'link', 'description');
 						$tags = Array('title', 'link', 'description', 'pubDate', 'lastBuildDate', 'language', 'copyright', 'webmaster', 'managingEditor', 'category', 'generator', 'ttl', 'docs');
 					} else {
 						//type is ATOM 1.0
+						$required = Array('title', 'id', 'updated');
 						$tags = Array('title', 'id', 'link.rel', 'link.type', 'link.href', 'subtitle', 'updated', 'rights', 'author_name', 'author_email', 'author_url', 'category.term', 'category.label', 'category.scheme', 'rights');
 					}
 				break;
 				case 'add_image':
 					if ($type == 'rss_1.0') {
 						$tags = Array('title', 'url', 'link');
+						$required = Array('title', 'url', 'link');
 					} else if ($type == 'rss_2.0') {
 						$tags = Array('title', 'description', 'url', 'weight', 'height', 'link');
+						$required = Array('title', 'url', 'link');
 					} else {
 						//ATOM 1.0
 						$tags = Array('icon');
+						$required = Array('icon');
 					}
 				break;
 			}
@@ -425,61 +426,90 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 			$attr_val = $asset->attr($attr);
 			$wa = $asset->writeAccess('attributes');
 			$i = 0;
-			if (!empty($attr_val)) {
-				echo '<br /><b>'.translate('current_'.$attr.'_info').'</b>';
+			if (!empty($attr_val) || ($wa)) {
+				echo '<br /><b>'.translate($attr.'_info').'</b>';
 				?>
-				<table class="sq-backend-table">
+				<table class="sq-backend-table" width="100%">
 					<tr>
 						<th><?php echo translate('tag');?></th>
 						<th><?php echo translate('value');?></th>
 						<?php
 						if ($wa) {
 							?>
-							<th><?php echo translate('delete_question');?></th>
+							<th><?php echo translate('link_text_value');?></th>
 						<?php
 						}
-					?>
+						?>
+						<th><?php echo translate('required');?></th>
 					</tr>
 					<?php
-					foreach ($attr_val as $channel) {
+					foreach ($tags as $tag) {
 						?>
 						<tr>
-							<?php
-							if ($wa) {
-								?>
-								<td><?php text_box($attr.'['.$i.'][tag]', $channel['tag']);?></td>
-								<td><?php text_box($attr.'['.$i.'][value]', $channel['value']);?></td>
-								<td><?php check_box($attr.'['.$i.'][delete]', $channel['tag']);?></td>
-							<?php
-							} else {
-								?>
-								<td><?php echo $channel['tag'];?></td>
-								<td><?php echo $channel['value'];?></td>
-							<?php
-							}
-						?>
+							<td><?php echo $tag; ?></td>
+							<td>
+								<?php
+								if ($wa) {
+									//if the tag is not a link then just use the value normally
+									//else check if the value is a valid asset id and if yes then print the asset finder with the assetid
+									//else just print the value normally in a text box
+									if ($tag != 'link') {
+										text_box($attr.'['.$tag.']', isset($attr_val[$tag])? $attr_val[$tag]: '', 30);
+										?>
+										</td>
+										<td>&nbsp;
+										<?php
+									} else {
+										$id = 0;
+										$url = null;
+										if (isset($attr_val[$tag])) {
+											if (assert_valid_assetid($attr_val[$tag], '', true, false)) {
+												$id = $attr_val[$tag];
+											} else {
+												$url = $attr_val[$tag];
+											}
+										}
+										asset_finder($attr.'['.$tag.']', $id);
+										?>
+										</td>
+										<td><?php text_box($attr.'['.$tag.'_text]', $url);
+									}
+								} else {
+									//if the tag is not a link then just use the value normally
+									//else check if the value is a valid asset id and if yes then print the asset's url
+									//else just print the value normally
+									if ($tag != 'link') {
+										echo isset($attr_val[$tag])? $attr_val[$tag]: '&nbsp;';
+									} else if (isset($attr_val[$tag])) {
+										if (assert_valid_assetid($attr_val[$tag], '', true, false)) {
+											$value = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($attr_val[$tag]);
+											echo $value;
+										} else {
+											echo $attr_val[$tag];
+										}
+									} else {
+										echo '&nbsp;';
+									}
+								}
+							?>
+							</td>
+							<td>
+								<?php
+								//if the current tag is a required tag or not
+								if (!empty($required)) {
+									if (in_array($tag, $required)) {
+										echo 'Yes';
+									} else {
+										echo 'No';
+									}
+								}
+								?></td>
 						</tr>
 						<?php
-						$i++;
 					}
-				?>
+					?>
 				</table>
 			<?php
-			}
-			if ($wa) {
-				echo '<br /><b>'.translate('add_new_'.$attr.'_info').'</b>';
-				?>
-				<table class="sq-backend-table">
-					<tr>
-						<th><?php echo translate('tag');?></th>
-						<th><?php echo translate('value');?></th>
-					</tr>
-					<tr>
-						<td><?php combo_box($attr.'['.$i.'][tag]', $tags, false, '');?></td>
-						<td><?php text_box($attr.'['.$i.'][value]', '');?></td>
-					</tr>
-				</table>
-				<?php
 			}
 		}
 
@@ -504,9 +534,20 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 			if (isset($_POST[$attr])) {
 				$attr_val = $_POST[$attr];
 				$new_val = Array();
-				foreach ($attr_val as $channel) {
-					if (!isset($channel['delete']) && !empty($channel['tag']) && !empty($channel['value'])) {
-						$new_val[] = $channel;
+				foreach ($attr_val as $tag => $value) {
+					if ($tag == 'link_text') continue;
+					if (!empty($value)) {
+						if ($tag == 'link') {
+							//if there is a text value for the link then it is taken
+							// else the asset id is taken and its url is stored
+							if (!empty($attr_val['link_text'])) {
+								$value = $attr_val['link_text'];
+							} else {
+								if (empty($value['assetid'])) continue;
+								$value = $value['assetid'];
+							}
+						}
+						$new_val[$tag] = $value;
 					}
 				}
 				$asset->setAttrValue($attr, $new_val);
@@ -530,6 +571,24 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 	{
 		$wa = $asset->writeAccess('attributes');
 		if ($wa) return true;
+		return false;
+
+	}//end ifWriteAccess()
+
+
+	/**
+	* Find out if we have write access to asset attributes
+	*
+	* @param object	&$asset	The page_rss_feed asset
+	* @param string	$prefix	the prefix for this asset
+	*
+	* @return boolean
+	* @access protected
+	*/
+	function ItemsNotEmpty(&$asset, $prefix)
+	{
+		$items = $asset->attr('items');
+		if (!empty($items)) return true;
 		return false;
 
 	}//end ifWriteAccess()
