@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.68 2005/10/13 23:22:51 sdanis Exp $
+* $Id: lang_strings.xml,v 1.69 2005/11/02 05:20:03 lwright Exp $
 *
 */
 
@@ -197,7 +197,9 @@
 	<string source="search_and_replace_confirmation">Search and Replace Confirmation</string>
 	<string source="security_key_incorrect">Security Key Incorrect</string>
 	<string source="severity">Severity</string>
+	<string source="standard_asset_field">Standard Asset Field</string>
 	<string source="standard_search_fields">Standard Search Fields</string>
+	<string source="status_changed_date">Status Changed Date</string>
 	<string source="step_duration">Step Duration</string>
 	<string source="step_logic">Step Logic</string>
 	<string source="submissions">Submissions</string>
@@ -231,6 +233,7 @@
 	<string source="up">Up</string>
 	<string source="url">URL</string>
 	<string source="uninstall_options">Uninstall Options</string>
+	<string source="unlimited">Unlimited</string>
 	<string source="upload_patch_file">Upload Patch File</string>
 	<string source="upload_patch">Upload Patch</string>
 	<string source="use_cache">Use Cache</string>
@@ -716,9 +719,9 @@
 	<string source="cannot_save_cache_of_non_asset">Cannot save cache of non asset object</string>
 
 
-	<!-- 
+	<!--
 		Note: The code makes assumptions about the following set of string codes, so they
-		must not be tweaked.  They need to stay as [condition_type_code]_true 
+		must not be tweaked.  They need to stay as [condition_type_code]_true
 		and [condition_type_code]_false
 	-->
 	<string source="condition_logged_in_true">The user is logged in</string>
@@ -742,7 +745,7 @@
 	<string source="condition_logical_true">The following combination of keywords evaluates to True</string>
 	<string source="condition_logical_false">The following combination of keywords evaluates to False</string>
 
-	
+
 	<string source="server_variable">Server Variable</string>
 	<string source="pattern">Pattern</string>
 	<string source="user_agent_pattern">User Agent Pattern</string>
