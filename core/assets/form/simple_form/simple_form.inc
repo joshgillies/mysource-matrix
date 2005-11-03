@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.11 2005/10/19 04:18:04 lwright Exp $
+* $Id: simple_form.inc,v 1.12 2005/11/03 03:57:22 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -149,11 +149,13 @@ class Simple_Form extends Asset
 	*											is on ('major' or 'minor')
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
+	* @param boolean		$dependant			Whether we want dependant links, non-dependent or (null) don't care
+	* @param boolean		$exclusive			Whether we want exclusive links, non-exclusive or (null) don't care
 	*
 	* @return array
 	* @access public
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null, $dependant=null, $exclusive=null)
 	{
 		// there are no links away from the shadow asset (ie:questions)
 		if (!is_numeric($assetid)) {
