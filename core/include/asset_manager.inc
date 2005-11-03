@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.390 2005/10/27 02:10:02 skim Exp $
+* $Id: asset_manager.inc,v 1.391 2005/11/03 04:20:31 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.390 $
+* @version $Revision: 1.391 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2000,7 +2000,7 @@ class Asset_Manager extends MySource_Object
 			$this->_tmp['lock_types'][$assetid] = $asset->lockTypes();
 		}
 
-		if ($lock_type != 'all') {
+		if ($lock_type !== 'all') {
 			if (!isset($this->_tmp['lock_types'][$assetid][$lock_type])) {
 				return Array();
 			}
