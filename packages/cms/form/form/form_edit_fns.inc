@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.61 2005/10/28 01:37:06 mmcintyre Exp $
+* $Id: form_edit_fns.inc,v 1.62 2005/11/03 03:42:09 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -721,7 +721,11 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function generateGenericSection(&$asset)
 	{
-		$output = '<table width="'.$asset->attr('form_width').'">';
+		$output = '<table';
+		if ((int)$asset->attr('form_width')) {
+			$output .= ' width="'.$asset->attr('form_width').'"';
+		}
+		$output .= '>';
 		$sort_order = $asset->attr('sort_order');
 		if (empty($sort_order)) return;
 
