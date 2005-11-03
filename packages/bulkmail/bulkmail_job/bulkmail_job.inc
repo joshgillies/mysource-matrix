@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.8 2005/11/03 01:08:02 rong Exp $
+* $Id: bulkmail_job.inc,v 1.9 2005/11/03 03:37:50 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -182,7 +182,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 
 
 	/**
-	* Provides extra checking and disable invalid status change once the job is live and running
+	* Provides extra checking and disable invalid status change once the job is in progress
 	*
 	* @param int		$new_status		the new status to set for this asset
 	* @param boolean	$update_parents	Specify if we want to update the parent as well
@@ -192,39 +192,28 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	*/
 	function processStatusChange($new_status, $update_parents=true)
 	{
-		// TODO: more robust pause/resume handling here
-		$old_status = $this->status;
-
 		// get the current state from the bmail queue db table
 		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$table = $bm->getQueuedJobs($this->id);
-		if (!empty($table)) {
-			$state = $table[$this->id]['status'];
-		} else {
-			$state = BML_JOB_STATE_NOT_RUNNING;
-		}
 
-		// once the job is live, the only way to change it's status is by cancelling this job from the backend
-		if ($old_status == SQ_STATUS_LIVE && $state == BML_JOB_STATE_NOT_RUNNING) {
-			return parent::processStatusChange($new_status, $update_parents);
+		// cannot change the status of the job is in the db table
+		if (!empty($table)) return false;
 
-		// if the job is not live, only set it to live if it is valid
-		} else {
+		// user set the job to live
+		if ($new_status == SQ_STATUS_LIVE) {
+			// only set job to live if it is valid
 			$errors = $this->isValidJob();
 			if (empty($errors)) {
-				// add entry to db
-				if ($state == BML_JOB_STATE_NOT_RUNNING) {
-					if (!$bm->addJob($this)) {
-						trigger_error("processStatusChange: addJob($this->id) failed.\n");
-						return false;
-					}
+				if (!$bm->addJob($this)) {
+					trigger_error("processStatusChange: addJob($this->id) failed.\n");
+					return false;
 				}
-				// set the job to live
-				return parent::processStatusChange($new_status, $update_parents);
+			} else {
+				return false;
 			}
 		}
 
-		return false;
+		return parent::processStatusChange($new_status, $update_parents);
 
 	}//end processStatusChange()
 
