@@ -12,7 +12,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -190,6 +190,9 @@ class Bulkmail_Manager extends Asset
 	*/
 	function addJob($job, $post_office=null)
 	{
+		// open the transaction
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		// if no post office is supplied, work out which one to use
 		if (is_null($post_office)) {
 			if ($job->id == 0) {
@@ -199,7 +202,7 @@ class Bulkmail_Manager extends Asset
 			}
 		}
 
-		// check isValidJob here
+		// check isValidJob here IMPORTANT!
 
 		// work out the unique id for this job in the db table
 		if ($job->id == 0) {
@@ -212,24 +215,32 @@ class Bulkmail_Manager extends Asset
 			$unique_id = $job->id;
 		}
 
-		// get the effective data path for progress file
-		// initialise the progress file, set total count to zero
-		$data_dir = $post_office->data_path.'/.data/'.$unique_id;
-		echo "data dir = $data_dir\n";
+		// purge and refresh dir
+		$data_dir = $this->getJobDataPath($post_office->id.':'.$unique_id);
+		if (is_dir($data_dir)) delete_directory($data_dir);
+
+		// store progress and details information in files
+		create_directory($data_dir);
 		$this->initProgressFile($data_dir);
+		$this->initDetailsFile($job, $post_office, $data_dir);
 
-		// dump vars to file
-
-		// add entry to the database table
+		// add a new entry to the database table
 		$db_table = SQ_TABLE_RUNNING_PREFIX.'bulkmail_queue';
 		$fields = Array('id', 'post_office_id', 'status');
 		$db_values = "'$unique_id', '".$post_office->id."', '".BML_JOB_STATE_NOT_RUNNING."'";
 		$db_fields = implode(', ', $fields);
 		$sql = "INSERT INTO $db_table ($db_fields) VALUES ($db_values);";
-		echo $sql;
 		$result = $GLOBALS['SQ_SYSTEM']->db->query($sql);
 
-		return assert_valid_db_result($result);
+		if (!assert_valid_db_result($result)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// commit transaction if everything is ok
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		echo " Job #$job->id : addJob\n";
+		return true;
 
 	}//end addJob()
 
@@ -244,12 +255,20 @@ class Bulkmail_Manager extends Asset
 	*/
 	function deleteJob($job_id)
 	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$db_table = SQ_TABLE_RUNNING_PREFIX.'bulkmail_queue';
 		$sql = "DELETE FROM $db_table WHERE id = $job_id;";
 		$result = $GLOBALS['SQ_SYSTEM']->db->query($sql);
-		echo " deleted $job_id\n";
 
-		return assert_valid_db_result($result);
+		if (!assert_valid_db_result($result)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		echo " Job #$job_id : deleteJob\n";
+		return true;
 
 	}//end deleteJob()
 
@@ -265,12 +284,31 @@ class Bulkmail_Manager extends Asset
 	*/
 	function updateJob($job_id, $state)
 	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// set last_updated to zero to skip timeout checking when we resume the job
+		if ($state == BML_JOB_STATE_PAUSED) {
+			$progress_info = getJobProgress($job_id);
+			$progress_info['last_updated'] = 0;
+			$data_dir = $this->getJobDataPath($job_id);
+			$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';
+			if (!string_to_file($output, $data_dir.'/progress_info')) {
+				trigger_error("updateJob : failed to update progress file.\n");
+				return false;
+			}
+		}
+
 		$db_table = SQ_TABLE_RUNNING_PREFIX.'bulkmail_queue';
 		$sql = "UPDATE $db_table SET status = $state WHERE id = $job_id;";
 		$result = $GLOBALS['SQ_SYSTEM']->db->query($sql);
-		echo " updated state to $state\n";
+		if (!assert_valid_db_result($result)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
 
-		return assert_valid_db_result($result);
+		echo " Job #$job_id : updateJob, state=$state\n";
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
 
 	}//end updateJob()
 
@@ -295,14 +333,20 @@ class Bulkmail_Manager extends Asset
 		} else if (!is_null($post_office_id)) {
 			$where = ' WHERE post_office_id = '.$db->quote($post_office_id);
 		}
+
 		$sql = "SELECT id, post_office_id, status FROM $db_table $where;";
+		$results = $db->getAssoc($sql);
+		assert_valid_db_result($results);
 
-		$result = $db->getAssoc($sql);
-		// add progress info here
+		// add progress/details info to each job result
+		foreach ($results as $job_id => $result) {
+			$progress_info = $this->getJobProgress($job_id);
+			$results[$job_id]['progress'] = $progress_info;
+			$details_info = $this->getJobDetails($job_id);
+			$results[$job_id]['details'] = $details_info;
+		}
 
-		assert_valid_db_result($result);
-
-		return $result;
+		return $results;
 
 	}//end getQueuedJobs()
 
@@ -310,7 +354,7 @@ class Bulkmail_Manager extends Asset
 	/**
 	* Gets the data path of a job
 	*
-	* @param string	$job_id	the unique id of the job entry
+	* @param int	$job_id	the unique id of the job entry
 	*
 	* @return string
 	* @access public
@@ -320,11 +364,11 @@ class Bulkmail_Manager extends Asset
 		$job_id_parts = explode(':', $job_id);
 		if (isset($job_id_parts[1])) {
 			$post_office =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id_parts[0]);
-			$path = $post_office->data_path.'/'.$job_id_parts[1].'/.data';
+			$path = $post_office->data_path.'/.data/'.$job_id_parts[1];
 		} else {
 			$job =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id, 'bulkmail_job');
 			$post_office =& $job->getPostOffice();
-			$path = $post_office->data_path.'/'.$job_id.'/.data';
+			$path = $post_office->data_path.'/.data/'.$job_id;
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($job);
 		}
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($post_office);
@@ -363,14 +407,14 @@ class Bulkmail_Manager extends Asset
 	/**
 	* Initialises the progress info file
 	*
-	* @param string	$progress_path	path to the directory containing the progress info file
-	*								use job's data-dir path if it is a normal job
-	*								use system default post office data-dir path for an ad-hoc job
+	* @param string	$data_dir	path to the directory containing the progress info file
+	*							use job's data-dir path if it is a normal job
+	*							use system default post office data-dir path for an ad-hoc job
 	*
 	* @return boolean
 	* @access public
 	*/
-	function initProgressFile($progress_path)
+	function initProgressFile($data_dir)
 	{
 		/*
 			available fields:
@@ -390,11 +434,8 @@ class Bulkmail_Manager extends Asset
 						 );
 
 		$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';
-		if (!is_dir($progress_path)) {
-			create_directory($progress_path);
-		}
-		if (!string_to_file($output, $progress_path.'/progress_info')) {
-			echo " error: failed to init progress file\n";
+		if (!string_to_file($output, $data_dir.'/progress_info')) {
+			trigger_error("initProgressFile : failed to init progress file.\n");
 			return false;
 		} else {
 			echo " init progress file\n";
@@ -407,7 +448,7 @@ class Bulkmail_Manager extends Asset
 	/**
 	* Reads the progress info from a file
 	*
-	* @param string	$job_id	the unique id of the job entry
+	* @param int	$job_id	the unique id of the job entry
 	*
 	* @return array
 	* @access public
@@ -416,7 +457,6 @@ class Bulkmail_Manager extends Asset
 	{
 		$job_path = $this->getJobDataPath($job_id);
 		$progress_path = $job_path.'/progress_info';
-
 		$progress_info = Array();
 		if (file_exists($progress_path)) {
 			include $progress_path;
@@ -425,6 +465,77 @@ class Bulkmail_Manager extends Asset
 		return $progress_info;
 
 	}//end getJobProgress()
+
+
+	/**
+	* Stores all the job details we need to a file
+	*
+	* @param object	$job			the job object
+	* @param object	$post_office	the post office object
+	* @param string	$data_dir		path to job's effective data directory
+	*
+	* @return boolean
+	* @access public
+	*/
+	function initDetailsFile($job, $post_office, $data_dir)
+	{
+		$details_info = Array();
+
+		// mail queue options
+		$details_info['queue'] = Array(
+									'type'	=> 'flatfile',
+									'dir'	=> $data_dir.'/queue',
+								 );
+
+		$details_info['recipients'] = $job->vars['recipients']['value'];
+		$details_info['content'] = $job->vars['content_details']['value'];
+
+		// whether to use post office's or job's header details
+		if ($job->vars['details_setting']['value']['use_post_office_header']) {
+			$details_info['header'] = $post_office->vars['header_details']['value'];
+		} else {
+			$details_info['header'] = $job->vars['header_details']['value'];
+		}
+		// removes fields with empty values, eg. empty 'From' field will cause problem
+		foreach ($details_info['header'] as $field => $value) {
+			if (empty($value)) {
+				unset($details_info['header'][$field]);
+			}
+		}
+
+		// details from post office
+		$details_info['server'] = $post_office->vars['server_details']['value'];
+		$details_info['threshold'] = 'not set';
+
+		$output = ' <?php $details_info = '.var_export($details_info, true).'; ?>';
+		if (!string_to_file($output, $data_dir.'/details_info')) {
+			trigger_error("initDetailsFile : failed to init details file.\n");
+			return false;
+		} else {
+			echo " init details file\n";
+			return true;
+		}
+	}//end initDetailsFile()
+
+
+	/**
+	* Reads the details info from a file
+	*
+	* @param int	$job_id	the unique id of the job entry
+	*
+	* @return array
+	* @access public
+	*/
+	function getJobDetails($job_id)
+	{
+		$job_path = $this->getJobDataPath($job_id);
+		$details_path = $job_path.'/details_info';
+		$details_info = Array();
+		if (file_exists($details_path)) include $details_path;
+
+		return $details_info;
+
+	}//end getJobDetails()
 
 
 }//end class
