@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_status.inc,v 1.6 2005/05/11 06:05:05 lwright Exp $
+* $Id: trigger_condition_status.inc,v 1.7 2005/11/03 01:19:37 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -103,7 +103,7 @@ class Trigger_Condition_Status extends Trigger_Condition
 			$selected_status = $settings['status'];
 		}
 
-		$status_list = &trigger_condition_status::_getStatusList();
+		$status_list = trigger_condition_status::_getStatusList();
 
 		if (!$write_access) {
 			$form_element_extras = 'disabled="disabled"';
@@ -136,7 +136,7 @@ class Trigger_Condition_Status extends Trigger_Condition
 		$status = array_get_index($request_data, 'status', false);
 		if (!$status) return 'No status selected';
 
-		$status_list = &trigger_condition_status::_getStatusList();
+		$status_list = trigger_condition_status::_getStatusList();
 
 		// check if the status is valid
 		if (isset($status_list[$status])) {
