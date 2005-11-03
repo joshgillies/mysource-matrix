@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.9 2005/11/03 03:37:50 rong Exp $
+* $Id: bulkmail_job.inc,v 1.10 2005/11/03 05:26:08 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -80,23 +80,72 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 
 
 	/**
-	* Sends the bulkmail message using given PEAR mail driver params
+	* Sends the preview bulkmail content using given PEAR mail
 	*
-	* @param object	&$asset		the asset to which we belong
-	* @param mixed	$recipient	an array or a string with comma separated recipients.
+	* @param array	$recipient	array of email addresses
 	*
 	* @return boolean
 	* @access public
 	*/
-	function sendPreviewMail(&$asset, $recipient)
+	function sendPreviewMail($recipient)
 	{
-			$post_office = $this->getPostOffice();
-			if (!is_null($post_office)) {
-					return $post_office->sendPreviewMail($this, $recipient);
-			} else {
-					// error handling in parent's sendPreviewMail
-					return parent::sendPreviewMail($this, $recipient);
-			}
+		$errors = $this->isValidJob();
+		if (!empty($errors)) {
+			//trigger_localised_error('BML0004', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->name, $this->id);
+			return false;
+		}
+
+		// Create the mail object using server_details as parameter
+		$post_office = $this->getPostOffice();
+		$server_details = $post_office->attr('server_details');
+		$driver = array_get_index($server_details, 'driver', '');
+		$mail_object =& Mail::factory($driver, $server_details);
+
+		// unable to create mail object
+		if (PEAR::isError($mail_object)) {
+			trigger_localised_error('BML0001', E_USER_WARNING, $mail_object->getMessage());
+			return false;
+		}
+
+		// store current session info, so that current user will not get errors
+		$old_session = $_SESSION;
+
+		// generate content as pre-selected user
+		$content_details = $this->attr('content_details');
+		$job_path = $post_office->data_path.'/.data/'.$this->id;
+		require_once SQ_PACKAGES_PATH.'/bulkmail/bulk_mailer.inc';
+		Bulk_Mailer::cacheContent($content_details, $job_path);
+		$content = file_to_string($job_path.'/cache/content_file.html');
+
+		// restore session info
+		$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
+		$_SESSION = $old_session;
+
+		// get header details
+		$setting = $this->attr('details_setting');
+		$use_post_office_header = array_get_index($setting, 'use_post_office_header', 0);
+		if ($use_post_office_header) {
+			$header_details = $post_office->attr('header_details');
+		} else {
+			$header_details = $this->attr('header_details');
+		}
+		if (isset($header_details['Subject'])) {
+			// add 'Preview' to the subject header
+			$header_details['Subject'] = $header_details['Subject'].' (Preview)';
+		}
+
+		$mime =& new Mail_mime();
+		//$mime->setTxtBody($textMessage);
+		$mime->setHtmlBody($content);
+		$body = @$mime->get();
+		$headers = @$mime->headers($header_details);
+		$status = $mail_object->send($recipient, $headers, $body);
+		if (PEAR::isError($status)) {
+			// unable to send bulkmail
+			trigger_localised_error('BML0002', E_USER_WARNING, $status->getMessage());
+			return false;
+		}
+		return true;
 
 	}//end sendPreviewMail()
 

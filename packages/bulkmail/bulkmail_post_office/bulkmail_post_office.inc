@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office.inc,v 1.10 2005/11/03 04:20:17 rong Exp $
+* $Id: bulkmail_post_office.inc,v 1.11 2005/11/03 05:26:08 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once 'Mail.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -159,61 +159,6 @@ class Bulkmail_Post_Office extends Asset
 		return true;
 
 	}//end canMoveLink()
-
-
-	/**
-	* Sends the bulkmail message using given PEAR mail driver params
-	*
-	* @param mixed	&$asset		the bulkmail job
-	* @param mixed	$recipient	an array or a string with comma separated recipients.
-	*
-	* @return boolean
-	* @access public
-	*/
-	function sendPreviewMail(&$asset, $recipient)
-	{
-		if (is_null($asset->getPostOffice())) {
-			// unable to create mail object
-			trigger_localised_error('BML0005', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'), $asset->name, $asset->id);
-			return false;
-		}
-		// Create the mail object using server_details as parameter
-		$server_details = $asset->getServerDetails(); // TODO: change
-		$driver = array_get_index($server_details, 'driver', '');
-		$mail_object =& Mail::factory($driver, $server_details);
-		// integrate PEAR error object's message with matrix's error reporting system
-		if (PEAR::isError($mail_object)) {
-			// unable to create mail object
-			trigger_localised_error('BML0001', E_USER_WARNING, $mail_object->getMessage());
-			return false;
-		}
-		$content_details = $asset->attr('content_details');
-		// cache the content as the current user/pre-selected user depending on the content generation method
-		$asset->cacheContent($asset, $content_details, $GLOBALS['SQ_SYSTEM']->currentUserId());
-		$content = $this->generateBmailContent($asset, $content_details);
-
-
-		// We might do this later, texttohtml of some sort
-		$mime =& new Mail_mime();
-		//$mime->setTxtBody($textMessage);
-		$mime->setHtmlBody($content);
-		$body = @$mime->get();
-
-		$header_details = $asset->getHeaderDetails();
-		// add 'Preview' to the subject of the email
-		if (isset($header_details['Subject'])) {
-			$header_details['Subject'] = $header_details['Subject'].' (Preview)';
-		}
-		$headers = @$mime->headers($header_details);
-		$status = $mail_object->send($recipient, $headers, $body);
-		if (PEAR::isError($status)) {
-			// unable to send bulkmail
-			trigger_localised_error('BML0002', E_USER_WARNING, $status->getMessage());
-			return false;
-		}
-		return true;
-
-	}//end sendPreviewMail()
 
 
 	/**

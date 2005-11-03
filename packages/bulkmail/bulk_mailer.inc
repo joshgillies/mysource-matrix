@@ -11,11 +11,11 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.9 2005/11/03 01:08:02 rong Exp $
+* $Id: bulk_mailer.inc,v 1.10 2005/11/03 05:26:08 rong Exp $
 *
 */
 
-require dirname(__FILE__).'/../../core/include/init.inc';
+require_once dirname(__FILE__).'/../../core/include/init.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 require_once 'Mail/Queue.php';
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -91,7 +91,7 @@ class Bulk_Mailer
 		}
 
 		mem_check(); echo 'Process starts @ '.date('r')."\n";
-		$recip_per_chunk = 2;
+		$recip_per_chunk = 1;
 		$timeout_threshold = 60;
 
 		// get a scheduled job from the database table and process it
@@ -613,25 +613,17 @@ class Bulk_Mailer
 	*
 	* @param array	$content_details	information related to content generation
 	* @param string	$job_path			path to the effective job data dir
-	* @param int	$user_id			the recipient of this email, zero for pre-selected user
+	* @param int	$user_id			the recipient of this email, zero is for preview mail
 	*
 	* @return string
 	* @access public
 	*/
 	function generateBmailContent($content_details, $job_path, $user_id=0)
 	{
-		// note: must run cacheContent() before calling this function
+
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$type = array_get_index($content_details, 'type', 'each_user');
 		$user = null;
-
-		// load the cached content
-		if (file_exists($job_path.'/cache/content_file.html')) {
-			$content = file_to_string($job_path.'/cache/content_file.html');
-		} else {
-			trigger_error("generateBmailContent : Unable to read from cache file. \"$job_path/cache/content_file.html\"\n");
-			return "generateBmailContent: Unable to read from cache file.\n";
-		}
 
 		// load this user, for content generation and keyword replacement
 		if ($user_id) $user =& $am->getAsset($user_id);
@@ -653,6 +645,17 @@ class Bulk_Mailer
 				@$page->printFrontend();
 				$content = ob_get_contents();
 			ob_end_clean();
+		}
+
+		// if we cannot generate content, load the cached content,
+		// note: must run cacheContent() before calling this function
+		if (empty($content)) {
+			if (file_exists($job_path.'/cache/content_file.html')) {
+				$content = file_to_string($job_path.'/cache/content_file.html');
+			} else {
+				trigger_error("generateBmailContent : Unable to read from cache file. \"$job_path/cache/content_file.html\"\n");
+				return "generateBmailContent: Unable to read from cache file.\n";
+			}
 		}
 
 		// keyword replacement

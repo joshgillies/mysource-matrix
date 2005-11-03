@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.8 2005/11/03 04:20:17 rong Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.9 2005/11/03 05:26:08 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -802,7 +802,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 				$asset->setAttrValue('preview_log', $preview_log);
 
 				// send the actual preview mail
-				$asset->sendPreviewMail($asset, $recipient);
+				$asset->sendPreviewMail($recipient);
 			}
 			return true;
 		} else {
