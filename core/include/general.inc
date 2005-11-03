@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.101 2005/09/14 01:43:41 dmckee Exp $
+* $Id: general.inc,v 1.102 2005/11/03 06:11:59 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix
 */
 
@@ -986,6 +986,82 @@ function sq_print_icon($path, $width, $height, $alt='', $title=null, $extras='')
 	<?php
 
 }//end sq_print_icon()
+
+
+/**
+* Print icon, name, assetid and other functionality of an asset
+*
+* This doesn't paint things out, it just returns the interface - you must call
+* the function like: echo get_asset_tag_line($assetid);
+*
+* If an asset does not exist it will throw up an 'unknown asset' tag line.
+*
+* @param string	$assetid	the asset ID
+* @param string	$screen		If specified, link asset name to this backend screen
+*
+* @return string
+* @access public
+*/
+function get_asset_tag_line($assetid, $screen='')
+{
+	require_once dirname(__FILE__).'/general_occasional.inc';
+
+	// If it's a shadow asset, there is nothing in the database so we cannot use
+	// the shortcut - we have to get the info from the asset instead
+	if (strpos($assetid, ':') !== false) {
+		list($real_assetid, $shadowid) = explode(':', $assetid, 2);
+		$asset_info = Array();
+		$shadow_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+		if ($shadow_asset) {
+			$asset_info['type_code'] = $shadow_asset->type();
+			$asset_info['name'] = $shadow_asset->name;
+			$asset_info['short_name'] = $shadow_asset->short_name;
+			$asset_info['status'] = $shadow_asset->status;
+		}
+	} else {
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
+		$asset_info = $asset_info[$assetid];
+		$real_assetid = $assetid;
+	}
+
+	if (empty($asset_info)) {
+		ob_start();
+			echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_map/default_asset.png', 16, 16, 'Asset', 'Asset', ' align="absmiddle"');
+			echo '<img src="'.sq_web_path('lib').'/web/images/blank.gif" width="10" height="10" alt="Unknown Status" title="Unknown Status" align="absmiddle" style="margin: 2px; border: 1px solid #ccc;" /> ';
+			echo '<span class="sq-backend-warning">Unknown asset (Id: #'.$assetid.')</span>';
+		$contents = ob_get_clean();
+		return $contents;
+	}
+
+	$status_name = get_status_description($asset_info['status']);
+	$status_colour = get_status_colour($asset_info['status']);
+
+	$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset_info['type_code'], 'name');
+
+	if (empty($screen)) {
+		$screen_url = '';
+	} else {
+		$screen_url = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($assetid => $screen));
+		$screen_url = $screen_url[$assetid];
+	}
+
+	ob_start();
+		echo sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($asset_info['type_code']), 16, 16, $type_name, $type_name, ' align="absmiddle"');
+		echo '<img src="'.sq_web_path('lib').'/web/images/blank.gif" width="10" height="10" alt="'.$status_name.'" title="'.$status_name.'" align="absmiddle" style="margin: 2px; border: 1px solid #ccc; background-color: '.$status_colour.'" /> ';
+		if ($screen_url) {
+			echo '<a href="'.$screen_url.'">';
+		}
+		echo $asset_info['name'];
+		if ($screen_url) {
+			echo '</a>';
+		}
+		echo ' (Id: #'.$assetid.')';
+	$contents = ob_get_clean();
+
+	return $contents;
+
+}//end get_asset_tag_line()
 
 
 ?>
