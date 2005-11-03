@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: sort_order_manip.js,v 1.1 2005/08/09 23:24:12 lwright Exp $
+* $Id: sort_order_manip.js,v 1.2 2005/11/03 23:57:27 lwright Exp $
 *
 */
 
@@ -46,7 +46,7 @@ function moveQuestion(form, prefix, currentOrder, nextOrder) {
 	// the 'indices' of the elements we need to flip
 	// Explanation of div names:
 	// 't' = question type, 'o' = question name, 'a' = assetid, 'so' = sort order
-	elements = ['t', 'o', 'a', 'so'];
+	elements = ['t', 'o', 'so'];
 
 	for(index in elements) {
 		el = elements[index];

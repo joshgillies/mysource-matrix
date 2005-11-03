@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.36 2005/07/04 05:24:51 dmckee Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.37 2005/11/03 23:57:26 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,9 +66,9 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	{
 		$customised_areas = $asset->getCustomisedAreas();
 		if (empty($customised_areas)) {
-			?> No Design Areas are customised yet. <?php
+			echo translate('core_design_customisation_no_design_areas_customised');
 		} else {
-			$this->_paintDesignAreaList($customised_areas, translate('core_remove_customisation_question'), $prefix.'_remove_customisation', $asset->writeAccess('links'), true, true);
+			$this->_paintDesignAreaList($customised_areas, translate('core_remove_customisation_question'), $prefix.'_remove_customisation', $asset->writeAccess('links'), true);
 		}
 
 	}//end paintCustomisedDesignAreas()
@@ -136,7 +136,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	{
 		$uncustomised_areas = $asset->getUnCustomisedAreas();
 		if (empty($uncustomised_areas)) {
-			?> All Design Areas have been customised. <?php
+			echo translate('core_design_customisation_all_design_areas_customised');
 		} else {
 			$this->_paintDesignAreaList($uncustomised_areas, translate('core_customise_question'), $prefix.'_customise', $asset->writeAccess('links'));
 		}
@@ -285,7 +285,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 
 		}// end foreach
 
-		$customisation_links = &$GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
+		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
 		foreach ($customisation_links as $customisation_link) {
 			$customisation = &$GLOBALS['SQ_SYSTEM']->am->getAsset($customisation_link['minorid'], $customisation_link['minor_type_code']);
 			if (is_null($customisation)) continue;
@@ -309,7 +309,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	*
 	* @access private
 	*/
-	function _paintDesignAreaList($links, $check_box_col, $check_box_name, $write_access, $link_name=false, $show_specialised=false)
+	function _paintDesignAreaList($links, $check_box_col, $check_box_name, $write_access, $link_name=false)
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		?>
@@ -320,7 +320,6 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			<?php if ($write_access) { ?>
 				<td class="sq-backend-data" width="25%" style="text-align: center;"><b><?php echo $check_box_col; ?></b></td>
 			<?php }// end if ?>
-				<td class="sq-backend-data" width="25%" style="text-align: center;"><b><?php echo ($show_specialised) ? 'Specialised ?' : '&nbsp;'; ?></b></td>
 			</tr>
 		<?php
 		uasort($links, Array(get_class($this), 'linkCompare'));
@@ -358,12 +357,11 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 				</td>
 				<td class="sq-backend-data" style="white-space: nowrap;">
 					<?php
-					echo $da->id, ' - ';
 					if ($link_name) {
-						echo '<a href="', $da->getBackendHref(), '">';
+						echo get_asset_tag_line($da->id, 'details');
+					} else {
+						echo get_asset_tag_line($da->id, '');
 					}
-					echo $da->name;
-					if ($link_name) echo '</a>';
 					?>
 				</td>
 			<?php if ($write_access) { ?>
@@ -371,13 +369,6 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 					<input type="checkbox" name="<?php echo $check_box_name; ?>[]" value="<?php echo $da->attr('id_name');; ?>">
 				</td>
 			<?php }// end if ?>
-				<td class="sq-backend-data" style="text-align: center;">
-				<?php if ($show_specialised && $da->attr('specialised')) { ?>
-					<img src="<?php echo sq_web_path('lib'); ?>/web/images/tick.gif" width="15" height="15" />
-				<?php } else { ?>
-					&nbsp;
-				<?php }// end if ?>
-				</td>
 			</tr>
 		<?php
 		}//end foreach

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager_edit_fns.inc,v 1.7 2005/05/30 00:36:26 ndvries Exp $
+* $Id: layout_manager_edit_fns.inc,v 1.8 2005/11/03 23:57:27 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -115,7 +115,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintEditLayouts(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		$write_access = $asset->writeAccess('attributes');
 
 		$layouts = $asset->attr('layouts');
 		if (empty($layouts)) {
@@ -128,12 +128,16 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			$uc_type_code = ucwords(str_replace('_', ' ', $type_code));
 			$o->openSection($uc_type_code);
-				$o->openField('');
 
-				check_box($prefix.'_remove_type_code['.$type_code.']');
-				label(translate('remove_customisations_for', $uc_type_code), $prefix.'_remove_type_code['.$type_code.']');
+				if ($write_access) {
+					$o->openField('');
 
-				$o->closeField();
+					check_box($prefix.'_remove_type_code['.$type_code.']');
+					label(translate('remove_customisations_for', $uc_type_code), $prefix.'_remove_type_code['.$type_code.']');
+
+					$o->closeField();
+				}
+
 				$o->openField('');
 
 				if (empty($screens)) {
@@ -142,9 +146,11 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 					?>
 					<table class="sq-backend-table">
 						<tr>
-							<td class="sq-backend-table-header" width="33%"><?php echo translate('asset_type'); ?></td>
-							<td class="sq-backend-table-header" width="33%"><?php echo translate('choose_layout'); ?></td>
-							<td align="center" class="sq-backend-table-header" width="33%"><?php echo translate('remove'); ?></td>
+							<td class="sq-backend-table-header" width="33%"><?php echo translate('screen_name'); ?></td>
+							<td class="sq-backend-table-header" width="33%"><?php echo translate('layout'); ?></td>
+							<?php if ($write_access) { ?>
+								<td align="center" class="sq-backend-table-header" width="33%"><?php echo translate('remove'); ?></td>
+							<?php } ?>
 						</tr>
 
 					<?php
@@ -158,12 +164,22 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 								</td>
 								<td class="sq-backend-table-cell">
 									<?php
-										asset_finder($prefix.'_find['.$type_code.'@'.$screen.']', $assetid, Array('layout' => 'I'));
+										if ($write_access) {
+											asset_finder($prefix.'_find['.$type_code.'@'.$screen.']', $assetid, Array('layout' => 'I'));
+										} else {
+											if (empty($assetid)) {
+												echo '<em>'.translate('none').'</em>';
+											} else {
+												echo get_asset_tag_line($assetid);
+											}
+										}
 									?>
 								</td>
-								<td align="center" class="sq-backend-table-cell">
-								 <?php check_box($prefix.'_remove_screen['.$type_code.'@'.$screen.']'); ?>
-								</td>
+								<?php if ($write_access) { ?>
+									<td align="center" class="sq-backend-table-cell">
+								 		<?php check_box($prefix.'_remove_screen['.$type_code.'@'.$screen.']'); ?>
+									</td>
+								<?php } ?>
 							</tr>
 							<?php
 						}//end foreach screen
@@ -172,35 +188,38 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 					</table>
 				<?php
 				}//end if
-				?>
-				<br /><?php echo translate('add_layout'); ?>:
-				<?php
-				$ei = new Asset_Edit_Interface($type_code);
 
-				$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-				$as =& new $type_code();
-				$ef = &$as->getEditFns();
+				if ($write_access) {
+					?>
+					<br /><?php echo translate('add_layout'); ?>:
+					<?php
+					$ei = new Asset_Edit_Interface($type_code);
 
-				$screens = Array('', 'create'); // first option is blank
-				foreach (array_keys($ef->static_screens) as $screen) $screens[] = $screen;
-				foreach (array_keys($ei->getScreens()) as $screen) $screens[] = $screen;
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+					$as =& new $type_code();
+					$ef = &$as->getEditFns();
 
-				// remove any screens that have already been defined
-				$screens = array_unique(array_diff($screens, array_keys($layouts[$type_code])));
+					$screens = Array('', 'create'); // first option is blank
+					foreach (array_keys($ef->static_screens) as $screen) $screens[] = $screen;
+					foreach (array_keys($ei->getScreens()) as $screen) $screens[] = $screen;
 
-				$uc_screens = Array();
-				foreach ($screens as $screen) {
-					$uc_screens[$screen] = ucfirst($screen);
+					// remove any screens that have already been defined
+					$screens = array_unique(array_diff($screens, array_keys($layouts[$type_code])));
+
+					$uc_screens = Array();
+					foreach ($screens as $screen) {
+						$uc_screens[$screen] = ucfirst($screen);
+					}
+					// print a box to add more screens
+					combo_box($prefix.'_screens['.$type_code.']', $uc_screens, false, Array());
 				}
-				// print a box to add more screens
-				combo_box($prefix.'_screens['.$type_code.']', $uc_screens, false, Array());
 
 				$o->closeField();
 			$o->closeSection();
 
 		}//end foreach type_code
 
-		return true;
+		return $write_access;
 
 	}//end paintEditLayouts()
 

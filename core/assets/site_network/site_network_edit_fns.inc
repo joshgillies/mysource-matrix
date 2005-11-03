@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_network_edit_fns.inc,v 1.4 2005/08/15 00:17:02 lwright Exp $
+* $Id: site_network_edit_fns.inc,v 1.5 2005/11/03 23:57:27 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,7 +73,7 @@ class Site_Network_Edit_Fns extends Folder_Edit_Fns
 			if (!empty($site_link)) $site_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($site_link['minorid']);
 			if (!is_null($site_asset)) {
 				echo $asset->getPrimaryURL();
-				echo '<br/ ><i>'.translate('core_from_site', translate('asset_format', $site_asset->name, $site_asset->id)).'</i>';
+				echo '<br/ ><i>'.strtolower(translate('from')).' '.get_asset_tag_line($site_asset->id).'</i>';
 			} else {
 				echo translate('core_primary_url_not_set');
 			}

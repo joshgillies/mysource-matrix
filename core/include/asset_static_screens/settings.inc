@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.32 2005/06/29 23:46:24 skim Exp $
+* $Id: settings.inc,v 1.33 2005/11/03 23:57:28 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 */
 
@@ -459,12 +459,12 @@ function paintSettings(&$owner, &$o, &$ei)
 									</tr>
 								<?php
 								foreach ($effective_designs as $url => $effective_designid) {
-									$effective_design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($effective_designid, '', true);
-									if (is_null($effective_design)) continue;
+									$effective_design_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($effective_designid));
+									if (empty($effective_design_info)) continue;
 									?>
 									<tr>
 										<td class="sq-backend-table-cell"><?php echo $url; ?></td>
-										<td class="sq-backend-table-cell"><?php echo translate('asset_format', $effective_design->name, $effective_design->id); ?></td>
+										<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($effective_designid); ?></td>
 									</tr>
 									<?php
 								}
@@ -484,10 +484,9 @@ function paintSettings(&$owner, &$o, &$ei)
 							$created = true;
 							echo '<i>';
 							if (!$designid) {
-								echo 'None';
+								echo translate('none');
 							} else {
-								$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', true);
-								echo translate('asset_format', $design->name, $design->id);
+								echo get_asset_tag_line($designid);
 							}
 							echo '</i>';
 

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.16 2005/08/11 04:52:45 mmcintyre Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.17 2005/11/03 23:57:28 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -313,15 +313,10 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$write_access = $asset->writeAccess('links');
 
 		if (!$write_access) {
-			$asset_404 = null;
 			if (!empty($link_to_404)) {
-				$asset_404 = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_to_404['minorid']);
-			}
-
-			if (!is_null($asset_404)) {
-				echo translate('asset_format', $asset_404->name, $asset_404->id);
+				echo get_asset_tag_line($link_to_404['minorid']);
 			} else {
-				echo translate('core_no_selectes_root_node');
+				echo '<em>'.translate('none').'</em>';
 			}
 		} else {
 			asset_finder($prefix.'_404asset', (!empty($link_to_404)) ? $link_to_404['minorid'] : '');

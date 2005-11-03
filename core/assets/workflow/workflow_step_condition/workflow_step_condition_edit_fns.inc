@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_edit_fns.inc,v 1.19 2005/09/22 07:35:36 rhoward Exp $
+* $Id: workflow_step_condition_edit_fns.inc,v 1.20 2005/11/03 23:57:28 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,11 +74,13 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 		$cond_logic_num = $asset->attr('logic_num');
 		if (!$cond_logic_num) $cond_logic_num = '';
 
-		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->attr('userid'));
-		if (is_null($user)) return false;
+		$userid = $asset->attr('userid');
+
+		$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array('user', 'user_group'), false);
+		if (empty($user_info)) return false;
 
 		?>
-		<td class="sq-backend-table-cell"><?php echo translate('asset_format', $user->name, $user->type().' : '.$user->id); ?></td>
+		<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($userid); ?></td>
 		<td class="sq-backend-table-cell">
 			<?php
 			$notify = $asset->attr('notify');
@@ -101,7 +103,9 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 		</td>
 		<td class="sq-backend-table-cell">
 			<?php
+			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 			if (!$write_access) {
+				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 				if (is_a($user, 'user')) {
 					echo '&nbsp;';
 				} else {

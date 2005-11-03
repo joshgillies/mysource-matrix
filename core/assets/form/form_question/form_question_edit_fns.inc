@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.2 2005/07/20 00:40:28 lwright Exp $
+* $Id: form_question_edit_fns.inc,v 1.3 2005/11/03 23:57:27 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -88,7 +88,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 
 		$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_codes, 'description');
 
-		$rules = &$asset->getRules();
+		$rules = $asset->getRules();
 
 		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
 			$rule = &$rules[$k];
@@ -236,7 +236,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		$rule_code = substr($type_code,strlen('form_question_rule_type_'));
 		if (!trim($rule_code)) return false;
 
-		$rules = &$asset->getRules();
+		$rules = $asset->getRules();
 		$rules[] = Array('rule_code' => $rule_code);
 
 		$asset->setAttrValue('rules', $rules);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.99 2005/11/02 00:06:38 dmckee Exp $
+* $Id: design_edit_fns.inc,v 1.100 2005/11/03 23:57:26 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -497,7 +497,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	function paintNewCustomisation(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('all')) {
-			echo 'You must acquire all locks on this '.str_replace('_', ' ', $asset->type()).' to be able to create a new customisation';
+			$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
+			echo translate('core_design_must_acquire_locks_new_customisation', strtolower($type_name));
 			return false;
 		}
 
@@ -640,12 +641,11 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			foreach ($customisation_links as $link) {
 				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
-				echo '# ', $customisation->id, '&nbsp;&nbsp;<a href="', $customisation->getBackendHref(), '">', $customisation->name, '</a><br>';
-
+				echo get_asset_tag_line($customisation->id, 'details').'<br/>';
 			}
 
 		} else {
-			?> No Customisations Created <?php
+			echo translate('core_design_no_customisations_created');
 		}
 
 	}//end paintCurrentCustomisations()

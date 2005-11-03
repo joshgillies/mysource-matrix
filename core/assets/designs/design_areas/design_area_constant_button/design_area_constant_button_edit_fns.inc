@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_constant_button_edit_fns.inc,v 1.17 2005/10/11 02:05:27 tbarrett Exp $
+* $Id: design_area_constant_button_edit_fns.inc,v 1.18 2005/11/03 23:57:26 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,7 +57,9 @@ class Design_Area_Constant_Button_Edit_Fns extends Design_Area_Edit_Fns
 
 		} elseif ($asset->attr('assetid')) {
 			$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->attr('assetid'));
-			if (!is_null($link_asset)) echo $link_asset->name, '(Id: #', $link_asset->id, ')';
+			if (!is_null($link_asset)) {
+				echo get_asset_tag_line($link_asset->id);
+			}
 
 		}// end if
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form_edit_fns.inc,v 1.3 2005/10/19 04:18:04 lwright Exp $
+* $Id: simple_form_edit_fns.inc,v 1.4 2005/11/03 23:57:27 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,11 +82,8 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 		<table class="sq-backend-table">
 		<thead>
 		<tr>
-			<th style="width:60px;">
-				<?php echo translate('asset_id'); ?>
-			</th>
 			<th>
-				<?php echo translate('name'); ?>
+				<?php echo translate('question'); ?>
 			</th>
 			<th>
 				<?php echo translate('type'); ?>
@@ -101,7 +98,7 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 			<th style="width:30px; text-align:center">
 				<?php echo translate('down'); ?>
 			</th>
-			<th style="width:30px; text-align:center">
+			<th style="width:50px; text-align:center">
 				<?php echo translate('delete'); ?>
 			</th><?php
 			}
@@ -118,11 +115,8 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($q);
 				unset($q); ?>
 				<tr id="<?php echo 	$prefix.'_order_row'.$asset_data['sort_order'] ?>">
-				<td style="width:60px;">
-					<span name="<?php echo $prefix.'_order_a'.$asset_data['sort_order'] ?>" id="<?php echo $prefix.'_order_a'.$asset_data['sort_order'] ?>"><?php echo $assetid; ?></span>
-				</td>
 				<td>
-					<span name="<?php echo $prefix.'_order_o'.$asset_data['sort_order'] ?>" id="<?php echo $prefix.'_order_o'.$asset_data['sort_order'] ?>"><b><a href="<?php echo $href ?>"><?php echo $asset_data['attributes']['name']; ?></a></b></span><?php hidden_field($prefix.'_order[reorder]['.$asset_data['sort_order'].']', $shadowid); ?>
+					<span name="<?php echo $prefix.'_order_o'.$asset_data['sort_order'] ?>" id="<?php echo $prefix.'_order_o'.$asset_data['sort_order'] ?>"><?php echo get_asset_tag_line($assetid, 'details') ?><!-- <b><a href="<?php echo $href ?>"><?php // echo $asset_data['attributes']['name']; ?></a></b> --></span><?php hidden_field($prefix.'_order[reorder]['.$asset_data['sort_order'].']', $shadowid); ?>
 				</td>
 				<td>
 					<span name="<?php echo $prefix.'_order_t'.$asset_data['sort_order'] ?>" id="<?php echo $prefix.'_order_t'.$asset_data['sort_order'] ?>"><?php
@@ -153,7 +147,7 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 						}
 						?>
 					</td>
-					<td style="width:30px; text-align:center">
+					<td style="width:50px; text-align:center">
 						<?php check_box($prefix.'_order[delete]['.$asset_data['sort_order'].']'); ?>
 					</td>
 				<?php }

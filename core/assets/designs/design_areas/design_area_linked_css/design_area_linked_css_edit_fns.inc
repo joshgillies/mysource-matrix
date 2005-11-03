@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css_edit_fns.inc,v 1.4 2005/10/11 02:05:57 tbarrett Exp $
+* $Id: design_area_linked_css_edit_fns.inc,v 1.5 2005/11/03 23:57:26 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,7 +58,9 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 
 		} elseif ($asset->_getLinkedCSSInfo('minorid')) {
 			$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_getLinkedCSSInfo('minorid'));
-			if (!is_null($link_asset)) echo $link_asset->name, '(Id: #', $link_asset->id, ')';
+			if (!is_null($link_asset)) {
+				echo get_asset_tag_line($link_asset->id);
+			}
 
 		}//end if
 

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_in_user_group_edit_fns.inc,v 1.3 2005/10/13 02:07:37 tbarrett Exp $
+* $Id: condition_in_user_group_edit_fns.inc,v 1.4 2005/11/03 23:57:27 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,8 +69,8 @@ class Condition_In_User_Group_Edit_Fns extends Condition_Edit_Fns
 		?>
 		<table class="no-borders">
 			<tr>
-				<td><strong><?php echo translate('user_groups'); ?></strong>&nbsp;</td>
-				<td>
+				<td valign="top"><strong><?php echo translate('user_groups'); ?></strong>&nbsp;</td>
+				<td valign="top">
 					<?php
 						if ($write_access) {
 							multiple_asset_finder($prefix.'[groupids]', array_get_index($condition_data, 'groupids', Array()), Array('user_group' => 'D'));
@@ -82,9 +82,9 @@ class Condition_In_User_Group_Edit_Fns extends Condition_Edit_Fns
 								?>
 								<ul>
 								<?php
-								foreach ($names as $id => $name) {
+								foreach ($condition_data['groupids'] as $id) {
 									?>
-									<li><?php echo $name; ?> (ID #<?php echo $id; ?>)</li>
+									<li><?php echo get_asset_tag_line($id); ?></li>
 									<?php
 								}
 								?>

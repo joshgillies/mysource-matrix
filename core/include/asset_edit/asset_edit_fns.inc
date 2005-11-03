@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.51 2005/08/01 10:43:04 brobertson Exp $
+* $Id: asset_edit_fns.inc,v 1.52 2005/11/03 23:57:28 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -242,14 +242,14 @@ class Asset_Edit_Fns extends MySource_Object
 		$selected = (empty($link)) ? 0 : $link['minorid'];
 
 		if (empty($field_name))	$field_name = $asset->getPrefix().'_'.str_replace(' ', '_', strtolower($link_value));
-		
+
 		if (!$asset->writeAccess('links')) {
 			echo '<i>';
 			if (!$selected) {
 				echo 'None';
 			} else {
-				$linked_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($selected, '', true);
-				echo $linked_asset->name, ' (#', $linked_asset->id, ')';
+				//$linked_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($selected, '', true);
+				echo get_asset_tag_line($selected);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($linked_asset);
 			}
 			echo '</i>';
@@ -260,7 +260,7 @@ class Asset_Edit_Fns extends MySource_Object
 			asset_finder($field_name, $selected, $type_codes, '', false);
 		} else {
 			asset_finder($field_name, $selected, $type_codes);
-		} 
+		}
 
 		return true;
 
@@ -281,8 +281,8 @@ class Asset_Edit_Fns extends MySource_Object
 	{
 		if (empty($field_name))	$field_name = $asset->getPrefix().'_'.str_replace(' ', '_', strtolower($link_value));
 		if (!isset($_POST[$field_name])) return false;
-		
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, $link_value); 
+
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, $link_value);
 
 		// if there has been no change, then there is nothing to do
 		if (!empty($link) && $link['minorid'] == $_POST[$field_name]['assetid']) {
@@ -296,14 +296,14 @@ class Asset_Edit_Fns extends MySource_Object
 		if (!empty($link)) {
 			$success = (bool) $asset->deleteLink($link['linkid']);
 		}
-			
+
 		if ($success && !empty($_POST[$field_name]['assetid'])) {
 			$selected_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$field_name]['assetid']);
 			if (!is_null($selected_asset)) {
 				$success = (bool) $asset->createLink($selected_asset, SQ_LINK_NOTICE, $link_value);
 			}
 		}
-	
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction($success ? 'COMMIT' : 'ROLLBACK');
 		return $success;
 

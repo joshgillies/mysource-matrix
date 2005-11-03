@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.24 2005/08/25 02:32:45 amiller Exp $
+* $Id: permissions.inc,v 1.25 2005/11/03 23:57:28 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 
@@ -85,8 +85,8 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 			foreach ($direct as $granted => $userids) {
 				foreach ($userids as $userid) {
 					if ($userid) {
-						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-						if (!$user->id || (!is_a($user, 'user') && !is_a($user, 'user_group'))) {
+						$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array('user', 'user_group'), false);
+						if (empty($user_info)) {
 							continue;
 						}
 					}
@@ -94,7 +94,7 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 					<tr>
 						<td class="sq-backend-table-cell">
 					<?php
-						echo (($userid) ? $user->name.' ['.$user->type().' : '.$userid.']' : 'Public Access');
+						echo get_asset_tag_line($userid);
 					?>
 						</td>
 						<td class="sq-backend-table-cell">
@@ -169,13 +169,9 @@ function paintPermissions(&$owner, &$o, &$ei)
 				<?php
 
 				foreach ($userids as $userid) {
-					$valid_user = true;
-
 					if ($userid) {
-						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid, '', true);
-						if (is_null($user)) {
-							$valid_user = false;
-						} else if (!$user->id || (!is_a($user, 'user') && !is_a($user, 'user_group'))) {
+						$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array('user', 'user_group'), false);
+						if (empty($user_info)) {
 							continue;
 						}
 					}
@@ -183,11 +179,7 @@ function paintPermissions(&$owner, &$o, &$ei)
 					<tr>
 						<td class="sq-backend-table-cell">
 							<?php
-							if (!$valid_user) {
-								echo ('<span class="sq-backend-warning"><b>'.translate('deleted_user_or_usergroup').'</b> ['.$userid.']</span>');
-							} else {
-								echo (($userid) ? $user->name.' ['.$user->type().' : '.$userid.']' : 'Public Access');
-							}
+							echo get_asset_tag_line($userid);
 							?>
 						</td>
 						<?php

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.31 2005/09/19 06:30:38 rhoward Exp $
+* $Id: workflow.inc,v 1.32 2005/11/03 23:57:28 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 */
 
@@ -80,16 +80,14 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 		foreach ($direct as $granted => $schemaids) {
 			foreach ($schemaids as $schemaid) {
 				if ($schemaid) {
-					$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
-					if (!$schema->id || !is_a($schema, 'workflow_schema')) {
-						continue;
-					}
+					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($schemaid), 'workflow_schema', false);
+					if (empty($schema_info)) continue;
 				}
 			?>
 				<tr>
 					<td class="sq-backend-table-cell">
 					<?php
-					echo $schema->name.' ['.$schema->type().' : '.$schemaid.']';
+					echo get_asset_tag_line($schemaid);
 					?>
 					</td>
 					<td class="sq-backend-table-cell" align="right">
@@ -282,7 +280,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 						}
 
 						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-						$logs = $ms->getLogs('asset.workflow', Array('assetid' => $owner->id));
+						$logs = $ms->getLogs('asset.workflow.log.*', Array('assetid' => $owner->id));
 						$user_logs = $ms->getLogs('asset.workflow.userlog', Array('assetid' => $owner->id));
 						usort($logs, Array('Messaging_Service', 'sortMessages'));
 						usort($user_logs, Array('Messaging_Service', 'sortMessages'));
@@ -305,6 +303,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 									for ($log_num = 0; $log_num < 4; $log_num++) {
 										if (!isset($user_logs[$log_num])) break;
 										$log_data = $user_logs[$log_num];
+										bam($log_data);
 										?>
 										<tr>
 											<td class="sq-backend-table-cell" nowrap><?php echo ts_iso8601($log_data['sent']); ?></td>
@@ -368,7 +367,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 						foreach ($schema_workflows as $schemaid => $workflow) {
 							if (!in_array($schemaid, $running_schemas)) continue;
 
-							$schema_title = translate('running_workflow').' -'.$workflow['schema_name'];
+							$schema_title = translate('running_workflow').' - '.$workflow['schema_name'];
 							if (isset($workflow['complete']) && $workflow['complete']) {
 								$schema_title .= ' <span style="color:#008800">['.translate('completed').']</span>';
 							} else {
@@ -450,7 +449,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 												if (!$asset->id) continue;
 												?>
 												<tr>
-													<td class="sq-backend-table-cell"><?php echo '&nbsp;'.$asset->name.' ['.$asset->type()." : $pub]";?></td>
+													<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($pub); ?></td>
 													<td class="sq-backend-table-cell">
 												<?php
 												if (isset($wfm->_valid_cond_logic[$cond_data['logic']])) {
@@ -626,8 +625,8 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 								<?php
 								foreach ($schemaids as $schemaid) {
 									if ($schemaid) {
-										$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
-										if (!$schema->id || !is_a($schema, 'workflow_schema')) {
+										$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($schemaid), 'workflow_schema', false);
+										if (empty($schema_info)) {
 											continue;
 										}
 									}
@@ -635,7 +634,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 									<tr>
 										<td class="sq-backend-table-cell">
 										<?php
-										echo $schema->name.' ['.$schema->type().' : '.$schemaid.']';
+										echo get_asset_tag_line($schemaid);
 										?>
 										</td>
 										<?php

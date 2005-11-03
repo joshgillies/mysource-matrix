@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2005/07/20 00:40:28 lwright Exp $
+* $Id: lang_strings.xml,v 1.3 2005/11/03 23:57:27 lwright Exp $
 *
 * Localised Strings File for Begins With Form Question Rule Asset
 */
@@ -31,8 +31,8 @@
 <string source="core_form_rule_begins_with_desc_false_q">The response to "%1$s" must NOT begin with the response to question "%2$s"</string>
 <string source="core_form_rule_begins_with_desc_true">The response to "%1$s" must begin with "%2$s"</string>
 <string source="core_form_rule_begins_with_desc_false">The response to "%1$s" must NOT begin with "%2$s"</string>
-<string source="core_form_rule_begins_with_edit_true_q">Response must begin with the response to question "%s"</string>
-<string source="core_form_rule_begins_with_edit_false_q">Response must NOT begin with the response to question "%s"</string>
+<string source="core_form_rule_begins_with_edit_true_q">Response must begin with the response to %s</string>
+<string source="core_form_rule_begins_with_edit_false_q">Response must NOT begin with the response to %s</string>
 <string source="core_form_rule_begins_with_edit_true">Response must begin with "%s"</string>
 <string source="core_form_rule_begins_with_edit_false">Response must NOT begin with "%s"</string>
 </strings>

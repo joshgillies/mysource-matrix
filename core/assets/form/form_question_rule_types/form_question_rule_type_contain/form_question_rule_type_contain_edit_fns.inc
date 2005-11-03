@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_contain_edit_fns.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
+* $Id: form_question_rule_type_contain_edit_fns.inc,v 1.3 2005/11/03 23:57:27 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,8 +58,7 @@ class Form_Question_Rule_Type_Contain_Edit_Fns extends Form_Question_Rule_Edit_F
 		if (!$write_access) {
 			$o->openField(translate('core_form_rule_details'));
 			if (($cq_id = array_get_index($rule_data, 'comparison_question_id', 0)) != 0) {
-				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
-				$value = $q_asset->name;
+				$value = get_asset_tag_line($cq_id);
 			} else {
 				$value = array_get_index($rule_data, 'value', '');
 			}

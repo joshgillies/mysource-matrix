@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.69 2005/11/02 05:20:03 lwright Exp $
+* $Id: lang_strings.xml,v 1.70 2005/11/03 23:57:28 lwright Exp $
 *
 */
 
@@ -70,6 +70,7 @@
 	<string source="condition">Condition</string>
 	<string source="conditions">Conditions</string>
 	<string source="confirm">Confirm</string>
+	<string source="contains">Contains</string>
 	<string source="cron_manager_appears_to_be_fine">Cron Manager appears to be fine.</string>
 	<string source="current_hipo_jobs">Current HIPO Jobs</string>
 	<string source="current_linking">Current Linking</string>

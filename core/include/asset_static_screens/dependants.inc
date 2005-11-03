@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: dependants.inc,v 1.6 2005/06/24 05:37:18 ndvries Exp $
+* $Id: dependants.inc,v 1.7 2005/11/03 23:57:28 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Dependants Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 
@@ -63,24 +63,25 @@ function paintDependants(&$owner, &$o, &$ei)
 	}
 
 	?>
-	<table cellpadding="0" cellspacing="0" border="0" bgcolor="#E6E0EA" width="100%">
+	<table cellpadding="0" cellspacing="0" border="0" width="100%">
 		<tr>
-			<td class="sq-backend-data" style="background-color:#E6E0EA">
+			<td class="sq-backend-data">
 				<table cellpadding="0" cellspacing="0" border="0">
 					<tr>
-						<td class="sq-backend-data" style="background-color:#E6E0EA"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="20" border="0" alt="" /></td>
-						<td class="sq-backend-data" nowrap style="background-color:#E6E0EA">
-							<a href="<?php echo $owner->getBackendHref('dependants'); ?>"><b><?php echo $owner->name; ?></b></a>
+						<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="20" border="0" alt="" /></td>
+						<td class="sq-backend-data" nowrap="nowrap">
+							<!-- <a href="<?php echo $owner->getBackendHref('dependants'); ?>"><b><?php echo $owner->name; ?></b></a> -->
+							<?php echo get_asset_tag_line($owner->id, 'dependants'); ?>
 						</td>
 					</tr>
 				</table>
 			</td>
 			<td><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="5" height="1" border="0" alt="" /></td>
-			<td class="sq-backend-data" valign="top" nowrap style="background-color:#E6E0EA">
+			<td class="sq-backend-data" nowrap="nowrap">
 				<?php echo $lock_message; ?>
 			</td>
 			<td background="<?php echo $o->filesPath('/images/tree/stalk.gif'); ?>"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="1" border="0" alt="" /></td>
-			<td class="sq-backend-data" colspan="3" nowrap style="background-color:#E6E0EA">
+			<td class="sq-backend-data" colspan="3" nowrap="nowrap">
 				<?php echo $owner->getStatusDescription(); ?>
 			</td>
 			<td width="100%">&nbsp;</td>
@@ -157,7 +158,7 @@ function _recursePaintDependants(&$owner, &$asset, &$o, $levels=1, $print_stalks
 
 		?>
 		<tr>
-			<td class="sq-backend-data" style="background-color:#E6E0EA">
+			<td class="sq-backend-data">
 				<table cellpadding="0" cellspacing="0" border="0">
 					<tr>
 						<?php
@@ -168,27 +169,30 @@ function _recursePaintDependants(&$owner, &$asset, &$o, $levels=1, $print_stalks
 								$new_print_stalks_at[] = $x;
 							}
 							?>
-							<td class="sq-backend-data" <?php echo $stalk_bg; ?> style="background-color:#E6E0EA"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="20" height="1" alt="blank" /></td>
+							<td class="sq-backend-data" <?php echo $stalk_bg; ?>><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="20" height="1" alt="blank" /></td>
 							<?php
 						}
 						?>
-						<td class="sq-backend-data" <?php echo $bg; ?> style="background-color:#E6E0EA"><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
-						<td class="sq-backend-data" nowrap style="background-color:#E6E0EA">
-							&nbsp;<a href="<?php echo $dep_asset->getBackendHref('dependants'); ?>"><b><?php echo $dep_asset->name; ?></b></a>
+						<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
+						<td class="sq-backend-data" nowrap="nowrap">
+							&nbsp;
+							<?php
+							echo get_asset_tag_line($dependant_links[$i]['minorid'], 'dependants'); ?>
+							<!-- <a href="<?php echo $dep_asset->getBackendHref('dependants'); ?>"><b><?php echo $dep_asset->name; ?></b></a> -->
 						</td>
 					</tr>
 				</table>
 			</td>
 			<td><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="5" height="1" border="0" alt="" /></td>
-			<td class="sq-backend-data" nowrap style="background-color:#E6E0EA">
+			<td class="sq-backend-data" nowrap="nowrap">
 				<?php echo $lock_message; ?>
 			</td>
 			<td background="<?php echo $o->filesPath('/images/tree/stalk.gif'); ?>"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="1" border="0" alt="" /></td>
-			<td class="sq-backend-data" valign="top" nowrap style="background-color:#E6E0EA">
+			<td class="sq-backend-data" nowrap="nowrap">
 				<?php echo $dep_asset->getStatusDescription(); ?>
 			</td>
 			<td><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="5" height="1" border="0" alt="" /></td>
-			<td class="sq-backend-data" nowrap style="background-color:#E6E0EA">
+			<td class="sq-backend-data" nowrap="nowrap">
 				<?php echo $status_message; ?>
 			</td>
 		</tr>

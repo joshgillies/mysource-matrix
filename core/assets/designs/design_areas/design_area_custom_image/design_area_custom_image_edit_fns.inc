@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_custom_image_edit_fns.inc,v 1.17 2005/10/11 02:05:33 tbarrett Exp $
+* $Id: design_area_custom_image_edit_fns.inc,v 1.18 2005/11/03 23:57:26 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -135,10 +135,7 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$image = $asset->attr('image');
 		if (empty($image) || !file_exists($asset->data_path_public.'/'.$image)) {
-		?>
-			No Image Uploaded
-		<?php
-		} else {
+			echo translate('core_design_area_custom_image_no_upload');
 		?>
 			<a href="<?php echo sq_web_path('data').'/assets/'.$asset->type().'/'.$asset->id.'/'.$image; ?>" target="_blank"><?php echo $image; ?></a>
 		<?php

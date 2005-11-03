@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.15 2005/09/08 00:39:12 rong Exp $
+* $Id: metadataSchemas.inc,v 1.16 2005/11/03 23:57:28 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 
@@ -155,8 +155,8 @@ function paintMetadataSchemas(&$owner, &$o, &$ei)
 			<?php
 			foreach ($schemaids as $schemaid) {
 				if ($schemaid) {
-					$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
-					if (!$schema->id || !is_a($schema, 'metadata_schema')) {
+					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($schemaid), 'metadata_schema', false);
+					if (empty($schema_info)) {
 						continue;
 					}
 				}
@@ -164,7 +164,7 @@ function paintMetadataSchemas(&$owner, &$o, &$ei)
 				<tr>
 					<td class="sq-backend-table-cell">
 					<?php
-					echo $schema->name.' ['.$schema->type().' : '.$schemaid.']';
+					echo get_asset_tag_line($schemaid);
 					?>
 					</td>
 					<?php

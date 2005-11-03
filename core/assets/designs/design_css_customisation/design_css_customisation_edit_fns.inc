@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_customisation_edit_fns.inc,v 1.11 2005/09/27 23:27:27 ndvries Exp $
+* $Id: design_css_customisation_edit_fns.inc,v 1.12 2005/11/03 23:57:26 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_css/design_css_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,7 +66,7 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 	{
 		$customised_areas = $asset->getCustomisedAreas();
 		if (empty($customised_areas)) {
-			?> No Design Areas are customised yet. <?php
+			echo translate('core_design_customisation_no_design_areas_customised');
 		} else {
 			$this->_paintDesignAreaList($customised_areas, translate('core_remove_customisation_question'), $prefix.'_remove_customisation', $asset->writeAccess('links'), true, true);
 		}
@@ -129,7 +129,7 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 	{
 		$uncustomised_areas = $asset->getUnCustomisedAreas();
 		if (empty($uncustomised_areas)) {
-			?> All Design Areas have been customised. <?php
+			echo translate('core_design_customisation_all_design_areas_customised');
 		} else {
 			$this->_paintDesignAreaList($uncustomised_areas, translate('core_customise_question'), $prefix.'_customise', $asset->writeAccess('links'));
 		}
@@ -306,12 +306,11 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 	* @param string		$check_box_name		the form name to give the check box for each design area entry
 	* @param boolean	$write_access		if you have write access or not
 	* @param boolean	$link_name			whether to link the name to the edit interface for the design area
-	* @param boolean	$show_specialised	whether to print if the design area is specialised or not
 	*
 	* @return void
 	* @access private
 	*/
-	function _paintDesignAreaList($links, $check_box_col, $check_box_name, $write_access, $link_name=false, $show_specialised=false)
+	function _paintDesignAreaList($links, $check_box_col, $check_box_name, $write_access, $link_name=false)
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		?>
@@ -326,7 +325,6 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 			<?php
 				}// end if
 			?>
-				<td class="sq-backend-data" width="25%" style="text-align: center;"><b><?php echo ($show_specialised) ? 'Specialised ?' : '&nbsp;'; ?></b></td>
 			</tr>
 		<?php
 		uasort($links, Array(get_class($this), 'linkCompare'));
@@ -364,12 +362,11 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 				</td>
 				<td class="sq-backend-data" style="white-space: nowrap;">
 					<?php
-					echo $da->id, ' - ';
 					if ($link_name) {
-						echo '<a href="', $da->getBackendHref(), '">';
+						echo get_asset_tag_line($da->id, 'details');
+					} else {
+						echo get_asset_tag_line($da->id, '');
 					}
-					echo $da->name;
-					if ($link_name) echo '</a>';
 					?>
 				</td>
 			<?php
@@ -381,17 +378,6 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 			<?php
 				}// end if
 			?>
-				<td class="sq-backend-data" style="text-align: center;">
-				<?php
-					if ($show_specialised && $da->attr('specialised')) {
-				?>
-					<img src="<?php echo sq_web_path('lib'); ?>/web/images/tick.gif" width="15" height="15" />
-				<?php
-					} else {
-				?>&nbsp;<?php
-					}// end if
-				?>
-				</td>
 			</tr>
 		<?php
 		}//end foreach
