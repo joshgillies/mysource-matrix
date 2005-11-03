@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.32 2005/06/14 23:00:24 dmckee Exp $
+* $Id: html_tidy.inc,v 1.33 2005/11/03 05:46:24 dmckee Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author	Greg Sherwood		<greg@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -156,6 +156,9 @@ class HTML_Tidy extends Wysiwyg_Plugin
 		$html = preg_replace('|<\/?\w+:[^>]*>|is', '', $html);
 		$html = preg_replace('|<\\?\??xml[^>]>|is', '', $html);
 
+		//Change old style HTML Tags to XHTML compliant self closing tags (singletons)
+		$html = preg_replace('|<br>|is', '<br />', $html);
+		$html = preg_replace('|<hr>|is', '<hr />', $html);
 
 	}//end process
 
