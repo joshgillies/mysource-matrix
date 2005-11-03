@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.391 2005/11/03 04:20:31 pgannavarapu Exp $
+* $Id: asset_manager.inc,v 1.392 2005/11/03 05:02:36 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.391 $
+* @version $Revision: 1.392 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -723,6 +723,57 @@ class Asset_Manager extends MySource_Object
 	}//end getAssetTypeAttributes()
 
 
+	/**
+	* Get the values of the attribute with the given name for the given assetids
+	*
+	* The assetids supplied must be assets of the specified type, or assets which
+	* inherit the specified attribute from the specified asset type. You may use
+	* 'asset' for the $asset_type to skip asset type checking (recommended that this
+	* only be used for common attributes like name). It returns the array of
+	* (string => mixed) representing assetid => attribute value
+	*
+	* @param string	$attr_name	The name of the attribute to get the values of
+	* @param string	$asset_type	The type code of the asset type that defines the attribute
+	* @param array	$assetids	IDs of the assets whose values we want
+	*
+	* @return array
+	* @access public
+	*/
+	function getAttributeValuesByName($attr_name, $asset_type, $assetids)
+	{
+		if (empty($assetids)) return Array();
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// First get the default values
+		$sql = 'SELECT a.assetid, at.default_val
+				FROM sq_ast a, sq_ast_attr at
+				WHERE a.type_code = at.type_code
+					AND at.name = '.$db->quote($attr_name).'
+					AND a.assetid IN ('.implode(', ', $assetids).')';
+		$res = $db->getAssoc($sql);
+		assert_valid_db_result($res);
+
+		// Now get customised values where applicable
+		$sub_sql = 'SELECT attrid FROM sq_ast_attr WHERE name = '.$db->quote($attr_name);
+		if ($asset_type != 'asset') {
+			$sub_sql .= ' AND (type_code = '.$db->quote($asset_type).' OR owning_type_code = '.$db->quote($asset_type).')';
+		}
+		$sql = 'SELECT assetid, custom_val
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val
+				WHERE attrid IN ('.$sub_sql.')
+					AND assetid IN ('.implode(', ', $assetids).')';
+		$custom_vals = $db->getAssoc($sql);
+		assert_valid_db_result($custom_vals);
+
+		// Combine the two
+		foreach ($custom_vals as $assetid => $val) {
+			$res[$assetid] = $val;
+		}
+		return $res;
+
+	}//end getAttributeValuesByName()
+
+
 //--        ASSETS        --//
 
 
@@ -1283,57 +1334,6 @@ class Asset_Manager extends MySource_Object
 		return $result;
 
 	}//end getTypeAssetids()
-
-
-	/**
-	* Get the values of the attribute with the given name for the given assetids
-	*
-	* The assetids supplied must be assets of the specified type, or assets which
-	* inherit the specified attribute from the specified asset type. You may use
-	* 'asset' for the $asset_type to skip asset type checking (recommended that this
-	* only be used for common attributes like name). It returns the array of
-	* (string => mixed) representing assetid => attribute value
-	*
-	* @param string	$attr_name	The name of the attribute to get the values of
-	* @param string	$asset_type	The type code of the asset type that defines the attribute
-	* @param array	$assetids	IDs of the assets whose values we want
-	*
-	* @return array
-	* @access public
-	*/
-	function getAttributeValuesByName($attr_name, $asset_type, $assetids)
-	{
-		if (empty($assetids)) return Array();
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		// First get the default values
-		$sql = 'SELECT a.assetid, at.default_val
-				FROM sq_ast a, sq_ast_attr at
-				WHERE a.type_code = at.type_code
-					AND at.name = '.$db->quote($attr_name).'
-					AND a.assetid IN ('.implode(', ', $assetids).')';
-		$res = $db->getAssoc($sql);
-		assert_valid_db_result($res);
-
-		// Now get customised values where applicable
-		$sub_sql = 'SELECT attrid FROM sq_ast_attr WHERE name = '.$db->quote($attr_name);
-		if ($asset_type != 'asset') {
-			$sub_sql .= ' AND (type_code = '.$db->quote($asset_type).' OR owning_type_code = '.$db->quote($asset_type).')';
-		}
-		$sql = 'SELECT assetid, custom_val
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val
-				WHERE attrid IN ('.$sub_sql.')
-					AND assetid IN ('.implode(', ', $assetids).')';
-		$custom_vals = $db->getAssoc($sql);
-		assert_valid_db_result($custom_vals);
-
-		// Combine the two
-		foreach ($custom_vals as $assetid => $val) {
-			$res[$assetid] = $val;
-		}
-		return $res;
-
-	}//end getAttributeValuesByName()
 
 
 //--        CONTENT        --//
