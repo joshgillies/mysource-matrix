@@ -12,7 +12,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -225,21 +225,25 @@ class Bulkmail_Manager extends Asset
 		$this->initDetailsFile($job, $post_office, $data_dir);
 
 		// add a new entry to the database table
-		$db_table = SQ_TABLE_RUNNING_PREFIX.'bulkmail_queue';
-		$fields = Array('id', 'post_office_id', 'status');
-		$db_values = "'$unique_id', '".$post_office->id."', '".BML_JOB_STATE_NOT_RUNNING."'";
-		$db_fields = implode(', ', $fields);
-		$sql = "INSERT INTO $db_table ($db_fields) VALUES ($db_values);";
-		$result = $GLOBALS['SQ_SYSTEM']->db->query($sql);
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'INSERT INTO
+					sq_bulkmail_queue
+					(
+						id,
+						post_office_id,
+						status
+					)
+					VALUES
+					(
+						'.$db->quoteSmart($unique_id).',
+						'.$db->quoteSmart($post_office->id).',
+						'.$db->quoteSmart(BML_JOB_STATE_NOT_RUNNING).'
+					)';
 
-		if (!assert_valid_db_result($result)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		// commit transaction if everything is ok
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		//echo " Job #$job->id : addJob\n";
+
 		return true;
 
 	}//end addJob()
@@ -256,18 +260,15 @@ class Bulkmail_Manager extends Asset
 	function deleteJob($job_id)
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$db_table = SQ_TABLE_RUNNING_PREFIX.'bulkmail_queue';
-		$sql = "DELETE FROM $db_table WHERE id = $job_id;";
-		$result = $GLOBALS['SQ_SYSTEM']->db->query($sql);
-
-		if (!assert_valid_db_result($result)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'DELETE FROM
+					sq_bulkmail_queue
+				WHERE
+					id = '.$db->quoteSmart($job_id);
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		//echo " Job #$job_id : deleteJob\n";
+
 		return true;
 
 	}//end deleteJob()
@@ -298,16 +299,18 @@ class Bulkmail_Manager extends Asset
 			}
 		}
 
-		$db_table = SQ_TABLE_RUNNING_PREFIX.'bulkmail_queue';
-		$sql = "UPDATE $db_table SET status = $state WHERE id = $job_id;";
-		$result = $GLOBALS['SQ_SYSTEM']->db->query($sql);
-		if (!assert_valid_db_result($result)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'UPDATE
+					sq_bulkmail_queue
+				SET
+					status = '.$db->quoteSmart($state).'
+				WHERE
+					id = '.$db->quoteSmart($job_id);
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
 		//echo " Job #$job_id : updateJob, state=$state\n";
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 		return true;
 
 	}//end updateJob()
@@ -329,12 +332,17 @@ class Bulkmail_Manager extends Asset
 
 		$where = '';
 		if (!is_null($job_id)) {
-			$where = ' WHERE id = '.$db->quote($job_id);
+			$where = ' WHERE
+						id = '.$db->quoteSmart($job_id);
 		} else if (!is_null($post_office_id)) {
-			$where = ' WHERE post_office_id = '.$db->quote($post_office_id);
+			$where = ' WHERE
+						post_office_id = '.$db->quoteSmart($post_office_id);
 		}
 
-		$sql = "SELECT id, post_office_id, status FROM $db_table $where;";
+		$sql = 'SELECT id, post_office_id, status
+				FROM sq_bulkmail_queue
+				'.$where;
+
 		$results = $db->getAssoc($sql);
 		assert_valid_db_result($results);
 

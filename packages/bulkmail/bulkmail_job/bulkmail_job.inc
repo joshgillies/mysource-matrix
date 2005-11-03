@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.10 2005/11/03 05:26:08 rong Exp $
+* $Id: bulkmail_job.inc,v 1.11 2005/11/03 21:53:23 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -82,7 +82,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	/**
 	* Sends the preview bulkmail content using given PEAR mail
 	*
-	* @param array	$recipient	array of email addresses
+	* @param array	$recipient	array of email addresses, passed in from the backend interface
 	*
 	* @return boolean
 	* @access public
@@ -91,7 +91,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	{
 		$errors = $this->isValidJob();
 		if (!empty($errors)) {
-			//trigger_localised_error('BML0004', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->name, $this->id);
+			// TODO: add a good generic error msg here, trigger_localised_error
 			return false;
 		}
 
@@ -180,7 +180,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		}
 
 		// no recipient
-		// note: if expand $recipient, its equivalent to calling getRecipients() again (intensive process)
+		// note: if expand $recipient, its equivalent to calling getAllRecipients() (intensive process)
 		$recipients = $this->attr('recipients');
 		if (empty($recipients)) {
 			//$error[] = "Post Office Error: Recipients no set.\n";

@@ -13,7 +13,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -171,7 +171,8 @@ class Bulkmail_Manager_Edit_Fns extends Asset_Edit_Fns
 				$progress = $bulkmail_manager->getJobProgress($jobid);
 				$progress_string = translate('bm_job_progress_none');
 				if (!empty($progress) && $progress['total_count'] != 0) {
-					$progress_string = translate('bm_job_progress', $progress['current_count'], $progress['total_count']);
+					$percent_done = round(($progress['current_count'] / $progress['total_count']) * 100, 2).'%';
+					$progress_string = translate('bm_job_progress', $progress['current_count'], $progress['total_count'], $percent_done);
 				}
 		?>
 				<tr>
