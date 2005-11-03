@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.26.2.1 2005/08/12 15:22:54 brobertson Exp $
+* $Id: cron_job_future_status.inc,v 1.26.2.2 2005/11/03 23:09:40 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26.2.1 $
+* @version $Revision: 1.26.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -312,7 +312,7 @@ class Cron_Job_Future_Status extends Cron_Job
 		}
 
 		// get all active future status jobs
-		$all_jobs = &$cron_mgr->getJobs(__CLASS__, false);
+		$all_jobs = $cron_mgr->getJobs(__CLASS__, false);
 
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
 
