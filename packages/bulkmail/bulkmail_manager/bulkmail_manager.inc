@@ -12,7 +12,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -202,7 +202,7 @@ class Bulkmail_Manager extends Asset
 			}
 		}
 
-		// check isValidJob here IMPORTANT!
+		// check isValidJob here IMPORTANT! for adhoc job
 
 		// work out the unique id for this job in the db table
 		if ($job->id == 0) {
@@ -239,7 +239,7 @@ class Bulkmail_Manager extends Asset
 
 		// commit transaction if everything is ok
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		echo " Job #$job->id : addJob\n";
+		//echo " Job #$job->id : addJob\n";
 		return true;
 
 	}//end addJob()
@@ -267,7 +267,7 @@ class Bulkmail_Manager extends Asset
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		echo " Job #$job_id : deleteJob\n";
+		//echo " Job #$job_id : deleteJob\n";
 		return true;
 
 	}//end deleteJob()
@@ -288,7 +288,7 @@ class Bulkmail_Manager extends Asset
 
 		// set last_updated to zero to skip timeout checking when we resume the job
 		if ($state == BML_JOB_STATE_PAUSED) {
-			$progress_info = getJobProgress($job_id);
+			$progress_info = $this->getJobProgress($job_id);
 			$progress_info['last_updated'] = 0;
 			$data_dir = $this->getJobDataPath($job_id);
 			$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';
@@ -306,7 +306,7 @@ class Bulkmail_Manager extends Asset
 			return false;
 		}
 
-		echo " Job #$job_id : updateJob, state=$state\n";
+		//echo " Job #$job_id : updateJob, state=$state\n";
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
@@ -438,7 +438,7 @@ class Bulkmail_Manager extends Asset
 			trigger_error("initProgressFile : failed to init progress file.\n");
 			return false;
 		} else {
-			echo " init progress file\n";
+			//echo " init progress file\n";
 			return true;
 		}
 
@@ -512,7 +512,7 @@ class Bulkmail_Manager extends Asset
 			trigger_error("initDetailsFile : failed to init details file.\n");
 			return false;
 		} else {
-			echo " init details file\n";
+			//echo " init details file\n";
 			return true;
 		}
 	}//end initDetailsFile()

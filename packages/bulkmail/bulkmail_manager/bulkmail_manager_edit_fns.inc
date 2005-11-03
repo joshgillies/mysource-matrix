@@ -13,7 +13,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -132,7 +132,7 @@ class Bulkmail_Manager_Edit_Fns extends Asset_Edit_Fns
 	function _paintJobQueue(&$asset, $jobs)
 	{
 		if (empty($jobs)) {
-			echo translate('no_jobs_running');
+			echo translate('bm_job_progress_none');
 			return;
 		}
 
@@ -168,12 +168,10 @@ class Bulkmail_Manager_Edit_Fns extends Asset_Edit_Fns
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bulkmail_job);
 				}
 				// Now that we have the data directory, we can get progress information from it
-				// INSERT CODE HERE
 				$progress = $bulkmail_manager->getJobProgress($jobid);
-				if (empty($progress)) {
-					$progress_string = translate('bm_job_progress_none');
-				} else {
-					$progress_string = ''; // do stuff here
+				$progress_string = translate('bm_job_progress_none');
+				if (!empty($progress) && $progress['total_count'] != 0) {
+					$progress_string = translate('bm_job_progress', $progress['current_count'], $progress['total_count']);
 				}
 		?>
 				<tr>
