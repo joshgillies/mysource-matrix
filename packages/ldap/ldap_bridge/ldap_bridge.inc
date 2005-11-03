@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.34 2005/09/27 06:47:06 dheppell Exp $
+* $Id: ldap_bridge.inc,v 1.35 2005/11/03 05:50:53 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -189,13 +189,18 @@ class LDAP_Bridge extends Asset
 	*										is on ('major' or 'minor')
 	* @param string		$sort_by			a field in the asset table you would like the results
 	*										sorted by (eg. name, short_name etc)
+	* @param boolean	$dependant			Whether we want dependant links, non-dependent or (null) don't care
+	* @param boolean	$exclusive			Whether we want exclusive links, non-exclusive or (null) don't care
 	*
 	* @return array
 	* @access public
 	* @see Asset_Manager::getLinks()
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null, $dependant=null, $exclusive=null)
 	{
+		if ($dependant || $exclusive) {
+			return Array();
+		}
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) $assetid = $id_parts[1];
 
