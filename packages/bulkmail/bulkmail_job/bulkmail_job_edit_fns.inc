@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.7 2005/10/31 04:20:34 rong Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.8 2005/11/03 00:52:23 ndvries Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -293,6 +293,59 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		}
 
 	}//end processHeaderDetails()
+
+
+//--        JOB MANAGEMENT        --//
+
+
+	/**
+	* Paint the job queue
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintJobQueue(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$bulkmail_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+		$bulkmail_manager_edit_fns = $bulkmail_manager->getEditFns();
+		$o->openField('');
+			$jobs = $bulkmail_manager->getQueuedJobs($asset->id);
+			$bulkmail_manager_edit_fns->_paintJobQueue($asset, $jobs);
+		$o->closeField();
+
+		return $write_access;
+
+	}//end printJobQueue()
+
+
+	/**
+	* Process the job queue
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processJobQueue(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$bulkmail_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+		$bulkmail_manager_edit_fns = $bulkmail_manager->getEditFns();
+		if (!$write_access) return;
+
+		$jobs = $bulkmail_manager->getQueuedJobs($asset->id);
+		$bulkmail_manager_edit_fns->_processJobQueue($asset, $jobs);
+
+		return true;
+
+	}//end processJobQueue()
 
 
 }//end class

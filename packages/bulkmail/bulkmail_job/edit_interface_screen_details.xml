@@ -11,22 +11,22 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2005/10/31 03:34:39 rong Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2005/11/03 00:52:23 ndvries Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Progress">
-		<function_call>
-			<paint_function name="paintProgress" />
-			<process_function name="processProgress" />
-		</function_call>
-	</section>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
 			<text width="30" height="1" />
 		</field>
+	</section>
+	<section name="Job Progress">
+		<function_call>
+			<paint_function name="paintJobQueue" />
+			<process_function name="processJobQueue" />
+		</function_call>
 	</section>
 	<section name="Recipients" write_access="write:attributes">
 		<field>

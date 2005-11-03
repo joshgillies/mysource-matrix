@@ -1,9 +1,8 @@
 <strings>
 <string source="bulkmail_progress_current_state">Current State</string>
-<string source="bulkmail_progress_state_not_live">Not Live</string>
+<string source="bulkmail_progress_state_not_running">Not Running</string>
 <string source="bulkmail_progress_state_running">Running</string>
 <string source="bulkmail_progress_state_paused">Paused</string>
-<string source="bulkmail_progress_state_cancel">Cancel</string>
 <string source="bulkmail_progress_warning_save">This Bulkmail Job is currently Live, changes made to the detail fields will not be saved.</string>
 <string source="bulkmail_progress_note">Pause, resume or cancel a job.</string>
 <string source="bulkmail_progress_current_progress">Current Progress</string>

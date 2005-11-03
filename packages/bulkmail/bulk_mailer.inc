@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.7 2005/10/31 04:20:34 rong Exp $
+* $Id: bulk_mailer.inc,v 1.8 2005/11/03 00:52:02 ndvries Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once  'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -49,7 +49,7 @@ class Bulk_Mailer
 	* @param string	$table_name		perform query on this table
 	* @param array	$table_fields	the relevant table fields for this query
 	* @param array	$values			run this query with different values
-
+	*
 	* @return array
 	* @access public
 	*/

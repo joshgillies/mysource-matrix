@@ -12,7 +12,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -310,7 +310,7 @@ class Bulkmail_Manager extends Asset
 	/**
 	* Gets the data path of a job
 	*
-	* @param int	$job_id			the unique id of the job entry
+	* @param string	$job_id	the unique id of the job entry
 	*
 	* @return string
 	* @access public
@@ -332,6 +332,29 @@ class Bulkmail_Manager extends Asset
 		return $path;
 
 	}//end getJobDataPath()
+
+
+	/**
+	* Gets the post office of a bulkmail job
+	*
+	* @param string	$job_id	the unique id of the job entry
+	*
+	* @return string
+	* @access public
+	*/
+	function &getPostOffice($job_id)
+	{
+		$job_id_parts = explode(':', $job_id);
+		if (isset($job_id_parts[1])) {
+			$post_office =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id_parts[0]);
+		} else {
+			$job =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id, 'bulkmail_job');
+			$post_office =& $job->getPostOffice();
+		}
+
+		return $post_office;
+
+	}//end getPostOffice()
 
 
 //--        PROGRESS        --//
@@ -384,7 +407,7 @@ class Bulkmail_Manager extends Asset
 	/**
 	* Reads the progress info from a file
 	*
-	* @param string	$progress_path	path to the progress info file
+	* @param string	$job_id	the unique id of the job entry
 	*
 	* @return array
 	* @access public
@@ -401,7 +424,7 @@ class Bulkmail_Manager extends Asset
 
 		return $progress_info;
 
-	}//end readProgressFile()
+	}//end getJobProgress()
 
 
 }//end class

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2005/10/27 01:38:16 ndvries Exp $
+* $Id: lang_strings.xml,v 1.3 2005/11/03 00:52:24 ndvries Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -37,4 +37,22 @@
 Please click on the following link if you would like to proceed:
 
 %s</string>
+	<string source="bm_adhoc_job_name">Ad-Hoc Job</string>
+	<string source="bm_state_action_pause">Pause</string>
+	<string source="bm_state_action_resume">Resume</string>
+	<string source="bm_state_action_cancel">Cancel</string>
+	<string source="bm_state_paused">Paused</string>
+	<string source="bm_state_not_running">Waiting To Run</string>
+	<string source="bm_state_running">Running</string>
+	<string source="bm_state_unknown">Unknown State</string>
+
+	<string source="bm_job_table_header_id">ID</string>
+	<string source="bm_job_table_header_job">Job</string>
+	<string source="bm_job_table_header_post_office">Post Office (#ID)</string>
+	<string source="bm_job_table_header_state">State</string>
+	<string source="bm_job_table_header_progress">Progress</string>
+	<string source="bm_job_table_header_control">Control</string>
+
+	<string source="bm_job_progress_none">N/A</string>
+	<string source="bm_job_progress">%1$s of %2$s</string>
 </strings>

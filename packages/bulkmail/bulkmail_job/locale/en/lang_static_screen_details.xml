@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_static_screen_details.xml,v 1.1 2005/10/25 23:37:05 rong Exp $
+* $Id: lang_static_screen_details.xml,v 1.2 2005/11/03 00:52:24 ndvries Exp $
 *
 */
 -->
@@ -39,5 +39,13 @@
 			<display_name>Scheduled</display_name>
 			<note />
 		</field>
+	</section>
+	<section name="Job Progress">
+		<display_name>Job Progress</display_name>
+		<note />
+		<function_call>
+			<paint_function name="paintJobQueue" />
+			<process_function name="processJobQueue" />
+		</function_call>
 	</section>
 </contents>
