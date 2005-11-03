@@ -126,15 +126,17 @@
 			slider.style.left = (findPosX(slider.parentNode) + Math.round((newInputBox.value / (sliderMax - sliderMin)) * BAR_WIDTH)) + 'px';
 		}
 
-		var preSliderOnLoad = window.onload;
-		window.onload = function() 
-		{
-			if (typeof preSliderOnLoad == 'function') preSliderOnLoad();
-			var allDivs = document.getElementsByTagName('DIV');
-			for (var j=0; j < allDivs.length; j++) {
-				if (allDivs[j].className == 'slider-container') {
-					sliderize(allDivs[j].getElementsByTagName('INPUT')[0]);
+		if (typeof preSliderOnLoad != 'function') {
+			var preSliderOnLoad = window.onload;
+			window.onload = function() 
+			{
+				if (typeof preSliderOnLoad == 'function') preSliderOnLoad();
+				var allDivs = document.getElementsByTagName('DIV');
+				for (var j=0; j < allDivs.length; j++) {
+					if (allDivs[j].className == 'slider-container') {
+						sliderize(allDivs[j].getElementsByTagName('INPUT')[0]);
+					}
 				}
+				initSliders();
 			}
-			initSliders();
 		}
