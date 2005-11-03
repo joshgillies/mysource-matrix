@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office.inc,v 1.9 2005/11/03 01:08:02 rong Exp $
+* $Id: bulkmail_post_office.inc,v 1.10 2005/11/03 04:20:17 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once 'Mail.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -232,59 +232,6 @@ class Bulkmail_Post_Office extends Asset
 
 		return $msg.'&nbsp; '.$who.$when;
 	}//end generateLog()
-
-
-	/**
-	* Gets status directly from the database, as attr() doesn't return the updated value
-	*
-	* @param int	$assetid	$this->id, since we are calling this function statically
-	*
-	* @return string
-	* @access public
-	*/
-	function getStatusDB($assetid)
-	{
-		$sql = 'SELECT status ';
-		$sql .= 'FROM sq_ast ';
-		$sql .= "WHERE assetid = '".$assetid."'";
-		$result = $GLOBALS['SQ_SYSTEM']->db->getOne($sql);
-		assert_valid_db_result($result);
-
-		return $result;
-
-	}//end getStatusDB()
-
-
-	/**
-	* Checks if this post office has any child that is a running live job
-	*
-	* To be used in edit functions to disable writing to the attributes
-	*
-	* @return mixed int|boolean
-	* @access public
-	*/
-	function hasLiveChild()
-	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$strict = true;
-
-		// get all bulkmail post offices and jobs that are currently in the trash folder
-		$trash_folder = &$am->getSystemAsset('trash_folder');
-		$in_trash = $am->getChildren($trash_folder->id, 'bulkmail_job', $strict);
-
-		// get all jobs linked under this post office, which are not in trash
-		$jobs = $am->getChildren($this->id, 'bulkmail_job', $strict);
-		$jobs = array_diff_assoc($jobs, $in_trash);
-
-		// get live job (only one live job at any given point of time)
-		foreach ($jobs as $job_assetid => $type_code) {
-			$status = Bulkmail_Post_Office::getStatusDB($job_assetid);
-			if ($status == SQ_STATUS_LIVE) return $job_assetid;
-		}
-
-		return false;
-
-	}//end hasLiveChild()
 
 
 }//end class

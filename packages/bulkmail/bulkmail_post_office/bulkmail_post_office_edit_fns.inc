@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.7 2005/11/03 00:52:24 ndvries Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.8 2005/11/03 04:20:17 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -83,14 +83,6 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			?></ul><?php
 		}
 
-		$job_id = $asset->hasLiveChild();
-		if ($job_id && $write_access) {
-			$o->openField('Warning');
-				echo '<span class="sq-backend-warning">Bulkmail Job (Id #'.$job_id.') linked under this Post Office is currently Live.</span>';
-				$o->note('Changes made to the Recipients field will not be saved since the recipients have already been cached.');
-			$o->closeField();
-		}
-
 		return $write_access;
 
 	}//end paintRecipients()
@@ -108,9 +100,6 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processRecipients(&$asset, &$o, $prefix)
 	{
-		// if any child job is currently live, do not save changes
-		if ($asset->hasLiveChild()) return false;
-
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return false;
 
@@ -451,14 +440,8 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			</script>
 		<?php
 
-		$job_id = $asset->hasLiveChild();
-		if ($job_id && $write_access) {
-			$o->openField('Warning');
-				echo 'If you make changes to the server details, you will need to pause and restart the job for the changes to take effect.';
-			$o->closeField();
-		}
-
 		return $write_access;
+
 	}//end paintServerDetails()
 
 
@@ -565,15 +548,6 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			$o->openField(translate('bulkmail_header_new_field_body'), '', '', $hide, $prefix.'_header_detail');
 				text_box($prefix.'_header_detail_field_new_body', '', $width);
 			$o->closeField();
-		}
-
-		if (is_a($asset, 'Bulkmail_Post_office')) {
-			$job_id = $asset->hasLiveChild();
-			if ($job_id && $write_access) {
-				$o->openField('Warning');
-					echo 'If you make changes to the header details, you will need to pause and restart the job for the changes to take effect.';
-				$o->closeField();
-			}
 		}
 
 		return $write_access;
