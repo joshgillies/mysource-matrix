@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.104 2005/11/04 05:09:48 sdanis Exp $
+* $Id: general.inc,v 1.105 2005/11/04 05:15:36 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.105 $
 * @package MySource_Matrix
 */
 
@@ -1090,7 +1090,7 @@ function get_asset_status_icon($status) {
 * @return string
 * @access public
 */
-function asset_locator_js($asset_ineage=Array(),$map_frame='sq_sidenav', $new_window=false)
+function asset_locater_js($asset_ineage=Array(),$map_frame='sq_sidenav', $new_window=false)
 {
 	$finder_frame = ($new_window || empty($map_frame)) ? 'parent.top' : 'parent.frames["sq_main"]';
 	if (!empty($map_frame)) {
