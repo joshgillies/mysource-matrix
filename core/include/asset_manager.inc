@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.392 2005/11/03 05:02:36 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.393 2005/11/04 04:38:44 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.392 $
+* @version $Revision: 1.393 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -803,12 +803,13 @@ class Asset_Manager extends MySource_Object
 			$id_parts = explode(':', $assetid);
 			if (isset($id_parts[1])) {
 				$real_assetid = $id_parts[0];
-				$asset = &$this->getAsset($real_assetid, '', $mute_errors);
-				if (!method_exists($asset, 'getAsset')) {
+				$bridge = &$this->getAsset($real_assetid, '', $mute_errors);
+				if (!method_exists($bridge, 'getAsset')) {
 					trigger_localised_error('SYS0203', E_USER_WARNING, $asset->name);
 				} else {
-					$asset = &$asset->getAsset($assetid);
+					$asset = &$bridge->getAsset($assetid);
 				}
+				$this->forgetAsset($bridge);
 
 			} else {
 
@@ -3027,7 +3028,7 @@ class Asset_Manager extends MySource_Object
 		if (isset($id_parts[1])) {
 			$real_assetid = $id_parts[0];
 			$asset = &$this->getAsset($real_assetid);
-			$results = &$asset->countLinks($assetid, $side_of_link, $link_types, $type_code, $strict_type_code, $ignore_linkid);
+			$results = $asset->countLinks($assetid, $side_of_link, $link_types, $type_code, $strict_type_code, $ignore_linkid);
 
 			$this->forgetAsset($asset);
 			return $results;
@@ -3840,30 +3841,28 @@ class Asset_Manager extends MySource_Object
 			return 0;
 		}
 
-		// open the transaction
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$success = true;
 
 		// now create the new link, it's non-exclusive + non-dependent, skip canCreateLink() checks
 		$new_linkid = $new_parent->createLink($minor, $link_type, '', $to_parent_pos, '0', '0', true);
 		if (!$new_linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->forgetAsset($old_parent);
-			$this->forgetAsset($new_parent);
-			$this->forgetAsset($minor);
-			return 0;
+			$success = false;
 		}
 
 		// let's try and delete the old link
-		$deleted = $old_parent->deleteLink($linkid, true);
-		if (!$deleted) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->forgetAsset($old_parent);
-			$this->forgetAsset($new_parent);
-			$this->forgetAsset($minor);
-			return 0;
+		if ($success) {
+			$success = $old_parent->deleteLink($linkid, true);
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		if ($success) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$new_linkid = 0;
+		}
+
 
 		$this->forgetAsset($old_parent);
 		$this->forgetAsset($new_parent);
