@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.12 2005/05/23 06:33:27 tbarrett Exp $
+* $Id: form_submission_edit_fns.inc,v 1.13 2005/11/04 00:00:39 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -80,7 +80,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 		$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($answers['answers']), 'form', false));
 		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
 		$sections =& $form->getSections();
-		for (reset($sections); $section =& current($sections); next($sections)) {
+		for (reset($sections); $section = current($sections); next($sections)) {
 			$section_questions[$section->id] = Array();
 		}
 		$section_questions[$form_id] = Array();

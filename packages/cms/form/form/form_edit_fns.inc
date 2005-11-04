@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.62 2005/11/03 03:42:09 tbarrett Exp $
+* $Id: form_edit_fns.inc,v 1.63 2005/11/04 00:00:39 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -70,10 +70,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		}
 		for (reset($sections); null !== ($k = key($sections)); next($sections)) {
 			$s =& $sections[$k];
-			$href = $s->getBackendHref('details');
-			?>
-			<a href="<?php echo $href ?>"><?php echo $s->_getName() ?></a><br />
-			<?php
+			echo get_asset_tag_line($s->id, 'details').'<br />';
 		}
 
 		return true;
@@ -238,7 +235,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 						?>
 						<tr>
 							<td class="sq-backend-table-cell">
-								<span name="<?php echo $prefix.'_order_o'.$sort_id ?>" id="<?php echo 	$prefix.'_order_o'.$sort_id ?>"><a href="<?php echo $href ?>"><?php	echo $q->attr('name')?></a></span><?php hidden_field($prefix.'_order[reorder]['.$sort_id.']', $assetid); ?>
+								<span name="<?php echo $prefix.'_order_o'.$sort_id ?>" id="<?php echo 	$prefix.'_order_o'.$sort_id ?>"><?php echo get_asset_tag_line($assetid, 'details') ?><!-- <a href="<?php echo $href ?>"><?php	echo $q->attr('name')?></a></span> --><?php hidden_field($prefix.'_order[reorder]['.$sort_id.']', $assetid); ?>
 							</td>
 							<td class="sq-backend-table-cell">
 								<span name="<?php echo $prefix.'_order_t'.$sort_id ?>" id="<?php echo 	$prefix.'_order_t'.$sort_id ?>"><?php
@@ -334,23 +331,28 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	function paintUseBodycopy(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('links')) {
-			$num_bodycopies = ($asset->attr('use_bodycopy_main') ? 1 : 0) + ($asset->attr('use_bodycopy_thank_you') ? 1 : 0);
+			$num_bodycopies = 0;
 
-			if ($num_bodycopies == 2) {
-				echo translate('cms_form_both_customised');
-			} else if ($num_bodycopies == 0) {
-				echo translate('cms_form_none_customised');
-			} else if ($asset->attr('use_bodycopy_main')) {
-				echo translate('cms_form_page_contents_customised');
-			} else if ($asset->attr('use_bodycopy_thank_you')) {
-				echo translate('cms_form_thank_you_customised');
+			if ($asset->attr('use_bodycopy_main')) {
+				$bodycopy = $asset->getBodycopy('Page Contents');
+				echo get_asset_tag_line($bodycopy->id, 'contents').'<br />';
+				$num_bodycopies++;
 			}
-			?><br/><?php
+
+			if ($asset->attr('use_bodycopy_thank_you')) {
+				$bodycopy = $asset->getBodycopy('Thank You');
+				echo get_asset_tag_line($bodycopy->id, 'contents').'<br />';
+				$num_bodycopies++;
+			}
+
+			if ($num_bodycopies == 0) {
+				echo translate('cms_form_none_customised').'<br />';
+			}
 		} else {
 			check_box('use_bodycopy_main', '1', $asset->attr('use_bodycopy_main'));
-			echo translate('cms_page_contents').'<br/>';
+			echo translate('cms_page_contents').'<br />';
 			check_box('use_bodycopy_thank_you', '1', $asset->attr('use_bodycopy_thank_you'));
-			echo translate('cms_form_thank_you').'<br/>';
+			echo translate('cms_form_thank_you').'<br />';
 			return true;
 		}
 

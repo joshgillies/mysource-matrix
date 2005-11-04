@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.121 2005/10/31 23:56:54 mmcintyre Exp $
+* $Id: form.inc,v 1.122 2005/11/04 00:00:39 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.121 $
+* @version $Revision: 1.122 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1167,7 +1167,11 @@ class Form extends Asset
 
 		$bodycopy = &$am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 
-		return ($bodycopy) ? $bodycopy : $null;
+		if ($bodycopy) {
+			return $bodycopy;
+		} else {
+			return $null;
+		}
 
 	}//end getBodycopy()
 

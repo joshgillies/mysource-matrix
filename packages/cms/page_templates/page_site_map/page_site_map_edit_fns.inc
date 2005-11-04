@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_edit_fns.inc,v 1.15 2005/08/18 02:38:52 dheppell Exp $
+* $Id: page_site_map_edit_fns.inc,v 1.16 2005/11/04 00:00:40 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -64,10 +64,7 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 		if (!$write_access) {
 			$root_asset = null;
 			if (!empty($root_link)) {
-				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
-			}
-			if (!is_null($root_asset)) {
-				echo $root_asset->name.' (Id: #'.$root_asset->id.')';
+				echo get_asset_tag_line($root_link['minorid']);
 			} else {
 				echo translate('cms_no_root_node');
 			}
@@ -148,45 +145,18 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$curr_list = $asset->attr('exclude_list');
 
-		if (empty($curr_list)) {
-			echo '<b>'.translate('cms_no_assets_excluded').'</b>';
-		} else {
-			$curr_list_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($curr_list));
-			?>
-			<table class="sq-backend-table">
-				<tr>
-					<td class="sq-backend-table-header" width="100%"><?php echo translate('asset_name'); ?></td>
-					<?php
-					if ($write_access) {
-						?><td class="sq-backend-table-header" width="80"><?php echo translate('remove_question'); ?></td><?php
-					}
-					?>
-				</tr>
-				<?php
-				foreach ($curr_list_info as $assetid => $asset_info) {
-					?>
-					<tr>
-						<td class="sq-backend-table-cell"><?php echo $asset_info['name']; ?></td>
-						<?php
-						if ($write_access) {
-							?>
-							<td class="sq-backend-table-cell">
-								<?php check_box($prefix.'_curr_exclude_list[]', $assetid, false); ?>
-							</td>
-							<?php
-						}
-						?>
-					</tr>
-					<?php
-				}
-				?>
-			</table>
-			<?php
-		}
-
 		if ($write_access) {
-			echo '<br/><br/>choose an asset to exclude<br/>';
-			asset_finder($prefix.'_exclude_list');
+			multiple_asset_finder($prefix.'_exclude_list', $curr_list, Array('asset' => 'D'));
+		} else {
+			if (empty($curr_list)) {
+				echo translate('cms_no_assets_excluded');
+			} else {
+				?><ul style="margin:1px 15px;"><?php
+				foreach($curr_list as $assetid) {
+					echo '<li>'.get_asset_tag_line($assetid).'</li>';
+				}
+				?></ul><?php
+			}
 		}
 
 		return $write_access;
@@ -206,16 +176,15 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processExcludeList(&$asset, &$o, $prefix)
 	{
-		$exclude_list = $asset->attr('exclude_list');
-		if (isset($_POST[$prefix.'_exclude_list']['assetid']) && $_POST[$prefix.'_exclude_list']['assetid']) {
-			$exclude_id = (int)$_POST[$prefix.'_exclude_list']['assetid'];
-			$exclude_list[$exclude_id] = $exclude_id;
-		}
-		if (isset($_POST[$prefix.'_curr_exclude_list'])) {
-			foreach ($_POST[$prefix.'_curr_exclude_list'] as $id) {
-				unset($exclude_list[$id]);
+		$exclude_post = array_get_index($_POST, $prefix.'_exclude_list', Array());
+		$exclude_list = Array();
+
+		foreach($exclude_post as $exclude_item) {
+			if (!empty($exclude_item['assetid'])) {
+				$exclude_list[$exclude_item['assetid']] = $exclude_item['assetid'];
 			}
 		}
+
 		return $asset->setAttrValue('exclude_list', $exclude_list);
 
 	}//end processExcludeList()

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.19 2005/10/27 00:46:32 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.20 2005/11/04 00:00:40 lwright Exp $
 *
 */
 -->
@@ -80,6 +80,12 @@
 		</field>
 		<field attribute="direction">
 			<selection style="list" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintLinkTypes" />
+				<process_function name="processLinkTypes" />
+			</function_call>
 		</field>
 	</section>
 	<section name="List Formatting" write_access="write:content">

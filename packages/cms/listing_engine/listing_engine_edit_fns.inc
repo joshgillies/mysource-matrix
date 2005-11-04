@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.47 2005/11/02 05:40:44 lwright Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.48 2005/11/04 00:00:39 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -103,7 +103,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					$inherit_alt = $inherit ? translate('yes') : translate('no');
 					?>
 						<tr>
-							<td><?php echo $type_names[$type]; ?></td>
+							<td><?php
+								echo sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($type), 16, 16, $type_names[$type], $type_names[$type], ' align="absmiddle"');
+								echo $type_names[$type];
+							?></td>
 							<td><img src="<?php echo $inherit_image; ?>" alt="<?php echo $inherit_alt; ?>" /></td>
 						</tr>
 					<?php
@@ -215,12 +218,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 								if ($write_access) {
 									asset_finder($prefix.'_asset_position['.$position.']', $assetid, Array('asset' => 'D'));
 								} else {
-									$info = array_get_index($asset_info, $assetid, Array());
-									if (empty($info)) {
-										echo translate('unknown_asset');
-									} else {
-										echo $info['short_name'].' (#'.$assetid.')';
-									}
+									echo get_asset_tag_line($assetid);
 								}
 								?>
 							</td>
@@ -545,7 +543,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				?>
 				<tr>
 					<td class="sq-backend-table-cell">
-						<a href="<?php echo $href[$link['minorid']]; ?>"><?php echo translate('cms_page_contents_bodycopy') ?></a>
+						<?php echo get_asset_tag_line($link['minorid'], 'contents'); ?>
 					</td>
 					<td class="sq-backend-table-cell">
 						<?php echo translate('cms_listing_page_contents_desc') ?>
@@ -562,7 +560,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				?>
 				<tr>
 					<td class="sq-backend-table-cell">
-						<a href="<?php echo $href[$link['minorid']]; ?>"><?php echo translate('cms_listing_default_asset_format'); ?></a>
+						<?php echo get_asset_tag_line($link['minorid'], 'contents'); ?>
 					</td>
 					<td class="sq-backend-table-cell">
 						<?php echo translate('cms_listing_default_asset_desc') ?>
@@ -605,7 +603,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				$link = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($assetid => 'contents'))
 				?>
 				<tr>
-					<td class="sq-backend-table-cell"><a href="<?php echo $link[$assetid] ?>"><?php echo $format['name']; ?></a></td>
+					<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($assetid, 'contents'); ?></td>
 				</tr>
 			<?php
 			}
@@ -679,7 +677,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						</td>
 						<td class="sq-backend-table-cell">
 							<?php
-							echo '<a href="'.$href[$minorid].'">'.translate('cms_listing_type_format', $type_name).'</a>';
+							echo get_asset_tag_line($minorid, 'contents');
 							?>
 						</td>
 						<?php
@@ -832,7 +830,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						</td>
 						<td class="sq-backend-table-cell">
 							<?php
-							echo '<a href="'.$href[$minorid].'">'.translate('cms_listing_position_number_format', $position).'</a>';
+							echo get_asset_tag_line($minorid, 'contents');
 							?>
 						</td>
 						<?php
@@ -1161,8 +1159,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 										if ($write_access) {
 											asset_finder($prefix.'_metadatas['.$id.'][field]',$info['field'],Array('metadata_field' => 'D'));
 										} else {
-											$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($info['field']), Array(), false, 'name');
-											echo translate('asset_format',$asset_info[$info['field']],$info['field']);
+											echo get_asset_tag_line($info['field']);
 										}
 									?>
 								</td>
@@ -1695,27 +1692,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			multiple_asset_finder($prefix.'_root_nodes', array_keys($root_asset_ids));
 		} else {
 			$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($root_asset_ids));
-			?>
-			<table class="sq-backend-table">
-				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('id') ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('name') ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('type') ?></td>
-				</tr>
-			<?php
+			?><ul style="margin: 1px 15px;"><?php
 			foreach ($infos as $assetid => $info) {
-			?>
-
-			<tr>
-				<td class="sq-backend-table-cell"><?php echo $assetid ?></td>
-				<td class="sq-backend-table-cell"><?php echo $info['name'] ?></td>
-				<td class="sq-backend-table-cell"><?php echo ucwords(str_replace('_',' ', $info['type_code'])) ?></td>
-			</tr>
-			<?php
+				echo '<li>'.get_asset_tag_line($assetid).'</li>';
 			}
-			?>
-			</table>
-			<?php
+			?></ul><?php
 		}
 		return true;
 
@@ -1998,8 +1979,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				asset_finder($prefix.'[metadata_field]', $field_assetid, Array('metadata_field' => 'D'));
 			} else {
 				if ($field_assetid) {
-					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($field_assetid);
-					echo $asset->name.' (Id: #'.$asset->id.')';
+					echo get_asset_tag_line($field_assetid);
 				}
 			}
 
@@ -2698,8 +2678,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 										<td style="width: 100px"><?php echo translate('asset') ?>:</td>
 										<td>
 										<?php
-											$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), false, 'name');
-											echo $asset_info[$assetid].' (#'.$assetid.')';
+											echo get_asset_tag_line($assetid);
 										?>
 										</td>
 									</tr>
@@ -2820,11 +2799,16 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			if (empty($current)) {
 				echo translate('cms_listing_no_status_selected');
 			} else {
-				echo '<ul>';
+				?><ul style="margin: 1px 15px;"><?php
 				foreach ($current as $status) {
-					echo '<li>'.get_status_description($status).'</li>';
+					$status_name = get_status_description($status);
+					$status_colour = get_status_colour($status);
+					echo '<li>';
+					echo '<img src="'.sq_web_path('lib').'/web/images/blank.gif" width="10" height="10" alt="'.$status_name.'" title="'.$status_name.'" align="absmiddle" style="margin: 2px; border: 1px solid #ccc; background-color: '.$status_colour.'" /> ';
+					echo $status_name;
+					echo '</li>';
 				}
-				echo '</ul>';
+				?></ul><?php
 			}
 		}
 
@@ -2996,7 +2980,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 							if ($options['root_node'] != 0) {
 								$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($options['root_node']));
 								if (isset($asset_info[$options['root_node']]['name'])) {
-									echo $asset_info[$options['root_node']]['name'].' (ID: #'.$options['root_node'].')';
+									echo get_asset_tag_line($options['root_node']);
 								} else {
 									echo translate('core_no_selectes_root_node');
 								}

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.64 2005/10/18 02:20:00 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.65 2005/11/04 00:00:39 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -341,7 +341,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						if (!empty($sub_user)) {
 							$sub_user_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
 							if (!empty($sub_user_asset)) {
-								echo $sub_user_asset->name.' (Id: #'.$sub_user.')';
+								echo get_asset_tag_line($sub_user);
 								$valid_user = true;
 							}
 						}
@@ -819,11 +819,20 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	*/
 	function paintReceiptField(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
-		$assetid = $asset->attr('receipt_field');
-		asset_finder($prefix.'_rec_field', $assetid, Array('form_question_type_email_address' => 'I'));
+		$write_access = $asset->writeAccess('attributes');
 
-		return true;
+		$assetid = $asset->attr('receipt_field');
+		if ($write_access) {
+			asset_finder($prefix.'_rec_field', $assetid, Array('form_question_type_email_address' => 'I'));
+		} else {
+			if (!empty($assetid)) {
+				echo get_asset_tag_line($assetid);
+			} else {
+				echo '<em>'.translate('none').'</em>';
+			}
+		}
+
+		return $write_access;
 
 	}//end paintReceiptField()
 
@@ -873,11 +882,20 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	*/
 	function paintSTAFField(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
-		$assetid = $asset->attr('staf_field');
-		asset_finder($prefix.'_staf_field', $assetid, Array('form_question_type_text' => 'D'));
+		$write_access = $asset->writeAccess('attributes');
 
-		return true;
+		$assetid = $asset->attr('staf_field');
+		if ($write_access) {
+			asset_finder($prefix.'_staf_field', $assetid, Array('form_question_type_text' => 'D'));
+		} else {
+			if (!empty($assetid)) {
+				echo get_asset_tag_line($assetid);
+			} else {
+				echo '<em>'.translate('none').'</em>';
+			}
+		}
+
+		return $write_access;
 
 	}//end paintSTAFField()
 
@@ -1331,8 +1349,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 
 		$am		=& $GLOBALS['SQ_SYSTEM']->am;
-		$all_se	=& $asset->attr('selective_emails');
-		$rules  =& $all_se[$ruleid]['rules'];
+		$all_se	= $asset->attr('selective_emails');
+		$rules  = $all_se[$ruleid]['rules'];
 		$descs  =  Array();
 
 		if (empty($rules)) {
@@ -1360,7 +1378,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			$o->openField(translate('applies_to'));
 				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($rule['assetid']);
 				if ($q_asset) {
-					echo translate('asset_format', $q_asset->attr('name'), $q_asset->id);
+					echo get_asset_tag_line($q_asset->id);
 				} else {
 					echo '<i class="sq-backend-warning">'.translate('cms_form_deleted_question_cannot_edit', $rule['assetid']).'</i>';
 				}

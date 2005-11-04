@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager_edit_fns.inc,v 1.2 2005/08/05 05:27:56 dheppell Exp $
+* $Id: page_user_group_manager_edit_fns.inc,v 1.3 2005/11/04 00:00:40 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,7 +69,7 @@ class Page_User_Group_Manager_Edit_Fns extends Page_Edit_Fns
 			} else {
 				$root_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($asset->attr('root_node')));
 				if (!empty($root_info)) {
-					echo $root_info[$asset->attr('root_node')]['name'].' (#'.$asset->attr('root_node').')';
+					echo get_asset_tag_line($asset->attr('root_node'));
 				} else {
 					echo translate('cms_no_root_selected');
 				}
@@ -94,6 +94,7 @@ class Page_User_Group_Manager_Edit_Fns extends Page_Edit_Fns
 
 		$root_node = $_REQUEST[$prefix.'_lm_root_node']['assetid'];
 		$asset->setAttrValue('root_node', $root_node);
+
 	}//end processRootNode()
 
 
@@ -129,7 +130,7 @@ class Page_User_Group_Manager_Edit_Fns extends Page_Edit_Fns
 			combo_box($prefix.'_statuses', $options, true, $current);
 		} else {
 			if (empty($current)) {
-				echo translate('cms_listing_no_status_selected');
+				echo translate('no_status_selected');
 			} else {
 				echo '<ul>';
 				foreach ($current as $status) {

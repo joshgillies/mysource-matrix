@@ -11,25 +11,17 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_log.xml,v 1.1 2005/07/20 07:13:12 dheppell Exp $
+* $Id: edit_interface_screen_log.xml,v 1.2 2005/11/04 00:00:39 lwright Exp $
 *
 */
 -->
 
 <contents>
-	<section name="export" write_access="write:attributes" limbo_access="1">
-		<field keyword="download_export">
+	<section name="Redirecting to Submission Logs...">
+		<field>
 			<function_call>
-				<paint_function   name="paintExport"   />
-				<process_function name="processExport" />
-			</function_call>
-		</field>
-	</section>
-	<section name="submissions" limbo_access="1">
-		<field keyword="submissions_history">
-			<function_call>
-				<paint_function   name="paintSubmissions"   />
-				<process_function name="processSubmissions" />
+				<paint_function   name="redirectToSubmissions"  />
+				<process_function name="redirectToSubmissions"  />
 			</function_call>
 		</field>
 	</section>

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_edit_fns.inc,v 1.11 2005/07/20 07:13:13 dheppell Exp $
+* $Id: page_custom_form_edit_fns.inc,v 1.12 2005/11/04 00:00:39 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -58,7 +58,7 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'form', false, 'major', '', '1', '1');
 		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($form_link[0]['minorid']);
 		if (is_null($form)) {
-			trigger_localised_error('CMS0022', E_USER_ERROR, $asset->name, $asset->id);
+			trigger_localised_error('CMS0022', E_USER_ERROR, $asset->name, $asset->id, 'Contents');
 			return false;
 		}
 
@@ -75,94 +75,35 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* Paints the submissions block
+	* Redirect to the Form Contents sub-asset
 	*
-	* @param object Form_Email			&$asset	the asset whose interface we are painting
+	* @param object Page_Custom_Form	&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
 	* @param string						$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintSubmissions(&$asset, &$o, $prefix)
+	function redirectToSubmissions(&$asset, &$o, $prefix)
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$children = array_keys($am->getChildren($asset->id, 'form_email'));
-		if (empty($children)) return false;
-		$form_email =& $am->getAsset($children[0]);
-		$edit_fns = $form_email->getEditFns();
-		return $edit_fns->paintSubmissions($form_email, $o, $prefix);
+		// get the bodycopy attached to us
+		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'form', false, 'major', '', '1', '1');
+		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($form_link[0]['minorid']);
+		if (is_null($form)) {
+			trigger_localised_error('CMS0022', E_USER_ERROR, $asset->name, $asset->id);
+			return false;
+		}
 
-	}//end paintSubmissions()
+		// redirect to the bodycopy's edit contents screen
+		$o->setRedirect($form->getBackendHref('log'));
 
+		// fudge the navigation history a little so when they click on the link to ger back to the
+		// page it doesnt take them to the edit contents screen and then redirect them again
+		$_SESSION['sq_nav_history'][(count($_SESSION['sq_nav_history']) - 1)]['screen'] = 'details';
 
-	/**
-	* Processes the submissions block (nothing to process!)
-	*
-	* @param object Form_Email			&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processSubmissions(&$asset, &$o, $prefix)
-	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$children = array_keys($am->getChildren($asset->id, 'form_email'));
-		if (empty($children)) return false;
-		$form_email =& $am->getAsset($children[0]);
-		$edit_fns = $form_email->getEditFns();
-		return $edit_fns->processSubmissions($form_email, $o, $prefix);
+		return false;
 
-	}//end processSubmissions()
-
-
-	/**
-	* Paints the export block
-	*
-	* @param object Form_Email			&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintExport(&$asset, &$o, $prefix)
-	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$children = array_keys($am->getChildren($asset->id, 'form_email'));
-		if (empty($children)) return false;
-		$form_email =& $am->getAsset($children[0]);
-		$edit_fns = $form_email->getEditFns();
-		return $edit_fns->paintExport($form_email, $o, $prefix);
-
-	}//end paintExport()
-
-
-	/**
-	* Processes the export block
-	*
-	* This function will pass off the work to processExportCSV() or processExportXML(), as appropriate.
-	* If we aren't downloading a file, this function will silently return a success.
-	*
-	* @param object Form_Email			&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processExport(&$asset, &$o, $prefix)
-	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$children = array_keys($am->getChildren($asset->id, 'form_email'));
-		if (empty($children)) return false;
-		$form_email =& $am->getAsset($children[0]);
-		$edit_fns = $form_email->getEditFns();
-		return $edit_fns->processExport($form_email, $o, $prefix);
-
-	}//end processExport()
+	}//end redirectToSubmissions()
 
 
 }//end class

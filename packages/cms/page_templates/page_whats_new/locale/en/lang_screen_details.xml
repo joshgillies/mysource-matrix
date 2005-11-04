@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.8 2005/09/09 06:10:06 arailean Exp $
+* $Id: lang_screen_details.xml,v 1.9 2005/11/04 00:00:40 lwright Exp $
 *
 */
 -->
@@ -29,6 +29,16 @@
 		<field attribute="date_range_to">
 			<display_name>Newest Date</display_name>
 			<note>Show assets that are older than this date</note>
+		</field>
+	</section>
+	<section name="Asset Locations">
+		<field>
+			<display_name>Link Types</display_name>
+			<note>Only assets that are linked underneath the root node(s) with the appropriate link types will be listed. The default is to show links visible in the asset map, that is TYPE_1 and TYPE_2 links. This setting only applies when &lt;b&gt;Direct Links Only&lt;/b&gt; is turned on.</note>
+			<function_call>
+				<paint_function   name="paintLinkTypes"  />
+				<process_function name="processLinkTypes" />
+			</function_call>
 		</field>
 	</section>
 </contents>

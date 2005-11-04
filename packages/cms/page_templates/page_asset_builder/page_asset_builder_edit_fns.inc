@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.36 2005/10/14 00:21:09 tbarrett Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.37 2005/11/04 00:00:39 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -195,8 +195,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('id'); ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('name'); ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('asset'); ?></td>
 					<td class="sq-backend-table-header"><?php echo translate('link_type'); ?></td>
 					<?php
 					if ($write_access) {
@@ -211,8 +210,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					if (is_null($location)) continue;
 					?>
 					<tr>
-						<td class="sq-backend-table-cell"><?php echo $location->id; ?></td>
-						<td class="sq-backend-table-cell"><?php echo $location->name; ?></td>
+						<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($location->id); ?></td>
 						<td class="sq-backend-table-cell"><?php echo $link_type_names[$link_type]; ?>
 						</td>
 						<?php
@@ -321,7 +319,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 						} else {
 							echo '<ul style="margin: 1px 15px;">';
 							foreach ($data['locations'] as $assetid => $name) {
-								echo '<li>'.$name.' (ID #'.$assetid.')</li>';
+								echo '<li>'.get_asset_tag_line($assetid).'</li>';
 							}
 							echo '</ul>';
 						}
@@ -615,7 +613,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 							combo_box($prefix.'_rules['.$create_type.']['.$i.'][link_types]['.$j.']', $link_type_names, false, $rule['link_types'][$j]);
 							echo '</li>';
 						} else {
-							echo '<li>'.$parent_names[$rule['locations'][$j]]['name'].' (ID '.$rule['locations'][$j].') ('.$link_type_names[$rule['link_types'][$j]].')</li>';
+							$assetid        = $rule['locations'][$j];
+							$link_type_name = $link_type_names[$rule['link_types'][$j]];
+							echo '<li>'.get_asset_tag_line($assetid).' ('.$link_type_name.')</li>';
 						}
 						$j++;
 					}
@@ -758,7 +758,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset->attr('additional_location_parents'));
 			echo '<ul style="margin: 1px 15px;">';
 			foreach ($infos as $assetid => $info) {
-				echo '<li>'.$info['name'].' (ID #'.$assetid.')</li>';
+				echo '<li>'.get_asset_tag_line($assetid).'</li>';
 			}
 			echo '</ul>';
 		}
@@ -907,12 +907,13 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 							asset_finder($prefix.'_'.$code_name.'_root', array_get_index($data, 'root', 0), $this->location_types);
 						} else {
 							$rootid = array_get_index($data, 'root', 0);
+							?><p><?php
 							if ($rootid > 0 && $GLOBALS['SQ_SYSTEM']->am->assetExists($rootid)) {
-								$root_name = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($rootid), Array(), false, 'name');
-								echo '<p>'.$root_name[$rootid].' (ID #'.$rootid.')</p>';
+								echo get_asset_tag_line($rootid);
 							} else {
-								echo '<p>'.translate('none_selected').'</p>';
+								echo translate('none_selected');
 							}
+							?></p><?php
 						}
 					?>
 				</td>

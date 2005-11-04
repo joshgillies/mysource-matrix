@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl_edit_fns.inc,v 1.11 2005/05/11 06:07:33 lwright Exp $
+* $Id: page_hcl_edit_fns.inc,v 1.12 2005/11/04 00:00:40 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * Purpose
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -61,10 +61,7 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 		if (!$write_access) {
 			$root_asset = null;
 			if (!empty($root_link)) {
-				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
-			}
-			if (!is_null($root_asset)) {
-				echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
+				echo get_asset_tag_line($root_link['minorid']);
 			} else {
 				echo translate('cms_no_root_node');
 			}
@@ -165,7 +162,7 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 
 				?>
 				<tr>
-					<td class="sq-backend-table-cell"><?php echo $schema_asset->name; ?></td>
+					<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($schema_asset->id); ?></td>
 					<?php
 					if ($write_access) {
 						?><td class="sq-backend-table-cell"><?php check_box($prefix.'_schemas[]', $schema_link['linkid']); ?></td><?php

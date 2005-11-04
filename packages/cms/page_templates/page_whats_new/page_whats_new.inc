@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.24 2005/10/27 00:46:32 lwright Exp $
+* $Id: page_whats_new.inc,v 1.25 2005/11/04 00:00:40 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -147,7 +147,7 @@ class Page_Whats_New extends Listing_Engine
 
 		if ($this->attr('subs_only')) {
 
-			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, $letter_sort_by, SQ_PERMISSION_READ);
+			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, $this->attr('link_types'), array_keys($wanted_types), false, 'major', null, null, null, $letter_sort_by, SQ_PERMISSION_READ);
 			$query['where'] .= $where;
 
 			// special case for A-Z listings because they require another field selected from the database

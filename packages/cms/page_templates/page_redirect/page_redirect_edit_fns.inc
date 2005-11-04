@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect_edit_fns.inc,v 1.14 2005/05/11 06:07:33 lwright Exp $
+* $Id: page_redirect_edit_fns.inc,v 1.15 2005/11/04 00:00:40 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -70,7 +70,7 @@ class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 			if (is_null($redirect_asset)) {
 				echo translate('cms_redirect_none_set');
 			} else {
-				echo $redirect_asset->name.' (#'.$redirect_asset->id.')';
+				echo get_asset_tag_line($redirect_asset->id);
 			}
 		}
 		return true;

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_contents_keywords.php,v 1.4 2005/04/29 05:40:28 gsherwood Exp $
+* $Id: page_contents_keywords.php,v 1.5 2005/11/04 00:00:39 lwright Exp $
 *
 */
 
@@ -94,7 +94,7 @@
 						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 						$q_name = $section->attr('name').': '.$q_asset->attr('name');
 						?>
-						<tr><td valign="top" width="200"><b>%question_field_<?php echo $section->id.'_q'.$q_id; ?>%</b></td><td valign="top"><?php echo $q_name; ?></td></tr><?php } ?>
+						<tr><td valign="top" width="200"><b>%question_field_<?php echo $section->id.'_q'.$q_id; ?>%</b></td><td valign="top"><?php echo get_asset_tag_line($q_id); ?></td></tr><?php } ?>
 						</table>
 					</fieldset>
 				</p>
