@@ -1,0 +1,92 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.3 2005/11/04 00:00:40 lwright Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
+		</field>
+		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="Configuration">
+		<field attribute="submit-button">
+			<display_name>Submit Button Text</display_name>
+			<note>Text for the submit button</note>
+		</field>
+		<field>
+			<display_name>Root Node</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintRootNode"  />
+				<process_function name="processRootNode"  />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Asset Statuses</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintStatus"  />
+				<process_function name="processStatus"  />
+			</function_call>
+		</field>
+
+		<field attribute="link_type">
+			<display_name>Link Types</display_name>
+			<note>Select which type of links to create and modify on the frontend.</note>
+		</field>
+		<field attribute="structured_width">
+			<display_name>Location Selector Width</display_name>
+			<note>Width in Pixels. 0 width will size the selector based on contents.</note>
+		</field>
+		<field attribute="structured_height">
+			<display_name>Location Selector Height</display_name>
+			<note>In entries. 0 height will result in a standard dropdown selector.</note>
+		</field>
+		<field attribute="max_depth">
+			<display_name>Maximum Depth</display_name>
+			<note>Maximum number of levels to display in the location selector.</note>
+		</field>
+		<field attribute="seperator">
+			<display_name>Separator</display_name>
+			<note>This text will be displayed between levels in the selector.</note>
+		</field>
+		<field attribute="include_root_node">
+			<display_name>Show Root Node</display_name>
+			<note>Show the top level asset in the selector</note>
+		</field>
+		<field attribute="allow_multiple">
+			<display_name>Allow Multiple Selections</display_name>
+			<note>Allow the selection of multiple new links at once</note>
+		</field>
+		<field attribute="structured_style">
+			<display_name>Listing Style</display_name>
+			<note>Style to display for selections</note>
+		</field>
+	</section>
+</contents>
