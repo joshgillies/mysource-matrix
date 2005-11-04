@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: Matrix.java,v 1.3 2005/07/27 10:45:22 brobertson Exp $
+* $Id: Matrix.java,v 1.4 2005/11/04 06:01:08 sdanis Exp $
 *
 */
 
@@ -126,6 +126,7 @@ public class Matrix {
 	 * or an error given by the Matrix
 	 */
 	public static Document doRequest(String xml) throws IOException {
+		
 		URLConnection conn = null;
 		URL execURL = null;
 		try {

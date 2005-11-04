@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.10 2005/09/05 06:41:55 ndvries Exp $
+ * $Id: MatrixTree.java,v 1.11 2005/11/04 06:01:09 sdanis Exp $
  *
  */
 
@@ -72,6 +72,7 @@ public class MatrixTree extends CueTree
 	//TODO: (MM) this is a dirty hack to get the menu to show up before
 	// the cue tree knows anything about it
 	private String multipleMoveType = null;
+	private JTree tree = this;
 
 	//{{{ Public Methods
 
@@ -315,6 +316,7 @@ public class MatrixTree extends CueTree
 	 * selected nodes.
 	 */
 	public void createSelection() {
+		
 		MatrixTreeNode[] nodes = getSelectionNodes();
 		if (nodes == null)
 			return;
@@ -335,6 +337,120 @@ public class MatrixTree extends CueTree
 		MatrixTreeNode treeNode = (MatrixTreeNode) path.getLastPathComponent();
 		loadChildAssets(treeNode);
 	}
+
+	/**
+	 * Works like original loadChildAssets but uses asset ids to locate notes in the tree
+	 *
+	 * @param node The node whos children are to be loaded
+	 */
+	public void loadChildAssets(final String[] assetids, final boolean selectAll) {
+		MatrixStatusBar.setStatus(Matrix.translate("asset_map_status_bar_requesting"));
+		Runnable runner = new Runnable() {
+			public void run() {
+				MatrixTreeNode parent = (MatrixTreeNode)getModel().getRoot();
+				int numAssets = assetids.length;
+				int level = 0;
+				int childIndex = 0;
+				int loadedNodes = 0;
+				Vector checkedNodes = new Vector();
+				
+				// clear all other selections
+				tree.clearSelection();
+				while (level < numAssets)
+				{
+					if (assetids[level].equals("1")) {
+						//skip root asset
+						level++;
+						continue;
+					}
+
+					if (!checkedNodes.isEmpty() && checkedNodes.contains(assetids[level])) {
+						// we have already traversed this
+						return;
+					}
+
+					childIndex = parent.getChildAssetIndex(assetids[level]);
+					checkedNodes.add(assetids[level]);
+
+					if (childIndex < 0) {
+						TreePath path = getPathToRoot(parent);
+						tree.addSelectionPath(path);
+						scrollPathToVisible(path);
+						
+						MatrixStatusBar.setStatusAndClear(Matrix.translate("asset_map_status_bar_requesting"), 1000);
+						Object[] transArgs = {
+							"Could not locate asset (#" + assetids[level] +")"
+						};
+						String message = Matrix.translate("asset_map_error_loading_children", transArgs);
+						GUIUtilities.error(MatrixTree.this, message, Matrix.translate("asset_map_dialog_title_error"));
+						return;
+					}
+					
+					MatrixTreeNode child = (MatrixTreeNode)getModel().getChild(parent,childIndex);
+
+					if (child.getAsset().childrenLoaded()) {
+						if (child.getChildCount() == 0) {
+							child.getAsset().propagateChildren(child);
+							level++;
+							continue;
+							
+						}
+					}
+
+					if ((level+1) == numAssets) {
+						// we dont need to load the children of this node
+						TreePath path = getPathToRoot(child);
+						tree.addSelectionPath(path);
+						scrollPathToVisible(path);
+						level++;
+					} else {
+						insertLoadingNode(child);
+						if (child != null) {
+							parent = child;
+							level++;
+							try {
+								AssetManager.refreshAsset(child);
+								removeLoadingNode(child);
+								TreePath path = getPathToRoot(child);
+								
+								if ((level == numAssets) || (selectAll))
+								{
+									// we have reached the last node, scroll to path
+									tree.addSelectionPath(path);
+									scrollPathToVisible(path);
+								} else {
+									tree.expandPath(path);
+								}
+								loadedNodes += child.getChildCount();
+								
+							}
+							catch (IOException ioe)
+							{
+								MatrixStatusBar.setStatusAndClear(Matrix.translate("asset_map_status_bar_requesting"), 1000);
+								Object[] transArgs = {
+									ioe.getMessage()
+								};
+								String message = Matrix.translate("asset_map_error_loading_children", transArgs);
+								GUIUtilities.error(MatrixTree.this, message, Matrix.translate("asset_map_dialog_title_error"));
+								Log.log(message, MatrixTree.class, ioe);
+							}
+						}
+					}
+				}
+				
+				if (loadedNodes == 1) {
+					MatrixStatusBar.setStatusAndClear(Matrix.translate("asset_map_status_bar_loaded_child"), 3000);
+				} else {
+					Object[] transArgs = {
+						new Integer(loadedNodes)
+					};
+					MatrixStatusBar.setStatusAndClear(Matrix.translate("asset_map_status_bar_loaded_children", transArgs), 3000);
+				}
+			}
+		};
+		SwingUtilities.invokeLater(runner);
+	}
+
 
 	/**
 	 * Makes a request to the Matrix system for the child nodes of
@@ -692,16 +808,20 @@ public class MatrixTree extends CueTree
 			}
 		};
 
-		Action searchAction = new AbstractAction() {
+	/*	Action searchAction = new AbstractAction() {
 			public void actionPerformed(ActionEvent evt) {
-				SearchDialog searchDialog = SearchDialog.getSearchDialog();
+				SearchDialog searchDialog = SearchDialog.getSearchDialog((MatrixTree)tree);
 				GUIUtilities.showInScreenCenter(searchDialog);
 			}
 		};
 
 		Action openSelectionAction = new AbstractAction() {
 			public void actionPerformed(ActionEvent evt) {
-				SelectionDialog selectionDialog = SelectionDialog.getSelectionDialog();
+				MatrixTreeNode[] nodes = getSelectionNodes();
+				if (nodes == null) {
+					return;
+				}
+				SelectionDialog selectionDialog = SelectionDialog.getSelectionDialog(nodes);
 				GUIUtilities.showInScreenCenter(selectionDialog);
 			}
 		};
@@ -710,16 +830,23 @@ public class MatrixTree extends CueTree
 			public void actionPerformed(ActionEvent evt) {
 				createSelection();
 			}
-		};
+		};*/
+
+		/*Action findAssetAction = new AbstractAction() {
+			public void actionPerformed(ActionEvent evt) {
+			}
+		};*/
 
 		getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "delete");
 		getActionMap().put("delete", deleteAction);
-		getInputMap().put(KeyStroke.getKeyStroke("control F"), "search");
+		/*getInputMap().put(KeyStroke.getKeyStroke("shift ctrl F"), "search");
 		getActionMap().put("search", searchAction);
-		getInputMap().put(KeyStroke.getKeyStroke("control S"), "open selection");
+		getInputMap().put(KeyStroke.getKeyStroke("shift ctrl S"), "open selection");
 		getActionMap().put("open selection", openSelectionAction);
-		getInputMap().put(KeyStroke.getKeyStroke("control C"), "create selection");
+		getInputMap().put(KeyStroke.getKeyStroke("shift ctrl C"), "create selection");
 		getActionMap().put("create selection", createSelectionAction);
+		getInputMap().put(KeyStroke.getKeyStroke("shift ctrl A"), "find asset");
+		getActionMap().put("find asset", findAssetAction);*/
 	}
 
 	//}}}
@@ -866,7 +993,6 @@ public class MatrixTree extends CueTree
 	 */
 	protected class DoubleClickHandler extends MouseAdapter {
 		public void mouseClicked(MouseEvent evt) {
-
 			if (evt.getClickCount() != 2)
 					return;
 

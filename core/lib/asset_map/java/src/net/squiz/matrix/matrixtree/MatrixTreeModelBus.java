@@ -56,24 +56,25 @@ public class MatrixTreeModelBus {
 		}
 	}
 
-
 	public static void moveNode(
 		MatrixTreeNode child,
 		MatrixTreeNode newParent,
-		int index) {
+		int index,
+		String assetId) {
 			// if the node hasn't moved, just return
 			if ((child.getParent() == newParent)
 				&& newParent.getIndex(child) == index)
 					return;
 
-			removeNodeFromParent(child);
-			insertNodeInto(child, newParent, index);
+			removeNodeFromParent(child, assetId);
+			insertNodeInto(child, newParent, index, assetId);
 	}
 
 	public static void insertNodeInto(
 		MatrixTreeNode newChild,
 		MatrixTreeNode parent,
-		int index) {
+		int index,
+		String assetId) {
 
 			try {
 				// we have to do this ourselves, as the node tree
@@ -81,6 +82,7 @@ public class MatrixTreeModelBus {
 				parent.insert(newChild, index);
 				int[] newIndexs = new int[1];
 				newIndexs[0] = index;
+				parent.addChildAsset(assetId,index);
 
 				DefaultTreeModel[] components = getBusComponents();
 
@@ -96,9 +98,7 @@ public class MatrixTreeModelBus {
 			}
 	}
 
-
-
-	public static void removeNodeFromParent(MatrixTreeNode child) {
+	public static void removeNodeFromParent(MatrixTreeNode child, String assetId) {
 		MatrixTreeNode parent = (MatrixTreeNode) child.getParent();
 		if (parent == null)
 			throw new IllegalArgumentException("node does not have a parent");
@@ -123,7 +123,7 @@ public class MatrixTreeModelBus {
 			childIndex[0] = parent.getIndex(child);
 
 			parent.remove(childIndex[0]);
-
+			parent.removeChildAsset(assetId);
 			removedArray[0] = child;
 
 			DefaultTreeModel[] components = getBusComponents();

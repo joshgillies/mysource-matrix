@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMap.java,v 1.15 2005/09/05 06:41:54 ndvries Exp $
+* $Id: AssetMap.java,v 1.16 2005/11/04 06:01:08 sdanis Exp $
 *
 */
 
@@ -304,7 +304,14 @@ public class AssetMap extends JApplet implements InitialisationListener, KeyList
 	public void jsToJavaCall(String type, String command, String params) {
 		if (type.equals("asset_finder")) {
 			processAssetFinder(command, params);
+		} else if (type.equals("asset_locator")) {
+			processAssetLocator(params);
 		}
+	}
+
+	public void processAssetLocator(String params) {
+		String[] assetIds = params.split(",");
+		MatrixTreeBus.startAssetLocator(assetIds);
 	}
 
 	private void processAssetFinder(String command, String params) {

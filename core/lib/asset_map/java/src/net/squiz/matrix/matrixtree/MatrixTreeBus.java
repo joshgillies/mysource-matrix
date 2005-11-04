@@ -70,6 +70,17 @@ public class MatrixTreeBus {
 		}
 	}
 
+	public static void startAssetLocator(String[] assetIds) {
+		Iterator iterator = trees.iterator();
+		while (iterator.hasNext()) {
+			MatrixTree tree = (MatrixTree) iterator.next();
+			tree.loadChildAssets(assetIds,true);
+			tree.repaint();
+			break;
+		}
+
+	}
+
 	/**
 	 * Constructs a tree with the specified root node and returns it.
 	 */
