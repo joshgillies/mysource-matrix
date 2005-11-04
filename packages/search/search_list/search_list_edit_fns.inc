@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list_edit_fns.inc,v 1.9 2005/10/27 00:51:29 lwright Exp $
+* $Id: search_list_edit_fns.inc,v 1.10 2005/11/04 03:05:14 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -62,11 +62,7 @@ class Search_List_Edit_Fns extends Listing_Engine_Edit_Fns
 		if (!$write_access) {
 			$search_page = null;
 			if (!empty($search_page_link)) {
-				$search_page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($search_page_link['minorid']);
-			}
-
-			if (!is_null($search_page)) {
-				echo $search_page->name.' (Id: #'.$search_page->id.')';
+				echo get_asset_tag_line($search_page_link['minorid']);
 			} else {
 				echo translate('sch_no_search_page_specified');
 			}

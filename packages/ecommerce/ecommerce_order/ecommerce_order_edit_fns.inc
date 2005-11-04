@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order_edit_fns.inc,v 1.6 2005/08/18 06:38:29 lwright Exp $
+* $Id: ecommerce_order_edit_fns.inc,v 1.7 2005/11/04 03:05:13 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -61,11 +61,9 @@ class Ecommerce_Order_Edit_Fns extends Asset_Edit_Fns
 
 		$assetid = $asset->attr('delivery_id');
 		if (!empty($assetid)) {
-			$href       = reset($am->getAssetBackendHref(Array($assetid => 'details')));
-			$asset_info = $am->getAssetInfo(Array($assetid), 'blis_delivery_method', false, 'name');
-			echo '<a href="'.$href.'">'.$asset_info[$assetid].' (#'.$assetid.')</a>';
+			echo get_asset_tag_line($assetid, 'details');
 		} else {
-			echo 'None';
+			echo translate('none');
 		}
 
 	}

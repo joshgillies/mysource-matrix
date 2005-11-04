@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_edit_fns.inc,v 1.18 2005/09/19 02:13:04 sdanis Exp $
+* $Id: search_folder_edit_fns.inc,v 1.19 2005/11/04 03:05:14 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -81,20 +81,15 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 
 		$settings = $asset->attr('settings');
-		$current = (isset($settings['root'])) ? $settings['root'] : '';
+		$current = (isset($settings['root'])) ? $settings['root'] : Array();
 
 		if ($write_access) {
 			multiple_asset_finder($prefix.'_roots', $current);
 		} else {
-			?><ul><?php
+			?><ul style="margin: 1px 15px"><?php
 			foreach ($current as $assetid) {
-				$root_asset = null;
 				if (!empty($assetid)) {
-					$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				}
-
-				if (!is_null($root_asset)) {
-					?><li><?php echo $root_asset->name ?> (Id: #<?php echo $root_asset->id; ?>)</li><?php
+					?><li><?php echo get_asset_tag_line($assetid) ?></li><?php
 				} else {
 					echo translate('sch_folder_no_search_root');
 				}
@@ -286,11 +281,14 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 			if (empty($current)) {
 				echo translate('sch_folder_no_status_selected');
 			} else {
-				echo '<ul>';
+				?><ul style="margin: 1px 15px"><?php
 				foreach ($current as $status) {
-					echo '<li>'.get_status_description($status).'</li>';
+					echo '<li>';
+					echo get_asset_status_icon($status);
+					echo get_status_description($status);
+					echo '</li>';
 				}
-				echo '</ul>';
+				?></ul><?php
 			}
 		}
 
@@ -329,111 +327,6 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 		return $asset->setAttrValue('settings', $settings);
 
 	}//end processStatus()
-
-
-	/**
-	* Paint the interface for selecting searched asset types
-	*
-	* @param object Search_Folder		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintTypes(&$asset, &$o, $prefix)
-	{
-		$write_access = $asset->writeAccess('attributes');
-
-		$settings = $asset->attr('settings');
-		$current = (isset($settings['types'])) ? $settings['types'] : Array();
-
-		if (!empty($current)) {
-
-				?>
-				<table class="sq-backend-table">
-					<tr>
-						<td class="sq-backend-table-header"><?php echo translate('sch_searched_asset_types') ?></td>
-						<?php
-						if ($write_access) {
-							?><td class="sq-backend-table-header"><?php echo translate('delete_question') ?></td><?php
-						}
-						?>
-					</tr>
-				<?php
-
-				foreach ($current as $type) {
-					?>
-					<tr>
-						<td class="sq-backend-table-cell"><?php echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type, 'name'); ?></td>
-						<?php
-						if ($write_access) {
-							?><td class="sq-backend-table-cell"><?php check_box($prefix.'_delete_type[]', $type); ?></td><?php
-						}
-						?>
-					</tr>
-					<?php
-				}
-
-				?></table><?php
-
-		} else {
-			echo translate('sch_no_asset_types_selected');
-		}
-
-
-		if ($write_access) {
-			$asset_types = array_values(array_diff($GLOBALS['SQ_SYSTEM']->am->getTypeList(), $current));
-			$asset_type_list = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset_types, 'name');
-			if (!empty($asset_type_list)){
-				asort($asset_type_list);
-				echo '<br /><span class="sq-backend-field">'.translate('sch_add_new_type').': </span>';
-				combo_box($prefix.'_new_type', Array('' => '- '.translate('sch_select_asset_type').' -') + $asset_type_list, false, 'none');
-			}
-		}
-
-		return $write_access;
-
-	}//end paintTypes()
-
-
-	/**
-	* Processes the interface for selecting searched asset types
-	*
-	* @param object Search_Folder		&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processTypes(&$asset, &$o, $prefix)
-	{
-		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
-
-		$settings = $asset->attr('settings');
-		$search_types = (isset($settings['types'])) ? $settings['types'] : Array();
-
-		// deleting types
-		if (isset($_POST[$prefix.'_delete_type'])) {
-			$search_types = array_values(array_diff($search_types, $_POST[$prefix.'_delete_type']));
-			$update = true;
-		}
-
-		// add type
-		if (!empty($_POST[$prefix.'_new_type']) && $_POST[$prefix.'_new_type'] != '') {
-			$new_type = trim($_POST[$prefix.'_new_type']);
-			if (!in_array($new_type, $search_types)) {
-				$search_types[] = $new_type;
-				$update = true;
-			}
-		}
-
-		$settings['types'] = $search_types;
-		return $asset->setAttrValue('settings', $settings);
-
-	}//end processTypes()
 
 
 	/**
@@ -478,7 +371,7 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 					$inherit_alt = $inherit ? translate('yes') : translate('no');
 					?>
 						<tr>
-							<td><?php echo $type_names[$type]; ?></td>
+							<td><?php echo get_asset_type_icon($type).$type_names[$type]; ?></td>
 							<td><img src="<?php echo $inherit_image; ?>" alt="<?php echo $inherit_alt; ?>" /></td>
 						</tr>
 					<?php

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.65 2005/10/24 23:13:23 dmckee Exp $
+* $Id: search_page_edit_fns.inc,v 1.66 2005/11/04 03:05:14 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -232,14 +232,17 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 										}
 										$search_types = $asset->attr('types');
 										$search_type = array_get_index($field_datasources[$index]['params'], 'asset_type', '0');
+										$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($search_types), 'name');
 										if ($write_access) {
 											$options = Array('' => '-- '.translate('select_asset_type').' --');
 											foreach (array_keys($search_types) as $this_type) {
-												$options[$this_type] = $this_type;
+												$options[$this_type] = $type_names[$this_type];
 											}
 											combo_box($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][asset_type]', $options, false, $search_type);
 										} else {
-											echo translate('asset_type').':  '.$search_type;
+											echo translate('asset_type').':  ';
+											echo sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($search_type), 16, 16, $type_names[$search_type], $type_names[$search_type], ' align="absmiddle"');
+											echo $type_names[$search_type];
 										}
 										// printing out attribute selection combo box
 										if (!isset($field_datasource['params']['attrid']) || empty($search_type)) {
@@ -274,7 +277,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 											if ($metadata_field > 0) {
 												$field_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field);
 												if (!is_null($metadata_field)) {
-													echo translate('sch_page_metadata_field').': '.$field_asset->name.' (ID #'.$field_asset->id.')';
+													echo get_asset_tag_line($field_asset->id);
 												} else {
 													echo translate('sch_page_no_metadata_field_specified');
 												}
@@ -883,11 +886,16 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			if (empty($current_values)) {
 				echo translate('sch_page_no_status_selected');
 			} else {
-				echo '<ul>';
+				?><ul style="margin: 1px 15px;"><?php
 				foreach ($current_values as $status) {
-					echo '<li>'.get_status_description($status).'</li>';
+					$status_name = get_status_description($status);
+					$status_colour = get_status_colour($status);
+					echo '<li>';
+					echo '<img src="'.sq_web_path('lib').'/web/images/blank.gif" width="10" height="10" alt="'.$status_name.'" title="'.$status_name.'" align="absmiddle" style="margin: 2px; border: 1px solid #ccc; background-color: '.$status_colour.'" /> ';
+					echo $status_name;
+					echo '</li>';
 				}
-				echo '</ul>';
+				?></ul><?php
 			}
 		}
 
@@ -914,8 +922,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		if ($editable) {
 			asset_finder($name, $current_value);
 		} else {
-			$asset_name = reset($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_value), '', true, 'name'));
-			echo $asset_name.' (ID #'.$current_value.')';
+			echo get_asset_tag_line($current_value);
 		}
 		echo '</div>';
 
@@ -1286,10 +1293,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		if (!$write_access) {
 			$root_asset = null;
 			if (!empty($root_link)) {
-				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
-			}
-			if (!is_null($root_asset)) {
-				echo $root_asset->name.' (Id: #'.$root_asset->id.')';
+				echo get_asset_tag_line($root_link['minorid']);
 			} else {
 				echo translate('sch_page_no_thesaurus_asset_selected');
 			}
@@ -1498,7 +1502,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
-		$o->openField(translate('search_page_proxy_asset_types').':');
+		$o->openField(translate('search_page_proxy_asset_types'));
 			if (empty($current_types)) {
 				echo translate('search_page_no_types_defined');
 			} else {
@@ -1518,7 +1522,10 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 							foreach ($current_types as $current_type => $type_settings) {
 								?>
 								<tr>
-									<td class="sq_backend-data"><?php echo $am->getTypeInfo($current_type, 'name'); ?></td>
+									<td class="sq_backend-data"><?php
+										echo get_asset_type_icon($current_type);
+										echo $am->getTypeInfo($current_type, 'name');
+									?></td>
 									<td class="sq_backend-data"><?php
 										if ($write_access) {
 											$i = 0;
@@ -1530,7 +1537,18 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 											}
 											asset_type_chooser($prefix.'_'.$current_type.'_children', true, $options, null, true, true);
 										} else {
-											echo implode(', ', $am->getTypeInfo(array_keys($type_settings), 'name'));
+											$type_names = $am->getTypeInfo(array_keys($type_settings), 'name');
+											?><ul style="margin: 1px 15px"><?php
+											foreach($type_settings as $type_code => $inherits) {
+												echo '<li>';
+												echo get_asset_type_icon($type_code);
+												echo $type_names[$type_code];
+												if ($inherits) {
+													echo ' ('.strtolower(translate('cms_listing_inherits_child_types')).')';
+												}
+												echo '</li>';
+											}
+											?></ul><?php
 										}
 									?></td>
 									<?php
@@ -1549,7 +1567,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		$search_types = array_keys($asset->attr('types'));
 		if ($write_access && !empty($search_types)) {
-			$o->openField(translate('search_page_proxy_type_code_new').':');
+			$o->openField(translate('search_page_proxy_type_code_new'));
 				$types = array_diff($search_types, array_keys($current_types));
 
 				if (empty($types)) {

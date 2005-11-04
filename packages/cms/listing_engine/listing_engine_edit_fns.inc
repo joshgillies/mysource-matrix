@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.48 2005/11/04 00:00:39 lwright Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.49 2005/11/04 03:05:12 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -104,7 +104,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					?>
 						<tr>
 							<td><?php
-								echo sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($type), 16, 16, $type_names[$type], $type_names[$type], ' align="absmiddle"');
+								echo get_asset_type_icon($type);
 								echo $type_names[$type];
 							?></td>
 							<td><img src="<?php echo $inherit_image; ?>" alt="<?php echo $inherit_alt; ?>" /></td>
@@ -552,6 +552,22 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				<?php
 			}
 
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'no_results');
+			if (!empty($link)) {
+				$info = Array($link['minorid'] => 'contents');
+				$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
+				?>
+				<tr>
+					<td class="sq-backend-table-cell">
+						<?php echo get_asset_tag_line($link['minorid'], 'contents'); ?>
+					</td>
+					<td class="sq-backend-table-cell">
+						<?php echo translate('cms_listing_no_results_bodycopy_desc') ?>
+					</td>
+				</tr>
+				<?php
+			}
+
 			$folder = &$asset->getFolder('type_formats');
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
 			if (!empty($link)) {
@@ -592,24 +608,31 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		//first lets get the bodycopies we want
 		$formats = $asset->getFormats('group_formats');
 
-		?>
-		<table class="sq-backend-table">
-			<tr>
-				<td class="sq-backend-table-header"><?php echo translate('edit_format'); ?></td>
-			</tr>
-			<?php
-			foreach (array_keys($formats) as $assetid) {
-				$format = reset($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid)));
-				$link = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($assetid => 'contents'))
-				?>
-				<tr>
-					<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($assetid, 'contents'); ?></td>
-				</tr>
-			<?php
-			}
+		if (empty($formats)) {
+			echo translate('cms_listing_no_groups');
+		} else {
 			?>
-			</table>
-		<?php
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header"><?php echo translate('edit_format'); ?></td>
+				</tr>
+				<?php
+				foreach (array_keys($formats) as $assetid) {
+					$format = reset($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid)));
+					$link = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($assetid => 'contents'))
+					?>
+					<tr>
+						<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($assetid, 'contents'); ?></td>
+					</tr>
+				<?php
+				}
+				?>
+				</table>
+			<?php
+		}
+
+		return true;
+
 	}//end paintGroupFormatLinks()
 
 
@@ -672,6 +695,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					<tr>
 						<td class="sq-backend-table-cell" style="width: 200px;">
 							<?php
+							echo get_asset_type_icon($value);
 							echo $type_name;
 							?>
 						</td>
@@ -962,6 +986,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			}
 
 		$o->closeField();
+
+		// Sort by standard asset field
 		$o->openField('');
 
 			if (!empty($sort_by_list)) {
@@ -1033,7 +1059,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					$o->closeField();
 				$o->closeSection();
 
-
+			// Sort by attribute
 			$o->openSection(translate('cms_listing_sort_by_attribute'));
 				$o->openField('');
 
@@ -1068,7 +1094,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 												$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
 												combo_box($prefix.'_fields['.$id.'][params][type_code]', $type_info, false, $info['params']['type_code']);
 											} else {
-												echo $info['params']['type_code'];
+												$type_code = $info['params']['type_code'];
+												$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name');
+												echo get_asset_type_icon($type_code);
+												echo $type_name;
 											}
 										?>
 									</td>
@@ -1118,7 +1147,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				$o->closeField();
 			}
 
-		//-- METADATA --//
+		// Sort by metadata
 		$o->openField(translate('cms_listing_new_sort_by_metadata'));
 			if ($write_access) {
 				echo ' '.translate('name').' ';
@@ -2128,14 +2157,16 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				if (empty($group_by_option['restrict_types']['type_code'])) {
 					echo '<i>'.translate('cms_listing_no_types_selected').'</i>';
 				} else {
-					?><ul><?php
+					?><ul style="margin: 1px 15px"><?php
 					$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($group_by_option['restrict_types']['type_code'], 'name');
 
 					foreach ($group_by_option['restrict_types']['type_code'] as $key => $type_code) {
-						?><li><?php echo $type_names[$type_code];
-						if ($group_by_option['restrict_types']['inherit'][$key]) {
-							echo ' (inherits child types)';
-						}
+						?><li><?php
+							echo get_asset_type_icon($type_code);
+							echo $type_names[$type_code];
+							if ($group_by_option['restrict_types']['inherit'][$key]) {
+								echo ' ('.strtolower(translate('cms_listing_inherits_child_types')).')';
+							}
 						?></li><?php
 					}
 					?></ul><?php
@@ -2801,11 +2832,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			} else {
 				?><ul style="margin: 1px 15px;"><?php
 				foreach ($current as $status) {
-					$status_name = get_status_description($status);
-					$status_colour = get_status_colour($status);
 					echo '<li>';
-					echo '<img src="'.sq_web_path('lib').'/web/images/blank.gif" width="10" height="10" alt="'.$status_name.'" title="'.$status_name.'" align="absmiddle" style="margin: 2px; border: 1px solid #ccc; background-color: '.$status_colour.'" /> ';
-					echo $status_name;
+					echo get_asset_status_icon($status);
+					echo get_status_description($status);
 					echo '</li>';
 				}
 				?></ul><?php
@@ -3181,7 +3210,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			combo_box($prefix.'_use_bodycopy', $options, false, Array($enabled));
 
 		} else {
-			echo $enabled ? translate('yes') : translate('no');
+			if($enabled) {
+				echo translate('yes').' - '.get_asset_tag_line($bodycopy_link['minorid'], 'contents');
+			} else {
+				echo translate('no');
+			}
 		}
 
 		return $write_access;

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_edit_fns.inc,v 1.2 2005/07/25 03:48:48 skim Exp $
+* $Id: ecommerce_checkout_edit_fns.inc,v 1.3 2005/11/04 03:05:13 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -60,16 +60,14 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('id') ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('name') ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('type') ?></td>
+					<th class="sq-backend-table-header"><?php echo translate('asset') ?></th>
+					<th class="sq-backend-table-header"><?php echo translate('type') ?></th>
 				</tr>
 			<?php
 			foreach ($infos as $assetid => $info) {
 			?>
 			<tr>
-				<td class="sq-backend-table-cell"><?php echo $assetid ?></td>
-				<td class="sq-backend-table-cell"><?php echo $info['name'] ?></td>
+				<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($assetid) ?></td>
 				<td class="sq-backend-table-cell"><?php echo ucwords(str_replace('_',' ', $info['type_code'])) ?></td>
 			</tr>
 			<?php
@@ -180,7 +178,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 			?>
 			<tr>
 				<td class="sq-backend-table-cell">
-					<a href="<?php echo $href[$link['minorid']]; ?>"><?php echo $contexts[$link['value']] ?></a>
+					<?php echo get_asset_tag_line($link['minorid'], 'contents') ?>
 				</td>
 				<td class="sq-backend-table-cell">
 					<?php

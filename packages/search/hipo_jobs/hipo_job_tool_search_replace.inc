@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.2 2005/08/10 04:12:27 tbarrett Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.3 2005/11/04 03:05:14 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -429,7 +429,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 				<thead>
 					<tr>
 						<th onclick="toggleTBodyDisplay(this)">
-							<?php echo translate('asset_format', $names[$assetid], $assetid); ?>
+							<?php echo get_asset_tag_line($assetid); ?>
 							- <?php echo translate('sch_tool_global_sr_file_match(es)', $search_count[$assetid]); ?>
 						</th>
 						<th class="all-asset-checkbox">
@@ -624,7 +624,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		<table class="sq-backend-table expandable component" border="1">
 			<thead>
 				<tr>
-					<th colspan="3" onclick="toggleTBodyDisplay(this)">
+					<th colspan="" onclick="toggleTBodyDisplay(this)">
 						<?php echo translate('asset_metadata'); ?>
 					</th>
 					<th class="match-checkbox" style="text-align: right">
@@ -634,8 +634,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			</thead>
 			<tbody style="display: none">
 				<tr>
-					<th><?php echo translate('field_id'); ?></th>
-					<th><?php echo translate('field_name'); ?></th>
+					<th><?php echo translate('field'); ?></th>
 					<th><?php echo translate('match'); ?></th>
 					<th>&nbsp;</th>
 				</tr>
@@ -645,7 +644,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 					$html_id = $prefix.'_asset_'.$assetid.'_metadata_'.$field_id.'_'.$offset;
 					?>
 					<tr>
-						<td><?php echo $field_id; ?></th>
+						<td><?php echo get_asset_tag_line($field_id); ?></th>
 						<td><?php echo $field_details['name']; ?></td>
 						<td><label for="<?php echo $html_id; ?>"><?php $this->_printHighlightedMatch($this->_running_vars['search_string'], $field_details['value'], $offset); ?></label></td>
 						<td class="match-checkbox"><?php check_box($html_id, 1, false, 'updateParentCheckboxes(this)'); ?></td>
@@ -675,7 +674,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		<table class="sq-backend-table expandable component" border="1">
 			<thead>
 				<tr>
-					<th colspan="3" onclick="toggleTBodyDisplay(this)">
+					<th colspan="2" onclick="toggleTBodyDisplay(this)">
 						<?php echo translate('metadata_schema'); ?>
 					</th>
 					<th class="match-checkbox" style="text-align: right">
@@ -685,8 +684,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			</thead>
 			<tbody style="display: none">
 				<tr>
-					<th><?php echo translate('field_id'); ?></th>
-					<th><?php echo translate('field_name'); ?></th>
+					<th><?php echo translate('field'); ?></th>
 					<th><?php echo translate('match'); ?></th>
 					<th>&nbsp</th>
 				</tr>
@@ -696,8 +694,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 					$html_id = $prefix.'_asset_'.$assetid.'_schemafield_'.$field_id.'_'.$offset;
 					?>
 					<tr>
-						<td><?php echo $field_id; ?></th>
-						<td><?php echo $schema_details['name']; ?></td>
+						<td><?php echo get_asset_tag_line($field_id); ?></th>
 						<td><label for="<?php echo $html_id; ?>"><?php $this->_printHighlightedMatch($this->_running_vars['search_string'], $schema_details['value'], $offset); ?></label></td>
 						<td class="match-checkbox"><?php check_box($html_id, 1, false, 'updateParentCheckboxes(this)'); ?></td>
 					</tr>
@@ -726,7 +723,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		<table class="sq-backend-table expandable component" border="1">
 			<thead>
 				<tr>
-					<th colspan="3" onclick="toggleTBodyDisplay(this)">
+					<th colspan="2" onclick="toggleTBodyDisplay(this)">
 						<?php echo translate('asset_contents'); ?>
 					</th>
 					<th class="match-checkbox" style="text-align: right">
