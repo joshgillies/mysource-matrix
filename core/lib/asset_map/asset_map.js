@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.13 2005/05/16 06:36:32 lwright Exp $
+* $Id: asset_map.js,v 1.14 2005/11/04 05:35:36 sdanis Exp $
 *
 */
 
@@ -125,7 +125,6 @@ function reload_asset(assetid)
 */
 function jsToJavaCall(asset_mapObj, type, command, params)
 {
-
 	var params_str = '';
 	for (var i = 0; i < params.length; i++) {
 		params_str += params[i];
@@ -249,6 +248,21 @@ function asset_finder_start(fn, type_codes)
 
 }//end asset_finder_start()
 
+
+/**
+* Starts the asset locater
+*
+* @param String		asset_ids	Lineage asset ids
+*
+* @access public
+*/
+function asset_locater_start(asset_ids)
+{
+	var params = asset_ids.split('|');
+	var asset_mapObj = get_java_applet_object();
+	jsToJavaCall(asset_mapObj, 'asset_locater', '', params);
+
+}//end asset_finder_start()
 
 /**
 * Alerts the asset map that asset finder mode has been canceled
