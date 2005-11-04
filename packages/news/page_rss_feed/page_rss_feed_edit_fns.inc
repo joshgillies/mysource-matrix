@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed_edit_fns.inc,v 1.4 2005/11/04 02:50:50 pgannavarapu Exp $
+* $Id: page_rss_feed_edit_fns.inc,v 1.5 2005/11/04 03:09:29 lwright Exp $
 *
 */
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
@@ -29,7 +29,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -74,17 +74,15 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('id') ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('name') ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('asset') ?></td>
 					<td class="sq-backend-table-header"><?php echo translate('type') ?></td>
 				</tr>
 			<?php
 			foreach ($infos as $assetid => $info) {
 			?>
 			<tr>
-				<td class="sq-backend-table-cell"><?php echo $assetid ?></td>
-				<td class="sq-backend-table-cell"><?php echo $info['name'] ?></td>
-				<td class="sq-backend-table-cell"><?php echo ucwords(str_replace('_',' ', $info['type_code'])) ?></td>
+				<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($assetid) ?></td>
+				<td class="sq-backend-table-cell"><?php echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($info['type_code'], 'name') ?></td>
 			</tr>
 			<?php
 			}

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item_edit_fns.inc,v 1.6 2005/08/16 23:51:12 dheppell Exp $
+* $Id: news_item_edit_fns.inc,v 1.7 2005/11/04 03:09:29 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * Purpose
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -62,7 +62,7 @@ class News_Item_Edit_Fns extends Page_Edit_Fns
 			if (is_null($link_asset)) {
 				echo 'None Set';
 			} else {
-				echo $link_asset->name.' (#'.$link_asset->id.')';
+				echo get_asset_tag_line($link_asset->id);
 			}
 		}
 		return true;
