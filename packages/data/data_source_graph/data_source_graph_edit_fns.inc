@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_edit_fns.inc,v 1.3 2005/10/28 06:59:26 pgannavarapu Exp $
+* $Id: data_source_graph_edit_fns.inc,v 1.4 2005/11/04 03:44:40 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -189,7 +189,7 @@ class Data_Source_Graph_Edit_Fns extends Asset_Edit_Fns
 				<table>
 				<tr>
 					<td><b><?php echo translate('current_data_source_id');?></b></td>
-					<td><b><?php echo $already_linked['minorid'];?></b></td>
+					<td><b><?php echo get_asset_tag_line($already_linked['minorid']);?></b></td>
 				</tr>
 				</table>
 			<?php
