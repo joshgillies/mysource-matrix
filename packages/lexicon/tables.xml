@@ -11,35 +11,47 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.3 2005/04/29 05:39:49 gsherwood Exp $
+* $Id: tables.xml,v 1.4 2005/11/04 06:03:32 arailean Exp $
 *
 */
 -->
 
 <schema>
    <tables>
-	   <table name="lex_thes_ent" require_rollback="0">
+	   <table name="lex_thes_term" require_rollback="0">
 		   <columns>
-			   <column name="id" allow_null="0">
+			   <column name="linkid" allow_null="0">
 				   <type>INTEGER</type>
 				   <type_variations />
 				   <default />
-				   <description />
+				   <description>ID of link between two terms</description>
 			   </column>
-			   <column name="name" allow_null="0">
+			   <column name="major" allow_null="1">
 				   <type>VARCHAR(255)</type>
 				   <type_variations />
 				   <default />
-				   <description />
+				   <description>Parent Term</description>
 			   </column>
-			   <column name="description" allow_null="1">
+			   <column name="minor" allow_null="0">
 				   <type>VARCHAR(255)</type>
 				   <type_variations />
 				   <default />
-				   <description />
+				   <description>Term</description>
 			   </column>
-			   <column name="thes_id" allow_null="0">
+			   <column name="relation" allow_null="1">
+				   <type>VARCHAR(100)</type>
+				   <type_variations />
+				   <default />
+				   <description>Term</description>
+			   </column>
+			   <column name="sort_order" allow_null="0">
 				   <type>INTEGER</type>
+				   <type_variations />
+				   <default />
+				   <description>Sort Order</description>
+			   </column>
+			   <column name="thesid" allow_null="0">
+				   <type>VARCHAR(15)</type>
 				   <type_variations />
 				   <default />
 				   <description>Thesaurus Asset ID</description>
@@ -47,114 +59,64 @@
 		   </columns>
 		   <keys>
 			   <primary_key>
-				   <column name="id" />
-			   </primary_key>
-			   <unique_key>
-				   <column name="name" />
-				   <column name="thes_id" />
-			   </unique_key>
-		   </keys>
-		   <indexes>
-			   <index>
-				   <column name="thes_id" />
-			   </index>
-			   <index>
-				   <column name="name" />
-			   </index>
-		   </indexes>
-	   </table>
-	   <table name="lex_thes_rel" require_rollback="0">
-		   <columns>
-			   <column name="id" allow_null="0">
-				   <type>INTEGER</type>
-				   <type_variations />
-				   <default />
-				   <description />
-			   </column>
-			   <column name="name" allow_null="0">
-				   <type>VARCHAR(255)</type>
-				   <type_variations />
-				   <default />
-				   <description />
-			   </column>
-			   <column name="thes_id" allow_null="0">
-				   <type>INTEGER</type>
-				   <type_variations />
-				   <default />
-				   <description>Thesaurus Asset ID</description>
-			   </column>
-		   </columns>
-		   <keys>
-			   <primary_key>
-				   <column name="id" />
-			   </primary_key>
-			   <unique_key>
-				   <column name="name" />
-				   <column name="thes_id" />
-			   </unique_key>
-		   </keys>
-		   <indexes>
-			   <index>
-				   <column name="thes_id" />
-			   </index>
-			   <index>
-				   <column name="name" />
-			   </index>
-		   </indexes>
-	   </table>
-	   <table name="lex_thes_ent_rel" require_rollback="0">
-		   <columns>
-			   <column name="pnt_ent_id" allow_null="0">
-				   <type>INTEGER</type>
-				   <type_variations />
-				   <default />
-				   <description>Entity id foreign key</description>
-			   </column>
-			   <column name="cld_ent_id" allow_null="0">
-				   <type>INTEGER</type>
-				   <type_variations />
-				   <default />
-				   <description>Entity id foreign key</description>
-			   </column>
-			   <column name="rel_id" allow_null="0">
-				   <type>INTEGER</type>
-				   <type_variations />
-				   <default />
-				   <description>Relation id foreign key</description>
-			   </column>
-			   <column name="thes_id" allow_null="0">
-				   <type>INTEGER</type>
-				   <type_variations />
-				   <default />
-				   <description>Thesaurus Asset ID</description>
-			   </column>
-		   </columns>
-		   <keys>
-			   <primary_key>
-				   <column name="pnt_ent_id" />
-				   <column name="cld_ent_id" />
-				   <column name="rel_id" />
-				   <column name="thes_id" />
+				   <column name="linkid" />
+				   <column name="treeid" />
 			   </primary_key>
 		   </keys>
 		   <indexes>
 			   <index>
-				   <column name="pnt_ent_id" />
+				   <column name="linkid" />
 			   </index>
 			   <index>
-				   <column name="cld_ent_id" />
+				   <column name="major" />
 			   </index>
 			   <index>
-				   <column name="rel_id" />
+				   <column name="minor" />
 			   </index>
 			   <index>
-				   <column name="thes_id" />
+				   <column name="relation" />
+			   </index>
+			   <index>
+				   <column name="thesid" />
 			   </index>
 		   </indexes>
 	   </table>
+	<table name="lex_thes_lnk_tree" require_rollback="0">
+			<columns>
+				<column name="treeid" allow_null="0">
+					<type>VARCHAR(2000)</type>
+					<type_variations>
+						<pgsql>BYTEA</pgsql>
+					</type_variations>
+					<default>''</default>
+					<description />
+				</column>
+				<column name="linkid" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="thesid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>Thesaurus Asset ID</description>
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="treeid" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="linkid" />
+				</index>
+			</indexes>
+		</table>
    </tables>
    <sequences>
-	   <sequence name="lex_thes_ent_id" />
-	   <sequence name="lex_thes_rel_id" />
+	   <sequence name="lex_thes_term_linkid" />
    </sequences>
 </schema>
