@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2005/05/16 06:36:46 lwright Exp $
+* $Id: lang_strings.xml,v 1.5 2005/11/04 06:05:16 arailean Exp $
 *
 */
 
@@ -24,12 +24,11 @@ Lexicon Package Localised Strings File.
 	<string source="lexicon_hipo_acquiring_locks">Acquiring Permission Locks</string>
 	<string source="lexicon_hipo_parsing_xml">Parsing XML file</string>
 	<string source="lexicon_hipo_erasing_thesaurus">Erasing Thesaurus Contents</string>
-	<string source="lexicon_hipo_adding_relations">Adding Relations to the Database</string>
-	<string source="lexicon_hipo_adding_entities">Adding Entities to the Database</string>
-	<string source="lexicon_hipo_linking_entities">Linking Entities Together</string>
-	<string source="lexicon_hipo_finalising_import">Finalising Import</string>
-	<string source="lexicon_hipo_confirm_erase">Please confirm that you want to erase the existing thesaurus. Your XML file looks valid and is ready to be imported. Its contents will replace the existing thesaurus data.</string>
+	<string source="lexicon_hipo_finalising">Finalising</string>
+	<string source="lexicon_hipo_confirm_erase">Please confirm that you want to erase the existing thesaurus. Your XML file is ready to be imported. Its contents will replace the existing thesaurus data.</string>
 	<string source="lexicon_hipo_cleaning_up">Cleaning up and moving out</string>
 	<string source="lexicon_hipo_setting_up_env">Setting up the environment</string>
 	<string source="lexicon_hipo_name_import_thesaurus_xml">Import Thesaurus XML</string>
+	<string source="lexicon_hipo_name_export_thesaurus_xml">Export Thesaurus XML</string>
+	<string source="lexicon_hipo_creating_xml">Writing XML file</string>
 </strings>
