@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assetid.inc,v 1.11 2005/11/01 04:45:52 rhoward Exp $
+* $Id: assetid.inc,v 1.12 2005/11/04 05:46:16 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <assetid type_codes="user_group:I,backend_user:A,page:D" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -53,7 +53,7 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 	function Asset_Attribute_Assetid($attributeid=0, $value=null)
 	{
 		$this->Asset_Attribute($attributeid, $value);
-		
+
 		// default values
 		$this->_edit_params['type_codes'] = Array();
 
@@ -102,12 +102,7 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 			if (!$this->value) {
 				echo translate('no_asset_selected');
 			} else {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->value);
-				if (is_null($asset)) {
-					echo translate('invalid_assetid');
-				} else {
-					echo $asset->name.' (#'.$asset->id.')';
-				}
+				echo get_asset_tag_line($this->value);
 			}
 			return;
 		}
