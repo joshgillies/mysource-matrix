@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_contents_keywords.php,v 1.5 2005/11/04 00:00:39 lwright Exp $
+* $Id: page_contents_keywords.php,v 1.6 2005/11/04 04:14:28 lwright Exp $
 *
 */
 
@@ -74,7 +74,7 @@
 					foreach ($questions as $q_id => $question) {
 						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id.':q'.$q_id);
 						$q_name = $q_asset->attr('name');
-						?>							<tr><td valign="top" width="200"><b>%question_field_<?php echo $asset->id.'_q'.$q_id ?>%</b></td><td valign="top"><?php echo $q_name ?></td></tr><?php
+						?>							<tr><td valign="top" width="200"><b>%question_field_<?php echo $asset->id.'_q'.$q_id ?>%</b></td><td valign="top"><?php echo get_asset_tag_line($asset->id.':q'.$q_id); ?></td></tr><?php
 					}?>
 			</table>
 		</fieldset>
@@ -84,17 +84,17 @@
 				foreach ($sections as $section) { ?>
 				<p>
 					<fieldset>
-					<legend><b>Form Section Asset '<?php echo $section->attr('name') ?>' (Id: #<?php echo $section->id ?>)</b></legend>
+					<legend><b><?php echo get_asset_tag_line($section->id); ?></b></legend>
 						<table border="0" width="100%">
 							<tr><td valign="top" width="200"><b>%section_title_<?php echo $section->id ?>%</b></td><td valign="top">Section Title</td></tr>
 				<?php
 					$replacements['section_title_'.$section->id] = $section->attr('name');
-					$questions = &$section->getQuestions();
+					$questions = $section->getQuestions();
 					foreach ($questions as $q_id => $question) {
 						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 						$q_name = $section->attr('name').': '.$q_asset->attr('name');
 						?>
-						<tr><td valign="top" width="200"><b>%question_field_<?php echo $section->id.'_q'.$q_id; ?>%</b></td><td valign="top"><?php echo get_asset_tag_line($q_id); ?></td></tr><?php } ?>
+						<tr><td valign="top" width="200"><b>%question_field_<?php echo $section->id.'_q'.$q_id; ?>%</b></td><td valign="top"><?php echo get_asset_tag_line($section->id.':q'.$q_id); ?></td></tr><?php } ?>
 						</table>
 					</fieldset>
 				</p>
