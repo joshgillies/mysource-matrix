@@ -11,10 +11,10 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: indent_list_to_xml.php,v 1.2 2005/04/29 05:39:49 gsherwood Exp $
+* $Id: indent_list_to_xml.php,v 1.3 2005/11/04 05:07:41 emcdonald Exp $
 *
 * Script to form valid thesaurus XML from a tab-indented text file like this:
-* 
+*
 * Software
 *	CMSes
 *		MySource Classic
@@ -28,17 +28,21 @@
 *		400MHz Pentiun 2
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage Lexicon
 */
 
+
 /**
 * Convert the specified indented list to a multi-dimensional array
-* 
+*
+* Returns the indented list represented as a multi-dimensional array
+*
 * @param array	&$lines	The lines of the text file to process
 *
-* @return array	The indented list represented as a multi-dimensional array
+* @return array
+* @access public
 */
 function indent_list_to_array(&$lines)
 {
@@ -48,7 +52,9 @@ function indent_list_to_array(&$lines)
 		$current_line = current($lines);
 		//echo "$current_line \n";
 		$line_content = trim($current_line);
-		if (get_indent_size($current_line) < $indent_size) break;
+		if (get_indent_size($current_line) < $indent_size) {
+			break;
+		}
 		if (false === next($lines)) break;
 		if (empty($line_content)) continue;
 		if (get_indent_size(current($lines)) > $indent_size) {
@@ -62,29 +68,35 @@ function indent_list_to_array(&$lines)
 }//end indent_list_to_array()
 
 
-/*
+/**
 * Get the indent size (number of tabs) for the specified string
-* 
+*
+* Returns the number of tabs before the first non-tab character
+*
 * @param string	$s	The string to analyse
 *
-* @return int	The number of tabs before the first non-tab character
+* @return int
+* @access public
 */
 function get_indent_size($s)
 {
 	$res = 0;
-	while ($s{$res} == "\t") $res++;
+	while ($s{$res} == "\t") {
+		$res++;
+	}
 	return $res;
 
 }//end get_indent_size()
 
 
-/*
+/**
 * Print the supplied multi-dimensional array as XML (recursive call)
-* 
+*
 * @param array	$res	The array to print
 * @param string	$indent	The indent characters to put before each line of output
 *
 * @return void
+* @access public
 */
 function print_array_xml_r($res, $indent='')
 {
