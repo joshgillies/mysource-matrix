@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.102 2005/11/03 06:11:59 lwright Exp $
+* $Id: general.inc,v 1.103 2005/11/04 03:46:11 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.103 $
 * @package MySource_Matrix
 */
 
@@ -1004,8 +1004,6 @@ function sq_print_icon($path, $width, $height, $alt='', $title=null, $extras='')
 */
 function get_asset_tag_line($assetid, $screen='')
 {
-	require_once dirname(__FILE__).'/general_occasional.inc';
-
 	// If it's a shadow asset, there is nothing in the database so we cannot use
 	// the shortcut - we have to get the info from the asset instead
 	if (strpos($assetid, ':') !== false) {
@@ -1034,11 +1032,6 @@ function get_asset_tag_line($assetid, $screen='')
 		return $contents;
 	}
 
-	$status_name = get_status_description($asset_info['status']);
-	$status_colour = get_status_colour($asset_info['status']);
-
-	$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset_info['type_code'], 'name');
-
 	if (empty($screen)) {
 		$screen_url = '';
 	} else {
@@ -1047,8 +1040,9 @@ function get_asset_tag_line($assetid, $screen='')
 	}
 
 	ob_start();
-		echo sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($asset_info['type_code']), 16, 16, $type_name, $type_name, ' align="absmiddle"');
-		echo '<img src="'.sq_web_path('lib').'/web/images/blank.gif" width="10" height="10" alt="'.$status_name.'" title="'.$status_name.'" align="absmiddle" style="margin: 2px; border: 1px solid #ccc; background-color: '.$status_colour.'" /> ';
+		echo get_asset_type_icon($asset_info['type_code']);
+		echo get_asset_status_icon($asset_info['status']);
+
 		if ($screen_url) {
 			echo '<a href="'.$screen_url.'">';
 		}
@@ -1062,6 +1056,24 @@ function get_asset_tag_line($assetid, $screen='')
 	return $contents;
 
 }//end get_asset_tag_line()
+
+
+function get_asset_type_icon($type_code) {
+	$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name');
+
+	return sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($type_code), 16, 16, $type_name, $type_name, ' align="absmiddle"');
+
+}//end get_asset_type_icon()
+
+
+function get_asset_status_icon($status) {
+	require_once dirname(__FILE__).'/general_occasional.inc';
+	$status_name = get_status_description($status);
+	$status_colour = get_status_colour($status);
+
+	return '<img src="'.sq_web_path('lib').'/web/images/blank.gif" width="10" height="10" alt="'.$status_name.'" title="'.$status_name.'" align="absmiddle" style="margin: 2px; border: 1px solid #ccc; background-color: '.$status_colour.'" /> ';
+
+}//end get_asset_status_icon()
 
 
 ?>

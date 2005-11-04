@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.23 2005/10/31 05:44:56 lwright Exp $
+* $Id: details.inc,v 1.24 2005/11/04 03:46:11 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 
@@ -96,7 +96,8 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 					if (!is_null($keywords) && isset($keywords['fields']['status_current'])) {
 						ob_start();
 					}
-					echo '<i>'.$owner->getStatusDescription().'</i>';
+					echo get_asset_status_icon($owner->status);
+					echo ' <i>'.$owner->getStatusDescription().'</i>';
 
 					// if there is a keyword replacement for this, add it to the replacements
 					if (!is_null($keywords) && isset($keywords['fields']['status_current'])) {
