@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed_edit_fns.inc,v 1.3 2005/11/02 04:54:01 pgannavarapu Exp $
+* $Id: page_rss_feed_edit_fns.inc,v 1.4 2005/11/04 02:50:50 pgannavarapu Exp $
 *
 */
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
@@ -29,7 +29,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -364,7 +364,13 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 					unset($selected_items[$type][$tag]);
 				}
 			}
-			//$selected_items = Array();
+			//if there are no keywords and tags for a particular asset type then unset the asset type from the items array
+			//you dont want to have a key in an array with an empty value.. no !! never.. unless i want a messy interface
+			foreach ($selected_items as $key => $value) {
+				if (empty($value)) {
+					unset($selected_items[$key]);
+				}
+			}
 			$asset->setAttrValue('items', $selected_items);
 			return true;
 		}
