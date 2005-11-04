@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.9 2005/11/03 05:26:08 rong Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.10 2005/11/04 02:50:23 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -77,7 +77,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 					if (!is_null($group_asset)) {
 						?><li><?php echo $group_asset->name, '(Id: #', $group_asset->id, ')'; ?></li><?php
 					} else {
-						echo 'Error retrieving group asset';
+						echo translate('bulkmail_recipient_group_asset_not_found');
 					}
 				}
 			?></ul><?php
@@ -614,19 +614,31 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		$threshold = $asset->attr('threshold');
 		if (empty($threshold)) {
 			$threshold = Array(
-							'type'	=> 'Chunk',
+							'type'	=> 'chunk',
 							'value'	=> '0',
 						 );
 		}
+		$chunk_value = ($threshold['type'] == 'chunk') ? $threshold['value'] : 0;
+		$spread_value = ($threshold['type'] == 'spread') ? $threshold['value'] : 0;
+
+		ob_start();
+			int_text_box($prefix.'_threshold_chunk', $chunk_value, false, 3);
+			$chunk_box = ob_get_contents();
+		ob_end_clean();
+		ob_start();
+			int_text_box($prefix.'_threshold_spread', $spread_value, false, 3);
+			$spread_box = ob_get_contents();
+		ob_end_clean();
 
 		$threshold_types = Array(
-							'Chunk'		=> 'Send&nbsp;%s&nbsp;emails per hour',
-							'Spread'	=> 'Send all emails over&nbsp;%s&nbsp;hours',
-							'ASAP'		=> 'Send all emails at once, don\'t worry about splitting it up',
+							'chunk'		=> translate('bulkmail_threshold_detail_chunk', $chunk_box),
+							'spread'	=> translate('bulkmail_threshold_detail_spread', $spread_box),
+							'asap'		=> translate('bulkmail_threshold_detail_asap'),
 						   );
 
-		$o->openField('Type');
+		$o->openField(translate('bulkmail_threshold_detail_type'));
 			if ($write_access) {
+				$o->note(translate('bulkmail_threshold_detail_note'));
 				foreach ($threshold_types as $threshold_type => $threshold_desc) {
 					if (isset($threshold['type']) && $threshold_type == $threshold['type']) {
 						$checked = true;
@@ -635,17 +647,13 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 						$checked = false;
 						$value = '';
 					}
-
-					ob_start();
-						int_text_box($prefix.'_threshold_'.$threshold_type, $value, false, 3);
-						$input_box = ob_get_contents();
-					ob_end_clean();
 					radio_button($prefix.'_threshold_type', $threshold_type, $checked);
-					echo sprintf($threshold_desc, $input_box), '<br />';
+					echo $threshold_desc;
+					?><br /><?php
 				}
-				$o->note('Please select one of the following threshold types, and fill in a value:<br />');
 			} else {
-				echo 'The thresholding type is currently set to "'.$threshold['type'].'" - '.sprintf($threshold_types[$threshold['type']], $threshold['value']);
+				$threshold_desc = translate('bulkmail_threshold_detail_'.$threshold['type'], $threshold['value']);
+				echo translate('bulkmail_threshold_detail_report', $threshold_desc);
 			}
 		$o->closeField();
 		return true;
@@ -665,7 +673,18 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processThresholds(&$asset, &$o, $prefix)
 	{
-		// this is done in processOptionalAddresses()
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return false;
+
+		if (isset($_REQUEST[$prefix.'_threshold_type'])) {
+			$type = $_REQUEST[$prefix.'_threshold_type'];
+			$value = ($type == 'asap') ? 0 : $_REQUEST[$prefix.'_threshold_'.$type];
+			$threshold = Array(
+							'type'	=> $type,
+							'value'	=> $value,
+						 );
+			$asset->setAttrValue('threshold', $threshold);
+		}
 		return true;
 
 	}//end processThresholds()
@@ -702,7 +721,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 				// do not print the checkbox if no email is provided for current user
 				if ($email != 'none') {
 					check_box($prefix.'_use_default', true, true);
-					echo ' Use default';
+					echo translate('bulkmail_preview_use_default');
 				}
 			} else {
 				echo $email;

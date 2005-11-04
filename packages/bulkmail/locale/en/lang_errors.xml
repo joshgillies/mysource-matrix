@@ -2,7 +2,18 @@
 	<error code="BML0001">Post Office Server Details Error: Unable to create mail object, %s.</error>
 	<error code="BML0002">Post Office Server Details Error: Unable to send preview mail, %s.</error>
 	<error code="BML0003">No Content Page set for %1$s "%2$s" (Id #%3$s).</error>
-	<error code="BML0004">Bulkmail User for group based content generation is not set for %1$s "%2$s" (Id #%3$s).</error>
+	<error code="BML0004">Pre-selected user for content generation is not set for %1$s "%2$s" (Id #%3$s).</error>
 	<error code="BML0005">No Post Office set for %1$s "%2$s" (Id #%3$s).</error>
-	<error code="BML0006">Unable to login as %1$s "%2$s" (Id #%3$s) for group based content generation of preview.</error>
+	<error code="BML0006">Unable to login as %1$s "%2$s" (Id #%3$s) to generate content.</error>
+
+	<error code="BML0007">Unable to create file: %s.</error>
+	<error code="BML0008">File "%s" is not writable.</error>
+	<error code="BML0009">File "%s" is not readable.</error>
+
+	<error code="BML0010">Unable to set root user as the current user.</error>
+	<error code="BML0011">Failed to fork.</error>
+
+	<error code="BML0012">Failed adding new job entry (Id #%s) to database.</error>
+	<error code="BML0013">Job (Id #%s) is not valid.</error>
+
 </errors>

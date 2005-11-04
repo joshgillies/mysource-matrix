@@ -12,7 +12,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -294,7 +294,7 @@ class Bulkmail_Manager extends Asset
 			$data_dir = $this->getJobDataPath($job_id);
 			$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';
 			if (!string_to_file($output, $data_dir.'/progress_info')) {
-				trigger_error("updateJob : failed to update progress file.\n");
+				trigger_localised_error('BML0008', E_USER_WARNING, $data_dir.'/progress_info');
 				return false;
 			}
 		}
@@ -308,7 +308,6 @@ class Bulkmail_Manager extends Asset
 					id = '.$db->quoteSmart($job_id);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		//echo " Job #$job_id : updateJob, state=$state\n";
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
@@ -443,10 +442,9 @@ class Bulkmail_Manager extends Asset
 
 		$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';
 		if (!string_to_file($output, $data_dir.'/progress_info')) {
-			trigger_error("initProgressFile : failed to init progress file.\n");
+			trigger_localised_error('BML0007', E_USER_WARNING, $data_dir.'/progress_info');
 			return false;
 		} else {
-			//echo " init progress file\n";
 			return true;
 		}
 
@@ -517,12 +515,12 @@ class Bulkmail_Manager extends Asset
 
 		$output = ' <?php $details_info = '.var_export($details_info, true).'; ?>';
 		if (!string_to_file($output, $data_dir.'/details_info')) {
-			trigger_error("initDetailsFile : failed to init details file.\n");
+			trigger_localised_error('BML0007', E_USER_WARNING, $data_dir.'/details_info');
 			return false;
 		} else {
-			//echo " init details file\n";
 			return true;
 		}
+
 	}//end initDetailsFile()
 
 

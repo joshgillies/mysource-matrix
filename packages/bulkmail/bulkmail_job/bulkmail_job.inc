@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.11 2005/11/03 21:53:23 rong Exp $
+* $Id: bulkmail_job.inc,v 1.12 2005/11/04 02:50:23 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -89,9 +89,8 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	*/
 	function sendPreviewMail($recipient)
 	{
-		$errors = $this->isValidJob();
-		if (!empty($errors)) {
-			// TODO: add a good generic error msg here, trigger_localised_error
+		if (!$this->isValidJob()) {
+			trigger_localised_error('BML0013', E_USER_WARNING, $this->id);
 			return false;
 		}
 
@@ -145,45 +144,41 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 			trigger_localised_error('BML0002', E_USER_WARNING, $status->getMessage());
 			return false;
 		}
+
 		return true;
 
 	}//end sendPreviewMail()
 
 
 	/**
-	* Returns an array of errors or empty array if we can set this job to live
+	* Returns an array of errors if job is not valid or true if we can set this job to live
 	*
-	* @return array
+	* @return mixed array|boolean
 	* @access public
 	*/
 	function isValidJob()
 	{
 		$error = Array();
 
-		// is this job linked under a post office?
+		// if parent not set, use the system default post office
 		$post_office =& $this->getPostOffice();
-		if (is_null($post_office)) {
-			//$error[] = "Post Office Error: Post Office not set.\n";
-			// also Default System Post Office not set
-			$error[] = translate('bulkmail_warning_po_post_office_not_set');
-		} else {
+		if (!is_null($post_office)) {
 			// get server details from post office
 			$server_details = $post_office->attr('server_details');
 			$driver = array_get_index($server_details, 'driver', '');
 			$mail_object =& Mail::factory($driver, $server_details);
 			if (PEAR::isError($mail_object)) {
 				// cannot create a mail instance
-				//$error[] = "Post Office Server Details Error: ".$mail_object->getMessage().".\n";
 				$type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($post_office->type(), 'name');
 				$error[] = translate('bulkmail_warning_po_server_details', $mail_object->getMessage(), $type, $post_office->name, $post_office->id);
 			}
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($mail_object);
 		}
 
 		// no recipient
 		// note: if expand $recipient, its equivalent to calling getAllRecipients() (intensive process)
 		$recipients = $this->attr('recipients');
 		if (empty($recipients)) {
-			//$error[] = "Post Office Error: Recipients no set.\n";
 			$error[] = translate('bulkmail_warning_po_recipient_not_set');
 		}
 
@@ -197,7 +192,6 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 			$header_details = $this->attr('header_details');
 		}
 		if (!isset($header_details['from']) && !isset($header_details['From'])) {
-			//$error[] = "Header Details Error: Missing 'From' field\n";
 			$error[] = translate('bulkmail_warning_header_from_field');
 		}
 
@@ -208,24 +202,23 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 
 		// no content page
 		if (!$page_id) {
-			//$error[] = "Content Details Error: Content Page not set.\n";
 			$error[] = translate('bulkmail_warning_content_page_not_set');
 		}
 		// pre-selected user not set
 		if (!$generate_as) {
-			//$error[] = "Content Details Error: Bulkmail User not set for group-based content generation method.\n";
 			$error[] = translate('bulkmail_warning_content_generate_as_not_set');
 		} else {
 			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($generate_as);
 			if (!$user->canLogin()) {
 				$type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($user->type(), 'name');
-				//$error[] = "Content Details Error: Unable to generate content as $type \"".$user->name."\" (Id #$generate_as), user is either in trash or not live.\n";
 				$error[] = translate('bulkmail_warning_content_generate_as_login_failed', $type, $user->name, $user->id);
 			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 		}
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($post_office);
 
-		return $error;
+		// pass the error array for error reporting if we need it
+		return (empty($error)) ? true : false;
 
 	}//end isValidJob()
 
@@ -251,10 +244,9 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		// user set the job to live
 		if ($new_status == SQ_STATUS_LIVE) {
 			// only set job to live if it is valid
-			$errors = $this->isValidJob();
-			if (empty($errors)) {
+			if ($this->isValidJob()) {
 				if (!$bm->addJob($this)) {
-					trigger_error("processStatusChange: addJob($this->id) failed.\n");
+					trigger_localised_error('BML0012', E_USER_WARNING, $this->id);
 					return false;
 				}
 			} else {

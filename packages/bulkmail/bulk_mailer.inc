@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.10 2005/11/03 05:26:08 rong Exp $
+* $Id: bulk_mailer.inc,v 1.11 2005/11/04 02:50:23 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -86,7 +86,7 @@ class Bulk_Mailer
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$root_user =& $am->getSystemAsset('root_user');
 		if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-			trigger_error('Failed to log in as the root user');
+			trigger_localised_error('BML0010', E_USER_WARNING);
 			exit(1);
 		}
 
@@ -149,7 +149,7 @@ class Bulk_Mailer
 		$child_pid = pcntl_fork();
 		switch ($child_pid) {
 			case -1:
-				trigger_error('Failed to fork');
+				trigger_localised_error('BML0011', E_USER_WARNING);
 				return null;
 			break;
 			case 0:
@@ -366,7 +366,7 @@ class Bulk_Mailer
 		if (file_exists($progress_path)) {
 			include $progress_path;
 		} else {
-			trigger_error("updateProgress : Progress info file not found. \"$progress_path\"\n");
+			trigger_localised_error('BML0009', E_USER_WARNING, $progress_path);
 			return false;
 		}
 
@@ -376,7 +376,7 @@ class Bulk_Mailer
 
 		$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';
 		if (!string_to_file($output, $progress_path)) {
-			trigger_error("updateProgress : Unable to write to progress file. \"$progress_path\"\n");
+			trigger_localised_error('BML0008', E_USER_WARNING, $progress_path);
 			return false;
 		} else {
 			echo 'updateProgress : #'.$progress_info['current_count']." User (Id #$user_id)\n";
@@ -401,14 +401,14 @@ class Bulk_Mailer
 		if (file_exists($progress_path)) {
 			include $progress_path;
 		} else {
-			trigger_error("nextChunk : Progress info file not found. \"$progress_path\"\n");
+			trigger_localised_error('BML0009', E_USER_WARNING, $progress_path);
 			return false;
 		}
 
 		$progress_info['current_chunk']++;
 		$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';
 		if (!string_to_file($output, $progress_path)) {
-			trigger_error("nextChunk : Unable to write to progress file. \"$progress_path\"\n");
+			trigger_localised_error('BML0008', E_USER_WARNING, $progress_path);
 			return false;
 		} else {
 			echo 'nextChunk : current_chunk = '.$progress_info['current_chunk']."\n";
@@ -595,10 +595,10 @@ class Bulk_Mailer
 
 		// cache html content
 		if (!string_to_file($content, $job_path.'/cache/content_file.html')) {
-			trigger_error("cacheContent : Unable to write to cache file. \"$job_path/cache/content_file.html\"\n");
+			trigger_localised_error('BML0008', E_USER_WARNING, $job_path.'/cache/content_file.html');
 			return false;
 		} else {
-			echo "cacheContent: Cached\n";
+			//echo "cacheContent: Cached\n";
 			return true;
 		}
 
@@ -634,7 +634,8 @@ class Bulk_Mailer
 			// login as this user and print page content
 			if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($user)) {
 				// happens when the user is not live or in trash
-				trigger_error("generateBmailContent : cannot login User $user->name (Id # $user->id)\n");
+				$type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($user->type(), 'name');
+				trigger_localised_error('BML0006', E_USER_WARNING, $type, $user->name, $user->id);
 				return "generateBmailContent: cannot login User $user->name (Id # $user->id)\n";
 			}
 			$page =& $am->getAsset($content_details['content_page']);
@@ -653,7 +654,7 @@ class Bulk_Mailer
 			if (file_exists($job_path.'/cache/content_file.html')) {
 				$content = file_to_string($job_path.'/cache/content_file.html');
 			} else {
-				trigger_error("generateBmailContent : Unable to read from cache file. \"$job_path/cache/content_file.html\"\n");
+				trigger_localised_error('BML0009', E_USER_WARNING, $job_path.'/cache/content_file.html');
 				return "generateBmailContent: Unable to read from cache file.\n";
 			}
 		}
