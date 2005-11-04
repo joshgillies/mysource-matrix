@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.105 2005/11/04 05:15:36 sdanis Exp $
+* $Id: general.inc,v 1.106 2005/11/04 05:43:08 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix
 */
 
@@ -1081,7 +1081,7 @@ function get_asset_status_icon($status) {
 * This function will select and display assets that are in the passed asset lineage
 * in the asset map
 *
-* @param array	$asset_ineage	Asset IDs in an asset lineage. Inded from root to leaf
+* @param array	$asset_lineage	Asset IDs in an asset lineage. Inded from root to leaf
 * @param string		$map_frame	a reference to the map_frame so we can get the asset map
 *								if this is an empty string, then the asset_finder will look for the asset map
 *								in the frame where it was loaded
@@ -1090,7 +1090,7 @@ function get_asset_status_icon($status) {
 * @return string
 * @access public
 */
-function asset_locater_js($asset_ineage=Array(),$map_frame='sq_sidenav', $new_window=false)
+function asset_locater_js($asset_lineage=Array(),$map_frame='sq_sidenav', $new_window=false)
 {
 	$finder_frame = ($new_window || empty($map_frame)) ? 'parent.top' : 'parent.frames["sq_main"]';
 	if (!empty($map_frame)) {
@@ -1099,7 +1099,7 @@ function asset_locater_js($asset_ineage=Array(),$map_frame='sq_sidenav', $new_wi
 		$map_frame = 'top';
 	}
 
-	return $map_frame.'.asset_locator_start(\''.implode('|',$asset_ineage).'\');';
+	return $map_frame.'.asset_locater_start(\''.implode('|',$asset_lineage).'\');';
 
 }//end asset_locator_js()
 
