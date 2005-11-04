@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.14 2005/11/04 05:35:36 sdanis Exp $
+* $Id: asset_map.js,v 1.15 2005/11/04 06:02:40 sdanis Exp $
 *
 */
 
@@ -250,17 +250,17 @@ function asset_finder_start(fn, type_codes)
 
 
 /**
-* Starts the asset locater
+* Starts the asset locator
 *
 * @param String		asset_ids	Lineage asset ids
 *
 * @access public
 */
-function asset_locater_start(asset_ids)
+function asset_locator_start(asset_ids)
 {
 	var params = asset_ids.split('|');
 	var asset_mapObj = get_java_applet_object();
-	jsToJavaCall(asset_mapObj, 'asset_locater', '', params);
+	jsToJavaCall(asset_mapObj, 'asset_locator', '', params);
 
 }//end asset_finder_start()
 
