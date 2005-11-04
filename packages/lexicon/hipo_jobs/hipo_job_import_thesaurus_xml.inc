@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_thesaurus_xml.inc,v 1.8 2005/10/04 05:54:27 arailean Exp $
+* $Id: hipo_job_import_thesaurus_xml.inc,v 1.9 2005/11/04 06:04:40 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    thesaurus_id	-	the ID of the thesaurus that is being added to
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -106,19 +106,6 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('lexicon_hipo_parsing_xml'),
-					'function_call'	=> Array(
-										'process_function'	=> 'processParseXML',
-									   ),
-					'running_mode'	=> 'server',
-					'skip_step'		=> false,
-					'auto_step'		=> true,
-					'allow_cancel'	=> false,
-					'percent_done'	=> 0,
-					'complete'		=> false,
-					'message'		=> '',
-				),
-				Array(
 					'name'			=> translate('lexicon_hipo_erasing_thesaurus'),
 					'function_call'	=> Array(
 										'paint_function'	=> 'paintEraseContents',
@@ -132,52 +119,17 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('lexicon_hipo_adding_relations'),
+					'name'			=> translate('lexicon_hipo_parsing_xml'),
 					'function_call'	=> Array(
-										'process_function'	=> 'processAddRelations',
+										'process_function'	=> 'processParseXML',
 									   ),
 					'running_mode'	=> 'server',
+					'skip_step'		=> false,
 					'auto_step'		=> true,
 					'allow_cancel'	=> false,
 					'percent_done'	=> 0,
 					'complete'		=> false,
 					'message'		=> '',
-				),
-				Array(
-					'name'			=> translate('lexicon_hipo_adding_entities'),
-					'function_call'	=> Array(
-										'process_function'	=> 'processAddEntities',
-									   ),
-					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> false,
-					'percent_done'	=> 0,
-					'complete'		=> false,
-					'message'		=> '',
-				),
-				Array(
-					'name'			=> translate('lexicon_hipo_linking_entities'),
-					'function_call'	=> Array(
-										'process_function'	=> 'processLinkEntities',
-									   ),
-					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> false,
-					'percent_done'	=> 0,
-					'complete'		=> false,
-					'message'		=> '',
-				),
-				Array(
-					'name'			=> translate('lexicon_hipo_finalising_import'),
-					'function_call'	=> Array(
-										'process_function'	=> 'processFinish',
-									   ),
-					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> false,
-					'percent_done'	=> 0,
-					'complete'		=> false,
-					'message'		=> translate('lexicon_hipo_cleaning_up'),
 				),
 			   );
 
@@ -282,6 +234,138 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 
 
 	/**
+	* Process a start element from the XML parser
+	*
+	* @param object	$parser	the calling xml parser
+	* @param string	$name	tag name
+	* @param array	$attrs	tag attributes
+	*
+	* @return boolean
+	* @access public
+	*/
+	function startElement($parser, $name, $attrs)
+	{
+
+		$stack =& $this->_running_vars['stack'];
+
+		$type = $name; //reduce confusion with the name attribute.
+
+		$element = htmlentities('<'.$type.' name="'.array_get_index($attrs,'name').'">');
+		//echo($element);
+		if (! ($type == 'thesaurus' ||$type == TERM || $type == RELATION)) {
+			trigger_localised_error('LEX0005', E_USER_WARNING, $type);
+		}
+		//whip the top element off and have a squiz
+		$top_of_stack = array_pop($stack);
+		array_push($stack,$top_of_stack);
+
+		//check new terms to make sure they're either a term or a relation
+
+		if ($type == RELATION) {
+			if ($top_of_stack['type']==TERM) {
+				$new_relation  = Array(
+									'type'	=> 'relation',
+									'name'	=> array_get_index($attrs,'name'),
+								 );
+				array_push($stack, $new_relation);
+
+			} else if ($top_of_stack['type']==RELATION) {
+			// Error You cant relate a relation to a term.
+				trigger_localised_error('LEX0006', E_USER_WARNING, $element);
+			}
+		} else if ($type == TERM) {
+			$term_name = array_get_index($attrs,'name');
+			if (empty($term_name)) {
+				trigger_localised_error('LEX0007', E_USER_WARNING);
+			}
+			if ($top_of_stack['type']!=RELATION) {
+			// if the top of stack is not a relation, throw a null relation in to extend the shorthand form.
+				$null_relation  = Array(
+									'type'	=> 'relation',
+									'name'	=> '',
+								  );
+				array_push($stack, $null_relation);
+				$top_of_stack = $null_relation;
+			}
+			// We've got a term link. Send this to thesaurus.
+			//this term link is composed of the current term, the top of stack(relation, and the one under that (parent term)
+			$relation = array_pop($stack);
+			$parent_term = array_pop($stack);
+			array_push($stack,$parent_term);
+			array_push($stack,$relation);
+
+			$th_asset = &$this->getThesaurusRef();
+
+			$th_asset->addTerm($attrs['name'], $parent_term['name'], $relation['name']);
+
+			// add the term to the stack
+			$new_term  = Array(
+							'type'	=> 'term',
+							'name'	=> $attrs['name'],
+						 );
+				array_push($stack, $new_term);
+
+		} else if (!$type == 'thesaurus') {
+			trigger_localised_error('LEX0008', E_USER_WARNING, $type);
+		}
+	}//end startElement()
+
+
+	/**
+	* Process an end element from the XML parser
+	*
+	* @param object	$parser	the calling xml parser
+	* @param string	$name	tag name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function endElement($parser, $name)
+	{
+		$type = $name; //less confusion with the name attribute
+
+		$stack =& $this->_running_vars['stack'];
+		$element = htmlentities('</'.$type.'>');
+		//echo $element;
+		if (! ($type == 'thesaurus' ||$type == TERM || $type == RELATION)) {
+			trigger_localised_error('LEX0005', E_USER_WARNING, $type);
+		}
+		//whip the top element off and have a squiz
+		$top_of_stack = array_pop($stack);
+		array_push($stack,$top_of_stack);
+
+		// we want to pop a tag off the stack, so hopefully the last tag on the stack is a match, or a null relation
+		if ($type == TERM) {
+		// if this tag is a term
+			if ($top_of_stack['type'] == TERM) {
+			// if the top of stack is a term
+				array_pop($stack); // pop the term
+			} else if ($top_of_stack['type'] == RELATION && empty($top_of_stack['name'])) {
+			// if the top of the stack is a null relation
+				// We could check these and make sure we popped what we expected...
+				array_pop($stack);// pop the null relation
+				array_pop($stack);// then pop the term
+			} else if ($top_of_stack['type'] == RELATION &&  ! empty($top_of_stack['name'])) {
+			// if the top of the stack is a non-null relation
+				trigger_localised_error('LEX0009', E_USER_WARNING, $top_of_stack['name']);
+			}
+		} else if ($type == RELATION) {
+		// elseif this tag is a relation
+			if ($top_of_stack['type'] == TERM) {
+			// if the top of the stack is a term
+				trigger_localised_error('LEX0010', E_USER_WARNING);
+			} else if ($top_of_stack['type'] == RELATION) {
+			// if the top of the stack is a relation
+				array_pop($stack); // pop the relation
+			}
+		} else if ($type == 'thesaurus') {
+			//we're at the end. do nothing for now. Could do a bunch of checking to make sure our stack is empty when we get to the end of the file
+		}
+
+	}//end endElement()
+
+
+	/**
 	* Parse the supplied XML file
 	*
 	* @param array	&$step_data	step data
@@ -290,294 +374,93 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	* @return boolean
 	* @access public
 	*/
-	function processParseXML(&$step_data, $prefix)
+	function processParseXml(&$step_data, $prefix)
 	{
+		define('TERM', 'term');
+		define('RELATION','relation');
 
-		require_once 'XML/Tree.php';
+		$block_size = 4096;
+		$blocks_per_step = 10;
 
+
+		if (!isset($step_data['total_read'])) {
+			//assume this is the first step because we must read something on each step
+			$step_data['total_parsed']= 0;
+			$step_data['total_read']= 0;
+			$step_data['remainder'] ='';
+		}
+		if (!isset($this->_running_vars['stack'])) {
+			//Create and initialise the parser
+			$stack = Array();
+			$this->_running_vars['stack'] = $stack;
+		}
+
+
+		$xml_parser = xml_parser_create();
+		//stop the parser ucasing everything
+		xml_parser_set_option ($xml_parser, XML_OPTION_CASE_FOLDING, 0);
+
+
+		//initialise the file pointer
 		$th_asset = &$this->getThesaurusRef();
 		$import_path = $th_asset->getXmlFilePath();
 
-		$input =& new XML_Tree($import_path);
-		$root  =& $input->getTreeFromFile();
-		if (PEAR::isError($root)) {
-			trigger_localised_error('LEX0005', E_USER_WARNING);
+		if (!($fp = fopen($import_path, 'r'))) {
+			trigger_localised_error('LEX0011', E_USER_WARNING, $import_path);
 			return false;
+			die();
 		}
 
-		if ($root->name != 'thesaurus') {
-			trigger_localised_error('LEX0006', E_USER_WARNING);
-			return false;
-		}
+		$fstat = fstat($fp);
+		$file_size = $fstat['size'];
 
-		// process the XML regardless of the order of elements
-		$child_nodes = $root->children;
-		$total_links = 0;
-
-		$relations = $entities = $entity_relations = Array();
-
-		foreach ($child_nodes as $child) {
-			switch ($child->name) {
-
-				// RELATIONS
-				// prepare relations for addition to the database
-				case 'relations':
-					foreach ($child->children as $relation) {
-						$rel_name = $relation->attributes['name'];
-						$relations[$rel_name] = $rel_name;
-					}
-				break;
-
-				// ENTITIES
-				case 'entities':
-					$entity_relations = Array();
-
-					foreach ($child->children as $entity) {
-						$ent_name = $entity->attributes['name'];
-						$ent_relations = Array();
-						$ent_description = null;
-
-						// Entity Has 2 sub-elements: description and relation
-						// process them regardless of order
-						foreach ($entity->children as $entity_node) {
-							switch ($entity_node->name) {
-
-								// if there are multiple 'description' tags
-								// use the last one
-								case 'description':
-									$ent_description = $entity_node->content;
-								break;
-
-								// relations are prepared for post-processing
-								// this is required because before the specific relation can be recorded
-								// the relation type and both the entities have to be already in the system
-								case 'relation':
-									$rel_name = $entity_node->attributes['name'];
-									$rel_entities = Array();
-									foreach ($entity_node->children as $related_entity) {
-										if ($related_entity->name == 'entity') {
-											$er_name = array_get_index($related_entity->attributes,'name');
-											if (isset($er_name)) {
-												$rel_entities[] = $er_name;
-												$total_links++;
-											}
-										}
-									}
-
-									// in order for the relation to be recorded
-									// we make sure that the name and the related entities were specified
-									// currently we are ignoring invalid records
-									if (!empty($rel_entities) && !empty($rel_name)) {
-										$ent_relations[$rel_name] = $rel_entities;
-									}
-
-								break;
-							}
-						}
-
-						$entities[$ent_name] = Array(
-												'name'			=> $ent_name,
-												'description'	=> $ent_description,
-											   );
-						$entity_relations[$ent_name] = $ent_relations;
-					}
-
-				break;
+		if ($step_data['total_read'] > 0) {
+			// We have to parse the seen portion of the file with the tag handlers unset to recreate the parser state. Sad but true.
+			$data = fread($fp, $step_data['total_read']);
+			if (!xml_parse($xml_parser, $data, feof($fp))) {
+				trigger_localised_error('LEX0012', E_USER_WARNING,
+										xml_error_string(xml_get_error_code($xml_parser)),
+										htmlentities($data)
+										);
+				return false;
 			}
 		}
 
-		$this->_running_vars['relations']        = $relations;
-		$this->_running_vars['entities']         = $entities;
-		$this->_running_vars['entity_relations'] = $entity_relations;
-		$this->_running_vars['entity_count']     = sizeof($entities);
-		$this->_running_vars['er_count']         = sizeof($entity_relations);
-		$this->_running_vars['link_count']       = $total_links;
-		$this->_running_vars['processed_links']  = 0;
-		$this->_running_vars['entity_map']       = Array();
+		$blocks =1;
+		while (!feof($fp) && $blocks<=$blocks_per_step) {
 
-		$step_data['percent_done'] = 100;
-		$step_data['complete'] = true;
-
-		return true;
-
-	}//end processParseXML()
-
-
-	/**
-	* Add relations to the thesaurus
-	*
-	* @param array	&$step_data	step data
-	* @param string	$prefix		unique prefix
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processAddRelations(&$step_data, $prefix)
-	{
-		$th_asset = &$this->getThesaurusRef();
-
-		$relations = array_get_index($this->_running_vars,'relations');
-
-		foreach ($relations as $relation) {
-			$th_asset->addRelation($relation);
-		}
-
-		$th_asset->saveAttributes();
-
-		$step_data['percent_done'] = 100;
-		$step_data['complete'] = true;
-
-		return true;
-
-	}//end processAddRelations()
-
-
-	/**
-	* Add entities to the thesaurus
-	*
-	* Processes new entities in batches
-	*
-	* @param array	&$step_data	step data
-	* @param string	$prefix		unique prefix
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processAddEntities(&$step_data, $prefix)
-	{
-
-		$entities_per_step = 500;
-		$i = 0;
-
-		$th_asset = &$this->getThesaurusRef();
-
-		$total_count  = $this->_running_vars['entity_count'];
-
-		if ($total_count == 0) {
-			trigger_localised_error('LEX0007', E_USER_WARNING);
-			$step_data['complete'] = true;
-			return true;
-		}
-
-		// add entities and create a temporary "entity map" that stores a mapping
-		// from entity name to entity ID for speed improvements. this map is relied upon
-		// by the function that links entities together
-		foreach ($this->_running_vars['entities'] as $name => $entity) {
-			$id = $th_asset->addEntity($name, $entity['description']);
-			unset($this->_running_vars['entities'][$name]);
-			$this->_running_vars['entity_map'][$name] = $id;
-
-			if ($i++ > $entities_per_step) break;
-		}
-
-		// determine the status of this step
-		$processed_count = sizeof($this->_running_vars['entity_map']);
-
-		$step_data['percent_done'] = ($processed_count/$total_count)*100;
-		if (empty($this->_running_vars['entities'])) {
-			$step_data['complete'] = true;
-		} else {
-			$step_data['complete'] = false;
-		}
-
-		$step_data['message']  = "Processed $processed_count out of $total_count entities";
-
-		return true;
-
-	}//end processAddEntities()
-
-
-	/**
-	* Link entitites together
-	*
-	* @param array	&$step_data	step data
-	* @param string	$prefix		unique prefix
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processLinkEntities(&$step_data, $prefix)
-	{
-
-		$entities_per_step = 100;
-		$i = $links = 0;
-
-		$th_asset = &$this->getThesaurusRef();
-
-		$map = $this->_running_vars['entity_map'];
-
-		$total_count    = $this->_running_vars['link_count'];
-		if ($total_count == 0) {
-			$step_data['complete'] = true;
-			return true;
-		}
-
-		$bad_id = $th_asset->BAD_ID;
-
-		foreach ($this->_running_vars['entity_relations'] as $name => $rel_entities) {
-			$parent_id = $this->_running_vars['entity_map'][$name];
-			foreach ($rel_entities as $rel_name => $child_entities) {
-				$rel = $th_asset->getRelationByName($rel_name);
-
-				if (empty($rel)) {
-					trigger_localised_error('LEX0008', E_USER_WARNING, $name, $rel_name);
-					continue;
-				}
-
-				foreach ($child_entities as $child_name) {
-					$child_id = array_get_index($this->_running_vars['entity_map'], $child_name, $bad_id);
-					if ($child_id != $bad_id) {
-						$th_asset->connectEntities($parent_id, $child_id, $rel['id'] );
-						$this->_running_vars['processed_links']++;
-					}
-				}
+			// Parse blocks from the file
+			$data = fread($fp, $block_size);
+			xml_set_element_handler($xml_parser, Array(&$this,'startElement'),Array(&$this,'endElement'));
+			if (!xml_parse($xml_parser, $data, feof($fp))) {
+				trigger_localised_error('LEX0012', E_USER_WARNING,
+										xml_error_string(xml_get_error_code($xml_parser)),
+										htmlentities($data)
+										);
+				return false;
 			}
 
-			unset($this->_running_vars['entity_relations'][$name]);
-
-			if ($i++ > $entities_per_step) break;
+			$parsed = xml_get_current_byte_index($xml_parser);
+			$step_data['remainder'] = substr($data,$parsed);
+			$step_data['total_read'] = $step_data['total_read'] + $block_size;
+			$step_data['total_parsed'] = $step_data['total_parsed'] + $parsed;
+			$blocks++;
 		}
 
-		$processed_count = $this->_running_vars['processed_links'];
-		$step_data['percent_done'] = ($processed_count/$total_count) * 100;
 
-		if (empty($this->_running_vars['entity_relations'])) {
+		$step_data['percent_done'] = ($step_data['total_read']/$file_size) * 100;
+
+		if (feof($fp)) {
+			//unset all running vars we are now finished with
 			$step_data['complete'] = true;
+			xml_parser_free($xml_parser);
 		} else {
 			$step_data['complete'] = false;
 		}
-
-		$step_data['message']  = "Created $processed_count links out of $total_count.";
-
+		$step_data['message']  = 'Parsed '.sprintf('%01.2f',$step_data['total_read']/1024).' Kb of '.sprintf('%01.2f',$file_size/1024).' Kb';
+		fclose($fp);
 		return true;
-
-	}//end processLinkEntities()
-
-
-	/**
-	* Finalize import
-	*
-	* Relies on the thesaurus to set a few variables to signify that the
-	* import was successful
-	*
-	* @param array	&$step_data	step data
-	* @param string	$prefix		unique prefix
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processFinish(&$step_data, $prefix)
-	{
-		$th_asset = &$this->getThesaurusRef();
-
-		$th_asset->finishImport();
-
-		$step_data['percent_done'] = 100;
-		$step_data['complete'] = true;
-
-		return true;
-
-	}//end processFinish()
+	}//end processParseXml()
 
 
 	/**
