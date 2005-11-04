@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.103 2005/11/04 03:46:11 lwright Exp $
+* $Id: general.inc,v 1.104 2005/11/04 05:09:48 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix
 */
 
@@ -1074,6 +1074,34 @@ function get_asset_status_icon($status) {
 	return '<img src="'.sq_web_path('lib').'/web/images/blank.gif" width="10" height="10" alt="'.$status_name.'" title="'.$status_name.'" align="absmiddle" style="margin: 2px; border: 1px solid #ccc; background-color: '.$status_colour.'" /> ';
 
 }//end get_asset_status_icon()
+
+
+/**
+* Returns a javascript function call that could be used in onClick events.
+* This function will select and display assets that are in the passed asset lineage
+* in the asset map
+*
+* @param array	$asset_ineage	Asset IDs in an asset lineage. Inded from root to leaf
+* @param string		$map_frame	a reference to the map_frame so we can get the asset map
+*								if this is an empty string, then the asset_finder will look for the asset map
+*								in the frame where it was loaded
+* @param boolean	$new_window	is the asset finder in a different window than the asset map
+*
+* @return string
+* @access public
+*/
+function asset_locator_js($asset_ineage=Array(),$map_frame='sq_sidenav', $new_window=false)
+{
+	$finder_frame = ($new_window || empty($map_frame)) ? 'parent.top' : 'parent.frames["sq_main"]';
+	if (!empty($map_frame)) {
+		$map_frame = trim('parent.frames[\''.$map_frame.'\']', '.');
+	} else {
+		$map_frame = 'top';
+	}
+
+	return $map_frame.'.asset_locator_start(\''.implode('|',$asset_ineage).'\');';
+
+}//end asset_locator_js()
 
 
 ?>
