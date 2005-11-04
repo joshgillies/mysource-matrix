@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.18 2005/10/04 08:35:55 arailean Exp $
+* $Id: thesaurus.inc,v 1.19 2005/11/04 05:57:50 arailean Exp $
 *
 */
 
@@ -20,22 +20,22 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
+register_implementation('thesaurus', 'bridge');
+
 /**
 * Thesaurus
 *
+*
 * @author  Andrei Railean <arailean@squiz.net>
-* @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.18 $
+* @author  Elden McDonald <emcdonald@squiz.net>
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
 class Thesaurus extends Asset
 {
 
-	var $BAD_ID = -1;
-
 	var $REL_ABBREVIATION = 'Abbreviation';
-	var $REL_CATEGORY     = 'Category';
 
 
 	/**
@@ -55,8 +55,10 @@ class Thesaurus extends Asset
 	/**
 	* Delete Asset
 	*
-	* @access public
+	* @param boolean	$release_lock	true, to release lock
+	*
 	* @return boolean
+	* @access public
 	*/
 	function delete($release_lock)
 	{
@@ -77,8 +79,8 @@ class Thesaurus extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
@@ -86,79 +88,6 @@ class Thesaurus extends Asset
 		return create_directory($this->data_path);
 
 	}//end _createAdditional()
-
-
-	/**
-	* Returns an array of all the permitted link type, the type asset and the cardinality
-	*
-	* @see Asset::_getAllowLinks()
-	* @access private
-	*/
-	function _getAllowedLinks()
-	{
-		$page_links = parent::_getAllowedLinks();
-		return $page_links;
-
-	}//end _getAllowedLinks()
-
-
-	/**
-	* Finish Import
-	*
-	* After XML file has been imported, checks for built-in relations and enables them
-	*
-	* @access public
-	* @return void
-	*/
-	function finishImport()
-	{
-		$builtin_relations = $relation_settings = Array();
-		$primary_relation_id = $this->attr('primary_relation_id');
-
-		// ABBREVIATION support
-		$rel = $this->getRelationByName($this->REL_ABBREVIATION);
-		if (!empty($rel)) {
-			$builtin_relations[$this->REL_ABBREVIATION] = $rel['id'];
-		}
-
-		// CATEGORY support
-		$rel = $this->getRelationByName($this->REL_CATEGORY);
-		if (!empty($rel)) {
-			// get top categories
-			$top_categories = $this->getAbsoluteParentsInRelation($rel['id']);
-			$relation_settings[$this->REL_CATEGORY]['top_categories'] = $top_categories;
-
-			$builtin_relations[$this->REL_CATEGORY] = $rel['id'];
-			if (empty($primary_relation_id)) {
-				$primary_relation_id = $rel['id'];
-			}
-		}
-
-		$this->setAttrValue('builtin_relations', $builtin_relations);
-		$this->setAttrValue('relation_settings', $relation_settings);
-		$this->setAttrValue('primary_relation_id', $primary_relation_id);
-		$this->setAttrValue('active', true);
-		$this->saveAttributes();
-
-	}//end finishImport()
-
-
-	/**
-	* Check if relation is enabled
-	*
-	* @param string rel_name    relation name
-	* @access public
-	* @return boolean
-	*/
-	function isRelationEnabled($rel_name)
-	{
-		$builtin_relations = $this->attr('builtin_relations');
-
-		if (!$this->attr('active')) return false;
-
-		return array_get_index($builtin_relations, $rel_name, false);
-
-	}//end isRelationEnabled()
 
 
 //--        ABBREVIATIONS        --//
@@ -169,532 +98,51 @@ class Thesaurus extends Asset
 	*
 	* the result is an array of format ("A" => "Australia")
 	* abbreviation => expansion
-	*
 	* NOTICE: An expansion can have only one abbreviation
 	*
-	* @access public
 	* @return array
+	* @access public
 	*/
 	function getAbbreviations()
 	{
+		//TODO: add abbreviation support
+
 		$result = Array();
-		$rel_id = $this->isRelationEnabled($this->REL_ABBREVIATION);
-
-		if ($rel_id === false) return $result;
-
-		$abbrev_entities = $this->getEntitiesInRelation($rel_id);
-		foreach ($abbrev_entities as $entity_pair) {
-			$result[$entity_pair['child']['name']] = $entity_pair['parent']['name'];
-		}
 
 		return $result;
 
 	}//end getAbbreviations()
 
 
-//--        CATEGORIES        --//
-
-
-	/**
-	* Get Top Categories
-	*
-	* Given that CATEGORY relation is enabled, this returns the root categories
-	*
-	* @access public
-	* @return array
-	*/
-	function getTopCategories()
-	{
-		$rel_id = $this->isRelationEnabled($this->REL_CATEGORY);
-
-		if ($rel_id === false) return Array();
-
-		$relation_settings = $this->attr('relation_settings');
-
-		return $relation_settings[$this->REL_CATEGORY]['top_categories'];
-
-	}//end getTopCategories()
-
-
-	/**
-	* Get Subcategories
-	*
-	* Obtain the subcategories for an entity
-	*
-	* @param int entity_id      Id of entity under question
-	* @access public
-	* @return array
-	*/
-	function getSubcategories($entity_id)
-	{
-		$rel_id = $this->isRelationEnabled($this->REL_CATEGORY);
-
-		if ($rel_id === false) return Array();
-
-		$subcategories = $this->getChildEntitiesInRelation($rel_id, $entity_id);
-
-		return $subcategories;
-
-	}//end getSubcategories()
-
-
-	/**
-	* Check if an entity is a category
-	*
-	* @param int entity_id      Id of entity under question
-	* @access public
-	* @return boolean
-	*/
-	function isCategory($entity_id)
-	{
-		$rel_id = $this->isRelationEnabled($this->REL_CATEGORY);
-
-		if ($rel_id === false) return 0;
-
-		return (bool) $this->countChildEntitiesInRelation($rel_id, $entity_id);
-
-	}//end isCategory()
-
-
-	/**
-	* Get Category Lineage
-	*
-	* Returns all possible paths to the top categories from the given entity
-	*
-	* @param int	$entity_id	The id of entity in question
-	*
-	* @return Array	Array of lineage arrays, where each element in a lineage array is an entity.
-	* @access public
-	*/
-	function getCategoryLineage($entity_id)
-	{
-		$lineage = Array();
-		$rel_id = $this->isRelationEnabled($this->REL_CATEGORY);
-
-		if ($rel_id === false) return $lineage;
-
-		$lineage = $this->getEntityLineageByRelation($entity_id, $rel_id);
-
-		return $lineage;
-
-	}//end getCategoryLineage()
-
-
-	/**
-	* Gets the lineage for a particular enity in a particular relation
-	*
-	* Traverses the thesaurus up the tree until there is no more parents in given relation.
-	* In graph theory terms, we are trying to find all paths from a node where the path consists of all the
-	* nodes attached by directed links of a particular type and in particular direction. This is a directed grapth.
-	*
-	* @param int	$entity_id		entity id
-	* @param int	$relation_id	relation id
-	*
-	* @return Array					Array of lineage arrays, where each element in a lineage array is an entity.
-	* @access public
-	*/
-	function getEntityLineageByRelation($entity_id, $relation_id)
-	{
-		if (empty($relation_id) || empty($entity_id)) {
-			return Array();
-		}
-
-		$known_entities[$entity_id] = $this->getEntityById($entity_id);;
-		$entity_parents = Array();
-		$entities_to_process[$entity_id] = $entity_id;
-
-		// first, let's build the list of all the entities that we'll need
-		do {
-			$current_entity_id = array_pop($entities_to_process);
-
-			if (is_null(array_get_index($entity_parents, $current_entity_id))) {
-				$parent_entities = $this->getParentEntitiesInRelation($relation_id, $current_entity_id);
-				$parent_ids = Array();
-				foreach ($parent_entities as $parent) {
-					$parent_id = $parent['id'];
-					if ($parent_id == $current_entity_id) {
-						// avoid loops. this is a freak case: entity linked to itself
-						continue;
-					}
-
-					if (!isset($known_entities[$parent_id])) {
-						$entities_to_process[$parent_id] = $parent_id;
-						$known_entities[$parent_id] = $parent;
-					}
-
-					$parent_ids[$parent_id] = $parent_id;
-				}
-				$entity_parents[$current_entity_id] = $parent_ids;
-			}
-		} while (!empty($entities_to_process));
-
-
-		// at this stage we should have the list of all entities that we need
-		// let's create the lineage arrays
-		$full_lineage = Array();
-		$current_lineage = Array();
-		$current_level_parents = Array();
-
-		// initialise for the first round
-		$current_level = $entity_id;
-		$level_stack[$entity_id] = $known_entities[$entity_id];
-		$level_parents = Array();
-
-		// this loop is where we go up and down the lineage graph to create a flat representation
-		while (!empty($level_stack)) {
-			// initialise the current level
-			// current level is the index of the last element on the level stack
-			end($level_stack);
-			$current_level = key($level_stack);
-
-			if (!isset($level_parents[$current_level])) {
-				if (empty($entity_parents[$current_level])){
-					$full_lineage[] = array_reverse($level_stack, true);
-				} else {
-					$level_parents[$current_level] = $entity_parents[$current_level];
-				}
-			}
-
-			if (empty($level_parents[$current_level])) {
-				// this level is finished
-				array_pop($level_stack);
-
-			} else {
-				// determine and setup the next level
-				$next_level = null;
-				do {
-					// here we try to avoid loops
-					// next level is not valid if it is already in the stack
-					$next_level = array_pop($level_parents[$current_level]);
-					if (isset($level_stack[$next_level])) {
-						$next_level = null;
-					}
-				} while (is_null($next_level) && !empty($level_parents[$current_level]));
-
-				if (!is_null($next_level)) {
-					// push next level onto the stack
-					$level_stack[$next_level] =& $known_entities[$next_level];
-				}
-			}
-		}
-
-		return $full_lineage;
-
-	}//end getEntityLineageByRelation()
-
-
 //--        CORE THESAURUS RELATIONAL ENGINE        --//
 
 
 	/**
-	* Get All Entities in this thesaurus
+	* Get minor terms
 	*
-	* @access public
+	* Returns an array of terms which have a given term as their parent
+	*
+	* @param int	$term	Term
+	*
 	* @return array
-	*/
-	function getAllEntities()
-	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = '
-			SELECT
-				id, name, description
-			FROM
-				sq_lex_thes_ent
-			WHERE
-				thes_id = '.$db->quoteSmart($this->id);
-
-		$result = $db->getAll($sql);
-
-		assert_valid_db_result($result);
-		return $result;
-
-	}//end getAllEntities()
-
-
-	/**
-	* Get a count of all entities
-	*
 	* @access public
-	* @return integer
 	*/
-	function countAllEntities()
+	function getChildTerms($term)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = '
-			SELECT
-				count(*)
-			FROM
-				sq_lex_thes_ent
-			WHERE
-				thes_id = '.$db->quoteSmart($this->id);
-
-		$result = $db->getOne($sql);
-
-		assert_valid_db_result($result);
-		return $result;
-
-	}//end countAllEntities()
-
-
-	/**
-	* Search entities by name
-	*
-	* @param string guess   string to search by
-	* @access public
-	* @return array
-	*/
-	function searchEntities($guess='')
-	{
-		if (empty($guess)) return Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
-				id, name, description
+				linkid, minor, relation, sort_order
 			FROM
-				sq_lex_thes_ent
+				sq_lex_thes_term
 			WHERE
-					thes_id = '.$db->quoteSmart($this->id).'
+					thesid = '.$db->quoteSmart($this->id).'
 				AND
-					name ILIKE \'%'.$db->escapeSimple($guess).'%\'
-			';
-
-		$result = $db->getAll($sql);
-		assert_valid_db_result($result);
-		return $result;
-
-	}//end searchEntities()
-
-
-	/**
-	* Get Entity By Id
-	*
-	* @param integer entity_id   id we are looking for
-	* @access public
-	* @return array
-	*/
-	function getEntityById($entity_id=false)
-	{
-		if (!$entity_id) return false;
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = '
-			SELECT
-				id, name, description
-			FROM
-				sq_lex_thes_ent
-			WHERE
-				thes_id = '.$db->quoteSmart($this->id).'
-				AND id = '.$db->quoteSmart($entity_id);
-
-		$result = $db->getRow($sql);
-
-		assert_valid_db_result($result);
-		return $result;
-
-	}//end getEntityById()
-
-
-	/**
-	* Get Entity By Exact Name
-	*
-	* @param string name    exact entity name
-	* @access public
-	* @return array
-	*/
-	function getEntityByName($name='')
-	{
-		if (empty($name)) return false;
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = '
-			SELECT
-				id, name, description
-			FROM
-				sq_lex_thes_ent
-			WHERE
-				thes_id = '.$db->quoteSmart($this->id).'
-				AND name = '.$db->quoteSmart($name);
-
-		$result = $db->getRow($sql);
-		assert_valid_db_result($result);
-		return $result;
-
-	}//end getEntityByName()
-
-
-	/**
-	* Get All the child entities in a relation, possibly limited by parent entity id
-	*
-	* @param integer relation_id    Relation Id
-	* @param integer $parent_id     Parent Entity Id (optional)
-	* @access public
-	* @return array    array of entity arrays
-	*/
-	function getChildEntitiesInRelation($relation_id=null, $parent_id=null)
-	{
-
-		if (!isset($relation_id)) return null;
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = '
-			SELECT DISTINCT
-				e.id,
-				e.name,
-				e.description
-			FROM
-				sq_lex_thes_ent_rel er,
-				sq_lex_thes_ent e
-			WHERE
-					er.thes_id  = '.$db->quoteSmart($this->id).'
-				AND
-					er.rel_id   = '.$db->quoteSmart($relation_id).'
-				AND
-					e.thes_id   = er.thes_id
-				AND
-					e.id         = er.cld_ent_id
-		';
-
-		// restrict the result to only the children of a given parent
-		if (!empty($parent_id)) {
-			$sql .= ' AND er.pnt_ent_id = '.$db->quoteSmart($parent_id);
-		}
-
-		$result = $db->getAll($sql);
-
-		assert_valid_db_result($result);
-		return $result;
-
-	}//end getChildEntitiesInRelation()
-
-
-	/**
-	* count child entities in a relation
-	*
-	* Parent ID is optional, but without it, the sence that this function makes is limited
-	*
-	* @param integer $relation_id    Relation Id
-	* @param integer $parent_id      Parent Id (optional)
-	* @access public
-	* @return integer
-	*/
-	function countChildEntitiesInRelation($relation_id=null, $parent_id=snull)
-	{
-
-		if (!isset($relation_id)) return null;
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = '
-			SELECT
-				COUNT(*)
-			FROM
-				sq_lex_thes_ent_rel
-			WHERE
-					thes_id  = '.$db->quoteSmart($this->id).'
-				AND
-					rel_id   = '.$db->quoteSmart($relation_id);
-
-		// restrict the result to only the children of a given parent
-		if (!empty($parent_id)) {
-			$sql .= ' AND pnt_ent_id = '.$db->quoteSmart($parent_id);
-		}
-
-		$result = $db->getOne($sql);
-
-		assert_valid_db_result($result);
-		return $result;
-
-	}//end countChildEntitiesInRelation()
-
-
-	/**
-	* Get Parent Entities in Relation
-	*
-	* Returns an array of all the entities that act as a parent in a certain relationship
-	* If Child id is supplied, the listing is limited by the parents of that child only
-	*
-	* @param integer relation_id    Relation Id
-	* @param integer $parent_id     Parent Entity Id (optional)
-	* @access public
-	* @return array    array of entity arrays
-	*/
-	function getParentEntitiesInRelation($relation_id=null, $child_id=null)
-	{
-
-		if (!isset($relation_id)) return null;
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$sql ='
-
-			SELECT DISTINCT
-				e.id,
-				e.name,
-				e.description
-			FROM
-				sq_lex_thes_ent_rel er,
-				sq_lex_thes_ent e
-			WHERE
-					er.thes_id  = '.$db->quoteSmart($this->id).'
-				AND
-					er.rel_id   = '.$db->quoteSmart($relation_id).'
-				AND
-					e.thes_id   = er.thes_id
-				AND
-					e.id        = er.pnt_ent_id
-
-		';
-
-		// restrict the result to only the parents of a given child
-		if (!empty($child_id)) {
-			$sql .= ' AND er.cld_ent_id = '.$db->quoteSmart($child_id);
-		}
-
-		$result = $db->getAll($sql);
-
-		assert_valid_db_result($result);
-		return $result;
-
-	}//end getParentEntitiesInRelation()
-
-
-	/**
-	* Get the Relations in which a given entity acts as a child
-	*
-	* @param integer $child_entity_id   entity id
-	* @access public
-	* @return array
-	*/
-	function getParentRelationsForEntity($child_entity_id=null)
-	{
-
-		if (!isset($child_entity_id)) return null;
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$sql ='
-
-			SELECT DISTINCT
-				r.id,
-				r.name
-			FROM
-				sq_lex_thes_rel r,
-				sq_lex_thes_ent_rel er
-			WHERE
-					r.thes_id     = '.$db->quoteSmart($this->id).'
-				AND
-					er.cld_ent_id = '.$db->quoteSmart($child_entity_id).'
-				AND
-					er.thes_id    = r.thes_id
-				AND
-					er.reln_id    = r.id
+					major '.(is_null($term)?'ISNULL':'= '.$db->quoteSmart($term)).'
+			ORDER BY
+				sort_order
 		';
 
 		$result = $db->getAll($sql);
@@ -702,109 +150,67 @@ class Thesaurus extends Asset
 		assert_valid_db_result($result);
 		return $result;
 
-	}//end getParentRelationsForEntity()
+	}//end getChildTerms()
 
 
 	/**
-	* Count Parent Relations For Entity
+	* Count child terms
 	*
-	* Get a count of how many relations a given asset is in acting as a child
+	* Get a count of how many terms are linked directly under a given term
 	*
-	* @param integer $child_entity_id   entity id
+	* @param int	$term	Term
+	*
+	* @return array
 	* @access public
-	* @return integer
 	*/
-	function countParentRelationsForEntity($child_entity_id=null)
+	function countChildTerms($term)
 	{
-
-		if (!isset($child_entity_id)) return null;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
-				COUNT(rel_id)
+				count(linkid)
 			FROM
-				sq_lex_thes_ent_rel
+				sq_lex_thes_term
 			WHERE
-					thes_id = '.$db->quoteSmart($this->id).'
+					thesid = '.$db->quoteSmart($this->id).'
 				AND
-					cld_ent_id = '.$db->quoteSmart($child_entity_id);
+					major '.(is_null($term)?'ISNULL':'= '.$db->quoteSmart($term)).'
+		';
 
 		$result = $db->getOne($sql);
 
 		assert_valid_db_result($result);
 		return $result;
 
-	}//end countParentRelationsForEntity()
+	}//end countChildTerms()
 
 
 	/**
-	* Cound Child Relations for Entity
+	* Get Child Relations for Term
 	*
-	* Get a count of how many relations a given asset is in acting as a parent
+	* Get the relations a given term is a parent in
 	*
-	* @param integer $parent_entity_id   entity id
+	* @param int	$term	term
+	*
+	* @return array
 	* @access public
-	* @return integer
 	*/
-	function countChildRelationsForEntity($parent_entity_id=null)
+	function getChildRelationsForTerm($term=null)
 	{
-
-		if (!isset($parent_entity_id))return null;
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = '
-			SELECT
-				count(rel_id)
-			FROM
-				sq_lex_thes_ent_rel
-			WHERE
-					thes_id = '.$db->quoteSmart($this->id).'
-				AND
-					pnt_ent_id = '.$db->quoteSmart($parent_entity_id);
-
-		$result = $db->getOne($sql);
-
-		assert_valid_db_result($result);
-		return $result;
-
-	}//end countChildRelationsForEntity()
-
-
-	/**
-	* Get Child Relations for Entity
-	*
-	* Get the relations a given asset is in acting as a parent
-	*
-	* @param integer $parent_entity_id   entity id
-	* @access public
-	* @return array    array of entity arrays
-	*/
-	function getChildRelationsForEntity($parent_entity_id=null)
-	{
-
-		if (!isset($parent_entity_id)) return null;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql ='
 			SELECT DISTINCT
-				r.id,
-				r.name
+				relation
 			FROM
-				sq_lex_thes_rel r,
-				sq_lex_thes_ent_rel er
+				sq_lex_thes_term
 			WHERE
-					r.thes_id     = '.$db->quoteSmart($this->id).'
+					thesid     = '.$db->quoteSmart($this->id).'
 				AND
-					er.pnt_ent_id = '.$db->quoteSmart($parent_entity_id).'
-				AND
-					er.thes_id    = r.thes_id
-				AND
-					er.rel_id     = r.id
-
+					major '.(is_null($term)?'ISNULL':'= '.$db->quoteSmart($term)).'
 		';
 
 		$result = $db->getAll($sql);
@@ -812,405 +218,862 @@ class Thesaurus extends Asset
 		assert_valid_db_result($result);
 		return $result;
 
-	}//end getChildRelationsForEntity()
+	}//end getChildRelationsForTerm()
+
+
+	/**
+	* Get Parent Relations for Term
+	*
+	* Get the relations a given term is a child in
+	*
+	* @param int	$term	term
+	*
+	* @return array
+	* @access public
+	*/
+	function getParentRelationsForTerm($term=null)
+	{
+
+		if (!isset($term)) return null;
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql ='
+			SELECT DISTINCT
+				relation
+			FROM
+				sq_lex_thes_term
+			WHERE
+					thesid     = '.$db->quoteSmart($this->id).'
+				AND
+					minor '.(is_null($term)?'ISNULL':'= '.$db->quoteSmart($term)).'
+		';
+
+		$result = $db->getAll($sql);
+
+		assert_valid_db_result($result);
+		return $result;
+
+	}//end getParentRelationsForTerm()
+
+
+	/**
+	* Get parent terms
+	*
+	* Return terms which are immediate parents of a given term
+	*
+	* @param int	$term	Term
+	*
+	* @return array
+	* @access public
+	*/
+	function getParentTerms($term)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = '
+			SELECT
+				linkid, minor, relation, sort_order
+			FROM
+				sq_lex_thes_term
+			WHERE
+					thesid = '.$db->quoteSmart($this->id).'
+				AND
+					minor = '.$db->quoteSmart($term).'
+			ORDER BY
+				sort_order
+		';
+
+		$result = $db->getAll($sql);
+
+		assert_valid_db_result($result);
+		return $result;
+
+	}//end getParentTerms()
+
+
+	/**
+	* Count parent terms
+	*
+	* @param int	$term	Term
+	*
+	* @return array
+	* @access public
+	*/
+	function countParentTerms($term)
+	{
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = '
+			SELECT
+				count(linkid)
+			FROM
+				sq_lex_thes_term
+			WHERE
+					thesid = '.$db->quoteSmart($this->id).'
+				AND
+					minor = '.$db->quoteSmart($term).'
+		';
+
+		$result = $db->getOne($sql);
+
+		assert_valid_db_result($result);
+		return $result;
+
+	}//end countParentTerms()
 
 
 	/**
 	* Get All Relations
 	*
+	* Returns array of all relations known (used or not)
+	*
+	* @return array
 	* @access public
-	* @return array    array of all relations
 	*/
 	function getAllRelations()
 	{
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = '
-			SELECT
-				id, name
-			FROM
-				sq_lex_thes_rel
-			WHERE
-				thes_id = '.$db->quoteSmart($this->id);
-
-		$result = $db->getAll($sql);
-
-		assert_valid_db_result($result);
-		return $result;
+		return $this->attr('relations');
 
 	}//end getAllRelations()
 
 
 	/**
-	* Count All Relations
+	* Add term to the thesaurus
 	*
+	* If the term being added already exists, it will be linked
+	* Returns a link ID on success, NULL on failure
+	*
+	* @param string	$term			Term
+	* @param string	$parent			Parent - if null, we're adding to the top level
+	* @param string	$relation		Relation
+	* @param string	$sort_order		Asset map sort order index
+	* @param int	$manual_linkid	Link ID to use instead of the autogenerated one
+	*
+	* @return int
 	* @access public
-	* @return integer
 	*/
-	function countAllRelations()
+	function addTerm($term, $parent=null, $relation=null, $sort_order=-1, $manual_linkid=null)
 	{
+		if (!isset($term) || $term == '') {
+			return null;
+		}
 
+		if ($parent == '') $parent = null;
+		if ($relation == '') $relation = null;
+		$linkid = $this->getTermLinkid($term, $parent, $relation);
+		if (!empty($linkid)) return null;
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		if (!is_null($manual_linkid)) {
+			$check_term = $this->getTermById($manual_linkid);
+			if (!empty($check_term)) {
+				trigger_localised_error('<LEX0018>',E_USER_WARNING); //'Cannot use the supplied term link id because it conflicts with an existing one.'
+				return null;
+			}
+			$linkid = $manual_linkid;
+		} else {
+			$linkid = $db->nextId('sq_lex_thes_term_linkid');
+			assert_valid_db_result($linkid);
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$max_sort_order = $this->getMaxSortOrder($parent);
+		if (is_null($max_sort_order)) {
+			$sort_order = 0;
+		} else if (($sort_order > $max_sort_order) || ($sort_order < 0)) {
+			$sort_order = $max_sort_order + 1;
+		} else {
+			// inserting somewhere in the middle
+			// update all other sort orders before inserting this one
+			// we're in a transaction, so if something goes wrong later, this will be rolled back
+			$sql = '
+				UPDATE
+					sq_lex_thes_term
+				SET
+					sort_order = sort_order + 1
+				WHERE
+					sort_order >= '.$db->quoteSmart($sort_order).'
+					AND
+					major '.(is_null($parent)?'ISNULL':'= '.$db->quoteSmart($parent)).'
+					AND
+					thesid = '.$db->quoteSmart($this->id).'
+			';
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+		}
+
+		$sql = '
+			INSERT INTO sq_lex_thes_term
+				(
+					linkid,
+					major,
+					minor,
+					relation,
+					sort_order,
+					thesid
+				)
+			VALUES
+				(
+					'.$linkid.',
+					'.$db->quoteSmart($parent).',
+					'.$db->quoteSmart($term).',
+					'.$db->quoteSmart($relation).',
+					'.$db->quoteSmart($sort_order).',
+					'.$db->quoteSmart($this->id).'
+				)
+		';
+
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+
+		// get the treeids of all the links that point to the term (if any)
+		// Get one of the treeids that we have
+		if (is_null($parent)) {
+			$existing_treeid = '';
+		} else {
+			$sql = '
+				SELECT
+					tree.treeid
+				FROM
+					sq_lex_thes_lnk_tree tree
+					INNER JOIN sq_lex_thes_term term ON tree.linkid = term.linkid
+				WHERE
+					term.minor = '.$db->quoteSmart($parent).'
+					AND
+					tree.thesid = '.$db->quoteSmart($this->id).'
+					AND
+					term.thesid = '.$db->quoteSmart($this->id).'
+			';
+
+			$sql = $db->modifyLimitQuery($sql, 0, 1);
+
+			$existing_treeid = $db->getOne($sql);
+			assert_valid_db_result($existing_treeid);
+		}
+		$existing_treeid = (string) $existing_treeid;
+
+
+		// when links are deleted their entries in the tree table are set to have a linkid of zero
+		// (see deleteLink()) so we can attempt to find unused treeids that are forming gaps
+		$sql = '
+			SELECT
+				treeid
+			FROM
+				sq_lex_thes_lnk_tree
+			WHERE
+				treeid LIKE '.$db->quote($existing_treeid.'%').'
+				AND
+				treeid > '.$db->quote($existing_treeid).'
+				AND
+				LENGTH(treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE).'
+				AND
+				linkid = 0
+				AND
+				thesid = '.$db->quoteSmart($this->id).'
+		';
+
+		$sql = $db->modifyLimitQuery($sql, 0, 1);
+		$free_childid = $db->getOne($sql);
+		assert_valid_db_result($free_childid);
+
+		if (is_null($free_childid)) {
+			// no free children, generate one from the max value (note that
+			// we have to do this by a LIMIT query as the binary string fields
+			// do not allow the MAX() aggregate to be run over it)
+			$sql = '
+				SELECT
+					treeid
+				FROM
+					sq_lex_thes_lnk_tree
+				WHERE
+					treeid LIKE '.$db->quote($existing_treeid.'%').'
+					AND
+					treeid > '.$db->quote($existing_treeid).'
+					AND
+					LENGTH(treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE).'
+					AND
+					thesid = '.$db->quoteSmart($this->id).'
+				ORDER BY
+					treeid DESC
+			';
+
+			$free_childid = $db->getOne($db->modifyLimitQuery($sql, 0, 1));
+			assert_valid_db_result($free_childid);
+
+			if (is_null($free_childid)) {
+				// no max, we must be the first
+				if (($free_childid = asset_link_treeid_convert(0, true)) === false) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return 0;
+				}
+			} else {
+				// we found a max so increment it
+
+				// get only the child part
+				$free_childid = substr($free_childid, -1 * SQ_CONF_ASSET_TREE_SIZE);
+
+				if (($child_num = asset_link_treeid_convert($free_childid, false)) === false) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return 0;
+				}
+				if (($free_childid = asset_link_treeid_convert($child_num + 1, true)) === false) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return 0;
+				}
+			}//end if
+
+		} else {
+			// there was a free entry
+
+			// get only the child part
+			$free_childid = substr($free_childid, -1 * SQ_CONF_ASSET_TREE_SIZE);
+
+			// remove the current zeroed entries in the tree table,
+			// as we will be inserting over the top of them
+
+			if (is_null($parent)) {
+				$sql = '
+					DELETE FROM
+						sq_lex_thes_lnk_tree
+					WHERE
+						treeid = '.$db->quoteSmart($free_childid).'
+						AND
+						thesid = '.$db->quoteSmart($this->id).'
+				';
+			} else {
+				$sql = '
+					DELETE FROM
+						sq_lex_thes_lnk_tree
+					WHERE
+						treeid IN
+						(
+							SELECT
+								tree.treeid || '.$db->quoteSmart($free_childid).'
+							FROM
+								sq_lex_thes_lnk_tree tree
+								INNER JOIN sq_lex_thes_term term ON tree.linkid = term.linkid
+							WHERE
+								term.minor = '.$db->quoteSmart($parent).'
+								AND
+								tree.thesid = '.$db->quoteSmart($this->id).'
+								AND
+								term.thesid = '.$db->quoteSmart($this->id).'
+						)
+						AND
+						thesid = '.$db->quoteSmart($this->id).'
+				';
+			}
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
+		}//end if
+
+
+		// if we don't have any existing tree entries then
+		// we are the root term, so do a simple insert
+		if ($existing_treeid == '') {
+			$sql = '
+				INSERT INTO
+					sq_lex_thes_lnk_tree
+					(
+						treeid,
+						linkid,
+						thesid
+					)
+				VALUES
+					(
+						'.$db->quoteSmart($free_childid).',
+						'.$db->quoteSmart($linkid).',
+						'.$db->quoteSmart($this->id).'
+					)
+			';
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
+		} else {
+			// we have existing tree entries, do a insert..select to create entries for them all
+
+			$sql = '
+				INSERT INTO
+					sq_lex_thes_lnk_tree
+					(
+						treeid,
+						linkid,
+						thesid
+					)
+				SELECT
+					(parent_tree.treeid || '.$db->quoteSmart($free_childid).') as treeid,
+					'.$db->quoteSmart($linkid).' as linkid,
+					'.$db->quoteSmart($this->id).' as thesid
+				FROM
+					sq_lex_thes_lnk_tree parent_tree
+					INNER JOIN sq_lex_thes_term parent_term ON parent_tree.linkid = parent_term.linkid
+				WHERE
+					parent_term.minor = '.$db->quoteSmart($parent).'
+					AND
+					parent_term.thesid = '.$db->quoteSmart($this->id).'
+					AND
+					parent_tree.thesid = '.$db->quoteSmart($this->id).'
+			';
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
+		}//end if
+
+
+		$sql = '
+			SELECT
+				treeid
+			FROM
+				sq_lex_thes_lnk_tree
+			WHERE
+				linkid = '.$db->quoteSmart($linkid).'
+				AND
+				thesid = '.$db->quoteSmart($this->id).'
+		';
+		$new_treeids = $db->getCol($sql);
+		assert_valid_db_result($new_treeids);
+
+
+		$sql = '
+			SELECT
+				tree.treeid
+			FROM
+				sq_lex_thes_lnk_tree tree
+				INNER JOIN sq_lex_thes_term term ON tree.linkid = term.linkid
+			WHERE
+				term.minor = '.$db->quote($term).'
+				AND
+				tree.linkid <> '.$db->quoteSmart($linkid).'
+				AND
+				tree.thesid = '.$db->quoteSmart($this->id).'
+				AND
+				term.thesid = '.$db->quoteSmart($this->id).'
+		';
+
+		$minor_treeids = $db->getCol($sql);
+		assert_valid_db_result($minor_treeids);
+
+		// if this minor has already been linked, so do a select into
+		if (!empty($minor_treeids)) {
+			foreach ($minor_treeids as $minor_treeid) {
+				foreach ($new_treeids as $new_treeid) {
+					$sql = '
+						INSERT INTO
+							sq_lex_thes_lnk_tree
+							(
+								treeid,
+								linkid,
+								thesid
+							)
+						SELECT
+							'.$db->quoteSmart($new_treeid).' || SUBSTR(tree.treeid, '.$db->quoteSmart(strlen($minor_treeid) + 1).'),
+							tree.linkid,
+							'.$db->quoteSmart($this->id).'
+						FROM
+							sq_lex_thes_lnk_tree tree
+						WHERE
+							tree.treeid like '.$db->quoteSmart($minor_treeid.'%').'
+							AND
+							tree.treeid > '.$db->quoteSmart($minor_treeid).'
+							AND
+							tree.linkid NOT IN
+							(
+								SELECT DISTINCT
+									result_tree.linkid
+								FROM
+									sq_lex_thes_lnk_tree stop_tree
+									INNER JOIN sq_lex_thes_lnk_tree stop_parent_tree ON stop_parent_tree.linkid = stop_tree.linkid,
+									sq_lex_thes_lnk_tree result_tree
+								WHERE
+									stop_tree.treeid LIKE '.$db->quoteSmart($minor_treeid.'%').'
+									AND
+									stop_tree.treeid > '.$db->quoteSmart($minor_treeid).'
+									AND
+									'.$db->quoteSmart($new_treeid).' LIKE (stop_parent_tree.treeid || '.$db->quoteSmart('%').')
+									AND
+									result_tree.treeid LIKE (stop_parent_tree.treeid || '.$db->quoteSmart('%').')
+									AND
+									stop_tree.thesid = '.$db->quoteSmart($this->id).'
+									AND
+									stop_parent_tree.thesid = '.$db->quoteSmart($this->id).'
+									AND
+									result_tree.thesid = '.$db->quoteSmart($this->id).'
+							)
+							AND
+							tree.thesid = '.$db->quoteSmart($this->id).'
+					';
+
+					$result = $db->query($sql);
+					assert_valid_db_result($result);
+				}
+			}
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return $linkid;
+
+
+	}//end addTerm()
+
+
+	/**
+	* TODO: function comment: updateTerm
+	*
+	* Returns true on success, false on failure
+	*
+	* @param int	$linkid		link id to update
+	* @param string	$name		the name of the minor term in the link
+	* @param string	$relation	the relation of the link
+	*
+	* @return boolean
+	* @access public
+	*/
+	function updateTerm($linkid, $name, $relation=null)
+	{
+		if ($relation == '') $relation = null;
+
+		$term = $this->getTermById($linkid);
+		if ($term['minor'] == $name && $term['relation'] == $relation) {
+			return true;
+		}
+
+		trigger_error('This Functionality is not supported at this stage. Sorry.');
+		return false;
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$check_linkid = $this->getTermLinkid($name, $term['major'], $relation);
+		if (!empty($check_linkid) && ($check_linkid != $linkid)) {
+			trigger_localised_error('<LEX0019>', E_USER_WARNING);//'Cannot Update. A term with these details already exist.'
+			return false;
+		}
+
+		// update term itself
+		$sql = '
+			UPDATE
+				sq_lex_thes_term
+			SET
+				minor = '.$db->quoteSmart($name).',
+				relation = '.$db->quoteSmart($relation).'
+			WHERE
+				linkid = '.$db->quoteSmart($linkid).'
+				AND
+				thesid = '.$db->quoteSmart($this->id).'
+		';
+
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+		// if term name changed, rename it everywhere it is major
+		if ($term['minor'] != $name) {
+			$sql = '
+				UPDATE
+					sq_lex_thes_term
+				SET
+					major = '.$db->quoteSmart($name).'
+				WHERE
+					major = '.$db->quoteSmart($term['minor']).'
+					AND
+					thesid = '.$db->quoteSmart($this->id).'
+			';
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+		}
+
+		return;
+
+	}//end updateTerm()
+
+
+	/**
+	* Renames all instances of a term unless the desired new name is in use or the current term ins not in use.
+	*
+	* Returns true on success, false on failure
+	*
+	* @param string	$name		the current term name
+	* @param string	$new_name	the desired new term name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function renameTerm($name, $new_name)
+	{
+		// Ensure the new name is not already in use
+		if (!is_null($this->getOneTermByName($new_name))) {
+			//can't rename an existing term
+			$this->_tmp['error'][] = translate('lexicon_new_name_in_use');//'The desired new term name is already in use');
+			return false;
+		}
+		// Ensure that the current term name is in use or we're not updating anything
+		if (is_null($this->getOneTermByName($name))) {
+			//can't rename an existing term
+			$this->_tmp['error'][] = translate('lexicon_name_not_in_use');//'The current term name is not in use. No terms will be updated');
+			return false;
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// Update term links where the minor is being renamed
+		$sql = '
+			UPDATE
+				sq_lex_thes_term
+			SET
+				minor = '.$db->quoteSmart($new_name).'
+			WHERE
+				minor = '.$db->quoteSmart($name).'
+				AND
+				thesid = '.$db->quoteSmart($this->id).'
+		';
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+		// Update term links where the major is being renamed
+
+		$sql = '
+			UPDATE
+				sq_lex_thes_term
+			SET
+				major = '.$db->quoteSmart($new_name).'
+			WHERE
+				major = '.$db->quoteSmart($name).'
+				AND
+				thesid = '.$db->quoteSmart($this->id).'
+		';
+
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+		$this->markContentsChanged();
+		return;
+
+	}//end renameTerm()
+
+
+	/**
+	* Renames all instances of $relation to $new_relation
+	*
+	* Returns true on success, false on failure
+	*
+	* @param string	$relation		relation to rename
+	* @param string	$new_relation	the desired new relation
+	*
+	* @return boolean
+	* @access public
+	*/
+	function renameRelation($relation, $new_relation)
+	{
+		// Ensure the new name is not already in use
+
+		if (array_search($new_relation, $this->getActiveRelations())!== FALSE) {
+			//can't rename an existing term
+			$this->_tmp['error'][] = translate('lexicon_new_relation_in_use');//'The desired new term name is already in use');
+			return false;
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// Update relations
+		$sql = '
+			UPDATE
+				sq_lex_thes_term
+			SET
+				relation = '.$db->quoteSmart($new_relation).'
+			WHERE
+				relation = '.$db->quoteSmart($relation).'
+				AND
+				thesid = '.$db->quoteSmart($this->id).'
+		';
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+		$this->markContentsChanged();
+		return;
+
+	}//end renameRelation()
+
+
+	/**
+	* Get term by its (link) id
+	*
+	* Gets the term that is linked as a minor by a particular link id
+	*
+	* @param int	$linkid	link id of the term
+	*
+	* @return void
+	* @access public
+	*/
+	function getTermById($linkid)
+	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
-				count(*)
+				minor, major, relation, linkid, sort_order
 			FROM
-				sq_lex_thes_rel
+				sq_lex_thes_term
 			WHERE
-				thes_id = '.$db->quoteSmart($this->id);
+				linkid = '.$db->quoteSmart($linkid).'
+				AND thesid = '.$db->quoteSmart($this->id).'
+		';
+		$result = $db->getRow($sql);
+
+		assert_valid_db_result($result);
+		return $result;
+
+	}//end getTermById()
+
+
+	/**
+	* Get term link id
+	*
+	* Given term information, returns a link id corresponding to that term
+	*
+	* @param string	$name		the name of the child in this link
+	* @param string	$parent		the parent in this link
+	* @param string	$relation	the relation of the link
+	*
+	* @return void
+	* @access public
+	*/
+	function getTermLinkid($name, $parent=null, $relation=null)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = '
+			SELECT
+				linkid
+			FROM
+				sq_lex_thes_term
+			WHERE
+				minor = '.$db->quoteSmart($name).'
+				AND
+				thesid = '.$db->quoteSmart($this->id).'
+				AND
+				major '.(is_null($parent)?'ISNULL ':('= '.$db->quoteSmart($parent))).'
+				AND
+				relation '.(is_null($relation)?'ISNULL ':('= '.$db->quoteSmart($relation))).'
+		';
 
 		$result = $db->getOne($sql);
 
 		assert_valid_db_result($result);
 		return $result;
 
-	}//end countAllRelations()
+	}//end getTermLinkid()
 
 
 	/**
-	* Get Relation By Id
+	* Returns the lowest link id that has the supplied name as the minor
 	*
-	* @param integer $id    relation ID
+	* @param string	$name	The name of the sought term
+	*
+	* @return void
 	* @access public
-	* @return array    relation
 	*/
-	function getRelationById($id=null)
+	function getOneTermByName($name)
 	{
-
-		if (!isset($id)) return null;
-
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
-				id, name
+				linkid
 			FROM
-				sq_lex_thes_rel
+				sq_lex_thes_term
 			WHERE
-					thes_id = '.$db->quoteSmart($this->id).'
+				minor = '.$db->quoteSmart($name).'
 				AND
-					id = '.$db->quoteSmart($id);
+				thesid = '.$db->quoteSmart($this->id).'
+			ORDER BY
+				sort_order ASC
+			LIMIT 1;
+		';
 
 		$result = $db->getRow($sql);
 
 		assert_valid_db_result($result);
 		return $result;
 
-	}//end getRelationById()
+	}//end getOneTermByName()
 
 
 	/**
-	* Get Relation by Name
+	* Check whether supplied string is a term in this thesaurus
 	*
-	* @param string $name    relation name
+	* @param string	$term	Term
+	*
+	* @return boolean
 	* @access public
-	* @return array    relation
 	*/
-	function getRelationByName($name=null)
+	function isTerm($term=null)
 	{
+		if (is_null($term)) return false;
 
-		if (!isset($name)) return null;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$relations = $this->attr('relations');
-		$rel_id = array_get_index($relations, $name);
+		$sql = '
+			SELECT count(linkid)
+			FROM
+				sq_lex_thes_term
+			WHERE
+				(
+					major = '.$db->quoteSmart($term).'
+					OR minor = '.$db->quoteSmart($term).'
+				)
+				AND thesid = '.$db->quoteSmart($this->id).'
+		';
+		$result = $db->getOne($sql);
 
-		if (!empty($rel_id)) {
-			// first check if the relation exists in the relation cache
-			$result['id']   = $rel_id;
-			$result['name'] = $name;
-		} else {
-			// then check the database
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
+		assert_valid_db_result($result);
 
-			$sql = '
-				SELECT
-					id, name
-				FROM
-					sq_lex_thes_rel
-				WHERE
-						thes_id = '.$db->quoteSmart($this->id).'
-					AND
-						name = '.$db->quoteSmart($name);
+		return (boolean) $result;
 
-			$result = $db->getRow($sql);
-
-			assert_valid_db_result($result);
-
-			// if relation exists, cache it
-			if (!empty($result)) {
-				$relations[$name] = $result['id'];
-				$this->setAttrValue('relations',$relations);
-			}
-		}
-
-		return $result;
-
-	}//end getRelationByName()
+	}//end isTerm()
 
 
 	/**
-	* Get All Entities in Relation
+	* Returns a list of all the relations in a thesaurus
 	*
-	* Returns a possibly VERY large array of (parent,child) tuples
-	*
-	* @param integer $relation_id    relation Id
-	* @access public
 	* @return array
-	*/
-	function getEntitiesInRelation($relation_id=null)
-	{
-
-		if (!isset($relation_id)) return null;
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$sql ='
-
-			SELECT
-				e1.id,
-				e1.name,
-				e1.description,
-				e2.id,
-				e2.name,
-				e2.description
-			FROM
-				sq_lex_thes_ent e1,
-				sq_lex_thes_ent e2,
-				sq_lex_thes_ent_rel er
-			WHERE
-					er.thes_id = '.$db->quoteSmart($this->id).'
-				AND
-					er.rel_id  = '.$db->quoteSmart($relation_id).'
-				AND
-					e1.id      = er.pnt_ent_id
-				AND
-					e2.id      = er.cld_ent_id
-				AND
-					e1.thes_id = er.thes_id
-				AND
-					e2.thes_id = er.thes_id
-
-		';
-		$result = $db->getAll($sql, Array(), DB_FETCHMODE_ORDERED);
-		assert_valid_db_result($result);
-
-		// assemble an array of entity tuples ((entity, entity),...)
-		$relations = Array();
-		foreach ($result as $row) {
-			$e1 = $e2 = Array();
-			list(
-				$e1['id'], $e1['name'], $e1['description'],
-				$e2['id'], $e2['name'], $e2['description']
-			) = $row;
-
-			$relations[] = Array('parent'=>$e1, 'child'=>$e2);
-		}
-
-		return $relations;
-
-	}//end getEntitiesInRelation()
-
-
-	/**
-	* Add Entity To The Thesaurus
-	*
-	* @param string $name        Entity Name
-	* @param string $description Entity Description (optional)
-	*
 	* @access public
-	* @return integer    entity id
 	*/
-	function addEntity($name, $description='')
+	function getActiveRelations()
 	{
-
-		if (!isset($name)) return $this->BAD_ID;
-
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$id = $db->nextId('sq_lex_thes_ent_id');
-		assert_valid_db_result($id);
 
 		$sql = '
-			INSERT INTO sq_lex_thes_ent
-				(thes_id, id, name, description)
-			VALUES
-				('.$db->quoteSmart($this->id).','.$db->quoteSmart($id).','.$db->quoteSmart($name).','.$db->quoteSmart($description).')';
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
-		return $id;
-
-	}//end addEntity()
-
-
-	/**
-	* Add relatin to this thesaurus
-	*
-	* @param string $name    relation name
-	* @access public
-	* @return integer    relation id
-	*/
-	function addRelation($name)
-	{
-
-		if (!isset($name)) return $this->BAD_ID;
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$id = $db->nextId('sq_lex_thes_rel_id');
-		assert_valid_db_result($id);
-
-		$sql = '
-			INSERT INTO sq_lex_thes_rel
-				(
-					thes_id,
-					id,
-					name
-				)
-			VALUES
-				('.
-					$db->quoteSmart($this->id).','.
-					$db->quoteSmart($id).','.
-					$db->quoteSmart($name).'
-				)
-		';
-
-		$result   = $db->query($sql);
-
-		assert_valid_db_result($result);
-
-		// cache relation
-		$cached_relations = $this->attr('relations');
-		$cached_relations[$name] = $id;
-		$this->setAttrValue('relations', $cached_relations);
-
-		return $id;
-
-	}//end addRelation()
-
-
-	/**
-	* Connect two entities by a relation
-	*
-	* Relies on the database to enforce the fact that two entities can
-	* only be linked once by a particular relationship in a particular thesaurus
-	* Relationship is an arrow pointing from parent to child
-	* A-x->B and B-x->A are different relationships, just like A-x->B and A-y->B
-	*
-	* @access public
-	* @return boolean
-	*/
-	function connectEntities($parent_id, $child_id, $relation_id)
-	{
-
-		if (!isset($parent_id) || !isset($child_id) || !isset($relation_id)) {
-			return false;
-		}
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$sql ='
-			INSERT INTO sq_lex_thes_ent_rel
-				(
-					thes_id,
-					pnt_ent_id,
-					cld_ent_id,
-					rel_id
-				)
-			VALUES
-				('.
-					$db->quoteSmart($this->id).','.
-					$db->quoteSmart($parent_id).','.
-					$db->quoteSmart($child_id).','.
-					$db->quoteSmart($relation_id).'
-				)
-		';
-
-		$result   = $db->query($sql);
-		assert_valid_db_result($result);
-
-		return true;
-
-	}//end connectEntities()
-
-
-	/**
-	* Is Bad ID?
-	*
-	* Returns true if supplied ID is bad
-	*
-	* @param integer $id    entity id
-	* @access public
-	* @return boolean
-	*/
-	function isBadId($id)
-	{
-		return ($this->BAD_ID == $id);
-
-	}//end isBadId()
-
-
-	/**
-	* Get a list of Entities that only act as parents in a relation
-	*
-	* @param integer $relation_id    relation Id
-	* @access public
-	* @return array    array of entities
-	*/
-	function getAbsoluteParentsInRelation($relation_id=null)
-	{
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		if (!isset($relation_id)) return Array();
-
-		$sql ='
-			SELECT
-				id,
-				name,
-				description
+			SELECT DISTINCT
+				relation
 			FROM
-				sq_lex_thes_ent
+				sq_lex_thes_term
 			WHERE
-				id IN (
-					SELECT DISTINCT
-						pnt_ent_id
-					FROM
-						sq_lex_thes_ent_rel
-					WHERE
-							thes_id = '.$db->quoteSmart($this->id).'
-						AND
-							rel_id  = '.$db->quoteSmart($relation_id).'
-						AND
-							pnt_ent_id NOT IN (
-								SELECT DISTINCT
-									cld_ent_id
-								FROM
-									sq_lex_thes_ent_rel
-								WHERE
-										thes_id = '.$db->quoteSmart($this->id).'
-									AND
-										rel_id  = '.$db->quoteSmart($relation_id).'
-						)
-				)
+				thesid = '.$db->quoteSmart($this->id).'
 		';
+		$result = $db->getCol($sql);
 
-		$result = $db->getAll($sql);
 		assert_valid_db_result($result);
 
 		return $result;
 
-	}//end getAbsoluteParentsInRelation()
+	}//end getActiveRelations()
 
 
 	/**
 	* Erases the contents of a thesaurus
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function erase()
 	{
@@ -1218,7 +1081,6 @@ class Thesaurus extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$this->setAttrValue('relations', Array());
-		$this->setAttrValue('active', false);
 
 		if ($this->_deleteStoredContents() && $this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1234,24 +1096,22 @@ class Thesaurus extends Asset
 	/**
 	* Deletes the contents of the database for this thesaurus
 	*
-	* NOTE: does not disable the thesaurus
-	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _deleteStoredContents()
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
-			DELETE FROM sq_lex_thes_ent     WHERE thes_id = '.$db->quoteSmart($this->id).';
-			DELETE FROM sq_lex_thes_rel     WHERE thes_id = '.$db->quoteSmart($this->id).';
-			DELETE FROM sq_lex_thes_ent_rel WHERE thes_id = '.$db->quoteSmart($this->id).';
+			DELETE FROM sq_lex_thes_term WHERE thesid = '.$db->quoteSmart($this->id).';
+			DELETE FROM sq_lex_thes_lnk_tree WHERE thesid = '.$db->quoteSmart($this->id).';
 		';
 
 		$result   = $db->query($sql);
 		assert_valid_db_result($result);
 
+		$this->markContentsChanged();
 		return true;
 
 	}//end _deleteStoredContents()
@@ -1271,13 +1131,11 @@ class Thesaurus extends Asset
 
 
 	/**
-	* Returns name of the asset
+	* Get asset name
 	*
-	* @param boolean	$short_name	whether or not we are after the short name or the full name
-	*
-	* @see Asset::_getName()
-	* @access private
 	* @return string
+	* @access private
+	* @see Asset::_getName()
 	*/
 	function _getName()
 	{
@@ -1286,17 +1144,829 @@ class Thesaurus extends Asset
 	}//end _getName()
 
 
-	/**
-	* Check if thesaurus is active
-	*
-	* @access public
-	* @return boolean
-	*/
-	function isActive()
-	{
-		return $this->attr('active');
+//--        BRIDGE FUNCTIONS        --//
 
-	}//end isActive()
+
+	/**
+	* Returns a reference to the asset represented by the passed assetid or null on error
+	*
+	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
+	* @param string		$type_code		if this exists then this object is used to
+	*									load the asset, if not then the DB is queried
+	*									to find out the asset type
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
+	*									you can't use the '@' operator when returning by reference
+	*
+	* @return object
+	* @access public
+	* @see Asset_Manager::&getAsset()
+	*/
+	function &getAsset($shadowid, $type_code='', $mute_errors=false)
+	{
+		$asset = null;
+
+		$id_parts = explode(':', $shadowid);
+		if (!empty($id_parts[1])) {
+			$link_id = $id_parts[1];
+
+			$term = $this->getTermById($link_id);
+			if (!empty($term)) {
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('thesaurus_term');
+				$asset =& new Thesaurus_Term($shadowid);
+			}
+		}
+
+		return $asset;
+
+	}//end getAsset()
+
+
+	/**
+	* Used by asset map to return a asset map-style link array
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetMapLinks()
+	{
+		return $this->_getShadowAssetMapLinks();
+
+	}//end getAssetMapLinks()
+
+
+	/**
+	* Used by asset map to return a asset map-style link array
+	*
+	* @param int	$parent_term_id	The ID of the parent term
+	*
+	* @return array
+	* @access public
+	*/
+	function _getShadowAssetMapLinks($parent_term_id=null)
+	{
+
+		$bridge_id = $this->id;
+		$majorid = $bridge_id;
+		$term_name = null;
+
+		if (!is_null($parent_term_id)) {
+			$majorid .= ':'.$parent_term_id;
+			$term = $this->getTermById($parent_term_id);
+			$term_name = $term['minor'];
+		}
+
+		$linked_terms = $this->getChildTerms($term_name);
+
+		$links = Array();
+
+		foreach ($linked_terms as $one_term) {
+			$link = Array();
+
+			// mould it all to the asset map's liking
+			$link['url'] = '';
+			$link['path'] = '';
+			$link['num_kids'] = $this->countChildTerms($one_term['minor']);
+			$link['accessible'] = 1;
+
+			$link['majorid'] = $majorid;
+			$link['minorid'] = $bridge_id.':'.$one_term['linkid'];
+			$link['assetid'] = $bridge_id.':'.$one_term['linkid'];
+			$link['minor_type_code'] = 'thesaurus_term';
+			$link['type_code'] = 'thesaurus_term';
+			$link['linkid'] = $bridge_id.':'.$one_term['linkid'];
+
+			// make name and short name the same
+			$name_prefix = (empty($one_term['relation'])?'':'('.$one_term['relation'].') ');
+			$link['name'] = $name_prefix.$one_term['minor'];
+			$link['short_name'] = $link['name'];
+
+			$link['status'] = $this->status;
+			$link['link_type'] = SQ_LINK_TYPE_2;
+			$link['sort_order'] = $one_term['sort_order'];
+
+			$links[] = $link;
+		}
+
+		return $links;
+
+	}//end _getShadowAssetMapLinks()
+
+
+	/**
+	* Returns an array of information about assets of the passed codes
+	*
+	* If one value in $field then the return value is Array(assetid => '[field]'), otherwise Array(assetid => Array())
+	*
+	* @param array		$assetids			an array of assets to limit
+	* @param mixed		$type_code			an asset type code, or array of typecodes, to limit results to
+	* @param boolean	$strict_type_code	ensure returned assets are of the passed type codes
+	* @param string		$field				single field from the asset table to return (along with the assetid)
+	*										Default is all fields
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=true, $field='')
+	{
+		$info_array = Array();
+
+		foreach ($assetids as $id) {
+			$id_parts = explode(':', $id);
+			if (empty($id_parts[1])) continue;
+
+			$term = $this->getTermById($id_parts[1]);
+			if (empty($term)) continue;
+
+			$info_array[$id]['assetid']		= $id;
+			$info_array[$id]['name']		= $term['minor'];
+			$info_array[$id]['short_name']	= $term['minor'];
+			$info_array[$id]['version']		= $this->version;
+			$info_array[$id]['status']		= $this->status;
+			$info_array[$id]['type_code']	= 'thesaurus_term';
+			$info_array[$id]['num_kids']	= $this->countChildTerms($term['minor']);
+			$info_array[$id]['accessible']	= 1;
+			$info_array[$id]['url']			= '';
+			$info_array[$id]['web_path']	= '';
+		}
+
+		return $info_array;
+
+	}//end getAssetInfo()
+
+
+	/**
+	* Return all links that this asset has to other assets
+	*
+	* @param int		$assetid			id of the the $side_of_link asset
+	* @param int		$link_types			integer that can be the product of bitwise operations
+	*										on the SQ_LINK_* constants
+	* @param mixed		$type_code			the type of asset that is linked
+	*										(eg 'Page', 'File', etc)
+	*										if an array returns link if matches any
+	*										of the array values
+	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
+	*										or $type_code and any of it's sub-classes
+	* @param string		$side_of_link		Which side of the link this (the current) asset
+	*										is on ('major' or 'minor')
+	* @param string		$sort_by			a field in the asset table you would like the results
+	*										sorted by (eg. name, short_name etc)
+	*
+	* @return array
+	* @access public
+	*/
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
+	{
+		return Array();
+
+	}//end getLinks()
+
+
+	/**
+	* Get details of a link with the specified characteristics
+	*
+	* @param int		$assetid			id of the the $side_of_link asset
+	* @param int		$link_type			integer that should be a single integer of the SQ_LINK_* constants
+	* @param mixed		$type_code			the type of asset that is linked
+	*										(eg 'Page', 'File', etc)
+	*										if an array returns link if matches any
+	*										of the array values
+	* @param boolean	$strict_type_code	whether we are finding an asset that
+	*										is just a $type_code or potentially an inherited type
+	*										or $type_code and any of it's sub-classes
+	* @param string		$value				the value that is associated with this link
+	* @param string		$side_of_link		Which side of the link this (the current) asset
+	*										is on ('major' or 'minor')
+	* @param boolean	$exclusive			The exclusive status for the link must be
+	*										this (if not null)
+	*
+	* @return array
+	* @access public
+	*/
+	function getLink($assetid, $link_type=null, $type_code='', $strict_type_code=true, $value=null, $side_of_link='major', $exclusive=null)
+	{
+		log_dump();
+		return Array();
+
+	}//end getLink()
+
+
+	/**
+	* Get details of the link(s) between the two specified assets
+	*
+	* @param int		$assetid		id of the the $side_of_link asset
+	* @param int		$other_assetid	the asset on the other side of the link
+	* @param int		$link_types		integer that can be the product of bitwise operations
+	*									on the SQ_LINK_* constants
+	* @param string		$value			the value that is associated with this link
+	* @param string		$side_of_link	Which side of the link the first assetid is on
+	*									('major' or 'minor')
+	* @param boolean	$force_array	force the results to return an array of links
+	*									even if there is only one link
+	* @param boolean	$dependant		The dependant status for all the links must be
+	*									this (if not null)
+	* @param boolean	$exclusive		The exclusive status for all the links must be
+	*									this (if not null)
+	*
+	* @return array
+	* @access public
+	*/
+	function getLinkByAsset($assetid, $other_assetid, $link_types=null, $value=null, $side_of_link='major', $force_array=false, $dependant=null, $exclusive=null)
+	{
+		$major_parts = explode(':',$assetid);
+		$minor_parts = explode(':',$other_assetid);
+
+		$minor = $this->getTermById($minor_parts[1]);
+
+		// construct template
+		$link = Array(
+					'majorid'			=> $assetid,
+					'minorid'			=> $this->id.':'.$minor_parts[1],
+					'link_type'			=> SQ_LINK_TYPE_2,
+					'major_type_code'	=> '',
+					'minor_type_code'	=> 'thesaurus_term',
+					'value'				=> $minor['relation'],
+					'linkid'			=> $this->id.':'.$minor['linkid'],
+					'sort_order'		=> $minor['sort_order'],
+					'is_dependant'		=> 0,
+					'is_exclusive'		=> 0,
+				);
+
+		return $link;
+
+	}//end getLinkByAsset()
+
+
+	/**
+	* Get details of the link with specified linkid
+	*
+	* @param int	$linkid			id of the desired link
+	* @param int	$assetid		id of the the $side_of_link asset
+	*								if zero no check is made and both major and minor information is returned
+	* @param string	$side_of_link	Which side of the link the asset represented by $assetid is on ('major' or 'minor')
+	*
+	* @return array
+	* @access public
+	*/
+	function getLinkById($linkid, $assetid=0, $side_of_link='major')
+	{
+		$link_parts = explode(':', $linkid);
+		$term_linkid = array_get_index($link_parts, 1);
+		if (is_null($term_linkid)) return null;
+
+		$term = $this->getTermById($term_linkid);
+
+		// construct template
+		$link = Array(
+					'majorid'			=> $this->id.':'.$term_linkid,
+					'minorid'			=> $this->id.':'.$term_linkid,
+					'link_type'			=> SQ_LINK_TYPE_2,
+					'major_type_code'	=> '',
+					'minor_type_code'	=> 'thesaurus_term',
+					'value'				=> $term['relation'],
+					'linkid'			=> $this->id.':'.$term_linkid,
+					'sort_order'		=> $term['sort_order'],
+					'is_dependant'		=> 0,
+					'is_exclusive'		=> 0,
+				);
+
+		if (is_null($term['major'])) {
+			$link['major_type_code'] = 'thesaurus';
+			$link['majorid'] = $this->id;
+		} else {
+			$link['major_type_code'] = 'thesaurus_term';
+		}
+
+		return $link;
+
+	}//end getLinkById()
+
+
+	/**
+	* Returns an array of all the permitted links type, the type asset and the cardinality
+	* In the form
+	*
+	*   Array('[link_type]' => Array('[type_code]' => Array('card' => [cardinality], 'exclusive' => [exclusive])));
+	* Where:
+	*   link_type   = SQ_LINK_TYPE_1|SQ_LINK_TYPE_2|SQ_LINK_TYPE_3|SQ_LINK_NOTICE
+	*   cardinality = [max number of links]|'M'
+	*   exclusive   = true|false
+	*
+	* @return array
+	* @access private
+	*/
+	function _getAllowedLinks()
+	{
+		return Array(
+				SQ_LINK_TYPE_1	=> Array(),
+				SQ_LINK_TYPE_2	=> Array(
+									'thesaurus_term'	=> Array(
+															'card'		=> 'M',
+															'exclusive'	=> false,
+														   ),
+								   ),
+				SQ_LINK_TYPE_3	=> Array(),
+			   );
+
+	}//end _getAllowedLinks()
+
+
+	/**
+	* Get all asset ids that are below the passed assetid in the various trees in which it exists
+	*
+	* Returns an array of assetids and their type code
+	*
+	* @param int		$assetid			the id of the asset to get its children for
+	* @param mixed		$type_code			the type of asset that is linked
+	*										(eg 'Page', 'File', etc)
+	*										if an array returns link if matches any
+	*										of the array values
+	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
+	*										or $type_code and any of it's sub-classes
+	* @param string		$sort_by			a field in the asset table you would like the results
+	*										sorted by (eg. name, short_name etc)
+	*
+	* @return array
+	* @access public
+	* @see Asset_Manager::getChildren()
+	*/
+	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	{
+		return Array();
+	}//end getChildren()
+
+
+	/**
+	* Create a link between the two supplied assets
+	*
+	* returns the linkid of the created link
+	*
+	* @param object		&$major		the major asset that we are linking from
+	* @param object		&$minor		the minor asset that we are linking to
+	* @param string		$link_type	the type of link this is
+	* @param string		$value		the value that is to be associated with this link
+	* @param string		$sort_order	the position in the links list that this link should take,
+	*								if null or less than zero places at end of list
+	* @param string		$dependant	'0' / '1' - whether the minor asset is dependant on the major
+	* @param string		$exclusive	'0' / '1' - whether the major asset is to be the minor's only parent
+	* @param boolean	$moving		whether or not this asset is being moved
+	*
+	* @return string
+	* @access public
+	*/
+	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0', $moving=false)
+	{
+		$major_parts = explode(':', $major->id);
+		$minor_parts = explode(':', $minor->id);
+		$relation = null;
+		$minor_term = null;
+		$major_term = null;
+
+		// can only link terms which belong to this thesaurus
+		if (($minor_parts[0] != $this->id) || ($minor_parts[0] != $major_parts[0])) {
+			return 0;
+		}
+
+		if (!isset($minor_parts[1])) {
+			return;
+		} else {
+			$minor_term = $minor->name;
+			$relation = $minor->attr('relation');
+		}
+
+		if (isset($major_parts[1])) {
+			$major_term = $major->name;
+		}
+
+		if ($moving) {
+			$term_linkid = $this->getTermLinkid($minor_term, $major_term, $relation);
+			if (!is_null($term_linkid)) {
+				trigger_localised_error('<LEX0020>');//'This term link already exists. Cannot move.'
+				return false;
+			}
+		}
+
+		$term_linkid = $this->addTerm($minor_term, $major_term, $relation, $sort_order);
+
+		if (is_null($term_linkid)) return false;
+
+		return $this->id.':'.$term_linkid;
+
+	}//end createAssetLink()
+
+
+	/**
+	* Returns an array of all user or user_group assets that have the passed permission for the passed asset
+	*
+	* @param int		$assetid		the assetid for asset whose permissions to get
+	* @param string		$permission		the permission code you are getting
+	* @param boolean	$granted		type of Access : null = all, true = granted, false = denied
+	* @param boolean	$and_greater	get effective permission (eg read access = read
+	*									or write or admin)
+	* @param boolean	$expand_groups	expand user groups so only user ids get returned
+	*									(NOTE: only valid if $all_info is false)
+	* @param boolean	$all_info		when false fn just returns an array of userids for
+	*									those that have permission
+	*									When true fn returns all info about the permission in the form of
+	*									Array(userid => granted)
+	*									(NOTE: TRUE is only valid if $and_greater and
+	*									$expand_groups are false)
+	*
+	* @return array
+	* @access public
+	*/
+	function getPermission($assetid, $permission, $granted=null, $and_greater=true, $expand_groups=false, $all_info=false)
+	{
+		return Array();
+	}//end getPermission()
+
+
+	/**
+	* Mark thesaurus as having its contents changed
+	*
+	* This function should be called when any change to thesaurus is performed
+	* XML output functionality depends on this
+	*
+	* @return void
+	* @access public
+	*/
+	function markContentsChanged()
+	{
+		if ($this->attr('contents_changed')) return;
+
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+		$this->setAttrValue('contents_changed',true);
+		$this->saveAttributes();
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+		return;
+
+	}//end markContentsChanged()
+
+
+	/**
+	* Return the number of links in the system that involve the specified asset
+	*
+	* Can be restricted by either link type afnd/or asset type code
+	*
+	* @param int		$assetid			id of the the $side_of_link asset
+	* @param string		$side_of_link		Which side of the link this (the current) asset
+	*										is on ('major' or 'minor')
+	* @param int		$link_types			integer that can be the product of bitwise operations
+	*										on the SQ_LINK_* constants
+	* @param mixed		$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
+	*										if an array returns link if matches any
+	*										of the array values
+	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
+	*										or $type_code and any of it's sub-classes
+	* @param int		$ignore_linkid		ignore the link represented by this link
+	*										id when returning the count
+	*
+	* @return int
+	* @access public
+	*/
+	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=true, $ignore_linkid=0)
+	{
+
+		$id_parts = explode(':', $assetid);
+
+		$term_linkid = array_get_index($id_parts, 1);
+		if (is_null($term_linkid)) return -1;
+
+		$relations = Array();
+
+		if ($side_of_link == 'major') {
+			$keyword = 'Child';
+		} else {
+			$keyword = 'Parent';
+		}
+		$get_term_function = 'count'.$keyword.'Terms';
+		return $this->$get_term_function($term_linkid);
+
+	}//end countLinks()
+
+
+	/**
+	* Remove a link by id
+	*
+	* @param int		$linkid	the link id of the link to remove
+	* @param boolean	$moving	TRUE if this delete is part of a move operation
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteAssetLink($linkid, $moving=false)
+	{
+		$link_parts = explode(':', $linkid);
+		if (isset($link_parts[1])) {
+			$this->deleteTermLink($link_parts[1]);
+		}
+		return true;
+
+	}//end deleteAssetLink()
+
+
+	/**
+	* Delete a link between two terms
+	*
+	* @param int		$linkid		link id to remove
+	* @param boolean	$recurse	flag to allow recursion
+	*
+	* @return void
+	* @access public
+	*/
+	function deleteTermLink($linkid, $recurse=true)
+	{
+		if (empty($linkid)) return false;
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// get the list of child linkids that MAY be deleted
+		$sql = '
+			SELECT
+				DISTINCT(Btree.linkid)
+			FROM
+				sq_lex_thes_lnk_tree Atree,
+				sq_lex_thes_lnk_tree Btree
+			WHERE
+				Atree.linkid = '.$db->quoteSmart($linkid).'
+				AND
+				Btree.treeid LIKE (Atree.treeid || '.$db->quoteSmart('%').')
+				AND
+				Btree.treeid > Atree.treeid
+				AND
+				Atree.thesid = '.$db->quoteSmart($this->id).'
+				AND
+				Btree.thesid = '.$db->quoteSmart($this->id).'
+		';
+
+		$candidates_to_delete = $db->getCol($sql);
+		assert_valid_db_result($candidates_to_delete);
+
+		$links_to_delete = Array();
+
+		if (!empty($candidates_to_delete)) {
+
+			$clean_linkids = Array();
+			foreach ($candidates_to_delete as $treeid) {
+				$clean_linkids[] = $db->quoteSmart($treeid);
+			}
+
+			// select link ids that WILL NOT be deleted
+			$sql = '
+				SELECT
+					DISTINCT(Btree.linkid)
+				FROM
+					sq_lex_thes_lnk_tree Atree,
+					sq_lex_thes_lnk_tree Btree
+				WHERE
+					Atree.linkid = '.$db->quoteSmart($linkid).'
+					AND
+					Btree.treeid NOT LIKE (Atree.treeid || '.$db->quoteSmart('%').')
+					AND
+					Btree.linkid IN ('.implode(',', $clean_linkids).')
+					AND
+					Atree.thesid = '.$db->quoteSmart($this->id).'
+					AND
+					Btree.thesid = '.$db->quoteSmart($this->id).'
+			';
+			$links_to_keep = $db->getCol($sql);
+			assert_valid_db_result($links_to_keep);
+
+			$raw_links_to_delete = array_diff($candidates_to_delete, $links_to_keep);
+			foreach ($raw_links_to_delete as $id) {
+				$links_to_delete[$id] = $db->quoteSmart($id);
+			}
+		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$sql = '
+			DELETE FROM
+				sq_lex_thes_lnk_tree
+			WHERE
+				treeid IN (
+					SELECT
+						Btree.treeid
+					FROM
+						sq_lex_thes_lnk_tree Atree,
+						sq_lex_thes_lnk_tree Btree
+					WHERE
+						Atree.linkid = '.$db->quoteSmart($linkid).'
+						AND
+						Btree.treeid LIKE (Atree.treeid || '.$db->quoteSmart('%').')
+						AND
+						Btree.treeid > Atree.treeid
+						AND
+						Atree.thesid = '.$db->quoteSmart($this->id).'
+						AND
+						Btree.thesid = '.$db->quoteSmart($this->id).'
+				)
+				AND
+				thesid = '.$db->quoteSmart($this->id).'
+		';
+
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+		// mark the deleted treeids as having linkid '0' for recycling
+		$sql = '
+			UPDATE
+				sq_lex_thes_lnk_tree
+			SET
+				linkid = '.$db->quoteSmart('0').'
+			WHERE
+				linkid = '.$db->quoteSmart($linkid).'
+				AND
+				thesid = '.$db->quoteSmart($this->id).'
+		';
+
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+		$links_to_delete[$linkid] = $db->quoteSmart($linkid);
+
+		// update the sort order
+		foreach ($links_to_delete as $id => $quoted_linkid) {
+			$term_to_delete = $this->getTermById($id);
+			$sql = '
+				UPDATE
+					sq_lex_thes_term
+				SET
+					sort_order = sort_order - 1
+				WHERE
+					major = '.$db->quoteSmart($term_to_delete['major']).'
+					AND
+					sort_order > '.$db->quoteSmart($term_to_delete['sort_order']).'
+					AND
+					thesid = '.$db->quoteSmart($this->id).'
+			';
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+		}
+
+		if (!empty($links_to_delete)) {
+			$sql = '
+				DELETE FROM
+					sq_lex_thes_term
+				WHERE
+					linkid in
+					('.implode(',', $links_to_delete).')
+					AND
+					thesid = '.$db->quoteSmart($this->id).'
+			';
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end deleteTermLink()
+
+
+	/**
+	* Move a link to a new parent
+	*
+	* @param int	$linkid			the link id of the link to move
+	* @param int	$to_parentid	the asset id of the new parent asset
+	* @param int	$link_type		the type of the new link
+	* @param int	$to_parent_pos	the position under the new parent
+	*
+	* @return int
+	* @access public
+	*/
+	function moveLink($linkid, $to_parentid, $link_type, $to_parent_pos)
+	{
+		log_dump('moveLink');
+	}//end moveLink()
+
+
+	/**
+	* Update the details of an existing link
+	*
+	* If any of the detail vars are NULL they are not updated.
+	*
+	* @param int	$linkid			the link id of the link to update
+	* @param int	$link_type		the type of the link (one of the SQ_LINK_* constants)
+	* @param string	$value			the value to place on the link
+	* @param int	$new_sort_order	the position in the links list that this link should take,
+	*								if less than zero places at end of list
+	*
+	* @return boolean
+	* @access public
+	*/
+	function updateLink($linkid, $link_type=null, $value=null, $new_sort_order=null)
+	{
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$linkid_parts = explode(':', $linkid);
+		if (!isset($linkid_parts[1]) || ($linkid_parts[0] != $this->id)) {
+			return false;
+		}
+
+		$term_linkid = $linkid_parts[1];
+		$term = $this->getTermById($term_linkid);
+		if (empty($term)) return false;
+
+		$current_sort_order = $term['sort_order'];
+		$parent = $term['major'];
+
+		if ($current_sort_order == $new_sort_order) {
+			return true;
+		}
+
+		$max_sort_order = $this->getMaxSortOrder($parent);
+
+		if (($new_sort_order > $max_sort_order) || ($new_sort_order < 0)) {
+			$new_sort_order = $max_sort_order;
+		}
+
+		if ($new_sort_order > $current_sort_order) {
+			$shift_sql = '
+				UPDATE
+					sq_lex_thes_term
+				SET
+					sort_order = sort_order - 1
+				WHERE
+					sort_order > '.$db->quoteSmart($current_sort_order).'
+					AND
+					sort_order <= '.$db->quoteSmart($new_sort_order).'
+					AND
+					major '.(is_null($parent)?'ISNULL':'= '.$db->quoteSmart($parent)).'
+					AND
+					thesid = '.$db->quoteSmart($this->id).'
+			';
+		} else {
+			$shift_sql = '
+				UPDATE
+					sq_lex_thes_term
+				SET
+					sort_order = sort_order + 1
+				WHERE
+					sort_order < '.$db->quoteSmart($current_sort_order).'
+					AND
+					sort_order >= '.$db->quoteSmart($new_sort_order).'
+					AND
+					major '.(is_null($parent)?'ISNULL':'= '.$db->quoteSmart($parent)).'
+					AND
+					thesid = '.$db->quoteSmart($this->id).'
+			';
+		}
+
+		$update_sql = '
+			UPDATE
+				sq_lex_thes_term
+			SET
+				sort_order = '.$db->quoteSmart($new_sort_order).'
+			WHERE
+				linkid = '.$db->quoteSmart($term_linkid).'
+				AND
+				thesid = '.$db->quoteSmart($this->id).'
+		';
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$result = $db->query($shift_sql);
+			assert_valid_db_result($result);
+
+			$result = $db->query($update_sql);
+			assert_valid_db_result($result);
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end updateLink()
+
+
+	/**
+	* Get the maximum sort order value under a major term
+	*
+	* @param string	$major	Major term
+	*
+	* @return mixed int|null
+	* @access public
+	*/
+	function getMaxSortOrder($major=null)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = '
+			SELECT
+				max(sort_order)
+			FROM
+				sq_lex_thes_term
+			WHERE
+				major '.(is_null($major)?'ISNULL':'= '.$db->quoteSmart($major)).'
+				AND
+				thesid = '.$db->quoteSmart($this->id).'
+		';
+
+		$max_sort_order = $db->getOne($sql);
+		assert_valid_db_result($max_sort_order);
+		return $max_sort_order;
+
+	}//end getMaxSortOrder()
 
 
 }//end class

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.11 2005/10/06 07:04:33 emcdonald Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.12 2005/11/04 05:57:50 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -57,13 +57,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintStatus(&$asset, &$o, $prefix)
 	{
-
-		if ($asset->attr('active')) {
-			echo translate('lexicon_thesaurus_enabled');
-		} else {
-			echo translate('lexicon_thesaurus_disabled');
-		}
-
+		echo translate('lexicon_thesaurus_enabled');
 	}//end paintStatus()
 
 
@@ -103,6 +97,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	function processImportXML(&$asset, &$o, $prefix)
 	{
 		$info = get_file_upload_info($prefix);
+		$append = array_get_index($_REQUEST, $prefix.'_append');
 		if (empty($info)) return true;
 
 		// copy over the new uploaded file
@@ -115,7 +110,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$hh->queueHipo('hipo_job_import_thesaurus_xml', Array('thesaurus_id' => $asset->id), '', SQ_PACKAGES_PATH.'/lexicon/hipo_jobs');
+		$hh->queueHipo('hipo_job_import_thesaurus_xml', Array('thesaurus_id' => $asset->id, 'append' => $append), '', SQ_PACKAGES_PATH.'/lexicon/hipo_jobs');
 		return true;
 
 	}//end processImportXML()
@@ -153,19 +148,29 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintExportXMLfile(&$asset, &$o, $prefix)
 	{
+
 		$write_access_allowed = $asset->writeAccess('attributes');
-		if ($asset->isActive()) {
-			if ((is_readable($asset->getXmlFilePath()) && (!$asset->attr('contents_changed'))) || $write_access_allowed) {
-				// download
+
+		if (is_readable($asset->getXmlFilePath()) && (!$asset->attr('contents_changed'))) {
+			if (!empty($_REQUEST[$prefix.'_process_export'])) {
+				$this->outputXmlDirect($asset);
+			}
+			// download
+			echo hidden_field($prefix.'_process_export', '0');
+			echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_process_export.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_process_export.value = 0; return true;');
+
+		} else {
+			if ($asset->countChildTerms(null)==0) {
+				echo translate('lexicon_thesaurus_disabled');
+			} else if ($write_access_allowed) {
 				echo hidden_field($prefix.'_process_export', '0');
-				echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_process_export.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_process_export.value = 0; return true;');
+				echo normal_button($prefix.'_export', translate('lexicon_generate_file'), 'this.form.'.$prefix.'_process_export.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_process_export.value = 0; return true;');
 			} else {
 				// a new file needs to be generated and we don't have a lock
 				echo translate('lexicon_thesaurus_not_generated');
 			}
-		} else {
-			echo translate('lexicon_thesaurus_disabled');
 		}
+
 		return $write_access_allowed;
 
 	}//end paintExportXMLfile()
@@ -183,19 +188,18 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processExportXMLfile(&$asset, &$o, $prefix)
 	{
-		$write_access_allowed = $asset->writeAccess('attributes');
 
+		$write_access_allowed = $asset->writeAccess('attributes');
 		if (!$write_access_allowed) {
 			return $write_access_allowed;
 		}
+		// If the export form was submitted and the thesaurus contents have not changed then the paint function has
+		//  already called outputXmlDirect for us. This is because we want outputXmlDirect to be available without acquiring lock.
 
-		if (!empty($_REQUEST[$prefix.'_process_export'])) {
-			if ($asset->attr('contents_changed')){
-				$this->createAndOutputXml($asset);
-				$asset->setAttrValue('contents_changed', false);
-			} else {
-				$this->outputXmlDirect($asset);
-			}
+		// If the export form was submitted and the thesaurus contents have changed, so rebuild the export file
+		if (!empty($_REQUEST[$prefix.'_process_export']) && ($asset->attr('contents_changed') || !is_readable($asset->getXmlFilePath()) )) {
+				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh->queueHipo('hipo_job_export_thesaurus_xml', Array('thesaurus_id' => $asset->id), '', SQ_PACKAGES_PATH.'/lexicon/hipo_jobs');
 		}
 
 		return $write_access_allowed;
@@ -211,168 +215,12 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function createAndOutputXml(&$asset)
-	{
-		$filepath = $asset->getXmlFilePath();
-		$filepath = realpath($filepath);
-
-		if (!is_writable($filepath)) {
-			trigger_localised_error('LEX0009', E_USER_WARNING, $filepath);
-		}
-		$filehandle = fopen($filepath, 'wb');
-
-		header('Content-Type: application/xml');
-		// defining the file as attachment forces most browsers to offer it for download
-		header('Content-Disposition: attachment; filename = '.basename($filepath).';');
-
-		$indent = 0; // we start the XML file with an indent of 0
-
-		$tag = $this->_buildXmlTag('thesaurus', 'open', $indent);
-		fwrite($filehandle, $tag);
-		echo $tag;
-
-		// add Relations
-		$all_relations = $asset->getAllRelations();
-
-		$tag = $this->_buildXmlTag('relations', 'open', $indent);
-		fwrite($filehandle, $tag);
-		echo $tag;
-
-		foreach ($all_relations as $relation){
-			$tag = $this->_buildXmlTag('relation name = "'.$relation['name'].'"', 'self_close', $indent);
-			fwrite($filehandle, $tag);
-			echo $tag;
-		}
-
-		$tag = $this->_buildXmlTag('relations', 'close', $indent);
-		fwrite($filehandle, $tag);
-		echo $tag;
-
-		// add Entities
-		$tag = $this->_buildXmlTag('entities', 'open', $indent);
-		fwrite($filehandle, $tag);
-		echo $tag;
-
-		// iterate over all entities and export them
-		$all_entities = $asset->getAllEntities();
-		foreach ($all_entities as $entity){
-			$entities_relations = $asset->getChildRelationsForEntity($entity['id']);
-
-			// if an entity has no relations or description, export it in a self closing tag, otherwise list it's relations.
-			if (count($entities_relations) + count($entity['description']) > 0){
-				$tag = $this->_buildXmlTag('entity name = "'.$entity['name'].'"', 'open', $indent);
-				fwrite($filehandle, $tag);
-				echo $tag;
-
-				if (count($entity['description']) > 0){
-					// include a description of this entity
-					$tabs = str_pad('', $indent, "\t");
-					$description = $tabs.'<description>'.$entity['description'].'</description>'."\n";
-					fwrite($filehandle, $description);
-					echo $description;
-				}
-				if (count($entities_relations)>0){
-					// list the relations for this entity
-					foreach ($entities_relations as $relation){
-						$tag = $this->_buildXmlTag('relation name = "'.$relation['name'].'"', 'open', $indent);
-						fwrite($filehandle, $tag);
-						echo $tag;
-
-						$relation_children = $asset->getChildEntitiesInRelation($relation['id'], $entity['id']);
-
-						foreach ($relation_children as $relation_child_entity){
-							$tag = $this->_buildXmlTag('entity name = "'.$relation_child_entity['name'].'"', 'self_close', $indent);
-							fwrite($filehandle, $tag);
-							echo $tag;
-						}
-
-						$tag = $this->_buildXmlTag('relation', 'close', $indent);
-						fwrite($filehandle, $tag);
-						echo $tag;
-					}
-				}
-				$tag = $this->_buildXmlTag('entity', 'close', $indent);
-				fwrite($filehandle, $tag);
-				echo $tag;
-
-			} else {
-				// no description and no relations, so this entity appears only in a self closing tag
-				$tag = $this->_buildXmlTag('entity name = "'.$entity['name'].'"', 'self_close', $indent);
-				fwrite($filehandle, $tag);
-				echo $tag;
-			}
-		}
-
-		$tag = $this->_buildXmlTag('entities', 'close', $indent);
-		fwrite($filehandle, $tag);
-		echo $tag;
-
-		$tag = $this->_buildXmlTag('thesaurus', 'close', $indent);
-		fwrite($filehandle, $tag);
-		echo $tag;
-
-		fclose($filehandle);
-		exit;
-
-	}//end createAndOutputXml()
-
-
-	/**
-	* Builds an XML tag
-	*
-	* Returns a string including the specified number of indent tabs, the tag itself and a line break
-	* Also alters the indent for subsequent tags
-	*
-	* @param string	$contents	The contents of the tag
-	* @param string	$type		What type of tag this is - open|close|self_close
-	* @param int	&$indent	How far indented the tag should be
-	*
-	* @return string
-	* @access private
-	*/
-	function _buildXmlTag($contents, $type='self_close', &$indent)
-	{
-		$tabs = '';
-		$indent_this = $indent; // how much should this tag be indented?
-		switch ($type){
-			case 'open':
-				$indent_this = $indent;
-				$tag = '<'.$contents.'>';
-				$indent++;
-			break;
-			case 'close':
-				$indent_this = $indent-1;
-				$tag = '</'.$contents.'>';
-				$indent--;
-			break;
-			case 'self_close':
-				$indent_this = $indent;
-				$tag = '<'.$contents.' />';
-			break;
-		}
-		// build a string of tabs for indenting
-		$tabs = str_pad('', $indent_this, "\t");
-		return $tabs.$tag."\n";
-	}//end _buildXmlTag()
-
-
-	/**
-	* Exports chosen submissions to an XML format
-	*
-	* @param object	&$asset	the asset this function is editing
-	*
-	* @return boolean
-	* @access public
-	*/
 	function outputXmlDirect(&$asset)
 	{
 		$filepath = $asset->getXmlFilePath();
 		$filepath = realpath($filepath);
-
 		if (is_readable($filepath)) {
-
 			header('Content-Type: application/xml');
-
 			// defining the file as attachment forces most browsers to offer it for download
 			header('Content-Disposition: attachment; filename='.basename($filepath).';');
 			header('Content-Length: '.@filesize($filepath));
@@ -386,23 +234,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Returns true thesaurus is enabled
-	*
-	* @param object	&$asset	The asset that we are using for this interface
-	* @param string	$prefix	the prefix for this asset
-	*
-	* @return boolean
-	* @access public
-	*/
-	function isThesaurusEnabled(&$asset, $prefix)
-	{
-		return $asset->attr('active');
-
-	}//end isThesaurusEnabled()
-
-
-	/**
-	* Paint interface for showing the example xml file
+	* Paint interface for renaming a term
 	*
 	* @param object	&$asset	asset to paint
 	* @param object	&$o		outputter object
@@ -411,31 +243,48 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintPrimaryRelation(&$asset, &$o, $prefix)
+	function paintRenameTerm(&$asset, &$o, $prefix)
 	{
-		$write_access = $asset->writeAccess('attributes');
+		 if (isset($asset->_tmp['error'])) {
+			 echo '<ul>';
+			 foreach ($asset->_tmp['error'] as $message) {
+				 echo '<li class="sq-backend-warning">'.$message.'</li>';
+			 }
+			 echo '</ul>';
+		  }
 
-		$relations = $asset->attr('relations');
-		if (empty($relations)) return $write_access;
+		$write_access_allowed = $asset->writeAccess('attributes');
 
-		$primary_relation = $asset->attr('primary_relation_id');
-
-		$flipped_relations = array_flip($relations);
-		if ($write_access) {
-			combo_box($prefix.'_primary_relation', $flipped_relations, false, $primary_relation);
-		} else {
-			if (!empty($primary_relation)) {
-				echo array_get_index($flipped_relations, $primary_relation);
-			}
+		if (!$write_access_allowed) {
+			return $write_access_allowed;
 		}
+		// we need 2 text boxes with labels
+		echo '<table>
+				<tr>
+					<td>';
+					label(translate('lexicon_term_name'),$prefix.'_term_name');
+			echo '</td>
+				<td>';
+					text_box($prefix.'_term_name', null, $size='30', $max='255');
+			echo '</td>
+				</tr>
+				<tr>
+					<td>';
+					label(translate('lexicon_new_term_name'),$prefix.'_new_term_name');
+			echo '</td>
+				<td>';
+					text_box($prefix.'_new_term_name', null, $size='30', $max='255');
+			echo '</td>
+				</tr>
+			</table>';
 
-		return $write_access;
+		return $write_access_allowed;
 
-	}//end paintPrimaryRelation()
+	}//end paintRenameTerm()
 
 
 	/**
-	* Paint interface for showing the example xml file
+	* Rename all instances of a term
 	*
 	* @param object	&$asset	asset to paint
 	* @param object	&$o		outputter object
@@ -444,19 +293,105 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processPrimaryRelation(&$asset, &$o, $prefix)
+	function processRenameTerm(&$asset, &$o, $prefix)
 	{
-		$write_access = $asset->writeAccess('attributes');
-
-		$primary_relation = array_get_index($_REQUEST, $prefix.'_primary_relation');
-
-		if ($write_access) {
-			$asset->setAttrValue('primary_relation_id', $primary_relation);
+		$success = false;
+		$write_access_allowed = $asset->writeAccess('attributes');
+		if (!$write_access_allowed) {
+			return $write_access_allowed;
 		}
 
-		return $write_access;
+		$term_name		= array_get_index($_REQUEST, $prefix.'_term_name');
+		$new_term_name	= array_get_index($_REQUEST, $prefix.'_new_term_name');
 
-	}//end processPrimaryRelation()
+		if (!empty($term_name) && !empty($new_term_name) ) {
+
+			$success = $asset->renameTerm($term_name, $new_term_name);
+		}
+
+		return $success;
+
+	}//end processRenameTerm()
+
+
+	/**
+	* Paint interface for renaming a relation
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintRenameRelation(&$asset, &$o, $prefix)
+	{
+		$write_access_allowed = $asset->writeAccess('attributes');
+
+		if (!$write_access_allowed) {
+			return $write_access_allowed;
+		}
+
+		echo '<table>
+				<tr>
+					<td>';
+					label(translate('lexicon_relation'),$prefix.'_relation_name');
+			echo '	</td>
+					<td>';
+					$relations = $asset->getActiveRelations();
+					$new_relations = Array();
+					foreach ($relations as $relation) {
+						if (!is_null($relation)) {
+							$new_relations[$relation] = $relation;
+						}
+					}
+
+					combo_box($prefix.'_relation', $new_relations, false, array_get_index($relations,'0'));
+			echo '	</td>
+				</tr>
+				<tr>
+					<td>';
+					label(translate('lexicon_new_relation'),$prefix.'_new_relation');
+			echo '	</td>
+				<td>';
+					text_box($prefix.'_new_relation', null, $size='30', $max='255');
+			echo '	</td>
+				</tr>
+			</table>';
+
+		return $write_access_allowed;
+
+	}//end paintRenameRelation()
+
+
+	/**
+	* Rename all instances of a relation
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processRenameRelation(&$asset, &$o, $prefix)
+	{
+		$success = false;
+		$write_access_allowed = $asset->writeAccess('attributes');
+		if (!$write_access_allowed) {
+			return $write_access_allowed;
+		}
+
+		$relation		= array_get_index($_REQUEST, $prefix.'_relation');
+		$new_relation	= array_get_index($_REQUEST, $prefix.'_new_relation');
+
+		if (!empty($new_relation) ) {
+			$success = $asset->renameRelation($relation, $new_relation);
+		}
+
+		return $success;
+
+	}//end processRenameRelation()
 
 
 }//end class

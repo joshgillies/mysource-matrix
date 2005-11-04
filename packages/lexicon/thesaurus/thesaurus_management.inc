@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_management.inc,v 1.9 2005/10/28 03:09:35 tbarrett Exp $
+* $Id: thesaurus_management.inc,v 1.10 2005/11/04 05:57:50 arailean Exp $
 *
 */
 
@@ -23,8 +23,8 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.9 $
+* @author  Elden McDonald <emcdonald@squiz.net>
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -44,56 +44,22 @@ class Thesaurus_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 		$this->vars = Array(
-						'name'					=> Array(
-													'added'			=> '0.0.1',
-													'type'			=> 'text',
-													'default'		=> '',
-													'description'	=> 'The full name of the page',
-												   ),
-						'import_timestamp'		=> Array(
-													'added'			=> '0.0.1',
-													'type'			=> 'text',
-													'default'		=> '',
-													'description'	=> 'Date and Time of last Thesaurus import',
-												   ),
-						'active'				=> Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'boolean',
-													'default'	=> '0',
-												   ),
-						'relations'				=> Array(
-													'added'			=> '0.0.1',
-													'type'			=> 'serialise',
-													'default'		=> Array(),
-													'description'	=> 'Cached listing of all the relations in this thesaurus in the form [name => id]',
-												   ),
-						'relation_settings'		=> Array(
-													'added'			=> '0.0.1',
-													'type'			=> 'serialise',
-													'default'		=> Array(),
-													'description'	=> 'Information required for the built-in relations to function.',
-												   ),
-						'builtin_relations'		=> Array(
-													'added'			=> '0.0.1',
-													'type'			=> 'serialise',
-													'default'		=> Array(),
-													'description'	=> 'Mapping from built-in relation type to the relation id as stored in the database. Also serves as an indication of whether or not a certain relation is enabled.',
-												   ),
-						'primary_relation_id'	=> Array(
-													'added'			=> '0.2',
-													'type'			=> 'int',
-													'description'	=> 'The id of the primary relationship. For use by the asset map.',
-													'default'		=> '',
-													'parameters'	=> Array(
-																		'allow_negative'	=> false,
-																		'allow_empty'		=> true,
-																	   ),
-												   ),
-						'contents_changed'		=> Array(
-													'added'		=> '0.2',
-													'type'		=> 'boolean',
-													'default'	=> '0',
-												   ),
+						'name'				=> Array(
+												'added'		=> '0.0.1',
+												'type'		=> 'text',
+												'default'	=> '',
+											   ),
+						'relations'			=> Array(
+												'added'			=> '0.0.1',
+												'type'			=> 'serialise',
+												'default'		=> Array(),
+												'description'	=> 'Cached listing of all the relations in this thesaurus in the form [name => id]',
+											   ),
+						'contents_changed'	=> Array(
+												'added'		=> '0.2',
+												'type'		=> 'boolean',
+												'default'	=> '0',
+											   ),
 					  );
 
 	}//end constructor

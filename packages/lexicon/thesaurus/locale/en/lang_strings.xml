@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2005/10/06 04:48:40 emcdonald Exp $
+* $Id: lang_strings.xml,v 1.5 2005/11/04 05:57:50 arailean Exp $
 *
 */
 
@@ -20,7 +20,16 @@ LDAP Localised String File
 
 <strings>
 <string source="lexicon_thesaurus_enabled">Enabled. Thesaurus has been imported and is enabled. Uploading a new file will erase the existing thesaurus.</string>
-<string source="lexicon_thesaurus_disabled">Disabled. Thesaurus has not yet been imported. Please import a thesaurus XML file before using this asset.</string>
+<string source="lexicon_thesaurus_disabled">Disabled. Thesaurus has not yet been imported. Please import a thesaurus XML file</string>
 <string source="lexicon_example_xml_file">To demonstrate the expected structure of the imported XML file, an <![CDATA[<a href="%s" target="_blank">example file</a>]]> is available.</string>
-<string source="lexicon_thesaurus_not_generated">XML file is not in sync with thesaurus. Thesaurus contents have been changed. Please acquire lock to download the file.</string>
+<string source="lexicon_thesaurus_not_generated">XML file is not in sync with thesaurus. Thesaurus contents have been changed. Please acquire lock to generate a new file.</string>
+<string source="lexicon_generate_file">Generate XML file</string>
+<string source="lexicon_term_name">Term Name</string>
+<string source="lexicon_new_term_name">New Term Name</string>
+<string source="lexicon_name_not_in_use">The current term name is not in use. No terms will be updated</string>
+<string source="lexicon_new_name_in_use">The desired new term name is already in use</string>
+<string source="lexicon_relation">Relation</string>
+<string source="lexicon_new_relation">New Relation</string>
+<string source="lexicon_new_relation_in_use">The desired relation is already in use</string>
+
 </strings>
