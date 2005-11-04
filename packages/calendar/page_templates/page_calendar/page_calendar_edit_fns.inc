@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.30 2005/09/04 23:09:18 skim Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.31 2005/11/04 03:43:09 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -78,7 +78,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 					if ($write_access) {
 						asset_finder($prefix.'_root_nodes['.$l.']', $location);
 					} else {
-						echo $location_info[$location]['name'].' [# '.$location.']';
+						echo get_asset_tag_line($location);
 					}
 				?>
 				</td>
@@ -763,7 +763,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 		foreach ($all_root_nodes as $id => $details) {
 			?>
 			<tr>
-				<td class="sq-backend-table-cell"><?php echo $location_info[$id]['name']; ?></td>
+				<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($id); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 						if ($write_access) {

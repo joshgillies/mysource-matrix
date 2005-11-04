@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation_edit_fns.inc,v 1.11 2005/05/11 06:07:20 lwright Exp $
+* $Id: calendar_event_cancellation_edit_fns.inc,v 1.12 2005/11/04 03:43:09 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -107,7 +107,7 @@ class Calendar_Event_Cancellation_Edit_Fns extends Calendar_Event_Edit_Fns
 			}
 		}
 		if (!is_null($modified_event_asset)) {
-			echo $modified_event_asset->name.' (Id: #'.$modified_event_asset->id.')';
+			echo get_asset_tag_line($modified_event_asset->id);
 		} else {
 			echo translate('cal_event_cancel_no_event_selected');
 		}

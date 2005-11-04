@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_restricted_edit_fns.inc,v 1.1 2005/06/26 23:40:28 pgannavarapu Exp $
+* $Id: page_calendar_restricted_edit_fns.inc,v 1.2 2005/11/04 03:43:09 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/page_templates/page_calendar_rolling/pa
 *	Functions to help print and process the backend interface of rolling calendar page assets
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -71,11 +71,11 @@ class Page_Calendar_Restricted_Edit_Fns extends Page_Calendar_Rolling_Edit_Fns
 			return true;
 		} else {
 			$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($asset->attr('root_nodes')), '', true, 'name');
-			echo '<ul>';
+			?><ul style="margin: 1px 15px;"><?php
 			foreach ($infos as $id => $name) {
-				echo '<li>'.$name.' (ID #'.$id.')</li>';
+				echo '<li>'.get_asset_tag_line($id).'</li>';
 			}
-			echo '</ul>';
+			?></ul><?php
 			return false;
 		}
 
