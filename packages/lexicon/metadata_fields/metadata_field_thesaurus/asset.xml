@@ -14,7 +14,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.4 2005/05/17 01:28:39 arailean Exp $
+* $Id: asset.xml,v 1.5 2005/11/04 06:02:04 arailean Exp $
 *
 */
 -->
@@ -22,12 +22,17 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>lexicon</package>
 	<type_code>metadata_field_thesaurus</type_code>
-	<version>0.3</version>
+	<version>0.4</version>
 	<name>Metadata Thesaurus Field</name>
 	<description>Metadata Field for Thesaurus browsing. Allows for insertion of metadata values from the Thesaurus.</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>metadata_field</parent_type>
-	<requirements />
+	<requirements>
+		<requirement type="asset">
+			<code>thesaurus</code>
+			<version>0.2</version>
+		</requirement>
+	</requirements>
 	<flash_menu_path/>
 </asset_info>

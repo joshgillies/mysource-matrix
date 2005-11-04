@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8 2005/09/20 03:36:23 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9 2005/11/04 06:02:04 arailean Exp $
 *
 */
 -->
@@ -33,12 +33,6 @@
 		<field write_access="write:attributes"  attribute="thesaurus_assetid">
 			<assetid type_codes="thesaurus:D" />
 		</field>
-		<field attribute="allow_manual">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="force_thesaurus">
-			<boolean true_text="yes" false_text="no" />
-		</field>
 	</section>
 
 	<section name="Options" write_access="write:attributes">
@@ -46,9 +40,6 @@
 			<int width="5" />
 		</field>
 
-		<field attribute="editable">
-			<boolean true_text="yes" false_text="no" />
-		</field>
 		<field attribute="required">
 			<boolean true_text="yes" false_text="no" />
 		</field>

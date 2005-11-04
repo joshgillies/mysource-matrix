@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_management.inc,v 1.4 2005/05/17 01:28:39 arailean Exp $
+* $Id: metadata_field_thesaurus_management.inc,v 1.5 2005/11/04 06:02:04 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -82,8 +82,8 @@ class Metadata_Field_Thesaurus_Management extends Asset_Management
 	/**
 	* Gets a list of all files
 	*
+	* @return array
 	* @access private
-	* @return array(string)
 	*/
 	function _getFileList()
 	{
