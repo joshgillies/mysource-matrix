@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.53.2.9 2005/10/18 02:26:03 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.53.2.10 2005/11/06 22:45:43 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.53.2.9 $
+* @version $Revision: 1.53.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -757,11 +757,21 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	*/
 	function paintReceiptField(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
-		$assetid = $asset->attr('receipt_field');
-		asset_finder($prefix.'_rec_field', $assetid, Array('form_question_type_email_address' => 'I'));
+		$write_access = $asset->writeAccess('attributes');
 
-		return true;
+		$assetid = $asset->attr('receipt_field');
+		if ($write_access) {
+			asset_finder($prefix.'_rec_field', $assetid, Array('form_question_type_email_address' => 'I'));
+		} else {
+			if (!empty($assetid)) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				echo $asset->name.' ('.ucfirst(strtolower(translate('id'))).' #'.$asset->id.')';
+			} else {
+				echo '<em>'.translate('none').'</em>';
+			}
+		}
+
+		return $write_access;
 
 	}//end paintReceiptField()
 
@@ -804,20 +814,30 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Paints the interface for selecting a field containing send to a friend entries
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param object Form_Email			&$asset		the form involved
+	* @param object Backend_Outputter	&$o			the backend outputter
+	* @param string						$prefix		a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
 	*/
 	function paintSTAFField(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
-		$assetid = $asset->attr('staf_field');
-		asset_finder($prefix.'_staf_field', $assetid, Array('form_question_type_text' => 'D'));
+		$write_access = $asset->writeAccess('attributes');
 
-		return true;
+		$assetid = $asset->attr('staf_field');
+		if ($write_access) {
+			asset_finder($prefix.'_staf_field', $assetid, Array('form_question_type_text' => 'D'));
+		} else {
+			if (!empty($assetid)) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				echo $asset->name.' ('.ucfirst(strtolower(translate('id'))).' #'.$asset->id.')';
+			} else {
+				echo '<em>'.translate('none').'</em>';
+			}
+		}
+
+		return $write_access;
 
 	}//end paintSTAFField()
 
