@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.31 2005/10/31 05:33:11 rhoward Exp $
+* $Id: cron_job_future_status.inc,v 1.32 2005/11/06 23:00:33 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -277,11 +277,8 @@ class Cron_Job_Future_Status extends Cron_Job
 			// process the status change
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('assetid' => $asset->id, 'new_status' => $this->attr('status'));
-			bam($vars);
 			$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
-			bam($status_errors);
 			if (empty($status_errors)) {
-				bam('All Good');
 				// all OK, and we can be removed because we have done our one off task
 				$msg = translate('cron_altered_asset_status', translate('asset_format', $asset->name, $asset->id), $this->statusName($old_status), $this->statusName($asset->status));
 				return SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE;
