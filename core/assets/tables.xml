@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.30 2005/08/22 23:16:27 mmcintyre Exp $
+* $Id: tables.xml,v 1.31 2005/11/06 23:23:46 gsherwood Exp $
 *
 */
 -->
@@ -1373,32 +1373,14 @@
 			<keys>
 				<primary_key>
 					<column name="event" />
-				</primary_key>
-				<primary_key>
 					<column name="assetid" />
-				</primary_key>
-				<primary_key>
 					<column name="asset_type" />
-				</primary_key>
-				<primary_key>
 					<column name="treeid" />
-				</primary_key>
-				<primary_key>
 					<column name="tree_propagate" />
-				</primary_key>
-				<primary_key>
 					<column name="triggerid" />
-				</primary_key>
-				<primary_key>
 					<column name="parentid" />
-				</primary_key>
-				<primary_key>
 					<column name="parent_type" />
-				</primary_key>
-				<primary_key>
 					<column name="childid" />
-				</primary_key>
-				<primary_key>
 					<column name="child_type" />
 				</primary_key>
 			</keys>
