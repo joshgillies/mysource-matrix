@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.398.2.16 2005/10/19 06:18:01 sdanis Exp $
+* $Id: asset.inc,v 1.398.2.17 2005/11/06 22:23:33 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.398.2.16 $
+* @version $Revision: 1.398.2.17 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3517,7 +3517,8 @@ class Asset extends MySource_Object
 	{
 		$class_name = $this->type().'_edit_fns';
 		require_once SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'dir').'/'.$class_name.'.inc';
-		return new $class_name();
+		$edit_fns = new $class_name();
+		return $edit_fns;
 
 	}//end getEditFns()
 
@@ -4240,7 +4241,7 @@ class Asset extends MySource_Object
 		$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 		if (!$sm) return false;
 		$dirty = false;
-		$weightings =& $this->getWeightings();
+		$weightings = $this->getWeightings();
 
 		foreach ($new_weightings as $component => $weighting_data) {
 			if ($weighting_data['default']) {
@@ -4305,7 +4306,7 @@ class Asset extends MySource_Object
 	* @return Array
 	* @access public
 	*/
-	function &getWeightings()
+	function getWeightings()
 	{
 		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 		if (!$sm) return false;

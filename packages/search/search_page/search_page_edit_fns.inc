@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.49.2.3 2005/08/17 01:22:59 mmcintyre Exp $
+* $Id: search_page_edit_fns.inc,v 1.49.2.4 2005/11/06 22:24:49 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.49.2.3 $
+* @version $Revision: 1.49.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1011,8 +1011,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('links');
 
-		$search_bodycopy_link = &$asset->getFormatBodycopyLink('search_form');
-		$sis_bodycopy_link    = &$asset->getFormatBodycopyLink('sis_form'); //search in search
+		$search_bodycopy_link = $asset->getFormatBodycopyLink('search_form');
+		$sis_bodycopy_link    = $asset->getFormatBodycopyLink('sis_form'); //search in search
 		$search_customised    = !empty($search_bodycopy_link) && $search_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
 		$sis_customised       = !empty($sis_bodycopy_link) && $sis_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
 
