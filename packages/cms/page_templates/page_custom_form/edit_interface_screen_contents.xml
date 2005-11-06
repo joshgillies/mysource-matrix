@@ -11,13 +11,13 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.4 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.4.2.1 2005/11/06 22:32:12 lwright Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Contents">
+	<section name="Redirecting to Form Contents...">
 		<field>
 			<function_call>
 				<paint_function   name="redirectToFormContents"  />

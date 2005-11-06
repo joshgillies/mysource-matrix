@@ -11,35 +11,19 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_log.xml,v 1.1.2.2 2005/07/21 03:22:36 dmckee Exp $
+* $Id: lang_screen_log.xml,v 1.1.2.3 2005/11/06 22:32:12 lwright Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Enable / Disable Logging">
-		<field attribute="log_submissions">
-			<display_name>Log Submissions</display_name>
+	<section name="Redirecting to Submission Logs...">
+		<field>
+			<display_name></display_name>
 			<note></note>
-		</field>
-	</section>
-	<section name="Export">
-		<field>
-			<display_name>Date Range</display_name>
-			<note>Select the date range and file type, then click Download File. A pop-up should appear allowing you to save the resulting file</note>
 			<function_call>
-				<paint_function   name="paintExport"   />
-				<process_function name="processExport" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Submissions">
-		<field>
-			<display_name>Date Range</display_name>
-			<note>Select a date range to display - a summary of submissions in that time period will be displayed. To display the responses for a submission, check the Expand box for that submission and click Commit</note>
-			<function_call>
-				<paint_function   name="paintSubmissions"   />
-				<process_function name="processSubmissions" />
+				<paint_function   name="redirectToSubmissions"  />
+				<process_function name="redirectToSubmissions"  />
 			</function_call>
 		</field>
 	</section>
