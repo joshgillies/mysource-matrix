@@ -19,7 +19,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.4 2005/08/09 00:37:51 lwright Exp $
+#* $Id: clean.sh,v 1.5 2005/11/06 23:38:57 mmcintyre Exp $
 #*/
 
 # Creates a clean system by removing data and cache directories 
@@ -72,7 +72,7 @@ case "${DB_PHPTYPE}" in
 		if [ "${DB_PORT}" != "" ]; then
 			args="${args} -p ${DB_PORT}";
 		fi
-		psql ${args} -d "${DB_DATABASE}" -c "\d" -t -q -A -X | awk -F\| '{ print "DROP " $3 " " $2 ";" }' | psql ${args} -d "${DB_DATABASE}" -X -q
+		psql ${args} -d "${DB_DATABASE}" -c "\d" -t -q -A -X | awk -F\| '{ print "DROP " $3 " " $2 " CASCADE;" }' | psql ${args} -d "${DB_DATABASE}" -X -q
 	;;
 
 	*)
