@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.107 2005/11/04 06:03:12 sdanis Exp $
+* $Id: general.inc,v 1.108 2005/11/07 22:45:15 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.107 $
+* @version $Revision: 1.108 $
 * @package MySource_Matrix
 */
 
@@ -1004,6 +1004,13 @@ function sq_print_icon($path, $width, $height, $alt='', $title=null, $extras='')
 */
 function get_asset_tag_line($assetid, $screen='')
 {
+	static $tag_line_count = 0;
+
+	if (!$tag_line_count) {
+		?><script type="text/javascript" src="<?php echo sq_web_path('lib') ?>/js/tooltip.js"></script><?php
+	}
+	$tag_line_count++;
+
 	// If it's a shadow asset, there is nothing in the database so we cannot use
 	// the shortcut - we have to get the info from the asset instead
 	if (strpos($assetid, ':') !== false) {
@@ -1040,8 +1047,114 @@ function get_asset_tag_line($assetid, $screen='')
 	}
 
 	ob_start();
-		echo get_asset_type_icon($asset_info['type_code']);
-		echo get_asset_status_icon($asset_info['status']);
+	?>
+	<div id="asset-tag-line-<?php echo $tag_line_count ?>-more-details" style="display:none">
+		<table cellspacing="0">
+		<tr>
+			<td class="sq-backend-table-cell" style="background-color: <?php echo get_status_colour($asset_info['status']) ?>"><strong>Current Status:</strong></td>
+			<td colspan="2" class="sq-backend-table-cell" style="background-color: <?php echo get_status_colour($asset_info['status']) ?>"><i><?php echo get_status_description($asset_info['status']) ?></i></td>
+		</tr>
+		<?php
+		$headers = Array(
+					'created'        => 'Asset Created',
+					'updated'        => 'Last Updated',
+					'published'      => 'Last Published',
+					'status_changed' => 'Status Last Changed',
+				   );
+
+		foreach($headers as $time_type => $header) {
+			if ($asset_info[$time_type.'_userid'] == 0) {
+				$user_name = 'System';
+			} else {
+				$user_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($asset_info[$time_type.'_userid']), Array('asset'), false, 'name');
+				$user_name = $user_name[$asset_info[$time_type.'_userid']];
+			}
+
+			// If a time never happened (typically 'published')...
+			if (!empty($asset_info[$time_type])) {
+				$time_str = date('jS M Y g:ia', strtotime($asset_info[$time_type]));
+				$user_name = 'by '.$user_name;
+			} else {
+				$time_str = translate('never');
+				$user_name = '&nbsp;';
+			}
+			?><tr>
+				<td class="sq-backend-table-cell" ><strong><?php echo $header ?>:</strong></td>
+				<td class="sq-backend-table-cell" ><?php echo $time_str ?></td>
+				<td class="sq-backend-table-cell" ><?php echo $user_name ?></td>
+			</tr><?php
+		}
+		?></table>
+		</div>
+
+		<?php
+		// LINEAGES BOX
+		$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid);
+		?>
+		<div id="asset-tag-line-<?php echo $tag_line_count ?>-lineages" style="display:none">
+		<table style="sq-backend-table"><?php
+		foreach ($lineages as $lineage) {
+			if ($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
+				$lineage_assetids = array_keys($lineage['lineage']);
+				$lineage_assetids[] = $assetid;
+
+				$lineage_names = $lineage['lineage'];
+
+				// If we have too many in the lineage, we need to add '...' between first
+				// 2 and last 2 - including the asset itself
+				if (count($lineage['lineage']) > 3) {
+					$lineage_names = $lineage['lineage'];
+					array_splice($lineage_names, 2, -1, Array('...'));
+				}
+				$lineage_names[] = $asset_info['name'];
+				?><tr>
+					<td class="sq-backend-table-cell" ><a href="#" onclick="<?php echo asset_locator_js($lineage_assetids) ?> return false;"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
+				</tr><?php
+			}
+		}
+		?></table>
+		</div>
+
+		<?php
+		// SCREENS BOX
+		$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid);
+		?>
+		<div id="asset-tag-line-<?php echo $tag_line_count ?>-screens" style="display:none;">
+		<table cellspacing="0" width="100%">
+		<tr>
+			<td width="50%" class="sq-backend-table-cell"><strong>Static</strong></td>
+			<td width="50%" class="sq-backend-table-cell"><strong>Asset-Specific</strong></td>
+		</tr>
+		<tr><td class="sq-backend-table-cell">
+		<?php
+		// need a way to work out static screens
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$edit_fns =& $asset->getEditFns();
+		$asset = null;
+		unset($asset);
+		foreach ($edit_fns->static_screens as $code_name => $data) {
+			echo $data['name'].'<br/>';
+		}
+		?>
+		</td><td class="sq-backend-table-cell">
+		<?php
+		// need a way to work out user defined screens
+		$screens = Array('contents');
+		foreach (Array() as $code_name => $data) {
+			echo $data['name'].'<br/>';
+		}
+		?>
+		</td></tr>
+		</table>
+		</div>
+
+		<?php
+		//$asset_tag = $asset_info['name'].' (Id: #'.$assetid.')';
+		$asset_tag = null;
+
+		echo get_asset_type_icon($asset_info['type_code'], 'onclick="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-more-details\').innerHTML, \'More Info\', true);"');
+		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, translate('show_lineages'), translate('show_lineages'), ' align="absmiddle"  onclick="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-lineages\').innerHTML, \'Lineages\', true);"');
+		//echo sq_print_icon(sq_web_path('lib').'/web/images/icons/edit_mode.png', 16, 16, translate('screens'), translate('screens'), ' align="absmiddle" onclick="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-screens\').innerHTML, \'Screens\', true);"');
 
 		if ($screen_url) {
 			echo '<a href="'.$screen_url.'">';
@@ -1050,7 +1163,7 @@ function get_asset_tag_line($assetid, $screen='')
 		if ($screen_url) {
 			echo '</a>';
 		}
-		echo ' (Id: #'.$assetid.')';
+		echo ' (Id: #'.$assetid.') ';
 	$contents = ob_get_clean();
 
 	return $contents;
@@ -1058,10 +1171,10 @@ function get_asset_tag_line($assetid, $screen='')
 }//end get_asset_tag_line()
 
 
-function get_asset_type_icon($type_code) {
+function get_asset_type_icon($type_code, $extra='') {
 	$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name');
 
-	return sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($type_code), 16, 16, $type_name, $type_name, ' align="absmiddle"');
+	return sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($type_code), 16, 16, $type_name, $type_name, ' align="absmiddle" '.$extra);
 
 }//end get_asset_type_icon()
 
