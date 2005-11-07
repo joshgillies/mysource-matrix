@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2005/11/04 06:02:04 arailean Exp $
+* $Id: lang_strings.xml,v 1.5 2005/11/07 22:41:45 emcdonald Exp $
 *
 */
 
@@ -23,7 +23,7 @@ LDAP Localised String File
 	<string source="lexicon_entity_description">Description: %s</string>
 	<string source="lexicon_linked_thesaurus_inactive">Linked thesaurus is <![CDATA[<strong>INACTIVE</strong>]]>. This value cannot be set.</string>
 	<string source="lexicon_term_duplicate_removed">Duplicate terms were removed</string>
-	<string source="lexicon_meta_thesaurus_note">NOTE: You can only select terms from Thesaurus: "%1$s" #%2$s</string>
+	<string source="lexicon_meta_thesaurus_note">NOTE: You can only select terms from Thesaurus: </string>
 	<string source="lexicon_meta_wrong_thesaurus">Cannot use term "%1$s"! It belongs to wrong thesaurus (%2$s #%3$s)</string>
 	<string source="lexicon_term_lineages">Term Lineages</string>
 	<string source="lexicon_lineage">Lineage</string>
