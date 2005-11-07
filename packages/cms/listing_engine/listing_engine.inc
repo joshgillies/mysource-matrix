@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.115 2005/11/02 05:40:44 lwright Exp $
+* $Id: listing_engine.inc,v 1.116 2005/11/07 03:09:24 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.115 $
+* @version $Revision: 1.116 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2249,7 +2249,7 @@ class Listing_Engine extends Page
 		$limit_array = Array();
 
 		foreach ($group_levels as $group_key => $group_level) {
-			array_unshift($limit_array, $group_level['max_children']);
+			array_unshift($limit_array, array_get_index($group_level, 'max_children', null));
 			$new_asset_groups = Array();
 
 			foreach ($asset_groups as $key => $group_data) {
