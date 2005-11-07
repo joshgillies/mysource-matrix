@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.3 2005/07/14 01:22:48 gsherwood Exp $
+* $Id: import.inc,v 1.4 2005/11/07 04:54:13 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -39,8 +39,8 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @param string	$import_file	the location of the XML import file
 *
-* @access public
 * @return array
+* @access public
 */
 function get_import_actions($import_file)
 {
@@ -69,7 +69,7 @@ function get_import_actions($import_file)
 	$import_actions = Array();
 	reset($xml_import_vals);
 	populate_import_action_array($import_actions, $xml_import_vals);
-	
+
 	return $import_actions;
 
 }//end get_import_actions()
@@ -81,8 +81,8 @@ function get_import_actions($import_file)
 * @param array	&$store	an array in which to store the final data
 * @param array	&$vals	the parsed XML data from xml_parse_into_struct()
 *
-* @access public
 * @return void
+* @access public
 */
 function populate_import_action_array(&$store, &$vals)
 {
@@ -157,8 +157,8 @@ function populate_import_action_array(&$store, &$vals)
 * @param array	$action		the array of action data
 * @param array	&$outputs	an array in which to store import action outputs
 *
-* @access public
 * @return boolean
+* @access public
 */
 function execute_import_action($action, &$outputs)
 {
@@ -191,7 +191,7 @@ function execute_import_action($action, &$outputs)
 	$outputs[$action['action_id'][0]] = $output;
 	return true;
 
-}//end execute_import_action
+}//end execute_import_action()
 
 
 /**
@@ -204,8 +204,8 @@ function execute_import_action($action, &$outputs)
 * @param string	$attribute	the name of the input attribute to get
 * @param array	$outputs	the output values from previous import actions
 *
-* @access public
 * @return string
+* @access public
 */
 function get_import_action_input_value($action, $attribute, $outputs=Array())
 {
@@ -240,6 +240,17 @@ function get_import_action_input_value($action, $attribute, $outputs=Array())
 		$value = str_replace($match, $assetid, $value);
 	}
 
+	$matches = Array();
+	preg_match_all('|\[\[conf://([^\]]+)\]\](.*)|', $value, $matches);
+	foreach ($matches[1] as $key => $match) {
+		eval('$conf_value = SQ_CONF_'.strtoupper($match).';');
+		if ($match == 'system_root_urls') {
+			$tmp = explode("\n", $conf_value);
+			$conf_value = $tmp[0].$matches[2][0];
+		}
+		$value = $conf_value;
+	}
+
 	return $value;
 
 }//end get_import_action_input_value()
@@ -252,8 +263,8 @@ function get_import_action_input_value($action, $attribute, $outputs=Array())
 * @param array	$outputs	the output values from the import action
 * @param string	$indent		whitespace indentation to be printed before the tags
 *
-* @access public
 * @return void
+* @access public
 */
 function print_import_action_output_as_xml($action_id, $outputs, $indent='')
 {
