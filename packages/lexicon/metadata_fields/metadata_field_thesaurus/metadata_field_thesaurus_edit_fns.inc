@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.8 2005/11/04 06:02:04 arailean Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.9 2005/11/07 22:34:20 emcdonald Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -124,7 +124,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 			$term_assetids[] = $thesaurus->id.':'.$term_data['linkid'];
 		}
 
-		echo '<p>'.translate('lexicon_meta_thesaurus_note', $thesaurus->name, $thesaurus->id).'</p>';
+		echo '<p>'.translate('lexicon_meta_thesaurus_note').get_asset_tag_line($thesaurus->id, 'details').'</p>';
 
 		if (isset($asset->_tmp['error'])) {
 			echo '<ul>';
@@ -141,12 +141,22 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		if (!empty($values)) {
 			$o->openSection(translate('lexicon_term_lineages'));
 			foreach ($values as $one_term) {
+				$lineages = $thesaurus->getLineagesForTerm($one_term);
+				if (!$lineages) continue;
 				$o->openField($one_term);
-				echo translate('lexicon_lineage');
+				foreach ($lineages as $lineage) {
+					foreach ($lineage as $ancestor) {
+						echo ' / ';
+						if (isset($ancestor['relation'])) {
+							echo '('.$ancestor['relation'].') ';
+						}
+						echo $ancestor['term'];
+					}
+					echo '<br>';
+				}
 			}
 		}
 		return true;
-
 	}//end paintValueInterface()
 
 
