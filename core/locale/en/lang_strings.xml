@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.71 2005/11/07 01:11:37 sdanis Exp $
+* $Id: lang_strings.xml,v 1.72 2005/11/07 01:28:05 sdanis Exp $
 *
 */
 
@@ -199,6 +199,7 @@
 	<string source="search_and_replace_confirmation">Search and Replace Confirmation</string>
 	<string source="security_key_incorrect">Security Key Incorrect</string>
 	<string source="severity">Severity</string>
+	<string source="show_in_asset_map">Show in Asset Map</string>
 	<string source="standard_asset_field">Standard Asset Field</string>
 	<string source="standard_search_fields">Standard Search Fields</string>
 	<string source="status_changed_date">Status Changed Date</string>

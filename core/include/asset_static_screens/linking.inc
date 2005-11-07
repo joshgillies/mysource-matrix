@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.18 2005/11/07 01:10:26 sdanis Exp $
+* $Id: linking.inc,v 1.19 2005/11/07 01:33:21 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 
@@ -139,7 +139,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 				<tr>
 					<td class="sq-backend-table-cell" style="text-align: center;">
 					<?php if ($link_type & SQ_SC_LINK_BACKEND_NAV) {
-						?><a href="#"><?php echo sq_print_icon(sq_web_path('lib').'/web/images/icons/find.png', 16, 16, translate('find'), translate('find'),' style="border: 0;"  onclick="'.asset_locator_js($asset_lineage_ids).'"'); ?></a><?php
+						?><a href="#"><?php echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, translate('show_in_asset_map'), translate('show_in_asset_map'),' style="border: 0;"  onclick="'.asset_locator_js($asset_lineage_ids).'"'); ?></a><?php
 					}
 					?></td>
 					<td class="sq-backend-table-cell" style="text-align: center;">
