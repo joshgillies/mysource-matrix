@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.17 2005/11/07 00:17:57 sdanis Exp $
+* $Id: linking.inc,v 1.18 2005/11/07 01:10:26 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 
@@ -137,7 +137,11 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 			ob_start();
 				?>
 				<tr>
-					<td class="sq-backend-table-cell" style="text-align: center;"><a href="#"><img src="http://beta.squiz.net/sdanis_matrixd/__data/asset_types/listing_engine/icon.png" style="width: 16; height:16; border:0" onClick="<?php echo asset_locator_js($asset_lineage_ids); ?>"></a></td>
+					<td class="sq-backend-table-cell" style="text-align: center;">
+					<?php if ($link_type & SQ_SC_LINK_BACKEND_NAV) {
+						?><a href="#"><?php echo sq_print_icon(sq_web_path('lib').'/web/images/icons/find.png', 16, 16, translate('find'), translate('find'),' style="border: 0;"  onclick="'.asset_locator_js($asset_lineage_ids).'"'); ?></a><?php
+					}
+					?></td>
 					<td class="sq-backend-table-cell" style="text-align: center;">
 						<?php echo $linkid; ?>
 					</td>
@@ -166,7 +170,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header" style="text-align: center; white-space: nowrap;" width="5%"> </td>
+				<td class="sq-backend-table-header" style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('find'); ?></td>
 				<td class="sq-backend-table-header" style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('link_id'); ?></td>
 				<td class="sq-backend-table-header" style="text-align: center;" width="10%"><?php echo translate('link_type'); ?></td>
 				<td class="sq-backend-table-header" width="70"><?php echo translate('lineage'); ?></td>
@@ -259,6 +263,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 	return $created;
 
 }//end paintLinking()
+
 
 /**
 * Processes the interface for viewing links to/from this asset
