@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.3 2005/11/07 05:16:07 pgannavarapu Exp $
+* $Id: rss_feed_reader.inc,v 1.4 2005/11/07 22:50:17 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -164,11 +164,19 @@ class RSS_Feed_Reader
 	}//end setInputFile()
 
 
+	/**
+	* Set the file pointer
+	*
+	* @param int	$xml	the pointer to the xml file
+	*
+	* @return void
+	* @access public
+	*/
 	function setInputString($xml)
 	{
 		$this->fp = $xml;
 
-	}//end setInputString
+	}//end setInputString()
 
 
 	/**

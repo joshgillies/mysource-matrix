@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_writer.inc,v 1.2 2005/11/07 04:24:35 pgannavarapu Exp $
+* $Id: rss_feed_writer.inc,v 1.3 2005/11/07 22:50:17 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * Creates an XML document with all the data that is provided
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -209,7 +209,9 @@ class RSS_Feed_Writer
 
 	/**
 	* Gets the RSS in a string format for all of the information saved like the channel, image and items
+	*
 	* @param boolean	$header	if an appropriate header has to be included or not. Defaults to true
+	*
 	* @return string
 	* @access public
 	*/
