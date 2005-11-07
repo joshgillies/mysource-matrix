@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.32 2005/10/30 22:16:08 dmckee Exp $
+* $Id: page_account_manager.inc,v 1.33 2005/11/07 01:04:11 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -96,17 +96,9 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 		// if we are using email validation - ensure that the validation assets are created
 		if ($this->attr('use_email_validation')) {
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user_group', true, 'pending_accounts');
-			if (empty($link)) {
-				$group_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => 0, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => 'pending_accounts');
-				$GLOBALS['SQ_SYSTEM']->am->includeAsset('user_group');
-
-				$group =& new User_Group();
-				$group->setAttrValue('name', 'Pending Accounts');
-				if (!$group->create($group_link)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
+			$pending_accounts_groupid = $this->_getPendingAccountsGroupId();
+			if (empty($pending_accounts_groupid)) {
+				$this->_createPendingAccountsGroup();
 			}
 		}
 
@@ -131,8 +123,10 @@ class Page_Account_Manager extends Page_Asset_Builder
 			// this person is logged in - so redirect them to limbo where they can edit their details
 			$redirect_url = strip_url(current_url()).'/'.SQ_CONF_LIMBO_SUFFIX.'/?ignore_frames=1';
 			?>
-			<script language="Javascript">
+			<script type="text/javascript"><!--
+			//<![CDATA[
 				document.location = "<?php echo $redirect_url; ?>";
+			//]]> -->
 			</script>
 			<?php
 			echo translate('cms_account_manager_login_redirect_link', $redirect_url);
@@ -224,7 +218,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	* This function builds on the Asset Builder one by auto filling the username field of
 	* the login form that may be printed once the user account has been created.
 	*
-	* @return boolean	indicating success
+	* @return boolean
 	* @access private
 	* @see Page_Asset_Builder::_processGlobalActions()
 	*/
@@ -233,91 +227,81 @@ class Page_Account_Manager extends Page_Asset_Builder
 		list($create_type) = array_keys($this->attr('create_type'));
 
 		if (isset($_GET['action']) && (strtolower($_GET['action']) == 'validate')) {
-			// validate a pending user account
-			$id = (isset($_REQUEST['amid'])) ? trim($_REQUEST['amid']) : '';
-			$locs = (isset($_REQUEST['amlocs'])) ? trim($_REQUEST['amlocs']) : '';
-			if (!empty($id)) {
-
-				$pending_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user_group', true, 'pending_accounts');
-				if (!empty($pending_link)) {
-					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($pending_link['minorid'], SQ_LINK_TYPE_1, 'user', false, $id);
-					if (!empty($link)) {
-						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-
-						// Figure out create locations.
-						//    - Mandatory ones are easily looked up
-						//    - Rule-based ones are calculated from an
-						//      array of asset attribute values
-						//    - User-selected ones are read from amlocs
-						//      and checked for validity
-						$user_attributes = Array();
-						$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type);
-						foreach ($attrs as $attr => $type) {
-							$user_attributes[$attr] = $user->attr($attr);
-						}
-						$create_locations = parent::getFixedCreateLocations() + parent::getRuleMatchCreateLocations($create_type, $user_attributes);
-						$selectable_create_locations = parent::getAllSelectableCreateLocations();
-						if (strpos($locs, '-') !== false) {
-							$selected_create_location_codes = explode('-', $locs);
-							foreach ($selected_create_location_codes as $code) {
-								// we will add this create location and type if the location id
-								// is a valid option AND the link type is no more dominant than
-								// the max allowed link type for the location AND any existing
-								// link type for that location is no better than the proposed one
-								list($loc_id, $link_type) = explode(':', $code);
-								if (isset($selectable_create_locations[$loc_id]) && ($selectable_create_locations[$loc_id] <= $link_type)) {
-									if (!isset($create_locations[$loc_id]) || ($create_locations[$loc_id] > $link_type)) {
-										$create_locations[$loc_id] = $link_type;
-									}
-								}
+			$user =& $this->_getCurrentPendingUser();
+			if (!is_null($user)) {
+				// Figure out create locations.
+				//    - Mandatory ones are easily looked up
+				//    - Rule-based ones are calculated from an
+				//      array of asset attribute values
+				//    - User-selected ones are read from amlocs
+				//      and checked for validity
+				$user_attributes = Array();
+				$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type);
+				foreach ($attrs as $attr => $type) {
+					$user_attributes[$attr] = $user->attr($attr);
+				}
+				$create_locations = parent::getFixedCreateLocations() + parent::getRuleMatchCreateLocations($create_type, $user_attributes);
+				$selectable_create_locations = parent::getAllSelectableCreateLocations();
+				$locs = (isset($_REQUEST['amlocs'])) ? trim($_REQUEST['amlocs']) : '';
+				if (strpos($locs, '-') !== false) {
+					$selected_create_location_codes = explode('-', $locs);
+					foreach ($selected_create_location_codes as $code) {
+						// we will add this create location and type if the location id
+						// is a valid option AND the link type is no more dominant than
+						// the max allowed link type for the location AND any existing
+						// link type for that location is no better than the proposed one
+						list($loc_id, $link_type) = explode(':', $code);
+						if (isset($selectable_create_locations[$loc_id]) && ($selectable_create_locations[$loc_id] <= $link_type)) {
+							if (!isset($create_locations[$loc_id]) || ($create_locations[$loc_id] > $link_type)) {
+								$create_locations[$loc_id] = $link_type;
 							}
 						}
-
-						// set the install run level because we are creating an asset without being
-						// logged in - so any write access checks will fail
-						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-
-							$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-							// link the user asset into the locations it is supposed to go
-							foreach ($create_locations as $link_parentid => $link_type) {
-								$link_parentid = (int) $link_parentid;
-
-								$link_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_parentid, '', true);
-								if (is_null($link_parent)) continue;
-								if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($link_parent, $user, $link_type)) {
-									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-									return false;
-								}
-							}
-
-							// remove the link from the pending accounts group
-							if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid'])) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								return false;
-							}
-
-							// set the status of the asset
-							if (!parent::_setCreateStatus($user)) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								return false;
-							}
-
-							// all done
-							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-
-						$this->_current_state = 'create_login';
-						$_POST['SQ_LOGIN_USERNAME'] = $user->attr('username');
-						$this->_replacements['login_invite'] = $this->attr('login_invite');
-						$this->_replacements['login_form'] = $this->getKeywordReplacement('login_form');
-						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
-						return true;
 					}
 				}
+
+				// set the install run level because we are creating an asset without being
+				// logged in - so any write access checks will fail
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+					// link the user asset into the locations it is supposed to go
+					foreach ($create_locations as $link_parentid => $link_type) {
+						$link_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_parentid, '', true);
+						if (is_null($link_parent)) continue;
+						if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($link_parent, $user, $link_type)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+							return false;
+						}
+					}
+
+					// remove the link from the pending accounts group
+					if (!$this->_removeCurrentPendingUserFromPendingGroup($user)) {
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+						return false;
+					}
+
+					// set the status of the asset
+					if (!parent::_setCreateStatus($user)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+						return false;
+					}
+
+					// all done
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+				$this->_current_state = 'create_login';
+				$_POST['SQ_LOGIN_USERNAME'] = $user->attr('username');
+				$this->_replacements['login_invite'] = $this->attr('login_invite');
+				$this->_replacements['login_form'] = $this->getKeywordReplacement('login_form');
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
+				return true;
 			}
-		}
+		}//end if action is validate
 
 		// additional checks if we are using email validation
 		if ($this->attr('use_email_validation') && isset($_POST['ASSET_BUILDER_ACTION']) && strtolower($_POST['ASSET_BUILDER_ACTION']) == 'create') {
@@ -360,7 +344,9 @@ class Page_Account_Manager extends Page_Asset_Builder
 							$replacements = Array();
 							$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type);
 							foreach ($attrs as $attr => $type) {
-								if ($attr == 'password') continue;
+								if (($attr == 'password') || ($type == 'serialise')) {
+									continue;
+								}
 								$replacements[$attr] = $this->_tmp['created_asset']->attr($attr);
 							}
 
@@ -409,22 +395,104 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 
 	/**
+	* Create the pending accounts user group
+	*
+	* @return void
+	* @access protected
+	*/
+	function _createPendingAccountsGroup()
+	{
+		$group_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => 0, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => 'pending_accounts');
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('user_group');
+
+		$group =& new User_Group();
+		$group->setAttrValue('name', 'Pending Accounts');
+		if (!$group->create($group_link)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+	}//end _createPendingAccountsGroup()
+
+
+	/**
+	* Get the ID of the Pending Accounts group
+	*
+	* @return void
+	* @access public
+	*/
+	function _getPendingAccountsGroupId()
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user_group', true, 'pending_accounts');
+		if (empty($link)) {
+			return 0;
+		} else {
+			return $link['minorid'];
+		}
+
+	}//end _getPendingAccountsGroupId()
+
+
+	/**
+	* Get the current pending user (for a request that came from a validation email)
+	*
+	* @return object
+	* @access protected
+	*/
+	function &_getCurrentPendingUser()
+	{
+		$user = null;
+		$id = (isset($_REQUEST['amid'])) ? trim($_REQUEST['amid']) : '';
+		if (!empty($id)) {
+			$pending_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user_group', true, 'pending_accounts');
+			if (!empty($pending_link)) {
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($pending_link['minorid'], SQ_LINK_TYPE_1, 'user', false, $id);
+				if (!empty($link)) {
+					$this->_tmp['pending_link'] = $link;
+					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+				}
+			}
+		}
+		return $user;
+
+	}//end _getCurrentPendingUser()
+
+
+	/**
+	* Remove a user from the pending-users group
+	*
+	* @return boolean
+	* @access protected
+	*/
+	function _removeCurrentPendingUserFromPendingGroup()
+	{
+		if (!empty($this->_tmp['pending_link'])) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($this->_tmp['pending_link']['linkid'])) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+		}
+		return true;
+
+	}//end _removeCurrentPendingUserFromPendingGroup()
+
+
+	/**
 	* Work out the create locations for a new asset
 	*
 	* @param string	$create_type	the type of asset we are getting create locations for
 	*
-	* @return array					parentid => link_type
+	* @return array
 	* @access private
 	*/
 	function getCreateLocations($create_type)
 	{
 		if ($this->attr('use_email_validation')) {
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user_group', true, 'pending_accounts');
-			if (empty($link)) {
+			$pending_groupid = $this->_getPendingAccountsGroupId();
+			if ($pending_groupid) {
+				return Array($pending_groupid => SQ_LINK_TYPE_1);
+			} else {
 				return Array();
-			}
-			else {
-				return Array($link['minorid'] => SQ_LINK_TYPE_1);
 			}
 		} else {
 			return parent::getCreateLocations($create_type);
@@ -436,7 +504,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	/**
 	* Takes the default link that was created and allows for adjustments if necessary
 	*
-	* @param Array $link	the current link array
+	* @param array	&$link	the current link array
 	*
 	* @return void
 	* @access private
@@ -456,7 +524,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	*
 	* If we are using email validation we dont change the status of the new asset
 	*
-	* @param object Asset	&$new_asset		the newly created asset
+	* @param object	&$new_asset	the newly created asset
 	*
 	* @return boolean
 	* @access private
@@ -465,8 +533,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	{
 		if ($this->attr('use_email_validation')) {
 			return true;
-		}
-		else {
+		} else {
 			return parent::_setCreateStatus($new_asset);
 		}
 
@@ -476,8 +543,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
-	* @param object Backend_Outputter	&$o
-	* @param Array(string)				&$link	information used to create the initial link
+	* @param object	&$o
+	* @param array	&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
@@ -511,8 +578,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	{
 		if (SQ_IN_LIMBO) {
 			return is_a($GLOBALS['SQ_SYSTEM']->user, 'user');
-		}
-		else {
+		} else {
 			return parent::backendAccess();
 		}
 
@@ -522,7 +588,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	/**
 	* Return an array of bodycopies that need to be created
 	*
-	* @return Array
+	* @return array
 	* @access private
 	*/
 	function _getBodycopies()
@@ -543,9 +609,9 @@ class Page_Account_Manager extends Page_Asset_Builder
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
-	* @param &object Asset	&$broadcaster	the asset that triggered the event
-	* @param Array			$vars			the vars that get submitted by the broadcaster
-	*										we add keywords to the $vars['keywords'] array
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
 	*
 	* @return boolean
 	* @access private
@@ -585,8 +651,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 	/**
 	* Get the keyword replacements used in not_logged_in bodycopy
 	*
+	* @return array
 	* @access protected
-	* @return array(keyword => replacement)
 	*/
 	function _getLoggedInKeywords()
 	{
@@ -609,8 +675,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 	/**
 	* Get the keyword replacements used in not_logged_in bodycopy
 	*
+	* @return array
 	* @access protected
-	* @return array(keyword => replacement)
 	*/
 	function _getCreateLoginKeywords()
 	{
