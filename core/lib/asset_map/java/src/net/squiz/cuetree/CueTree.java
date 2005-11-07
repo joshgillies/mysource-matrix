@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.8 2005/09/05 06:41:53 ndvries Exp $
+* $Id: CueTree.java,v 1.9 2005/11/07 22:02:29 sdanis Exp $
 *
 */
 
@@ -939,7 +939,12 @@ public class CueTree extends JTree {
 					handleMultipleSources(evt.getPoint());
 				return;
 			}
-
+			
+			TreePath[] selectedPaths = getSelectionPaths();
+			if (selectedPaths != null && selectedPaths.length != 1) {
+				return;
+			}
+			
 			TreePath path = getPathForLocation(evt.getX(), evt.getY());
 			if (path == null)
 				return;
