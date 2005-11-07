@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.13 2005/11/07 04:26:29 rong Exp $
+* $Id: bulk_mailer.inc,v 1.14 2005/11/07 22:28:14 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -601,6 +601,7 @@ class Bulk_Mailer
 		ob_end_clean();
 
 		// cache html content
+		if (!is_dir($job_path.'/cache/')) create_directory($job_path.'/cache/');
 		if (!string_to_file($content, $job_path.'/cache/content_file.html')) {
 			trigger_localised_error('BML0008', E_USER_WARNING, $job_path.'/cache/content_file.html');
 			return false;
