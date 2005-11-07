@@ -1,5 +1,38 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.6.2
+
+Complete Changelog
+----------------------
+
+Core
+
+* Fixed bug #950: Logging out of a site inside a site network causes an infinite reload loop
+* Fixed bug #953: Paint Layouts removed from assets when site URL changed
+* Fixed bug #957: Backend users without explicit read access cannot see public assets in menu
+* Fixed bug #977: Status safe edit pending approval still allows editing changes
+* Fixed bug #984: No primary key on trig_hash table
+* Fixed bug #988: Stalks Menu creates errors
+* Fixed bug #998: HTML Tidy does not produced xhtml code
+
+CMS
+
+* Fixed bug #876: Invalid ID identifier in input field (custom form)
+* Fixed bug #952: DB error if no events to list (listing engine)
+* Fixed bug #955: Asset Builder: apostrophes in JS parameters (asset builder)
+* Fixed bug #958: Receipt and STAF fields are not cleared when question deleted (custom form)
+* Fixed bug #960: Name attribute inside form elements in not XHTML strict (custom form)
+* Fixed bug #961: Custom form referral URL input field is not valid XHTML (custom form)
+* Fixed bug #965: Global Search & Replace doesnt handle "&" in search string (search manager)
+* Fixed bug #968: Account Manager allows frontend users to change their status (account manager)
+* Fixed bug #969: Locale strings missing in Asset Builder (asset builder)
+* Fixed bug #970: Custom group asset listings show parent assets outside of the root node (listing engine)
+* Fixed bug #975: Cant set custom rule text for optional questions (custom form)
+* Fixed bug #1000: Selected Recipient and STAF field do not show when form unlocked (custom form)
+
+
+
+
 VERSION 3.6.1
 
 Featured Changes
