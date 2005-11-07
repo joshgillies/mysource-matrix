@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.5 2005/11/07 01:07:23 arailean Exp $
+* $Id: lang_errors.xml,v 1.6 2005/11/07 05:49:49 arailean Exp $
 *
 */
 
@@ -82,5 +82,6 @@
 	<error code="LEX0020">This term link already exists. Cannot move.</error>
 		<!-- lexicon/thesaurus/thesaurus.inc:1648: -->
 
+	<error code="LEX0021">This term has multiple parent and child terms. Renaming of this term is not possible.</error>
 
 </errors>
