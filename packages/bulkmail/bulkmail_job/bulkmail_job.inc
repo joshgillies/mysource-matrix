@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.12 2005/11/04 02:50:23 rong Exp $
+* $Id: bulkmail_job.inc,v 1.13 2005/11/07 00:45:37 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -90,7 +90,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	function sendPreviewMail($recipient)
 	{
 		if (!$this->isValidJob()) {
-			trigger_localised_error('BML0013', E_USER_WARNING, $this->id);
+			trigger_localised_error('BML0013', E_USER_WARNING, get_asset_tag_line($this->id));
 			return false;
 		}
 
@@ -120,13 +120,15 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
 		$_SESSION = $old_session;
 
-		// get header details
+		// get header details, required and normal headers
 		$setting = $this->attr('details_setting');
 		$use_post_office_header = array_get_index($setting, 'use_post_office_header', 0);
 		if ($use_post_office_header) {
-			$header_details = $post_office->attr('header_details');
+			$header_details = $post_office->attr('required_header');
+			$header_details += $post_office->attr('header_details');
 		} else {
-			$header_details = $this->attr('header_details');
+			$header_details = $this->attr('required_header');
+			$header_details += $this->attr('header_details');
 		}
 		if (isset($header_details['Subject'])) {
 			// add 'Preview' to the subject header
@@ -187,9 +189,11 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		$setting = $this->attr('details_setting');
 		$use_post_office_header = array_get_index($setting, 'use_post_office_header', 0);
 		if ($use_post_office_header) {
-			$header_details = $post_office->attr('header_details');
+			$header_details = $post_office->attr('required_header');
+			$header_details += $post_office->attr('header_details');
 		} else {
-			$header_details = $this->attr('header_details');
+			$header_details = $this->attr('required_header');
+			$header_details += $this->attr('header_details');
 		}
 		if (!isset($header_details['from']) && !isset($header_details['From'])) {
 			$error[] = translate('bulkmail_warning_header_from_field');
@@ -246,7 +250,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 			// only set job to live if it is valid
 			if ($this->isValidJob()) {
 				if (!$bm->addJob($this)) {
-					trigger_localised_error('BML0012', E_USER_WARNING, $this->id);
+					trigger_localised_error('BML0012', E_USER_WARNING, get_asset_tag_line($this->id));
 					return false;
 				}
 			} else {

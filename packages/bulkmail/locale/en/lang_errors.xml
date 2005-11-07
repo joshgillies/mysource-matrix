@@ -4,7 +4,7 @@
 	<error code="BML0003">No Content Page set for %1$s "%2$s" (Id #%3$s).</error>
 	<error code="BML0004">Pre-selected user for content generation is not set for %1$s "%2$s" (Id #%3$s).</error>
 	<error code="BML0005">No Post Office set for %1$s "%2$s" (Id #%3$s).</error>
-	<error code="BML0006">Unable to login as %1$s "%2$s" (Id #%3$s) to generate content.</error>
+	<error code="BML0006">Unable to login as %s to generate content.</error>
 
 	<error code="BML0007">Unable to create file: %s.</error>
 	<error code="BML0008">File "%s" is not writable.</error>
@@ -13,7 +13,7 @@
 	<error code="BML0010">Unable to set root user as the current user.</error>
 	<error code="BML0011">Failed to fork.</error>
 
-	<error code="BML0012">Failed adding new job entry (Id #%s) to database.</error>
-	<error code="BML0013">Job (Id #%s) is not valid.</error>
+	<error code="BML0012">Failed adding %s entry to database.</error>
+	<error code="BML0013">%s is not a valid job.</error>
 
 </errors>

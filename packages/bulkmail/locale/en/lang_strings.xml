@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.5 2005/11/04 02:50:23 rong Exp $
+* $Id: lang_strings.xml,v 1.6 2005/11/07 00:45:37 rong Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -74,6 +74,7 @@ Please click on the following link if you would like to proceed:
 	<string source="bulkmail_header_detail_check_enabled">If you use Post Office header details, you must commit before the changes will take effect.</string>
 	<string source="bulkmail_header_detail_check_disabled">Default setting not available, Bulkmail Job is not linked to any Bulkmail Post Office.</string>
 	<string source="bulkmail_header_detail_check_field_name">Use Post Office Header Details</string>
+	<string source="bulkmail_header_detail_required_field">Required Fields</string>
 	<string source="bulkmail_header_detail_field_name">Field Name</string>
 	<string source="bulkmail_header_detail_field_body">Field Body</string>
 	<string source="bulkmail_header_new_field_name">New Field Name</string>

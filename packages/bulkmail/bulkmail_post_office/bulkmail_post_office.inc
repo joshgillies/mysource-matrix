@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office.inc,v 1.12 2005/11/04 02:50:23 rong Exp $
+* $Id: bulkmail_post_office.inc,v 1.13 2005/11/07 00:45:37 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once 'Mail.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -123,7 +123,7 @@ class Bulkmail_Post_Office extends Asset
 			// bulkmail job can only be in a single bulkmail post office
 			$network_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'bulkmail_post_office', false, 'minor');
 			if (!empty($network_link)) {
-				return 'Bulkmail Job can only be linked under one Bulkmail Post Office';
+				return translate('bm_one_post_office_for_job');
 			}
 		}
 

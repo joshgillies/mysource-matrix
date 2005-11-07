@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.11 2005/11/04 02:50:23 rong Exp $
+* $Id: bulk_mailer.inc,v 1.12 2005/11/07 00:45:37 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -291,7 +291,12 @@ class Bulk_Mailer
 						// fork since we cannot call printFrontend multiple times
 						$pid = $this->fork();
 						if (!$pid) {
+
+							$this->updateProgress($progress_path, $user_id);
 							$content = $this->generateBmailContent($content_details, $job_path, $user_id);
+							// skip if we cannot generate content for this user, TODO: report problematic user?
+							if (empty($content)) continue;
+
 							$mime->setHtmlBody($content);
 							//$mime->setTXTBody($content);
 							$body = @$mime->get();
@@ -300,7 +305,7 @@ class Bulk_Mailer
 							$headers = @$mime->headers($header_details);
 							// note: 'from' field must be defined in the header details
 							$mail_id = $mail_queue->put('', $to, $headers, $body);
-							$this->updateProgress($progress_path, $user_id);
+
 							exit;
 						}
 
@@ -625,6 +630,11 @@ class Bulk_Mailer
 		$type = array_get_index($content_details, 'type', 'each_user');
 		$user = null;
 
+		// note: must run cacheContent() before calling this function
+		if (file_exists($job_path.'/cache/content_file.html')) {
+			$content = file_to_string($job_path.'/cache/content_file.html');
+		}
+
 		// load this user, for content generation and keyword replacement
 		if ($user_id) $user =& $am->getAsset($user_id);
 
@@ -635,8 +645,8 @@ class Bulk_Mailer
 			if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($user)) {
 				// happens when the user is not live or in trash
 				$type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($user->type(), 'name');
-				trigger_localised_error('BML0006', E_USER_WARNING, $type, $user->name, $user->id);
-				return "generateBmailContent: cannot login User $user->name (Id # $user->id)\n";
+				trigger_localised_error('BML0006', E_USER_WARNING, get_asset_tag_line($user_id));
+				return '';
 			}
 			$page =& $am->getAsset($content_details['content_page']);
 
@@ -646,17 +656,6 @@ class Bulk_Mailer
 				@$page->printFrontend();
 				$content = ob_get_contents();
 			ob_end_clean();
-		}
-
-		// if we cannot generate content, load the cached content,
-		// note: must run cacheContent() before calling this function
-		if (empty($content)) {
-			if (file_exists($job_path.'/cache/content_file.html')) {
-				$content = file_to_string($job_path.'/cache/content_file.html');
-			} else {
-				trigger_localised_error('BML0009', E_USER_WARNING, $job_path.'/cache/content_file.html');
-				return "generateBmailContent: Unable to read from cache file.\n";
-			}
 		}
 
 		// keyword replacement

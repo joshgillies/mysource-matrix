@@ -12,7 +12,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -252,6 +252,8 @@ class Bulkmail_Manager extends Asset
 	/**
 	* Deletes a job entry from the DB table when it's cancelled/finished
 	*
+	* Also removes the data directory if the job is an ad-hoc job
+	*
 	* @param int	$job_id	the unique id of the job entry
 	*
 	* @return boolean
@@ -268,6 +270,15 @@ class Bulkmail_Manager extends Asset
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		// purge the data dir if it is an ad-hoc job
+		// TODO: check this part once we can add ad-hoc job
+		$job_id_parts = explode(':', $job_id);
+		if (isset($job_id_parts[1])) {
+			$post_office =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id_parts[0]);
+			$path = $post_office->data_path.'/.data/'.$job_id_parts[1];
+			if (is_dir($path)) delete_directory($path);
+		}
 
 		return true;
 
@@ -498,9 +509,11 @@ class Bulkmail_Manager extends Asset
 
 		// whether to use post office's or job's header details
 		if ($job->vars['details_setting']['value']['use_post_office_header']) {
-			$details_info['header'] = $post_office->vars['header_details']['value'];
+			$details_info['header'] = $post_office->vars['required_header']['value'];
+			$details_info['header'] += $post_office->vars['header_details']['value'];
 		} else {
-			$details_info['header'] = $job->vars['header_details']['value'];
+			$details_info['header'] = $job->vars['required_header']['value'];
+			$details_info['header'] += $job->vars['header_details']['value'];
 		}
 		// removes fields with empty values, eg. empty 'From' field will cause problem
 		foreach ($details_info['header'] as $field => $value) {

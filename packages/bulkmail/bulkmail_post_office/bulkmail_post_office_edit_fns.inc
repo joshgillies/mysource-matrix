@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.10 2005/11/04 02:50:23 rong Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.11 2005/11/07 00:45:37 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -502,18 +502,50 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	{
 		$width = 60;
 		$write_access = $asset->writeAccess('attributes');
-		$header_details = $asset->attr('header_details');
 
-		// paint existing header fields
+		// paint the required header detail fields
+		// do not add delete box for required header fields
+		$required_header = $asset->attr('required_header');
+		$o->openField(translate('bulkmail_header_detail_required_field'), '', '', $hide, $prefix.'_header_detail');
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header"><b><?php echo translate('bulkmail_header_detail_field_name'); ?></b></td>
+					<td class="sq-backend-table-header"><b><?php echo translate('bulkmail_header_detail_field_body'); ?></b></td>
+				</tr>
+				<?php
+					$index = 0;
+					foreach ($required_header as $field_name => $field_body) {
+						if ($write_access) {
+							// field_name[i] is not a valid xhtml id for form fields
+							?><tr>
+								<td class="sq-backend-table-cell"><?php echo text_box($prefix.'_header_detail_required_fields_name_'.$index, $field_name);?></td>
+								<td class="sq-backend-table-cell"><?php echo text_box($prefix.'_header_detail_required_fields_body_'.$index, $field_body, $width);?></td>
+							</tr><?php
+						} else {
+							?><tr>
+								<td class="sq-backend-table-cell"><?php echo $field_name;?></td>
+								<td class="sq-backend-table-cell" colspan="2"><?php echo htmlspecialchars($field_body);?></td>
+							</tr><?php
+						}
+						$index++;
+					}
+				?>
+			</table>
+			<?php
+		$o->closeField();
+
+		// paint extra header fields
+		$header_details = $asset->attr('header_details');
 		$o->openField(translate('fields'), '', '', $hide, $prefix.'_header_detail');
 			?>
 			<table class="sq-backend-table">
 				<tr>
 					<td class="sq-backend-table-header"><b><?php echo translate('bulkmail_header_detail_field_name'); ?></b></td>
-					<td align="center" class="sq-backend-table-header"><b><?php echo translate('bulkmail_header_detail_field_body'); ?></b></td>
+					<td class="sq-backend-table-header"><b><?php echo translate('bulkmail_header_detail_field_body'); ?></b></td>
 					<?php
 					if ($write_access) {
-						?><td align="center" width="70" class="sq-backend-table-header"><b><?php echo translate('delete_question'); ?></b></td><?php
+						?><td class="sq-backend-table-header"><b><?php echo translate('delete_question'); ?></b></td><?php
 					}
 					?>
 				</tr>
@@ -523,14 +555,14 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 						if ($write_access) {
 							// field_name[i] is not a valid xhtml id for form fields
 							?><tr>
-								<td align="left" class="sq-backend-table-cell"><?php echo text_box($prefix.'_header_detail_fields_name_'.$index, $field_name);?></td>
-								<td align="left" class="sq-backend-table-cell"><?php echo text_box($prefix.'_header_detail_fields_body_'.$index, $field_body, $width);?></td>
-								<td align="center" class="sq-backend-table-cell"><?php check_box($prefix.'_header_detail_fields_delete_'.$index, true, false);?></td>
+								<td class="sq-backend-table-cell"><?php echo text_box($prefix.'_header_detail_fields_name_'.$index, $field_name);?></td>
+								<td class="sq-backend-table-cell"><?php echo text_box($prefix.'_header_detail_fields_body_'.$index, $field_body, $width);?></td>
+								<td class="sq-backend-table-cell"><?php check_box($prefix.'_header_detail_fields_delete_'.$index, true, false);?></td>
 							</tr><?php
 						} else {
 							?><tr>
-								<td align="left" class="sq-backend-table-cell"><?php echo $field_name;?></td>
-								<td align="left" class="sq-backend-table-cell" colspan="2"><?php echo htmlspecialchars($field_body);?></td>
+								<td class="sq-backend-table-cell"><?php echo $field_name;?></td>
+								<td class="sq-backend-table-cell" colspan="2"><?php echo htmlspecialchars($field_body);?></td>
 							</tr><?php
 						}
 						$index++;
@@ -571,6 +603,17 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		if (!$asset->writeAccess('attributes')) return false;
 
 		// update and delete fields
+		$required_header = Array();
+		$index = 0;
+		// changed naming convention from name[i] to name_i to comply with xhtml standards
+		while (isset($_POST[$prefix.'_header_detail_required_fields_name_'.$index])) {
+			$name = $_POST[$prefix.'_header_detail_required_fields_name_'.$index];
+			$body = $_POST[$prefix.'_header_detail_required_fields_body_'.$index];
+			$required_header[$name] = $body;
+			$index++;
+		}
+
+		// update and delete fields
 		$header_details = Array();
 		$index = 0;
 		// changed naming convention from name[i] to name_i to comply with xhtml standards
@@ -592,6 +635,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			$header_details[$new_field_name] = $new_field_body;
 		}
 
+		$asset->setAttrValue('required_header', $required_header);
 		$asset->setAttrValue('header_details', $header_details);
 		return true;
 

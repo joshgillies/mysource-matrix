@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2005/11/03 00:52:24 ndvries Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2005/11/07 00:45:37 rong Exp $
 *
 */
 -->
@@ -45,5 +45,23 @@
 			<paint_function name="paintThresholds" />
 			<process_function name="processThresholds" />
 		</function_call>
+	</section>
+	<section name="Peak Hour Setting" write_access="write:attributes">
+		<field attribute="time_range_from">
+			 <datetime min=" 00:00" max="23:59" use_picker="0" allow_period="1">
+				<show>
+					<h style="s" allow_null="1" />
+					<i style="s" allow_null="1" />
+				</show>
+			</datetime>
+		</field>
+		<field attribute="time_range_to">
+			 <datetime min=" 00:00" max="23:59" use_picker="0" allow_period="1">
+				<show>
+					<h style="s" allow_null="1" />
+					<i style="s" allow_null="1" />
+				</show>
+			</datetime>
+		</field>
 	</section>
 </contents>
