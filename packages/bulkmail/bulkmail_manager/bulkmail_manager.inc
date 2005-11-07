@@ -12,7 +12,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -499,32 +499,29 @@ class Bulkmail_Manager extends Asset
 		$details_info = Array();
 
 		// mail queue options
-		$details_info['queue'] = Array(
-									'type'	=> 'flatfile',
-									'dir'	=> $data_dir.'/queue',
-								 );
+		$details_info['queue_details'] = Array(
+											'type'	=> 'flatfile',
+											'dir'	=> $data_dir.'/queue',
+										 );
 
-		$details_info['recipients'] = $job->vars['recipients']['value'];
-		$details_info['content'] = $job->vars['content_details']['value'];
-
-		// whether to use post office's or job's header details
-		if ($job->vars['details_setting']['value']['use_post_office_header']) {
-			$details_info['header'] = $post_office->vars['required_header']['value'];
-			$details_info['header'] += $post_office->vars['header_details']['value'];
-		} else {
-			$details_info['header'] = $job->vars['required_header']['value'];
-			$details_info['header'] += $job->vars['header_details']['value'];
-		}
-		// removes fields with empty values, eg. empty 'From' field will cause problem
-		foreach ($details_info['header'] as $field => $value) {
-			if (empty($value)) {
-				unset($details_info['header'][$field]);
+		 foreach ($job->vars as $var_name  => $var_info) {
+			switch ($var_name) {
+				case 'header_details':
+					if ($job->attr('use_post_office_header')) {
+						$details_info[$var_name] = $post_office->attr($var_name);
+					} else {
+						$details_info[$var_name] = $job->attr($var_name);
+					}
+				break;
+				case 'server_details':
+				case 'threshold':
+					$details_info[$var_name] = $post_office->attr($var_name);
+				break;
+				default:
+					$details_info[$var_name] = $job->attr($var_name);
+				break;
 			}
 		}
-
-		// details from post office
-		$details_info['server'] = $post_office->vars['server_details']['value'];
-		$details_info['threshold'] = 'not set';
 
 		$output = ' <?php $details_info = '.var_export($details_info, true).'; ?>';
 		if (!string_to_file($output, $data_dir.'/details_info')) {

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.12 2005/11/07 00:45:37 rong Exp $
+* $Id: bulk_mailer.inc,v 1.13 2005/11/07 04:26:29 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -235,10 +235,12 @@ class Bulk_Mailer
 
 		// load required information
 		$progress_info = $info[$job_id]['progress'];
-		$queue_details = $info[$job_id]['details']['queue'];
-		$content_details = $info[$job_id]['details']['content'];
-		$header_details = $info[$job_id]['details']['header'];
-		$server_details = $info[$job_id]['details']['server'];
+		$queue_details = $info[$job_id]['details']['queue_details'];
+		$content_details = $info[$job_id]['details']['content_details'];
+		$header_details = $info[$job_id]['details']['header_details'];
+		$header_details['from'] = $info[$job_id]['details']['from'];
+		$header_details['subject'] = $info[$job_id]['details']['subject'];
+		$server_details = $info[$job_id]['details']['server_details'];
 
 		// create the /queue and /sent directories for mail queue
 		$queue_path = $queue_details['dir'];
