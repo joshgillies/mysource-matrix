@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.19 2005/11/04 05:57:50 arailean Exp $
+* $Id: thesaurus.inc,v 1.20 2005/11/07 05:57:37 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -277,9 +277,9 @@ class Thesaurus extends Asset
 			FROM
 				sq_lex_thes_term
 			WHERE
-					thesid = '.$db->quoteSmart($this->id).'
+				thesid = '.$db->quoteSmart($this->id).'
 				AND
-					minor = '.$db->quoteSmart($term).'
+				minor = '.$db->quoteSmart($term).'
 			ORDER BY
 				sort_order
 		';
@@ -311,12 +311,14 @@ class Thesaurus extends Asset
 			FROM
 				sq_lex_thes_term
 			WHERE
-					thesid = '.$db->quoteSmart($this->id).'
+				thesid = '.$db->quoteSmart($this->id).'
 				AND
-					minor = '.$db->quoteSmart($term).'
+				minor = '.$db->quoteSmart($term).'
 		';
 
 		$result = $db->getOne($sql);
+
+		log_dump($sql);
 
 		assert_valid_db_result($result);
 		return $result;
@@ -408,6 +410,8 @@ class Thesaurus extends Asset
 			assert_valid_db_result($result);
 		}
 
+
+		// inserting a term is the easiest thing ever
 		$sql = '
 			INSERT INTO sq_lex_thes_term
 				(
@@ -433,10 +437,26 @@ class Thesaurus extends Asset
 		assert_valid_db_result($result);
 
 
-		// get the treeids of all the links that point to the term (if any)
-		// Get one of the treeids that we have
+		//// The Fun Part: Link Tree
+
+		// This code is similar to the one in the asset manager, with a few exceptions
+		// the major difference is that loops are allowed, i.e. a term can be its own grand-parent, etc
+		// this requirement makes the tree operations more complicated than those of the asset manager
+
+		// Thesaurus Tree Ids definitions:
+		// -- Node - one level of the link tree that has tree ids pointing to it (everything is a node)
+		// -- Incoming tree id - a tree id that a node has to its parent
+		// -- Outgoing tree id - a tree id that a node has to its child
+
+		// Thesaurus Tree Ids conditions:
+		// - Every link has at least one tree id
+		// - Every node has as many outgoing as incoming treeids
+		//		MINUS the number of those incoming have another incoming as their subset
+		// - A node cannot have an outgoing tree id that is has another outgoing treeid as its subset (loop prevention)
+
+		// Get one of the treeids that a parent term has
 		if (is_null($parent)) {
-			$existing_treeid = '';
+			$parents_treeid = '';
 		} else {
 			$sql = '
 				SELECT
@@ -454,25 +474,25 @@ class Thesaurus extends Asset
 
 			$sql = $db->modifyLimitQuery($sql, 0, 1);
 
-			$existing_treeid = $db->getOne($sql);
-			assert_valid_db_result($existing_treeid);
+			$parents_treeid = $db->getOne($sql);
+			assert_valid_db_result($parents_treeid);
 		}
-		$existing_treeid = (string) $existing_treeid;
+		$parents_treeid = (string) $parents_treeid;
 
 
 		// when links are deleted their entries in the tree table are set to have a linkid of zero
-		// (see deleteLink()) so we can attempt to find unused treeids that are forming gaps
+		// (see deleteTermLink()) so we can attempt to find unused treeids that are forming gaps
 		$sql = '
 			SELECT
 				treeid
 			FROM
 				sq_lex_thes_lnk_tree
 			WHERE
-				treeid LIKE '.$db->quote($existing_treeid.'%').'
+				treeid LIKE '.$db->quote($parents_treeid.'%').'
 				AND
-				treeid > '.$db->quote($existing_treeid).'
+				treeid > '.$db->quote($parents_treeid).'
 				AND
-				LENGTH(treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE).'
+				LENGTH(treeid) = '.(strlen($parents_treeid) + SQ_CONF_ASSET_TREE_SIZE).'
 				AND
 				linkid = 0
 				AND
@@ -493,11 +513,11 @@ class Thesaurus extends Asset
 				FROM
 					sq_lex_thes_lnk_tree
 				WHERE
-					treeid LIKE '.$db->quote($existing_treeid.'%').'
+					treeid LIKE '.$db->quote($parents_treeid.'%').'
 					AND
-					treeid > '.$db->quote($existing_treeid).'
+					treeid > '.$db->quote($parents_treeid).'
 					AND
-					LENGTH(treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE).'
+					LENGTH(treeid) = '.(strlen($parents_treeid) + SQ_CONF_ASSET_TREE_SIZE).'
 					AND
 					thesid = '.$db->quoteSmart($this->id).'
 				ORDER BY
@@ -579,7 +599,7 @@ class Thesaurus extends Asset
 
 		// if we don't have any existing tree entries then
 		// we are the root term, so do a simple insert
-		if ($existing_treeid == '') {
+		if ($parents_treeid == '') {
 			$sql = '
 				INSERT INTO
 					sq_lex_thes_lnk_tree
@@ -631,6 +651,7 @@ class Thesaurus extends Asset
 		}//end if
 
 
+		// select the incoming tree ids that were assigned to this link id
 		$sql = '
 			SELECT
 				treeid
@@ -645,6 +666,7 @@ class Thesaurus extends Asset
 		assert_valid_db_result($new_treeids);
 
 
+		// get all the outgoing treeids this term has
 		$sql = '
 			SELECT
 				tree.treeid
@@ -664,7 +686,9 @@ class Thesaurus extends Asset
 		$minor_treeids = $db->getCol($sql);
 		assert_valid_db_result($minor_treeids);
 
-		// if this minor has already been linked, so do a select into
+		// now we propagate all new incoming tree ids to each outgoing tree branch
+		// we cannot do this in one query because we have check for infinite loops and prune some tree branches
+		// this section makes sure the above conditions for the link tree always hold
 		if (!empty($minor_treeids)) {
 			foreach ($minor_treeids as $minor_treeid) {
 				foreach ($new_treeids as $new_treeid) {
@@ -683,7 +707,7 @@ class Thesaurus extends Asset
 						FROM
 							sq_lex_thes_lnk_tree tree
 						WHERE
-							tree.treeid like '.$db->quoteSmart($minor_treeid.'%').'
+							tree.treeid LIKE '.$db->quoteSmart($minor_treeid.'%').'
 							AND
 							tree.treeid > '.$db->quoteSmart($minor_treeid).'
 							AND
@@ -723,12 +747,11 @@ class Thesaurus extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
 
-
 	}//end addTerm()
 
 
 	/**
-	* TODO: function comment: updateTerm
+	* Update term name and relation
 	*
 	* Returns true on success, false on failure
 	*
@@ -744,22 +767,70 @@ class Thesaurus extends Asset
 		if ($relation == '') $relation = null;
 
 		$term = $this->getTermById($linkid);
+
+		// if nothing has changed, no need to do any work
 		if ($term['minor'] == $name && $term['relation'] == $relation) {
 			return true;
 		}
 
-		trigger_error('This Functionality is not supported at this stage. Sorry.');
-		return false;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
+		// cannot change term to something that already exists
 		$check_linkid = $this->getTermLinkid($name, $term['major'], $relation);
 		if (!empty($check_linkid) && ($check_linkid != $linkid)) {
-			trigger_localised_error('<LEX0019>', E_USER_WARNING);//'Cannot Update. A term with these details already exist.'
+			trigger_localised_error('LEX0019', E_USER_WARNING);
 			return false;
 		}
 
-		// update term itself
+
+		// renaming just the relation is easy, no treeid re-shuffling is required
+		if ($name == $term['minor'] && $term['relation'] != $relation) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$sql = '
+				UPDATE
+					sq_lex_thes_term
+				SET
+					relation = '.$db->quoteSmart($relation).'
+				WHERE
+					linkid = '.$db->quoteSmart($linkid).'
+					AND
+					thesid = '.$db->quoteSmart($this->id).'
+			';
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return true;
+		}
+
+
+		// if the new name is being used by another term, do not update
+		// updating the name if it is used by another term is hard as we don't know what to do with the children
+		// do we merge this term's children with the others' or do we only use our children or theirs?
+		if ($this->isTerm($name)) {
+			trigger_localised_error('LEX0019', E_USER_WARNING);
+			return false;
+		}
+
+
+		// we do not update if there are multiple parent and child terms
+		// ecause the business logic is not clear at this stage
+		// there will be problems with figuring out the infinite loops and updating tree ids
+		// it is also not clear whether the children of this term should be moved to just the new term or
+		// kept in the old term as well.
+		$parent_count = $this->countParentTerms($term['minor']);
+		$child_count = $this->countChildTerms($term['minor']);
+
+		if ($parent_count > 1 && $child_count > 0) {
+			trigger_localised_error('LEX0021', E_USER_WARNING);
+			return false;
+		}
+
+		// if the term has only one parent and the name is not used anywhere else - it is safe to update it
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		// update the term itself
 		$sql = '
 			UPDATE
 				sq_lex_thes_term
@@ -775,8 +846,8 @@ class Thesaurus extends Asset
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
-		// if term name changed, rename it everywhere it is major
-		if ($term['minor'] != $name) {
+		if ($child_count > 0) {
+			// if term name changed, rename it everywhere it is major
 			$sql = '
 				UPDATE
 					sq_lex_thes_term
@@ -791,8 +862,8 @@ class Thesaurus extends Asset
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 		}
-
-		return;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
 
 	}//end updateTerm()
 
@@ -997,10 +1068,9 @@ class Thesaurus extends Asset
 				thesid = '.$db->quoteSmart($this->id).'
 			ORDER BY
 				sort_order ASC
-			LIMIT 1;
 		';
 
-		$result = $db->getRow($sql);
+		$result = $db->getRow($db->modifyLimitQuery($sql, 0, 1));
 
 		assert_valid_db_result($result);
 		return $result;
@@ -1035,9 +1105,11 @@ class Thesaurus extends Asset
 		';
 		$result = $db->getOne($sql);
 
+		log_dump($sql);
+
 		assert_valid_db_result($result);
 
-		return (boolean) $result;
+		return !empty($result);
 
 	}//end isTerm()
 
@@ -1292,6 +1364,42 @@ class Thesaurus extends Asset
 		return $info_array;
 
 	}//end getAssetInfo()
+
+
+	/**
+	* Get asset info for use by asset map
+	*
+	* @param string	$assetid	Full Asset id to get information for
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetMapAssetInfo($assetid)
+	{
+		$asset_info = Array();
+
+		$id_parts = explode(':', $assetid);
+		if (empty($id_parts[1])) return $asset_info;
+
+		$term = $this->getTermById($id_parts[1]);
+		if (empty($term)) return $asset_info;
+
+		$prefix = empty($term['relation'])?'':'('.$term['relation'].') ';
+
+		$asset_info['assetid']		= $assetid;
+		$asset_info['name']			= $prefix.$term['minor'];
+		$asset_info['short_name']	= $term['minor'];
+		$asset_info['version']		= $this->version;
+		$asset_info['status']		= $this->status;
+		$asset_info['type_code']	= 'thesaurus_term';
+		$asset_info['num_kids']		= $this->countChildTerms($term['minor']);
+		$asset_info['accessible']	= 1;
+		$asset_info['url']			= '';
+		$asset_info['web_path']		= '';
+
+		return $asset_info;
+
+	}//end getAssetMapAssetInfo()
 
 
 	/**
