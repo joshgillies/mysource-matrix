@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tooltip.js,v 1.5 2005/01/20 13:10:35 brobertson Exp $
+* $Id: tooltip.js,v 1.6 2005/11/07 22:44:39 lwright Exp $
 *
 */
 
@@ -37,6 +37,7 @@ function ToolTip()
   this.border       = "solid 1px #000000";
   this.normal_color = "#000000";
   this.title_color  = "#FFFFFF";
+  this.showing      = false;
 
   this.print = tt_print;
   this.show = tt_show;
@@ -59,7 +60,7 @@ function tt_print()
 {
   if (!document.getElementById("ToolBox"))
   {
-	output = '<iframe scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute;top:-200px;left:-110px;width:10px; height:30px;progid:DXImageTransform.Microsoft.Alpha(style=0, opacity=0)" src="about:blank"></iframe>';		 
+	output = '<iframe scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute;top:-200px;left:-110px;width:10px; height:30px;progid:DXImageTransform.Microsoft.Alpha(style=0, opacity=0)" src="about:blank"></iframe>';
 	output += '<table cellspacing="0" cellpadding="0" border="0" id="ToolBox" style="font:' + this.normal_font +
 			 ';border:' + this.border +
 			 ';color:' + this.normal_color +
@@ -120,7 +121,7 @@ function findPosY(obj)
 	else if (obj.y)
 		curtop += obj.y;
 	return curtop;
-	
+
 }//end findPosY()
 
 
@@ -134,7 +135,7 @@ function findPosY(obj)
 * @return
 * @access
 */
-function tt_show(obj, text, title)
+function tt_show(obj, text, title, close_button)
 {
   if (obj == null) return;
 
@@ -143,7 +144,9 @@ function tt_show(obj, text, title)
   var top = findPosY(obj);
   top += obj.offsetHeight;
   var left = findPosX(obj);
-  this.paint(top, left, text, title);
+  this.paint(top, left, text, title, close_button);
+
+  this.showing = true;
 
 }//end tt_show()
 
@@ -163,6 +166,8 @@ function tt_hide()
   document.getElementById("hider").style.visibility = "hidden";
   if (tool_box.filters) tool_box.filters[0].Play();
 
+  this.showing = false;
+
 }//end tt_hide()
 
 
@@ -177,7 +182,7 @@ function tt_hide()
 * @return
 * @access
 */
-function tt_paint(top, left, text, title)
+function tt_paint(top, left, text, title, close_button)
 {
   var tool_box = document.getElementById("ToolBox");
 
@@ -191,6 +196,21 @@ function tt_paint(top, left, text, title)
 	document.getElementById("ToolBoxTitle").style.color = this.title_color;
 	document.getElementById("ToolBoxTitle").style.padding = "2px";
 	if (typeof(title) != "undefined") document.getElementById("ToolBoxTitle").innerHTML = unescape(title);
+
+	if (closeElement = document.getElementById("ToolBoxClose")) {
+		closeElement.parentNode.removeChild(closeElement);
+	}
+
+	if (close_button) {
+		closeElement = document.createElement('th');
+		closeElement.style.textAlign = 'right';
+		closeElement.style.padding = '2px';
+		closeElement.style.backgroundColor = this.title_bg;
+		closeElement.id = 'ToolBoxClose';
+		closeElement.innerHTML = '<a href="#" style="text-decoration: none; color: ' + this.title_color + '" onclick="tooltip.hide(); return false;">X</a>';
+		document.getElementById("ToolBoxTitle").parentNode.appendChild(closeElement);
+		document.getElementById("ToolBoxContent").colSpan = 2;
+	}
   }
   else
   {
@@ -198,7 +218,7 @@ function tt_paint(top, left, text, title)
 	document.getElementById("ToolBoxTitle").style.padding = "0px";
 	document.getElementById("ToolBoxTitle").innerHTML = "";
   }
-  if ((typeof(text) != "undefined" && text != "") || (typeof(top) == "undefined")) 
+  if ((typeof(text) != "undefined" && text != "") || (typeof(top) == "undefined"))
   {
 	if(typeof(text) != "undefined") document.getElementById("ToolBoxContent").innerHTML = unescape(text);
 	document.getElementById("ToolBoxContent").style.padding = "2px";
@@ -219,7 +239,7 @@ function tt_paint(top, left, text, title)
 
 	tool_box.style.top 		= top + "px";
 	tool_box.style.left		= left + "px";
-	
+
 	if (window.event)
 	{
 	  var hider = document.getElementById("hider");
