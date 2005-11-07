@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_management.inc,v 1.8 2005/11/07 00:45:37 rong Exp $
+* $Id: bulkmail_post_office_management.inc,v 1.9 2005/11/07 04:36:24 ndvries Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -54,11 +54,43 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 												'default'		=> Array(),
 												'description'	=> 'The recipients to send this bulkmail to. All users/bulkmail_users in each group will become recipients',
 											   ),
-						'content_details'	=> Array(
+						'content_id'		=> Array(
 												'added'			=> '0.1',
-												'type'			=> 'serialise',
-												'default'		=> Array(),
-												'description'	=> 'Details about content page to use and the content generation method for users',
+												'type'			=> 'assetid',
+												'default'		=> '',
+												'description'	=> 'The asset we will be using as content in the email',
+											   ),
+						'content_gen'		=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'selection',
+												'default'		=> 'one_user',
+												'description'	=> 'The method of content generation',
+												'parameters'    => Array(
+																	'multiple'		=> false,
+																	'allow_empty'	=> false,
+																	'options'		=> Array(
+																						'each_user'	=> 'Generate as recipient',
+																						'one_user'	=> 'Generate as set user',
+																					   ),
+																   ),
+											   ),
+						'content_gen_as'	=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'assetid',
+												'default'		=> '',
+												'description'	=> 'The user to generate the content with',
+											   ),
+						'content_design'	=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'assetid',
+												'default'		=> '',
+												'description'	=> 'The design to use for the content asset',
+											   ),
+						'content_layout'	=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'assetid',
+												'default'		=> '',
+												'description'	=> 'The layout to use for the content asset',
 											   ),
 						'server_details'	=> Array(
 												'added'			=> '0.1',

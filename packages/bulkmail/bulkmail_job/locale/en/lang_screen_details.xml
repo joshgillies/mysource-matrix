@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2005/10/31 03:34:39 rong Exp $
+* $Id: lang_screen_details.xml,v 1.5 2005/11/07 04:34:56 ndvries Exp $
 *
 */
 -->
@@ -41,11 +41,27 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Content Details" write_access="write:attributes">
-		<function_call>
-			<paint_function name="paintContentDetails" />
-			<process_function name="processContentDetails" />
-		</function_call>
+	<section name="Content" write_access="write:attributes">
+		<field attribute="content_id">
+			<display_name>Asset to Send</display_name>
+			<note>The content you would like sent in the emails</note>
+		</field>
+		<field attribute="content_gen">
+			<display_name>Generation Method</display_name>
+			<note>Unique content per user, or generic content for all users (with keyword replacements). Generating unique content for thousands of users will be quite slow</note>
+		</field>
+		<field attribute="content_gen_as">
+			<display_name>Generate As</display_name>
+			<note>This user is used to generate the content for all Bulkmail_Users, and also all other users if "Generate as recipient" generation method is selected above</note>
+		</field>
+		<field attribute="content_design">
+			<display_name>Design</display_name>
+			<note>Design to apply to the content</note>
+		</field>
+		<field attribute="content_layout">
+			<display_name>Paint Layout</display_name>
+			<note>Paint layout to apply to the content</note>
+		</field>
 	</section>
 	<section name="Header Details" write_access="write:attributes">
 		<function_call>
