@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_writer.inc,v 1.1 2005/11/01 22:29:24 pgannavarapu Exp $
+* $Id: rss_feed_writer.inc,v 1.2 2005/11/07 04:24:35 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * Creates an XML document with all the data that is provided
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -91,26 +91,6 @@ class RSS_Feed_Writer
 
 
 	/**
-	* Adds the item into the items array
-	*
-	* @param array	$item	the item to be added into the array
-	*
-	* @return void
-	* @access public
-	*/
-	function addItem($item)
-	{
-		if ($this->_isTypeVersionSet()) {
-			$this->items[] = $item;
-			return true;
-		} else {
-			return false;
-		}
-
-	}//end addItem()
-
-
-	/**
 	* Assigns the class variable items
 	*
 	* @param array	$items	the items to be added into the array
@@ -121,6 +101,10 @@ class RSS_Feed_Writer
 	function addItems($items)
 	{
 		if ($this->_isTypeVersionSet()) {
+			if (!is_array($items)) {
+				trigger_error('You can assign Associative Arrays only to the items', E_USER_ERROR);
+				return false;
+			}
 			$this->items = $items;
 			return true;
 		} else {
@@ -141,6 +125,10 @@ class RSS_Feed_Writer
 	function addChannel($channel)
 	{
 		if ($this->_isTypeVersionSet()) {
+			if (!is_array($channel)) {
+				trigger_error('You can assign Associative Arrays only to the items', E_USER_ERROR);
+				return false;
+			}
 			$this->channel = $channel;
 			return true;
 		} else {
@@ -161,6 +149,10 @@ class RSS_Feed_Writer
 	function addImage($image)
 	{
 		if ($this->_isTypeVersionSet()) {
+			if (!is_array($image)) {
+				trigger_error('You can assign Associative Arrays only to the items', E_USER_ERROR);
+				return false;
+			}
 			$this->image = $image;
 			return true;
 		} else {
@@ -181,11 +173,35 @@ class RSS_Feed_Writer
 	*/
 	function setTypeVersion($type='', $version='')
 	{
-		if (empty($type)) {
+		if (empty($type)  || empty($version)) {
 			trigger_error('You Have To Set The Type And The Version Of RSS Before Adding the element', E_USER_WARNING);
+			return false;
 		} else {
+			if (!is_string($type) || !is_string($version)) {
+				trigger_error('The Type And Version Of The RSS Feed To Be Generated Have To Be Strings', E_USER_WARNING);
+				return false;
+			}
+			switch ($type) {
+				case 'rss':
+				break;
+				case 'atom':
+				break;
+				default:
+					trigger_error('The Type The RSS Feed Can Only Be Either rss Or atom', E_USER_ERROR);
+					return false;
+			}
+			switch ($version) {
+				case '1.0':
+				break;
+				case '2.0':
+				break;
+				default:
+					trigger_error('The Version The RSS Feed Can Only Be Either 1.0 Or 2.0', E_USER_ERROR);
+					return false;
+			}
 			$this->type = $type;
 			$this->version = $version;
+			return true;
 		}
 
 	}//end setTypeVersion()
@@ -193,17 +209,23 @@ class RSS_Feed_Writer
 
 	/**
 	* Gets the RSS in a string format for all of the information saved like the channel, image and items
-	*
+	* @param boolean	$header	if an appropriate header has to be included or not. Defaults to true
 	* @return string
 	* @access public
 	*/
-	function getRSSString()
+	function getRSSString($header=true)
 	{
 		$channel = $this->channel;
 		$image = $this->image;
 		$items = $this->items;
 		$type = $this->type;
 		$version = $this->version;
+		//if no type or version is specified then trigger error
+		//we NEED TYPE AND VERSION as this writer can build rss1.0, rss2.0, atom 1.0 versions
+		if (empty($type) || empty($version)) {
+			trigger_error('There Is No Type Or Version Set.. Please Set the Type And Version And Try Again', E_USER_WARNING);
+			return;
+		}
 		//if the channel is empty ir the items is empoty then trigger error as there is no feed without items or channel
 		if (empty($channel)) {
 			trigger_error('Channel Info Required As Per The RSS Standards', E_USER_WARNING);
@@ -213,15 +235,9 @@ class RSS_Feed_Writer
 			trigger_error('There Are No Items To Generate RSS', E_USER_WARNING);
 			return;
 		}
-		//if no type or version is specified then trigger error
-		//we NEED TYPE AND VERSION as this writer can build rss1.0, rss2.0, atom 1.0 versions
-		if (empty($type) || empty($version)) {
-			trigger_error('There Is No Type Or Version Set.. Please Set the Type And Version And Try Again', E_USER_WARNING);
-			return;
-		}
 		$name = 'item';
 		ob_start();
-		header('Content-type: text/xml');
+		if ($header) header('Content-type: text/xml');
 		echo '<?xml version="1.0" encoding="utf-8"?>';
 
 		//open tag for atom is feed
@@ -250,6 +266,11 @@ class RSS_Feed_Writer
 		//add data to the chaannel or the feed tags
 		foreach ($channel as $key => $info) {
 			if (is_array($info)) {
+				if ($type != 'feed') {
+					trigger_error('Attributes And SubTags In Channel Not Allowed For RSS Versions', E_USER_ERROR);
+					ob_end_clean();
+					return '';
+				}
 				$keys = array_keys($info);
 				if (in_array('ATTRIBUTES', $keys)) {
 					echo '<'.$key.' ';
@@ -318,6 +339,11 @@ class RSS_Feed_Writer
 				echo '<'.$name.'>';
 				foreach ($item as $key => $info) {
 					if (is_array($info)) {
+						if ($type != 'feed') {
+							trigger_error('Attributes And SubTags In Items Not Allowed For RSS Versions', E_USER_ERROR);
+							ob_end_clean();
+							return '';
+						}
 						$keys = array_keys($info);
 						if (in_array('ATTRIBUTES', $keys)) {
 							echo '<'.$key.' ';
