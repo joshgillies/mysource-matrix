@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2005/11/07 04:33:23 ndvries Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7 2005/11/07 04:46:35 rong Exp $
 *
 */
 -->
@@ -53,10 +53,26 @@
 			<assetid type_codes="paint_layout_page:D" />
 		</field>
 	</section>
+
+
 	<section name="Header Details" write_access="write:attributes">
-		<function_call>
-			<paint_function name="paintHeaderDetails" />
-			<process_function name="processHeaderDetails" />
-		</function_call>
+		<field>
+			<function_call>
+				<paint_function name="paintHeaderDetailsCheckBox" />
+				<process_function name="processHeaderDetailsCheckBox" />
+			</function_call>
+		</field>
+		<field attribute="from" show_if="showJobHeader">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="subject" show_if="showJobHeader">
+			<text width="30" height="1" />
+		</field>
+		<field show_if="showJobHeader">
+			<function_call>
+				<paint_function name="paintHeaderDetails" />
+				<process_function name="processHeaderDetails" />
+			</function_call>
+		</field>
 	</section>
 </contents>

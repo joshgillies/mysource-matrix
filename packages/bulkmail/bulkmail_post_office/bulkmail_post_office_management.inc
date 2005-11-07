@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_management.inc,v 1.9 2005/11/07 04:36:24 ndvries Exp $
+* $Id: bulkmail_post_office_management.inc,v 1.10 2005/11/07 04:46:35 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -98,20 +98,17 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 												'default'		=> Array('driver' => 'smtp'),
 												'description'	=> 'Details about which email server the bulkmails should be sent to',
 											   ),
-						'required_header'	=> Array(
+						'from'				=> Array(
 												'added'			=> '0.1',
-												'type'			=> 'serialise',
-												'default'		=> Array(
-																	'From'		=> SQ_CONF_DEFAULT_EMAIL,
-																	'Subject'	=> '',
-																   ),
-												'description'	=> 'The required header information for PEAR send() function',
+												'type'			=> 'text',
+												'default'		=> SQ_CONF_DEFAULT_EMAIL,
+												'description'	=> 'The "From" header field required by PEAR send() function',
 											   ),
-						'header_details'	=> Array(
+						'subject'			=> Array(
 												'added'			=> '0.1',
-												'type'			=> 'serialise',
-												'default'		=> Array(),
-												'description'	=> 'Extra header information',
+												'type'			=> 'text',
+												'default'		=> '',
+												'description'	=> 'The "Subject" header field required by PEAR send() function',
 											   ),
 						'threshold'			=> Array(
 												'added'			=> '0.1',

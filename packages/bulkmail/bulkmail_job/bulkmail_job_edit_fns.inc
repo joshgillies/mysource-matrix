@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.9 2005/11/03 21:53:23 rong Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.10 2005/11/07 04:46:35 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -53,7 +53,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 
 
 	/**
-	* Paints the header details interface for the bmail
+	* Paints the header detail checkbox, whether to use the post office header or not
 	*
 	* @param object	&$asset	the asset to which we belong
 	* @param object	&$o		the outputter class
@@ -62,37 +62,20 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintHeaderDetails(&$asset, &$o, $prefix)
+	function paintHeaderDetailsCheckBox(&$asset, &$o, $prefix)
 	{
-		$width = 60;
 		$write_access = $asset->writeAccess('attributes');
-		$post_office =& $asset->getPostOffice();
-		$details_setting = $asset->attr('details_setting');
+		$use_post_office_header = $asset->attr('use_post_office_header');
 
-		if (!is_null($post_office)) {
-			// if checkbox is checked, use post office's header details
-			$checkbox_enabled = '';
-			$field_note = translate('bulkmail_header_detail_check_enabled');
-			$hide_header =  array_get_index($details_setting, 'use_post_office_header', false);
+		// paint checkbox
+		if ($write_access) {
+			check_box($prefix.'_use_post_office_header', true, $use_post_office_header);
 		} else {
-			// no inheritance otherwise
-			$checkbox_enabled = 'disabled="true"';
-			$field_note = translate('bulkmail_header_detail_check_disabled');
-			$hide_header = false;
+			?>
+				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $use_post_office_header ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+			<?php
 		}
-
-		// paint checkbox, checkbox is not enabled unless job is linked under a post office
-		$field_name = translate('bulkmail_header_detail_check_field_name');
-		$o->openField($field_name, '', $field_note);
-			if ($write_access) {
-				check_box($prefix.'_use_post_office_header', true, $hide_header, 'hideHeader(this.checked)', $checkbox_enabled);
-			} else {
-				?>
-					<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $hide_header ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
-				<?php
-			}
-		$o->closeField();
-
+/*
 		// javascript to disable input fields when the checkbox is checked
 		?>
 		<script language="JavaScript" type="text/javascript">
@@ -109,15 +92,14 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 			}
 		</script>
 		<?php
+*/
+		return $write_access;
 
-		// paint the actual header details
-		return parent::paintHeaderDetails($asset, $o, $prefix, $hide_header);
-
-	}//end paintHeaderDetails()
+	}//end paintHeaderDetailsCheckBox()
 
 
 	/**
-	* Process the header details for the bmail
+	* Process the header detail checkbox
 	*
 	* @param object	&$asset	the asset to which we belong
 	* @param object	&$o		the outputter class
@@ -126,7 +108,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processHeaderDetails(&$asset, &$o, $prefix)
+	function processHeaderDetailsCheckBox(&$asset, &$o, $prefix)
 	{
 		// once live, header details are not changeable
 		if ($asset->status == SQ_STATUS_LIVE) return false;
@@ -134,18 +116,27 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 
 		// save whether to use post office header details
 		$use_header_details = isset($_POST[$prefix.'_use_post_office_header']);
-		$details_setting = $asset->attr('details_setting');
-		$details_setting['use_post_office_header'] = $use_header_details ? true : false;
-		$asset->setAttrValue('details_setting', $details_setting);
+		$asset->setAttrValue('use_post_office_header', $use_header_details);
 
-		// only process this if not inherit from parent
-		if (!$use_header_details) {
-			return parent::processHeaderDetails($asset, $o, $prefix);
-		} else {
-			return true;
-		}
+		return true;
 
-	}//end processHeaderDetails()
+	}//end processHeaderDetailsCheckBox()
+
+
+	/**
+	* Check if we should use the post office header
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function showJobHeader(&$asset, $prefix)
+	{
+		return !($asset->attr('use_post_office_header'));
+
+	}//end showJobHeader()
 
 
 //--        JOB MANAGEMENT        --//

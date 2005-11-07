@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2005/11/07 00:45:37 rong Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2005/11/07 04:46:35 rong Exp $
 *
 */
 -->
@@ -35,10 +35,18 @@
 		</function_call>
 	</section>
 	<section name="Header Details" write_access="write:attributes">
-		<function_call>
-			<paint_function name="paintHeaderDetails" />
-			<process_function name="processHeaderDetails" />
-		</function_call>
+		<field attribute="from">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="subject">
+			<text width="30" height="1" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintHeaderDetails" />
+				<process_function name="processHeaderDetails" />
+			</function_call>
+		</field>
 	</section>
 	<section name="Threshold Settings" write_access="write:attributes">
 		<function_call>

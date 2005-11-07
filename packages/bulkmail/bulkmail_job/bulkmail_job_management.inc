@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -49,19 +49,17 @@ class Bulkmail_Job_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-						'name'				=> Array(
-												'added'		=> '0.1',
-												'type'		=> 'text',
-												'default'	=> '',
-											   ),
-						'details_setting'	=> Array(
-												'added'			=> '0.1',
-												'type'			=> 'serialise',
-												'default'		=> Array(
-																	'use_post_office_header'	=> true,
-																   ),
-												'description'	=> 'Whether to use the post office settings for various details.',
-											   ),
+						'name'						=> Array(
+														'added'		=> '0.1',
+														'type'		=> 'text',
+														'default'	=> '',
+													   ),
+						'use_post_office_header'	=> Array(
+														'added'			=> '0.1',
+														'type'			=> 'boolean',
+														'default'		=> true,
+														'description'	=> 'Whether to use the post office header details.',
+													   ),
 					  );
 
 	}//end constructor

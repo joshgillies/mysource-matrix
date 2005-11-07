@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2005/11/07 04:34:56 ndvries Exp $
+* $Id: lang_screen_details.xml,v 1.6 2005/11/07 04:46:35 rong Exp $
 *
 */
 -->
@@ -63,10 +63,31 @@
 			<note>Paint layout to apply to the content</note>
 		</field>
 	</section>
+
+
 	<section name="Header Details" write_access="write:attributes">
-		<function_call>
-			<paint_function name="paintHeaderDetails" />
-			<process_function name="processHeaderDetails" />
-		</function_call>
+		<field>
+			<display_name>Use Post Office Header Details</display_name>
+			<note>If you use Post Office header details, you must commit before the changes will take effect.</note>
+			<function_call>
+				<paint_function name="paintHeaderDetailsCheckBox" />
+				<process_function name="processHeaderDetailsCheckBox" />
+			</function_call>
+		</field>
+		<field attribute="from" show_if="showJobHeader">
+			<display_name>From</display_name>
+			<note>From field is required.</note>
+		</field>
+		<field attribute="subject" show_if="showJobHeader">
+			<display_name>Subject</display_name>
+			<note>Subject field is required.</note>
+		</field>
+		<field show_if="showJobHeader">
+			<display_name>Extra Fields</display_name>
+			<function_call>
+				<paint_function name="paintHeaderDetails" />
+				<process_function name="processHeaderDetails" />
+			</function_call>
+		</field>
 	</section>
 </contents>

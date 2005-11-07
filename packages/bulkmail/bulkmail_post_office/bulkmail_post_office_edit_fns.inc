@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.12 2005/11/07 04:37:27 ndvries Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.13 2005/11/07 04:46:35 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -493,51 +493,18 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	* @param object		&$asset	the asset to which we belong
 	* @param object		&$o		the outputter class
 	* @param string		$prefix	prefix for the form element
-	* @param boolean	$hide	hide the header details?
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintHeaderDetails(&$asset, &$o, $prefix, $hide=false)
+	function paintHeaderDetails(&$asset, &$o, $prefix)
 	{
-		$width = 60;
+		$width = 30;
 		$write_access = $asset->writeAccess('attributes');
-
-		// paint the required header detail fields
-		// do not add delete box for required header fields
-		$required_header = $asset->attr('required_header');
-		$o->openField(translate('bulkmail_header_detail_required_field'), '', '', $hide, $prefix.'_header_detail');
-			?>
-			<table class="sq-backend-table">
-				<tr>
-					<td class="sq-backend-table-header"><b><?php echo translate('bulkmail_header_detail_field_name'); ?></b></td>
-					<td class="sq-backend-table-header"><b><?php echo translate('bulkmail_header_detail_field_body'); ?></b></td>
-				</tr>
-				<?php
-					$index = 0;
-					foreach ($required_header as $field_name => $field_body) {
-						if ($write_access) {
-							// field_name[i] is not a valid xhtml id for form fields
-							?><tr>
-								<td class="sq-backend-table-cell"><?php echo text_box($prefix.'_header_detail_required_fields_name_'.$index, $field_name);?></td>
-								<td class="sq-backend-table-cell"><?php echo text_box($prefix.'_header_detail_required_fields_body_'.$index, $field_body, $width);?></td>
-							</tr><?php
-						} else {
-							?><tr>
-								<td class="sq-backend-table-cell"><?php echo $field_name;?></td>
-								<td class="sq-backend-table-cell" colspan="2"><?php echo htmlspecialchars($field_body);?></td>
-							</tr><?php
-						}
-						$index++;
-					}
-				?>
-			</table>
-			<?php
-		$o->closeField();
 
 		// paint extra header fields
 		$header_details = $asset->attr('header_details');
-		$o->openField(translate('fields'), '', '', $hide, $prefix.'_header_detail');
+		//$o->openField(translate('bulkmail_header_detail_extra_fields'));
 			?>
 			<table class="sq-backend-table">
 				<tr>
@@ -556,7 +523,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 							// field_name[i] is not a valid xhtml id for form fields
 							?><tr>
 								<td class="sq-backend-table-cell"><?php echo text_box($prefix.'_header_detail_fields_name_'.$index, $field_name);?></td>
-								<td class="sq-backend-table-cell"><?php echo text_box($prefix.'_header_detail_fields_body_'.$index, $field_body, $width);?></td>
+								<td class="sq-backend-table-cell"><?php echo text_box($prefix.'_header_detail_fields_body_'.$index, $field_body);?></td>
 								<td class="sq-backend-table-cell"><?php check_box($prefix.'_header_detail_fields_delete_'.$index, true, false);?></td>
 							</tr><?php
 						} else {
@@ -574,12 +541,12 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 		// text box for new field entry
 		if ($write_access) {
-			$o->openField(translate('bulkmail_header_new_field_name'), '', '', $hide, $prefix.'_header_detail');
-				text_box($prefix.'_header_detail_field_new_name', '');
+			$o->openField(translate('bulkmail_header_new_field_name'));
+				text_box($prefix.'_header_detail_field_new_name', '', $width);
 			$o->closeField();
-			$o->openField(translate('bulkmail_header_new_field_body'), '', '', $hide, $prefix.'_header_detail');
+			$o->openField(translate('bulkmail_header_new_field_body'));
 				text_box($prefix.'_header_detail_field_new_body', '', $width);
-			$o->closeField();
+			//$o->closeField();
 		}
 
 		return $write_access;
@@ -603,17 +570,6 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		if (!$asset->writeAccess('attributes')) return false;
 
 		// update and delete fields
-		$required_header = Array();
-		$index = 0;
-		// changed naming convention from name[i] to name_i to comply with xhtml standards
-		while (isset($_POST[$prefix.'_header_detail_required_fields_name_'.$index])) {
-			$name = $_POST[$prefix.'_header_detail_required_fields_name_'.$index];
-			$body = $_POST[$prefix.'_header_detail_required_fields_body_'.$index];
-			$required_header[$name] = $body;
-			$index++;
-		}
-
-		// update and delete fields
 		$header_details = Array();
 		$index = 0;
 		// changed naming convention from name[i] to name_i to comply with xhtml standards
@@ -635,7 +591,6 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			$header_details[$new_field_name] = $new_field_body;
 		}
 
-		$asset->setAttrValue('required_header', $required_header);
 		$asset->setAttrValue('header_details', $header_details);
 		return true;
 
@@ -858,14 +813,14 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 				// clear the log if checkbox is checked
 				$asset->setAttrValue('preview_log', Array());
 			} else {
-				$new_log = Array($asset->generateLog($recipient));
-				$preview_log = array_merge($new_log, $asset->attr('preview_log'));
-				// only keep the last 5 entries
-				if (count($preview_log) > 5) array_pop($preview_log);
-				$asset->setAttrValue('preview_log', $preview_log);
-
 				// send the actual preview mail
-				$asset->sendPreviewMail($recipient);
+				if ($asset->sendPreviewMail($recipient)) {
+					$new_log = Array($asset->generateLog($recipient));
+					$preview_log = array_merge($new_log, $asset->attr('preview_log'));
+					// only keep the last 5 entries
+					if (count($preview_log) > 5) array_pop($preview_log);
+					$asset->setAttrValue('preview_log', $preview_log);
+				}
 			}
 			return true;
 		} else {

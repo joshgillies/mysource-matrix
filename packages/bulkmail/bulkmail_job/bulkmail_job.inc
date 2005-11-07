@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.14 2005/11/07 04:31:45 ndvries Exp $
+* $Id: bulkmail_job.inc,v 1.15 2005/11/07 04:46:35 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -121,8 +121,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		$_SESSION = $old_session;
 
 		// get header details, required and normal headers
-		$setting = $this->attr('details_setting');
-		$use_post_office_header = array_get_index($setting, 'use_post_office_header', 0);
+		$use_post_office_header = $this->attr('use_post_office_header');
 		if ($use_post_office_header) {
 			$header_details = $post_office->attr('required_header');
 			$header_details += $post_office->attr('header_details');
@@ -186,8 +185,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 
 		// get header details from post office or job
 		// check if minimum required fields (from field) are supplied
-		$setting = $this->attr('details_setting');
-		$use_post_office_header = array_get_index($setting, 'use_post_office_header', 0);
+		$use_post_office_header = $this->attr('use_post_office_header');
 		if ($use_post_office_header) {
 			$header_details = $post_office->attr('required_header');
 			$header_details += $post_office->attr('header_details');
