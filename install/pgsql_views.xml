@@ -1,0 +1,125 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: pgsql_views.xml,v 1.1 2005/11/07 05:27:19 mmcintyre Exp $
+*
+*/
+-->
+<sql>
+	<sql_element display_name="sq_vw_ast_lnk_minor View">
+		<![CDATA[
+			CREATE OR REPLACE VIEW sq_vw_ast_lnk_minor AS
+			SELECT
+					l.linkid, l.majorid, l.minorid, l.value, l.link_type,
+					l.sort_order, l.is_dependant, l.is_exclusive,
+					a.assetid, a.type_code, a.version, a.name, a.short_name, a.status, a.languages,
+					a.charset, a.force_secure, a.created, a.created_userid, a.updated, a.updated_userid,
+					a.published, a.published_userid, a.status_changed, a.status_changed_userid
+				FROM
+					sq_ast_lnk l
+				INNER JOIN sq_ast a ON l.minorid  = a.assetid
+			UNION
+				SELECT
+					s.linkid, s.majorid, s.minorid, s.value, s.link_type, null, '0', '0',
+					s.minorid, null, null, null, null, null, null,
+					null, null, null, null, null, null,
+					null, null, null, null
+				FROM
+					sq_shdw_ast_lnk s;
+		]]>
+	</sql_element>
+	<sql_element display_name="sq_vw_ast_lnk_major View">
+		<![CDATA[
+			CREATE OR REPLACE VIEW sq_vw_ast_lnk_major AS
+				SELECT
+						l.linkid, l.majorid, l.minorid, l.value, l.link_type,
+						l.sort_order, l.is_dependant, l.is_exclusive,
+						a.assetid, a.type_code, a.version, a.name, a.short_name, a.status, a.languages,
+						a.charset, a.force_secure, a.created, a.created_userid, a.updated, a.updated_userid,
+						a.published, a.published_userid, a.status_changed, a.status_changed_userid
+					FROM
+						sq_ast_lnk l
+					INNER JOIN sq_ast a ON l.majorid = a.assetid
+				UNION
+					SELECT
+						s.linkid, s.majorid, s.minorid, s.value, s.link_type, null, '0', '0',
+						s.majorid, null, null, null, null, null, null,
+						null, null, null, null, null, null,
+						null, null, null, null
+					FROM
+						sq_shdw_ast_lnk s;
+		]]>
+	</sql_element>
+	<sql_element display_name="sq_vw_ast_lnk_minor Rollback View">
+		<![CDATA[
+			CREATE OR REPLACE VIEW sq_rb_vw_ast_lnk_minor AS
+				SELECT
+						l.sq_eff_from AS lnk_sq_eff_from, l.sq_eff_to AS lnk_sq_eff_to,
+						a.sq_eff_from AS ast_sq_eff_from, a.sq_eff_to AS ast_sq_eff_to,
+						l.linkid, l.majorid, l.minorid, l.value, l.link_type,
+						l.sort_order, l.is_dependant, l.is_exclusive,
+						a.assetid, a.type_code, a.version, a.name, a.short_name, a.status, a.languages,
+						a.charset, a.force_secure, a.created, a.created_userid, a.updated, a.updated_userid,
+						a.published, a.published_userid, a.status_changed, a.status_changed_userid
+					FROM
+						sq_rb_ast_lnk l
+					INNER JOIN sq_rb_ast a ON l.minorid = a.assetid
+
+				UNION
+					SELECT
+						s.sq_eff_from AS lnk_sq_eff_from, s.sq_eff_to AS lnk_sq_eff_to,
+						s.sq_eff_from AS ast_sq_eff_from, s.sq_eff_to AS ast_sq_eff_to,
+						s.linkid, s.majorid, s.minorid, s.value, s.link_type, null, '0', '0',
+						s.majorid, null, null, null, null, null, null,
+						null, null, null, null, null, null,
+						null, null, null, null
+					FROM
+						sq_rb_shdw_ast_lnk s;
+		]]>
+	</sql_element>
+	<sql_element display_name="sq_vw_ast_lnk_major Rollback View">
+		<![CDATA[
+			CREATE OR REPLACE VIEW sq_rb_vw_ast_lnk_major AS
+				SELECT
+						l.sq_eff_from AS lnk_sq_eff_from, l.sq_eff_to AS lnk_sq_eff_to,
+						a.sq_eff_from AS ast_sq_eff_from, a.sq_eff_to AS ast_sq_eff_to,
+						l.linkid, l.majorid, l.minorid, l.value, l.link_type,
+						l.sort_order, l.is_dependant, l.is_exclusive,
+						a.assetid, a.type_code, a.version, a.name, a.short_name, a.status, a.languages,
+						a.charset, a.force_secure, a.created, a.created_userid, a.updated, a.updated_userid,
+						a.published, a.published_userid, a.status_changed, a.status_changed_userid
+					FROM
+						sq_rb_ast_lnk l
+					INNER JOIN sq_rb_ast a ON l.majorid = a.assetid
+
+				UNION
+					SELECT
+						s.sq_eff_from AS lnk_sq_eff_from, s.sq_eff_to AS lnk_sq_eff_to,
+						s.sq_eff_from AS ast_sq_eff_from, s.sq_eff_to AS ast_sq_eff_to,
+						s.linkid, s.majorid, s.minorid, s.value, s.link_type, null, '0', '0',
+						s.majorid, null, null, null, null, null, null,
+						null, null, null, null, null, null,
+						null, null, null, null
+					FROM
+						sq_rb_shdw_ast_lnk s;
+		]]>
+	</sql_element>
+</sql>

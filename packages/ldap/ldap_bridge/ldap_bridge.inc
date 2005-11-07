@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.35 2005/11/03 05:50:53 tbarrett Exp $
+* $Id: ldap_bridge.inc,v 1.36 2005/11/07 05:26:56 mmcintyre Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -58,6 +58,13 @@ class LDAP_Bridge extends Asset
 						'organizationalperson'	=> 'cn',
 						'inetorgperson'			=> 'cn',
 					   );
+
+	/**
+	* The link type of assets linked underneath an LDAP_Bridge
+	*
+	* @var int
+	*/
+	var $ldap_shdw_link_type = SQ_LINK_TYPE_1;
 
 
 	/**
@@ -135,12 +142,11 @@ class LDAP_Bridge extends Asset
 		$asset = null;
 		$id_parts = explode(':', $shadowid);
 
-		if (isset($id_parts[1])){
+		if (isset($id_parts[1])) {
 			$shadowid = $id_parts[1];
 		} else {
 			return $asset;
 		}
-
 
 		$ldap = @$this->connectToLdap();
 			if (is_null($ldap->ptr)) return $asset;
@@ -198,9 +204,17 @@ class LDAP_Bridge extends Asset
 	*/
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null, $dependant=null, $exclusive=null)
 	{
+
+		// if the wanted link type is not the type of links
+		// that this bridge allows, lets return now
+		if (!($this->ldap_shdw_link_type & $link_types)) {
+			return Array();
+		}
+
 		if ($dependant || $exclusive) {
 			return Array();
 		}
+
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) $assetid = $id_parts[1];
 
@@ -230,13 +244,13 @@ class LDAP_Bridge extends Asset
 								'major_type_code'	=> $this->type(),
 								'minorid'			=> $this->id.':'.$assetid,
 								'value'				=> '',
-								'link_type'			=> SQ_LINK_TYPE_1,
+								'link_type'			=> $this->ldap_shdw_link_type,
 								'is_dependant'		=> false,
 								'is_exclusive'		=> false,
 								'sort_order'		=> 0,
 							   );
 				} else {
-					$asset = &$this->getAsset($minorid);
+					$asset = &$this->getAsset($this->id.':'.$minorid);
 
 					if (!empty($type_code)) {
 						if ($asset->type() == 'ldap_user_group') {
@@ -256,7 +270,7 @@ class LDAP_Bridge extends Asset
 								'major_type_code'	=> $asset->type(),
 								'minorid'			=> $this->id.':'.$assetid,
 								'value'				=> '',
-								'link_type'			=> SQ_LINK_TYPE_1,
+								'link_type'			=> $this->ldap_shdw_link_type,
 								'is_dependant'		=> false,
 								'is_exclusive'		=> false,
 								'sort_order'		=> 0,
@@ -271,12 +285,12 @@ class LDAP_Bridge extends Asset
 					// if we are using Active Directory, we have to get the members of a group from the member
 					// attribute of the group instead of using tree searches
 					if ($this->attr('system_type') == 'activedirectory') {
-						$asset = &$this->getAsset($assetid);
+						$asset = &$this->getAsset($this->id.':'.$assetid);
 						if ($asset->type() == 'ldap_user_group' && in_array('group', $asset->vars['objectclass']) && isset($asset->vars['member'])) {
 							$members = $asset->vars['member'];
 							$entries = Array();
 							foreach ($members as $dn) {
-								$user = &$this->getAsset($dn);
+								$user = &$this->getAsset($this->id.':'.$dn);
 								$entries[$dn] = $user->vars;
 							}
 						}
@@ -389,7 +403,7 @@ class LDAP_Bridge extends Asset
 							}
 						}
 
-						// if this container is not a group, check to see if it is a user
+						// if this container is not a group, check to $resultsee if it is a user
 						if (empty($type)) {
 							foreach ($this->_user_types as $key => $value) {
 								if ($class == $key) {
@@ -431,7 +445,7 @@ class LDAP_Bridge extends Asset
 								'minorid'			=> $this->id.':'.$dn,
 								'minor_type_code'	=> $type,
 								'value'				=> '',
-								'link_type'			=> SQ_LINK_TYPE_1,
+								'link_type'			=> $this->ldap_shdw_link_type,
 								'is_dependant'		=> false,
 								'is_exclusive'		=> false,
 								'sort_order'		=> $i,
@@ -507,13 +521,15 @@ class LDAP_Bridge extends Asset
 			$ou_groups = Array();
 			$matches = Array();
 			$reg_expression = '|ou=([^,]+),(.*)|i';
-			$reg_string = $assetid;
-			while ($reg_string != '') {
-				preg_match_all($reg_expression, $reg_string, $matches);
-				if (empty($matches[1])) break;
+			$reg_string = substr($assetid, strpos($assetid, ',') + 1);
+
+			preg_match_all($reg_expression, $reg_string, $matches);
+			if (!empty($matches[1])) {
 				$reg_string = array_shift($matches[2]);
 				$ou_groups[array_shift($matches[1])] = $reg_string;
 			}
+
+			if (empty($ou_groups)) return Array();
 
 			foreach ($mo_groups as $group_name) {
 				$result = $ldap->search($group_name, '(objectClass=*)');
@@ -526,15 +542,22 @@ class LDAP_Bridge extends Asset
 			foreach ($ou_groups as $group_name => $group_dn) {
 				$result = $ldap->search($attrs['ou'].'='.$group_name.','.$group_dn,'(&(objectClass=organizationalUnit)('.$attrs['ou'].'='.$group_name.'))');
 				$group_data = $ldap->getEntries($result);
+
 				if ($group_data['count'] > 0) {
 					$parents[$this->id.':'.$group_data[0]['dn']] = 'ldap_user_group';
 				}
+			}
+
+			foreach (array_keys($parents) as $parentid) {
+				$real_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($parentid, $type_code, $strict_type_code);
+				$parents = $real_parents + $parents;
 			}
 
 			$ldap->disconnect();
 			$this->_tmp['getParents'][$assetid] = $parents;
 
 		}//end if not cached
+
 
 		return $this->_tmp['getParents'][$assetid];
 
@@ -688,7 +711,7 @@ class LDAP_Bridge extends Asset
 			$dn = implode(',', $groups);
 			if ($dn == $this->attr('root_dn')) break;
 
-			$asset = &$this->getAsset($dn);
+			$asset = &$this->getAsset($this->id.':'.$dn);
 			$url = substr($asset->getURL(), strlen(current_protocol()) +3);
 
 			$lineage[] = Array (
@@ -756,9 +779,9 @@ class LDAP_Bridge extends Asset
 	/**
 	* Deletes a permission with the passed user or user_group
 	*
-	* @param int	$assetid		the assetid for asset whose permissions to delete
-	* @param int	$userid			the id of the user or user_group to remove the permission from
-	* @param string	$permission		the permission code you are deleting
+	* @param int	$assetid	the assetid for asset whose permissions to delete
+	* @param int	$userid		the id of the user or user_group to remove the permission from
+	* @param string	$permission	the permission code you are deleting
 	*
 	* @return boolean
 	* @access public
@@ -786,7 +809,44 @@ class LDAP_Bridge extends Asset
 	*/
 	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=true, $field='')
 	{
-		return Array();
+		$info = Array();
+		foreach ($assetids as $assetid) {
+			$asset = &$this->getAsset($assetid);
+
+			if (!empty($field)) {
+				if ($field == 'assetid') {
+					$info[$assetid] = $assetid;
+				} else if ($field == 'type_code') {
+					$info[$assetid] = $asset->type();
+				} else if (in_array($field , Array('version', 'name', 'short_name', 'status'))) {
+					$info[$assetid] = $asset->$field;
+				} else {
+					$info[$assetid] = $this->$field;
+				}
+			} else {
+				$info[$assetid] = Array(
+									'assetid'				=> $assetid,
+									'type_code'				=> $asset->type(),
+									'version'				=> $asset->version,
+									'name'					=> $asset->name,
+									'short_name'			=> $asset->short_name,
+									'status'				=> $asset->status,
+									'languages'				=> $this->languages,
+									'charset'				=> $this->charset,
+									'force_secure'			=> $this->force_secure,
+									'created'				=> $this->created,
+									'created_userid'		=> $this->created_userid,
+									'updated'				=> $this->updated,
+									'updated_userid'		=> $this->updated_userid,
+									'published'				=> $this->published,
+									'published_userid'		=> $this->published_userid,
+									'status_changed'		=> $this->status_changed,
+									'status_changed_userid'	=> $this->status_changed_userid,
+								  );
+			}
+		}
+
+		return $info;
 
 	}//end getAssetInfo()
 
@@ -886,19 +946,19 @@ class LDAP_Bridge extends Asset
 	/**
 	* Get details of the link(s) between the two specified assets
 	*
-	* @param int		$assetid			id of the the $side_of_link asset
-	* @param int		$other_assetid		the asset on the other side of the link
-	* @param int		$link_types			integer that can be the product of bitwise operations
-	*										on the SQ_LINK_* constants
-	* @param string		$value				the value that is associated with this link
-	* @param string		$side_of_link		Which side of the link the first assetid is on
-	*										('major' or 'minor')
-	* @param boolean	$force_array		force the results to return an array of links
-	*										even if there is only one link
-	* @param boolean	$dependant			The dependant status for all the links must be
-	*										this (if not null)
-	* @param boolean	$exclusive			The exclusive status for all the links must be
-	*										this (if not null)
+	* @param int		$assetid		id of the the $side_of_link asset
+	* @param int		$other_assetid	the asset on the other side of the link
+	* @param int		$link_types		integer that can be the product of bitwise operations
+	*									on the SQ_LINK_* constants
+	* @param string		$value			the value that is associated with this link
+	* @param string		$side_of_link	Which side of the link the first assetid is on
+	*									('major' or 'minor')
+	* @param boolean	$force_array	force the results to return an array of links
+	*									even if there is only one link
+	* @param boolean	$dependant		The dependant status for all the links must be
+	*									this (if not null)
+	* @param boolean	$exclusive		The exclusive status for all the links must be
+	*									this (if not null)
 	*
 	* @return array
 	* @access public
@@ -913,8 +973,8 @@ class LDAP_Bridge extends Asset
 	/**
 	* Get details of the links from the specified asset to all its children
 	*
-	* @param string		$assetid	the assetid of the asset to find the child links for
-	* @param int		$link_type	the type of links to get
+	* @param string	$assetid	the assetid of the asset to find the child links for
+	* @param int	$link_type	the type of links to get
 	*
 	* @return array
 	* @access public
@@ -933,7 +993,7 @@ class LDAP_Bridge extends Asset
 	*
 	* @param int	$linkid		the link id of the link to update
 	* @param int	$link_type	the type of the link (one of the SQ_LINK_* constants)
-	* @param string $value		the value to place on the link
+	* @param string	$value		the value to place on the link
 	* @param int	$sort_order	the position in the links list that this link should take,
 	*							if less than zero places at end of list
 	*

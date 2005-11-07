@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.393 2005/11/04 04:38:44 arailean Exp $
+* $Id: asset_manager.inc,v 1.394 2005/11/07 05:18:53 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.393 $
+* @version $Revision: 1.394 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2069,10 +2069,9 @@ class Asset_Manager extends MySource_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
-						a.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.'.$other_side.'id  = a.assetid
-				';
+						l.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
+
 		$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid);
 
 		if (!is_null($link_type)) {
@@ -2097,9 +2096,9 @@ class Asset_Manager extends MySource_Object
 			}
 
 			if ($strict_type_code) {
-				$where .= ' AND a.type_code '.$type_code_cond;
+				$where .= ' AND l.type_code '.$type_code_cond;
 			} else {
-				$where .= ' AND a.type_code IN (
+				$where .= ' AND l.type_code IN (
 												SELECT type_code
 												FROM sq_ast_typ_inhd
 												WHERE inhd_type_code '.$type_code_cond.'
@@ -2113,8 +2112,8 @@ class Asset_Manager extends MySource_Object
 			$where .= ')';
 		}
 
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', false);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', false);
 
 		$sql .= $where.' ORDER BY l.sort_order';
 
@@ -2130,7 +2129,7 @@ class Asset_Manager extends MySource_Object
 	* Get details of the link with specified linkid
 	*
 	* @param int	$linkid			id of the link
-	* @param int	$assetid		id of the the $side_of_link asset
+	* @param string	$assetid		id of the the $side_of_link asset
 	*								if zero no check is made and both major and minor information is returned
 	* @param string	$side_of_link	Which side of the link the asset represented by $assetid is on ('major' or 'minor')
 	*
@@ -2154,26 +2153,24 @@ class Asset_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT  l.linkid, l.value, l.link_type, l.sort_order, l.is_dependant, l.is_exclusive, ';
-		$where = 'l.linkid = '.$db->quote((int)$linkid);
+		$where = 'l.linkid = '.$db->quote((int) $linkid);
 
-		$assetid = (int) $assetid;
-		if ($assetid > 0) {
-			$sql .= 'l.'.$other_side.'id, a.type_code as '.$other_side.'_type_code
-					 FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON  l.'.$other_side.'id = a.assetid';
+		// if they only want one side of the link, we can do less work
+		if ($assetid !== 0) {
+			$sql .= 'l.'.$other_side.'id, l.type_code as '.$other_side.'_type_code
+					 FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
 			$where .= ' AND l.'.$side_of_link.'id = '.$db->quote($assetid);
-
 		} else {
-			$sql .= 'l.majorid, a.type_code as major_type_code, l.minorid, a2.type_code as minor_type_code
-					 FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON  l.majorid = a.assetid
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a2 ON  l.minorid = a2.assetid';
+			$sql .= 'l.majorid, l.type_code as major_type_code, l.minorid, a.type_code as minor_type_code
+					 FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_major l
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.majorid = a.assetid';
 
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a2');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
 		}//end if
 
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', false);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', false);
 
 		$result = $db->getRow($sql.$where);
 		assert_valid_db_result($result);
@@ -2231,15 +2228,11 @@ class Asset_Manager extends MySource_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type,
-					   a.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.'.$other_side.'id  = a.assetid
-				';
+					   l.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
 
 		$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid).'
 				  AND l.'.$other_side.'id  = '.$db->quote($other_assetid);
-
-
 
 		if (!is_null($link_types)) {
 		  $where .= ' AND '.db_extras_bitand($db, 'l.link_type', $link_types).' > 0 ';
@@ -2254,8 +2247,8 @@ class Asset_Manager extends MySource_Object
 			$where .= ' AND l.is_exclusive = '.$db->quote(($exclusive) ? '1' : '0');
 		}
 
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', false);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', false);
 
 		$sql .= $where.'
 				ORDER BY l.sort_order';
@@ -2326,10 +2319,51 @@ class Asset_Manager extends MySource_Object
 				$real_assetid = $id_parts[0];
 				$asset = &$this->getAsset($real_assetid);
 				if (is_null($asset)) continue;
+
 				$links[$assetid] = $asset->getLinks($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by);
 				$this->forgetAsset($asset);
+
+				// we also need the links to real assets for this shadow asset
+				// if we are looking up the tree
+				if ($side_of_link == 'minor') {
+					$db = &$GLOBALS['SQ_SYSTEM']->db;
+					$sql = 'SELECT
+								l.linkid,
+								l.majorid,
+								l.minorid,
+								a.type_code AS major_type_code
+							FROM
+								'.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk l
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a on l.majorid = a.assetid';
+
+					$where = 'majorid = '.$db->quoteSmart($assetid);
+					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+
+					$result = $db->getAll($sql.$where);
+					assert_valid_db_result($result);
+
+					$shdw_links = Array();
+					foreach ($result as $shdw_link) {
+						$shdw_links[] = Array(
+											'linkid'			=> $shdw_link['linkid'],
+											'majorid'			=> $shdw_link['majorid'],
+											'major_type_code'	=> $shdw_link['major_type_code'],
+											'minorid'			=> $shdw_link['minorid'],
+											'value'				=> null,
+											'link_type'			=> SQ_LINK_TYPE_1,
+											'is_dependant'		=> '0',
+											'is_exclusive'		=> '0',
+											'sort_order'		=> 0,
+										);
+
+					}
+					$links[$assetid] += $shdw_links;
+				}// end if side_of_link is major
+
 				continue;
-			}
+
+			}//end if shadow asset
 
 			// we are not getting links for a shadow asset, so if we are getting child links of
 			// an asset that handles shadow assets, palm the request off to it
@@ -2353,7 +2387,6 @@ class Asset_Manager extends MySource_Object
 			$query = $this->generateGetLinksQuery($query_assetids, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access);
 			if (!empty($query)) {
 				$db = &$GLOBALS['SQ_SYSTEM']->db;
-
 				$result = $db->getAssoc(implode(' ', $query), false, Array(), DB_FETCHMODE_ASSOC, true);
 				assert_valid_db_result($result);
 				$links += $result;
@@ -2465,10 +2498,49 @@ class Asset_Manager extends MySource_Object
 	{
 		assert_valid_assetid($assetid);
 
+		$link_lineages = Array();
+		$assetids = Array();
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$assetids = Array();
+		$id_parts = explode(':', $assetid);
+		if (isset($id_parts[1])) {
+			// if this asset is a shadow asset the we want the get the lineages of the
+			// bridge, and also the lineages of and real assets that this asset is linked under
+			$bridge_info   = $this->getAssetInfo(Array($id_parts[0]), '', true, 'name');
+			$link_lineages = $this->getLinkLineages($id_parts[0]);
+
+			// add the lineage of the actual bridge to the bridge's lineages
+			for (reset($link_lineages); null !== ($key = key($link_lineages)); next($link_lineages)) {
+				$link_lineages[$key]['lineage'][$id_parts[0]] = $bridge_info[$id_parts[0]];
+			}
+			$sql = 'SELECT
+						l.majorid, a.name
+					FROM
+						'.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk l
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.majorid = a.assetid';
+
+			$where = 'l.minorid = '.$db->quoteSmart($assetid);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+
+			$result = $db->getAssoc($sql.$where);
+			assert_valid_db_result($result);
+
+			// get the lineage of the real assets that this shadow asset is linked under
+			// and then append the lineage of that real asset to its lineages
+			foreach ($result as $assetid => $name) {
+				$lineages = $this->getLinkLineages($assetid);
+				for (reset($lineages); null !== ($key = key($lineages)); next($lineages)) {
+					$lineages[$key]['lineage'][$assetid] = $name;
+				}
+				$link_lineages = array_merge($link_lineages, $lineages);
+			}
+
+			return $link_lineages;
+
+		}//end if shadow asset
+
 		$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_SC_LINK_ALL, '', true, 'minor');
 
 		foreach ($asset_links as $link) {
@@ -2485,7 +2557,13 @@ class Asset_Manager extends MySource_Object
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt ON pl.linkid = pt.linkid
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON a.assetid = pl.minorid
 					';
-			$where = 'cl.minorid IN ('.implode(', ', array_keys($assetids)).')
+
+			$quoted_assetids = array_keys($assetids);
+			for (reset($quoted_assetids); null !== ($key = key($quoted_assetids)); next($quoted_assetids)) {
+					$quoted_assetids[$key] = $db->quoteSmart($quoted_assetids[$key]);
+			}
+
+			$where = 'cl.minorid IN ('.implode(', ', $quoted_assetids).')
 					  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'
 					  AND pt.treeid <= ct.treeid';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
@@ -2497,17 +2575,15 @@ class Asset_Manager extends MySource_Object
 			$sql .= $where.'
 					ORDER BY cl.linkid, ct.treeid, pt.treeid';
 
-
 			$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
 			assert_valid_db_result($result);
 		}
 
+		$link_info = Array();
 		foreach ($asset_links as $link_data) {
 			$link_info[$link_data['majorid']][] = $link_data;
 		}
 
-
-		$link_lineages = Array();
 		foreach (array_values($result) as $link_tree) {
 
 			// work out some values we are going to need
@@ -2568,7 +2644,29 @@ class Asset_Manager extends MySource_Object
 			$real_assetid = $id_parts[0];
 			$asset = &$this->getAsset($real_assetid);
 			$parents = $asset->getParents($assetid, $type_code, $strict_type_code);
+
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$sql = 'SELECT
+						majorid
+					FROM
+						'.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk';
+
+			$where = 'minorid = '.$db->quoteSmart($assetid);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+			$shdw_parentids = $db->getCol($sql.$where);
+			assert_valid_db_result($shdw_parentids);
+			$shdw_parents = $this->getAssetInfo($shdw_parentids, Array(), true, 'type_code');
+
+			$real_parents = Array();
+			// we also need the parents of the majorid from the shadow asset link table
+			foreach ($shdw_parentids as $parentid) {
+				$real_parents = $this->getParents($parentid, $type_code, $strict_type_code, $sort_by, $access);
+			}
+
+			$parents = $parents + $shdw_parents + $real_parents;
 			$this->forgetAsset($asset);
+
 			return $parents;
 		}
 
@@ -2649,8 +2747,8 @@ class Asset_Manager extends MySource_Object
 		$this->forgetAsset($asset);
 		unset($asset);
 		if (empty($query)) return Array();
-
 		$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
+
 		assert_valid_db_result($result);
 
 		if (!is_null($sort_by)) {
@@ -3125,17 +3223,53 @@ class Asset_Manager extends MySource_Object
 		}
 
 		if (isset($minorid_parts[1])) {
-			$asset = &$this->getAsset($minorid_parts[0]);
 
-			$linkid = $asset->createAssetLink($major, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
+			// if we are linking to another shadow asset, let the bridge handle it
+			if (isset($majorid_parts[1])) {
+				$asset = &$this->getAsset($minorid_parts[0]);
+				$linkid = $asset->createAssetLink($major, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
+				$this->forgetAsset($asset);
+			} else {
 
-			$this->forgetAsset($major);
-			$this->forgetAsset($asset);
+				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				$db = &$GLOBALS['SQ_SYSTEM']->db;
+				// use the sq_ast_lnk sequence so that when we query any link view later
+				// on we don't have any conflicting linkids
+				$linkid = $db->nextId('sq_ast_lnk');
+				assert_valid_db_result($linkid);
+
+				$sql = 'INSERT INTO
+							sq_shdw_ast_lnk
+							(
+								linkid,
+								majorid,
+								minorid,
+								link_type,
+								value,
+								updated,
+								updated_userid
+							)
+							VALUES
+							(
+								'.$db->quoteSmart($linkid).',
+								'.$db->quoteSmart($major->id).',
+								'.$db->quoteSmart($minor->id).',
+								'.$db->quoteSmart($link_type).',
+								'.$db->quoteSmart($value).',
+								'.db_extras_todate($db, ts_iso8601(time())).',
+								'.$db->quoteSmart($GLOBALS['SQ_SYSTEM']->currentUserid()).'
+							)';
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
+
+				$this->forgetAsset($major);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			}
 			return $linkid;
-		}
 
-
-		// end shadow asset work
+		}// end if shadow asset
 
 		$original_link_type = $link_type;
 		$link_type = (int) $link_type;
@@ -3255,7 +3389,6 @@ class Asset_Manager extends MySource_Object
 			$sort_order = (int) $max;
 		}
 
-		// sequences are cool, see the PEAR::DB docs for more info
 		$linkid = $db->nextId('sq_ast_lnk');
 		assert_valid_db_result($linkid);
 
@@ -3407,7 +3540,7 @@ class Asset_Manager extends MySource_Object
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return 0;
 					}
-					if (($free_childid = asset_link_treeid_convert($child_num + 1, true)) === false)  {
+					if (($free_childid = asset_link_treeid_convert($child_num + 1, true)) === false) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return 0;
 					}
@@ -3847,9 +3980,7 @@ class Asset_Manager extends MySource_Object
 
 		// now create the new link, it's non-exclusive + non-dependent, skip canCreateLink() checks
 		$new_linkid = $new_parent->createLink($minor, $link_type, '', $to_parent_pos, '0', '0', true);
-		if (!$new_linkid) {
-			$success = false;
-		}
+		if (!$new_linkid) $success = false;
 
 		// let's try and delete the old link
 		if ($success) {
@@ -4154,6 +4285,7 @@ class Asset_Manager extends MySource_Object
 	{
 		// first, we should try and find the link
 		$link = $this->getLinkById($linkid);
+
 		if (empty($link)) {
 			trigger_localised_error('SYS0137', E_USER_WARNING, $linkid);
 			return false;
@@ -4185,14 +4317,36 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$id_parts = explode(':', $linkid);
+		$minorid_parts = explode(':', $link['minorid']);
 
-		// shadow asset found, pipe the request of to the bridge
+		// shadow asset found
 		if (isset($id_parts[1])) {
-			$bridge =& $this->getAsset($id_parts[0]);
-			$result = $bridge->deleteAssetLink($linkid, $moving);
-			$this->forgetAsset($bridge);
-			return $result;
-		}
+			// if the parent is a bridge, let it handle the delete
+			if (implements_interface($major, 'bridge')) {
+				$result = $major->deleteAssetLink($linkid, $moving);
+				$this->forgetAsset($asset);
+				return $result;
+			}
+		} else if (isset($minorid_parts[1])) {
+			// if the minor is a shadow asset and the major is a normal asset
+			// then we want to delete the link between these two assets
+			if (!implements_interface($major, 'bridge')) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+				$db = &$GLOBALS['SQ_SYSTEM']->db;
+				$sql = 'DELETE FROM
+							sq_shdw_ast_lnk
+						WHERE
+							linkid = '.$db->quoteSmart($linkid);
+
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+				return true;
+			}
+		}//end if shadow asset
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
@@ -4297,7 +4451,7 @@ class Asset_Manager extends MySource_Object
 							SELECT
 								ct.treeid
 							FROM
-								'.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt, '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct
+								sq_ast_lnk_tree pt, sq_ast_lnk_tree ct
 							'.$sub_where.'
 						)';
 
@@ -5630,12 +5784,10 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$select = 'SELECT  l.'.$side_of_link.'id, l.'.$other_side.'id, l.linkid, l.value, l.link_type,
-						a.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive';
-		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l,
-						'.SQ_TABLE_RUNNING_PREFIX.'ast a';
+						l.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive';
+		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
 
-		$where  = 'l.'.$other_side.'id = a.assetid
-				   AND l.'.$side_of_link.'id '.$assetid_cond.'
+		$where  = 'l.'.$side_of_link.'id '.$assetid_cond.'
 				   AND '.db_extras_bitand($db, 'l.link_type', $db->quote($link_types)).' > 0 ';
 		if (!is_null($value)) {
 			$where .= ' AND (l.value = '.$db->quote($value);
@@ -5652,7 +5804,7 @@ class Asset_Manager extends MySource_Object
 		$group_by = '';
 		if (!is_null($access)) {
 			$from .= ', '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p';
-			$where .= ' AND p.assetid = a.assetid';
+			$where .= ' AND p.assetid = l.minorid';
 			$userid_cond = '';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
@@ -5664,7 +5816,7 @@ class Asset_Manager extends MySource_Object
 			}
 			$where .= $userid_cond.' AND p.granted >= '.$db->quote($access);
 			$group_by = 'GROUP BY l.linkid, l.'.$side_of_link.'id, l.'.$other_side.'id, l.value, l.link_type,
-								  a.type_code, l.sort_order, l.is_dependant, l.is_exclusive';
+								  l.type_code, l.sort_order, l.is_dependant, l.is_exclusive';
 		}
 
 		if (!empty($type_code)) {
@@ -5680,9 +5832,9 @@ class Asset_Manager extends MySource_Object
 			}
 
 			if ($strict_type_code) {
-				$where .= ' AND a.type_code '.$type_code_cond;
+				$where .= ' AND l.type_code '.$type_code_cond;
 			} else {
-				$where .= ' AND a.type_code IN (
+				$where .= ' AND l.type_code IN (
 												SELECT type_code
 												FROM sq_ast_typ_inhd
 												WHERE inhd_type_code '.$type_code_cond.'
@@ -5690,18 +5842,18 @@ class Asset_Manager extends MySource_Object
 			}
 		}//end if
 
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', false);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', false);
 
 		if (is_null($sort_by)) {
 			// order by sort order (by default)
-			$order_by = 'ORDER BY l.sort_order, a.type_code';
+			$order_by = 'ORDER BY l.sort_order, l.type_code';
 		} else {
 			// order by a specific field in the asset table
-			$order_by = 'ORDER BY a.'.$sort_by;
+			$order_by = 'ORDER BY l.'.$sort_by;
 			if ($sort_by != 'type_code') {
-				$select .= ', a.'.$sort_by.' AS sort_value';
-				if (!empty($group_by)) $group_by .= ', a.'.$sort_by;
+				$select .= ', l.'.$sort_by.' AS sort_value';
+				if (!empty($group_by)) $group_by .= ', l.'.$sort_by;
 			}
 		}
 
@@ -5784,7 +5936,7 @@ class Asset_Manager extends MySource_Object
 				$where .= ' AND ';
 			}
 
-		}//end if assetid == 1
+		}//end if is root folder
 
 		$group_by = '';
 		if (!is_null($access)) {
@@ -5837,11 +5989,23 @@ class Asset_Manager extends MySource_Object
 			$select .= ', a.'.$sort_by.' AS sort_value';
 		}
 
+		$union_select = ' UNION SELECT sl.minorid';
+
+		if ($inc_type_code) $union_select .= ', null ';
+		if (!is_null($sort_by)) $union_select .= ', null ';
+
+		$union_from   = ' FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
+		$union_where  = 'sl.majorid = '.$db->quoteSmart($asset->id);
+		$union_where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
+
 		return Array(
-				'select'	=> $select,
-				'from'		=> $from,
-				'where'		=> $where,
-				'order_by'	=> $order_by,
+				'select'		=> '('.$select,
+				'from'			=> $from,
+				'where'			=> $where,
+				'order_by'		=> $order_by,
+				'union_select'	=> ')'.$union_select,
+				'union_from'	=> $union_from,
+				'union_where'	=> $union_where,
 			   );
 
 	}//end generateGetChildrenQuery()
@@ -5947,14 +6111,24 @@ class Asset_Manager extends MySource_Object
 				}
 				$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
 			}
-			$where .= $userid_cond.' AND p.granted >= '.$db->quote($access);
+			$where .= $userid_cond.' AND p.granted >= '.$db->quoteSmart($access);
 		}
 
+		$union_select = ' UNION SELECT sl.majorid, null, null';
+		if (!is_null($sort_by)) $union_select .= ', null';
+
+		$union_from   = ' FROM sq_shdw_ast_lnk sl';
+		$union_where  = 'sl.minorid = '.$db->quoteSmart($assetid);
+		$union_where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
+
 		return Array(
-				'select'	=> $select,
-				'from'		=> $from,
-				'where'		=> $where,
-				'order_by'	=> $order_by,
+				'select'		=> '('.$select,
+				'from'			=> $from,
+				'where'			=> $where,
+				'order_by'		=> $order_by,
+				'union_select'	=> ')'.$union_select,
+				'union_from'	=> $union_from,
+				'union_where'	=> $union_where,
 			   );
 
 	}//end generateGetParentsQuery()

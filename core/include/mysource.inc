@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.146 2005/10/28 05:22:59 ndvries Exp $
+* $Id: mysource.inc,v 1.147 2005/11/07 05:19:11 mmcintyre Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.146 $
+* @version $Revision: 1.147 $
 * @package MySource_Matrix
 */
 class MySource
@@ -397,7 +397,6 @@ class MySource
 
 				exit(1);
 			}//end if is_null(asset)
-
 
 			$this->frontend_asset = &$asset;
 			$asset->printFrontend();
@@ -1194,7 +1193,7 @@ class MySource
 	{
 		foreach (array_keys($_SESSION) as $key) {
 			// do not reset the unsuccessful attempt, unset in &authenticateUser
-			if ($key != 'user_login_attempts'){
+			if ($key != 'user_login_attempts') {
 				unset($_SESSION[$key]);
 			}
 		}
@@ -1579,7 +1578,7 @@ class MySource
 		// this is a bypass to allow logging while Log Manager asset has not been installed yet
 		// necessary during installation, because we want ALL the log entries to be handled by the log manager,
 		// not only those that appeared after it was installed.
-		if (is_null($this->log_manager)){
+		if (is_null($this->log_manager)) {
 			return new Log_Manager();
 		}
 
@@ -1857,19 +1856,21 @@ class MySource
 	* Given a WHERE clause, this function will append extra where conditions to the clause
 	* that allow selection of rollback entries based on the current rollback view mode settings
 	*
-	* @param string	$where			a current where clause without WHERE on the front
-	*								NOTE: if the string begins with WHERE, it will be stripped
-	* @param string	$table_alias	the table alias to add entries for
-	*								eg. SELECT * FROM asset a --> $table_alias is 'a'
-	*								so rollback queries for table 'a' get added, otherwise
-	*								the entries will not be prefixed with an alias
-	* @param string	$prefix			the prefix (eg 'WHERE' or 'AND') to put at the start of
-	*								the condition
+	* @param string		$where			a current where clause without WHERE on the front
+	*									NOTE: if the string begins with WHERE, it will be stripped
+	* @param string		$table_alias	the table alias to add entries for
+	*									eg. SELECT * FROM asset a --> $table_alias is 'a'
+	*									so rollback queries for table 'a' get added, otherwise
+	*									the entries will not be prefixed with an alias
+	* @param string		$prefix			the prefix (eg 'WHERE' or 'AND') to put at the start of
+	*									the condition
+	* @param boolean	$is_table_alias	TRUE if the specified alias is a table alias, FALSE if it is
+	*									a column prefix
 	*
 	* @return string
 	* @access public
 	*/
-	function constructRollbackWhereClause($where='', $table_alias=null, $prefix='WHERE')
+	function constructRollbackWhereClause($where='', $table_alias=null, $prefix='WHERE', $is_table_alias=true)
 	{
 		// trim off a current prefix keyword if it exists
 		$where = trim($where);
@@ -1887,7 +1888,7 @@ class MySource
 		}
 
 		if (!is_null($table_alias)) {
-			$table_alias .= '.';
+			if ($is_table_alias) $table_alias .= '.';
 		} else {
 			$table_alias = '';
 		}

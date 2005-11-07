@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.22 2005/10/21 06:51:28 arailean Exp $
+* $Id: hipo_job_create_links.inc,v 1.23 2005/11/07 05:18:05 mmcintyre Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -358,7 +358,6 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					$trash_section_painted = false;
 
 					for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
-					//foreach ($this->_running_vars['assets'] as $asset_node) {
 						$current = current($assets);
 						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						$trash_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($trash_folder->id, $asset->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
@@ -371,6 +370,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 							// note that we are also going to ask the major asset in the link
 							// to describe it so it makes sense to the user looking at it
 							$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE, '', true, 'minor');
+
 							if (!empty($links)) {
 								if (!$trash_section_painted) {
 									$o->openSection(translate('warning_-_moving_to_trash'));
@@ -381,7 +381,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 								echo $asset->name;
 
-								$link_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE);
+								$link_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id);
+
 								?><table class="sq-backend-table"><?php
 								foreach ($links as $link_data) {
 									$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['majorid'], $link_data['major_type_code']);
@@ -483,7 +484,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		unset($this->_running_vars['process_create_links'][$assetid]);
 
 		if ($this->_running_vars['link_action'] == 'create') {
-			// create a new link
+
 			$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 
 			if (is_null($new_parent)) {
@@ -494,7 +495,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
-			if (is_null($new_parent)) {
+			if (is_null($asset)) {
 				trigger_localised_error('HIPO0022', E_USER_WARNING, $assetid);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -510,9 +511,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			}
 
 			$this->_running_vars['to_parent_pos']++;
-
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($new_parent);
 			unset($new_parent);
 
@@ -534,9 +533,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				$moving_to_trash = true;
 
 				$id_parts = explode(':', $assetid);
-				if (isset($id_parts[1])) {
-					$bridge_id = $id_parts[0];
-				}
+				if (isset($id_parts[1])) $bridge_id = $id_parts[0];
 
 				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
 				$this->_running_vars['assets_children'] = array_merge($this->_running_vars['assets_children'], array_keys($children));
@@ -546,18 +543,32 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			// and determining whether the shadow asset itself should be deleted
 			// NOTE: a shadow asset CANNOT be linked to the Trash, therefore it (or the link) must be deleted
 			if ($moving_to_trash && !is_null($bridge_id)) {
-				$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bridge_id);
-				if (!$bridge->deleteAssetLink($value['linkid'])){
-					trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bridge);
+				$link  = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid'], $assetid, 'minor');
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid']);
 
+				// if the major of this link is not a bridge, then its a real asset
+				// with a shadow asset linked underneath, so get the asset manager to handle this delete
+				if (!empty($link) && !implements_interface($asset, 'bridge')) {
+
+					if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($value['linkid'], false)) {
+						trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+
+				} else {
+					// its a shadow asset linked to a bridge, so get the bridge to handle the delete
+					$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bridge_id);
+					if (!$bridge->deleteAssetLink($value['linkid'])) {
+						trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bridge);
+				}
 			} else {
 
-				$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid'], $value['parentid']);
-
+				$link   = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid'], $value['parentid']);
 				$linkid = $GLOBALS['SQ_SYSTEM']->am->moveLink($value['linkid'], $this->_running_vars['to_parent_assetid'], $link['link_type'], $this->_running_vars['to_parent_pos']);
 
 				if (!$linkid) {
@@ -567,8 +578,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				}
 
 				$new_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
-
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_link['minorid'], $new_link['minor_type_code']);
+				$asset    = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_link['minorid'], $new_link['minor_type_code']);
 
 				if (is_null($asset)) {
 					trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
@@ -579,10 +589,12 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				$step_data['message'] = translate('hipo_move', $asset->name, $new_parent_info[$this->_running_vars['to_parent_assetid']]['name']);
 
 				$this->_running_vars['to_parent_pos']++;
-			}
+
+			}//end if moving to trash
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		}
+
+		}//end if create
 
 		$this->_running_vars['done_assetids'][] = $assetid;
 

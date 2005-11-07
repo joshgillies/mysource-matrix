@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.31 2005/11/06 23:23:46 gsherwood Exp $
+* $Id: tables.xml,v 1.32 2005/11/07 05:16:56 mmcintyre Exp $
 *
 */
 -->
@@ -269,6 +269,74 @@
 					<column name="majorid"   />
 					<column name="link_type" />
 					<column name="value"     />
+				</unique_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="majorid" />
+				</index>
+				<index>
+					<column name="minorid" />
+				</index>
+				<index>
+					<column name="link_type" />
+				</index>
+			</indexes>
+		</table>
+		<table name="shdw_ast_lnk" require_rollback="1">
+			<columns>
+				<column name="linkid" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="majorid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="minorid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="link_type" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="value" allow_null="1">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="updated" allow_null="0">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<oci8>DATE</oci8>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="updated_userid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="linkid" />
+				</primary_key>
+				<unique_key>
+					<column name="minorid"   />
+					<column name="majorid"   />
 				</unique_key>
 			</keys>
 			<indexes>

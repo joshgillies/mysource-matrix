@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.27 2005/10/31 22:31:10 mmcintyre Exp $
+* $Id: db_install.inc,v 1.28 2005/11/07 05:23:57 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -40,9 +40,9 @@
 * Parses the tables xml and returns an array of information specific to
 * the current database type
 *
-* @param string $xml_file the tables xml file to parse
+* @param string	$xml_file	the tables xml file to parse
 *
-* @return Array()
+* @return array
 * @access public
 */
 function parse_tables_xml($xml_file)
@@ -168,7 +168,7 @@ function parse_tables_xml($xml_file)
 								'name'		=> $index_name,
 								'type'		=> $index_type,
 								'db_type'	=> $index_db_type,
-							 );
+							  );
 				$info['tables'][$table_name]['indexes'][$index_col_name] = $index_info;
 			}//end for
 		}
@@ -188,10 +188,10 @@ function parse_tables_xml($xml_file)
 /**
 * Creates an index on the specified table and column
 *
-* @param string $tablename		the table to create this index on
-* @param string $column			the column to create this index on
-* @param string $index_name		the name of the index
-* @param string $index_type		the type of index to use
+* @param string	$tablename	the table to create this index on
+* @param string	$column		the column to create this index on
+* @param string	$index_name	the name of the index
+* @param string	$index_type	the type of index to use
 *
 * @return void
 * @access public
@@ -223,8 +223,11 @@ function create_index($tablename, $column, $index_name=null, $index_type=null)
 *
 * All tables will be created with the sq_ prefix
 *
-* @param string $tablename		the name of the new table
-* @param Array	$table_info		the information about the table to create
+* @param string	$tablename	the name of the new table
+* @param array	$table_info	the information about the table to create
+*
+* @return void
+* @access public
 */
 function create_table($tablename, $table_info)
 {
@@ -270,7 +273,7 @@ function create_table($tablename, $table_info)
 *										without the sq_ prefix
 * @param boolean	$include_rolback	if TRUE the indexes on the rollback will also be returned
 *
-* @return Array()
+* @return array
 * @access public
 */
 function get_database_indexes($tablename, $include_rollback=true)
@@ -314,7 +317,7 @@ function get_database_indexes($tablename, $include_rollback=true)
 /**
 * Returns the user sequence names from the database
 *
-* @return Array()
+* @return array
 * @access public
 */
 function get_database_sequences()
@@ -350,7 +353,7 @@ function get_database_sequences()
 /**
 * Returns a list of tables that the current database has
 *
-* @return Array()
+* @return array
 * @access public
 */
 function get_database_tables()
@@ -420,12 +423,12 @@ function db_install($xml_file, $verbose=true)
 											'type'			=> $date_type,
 											'default'		=> null,
 											'allow_null'	=> false,
-										);
+										 );
 				$rb_col['sq_eff_to'] = Array(
-											'type'			=> $date_type,
-											'default'		=> null,
-											'allow_null'	=> true,
-									  );
+										'type'			=> $date_type,
+										'default'		=> null,
+										'allow_null'	=> true,
+									   );
 
 				// append these elements to the front of the column array so they appear
 				// as the top of the table
@@ -479,7 +482,9 @@ function db_install($xml_file, $verbose=true)
 
 	$sequences_in_db = get_database_sequences();
 	foreach ($info['sequences'] as $sequence_name) {
-		if (in_array('sq_'.$sequence_name.'_seq', $sequences_in_db)) continue;
+		if (in_array('sq_'.$sequence_name.'_seq', $sequences_in_db)) {
+			continue;
+		}
 		$result = $db->createSequence('sq_'.$sequence_name);
 		assert_valid_db_result($result);
 	}
@@ -556,17 +561,18 @@ function grant_secondary_user_perms($verbose=true)
 
 
 /**
-* Installs the stored procedures needed by each database type
+* Installs the stored relations needed by each database type
 *
+* @param string		$relations	the type of relations to install. Eg. functions|views
 * @param boolean	$verbose	TRUE if we should display messages
 *
 * @return void
 * @access public
 */
-function install_stored_procedures($verbose=true)
+function install_stored_relations($relations, $verbose=true)
 {
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
-	$fns_file = SQ_SYSTEM_ROOT.'/install/'.$db->phptype.'_functions.xml';
+	$fns_file = SQ_SYSTEM_ROOT.'/install/'.$db->phptype.'_'.$relations.'.xml';
 
 	if (file_exists($fns_file)) {
 
@@ -596,11 +602,11 @@ function install_stored_procedures($verbose=true)
 		}
 
 		if ($verbose) {
-			pre_echo(strtoupper($db->phptype).' STORED PROCEDURES CREATED'."\n".implode("\n", $element_names));
+			pre_echo(strtoupper($db->phptype).' STORED '.strtoupper($relations).' CREATED'."\n".implode("\n", $element_names));
 		}
 	}
 
-}//end install_stored_procedures()
+}//end install_stored_relations()
 
 
 /**
@@ -608,8 +614,8 @@ function install_stored_procedures($verbose=true)
 *
 * @param string	$string	the string that needs cleaning
 *
-* @access private
 * @return string
+* @access private
 */
 function xml_entity_decode($string)
 {

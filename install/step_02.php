@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.59 2005/08/02 03:36:56 gsherwood Exp $
+* $Id: step_02.php,v 1.60 2005/11/07 05:24:09 mmcintyre Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -83,7 +83,7 @@ $cached_table_columns = Array();
 
 // we need to do this before starting the transaction because the
 // set_timestamp for postgres is required to start a transaction
-install_stored_procedures();
+install_stored_relations('functions');
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -108,6 +108,8 @@ foreach ($packages as $package) {
 		}
 	}
 }
+
+install_stored_relations('views');
 
 // grant permissions to the tables for the secondary user
 grant_secondary_user_perms();

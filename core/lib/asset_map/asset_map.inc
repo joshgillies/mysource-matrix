@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.194 2005/10/25 06:42:32 arailean Exp $
+* $Id: asset_map.inc,v 1.195 2005/11/07 05:23:44 mmcintyre Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.194 $
+* @version $Revision: 1.195 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -512,8 +512,10 @@ class Asset_Map
 				$num_kids = -1;
 			} else {
 				$sql = 'SELECT COUNT(*)
-						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk';
-				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('majorid = '.$db->quote($assetid).' AND link_type <= '.$db->quote(SQ_LINK_TYPE_2));
+						FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_major';
+				$where = 'majorid = '.$db->quoteSmart($assetid).' AND link_type <= '.$db->quoteSmart(SQ_LINK_TYPE_2);
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', false);
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', false);
 
 				$num_kids = $db->getOne($sql.' '.$where);
 				if (!assert_valid_db_result($num_kids, '', true, false)) {
@@ -579,7 +581,7 @@ class Asset_Map
 			$secondary_protocol = 'http';
 		}
 
-		$sql = 'SELECT a.assetid, a.short_name, a.type_code, a.status,
+		$sql = 'SELECT l.assetid, l.short_name, l.type_code, l.status,
 					l.linkid, l.link_type, l.sort_order, ap.path, u.url,
 					(CASE u.'.$primary_protocol.'
 						WHEN '.$db->quote('1').' THEN '.$db->quote($primary_protocol).'
@@ -591,15 +593,11 @@ class Asset_Map
 			$sql .= ', 1 AS accessible';
 		}
 
-		$sql .= ' FROM
-					(
-						'.SQ_TABLE_RUNNING_PREFIX.'ast a INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON a.assetid = l.minorid
-						  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree lt ON l.linkid = lt.linkid
-					)';
+		$sql .= ' FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor l';
 
 		if (!empty($userid_cond)) {
 			$p_where = '(
-							a.assetid = p.assetid AND
+							l.assetid = p.assetid AND
 							p.granted  = 1 AND
 							p.permission >= '.$db->quote(SQ_PERMISSION_READ).$userid_cond.'
 						)';
@@ -607,11 +605,11 @@ class Asset_Map
 			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p '.$p_where;
 		}
 
-		$u_where = 'a.assetid = u.assetid';
+		$u_where = 'l.assetid = u.assetid';
 		$u_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($u_where, 'u', 'ON');
 		$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_url u '.$u_where;
 
-		$ap_where = 'a.assetid = ap.assetid';
+		$ap_where = 'l.assetid = ap.assetid';
 		$ap_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($ap_where, 'ap', 'ON');
 		$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where;
 
@@ -621,8 +619,9 @@ class Asset_Map
 		}
 		$where .= ' AND
 					l.link_type <= '.$db->quote(SQ_LINK_TYPE_2);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', false);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', false);
 
 		$sql .= ' '.$where;
 		$sql .= ' ORDER BY sort_order';
@@ -641,19 +640,22 @@ class Asset_Map
 		}
 
 		$sql = 'SELECT majorid, COUNT(*)
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk';
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor';
 
-		$sub_sql = 'SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk';
-		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('majorid = '.$db->quote($assetid));
+		$sub_sql = 'SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor';
+		$sub_where = 'majorid = '.$db->quoteSmart($assetid);
+		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'lnk_', 'WHERE', false);
+		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'ast_', 'WHERE', false);
 
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('majorid IN ('.$sub_sql.' '.$sub_where.') AND link_type <= '.$db->quote(SQ_LINK_TYPE_2));
-		$where .= 'GROUP BY majorid';
+		$where_clause = 'majorid IN ('.$sub_sql.' '.$sub_where.') AND link_type <= '.$db->quote(SQ_LINK_TYPE_2);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'lnk_', 'WHERE', false);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'ast_', 'WHERE', false);
+		$where .= ' GROUP BY majorid';
 
 		$num_kids = $db->getAssoc($sql.' '.$where, false, Array(), DB_FETCHMODE_DEFAULT, false);
 		if (!assert_valid_db_result($num_kids, '', true, false)) {
-			return $this->_error('AMAP0005', $assetid, $db_result->getMessage());
+			return $this->_error('AMAP0005', $assetid, $num_kids->getMessage());
 		}
-
 
 		// gather links for shadowed assets - only if asset descends from a bridge
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
@@ -669,12 +671,14 @@ class Asset_Map
 
 		if ($implements_shadow_assets) {
 			$links_handler = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
 			if (!is_null($links_handler)) {
 				// it may be able to handle this itself, lets check
 				if (method_exists($links_handler, 'getAssetMapLinks')) {
 					$result = array_merge($result, $links_handler->getAssetMapLinks());
 
 				} else {
+
 					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
 
 					foreach ($links as $link_data) {
@@ -687,6 +691,7 @@ class Asset_Map
 						// load all their kids - we dont know what kind of speed hit we get for the different
 						// types of shadow assets
 						$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
+
 						$result[] = Array(
 										'assetid'		=> $link_data['minorid'],
 										'short_name'	=> $link_asset->short_name,
@@ -704,7 +709,7 @@ class Asset_Map
 					}
 				}
 			}
-		}//end if a bridge
+		}//end if is a bridge
 
 		foreach ($result as $asset) {
 			if (!isset($asset['num_kids'])) {
@@ -733,6 +738,19 @@ class Asset_Map
 				$asset['url'] = $asset['protocol'].'://'.$asset['url'];
 			}
 
+			// if the child is a shadow asset, but the parent is not a bridge
+			// then its a shadow asset linked underneath a real asset, so we
+			// will need some information about the asset
+			$id_parts = explode(':', $asset['assetid']);
+			if (isset($id_parts[0]) && !$implements_shadow_assets) {
+				$bridge     = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id_parts[0]);
+				$shdw_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset['assetid']);
+
+				$asset['short_name'] = $shdw_asset->short_name;
+				$asset['type_code']  = $shdw_asset->type();
+				$asset['status']     = $bridge->status;
+			}
+
 			$attrs = Array(
 						'assetid'		=> urlencode($asset['assetid']),
 						'name'			=> urlencode($asset['short_name']),
@@ -746,8 +764,8 @@ class Asset_Map
 						'url'			=> urlencode($asset['url']),
 						'web_path'		=> urlencode($asset['path']),
 					 );
-			if (!$attrs['accessible']) $attrs['child_count'] = 0;
 
+			if (!$attrs['accessible']) $attrs['child_count'] = 0;
 			$root->addChild('asset', '', $attrs);
 		}
 
@@ -771,7 +789,7 @@ class Asset_Map
 		$output =& new XML_Tree();
 		$root = &$output->addRoot('assets', '');
 
-		for ($i = 0; $i < count($input->root->children); $i++){
+		for ($i = 0; $i < count($input->root->children); $i++) {
 			$node = &$input->root->children[$i];
 			if (empty($node->attributes['assetid'])) continue;
 			$assetid = $node->attributes['assetid'];
@@ -1402,10 +1420,10 @@ class Asset_Map
 				return;
 			}
 
-			if (empty($link)) {
-				$this->_error('AMAP0042', $asset_node->attributes['linkid']);
-				return;
-			}
+//			if (empty($link)) {
+//				$this->_error('AMAP0042', $asset_node->attributes['linkid']);
+//				return;
+//			}
 
 			if ($trash_folder->id == $input->root->attributes['to_parent_assetid']) {
 				$this->_error('AMAP0043');
@@ -1413,8 +1431,8 @@ class Asset_Map
 			}
 
 			$assets[$asset_node->attributes['assetid']] = Array(
-															'linkid'	=> $link['linkid'],
-															'link_type'	=> $link['link_type'],
+															'linkid'	=> $asset_node->attributes['linkid'],
+															'link_type'	=> 1,
 															'parentid'	=> $old_parent->id,
 														  );
 		}
