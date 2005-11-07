@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.70 2005/11/03 23:57:28 lwright Exp $
+* $Id: lang_strings.xml,v 1.71 2005/11/07 01:11:37 sdanis Exp $
 *
 */
 
@@ -113,6 +113,7 @@
 	<string source="external_links">External Links</string>
 	<string source="fields">Fields</string>
 	<string source="file_size">File Size</string>
+	<string source="find">Find</string>
 	<string source="forceably_acquire">Forceably Acquire</string>
 	<string source="format">Format</string>
 	<string source="freestyle_threshold">Freestyle threshold</string>
