@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hash.inc,v 1.7 2005/04/14 04:58:12 rhoward Exp $
+* $Id: hash.inc,v 1.7.2.1 2005/11/07 00:19:15 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix
 */
 class Hash
@@ -253,7 +253,23 @@ class Hash
 
 		// make sure every field has data, and that no fields are null
 		foreach ($result as $id => $data) {
-			if (empty($result[$id])) unset($result[$id]);
+			if (empty($result[$id])) $result[$id] = '-1';
+		}
+
+		$indicies = Array(
+						'event',
+						'assetid',
+						'asset_type',
+						'treeid',
+						'tree_propagate',
+						'triggerid',
+						'parentid',
+						'parent_type',
+						'childid',
+						'child_type',
+					);
+		foreach ($indicies as $index) {
+			if (!isset($result[$index])) $result[$index] = '-1';
 		}
 
 		return $this->_createCombinations($result);

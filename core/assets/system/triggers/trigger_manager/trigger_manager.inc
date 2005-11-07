@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.23.2.2 2005/08/12 05:23:24 mmcintyre Exp $
+* $Id: trigger_manager.inc,v 1.23.2.3 2005/11/07 00:19:15 gsherwood Exp $
 *
 */
 
@@ -37,9 +37,6 @@ define('SQ_TRIG_RESULT_FALSE',   -1);
 define('SQ_TRIG_RESULT_INVALID', -2);
 define('SQ_TRIG_RESULT_FAILURE',  0);
 
-define('SQ_TRIG_TABLE_MAIN', 'trig');
-define('SQ_TRIG_TABLE_HASH', 'trig_hash');
-
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once 'hash.inc';
 
@@ -51,7 +48,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.23.2.2 $
+* @version $Revision: 1.23.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -395,7 +392,7 @@ class Trigger_Manager extends Asset
 		$NO_PROPAGATE   = $db->quoteSmart(SQ_TRIG_TREE_NO_PROPAGATE);
 
 		// compose the link_tree SQL block
-		$treeid_sql_array[] = 'treeid IS NULL';
+		$treeid_sql_array[] = 'treeid = '.$db->quoteSmart('-1');
 		if (empty($state_hash['treeid'])) {
 			$state_hash['treeid'] = Array();
 		}
@@ -431,21 +428,21 @@ class Trigger_Manager extends Asset
 		}
 
 		// parent IDs
-		$parent_id_sql = 'parentid IS NULL';
+		$parent_id_sql = 'parentid = '.$db->quoteSmart('-1');
 		if (!empty($parent_id_array)) {
 			$parent_id_sql .= ' OR parentid IN ('.implode(',', $parent_id_array).')';
 		}
 
 		// parent types
-		$parent_type_sql = 'parent_type IS NULL';
+		$parent_type_sql = 'parent_type = '.$db->quoteSmart('-1');
 		if (!empty($parent_type_array)) {
 			$parent_type_sql .= ' OR parent_type IN ('.implode(',', $parent_type_array).')';
 		}
 
 
 		//// CHILDREN
-		$child_id_sql   = 'childid IS NULL';
-		$child_type_sql = 'child_type IS NULL';
+		$child_id_sql   = 'childid = '.$db->quoteSmart('-1');
+		$child_type_sql = 'child_type = '.$db->quoteSmart('-1');
 
 		if (!empty($state_hash['treeid'])) {
 			// children will always be the same, regardless which treeid is used, so just choose the first one off the top
@@ -481,19 +478,19 @@ class Trigger_Manager extends Asset
 		}
 
 		// event
-		$event_sql = 'event IS NULL';
+		$event_sql = 'event = '.$db->quoteSmart('-1');
 		if (!is_null($state_hash['event'])) {
 			$event_sql .= ' OR event = '.$db->quoteSmart($state_hash['event']);
 		}
 
 		// broadcaster's asset ID
-		$assetid_sql = 'assetid IS NULL';
+		$assetid_sql = 'assetid = '.$db->quoteSmart('-1');
 		if (!is_null($state_hash['assetid'])) {
 			$assetid_sql .= ' OR assetid = '.$db->quoteSmart($state_hash['assetid']);
 		}
 
 		// broadcaster's asset Type
-		$asset_type_sql = 'asset_type IS NULL';
+		$asset_type_sql = 'asset_type = '.$db->quoteSmart('-1');
 		if (!is_null($state_hash['asset_type'])) {
 			$asset_type_sql .= ' OR asset_type = '.$db->quoteSmart($state_hash['asset_type']);
 		}
@@ -863,10 +860,15 @@ class Trigger_Manager extends Asset
 				$value_array[] = $db->quoteSmart($hash_data);
 			}
 
-			$sql = 'INSERT INTO sq_trig_hash
-					('.implode($field_array, ', ').')
-					VALUES
-					('.implode($value_array, ', ').')';
+			$sql = 'INSERT INTO
+						sq_trig_hash
+						(
+							'.implode($field_array, ', ').'
+						)
+						VALUES
+						(
+							'.implode($value_array, ', ').'
+						)';
 
 			$result = $db->query($sql);
 

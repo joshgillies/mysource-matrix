@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.22.2.5 2005/08/15 04:40:26 mmcintyre Exp $
+* $Id: tables.xml,v 1.22.2.6 2005/11/07 00:19:15 gsherwood Exp $
 *
 */
 -->
@@ -1364,7 +1364,20 @@
 					<description>The type of child asset (purpose is similar to childid)</description>
 				</column>
 			</columns>
-			<keys />
+			<keys>
+				<primary_key>
+					<column name="event" />
+					<column name="assetid" />
+					<column name="asset_type" />
+					<column name="treeid" />
+					<column name="tree_propagate" />
+					<column name="triggerid" />
+					<column name="parentid" />
+					<column name="parent_type" />
+					<column name="childid" />
+					<column name="child_type" />
+				</primary_key>
+			</keys>
 			<indexes>
 				<index>
 					<column name="event" />
