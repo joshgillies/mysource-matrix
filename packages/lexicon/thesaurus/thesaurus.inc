@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.20 2005/11/07 05:57:37 arailean Exp $
+* $Id: thesaurus.inc,v 1.21 2005/11/07 22:36:35 emcdonald Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -192,7 +192,7 @@ class Thesaurus extends Asset
 	*
 	* Get the relations a given term is a parent in
 	*
-	* @param int	$term	term
+	* @param string	$term	term
 	*
 	* @return array
 	* @access public
@@ -226,7 +226,7 @@ class Thesaurus extends Asset
 	*
 	* Get the relations a given term is a child in
 	*
-	* @param int	$term	term
+	* @param string	$term	term
 	*
 	* @return array
 	* @access public
@@ -737,7 +737,6 @@ class Thesaurus extends Asset
 							AND
 							tree.thesid = '.$db->quoteSmart($this->id).'
 					';
-
 					$result = $db->query($sql);
 					assert_valid_db_result($result);
 				}
@@ -2075,6 +2074,75 @@ class Thesaurus extends Asset
 		return $max_sort_order;
 
 	}//end getMaxSortOrder()
+
+
+	/**
+	* Get all lineages for a term
+	*
+	* @param string	$term	the name of the term
+	*
+	* @return array
+	* @access public
+	*/
+	function getLineagesForTerm($term)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// Get an array of arrays of lineages.
+		// To get the lineages seperated for each treeid we will iterate over an array of treeids
+		$sql = '
+			SELECT
+				tree.treeid
+			FROM
+				sq_lex_thes_lnk_tree tree
+				INNER JOIN sq_lex_thes_term term ON tree.linkid = term.linkid
+			WHERE
+				term.minor = '.$db->quoteSmart($term).'
+			AND
+				tree.thesid = '.$db->quoteSmart($this->id).'
+			';
+		$treeids = $db->getCol($sql);
+		assert_valid_db_result($treeids);
+
+		if (empty($treeids)) return false;
+
+		foreach ($treeids as $key=>$value) {
+			$treeids[$key] = $db->quoteSmart($value);
+		}
+
+
+		$sql = '
+			SELECT
+				child_tree.treeid 		as our_treeid,
+				parent_term.relation 	as relation,
+				parent_term.minor 		as term,
+				parent_tree.treeid 		as parent_treeid
+			FROM
+				sq_lex_thes_term child_term
+				INNER JOIN sq_lex_thes_lnk_tree child_tree ON child_term.linkid = child_tree.linkid,
+				sq_lex_thes_term parent_term
+				INNER JOIN sq_lex_thes_lnk_tree parent_tree ON parent_term.linkid = parent_tree.linkid
+			WHERE
+				child_tree.treeid IN ('.implode(',', $treeids).')
+				AND
+				child_tree.treeid LIKE parent_tree.treeid || '.$db->quoteSmart('%').'
+				AND
+				parent_tree.treeid <= child_tree.treeid
+				AND
+				parent_tree.thesid = '.$db->quoteSmart($this->id).'
+				AND
+				child_tree.thesid = '.$db->quoteSmart($this->id).'
+			ORDER BY
+				child_term.linkid,
+				child_tree.treeid,
+				parent_tree.treeid
+		';
+
+		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
+		assert_valid_db_result($result);
+
+		return $result;
+	}//end getLineagesForTerm()
 
 
 }//end class
