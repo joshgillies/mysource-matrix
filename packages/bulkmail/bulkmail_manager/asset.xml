@@ -14,7 +14,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.2 2005/11/03 00:52:24 ndvries Exp $
+* $Id: asset.xml,v 1.3 2005/11/07 04:35:34 ndvries Exp $
 *
 */
 -->
@@ -27,7 +27,7 @@
 	<description>The Bulkmail Manager System Asset.</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
-	<parent_type>asset</parent_type>
+	<parent_type>bulkmail_post_office</parent_type>
 	<requirements />
 	<flash_menu_path />
 </asset_info>

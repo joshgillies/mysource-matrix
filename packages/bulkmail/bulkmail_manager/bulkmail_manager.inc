@@ -1,6 +1,6 @@
 <?php
 
-require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_office.inc';
 require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 
 /**
@@ -12,11 +12,11 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
-class Bulkmail_Manager extends Asset
+class Bulkmail_Manager extends Bulkmail_Post_Office
 {
 
 
@@ -28,6 +28,7 @@ class Bulkmail_Manager extends Asset
 	*/
 	function Bulkmail_Manager($assetid=0)
 	{
+		$this->_ser_attrs = true;
 		$this->Asset($assetid);
 
 	}//end constructor
@@ -83,40 +84,7 @@ class Bulkmail_Manager extends Asset
 
 
 	/**
-	* Only the default post office system asset can be linked underneath a bulkmail manager
-	*
-	* @return array
-	* @access private
-	* @see Asset::_getAllowLinks()
-	*/
-	function _getAllowedLinks()
-	{
-		return Array(
-				SQ_LINK_TYPE_1	=> Array(
-									'bulkmail_post_office_default'	=> Array(
-																		'card'		=> 'M',
-																		'exclusive'	=> false,
-																	   ),
-								   ),
-				SQ_LINK_TYPE_2	=> Array(
-									'bulkmail_post_office_default'	=> Array(
-																		'card'		=> 'M',
-																		'exclusive'	=> false,
-																	   ),
-								   ),
-				SQ_LINK_NOTICE	=> Array(
-									'bulkmail_post_office_default'	=> Array(
-																		'card'		=> 'M',
-																		'exclusive'	=> false,
-																	   ),
-								   ),
-			   );
-
-	}//end _getAllowedLinks()
-
-
-	/**
-	* Not able to move default post office around
+	* Not able to move this system asset around
 	*
 	* @param object	&$minor		the minor asset that we are linking to
 	* @param object	&$old_major	the major asset that we are being moved from
@@ -196,13 +164,13 @@ class Bulkmail_Manager extends Asset
 		// if no post office is supplied, work out which one to use
 		if (is_null($post_office)) {
 			if ($job->id == 0) {
-				$post_office =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_post_office_default');
+				$post_office =& $this;
 			} else {
 				$post_office =& $job->getPostOffice();
 			}
 		}
 
-		// check isValidJob here IMPORTANT! for adhoc job
+		// check isValidJob here IMPORTANT!
 
 		// work out the unique id for this job in the db table
 		if ($job->id == 0) {
@@ -299,7 +267,7 @@ class Bulkmail_Manager extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// set last_updated to zero to skip timeout checking when we resume the job
-		if ($state == BML_JOB_STATE_PAUSED) {
+		if ($state == BML_JOB_STATE_NOT_RUNNING	) {
 			$progress_info = $this->getJobProgress($job_id);
 			$progress_info['last_updated'] = 0;
 			$data_dir = $this->getJobDataPath($job_id);

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_bulkmail.inc,v 1.5 2005/11/01 22:15:17 rong Exp $
+* $Id: package_manager_bulkmail.inc,v 1.6 2005/11/07 04:30:55 ndvries Exp $
 *
 */
 
@@ -53,7 +53,6 @@ class Package_Manager_Bulkmail extends Package_Manager
 	{
 		return Array(
 				'bulkmail_manager',
-				'bulkmail_post_office_default',
 			   );
 
 	}//end getSystemAssetTypes()
@@ -82,30 +81,6 @@ class Package_Manager_Bulkmail extends Package_Manager
 		return $bulkmail_manager;
 
 	}//end createBulkmailManager()
-
-
-	/**
-	* Create the default bulkmail post office system asset
-	*
-	* @return object
-	* @access public
-	*/
-	function &createBulkmailPostOfficeDefault()
-	{
-		$bulkmail_manager = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
-
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bulkmail_post_office_default');
-		$bulkmail_post_office_default =& new Bulkmail_Post_office_Default();
-		$bulkmail_post_office_default_link = Array('asset' => &$bulkmail_manager, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
-		if (!$bulkmail_post_office_default->create($bulkmail_post_office_default_link)) {
-			trigger_localised_error('SCH0007', E_USER_ERROR);
-		}
-		pre_echo('Default Bulkmail Post Office Asset Id : '.$bulkmail_post_office_default->id);
-		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('bulkmail_post_office_default', $bulkmail_post_office_default->id);
-
-		return $bulkmail_post_office_default;
-
-	}//end createBulkmailPostOfficeDefault()
 
 
 }//end class
