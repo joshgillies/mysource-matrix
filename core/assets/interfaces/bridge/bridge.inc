@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bridge.inc,v 1.4 2005/10/10 03:51:44 arailean Exp $
+* $Id: bridge.inc,v 1.5 2005/11/07 05:26:09 arailean Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 *    Provides an interface bridging between the MySource system some other external system
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -178,6 +178,19 @@ class Bridge
 	function deleteAssetLink($linkid, $moving=false)
 	{
 	}//end deleteAssetLink()
+
+
+	/**
+	* Get asset info for use by asset map
+	*
+	* @param string	$assetid	Full Asset id to get information for
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetMapAssetInfo($assetid)
+	{
+	}//end getAssetMapAssetInfo()
 
 
 }//end class
