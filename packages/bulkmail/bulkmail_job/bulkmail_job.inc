@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.13 2005/11/07 00:45:37 rong Exp $
+* $Id: bulkmail_job.inc,v 1.14 2005/11/07 04:31:45 ndvries Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -71,7 +71,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 
 		// use the system default post office if none is selected
 		if (is_null($post_office)) {
-			$post_office =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_post_office_default');
+			$post_office =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		}
 
 		return $post_office;
@@ -240,10 +240,10 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	{
 		// get the current state from the bmail queue db table
 		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
-		$table = $bm->getQueuedJobs($this->id);
+		$queued_jobs = $bm->getQueuedJobs($this->id);
 
 		// cannot change the status of the job is in the db table
-		if (!empty($table)) return false;
+		if (!empty($queued_jobs)) return false;
 
 		// user set the job to live
 		if ($new_status == SQ_STATUS_LIVE) {
