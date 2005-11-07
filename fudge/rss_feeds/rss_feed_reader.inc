@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.2 2005/10/30 23:22:52 pgannavarapu Exp $
+* $Id: rss_feed_reader.inc,v 1.3 2005/11/07 05:16:07 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -157,9 +157,18 @@ class RSS_Feed_Reader
 			if (!$this->fp) {
 				trigger_error('File could not be opened', E_USER_WARNING);
 			}
+		} else {
+			trigger_error('No File Path Or URL Entered', E_USER_ERROR);
 		}
 
 	}//end setInputFile()
+
+
+	function setInputString($xml)
+	{
+		$this->fp = $xml;
+
+	}//end setInputString
 
 
 	/**
@@ -174,10 +183,14 @@ class RSS_Feed_Reader
 		if (!$fp) {
 			trigger_error('Invalid File Pointer', E_USER_WARNING);
 		} else {
-			while ($data = fread($fp, 4096)) {
-				if (!xml_parse($this->parser, $data)) {
-					return 'Error in the feed';
+			if (!is_string($this->fp)) {
+				while ($data = fread($fp, 4096)) {
+					if (!xml_parse($this->parser, $data)) {
+						return 'Error in the feed';
+					}
 				}
+			} else {
+				return xml_parse($this->parser, $this->fp);
 			}
 		}
 
