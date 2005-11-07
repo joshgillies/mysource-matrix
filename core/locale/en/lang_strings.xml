@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.72 2005/11/07 01:28:05 sdanis Exp $
+* $Id: lang_strings.xml,v 1.73 2005/11/07 04:54:47 skim Exp $
 *
 */
 
@@ -795,6 +795,10 @@
 	<string source="trash_is_empty">The trash is currently empty</string>
 	<string source="minor_not_asset">Minor is not an asset</string>
 
+	<string source="add_url">Add the URL</string>
+	<string source="url_not_specified">The URL is not specified</string>
+	<string source="protocol_not_specified">One of the protocols must be specified</string>
+	<string source="both_protocols_specified">Both of the protocols specified</string>
 	<string source="add_web_path">Add the web path</string>
 	<string source="web_path_not_specified">Web Path not specified</string>
 	<string source="triggers_advanced_user_options">Optional items for Advanced users</string>
