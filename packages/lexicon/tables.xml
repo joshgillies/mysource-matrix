@@ -11,56 +11,55 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.4 2005/11/04 06:03:32 arailean Exp $
+* $Id: tables.xml,v 1.5 2005/11/07 22:20:13 arailean Exp $
 *
 */
 -->
 
 <schema>
-   <tables>
-	   <table name="lex_thes_term" require_rollback="0">
-		   <columns>
-			   <column name="linkid" allow_null="0">
-				   <type>INTEGER</type>
-				   <type_variations />
-				   <default />
-				   <description>ID of link between two terms</description>
-			   </column>
-			   <column name="major" allow_null="1">
-				   <type>VARCHAR(255)</type>
-				   <type_variations />
-				   <default />
-				   <description>Parent Term</description>
-			   </column>
-			   <column name="minor" allow_null="0">
-				   <type>VARCHAR(255)</type>
-				   <type_variations />
-				   <default />
-				   <description>Term</description>
-			   </column>
-			   <column name="relation" allow_null="1">
-				   <type>VARCHAR(100)</type>
-				   <type_variations />
-				   <default />
-				   <description>Term</description>
-			   </column>
-			   <column name="sort_order" allow_null="0">
-				   <type>INTEGER</type>
-				   <type_variations />
-				   <default />
-				   <description>Sort Order</description>
-			   </column>
-			   <column name="thesid" allow_null="0">
-				   <type>VARCHAR(15)</type>
-				   <type_variations />
-				   <default />
-				   <description>Thesaurus Asset ID</description>
-			   </column>
+	<tables>
+		<table name="lex_thes_term" require_rollback="0">
+			<columns>
+				<column name="linkid" allow_null="0">
+					<type>INTEGER</type>
+					<type_variations />
+					<default />
+					<description>ID of link between two terms</description>
+				</column>
+				<column name="major" allow_null="1">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description>Parent Term</description>
+				</column>
+				<column name="minor" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description>Term</description>
+				</column>
+				<column name="relation" allow_null="1">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default />
+					<description>Term</description>
+				</column>
+				<column name="sort_order" allow_null="0">
+					<type>INTEGER</type>
+					<type_variations />
+					<default />
+					<description>Sort Order</description>
+				</column>
+				<column name="thesid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>Thesaurus Asset ID</description>
+				</column>
 		   </columns>
 		   <keys>
 			   <primary_key>
 				   <column name="linkid" />
-				   <column name="treeid" />
 			   </primary_key>
 		   </keys>
 		   <indexes>
@@ -80,8 +79,8 @@
 				   <column name="thesid" />
 			   </index>
 		   </indexes>
-	   </table>
-	<table name="lex_thes_lnk_tree" require_rollback="0">
+		</table>
+		<table name="lex_thes_lnk_tree" require_rollback="0">
 			<columns>
 				<column name="treeid" allow_null="0">
 					<type>VARCHAR(2000)</type>
@@ -107,11 +106,18 @@
 			<keys>
 				<primary_key>
 					<column name="treeid" />
+					<column name="thesid" />
 				</primary_key>
 			</keys>
 			<indexes>
 				<index>
 					<column name="linkid" />
+				</index>
+				<index>
+					<column name="treeid" />
+				</index>
+				<index>
+					<column name="thesid" />
 				</index>
 			</indexes>
 		</table>
