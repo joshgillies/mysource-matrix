@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.13 2005/11/07 04:46:35 rong Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.14 2005/11/07 23:17:39 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -115,179 +115,6 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		return $asset->setAttrValue('recipients', $groups);
 
 	}//end processRecipients()
-
-
-	/**
-	* Paint the content generation method, either user or group based
-	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
-	*
-	* @return void
-	* @access public
-	*/
-	function paintContentDetails(&$asset, &$o, $prefix)
-	{
-		$write_access = $asset->writeAccess('attributes');
-		$content_details = $asset->attr('content_details');
-
-		// content page
-		$page_id = array_get_index($content_details, 'content_page', 0);
-		if ($page_id) {
-			$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($page_id);
-		}
-		$name = translate('bulkmail_content_detail_page_name');
-		$note = translate('bulkmail_content_detail_page_note');
-		$o->openField($name, '', $note);
-			if ($write_access) {
-				asset_finder($prefix.'_content_detail_page', $page_id, Array('page' => 'D'));
-			} else {
-				if (!$page_id) {
-					echo translate('no_asset_selected');
-				} else {
-					if (is_null($page)) {
-						echo translate('invalid_assetid');
-					} else {
-						echo $page->name.' (#'.$page->id.')';
-					}
-				}
-			}
-		$o->closeField();
-
-		// generation method
-		$generation_method = array_get_index($content_details, 'type', 'each_user');
-		$options = Array(
-					'each_user'			=> translate('bulkmail_content_detail_generation_method_use_each_user'),
-					'pre_selected_user'	=> translate('bulkmail_content_detail_generation_method_preselected_user'),
-				   );
-		$name = translate('bulkmail_content_detail_method_name');
-		$note = translate('bulkmail_content_detail_method_note');
-		$o->openField($name, '', $note);
-			if ($write_access) {
-				combo_box($prefix.'_content_det_type', $options, false, $generation_method);
-			} else {
-				echo $options[$generation_method];
-			}
-		$o->closeField();
-
-		// pre-selected user
-		$user_id = array_get_index($content_details, 'pre_selected_user', '0');
-		if ($user_id) {
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($user_id);
-		}
-		$name = translate('bulkmail_content_detail_generate_as_field_name');
-		$note = translate('bulkmail_content_detail_generate_as_field_note');
-		$o->openField($name, '', $note);
-			if ($write_access) {
-				asset_finder($prefix.'_content_detail_pre_selected_user', $user_id, Array('user' => 'D'));
-			} else {
-				if (!$user_id) {
-					echo translate('no_asset_selected');
-				} else {
-					if (is_null($user)) {
-						echo translate('invalid_assetid');
-					} else {
-						echo $user->name.' (#'.$user->id.')';
-					}
-				}
-			}
-		$o->closeField();
-
-		// design
-		$design_id = array_get_index($content_details, 'design', '0');
-		if ($design_id) {
-			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($design_id);
-		}
-		$name = translate('bulkmail_content_detail_design_field_name');
-		$note = translate('bulkmail_content_detail_design_field_note');
-		$o->openField($name, '', $note);
-			if ($write_access) {
-				asset_finder($prefix.'_content_detail_design', $design_id, Array('design' => 'I'));
-			} else {
-				if (!$design_id) {
-					echo translate('no_asset_selected');
-				} else {
-					if (is_null($design)) {
-						echo translate('invalid_assetid');
-					} else {
-						echo $design->name.' (#'.$design->id.')';
-					}
-				}
-			}
-		$o->closeField();
-
-		// layout
-		$layout_id = array_get_index($content_details, 'layout', '0');
-		if ($layout_id) {
-			$layout = &$GLOBALS['SQ_SYSTEM']->am->getAsset($layout_id);
-		}
-		$name = translate('bulkmail_content_detail_layout_field_name');
-		$note = translate('bulkmail_content_detail_layout_field_note');
-		$o->openField($name, '', $note);
-			if ($write_access) {
-				asset_finder($prefix.'_content_detail_layout', $layout_id, Array('layout' => 'I'));
-			} else {
-				if (!$layout_id) {
-					echo translate('no_asset_selected');
-				} else {
-					if (is_null($layout)) {
-						echo translate('invalid_assetid');
-					} else {
-						echo $layout->name.' (#'.$layout->id.')';
-					}
-				}
-			}
-		$o->closeField();
-
-		return $write_access;
-
-	}//end paintContentDetails()
-
-
-	/**
-	* Process the fields related to the content generation method
-	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
-	*
-	* @return void
-	* @access public
-	*/
-	function processContentDetails(&$asset, &$o, $prefix)
-	{
-		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
-		// once live, content details are not changeable
-		if ($asset->status == SQ_STATUS_LIVE) return false;
-
-		$content_details = $asset->attr('content_details');
-		// save content page id
-		if (isset($_POST[$prefix.'_content_detail_page'])) {
-			$content_details['content_page'] = $_POST[$prefix.'_content_detail_page']['assetid'];
-		}
-		// save content generation type (each user/pre-selected user)
-		if (isset($_POST[$prefix.'_content_det_type'])) {
-			$content_details['type'] = $_POST[$prefix.'_content_det_type'];
-		}
-		// save bulkmail user for group-based content generation
-		if (isset($_POST[$prefix.'_content_detail_pre_selected_user'])) {
-			$content_details['pre_selected_user'] = $_POST[$prefix.'_content_detail_pre_selected_user']['assetid'];
-		}
-		// design
-		if (isset($_POST[$prefix.'_content_detail_design'])) {
-			$content_details['design'] = $_POST[$prefix.'_content_detail_design']['assetid'];
-		}
-		// layout
-		if (isset($_POST[$prefix.'_content_detail_layout'])) {
-			$content_details['layout'] = $_POST[$prefix.'_content_detail_layout']['assetid'];
-		}
-
-		$asset->setAttrValue('content_details', $content_details);
-		return true;
-
-	}//end processContentDetails()
 
 
 	/**
