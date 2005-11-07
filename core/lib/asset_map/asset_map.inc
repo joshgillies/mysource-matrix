@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.195 2005/11/07 05:23:44 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.196 2005/11/07 05:33:29 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.195 $
+* @version $Revision: 1.196 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -393,27 +393,37 @@ class Asset_Map
 	function _getAssetInfo($assetid)
 	{
 		$attrs = Array();
-		if (strpos($assetid, ':') !== false) {
+		$id_parts = explode(':', $assetid);
+		if (isset($id_parts[1])) {
 			// this is a shadow asset so we need to get info differently
 
-			// note that we pretend these assets have children so we dont have to actually
-			// load all their kids - we dont know what kind of speed hit we get for the different
-			// types of shadow assets
-			$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id_parts[0]);
+			if (method_exists($bridge, 'getAssetMapAssetInfo')) {
+				$attrs = $bridge->getAssetMapAssetInfo($assetid);
+			} else {
+				// note that we pretend these assets have children so we dont have to actually
+				// load all their kids - we dont know what kind of speed hit we get for the different
+				// types of shadow assets
+				$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
-			if (!is_null($link_asset)) {
-				$attrs = Array(
-							'assetid'		=> urlencode($assetid),
-							'name'			=> urlencode($link_asset->short_name),
-							'type_code'		=> $link_asset->type(),
-							'accessible'	=> 1,
-							'status'		=> $link_asset->status,
-							'url'			=> $link_asset->getURL(),
-							'web_path'		=> '',
-							'num_kids'		=> -1,
-						 );
+				if (!is_null($link_asset)) {
+					$attrs = Array(
+								'assetid'		=> $assetid,
+								'name'			=> $link_asset->short_name,
+								'type_code'		=> $link_asset->type(),
+								'accessible'	=> 1,
+								'status'		=> $link_asset->status,
+								'url'			=> $link_asset->getURL(),
+								'web_path'		=> '',
+								'num_kids'		=> -1,
+							 );
+				}
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($link_asset);
 			}
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($link_asset);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bridge);
+
+			$attrs['assetid'] = urlencode($attrs['assetid']);
+			$attrs['name'] = urlencode($attrs['name']);
 
 		} else {
 
