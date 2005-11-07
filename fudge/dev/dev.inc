@@ -18,7 +18,7 @@
 * | licence.                                                      |
 * +--------------------------------------------------------------------+
 *
-* $Id: dev.inc,v 1.25 2005/10/24 23:32:34 arailean Exp $
+* $Id: dev.inc,v 1.26 2005/11/07 05:25:24 mmcintyre Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 *     Generic functions that are useful for developers
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package Fudge
 * @subpackage dev
 */
@@ -389,6 +389,46 @@ function get_calling_func()
 	return $res;
 
 }//end get_calling_func()
+
+
+/**
+* Returns an array of information about the functions that have been called
+* before this function call.
+*
+* Information produced:
+* * The function that was called
+* * The class that it was called from, or the file if no class was present
+* * The object that to function was called on. This is ommited if the object was the current object
+*
+* @return array
+* @access public
+*/
+function get_call_stack()
+{
+	$bt = debug_backtrace();
+	// remove this function call from the stack
+	array_shift($bt);
+	$stack = Array();
+
+	foreach ($bt as $elem) {
+		$info = 'line='.$elem['line'];
+		$file = basename($elem['file']);
+		$class_name = substr($file, 0, strpos($file, '.'));
+
+		if (empty($elem['class'])) {
+			$info .= ' file='.$file;
+		} else {
+			if ($class_name != $elem['class']) {
+				$info .= ' class='.$class_name.' object='.$elem['class'];
+			} else {
+				$info .= ' class='.$elem['class'];
+			}
+		}
+		$stack[] = 'function '.$elem['function'].'('.$info.')';
+	}
+	return $stack;
+
+}//end get_call_stack()
 
 
 /**
