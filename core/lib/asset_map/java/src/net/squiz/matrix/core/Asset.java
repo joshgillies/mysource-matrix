@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: Asset.java,v 1.5 2005/11/04 06:01:08 sdanis Exp $
+* $Id: Asset.java,v 1.6 2005/11/07 00:13:53 sdanis Exp $
 *
 */
 
@@ -436,7 +436,7 @@ public class Asset implements MatrixConstants, Serializable {
 		int index) {
 			MatrixTreeNode node = createNode(linkid, linkType, parent);
 			if (parent != null) {
-				MatrixTreeModelBus.insertNodeInto(node, parent, index, this.id);
+				MatrixTreeModelBus.insertNodeInto(node, parent, index, getId());
 			}
 			return node;
 	}
@@ -507,7 +507,7 @@ public class Asset implements MatrixConstants, Serializable {
 			while (staleIterator.hasNext()) {
 				MatrixTreeNode node = (MatrixTreeNode) staleIterator.next();
 				Log.log("removing " + node + " in Asset", Asset.class);
-				MatrixTreeModelBus.removeNodeFromParent(node,this.id);
+				MatrixTreeModelBus.removeNodeFromParent(node, getId());
 			}
 		}
 	}

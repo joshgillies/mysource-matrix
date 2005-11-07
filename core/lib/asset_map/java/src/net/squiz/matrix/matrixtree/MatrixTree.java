@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.11 2005/11/04 06:01:09 sdanis Exp $
+ * $Id: MatrixTree.java,v 1.12 2005/11/07 00:13:53 sdanis Exp $
  *
  */
 
@@ -339,7 +339,7 @@ public class MatrixTree extends CueTree
 	}
 
 	/**
-	 * Works like original loadChildAssets but uses asset ids to locate notes in the tree
+	 * Works like original loadChildAssets but uses asset ids to locate nodes in the tree
 	 *
 	 * @param node The node whos children are to be loaded
 	 */
@@ -385,17 +385,8 @@ public class MatrixTree extends CueTree
 						GUIUtilities.error(MatrixTree.this, message, Matrix.translate("asset_map_dialog_title_error"));
 						return;
 					}
-					
-					MatrixTreeNode child = (MatrixTreeNode)getModel().getChild(parent,childIndex);
 
-					if (child.getAsset().childrenLoaded()) {
-						if (child.getChildCount() == 0) {
-							child.getAsset().propagateChildren(child);
-							level++;
-							continue;
-							
-						}
-					}
+					MatrixTreeNode child = (MatrixTreeNode)getModel().getChild(parent,childIndex);
 
 					if ((level+1) == numAssets) {
 						// we dont need to load the children of this node

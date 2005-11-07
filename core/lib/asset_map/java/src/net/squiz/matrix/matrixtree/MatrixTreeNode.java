@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTreeNode.java,v 1.4 2005/11/04 06:01:09 sdanis Exp $
+* $Id: MatrixTreeNode.java,v 1.5 2005/11/07 00:13:53 sdanis Exp $
 *
 */
 
@@ -93,7 +93,6 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 	}
 
 	public boolean hasChildAsset(String assetId) {
-		System.out.println(assets.size());
 		return assets.containsKey(assetId);
 	}
 
