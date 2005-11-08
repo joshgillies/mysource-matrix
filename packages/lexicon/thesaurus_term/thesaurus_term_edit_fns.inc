@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term_edit_fns.inc,v 1.1 2005/11/04 06:09:00 arailean Exp $
+* $Id: thesaurus_term_edit_fns.inc,v 1.2 2005/11/08 00:58:00 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -82,7 +82,7 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 			combo_box($prefix.'_relation', $new_relations, false, $asset->attr('relation'));
 
 			echo translate('lexicon_or_create_new').': ';
-			text_box($prefix.'_relation_new', '', $size='10');
+			text_box($prefix.'_relation_new', '', '10');
 		} else {
 			echo $asset->attr('relation');
 		}
