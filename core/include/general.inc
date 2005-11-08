@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.108 2005/11/07 22:45:15 lwright Exp $
+* $Id: general.inc,v 1.109 2005/11/08 01:19:04 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.108 $
+* @version $Revision: 1.109 $
 * @package MySource_Matrix
 */
 
@@ -1090,10 +1090,13 @@ function get_asset_tag_line($assetid, $screen='')
 		<?php
 		// LINEAGES BOX
 		$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid);
+
+		// start an inner buffer for the lineages popup
+		ob_start();
 		?>
 		<div id="asset-tag-line-<?php echo $tag_line_count ?>-lineages" style="display:none">
 		<table style="sq-backend-table"><?php
-		foreach ($lineages as $lineage) {
+		foreach ($lineages as $lineage_key => $lineage) {
 			if ($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
 				$lineage_assetids = array_keys($lineage['lineage']);
 				$lineage_assetids[] = $assetid;
@@ -1106,54 +1109,36 @@ function get_asset_tag_line($assetid, $screen='')
 					$lineage_names = $lineage['lineage'];
 					array_splice($lineage_names, 2, -1, Array('...'));
 				}
-				$lineage_names[] = $asset_info['name'];
+				$lineage_names[$assetid] = $asset_info['name'];
 				?><tr>
-					<td class="sq-backend-table-cell" ><a href="#" onclick="<?php echo asset_locator_js($lineage_assetids) ?> return false;"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
+					<td class="sq-backend-table-cell" ><a href="#" onclick="<?php echo asset_locator_js($lineage_assetids) ?> tooltip.hide(); return false;"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
 				</tr><?php
+			} else {
+				unset($lineages[$lineage_key]);
 			}
 		}
 		?></table>
 		</div>
+		<?php
+		$lineages_div = ob_get_clean();
 
-		<?php
-		// SCREENS BOX
-		$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid);
-		?>
-		<div id="asset-tag-line-<?php echo $tag_line_count ?>-screens" style="display:none;">
-		<table cellspacing="0" width="100%">
-		<tr>
-			<td width="50%" class="sq-backend-table-cell"><strong>Static</strong></td>
-			<td width="50%" class="sq-backend-table-cell"><strong>Asset-Specific</strong></td>
-		</tr>
-		<tr><td class="sq-backend-table-cell">
-		<?php
-		// need a way to work out static screens
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-		$edit_fns =& $asset->getEditFns();
-		$asset = null;
-		unset($asset);
-		foreach ($edit_fns->static_screens as $code_name => $data) {
-			echo $data['name'].'<br/>';
+		// If there is more than one lineage, then provide the popup, otherwise
+		// discard it and the icon becomes a direct selection
+		if (count($lineages) > 1) {
+			echo $lineages_div;
+			$lineages_onclick = 'tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-lineages\').innerHTML, \''.translate('lineages').'\', true)';
+			$lineages_name = translate('show_lineages');
+		} else {
+			sort($lineages);
+			$lineage_names = $lineages[0]['lineage'];
+			$lineage_names[$assetid] = $asset_info['name'];
+			$lineages_onclick = asset_locator_js(array_keys($lineage_names)).' return false;';
+			$lineages_name = translate('show_in_asset_map');
 		}
-		?>
-		</td><td class="sq-backend-table-cell">
-		<?php
-		// need a way to work out user defined screens
-		$screens = Array('contents');
-		foreach (Array() as $code_name => $data) {
-			echo $data['name'].'<br/>';
-		}
-		?>
-		</td></tr>
-		</table>
-		</div>
 
-		<?php
-		//$asset_tag = $asset_info['name'].' (Id: #'.$assetid.')';
-		$asset_tag = null;
+		echo get_asset_type_icon($asset_info['type_code'], 'onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
+		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' align="absmiddle"  onclick="'.$lineages_onclick.'"');
 
-		echo get_asset_type_icon($asset_info['type_code'], 'onclick="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-more-details\').innerHTML, \'More Info\', true);"');
-		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, translate('show_lineages'), translate('show_lineages'), ' align="absmiddle"  onclick="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-lineages\').innerHTML, \'Lineages\', true);"');
 		//echo sq_print_icon(sq_web_path('lib').'/web/images/icons/edit_mode.png', 16, 16, translate('screens'), translate('screens'), ' align="absmiddle" onclick="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-screens\').innerHTML, \'Screens\', true);"');
 
 		if ($screen_url) {
@@ -1164,6 +1149,8 @@ function get_asset_tag_line($assetid, $screen='')
 			echo '</a>';
 		}
 		echo ' (Id: #'.$assetid.') ';
+		?><script type="text/javascript">window.onload = function() { page_on_load(); tooltip.print(); }</script><?php
+
 	$contents = ob_get_clean();
 
 	return $contents;
