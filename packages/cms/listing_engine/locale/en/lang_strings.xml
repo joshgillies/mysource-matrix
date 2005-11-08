@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18 2005/11/04 03:05:12 lwright Exp $
+* $Id: lang_strings.xml,v 1.19 2005/11/08 05:08:00 lwright Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -25,7 +25,7 @@
 <string source="cms_listing_column_all_remaining_rows">All remaining rows will have %s column(s)</string>
 <string source="cms_listing_column_page_note">Note: This asset has been configured to list %s' assets per page, so the highlighted cells will not be displayed</string>
 <string source="cms_listing_page_contents_desc">This format defines the layout of the page. Ensure you use the %%asset_listing%% keyword to include the list of assets on the page.</string>
-<string source="cms_listing_no_results_bodycopy_desc">This format defines the layout of the page when the &gt;b&gt;Customise No Results Bodycopy&gt;/b&gt; option is turned on, and there are no assets to list.</string>
+<string source="cms_listing_no_results_bodycopy_desc">This format defines the layout of the page when the &lt;b&gt;Customise No Results Bodycopy&lt;/b&gt; option is turned on, and there are no assets to list.</string>
 <string source="cms_listing_default_asset_format">Default Asset Format</string>
 <string source="cms_listing_default_asset_desc">This is the default format for all assets in the list if they do not have a customised format for their asset type or position.</string>
 <string source="cms_listing_type_format">%s Format</string>
