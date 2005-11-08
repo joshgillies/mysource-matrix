@@ -16,7 +16,7 @@ public class FinderView extends BasicView {
 	}
 
 	private void construct() {
-		JScrollPane scrollPane = new JScrollPane(constructTree());
+		JScrollPane scrollPane = new JScrollPane(createFinderTree());
 		scrollPane.setBorder(BorderFactory.createEmptyBorder());
 
 		setLayout(new BorderLayout());

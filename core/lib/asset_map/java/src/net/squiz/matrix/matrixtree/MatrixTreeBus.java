@@ -116,7 +116,10 @@ public class MatrixTreeBus {
 		tree.setCellRenderer(new MatrixTreeCellRenderer());
 		tree.setRootVisible(false);
 		tree.setShowsRootHandles(true);
+		
+		//disable move, right click menu and delete key
 		tree.setMoveEnabled(false);
+		tree.removeKeyStroke("DELETE");
 
 		return tree;
 	}

@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.12 2005/11/07 00:13:53 sdanis Exp $
+ * $Id: MatrixTree.java,v 1.13 2005/11/08 03:09:24 sdanis Exp $
  *
  */
 
@@ -839,6 +839,11 @@ public class MatrixTree extends CueTree
 		getInputMap().put(KeyStroke.getKeyStroke("shift ctrl A"), "find asset");
 		getActionMap().put("find asset", findAssetAction);*/
 	}
+
+	public void removeKeyStroke(String key) {
+		getInputMap().put(KeyStroke.getKeyStroke(key), "none");
+	}
+
 
 	//}}}
 
