@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tooltip.js,v 1.6 2005/11/07 22:44:39 lwright Exp $
+* $Id: tooltip.js,v 1.7 2005/11/08 02:53:09 lwright Exp $
 *
 */
 
@@ -201,13 +201,18 @@ function tt_paint(top, left, text, title, close_button)
 		closeElement.parentNode.removeChild(closeElement);
 	}
 
-	if (close_button) {
+	if (typeof close_button != 'undefined') {
 		closeElement = document.createElement('th');
 		closeElement.style.textAlign = 'right';
 		closeElement.style.padding = '2px';
 		closeElement.style.backgroundColor = this.title_bg;
 		closeElement.id = 'ToolBoxClose';
-		closeElement.innerHTML = '<a href="#" style="text-decoration: none; color: ' + this.title_color + '" onclick="tooltip.hide(); return false;">X</a>';
+
+		if (close_button == true) {
+			close_button = 'X';
+		}
+
+		closeElement.innerHTML = '<a href="#" style="text-decoration: none; color: ' + this.title_color + '" onclick="tooltip.hide(); return false;">' + close_button + '</a>';
 		document.getElementById("ToolBoxTitle").parentNode.appendChild(closeElement);
 		document.getElementById("ToolBoxContent").colSpan = 2;
 	}
