@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_default_post_office.xml,v 1.1 2005/11/07 04:41:09 ndvries Exp $
+* $Id: lang_screen_default_post_office.xml,v 1.2 2005/11/08 22:47:08 rong Exp $
 *
 */
 -->
@@ -24,10 +24,21 @@
 		</function_call>
 	</section>
 	<section name="Header Details" write_access="write:attributes">
-		<function_call>
-			<paint_function name="paintHeaderDetails" />
-			<process_function name="processHeaderDetails" />
-		</function_call>
+		<field attribute="from">
+			<display_name>From</display_name>
+			<note>From field is required.</note>
+		</field>
+		<field attribute="subject">
+			<display_name>Subject</display_name>
+			<note>Subject field is required.</note>
+		</field>
+		<field>
+			<display_name>Extra Fields</display_name>
+			<function_call>
+				<paint_function name="paintHeaderDetails" />
+				<process_function name="processHeaderDetails" />
+			</function_call>
+		</field>
 	</section>
 	<section name="Threshold Settings" write_access="write:attributes">
 		<function_call>
