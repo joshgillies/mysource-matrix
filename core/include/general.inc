@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.111 2005/11/08 03:20:08 lwright Exp $
+* $Id: general.inc,v 1.112 2005/11/08 22:33:38 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.111 $
+* @version $Revision: 1.112 $
 * @package MySource_Matrix
 */
 
@@ -1069,16 +1069,17 @@ function get_asset_tag_line($assetid, $screen='')
 				   );
 
 		foreach($headers as $time_type => $header) {
-			if ($asset_info[$time_type.'_userid'] == 0) {
-				$user_name = 'System';
-			} else {
-				$user_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($asset_info[$time_type.'_userid']), Array('asset'), false, 'name');
-				$user_name = $user_name[$asset_info[$time_type.'_userid']];
-			}
-
 			// If a time never happened (typically 'published')...
 			if (!empty($asset_info[$time_type])) {
 				$time_str = date('jS M Y g:ia', strtotime($asset_info[$time_type]));
+
+				if ($asset_info[$time_type.'_userid'] == 0) {
+					$user_name = 'System';
+				} else {
+					$user_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($asset_info[$time_type.'_userid']), Array('asset'), false, 'name');
+					$user_name = $user_name[$asset_info[$time_type.'_userid']];
+				}
+
 				$user_name = 'by '.$user_name;
 			} else {
 				$time_str = translate('never');
@@ -1145,7 +1146,7 @@ function get_asset_tag_line($assetid, $screen='')
 			$lineages_name = translate('show_in_asset_map');
 		}
 
-		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/info.png', 16, 16, '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
+		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/more_info.png', 16, 16, '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
 		//echo get_asset_type_icon($asset_info['type_code'], '');
 		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' align="absmiddle"  onclick="'.$lineages_onclick.'"');
 
