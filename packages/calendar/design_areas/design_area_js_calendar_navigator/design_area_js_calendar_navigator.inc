@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_js_calendar_navigator.inc,v 1.9 2005/06/23 06:28:27 pgannavarapu Exp $
+* $Id: design_area_js_calendar_navigator.inc,v 1.10 2005/11/08 04:15:04 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -41,7 +41,7 @@ class Design_Area_JS_Calendar_Navigator extends Design_Area
 	* @return boolean
 	* @access public
 	*/
-	function printArea(&$design)
+	function printPaintingCode()
 	{
 		$php_code = '
 		<!-- generated calendar code -->
