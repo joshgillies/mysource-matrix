@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.14 2005/11/07 22:28:14 rong Exp $
+* $Id: bulk_mailer.inc,v 1.15 2005/11/08 01:42:07 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -235,15 +235,13 @@ class Bulk_Mailer
 
 		// load required information
 		$progress_info = $info[$job_id]['progress'];
-		$queue_details = $info[$job_id]['details']['queue_details'];
-		$content_details = $info[$job_id]['details']['content_details'];
-		$header_details = $info[$job_id]['details']['header_details'];
-		$header_details['from'] = $info[$job_id]['details']['from'];
-		$header_details['subject'] = $info[$job_id]['details']['subject'];
-		$server_details = $info[$job_id]['details']['server_details'];
+		$details = $info[$job_id]['details'];
+		$header_details = $details['header_details'];
+		$header_details['from'] = $details['from'];
+		$header_details['subject'] = $details['subject'];
 
 		// create the /queue and /sent directories for mail queue
-		$queue_path = $queue_details['dir'];
+		$queue_path = $details['queue_details']['dir'];
 		$sent_path = $queue_path.'/sent';
 		if (!is_dir($sent_path)) create_directory($sent_path);
 
@@ -251,7 +249,7 @@ class Bulk_Mailer
 		// fork this process so that we can call printFrontend again
 		$pid = $this->fork();
 		if (!$pid) {
-			$this->cacheContent($content_details, $job_path);
+			$this->cacheContent($details['content_id'], $details['content_gen_as'], $details['content_design'], $details['content_layout'], $job_path);
 			exit;
 		}
 
@@ -266,7 +264,6 @@ class Bulk_Mailer
 				exit;
 			} else if ($state == BML_JOB_STATE_NOT_RUNNING) {
 				echo "processJob : job cancelled\n";
-				// remove db entry, set under construction, purge data dir, wotever is needed
 				$bm->deleteJob($job_id);
 				exit;
 			}
@@ -279,7 +276,7 @@ class Bulk_Mailer
 			$pid = $this->fork();
 			if (!$pid) {
 				$mime =& new Mail_mime();
-				$mail_queue =& new Mail_Queue($queue_details, $server_details);
+				$mail_queue =& new Mail_Queue($details['queue_details'], $details['server_details']);
 
 				for ($recipient_chunk; null !== ($user_id = key($recipient_chunk)); next($recipient_chunk)) {
 					$email = $recipient_chunk[$user_id];
@@ -293,9 +290,8 @@ class Bulk_Mailer
 						// fork since we cannot call printFrontend multiple times
 						$pid = $this->fork();
 						if (!$pid) {
-
 							$this->updateProgress($progress_path, $user_id);
-							$content = $this->generateBmailContent($content_details, $job_path, $user_id);
+							$content = $this->generateBmailContent($details['content_id'], $details['content_gen'], $details['content_design'], $details['content_layout'], $job_path, $user_id);
 							// skip if we cannot generate content for this user, TODO: report problematic user?
 							if (empty($content)) continue;
 
@@ -331,7 +327,7 @@ class Bulk_Mailer
 
 		$this->_reconnectDB();
 		$progress_info = $bm->getJobProgress($job_id);
-		if ($progress_info['current_count'] == $progress_info['total_count']) {
+		if ($progress_info['current_count'] >= $progress_info['total_count']) {
 			echo "  BulkMailer->Finished processing Job #$job_id\n";
 			$bm->deleteJob($job_id);
 		}
@@ -577,31 +573,36 @@ class Bulk_Mailer
 	/**
 	* Caches the bulkmail page content as the pre-selected user, returns false if any error occurs
 	*
-	* @param array	$content_details	information related to content generation
-	* @param string	$job_path			path to the effective job data dir
+	* @param int	$content_id		the assetid of the content page
+	* @param int	$content_gen_as	the assetid of the pre-selected user
+	* @param int	$content_design	the assetid of the effective design
+	* @param int	$content_layout	the assetid of the effective layout
+	* @param string	$job_path		path to the effective job data dir
 	*
 	* @return boolean
 	* @access public
 	*/
-	function cacheContent($content_details, $job_path)
+	function cacheContent($content_id, $content_gen_as, $content_design, $content_layout, $job_path)
 	{
-		// note: must run isValidJob() before calling this function
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$page =& $am->getAsset($content_details['content_page']);
-		$user =& $am->getAsset($content_details['pre_selected_user']);
+		$page =& $am->getAsset($content_id);
+		$user =& $am->getAsset($content_gen_as);
 
 		// login as pre-selected user and print page content
 		$GLOBALS['SQ_SYSTEM']->setCurrentUser($user);
 
 		ob_start();
-			// dont want any notice/warning here
 			// TODO: add design/layout handling
+			// $content_design, $content_layout
+			// dont want any notice/warning here
 			@$page->printFrontend();
 			$content = ob_get_contents();
 		ob_end_clean();
 
 		// cache html content
-		if (!is_dir($job_path.'/cache/')) create_directory($job_path.'/cache/');
+		if (!is_dir($job_path.'/cache/')) {
+			create_directory($job_path.'/cache/');
+		}
 		if (!string_to_file($content, $job_path.'/cache/content_file.html')) {
 			trigger_localised_error('BML0008', E_USER_WARNING, $job_path.'/cache/content_file.html');
 			return false;
@@ -616,46 +617,46 @@ class Bulk_Mailer
 	/**
 	* Generates the html bulkmail content based on the user and content generation type
 	*
-	* Used in previewing mail and sending actual bmails (custom content or per user)
+	* Used in previewing mail and sending actual bmail (use each user or one user)
 	* Pre-selected user is used when we cannot login bulkmail_users
 	*
-	* @param array	$content_details	information related to content generation
-	* @param string	$job_path			path to the effective job data dir
-	* @param int	$user_id			the recipient of this email, zero is for preview mail
+	* @param int	$content_id		the assetid of the content page
+	* @param string	$content_gen	the content generation type, use each user or use one user
+	* @param int	$content_design	the assetid of the effective design
+	* @param int	$content_layout	the assetid of the effective layout
+	* @param string	$job_path		path to the effective job data dir
+	* @param int	$user_id		the recipient of this email, zero is for preview mail
 	*
 	* @return string
 	* @access public
 	*/
-	function generateBmailContent($content_details, $job_path, $user_id=0)
+	function generateBmailContent($content_id, $content_gen, $content_design, $content_layout, $job_path, $user_id=0)
 	{
-
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$type = array_get_index($content_details, 'type', 'each_user');
-		$user = null;
-
 		// note: must run cacheContent() before calling this function
 		if (file_exists($job_path.'/cache/content_file.html')) {
 			$content = file_to_string($job_path.'/cache/content_file.html');
 		}
 
 		// load this user, for content generation and keyword replacement
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$user = null;
 		if ($user_id) $user =& $am->getAsset($user_id);
 
 		// always login and generate content for per user basis,
 		// unless the user is a subscriber (bulkmail user) with only an email address
-		if ($type == 'each_user' && !is_null($user) && !is_a($user, 'Bulkmail_User')) {
+		if ($content_gen == 'each_user' && !is_null($user) && !is_a($user, 'Bulkmail_User')) {
 			// login as this user and print page content
 			if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($user)) {
 				// happens when the user is not live or in trash
-				$type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($user->type(), 'name');
 				trigger_localised_error('BML0006', E_USER_WARNING, get_asset_tag_line($user_id));
 				return '';
 			}
-			$page =& $am->getAsset($content_details['content_page']);
+			$page =& $am->getAsset($content_id);
 
 			ob_start();
-				// dont want any notice/warning here
 				// TODO: add design/layout handling
+				// $content_design, $content_layout
+				// dont want any notice/warning here
 				@$page->printFrontend();
 				$content = ob_get_contents();
 			ob_end_clean();

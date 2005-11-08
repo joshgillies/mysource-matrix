@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_management.inc,v 1.10 2005/11/07 04:46:35 rong Exp $
+* $Id: bulkmail_post_office_management.inc,v 1.11 2005/11/08 01:42:07 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -65,7 +65,7 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 												'type'			=> 'selection',
 												'default'		=> 'one_user',
 												'description'	=> 'The method of content generation',
-												'parameters'    => Array(
+												'parameters'	=> Array(
 																	'multiple'		=> false,
 																	'allow_empty'	=> false,
 																	'options'		=> Array(
@@ -110,12 +110,18 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 												'default'		=> '',
 												'description'	=> 'The "Subject" header field required by PEAR send() function',
 											   ),
+						'header_details'	=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'serialise',
+												'default'		=> Array(),
+												'description'	=> 'Extra header detail fields',
+											   ),
 						'threshold'			=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'serialise',
 												'default'		=> Array(
-																	'type'		=> 'asap',
-																	'value'		=> '',
+																	'type'	=> 'asap',
+																	'value'	=> '',
 																   ),
 												'description'	=> 'Whether to spread out the sending over x amount of time',
 											   ),

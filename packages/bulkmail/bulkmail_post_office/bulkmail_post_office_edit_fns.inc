@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.14 2005/11/07 23:17:39 rong Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.15 2005/11/08 01:42:07 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -317,9 +317,9 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	*
 	* This paint function is used by bulkmail job too
 	*
-	* @param object		&$asset	the asset to which we belong
-	* @param object		&$o		the outputter class
-	* @param string		$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -737,7 +737,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 		return $write_access;
 
-	}//end printJobQueue()
+	}//end paintJobQueue()
 
 
 	/**

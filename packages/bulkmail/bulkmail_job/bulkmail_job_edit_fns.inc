@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.10 2005/11/07 04:46:35 rong Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.11 2005/11/08 01:42:07 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -164,7 +164,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 
 		return $write_access;
 
-	}//end printJobQueue()
+	}//end paintJobQueue()
 
 
 	/**

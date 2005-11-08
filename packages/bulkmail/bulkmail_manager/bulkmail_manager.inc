@@ -12,7 +12,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -170,8 +170,6 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			}
 		}
 
-		// check isValidJob here IMPORTANT!
-
 		// work out the unique id for this job in the db table
 		if ($job->id == 0) {
 			// use random id based on current timestamp for ad-hoc jobs
@@ -191,6 +189,15 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		create_directory($data_dir);
 		$this->initProgressFile($data_dir);
 		$this->initDetailsFile($job, $post_office, $data_dir);
+
+		// validate normal/ad-hoc jobs before adding entry to db
+		// note: must initDetailsFile before validation
+		if (!$this->isValidJob($post_office->id.':'.$unique_id)) {
+			trigger_localised_error('BML0013', E_USER_WARNING, $unique_id);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
 
 		// add a new entry to the database table
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -240,7 +247,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		// purge the data dir if it is an ad-hoc job
-		// TODO: check this part once we can add ad-hoc job
+		// TODO: make sure this part works, once we can add ad-hoc job
 		$job_id_parts = explode(':', $job_id);
 		if (isset($job_id_parts[1])) {
 			$post_office =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id_parts[0]);
@@ -300,7 +307,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	* @param int	$job_id			the unique id of the job entry
 	* @param int	$post_office_id	the id of the parent post office
 	*
-	* @return boolean
+	* @return array
 	* @access public
 	*/
 	function getQueuedJobs($job_id=null, $post_office_id=null)
@@ -474,6 +481,8 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		 foreach ($job->vars as $var_name  => $var_info) {
 			switch ($var_name) {
+				case 'from' :
+				case 'subject' :
 				case 'header_details':
 					if ($job->attr('use_post_office_header')) {
 						$details_info[$var_name] = $post_office->attr($var_name);
@@ -520,6 +529,59 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		return $details_info;
 
 	}//end getJobDetails()
+
+
+	/**
+	* Returns an array of errors if job is not valid or true if we can set this job to live
+	*
+	* @param int	$job_id	the unique id of the job entry
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isValidJob($job_id)
+	{
+		//TODO: return error msg if job is invalid, and empty string if job is valid. for error reporting?
+		$details_info = $this->getJobDetails($job_id);
+		if (empty($details_info)) return false;
+
+		// cannot create a PEAR mail instance
+		$driver = array_get_index($details_info['server_details'], 'driver', '');
+		$mail_object =& Mail::factory($driver, $details_info['server_details']);
+		if (PEAR::isError($mail_object)) return false;
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($mail_object);
+
+		// no recipient
+		$recipients = $details_info['recipients'];
+		if (empty($recipients)) return false;
+
+		// no 'from' header field
+		if (empty($details_info['from'])) return false;
+
+		// no content page
+		if (empty($details_info['content_id'])) {
+			return false;
+		} else {
+			// page is not live
+			$content_page =& $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_id']);
+			if ($content_page->status != SQ_STATUS_LIVE) {
+				return false;
+			}
+		}
+
+		// no pre-selected user
+		if (empty($details_info['content_gen_as'])) {
+			return false;
+		} else {
+			// cannot login as pre-selected user, is in trash or not live
+			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_gen_as']);
+			if (!$user->canLogin()) return false;
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
+		}
+
+		return true;
+
+	}//end isValidJob()
 
 
 }//end class
