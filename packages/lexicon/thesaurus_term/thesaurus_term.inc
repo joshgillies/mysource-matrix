@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term.inc,v 1.1 2005/11/04 06:09:00 arailean Exp $
+* $Id: thesaurus_term.inc,v 1.2 2005/11/08 00:59:26 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -107,7 +107,7 @@ class Thesaurus_Term extends Asset
 		}
 
 		if (empty($this->_thesaurus_id)) {
-			trigger_localised_error('<LEX0016>', E_USER_WARNING, $link['asset']->type());
+			trigger_localised_error('LEX0016', E_USER_WARNING, $link['asset']->type());
 			return false;
 		}
 
@@ -119,7 +119,7 @@ class Thesaurus_Term extends Asset
 
 		$assetid = $this->_thesaurus->addTerm($term, $parent_term, $relation);
 		if (is_null($assetid)) {
-			trigger_localised_error('<LEX0017>', E_USER_WARNING);
+			trigger_localised_error('LEX0017', E_USER_WARNING);
 			return false;
 		}
 
@@ -127,6 +127,9 @@ class Thesaurus_Term extends Asset
 		$this->_term_linkid = $assetid;
 
 		$this->_thesaurus->markContentsChanged();
+
+		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($link['asset'], 'CreateLink', Array('linkid' => ''));
 
 		return true;
 
@@ -196,8 +199,12 @@ class Thesaurus_Term extends Asset
 
 		$success = $this->_thesaurus->updateTerm($this->_term_linkid, $name, $relation);
 
-		if ($success) $this->_thesaurus->saveAttributes();
+		if ($success) {
+			$this->_thesaurus->saveAttributes();
 
+			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em->broadcastEvent($this, 'AssetUpdate', Array('name' => $name));
+		}
 		return $success;
 
 	}//end saveAttributes()
