@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.109 2005/11/08 01:19:04 lwright Exp $
+* $Id: general.inc,v 1.110 2005/11/08 02:54:33 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.109 $
+* @version $Revision: 1.110 $
 * @package MySource_Matrix
 */
 
@@ -1126,7 +1126,10 @@ function get_asset_tag_line($assetid, $screen='')
 		// discard it and the icon becomes a direct selection
 		if (count($lineages) > 1) {
 			echo $lineages_div;
-			$lineages_onclick = 'tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-lineages\').innerHTML, \''.translate('lineages').'\', true)';
+			ob_start();
+				sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, translate('cancel'), translate('cancel'));
+			$cancel_icon = ob_get_clean();
+			$lineages_onclick = 'tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-lineages\').innerHTML, \''.translate('lineages').'\', '.$cancel_icon.')';
 			$lineages_name = translate('show_lineages');
 		} else {
 			sort($lineages);
