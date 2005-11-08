@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.22 2005/11/07 22:55:05 emcdonald Exp $
+* $Id: thesaurus.inc,v 1.23 2005/11/08 00:57:00 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -318,8 +318,6 @@ class Thesaurus extends Asset
 
 		$result = $db->getOne($sql);
 
-		log_dump($sql);
-
 		assert_valid_db_result($result);
 		return $result;
 
@@ -373,7 +371,7 @@ class Thesaurus extends Asset
 		if (!is_null($manual_linkid)) {
 			$check_term = $this->getTermById($manual_linkid);
 			if (!empty($check_term)) {
-				trigger_localised_error('LEX0018',E_USER_WARNING); //'Cannot use the supplied term link id because it conflicts with an existing one.'
+				trigger_localised_error('LEX0018',E_USER_WARNING);
 				return null;
 			}
 			$linkid = $manual_linkid;
@@ -1104,8 +1102,6 @@ class Thesaurus extends Asset
 		';
 		$result = $db->getOne($sql);
 
-		log_dump($sql);
-
 		assert_valid_db_result($result);
 
 		return !empty($result);
@@ -1358,6 +1354,11 @@ class Thesaurus extends Asset
 			$info_array[$id]['accessible']	= 1;
 			$info_array[$id]['url']			= '';
 			$info_array[$id]['web_path']	= '';
+
+			if (!empty($field)) {
+				$info_array[$id] = array_get_index($info_array[$id], $field);
+			}
+
 		}
 
 		return $info_array;
@@ -1647,7 +1648,7 @@ class Thesaurus extends Asset
 		if ($moving) {
 			$term_linkid = $this->getTermLinkid($minor_term, $major_term, $relation);
 			if (!is_null($term_linkid)) {
-				trigger_localised_error('LEX0020');//'This term link already exists. Cannot move.'
+				trigger_localised_error('LEX0020');
 				return false;
 			}
 		}
