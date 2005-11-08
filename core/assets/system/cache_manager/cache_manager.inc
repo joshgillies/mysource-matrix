@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.19 2005/11/08 22:42:40 lwright Exp $
+* $Id: cache_manager.inc,v 1.20 2005/11/08 22:45:37 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once 'Cache.php';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -156,7 +156,7 @@ class Cache_Manager extends Asset
 	function loadFromCache($assetid, $asset_type, $key='', $use_url = true)
 	{
 		if (SQ_ROLLBACK_VIEW) return '';
-		if (basename($_SERVER['PHP_SELF']) == '_nocache') {
+		if (basename($_SERVER['PHP_SELF']) == SQ_CONF_NOCACHE_SUFFIX) {
 			return '';
 		}
 		if (!$this->cacheEnabled($asset_type)) {
@@ -204,7 +204,7 @@ class Cache_Manager extends Asset
 	function saveToCache($assetid, $asset_type, $key, $contents, $use_url = true)
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
-		if (basename($_SERVER['PHP_SELF']) == '_nocache') {
+		if (basename($_SERVER['PHP_SELF']) == SQ_CONF_NOCACHE_SUFFIX) {
 			return false;
 		}
 
