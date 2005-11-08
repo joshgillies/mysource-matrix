@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.15 2005/11/08 01:42:07 rong Exp $
+* $Id: bulk_mailer.inc,v 1.16 2005/11/08 22:37:59 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -86,7 +86,7 @@ class Bulk_Mailer
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$root_user =& $am->getSystemAsset('root_user');
 		if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-			trigger_localised_error('BML0010', E_USER_WARNING);
+			trigger_localised_error('BML0003', E_USER_WARNING, $root_user->name, $root_user->id);
 			exit(1);
 		}
 
@@ -149,7 +149,7 @@ class Bulk_Mailer
 		$child_pid = pcntl_fork();
 		switch ($child_pid) {
 			case -1:
-				trigger_localised_error('BML0011', E_USER_WARNING);
+				trigger_localised_error('BML0004', E_USER_WARNING);
 				return null;
 			break;
 			case 0:
@@ -648,7 +648,7 @@ class Bulk_Mailer
 			// login as this user and print page content
 			if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($user)) {
 				// happens when the user is not live or in trash
-				trigger_localised_error('BML0006', E_USER_WARNING, get_asset_tag_line($user_id));
+				trigger_localised_error('BML0003', E_USER_WARNING, $user->name, $user->id);
 				return '';
 			}
 			$page =& $am->getAsset($content_id);
