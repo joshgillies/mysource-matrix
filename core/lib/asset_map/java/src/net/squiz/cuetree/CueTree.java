@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.3.2.4 2005/11/07 22:11:23 sdanis Exp $
+* $Id: CueTree.java,v 1.3.2.5 2005/11/08 00:55:08 sdanis Exp $
 *
 */
 
@@ -921,7 +921,6 @@ public class CueTree extends JTree {
 						paintGhostedNode(evt.getX() + 5, evt.getY() - 5, path);
 					drawCueLine(path, evt.getY(), true);
 				}
-				return;
 			}
 
 			// Use this listener stub in favour of mouseClicked() or mouseReleased()
