@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.7.2.2 2005/09/05 06:58:52 ndvries Exp $
+ * $Id: MatrixTree.java,v 1.7.2.3 2005/11/08 03:01:58 sdanis Exp $
  *
  */
 
@@ -721,6 +721,11 @@ public class MatrixTree extends CueTree
 		getInputMap().put(KeyStroke.getKeyStroke("control C"), "create selection");
 		getActionMap().put("create selection", createSelectionAction);
 	}
+
+	public void removeKeyStroke(String key) {
+		getInputMap().put(KeyStroke.getKeyStroke(key), "none");
+	}
+
 
 	//}}}
 

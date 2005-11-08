@@ -47,6 +47,11 @@ public class BasicView extends JPanel implements View {
 		return tree;
 	}
 
+	protected MatrixTree createFinderTree() {
+		tree = MatrixTreeBus.createFinderTree(new LoadingNode());
+		return tree;
+	}
+
 	public MatrixTree getTree() {
 		return tree;
 	}
