@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.16 2005/11/08 01:42:07 rong Exp $
+* $Id: bulkmail_job.inc,v 1.17 2005/11/08 22:39:55 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -91,12 +91,11 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	{
 		// check if this job is valid
 		$post_office = $this->getPostOffice();
-		$data_dir = $post_office->data_path.'/.data/'.$this->id;
-		if (!is_dir($data_dir)) create_directory($data_dir);
 		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
-		$bm->initDetailsFile($this, $post_office, $data_dir);
-		if (!$bm->isValidJob($this->id)) {
-			trigger_localised_error('BML0013', E_USER_WARNING, $this->id);
+		$details_info = $bm->generateJobDetails($this, $post_office);
+		$errors = $bm->isValidJob($details_info, true);
+		if (!empty($errors)) {
+			trigger_localised_error('BML0001', E_USER_WARNING, $errors[0]);
 			return false;
 		}
 
@@ -109,6 +108,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		$old_session = $_SESSION;
 
 		// generate content as pre-selected user
+		$data_dir = $post_office->data_path.'/.data/'.$this->id;
 		$content_id = $this->attr('content_id');
 		$content_gen_as = $this->attr('content_gen_as');
 		$content_design = $this->attr('content_design');

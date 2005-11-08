@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.11 2005/11/08 01:42:07 rong Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.12 2005/11/08 22:39:55 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -49,7 +49,79 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	}//end constructor
 
 
-//--        DETAILS        --//
+	/**
+	* Paints the section for user to check if a job is valid
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintValidation(&$asset, &$o, $prefix)
+	{
+		// set a hidden field with initial value of '0'
+		// set value to '1' when the validate button is clicked
+		 $o->openRaw();
+			?><p style="margin-top: 5px; margin-bottom: 5px"><?php
+				echo translate('bm_job_validation_validate_job');
+				?><br /><?php
+				echo normal_button($prefix.'_validation_button', translate('bm_job_validation_button'), 'onClick= validate(); this.form.submit();');
+				echo hidden_field($prefix.'_validation_hidden', '0');
+			?></p><?php
+		$o->closeRaw();
+
+		// report errors if the the hidden field is set to '1'
+		if (isset($_REQUEST[$prefix.'_validation_hidden']) && $_REQUEST[$prefix.'_validation_hidden'] == 1) {
+			$post_office = $asset->getPostOffice();
+			$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+			$details_info = $bm->generateJobDetails($asset, $post_office);
+			$errors = $bm->isValidJob($details_info, true);
+			$o->openField(translate('bm_job_validation_result'));
+				if (empty($errors)) {
+					echo translate('bm_job_validation_successful', get_asset_tag_line($asset->id));
+				} else {
+					?><span class="sq-backend-warning"><?php
+					foreach ($errors as $error) {
+						echo $error;
+						?><br /><?php
+					}
+					?></span><?php
+				}
+			$o->closeField();
+		}
+
+		// javascript to set the value of hidden validation form element
+		?>
+		<script language="JavaScript" type="text/javascript">
+			function validate() {
+				var prefix = '<?php echo $prefix; ?>';
+				var id = prefix + '_validation_hidden';
+				var element = document.getElementById(id);
+				element.value = '1';
+			}
+		</script>
+		<?php
+
+	}//end paintValidation()
+
+
+	/**
+	* Process the section for user to check if a job is valid
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processValidation(&$asset, &$o, $prefix)
+	{
+		return true;
+
+	}//end processValidation()
 
 
 	/**
@@ -75,24 +147,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $use_post_office_header ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
 			<?php
 		}
-/*
-		// javascript to disable input fields when the checkbox is checked
-		?>
-		<script language="JavaScript" type="text/javascript">
-			function hideHeader(checked) {
-				var prefix = '<?php echo $prefix; ?>';
-				var regex_string1 = prefix + '_header_detail';
-				var re1 = new RegExp(regex_string1);
-				var elements = document.getElementsByTagName('tr');
-				for (i = 0; i < elements.length; i++) {
-					if (elements[i].id.match(re1)) {
-						elements[i].style['display'] = checked ? 'none' : '';
-					}
-				}
-			}
-		</script>
-		<?php
-*/
+
 		return $write_access;
 
 	}//end paintHeaderDetailsCheckBox()
@@ -137,9 +192,6 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		return !($asset->attr('use_post_office_header'));
 
 	}//end showJobHeader()
-
-
-//--        JOB MANAGEMENT        --//
 
 
 	/**

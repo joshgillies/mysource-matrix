@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.7 2005/11/07 04:46:35 rong Exp $
+* $Id: lang_strings.xml,v 1.8 2005/11/08 22:39:56 rong Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -56,6 +56,11 @@ Please click on the following link if you would like to proceed:
 	<string source="bm_job_progress_none">N/A</string>
 	<string source="bm_job_progress">%1$s of %2$s (%3$s)</string>
 
+	<string source="bm_job_validation_validate_job">Press the Validate Job button to check for setting errors.</string>
+	<string source="bm_job_validation_button">Validate Job</string>
+	<string source="bm_job_validation_result">Result(s)</string>
+	<string source="bm_job_validation_successful">%s is valid.</string>
+
 	<string source="bulkmail_recipient_group_asset_not_found">Error retrieving group asset.</string>
 
 	<string source="bulkmail_content_detail_page_name">Content Page</string>
@@ -86,7 +91,7 @@ Please click on the following link if you would like to proceed:
 
 	<string source="bulkmail_threshold_detail_type">Type</string>
 	<string source="bulkmail_threshold_detail_note">Please select one of the following threshold types, and fill in a value:</string>
-	<string source="bulkmail_threshold_detail_report">The thresholding type is currently set to - "%1$s"</string>
+	<string source="bulkmail_threshold_detail_report">The thresholding type is currently set to - "%s"</string>
 	<string source="bulkmail_threshold_detail_chunk">Send %s emails per hour.</string>
 	<string source="bulkmail_threshold_detail_spread">Send all emails over %s hours.</string>
 	<string source="bulkmail_threshold_detail_asap">Send all emails at once, don't worry about splitting it up.</string>
@@ -99,13 +104,13 @@ Please click on the following link if you would like to proceed:
 	<string source="bulkmail_preview_log">Preview Log</string>
 	<string source="bulkmail_clear_log">Clear Preview Log</string>
 
-	<string source="bm_one_post_office_for_job">Bulkmail Jobs can only be linked under one Bulkmail Post Office.</string>
-	<string source="bulkmail_warning">Warning</string>
-	<string source="bulkmail_warning_po_recipient_not_set">Bulkmail Job: Recipients not set.</string>
-	<string source="bulkmail_warning_po_server_details">Post Office Server Details: "%1$s", %2$s "%3$s" (Id #%4$s).</string>
-	<string source="bulkmail_warning_header_from_field">Header Details: Missing 'From' field</string>
-	<string source="bulkmail_warning_content_page_not_set">Content Details: Content Page not set.</string>
-	<string source="bulkmail_warning_content_generate_as_not_set">Content Details: Pre-selected User not set.</string>
-	<string source="bulkmail_warning_content_generate_as_login_failed">Content Details: Unable to generate content as %1$s "%2$s" (Id #%3$s), user is either in trash or not live.</string>
+	<string source="bm_warning_one_post_office_for_job">Bulkmail Jobs can only be linked under one Bulkmail Post Office.</string>
+	<string source="bm_warning_server_details_error">Post Office Server Details: "%s".</string>
+	<string source="bm_warning_no_recipient">Recipients: Recipients not set.</string>
+	<string source="bm_warning_no_from_field">Header Details: Missing 'From' field.</string>
+	<string source="bm_warning_no_asset_to_send">Content: 'Asset to Send' not set.</string>
+	<string source="bm_warning_asset_to_send_not_live">Content: "Asset to Send", %1$s (Id #%2$s), is not live.</string>
+	<string source="bm_warning_no_generate_as">Content: 'Generate As' not set.</string>
+	<string source="bm_warning_generate_as_login_error">Content: Unable to generate content as %1$s (Id #%2$s), user is either in trash or not live.</string>
 
 </strings>

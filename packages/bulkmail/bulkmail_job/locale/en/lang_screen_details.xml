@@ -11,12 +11,18 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2005/11/07 04:46:35 rong Exp $
+* $Id: lang_screen_details.xml,v 1.7 2005/11/08 22:39:55 rong Exp $
 *
 */
 -->
 
 <contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
+		</field>
+	</section>
 	<section name="Progress">
 		<display_name>Progress</display_name>
 		<note />
@@ -25,11 +31,11 @@
 			<process_function name="processProgress" />
 		</function_call>
 	</section>
-	<section name="Details">
-		<field attribute="name">
-			<display_name>Name</display_name>
-			<note />
-		</field>
+	<section name="Validate Job">
+		<function_call>
+			<paint_function name="paintValidation" />
+			<process_function name="processValidation" />
+		</function_call>
 	</section>
 	<section name="Recipients">
 		<field>

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2005/11/07 04:46:35 rong Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2005/11/08 22:39:55 rong Exp $
 *
 */
 -->
@@ -26,6 +26,12 @@
 		<function_call>
 			<paint_function name="paintJobQueue" />
 			<process_function name="processJobQueue" />
+		</function_call>
+	</section>
+	<section name="Validate Job">
+		<function_call>
+			<paint_function name="paintValidation" />
+			<process_function name="processValidation" />
 		</function_call>
 	</section>
 	<section name="Recipients" write_access="write:attributes">
