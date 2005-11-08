@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.110 2005/11/08 02:54:33 lwright Exp $
+* $Id: general.inc,v 1.111 2005/11/08 03:20:08 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.110 $
+* @version $Revision: 1.111 $
 * @package MySource_Matrix
 */
 
@@ -1046,6 +1046,8 @@ function get_asset_tag_line($assetid, $screen='')
 		$screen_url = $screen_url[$assetid];
 	}
 
+	$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset_info['type_code'], 'name');
+
 	ob_start();
 	?>
 	<div id="asset-tag-line-<?php echo $tag_line_count ?>-more-details" style="display:none">
@@ -1053,6 +1055,10 @@ function get_asset_tag_line($assetid, $screen='')
 		<tr>
 			<td class="sq-backend-table-cell" style="background-color: <?php echo get_status_colour($asset_info['status']) ?>"><strong>Current Status:</strong></td>
 			<td colspan="2" class="sq-backend-table-cell" style="background-color: <?php echo get_status_colour($asset_info['status']) ?>"><i><?php echo get_status_description($asset_info['status']) ?></i></td>
+		</tr>
+		<tr>
+			<td class="sq-backend-table-cell"><strong><?php echo translate('asset_type') ?>:</strong></td>
+			<td colspan="2" class="sq-backend-table-cell"><?php echo get_asset_type_icon($asset_info['type_code']).' '.$type_name ?></td>
 		</tr>
 		<?php
 		$headers = Array(
@@ -1126,10 +1132,10 @@ function get_asset_tag_line($assetid, $screen='')
 		// discard it and the icon becomes a direct selection
 		if (count($lineages) > 1) {
 			echo $lineages_div;
-			ob_start();
-				sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, translate('cancel'), translate('cancel'));
-			$cancel_icon = ob_get_clean();
-			$lineages_onclick = 'tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-lineages\').innerHTML, \''.translate('lineages').'\', '.$cancel_icon.')';
+			?><div id="asset-tag-line-<?php echo $tag_line_count ?>-cancel-icon" style="display:none"><?php
+				sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, translate('cancel'), translate('cancel'), ' style="border:none"');
+			?></div><?php
+			$lineages_onclick = 'tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-lineages\').innerHTML, \''.translate('lineages').'\', document.getElementById(\'asset-tag-line-'.$tag_line_count.'-cancel-icon\').innerHTML)';
 			$lineages_name = translate('show_lineages');
 		} else {
 			sort($lineages);
@@ -1139,7 +1145,8 @@ function get_asset_tag_line($assetid, $screen='')
 			$lineages_name = translate('show_in_asset_map');
 		}
 
-		echo get_asset_type_icon($asset_info['type_code'], 'onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
+		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/info.png', 16, 16, '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
+		//echo get_asset_type_icon($asset_info['type_code'], '');
 		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' align="absmiddle"  onclick="'.$lineages_onclick.'"');
 
 		//echo sq_print_icon(sq_web_path('lib').'/web/images/icons/edit_mode.png', 16, 16, translate('screens'), translate('screens'), ' align="absmiddle" onclick="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-screens\').innerHTML, \'Screens\', true);"');
@@ -1159,6 +1166,7 @@ function get_asset_tag_line($assetid, $screen='')
 	return $contents;
 
 }//end get_asset_tag_line()
+
 
 
 function get_asset_type_icon($type_code, $extra='') {
