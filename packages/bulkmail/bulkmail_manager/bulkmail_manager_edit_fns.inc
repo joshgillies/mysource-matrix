@@ -13,7 +13,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_offi
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -233,6 +233,23 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		<?php
 
 	}//end _paintJobQueue()
+
+
+	/**
+	* Function that determine whether to hide or show the progress section for bulkmail manager
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function showProgressSection(&$asset, $prefix)
+	{
+		$jobs = $asset->getQueuedJobs();
+		return (empty($jobs) ? false : true);
+
+	}//end showProgressSection()
 
 
 }//end class

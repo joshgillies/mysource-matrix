@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.7 2005/11/08 22:39:55 rong Exp $
+* $Id: lang_screen_details.xml,v 1.8 2005/11/09 10:10:48 rong Exp $
 *
 */
 -->
@@ -23,7 +23,7 @@
 			<note />
 		</field>
 	</section>
-	<section name="Progress">
+	<section name="Progress" show_if="showProgressSection">
 		<display_name>Progress</display_name>
 		<note />
 		<function_call>

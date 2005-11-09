@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.15 2005/11/08 01:42:07 rong Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.16 2005/11/09 10:10:48 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -763,6 +763,25 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	}//end processJobQueue()
+
+
+	/**
+	* Function that determine whether to hide or show the progress section for this post office
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function showProgressSection(&$asset, $prefix)
+	{
+		$bulkmail_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+		$jobs = $bulkmail_manager->getQueuedJobs(null, $asset->id);
+
+		return (empty($jobs) ? false : true);
+
+	}//end showProgressSection()
 
 
 }//end class

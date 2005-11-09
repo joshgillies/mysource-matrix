@@ -11,13 +11,13 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2005/11/03 00:52:24 ndvries Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2005/11/09 10:10:48 rong Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Job Progress">
+	<section name="Job Progress" show_if="showProgressSection">
 		<function_call>
 			<paint_function name="paintJobQueue" />
 			<process_function name="processJobQueue" />
