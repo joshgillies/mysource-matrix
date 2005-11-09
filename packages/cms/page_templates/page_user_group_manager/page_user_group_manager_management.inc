@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager_management.inc,v 1.2 2005/08/05 05:27:56 dheppell Exp $
+* $Id: page_user_group_manager_management.inc,v 1.3 2005/11/09 23:13:11 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -142,8 +142,8 @@ class Page_User_Group_Manager_Management extends Asset_Management
 	/**
 	* Return an array with information about the events that this page is listening for
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function getEventList()
 	{
