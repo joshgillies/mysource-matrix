@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.28 2005/11/07 05:23:57 mmcintyre Exp $
+* $Id: db_install.inc,v 1.29 2005/11/09 01:10:12 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -573,6 +573,10 @@ function install_stored_relations($relations, $verbose=true)
 {
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
 	$fns_file = SQ_SYSTEM_ROOT.'/install/'.$db->phptype.'_'.$relations.'.xml';
+
+	// if the file does not exist, check to see if there is a common file
+	// for all database types
+	if (!file_exists($fns_file)) $fns_file = SQ_SYSTEM_ROOT.'/install/common_'.$relations.'.xml';
 
 	if (file_exists($fns_file)) {
 
