@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.112 2005/11/08 22:33:38 lwright Exp $
+* $Id: general.inc,v 1.113 2005/11/09 10:37:49 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.112 $
+* @version $Revision: 1.113 $
 * @package MySource_Matrix
 */
 
@@ -1138,7 +1138,7 @@ function get_asset_tag_line($assetid, $screen='')
 			?></div><?php
 			$lineages_onclick = 'tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-lineages\').innerHTML, \''.translate('lineages').'\', document.getElementById(\'asset-tag-line-'.$tag_line_count.'-cancel-icon\').innerHTML)';
 			$lineages_name = translate('show_lineages');
-		} else {
+		} else if (count($lineages) == 1) {
 			sort($lineages);
 			$lineage_names = $lineages[0]['lineage'];
 			$lineage_names[$assetid] = $asset_info['name'];
@@ -1148,7 +1148,10 @@ function get_asset_tag_line($assetid, $screen='')
 
 		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/more_info.png', 16, 16, '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
 		//echo get_asset_type_icon($asset_info['type_code'], '');
-		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' align="absmiddle"  onclick="'.$lineages_onclick.'"');
+
+		if (count($lineages) > 0) {
+			echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' align="absmiddle"  onclick="'.$lineages_onclick.'"');
+		}
 
 		//echo sq_print_icon(sq_web_path('lib').'/web/images/icons/edit_mode.png', 16, 16, translate('screens'), translate('screens'), ' align="absmiddle" onclick="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-screens\').innerHTML, \'Screens\', true);"');
 
