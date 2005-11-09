@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page_page.inc,v 1.1 2005/11/02 05:56:57 dmckee Exp $
+* $Id: page_multiple_page_page.inc,v 1.2 2005/11/09 03:21:35 dmckee Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -52,6 +52,24 @@ class Page_Multiple_Page_Page extends Bodycopy
 		$this->Bodycopy($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Returns an array of all the permitted link types, the type asset and the cardinality
+	*
+	* @return array
+	* @access private
+	* @see Asset::_getAllowLinks()
+	*/
+	function _getAllowedLinks()
+	{
+		$page_links = parent::_getAllowedLinks();
+		$page_links[SQ_LINK_TYPE_1]['asset'] = Array('card' => 'M', 'exclusive' => false);
+		$page_links[SQ_LINK_TYPE_2]['asset'] = Array('card' => 'M', 'exclusive' => false);
+		$page_links[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => false);
+		return $page_links;
+
+	}//end _getAllowedLinks()
 
 
 	/**
