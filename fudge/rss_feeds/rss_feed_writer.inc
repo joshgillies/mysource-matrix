@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_writer.inc,v 1.3 2005/11/07 22:50:17 skim Exp $
+* $Id: rss_feed_writer.inc,v 1.4 2005/11/09 04:43:20 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * Creates an XML document with all the data that is provided
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -100,6 +100,10 @@ class RSS_Feed_Writer
 	*/
 	function addItems($items)
 	{
+		if (empty($items)) {
+			trigger_error('You cannot set empty values to items	', E_USER_ERROR);
+			return false;
+		}
 		if ($this->_isTypeVersionSet()) {
 			if (!is_array($items)) {
 				trigger_error('You can assign Associative Arrays only to the items', E_USER_ERROR);
@@ -124,6 +128,10 @@ class RSS_Feed_Writer
 	*/
 	function addChannel($channel)
 	{
+		if (empty($channel)) {
+			trigger_error('You cannot set empty values to channel', E_USER_ERROR);
+			return false;
+		}
 		if ($this->_isTypeVersionSet()) {
 			if (!is_array($channel)) {
 				trigger_error('You can assign Associative Arrays only to the items', E_USER_ERROR);
@@ -148,6 +156,10 @@ class RSS_Feed_Writer
 	*/
 	function addImage($image)
 	{
+		if (empty($image)) {
+			trigger_error('You cannot set empty values to image	', E_USER_ERROR);
+			return false;
+		}
 		if ($this->_isTypeVersionSet()) {
 			if (!is_array($image)) {
 				trigger_error('You can assign Associative Arrays only to the items', E_USER_ERROR);
@@ -181,23 +193,17 @@ class RSS_Feed_Writer
 				trigger_error('The Type And Version Of The RSS Feed To Be Generated Have To Be Strings', E_USER_WARNING);
 				return false;
 			}
-			switch ($type) {
-				case 'rss':
+			$type_version = $type.'_'.$version;
+			switch ($type_version) {
+				case 'rss_1.0':
 				break;
-				case 'atom':
+				case 'rss_2.0':
+				break;
+				case 'atom_1.0':
 				break;
 				default:
 					trigger_error('The Type The RSS Feed Can Only Be Either rss Or atom', E_USER_ERROR);
-					return false;
-			}
-			switch ($version) {
-				case '1.0':
-				break;
-				case '2.0':
-				break;
-				default:
-					trigger_error('The Version The RSS Feed Can Only Be Either 1.0 Or 2.0', E_USER_ERROR);
-					return false;
+				return false;
 			}
 			$this->type = $type;
 			$this->version = $version;

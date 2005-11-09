@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.4 2005/11/07 22:50:17 skim Exp $
+* $Id: rss_feed_reader.inc,v 1.5 2005/11/09 04:43:20 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -121,6 +121,13 @@ class RSS_Feed_Reader
 	*/
 	var $type = '';
 
+	/**
+	* A flag to see if the file or the XML string has been parsed or not
+	*
+	* @var boolean
+	*/
+	var $parsed = false;
+
 
 	/**
 	* Constructor
@@ -142,24 +149,29 @@ class RSS_Feed_Reader
 	*
 	* @param string	$file	the path of the file to be parsed
 	*
-	* @return array
+	* @return boolean
 	* @access public
 	*/
 	function setInputFile($file='')
 	{
+		$check = false;
 		if (!empty($file)) {
 			if (eregi('^(http|ftp)://', substr($file, 0, 10))) {
 				if (!ini_get('allow_url_fopen')) {
-					return trigger_error('Remote Files Cannot Be Parsed', E_USER_WARNING);
+					trigger_error('Remote Files Cannot Be Parsed', E_USER_WARNING);
+					return false;
 				}
 			}
 			$this->fp = fopen($file, 'r');
 			if (!$this->fp) {
-				trigger_error('File could not be opened', E_USER_WARNING);
+				trigger_error('Error occured during opening the file', E_USER_WARNING);
+				return false;
 			}
 		} else {
 			trigger_error('No File Path Or URL Entered', E_USER_ERROR);
+			return false;
 		}
+		return true;
 
 	}//end setInputFile()
 
@@ -169,12 +181,21 @@ class RSS_Feed_Reader
 	*
 	* @param int	$xml	the pointer to the xml file
 	*
-	* @return void
+	* @return boolean
 	* @access public
 	*/
 	function setInputString($xml)
 	{
+		if (empty($xml)) {
+			trigger_error('Empty Strings Cannot Be Parsed', E_USER_ERROR);
+			return false;
+		}
+		if (!is_string($xml)) {
+			trigger_error('Only XML Strings Can Be Parsed', E_USER_ERROR);
+			return false;
+		}
 		$this->fp = $xml;
+		return true;
 
 	}//end setInputString()
 
@@ -190,7 +211,9 @@ class RSS_Feed_Reader
 		$fp = $this->fp;
 		if (!$fp) {
 			trigger_error('Invalid File Pointer', E_USER_WARNING);
+			return;
 		} else {
+			$this->parsed = true;
 			if (!is_string($this->fp)) {
 				while ($data = fread($fp, 4096)) {
 					if (!xml_parse($this->parser, $data)) {
@@ -198,7 +221,9 @@ class RSS_Feed_Reader
 					}
 				}
 			} else {
-				return xml_parse($this->parser, $this->fp);
+				if (!xml_parse($this->parser, $this->fp)) {
+					return 'Error in the feed';
+				}
 			}
 		}
 
@@ -213,7 +238,7 @@ class RSS_Feed_Reader
 	*/
 	function getRssType()
 	{
-		return $this->type;
+		if ($this->_issetFile()) return $this->type;
 
 	}//end getRssType()
 
@@ -226,7 +251,7 @@ class RSS_Feed_Reader
 	*/
 	function getItems()
 	{
-		return $this->item;
+		if ($this->_issetFile()) return $this->item;
 
 	}//end getItems()
 
@@ -239,7 +264,7 @@ class RSS_Feed_Reader
 	*/
 	function getTextInput()
 	{
-		return $this->textinput;
+		if ($this->_issetFile()) return $this->textinput;
 
 	}//end getTextInput()
 
@@ -252,7 +277,7 @@ class RSS_Feed_Reader
 	*/
 	function getChannelInfo()
 	{
-		return $this->channel;
+		if ($this->_issetFile()) return $this->channel;
 
 	}//end getChannelInfo()
 
@@ -265,7 +290,7 @@ class RSS_Feed_Reader
 	*/
 	function getImageInfo()
 	{
-		return $this->image;
+		if ($this->_issetFile()) return $this->image;
 
 	}//end getImageInfo()
 
@@ -278,7 +303,7 @@ class RSS_Feed_Reader
 	*/
 	function getUnrecognisedElements()
 	{
-		return $this->unrecognised;
+		if ($this->_issetFile()) return $this->unrecognised;
 
 	}//end getUnrecognisedElements()
 
@@ -512,6 +537,27 @@ class RSS_Feed_Reader
 		}
 
 	}//end characterHandler()
+
+
+	/**
+	* Checks if the file pointer is set or not
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _issetFile()
+	{
+		if(!isset($this->fp)) {
+			trigger_error('The XML That Has To Be Parsed Is To Be Set First Using setInputFile or setInputString');
+			return false;
+		}
+		if (!$this->parsed) {
+			trigger_error('The XML That Has To Be Parsed First Using parse() Function');
+			return false;
+		}
+		return true;
+
+	}//end _issetFile()
 
 
 //--        END OF INTERNAL FUNCTIONS        --//
