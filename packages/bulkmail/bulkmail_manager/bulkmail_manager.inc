@@ -12,7 +12,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -599,7 +599,13 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			if (!$user->canLogin()) {
 				$errors[] = translate('bm_warning_generate_as_login_error', $user->name, $user->id);
 			}
+			// pre-selected user does not have read permission for content page
+			$read_access = $content_page->readAccess(Array($user->id));
+			if (!$read_access) {
+				$errors[] = translate('bm_warning_generate_as_no_read_access', $user->name, $user->id, $content_page->name, $content_page->id);
+			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_page);
 		}
 
 		// design does not have public read access

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.8 2005/11/08 22:39:56 rong Exp $
+* $Id: lang_strings.xml,v 1.9 2005/11/09 23:50:55 rong Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -112,5 +112,7 @@ Please click on the following link if you would like to proceed:
 	<string source="bm_warning_asset_to_send_not_live">Content: "Asset to Send", %1$s (Id #%2$s), is not live.</string>
 	<string source="bm_warning_no_generate_as">Content: 'Generate As' not set.</string>
 	<string source="bm_warning_generate_as_login_error">Content: Unable to generate content as %1$s (Id #%2$s), user is either in trash or not live.</string>
+	<string source="bm_warning_generate_as_no_read_access">Content: %1$s (Id #%2$s) does not have Read Access to 'Asset to Send' %3$s (Id #%4$s).</string>
+	<string source="bm_warning_design_no_public_read_access">Content: %1$s (Id #%2$s) does not have Public Read Access.</string>
 
 </strings>
