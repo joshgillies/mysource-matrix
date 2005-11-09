@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.24 2005/11/09 01:00:24 skim Exp $
+* $Id: hipo_job_create_links.inc,v 1.25 2005/11/09 02:06:43 skim Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -941,39 +941,23 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 		// process cascading options
 		$cascading_list = Array(
-							'cascadePermissions',
-							'cascadeMetadata',
-							'cascadeWorkflow',
+							'cascadePermissions'	=> 'cascade_pe',
+							'cascadeMetadata'		=> 'cascade_ms',
+							'cascadeWorkflow'		=> 'cascade_wf',
 						  );
-		foreach ($cascading_list as $name) {
+
+		foreach ($cascading_list as $fn_name => $value) {
 			$job_type = '';
 			$running_vars = Array();
 			$options = '';
 
-			switch ($name) {
-				case 'cascadePermissions' :
-					if (isset($this->_running_vars['cascade_pe']) && $this->_running_vars['cascade_pe']) {
-						$this->$name($job_type, $running_vars, $options);
-						$errors = $hh->freestyleHipo($job_type, $running_vars);
-					}
-				break;
-				case 'cascadeMetadata' :
-					if (isset($this->_running_vars['cascade_ms']) && $this->_running_vars['cascade_ms']) {
-						$this->$name($job_type, $running_vars, $options);
-						$errors = $hh->freestyleHipo($job_type, $running_vars);
-					}
-				break;
-				case 'cascadeWorkflow' :
-					if (isset($this->_running_vars['cascade_wf']) && $this->_running_vars['cascade_wf']) {
-						$this->$name($job_type, $running_vars, $options);
-						$errors = $hh->freestyleHipo($job_type, $running_vars);
-					}
-				break;
-
-			}//end switch
+			if (isset($this->_running_vars[$value]) && $this->_running_vars[$value]) {
+				$this->$fn_name($job_type, $running_vars, $options);
+				$errors = $hh->freestyleHipo($job_type, $running_vars);
+			}
 
 			if (!empty($errors)) {
-				$this->_addError('error occured during '.$name);
+				$this->_addError('error occured during '.$fn_name);
 				return false;
 			}
 
