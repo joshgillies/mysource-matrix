@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.15 2005/11/04 06:02:40 sdanis Exp $
+* $Id: asset_map.js,v 1.16 2005/11/09 23:43:02 sdanis Exp $
 *
 */
 
@@ -94,7 +94,7 @@ function get_java_applet_object()
 function reload_assets(assetids)
 {
 	if (SQ_REFRESH_ASSETIDS != "") {
-		SQ_REFRESH_ASSETIDS += ",";
+		SQ_REFRESH_ASSETIDS += "|";
 	}
 	SQ_REFRESH_ASSETIDS += assetids;
 
@@ -108,7 +108,7 @@ function reload_assets(assetids)
 function reload_asset(assetid)
 {
 	if (SQ_REFRESH_ASSETIDS != "") {
-		SQ_REFRESH_ASSETIDS += ",";
+		SQ_REFRESH_ASSETIDS += "|";
 	}
 	SQ_REFRESH_ASSETIDS += assetid;
 

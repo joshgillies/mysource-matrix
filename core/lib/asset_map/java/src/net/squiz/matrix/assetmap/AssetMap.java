@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMap.java,v 1.16 2005/11/04 06:01:08 sdanis Exp $
+* $Id: AssetMap.java,v 1.17 2005/11/09 23:43:02 sdanis Exp $
 *
 */
 
@@ -183,7 +183,7 @@ public class AssetMap extends JApplet implements InitialisationListener, KeyList
 				// split the string for the asset ids and get the refresh worker
 				// to start the refresh operation
 				if (assetidsStr != null && !assetidsStr.equals("")) {
-					String[] assetids = assetidsStr.split(",");
+					String[] assetids = assetidsStr.split("\\|");
 					AssetRefreshWorker worker = new AssetRefreshWorker(assetids, false) {
 						// return a custom message for the wait message
 						protected String getStatusBarWaitMessage() {
