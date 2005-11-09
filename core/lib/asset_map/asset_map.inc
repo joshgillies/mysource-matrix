@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.196 2005/11/07 05:33:29 arailean Exp $
+* $Id: asset_map.inc,v 1.197 2005/11/09 01:12:04 mmcintyre Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.196 $
+* @version $Revision: 1.197 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -670,13 +670,15 @@ class Asset_Map
 		// gather links for shadowed assets - only if asset descends from a bridge
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 		$implements_shadow_assets = false;
+
 		if (strpos($assetid, ':') !== false) {
 			// this is a shadow asset itself, so it will work the same way as a bridge
 			$implements_shadow_assets = true;
-		} else if (isset($asset_info[$assetid]['type_code'])) {
-			 $type_code = $asset_info[$assetid]['type_code'];
-			 $GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-			 $implements_shadow_assets = implements_interface($type_code, 'bridge');
+		} else if (isset($asset_info[$assetid]['type_code']) && !empty($asset_info[$assetid]['type_code'])) {
+			$type_code = $asset_info[$assetid]['type_code'];
+
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+			$implements_shadow_assets = implements_interface($type_code, 'bridge');
 		}
 
 		if ($implements_shadow_assets) {
@@ -724,7 +726,7 @@ class Asset_Map
 		foreach ($result as $asset) {
 			if (!isset($asset['num_kids'])) {
 				$default_kids = 0;
-				if (isset($asset['type_code'])) {
+				if (isset($asset['type_code']) && !empty($asset['type_code'])) {
 					$type_code = $asset['type_code'];
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 					if (implements_interface($type_code, 'bridge')) {
