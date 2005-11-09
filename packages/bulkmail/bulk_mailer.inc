@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.16 2005/11/08 22:37:59 rong Exp $
+* $Id: bulk_mailer.inc,v 1.17 2005/11/09 23:34:46 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -592,10 +592,20 @@ class Bulk_Mailer
 		$GLOBALS['SQ_SYSTEM']->setCurrentUser($user);
 
 		ob_start();
-			// TODO: add design/layout handling
-			// $content_design, $content_layout
-			// dont want any notice/warning here
-			@$page->printFrontend();
+			// generate content based on design and paint layout supplied
+			if ($content_design && $content_layout) {
+				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_PAINT_LAYOUT_ID', $content_layout);
+				$design =& $am->getAsset($content_design);
+				$design->paint($page);
+			} else if ($content_design) {
+				$design =& $am->getAsset($content_design);
+				$design->paint($page);
+			} else if ($content_layout) {
+				$layout =& $am->getAsset($content_layout);
+				$layout->paint($page);
+			} else {
+				@$page->printFrontend();
+			}
 			$content = ob_get_contents();
 		ob_end_clean();
 
@@ -654,10 +664,20 @@ class Bulk_Mailer
 			$page =& $am->getAsset($content_id);
 
 			ob_start();
-				// TODO: add design/layout handling
-				// $content_design, $content_layout
-				// dont want any notice/warning here
-				@$page->printFrontend();
+				// generate content based on design and paint layout supplied
+				if ($content_design && $content_layout) {
+					$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_PAINT_LAYOUT_ID', $content_layout);
+					$design =& $am->getAsset($content_design);
+					$design->paint($page);
+				} else if ($content_design) {
+					$design =& $am->getAsset($content_design);
+					$design->paint($page);
+				} else if ($content_layout) {
+					$layout =& $am->getAsset($content_layout);
+					$layout->paint($page);
+				} else {
+					@$page->printFrontend();
+				}
 				$content = ob_get_contents();
 			ob_end_clean();
 		}
