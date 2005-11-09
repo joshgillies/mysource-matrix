@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.15 2005/05/17 23:40:32 dheppell Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.16 2005/11/09 10:11:56 bcaldwell Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -106,6 +106,40 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		return false;
 
 	}//end processAddCreateType()
+
+
+	/**
+	*
+	*
+	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintPostValidationRedirect(&$asset, &$o, $prefix)
+	{
+		return $this->paintNoticeLinkedAsset($asset, 'login_redirect');
+
+	}//end paintPostValidationRedirect()
+
+
+	/**
+	*
+	*
+	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processPostValidationRedirect(&$asset, &$o, $prefix)
+	{
+		return $this->processNoticeLinkedAsset($asset, 'login_redirect');
+
+	}//end processPostValidationRedirect()
 
 
 	/**

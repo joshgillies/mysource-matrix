@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.33 2005/11/07 01:04:11 tbarrett Exp $
+* $Id: page_account_manager.inc,v 1.34 2005/11/09 10:11:56 bcaldwell Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -122,6 +122,17 @@ class Page_Account_Manager extends Page_Asset_Builder
 		if ((!is_null($current_user) && !is_a($current_user, 'public_user')) && !SQ_IN_LIMBO) {
 			// this person is logged in - so redirect them to limbo where they can edit their details
 			$redirect_url = strip_url(current_url()).'/'.SQ_CONF_LIMBO_SUFFIX.'/?ignore_frames=1';
+
+			if (isset($_REQUEST['SQ_LOGIN_ACCOUNT_MANAGER_STATE']) && $_REQUEST['SQ_LOGIN_ACCOUNT_MANAGER_STATE'] == 'create_login') {
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'login_redirect');
+				if (!empty($link)) {
+					// the manager is configured with a custom redirect location
+					$redirect_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+					$redirect_url = $redirect_asset->getURL();
+
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($redirect_asset);
+				}
+			}
 			?>
 			<script type="text/javascript"><!--
 			//<![CDATA[
@@ -210,6 +221,22 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$this->_printContents();
 
 	}//end printLimbo()
+
+
+	/**
+	* Returns an array of all the permitted link type, the type asset and the cardinality
+	*
+	* @access private
+	* @see Asset::_getAllowLinks()
+	*/
+	function _getAllowedLinks()
+	{
+		$allowed = parent::_getAllowedLinks();
+		$allowed[SQ_LINK_NOTICE]['asset']   = Array('card' => 'M', 'exclusive' => false);
+
+		return $allowed;
+
+	}//end _getAllowedLinks()
 
 
 	/**
@@ -720,6 +747,24 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 	}//end getEditDetailsSuccessKeywordReplacement()
 
+
+	/**
+	* Get login_form keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getLoginFormKeywordReplacement()
+	{
+		ob_start();
+			?>
+			<input type="hidden" name="SQ_LOGIN_ACCOUNT_MANAGER_STATE" value="<?php echo $this->_current_state; ?>" />
+			<?php
+		$output = ob_get_clean();
+
+		return $output.parent::getLoginFormKeywordReplacement();
+
+	}//end getLoginFormKeywordReplacement()
 
 	/**
 	* Get logout_form keyword replacement
