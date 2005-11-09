@@ -18,17 +18,17 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.1 2005/05/31 01:27:50 gsherwood Exp $
+* $Id: import.inc,v 1.1.2.1 2005/11/09 04:30:57 dmckee Exp $
 *
 */
 
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 /**
-* Importing functions, reads an XML file and imports an asset strucutre
+* Importing functions, reads an XML file and imports an asset structure
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -39,8 +39,8 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @param string	$import_file	the location of the XML import file
 *
-* @access public
 * @return array
+* @access public
 */
 function get_import_actions($import_file)
 {
@@ -69,7 +69,7 @@ function get_import_actions($import_file)
 	$import_actions = Array();
 	reset($xml_import_vals);
 	populate_import_action_array($import_actions, $xml_import_vals);
-	
+
 	return $import_actions;
 
 }//end get_import_actions()
@@ -81,8 +81,8 @@ function get_import_actions($import_file)
 * @param array	&$store	an array in which to store the final data
 * @param array	&$vals	the parsed XML data from xml_parse_into_struct()
 *
-* @access public
 * @return void
+* @access public
 */
 function populate_import_action_array(&$store, &$vals)
 {
@@ -94,27 +94,22 @@ function populate_import_action_array(&$store, &$vals)
 		switch ($data['type']) {
 			case 'complete' : // FOUND A LEAF NODE
 
-				// If this node has never been set, just set
-				// it, but if there is already a value there, create
-				// an array to store the values. If the array has
-				// already been created, append a new value to it.
 				if (isset($store[$tag])) {
-					if (sizeof($store[$tag]) == 1) {
-						$temp = $store[$tag];
-						$store[$tag] = Array();
-						$store[$tag][]['_value'] = $temp;
-					}
 					$max = count($store[$tag]);
 					if (isset($data['attributes']) && count($data['attributes'])) {
-						foreach ($data['attributes'] as $n => $v) $store[$tag][$max][$n] = $v;
+						foreach ($data['attributes'] as $n => $v) {
+							$store[$tag][$max][$n] = $v;
+						}
 					}
 					$store[$tag][$max]['_value'] = $value;
 				} else {
 					if (isset($data['attributes']) && count($data['attributes'])) {
-						foreach ($data['attributes'] as $n => $v) $store[$tag][$n] = $v;
-						$store[$tag]['_value'] = $value;
+						foreach ($data['attributes'] as $n => $v) {
+							$store[$tag][0][$n] = $v;
+						}
+						$store[$tag][0]['_value'] = $value;
 					} else {
-						$store[$tag] = $value;
+						$store[$tag][0] = $value;
 					}
 				}
 
@@ -125,28 +120,17 @@ function populate_import_action_array(&$store, &$vals)
 				// call next here or it will never be called
 				next($vals);
 
-				// If this tag has never been set, just set
-				// it, but if there is already a value there, create
-				// an array to store the values. If the array has
-				// already been created, append a new value to it.
-				if (isset($store[$tag]) && sizeof($store[$tag])) {
-					if (!isset($store[$tag][0]) || !is_array($store[$tag][0])) {
-						$temp = $store[$tag];
-						$store[$tag] = Array();
-						$store[$tag][] = $temp;
-					}
-					$max = count($store[$tag]);
-					if (isset($data['attributes']) && count($data['attributes'])) {
-						foreach ($data['attributes'] as $n => $v) $store[$tag][$max][$n] = $v;
-					}
-					populate_import_action_array($store[$tag][$max], $vals);
-				} else {
+				if (!isset($store[$tag]) || !sizeof($store[$tag])) {
 					$store[$tag] = Array();
-					if (isset($data['attributes']) && count($data['attributes'])) {
-						foreach ($data['attributes'] as $n => $v) $store[$tag][$n] = $v;
-					}
-					populate_import_action_array($store[$tag], $vals);
 				}
+
+				$max = count($store[$tag]);
+				if (isset($data['attributes']) && count($data['attributes'])) {
+					foreach ($data['attributes'] as $n => $v) {
+						$store[$tag][$max][$n] = $v;
+					}
+				}
+				populate_import_action_array($store[$tag][$max], $vals);
 
 			break;
 
@@ -154,7 +138,7 @@ function populate_import_action_array(&$store, &$vals)
 
 				// we return from the function here so
 				// we will end up one level up (ie. just after
-				// the build_struct fn call in the open case).
+				// the populate_import_action_array fn call in the open case).
 				return;
 
 			break;
@@ -173,8 +157,8 @@ function populate_import_action_array(&$store, &$vals)
 * @param array	$action		the array of action data
 * @param array	&$outputs	an array in which to store import action outputs
 *
-* @access public
 * @return boolean
+* @access public
 */
 function execute_import_action($action, &$outputs)
 {
@@ -199,15 +183,15 @@ function execute_import_action($action, &$outputs)
 		}
 	}
 
-	$action_class = 'trigger_action_'.$action['action_type'];
+	$action_class = 'trigger_action_'.$action['action_type'][0];
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_class);
 	eval('$output = '.$action_class.'::execute($settings, $state);');
 	if ($output === false) return false;
 
-	$outputs[$action['action_id']] = $output;
+	$outputs[$action['action_id'][0]] = $output;
 	return true;
 
-}//end execute_import_action
+}//end execute_import_action()
 
 
 /**
@@ -220,8 +204,8 @@ function execute_import_action($action, &$outputs)
 * @param string	$attribute	the name of the input attribute to get
 * @param array	$outputs	the output values from previous import actions
 *
-* @access public
 * @return string
+* @access public
 */
 function get_import_action_input_value($action, $attribute, $outputs=Array())
 {
@@ -229,27 +213,42 @@ function get_import_action_input_value($action, $attribute, $outputs=Array())
 	if (!isset($action[$attribute])) {
 		trigger_error('Failed getting '.$attribute.' for '.$action['action_type'].' action "'.$action['action_id'].'" - attribute is not defined for action', E_USER_ERROR);
 	} else {
-		$value = $action[$attribute];
+		$value = $action[$attribute][0];
 	}
 
-	if (substr($value, 0, 9) == 'output://') {
-		$value = substr($value, 9);
-		list($action_id, $output) = explode('.', $value, 2);
-
+	$matches = Array();
+	preg_match_all('|\[\[output://([^\]]+)\]\]|', $value, $matches);
+	foreach ($matches[0] as $key => $match) {
+		list($action_id, $output) = explode('.', $matches[1][$key], 2);
 		if (!isset($outputs[$action_id])) {
 			trigger_error('Failed getting '.$attribute.' for '.$action['action_type'].' action "'.$action['action_id'].'" - attribute references action "'.$action_id.'" that has not yet been run', E_USER_ERROR);
 		}
-
 		if (!isset($outputs[$action_id][$output])) {
 			trigger_error('Failed getting '.$attribute.' for '.$action['action_type'].' action "'.$action['action_id'].'" - attribute references action output "'.$output.'" that was not genereted by action "'.$action_id.'"', E_USER_ERROR);
 		}
-		$value = $outputs[$action_id][$output];
-	} else if (substr($value, 0, 9) == 'system://') {
-		$system_asset = substr($value, 9);
-		$value = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid($system_asset);
-		if (!$value) {
+		$value = str_replace($match, $outputs[$action_id][$output], $value);
+	}
+
+	$matches = Array();
+	preg_match_all('|\[\[system://([^\]]+)\]\]|', $value, $matches);
+	foreach ($matches[0] as $key => $match) {
+		$system_asset = substr($match, 11, -2);
+		$assetid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid($system_asset);
+		if (!$assetid) {
 			trigger_error('Failed getting system asset "'.$system_asset.'"', E_USER_ERROR);
 		}
+		$value = str_replace($match, $assetid, $value);
+	}
+
+	$matches = Array();
+	preg_match_all('|\[\[conf://([^\]]+)\]\](.*)|', $value, $matches);
+	foreach ($matches[1] as $key => $match) {
+		eval('$conf_value = SQ_CONF_'.strtoupper($match).';');
+		if ($match == 'system_root_urls') {
+			$tmp = explode("\n", $conf_value);
+			$conf_value = $tmp[0].$matches[2][0];
+		}
+		$value = $conf_value;
 	}
 
 	return $value;
@@ -264,8 +263,8 @@ function get_import_action_input_value($action, $attribute, $outputs=Array())
 * @param array	$outputs	the output values from the import action
 * @param string	$indent		whitespace indentation to be printed before the tags
 *
-* @access public
 * @return void
+* @access public
 */
 function print_import_action_output_as_xml($action_id, $outputs, $indent='')
 {
@@ -277,6 +276,5 @@ function print_import_action_output_as_xml($action_id, $outputs, $indent='')
 	echo "$indent</output>\n";
 
 }//end print_import_action_output_as_xml()
-
 
 ?>
