@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.23 2005/11/07 05:18:05 mmcintyre Exp $
+* $Id: hipo_job_create_links.inc,v 1.24 2005/11/09 01:00:24 skim Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -475,7 +475,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!isset($this->_running_vars['process_create_links'])) {
-			 $this->_running_vars['process_create_links'] = $this->_running_vars['assets'];
+			$this->_running_vars['process_create_links'] = $this->_running_vars['assets'];
 		}
 
 		$assets = $this->_running_vars['process_create_links'];
@@ -543,6 +543,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			// and determining whether the shadow asset itself should be deleted
 			// NOTE: a shadow asset CANNOT be linked to the Trash, therefore it (or the link) must be deleted
 			if ($moving_to_trash && !is_null($bridge_id)) {
+
 				$link  = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid'], $assetid, 'minor');
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid']);
 
@@ -570,7 +571,6 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 				$link   = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid'], $value['parentid']);
 				$linkid = $GLOBALS['SQ_SYSTEM']->am->moveLink($value['linkid'], $this->_running_vars['to_parent_assetid'], $link['link_type'], $this->_running_vars['to_parent_pos']);
-
 				if (!$linkid) {
 					trigger_localised_error('HIPO0020', E_USER_WARNING, $assetid, $this->_running_vars['to_parent_assetid']);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -912,6 +912,76 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		return true;
 
 	}//end processRefresh()
+
+
+	/**
+	* Performs the duties of this hipo, without showing any output
+	*
+	* @return boolean
+	* @access public
+	*/
+	function freestyle()
+	{
+		$step_data = Array();
+
+		// process confirmation
+		if (!$this->processCreateLinks($step_data, '')) {
+			$this->_addError('creating links failed');
+			return false;
+		}
+
+		// update lookups
+		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$vars = Array('assetids' => Array(key($this->_running_vars['assets'])));
+		$lookup_errors = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
+		if (!empty($lookup_errors)) {
+			$this->_addError('hipo_job_update_lookups failed');
+			return false;
+		}
+
+		// process cascading options
+		$cascading_list = Array(
+							'cascadePermissions',
+							'cascadeMetadata',
+							'cascadeWorkflow',
+						  );
+		foreach ($cascading_list as $name) {
+			$job_type = '';
+			$running_vars = Array();
+			$options = '';
+
+			switch ($name) {
+				case 'cascadePermissions' :
+					if (isset($this->_running_vars['cascade_pe']) && $this->_running_vars['cascade_pe']) {
+						$this->$name($job_type, $running_vars, $options);
+						$errors = $hh->freestyleHipo($job_type, $running_vars);
+					}
+				break;
+				case 'cascadeMetadata' :
+					if (isset($this->_running_vars['cascade_ms']) && $this->_running_vars['cascade_ms']) {
+						$this->$name($job_type, $running_vars, $options);
+						$errors = $hh->freestyleHipo($job_type, $running_vars);
+					}
+				break;
+				case 'cascadeWorkflow' :
+					if (isset($this->_running_vars['cascade_wf']) && $this->_running_vars['cascade_wf']) {
+						$this->$name($job_type, $running_vars, $options);
+						$errors = $hh->freestyleHipo($job_type, $running_vars);
+					}
+				break;
+
+			}//end switch
+
+			if (!empty($errors)) {
+				$this->_addError('error occured during '.$name);
+				return false;
+			}
+
+		}//end foreach
+
+		return true;
+
+	}//end freestyle()
 
 
 }//end class
