@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.394 2005/11/07 05:18:53 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.395 2005/11/09 01:14:03 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.394 $
+* @version $Revision: 1.395 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2161,8 +2161,8 @@ class Asset_Manager extends MySource_Object
 					 FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
 			$where .= ' AND l.'.$side_of_link.'id = '.$db->quote($assetid);
 		} else {
-			$sql .= 'l.majorid, l.type_code as major_type_code, l.minorid, a.type_code as minor_type_code
-					 FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_major l
+			$sql .= 'l.majorid, l.type_code as minor_type_code, l.minorid, a.type_code as major_type_code
+					 FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor l
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.majorid = a.assetid';
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
@@ -3922,6 +3922,7 @@ class Asset_Manager extends MySource_Object
 
 		// get the link, and the old parent
 		$link = $this->getLinkById($linkid);
+
 		if (empty($link)) {
 			trigger_localised_error('SYS1038', E_USER_WARNING, $linkid);
 			return 0;
@@ -5985,14 +5986,14 @@ class Asset_Manager extends MySource_Object
 		// order by a field if required
 		$order_by = '';
 		if (!is_null($sort_by)) {
-			$order_by = 'ORDER BY a.'.$sort_by;
+			$order_by = 'ORDER BY sort_value';
 			$select .= ', a.'.$sort_by.' AS sort_value';
 		}
 
-		$union_select = ' UNION SELECT sl.minorid';
+		$union_select = ' UNION ALL SELECT sl.minorid';
 
-		if ($inc_type_code) $union_select .= ', null ';
-		if (!is_null($sort_by)) $union_select .= ', null ';
+		if ($inc_type_code) $union_select .= ', null AS type_code';
+		if (!is_null($sort_by)) $union_select .= ', null AS sort_value';
 
 		$union_from   = ' FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
 		$union_where  = 'sl.majorid = '.$db->quoteSmart($asset->id);
@@ -6002,10 +6003,10 @@ class Asset_Manager extends MySource_Object
 				'select'		=> '('.$select,
 				'from'			=> $from,
 				'where'			=> $where,
-				'order_by'		=> $order_by,
-				'union_select'	=> ')'.$union_select,
+				'union_select'	=> $union_select,
 				'union_from'	=> $union_from,
 				'union_where'	=> $union_where,
+				'order_by'		=> ')'.$order_by,
 			   );
 
 	}//end generateGetChildrenQuery()
@@ -6092,10 +6093,10 @@ class Asset_Manager extends MySource_Object
 		// order by a field if required
 		$order_by = '';
 		if (!is_null($sort_by)) {
-			$order_by = 'ORDER BY a.'.$sort_by;
+			$order_by = 'ORDER BY sort_value';
 			$select .= ', a.'.$sort_by.' AS sort_value';
 		} else {
-			$order_by = 'ORDER BY t.treeid';
+			$order_by = 'ORDER BY treeid';
 		}
 
 		$group_by = '';
@@ -6114,8 +6115,8 @@ class Asset_Manager extends MySource_Object
 			$where .= $userid_cond.' AND p.granted >= '.$db->quoteSmart($access);
 		}
 
-		$union_select = ' UNION SELECT sl.majorid, null, null';
-		if (!is_null($sort_by)) $union_select .= ', null';
+		$union_select = ' UNION ALL SELECT sl.majorid, null, null as treeid';
+		if (!is_null($sort_by)) $union_select .= ', null as sort_value';
 
 		$union_from   = ' FROM sq_shdw_ast_lnk sl';
 		$union_where  = 'sl.minorid = '.$db->quoteSmart($assetid);
@@ -6125,10 +6126,10 @@ class Asset_Manager extends MySource_Object
 				'select'		=> '('.$select,
 				'from'			=> $from,
 				'where'			=> $where,
-				'order_by'		=> $order_by,
-				'union_select'	=> ')'.$union_select,
+				'union_select'	=> $union_select,
 				'union_from'	=> $union_from,
 				'union_where'	=> $union_where,
+				'order_by'		=> ')'.$order_by,
 			   );
 
 	}//end generateGetParentsQuery()
