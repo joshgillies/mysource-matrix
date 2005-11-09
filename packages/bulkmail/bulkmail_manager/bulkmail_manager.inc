@@ -12,7 +12,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -600,6 +600,18 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 				$errors[] = translate('bm_warning_generate_as_login_error', $user->name, $user->id);
 			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
+		}
+
+		// design does not have public read access
+		if (!empty($details_info['content_design'])) {
+			$public_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
+			$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_design']);
+			$public_read_access = $design->readAccess(Array($public_user->id));
+			if (!$public_read_access) {
+				$errors[] = translate('bm_warning_design_no_public_read_access', $design->name, $design->id);
+			}
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($design);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($public_user);
 		}
 
 		if ($report_error) {
