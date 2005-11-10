@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2005/11/09 10:11:56 bcaldwell Exp $
+* $Id: lang_screen_details.xml,v 1.4 2005/11/10 04:39:27 tbarrett Exp $
 *
 */
 -->
@@ -63,8 +63,8 @@
 			</note>
 		</field>
 		<field>
-			<display_name>Redirect Location</display_name>
-			<note>Users that log in immediatley after sucessfully completing the email validation process will be redirected to the frontend of this asset.</note>
+			<display_name>Post-Login Redirect</display_name>
+			<note>If you specify an asset here, users will be redirected to that asset after logging in via this page.  Otherwise they will be show the contents of the "logged in" bodycopy.  If they are already logged in when they navigate to this page they will always be shown the contents of the "logged in" bodycopy, regardless of this setting.</note>
 			<function_call>
 				<paint_function   name="paintPostValidationRedirect"   />
 				<process_function name="processPostValidationRedirect" />

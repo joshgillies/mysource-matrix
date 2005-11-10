@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.34 2005/11/09 10:11:56 bcaldwell Exp $
+* $Id: page_account_manager.inc,v 1.35 2005/11/10 04:39:27 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -147,8 +147,6 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 	/**
 	* Called by the design to print the body of this asset when in limbo
-	*
-	* Standard page puts its bodycopy up for editing instead of itself
 	*
 	* @return void
 	* @access public
