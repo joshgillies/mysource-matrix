@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.13 2005/11/09 10:10:48 rong Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.14 2005/11/10 05:29:31 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -92,7 +92,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 			$o->closeField();
 		}
 
-		// javascript to set the value of hidden validation form element
+		// javascript to update the value of hidden validation form element
 		?>
 		<script language="JavaScript" type="text/javascript">
 			function validate() {
@@ -147,6 +147,8 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $use_post_office_header ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
 			<?php
 		}
+		$post_office =& $asset->getPostOffice();
+		echo get_asset_tag_line($post_office->id);
 
 		return $write_access;
 
@@ -165,8 +167,6 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	*/
 	function processHeaderDetailsCheckBox(&$asset, &$o, $prefix)
 	{
-		// once live, header details are not changeable
-		if ($asset->status == SQ_STATUS_LIVE) return false;
 		if (!$asset->writeAccess('attributes')) return false;
 
 		// save whether to use post office header details
