@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.46 2005/09/23 05:43:31 lwright Exp $
+* $Id: messaging_service.inc,v 1.47 2005/11/10 23:02:25 ndvries Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -440,7 +440,7 @@ class Messaging_Service extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getMessages($userid, $type=null, $statii=Array(), $messageids=Array(), $from=null, $to=null, $get_user_name=null, $parameters=Array())
+	function getMessages($userid, $type=null, $statii=Array(), $messageids=Array(), $from=null, $to=null, $get_user_name=null, $parameters=Array(), $max_msgs=0)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -505,6 +505,11 @@ class Messaging_Service extends MySource_Object
 		}
 
 		$sql .= ' '.$where.' ORDER BY m.sent DESC';
+
+		if ($max_msgs) {
+			$sql .= ' LIMIT '.$db->quote($max_msgs);
+		}
+
 		$result = $db->getAll($sql);
 		assert_valid_db_result($result);
 
@@ -535,6 +540,21 @@ class Messaging_Service extends MySource_Object
 					$result[$i]['type_code'] = 'user';
 				}
 			}
+
+			// We want to do the asset tagline replacements
+			$body = $result[$i]['body'];
+			$tagline_reg = '|<SQ_MSG_TAGLINE[^>]*?>(.*?)</SQ_MSG_TAGLINE>|';
+			if (preg_match($tagline_reg, $body, $matches)) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[1]);
+				if (is_null($asset)) {
+					$body = preg_replace($tagline_reg, 'AssetID #'.$matches[1], $body);
+				} else {
+					$body = preg_replace($tagline_reg, get_asset_tag_line($asset->id), $body);
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				}
+				$result[$i]['body'] = $body;
+			}
+
 		}
 
 		return $result;

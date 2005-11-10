@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.66 2005/08/15 11:54:06 brobertson Exp $
+* $Id: internal_message.inc,v 1.67 2005/11/10 23:02:25 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -235,9 +235,17 @@ class Internal_Message extends MySource_Object
 		//////////////////////////////
 		if ($log_to_file) {
 			$log_body = preg_replace('|<SQ_MSG_LINK[^>]*?>(.*?)</SQ_MSG_LINK>|', '\\1', $this->body);
+
 			$log_line = '['.$this->type.' - '.$param_string.'] ('.
 				$lm->getInternalMessageSubject($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE).') - '.
 				$lm->getInternalMessageBody($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE);
+
+			$tagline_reg = '|<SQ_MSG_TAGLINE[^>]*?>(.*?)</SQ_MSG_TAGLINE>|';
+			if (preg_match($tagline_reg, $log_line, $matches)) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[1]);
+				$log_line = preg_replace($tagline_reg, $asset->name.' (#'.$asset->id.')', $log_line);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
 
 			log_write($log_line);
 
@@ -347,6 +355,13 @@ class Internal_Message extends MySource_Object
 					$log_body = $lm->getInternalMessageBody($this->type, $this->replacements, $user_locale);
 					$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $log_body);
 
+					$tagline_reg = '|<SQ_MSG_TAGLINE[^>]*?>(.*?)</SQ_MSG_TAGLINE>|';
+					if (preg_match($tagline_reg, $log_body, $matches)) {
+						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[1]);
+						$log_body = preg_replace($tagline_reg, $asset->name.' (#'.$asset->id.')', $log_body);
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+					}
+
 					$ms->queueEmail($this->from, 0, $subject, $log_body);
 					if (!$ms->sending_queue) $ms->sendQueuedEmails();
 
@@ -394,6 +409,13 @@ class Internal_Message extends MySource_Object
 
 						// get the body with a header and a footer attached
 						$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $body);
+
+						$tagline_reg = '|<SQ_MSG_TAGLINE[^>]*?>(.*?)</SQ_MSG_TAGLINE>|';
+						if (preg_match($tagline_reg, $log_body, $matches)) {
+							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[1]);
+							$log_body = preg_replace($tagline_reg, $asset->name.' (#'.$asset->id.')', $log_body);
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+						}
 
 						$ms->queueEmail($this->from, $userid, $subject, $log_body);
 						if (!$ms->sending_queue) $ms->sendQueuedEmails();
