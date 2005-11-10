@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager_edit_fns.inc,v 1.3 2005/11/04 00:00:40 lwright Exp $
+* $Id: page_user_group_manager_edit_fns.inc,v 1.3.2.1 2005/11/10 00:20:02 dmckee Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,9 +55,9 @@ class Page_User_Group_Manager_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for changing the dropdown lists options
 	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object Listing_Engine        &$asset    the asset whose interface we are painting
+	* @param object    Backend_Outputter    &$o        the outputter class
+	* @param string                        $prefix    prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -69,7 +69,7 @@ class Page_User_Group_Manager_Edit_Fns extends Page_Edit_Fns
 			} else {
 				$root_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($asset->attr('root_node')));
 				if (!empty($root_info)) {
-					echo get_asset_tag_line($asset->attr('root_node'));
+					echo $root_info[$asset->attr('root_node')]['name'].' (#'.$asset->attr('root_node').')';
 				} else {
 					echo translate('cms_no_root_selected');
 				}

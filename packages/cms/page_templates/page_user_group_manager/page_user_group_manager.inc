@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager.inc,v 1.5 2005/11/09 23:13:11 dmckee Exp $
+* $Id: page_user_group_manager.inc,v 1.5.2.1 2005/11/10 00:20:01 dmckee Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Darren McKee <dmckee@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -137,7 +137,8 @@ class Page_User_Group_Manager extends Page
 	/**
 	* Process submissions made by the user.
 	*
-	* @return boolean
+	*
+	* @return bool
 	* @access public
 	*/
 	function processForm()
@@ -154,15 +155,16 @@ class Page_User_Group_Manager extends Page
 			}
 		}
 
+		$this->_tmp['selected'] = $current_groups;
+
 		if (isset($_REQUEST['submitted'])) {
 			if (isset($_REQUEST[$this->getPrefix().'_location_selection'])) {
 				$user_groups = $_REQUEST[$this->getPrefix().'_location_selection'];
 			}
 			if ($this->attr('allow_multiple') == false) {
-				//Change the single entry into an array
+				//Change the single entruy into an array
 				$user_groups = Array($user_groups);
 			}
-
 			$this->_tmp['selected'] = $user_groups;
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 				$done = $this->processMinorLinks($GLOBALS['SQ_SYSTEM']->currentUserId(), $current_groups, $user_groups, $link_type);
@@ -179,16 +181,18 @@ class Page_User_Group_Manager extends Page
 	/**
 	* Handle linking this asset under multiple parents
 	*
-	* @param int	$minor_id		asset we are going to link
-	* @param Array	$old_links		The current assets we are linked to
-	* @param Array	$new_links		The new selections we wish to be linked to
-	* @param int	$link_type		type of link to use
+	* @param int    $minor_id            asset we are going to link
+	* @param Array    $existing_ids    The current assets we are linked to
+	* @param Array    $new_ids        The new selections we wish to be linked to
+	* @param int    $link_type        type of link to use
 	*
 	* @return void
 	* @access public
 	*/
 	function processMinorLinks($minor_id, $old_links=Array(), $new_links=Array(), $link_type)
 	{
+		error_log(print_r($old_links, true));
+		error_log(print_r($new_links, true));
 		$cannot_create = Array();
 		$cannot_delete = Array();
 		$to_delete = array_diff($old_links, $new_links);
@@ -233,8 +237,6 @@ class Page_User_Group_Manager extends Page
 	* Takes an associative array of assetids and writes relevant error/success
 	* messages to $this->[errors|messages] for later formatting
 	*
-	*@param	Array	$fail_success
-	*
 	* @return void
 	* @access public
 	*/
@@ -277,14 +279,15 @@ class Page_User_Group_Manager extends Page
 				$full_types += $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type);
 			}
 		}
-		$prefix = $this->getPrefix();
+
 		ob_start();
 			$root_node = $this->attr('root_node');
 			$default = array_get_index($this->_tmp, 'selected', Array());
-			structured_drop_down($prefix.$suffix, $root_node, $full_types, $default, $this->attr('structured_width'), $this->attr('structured_height'), $this->attr('max_depth'), $this->attr('allow_multiple'), $this->attr('seperator'), $this->attr('include_root_node'), '', $this->attr('structured_style'), $this->attr('statuses'));
+			structured_drop_down($this->getPrefix().$suffix, $root_node, $full_types, $default, $this->attr('structured_width'), $this->attr('structured_height'), $this->attr('max_depth'), $this->attr('allow_multiple'), $this->attr('seperator'), $this->attr('include_root_node'), '', $this->attr('structured_style'), $this->attr('statuses'));
 			$selector = ob_get_contents();
 		ob_end_clean();
 		return $selector;
+
 
 	}//end printAvailableLocations()
 
@@ -409,7 +412,33 @@ class Page_User_Group_Manager extends Page
 		$keywords = $bodycopy->getKeywords();
 		$replacements = Array();
 		foreach ($keywords as $name) {
-			$replacements[$name] = $this->getKeywordReplacement($name);
+			//$replacements[$name] = $this->getKeywordReplacement($name);
+			switch($name) {
+				case 'location_picker':
+					$rep = $this->getLocationPickerKeywordReplacement();
+				break;
+				case 'user_name':
+					$rep = $this->getUserNameKeywordReplacement();
+				break;
+				case 'user_short_name':
+					$rep = $this->getUserShortNameKeywordReplacement();
+				break;
+				case 'user_email':
+					$rep = $this->getUserEmailKeywordReplacement();
+				break;
+				case 'commit_button':
+					$rep = $this->getCommitButtonKeywordReplacement();
+				break;
+				case 'error_messages_list':
+					$rep = $this->getErrorMessagesListKeywordReplacement();
+				break;
+				case 'success_messages_list':
+					$rep = $this->getSuccessMessagesListKeywordReplacement();
+				break;
+				default:
+					$rep = '';
+			}
+			$replacements[$name] = $rep;
 		}
 		$bodycopy->setKeywordReplacements($replacements);
 
