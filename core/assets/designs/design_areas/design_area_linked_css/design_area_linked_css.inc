@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css.inc,v 1.11 2005/10/11 02:05:57 tbarrett Exp $
+* $Id: design_area_linked_css.inc,v 1.12 2005/11/11 00:36:49 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 * Allows you to link to a CSS file or customisation from a standard design
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -159,7 +159,7 @@ class Design_Area_Linked_Css extends Design_Area
 
 		// Try and get the cached version of the css file. If it exists, we'll use that url,
 		// if not we'll use the url directly to the css file asset itself.
-		$cached_css = &$linked_css->getStaticCacheId();
+		$cached_css = $linked_css->getStaticCacheId();
 		if ($cached_css) $assetid = $cached_css;
 
 		$tag_type = $this->attr('tag_type');
