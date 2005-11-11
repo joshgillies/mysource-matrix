@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body.inc,v 1.23 2005/10/31 01:31:15 ndvries Exp $
+* $Id: design_area_body.inc,v 1.24 2005/11/11 06:21:25 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,10 +55,13 @@ class Design_Area_Body extends Design_Area
 
 		echo '
 		<','?php
+		$body = \'\';
 		if (SQ_IN_LIMBO) {
-			$ASSET->printLimbo();
+			ob_start();
+				$ASSET->printLimbo();
+				$body = ob_get_contents();
+			ob_end_clean();
 		} else {
-			$body = \'\';
 			if ($ASSET->_is_cacheable) {
 				$cm = &$GLOBALS[\'SQ_SYSTEM\']->am->getSystemAsset(\'cache_manager\');
 				$body = $cm->loadFromCache($ASSET->id, $ASSET->type());
@@ -111,23 +114,6 @@ class Design_Area_Body extends Design_Area
 
 				$body = ob_get_clean();
 			}
-
-			// global keyword replacements
-			if (!empty($body)) {
-				require_once SQ_FUDGE_PATH.\'/general/text.inc\';
-				$keywords = retrieve_keywords_replacements($body);
-				if (!empty($keywords)) {
-					$keyword_replacements = Array();
-					foreach ($keywords as $global_keyword) {
-						$keyword = preg_replace(\'/^globals_user_/\', \'asset_\', $global_keyword);
-						$keyword_replacements[$global_keyword] = $GLOBALS[\'SQ_SYSTEM\']->user->getKeywordReplacement($keyword);
-						if ($keyword_replacements[$global_keyword] == \'%\'.$keyword.\'%\') {
-							$keyword_replacements[$global_keyword] = \'%\'.$global_keyword.\'%\';
-						}
-					}
-					$body = replace_keywords($body, $keyword_replacements);
-				}
-			}
 		';
 
 		switch ($format) {
@@ -154,8 +140,25 @@ class Design_Area_Body extends Design_Area
 		}
 
 		echo '
-			echo $body;
-		}';
+		}
+		// global keyword replacements
+		if (!empty($body)) {
+			require_once SQ_FUDGE_PATH.\'/general/text.inc\';
+			$keywords = retrieve_keywords_replacements($body);
+			if (!empty($keywords)) {
+				$keyword_replacements = Array();
+				foreach ($keywords as $global_keyword) {
+					$keyword = preg_replace(\'/^globals_user_/\', \'asset_\', $global_keyword);
+					$keyword_replacements[$global_keyword] = $GLOBALS[\'SQ_SYSTEM\']->user->getKeywordReplacement($keyword);
+					if ($keyword_replacements[$global_keyword] == \'%\'.$keyword.\'%\') {
+						$keyword_replacements[$global_keyword] = \'%\'.$global_keyword.\'%\';
+					}
+				}
+				$body = replace_keywords($body, $keyword_replacements);
+			}
+		}
+		echo $body;
+		';
 		echo '
 		?','>';
 		return true;
