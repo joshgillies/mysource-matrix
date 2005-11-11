@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.24 2005/11/11 05:47:50 arailean Exp $
+* $Id: thesaurus.inc,v 1.25 2005/11/11 06:06:21 emcdonald Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -2133,28 +2133,6 @@ class Thesaurus extends Asset
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// Get an array of arrays of lineages.
-		// To get the lineages seperated for each treeid we will iterate over an array of treeids
-		$sql = '
-			SELECT
-				tree.treeid
-			FROM
-				sq_lex_thes_lnk_tree tree
-				INNER JOIN sq_lex_thes_term term ON tree.linkid = term.linkid
-			WHERE
-				term.minor = '.$db->quoteSmart($term).'
-			AND
-				tree.thesid = '.$db->quoteSmart($this->id).'
-			';
-		$treeids = $db->getCol($sql);
-		assert_valid_db_result($treeids);
-
-		if (empty($treeids)) return false;
-
-		foreach ($treeids as $key=>$value) {
-			$treeids[$key] = $db->quoteSmart($value);
-		}
-
-
 		$sql = '
 			SELECT
 				child_tree.treeid 		as our_treeid,
@@ -2167,7 +2145,33 @@ class Thesaurus extends Asset
 				sq_lex_thes_term parent_term
 				INNER JOIN sq_lex_thes_lnk_tree parent_tree ON parent_term.linkid = parent_tree.linkid
 			WHERE
-				child_tree.treeid IN ('.implode(',', $treeids).')
+				child_tree.treeid IN (
+					SELECT
+						result_tree.treeid as child_treeid
+					FROM
+						sq_lex_thes_lnk_tree test_tree
+						INNER JOIN sq_lex_thes_term test_term ON test_tree.linkid = test_term.linkid,
+						sq_lex_thes_lnk_tree result_tree
+						INNER JOIN sq_lex_thes_term result_term ON result_tree.linkid = result_term.linkid
+					WHERE
+						result_tree.treeid LIKE (test_tree.treeid || '.$db->quoteSmart('%').')
+						AND
+						test_term.minor = '.$db->quoteSmart($term).'
+						AND
+						result_term.minor = '.$db->quoteSmart($term).'
+						AND
+						test_tree.thesid = '.$db->quoteSmart($this->id).'
+						AND
+						result_tree.thesid = '.$db->quoteSmart($this->id).'
+						AND
+						test_term.thesid = '.$db->quoteSmart($this->id).'
+						AND
+						result_term.thesid = '.$db->quoteSmart($this->id).'
+					GROUP BY
+						result_tree.treeid
+					HAVING
+						count(result_tree.treeid) =1
+				)
 				AND
 				child_tree.treeid LIKE parent_tree.treeid || '.$db->quoteSmart('%').'
 				AND
@@ -2182,6 +2186,7 @@ class Thesaurus extends Asset
 				parent_tree.treeid
 		';
 
+		log_dump($sql);
 		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
 		assert_valid_db_result($result);
 
