@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.35 2005/11/10 04:39:27 tbarrett Exp $
+* $Id: page_account_manager.inc,v 1.36 2005/11/11 06:25:47 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -116,13 +116,12 @@ class Page_Account_Manager extends Page_Asset_Builder
 	*/
 	function printBody()
 	{
-		parent::printBody();
-
 		$current_user = &$GLOBALS['SQ_SYSTEM']->user;
 		if ((!is_null($current_user) && !is_a($current_user, 'public_user')) && !SQ_IN_LIMBO) {
 			// this person is logged in - so redirect them to limbo where they can edit their details
-			$redirect_url = strip_url(current_url()).'/'.SQ_CONF_LIMBO_SUFFIX.'/?ignore_frames=1';
+			$redirect_url = strip_url($this->getURL()).'/'.SQ_CONF_LIMBO_SUFFIX.'/?ignore_frames=1';
 
+			// BUT if they have just logged in via this page we might want to redirect them somewhere else...
 			if (isset($_REQUEST['SQ_LOGIN_ACCOUNT_MANAGER_STATE']) && $_REQUEST['SQ_LOGIN_ACCOUNT_MANAGER_STATE'] == 'create_login') {
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'login_redirect');
 				if (!empty($link)) {
@@ -141,7 +140,10 @@ class Page_Account_Manager extends Page_Asset_Builder
 			</script>
 			<?php
 			echo translate('cms_account_manager_login_redirect_link', $redirect_url);
+		} else {
+			parent::printBody();
 		}
+
 	}//end printBody()
 
 
