@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.23 2005/11/08 00:57:00 arailean Exp $
+* $Id: thesaurus.inc,v 1.24 2005/11/11 05:47:50 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -458,16 +458,33 @@ class Thesaurus extends Asset
 		} else {
 			$sql = '
 				SELECT
-					tree.treeid
+					parent_tree.treeid
 				FROM
-					sq_lex_thes_lnk_tree tree
-					INNER JOIN sq_lex_thes_term term ON tree.linkid = term.linkid
+					sq_lex_thes_lnk_tree parent_tree
+					INNER JOIN sq_lex_thes_term parent_term ON parent_tree.linkid = parent_term.linkid,
+					sq_lex_thes_lnk_tree test_tree
+					INNER JOIN sq_lex_thes_term test_term ON test_tree.linkid = test_term.linkid
 				WHERE
-					term.minor = '.$db->quoteSmart($parent).'
+					parent_tree.treeid LIKE (test_tree.treeid || '.$db->quoteSmart('%').')
+
 					AND
-					tree.thesid = '.$db->quoteSmart($this->id).'
+					parent_term.minor = '.$db->quoteSmart($parent).'
 					AND
-					term.thesid = '.$db->quoteSmart($this->id).'
+					test_term.minor = '.$db->quoteSmart($parent).'
+
+					AND
+					test_term.thesid = '.$db->quoteSmart($this->id).'
+					AND
+					parent_term.thesid = '.$db->quoteSmart($this->id).'
+					AND
+					parent_tree.thesid = '.$db->quoteSmart($this->id).'
+					AND
+					test_tree.thesid = '.$db->quoteSmart($this->id).'
+
+				GROUP BY
+					parent_tree.treeid
+				HAVING
+					count(parent_tree.treeid) = 1
 			';
 
 			$sql = $db->modifyLimitQuery($sql, 0, 1);
@@ -486,9 +503,7 @@ class Thesaurus extends Asset
 			FROM
 				sq_lex_thes_lnk_tree
 			WHERE
-				treeid LIKE '.$db->quote($parents_treeid.'%').'
-				AND
-				treeid > '.$db->quote($parents_treeid).'
+				treeid LIKE '.$db->quote($parents_treeid.'_%').'
 				AND
 				LENGTH(treeid) = '.(strlen($parents_treeid) + SQ_CONF_ASSET_TREE_SIZE).'
 				AND
@@ -511,9 +526,7 @@ class Thesaurus extends Asset
 				FROM
 					sq_lex_thes_lnk_tree
 				WHERE
-					treeid LIKE '.$db->quote($parents_treeid.'%').'
-					AND
-					treeid > '.$db->quote($parents_treeid).'
+					treeid LIKE '.$db->quote($parents_treeid.'_%').'
 					AND
 					LENGTH(treeid) = '.(strlen($parents_treeid) + SQ_CONF_ASSET_TREE_SIZE).'
 					AND
@@ -634,13 +647,30 @@ class Thesaurus extends Asset
 					'.$db->quoteSmart($this->id).' as thesid
 				FROM
 					sq_lex_thes_lnk_tree parent_tree
-					INNER JOIN sq_lex_thes_term parent_term ON parent_tree.linkid = parent_term.linkid
+					INNER JOIN sq_lex_thes_term parent_term ON parent_tree.linkid = parent_term.linkid,
+					sq_lex_thes_lnk_tree test_tree
+					INNER JOIN sq_lex_thes_term test_term ON test_tree.linkid = test_term.linkid
 				WHERE
+					parent_tree.treeid LIKE (test_tree.treeid || '.$db->quoteSmart('%').')
+
+					AND
 					parent_term.minor = '.$db->quoteSmart($parent).'
+					AND
+					test_term.minor = '.$db->quoteSmart($parent).'
+
+					AND
+					test_term.thesid = '.$db->quoteSmart($this->id).'
 					AND
 					parent_term.thesid = '.$db->quoteSmart($this->id).'
 					AND
 					parent_tree.thesid = '.$db->quoteSmart($this->id).'
+					AND
+					test_tree.thesid = '.$db->quoteSmart($this->id).'
+
+				GROUP BY
+					parent_tree.treeid
+				HAVING
+					count(parent_tree.treeid) = 1
 			';
 
 			$result = $db->query($sql);
@@ -659,86 +689,99 @@ class Thesaurus extends Asset
 				linkid = '.$db->quoteSmart($linkid).'
 				AND
 				thesid = '.$db->quoteSmart($this->id).'
+			ORDER BY
+				treeid
 		';
 		$new_treeids = $db->getCol($sql);
 		assert_valid_db_result($new_treeids);
 
 
-		// get all the outgoing treeids this term has
-		$sql = '
-			SELECT
-				tree.treeid
-			FROM
-				sq_lex_thes_lnk_tree tree
-				INNER JOIN sq_lex_thes_term term ON tree.linkid = term.linkid
-			WHERE
-				term.minor = '.$db->quote($term).'
-				AND
-				tree.linkid <> '.$db->quoteSmart($linkid).'
-				AND
-				tree.thesid = '.$db->quoteSmart($this->id).'
-				AND
-				term.thesid = '.$db->quoteSmart($this->id).'
-		';
-
-		$minor_treeids = $db->getCol($sql);
-		assert_valid_db_result($minor_treeids);
-
 		// now we propagate all new incoming tree ids to each outgoing tree branch
-		// we cannot do this in one query because we have check for infinite loops and prune some tree branches
+		// we cannot do this in one query because we have to check for loops and prune some tree branches
 		// this section makes sure the above conditions for the link tree always hold
-		if (!empty($minor_treeids)) {
-			foreach ($minor_treeids as $minor_treeid) {
-				foreach ($new_treeids as $new_treeid) {
-					$sql = '
-						INSERT INTO
-							sq_lex_thes_lnk_tree
-							(
-								treeid,
-								linkid,
-								thesid
-							)
-						SELECT
-							'.$db->quoteSmart($new_treeid).' || SUBSTR(tree.treeid, '.$db->quoteSmart(strlen($minor_treeid) + 1).'),
-							tree.linkid,
-							'.$db->quoteSmart($this->id).'
+		foreach ($new_treeids as $new_treeid) {
+
+			$sql = '
+				INSERT INTO
+					sq_lex_thes_lnk_tree
+					(
+						treeid,
+						linkid,
+						thesid
+					)
+				SELECT DISTINCT
+					'.$db->quoteSmart($new_treeid).' || SUBSTR(prop_tree.treeid, LENGTH(tree.treeid) +1 ),
+					prop_tree.linkid,
+					'.$db->quoteSmart($this->id).'
+				FROM
+					sq_lex_thes_lnk_tree tree
+					INNER JOIN sq_lex_thes_term term ON tree.linkid = term.linkid,
+					sq_lex_thes_lnk_tree prop_tree
+
+				WHERE
+				-- Get the tree we are about to propagate to and their siblings
+					term.minor = '.$db->quoteSmart($term).'
+					AND
+					tree.linkid <> '.$db->quoteSmart($linkid).'
+					AND
+					prop_tree.treeid LIKE (tree.treeid || '.$db->quoteSmart('_%').')
+					AND
+					prop_tree.treeid NOT IN
+					(
+						SELECT DISTINCT
+							cut_tree.treeid
+
 						FROM
 							sq_lex_thes_lnk_tree tree
+							INNER JOIN sq_lex_thes_term term ON tree.linkid = term.linkid,
+
+							sq_lex_thes_lnk_tree prop_tree
+							INNER JOIN sq_lex_thes_lnk_tree sibling_tree ON prop_tree.linkid = sibling_tree.linkid,
+
+							sq_lex_thes_lnk_tree cut_tree
+
 						WHERE
-							tree.treeid LIKE '.$db->quoteSmart($minor_treeid.'%').'
+							-- Get the tree we are about to propagate to and their siblings
+							term.minor = '.$db->quoteSmart($term).'
 							AND
-							tree.treeid > '.$db->quoteSmart($minor_treeid).'
+							tree.linkid <> '.$db->quoteSmart($linkid).'
 							AND
-							tree.linkid NOT IN
-							(
-								SELECT DISTINCT
-									result_tree.linkid
-								FROM
-									sq_lex_thes_lnk_tree stop_tree
-									INNER JOIN sq_lex_thes_lnk_tree stop_parent_tree ON stop_parent_tree.linkid = stop_tree.linkid,
-									sq_lex_thes_lnk_tree result_tree
-								WHERE
-									stop_tree.treeid LIKE '.$db->quoteSmart($minor_treeid.'%').'
-									AND
-									stop_tree.treeid > '.$db->quoteSmart($minor_treeid).'
-									AND
-									'.$db->quoteSmart($new_treeid).' LIKE (stop_parent_tree.treeid || '.$db->quoteSmart('%').')
-									AND
-									result_tree.treeid LIKE (stop_parent_tree.treeid || '.$db->quoteSmart('%').')
-									AND
-									stop_tree.thesid = '.$db->quoteSmart($this->id).'
-									AND
-									stop_parent_tree.thesid = '.$db->quoteSmart($this->id).'
-									AND
-									result_tree.thesid = '.$db->quoteSmart($this->id).'
-							)
+							prop_tree.treeid LIKE (tree.treeid || '.$db->quoteSmart('_%').')
+
+							-- Get the copy of the propagate tree we are about to cut
 							AND
-							tree.thesid = '.$db->quoteSmart($this->id).'
-					';
-					$result = $db->query($sql);
-					assert_valid_db_result($result);
-				}
-			}
+							cut_tree.treeid LIKE (tree.treeid || '.$db->quoteSmart('_%').')
+
+							-- Find a prune tree in one of the siblings of the propagate tree
+							-- This is a treeid that is a subset of the treeid that we are trying to propagate
+							AND
+							'.$db->quoteSmart($new_treeid).' LIKE (SUBSTR(sibling_tree.treeid, 1, LENGTH(sibling_tree.treeid) - '.$db->quoteSmart(SQ_CONF_ASSET_TREE_SIZE).') || '.$db->quoteSmart('%').')
+
+							-- Everything thats below the parent of the propagate tree that has a sibling which is a subset
+							-- of the new tree is to be cut out of propagation
+							AND
+							cut_tree.treeid LIKE (SUBSTR(prop_tree.treeid, 1, LENGTH(prop_tree.treeid) - '.$db->quoteSmart(SQ_CONF_ASSET_TREE_SIZE).') || '.$db->quoteSmart('_%').')
+
+							AND
+							tree.thesid 		= '.$db->quoteSmart($this->id).'
+							AND
+							term.thesid 		= '.$db->quoteSmart($this->id).'
+							AND
+							prop_tree.thesid 	= '.$db->quoteSmart($this->id).'
+							AND
+							sibling_tree.thesid = '.$db->quoteSmart($this->id).'
+							AND
+							cut_tree.thesid 	= '.$db->quoteSmart($this->id).'
+					)
+					AND
+					tree.thesid 			= '.$db->quoteSmart($this->id).'
+					AND
+					term.thesid 			= '.$db->quoteSmart($this->id).'
+					AND
+					prop_tree.thesid 		= '.$db->quoteSmart($this->id).'
+			';
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
