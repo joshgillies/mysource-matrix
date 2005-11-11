@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.79 2005/11/01 01:07:18 dheppell Exp $
+* $Id: search_manager.inc,v 1.80 2005/11/11 02:03:08 bcaldwell Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2126,7 +2126,6 @@ class Search_Manager extends Asset
 		$query_comps['select'][] = 'distinct a.assetid';
 		$query_comps['select'][] = '1 as weight';
 		$search_sql = implode_sql($query_comps);
-
 		$search_results = Array();
 		if (isset($search_info['limit'])) {
 			// limiting the search results
@@ -2139,6 +2138,25 @@ class Search_Manager extends Asset
 		} else {
 			$search_results = $db->getAssoc($search_sql);
 			assert_valid_db_result($search_results);
+		}
+
+		// get results from any shadow asset root nodes
+		$root_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($search_info['roots']);
+
+		foreach ($root_info as $assetid => $root) {
+			$shadow_results = Array();
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($root['type_code']);
+
+			// assert class implements bridge and contains method
+			if (implements_interface($root['type_code'], 'bridge') && is_callable(Array($root['type_code'], 'processBasicSearch'))) {
+				$shadow_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$shadow_results += $shadow_asset->processBasicSearch($search_info);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($shadow_asset);
+			}
+		}
+
+		if (!empty($shadow_results)) {
+			$search_results += $shadow_results;
 		}
 
 		return $search_results;
