@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_edit_fns.inc,v 1.12 2005/10/11 02:07:49 tbarrett Exp $
+* $Id: design_css_edit_fns.inc,v 1.13 2005/11/11 02:26:51 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -238,7 +238,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 	*/
 	function paintCurrentCustomisations(&$asset, &$o, $prefix)
 	{
-		$customisation_links = &$GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_css_customisation', true, 'major', 'customisation');
+		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_css_customisation', true, 'major', 'customisation');
 		if ($customisation_links) {
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 			foreach ($customisation_links as $link) {
