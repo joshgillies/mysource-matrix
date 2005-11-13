@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.25 2005/11/11 06:06:21 emcdonald Exp $
+* $Id: thesaurus.inc,v 1.26 2005/11/13 23:39:40 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -2186,7 +2186,6 @@ class Thesaurus extends Asset
 				parent_tree.treeid
 		';
 
-		log_dump($sql);
 		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
 		assert_valid_db_result($result);
 
