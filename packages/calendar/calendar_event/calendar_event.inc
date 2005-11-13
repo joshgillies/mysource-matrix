@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.54 2005/11/11 03:02:11 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.55 2005/11/13 23:27:16 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -756,15 +756,59 @@ class Calendar_Event extends Asset
 	}//end cacheCalendarData()
 
 
-	function getKeywordReplacement($keyword) {
-		$this->_tmp['asset_keywords'] = null;
-		if (is_null($this->_tmp['asset_keywords'])) {
-			$this->_tmp['asset_keywords'] = $this->getAssetKeywords();
+	/**
+	* Get bodycopy keyword replacement
+	*
+	* Provides a mechanism for providing keyword replacement functions by
+	* looking up the function named 'getKeywordNameKeywordReplacement'
+	* so an asset wishing to add support for 'best_ever' custom keyword
+	* should implement a function getBestEverKeywordReplacement()
+	* which returns a replacement string
+	*
+	* @param string	$keyword	Keyword to find a replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function getKeywordReplacement($keyword) 
+	{
+		switch ($keyword) {
+			case 'event_start_date':
+				return iso8601_ts($this->attr('start_date'));
+			case 'event_end_date':
+				return date('jS M Y', iso8601_ts($this->attr('end_date')));
+			case 'event_start_datetime':
+				return $this->getFriendlyStart();
+			case 'event_end_datetime':
+				return $this->getFriendlyEnd();
+			case 'event_start_time_12h':
+				return date('h:i a', iso8601_ts($this->attr('start_date')));
+			case 'event_end_time_12h':
+				return date('h:i a', iso8601_ts($this->attr('end_date')));
+			case 'event_start_time_24h':
+				return date('H:i', iso8601_ts($this->attr('start_date')));
+			case 'event_end_time_24h':
+				return date('H:i', iso8601_ts($this->attr('end_date')));
+			case 'event_start_time_ical':
+				return date('Ymd\THis', iso8601_ts($this->attr('start_date')));
+			case 'event_end_time_ical':
+				return date('Ymd\THis', iso8601_ts($this->attr('end_date')));
+			case 'event_datetime_summary':
+				return $this->getFriendlyDatesAndTimes();
+			case 'event_duration':
+				// give useful info if no duration (single point in time) - easy_time_total returns empty string
+				$total_time = easy_time_total($this->getDuration(), true);
+				if (empty($total_time)) $total_time = 'N/A';
+				return $total_time;
+			case 'edit_link':
+				return $this->writeAccess('') ? '<a href="'.replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id)).'">'.translate('cal_event_edit_link_text').'</a>' : '';
+			case 'delete_link':
+				return $this->_getDeleteLink();
+			default:
+				return parent::getKeywordReplacement($keyword);
 		}
-		$kw_data = array_get_index($this->_tmp['asset_keywords'], $keyword, Array('value' => ''));
-		return $kw_data['value'];
-	}
 
+	}//end getKeywordReplacement()
 
 }//end class
 

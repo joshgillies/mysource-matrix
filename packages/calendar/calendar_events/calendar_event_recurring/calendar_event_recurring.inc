@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.65 2005/06/27 05:44:14 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.66 2005/11/13 23:27:16 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -756,72 +756,68 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 
 	/**
-	* Return the keywords with their replacements
+	* Get bodycopy keyword replacement
 	*
-	* The return value is in the form:
-	* <pre>
-	* Array(
-	*     'name' => Array (
-	*          'value' => 'page',
-	*          'description' => 'the asset name',
-	*     ),
-	* )
-	* </pre>
+	* Provides a mechanism for providing keyword replacement functions by
+	* looking up the function named 'getKeywordNameKeywordReplacement'
+	* so an asset wishing to add support for 'best_ever' custom keyword
+	* should implement a function getBestEverKeywordReplacement()
+	* which returns a replacement string
 	*
-	* @param boolean $descriptions if TRUE descriptions will be included in the array
+	* @param string	$keyword	Keyword to find a replacement for
 	*
+	* @return string
 	* @access public
-	* @return Array(mixed)
 	*/
-	function getAssetKeywords($descriptions=false)
+	function getKeywordReplacement($keyword) 
 	{
-		$keywords = parent::getAssetKeywords($descriptions);
-		$keywords['edit_link']['value'] = str_replace(translate('cal_event_edit_link_text'), translate('cal_event_recurring_edit_link_text'), $keywords['edit_link']['value']);
-		$keywords['event_frequency'] = Array('value'=> $this->getFriendlyFrequency());
-		$keywords['event_ical_freqency'] = Array('value' => $this->getiCalFrequency());
-		$keywords['event_ical_exceptions'] = Array('value' => $this->getiCalExceptions());
-		unset($keywords['asset_attribute_frequency']);
-		$write_access = $this->writeAccess('');
-
-		if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
-			if ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE'])) {
-				$exception_type = ($exception_link['minor_type_code'] == 'calendar_event_cancellation') ? 'cancelled' : 'modified';
-				echo '<p>'.translate('cal_event_recur_'.$exception_type.'_notice', replace_query_string_vars(Array('SQ_CALENDAR_EVENT_ACTION'=>null, 'SQ_CALENDAR_EVENT_ID'=>$exception_link['minorid'])), $exception_link['minorid']).'</p>';
-				$keywords['instance_start_datetime'] = Array('value'=>'');
-				$keywords['instance_end_datetime'] = Array('value'=>'');
-				$keywords['cancel_link'] = Array('value'=>'');
-				$keywords['modify_link'] = Array('value'=>'');
-			} else {
-				// we are showing a normal instance of this event
-				$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
-				$keywords['instance_start_datetime'] = Array('value'=>$instance_dates['start']);
-				$keywords['instance_end_datetime'] = Array('value'=>$instance_dates['end']);
-				$keywords['cancel_link'] = Array('value'=>($write_access ? $this->_getCancelLink() : translate('cal_event_cancel_link_default')));
-				$keywords['modify_link'] = Array('value'=>($write_access ? $this->_getModifyLink() : translate('cal_event_modify_link_default')));
-			}
-		} else {
-			// somehow we're just viewing the event by itself, so set the instance-specific
-			// keywords to blank for tidiness's sake
-			$keywords['instance_start_datetime'] = Array('value'=>'');
-			$keywords['instance_end_datetime'] = Array('value'=>'');
-			$keywords['cancel_link'] = Array('value'=>'');
-			$keywords['modify_link'] = Array('value'=>'');
+		switch ($keyword) {
+			case 'edit_link':
+				return $this->writeAccess('') ? '<a href="'.replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id)).'">'.translate('cal_event_recurring_edit_link_text').'</a>' : '';
+			case 'event_frequency':
+				return $this->getFriendlyFrequency();
+			case 'event_ical_freqency':
+				return $this->getiCalFrequency();
+			case 'event_ical_exceptions':
+				return $this->getiCalExceptions();
+			default:
+				if (in_array($keyword, Array('instance_start_datetime', 'instance_end_datetime', 'cancel_link', 'modify_link'))) {
+					$write_access = $this->writeAccess('');
+					if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
+						if ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE'])) {
+							// exception today
+							/*
+							$exception_type = ($exception_link['minor_type_code'] == 'calendar_event_cancellation') ? 'cancelled' : 'modified';
+							echo '<p>'.translate('cal_event_recur_'.$exception_type.'_notice', replace_query_string_vars(Array('SQ_CALENDAR_EVENT_ACTION'=>null, 'SQ_CALENDAR_EVENT_ID'=>$exception_link['minorid'])), $exception_link['minorid']).'</p>';
+							$keywords['instance_start_datetime'] = Array('value'=>'');
+							$keywords['instance_end_datetime'] = Array('value'=>'');
+							$keywords['cancel_link'] = Array('value'=>'');
+							$keywords['modify_link'] = Array('value'=>'');
+							*/
+							return '';
+						} else {
+							// we are showing a normal instance of this event
+							$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
+							switch ($keywords) {
+								case 'instance_start_datetime':
+									return $instance_dates['start'];
+								case 'instance_end_datetime':
+									return $instance_dates['end'];
+								case 'cancel_link':
+									return $write_access ? $this->_getCancelLink() : translate('cal_event_cancel_link_default');
+								case 'modify_link':
+									return $write_access ? $this->_getModifyLink() : translate('cal_event_modify_link_default');
+							}
+						}
+					} else {
+						// somehow we're just viewing the event by itself, so set the instance-specific
+						// keywords to blank for tidiness's sake
+						return '';
+					}
+				} else {
+					return parent::getKeywordReplacement($keyword);
+				}
 		}
-
-		if ($descriptions) {
-			$keywords['event_frequency']['description']         = translate('cal_event_keyword_event_frequency');
-			$keywords['event_ical_frequency']['description']    = translate('cal_event_keyword_event_ical_frequency');
-			$keywords['event_ical_exceptions']['description']	= translate('cal_event_keyword_event_ical_exceptions');
-			$keywords['cancel_link']['description']             = translate('cal_event_keyword_cancel_link');
-			$keywords['modify_link']['description']             = translate('cal_event_keyword_modify_link');
-			$keywords['instance_start_datetime']['description'] = translate('cal_event_keyword_instance_start_datetime');
-			$keywords['instance_end_datetime']['description']   = translate('cal_event_keyword_instance_end_datetime');
-
-			// change the descriptions of Calendar Event's attributes just to make it clear
-			$keywords['event_start_datetime']['description'] = translate('cal_event_keyword_event_start_datetime_recur');
-			$keywords['event_end_datetime']['description'] = translate('cal_event_keyword_event_end_datetime_recur');
-		}
-		return $keywords;
 
 	}//end getAssetKeywords()
 
@@ -841,14 +837,20 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*/
 	function getExceptionLink($date, $id=null)
 	{
-		if (is_null($id)) $id = $this->id;
-		$child_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($id, SQ_SC_LINK_ALL, Array('calendar_event_cancellation', 'calendar_event_modification'), false, 'major', $date);
+		if (is_null($id) && isset($this->_tmp['exception_link'])) {
+			return $this->_tmp['exception_link'];
+		}
+		$search_id = is_null($id) ? $this->id : $id;
+		$child_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($search_id, SQ_SC_LINK_ALL, Array('calendar_event_cancellation', 'calendar_event_modification'), false, 'major', $date);
 		$res =& current($child_links);
 		if ($res['minor_type_code'] == 'calendar_event_cancellation') {
 			$replacement_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($res['minorid'], SQ_SC_LINK_ALL, 'calendar_event_single', false);
 			if (!empty($replacement_links)) {
 				$res = current($replacement_links);
 			}
+		}
+		if (is_null($id)) {
+			$this->_tmp['exception_link'] = $res;
 		}
 		return $res;
 
