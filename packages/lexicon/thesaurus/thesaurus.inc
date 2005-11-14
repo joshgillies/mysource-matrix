@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.26 2005/11/13 23:39:40 arailean Exp $
+* $Id: thesaurus.inc,v 1.27 2005/11/14 04:16:50 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -449,8 +449,8 @@ class Thesaurus extends Asset
 		// Thesaurus Tree Ids conditions:
 		// - Every link has at least one tree id
 		// - Every node has as many outgoing as incoming treeids
-		//		MINUS the number of those incoming have another incoming as their subset
-		// - A node cannot have an outgoing tree id that is has another outgoing treeid as its subset (loop prevention)
+		//		MINUS the number of those incoming, which have another incoming as their subset
+		// - A node cannot have an outgoing tree id that has another outgoing treeid as its subset (loop prevention)
 
 		// Get one of the treeids that a parent term has
 		if (is_null($parent)) {
@@ -468,18 +468,18 @@ class Thesaurus extends Asset
 					parent_tree.treeid LIKE (test_tree.treeid || '.$db->quoteSmart('%').')
 
 					AND
-					parent_term.minor = '.$db->quoteSmart($parent).'
+					parent_term.minor	= '.$db->quoteSmart($parent).'
 					AND
-					test_term.minor = '.$db->quoteSmart($parent).'
+					test_term.minor		= '.$db->quoteSmart($parent).'
 
 					AND
-					test_term.thesid = '.$db->quoteSmart($this->id).'
+					test_term.thesid	= '.$db->quoteSmart($this->id).'
 					AND
-					parent_term.thesid = '.$db->quoteSmart($this->id).'
+					parent_term.thesid	= '.$db->quoteSmart($this->id).'
 					AND
-					parent_tree.thesid = '.$db->quoteSmart($this->id).'
+					parent_tree.thesid	= '.$db->quoteSmart($this->id).'
 					AND
-					test_tree.thesid = '.$db->quoteSmart($this->id).'
+					test_tree.thesid	= '.$db->quoteSmart($this->id).'
 
 				GROUP BY
 					parent_tree.treeid
@@ -591,11 +591,11 @@ class Thesaurus extends Asset
 								sq_lex_thes_lnk_tree tree
 								INNER JOIN sq_lex_thes_term term ON tree.linkid = term.linkid
 							WHERE
-								term.minor = '.$db->quoteSmart($parent).'
+								term.minor	= '.$db->quoteSmart($parent).'
 								AND
-								tree.thesid = '.$db->quoteSmart($this->id).'
+								tree.thesid	= '.$db->quoteSmart($this->id).'
 								AND
-								term.thesid = '.$db->quoteSmart($this->id).'
+								term.thesid	= '.$db->quoteSmart($this->id).'
 						)
 						AND
 						thesid = '.$db->quoteSmart($this->id).'
@@ -654,18 +654,18 @@ class Thesaurus extends Asset
 					parent_tree.treeid LIKE (test_tree.treeid || '.$db->quoteSmart('%').')
 
 					AND
-					parent_term.minor = '.$db->quoteSmart($parent).'
+					parent_term.minor	= '.$db->quoteSmart($parent).'
 					AND
-					test_term.minor = '.$db->quoteSmart($parent).'
+					test_term.minor		= '.$db->quoteSmart($parent).'
 
 					AND
-					test_term.thesid = '.$db->quoteSmart($this->id).'
+					test_term.thesid	= '.$db->quoteSmart($this->id).'
 					AND
-					parent_term.thesid = '.$db->quoteSmart($this->id).'
+					parent_term.thesid	= '.$db->quoteSmart($this->id).'
 					AND
-					parent_tree.thesid = '.$db->quoteSmart($this->id).'
+					parent_tree.thesid	= '.$db->quoteSmart($this->id).'
 					AND
-					test_tree.thesid = '.$db->quoteSmart($this->id).'
+					test_tree.thesid	= '.$db->quoteSmart($this->id).'
 
 				GROUP BY
 					parent_tree.treeid
@@ -719,7 +719,7 @@ class Thesaurus extends Asset
 					sq_lex_thes_lnk_tree prop_tree
 
 				WHERE
-				-- Get the tree we are about to propagate to and their siblings
+				-- Get the tree we are about to propagate to and siblings on that tree
 					term.minor = '.$db->quoteSmart($term).'
 					AND
 					tree.linkid <> '.$db->quoteSmart($linkid).'
@@ -769,16 +769,16 @@ class Thesaurus extends Asset
 							AND
 							prop_tree.thesid 	= '.$db->quoteSmart($this->id).'
 							AND
-							sibling_tree.thesid = '.$db->quoteSmart($this->id).'
+							sibling_tree.thesid	= '.$db->quoteSmart($this->id).'
 							AND
 							cut_tree.thesid 	= '.$db->quoteSmart($this->id).'
 					)
 					AND
-					tree.thesid 			= '.$db->quoteSmart($this->id).'
+					tree.thesid 		= '.$db->quoteSmart($this->id).'
 					AND
-					term.thesid 			= '.$db->quoteSmart($this->id).'
+					term.thesid 		= '.$db->quoteSmart($this->id).'
 					AND
-					prop_tree.thesid 		= '.$db->quoteSmart($this->id).'
+					prop_tree.thesid 	= '.$db->quoteSmart($this->id).'
 			';
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
