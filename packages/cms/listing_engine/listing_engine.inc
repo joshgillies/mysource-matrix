@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.116 2005/11/07 03:09:24 lwright Exp $
+* $Id: listing_engine.inc,v 1.117 2005/11/14 00:54:38 bcaldwell Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.116 $
+* @version $Revision: 1.117 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1658,18 +1658,15 @@ class Listing_Engine extends Page
 			} else {
 
 				$parent = null;
-				//get the Ancestors only when the asset is not a shadow assset
-				if (!$is_shadow) {
-					$parents = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
+				$parents = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
 
-					if (($type_key = array_search($type_code, $customised)) === false) {
-						foreach ($parents as $parent) {
-							// any of parent in the custom format?
-							if (array_search($parent, $customised) !== false) {
-								$this->_tmp['type_formats'][$type_code] = $parent;
-								$type_key = array_search($this->_tmp['type_formats'][$type_code], $customised);
-								$type_code = $parent;
-							}
+				if (($type_key = array_search($type_code, $customised)) === false) {
+					foreach ($parents as $parent) {
+						// any of parent in the custom format?
+						if (array_search($parent, $customised) !== false) {
+							$this->_tmp['type_formats'][$type_code] = $parent;
+							$type_key = array_search($this->_tmp['type_formats'][$type_code], $customised);
+							$type_code = $parent;
 						}
 					}
 				}
