@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.32 2005/07/22 07:15:53 dmckee Exp $
+* $Id: insert_image.php,v 1.33 2005/11/14 06:04:51 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert Image Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 */
 
@@ -122,16 +122,21 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 					while (ext.charAt(0) != "." && i > 0) ext = path.substring(i--);
 					imageInfo['alt'] = path.substring(0, ++i);
 				}
-
-				document.getElementById("f_alt").value    = imageInfo['alt'];
-				document.getElementById("f_width").value  = imageInfo['width'];
-				document.getElementById("f_height").value = imageInfo['height'];
+				if (document.getElementById("f_imageid[assetid]").value.indexOf(':') == -1) {
+					document.getElementById("f_alt").value    = imageInfo['alt'];
+					document.getElementById("f_width").value  = imageInfo['width'];
+					document.getElementById("f_height").value = imageInfo['height'];
+				}
 				newImg(document.getElementById('image_container'), '<?php echo sq_web_path('root_url'); ?>' + '/?a=' + document.getElementById("f_imageid[assetid]").value, imageInfo['width'], imageInfo['height']);
 			};
 
 			function setImageInfo() {
 				// put a random no in the url to overcome any caching
-				var url = '<?php echo sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX; ?>/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=' + escape(document.getElementById("f_imageid[assetid]").value) + '&asset_ei_screen=image_info&ignore_frames=1&t=' + Math.random() * 1000;
+				var assetid = document.getElementById("f_imageid[assetid]").value;
+				if (assetid.indexOf(':') != -1) {
+					assetid = assetid.substring(0, assetid.indexOf(':'));
+				}
+				var url = '<?php echo sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX; ?>/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=' + escape(assetid) + '&asset_ei_screen=image_info&ignore_frames=1&t=' + Math.random() * 1000;
 				JsHttpConnector.submitRequest(url, populateImageInfo);
 			};
 
