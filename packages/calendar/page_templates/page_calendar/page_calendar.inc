@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.168 2005/09/04 23:09:18 skim Exp $
+* $Id: page_calendar.inc,v 1.169 2005/11/14 00:14:00 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.168 $
+* @version $Revision: 1.169 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -458,7 +458,7 @@ class Page_Calendar extends Page
 		$view = $_REQUEST['SQ_CALENDAR_VIEW'];
 		if (($view == 'event') || ($view == 'edit')) {
 			// _validateRequest already made sure we have a valid event id
-			$info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($_REQUEST['SQ_CALENDAR_EVENT_ID']));
+			$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($_REQUEST['SQ_CALENDAR_EVENT_ID']));
 			return $info[$_REQUEST['SQ_CALENDAR_EVENT_ID']]['name'];
 		} else {
 			return date($title_formats[$view], strtotime($_REQUEST['SQ_CALENDAR_DATE']));
@@ -557,7 +557,15 @@ class Page_Calendar extends Page
 			for ($current_month=1; $current_month<13; $current_month++) {
 			?>
 				<tr>
-					<th class="monthLabel" <?php if ($enabled_views['month']) { ?> onclick="clickChild(this);" style="cursor: pointer; cursor: hand" <?php } ?>>
+					<th class="monthLabel"
+						<?php
+						if ($enabled_views['month']) {
+							?>
+							onclick="clickChild(this);" style="cursor: pointer; cursor: hand"
+							<?php
+						}
+						?>
+					>
 					<?php
 						// print the month name, linked to month view if it's available
 						if ($enabled_views['month']) {
@@ -2420,45 +2428,61 @@ class Page_Calendar extends Page
 		$assetids = array_keys($events);
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
-		// Only two bodycopy is available for the calendar
-		if (!isset($this->_tmp['allowed_type_formats'])) {
-			$folder = 'type_formats';
-			$folder_link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, $folder);
-			$links = $am->getLinks($folder_link['minorid'], SQ_LINK_TYPE_2, 'bodycopy', true);
-
-			foreach ($links as $bodycopy) {
-				$bodycopy_type_code = $bodycopy['value'];
-				$this->_tmp['allowed_type_formats'][$bodycopy_type_code] =& $am->getAsset($bodycopy['minorid'], 'bodycopy');
+		// Get our two type format BCs
+		require SQ_DATA_PATH.'/private/db/table_columns.inc';
+		$asset_info_fields = $tables['ast']['columns'];
+		unset($tables);
+		$type_format_bodycopies = Array();
+		$folder_link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'type_formats');
+		$links = $am->getLinks($folder_link['minorid'], SQ_LINK_TYPE_2, 'bodycopy', true);
+		$get_asset_info = false;
+		foreach ($links as $bodycopy) {
+			$bodycopy_type_code = $bodycopy['value'];
+			$type_format_bodycopies[$bodycopy_type_code] = Array();
+			$type_format_bodycopies[$bodycopy_type_code]['obj'] =& $am->getAsset($bodycopy['minorid'], 'bodycopy');
+			$type_format_bodycopies[$bodycopy_type_code]['keywords'] = $type_format_bodycopies[$bodycopy_type_code]['obj']->getKeywords();
+			$type_format_bodycopies[$bodycopy_type_code]['needs_asset'] = false;
+			foreach ($type_format_bodycopies[$bodycopy_type_code]['keywords'] as $keyword) {
+				if ((strpos($keyword, 'asset_') !== 0) || (!in_array(substr($keyword, 6), $asset_info_fields))) {
+					$type_format_bodycopies[$bodycopy_type_code]['needs_asset'] = true;
+				}
+			}
+			if ($type_format_bodycopies[$bodycopy_type_code]['needs_asset'] == false) {
+				$get_asset_info = true;
 			}
 		}
 
-		// loop each event
-		foreach ($assetids as $assetid) {
+		foreach ($assetids as $i => $assetid) {
+			$assetids[$i] = strtok($assetid, ':');
+		}
+		$assetids = array_unique($assetids);
 
-			$type_code = $events[$assetid]['type_code'];
-			$ori_assetid = $assetid;
+		if ($get_asset_info) {
+			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
+		}
+
+		// loop each event
+		foreach ($events as $assetid => $event) {
+			$type_code = $event['type_code'];
 			$assetid = strtok($assetid, ':');
 
 			// Determine which bodycopy to use
-			if (array_key_exists($type_code, $this->_tmp['allowed_type_formats'])) {
-				$bodycopy =& $this->_tmp['allowed_type_formats'][$type_code];
-			}
-			else if ($type_code == 'calendar_event_modification' ) {
+			if (isset($type_format_bodycopies[$type_code])) {
+				$bodycopy =& $type_format_bodycopies[$type_code];
+			} else if ($type_code == 'calendar_event_modification' ) {
 				// Modification Event
-				// at the moment, this is always 'calendar_event_recurring' bodycopy
 				$link = $am->getLink($assetid, SQ_LINK_TYPE_2, 'calendar_event_recurring', true, null, 'minor');
-				$bodycopy =& $this->_tmp['allowed_type_formats'][$link['major_type_code']];
-			}
-			else if ($type_code == 'calendar_event_cancellation' ) {
+				$bodycopy =& $type_format_bodycopies[$link['major_type_code']];
+			} else if ($type_code == 'calendar_event_cancellation' ) {
 				continue;
-			}
-			else {
+			} else {
 				// check parent type
-				$type_ance = $am->getTypeAncestors($type_code);
+				$type_ancestors = $am->getTypeAncestors($type_code);
 				$parent_cancellation = false;
-				foreach ($type_ance as $parent_type) {
-					if (array_key_exists($parent_type, $this->_tmp['allowed_type_formats'])) {
-						$bodycopy =& $this->_tmp['allowed_type_formats'][$parent_type];
+				foreach ($type_ancestors as $parent_type) {
+					if (isset($this->_tmp['allowed_type_formats'][$parent_type])) {
+						$type_format_bodycopies[$type_code] = $type_format_bodycopies[$parent_type];
+						$bodycopy =& $type_format_bodycopies[$parent_type];
 						break;
 					} else if ($type_code == 'calendar_event_cancellation' ) {
 						$parent_cancellation = true;
@@ -2471,25 +2495,30 @@ class Page_Calendar extends Page
 				continue;
 			}
 
-			// set keyword replacement
 			$replacements = Array();
-			$bc_keywords = $bodycopy->getKeywords();
-			$event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
-			foreach ($bc_keywords as $keyword) {
-				if ($keyword == 'asset_contents') {
-					ob_start();
-						$event->printBody();
-					$replacements['asset_contents'] = ob_get_clean();
-				} else {
-					$replacements[$keyword] = $event->getKeywordReplacement($keyword);
+			if ($bodycopy['needs_asset']) {
+				$event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				foreach ($bodycopy['keywords'] as $keyword) {
+					if ($keyword == 'asset_contents') {
+						ob_start();
+							$event->printBody();
+						$replacements['asset_contents'] = ob_get_clean();
+					} else {
+						$replacements[$keyword] = $event->getKeywordReplacement($keyword);
+					}
+				}
+				unset($event);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($event);
+			} else {
+				// we can get them all from the asset info
+				foreach ($asset_info[$assetid] as $field => $val) {
+					$replacements['asset_'.$field] = $val;
 				}
 			}
-			$bodycopy->setKeywordReplacements($replacements);
+			$bodycopy['obj']->setKeywordReplacements($replacements);
+			$bodycopy['obj']->printBody();
 
-			// print body
-			$bodycopy->printBody();
-
-		}//end foreach
+		}//end foreach event
 
 	}//end printEventList()
 
