@@ -8,12 +8,6 @@
 		</field>
 		<field>
 			<function_call>
-				<paint_function name="paintAlternativeAddresses" />
-				<process_function name="processAlternativeAddresses" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
 				<paint_function name="paintPreviewLog" />
 				<process_function name="processPreviewLog" />
 			</function_call>

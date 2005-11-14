@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.16 2005/11/09 10:10:48 rong Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.17 2005/11/14 23:41:11 ndvries Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -514,202 +514,6 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	}//end processThresholds()
-
-
-//--        PREVIEW        --//
-
-
-	/**
-	* Paints the screen to send preview mail to the current user
-	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintPreviewAddress(&$asset, &$o, $prefix)
-	{
-		$write_access = $asset->writeAccess('attributes');
-
-		$current_user = $GLOBALS['SQ_SYSTEM']->currentUserId();
-		$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_user);
-		$email = $user->attr('email');
-
-		if (empty($email)) $email = 'none';
-
-		$field_name = translate('bulkmail_preview_address');
-		$field_note = translate('bulkmail_preview_address_note');
-		$o->openField($field_name, '', $field_note);
-			if ($write_access) {
-				echo $email.'&nbsp;';
-				// do not print the checkbox if no email is provided for current user
-				if ($email != 'none') {
-					check_box($prefix.'_use_default', true, true);
-					echo translate('bulkmail_preview_use_default');
-				}
-			} else {
-				echo $email;
-			}
-		$o->closeField();
-		return $write_access;
-
-	}//end paintPreviewAddress()
-
-
-	/**
-	* Sends the preview bmail to the default preview address
-	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processPreviewAddress(&$asset, &$o, $prefix)
-	{
-		// this is done in processOptionalAddresses()
-		return true;
-
-	}//end processPreviewAddress()
-
-
-	/**
-	* Paints alternative preview address to receive the bmail
-	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintAlternativeAddresses(&$asset, &$o, $prefix)
-	{
-		$write_access = $asset->writeAccess('attributes');
-
-		if ($write_access) {
-			$field_name = translate('bulkmail_alternative_address');
-			$o->openField($field_name);
-				text_box($prefix.'_alternative_address', '');
-			$o->closeField();
-		}
-
-		return $write_access;
-
-	}//end paintAlternativeAddresses()
-
-
-	/**
-	* Sends the preview bmail to default/alternative address
-	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processAlternativeAddresses(&$asset, &$o, $prefix)
-	{
-		if (!$asset->writeAccess('attributes')) return false;
-
-		$recipient = Array();
-		if (isset($_REQUEST[$prefix.'_alternative_address'])) {
-			if (!empty($_REQUEST[$prefix.'_alternative_address'])) {
-				$recipient[] = $_REQUEST[$prefix.'_alternative_address'];
-			}
-		}
-
-		// if use_default box is checked, send the preview to default address too
-		if (isset($_POST[$prefix.'_use_default'])) {
-			$current_user = $GLOBALS['SQ_SYSTEM']->currentUserId();
-			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_user);
-			$recipient[] = $user->attr('email');
-		}
-
-		// no duplicate copies to the same address
-		$recipient = array_unique($recipient);
-
-		if (!empty($recipient)) {
-
-			// update log
-			if (isset($_POST[$prefix.'_clear_log'])) {
-				// clear the log if checkbox is checked
-				$asset->setAttrValue('preview_log', Array());
-			} else {
-				// send the actual preview mail
-				if ($asset->sendPreviewMail($recipient)) {
-					$new_log = Array($asset->generateLog($recipient));
-					$preview_log = array_merge($new_log, $asset->attr('preview_log'));
-					// only keep the last 5 entries
-					if (count($preview_log) > 5) array_pop($preview_log);
-					$asset->setAttrValue('preview_log', $preview_log);
-				}
-			}
-			return true;
-		} else {
-			return false;
-		}
-
-	}//end processAlternativeAddresses()
-
-
-	/**
-	* Paints the log of last 5 preview records
-	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintPreviewLog(&$asset, &$o, $prefix)
-	{
-		$write_access = $asset->writeAccess('attributes');
-		$preview_log = $asset->attr('preview_log');
-
-		$field_name = translate('bulkmail_preview_log');
-		$o->openField($field_name);
-			?><ul id="<?php echo $prefix; ?>_preview_log"><?php
-			foreach ($preview_log as $index => $log) {
-				?><li><?php echo $log; ?></li><?php
-			}
-			?></ul><?php
-		$o->closeField();
-
-		if ($write_access) {
-			// checkbox for clearing the preview log
-			$field_name = translate('bulkmail_clear_log');
-			$o->openField($field_name);
-				check_box($prefix.'_clear_log', true, false);
-			$o->closeField();
-		}
-
-		return $write_access;
-
-	}//end paintPreviewLog()
-
-
-	/**
-	* Processes the log of last 5 preview records
-	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processPreviewLog(&$asset, &$o, $prefix)
-	{
-		// this is done in processOptionalAddresses()
-		return true;
-
-	}//end processPreviewLog()
 
 
 //--        JOB MANAGEMENT        --//

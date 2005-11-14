@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.14 2005/11/10 05:29:31 rong Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.15 2005/11/14 23:41:04 ndvries Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -242,6 +242,133 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		return true;
 
 	}//end processJobQueue()
+
+
+//--        PREVIEWING        --//
+
+
+	/**
+	* Paints the screen to send preview mail to the current user
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintPreviewAddress(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$current_user = $GLOBALS['SQ_SYSTEM']->user;
+		$email = $current_user->attr('email');
+
+		if ($write_access) {
+			text_box($prefix.'_preview_address', $email);
+		} else {
+			echo $email;
+		}
+
+		return $write_access;
+
+	}//end paintPreviewAddress()
+
+
+	/**
+	* Sends the preview bmail to default/alternative address
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processPreviewAddress(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return false;
+
+		$recipient = array_get_index($_REQUEST, $prefix.'_preview_address', '');
+		if (empty($recipient)) {
+			return false;
+		}
+
+		$msg_reps = Array(
+						'assetid'		=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
+						'email_addr'	=> $recipient,
+					);
+
+		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$message = $ms->newMessage(Array(), 'bulkmail.preview', $msg_reps);
+
+		$message->parameters['assetid'] = $asset->id;
+		$message->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
+		$message->send();
+
+		return $asset->sendPreviewMail($recipient);
+
+	}//end processPreviewAddress()
+
+
+	/**
+	* Paints the log of last 5 preview records
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintPreviewLog(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$logs = $ms->getMessages(0, 'bulkmail.preview', Array(), Array(), null, null, 'name', Array('assetid' => $asset->id), 5);
+
+		if (!empty($logs)) {
+			?>
+				<table class="sq-backend-table">
+					<tr>
+						<th class="sq-backend-table-header">Date</th>
+						<th class="sq-backend-table-header">Subject</th>
+						<th class="sq-backend-table-header">Body</th>
+					</tr>
+			<?php
+			foreach ($logs as $log_entry) {
+				?>
+					<tr>
+						<td align="left" class="sq-backend-table-cell"><?php echo ts_iso8601($log_entry['sent']); ?></td>
+						<td align="left" class="sq-backend-table-cell"><?php echo $log_entry['subject']; ?></td>
+						<td align="left" class="sq-backend-table-cell"><?php echo $log_entry['body']; ?></td>
+					</tr>
+				<?php
+			}
+		} else {
+			echo 'This email has never been previewed';
+		}
+
+		return $write_access;
+
+	}//end paintPreviewLog()
+
+
+	/**
+	* Processes the log of last 5 preview records
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processPreviewLog(&$asset, &$o, $prefix)
+	{
+		return true;
+
+	}//end processPreviewLog()
 
 
 	/**

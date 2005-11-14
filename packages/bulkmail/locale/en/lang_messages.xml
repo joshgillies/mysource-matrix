@@ -1,0 +1,26 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_messages.xml,v 1.1 2005/11/14 23:41:51 ndvries Exp $
+*
+*
+* Bulkmail Package Localised Strings File
+*/
+-->
+
+<messages>
+        <message type="bulkmail.preview">
+                <subject>Bulkmail Previewed</subject>
+		<body><![CDATA[<SQ_MSG_TAGLINE>%assetid%</SQ_MSG_TAGLINE>]]> has sent a preview email to %email_addr%</body>
+        </message>
+</messages>
