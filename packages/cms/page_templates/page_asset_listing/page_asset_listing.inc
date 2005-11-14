@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.94 2005/11/02 05:40:47 lwright Exp $
+* $Id: page_asset_listing.inc,v 1.95 2005/11/14 22:33:37 mmcintyre Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -108,13 +108,16 @@ class Page_Asset_Listing extends Listing_Engine
 			$side_of_link = ($this->attr('direction') == 'down') ? 'major' : 'minor';
 			$link_type = ($side_of_link == 'major') ? 'minor' : 'major';
 			$links = Array();
+
 			switch ($group_by) {
 
 				case 'letter' :
 					foreach ($root_asset_ids as $root_asset_id) {
 						$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), false, $side_of_link, null, null, null, $letter_sort_by, SQ_PERMISSION_READ);
 						if (empty($query)) return Array();
-						$query['select'] .= ', SUBSTR(a.'.$letter_sort_by.', 1, 1) AS first_letter';
+						// the table alias is 'l' rather than 'a' as the query queries the view sq_vw_ast_lnk_minor
+						// which returns the results from the asset table, using the table alias 'l'
+						$query['select'] .= ', SUBSTR(l.'.$letter_sort_by.', 1, 1) AS first_letter';
 
 						$db = &$GLOBALS['SQ_SYSTEM']->db;
 						$new_links = $db->getAll(implode(' ', $query));
@@ -157,7 +160,13 @@ class Page_Asset_Listing extends Listing_Engine
 						}
 						if (empty($query)) $new_assets_to_list = Array();
 
+						// the table alias here, joins the asset table using the table alias 'a'
+						// so this query is fine with 'a'
 						$query['select'] .= ', SUBSTR(a.'.$letter_sort_by.', 1, 1) AS first_letter';
+						// we need to add the first_letter column to the union so that we have the right
+						// number of columns in both sides of the union
+						$query['union_select'] .= ', null AS first_letter';
+
 						$db = &$GLOBALS['SQ_SYSTEM']->db;
 						$new_assets_to_list = $db->getAssoc(implode(' ', $query));
 						assert_valid_db_result($new_assets_to_list);
