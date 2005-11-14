@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.41 2005/10/14 02:20:47 lwright Exp $
+* $Id: image_edit_fns.inc,v 1.42 2005/11/14 03:36:57 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,9 +45,9 @@ class Image_Edit_Fns extends File_Edit_Fns
 	*
 	* In this case it gives us the option of launching the image editor too
 	*
-	* @param object Image				&$asset	the file asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the file asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -81,10 +81,10 @@ class Image_Edit_Fns extends File_Edit_Fns
 	*     tmp_name          => the location of the file on the file system
 	*     non_uploaded_file => must equal TRUE
 	*
-	* @param object File				&$asset	the file asset
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for form elements
-	* @param array(string)				$info	info about the uploaded file
+	* @param object	&$asset	the file asset
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for form elements
+	* @param array	$info	info about the uploaded file
 	*
 	* @return boolean
 	* @access public
@@ -126,9 +126,9 @@ class Image_Edit_Fns extends File_Edit_Fns
 	/**
 	* Prints the image editor applet as it should appear in the create screen
 	*
-	* @param object Image				&$asset	the file asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the file asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -149,12 +149,12 @@ class Image_Edit_Fns extends File_Edit_Fns
 	/**
 	* Process the results of the image editor in the create screen
 	*
-	* @param object Image				&$asset	the file asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the file asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
+	* @return boolean
 	* @access public
-	* @return boolean true
 	*/
 	function processCreateEditor(&$asset, &$o, $prefix)
 	{
@@ -169,13 +169,14 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 	/**
 	* Print the "edit image" screen
+	* Returns true if edit interface printed
 	*
-	* @param object Image				&$asset	the file asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the file asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
+	* @return boolean
 	* @access public
-	* @return boolean true if edit interface printed
 	*/
 	function paintEditor(&$asset, &$o, $prefix)
 	{
@@ -194,13 +195,14 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 	/**
 	* Process the "edit image" screen
+	* Returns true if edit interface printed
 	*
-	* @param object Image				&$asset	the file asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the file asset
+	* @param object	$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
+	* @return boolean
 	* @access public
-	* @return boolean true if edit interface printed
 	*/
 	function processEditor(&$asset, $o, $prefix)
 	{
@@ -216,12 +218,13 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 	/**
 	* Find out is there are any varieties
+	* Returns true if edit interface to be printed
 	*
-	* @param object Image	&$asset		the file asset
-	* @param string			$prefix		the prefix for this asset
+	* @param object	&$asset	the file asset
+	* @param string	$prefix	the prefix for this asset
 	*
+	* @return boolean
 	* @access public
-	* @return boolean		true if edit interface to be printed
 	*/
 	function hasVarieties(&$asset, $prefix)
 	{
@@ -233,13 +236,14 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 	/**
 	* Paint the varieties editing section
+	* Returns true if edit interface printed
 	*
-	* @param object Image				&$asset	the file asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the file asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
+	* @return boolean
 	* @access public
-	* @return boolean true if edit interface printed
 	*/
 	function paintCurrentVarieties(&$asset, &$o, $prefix)
 	{
@@ -247,7 +251,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 		$varieties = $asset->attr('varieties');
 		if (!empty($varieties)) {
-			foreach ($varieties['data'] as $varid => $data)  {
+			foreach ($varieties['data'] as $varid => $data) {
 				$variety = &$asset->getAsset($asset->id.':'.$varid);
 				if (is_null($variety)) continue;
 				$edit_fns = $variety->getEditFns();
@@ -271,13 +275,14 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 	/**
 	* Process the varieties editing section
+	* Returns true if edit interface printed
 	*
-	* @param object Image				&$asset	the file asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the file asset
+	* @param object	$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
+	* @return boolean
 	* @access public
-	* @return boolean true if edit interface printed
 	*/
 	function processCurrentVarieties(&$asset, $o, $prefix)
 	{
@@ -286,7 +291,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		$changes_made = false;
 
 		if (!empty($_POST[$prefix.'_delete']) && is_array($_POST[$prefix.'_delete'])) {
-			foreach ($_POST[$prefix.'_delete'] as $assetid)  {
+			foreach ($_POST[$prefix.'_delete'] as $assetid) {
 				list(, $varid) = explode(':', $assetid, 2);
 				if ($asset->deleteVariety($assetid)) {
 					$changes_made = true;
@@ -296,7 +301,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 		$varieties = $asset->attr('varieties');
 		if (!empty($varieties)) {
-			foreach ($varieties['data'] as $varid => $data)  {
+			foreach ($varieties['data'] as $varid => $data) {
 				$variety = &$asset->getAsset($asset->id.':'.$varid);
 				if (is_null($variety)) continue;
 				$edit_fns = $variety->getEditFns();
@@ -313,13 +318,14 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 	/**
 	* Print the new variety section
+	* Returns true if edit interface printed
 	*
-	* @param object Image				&$asset	the file asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the file asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
+	* @return boolean
 	* @access public
-	* @return boolean true if edit interface printed
 	*/
 	function paintNewVariety(&$asset, &$o, $prefix)
 	{
@@ -341,18 +347,21 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 	/**
 	* Process the "edit image" screen
+	* Returns true if edit interface printed
 	*
-	* @param object Image				&$asset	the file asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the file asset
+	* @param object	$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
+	* @return boolean
 	* @access public
-	* @return boolean true if edit interface printed
 	*/
 	function processNewVariety(&$asset, $o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return false;
-
+		if (!isset($_POST[$prefix.'_new_type']) || trim($_POST[$prefix.'_new_type']) == '') {
+			return true;
+		}
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
 		$variety =& new Image_Variety($asset->id.':v0');
 
@@ -372,7 +381,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 	/**
 	* Prints info about the current uploaded file
 	*
-	* @param object File	&$asset	the file asset
+	* @param object	&$asset	the file asset
 	*
 	* @return void
 	* @access public
@@ -394,10 +403,10 @@ class Image_Edit_Fns extends File_Edit_Fns
 	* In this case the pre-uploaded file may have been uploaded by the image editor
 	* applet, and we want to make sure the filename typed into the applet is used
 	*
-	* @param string						$prefix	prefix for form elements
+	* @param string	$prefix	prefix for form elements
 	*
-	* @access protected
 	* @return array
+	* @access protected
 	*/
 	function getChosenFileInfo($prefix)
 	{
@@ -415,11 +424,12 @@ class Image_Edit_Fns extends File_Edit_Fns
 	* Get a list of pre-uploaded files available for use
 	*
 	* In this case we restrict the options to be valid image file types
+	* Returns value to be used with combo_box
 	*
-	* @param	&$asset		The asset that might use the files
+	* @param object	&$asset	The asset that might use the files
 	*
+	* @return array
 	* @access protected
-	* @return array		value => value to be used with combo_box
 	*/
 	function getPreUploadOptions(&$asset)
 	{
@@ -438,8 +448,8 @@ class Image_Edit_Fns extends File_Edit_Fns
 	/**
 	* Get a formatted string of extensions (eg 1,2,3 and 4)
 	*
-	* @param array(string)	$extensions	array of extensions to format
-	* @param string			$glue		word used to join last extension to the string (and, or etc)
+	* @param array	$extensions	array of extensions to format
+	* @param string	$glue		word used to join last extension to the string (and, or etc)
 	*
 	* @return string
 	* @access public
@@ -474,13 +484,14 @@ class Image_Edit_Fns extends File_Edit_Fns
 	*
 	* We add our onsubmit function ourselves rather than letting the Backend_Outputter do it,
 	* since the backend outputter will let us down in an asset builder
+	* Return true if the applet was printed OK
 	*
-	* @param object Image				&$asset	the file asset
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the file asset
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for form elements
 	*
+	* @return boolean
 	* @access private
-	* @return boolean	true if the applet was printed OK
 	*/
 	function _paintApplet(&$asset, &$o, $prefix)
 	{
@@ -546,18 +557,16 @@ class Image_Edit_Fns extends File_Edit_Fns
 	* Regenerates the variety images after an upload or fix
 	* It is the responsability of the caller to save the images attributes afterward
 	*
-	* @param object Image				&$asset	the file asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the file asset
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _recreateVarietyImages(&$asset)
 	{
 		$varieties = $asset->attr('varieties');
 		if (!empty($varieties)) {
-			foreach ($varieties['data'] as $varid => $data)  {
+			foreach ($varieties['data'] as $varid => $data) {
 				$variety = &$asset->getAsset($asset->id.':'.$varid);
 				if (is_null($variety)) continue;
 				$asset->saveVariety($variety, true, false);
