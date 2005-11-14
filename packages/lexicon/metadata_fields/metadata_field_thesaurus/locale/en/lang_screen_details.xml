@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2005/09/20 03:36:23 arailean Exp $
+* $Id: lang_screen_details.xml,v 1.6 2005/11/14 05:39:09 arailean Exp $
 *
 */
 -->
@@ -37,22 +37,9 @@
 			<display_name>Source Thesaurus Asset</display_name>
 			<note />
 		</field>
-		<field attribute="allow_manual">
-			<display_name>Allow Manual Input</display_name>
-			<note>Whether to allow for manual input of this field</note>
-		</field>
-		<field attribute="force_thesaurus">
-			<display_name>Force Thesaurus</display_name>
-			<note>If set to true will only accept values from the thesaurus, to be used with "Allow Manual Input"</note>
-		</field>
 	</section>
 
 	<section name="Options">
-		<field attribute="max_terms">
-			<display_name>Max Terms</display_name>
-			<note>Maximum number of terms users can specify</note>
-		</field>
-
 		<field attribute="editable">
 			<display_name>Editable</display_name>
 			<note />
