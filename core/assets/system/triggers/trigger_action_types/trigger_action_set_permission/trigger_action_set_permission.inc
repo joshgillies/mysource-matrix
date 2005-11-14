@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.6 2005/06/02 05:03:25 rhoward Exp $
+* $Id: trigger_action_set_permission.inc,v 1.7 2005/11/14 05:13:48 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -124,7 +124,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		} else {
 			$selected_permission = $settings['permission'];
 		}
-		$permissions = &Trigger_Action_Set_Permission::_getPermissionList();
+		$permissions = Trigger_Action_Set_Permission::_getPermissionList();
 		if ($write_access) {
 			combo_box($prefix.'[permission]', $permissions, false, $selected_permission);
 		} else {
@@ -183,7 +183,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		$permission = array_get_index($request_data, 'permission', false);
 		if (!$permission) return 'Permission not specified';
 
-		$valid_permissions = &Trigger_Action_Set_Permission::_getPermissionList();
+		$valid_permissions = Trigger_Action_Set_Permission::_getPermissionList();
 		if (isset($valid_permissions[$permission])) {
 			$settings['permission'] = $permission;
 		} else {
