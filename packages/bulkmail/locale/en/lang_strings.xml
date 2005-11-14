@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.9 2005/11/09 23:50:55 rong Exp $
+* $Id: lang_strings.xml,v 1.10 2005/11/14 23:59:38 rong Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -89,20 +89,22 @@ Please click on the following link if you would like to proceed:
 	<string source="bulkmail_server_detail_path_field_name">Path</string>
 	<string source="bulkmail_server_detail_arg_field_name">Arguments</string>
 
-	<string source="bulkmail_threshold_detail_type">Type</string>
+
 	<string source="bulkmail_threshold_detail_note">Please select one of the following threshold types, and fill in a value:</string>
 	<string source="bulkmail_threshold_detail_report">The thresholding type is currently set to - "%s"</string>
 	<string source="bulkmail_threshold_detail_chunk">Send %s emails per hour.</string>
 	<string source="bulkmail_threshold_detail_spread">Send all emails over %s hours.</string>
 	<string source="bulkmail_threshold_detail_asap">Send all emails at once, don't worry about splitting it up.</string>
 
-	<string source="bulkmail_preview_address">Preview Address</string>
-	<string source="bulkmail_preview_use_default"> Use default</string>
-	<string source="bulkmail_preview_address_note">You can modify your email address in the User Details Page.</string>
-	<string source="bulkmail_alternative_address">Alternative Preview Address</string>
-	<string source="bulkmail_preview_message">Preview mail sent to: </string>
-	<string source="bulkmail_preview_log">Preview Log</string>
-	<string source="bulkmail_clear_log">Clear Preview Log</string>
+	<string source="bulkmail_threshold_current_rules">Current Rules</string>
+	<string source="bulkmail_threshold_allow_multiple">Allow Multiple ?</string>
+	<string source="bulkmail_threshold_add_rule">Add Rule</string>
+	<string source="bulkmail_threshold_choose_type">Choose Type</string>
+	<string source="bulkmail_threshold_rule_excluded_time">Excluded Time</string>
+	<string source="bulkmail_threshold_rule_mpm">Mails per Minute</string>
+	<string source="bulkmail_threshold_rule_excluded_time_hour">Do not process jobs between %1$s:00 and %2$s:00</string>
+	<string source="bulkmail_threshold_rule_excluded_time_days"> on %s</string>
+	<string source="bulkmail_threshold_rule_mpm_detail">Send %1$s emails per minute</string>
 
 	<string source="bm_warning_one_post_office_for_job">Bulkmail Jobs can only be linked under one Bulkmail Post Office.</string>
 	<string source="bm_warning_server_details_error">Post Office Server Details: "%s".</string>

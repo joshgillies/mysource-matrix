@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office.inc,v 1.15 2005/11/09 02:08:59 rong Exp $
+* $Id: bulkmail_post_office.inc,v 1.16 2005/11/14 23:59:38 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once 'Mail.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -130,25 +130,6 @@ class Bulkmail_Post_Office extends Asset
 		return true;
 
 	}//end canCreateLink()
-
-
-	/**
-	* Generates the new preview log message of this preview bmail
-	*
-	* @param array	$recipient	all the recipients of this preview email
-	*
-	* @return string
-	* @access public
-	*/
-	function generateLog($recipient)
-	{
-		$msg = translate('bulkmail_preview_message');
-		$who = implode(', ', $recipient).'<br /> on ';
-		$when = date('r');
-
-		return $msg.'&nbsp; '.$who.$when;
-
-	}//end generateLog()
 
 
 }//end class
