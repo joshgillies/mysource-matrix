@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.113 2005/11/09 10:37:49 lwright Exp $
+* $Id: general.inc,v 1.114 2005/11/14 04:58:54 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.113 $
+* @version $Revision: 1.114 $
 * @package MySource_Matrix
 */
 
@@ -1032,8 +1032,6 @@ function get_asset_tag_line($assetid, $screen='')
 
 	if (empty($asset_info)) {
 		ob_start();
-			echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_map/default_asset.png', 16, 16, 'Asset', 'Asset', ' align="absmiddle"');
-			echo '<img src="'.sq_web_path('lib').'/web/images/blank.gif" width="10" height="10" alt="Unknown Status" title="Unknown Status" align="absmiddle" style="margin: 2px; border: 1px solid #ccc;" /> ';
 			echo '<span class="sq-backend-warning">Unknown asset (Id: #'.$assetid.')</span>';
 		$contents = ob_get_clean();
 		return $contents;
@@ -1146,7 +1144,7 @@ function get_asset_tag_line($assetid, $screen='')
 			$lineages_name = translate('show_in_asset_map');
 		}
 
-		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/more_info.png', 16, 16, '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
+		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/info.png', 16, 16, '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
 		//echo get_asset_type_icon($asset_info['type_code'], '');
 
 		if (count($lineages) > 0) {
