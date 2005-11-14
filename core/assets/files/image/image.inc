@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.44 2005/11/14 04:13:29 dmckee Exp $
+* $Id: image.inc,v 1.45 2005/11/14 04:23:11 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -89,8 +89,8 @@ class Image extends File
 	* If the user changes the name of this file, we also need
 	* to update the file system
 	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -136,7 +136,7 @@ class Image extends File
 	/**
 	* Get an array of some useful data about the existing uploaded file
 	*
-	* @return array(string)
+	* @return array
 	* @access private
 	*/
 	function getExistingFile()
@@ -159,11 +159,11 @@ class Image extends File
 	* The output includes the width and height of the image, and the image
 	* name for the alt tag
 	*
-	* @param string 	$alt	the alt tag content. If empty the alt var is used
-	* @param string 	$title	the alt tag content. If empty the and $alt is set, then that is used, otherwise the title var is used
-	* @param boolean 	$return	if TRUE the tag will be returned
+	* @param string		$alt	the alt tag content. If empty the alt var is used
+	* @param string		$title	the alt tag content. If empty the and $alt is set, then that is used, otherwise the title var is used
+	* @param boolean	$return	if TRUE the tag will be returned
 	*
-	* @return string | void
+	* @return mixed string|void
 	* @access public
 	*/
 	function printImageTag($alt='', $title='', $return=false)
@@ -183,8 +183,9 @@ class Image extends File
 	/**
 	* Prints out the backend interface for the asset
 	*
-	* @param object Backend_Outputter	&$o
+	* @param object	&$o	A reference to the backend outputter
 	*
+	* @return boolean
 	* @access public
 	*/
 	function paintBackend(&$o)
@@ -218,14 +219,15 @@ class Image extends File
 	* Creates/Updates a variety for this image
 	*
 	* If the variety has an ID then it must belong to this asset in order to be saved.
+	* Returns false on error, shadow assetid on success
 	*
-	* @param object Image_Variety	$variety			the variety to save
-	* @param boolean				$recreate_image		whether to generate the image file or not
-	* @param boolean				$save_attrs			whether to run saveAttributes() or not,
-	*													usually you only would set this to false if you are running
-	*													this multiple times and only want to save once at the end
+	* @param object		$variety		the variety to save
+	* @param boolean	$recreate_image	hether to generate the image file or not
+	* @param boolean	$save_attrs		whether to run saveAttributes() or not,
+	*									usually you only would set this to false if you are running
+	*									this multiple times and only want to save once at the end
 	*
-	* @return false|int	false on error, shadow assetid on success
+	* @return mixed boolean|int
 	* @access public
 	*/
 	function saveVariety($variety, $recreate_image=true, $save_attrs=true)
@@ -335,7 +337,7 @@ class Image extends File
 	/**
 	* Deletes a variety from this image
 	*
-	* @param string		$varietyid	the shadow assetid or just the shadow part of the variety to delete
+	* @param string	$varietyid	the shadow assetid or just the shadow part of the variety to delete
 	*
 	* @return boolean
 	* @access public
@@ -367,10 +369,6 @@ class Image extends File
 		}
 
 		$varieties = $this->attr('varieties');
-
-		error_log(print_r($varieties, true));
-
-		error_log(print_r($_POST, true));
 
 		if (!isset($varieties['data'][$varietyid])) {
 			trigger_localised_error('CORE87', $varietyid, E_USER_WARNING);
@@ -453,7 +451,7 @@ class Image extends File
 				$variety = &$this->getAsset($this->id.':'.$varietyid);
 				if (is_null($variety)) continue;
 
-				if (!$variety->updateLookups($use_public_path))  {
+				if (!$variety->updateLookups($use_public_path)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -472,15 +470,16 @@ class Image extends File
 
 	/**
 	* Returns a reference to the asset represented by the passed assetid
+	* (Asset or null on error)
 	*
-	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
+	* @param int		$assetid		the shadow part asset id to be loaded (i.e part after the ':')
 	* @param string		$type_code		if this exists then this object is used to
 	*									load the asset, if not then the DB is queried
 	*									to find out the asset type
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
-	* @return object Asset or null on error
+	* @return object
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
@@ -489,7 +488,7 @@ class Image extends File
 		$asset = null;
 		$id_parts = explode(':', $assetid);
 
-		if (isset($id_parts[1])){
+		if (isset($id_parts[1])) {
 			$shadowid = $id_parts[1];
 		} else {
 			return $asset;
@@ -648,18 +647,19 @@ class Image extends File
 
 	/**
 	* Get all asset ids that are below the passed assetid in the various trees in which it exists
+	* Returns an array of assetids and their type code
 	*
 	* @param int			$assetid			the id of the asset to get its children for
 	* @param string|array	$type_code			the type of asset that is linked
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	*
-	* @return Array(int => string)	returns an array of assetids and their type code
+	* @return array
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
@@ -711,10 +711,10 @@ class Image extends File
 	* @param int			$assetid			the id of the asset to get its parents for
 	* @param string|array	$type_code			the type of asset that is linked (eg 'Form_Section', 'Form_Question', etc)
 	*											if an array returns link if matches any of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return Array(int)
+	* @return array
 	* @access public
 	* @see Asset_Manager::getParents()
 	*/
@@ -769,7 +769,6 @@ class Image extends File
 
 	/**
 	* Return the keywords for this asset type.
-	*
 	* This function is called in asset-listing situations like the asset listing, search page etc
 	*
 	* The return value is in the form:
@@ -779,8 +778,8 @@ class Image extends File
 	* );
 	* </pre>
 	*
-	* @access public
 	* @return array
+	* @access public
 	*/
 	function getAvailableKeywords()
 	{
@@ -842,7 +841,6 @@ class Image extends File
 	}//end getImageTagKeywordReplacement()
 
 
-
 	/**
 	* Get bodycopy keyword replacement
 	*
@@ -871,8 +869,6 @@ class Image extends File
 		return parent::getKeywordReplacement($keyword);
 
 	}//end getKeywordReplacement()
-
-
 
 
 	/**
@@ -939,9 +935,9 @@ class Image extends File
 	/**
 	* Deletes a permission with the passed user or user_group
 	*
-	* @param int	$assetid		the assetid for asset whose permissions to delete
-	* @param int	$userid			the id of the user or user_group to remove the permission from
-	* @param string	$permission		the permission code you are deleting
+	* @param int	$assetid	the assetid for asset whose permissions to delete
+	* @param int	$userid		the id of the user or user_group to remove the permission from
+	* @param string	$permission	the permission code you are deleting
 	*
 	* @return boolean
 	* @access public
@@ -1069,19 +1065,19 @@ class Image extends File
 	/**
 	* Get details of the link(s) between the two specified assets
 	*
-	* @param int		$assetid			id of the the $side_of_link asset
-	* @param int		$other_assetid		the asset on the other side of the link
-	* @param int		$link_types			integer that can be the product of bitwise operations
-	*										on the SQ_LINK_* constants
-	* @param string		$value				the value that is associated with this link
-	* @param string		$side_of_link		Which side of the link the first assetid is on
-	*										('major' or 'minor')
-	* @param boolean	$force_array		force the results to return an array of links
-	*										even if there is only one link
-	* @param boolean	$dependant			The dependant status for all the links must be
-	*										this (if not null)
-	* @param boolean	$exclusive			The exclusive status for all the links must be
-	*										this (if not null)
+	* @param int		$assetid		id of the the $side_of_link asset
+	* @param int		$other_assetid	the asset on the other side of the link
+	* @param int		$link_types		integer that can be the product of bitwise operations
+	*									on the SQ_LINK_* constants
+	* @param string		$value			the value that is associated with this link
+	* @param string		$side_of_link	Which side of the link the first assetid is on
+	*									('major' or 'minor')
+	* @param boolean	$force_array	force the results to return an array of links
+	*									even if there is only one link
+	* @param boolean	$dependant		The dependant status for all the links must be
+	*									this (if not null)
+	* @param boolean	$exclusive		The exclusive status for all the links must be
+	*									this (if not null)
 	*
 	* @return array
 	* @access public
@@ -1096,8 +1092,8 @@ class Image extends File
 	/**
 	* Get details of the links from the specified asset to all its children
 	*
-	* @param string		$assetid	the assetid of the asset to find the child links for
-	* @param int		$link_type	the type of links to get
+	* @param string	$assetid	the assetid of the asset to find the child links for
+	* @param int	$link_type	the type of links to get
 	*
 	* @return array
 	* @access public
@@ -1116,7 +1112,7 @@ class Image extends File
 	*
 	* @param int	$linkid		the link id of the link to update
 	* @param int	$link_type	the type of the link (one of the SQ_LINK_* constants)
-	* @param string $value		the value to place on the link
+	* @param string	$value		the value to place on the link
 	* @param int	$sort_order	the position in the links list that this link should take,
 	*							if less than zero places at end of list
 	*
