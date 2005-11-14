@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.117 2005/11/14 00:54:38 bcaldwell Exp $
+* $Id: listing_engine.inc,v 1.118 2005/11/14 03:36:22 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.117 $
+* @version $Revision: 1.118 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2285,26 +2285,26 @@ class Listing_Engine extends Page
 					break;
 
 					case 'standard_asset':
-						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
-						$asset_info = $asset_info[$assetid];
+						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_parent));
+						if (!empty($asset_info)) {
+							$asset_info = $asset_info[$current_parent];
 
-						$standard_asset_field = $group_level['field'];
+							$standard_asset_field = $group_level['field'];
 
-						switch ($standard_asset_field) {
-							case 'assetid':
-								$value = $assetid;
-							break;
+							switch ($standard_asset_field) {
+								case 'assetid':
+									$value = $current_parent;
+								break;
 
-							case 'status':
-								$value = get_status_description($asset_info['status']);
-							break;
+								case 'status':
+									$value = get_status_description($asset_info['status']);
+								break;
 
-							default:
-								$value = $asset_info[$standard_asset_field];
-							break;
+								default:
+									$value = $asset_info[$standard_asset_field];
+								break;
+							}
 						}
-						$asset = null;
-						unset($asset);
 					break;
 
 					case 'attribute':
