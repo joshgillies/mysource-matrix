@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.55 2005/11/13 23:27:16 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.56 2005/11/14 04:12:31 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -773,6 +773,8 @@ class Calendar_Event extends Asset
 	function getKeywordReplacement($keyword) 
 	{
 		switch ($keyword) {
+			case 'event_name':
+				return $this->name;
 			case 'event_start_date':
 				return iso8601_ts($this->attr('start_date'));
 			case 'event_end_date':
