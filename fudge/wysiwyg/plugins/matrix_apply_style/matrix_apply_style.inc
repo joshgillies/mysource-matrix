@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_apply_style.inc,v 1.9 2005/10/14 04:30:35 dmckee Exp $
+* $Id: matrix_apply_style.inc,v 1.10 2005/11/14 03:43:27 dmckee Exp $
 *
 */
 
@@ -34,7 +34,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to apply a style from the effective design
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -65,7 +65,10 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 			foreach ($GLOBALS['sq_bodycopy_cssids'] as $css_assetid) {
 				$css = &$GLOBALS['SQ_SYSTEM']->am->getAsset($css_assetid);
 				$css_file = $css->getExistingFile();
-				$stylesheet_src = $css_file['path'];
+				$stylesheet_src = '';
+				if (!empty($css_file)) {
+					$stylesheet_src = $css_file['path'];
+				}
 
 				// set the stylesheet to use in the editor
 				$wysiwyg->set_stylesheet($css->getURL());
