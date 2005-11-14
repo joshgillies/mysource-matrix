@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.42 2005/11/14 03:36:57 dmckee Exp $
+* $Id: image_edit_fns.inc,v 1.43 2005/11/14 04:13:29 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -359,7 +359,8 @@ class Image_Edit_Fns extends File_Edit_Fns
 	function processNewVariety(&$asset, $o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return false;
-		if (!isset($_POST[$prefix.'_new_type']) || trim($_POST[$prefix.'_new_type']) == '') {
+		bam($_POST);
+		if (!isset($_POST[$prefix.'_new_name']) || trim($_POST[$prefix.'_new_name']) == '') {
 			return true;
 		}
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');

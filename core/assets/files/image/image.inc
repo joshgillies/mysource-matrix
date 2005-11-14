@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.43 2005/10/14 02:20:47 lwright Exp $
+* $Id: image.inc,v 1.44 2005/11/14 04:13:29 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -367,6 +367,10 @@ class Image extends File
 		}
 
 		$varieties = $this->attr('varieties');
+
+		error_log(print_r($varieties, true));
+
+		error_log(print_r($_POST, true));
 
 		if (!isset($varieties['data'][$varietyid])) {
 			trigger_localised_error('CORE87', $varietyid, E_USER_WARNING);
