@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.31 2005/05/16 06:36:31 lwright Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.32 2005/11/14 04:52:28 dmckee Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,8 +82,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the JavaScript needed by the backend functions for this table
 	*
-	* @param object Bodycopy_Container	&$asset	the container object being printed
-	* @param string						$prefix	prefix for form fields
+	* @param object	&$asset	the container object being printed
+	* @param string	$prefix	prefix for form fields
 	*
 	* @return void
 	* @access public
@@ -97,9 +97,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint JS data that containers need to use to do their processing
 	*
-	* @param object Bodycopy			&$bodycopy	the bodycopy being printed
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form element
+	* @param object	&$bodycopy	the bodycopy being printed
+	* @param object	&$o			the outputter class
+	* @param string	$prefix		prefix for the form element
 	*
 	* @return void
 	* @access public
@@ -113,9 +113,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints this container as HTML
 	*
-	* @param object Bodycopy_Container	&$asset		the container whose interface we are painting
-	* @param boolean					$editing	are we printing an editing interface
-	* @param boolean					$generating	are we generating the content file
+	* @param object		&$asset		the container whose interface we are painting
+	* @param boolean	$editing	are we printing an editing interface
+	* @param boolean	$generating	are we generating the content file
 	*
 	* @return void
 	* @access public
@@ -129,9 +129,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for editing this container
 	*
-	* @param object Bodycopy_Container	$asset	the container whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the container whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -154,13 +154,13 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the interface for editing this container
 	*
-	* @param object BodyCopy_Container	&$asset		the container whose interface we are painting
-	* @param object	Backend_Outputter	$o			the outputter class
-	* @param string						$prefix		prefix for the form element
-	* @param string						$bc_action	a global bodycopy action to perform
-	* @param string						$bc_name	the name of the bodycopy that submitted the action
-	* @param array						$bc_data	an array of data needed to perform the action
-	* @param array						$bc_saved	any saved changes that were performed without committing
+	* @param object	&$asset		the container whose interface we are painting
+	* @param object	&$o			the outputter class
+	* @param string	$prefix		prefix for the form element
+	* @param string	$bc_action	a global bodycopy action to perform
+	* @param string	$bc_name	the name of the bodycopy that submitted the action
+	* @param array	$bc_data	an array of data needed to perform the action
+	* @param array	$bc_saved	any saved changes that were performed without committing
 	*
 	* @return boolean
 	* @access public
@@ -176,9 +176,13 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			if (isset($bc_data[$prefix][$asset->id]['attributes'])) {
 				foreach ($bc_data[$prefix][$asset->id]['attributes'] as $name => $value) {
 					if ($name == 'identifier') {
-						if ($asset->setAttrValue('name', $value)) $updated = true;
+						if ($asset->setAttrValue('name', $value)) {
+							$updated = true;
+						}
 					} else {
-						if ($this->setAttribute($attributes, $name, $value)) $attributes_updated = true;
+						if ($this->setAttribute($attributes, $name, $value)) {
+							$attributes_updated = true;
+						}
 					}
 				}
 			}
@@ -186,9 +190,13 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 				foreach ($bc_saved[$prefix][$asset->id]['attributes'] as $name => $value) {
 					if ($name == 'identifier') {
-						if ($asset->setAttrValue('name', $value)) $updated = true;
+						if ($asset->setAttrValue('name', $value)) {
+							$updated = true;
+						}
 					} else {
-						if ($this->setAttribute($attributes, $name, $value)) $attributes_updated = true;
+						if ($this->setAttribute($attributes, $name, $value)) {
+							$attributes_updated = true;
+						}
 					}
 				}
 			}
@@ -206,7 +214,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Creates a PHP file to print on the frontend instead of doing processing there
 	*
-	* @param object Bodycopy_Container	&$asset	the container
+	* @param object	&$asset	the container
 	*
 	* @return boolean
 	* @access public
@@ -218,7 +226,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			$output = ob_get_contents();
 		ob_end_clean();
 
-		if (!$this->createContentLinks($asset, $output)) return false;
+		if (!$this->createContentLinks($asset, $output)) {
+			return false;
+		}
 
 		// replacing normal assetids is simple because they can only be numerical chars :)
 		$e = '|\\./\\?a=([0-9]+)([^0-9:])|';
@@ -230,7 +240,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		if (preg_match_all($e, $output, $matches=Array(), PREG_PATTERN_ORDER)) {
 
 			$replacements = Array();
-			foreach($matches[1] as $shadow_assetid) {
+			foreach ($matches[1] as $shadow_assetid) {
 				// if this is a shadow asset, then we need to escape the shadow part (as it is plain text)
 				$replacements[] = '<'.'?php echo $sq_asset_url_list['.var_export($shadow_assetid, 1).']; ?'.'>';
 			}
@@ -259,9 +269,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	* Creates and deletes NOTICE links based on the assets being linked to within the contents of this container
 	* For shadow assets it
 	*
-	* @param object Bodycopy_Container	&$asset		the container
-	* @param string | NULL				$ouytput	the content of the bodycopy container,
-	*												leave NULL to have it generated for you
+	* @param object			&$asset	the container
+	* @param string|null	$output	the content of the bodycopy container,
+	*								leave NULL to have it generated for you
 	*
 	* @return boolean
 	* @access public
@@ -277,11 +287,24 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 		$existing_links = $asset->attr('shadow_links');
 		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE);
-		foreach ($notice_links as $link_data) $existing_links[] = $link_data['minorid'];
+		foreach ($notice_links as $link_data) {
+			$existing_links[] = $link_data['minorid'];
+		}
 
-		$e = '|\\./\\?a=([0-9]+(?::[^$]*)?)|';
-		preg_match_all($e, $output, $matches=Array());
-		$replace_assetids = &$matches[1];
+		$shadow_reg = '|.\/?a=(\d+:\w*)|';
+		$normal_reg = '|.\/?a=(\d+)|';
+		preg_match_all($shadow_reg, $output, $shadow_matches=Array());
+		preg_match_all($normal_reg, $output, $normal_matches=Array());
+		$shadow_matches = $shadow_matches[1];
+		$normal_matches = $normal_matches[1];
+		$replace_assetids = Array();
+		foreach ($shadow_matches as $data) {
+			$replace_assetids[] = $data;
+		}
+		foreach ($normal_matches as $data) {
+			$replace_assetids[] = $data;
+		}
+		$replace_assetids = array_unique($replace_assetids);
 
 		if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
 			// this container currently has a system version floating around
@@ -311,7 +334,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 			$shadow_links = array_values(array_intersect($asset->attr('shadow_links'), $replace_assetids));
 			foreach ($replace_assetids as $assetid) {
-				if (!assert_valid_assetid($assetid, '', false, false)) continue;
+				if (!assert_valid_assetid($assetid, '', false, false)) {
+					continue;
+				}
 				if (in_array($assetid, $existing_links)) continue;
 
 				$ereg_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -350,10 +375,10 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* gets called when a bodycopy container's contents are updated to notify anyone who cares about this
 	*
-	* @param &Asset $asset the asset that is getting updated
+	* @param object	&$asset	the asset that is getting updated
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function _contentsUpdated(&$asset)
 	{
@@ -371,9 +396,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	* functionality is so similar. Perhaps going to aggregate it out to
 	* a separate class though once it is understood better.
 	*
-	* @param object Bodycopy			&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -449,7 +474,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		// all available content types
 		$content_types = Array();
 		$types = $am->getAssetTypeHierarchy('content_type');
-		foreach ($types as $type => $type_data) $content_types[$type] = Array('name' => $type_data['name']);
+		foreach ($types as $type => $type_data) {
+			$content_types[$type] = Array('name' => $type_data['name']);
+		}
 
 		?>
 		<input type="hidden" name="bodycopy_action" value="">
@@ -630,7 +657,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$container_types = $am->getAssetTypeHierarchy('bodycopy_container');
 		foreach ($container_types as $type => $type_data) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type);
-			$type_asset = new $type();
+			$type_asset =& new $type();
 			$edit_fns = $type_asset->getEditFns();
 			$edit_fns->paintGenericBackend($asset, $o, $prefix);
 		}
@@ -693,9 +720,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	* When this bodycopy_container is painted on its own without being a part
 	* of the 'contents' of a bodycopy, process it separately than normal.
 	*
-	* @param object BodyCopy_Container	&$asset		the container whose interface we are painting
-	* @param object	Backend_Outputter	$o			the outputter class
-	* @param string						$prefix		prefix for the form element
+	* @param object	&$asset	the container whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return void
 	* @access public
