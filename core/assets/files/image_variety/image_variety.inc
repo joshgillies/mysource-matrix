@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.19 2005/08/30 07:31:34 ndvries Exp $
+* $Id: image_variety.inc,v 1.20 2005/11/15 00:39:29 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -636,6 +636,7 @@ class Image_Variety extends Asset
 				$output['alt']    = $image->attr('alt');
 				$output['width']  = $size[0];
 				$output['height'] = $size[1];
+				$output['name'] = $this->name;
 				echo var_serialise($output);
 				exit();
 			default :
