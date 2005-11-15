@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.2 2005/11/15 00:54:47 skim Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.3 2005/11/15 23:44:22 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,11 +77,14 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		// get the current metadata values
 		$metadata = $mm->getMetadata($asset->id);
 
+		$value = '';
+		$value_component = Array();
+
 		// set the new value
 		$metadata[$settings['fieldid']] = Array(
-													'name'	=> $settings['field_name'],
-													'value'	=> $settings['value'],
-												 );
+											'name'	=> $settings['field_name'],
+											'value'	=> $settings['value'],
+										  );
 		$success = $mm->setMetadata($asset->id, $metadata);
 
 		// all done very smoothly like an ice cream
@@ -117,7 +120,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		// asset finder for Metadata Field
 		ob_start();
 			if ($write_access) {
-				echo 'Choose Metadata Field ';
+				echo 'Choose Metadata Field&nbsp;&nbsp;&nbsp;';
 				asset_finder($prefix.'[fieldid]', $metadata_fieldid, Array('metadata_field' => 'D'));
 			} else {
 				echo '<b>No metadata field specified</b>';
@@ -128,9 +131,14 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 
 		// Input field for the value
 		ob_start();
-			if ($write_access) {
-				echo '&nbsp;&nbsp;Enter the value for this field ';
-				text_box($prefix.'[value]', $metadata_field_value, 30);
+			if ($write_access && $metadata_fieldid) {
+				echo '<br>Set the value for this field<br>';
+				// set the field name
+				$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_fieldid);
+				$edit_fns = $metadata_field->getEditFns();
+				$null = null;
+				$edit_fns->paintValueInterface($metadata_field, $null, $metadata_field_value, true);
+				hidden_field($prefix.'[form_printed]', 1);
 			}
 			$output_part2 = ob_get_contents();
 		ob_end_clean();
@@ -156,23 +164,24 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 	{
 		// process fieldid
 		$fieldid_data = array_get_index($request_data, 'fieldid', 0);
+		$form_printed = array_get_index($request_data, 'form_printed', 0);
+
 		$fieldid = $fieldid_data['assetid'];
-		if (empty($fieldid)) {
-			return 'Metadata Field is not specified';
-		} else {
+		$value_accepted = array_get_index($request_data, 'value_accepted', 0);
+
+		if ($fieldid) {
 			$settings['fieldid'] = $fieldid;
 
-			// now we have fieldid, so find the value for the field
-			$value = array_get_index($request_data, 'value', '');
-			if (empty($value)) {
-				return 'Metadata Field is not specified';
-			} else {
-				$settings['value'] = $value;
+			$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
+			$edit_fns = $metadata_field->getEditFns();
+
+			$result = '';
+			if ($form_printed) {
+				$edit_fns->processInlineValueInterface($metadata_field, $result);
 			}
 
-			// set the field name
-			$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
-			$settings['field_name'] = $metadata_field->name;
+			$settings['field_name']	= $metadata_field->name;
+			$settings['value']		= $result;
 		}
 
 		return false;
