@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.15 2005/10/21 02:03:24 gsherwood Exp $
+* $Id: preview.inc,v 1.16 2005/11/15 23:45:12 dmckee Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 
@@ -35,9 +35,9 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 /**
 * Paints the interface for previewing the asset
 *
-* @param object	Asset					&$owner	the asset whose interface we are painting
-* @param object	Backend_Outputter		&$o		the outputter class
-* @param object	Asset_Edit_Interface	&$ei	the edit interface
+* @param object	&$owner	Asset:the asset whose interface we are painting
+* @param object	&$o		Backend_Outputter: the outputter class
+* @param object	&$ei	Asset_Edit_Interface: the edit interface
 *
 * @return boolean
 * @access public
@@ -105,7 +105,7 @@ function paintPreview(&$owner, &$o, &$ei)
 				$protocol_list['http'] = 'http://';
 			}
 
-			foreach($protocol_list as $protocol) {
+			foreach ($protocol_list as $protocol) {
 				$preview_urls[$protocol.$url_info['url']] = $protocol.$url_info['url'];
 
 				if (empty($primary_url)) {
@@ -159,6 +159,20 @@ function paintPreview(&$owner, &$o, &$ei)
 
 				}//end set_preview_url()
 
+				//Change the new window url depending on cache options
+				function set_new_window_href(elt)
+				{
+					var href = document.getElementById('sq_preview_new_window').href;
+					var nocache_suffix = '/<?php echo SQ_CONF_NOCACHE_SUFFIX; ?>';
+
+					if (elt.checked == true) {
+						href = href.replace(nocache_suffix, '');
+					} else {
+						href = href + nocache_suffix;
+					}
+					document.getElementById('sq_preview_new_window').href = href;
+				}
+
 			</script>
 			<?php
 		$o->closeRaw();
@@ -181,7 +195,7 @@ function paintPreview(&$owner, &$o, &$ei)
 				}
 			$o->closeField();
 			$o->openField(translate('use_cache'));
-				check_box('use_cache');
+				check_box('use_cache', '1', false, 'set_new_window_href(this);');
 				echo translate('show_cached_asset');
 			$o->closeField();
 			$o->openRaw();
@@ -235,9 +249,9 @@ function paintPreview(&$owner, &$o, &$ei)
 /**
 * Processes the interface for previewing the asset
 *
-* @param object	Asset					&$owner	the asset whose interface we are painting
-* @param object	Backend_Outputter		&$o		the outputter class
-* @param object	Asset_Edit_Interface	&$ei	the edit interface
+* @param object	&$owner	Asset: the asset whose interface we are painting
+* @param object	&$o		Backend_Outputter: the outputter class
+* @param object	&$ei	Asset_Edit_Interface: the edit interface
 *
 * @return boolean
 * @access public
