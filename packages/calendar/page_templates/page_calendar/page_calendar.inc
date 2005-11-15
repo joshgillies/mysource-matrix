@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.169 2005/11/14 00:14:00 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.170 2005/11/15 04:03:50 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.169 $
+* @version $Revision: 1.170 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2459,6 +2459,9 @@ class Page_Calendar extends Page
 
 		if ($get_asset_info) {
 			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
+			foreach ($asset_info as $id => $info) {
+				$asset_info[$id]['assetid'] = $id;
+			}
 		}
 
 		// loop each event
