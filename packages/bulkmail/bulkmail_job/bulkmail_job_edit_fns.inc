@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.15 2005/11/14 23:41:04 ndvries Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.16 2005/11/15 03:59:08 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -312,7 +312,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 
 
 	/**
-	* Paints the log of last 5 preview records
+	* Paints the log of preview records
 	*
 	* @param object	&$asset	the asset to which we belong
 	* @param object	&$o		the outputter class
@@ -355,7 +355,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 
 
 	/**
-	* Processes the log of last 5 preview records
+	* Processes the log of preview records
 	*
 	* @param object	&$asset	the asset to which we belong
 	* @param object	&$o		the outputter class
@@ -369,6 +369,9 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		return true;
 
 	}//end processPreviewLog()
+
+
+//--        PROGRESS        --//
 
 
 	/**
