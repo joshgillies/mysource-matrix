@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.18 2005/11/15 04:29:48 rong Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.19 2005/11/15 22:30:42 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -287,18 +287,14 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return false;
 
-		if (isset($_REQUEST[$prefix.'_server_detail_mph'])) {
-			$server_details['mph'] = $_REQUEST[$prefix.'_server_detail_mph'];
-		}
-
 		$driver = array_get_index($_REQUEST, $prefix.'_server_det_driver', 'smtp');
 		foreach ($_REQUEST as $key => $value) {
 			if (preg_match('/'.$prefix.'_server_detail_'.$driver.'_(auth_)?([^^]*)/', $key, $matches)) {
-				$server_details[$matches[2]] = $value;
+				// do not store empty string so that we can use PEAR mail default params
+				if ($value) $server_details[$matches[2]] = $value;
 			}
 		}
 		$server_details['driver'] = $driver;
-
 
 		if (array_get_index($server_details, 'driver', 'smtp') == 'smtp') {
 			if (array_get_index($server_details, 'auth', false) == false) {
