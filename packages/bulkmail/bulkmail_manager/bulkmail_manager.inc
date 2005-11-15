@@ -12,7 +12,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -587,25 +587,25 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			$content_page =& $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_id']);
 			if ($content_page->status != SQ_STATUS_LIVE) {
 				$errors[] = translate('bm_warning_asset_to_send_not_live', $content_page->name, $content_page->id);
+			} else {
+				// no pre-selected user
+				if (empty($details_info['content_gen_as'])) {
+					$errors[] = translate('bm_warning_no_generate_as');
+				} else {
+					// cannot login as pre-selected user, is in trash or not live
+					$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_gen_as']);
+					if (!$user->canLogin()) {
+						$errors[] = translate('bm_warning_generate_as_login_error', $user->name, $user->id);
+					}
+					// pre-selected user does not have read permission for content page
+					$read_access = $content_page->readAccess(Array($user->id));
+					if (!$read_access) {
+						$errors[] = translate('bm_warning_generate_as_no_read_access', $user->name, $user->id, $content_page->name, $content_page->id);
+					}
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_page);
+				}
 			}
-		}
-
-		// no pre-selected user
-		if (empty($details_info['content_gen_as'])) {
-			$errors[] = translate('bm_warning_no_generate_as');
-		} else {
-			// cannot login as pre-selected user, is in trash or not live
-			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_gen_as']);
-			if (!$user->canLogin()) {
-				$errors[] = translate('bm_warning_generate_as_login_error', $user->name, $user->id);
-			}
-			// pre-selected user does not have read permission for content page
-			$read_access = $content_page->readAccess(Array($user->id));
-			if (!$read_access) {
-				$errors[] = translate('bm_warning_generate_as_no_read_access', $user->name, $user->id, $content_page->name, $content_page->id);
-			}
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_page);
 		}
 
 		// design does not have public read access
