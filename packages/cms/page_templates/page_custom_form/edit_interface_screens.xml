@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.6.2.1 2005/07/21 03:22:36 dmckee Exp $
+* $Id: edit_interface_screens.xml,v 1.6.2.2 2005/11/15 22:23:08 lwright Exp $
 *
 */
 -->
@@ -20,5 +20,5 @@
 	<screen code_name="paths" display_name="Web Paths" icon="web" lock_type="lookups"/>
 	<screen code_name="weights" display_name="Relevance Weights" icon="web" lock_type="weights"/>
 	<screen code_name="contents" display_name="Edit Contents" icon="create" />
-	<screen code_name="log" display_name="Submission Logs" icon="web" />
+	<screen code_name="log" display_name="Submission Logs" icon="web" force_unlock="0" />
 </screens>
