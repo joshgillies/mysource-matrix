@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office.inc,v 1.16 2005/11/14 23:59:38 rong Exp $
+* $Id: bulkmail_post_office.inc,v 1.17 2005/11/15 04:58:25 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once 'Mail.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -120,9 +120,9 @@ class Bulkmail_Post_Office extends Asset
 		if ($result !== true) return $result;
 
 		if (is_a($minor, 'bulkmail_job') && ($link_type != SQ_LINK_NOTICE)) {
-			// bulkmail job can only be in a single bulkmail post office
-			$network_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'bulkmail_post_office', false, 'minor');
-			if (!empty($network_link)) {
+			// bulkmail job can only link to one bulkmail post office
+			$bmail_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'bulkmail_post_office', false, 'minor');
+			if (!empty($bmail_link)) {
 				return translate('bm_warning_one_post_office_for_job');
 			}
 		}
@@ -130,6 +130,34 @@ class Bulkmail_Post_Office extends Asset
 		return true;
 
 	}//end canCreateLink()
+
+
+	/**
+	* Ensures that bulkmail jobs can be moved from one post office to another
+	*
+	* @param object	&$minor		the minor asset that we are linking to
+	* @param object	&$old_major	the major asset that we are being moved from
+	* @param string	$link_type	the type of link this is
+	*
+	* @return mixed boolean|string
+	* @access public
+	*/
+	function canMoveLink(&$minor, &$old_major, $link_type)
+	{
+		if (is_a($minor, 'bulkmail_job') && is_a($old_major, 'bulkmail_post_office') && ($link_type != SQ_LINK_NOTICE)) {
+			 // tolerate one existing bmail_link if we are moving jobs from one post office to another
+			$bmail_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'bulkmail_post_office', false, 'minor');
+			if (count($bmail_link) > 1) {
+				return translate('bm_warning_one_post_office_for_job');
+			}
+		} else {
+			// if we aren't moving from a post office, the usual check applies
+			return parent::canMoveLink($minor, $old_major, $link_type);
+		}
+
+		return true;
+
+	}//end canMoveLink()
 
 
 }//end class
