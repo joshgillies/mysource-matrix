@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.8.2.3 2005/09/29 05:07:40 lwright Exp $
+* $Id: preview.inc,v 1.8.2.4 2005/11/15 23:42:42 dmckee Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.8.2.3 $
+* @version $Revision: 1.8.2.4 $
 * @package MySource_Matrix
 */
 
@@ -35,9 +35,9 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 /**
 * Paints the interface for previewing the asset
 *
-* @param object	Asset					&$owner	the asset whose interface we are painting
-* @param object	Backend_Outputter		&$o		the outputter class
-* @param object	Asset_Edit_Interface	&$ei	the edit interface
+* @param object	&$owner	Asset: the asset whose interface we are painting
+* @param object	&$o		Backend_Outputter: the outputter class
+* @param object	&$ei	Asset_Edit_Interface: the edit interface
 *
 * @return boolean
 * @access public
@@ -101,16 +101,22 @@ function paintPreview(&$owner, &$o, &$ei)
 				$protocol_list['http'] = 'http://';
 			}
 
-			foreach($protocol_list as $protocol) {
+			foreach ($protocol_list as $protocol) {
 				$preview_urls[$protocol.$url_info['url']] = $protocol.$url_info['url'];
-				if (empty($primary_url)) $primary_url = $protocol.$url_info['url'];
+				if (empty($primary_url)) {
+					$primary_url = $protocol.$url_info['url'];
+				}
 
 				$url_pieces = parse_url($protocol.$url_info['url']);
-				if ($url_pieces['host'] != $current_url['host']) $contains_diff_domain = true;
+				if ($url_pieces['host'] != $current_url['host']) {
+					$contains_diff_domain = true;
+				}
 
 				if (!empty($url_info['name'])) {
 					$design_name = $url_info['name'];
-					if (!preg_match('/^design::(system|user)::(.*)$/', $design_name, $matches)) continue;
+					if (!preg_match('/^design::(system|user)::(.*)$/', $design_name, $matches)) {
+						continue;
+					}
 					if ($matches[1] == 'user') {
 						$preview_designs[$matches[2]] = ucwords(str_replace('_', ' ', $matches[2]));
 					} else if ($design_name == 'design::system::frontend') {
@@ -120,7 +126,9 @@ function paintPreview(&$owner, &$o, &$ei)
 			}//end for each protocol
 		}//end for each url
 
-		if (!$has_default_design) $preview_designs[''] = 'None';
+		if (!$has_default_design) {
+			$preview_designs[''] = 'None';
+		}
 
 		$o->openRaw();
 			?>
@@ -146,6 +154,20 @@ function paintPreview(&$owner, &$o, &$ei)
 
 				}//end set_preview_url()
 
+				//Change the new window url depending on cache options
+				function set_new_window_href(elt)
+				{
+					var href = document.getElementById('sq_preview_new_window').href;
+					var nocache_suffix = '/<?php echo SQ_CONF_NOCACHE_SUFFIX; ?>';
+
+					if (elt.checked == true) {
+						href = href.replace(nocache_suffix, '');
+					} else {
+						href = href + nocache_suffix;
+					}
+					document.getElementById('sq_preview_new_window').href = href;
+				}
+
 			</script>
 			<?php
 		$o->closeRaw();
@@ -168,7 +190,7 @@ function paintPreview(&$owner, &$o, &$ei)
 				}
 			$o->closeField();
 			$o->openField(translate('use_cache'));
-				check_box('use_cache');
+				check_box('use_cache', '1', false, 'set_new_window_href(this);');
 				echo translate('show_cached_asset');
 			$o->closeField();
 			$o->openRaw();
@@ -182,7 +204,7 @@ function paintPreview(&$owner, &$o, &$ei)
 			$o->openRaw();
 				?>
 				<p style="text-align: right;">
-					<?php normal_button('preview_button', translate('preview'), "set_preview_url()"); ?>
+					<?php normal_button('preview_button', translate('preview'), 'set_preview_url()'); ?>
 				</p>
 				<?php
 			$o->closeRaw();
@@ -191,7 +213,7 @@ function paintPreview(&$owner, &$o, &$ei)
 		$o->openSection(translate('preview'));
 			$o->openRaw('');
 				ob_start();
-					?><a href="<?php echo $primary_url; ?>" id="sq_preview_new_window" target="_blank"><?php echo translate('show_in_new_window'); ?></a><?php
+					?><a href="<?php echo $primary_url; ?>/<?php echo SQ_CONF_NOCACHE_SUFFIX; ?>" id="sq_preview_new_window" target="_blank"><?php echo translate('show_in_new_window'); ?></a><?php
 					$replacements_link = ob_get_contents();
 				ob_get_clean();
 				?>
@@ -222,9 +244,9 @@ function paintPreview(&$owner, &$o, &$ei)
 /**
 * Processes the interface for previewing the asset
 *
-* @param object	Asset					&$owner	the asset whose interface we are painting
-* @param object	Backend_Outputter		&$o		the outputter class
-* @param object	Asset_Edit_Interface	&$ei	the edit interface
+* @param object	&$owner	Asset: the asset whose interface we are painting
+* @param object	&$o		Backend_Outputter: the outputter class
+* @param object	&$ei	Asset_Edit_Interface: the edit interface
 *
 * @return boolean
 * @access public
