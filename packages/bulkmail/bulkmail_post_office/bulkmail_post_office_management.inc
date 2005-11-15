@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_management.inc,v 1.12 2005/11/15 00:05:48 rong Exp $
+* $Id: bulkmail_post_office_management.inc,v 1.13 2005/11/15 04:29:48 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -121,6 +121,29 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 												'type'			=> 'serialise',
 												'default'		=> Array(),
 												'description'	=> 'Threshold rules that will be enforced by the Bulk Mailer when it runs',
+											   ),
+						'threshold_types'	=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'serialise',
+												'default'		=> Array(
+																	//bulkmail_threshold_rule_excluded_time
+																	0	=> Array(
+																			'multiple'	=> true,
+																			'params'	=> Array(
+																							'from'	=> 0,
+																							'to'	=> 0,
+																							'days'	=> Array(),
+																						   ),
+																		   ),
+																	//bulkmail_threshold_rule_mpm
+																	1	=> Array(
+																			'multiple'	=> false,
+																			'params'	=> Array(
+																							'value'	=> 100,
+																						   ),
+																		   ),
+																   ),
+												'description'	=> 'Threshold rule types and their default values',
 											   ),
 					  );
 

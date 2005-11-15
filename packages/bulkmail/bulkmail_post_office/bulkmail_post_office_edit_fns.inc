@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.17 2005/11/14 23:41:11 ndvries Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.18 2005/11/15 04:29:48 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -335,11 +335,11 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header"><b><?php echo translate('bulkmail_header_detail_field_name'); ?></b></td>
-					<td class="sq-backend-table-header"><b><?php echo translate('bulkmail_header_detail_field_body'); ?></b></td>
+					<th class="sq-backend-table-header"><b><?php echo translate('bulkmail_header_detail_field_name'); ?></b></th>
+					<th class="sq-backend-table-header"><b><?php echo translate('bulkmail_header_detail_field_body'); ?></b></th>
 					<?php
 					if ($write_access) {
-						?><td class="sq-backend-table-header"><b><?php echo translate('delete_question'); ?></b></td><?php
+						?><th class="sq-backend-table-header"><b><?php echo translate('delete_question'); ?></b></th><?php
 					}
 					?>
 				</tr>
@@ -347,7 +347,6 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 					$index = 0;
 					foreach ($header_details as $field_name => $field_body) {
 						if ($write_access) {
-							// field_name[i] is not a valid xhtml id for form fields
 							?><tr>
 								<td class="sq-backend-table-cell"><?php echo text_box($prefix.'_header_detail_fields_name_'.$index, $field_name);?></td>
 								<td class="sq-backend-table-cell"><?php echo text_box($prefix.'_header_detail_fields_body_'.$index, $field_body);?></td>
@@ -424,6 +423,9 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	}//end processHeaderDetails()
 
 
+//--        THRESHOLD        --//
+
+
 	/**
 	* Paint the threshold settings
 	*
@@ -438,50 +440,50 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$threshold = $asset->attr('threshold');
-		if (empty($threshold)) {
-			$threshold = Array(
-							'type'	=> 'chunk',
-							'value'	=> '0',
-						 );
-		}
-		$chunk_value = ($threshold['type'] == 'chunk') ? $threshold['value'] : 0;
-		$spread_value = ($threshold['type'] == 'spread') ? $threshold['value'] : 0;
 
-		ob_start();
-			int_text_box($prefix.'_threshold_chunk', $chunk_value, false, 3);
-			$chunk_box = ob_get_contents();
-		ob_end_clean();
-		ob_start();
-			int_text_box($prefix.'_threshold_spread', $spread_value, false, 3);
-			$spread_box = ob_get_contents();
-		ob_end_clean();
-
-		$threshold_types = Array(
-							'chunk'		=> translate('bulkmail_threshold_detail_chunk', $chunk_box),
-							'spread'	=> translate('bulkmail_threshold_detail_spread', $spread_box),
-							'asap'		=> translate('bulkmail_threshold_detail_asap'),
-						   );
-
-		$o->openField(translate('bulkmail_threshold_detail_type'));
-			if ($write_access) {
-				$o->note(translate('bulkmail_threshold_detail_note'));
-				foreach ($threshold_types as $threshold_type => $threshold_desc) {
-					if (isset($threshold['type']) && $threshold_type == $threshold['type']) {
-						$checked = true;
-						$value = $threshold['value'];
-					} else {
-						$checked = false;
-						$value = '';
+		// paint existing rules
+		$o->openField(translate('bulkmail_threshold_current_rules'));
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<th class="sq-backend-table-header"><?php echo translate('type') ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('bulkmail_threshold_allow_multiple') ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('rule') ?></th>
+				<?php
+					if ($write_access) {
+						?><th class="sq-backend-table-header"><?php echo translate('delete_rule') ?></th><?php
 					}
-					radio_button($prefix.'_threshold_type', $threshold_type, $checked);
-					echo $threshold_desc;
-					?><br /><?php
+				?>
+			</tr><?php
+			if (!empty($threshold)) {
+				foreach ($threshold as $key => $rule) {
+					?><tr>
+						<td class="sq-backend-table-cell"><?php echo $rule['type']; ?></td>
+						<td class="sq-backend-table-cell"><?php echo ($rule['multiple']) ? translate('true') : translate('false'); ?></td>
+					<?php
+						switch ($rule['type']) {
+							case translate('bulkmail_threshold_rule_excluded_time') :
+								$this->_paintExcludedTimeRule($asset, $o, $prefix.'_threshold_rule_'.$key, $rule);
+							break;
+							case translate('bulkmail_threshold_rule_mpm') :
+								$this->_paintMpmRule($asset, $o, $prefix.'_threshold_rule_'.$key, $rule);
+							break;
+							default:
+							break;
+						}
+					?></tr><?php
 				}
-			} else {
-				$threshold_desc = translate('bulkmail_threshold_detail_'.$threshold['type'], $threshold['value']);
-				echo translate('bulkmail_threshold_detail_report', $threshold_desc);
 			}
+		?>
+		</table><?php
 		$o->closeField();
+
+		// the dropdown box that allows user to add new rules
+		if ($write_access) {
+			$o->openField(translate('bulkmail_threshold_add_rule'), '', translate('bulkmail_threshold_add_rule_note'));
+				$this->paintAddRule($asset, $o, $prefix);
+			$o->closeField();
+		}
 		return true;
 
 	}//end paintThresholds()
@@ -499,21 +501,289 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processThresholds(&$asset, &$o, $prefix)
 	{
-		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return false;
 
-		if (isset($_REQUEST[$prefix.'_threshold_type'])) {
-			$type = $_REQUEST[$prefix.'_threshold_type'];
-			$value = ($type == 'asap') ? 0 : $_REQUEST[$prefix.'_threshold_'.$type];
-			$threshold = Array(
-							'type'	=> $type,
-							'value'	=> $value,
-						 );
-			$asset->setAttrValue('threshold', $threshold);
+		$threshold = $asset->attr('threshold');
+		if (!empty($threshold)) {
+			foreach ($threshold as $key => $rule) {
+				switch ($rule['type']) {
+					case translate('bulkmail_threshold_rule_excluded_time') :
+						$threshold = $this->_processExcludedTimeRule($prefix.'_threshold_rule_'.$key, $threshold, $key);
+					break;
+					case translate('bulkmail_threshold_rule_mpm') :
+						$threshold = $this->_processMpmRule($prefix.'_threshold_rule_'.$key, $threshold, $key);
+					break;
+					default:
+					break;
+				}
+			}
 		}
+		$threshold = $this->processAddRule($asset, $o, $prefix, $threshold);
+		$asset->setAttrValue('threshold', $threshold);
+
 		return true;
 
 	}//end processThresholds()
+
+
+	/**
+	* Paints the dropdown to add a rule to this section
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAddRule(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return false;
+
+		$rules = Array('' => '-- '.translate('bulkmail_threshold_choose_type').' --');
+		$rules += Array(
+					translate('bulkmail_threshold_rule_excluded_time'),
+					translate('bulkmail_threshold_rule_mpm'),
+				  );
+		combo_box($prefix.'_rule_type', $rules, false, '');
+
+		return true;
+
+	}//end paintAddRule()
+
+
+	/**
+	* Processes the dropdown to add a rule to this section
+	*
+	* @param object	&$asset		the asset whose interface we are painting
+	* @param object	&$o			the outputter class
+	* @param string	$prefix		prefix for the form elements
+	* @param array	$threshold	the post office's threshold attribute
+	*
+	* @return array
+	* @access public
+	*/
+	function processAddRule(&$asset, &$o, $prefix, $threshold)
+	{
+		if ($asset->writeAccess('attributes')) {
+			$rules = Array(
+						translate('bulkmail_threshold_rule_excluded_time'),
+						translate('bulkmail_threshold_rule_mpm'),
+					 );
+			if (isset($_POST[$prefix.'_rule_type'])) {
+				$type = (isset($rules[$_POST[$prefix.'_rule_type']])) ? $rules[$_POST[$prefix.'_rule_type']] : '';
+			}
+			// multiple entries not allowed for this rule type
+			foreach ($threshold as $key => $val) {
+				if ($val['type'] == $type) {
+					if (!$val['multiple']) return $threshold;
+				}
+			}
+			$threshold_types = $asset->attr('threshold_types');
+			switch ($type) {
+					case translate('bulkmail_threshold_rule_excluded_time') :
+						$threshold_types[0]['type'] = $type;
+						$threshold[] = $threshold_types[0];
+					break;
+					case translate('bulkmail_threshold_rule_mpm') :
+						$threshold_types[1]['type'] = $type;
+						$threshold[] = $threshold_types[1];
+					break;
+					default:
+					break;
+			}
+		}
+
+		return $threshold;
+
+	}//end processAddRule()
+
+
+	/**
+	* Paints the 'excluded time' rule
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	* @param array	$rule	the rule that we are painting
+	*
+	* @return void
+	* @access private
+	*/
+	function _paintExcludedTimeRule(&$asset, &$o, $prefix, $rule)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$hours_array = Array(
+						0	=> '00',
+						1	=> '01',
+						2	=> '02',
+						3	=> '03',
+						4	=> '04',
+						5	=> '05',
+						6	=> '06',
+						7	=> '07',
+						8	=> '08',
+						9	=> '09',
+						10	=> '10',
+						11	=> '11',
+						12	=> '12',
+						13	=> '13',
+						14	=> '14',
+						15	=> '15',
+						16	=> '16',
+						17	=> '17',
+						18	=> '18',
+						19	=> '19',
+						20	=> '20',
+						21	=> '21',
+						22	=> '22',
+						23	=> '23',
+					   );
+		$days_array = Array(
+						0	=> translate('sunday'),
+						1	=> translate('monday'),
+						2	=> translate('tuesday'),
+						3	=> translate('wednesday'),
+						4	=> translate('thursday'),
+						5	=> translate('friday'),
+						6	=> translate('saturday'),
+					  );
+
+		if ($write_access) {
+			ob_start();
+				combo_box($prefix.'_from', $hours_array, false, $rule['params']['from']);
+				$from = ob_get_contents();
+			ob_end_clean();
+			ob_start();
+				combo_box($prefix.'_to', $hours_array, false, $rule['params']['to']);
+				$to = ob_get_contents();
+			ob_end_clean();
+			ob_start();
+				combo_box($prefix.'_days', $days_array, true, $rule['params']['days']);
+				$days = ob_get_contents();
+			ob_end_clean();
+			?><td class="sq-backend-table-cell"><?php
+				echo translate('bulkmail_threshold_rule_excluded_time_hour', $from, $to);
+				echo translate('bulkmail_threshold_rule_excluded_time_days', $days);
+			?></td><td class="sq-backend-table-cell"><?php
+				check_box($prefix.'_delete', true, false);?></td><?php
+		} else {
+			$from = $hours_array[$rule['params']['from']];
+			$to = $hours_array[$rule['params']['to']];
+			if (!empty($rule['params']['days'])) {
+				$selected_days = Array();
+				foreach ($rule['params']['days'] as $day) {
+					$selected_days[] = $days_array[$day];
+				}
+				$days = implode(', ', $selected_days);
+			}
+			?><td class="sq-backend-table-cell" colspan="2"><?php
+				echo translate('bulkmail_threshold_rule_excluded_time_hour', $from, $to);
+				if (!empty($days)) {
+					echo translate('bulkmail_threshold_rule_excluded_time_days', $days);
+				}
+			?></td><?php
+		}
+
+	}//end _paintExcludedTimeRule()
+
+
+	/**
+	* Processes the 'excluded time' rule
+	*
+	* @param string	$prefix		prefix for the form elements
+	* @param array	$threshold	the post office's threshold attribute
+	* @param int	$key		the index of this rule in the threshold array
+	*
+	* @return array
+	* @access private
+	*/
+	function _processExcludedTimeRule($prefix, $threshold, $key)
+	{
+		// make changes to threshold attribute accordingly and pass it back to the process function
+		if (isset($_POST[$prefix.'_from'])) {
+			$params['from'] = $_POST[$prefix.'_from'];
+			// check for valid range
+			if ($_POST[$prefix.'_to'] < $_POST[$prefix.'_from']) {
+				// 'to' time must be greater than 'from' time
+				$params['to'] = $_POST[$prefix.'_from'];
+			} else {
+				$params['to'] = $_POST[$prefix.'_to'];
+			}
+			$params['days'] = (isset($_POST[$prefix.'_days'])) ? $_POST[$prefix.'_days'] : Array();
+		}
+		$threshold[$key]['params'] = $params;
+		// delete box is checked
+		if (isset($_POST[$prefix.'_delete'])) {
+			unset($threshold[$key]);
+		}
+
+		return $threshold;
+
+	}//end _processExcludedTimeRule()
+
+
+	/**
+	* Paints the 'Mails per Minute' rule
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	* @param array	$rule	the rule that we are painting
+	*
+	* @return void
+	* @access private
+	*/
+	function _paintMpmRule(&$asset, &$o, $prefix, $rule)
+	{
+		$min = 1;
+		$max = 100;
+
+		$write_access = $asset->writeAccess('attributes');
+		if ($write_access) {
+			ob_start();
+				int_text_box($prefix.'_value', $rule['params']['value'], false, 4, $min, $max, 4, false, 'align="right"');
+				$value = ob_get_contents();
+			ob_end_clean();
+			?><td class="sq-backend-table-cell"><?php
+				echo translate('bulkmail_threshold_rule_mpm_detail', $value);
+			?></td><td class="sq-backend-table-cell"><?php
+				check_box($prefix.'_delete', true, false);?></td><?php
+		} else {
+			$value = $rule['params']['value'];
+			?><td class="sq-backend-table-cell" colspan="2"><?php
+				echo translate('bulkmail_threshold_rule_mpm_detail', $value);
+			?></td><?php
+		}
+
+	}//end _paintMpmRule()
+
+
+	/**
+	* Processes the 'Mails per Minute' rule
+	*
+	* @param string	$prefix		prefix for the form elements
+	* @param array	$threshold	the post office's threshold attribute
+	* @param int	$key		the index of this rule in the threshold array
+	*
+	* @return array
+	* @access private
+	*/
+	function _processMpmRule($prefix, $threshold, $key)
+	{
+		if (isset($_POST[$prefix.'_value'])) {
+			$params['value'] = $_POST[$prefix.'_value'];
+			// do not allow zero mpm
+			if (!$params['value']) $params['value'] = 1;
+		}
+		$threshold[$key]['params'] = $params;
+		if (isset($_POST[$prefix.'_delete'])) {
+			unset($threshold[$key]);
+		}
+
+		return $threshold;
+
+	}//end _processMpmRule()
 
 
 //--        JOB MANAGEMENT        --//
