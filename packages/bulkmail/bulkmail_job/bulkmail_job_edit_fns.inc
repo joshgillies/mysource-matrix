@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.16 2005/11/15 03:59:08 rong Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.17 2005/11/15 05:47:54 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -290,23 +290,25 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		if (!$asset->writeAccess('attributes')) return false;
 
 		$recipient = array_get_index($_REQUEST, $prefix.'_preview_address', '');
-		if (empty($recipient)) {
+		if (empty($recipient)) return false;
+
+		if ($asset->sendPreviewMail($recipient)) {
+			$msg_reps = Array(
+							'assetid'		=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
+							'email_addr'	=> $recipient,
+						);
+
+			$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$message = $ms->newMessage(Array(), 'bulkmail.preview', $msg_reps);
+
+			$message->parameters['assetid'] = $asset->id;
+			$message->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
+			$message->send();
+
+			return true;
+		} else {
 			return false;
 		}
-
-		$msg_reps = Array(
-						'assetid'		=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
-						'email_addr'	=> $recipient,
-					);
-
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$message = $ms->newMessage(Array(), 'bulkmail.preview', $msg_reps);
-
-		$message->parameters['assetid'] = $asset->id;
-		$message->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
-		$message->send();
-
-		return $asset->sendPreviewMail($recipient);
 
 	}//end processPreviewAddress()
 
