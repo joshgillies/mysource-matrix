@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_management.inc,v 1.13 2005/11/15 04:29:48 rong Exp $
+* $Id: bulkmail_post_office_management.inc,v 1.14 2005/11/15 22:30:58 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -95,7 +95,7 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 						'server_details'	=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'serialise',
-												'default'		=> Array('driver' => 'smtp'),
+												'default'		=> Array('driver' => 'sendmail'),
 												'description'	=> 'Details about which email server the bulkmails should be sent to',
 											   ),
 						'from'				=> Array(
