@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.17 2005/11/09 23:34:46 rong Exp $
+* $Id: bulk_mailer.inc,v 1.18 2005/11/15 04:31:09 rong Exp $
 *
 */
 
@@ -19,13 +19,14 @@ require_once dirname(__FILE__).'/../../core/include/init.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 require_once 'Mail/Queue.php';
 
+
 /**
 * Bulk_Mailer
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -90,14 +91,13 @@ class Bulk_Mailer
 			exit(1);
 		}
 
-		mem_check(); echo 'Process starts @ '.date('r')."\n";
+		//mem_check(); echo 'Process starts @ '.date('r')."\n";
 		$recip_per_chunk = 1;
 		$timeout_threshold = 60;
 
 		// get a scheduled job from the database table and process it
 		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$results = $bm->getQueuedJobs();
-		//echo "getQueuedJobs\n"; bam($results);
 
 		// check for crashed or timeout process (higher priority that new jobs)
 		foreach ($results as $job_id => $info) {
@@ -110,11 +110,13 @@ class Bulk_Mailer
 					echo "time diff=$time_diff, threshold=$timeout_threshold\n";
 					// timeout threshold reached, take over
 					if ($time_diff > $timeout_threshold) {
-						echo " BulkMailer->timeout! taking over Job #$job_id\n";
-						$this->chunkJob($job_id, $recip_per_chunk);
-						$this->processJob($job_id, $recip_per_chunk);
-						// exit bulkmailer (dont run the next for loop)
-						return;
+						if (!$this->isExcludedTime($info['details']['threshold'])) {
+							echo " BulkMailer->timeout! taking over Job #$job_id\n";
+							$this->chunkJob($job_id, $recip_per_chunk);
+							$this->processJob($job_id, $recip_per_chunk);
+							// exit bulkmailer (dont run the next for loop)
+							return;
+						}
 					} else {
 						echo "Timeout threshold ok for Job #$job_id\n";
 					}
@@ -125,11 +127,14 @@ class Bulk_Mailer
 		// pick up a normal new job/ or a resumed job and run it
 		foreach ($results as $job_id => $info) {
 			if ($info['status'] == BML_JOB_STATE_NOT_RUNNING) {
-				echo " BulkMailer->Start Job #$job_id\n";
-				$bm->updateJob($job_id, BML_JOB_STATE_RUNNING);
-				$this->chunkJob($job_id, $recip_per_chunk);
-				$this->processJob($job_id, $recip_per_chunk);
-				break;
+				// excluded time threshold rule
+				if (!$this->isExcludedTime($info['details']['threshold'])) {
+					echo " BulkMailer->Start Job #$job_id\n";
+					$bm->updateJob($job_id, BML_JOB_STATE_RUNNING);
+					$this->chunkJob($job_id, $recip_per_chunk);
+					$this->processJob($job_id, $recip_per_chunk);
+					break;
+				}
 			}
 		}
 
@@ -266,6 +271,10 @@ class Bulk_Mailer
 				echo "processJob : job cancelled\n";
 				$bm->deleteJob($job_id);
 				exit;
+			} else if ($this->isExcludedTime($details['threshold'])) {
+				// check threshold rule : excluded time
+				$bm->updateJob($job_id, BML_JOB_STATE_NOT_RUNNING);
+				exit;
 			}
 
 			// load up current chunk
@@ -290,7 +299,7 @@ class Bulk_Mailer
 						// fork since we cannot call printFrontend multiple times
 						$pid = $this->fork();
 						if (!$pid) {
-							$this->updateProgress($progress_path, $user_id);
+							$this->updateProgress($progress_path, $user_id, $details['threshold']);
 							$content = $this->generateBmailContent($details['content_id'], $details['content_gen'], $details['content_design'], $details['content_layout'], $job_path, $user_id);
 							// skip if we cannot generate content for this user, TODO: report problematic user?
 							if (empty($content)) continue;
@@ -312,7 +321,11 @@ class Bulk_Mailer
 					}
 				}
 				echo "processJob : sendMailsInQueue\n";
-				$mail_queue->sendMailsInQueue();
+				$status = $mail_queue->sendMailsInQueue();
+				if (PEAR::isError($status)) {
+					trigger_localised_error('BML0001', E_USER_WARNING, $status->getMessage());
+					exit;
+				}
 				// proceed to next chunk
 				$this->nextChunk($progress_path);
 				exit;
@@ -359,11 +372,12 @@ class Bulk_Mailer
 	*
 	* @param string	$progress_path	path to the progress info file
 	* @param int	$user_id		current recipient assetid
+	* @param array	$thresholds		the threshold attribute of the post office
 	*
 	* @return boolean
 	* @access public
 	*/
-	function updateProgress($progress_path, $user_id)
+	function updateProgress($progress_path, $user_id, $thresholds)
 	{
 		$progress_info = Array();
 		if (file_exists($progress_path)) {
@@ -377,13 +391,46 @@ class Bulk_Mailer
 		$progress_info['current_recip_id'] = $user_id;
 		$progress_info['last_updated'] = time();
 
+		// checking mail per minute threshold rule
+		if (!isset($progress_info['threshold_mpm'])) {
+			foreach ($thresholds as $threshold) {
+				if ($threshold['type'] == translate('bulkmail_threshold_rule_mpm')) {
+					$progress_info['threshold_mpm'] = $threshold['params']['value'];
+					break;
+				}
+			}
+			// mpm rule not defined
+			if (!isset($progress_info['threshold_mpm'])) {
+				$progress_info['threshold_mpm'] = -1;
+			}
+		}
+		// check to see if the mpm threshold has been reached
+		if ($progress_info['threshold_mpm'] != -1) {
+			// store start time and start count
+			if (!isset($progress_info['start_time']) || !$progress_info['start_time']) {
+				$progress_info['start_time'] = time();
+				$progress_info['start_count'] = $progress_info['current_count'];
+			}
+			$minute = 60;
+			$time_diff = time() - $progress_info['start_time'];
+			$count_diff = $progress_info['current_count'] - $progress_info['start_count'];
+			//echo "sec passed=$time_diff, mail sent=$count_diff (start=$progress_info[start_count],now=$progress_info[current_count]) mpm=$progress_info[threshold_mpm]\n";
+			// mpm threshold reached, sleep for the rest of the minute
+			if ($count_diff == $progress_info['threshold_mpm'] && $time_diff < $minute) {
+				//echo "sleep(".($minute-$time_diff).")\n";
+				sleep($minute-$time_diff);
+				// reset start time and start count
+				$progress_info['start_time'] = time();
+				$progress_info['start_count'] = $progress_info['current_count'];
+			}
+		}
+
 		$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';
 		if (!string_to_file($output, $progress_path)) {
 			trigger_localised_error('BML0008', E_USER_WARNING, $progress_path);
 			return false;
 		} else {
-			echo 'updateProgress : #'.$progress_info['current_count']." User (Id #$user_id)\n";
-			sleep(10); // TODO: remove this
+			sleep(2); // TODO: remove this
 			return true;
 		}
 
@@ -473,13 +520,13 @@ class Bulk_Mailer
 
 		// code for multiplying the recipients, eg. turn 10 actual users into 500 users
 		// for testing purposes
-		/*foreach($result as $user_id => $email) {
+		foreach ($result as $user_id => $email) {
 			$count = 0;
-			while($count<100){
+			while ($count<5) {
 				$result += Array( ($user_id * $count) => $email.'.'.$count.'.net');
 				$count++;
 			}
-		}*/
+		}
 		return $result;
 
 	}//end getAllRecipients()
@@ -650,7 +697,7 @@ class Bulk_Mailer
 		// load this user, for content generation and keyword replacement
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$user = null;
-		if ($user_id) $user =& $am->getAsset($user_id);
+		//if ($user_id) $user =& $am->getAsset($user_id);
 
 		// always login and generate content for per user basis,
 		// unless the user is a subscriber (bulkmail user) with only an email address
@@ -723,6 +770,48 @@ class Bulk_Mailer
 		return $content;
 
 	}//end replaceContentKeyword()
+
+
+	/**
+	* Check if current time is within excluded time threshold rule
+	*
+	* Gets call before Bulk Mailer starts processing a job and between each job chunks
+	*
+	* @param array	$thresholds	the threshold attribute of the post office
+	*
+	* @return string
+	* @access public
+	*/
+	function isExcludedTime($thresholds)
+	{
+		$days_array = Array(
+						0	=> 'Sun',
+						1	=> 'Mon',
+						2	=> 'Tue',
+						3	=> 'Wed',
+						4	=> 'Thu',
+						5	=> 'Fri',
+						6	=> 'Sat',
+					  );
+
+		foreach ($thresholds as $threshold) {
+			if ($threshold['type'] == translate('bulkmail_threshold_rule_excluded_time')) {
+				foreach ($threshold['params']['days'] as $excluded_day) {
+					$excluded_days[] = $days_array[$excluded_day];
+				}
+				$now_day = date('D', time()); // A textual representation of a day, three letters, eg. 'Mon'
+				$now_time = date('G', time()); // 24-hour format of an hour without leading zeros, eg. 8, 15
+				if (in_array($now_day, $excluded_days)) {
+					// range: [from, to)
+					if ($now_time >= $threshold['params']['from'] && $now_time < $threshold['params']['to']) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+
+	}//end isExcludedTime()
 
 
 }//end class
