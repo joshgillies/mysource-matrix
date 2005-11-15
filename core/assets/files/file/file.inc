@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.115 2005/10/24 00:48:29 dmckee Exp $
+* $Id: file.inc,v 1.116 2005/11/15 04:19:19 dmckee Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.115 $
+* @version $Revision: 1.116 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,9 +60,9 @@ class File extends Asset
 	* @param array	&$link	information used to create the initial link
 	* @param array	$info	info about the uploaded file
 	*
-	* @see Asset::create()
-	* @return mixed int or false
+	* @return mixed int|boolean
 	* @access public
+	* @see Asset::create()
 	*/
 	function create(&$link, $info=Array())
 	{
@@ -122,8 +122,8 @@ class File extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
@@ -159,18 +159,17 @@ class File extends Asset
 	/**
 	* Processes the file upload from the source file so that file versioning cloned properly
 	*
-	* @param object asset &$clone the clone asset shell
-	* @param array			$components	the wanted components to clone eg.
-	*                       Array(
-	*                           'attributes',
-	*                           'metadata_shemas',
-	*                           'metadata',
-	*                           'workflow',
-	*                           'permissions',
-	*                           'data'
-	*                       );
-	*                       or alternately
-	*                       Array('all');
+	* @param object	&$clone		the clone asset shell
+	* @param array	$components	the wanted components to clone eg.
+	*							Array(
+	*							'attributes',
+	*							'metadata_shemas',
+	*							'metadata',
+	*							'workflow',
+	*							'permissions',
+	*							'data'
+	*							);
+	*							or alternately Array('all');
 	*
 	* @return boolean
 	* @access public
@@ -195,7 +194,7 @@ class File extends Asset
 	/**
 	* Returns a list of lock types available for this asset type
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function lockTypes()
@@ -336,7 +335,7 @@ class File extends Asset
 	*
 	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
 	*
-	* @return bool
+	* @return boolean
 	* @access public
 	*/
 	function morph($new_type_code)
@@ -371,7 +370,7 @@ class File extends Asset
 	/**
 	* Processes the changes required when a new status is set
 	*
-	* @param int	$new_status		the new status to set for this asset
+	* @param int	$new_status	the new status to set for this asset
 	*
 	* @return boolean
 	* @access public
@@ -407,8 +406,9 @@ class File extends Asset
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return void
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -451,8 +451,9 @@ class File extends Asset
 
 	/**
 	* Called when the any permission is updated for this asset
+	* Returns true if everything is OK
 	*
-	* @return boolean	whether everything is OK
+	* @return boolean
 	* @access public
 	*/
 	function permissionsUpdated()
@@ -491,7 +492,10 @@ class File extends Asset
 			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			// if there is no current file or if the current file is out of date, check out a fresh copy
 			if ($fv->upToDate($unrestricted) & (FUDGE_FV_NOT_CHECKED_OUT | FUDGE_FV_OLD_VERSION)) {
-				clear_directory($this->data_path_public);
+				if (file_exists($unrestricted)) {
+					unlink($this->data_path_public.'/'.$existing['filename']);
+				}
+
 				if ($fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path_public)) {
 					$changed = true;
 				} else {
@@ -687,8 +691,8 @@ class File extends Asset
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
-	* @param object Backend_Outputter	$o
-	* @param array(string)				&$link	information used to create the initial link
+	* @param object	&$o		Backend Outputter
+	* @param array	&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
@@ -789,6 +793,10 @@ class File extends Asset
 	/**
 	* Rename a file in file versioning (copy, create new FV entry and then delete old FV entry)
 	*
+	* @param string	$data_path		data path of the asset
+	* @param string	$old_filename	old filename
+	* @param string	$new_filename	file to rename to
+	*
 	* @return boolean
 	* @access private
 	*/
@@ -834,8 +842,8 @@ class File extends Asset
 	* If the user changes the name of this file, we also need
 	* to update the file system
 	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -997,7 +1005,7 @@ class File extends Asset
 	/**
 	* Get an array of some useful data about the existing uploaded file
 	*
-	* @return array(string)
+	* @return array
 	* @access public
 	*/
 	function getExistingFile()
@@ -1033,8 +1041,9 @@ class File extends Asset
 	*
 	* @param boolean	$short_name	whether or not we are after the short name or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
 	function _getName($short_name=false)
 	{
@@ -1045,7 +1054,6 @@ class File extends Asset
 
 	/**
 	* Return the keywords for this asset type.
-	*
 	* This function is called in asset-listing situations like the asset listing, search page etc
 	*
 	* The return value is in the form:
@@ -1055,8 +1063,8 @@ class File extends Asset
 	* );
 	* </pre>
 	*
-	* @access public
 	* @return array
+	* @access public
 	*/
 	function getAvailableKeywords()
 	{
