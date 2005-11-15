@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page.inc,v 1.1 2005/11/02 05:55:02 dmckee Exp $
+* $Id: page_multiple_page.inc,v 1.2 2005/11/15 05:19:48 dmckee Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -49,6 +49,7 @@ class Page_Multiple_Page extends Page
 	*/
 	function Page_Multiple_Page($assetid=0)
 	{
+		$this->_ser_attrs = true;
 		$this->Page($assetid);
 
 	}//end constructor
@@ -255,15 +256,24 @@ class Page_Multiple_Page extends Page
 		if (isset($this->_tmp['deleting_links']) && $this->_tmp['deleting_links'] == true) {
 			return true;
 		}
+		$current_children = array_flip($this->attr('current_page_ids'));
 
+		$new_page_children = Array();
 		$page_links = $this->getPageLinks();
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$new_paths = Array();
 		foreach ($page_links as $data) {
+			$new_page_children[] = $data['minorid'];
 			$page =& $am->getAsset($data['minorid']);
+			unset($current_children[$data['minorid']]);
 			$paths = $page->getWebPaths();
 			$new_paths[strval(intval($data['sort_order']) + 1)] = &$page;
 			$page->saveWebPaths(Array());
+		}
+
+		foreach ($current_children as $id => $bla) {
+			$deleted = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+			$deleted->saveWebPaths(Array());
 		}
 
 		parent::linksUpdated();
@@ -271,6 +281,10 @@ class Page_Multiple_Page extends Page
 		foreach ($new_paths as $path => $asset) {
 			$asset->saveWebPaths(Array($path));
 		}
+
+		// This will store all current pages,
+		$this->setAttrValue('current_page_ids', $new_page_children);
+		$this->saveAttributes();
 		return true;
 
 	}//end linksUpdated()

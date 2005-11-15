@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page_management.inc,v 1.1 2005/11/02 05:55:02 dmckee Exp $
+* $Id: page_multiple_page_management.inc,v 1.2 2005/11/15 05:19:48 dmckee Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -45,6 +45,12 @@ class Page_Multiple_Page_Management extends Asset_Management
 	function Page_Multiple_Page_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
+
+		$this->vars['current_page_ids'] = Array(
+											'added'		=> '0.1',
+											'type'		=> 'serialise',
+											'default'	=> Array(),
+										  );
 
 	}//end constructor
 
