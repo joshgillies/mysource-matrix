@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.4 2005/06/30 23:21:37 tbarrett Exp $
+* $Id: page_calendar_rolling.inc,v 1.5 2005/11/15 04:05:26 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -143,9 +143,9 @@ class Page_Calendar_Rolling extends Page
 			if ($bc_id) {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($tf_bcs[$bc_id]);
 				$dummy_asset = new $tf_bcs[$bc_id];
-				$asset_keywords = $dummy_asset->getAssetKeywords();
-				foreach ($asset_keywords as $kw => $null) {
-					$vars['keywords'][$kw] = ucwords(str_replace('_', ' ', $kw));
+				$asset_keywords = $dummy_asset->getAvailableKeywords();
+				foreach ($asset_keywords as $kw => $desc) {
+					$vars['keywords'][$kw] = $desc;
 				}
 				return true;
 			}
