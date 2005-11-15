@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.14 2005/09/08 00:35:41 rong Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.15 2005/11/15 23:04:21 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,6 +49,101 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 		$this->Metadata_Field_Edit_Fns();
 
 	}//end constructor
+
+
+	/**
+	* Paint the interface for filling in metadata values
+	*
+	* @param object		&$asset			the asset whose interface we are painting
+	* @param object		&$o				the outputter class
+	* @param string		$value_str		the current value for this field in the asset (NOT $asset)
+	*									NULL means that there is no current value set
+	* @param boolean	$write_access	does the current user have write access to the asset
+	*									that we are setting metadata for (NOT THE SAME AS $asset)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintValueInterface(&$asset, &$o, $value_str, $write_access)
+	{
+		$prefix = $asset->getPrefix();
+
+		$is_default = false;
+
+		if (is_null($value_str)) {
+			$value_str = $asset->getDefaultValue();
+			$is_default = true;
+		}
+
+		$value = '';
+		$value_components = $asset->attr('value_components');
+		Metadata_Field::decodeValueString($value_str, $value, $value_components);
+
+		// set field header to friendly_name if it is not empty
+		$field_name = $asset->attr('friendly_name');
+		if (!$field_name) $field_name = $asset->name;
+		if ($asset->attr('editable')) {
+			if ($write_access) {
+				if ($asset->attr('multi_line')) {
+					text_area($prefix.'_value', $value, 45, 7, 0, 'onkeydown="document.getElementById(\''.$prefix.'_default\').checked = false;"');
+				} else {
+					text_box($prefix.'_value', $value, 30, '', false, 'onkeydown="document.getElementById(\''.$prefix.'_default\').checked = false;"');
+				}
+				echo ' '.strtolower(translate('or')).' ';
+				check_box($prefix.'_default', '1', $is_default);
+				echo ' '.strtolower(translate('use_default'));
+				if ($is_default) {
+					echo ' <em style="color: #666">('.translate('metadata_field_default_currently_set').')</em>';
+				}
+			} else {
+					echo $value;
+					if ($is_default) {
+						echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
+					}
+			}
+
+			// now print value components
+			if (!empty($value_components)) {
+				echo '<br /><br />';
+				$num_per_row = 3;
+				$num_done = 0;
+				?>
+				<table class="sq-backend-table">
+					<tr>
+						<?php
+						foreach ($value_components as $vc_name => $vc_value) {
+
+							if ($num_done >= $num_per_row) {
+								$num_done = 0;
+								echo '</tr><tr>';
+							}
+
+							echo '<td width="150" valign="top" class="sq-backend-table-cell">';
+							echo '<b>'.$vc_name.'</b>';
+							echo '<br />';
+							if ($write_access) {
+								text_area($prefix.'_vc_value['.$vc_name.']', $vc_value, 30, 4);
+							} else {
+								echo $vc_value;
+							}
+							echo '</td>';
+
+							$num_done++;
+						}
+						if ($num_done && $num_done != $num_per_row) {
+							for ($i = ($num_per_row - $num_done); $i > 0; $i--) {
+								echo'<td width="150" class="sq-backend-table-cell">&nbsp;</td>';
+							}
+						}
+						?>
+					</tr>
+				</table>
+				<?php
+			}//end if
+		}
+		return true;
+
+	}//end paintValueInterface()
 
 
 	/**

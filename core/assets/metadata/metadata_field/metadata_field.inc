@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.22 2005/09/08 00:39:12 rong Exp $
+* $Id: metadata_field.inc,v 1.23 2005/11/15 23:04:13 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -252,10 +252,11 @@ class Metadata_Field extends Asset
 			$pair = explode('=', $part, 2);
 
 			// strip whitespace from name string
-			$pair[0] = preg_replace('/^\s*(\S+)\s*$/', '$1', $pair[0]);
+			$pair[0] = trim($pair[0]);
 
 			// convert % escaped characters back
 			$pair[0] = preg_replace('/%(\d+)%/e', 'chr($1)', $pair[0]);
+
 			if (isset($pair[1])) {
 				$pair[1] = preg_replace('/%(\d+)%/e', 'chr($1)', $pair[1]);
 			}
