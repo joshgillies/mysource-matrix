@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_edit_fns.inc,v 1.12 2005/11/04 00:00:39 lwright Exp $
+* $Id: page_custom_form_edit_fns.inc,v 1.13 2005/11/15 05:48:17 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -104,6 +104,98 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 		return false;
 
 	}//end redirectToSubmissions()
+
+
+
+    /**
+    * Paints the submissions block
+    *
+    * @param object Form_Email            &$asset    the asset whose interface we are painting
+    * @param object    Backend_Outputter    &$o        the outputter class
+    * @param string                        $prefix    prefix for the form elements
+    *
+    * @return boolean
+    * @access public
+    */
+    function paintSubmissions(&$asset, &$o, $prefix)
+    {
+        $am = $GLOBALS['SQ_SYSTEM']->am;
+        $children = array_keys($am->getChildren($asset->id, 'form_email'));
+        if (empty($children)) return false;
+        $form_email =& $am->getAsset($children[0]);
+        $edit_fns = $form_email->getEditFns();
+        return $edit_fns->paintSubmissions($form_email, $o, $prefix);
+
+    }//end paintSubmissions()
+
+
+    /**
+    * Processes the submissions block (nothing to process!)
+    *
+    * @param object Form_Email            &$asset    the asset whose interface we are painting
+    * @param object    Backend_Outputter    &$o        the outputter class
+    * @param string                        $prefix    prefix for the form elements
+    *
+    * @return boolean
+    * @access public
+    */
+    function processSubmissions(&$asset, &$o, $prefix)
+    {
+        $am = $GLOBALS['SQ_SYSTEM']->am;
+        $children = array_keys($am->getChildren($asset->id, 'form_email'));
+        if (empty($children)) return false;
+        $form_email =& $am->getAsset($children[0]);
+        $edit_fns = $form_email->getEditFns();
+        return $edit_fns->processSubmissions($form_email, $o, $prefix);
+
+    }//end processSubmissions()
+
+
+    /**
+    * Paints the export block
+    *
+    * @param object Form_Email            &$asset    the asset whose interface we are painting
+    * @param object    Backend_Outputter    &$o        the outputter class
+    * @param string                        $prefix    prefix for the form elements
+    *
+    * @return boolean
+    * @access public
+    */
+    function paintExport(&$asset, &$o, $prefix)
+    {
+        $am = $GLOBALS['SQ_SYSTEM']->am;
+        $children = array_keys($am->getChildren($asset->id, 'form_email'));
+        if (empty($children)) return false;
+        $form_email =& $am->getAsset($children[0]);
+        $edit_fns = $form_email->getEditFns();
+        return $edit_fns->paintExport($form_email, $o, $prefix);
+
+    }//end paintExport()
+
+
+    /**
+    * Processes the export block
+    *
+    * This function will pass off the work to processExportCSV() or processExportXML(), as appropriate.
+    * If we aren't downloading a file, this function will silently return a success.
+    *
+    * @param object Form_Email            &$asset    the asset whose interface we are painting
+    * @param object    Backend_Outputter    &$o        the outputter class
+    * @param string                        $prefix    prefix for the form elements
+    *
+    * @return boolean
+    * @access public
+    */
+    function processExport(&$asset, &$o, $prefix)
+    {
+        $am = $GLOBALS['SQ_SYSTEM']->am;
+        $children = array_keys($am->getChildren($asset->id, 'form_email'));
+        if (empty($children)) return false;
+        $form_email =& $am->getAsset($children[0]);
+        $edit_fns = $form_email->getEditFns();
+        return $edit_fns->processExport($form_email, $o, $prefix);
+
+    }//end processExport()
 
 
 }//end class
