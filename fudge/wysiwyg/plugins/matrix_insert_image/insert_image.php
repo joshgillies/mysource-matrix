@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.29.2.2 2005/07/22 02:08:47 dmckee Exp $
+* $Id: insert_image.php,v 1.29.2.3 2005/11/16 00:33:57 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert Image Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.29.2.2 $
+* @version $Revision: 1.29.2.3 $
 * @package MySource_Matrix
 */
 
@@ -122,7 +122,6 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 					while (ext.charAt(0) != "." && i > 0) ext = path.substring(i--);
 					imageInfo['alt'] = path.substring(0, ++i);
 				}
-
 				document.getElementById("f_alt").value    = imageInfo['alt'];
 				document.getElementById("f_width").value  = imageInfo['width'];
 				document.getElementById("f_height").value = imageInfo['height'];
@@ -131,7 +130,8 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 
 			function setImageInfo() {
 				// put a random no in the url to overcome any caching
-				var url = '<?php echo sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX; ?>/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=' + escape(document.getElementById("f_imageid[assetid]").value) + '&asset_ei_screen=image_info&ignore_frames=1&t=' + Math.random() * 1000;
+				var assetid = document.getElementById("f_imageid[assetid]").value;
+				var url = '<?php echo sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX; ?>/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=' + escape(assetid) + '&asset_ei_screen=image_info&ignore_frames=1&t=' + Math.random() * 1000;
 				JsHttpConnector.submitRequest(url, populateImageInfo);
 			};
 
@@ -294,7 +294,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 							<tr>
 								<td valign="center" align="center" rowspan=2 width="50%">
 									<fieldset class="prev">
-									<legend><b><?php echo 'Preview'; ?></b></legend>
+									<legend><b><?php translate('Preview'); ?></b></legend>
 										<table class="preview" >
 											<tr>
 												<td id="image_container" align="center" valign="center" height="160px" width="340px">
