@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.8 2005/11/09 10:10:48 rong Exp $
+* $Id: lang_screen_details.xml,v 1.9 2005/11/16 22:07:17 rong Exp $
 *
 */
 -->
@@ -23,12 +23,12 @@
 			<note />
 		</field>
 	</section>
-	<section name="Progress" show_if="showProgressSection">
-		<display_name>Progress</display_name>
+	<section name="Job Progress" show_if="showProgressSection">
+		<display_name>Job Progress and History</display_name>
 		<note />
 		<function_call>
-			<paint_function name="paintProgress" />
-			<process_function name="processProgress" />
+			<paint_function name="paintJobQueue" />
+			<process_function name="processJobQueue" />
 		</function_call>
 	</section>
 	<section name="Validate Job">
@@ -58,7 +58,7 @@
 		</field>
 		<field attribute="content_gen_as">
 			<display_name>Generate As</display_name>
-			<note>This user is used to generate the content for all Bulkmail_Users, and also all other users if "Generate as recipient" generation method is selected above</note>
+			<note>This user is used to generate the content for all Bulkmail Users, and also all other users if "Generate as recipient" generation method is selected above</note>
 		</field>
 		<field attribute="content_design">
 			<display_name>Design</display_name>
