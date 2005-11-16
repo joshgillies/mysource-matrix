@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.80 2005/11/11 02:03:08 bcaldwell Exp $
+* $Id: search_manager.inc,v 1.81 2005/11/16 00:16:05 lwright Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1689,15 +1689,28 @@ class Search_Manager extends Asset
 		$field_logic = array_get_index($search_info, 'field_logic', 'OR');
 		$final_results = null;
 		$term_totals = Array();
+
 		foreach ($search_info['fields'] as $field_name => $field_details) {
 			$field_results = null;
 			$word_logic = array_get_index($field_details, 'word_logic', 'AND');
 			$data_source_logic = array_get_index($field_details, 'data_source_logic', 'OR');
 			$this->_prepareSearchField($field_details);
+
 			if (empty($field_details['words'])) continue;
-			$search_type = (isset($field_details['words']['from']) && isset($field_details['words']['to'])) ? 'date' : 'word';
+
+			if (isset($field_details['words']['from']) && isset($field_details['words']['to'])) {
+				$search_type = 'date';
+			} else if (array_key_exists('lower', $field_details['words']) && array_key_exists('upper', $field_details['words'])) {
+				// need to use array_key_exists()
+				$search_type = 'numeric';
+			} else {
+				$search_type = 'word';
+			}
+
 			foreach ($field_details['data_sources'] as $data_source) {
-				if ($search_type == 'date') {
+				if ($search_type == 'numeric') {
+					$data_source_results = $this->_processNumericSearch($field_details['words'], $data_source, $base_query);
+				} else if ($search_type == 'date') {
 					$data_source_results = $this->_processDateSearch($field_details['words'], $data_source, $base_query);
 				} else {
 					$data_source_results = null;
@@ -1707,6 +1720,7 @@ class Search_Manager extends Asset
 						$data_source_results = $this->_combineResults($data_source_results, $term_results, $word_logic);
 					}
 				}
+
 				$field_results = $this->_combineResults($field_results, $data_source_results, $data_source_logic);
 			}
 			$final_results = $this->_combineResults($final_results, $field_results, $field_logic);
@@ -1779,6 +1793,7 @@ class Search_Manager extends Asset
 
 		// figure out if we should treat this field as a date/time range
 		$is_datetime = true;
+		$is_numeric = false;
 		foreach ($field_details['data_sources'] as $i => $data_source) {
 			switch ($data_source['type']) {
 
@@ -1796,8 +1811,11 @@ class Search_Manager extends Asset
 					}
 					if (!is_a($attribute, 'asset_attribute_datetime')) {
 						$is_datetime = false;
-						break(2);
 					}
+					if (is_a($attribute, 'asset_attribute_int') || is_a($attribute, 'asset_attribute_float')) {
+						$is_numeric = true;
+					}
+					if (!$is_datetime || $is_numeric) break 2;
 				break;
 
 				case 'metadata':
@@ -1853,6 +1871,10 @@ class Search_Manager extends Asset
 				$to = str_replace('--:--:--', '23:59:59', $to);
 			}
 			$field_details['words'] = Array('from' => $from, 'to' => $to);
+		} else if ($is_numeric) {
+			$lower = array_get_index($field_details['words'], 'lower', null);
+			$upper = array_get_index($field_details['words'], 'upper', null);
+			$field_details['words'] = Array('lower' => $lower, 'upper' => $upper);
 		} else {
 			// remove unindexable words
 			$words = Array();
@@ -1897,7 +1919,7 @@ class Search_Manager extends Asset
 		}
 		$cache_key .= $search_term;
 
-		$serch_term = $this->_getRawNumberInText($search_term);
+		$search_term = $this->_getRawNumberInText($search_term);
 
 		$result = $this->_tmp['cm']->loadFromCache($this->id, $this->type(), $cache_key);
 		if (empty($result)) {
@@ -1908,9 +1930,22 @@ class Search_Manager extends Asset
 				break;
 
 				case 'asset_attrib':
-					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
-					$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attribute->name);
-					$base_query['where'][] = 'ai.value LIKE '.$db->quote('%'.$search_term.'%');
+					$attrid = $data_source['params']['attrid'];
+					$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($attrid));
+					$attr_info = $attr_info[$attrid];
+
+					$attr_type = $attr_info['type'];
+					$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attr_info['name']);
+
+					// work out what attribute type it is and perform a cast if
+					// it's a numeric search
+					if ($attr_type == 'int') {
+						$base_query['where'][] = 'CAST (ai.value AS int) = '.$db->quoteSmart((int)$search_term);
+					} else if ($attr_type == 'float') {
+						$base_query['where'][] = 'CAST(ai.value AS double precision) = '.$db->quoteSmart((float)$search_term);
+					} else {
+						$base_query['where'][] = 'ai.value LIKE '.$db->quote('%'.$search_term.'%');
+					}
 				break;
 
 				case 'metadata':
@@ -2032,6 +2067,88 @@ class Search_Manager extends Asset
 		return $result;
 
 	}//end _processDateSearch()
+
+
+	function _processNumericSearch($numeric_range, $data_source, $base_query)
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$cache_key = $this->_tmp['cache_key'].$data_source['type'];
+		switch ($data_source['type']) {
+			case 'asset_attrib':
+				$cache_key .= $data_source['params']['attrid'];
+			break;
+
+			case 'metadata':
+				$cache_key .= $data_source['params']['assetid'];
+			break;
+
+			case 'standard':
+				$cache_key .= $data_source['params']['field'];
+			break;
+		}
+		$cache_key .= 'l'.$numeric_range['lower'].'u'.$numeric_range['upper'];
+
+		$result = $this->_tmp['cm']->loadFromCache($this->id, $this->type(), $cache_key);
+		if (empty($result)) {
+			switch ($data_source['type']) {
+
+				case 'asset_attrib':
+					$attrid = $data_source['params']['attrid'];
+					$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($attrid));
+					$attr_info = $attr_info[$attrid];
+
+					$attr_type = $attr_info['type'];
+					$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attr_info['name']);
+
+					if ($numeric_range['upper'] == $numeric_range['lower']) {
+						$search_compare = '= '.$db->quoteSmart($numeric_range['upper']);
+					} else if (is_null($numeric_range['upper'])) {
+						$search_compare = '>= '.$db->quoteSmart($numeric_range['lower']);
+					} else if (is_null($numeric_range['lower'])) {
+						$search_compare = '<= '.$db->quoteSmart($numeric_range['upper']);
+					} else if ($numeric_range['upper'] > $numeric_range['lower']) {
+						// upper > lower as expected
+						$search_compare = 'BETWEEN '.$db->quoteSmart($numeric_range['lower']).' AND '.$db->quoteSmart($numeric_range['upper']);
+					} else {
+						// accept lower > upper but we need to switch values because
+						// some DB engines won't accept BETWEEN upper AND lower
+						$search_compare = 'BETWEEN '.$db->quoteSmart($numeric_range['upper']).' AND '.$db->quoteSmart($numeric_range['lower']);
+					}
+
+					if ($attr_type == 'int') {
+						$base_query['where'][] = 'CAST (ai.value AS int) '.$search_compare;
+					} else {
+						$base_query['where'][] = 'CAST(ai.value AS double precision) '.$search_compare;
+					}
+				break;
+
+				case 'metadata':
+					// not implemented yet
+				break;
+
+				case 'standard':
+					// not implemented yet
+				break;
+
+			}
+			$sql = implode_sql($base_query);
+
+			if (count($base_query['select']) > 2) {
+				$result = $db->getAll($sql);
+			} else {
+				$result = $db->getAssoc($sql);
+			}
+
+			assert_valid_db_result($result);
+			$r = $this->_tmp['cm']->saveToCache($this->id, $this->type(), $cache_key, serialize($result));
+			assert_valid_cache_result($r);
+		} else {
+			$result = unserialize($result);
+		}
+		return $result;
+
+	}//end _processNumericSearch()
 
 
 	/**
