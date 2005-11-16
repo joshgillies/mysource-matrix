@@ -20,7 +20,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.5 2005/07/27 10:45:20 brobertson Exp $
+* $Id: asset.xml,v 1.6 2005/11/16 04:52:14 emcdonald Exp $
 *
 */
 -->
@@ -28,7 +28,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
 	<package>__core__</package>
 	<type_code>trigger_manager</type_code>
-	<version>0.4</version>
+	<version>0.5</version>
 	<name>Trigger Manager</name>
 	<description>Trigger Manager</description>
 	<instantiable>yes</instantiable>

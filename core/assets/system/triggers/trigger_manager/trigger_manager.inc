@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.26 2005/08/22 23:18:06 mmcintyre Exp $
+* $Id: trigger_manager.inc,v 1.27 2005/11/16 04:52:14 emcdonald Exp $
 *
 */
 
@@ -48,7 +48,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -204,7 +204,6 @@ class Trigger_Manager extends Asset
 		// triggers do not work in ROLLBACK mode
 		if (SQ_ROLLBACK_VIEW) return true;
 		if (!$this->attr('enabled')) return true;
-
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		// include the event asset
@@ -212,6 +211,9 @@ class Trigger_Manager extends Asset
 			trigger_localised_error('CORE0219', E_USER_WARNING, $event_name);
 			return false;
 		}
+
+		//check whether any triggers listen for this event
+		if (!$this->_isEventListenedFor($event_name)) return true;
 
 		// calculate state, prepare state hash
 		$state = $this->_calculateState($event_name, $broadcaster, $parameters);
@@ -1343,6 +1345,33 @@ class Trigger_Manager extends Asset
 
 	}//end _isMultipleConditionAllowed()
 
+
+	/**
+	* Returns a list of triggerids for triggers that listen for a given event
+	*
+	* @param string	$event	the name of the event
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _isEventListenedFor($event)
+	{
+		//Check the trigger hash table to see whether any active triggers are listening for this event
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = '
+				SELECT
+					COUNT(triggerid)
+				FROM
+					sq_trig_hash
+				WHERE
+					event = '.$db->quoteSmart($event).'
+			';
+		$trigger_count = $db->getOne($sql);
+		assert_valid_db_result($trigger_count);
+
+		return !empty($trigger_count);
+
+	}//end _isEventListenedFor()
 
 }//end class
 
