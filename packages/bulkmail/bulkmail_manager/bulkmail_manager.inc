@@ -12,7 +12,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -583,6 +583,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		}
 
 		// no content page
+		$public_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
 		if (empty($details_info['content_id'])) {
 			$errors[] = translate('bm_warning_no_asset_to_send');
 		} else {
@@ -602,7 +603,8 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 					}
 					// pre-selected user does not have (effective) read permission for content page
 					$read_access =$GLOBALS['SQ_SYSTEM']->am->getPermission($content_page->id, SQ_PERMISSION_READ, true, true, true);
-					if (!in_array($user->id, $read_access)) {
+					$public_read_access = $content_page->readAccess(Array($public_user->id));
+					if (!in_array($user->id, $read_access) && !$public_read_access) {
 						$errors[] = translate('bm_warning_generate_as_no_read_access', $user->name, $user->id, $content_page->name, $content_page->id);
 					}
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
@@ -613,15 +615,14 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		// design does not have public read access
 		if (!empty($details_info['content_design'])) {
-			$public_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
 			$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_design']);
 			$public_read_access = $design->readAccess(Array($public_user->id));
 			if (!$public_read_access) {
 				$errors[] = translate('bm_warning_design_no_public_read_access', $design->name, $design->id);
 			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($design);
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($public_user);
 		}
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($public_user);
 
 		if ($report_error) {
 			return $errors;

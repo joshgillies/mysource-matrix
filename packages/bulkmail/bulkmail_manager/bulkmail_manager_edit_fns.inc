@@ -13,7 +13,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_offi
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -132,7 +132,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	function _paintJobQueue(&$asset, $jobs)
 	{
 		if (empty($jobs)) {
-			echo translate('bm_job_progress_none');
+			//echo translate('bm_job_progress_none');
 			return;
 		}
 
