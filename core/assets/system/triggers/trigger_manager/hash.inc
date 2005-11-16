@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hash.inc,v 1.8 2005/08/22 23:17:38 mmcintyre Exp $
+* $Id: hash.inc,v 1.9 2005/11/16 03:04:57 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 class Hash
@@ -150,7 +150,7 @@ class Hash
 			if ($descendants) {
 
 				// Grab the list of types, put into the 'asset_type' field
-				$type_descendants = &$GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($asset_type, true);
+				$type_descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($asset_type, true);
 				if (empty($type_descendants)) {
 					$this->_set('asset_type','');
 				} else {
