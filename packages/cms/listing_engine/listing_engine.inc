@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.27 2005/10/18 01:08:37 lwright Exp $
+* $Id: listing_engine.inc,v 1.38.2.28 2005/11/16 03:10:59 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.27 $
+* @version $Revision: 1.38.2.28 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2041,7 +2041,7 @@ class Listing_Engine extends Page
 		if (empty($assetids)) return;
 
 		//point us at the first element
-		$group_type =& reset($group_levels);
+		$group_type = reset($group_levels);
 
 		// sort the groups
 		switch ($group_type['group_type']) {
