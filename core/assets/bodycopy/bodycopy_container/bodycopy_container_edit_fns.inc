@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.31 2005/05/16 06:36:31 lwright Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.31.2.1 2005/11/16 00:38:15 dmckee Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.31.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -277,11 +277,24 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 		$existing_links = $asset->attr('shadow_links');
 		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE);
-		foreach ($notice_links as $link_data) $existing_links[] = $link_data['minorid'];
+		foreach ($notice_links as $link_data) {
+			$existing_links[] = $link_data['minorid'];
+		}
 
-		$e = '|\\./\\?a=([0-9]+(?::[^$]*)?)|';
-		preg_match_all($e, $output, $matches=Array());
-		$replace_assetids = &$matches[1];
+		$shadow_reg = '|.\/?a=(\d+:\w*)|';
+		$normal_reg = '|.\/?a=(\d+)|';
+		preg_match_all($shadow_reg, $output, $shadow_matches=Array());
+		preg_match_all($normal_reg, $output, $normal_matches=Array());
+		$shadow_matches = $shadow_matches[1];
+		$normal_matches = $normal_matches[1];
+		$replace_assetids = Array();
+		foreach ($shadow_matches as $data) {
+			$replace_assetids[] = $data;
+		}
+		foreach ($normal_matches as $data) {
+			$replace_assetids[] = $data;
+		}
+		$replace_assetids = array_unique($replace_assetids);
 
 		if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
 			// this container currently has a system version floating around
@@ -311,7 +324,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 			$shadow_links = array_values(array_intersect($asset->attr('shadow_links'), $replace_assetids));
 			foreach ($replace_assetids as $assetid) {
-				if (!assert_valid_assetid($assetid, '', false, false)) continue;
+				if (!assert_valid_assetid($assetid, '', false, false)) {
+					continue;
+				}
 				if (in_array($assetid, $existing_links)) continue;
 
 				$ereg_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -449,7 +464,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		// all available content types
 		$content_types = Array();
 		$types = $am->getAssetTypeHierarchy('content_type');
-		foreach ($types as $type => $type_data) $content_types[$type] = Array('name' => $type_data['name']);
+		foreach ($types as $type => $type_data) {
+			$content_types[$type] = Array('name' => $type_data['name']);
+		}
 
 		?>
 		<input type="hidden" name="bodycopy_action" value="">
