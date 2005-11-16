@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.19 2005/11/16 00:58:44 rong Exp $
+* $Id: bulk_mailer.inc,v 1.20 2005/11/16 03:29:05 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -294,8 +294,6 @@ class Bulk_Mailer
 					// make sure user is not already in mail queue/sent directory
 					$id = md5($user_id);
 					if (!file_exists($queue_path.'/'.$id) && !file_exists($sent_path.'/'.$id)) {
-						$to = 'rong@squiz.net'; // TODO: reomove and uncomment next line
-						//$to = $email;
 						// fork since we cannot call printFrontend multiple times
 						$pid = $this->fork();
 						if (!$pid) {
@@ -308,7 +306,7 @@ class Bulk_Mailer
 								// pass in custom_id as extra header details, for queue file naming
 								$header_details['custom_id'] = $user_id;
 								$headers = @$mime->headers($header_details);
-								$mail_id = $mail_queue->put('', $to, $headers, $body);
+								$mail_id = $mail_queue->put('', $email, $headers, $body);
 							}
 							$this->updateProgress($progress_path, $user_id, $details['threshold']);
 							exit;
@@ -431,7 +429,6 @@ class Bulk_Mailer
 			trigger_localised_error('BML0008', E_USER_WARNING, $progress_path);
 			return false;
 		} else {
-			sleep(2); // TODO: remove this
 			return true;
 		}
 
