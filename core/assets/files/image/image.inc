@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.38.2.1 2005/06/17 04:44:53 ykasim Exp $
+* $Id: image.inc,v 1.38.2.2 2005/11/16 00:14:40 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38.2.1 $
+* @version $Revision: 1.38.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -756,7 +756,7 @@ class Image extends File
 	*/
 	function getParents($assetid, $type_code='', $strict_type_code=true)
 	{
-		if ($assetid == $this->id || (string) $assetid{0} != 'v') {
+		if ($assetid == $this->id || strpos($assetid, ':v') === false) {
 			// should never happen...but anyway
 			trigger_localised_error('CORE0090', E_USER_ERROR);
 		}
