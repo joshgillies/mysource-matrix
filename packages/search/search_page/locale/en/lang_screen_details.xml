@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.12 2005/08/05 05:22:20 dmckee Exp $
+* $Id: lang_screen_details.xml,v 1.13 2005/11/16 00:44:11 lwright Exp $
 *
 */
 -->
@@ -29,7 +29,7 @@
 	<section name="Search Parameters">
 		<field>
 			<display_name>Root Nodes</display_name>
-			<note>Searches will be restricted to trees rooted at this asset. Leave blank to search the whole system.</note>
+			<note>Searches will be restricted to trees rooted at the selected asset(s). If no root nodes are selected, this asset will be used as the root.</note>
 			<function_call>
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode" />

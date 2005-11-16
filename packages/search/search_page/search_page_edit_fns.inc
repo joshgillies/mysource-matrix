@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.66 2005/11/04 03:05:14 lwright Exp $
+* $Id: search_page_edit_fns.inc,v 1.67 2005/11/16 00:44:08 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -240,7 +240,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 											}
 											combo_box($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][asset_type]', $options, false, $search_type);
 										} else {
-											echo translate('asset_type').':  ';
+											echo '<strong>'.translate('asset_type').':</strong> ';
 											echo sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($search_type), 16, 16, $type_names[$search_type], $type_names[$search_type], ' align="absmiddle"');
 											echo $type_names[$search_type];
 										}
@@ -259,7 +259,75 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 												}
 												combo_box($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][attrid]', $type_attrs, false, $selected_attr);
 											} else if ($selected_attr != '') {
-												echo '<br />'.translate('attribute').':  '.$asset_type_attrs[$selected_attr];
+												echo '<br /><strong>'.translate('attribute').':</strong>  '.$asset_type_attrs[$selected_attr];
+											}
+										}
+
+										if (!empty($selected_attr)) {
+											$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($selected_attr));
+											$attr_info = $attr_info[$selected_attr];
+
+											if (($attr_info['type'] == 'int') || ($attr_info['type'] == 'float')) {
+												$current_search = array_get_index($field_datasource['params'], 'numeric_search', 'exact');
+												?><br/><?php
+												if ($write_access) {
+													radio_button($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][numeric_search]', 'exact', ($current_search == 'exact'));
+													echo translate('sch_page_numeric_search_exact');
+													?><br/><?php
+
+													radio_button($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][numeric_search]', 'range', ($current_search == 'range'));
+													echo translate('sch_page_numeric_search_range');
+													?><br/><?php
+
+													radio_button($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][numeric_search]', 'custom', ($current_search == 'custom'));
+													echo translate('sch_page_numeric_search_custom');
+													?><br/><?php
+												} else {
+													?><strong><?php echo translate('sch_page_numeric_search_style'); ?></strong> <?php
+													echo translate('sch_page_numeric_search_'.$current_search);
+												}
+
+												if ($current_search == 'custom') {
+													$custom_ranges = array_get_index($field_datasource['params'], 'custom_num_search', Array());
+													$custom_ranges[] = Array();
+													?><table class="sq-backend-table" style="width:90%">
+													<thead>
+													<tr>
+														<th class="sq-backend-table-header">Range Name</th>
+														<th class="sq-backend-table-header">Minimum</th>
+														<th class="sq-backend-table-header">Maximum</th>
+													</tr>
+													</thead>
+													<tbody>
+													<?php
+													foreach($custom_ranges as $key => $custom_range) {
+														if ($key != max(array_keys($custom_ranges)) && (empty($custom_range) || (empty($custom_range['name']) && empty($custom_range['min']) && empty($custom_range['max'])))) {
+															continue;
+														}
+
+														?><tr><td class="sq-backend-table-cell"><?php
+														if ($write_access) {
+															echo text_box($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][custom_num_search]['.$key.'][name]', array_get_index($custom_range, 'name', ''), 20);
+														} else {
+															echo array_get_index($custom_range, 'name', '');
+														}
+														?></td><td class="sq-backend-table-cell"><?php
+														if ($write_access) {
+															echo text_box($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][custom_num_search]['.$key.'][min]', array_get_index($custom_range, 'min', ''), 7);
+														} else {
+															echo array_get_index($custom_range, 'min', '');
+														}
+														?></td><td class="sq-backend-table-cell"><?php
+														if ($write_access) {
+															echo text_box($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][custom_num_search]['.$key.'][max]', array_get_index($custom_range, 'max', ''), 7);
+														} else {
+															echo array_get_index($custom_range, 'max', '');
+														}
+														?></td></tr><?php
+													}
+													?></tbody></table><?php
+												}
+
 											}
 										}
 										?>

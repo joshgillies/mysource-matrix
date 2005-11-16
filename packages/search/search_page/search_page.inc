@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.149 2005/11/01 03:11:31 lwright Exp $
+* $Id: search_page.inc,v 1.150 2005/11/16 00:44:08 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.149 $
+* @version $Revision: 1.150 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -728,6 +728,140 @@ class Search_Page extends Listing_Engine
 
 
 	/**
+	* Print a description for a given numeric range
+	*
+	* @param array	$current_value	the values that should be printed
+	* @param array	$sub_field		if empty, we are printing %field_name%
+	*								if not empty, we are printing %field_name_subfield%
+	* @param array	$params			the data source's params list, needed so we know what we're allowed to print
+	*
+	* @return void
+	* @access private
+	*/
+	function _printNumericRangeDescription($current_value, $sub_field, $params)
+	{
+		switch(array_get_index($params, 'numeric_search', 'exact')) {
+			case 'exact':
+				if ($sub_field == '') {
+					print $current_value['lower'];
+				}
+			break;
+
+			case 'range':
+				$current_value = null;
+
+				if (!isset($current_value['upper'])) {
+					$current_value['upper'] = null;
+				}
+
+				if (!isset($current_value['lower'])) {
+					$current_value['lower'] = null;
+				}
+
+				if ($sub_field == 'lower') {
+					print array_get_index($current_value, 'lower', '');
+				} else if ($sub_field == 'upper') {
+					print array_get_index($current_value, 'upper', '');
+				} else {
+					if (is_null($current_value['lower'])) {
+						echo '&lt;= '.$current_value['upper'];
+					} else if (is_null($current_value['upper'])) {
+						echo '&gt;= '.$current_value['lower'];
+					} else {
+						echo $current_value['lower'].' to '.$current_value['upper'];
+					}
+				}
+			break;
+
+			case 'custom':
+				$custom_ranges = Array();
+				$range_name = '';
+				foreach($params['custom_num_search'] as $key => $num_search_data) {
+					if (!empty($num_search_data['name']) && ($current_value['lower'] == $num_search_data['min']) && ($current_value['upper'] == $num_search_data['max'])) {
+						$range_name = $num_search_data['name'];
+						break;
+					}
+				}
+
+				if ($sub_field == 'lower') {
+					print array_get_index($current_value, 'lower', '');
+				} else if ($sub_field == 'upper') {
+					print array_get_index($current_value, 'upper', '');
+				} else if ($sub_field == '') {
+					print $range_name;
+				}
+			break;
+
+		}//end switch
+
+	}//end _printNumericRangeDescription()
+
+
+	/**
+	* Print a numeric range selection
+	*
+	* Note: this brings in a "sub-field" specification - we need this to be
+	* able to print the upper and lower values of a 'range' search separately.
+	*
+	* @param string		$field_name		the name of the field we are painting
+	* @param array		$current_value	the values that should be printed instead of the date selection boxes
+	* @param array		$params			the data source's params list, needed so we know what we're allowed to print
+	* @param array		$sub_field		if empty, we are printing %field_name%
+	*									if not empty, we are printing %field_name_subfield%
+	* @param boolean	$read_only		should we print read only if we have a value
+	*
+	* @return void
+	* @access private
+	*/
+	function _printNumericRange($field_name, $current_value=null, $params, $sub_field='', $read_only=false)
+	{
+		switch(array_get_index($params, 'numeric_search', 'exact')) {
+			case 'exact':
+				if ($sub_field == '') {
+					text_box('queries_'.$field_name, array_get_index($current_value, 'lower', ''), 5);
+				}
+			break;
+
+			case 'range':
+				$current_value = null;
+
+				if (!isset($current_value['upper'])) {
+					$current_value['upper'] = null;
+				}
+
+				if (!isset($current_value['lower'])) {
+					$current_value['lower'] = null;
+				}
+
+				if ($sub_field == 'lower') {
+					text_box('queries_'.$field_name.'_lower', $current_value['lower'], 5);
+				} else if ($sub_field == 'upper') {
+					text_box('queries_'.$field_name.'_upper', $current_value['upper'], 5);
+				} else {
+					text_box('queries_'.$field_name.'_lower', $current_value['lower'], 5);
+					echo ' to ';
+					text_box('queries_'.$field_name.'_upper', $current_value['upper'], 5);
+				}
+			break;
+
+			case 'custom':
+				$custom_ranges = Array();
+				foreach($params['custom_num_search'] as $key => $num_search_data) {
+					if (!empty($num_search_data['name'])) {
+						$custom_ranges[$key] = $num_search_data['name'];
+					}
+				}
+				if ($sub_field == '') {
+					combo_box('queries_'.$field_name, $custom_ranges, false, $current_value);
+				}
+			break;
+
+		}//end switch
+
+	}//end _printNumericRange()
+
+
+	/**
 	* Get Category Chooser Replacement
 	*
 	* @param string	$cat_set_name		Category Name
@@ -761,7 +895,7 @@ class Search_Page extends Listing_Engine
 	* @return string
 	* @access public
 	*/
-	function getFieldReplacement($field_name)
+	function getFieldReplacement($field_name, $sub_field='')
 	{
 		$query_var = $field_name.'_query';
 		$fields = $this->attr('fields');
@@ -774,13 +908,16 @@ class Search_Page extends Listing_Engine
 			if (count($fields[$field_name]['data_sources']) == 1) {
 				// only one data source; we'll base our format on that
 				$data_source = $fields[$field_name]['data_sources'][0];
+
 				switch ($data_source['type']) {
 
 					case 'metadata' :
 						$assetid = $data_source['params']['assetid'];
 						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
 						if (!is_null($asset)) {
 							$params = $asset->vars;
+
 							switch (get_class($asset)) {
 								case 'metadata_field_date' :
 									$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
@@ -803,10 +940,15 @@ class Search_Page extends Listing_Engine
 
 					case 'asset_attrib' :
 						$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
+
 						if ($attribute->type() == 'datetime') {
 
 							$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
 							$this->_printDateRange('queries_'.$query_var, $current_value);
+
+						} else if (($attribute->type() == 'int' || $attribute->type() == 'float')) {
+							//$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
+							$this->_printNumericRange($query_var, $query, $data_source['params'], $sub_field);
 
 						} else {
 
@@ -1029,7 +1171,7 @@ class Search_Page extends Listing_Engine
 	* @return string
 	* @access public
 	*/
-	function getSearchedFieldReplacement($field_name)
+	function getSearchedFieldReplacement($field_name, $sub_field='')
 	{
 		$query_var = $field_name.'_query_sis';
 		$query = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, '');
@@ -1070,6 +1212,10 @@ class Search_Page extends Listing_Engine
 
 							$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
 							$this->_printDateRangeDescription($current_value);
+
+						} else if (($attribute->type() == 'int' || $attribute->type() == 'float')) {
+							$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
+							$this->_printNumericRangeDescription($current_value, $sub_field, $fields[$field_name]['data_sources'][0]['params']);
 
 						} else {
 							// if this is a boolean or selection field, we want to make sure blank options are allowed
@@ -1230,8 +1376,10 @@ class Search_Page extends Listing_Engine
 					combo_box($keyword, $options, false, $current_logic);
 					$replaces[$keyword] = ob_get_contents();
 				ob_end_clean();
-			} else if (substr($keyword, -6) == '_query') {
-				$replaces[$keyword] = $this->getFieldReplacement(substr($keyword, 0, -6));
+			} else if (ereg('(.+)_query_(.+)$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+				$replaces[$keyword] = $this->getFieldReplacement($matches[1], $matches[2]);
+			} else if (ereg('(.+)_query$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+				$replaces[$keyword] = $this->getFieldReplacement($matches[1]);
 			} else if (substr($keyword, -17) == '_category_chooser') {
 				$cat_name = substr($keyword, 0, -17);
 				$replaces[$keyword] = $this->getCategoryChooserReplacement($cat_name, $categories[$cat_name]);
@@ -1359,6 +1507,7 @@ class Search_Page extends Listing_Engine
 		$mode = array_get_index($_REQUEST, 'mode', 'results');
 		$bodycopy =& $this->getBodycopy($bc_name);
 		$keywords = $bodycopy->getKeywords();
+
 		$replaces = Array();
 
 		$current_result_page = array_get_index($_REQUEST, 'current_result_page', '0');
@@ -1374,6 +1523,7 @@ class Search_Page extends Listing_Engine
 
 		// if we are to use the listing engine stuff then we need to change
 		// to a getAssetList() style format
+
 		$sort_info  = $this->getSortInfo();
 		$asset_info = $this->sortAssetList($results, $sort_info);
 
@@ -1484,6 +1634,10 @@ class Search_Page extends Listing_Engine
 							$replacement = ob_get_contents();
 						ob_end_clean();
 
+					} else if (ereg('(.+)_query_terms_(.+)$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+
+						$replacement = $this->getSearchedFieldReplacement($matches[1], $matches[2]);
+
 					} else if (ereg('(.+)_query_terms$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
 						$replacement = $this->getSearchedFieldReplacement($matches[1]);
@@ -1513,6 +1667,10 @@ class Search_Page extends Listing_Engine
 						}
 
 						$replacement = implode(', ', $suggestion_string);
+
+					} else if (ereg('(.+)_query_(.+)$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+
+						$replacement = htmlspecialchars($this->getFieldReplacement($matches[1], $matches[2]));
 
 					} else if (ereg('(.+)_query$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
@@ -1846,6 +2004,13 @@ class Search_Page extends Listing_Engine
 		foreach ($queries as $field_name => $value) {
 
 			if (empty($value)) continue;
+
+			$empty_numeric = Array(
+							'upper' => null,
+							'lower' => null,
+						   );
+			if ($value == $empty_numeric) continue;
+
 			$empty_dates = Array(
 							'from'	=> '---------- --:--:--',
 							'to'	=> '---------- --:--:--',
@@ -1982,6 +2147,37 @@ class Search_Page extends Listing_Engine
 						if (!is_null($attribute)) {
 							if ($attribute->type() == 'datetime') {
 								$queries[$field_name] = $this->_processDateRange($query_var);
+							} else if (($attribute->type() == 'int') || ($attribute->type() == 'float')) {
+								$queries[$field_name] = Array();
+
+								switch(array_get_index($data_source['params'], 'numeric_search', 'exact')) {
+									case 'exact':
+										$query = array_get_index($_REQUEST, $query_var, null);
+										if (!is_null($query)) {
+											$queries[$field_name]['lower'] = $query;
+											$queries[$field_name]['upper'] = $queries[$field_name]['lower'];
+										}
+									break;
+
+									case 'range':
+										$query_lower = array_get_index($_REQUEST, $query_var.'_lower', null);
+										$query_upper = array_get_index($_REQUEST, $query_var.'_upper', null);
+										if (!is_null($query_lower) || !is_null($query_upper)) {
+											$queries[$field_name]['lower'] = ($query_lower == '') ? null : $query_lower;
+											$queries[$field_name]['upper'] = ($query_upper == '') ? null : $query_upper;
+										}
+									break;
+
+									case 'custom':
+										$key = array_get_index($_REQUEST, $query_var, null);
+
+										if (!is_null($key)) {
+											$custom_range = array_get_index($data_source['params']['custom_num_search'], $key, Array());
+											$queries[$field_name]['lower'] = ($custom_range['min'] == '') ? null : $custom_range['min'];
+											$queries[$field_name]['upper'] = ($custom_range['max'] == '') ? null : $custom_range['max'];
+										}
+									break;
+								}
 							} else {
 								$attribute->process($query_var);
 								$queries[$field_name] = trim($attribute->value);

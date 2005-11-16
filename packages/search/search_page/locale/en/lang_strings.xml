@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2005/08/11 07:29:23 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.5 2005/11/16 00:44:11 lwright Exp $
 *
 *
 * Search Package Localised Strings File
@@ -61,4 +61,9 @@
 <string source="sch_page_all_words">All Words</string>
 <string source="sch_page_any_word">Any Word</string>
 <string source="sch_page_word_logic_exp">Find assets with ALL or ANY of the entered words?</string>
+<string source="sch_page_numeric_search_options">Numeric Search Options</string>
+<string source="sch_page_numeric_search_style">Search Style:</string>
+<string source="sch_page_numeric_search_exact">Provide a single text box for exact numeric searching</string>
+<string source="sch_page_numeric_search_range">Provide two text boxes (upper and lower bound) for range searching</string>
+<string source="sch_page_numeric_search_custom">Provide a drop-down list of named ranges</string>
 </strings>
