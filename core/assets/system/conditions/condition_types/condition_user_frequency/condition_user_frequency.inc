@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_frequency.inc,v 1.5 2005/10/19 07:04:48 tbarrett Exp $
+* $Id: condition_user_frequency.inc,v 1.6 2005/11/16 03:19:13 dheppell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *    the current user.  (It sets a cookie to keep track of this).
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,7 +76,7 @@ class Condition_User_Frequency extends Condition
 		// Retrieve the cookie or initialise it
 		if (!($data = @unserialize($_COOKIE['user_frequency_'.$condition_data['id_name']]))) {
 			$data = Array(
-						'value'		=> 0,
+						'value'		=> 1,
 						'last_date'	=> time(),
 					);
 		}
