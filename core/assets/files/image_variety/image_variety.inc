@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.18 2005/06/02 04:42:02 ndvries Exp $
+* $Id: image_variety.inc,v 1.18.2.1 2005/11/16 00:10:19 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -126,8 +126,7 @@ class Image_Variety extends Asset
 					trigger_localised_error('CORE0101', E_USER_WARNING, $name, $this->name, $this->id);
 					return false;
 				}
-
-				if ((int) $value == 0 && ($this->attr('constrain') == 'none' || $this->attr('constrain') == $name)) {
+				if ((int) $value == 0 && ($this->attr('constrain') == 'none' || ($this->attr('constrain') == $name && $this->attr('variety_type') == 'resize'))) {
 					trigger_localised_error('CORE0102', E_USER_WARNING, $name, $this->name, $this->id);
 					return false;
 				}
@@ -636,6 +635,7 @@ class Image_Variety extends Asset
 				$output['alt']    = $image->attr('alt');
 				$output['width']  = $size[0];
 				$output['height'] = $size[1];
+				$output['name'] = $this->name;
 				echo var_serialise($output);
 				exit();
 			default :
