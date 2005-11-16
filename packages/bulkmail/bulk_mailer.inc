@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.18 2005/11/15 04:31:09 rong Exp $
+* $Id: bulk_mailer.inc,v 1.19 2005/11/16 00:58:44 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -196,7 +196,7 @@ class Bulk_Mailer
 			if (!$pid) {
 				// reconnect because child disconnects DB when it exits
 				$this->_reconnectDB();
-				$result = $this->getAllRecipients($info[$job_id]['details']['recipients']);
+				$result = $this->getAllRecipients($info[$job_id]['details']['content_id'], $info[$job_id]['details']['recipients']);
 				// update total_count in progress info file
 				$info[$job_id]['progress']['total_count'] = count($result);
 				$output = '<?php $progress_info = '.var_export($info[$job_id]['progress'], true).'; ?>';
@@ -299,20 +299,18 @@ class Bulk_Mailer
 						// fork since we cannot call printFrontend multiple times
 						$pid = $this->fork();
 						if (!$pid) {
-							$this->updateProgress($progress_path, $user_id, $details['threshold']);
 							$content = $this->generateBmailContent($details['content_id'], $details['content_gen'], $details['content_design'], $details['content_layout'], $job_path, $user_id);
-							// skip if we cannot generate content for this user, TODO: report problematic user?
-							if (empty($content)) continue;
-
-							$mime->setHtmlBody($content);
-							//$mime->setTXTBody($content);
-							$body = @$mime->get();
-							// pass in custom_id as extra header details, for queue file naming
-							$header_details['custom_id'] = $user_id;
-							$headers = @$mime->headers($header_details);
-							// note: 'from' field must be defined in the header details
-							$mail_id = $mail_queue->put('', $to, $headers, $body);
-
+							// only queue the mail if we can generate content
+							if (!empty($content)) {
+								$mime->setHtmlBody($content);
+								//$mime->setTXTBody($content);
+								$body = @$mime->get();
+								// pass in custom_id as extra header details, for queue file naming
+								$header_details['custom_id'] = $user_id;
+								$headers = @$mime->headers($header_details);
+								$mail_id = $mail_queue->put('', $to, $headers, $body);
+							}
+							$this->updateProgress($progress_path, $user_id, $details['threshold']);
 							exit;
 						}
 
@@ -350,7 +348,10 @@ class Bulk_Mailer
 	}//end processJob()
 
 
-	/**
+//--        PROGRESS        --//
+
+
+/**
 	* Reconnects to the DB as child process disconnects DB when it exits
 	*
 	* @return void
@@ -470,6 +471,9 @@ class Bulk_Mailer
 	}//end nextChunk()
 
 
+//--        RECIPIENT        --//
+
+
 	/**
 	* Cache all recipients (user_id => email) for a job
 	*
@@ -477,30 +481,41 @@ class Bulk_Mailer
 	* Expands user_group to get all user/bulkmail_user
 	* Skips those recipients that is in .queue or .sent directory
 	*
-	* @param array	$recipients	the job's 'recipients' attribute stripped from vars
+	* @param int	$asset_to_send	the id of the asset to send
+	* @param array	$recipients		the job's 'recipients' attribute stripped from vars
 	*
 	* @return array
 	* @access public
 	*/
-	function getAllRecipients($recipients)
+	function getAllRecipients($asset_to_send, $recipients)
 	{
 		// handle groups and users/bulkmail_users separately
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$user_list = Array();
 		$group_ids = Array();
 
+		// an array of userids that have read access to the asset to send (content page)
+		// if public user has read access, then everyone should be able to read it
+		$read_permission = $am->getPermission($asset_to_send, SQ_PERMISSION_READ, true);
+		$public_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
+		$public_read_access = in_array($public_user->id, $read_permission);
+
 		foreach ($recipients as $recipient_id) {
-			$recipient =& $am->getAsset($recipient_id);
-			// store id and email of all users/bulkmail_users
-			if (!is_null($recipient)) {
-				if (is_a($recipient, 'user') || is_a($recipient, 'bulkmail_user')) {
-					$user_list += Array($recipient_id => $recipient->attr('email'));
+			// only add to user list if this recipient has read permission
+			if ($public_read_access || in_array($recipient_id, $read_permission)) {
+				$recipient =& $am->getAsset($recipient_id);
+				if (!is_null($recipient)) {
+					if (is_a($recipient, 'user') || is_a($recipient, 'bulkmail_user')) {
+						$user_list += Array($recipient_id => $recipient->attr('email'));
+					// store all group ids
+					} else if (is_a($recipient, 'user_group')) {
+						$group_ids[] = $recipient_id;
+					}
 				}
-			// store all group ids
-			} else if (!is_null($recipient) && is_a($recipient, 'user_group')) {
-				$group_ids[] = $recipient_id;
+				$am->forgetAsset($recipient);
+			} else {
+				// PROBLEMATIC USER/GROUP: no read access to content
 			}
-			$am->forgetAsset($recipient);
 		}
 
 		// expand groups and get all users/bulkmail_users from a query
@@ -520,13 +535,14 @@ class Bulk_Mailer
 
 		// code for multiplying the recipients, eg. turn 10 actual users into 500 users
 		// for testing purposes
-		foreach ($result as $user_id => $email) {
+		/*foreach ($result as $user_id => $email) {
 			$count = 0;
 			while ($count<5) {
 				$result += Array( ($user_id * $count) => $email.'.'.$count.'.net');
 				$count++;
 			}
-		}
+		}*/
+
 		return $result;
 
 	}//end getAllRecipients()
@@ -617,6 +633,9 @@ class Bulk_Mailer
 	}//end generateGetRecipientsQuery()
 
 
+//--        CONTENT        --//
+
+
 	/**
 	* Caches the bulkmail page content as the pre-selected user, returns false if any error occurs
 	*
@@ -697,15 +716,15 @@ class Bulk_Mailer
 		// load this user, for content generation and keyword replacement
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$user = null;
-		//if ($user_id) $user =& $am->getAsset($user_id);
+		if ($user_id) $user =& $am->getAsset($user_id);
 
 		// always login and generate content for per user basis,
 		// unless the user is a subscriber (bulkmail user) with only an email address
 		if ($content_gen == 'each_user' && !is_null($user) && !is_a($user, 'Bulkmail_User')) {
 			// login as this user and print page content
 			if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($user)) {
-				// happens when the user is not live or in trash
-				trigger_localised_error('BML0003', E_USER_WARNING, $user->name, $user->id);
+				// PROBLEMATIC USER: in trash or not live
+				// trigger_localised_error('BML0003', E_USER_WARNING, $user->name, $user->id);
 				return '';
 			}
 			$page =& $am->getAsset($content_id);
@@ -770,6 +789,9 @@ class Bulk_Mailer
 		return $content;
 
 	}//end replaceContentKeyword()
+
+
+//--        THRESHOLD        --//
 
 
 	/**
