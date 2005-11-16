@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_management.inc,v 1.6 2005/06/02 04:42:02 ndvries Exp $
+* $Id: image_variety_management.inc,v 1.7 2005/11/16 03:38:32 dmckee Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,6 +81,7 @@ class Image_Variety_Management extends Asset_Management
 																'options'		=> Array(
 																					'width'		=> 'Width',
 																					'height'	=> 'Height',
+																					'dimension'	=> 'Both',
 																					'none'		=> 'Neither',
 																				   ),
 																'multiple'		=> false,
@@ -94,6 +95,11 @@ class Image_Variety_Management extends Asset_Management
 											'default'	=> 0,
 										   ),
 						'height'		=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'int',
+											'default'	=> 0,
+										   ),
+						'dimension'		=> Array(
 											'added'		=> '0.0.1',
 											'type'		=> 'int',
 											'default'	=> 0,

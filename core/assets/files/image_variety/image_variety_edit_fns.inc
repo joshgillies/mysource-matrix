@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_edit_fns.inc,v 1.12 2005/08/30 07:31:34 ndvries Exp $
+* $Id: image_variety_edit_fns.inc,v 1.13 2005/11/16 03:38:32 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -107,8 +107,9 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 					var constrain    = get_form_element_value("<?php echo $prefix; ?>_constrain");
 
 					document.getElementById('<?php echo $prefix; ?>_field_constrain').style.display	= (variety_type == 'resize') ? '' : 'none';
-					document.getElementById('<?php echo $prefix; ?>_field_width').style.display		= (variety_type == 'resize' && constrain != 'height') ? '' : 'none';
-					document.getElementById('<?php echo $prefix; ?>_field_height').style.display	= (variety_type == 'resize' && constrain != 'width')  ? '' : 'none';
+					document.getElementById('<?php echo $prefix; ?>_field_width').style.display		= (variety_type == 'resize' && (constrain == 'width' || constrain == 'none')) ? '' : 'none';
+					document.getElementById('<?php echo $prefix; ?>_field_height').style.display	= (variety_type == 'resize' && (constrain == 'height' || constrain == 'none'))  ? '' : 'none';
+					document.getElementById('<?php echo $prefix; ?>_field_dimension').style.display	= (variety_type == 'resize' && constrain == 'dimension')  ? '' : 'none';
 					document.getElementById('<?php echo $prefix; ?>_field_upload').style.display	= (variety_type == 'upload') ? '' : 'none';
 
 				}// end <?php echo $prefix; ?>_update_visible_fields()
@@ -131,15 +132,22 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			unset($attr);
 		$o->closeField();
 
-		$o->openField(translate('width'), '', '', ($variety_type != 'resize' || $constrain == 'height'), $prefix.'_field_width');
+		$o->openField(translate('width'), '', '', ($variety_type != 'resize' || $constrain != 'width'), $prefix.'_field_width');
 			$attr = &$asset->getAttribute('width');
 			$attr->setEditParams($int_edit_params);
 			$attr->paint($prefix.'_'.$attr->name, !$wa);
 			unset($attr);
 		$o->closeField();
 
-		$o->openField(translate('height'), '', '', ($variety_type != 'resize' || $constrain == 'width'), $prefix.'_field_height');
+		$o->openField(translate('height'), '', '', ($variety_type != 'resize' || $constrain != 'height'), $prefix.'_field_height');
 			$attr = &$asset->getAttribute('height');
+			$attr->setEditParams($int_edit_params);
+			$attr->paint($prefix.'_'.$attr->name, !$wa);
+			unset($attr);
+		$o->closeField();
+
+		$o->openField(translate('dimension'), '', translate('dimension_note'), ($variety_type != 'resize' || $constrain != 'dimension'), $prefix.'_field_dimension');
+			$attr = &$asset->getAttribute('dimension');
 			$attr->setEditParams($int_edit_params);
 			$attr->paint($prefix.'_'.$attr->name, !$wa);
 			unset($attr);
@@ -178,7 +186,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 
 		$changes_made = false;
 
-		$vars = Array('variety_type', 'constrain', 'width', 'height');
+		$vars = Array('variety_type', 'constrain', 'width', 'height', 'dimension');
 		if ($asset->attr('name') == '') {
 			array_unshift($vars, 'name');
 		}

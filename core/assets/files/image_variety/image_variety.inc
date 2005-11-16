@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.21 2005/11/15 03:28:54 dmckee Exp $
+* $Id: image_variety.inc,v 1.22 2005/11/16 03:38:32 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -263,6 +263,7 @@ class Image_Variety extends Asset
 			$d_new_file     = $this->data_path.'/'.$d_new_filename;
 			$d_width        = (int) $this->attr('width');
 			$d_height       = (int) $this->attr('height');
+			$d_dimension	= (int) $this->attr('dimension');
 
 			// if either are blank calc the other to scale
 			switch ($this->attr('constrain')) {
@@ -281,6 +282,19 @@ class Image_Variety extends Asset
 						return false;
 					}
 					$d_width  = round((int) $source_image_info['width']  * ($d_height / (int) $source_image_info['height']));
+				break;
+
+				case 'dimension' :
+					$old_width = (int) $source_image_info['width'];
+					$old_height = (int) $source_image_info['height'];
+					$proportion = 1;
+					if ($old_width > $old_height) {
+						$proportion = $d_dimension / $old_width;
+					} else {
+						$proportion = $d_dimension / $old_height;
+					}
+					$d_width = round($old_width * $proportion);
+					$d_height = round($old_height * $proportion);
 				break;
 			}
 
