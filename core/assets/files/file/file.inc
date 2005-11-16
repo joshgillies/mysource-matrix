@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.97.2.10 2005/10/24 01:18:40 dmckee Exp $
+* $Id: file.inc,v 1.97.2.11 2005/11/16 00:02:14 dmckee Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.97.2.10 $
+* @version $Revision: 1.97.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -490,7 +490,9 @@ class File extends Asset
 			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			// if there is no current file or if the current file is out of date, check out a fresh copy
 			if ($fv->upToDate($unrestricted) & (FUDGE_FV_NOT_CHECKED_OUT | FUDGE_FV_OLD_VERSION)) {
-				clear_directory($this->data_path_public);
+				if (file_exists($unrestricted)) {
+					unlink($this->data_path_public.'/'.$existing['filename']);
+				}
 				if ($fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path_public)) {
 					$changed = true;
 				} else {
