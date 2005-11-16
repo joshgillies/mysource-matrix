@@ -12,7 +12,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -574,9 +574,12 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			$errors[] = translate('bm_warning_no_recipient');
 		}
 
-		// no 'from' header field
+		// no 'from' and 'subject' header field
 		if (empty($details_info['from'])) {
 			$errors[] = translate('bm_warning_no_from_field');
+		}
+		if (empty($details_info['subject'])) {
+			$errors[] = translate('bm_warning_no_subject_field');
 		}
 
 		// no content page
@@ -603,9 +606,9 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 						$errors[] = translate('bm_warning_generate_as_no_read_access', $user->name, $user->id, $content_page->name, $content_page->id);
 					}
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_page);
 				}
 			}
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_page);
 		}
 
 		// design does not have public read access
