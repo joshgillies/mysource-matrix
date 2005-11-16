@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.22 2005/11/16 03:38:32 dmckee Exp $
+* $Id: image_variety.inc,v 1.23 2005/11/16 03:57:54 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,8 +98,8 @@ class Image_Variety extends Asset
 	* If the user changes the name of this file, we also need
 	* to update the file system
 	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -217,10 +217,10 @@ class Image_Variety extends Asset
 	/**
 	* return the name of this question
 	*
-	* @param boolean $short_name if TRUE, returns the short name
+	* @param boolean	$short_name	if TRUE, returns the short name
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
 	function _getName($short_name=false)
 	{
@@ -232,8 +232,8 @@ class Image_Variety extends Asset
 	/**
 	* (Re)Create the image file from our parents original
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function updateImage()
 	{
@@ -362,8 +362,8 @@ class Image_Variety extends Asset
 	/**
 	* Delete's the image file that we have created
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function deleteImage()
 	{
@@ -408,7 +408,7 @@ class Image_Variety extends Asset
 	/**
 	* Look's after the placing and removing of out files in the public directory
 	*
-	* @param boolean $public	whether we have are allowed to have files in the public dir or not
+	* @param boolean	$public	whether we have are allowed to have files in the public dir or not
 	*
 	* @return boolean
 	* @access public
@@ -456,7 +456,7 @@ class Image_Variety extends Asset
 	/**
 	* Called to force an update of this assets lookup information
 	*
-	* @param boolean $public		whether we have are allowed to have files in the public dir or not
+	* @param boolean	$public	whether we have are allowed to have files in the public dir or not
 	*
 	* @return boolean
 	* @access public
@@ -537,7 +537,7 @@ class Image_Variety extends Asset
 				if (empty($root_url)) continue;
 
 				if (isset($save_urls[$root_url])) {
-					if (empty($save_urls[$root_url]['http']))  {
+					if (empty($save_urls[$root_url]['http'])) {
 						$save_urls[$root_url]['http']  = $data['http'];
 					}
 					if (empty($save_urls[$root_url]['https'])) {
@@ -589,7 +589,7 @@ class Image_Variety extends Asset
 
 	/**
 	* Returns the href for this asset closest to the $base_url, but relative to the current url
-	*
+	* .
 	* @param string	$base_url	the url that we are want to match closest to
 	*
 	* @return string
@@ -608,13 +608,13 @@ class Image_Variety extends Asset
 	/**
 	* Returns a list of paths that this asset has
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function getWebPaths()
 	{
 		$filename = $this->attr('filename');
-		if ($filename)  {
+		if ($filename) {
 			return Array($filename);
 		} else {
 			return Array();
@@ -626,8 +626,9 @@ class Image_Variety extends Asset
 	/**
 	* Prints out the backend interface for the asset
 	*
-	* @param object Backend_Outputter	&$o
+	* @param object	&$o	Backend_Outputter
 	*
+	* @return boolean
 	* @access public
 	*/
 	function paintBackend(&$o)
@@ -709,11 +710,11 @@ class Image_Variety extends Asset
 	* The output includes the width and height of the image, and the image
 	* name for the alt tag
 	*
-	* @param string 	$alt	the alt tag content. If empty the alt var is used
-	* @param string 	$title	the alt tag content. If empty the and $alt is set, then that is used, otherwise the title var is used
-	* @param boolean 	$return	if TRUE the tag will be returned
+	* @param string		$alt	the alt tag content. If empty the alt var is used
+	* @param string		$title	the alt tag content. If empty the and $alt is set, then that is used, otherwise the title var is used
+	* @param boolean	$return	if TRUE the tag will be returned
 	*
-	* @return string | void
+	* @return mixed string|void
 	* @access public
 	*/
 	function printImageTag($alt, $title, $return=false)
@@ -759,7 +760,7 @@ class Image_Variety extends Asset
 	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
 	*							permissions set for this asset, otherwise returns effective access based on locking
 	*							and status
-	* @param Array	$assetids	An array of user_group and/or user ids to check for write access
+	* @param array	$assetids	An array of user_group and/or user ids to check for write access
 	*							If the array is empty, the current user will be checked
 	*
 	* @return boolean
@@ -806,6 +807,8 @@ class Image_Variety extends Asset
 	* Live edit means the asset is currently SQ_STATUS_LIVE but this
 	* user can edit the asset without going through a safe edit
 	* NOTE: will return false if asset is not currently live
+	*
+	* @param string	$lock_type	Type of lock to check
 	*
 	* @return boolean
 	* @access public
