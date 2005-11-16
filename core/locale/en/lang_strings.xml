@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.74 2005/11/08 01:13:51 lwright Exp $
+* $Id: lang_strings.xml,v 1.75 2005/11/16 03:34:21 dmckee Exp $
 *
 */
 
@@ -975,6 +975,7 @@
 	<string source="style">Style</string>
 	<string source="height">Height</string>
 	<string source="width">Width</string>
+	<string source="dimension">Dimension</string>
 	<string source="htmlwidth">HTML Width</string>
 	<string source="css">CSS</string>
 	<string source="not">Not</string>
@@ -1377,6 +1378,7 @@
 	<string source="div_id">Div ID</string>
 	<string source="field_id">Field ID</string>
 	<string source="monitor">Monitor</string>
+	<string source="dimension_note">The maximum size of the largest dimension</string>
 
 	<string source="choose_type">Choose Type</string>
 
