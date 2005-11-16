@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.147 2005/11/07 05:19:11 mmcintyre Exp $
+* $Id: mysource.inc,v 1.148 2005/11/16 05:00:54 emcdonald Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.147 $
+* @version $Revision: 1.148 $
 * @package MySource_Matrix
 */
 class MySource
@@ -399,6 +399,7 @@ class MySource
 			}//end if is_null(asset)
 
 			$this->frontend_asset = &$asset;
+			$this->broadcastTriggerEvent('trigger_event_asset_accessed', $asset);
 			$asset->printFrontend();
 
 		}//end if backend/limbo
