@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.322.2.27 2005/09/07 23:52:06 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.322.2.28 2005/11/16 04:34:53 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322.2.27 $
+* @version $Revision: 1.322.2.28 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1240,21 +1240,34 @@ class Asset_Manager extends MySource_Object
 	{
 		if (empty($assetids)) return Array();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT v.assetid, COALESCE(v.custom_val, at.default_val) as val
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val v JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr at ON at.attrid=v.attrid
-				WHERE ';
 
-		// if asset type is set to 'asset' then skip owning type code checks
+		// First get the default values
+		$sql = 'SELECT a.assetid, at.default_val
+				FROM sq_ast a, sq_ast_attr at
+				WHERE a.type_code = at.type_code
+					AND at.name = '.$db->quote($attr_name).'
+					AND a.assetid IN ('.implode(', ', $assetids).')';
+		$res = $db->getAssoc($sql);
+		assert_valid_db_result($res);
+
+		// Now get customised values where applicable
+		$sub_sql = 'SELECT attrid FROM sq_ast_attr WHERE name = '.$db->quote($attr_name);
 		if ($asset_type != 'asset') {
-			$sql .= 'at.owning_type_code='.$db->quote($asset_type).' AND ';
+			$sub_sql .= ' AND (type_code = '.$db->quote($asset_type).' OR owning_type_code = '.$db->quote($asset_type).')';
 		}
+		$sql = 'SELECT assetid, custom_val
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val
+				WHERE attrid IN ('.$sub_sql.')
+					AND assetid IN ('.implode(', ', $assetids).')';
+		$custom_vals = $db->getAssoc($sql);
+		assert_valid_db_result($custom_vals);
 
-		$sql .= 'at.name='.$db->quote($attr_name).' AND v.assetid IN ('.implode(', ', $assetids).')';
+		// Combine the two
+		foreach ($custom_vals as $assetid => $val) {
+			$res[$assetid] = $val;
+		}
+		return $res;
 
-		$result = $db->getAssoc($sql);
-		assert_valid_db_result($result);
-
-		return $result;
 
 	}//end getAttributeValuesByName()
 
@@ -5588,7 +5601,7 @@ class Asset_Manager extends MySource_Object
 			$result = $db->getCol($in_sql);
 			assert_valid_db_result($result);
 
-			if (empty($result)) return Array(); 
+			if (empty($result)) return Array();
 
 			for (reset($result); null !== ($key = key($result)); next($result)) {
 				$result[$key] = $db->quoteSmart($result[$key]);
