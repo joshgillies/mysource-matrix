@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.22 2005/10/13 02:12:02 tbarrett Exp $
+* $Id: user_edit_fns.inc,v 1.23 2005/11/17 05:45:53 gsherwood Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,22 +85,21 @@ class User_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintUserConditions(&$asset, &$o, $prefix)
 	{
-		$groups = $this->_getLinkedGroups($asset);
-
-		if (empty($groups)) {
-			echo translate('user_cannot_be_restricted');
-			return false;
-		}
-
-		if ($asset->adminAccess('attributes')) {
-
-			$conditions = Array('' => '-- Select Type --') + $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('condition'), 'name');
-		}
-
 		// get a list of directly linked groups
 		$groups = $this->_getLinkedGroups($asset);
 
+		if (empty($groups)) {
+			$o->openField('');
+				echo translate('user_cannot_be_restricted');
+			$o->closeField();
+			return false;
+		}
+
 		$admin_access = $asset->adminAccess('attributes');
+
+		if ($admin_access) {
+			$conditions = Array('' => '-- Select Type --') + $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('condition'), 'name');
+		}
 
 		// get a list of user restrictions
 		$restrictions = $asset->attr('restrictions');
@@ -207,11 +206,9 @@ class User_Edit_Fns extends Asset_Edit_Fns
 
 					// if this condition has been marked to delete, unset it now
 					if (isset($_POST[$condition_prefix]) && array_get_index($_POST[$condition_prefix], 'delete', 0)) {
-						bam("Deleting $condition_prefix");
 						unset($restrictions[$group_assetid][$key]);
 					} else {
 						// prepare condition data
-
 						$dir = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($restriction['name'], 'dir');
 						$edit_fns_classname = $restriction['name'].'_edit_fns';
 						require_once SQ_SYSTEM_ROOT.'/'.$dir.'/'.$edit_fns_classname.'.inc';
@@ -222,7 +219,6 @@ class User_Edit_Fns extends Asset_Edit_Fns
 				}
 			}
 			if ($new_name = array_get_index($_POST, $prefix.'_'.$group_assetid.'_new_condition')) {
-				bam("Adding cond $new_name");
 				$restrictions[$group_assetid][] = Array('name' => $new_name, 'match' => 1, 'condition_data' => Array());
 			}
 		}
