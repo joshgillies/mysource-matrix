@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.27 2005/11/16 04:52:14 emcdonald Exp $
+* $Id: trigger_manager.inc,v 1.28 2005/11/17 00:59:21 emcdonald Exp $
 *
 */
 
@@ -48,7 +48,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,6 +60,7 @@ class Trigger_Manager extends Asset
 	* Constructor
 	*
 	* @param int	$assetid	the asset id to be loaded
+	* @access public
 	*
 	*/
 	function Trigger_Manager($assetid=0)
@@ -79,9 +80,9 @@ class Trigger_Manager extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @see Asset::create()
-	* @return int|false
+	* @return mixed int|boolean
 	* @access public
+	* @see Asset::create()
 	*/
 	function create(&$link)
 	{
@@ -112,9 +113,9 @@ class Trigger_Manager extends Asset
 	/**
 	* Return an array of all the permitted link types, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
 	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -146,8 +147,9 @@ class Trigger_Manager extends Asset
 	*
 	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
 	function _getName($short_name=false)
 	{
@@ -161,8 +163,8 @@ class Trigger_Manager extends Asset
 	*
 	* @param string	$type	component type_code
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
 	function _getComponentName($type)
 	{
@@ -177,8 +179,8 @@ class Trigger_Manager extends Asset
 	*
 	* @param string	$type	component type_code
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
 	function _getComponentDescription($type)
 	{
@@ -194,10 +196,11 @@ class Trigger_Manager extends Asset
 	* Broadcasts an event, and run all the triggers associated with it
 	*
 	* @param string	$event_name		the name of the event to broadcast
-	* @param Asset	&$broadcaster	The firing asset
+	* @param object	&$broadcaster	The firing asset
+	* @param array	$parameters		extra parameters
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function broadcastEvent($event_name, &$broadcaster, $parameters=null)
 	{
@@ -213,7 +216,9 @@ class Trigger_Manager extends Asset
 		}
 
 		//check whether any triggers listen for this event
-		if (!$this->_isEventListenedFor($event_name)) return true;
+		if (!$this->_isEventListenedFor($event_name)) {
+			return true;
+		}
 
 		// calculate state, prepare state hash
 		$state = $this->_calculateState($event_name, $broadcaster, $parameters);
@@ -292,11 +297,12 @@ class Trigger_Manager extends Asset
 	/**
 	* Returns a state calculated from the event.
 	*
-	* @param string	$event_type		the name of the event to calculate the state from
-	* @param asset	&$broadcaster	the firing asset
+	* @param string	$event_type			the name of the event to calculate the state from
+	* @param object	&$event_broadcaster	the firing asset
+	* @param array	$parameters			extra parameters
 	*
-	* @access private
 	* @return array
+	* @access private
 	*/
 	function _calculateState($event_type, &$event_broadcaster, $parameters=null)
 	{
@@ -359,8 +365,8 @@ class Trigger_Manager extends Asset
 	*
 	* @param array	&$state	the state to calculate the hash from
 	*
-	* @access private
 	* @return array
+	* @access private
 	*/
 	function _calculateStateHash(&$state)
 	{
@@ -379,10 +385,10 @@ class Trigger_Manager extends Asset
 	/**
 	* Lookup the State hash table for all triggers that might need executing
 	*
-	* @param Array(mixed)   $state_hash     The hash used to check the database with
+	* @param array	$state_hash	The hash used to check the database with
 	*
+	* @return array
 	* @access private
-	* @return Array(mixed)  Trigger data (array of arrays)
 	*/
 	function _lookupCandidateTriggers($state_hash=null)
 	{
@@ -525,12 +531,11 @@ class Trigger_Manager extends Asset
 	*
 	* Returns the status of the executed trigger
 	*
-	* @param array	$trigger_data	details (id, name, etc.) and data (actions, conditions)
-	* 								associated with the trigger
-	* @param array	$state_data		aata relating to the asset the trigger is running on
+	* @param array	$trigger_data	details (id, name, etc.) and data (actions, conditions) associated with the trigger
+	* @param array	&$state_data	data relating to the asset the trigger is running on
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _executeTrigger($trigger_data, &$state_data)
 	{
@@ -665,12 +670,13 @@ class Trigger_Manager extends Asset
 	/**
 	* Create and return an instance of hash object
 	*
+	* @return object
 	* @access private
-	* @return Hash
 	*/
 	function _getHashObject()
 	{
-		return new Hash();
+		$hash =& new Hash();
+		return $hash;
 
 	}//end _getHashObject()
 
@@ -678,8 +684,8 @@ class Trigger_Manager extends Asset
 	/**
 	* Return a blank trigger in preparation for editing
 	*
-	* @access private
 	* @return array
+	* @access private
 	*/
 	function _getEmptyTrigger()
 	{
@@ -701,8 +707,8 @@ class Trigger_Manager extends Asset
 	*
 	* @param array	$trigger	the trigger to be saved
 	*
+	* @return int
 	* @access private
-	* @return int | FALSE
 	*/
 	function _saveTrigger($trigger)
 	{
@@ -836,10 +842,10 @@ class Trigger_Manager extends Asset
 	/**
 	* Saves the trigger hash in the database
 	*
-	* @param Object Hash	$hash	the Hash object
+	* @param object	$hash	the Hash object
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _saveTriggerHash($hash=null)
 	{
@@ -894,8 +900,8 @@ class Trigger_Manager extends Asset
 	*
 	* @param array	$state_hash	the state_hash to check
 	*
-	* @access private
 	* @return array
+	* @access private
 	*/
 	function _prepareRawStateHash($state_hash)
 	{
@@ -935,8 +941,8 @@ class Trigger_Manager extends Asset
 	*
 	* @param int	$trigger_id	id of trigger to be deleted
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _deleteTrigger($trigger_id)
 	{
@@ -965,8 +971,8 @@ class Trigger_Manager extends Asset
 	*
 	* @param int	$trigger_id	id of trigger whose hash is be deleted
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _deleteTriggerHash($trigger_id)
 	{
@@ -995,9 +1001,9 @@ class Trigger_Manager extends Asset
 	* Returns a list of all the triggers, including data
 	* See Trigger_Manager::getTrigger() for a complete description of the return format
 	*
-	* @see Trigger_Manager::getTrigger()
+	* @return array
 	* @access public
-	* @return Array(string=>mixed)
+	* @see Trigger_Manager::getTrigger()
 	*/
 	function &getTriggerList()
 	{
@@ -1060,10 +1066,10 @@ class Trigger_Manager extends Asset
 	* )
 	* </pre>
 	*
-	* @param triggerid
+	* @param int	$triggerid	The id of the trigger to retrieve
 	*
+	* @return array
 	* @access public
-	* @return null|Array(string=>mixed)
 	*/
 	function getTrigger($triggerid)
 	{
@@ -1081,11 +1087,11 @@ class Trigger_Manager extends Asset
 	* See Trigger_Manager::getTrigger() for a complete description of $trigger,
 	* except that new triggers do not require $trigger['id']
 	*
-	* @param int|null	$triggerid		// the id of the trigger to use to create the hash, null for all
+	* @param int	&$trigger	the id of the trigger to use to create the hash, null for all
 	*
-	* @see Trigger_Manager::getTrigger()
+	* @return int
 	* @access public
-	* @return false|integer
+	* @see Trigger_Manager::getTrigger()
 	*/
 	function createTrigger(&$trigger)
 	{
@@ -1137,10 +1143,10 @@ class Trigger_Manager extends Asset
 	/**
 	* Load Trigger Data
 	*
-	* @param integer	$id	the ID of the trigger to load
+	* @param int	$trigger_id	the ID of the trigger to load
 	*
+	* @return array
 	* @access private
-	* @return null|Array(string=>mixed)
 	*/
 	function _loadTrigger($trigger_id=null)
 	{
@@ -1195,8 +1201,8 @@ class Trigger_Manager extends Asset
 	/**
 	* Obtain a list of trigger info
 	*
-	* @access private
 	* @return array
+	* @access private
 	*/
 	function _getTriggerInfoList()
 	{
@@ -1227,8 +1233,8 @@ class Trigger_Manager extends Asset
 	*
 	* @param string	$type	the type_code to get the descendants of
 	*
-	* @access private
 	* @return array
+	* @access private
 	*/
 	function _getComponentList($type=null)
 	{
@@ -1247,8 +1253,8 @@ class Trigger_Manager extends Asset
 	/**
 	* Get A list of all installed events
 	*
-	* @access private
 	* @return array
+	* @access private
 	*/
 	function _getEventList()
 	{
@@ -1260,8 +1266,8 @@ class Trigger_Manager extends Asset
 	/**
 	* Get a list of installed conditions
 	*
-	* @access private
 	* @return array
+	* @access private
 	*/
 	function _getConditionList()
 	{
@@ -1273,8 +1279,8 @@ class Trigger_Manager extends Asset
 	/**
 	* Get a list of installed actions
 	*
-	* @access private
 	* @return array
+	* @access private
 	*/
 	function _getActionList()
 	{
@@ -1293,6 +1299,9 @@ class Trigger_Manager extends Asset
 	* something that is not installed
 	*
 	* @param string	$type_code	the type_code of the component to load
+	*
+	* @return boolean
+	* @access private
 	*/
 	function _loadComponent($type_code)
 	{
@@ -1311,12 +1320,13 @@ class Trigger_Manager extends Asset
 	/**
 	* Returns a string containing the buffered output of a component's edit interface
 	*
-	* @param string	$type_code	the type_code of the component to get the interface of
-	* @param array	$data		the components settings data
-	* @param string	$prefix		the temporary unique ID for the component
+	* @param string		$type_code		the type_code of the component to get the interface of
+	* @param array		$data			the components settings data
+	* @param string		$prefix			the temporary unique ID for the component
+	* @param boolean	$write_access	the write access status of the component
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
 	function _getComponentInterface($type_code, $data, $prefix, $write_access=false)
 	{
@@ -1334,8 +1344,8 @@ class Trigger_Manager extends Asset
 	*
 	* @param string	$type_code	the type_code of the condition to check
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _isMultipleConditionAllowed($type_code)
 	{
@@ -1351,8 +1361,8 @@ class Trigger_Manager extends Asset
 	*
 	* @param string	$event	the name of the event
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _isEventListenedFor($event)
 	{
@@ -1372,6 +1382,7 @@ class Trigger_Manager extends Asset
 		return !empty($trigger_count);
 
 	}//end _isEventListenedFor()
+
 
 }//end class
 
