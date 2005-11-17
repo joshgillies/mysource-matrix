@@ -13,7 +13,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_offi
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -185,6 +185,9 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 							break;
 							case BML_JOB_STATE_PAUSED:
 								echo translate('bm_state_paused');
+							break;
+							case BML_JOB_STATE_SLEEPING:
+								echo translate('bm_state_sleeping');
 							break;
 							default:
 								echo translate('bm_state_unknown');
