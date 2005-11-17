@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.12 2005/11/16 00:54:16 rong Exp $
+* $Id: lang_strings.xml,v 1.13 2005/11/17 01:46:09 rong Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -58,8 +58,8 @@ Please click on the following link if you would like to proceed:
 
 	<string source="bm_job_validation_validate_job">Press the Validate Job button to check for setting errors.</string>
 	<string source="bm_job_validation_button">Validate Job</string>
-	<string source="bm_job_validation_result">Result(s)</string>
-	<string source="bm_job_validation_successful">%s is valid.</string>
+	<string source="bm_job_validation_result">Result</string>
+	<string source="bm_job_validation_successful">Job is valid.</string>
 
 	<string source="bulkmail_recipient_group_asset_not_found">Error retrieving group asset.</string>
 

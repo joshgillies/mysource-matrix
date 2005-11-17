@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.17 2005/11/15 05:47:54 rong Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.18 2005/11/17 01:46:09 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -80,7 +80,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 			$errors = $bm->isValidJob($details_info, true);
 			$o->openField(translate('bm_job_validation_result'));
 				if (empty($errors)) {
-					echo translate('bm_job_validation_successful', get_asset_tag_line($asset->id));
+					echo translate('bm_job_validation_successful');
 				} else {
 					?><span class="sq-backend-warning"><?php
 					foreach ($errors as $error) {
