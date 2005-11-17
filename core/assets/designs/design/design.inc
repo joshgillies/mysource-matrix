@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.98 2005/11/16 05:55:01 lwright Exp $
+* $Id: design.inc,v 1.99 2005/11/17 05:15:17 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.99 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -655,17 +655,17 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 				}
 				$additional = '';
 				if ($aqs) {
-					$additional .= 'echo ((!empty($_SERVER[\'QUERY_STRING\'])) ? \'?\'.$_SERVER[\'QUERY_STRING\'] : \'\');'."\n";
+					$additional .= 'echo htmlentities((!empty($_SERVER[\'QUERY_STRING\'])) ? \'?\'.$_SERVER[\'QUERY_STRING\'] : \'\');'."\n";
 				}
 				if ($sqs) {
 					if (!$aqs) {
 						$additional .= 'echo \'?\';';
 					} else {
-						$additional .= 'echo ((!empty($_SERVER[\'QUERY_STRING\'])) ? \'&\' : \'?\');';
+						$additional .= 'echo htmlentities((!empty($_SERVER[\'QUERY_STRING\'])) ? \'&\' : \'?\');';
 					}
 					$additional .= "\n";
 				}
-				echo '<', '?php echo ', $this->_escapeVar('$ASSET->'.$link_fn.'()', $args), ";\n", $additional, ' ?', '>';
+				echo '<', '?php echo htmlentities(', $this->_escapeVar('$ASSET->'.$link_fn.'()', $args), ");\n", $additional, ' ?', '>';
 			break;
 
 			case 'current_user' :

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.106 2005/11/02 00:59:00 skim Exp $
+* $Id: html_form.inc,v 1.107 2005/11/17 05:15:17 mmcintyre Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.106 $
+* @version $Revision: 1.107 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -58,8 +58,11 @@ function submit_button($name, $value, $on_click='', $extras='')
 	if (!stristr($extras, 'class=')) {
 		$extras .= ' class="sq-form-field"';
 	}
+	if (!stristr($extras, 'id=')) {
+		$extras .= ' id="'.htmlspecialchars($name).'"';
+	}
 
-	echo '<input type="submit" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
+	echo '<input type="submit" name="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 
 }//end submit_button()
 
@@ -86,12 +89,14 @@ function reset_button($name, $value, $on_click='', $extras='')
 	if ($on_click) {
 		$extras .= ' onclick="'.htmlspecialchars($on_click).' "';
 	}
-
 	if (!stristr($extras, 'class=')) {
 		$extras .= ' class="sq-form-field"';
 	}
+	if (!stristr($extras, 'id=')) {
+		$extras .= ' id="'.htmlspecialchars($name).'"';
+	}
 
-	echo '<input type="reset" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
+	echo '<input type="reset" name="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 
 }//end reset_button()
 
