@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: oci8_functions.xml,v 1.6 2005/08/18 06:35:11 mmcintyre Exp $
+* $Id: oci8_functions.xml,v 1.7 2005/11/17 04:15:12 mmcintyre Exp $
 *
 */
 -->
@@ -186,6 +186,123 @@
 				rb_date := sq_common_pkg.sq_get_rollback_timestamp();
 				RETURN sq_get_parent_treeids(minorid, SQ_TREE_BASE_SIZE, rb_date);
 			END sq_rb_get_parent_treeids;
+		]]>
+	</sql_element>
+	<sql_element display_name="asset_link_treeid_convert Function">
+		<![CDATA[
+		CREATE OR REPLACE FUNCTION asset_link_treeid_convert(value IN VARCHAR2, encode IN CHAR, TREE_BASE IN INTEGER, TREE_SIZE IN INTEGER) RETURN VARCHAR2 IS
+			str VARCHAR2(2000);
+			pad_str VARCHAR2(2000);
+			i INTEGER   := 0;
+			x INTEGER   := 0;
+			d INTEGER   := 0;
+			num INTEGER := 0;
+			pos INTEGER := 0;
+			DIGITS CONSTANT CHAR(64) := '0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~';
+		BEGIN
+			IF encode = '1' THEN
+
+				i := CAST(value AS INTEGER);
+				WHILE i != 0 LOOP
+					pos := MOD(i, TREE_BASE);
+					str := SUBSTR(DIGITS, pos + 1, 1) || str;
+					i := FLOOR(i / TREE_BASE);
+				END LOOP;
+				IF LENGTH(str) > TREE_SIZE THEN
+					RAISE_APPLICATION_ERROR(-20001, 'Broken! value: ' || value || ' str: ' || str || ' TREE_SIZE : ' || TREE_SIZE);
+					RETURN NULL;
+				ELSE
+					IF str IS NULL THEN
+						pos := TREE_SIZE;
+					ELSE
+						pos := (TREE_SIZE - LENGTH(str));
+					END IF;
+					FOR i IN 1..pos LOOP
+						pad_str := pad_str || SUBSTR(DIGITS, 0, 1);
+					END LOOP;
+					RETURN pad_str || str;
+				END IF;
+			ELSE
+				num := 0;
+				x := POWER(TREE_BASE, LENGTH(value) - 1);
+				FOR i IN 1..LENGTH(value) LOOP
+					d := INSTR(DIGITS, SUBSTR(value, i, 1));
+					IF d = 0 THEN
+						RETURN NULL;
+					END IF;
+					-- -1 from d as instr starts at 1 not 0
+					d := d - 1;
+					num := num + (x * d);
+					x := x / TREE_BASE;
+				END LOOP;
+				RETURN num;
+			END IF;
+		END asset_link_treeid_convert;
+		]]>
+	</sql_element>
+	<sql_element display_name="get_next_treeid Function">
+		<![CDATA[
+			CREATE OR REPLACE FUNCTION get_next_treeid(existing_treeid IN VARCHAR2, majorid IN VARCHAR2, TREE_BASE IN INTEGER, TREE_SIZE IN INTEGER) RETURN VARCHAR2 IS
+				free_childid VARCHAR2(2000);
+				sql_str VARCHAR2(2000);
+				child_num INTEGER;
+			BEGIN
+				BEGIN
+					-- try to find any entries in the link tree under parent that are free
+					EXECUTE IMMEDIATE 'SELECT treeid FROM(SELECT SUBSTR(ct.treeid, (LENGTH(ct.treeid) + 1) - ' || TREE_SIZE || ') treeid,
+						  RANK() OVER (ORDER BY treeid DESC) highest
+						  FROM sq_ast_lnk_tree ct
+						  WHERE ct.treeid LIKE ''' || existing_treeid || '%''
+						  AND ct.treeid > ''' || existing_treeid || '''
+						  AND LENGTH(ct.treeid) = ' || (LENGTH(existing_treeid) + TREE_SIZE) || '
+						  AND ct.linkid = 0) WHERE highest = 1' INTO free_childid;
+
+					-- if there was no exception then we can free up this entry and return it
+					EXECUTE IMMEDIATE 'DELETE FROM
+											sq_ast_lnk_tree
+										WHERE
+											treeid IN
+											(
+												SELECT
+													t.treeid || ''' || free_childid || '''
+												FROM
+													ast_lnk_tree t
+												INNER JOIN
+													ast_lnk l ON t.linkid = l.linkid
+												WHERE
+													l.minorid = ''' || majorid || '''
+											)';
+					RETURN free_childid;
+				EXCEPTION
+					WHEN NO_DATA_FOUND THEN
+						BEGIN
+							sql_str := 'SELECT treeid FROM(SELECT SUBSTR(ct.treeid, (LENGTH(ct.treeid) + 1) - ' || TREE_SIZE || ') treeid,
+										RANK() OVER (ORDER BY treeid DESC) highest
+										FROM
+									   sq_ast_lnk_tree ct';
+								-- if we are not the root folder, the we need to get the correct treeid length
+								IF (existing_treeid != '-') THEN
+									sql_str := sql_str || ' WHERE ct.treeid LIKE ''' || existing_treeid || '%''
+										AND ct.treeid > ''' || existing_treeid || '''
+										AND LENGTH(ct.treeid) = ' || (LENGTH(existing_treeid) + TREE_SIZE);
+								ELSE
+									sql_str := sql_str || ' WHERE LENGTH(ct.treeid) = ' || TREE_SIZE;
+								END IF;
+								sql_str := sql_str || ') WHERE highest = 1';
+								EXECUTE IMMEDIATE sql_str INTO free_childid;
+
+								-- we found a max so increment it
+								child_num    := CAST(asset_link_treeid_convert(free_childid, '0', TREE_BASE, TREE_SIZE) AS INTEGER);
+								free_childid := asset_link_treeid_convert(child_num + 1, '1', TREE_BASE, TREE_SIZE);
+								RETURN free_childid;
+						EXCEPTION
+							-- no max, we must be the first
+							WHEN NO_DATA_FOUND THEN
+								free_childid := asset_link_treeid_convert('0', '1', TREE_BASE, TREE_SIZE);
+								return free_childid;
+						END;
+				END;
+			END get_next_treeid;
 		]]>
 	</sql_element>
 </sql>
