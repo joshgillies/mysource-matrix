@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_management.inc,v 1.14 2005/11/15 22:30:58 rong Exp $
+* $Id: bulkmail_post_office_management.inc,v 1.15 2005/11/17 22:46:08 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -135,11 +135,12 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 																							'days'	=> Array(),
 																						   ),
 																		   ),
-																	//bulkmail_threshold_rule_mpm
+																	//bulkmail_threshold_rule_send_rate
 																	1	=> Array(
 																			'multiple'	=> false,
 																			'params'	=> Array(
-																							'value'	=> 100,
+																							'value'	=> 60,
+																							'unit'	=> 60,
 																						   ),
 																		   ),
 																   ),

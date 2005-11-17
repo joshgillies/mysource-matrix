@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.19 2005/11/15 22:30:42 rong Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.20 2005/11/17 22:46:08 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -461,8 +461,8 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 							case translate('bulkmail_threshold_rule_excluded_time') :
 								$this->_paintExcludedTimeRule($asset, $o, $prefix.'_threshold_rule_'.$key, $rule);
 							break;
-							case translate('bulkmail_threshold_rule_mpm') :
-								$this->_paintMpmRule($asset, $o, $prefix.'_threshold_rule_'.$key, $rule);
+							case translate('bulkmail_threshold_rule_send_rate') :
+								$this->_paintSendRateRule($asset, $o, $prefix.'_threshold_rule_'.$key, $rule);
 							break;
 							default:
 							break;
@@ -506,8 +506,8 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 					case translate('bulkmail_threshold_rule_excluded_time') :
 						$threshold = $this->_processExcludedTimeRule($prefix.'_threshold_rule_'.$key, $threshold, $key);
 					break;
-					case translate('bulkmail_threshold_rule_mpm') :
-						$threshold = $this->_processMpmRule($prefix.'_threshold_rule_'.$key, $threshold, $key);
+					case translate('bulkmail_threshold_rule_send_rate') :
+						$threshold = $this->_processSendRateRule($prefix.'_threshold_rule_'.$key, $threshold, $key);
 					break;
 					default:
 					break;
@@ -539,7 +539,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		$rules = Array('' => '-- '.translate('bulkmail_threshold_choose_type').' --');
 		$rules += Array(
 					translate('bulkmail_threshold_rule_excluded_time'),
-					translate('bulkmail_threshold_rule_mpm'),
+					translate('bulkmail_threshold_rule_send_rate'),
 				  );
 		combo_box($prefix.'_rule_type', $rules, false, '');
 
@@ -564,7 +564,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 			$rules = Array(
 						translate('bulkmail_threshold_rule_excluded_time'),
-						translate('bulkmail_threshold_rule_mpm'),
+						translate('bulkmail_threshold_rule_send_rate'),
 					 );
 			if (isset($_POST[$prefix.'_rule_type'])) {
 				$type = (isset($rules[$_POST[$prefix.'_rule_type']])) ? $rules[$_POST[$prefix.'_rule_type']] : '';
@@ -581,7 +581,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 						$threshold_types[0]['type'] = $type;
 						$threshold[] = $threshold_types[0];
 					break;
-					case translate('bulkmail_threshold_rule_mpm') :
+					case translate('bulkmail_threshold_rule_send_rate') :
 						$threshold_types[1]['type'] = $type;
 						$threshold[] = $threshold_types[1];
 					break;
@@ -720,7 +720,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Paints the 'Mails per Minute' rule
+	* Paints the 'Send Rate' rule
 	*
 	* @param object	&$asset	the asset whose interface we are painting
 	* @param object	&$o		the outputter class
@@ -730,33 +730,41 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paintMpmRule(&$asset, &$o, $prefix, $rule)
+	function _paintSendRateRule(&$asset, &$o, $prefix, $rule)
 	{
-		$min = 1;
-		$max = 100;
+		$time_unit = Array(
+						60		=> translate('minute'),
+						3600	=> translate('hour'),
+						86400	=> translate('day'),
+					 );
 
 		$write_access = $asset->writeAccess('attributes');
 		if ($write_access) {
 			ob_start();
-				int_text_box($prefix.'_value', $rule['params']['value'], false, 4, $min, $max, 4, false, 'align="right"');
+				int_text_box($prefix.'_value', $rule['params']['value'], false);
 				$value = ob_get_contents();
 			ob_end_clean();
+			ob_start();
+				combo_box($prefix.'_unit', $time_unit, false, $rule['params']['unit']);
+				$unit = ob_get_contents();
+			ob_end_clean();
 			?><td class="sq-backend-table-cell"><?php
-				echo translate('bulkmail_threshold_rule_mpm_detail', $value);
+				echo translate('bulkmail_threshold_rule_send_rate_detail', $value, $unit);
 			?></td><td class="sq-backend-table-cell"><?php
 				check_box($prefix.'_delete', true, false);?></td><?php
 		} else {
 			$value = $rule['params']['value'];
+			$unit = $time_unit[$rule['params']['unit']];
 			?><td class="sq-backend-table-cell" colspan="2"><?php
-				echo translate('bulkmail_threshold_rule_mpm_detail', $value);
+				echo translate('bulkmail_threshold_rule_send_rate_detail', $value, $unit);
 			?></td><?php
 		}
 
-	}//end _paintMpmRule()
+	}//end _paintSendRateRule()
 
 
 	/**
-	* Processes the 'Mails per Minute' rule
+	* Processes the 'Send Rate' rule
 	*
 	* @param string	$prefix		prefix for the form elements
 	* @param array	$threshold	the post office's threshold attribute
@@ -765,11 +773,12 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	* @return array
 	* @access private
 	*/
-	function _processMpmRule($prefix, $threshold, $key)
+	function _processSendRateRule($prefix, $threshold, $key)
 	{
 		if (isset($_POST[$prefix.'_value'])) {
 			$params['value'] = $_POST[$prefix.'_value'];
-			// do not allow zero mpm
+			$params['unit'] = $_POST[$prefix.'_unit'];
+			// do not allow zero rate
 			if (!$params['value']) $params['value'] = 1;
 		}
 		$threshold[$key]['params'] = $params;
@@ -779,7 +788,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 		return $threshold;
 
-	}//end _processMpmRule()
+	}//end _processSendRateRule()
 
 
 //--        JOB MANAGEMENT        --//

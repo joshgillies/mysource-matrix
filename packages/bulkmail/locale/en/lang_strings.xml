@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.14 2005/11/17 03:59:57 ndvries Exp $
+* $Id: lang_strings.xml,v 1.15 2005/11/17 22:46:08 rong Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -84,8 +84,8 @@ Please click on the following link if you would like to proceed:
 	<string source="bulkmail_threshold_rule_excluded_time">Excluded Time</string>
 	<string source="bulkmail_threshold_rule_excluded_time_hour">Do not process jobs between %1$s:00 and %2$s:00</string>
 	<string source="bulkmail_threshold_rule_excluded_time_days"> on %s</string>
-	<string source="bulkmail_threshold_rule_mpm">Mails per Minute</string>
-	<string source="bulkmail_threshold_rule_mpm_detail">Send %1$s emails per minute</string>
+	<string source="bulkmail_threshold_rule_send_rate">Send Rate</string>
+	<string source="bulkmail_threshold_rule_send_rate_detail">Send %1$s emails every %2$s</string>
 
 	<string source="bm_warning_one_post_office_for_job">Bulkmail Jobs can only be linked under one Bulkmail Post Office.</string>
 	<string source="bm_warning_server_details_error">Post Office Server Details: "%s".</string>
