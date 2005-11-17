@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: oci8_functions.xml,v 1.7 2005/11/17 04:15:12 mmcintyre Exp $
+* $Id: oci8_functions.xml,v 1.8 2005/11/17 04:39:27 mmcintyre Exp $
 *
 */
 -->
@@ -266,9 +266,9 @@
 												SELECT
 													t.treeid || ''' || free_childid || '''
 												FROM
-													ast_lnk_tree t
+													sq_ast_lnk_tree t
 												INNER JOIN
-													ast_lnk l ON t.linkid = l.linkid
+													sq_ast_lnk l ON t.linkid = l.linkid
 												WHERE
 													l.minorid = ''' || majorid || '''
 											)';
