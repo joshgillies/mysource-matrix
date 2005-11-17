@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.13 2005/11/17 01:46:09 rong Exp $
+* $Id: lang_strings.xml,v 1.14 2005/11/17 03:59:57 ndvries Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -47,8 +47,8 @@ Please click on the following link if you would like to proceed:
 	<string source="bm_state_unknown">Unknown State</string>
 
 	<string source="bm_job_table_header_id">ID</string>
-	<string source="bm_job_table_header_job">Job</string>
-	<string source="bm_job_table_header_post_office">Post Office (#ID)</string>
+	<string source="bm_job_table_header_job">Name</string>
+	<string source="bm_job_table_header_post_office">Post Office</string>
 	<string source="bm_job_table_header_state">State</string>
 	<string source="bm_job_table_header_progress">Progress</string>
 	<string source="bm_job_table_header_control">Control</string>

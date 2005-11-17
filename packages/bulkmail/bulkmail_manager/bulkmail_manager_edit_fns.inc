@@ -13,7 +13,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_offi
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -157,18 +157,13 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		<?php
 			foreach ($jobs as $jobid => $job_info) {
 				$jobid_parts = explode(':', $jobid);
-				$post_office =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job_info['post_office_id']);
 				if (isset($jobid_parts[1])) {
-					$data_dir = $post_office->data_path.'/.data/'.$jobid_parts[1];
 					$name = translate('bm_adhoc_job_name');
 				} else {
-					$bulkmail_job =& $GLOBALS['SQ_SYSTEM']->am->getAsset($jobid);
-					$data_dir = $bulkmail_job->data_path.'/.data';
-					$name = $bulkmail_job->name;
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bulkmail_job);
+					$name = array_shift($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($jobid), Array(), true, 'name'));
 				}
-				// Now that we have the data directory, we can get progress information from it
-				$progress = $bulkmail_manager->getJobProgress($jobid);
+
+				$progress = $job_info['progress'];
 				$progress_string = translate('bm_job_progress_none');
 				if (!empty($progress) && $progress['total_count'] != 0) {
 					$percent_done = round(($progress['current_count'] / $progress['total_count']) * 100, 2).'%';
@@ -178,7 +173,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 				<tr>
 					<td align="left" class="sq-backend-table-cell"><?php echo $jobid; ?></td>
 					<td align="left" class="sq-backend-table-cell"><?php echo $name; ?></td>
-					<td align="left" class="sq-backend-table-cell"><?php echo $post_office->name.' (#'.$post_office->id.')'; ?></td>
+					<td align="left" class="sq-backend-table-cell"><?php echo get_asset_tag_line($job_info['post_office_id']); ?></td>
 					<td align="left" class="sq-backend-table-cell">
 					<?php
 						switch ($job_info['status']) {

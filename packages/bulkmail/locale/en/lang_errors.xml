@@ -7,4 +7,5 @@
 	<error code="BML0007">Unable to create file: %s.</error>
 	<error code="BML0008">File "%s" is not writable.</error>
 	<error code="BML0009">File "%s" is not readable.</error>
+	<error code="BML0010">Invalid recipient IDs specified.</error>
 </errors>

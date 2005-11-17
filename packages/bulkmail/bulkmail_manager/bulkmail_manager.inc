@@ -12,7 +12,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -144,6 +144,83 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 //--        JOB        --//
 
+	/**
+	* Interface function for adding a non-scheduled (DO IT NOW!) bulkmail to the
+	* bulkmail queue.
+	*
+	* @param string	$from			Address of the sender, eg "John Doe <johndoe@example.com>"
+	* @param array	$recipients		AssetIDs of the recipients
+	* @param string	$subject		Subject of the email
+	* @param int	$content_id		AssetID of the asset you want to send as content
+	* @param int	$content_gen_as	AssetID of the user you want the mail generated as
+	* @param array	$headers		Addition headers to add to the mail in the form:
+										Array('key'	=> 'value')
+	* @param object	$post_office_id	AssetID of the post office to use. If this is null, you MUST supply
+									server details
+	* @param array	$server_details	Mail options to create a post office on the fly:
+										Array(
+											'driver'	=> 'sendmail',
+											'path'		=> '/usr/sbin/sendmail',
+										)
+
+										OR
+
+										Array(
+											'driver'	=> 'smtp',
+											'host'		=> 'mail.yourcompany.com',
+											'port'		=> 25,
+											'auth'		=> false,
+											'username'	=> '',
+											'password'	=> '',
+										)
+	* @param int	$design_id		AssetID of the design to use with the content
+	* @param int	$layout_id		AssetID of the paint layout to use with the content (requires a design as well)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function createAdHocJob($from, $recipients, $subject, $content_id, $content_gen_as, $headers=Array(), $post_office_id=0, $server_details=Array(), $design_id=0, $layout_id=0)
+	{
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+		if (!is_array($recipients)) {
+			$recipients = Array($recipients);
+		}
+
+		$recipients = $am->assetExists($recipients);
+		if (empty($recipients)) {
+			trigger_localised_error('BML0010', E_USER_ERROR);
+			return false;
+		}
+
+		$am->includeAsset('bulkmail_job');
+		$bulkmail_job = new Bulkmail_Job();
+
+		$bulkmail_job->setAttrValue('from', $from);
+		$bulkmail_job->setAttrValue('recipients', $recipients);
+		$bulkmail_job->setAttrValue('subject', $subject);
+		$bulkmail_job->setAttrValue('content_id', $content_id);
+		$bulkmail_job->setAttrValue('content_gen_as', $content_gen_as);
+		$bulkmail_job->setAttrValue('header_details', $headers);
+
+		$bulkmail_job->setAttrValue('content_design', $design_id);
+		$bulkmail_job->setAttrValue('content_layout', $layout_id);
+
+		$post_office = null;
+		if (empty($post_office_id) && !empty($server_details)) {
+			$post_office =& new Post_Office();
+			$post_office->setAttrValue('server_details', $value);
+		} else if ($post_office_id) {
+			$post_office =& $am->getAsset($post_office_id, 'bulkmail_post_office');
+			if (is_null($post_office)) {
+				return false;
+			}
+		}
+
+		return $this->addJob($bulkmail_job, $post_office);
+
+	}//end createAdHocJob();
+
 
 	/**
 	* Adds a new job entry to the database, set up the datapath and progress info file
@@ -180,18 +257,18 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		// work out the unique id for this job in the db table
 		if ($job->id == 0) {
-			// use random id based on current timestamp for ad-hoc jobs
-			// check if this id has been taken by another ad-hoc job
+			// keep generating an ID until we find a new one (probably straight away)
 			do {
-				$unique_id = md5(uniqid(''));
-			} while (is_dir($post_office->data_path.'/.data/'.$unique_id));
+				$unique_id = $post_office->id.':'.md5(uniqid(''));
+				$data_dir = $this->getJobDataPath($unique_id);
+			} while (is_dir($data_dir));
 		} else {
 			$unique_id = $job->id;
-		}
+			$data_dir = $this->getJobDataPath($unique_id);
 
-		// purge and refresh dir
-		$data_dir = $this->getJobDataPath($post_office->id.':'.$unique_id);
-		if (is_dir($data_dir)) delete_directory($data_dir);
+			// purge and refresh dir
+			if (is_dir($data_dir)) delete_directory($data_dir);
+		}
 
 		// store progress and details information in files
 		create_directory($data_dir);
@@ -574,10 +651,12 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			$errors[] = translate('bm_warning_no_recipient');
 		}
 
-		// no 'from' and 'subject' header field
+		// no 'from' field
 		if (empty($details_info['from'])) {
 			$errors[] = translate('bm_warning_no_from_field');
 		}
+
+		// no 'subject' field
 		if (empty($details_info['subject'])) {
 			$errors[] = translate('bm_warning_no_subject_field');
 		}

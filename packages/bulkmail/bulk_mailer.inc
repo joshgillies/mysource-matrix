@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.20 2005/11/16 03:29:05 rong Exp $
+* $Id: bulk_mailer.inc,v 1.21 2005/11/17 03:59:54 ndvries Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -490,6 +490,10 @@ class Bulk_Mailer
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$user_list = Array();
 		$group_ids = Array();
+
+		if (!is_array($recipients)) {
+			$recipients = Array($recipients);
+		}
 
 		// an array of userids that have read access to the asset to send (content page)
 		// if public user has read access, then everyone should be able to read it
