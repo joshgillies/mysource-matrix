@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.32 2005/11/03 23:57:28 lwright Exp $
+* $Id: workflow.inc,v 1.33 2005/11/17 03:14:30 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 */
 
@@ -303,7 +303,6 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 									for ($log_num = 0; $log_num < 4; $log_num++) {
 										if (!isset($user_logs[$log_num])) break;
 										$log_data = $user_logs[$log_num];
-										bam($log_data);
 										?>
 										<tr>
 											<td class="sq-backend-table-cell" nowrap><?php echo ts_iso8601($log_data['sent']); ?></td>
