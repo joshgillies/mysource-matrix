@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.29 2005/11/09 01:10:12 mmcintyre Exp $
+* $Id: db_install.inc,v 1.30 2005/11/17 04:15:02 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -628,6 +628,7 @@ function xml_entity_decode($string)
 	$string = str_replace('&apos;', "'", $string);
 	$string = str_replace('&#42;', '*', $string);
 	$string = str_replace('&#92;', '\\', $string);
+	$string = str_replace('&#126;', '~', $string);
 
 	return $string;
 
