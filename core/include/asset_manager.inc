@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.395 2005/11/09 01:14:03 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.396 2005/11/17 04:09:10 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.395 $
+* @version $Revision: 1.396 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1125,7 +1125,8 @@ class Asset_Manager extends MySource_Object
 		$assetid = ($mute_errors) ? @$this->getSystemAssetid($name) : $this->getSystemAssetid($name);
 
 		if ($assetid !== false) {
-			return $this->getAsset($assetid, $name, $mute_errors);
+			$asset = &$this->getAsset($assetid, $name, $mute_errors);
+			return $asset;
 		} else {
 			$null = null;
 			return $null;
@@ -3343,24 +3344,24 @@ class Asset_Manager extends MySource_Object
 			//// Check we aren't moving the minor asset under itself ////
 			// get all the links where the minor asset is a parent
 			// and check to see if our id is under it
-			$sub_sql   = 'SELECT linkid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk ';
-			$sub_where = 'minorid = '.$db->quote($minor->id);
-			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where);
-			$sub_sql .= $sub_where;
+			$sub_sql = 'SELECT
+							linkid
+						FROM
+							sq_ast_lnk
+						WHERE
+							minorid = '.$db->quoteSmart($minor->id);
 
-			$sql   = 'SELECT COUNT(DISTINCT ct.linkid)
-					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt,
-						'.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl ON ct.linkid = cl.linkid ';
-			$where = 'ct.treeid LIKE (pt.treeid || '.$db->quote('%').')
-					  AND ct.treeid >= pt.treeid
-					  AND pt.linkid IN ('.$sub_sql.')
-					  AND cl.minorid = '.$db->quote($major->id);
+			$sql = 'SELECT
+						COUNT(DISTINCT ct.linkid)
+					FROM sq_ast_lnk_tree pt,
+						sq_ast_lnk_tree ct INNER JOIN sq_ast_lnk cl ON ct.linkid = cl.linkid
+					WHERE
+							ct.treeid LIKE (pt.treeid || '.$db->quoteSmart('%').')
+						AND	ct.treeid >= pt.treeid
+						AND	pt.linkid IN ('.$sub_sql.')
+						AND	cl.minorid = '.$db->quoteSmart($major->id);
 
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
-
-			$moving_under = $db->getOne($sql.$where);
+			$moving_under = $db->getOne($sql);
 			assert_valid_db_result($moving_under);
 
 			if ($moving_under) {
@@ -3440,22 +3441,21 @@ class Asset_Manager extends MySource_Object
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
-
 		// if this is a significant link, then do stuff with the tree
 		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 			//// UPDATE THE TREE TABLE ////
 
 			// Get one of the treeids that we have
-			$sql   = 'SELECT t.treeid
-					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
-					  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid ';
-			$where = 'l.minorid = '.$db->quote($major->id);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$sql .= $where;
-			$sql = $db->modifyLimitQuery($sql, 0, 1);
+			$sql   = 'SELECT
+							t.treeid
+						FROM
+							sq_ast_lnk_tree t
+							INNER JOIN sq_ast_lnk l ON t.linkid = l.linkid
+						WHERE
+							l.minorid = '.$db->quoteSmart($major->id);
 
+			$sql = $db->modifyLimitQuery($sql, 0, 1);
 			$existing_treeid = $db->getOne($sql);
 			assert_valid_db_result($existing_treeid);
 
@@ -3467,15 +3467,16 @@ class Asset_Manager extends MySource_Object
 				return 0;
 			}
 
-			// OK, what we are going to get a treeid and then do a "INSERT INTO ... SELECT FROM"
+			// OK, what we are going to do is get a treeid and then do a "INSERT INTO ... SELECT FROM"
 			// into the tree table of all the links that are under the minor asset
-			$sql   = 'SELECT t.treeid, t.num_kids
-					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
-					  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid ';
-			$where = 'l.minorid = '.$db->quote($minor->id);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$sql .= $where;
+			$sql   = 'SELECT
+							t.treeid, t.num_kids
+						FROM
+							sq_ast_lnk_tree t
+							INNER JOIN sq_ast_lnk l ON t.linkid = l.linkid
+						WHERE
+							l.minorid = '.$db->quoteSmart($minor->id);
+
 			$sql = $db->modifyLimitQuery($sql, 0, 1);
 
 			$minor_tree = $db->getRow($sql);
@@ -3489,94 +3490,19 @@ class Asset_Manager extends MySource_Object
 				$minor_tree['num_kids'] = (int) $minor_tree['num_kids'];
 			}
 
-			// when links are deleted their entries in the tree table are set to have a linkid of zero
-			// (see deleteLink()) so we can attempt to find unused treeid's that are forming gaps
-			$sql   = 'SELECT ct.treeid
-					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ';
-			$where = 'ct.treeid LIKE '.$db->quote($existing_treeid.'%').'
-					  AND ct.treeid > '.$db->quote($existing_treeid).'
-					  AND LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE).'
-					  AND ct.linkid = 0';
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
-			$sql .= $where;
-			$sql = $db->modifyLimitQuery($sql, 0, 1);
+			// ask the database for a new treeid. The resulting treeid will be determined
+			// by the following rules
+			// 1) If there are any re-usuable treeids that have been flagged as re-usuable
+			// 2) if there is no current treeid for this branch, branch + 0000 is returned
+			// 3) the next treeid in the sequence for this branch is returned
+			$sql = 'SELECT get_next_treeid('.
+						$db->quoteSmart($existing_treeid).', '.
+						$db->quoteSmart($major->id).','.
+						SQ_CONF_ASSET_TREE_BASE.', '.SQ_CONF_ASSET_TREE_SIZE.')';
 
+			if ($db->phptype == 'oci8') $sql .= ' FROM DUAL';
 			$free_childid = $db->getOne($sql);
 			assert_valid_db_result($free_childid);
-
-			if ((string) $free_childid == '') {
-				// no free children, generate one from the max value (note that
-				// we have to do this by a LIMIT query as the binary string fields
-				// do not allow the MAX() aggregate to be run over it)
-				$sql   = 'SELECT ct.treeid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ';
-
-				// if we are not the root folder, the we need to get the correct treeid length
-				if ($existing_treeid != '-') {
-					$where = 'ct.treeid LIKE '.$db->quote($existing_treeid.'%').'
-						  AND ct.treeid > '.$db->quote($existing_treeid).'
-						  AND LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE);
-				} else {
-					$where = 'LENGTH(ct.treeid) = '.(SQ_CONF_ASSET_TREE_SIZE);
-				}
-				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
-				$order = ' ORDER BY treeid DESC';
-
-				$free_childid = $db->getOne($db->modifyLimitQuery($sql.$where.$order, 0, 1));
-				assert_valid_db_result($free_childid);
-
-				if ((string) $free_childid == '') {
-					// no max, we must be the first
-					if (($free_childid = asset_link_treeid_convert(0, true)) === false) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return 0;
-					}
-				} else {
-					// we found a max so increment it
-
-					// get only the child part
-					$free_childid = substr($free_childid, -1 * SQ_CONF_ASSET_TREE_SIZE);
-
-					if (($child_num = asset_link_treeid_convert($free_childid, false)) === false) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return 0;
-					}
-					if (($free_childid = asset_link_treeid_convert($child_num + 1, true)) === false) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return 0;
-					}
-				}//end if
-
-			} else {
-				// there was a free entry
-
-				// get only the child part
-				$free_childid = substr($free_childid, -1 * SQ_CONF_ASSET_TREE_SIZE);
-
-				// remove the current zeroed entries in the tree table,
-				// as we will be inserting over the top of them
-
-				$sub_where = 'l.minorid = '.$db->quote($major->id);
-				$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
-				$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
-
-				$sql = 'DELETE FROM
-							sq_ast_lnk_tree
-						WHERE
-							treeid IN
-							(
-								SELECT
-									t.treeid || '.$db->quoteSmart($free_childid).'
-								FROM
-									'.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
-								INNER JOIN
-									'.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
-								'.$sub_where.'
-							)';
-
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
-
-			}//end if
 
 			// if we don't have any existing tree entries then
 			// we are the root folder, so do a simple insert
@@ -5047,7 +4973,8 @@ class Asset_Manager extends MySource_Object
 			return $null;
 
 		} else {
-			return $this->getAsset($row['assetid'], '', $mute_errors);
+			$asset = &$this->getAsset($row['assetid'], '', $mute_errors);
+			return $asset;
 		}//end if
 
 	}//end getAssetFromURL()
