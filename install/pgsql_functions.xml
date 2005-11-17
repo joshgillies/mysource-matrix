@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.6 2005/11/17 04:15:36 mmcintyre Exp $
+* $Id: pgsql_functions.xml,v 1.7 2005/11/17 04:39:48 mmcintyre Exp $
 *
 */
 -->
@@ -361,12 +361,10 @@
 				END LOOP;
 
 				IF NOT FOUND THEN
-					raise notice ''ere'';
 					free_childid := asset_link_treeid_convert(''0'', ''1'', TREE_BASE, TREE_SIZE);
 				ELSE
 					-- we found a max so increment it
 					child_num    := CAST(encode(asset_link_treeid_convert(decode(free_childid, ''escape''), ''0'', TREE_BASE, TREE_SIZE), ''escape'') AS INTEGER);
-					raise notice '' -- %'', child_num;
 					free_childid := asset_link_treeid_convert(decode((child_num + 1)::text, ''escape''), ''1'', TREE_BASE, TREE_SIZE);
 				END IF;
 			ELSE
@@ -379,9 +377,9 @@
 									SELECT
 										t.treeid || '''''' || free_childid || ''''''
 									FROM
-										ast_lnk_tree t
+										sq_ast_lnk_tree t
 									INNER JOIN
-										ast_lnk l ON t.linkid = l.linkid
+										sq_ast_lnk l ON t.linkid = l.linkid
 									WHERE
 										l.minorid = '''''' || majorid || ''''''
 								)'';
