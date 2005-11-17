@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.5 2005/08/12 01:00:23 mmcintyre Exp $
+* $Id: pgsql_functions.xml,v 1.6 2005/11/17 04:15:36 mmcintyre Exp $
 *
 */
 -->
@@ -258,6 +258,136 @@
 					return (input::text::int4);
 			END;
 			' language plpgsql;
+		]]>
+	</sql_element>
+	<sql_element display_name="asset_link_treeid_convert Function">
+		<![CDATA[
+		CREATE OR REPLACE FUNCTION asset_link_treeid_convert(BYTEA, CHAR, INTEGER, INTEGER) RETURNS bytea AS '
+		DECLARE
+			value ALIAS FOR $1;
+			encode_flag ALIAS FOR $2;
+			TREE_BASE ALIAS FOR $3;
+			TREE_SIZE ALIAS FOR $4;
+			str TEXT;
+			pad_str TEXT;
+			i INTEGER	:= 0;
+			x INTEGER	:= 0;
+			d INTEGER	:= 0;
+			num INTEGER := 0;
+			pos INTEGER := 0;
+			DIGITS CHAR(64) := ''0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~'';
+		BEGIN
+			str := '''';
+			IF encode_flag = ''1'' THEN
+				i := encode(value, ''escape'')::integer;
+				WHILE i != 0 LOOP
+					pos := MOD(i, TREE_BASE);
+					str := SUBSTR(DIGITS, pos + 1, 1) || str;
+					i := FLOOR(i / TREE_BASE);
+				END LOOP;
+				IF LENGTH(str) > TREE_SIZE THEN
+					RAISE EXCEPTION ''Broken! value:  %  str: % TREE_SIZE : %'', value, str, TREE_SIZE;
+					RETURN NULL;
+				ELSE
+					IF str = '''' THEN
+						pos := TREE_SIZE;
+					ELSE
+						pos := (TREE_SIZE - LENGTH(str));
+					END IF;
+					pad_str := '''';
+					FOR i IN 1..pos LOOP
+						pad_str := pad_str || SUBSTR(DIGITS, 1, 1);
+					END LOOP;
+					RETURN pad_str || str;
+				END IF;
+			ELSE
+				num := 0;
+				x := POWER(TREE_BASE, LENGTH(value) - 1);
+				FOR i IN 1..LENGTH(value) LOOP
+					d := POSITION(ENCODE(SUBSTR(value, i, 1), ''escape'') IN DIGITS);
+					IF d = 0 THEN
+						RETURN NULL;
+					END IF;
+					-- -1 from d as instr starts at 1 not 0
+					d := d - 1;
+					num := num + (x * d);
+					x := x / TREE_BASE;
+				END LOOP;
+				RETURN num;
+			END IF;
+		END;' language plpgsql;
+		]]>
+	</sql_element>
+	<sql_element display_name="get_next_treeid Function">
+	<![CDATA[
+		CREATE OR REPLACE FUNCTION get_next_treeid(TEXT, VARCHAR, INTEGER, INTEGER) RETURNS VARCHAR AS '
+		DECLARE
+			existing_treeid ALIAS FOR $1;
+			majorid ALIAS FOR $2;
+			TREE_BASE ALIAS FOR $3;
+			TREE_SIZE ALIAS FOR $4;
+			free_childid TEXT;
+			sql_str TEXT;
+			child_num INTEGER;
+			res RECORD;
+		BEGIN
+			-- try to find any entries in the link tree under parent that are free
+			sql_str := ''SELECT SUBSTR(ct.treeid, (LENGTH(ct.treeid) + 1) - '' || TREE_SIZE || '') AS treeid
+				  FROM sq_ast_lnk_tree ct
+				  WHERE ct.treeid LIKE '''''' || existing_treeid || ''%''''
+				  AND ct.treeid > '''''' || existing_treeid || ''''''
+				  AND LENGTH(ct.treeid) = '' || (LENGTH(existing_treeid) + TREE_SIZE) || ''
+				  AND ct.linkid = 0 ORDER BY treeid DESC LIMIT 1'';
+
+			FOR res IN EXECUTE sql_str LOOP
+				free_childid := res.treeid;
+			END LOOP;
+
+			IF NOT FOUND THEN
+				sql_str := ''SELECT SUBSTR(ct.treeid, (LENGTH(ct.treeid) + 1) - '' || TREE_SIZE || '') AS treeid
+					   FROM sq_ast_lnk_tree ct'';
+				-- if we are not the root folder, the we need to get the correct treeid length
+				IF (existing_treeid != ''-'') THEN
+					sql_str := sql_str || '' WHERE ct.treeid LIKE '''''' || existing_treeid || ''%''''
+						AND ct.treeid > '''''' || existing_treeid || ''''''
+						AND LENGTH(ct.treeid) = '' || (LENGTH(existing_treeid) + TREE_SIZE);
+				ELSE
+					sql_str := sql_str || '' WHERE LENGTH(ct.treeid) = '' || TREE_SIZE;
+				END IF;
+				sql_str := sql_str || '' ORDER BY treeid DESC LIMIT 1'';
+
+				FOR res IN EXECUTE sql_str LOOP
+					free_childid := res.treeid;
+				END LOOP;
+
+				IF NOT FOUND THEN
+					raise notice ''ere'';
+					free_childid := asset_link_treeid_convert(''0'', ''1'', TREE_BASE, TREE_SIZE);
+				ELSE
+					-- we found a max so increment it
+					child_num    := CAST(encode(asset_link_treeid_convert(decode(free_childid, ''escape''), ''0'', TREE_BASE, TREE_SIZE), ''escape'') AS INTEGER);
+					raise notice '' -- %'', child_num;
+					free_childid := asset_link_treeid_convert(decode((child_num + 1)::text, ''escape''), ''1'', TREE_BASE, TREE_SIZE);
+				END IF;
+			ELSE
+				-- if there was no exception then we can free up this entry and return it
+				EXECUTE ''DELETE FROM
+								sq_ast_lnk_tree
+							WHERE
+								treeid IN
+								(
+									SELECT
+										t.treeid || '''''' || free_childid || ''''''
+									FROM
+										ast_lnk_tree t
+									INNER JOIN
+										ast_lnk l ON t.linkid = l.linkid
+									WHERE
+										l.minorid = '''''' || majorid || ''''''
+								)'';
+			END IF;
+			RETURN free_childid;
+		END;' language plpgsql;
 		]]>
 	</sql_element>
 </sql>
