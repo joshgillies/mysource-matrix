@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.22 2005/11/02 23:15:47 lwright Exp $
+* $Id: ecommerce_cart.inc,v 1.23 2005/11/17 06:34:28 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -196,6 +196,19 @@ class Ecommerce_Cart extends Listing_Engine
 	}//end printFrontend()
 
 
+ 	/**
+        * Gets the list of current root nodes
+        *
+        * @return array
+        * @access public
+        */
+        function getRootNodes()
+        {
+		return Array();
+
+	}//end getRootNodes()
+
+
 	/**
 	 * Constructs the carts contents
 	 *
@@ -338,7 +351,6 @@ class Ecommerce_Cart extends Listing_Engine
 			}
 			$format_bodycopy->printBody();
 		ob_end_flush();
-
 	}//end printContents()
 
 
