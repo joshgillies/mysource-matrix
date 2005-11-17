@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.79 2005/11/07 01:47:53 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.80 2005/11/17 22:27:54 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -686,7 +686,7 @@ class Page_Asset_Builder extends Page
 	{
 		$all_selected_locations = Array();
 		foreach ($this->attr('create_location_dynamic') as $set_name => $details) {
-			$code_name = str_replace(Array(' ','\''), '_', strtolower($name));
+			$code_name = str_replace(Array(' ','\''), '_', strtolower($set_name));
 			if (isset($_POST[$code_name]) && !empty($_POST[$code_name])) {
 				$locations = $_POST[$code_name];
 				if (!is_array($locations)) {
