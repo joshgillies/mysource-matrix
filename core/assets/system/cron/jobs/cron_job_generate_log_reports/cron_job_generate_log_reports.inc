@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_generate_log_reports.inc,v 1.2 2005/05/11 06:04:57 lwright Exp $
+* $Id: cron_job_generate_log_reports.inc,v 1.3 2005/11/17 00:06:39 rong Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *   Note that this is a singleton asset - when the asset type is installed it creates a single
 *   instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -172,7 +172,7 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 
 		$lm = &$GLOBALS['SQ_SYSTEM']->getLogManager();
 
-		$rotated_logs = &$lm->rotateLogs();
+		$rotated_logs = $lm->rotateLogs();
 
 		// nothing was rotated, so don't generate any reports and end prematurely
 		if (empty($rotated_logs)) return SQ_CRON_JOB_COMPLETED;
@@ -201,11 +201,11 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 			return false;
 		}
 
-		$log_reports  = &$GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('log_report', false, true);
+		$log_reports  = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('log_report', false, true);
 
 		// a list of all the logs in the system
 		$lm = &$GLOBALS['SQ_SYSTEM']->getLogManager();
-		$logs = &$lm->getLogs();
+		$logs = $lm->getLogs();
 		foreach ($target_logs as $logname) {
 			if (isset($logs[$logname])) {
 				if (isset($logs[$logname]['rotation']['last_index'])) {
