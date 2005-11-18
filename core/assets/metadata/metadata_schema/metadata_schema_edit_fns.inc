@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.37 2005/05/17 07:05:04 ndvries Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.37.2.1 2005/11/18 03:42:56 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.37.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -432,7 +432,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		// need to have write access to make any changes
 		if ($asset->writeAccess('')) {
 
-			$namespace = &$asset->attr('namespace');
+			$namespace = $asset->attr('namespace');
 
 			if (!isset($namespace)) {
 				text_box($prefix.'_namespace', '', 15);
@@ -488,7 +488,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		// need to have write access to make any changes
 		if ($asset->writeAccess('')) {
 
-			$nsurl = &$asset->attr('nsurl');
+			$nsurl = $asset->attr('nsurl');
 
 			if (!isset($nsurl)) {
 				text_box($prefix.'_nsurl', '', 80);
