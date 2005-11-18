@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.22 2005/11/17 22:46:08 rong Exp $
+* $Id: bulk_mailer.inc,v 1.23 2005/11/18 01:15:46 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -103,16 +103,18 @@ class Bulk_Mailer
 		foreach ($results as $job_id => $info) {
 			if ($info['status'] == BML_JOB_STATE_SLEEPING) {
 				$progress_info = $bm->getJobProgress($job_id);
-				//echo "current time ".time()." vs wakeuptime $progress_info[wake_up_time], time diff = ".($progress_info['wake_up_time']-time())."\n";
-				if (time() > $progress_info['wake_up_time']) {
-					//echo "wake up!\n";
-					// excluded time threshold rule
-					if ($this->checkThreshold('excluded_time', $info['details']['threshold'])) {
-						//echo " BulkMailer->Start Job #$job_id\n";
-						$bm->updateJob($job_id, BML_JOB_STATE_RUNNING);
-						$this->chunkJob($job_id, $recip_per_chunk);
-						$this->processJob($job_id, $recip_per_chunk);
-						return;
+				if (isset($progress_info['wake_up_time'])) {
+					//echo "current time ".time()." vs wakeuptime $progress_info[wake_up_time], time diff = ".($progress_info['wake_up_time']-time())."\n";
+					if (time() > $progress_info['wake_up_time']) {
+						//echo "wake up!\n";
+						// excluded time threshold rule
+						if ($this->checkThreshold('excluded_time', $info['details']['threshold'])) {
+							//echo " BulkMailer->Start Job #$job_id\n";
+							$bm->updateJob($job_id, BML_JOB_STATE_RUNNING);
+							$this->chunkJob($job_id, $recip_per_chunk);
+							$this->processJob($job_id, $recip_per_chunk);
+							return;
+						}
 					}
 				}
 			}
@@ -295,11 +297,13 @@ class Bulk_Mailer
 			// threshold checking
 			if (!$this->checkThreshold('excluded_time', $details['threshold'])) {
 				// current time is in excluded time range
+				//echo "is excluded time\n";
 				$bm->updateJob($job_id, BML_JOB_STATE_NOT_RUNNING);
 				exit;
 			}
 			if (!$this->checkThreshold('send_rate', $details['threshold'], $progress_path)) {
 				// threshold limit has been reached, set job to sleep
+				//echo "is sleeping\n";
 				$bm->updateJob($job_id, BML_JOB_STATE_SLEEPING);
 				exit;
 			}
@@ -336,7 +340,7 @@ class Bulk_Mailer
 								$mail_id = $mail_queue->put('', $email, $headers, $body);
 							}
 							$this->updateProgress($progress_path, $user_id);
-							sleep(3);
+							//sleep(3);
 							exit;
 						}
 
@@ -365,7 +369,26 @@ class Bulk_Mailer
 		$this->_reconnectDB();
 		$progress_info = $bm->getJobProgress($job_id);
 		if ($progress_info['current_count'] >= $progress_info['total_count']) {
-			//echo "  BulkMailer->Finished processing Job #$job_id\n";
+
+			// log a history message if this is not an ad-hoc job
+			$job_id_parts = explode(':', $job_id);
+			if (!isset($job_id_parts[1])) {
+				$msg_reps = Array(
+								// format recipient count with grouped thousands
+								'num_recip'	=> number_format($progress_info['total_count']),
+							);
+				$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$message = $ms->newMessage(Array(), 'bulkmail.job.history', $msg_reps);
+				$message->parameters['assetid'] = $job_id;
+				$message->send();
+
+				// log an error with all the problematic users' id
+				//include $job_path.'/problematic_recip';
+				//if (count($problematic) > 0) {
+					//trigger_localised_error('BML0010', E_USER_WARNING, implode(',', $problematic));
+				//}
+			}
+
 			$bm->deleteJob($job_id);
 		}
 
@@ -891,6 +914,7 @@ class Bulk_Mailer
 				$progress_info['threshold_rate'] = -1;
 			}
 		}
+
 		// check to see if the rate threshold has been reached
 		if ($progress_info['threshold_rate'] != -1) {
 			if (isset($progress_info['wake_up_time'])) {
@@ -915,6 +939,8 @@ class Bulk_Mailer
 				return true;
 			}
 		}
+
+		return true;
 
 	}//end checkSendRate()
 

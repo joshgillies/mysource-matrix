@@ -12,7 +12,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -144,6 +144,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 //--        JOB        --//
 
+
 	/**
 	* Interface function for adding a non-scheduled (DO IT NOW!) bulkmail to the
 	* bulkmail queue.
@@ -154,25 +155,25 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	* @param int	$content_id		AssetID of the asset you want to send as content
 	* @param int	$content_gen_as	AssetID of the user you want the mail generated as
 	* @param array	$headers		Addition headers to add to the mail in the form:
-										Array('key'	=> 'value')
+	*								Array('key'	=> 'value')
 	* @param object	$post_office_id	AssetID of the post office to use. If this is null, you MUST supply
-									server details
+	*								server details
 	* @param array	$server_details	Mail options to create a post office on the fly:
-										Array(
-											'driver'	=> 'sendmail',
-											'path'		=> '/usr/sbin/sendmail',
-										)
-
-										OR
-
-										Array(
-											'driver'	=> 'smtp',
-											'host'		=> 'mail.yourcompany.com',
-											'port'		=> 25,
-											'auth'		=> false,
-											'username'	=> '',
-											'password'	=> '',
-										)
+	*								Array(
+	*									'driver'	=> 'sendmail',
+	*									'path'		=> '/usr/sbin/sendmail',
+	*								)
+	*
+	*								OR
+	*
+	*								Array(
+	*									'driver'	=> 'smtp',
+	*									'host'		=> 'mail.yourcompany.com',
+	*									'port'		=> 25,
+	*									'auth'		=> false,
+	*									'username'	=> '',
+	*									'password'	=> '',
+	*								)
 	* @param int	$design_id		AssetID of the design to use with the content
 	* @param int	$layout_id		AssetID of the paint layout to use with the content (requires a design as well)
 	*
@@ -194,7 +195,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		}
 
 		$am->includeAsset('bulkmail_job');
-		$bulkmail_job = new Bulkmail_Job();
+		$bulkmail_job =& new Bulkmail_Job();
 
 		$bulkmail_job->setAttrValue('from', $from);
 		$bulkmail_job->setAttrValue('recipients', $recipients);
@@ -212,14 +213,12 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			$post_office->setAttrValue('server_details', $value);
 		} else if ($post_office_id) {
 			$post_office =& $am->getAsset($post_office_id, 'bulkmail_post_office');
-			if (is_null($post_office)) {
-				return false;
-			}
+			if (is_null($post_office)) return false;
 		}
 
 		return $this->addJob($bulkmail_job, $post_office);
 
-	}//end createAdHocJob();
+	}//end createAdHocJob()
 
 
 	/**
@@ -323,7 +322,6 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		// purge the data dir if it is an ad-hoc job
-		// TODO: make sure this part works, once we can add ad-hoc job
 		$job_id_parts = explode(':', $job_id);
 		if (isset($job_id_parts[1])) {
 			$post_office =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id_parts[0]);
