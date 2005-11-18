@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.28 2005/11/16 03:10:59 lwright Exp $
+* $Id: listing_engine.inc,v 1.38.2.29 2005/11/18 04:53:21 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.28 $
+* @version $Revision: 1.38.2.29 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1473,7 +1473,6 @@ class Listing_Engine extends Page
 			foreach ($this->_tmp['assets_info'][$assetid] as $field => $value) {
 				$keywords['asset_'.$field] = $value;
 			}
-			$keywords['asset_assetid'] = $assetid;
 		}//end if needs asset
 
 		$metadata_keywords = Array();
@@ -1497,9 +1496,11 @@ class Listing_Engine extends Page
 		$keywords['page_href']      = $this->getHref();
 		$keywords['asset_position'] = (array_get_index($_REQUEST, 'result_page', 1) - 1) * $this->attr('num_per_page') + $list_position;
 
+		// print asset ID always
+		$keywords['asset_assetid'] = $assetid;
+
 		// kept for backwards compatibility
 		$keywords['result_no']      = &$keywords['asset_position'];
-
 		$keywords['root_nodes'] = implode(',', $this->getRootNodes());
 
 		$keywords['result_number'] = '%result_number%';
