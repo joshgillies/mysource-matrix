@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.18.2.2 2005/06/22 05:01:49 arailean Exp $
+* $Id: page_whats_new.inc,v 1.18.2.3 2005/11/18 04:41:11 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../page_templates/page_asset_listing/page_as
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18.2.2 $
+* @version $Revision: 1.18.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -79,13 +79,7 @@ class Page_Whats_New extends Page_Asset_Listing
 
 		// get the root asset whose sub-assets/children we are displaying
 		// if there is no root asset, we will use ourselves and print our children
-		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
-		if (empty($root_link)) {
-			$root_asset =& $this;
-		} else {
-			$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
-			if (is_null($root_asset)) return Array();
-		}
+		$root_asset_ids = $this->getRootNodes();
 
 		$sort_info = $this->getSortInfo();
 
@@ -148,16 +142,21 @@ class Page_Whats_New extends Page_Asset_Listing
 
 		if ($this->attr('subs_only')) {
 
-			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, $letter_sort_by, SQ_PERMISSION_READ);
-			$query['where'] .= $where;
+			$links = Array();
 
-			// special case for A-Z listings because they require another field selected from the database
-			if ($group_by == 'letter') {
-				$query['select'] .= ', SUBSTR(a.'.$letter_sort_by.', 1, 1) AS first_letter';
+			foreach($root_asset_ids as $root_asset_id) {
+				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, $letter_sort_by, SQ_PERMISSION_READ);
+				$query['where'] .= $where;
+
+				// special case for A-Z listings because they require another field selected from the database
+				if ($group_by == 'letter') {
+					$query['select'] .= ', SUBSTR(a.'.$letter_sort_by.', 1, 1) AS first_letter';
+				}
+
+				$new_links = $db->getAll(implode(' ', $query));
+				assert_valid_db_result($new_links);
+				$links = array_merge($links, $new_links);
 			}
-
-			$links = $db->getAll(implode(' ', $query));
-			assert_valid_db_result($links);
 
 			switch ($group_by) {
 
@@ -180,16 +179,29 @@ class Page_Whats_New extends Page_Asset_Listing
 
 		} else {
 
-			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), false, $letter_sort_by, SQ_PERMISSION_READ);
-			$query['where'] .= $where;
+			$children = Array();
 
-			// special case for A-Z listings because they require another field selected from the database
-			if ($group_by == 'letter') {
-				$query['select'] .= ', SUBSTR(a.'.$letter_sort_by.', 1, 1) AS first_letter';
+			foreach($root_asset_ids as $root_asset_id) {
+				$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
+				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), false, $letter_sort_by, SQ_PERMISSION_READ);
+				$query['where'] .= $where;
+
+				// special case for A-Z listings because they require another field selected from the database
+				if ($group_by == 'letter') {
+					$query['select'] .= ', SUBSTR(a.'.$letter_sort_by.', 1, 1) AS first_letter';
+				}
+
+				$new_kids = $db->getAssoc(implode(' ', $query));
+				assert_valid_db_result($new_kids);
+
+				// can't use array_merge() because we need to save the key (assetid);
+				foreach($new_kids as $kid_key => $kid_value) {
+					$children[$kid_key] = $kid_value;
+				}
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
+				unset($root_asset);
 			}
-
-			$children = $db->getAssoc(implode(' ', $query));
-			assert_valid_db_result($children);
 
 			// only A-Z listings require the type_code to be in an array
 			// all other formats require a simple assetid => type_code return value
@@ -204,9 +216,6 @@ class Page_Whats_New extends Page_Asset_Listing
 		if ($group_by == 'number') {
 			$children = $this->sortAssetList($children, $sort_info);
 		}
-
-		// clean up after ourselves
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
 
 		return $children;
 
