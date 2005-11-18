@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.26 2005/11/18 04:38:32 lwright Exp $
+* $Id: page_whats_new.inc,v 1.27 2005/11/18 04:41:36 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -213,9 +213,6 @@ class Page_Whats_New extends Listing_Engine
 		if ($group_by == 'number') {
 			$children = $this->sortAssetList($children, $sort_info);
 		}
-
-		// clean up after ourselves
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
 
 		return $children;
 
