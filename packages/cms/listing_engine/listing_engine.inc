@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.119 2005/11/14 22:40:34 lwright Exp $
+* $Id: listing_engine.inc,v 1.120 2005/11/18 04:53:07 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.119 $
+* @version $Revision: 1.120 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1825,7 +1825,6 @@ class Listing_Engine extends Page
 				foreach ($this->_tmp['assets_info'][$assetid] as $field => $value) {
 					$keywords['asset_'.$field] = $value;
 				}
-				$keywords['asset_assetid'] = $assetid;
 
 			}//end if needs asset
 		}
@@ -1981,9 +1980,11 @@ class Listing_Engine extends Page
 			}
 		}
 
+		// print asset ID always
+		$keywords['asset_assetid'] = $assetid;
+
 		// kept for backwards compatibility
 		$keywords['result_no']  = &$keywords['asset_position'];
-
 		$keywords['root_nodes'] = implode(',', $this->getRootNodes());
 
 		$keywords += $this->getExtendedAssetKeywordReplacements();
