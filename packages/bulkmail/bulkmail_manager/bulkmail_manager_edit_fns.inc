@@ -13,7 +13,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_offi
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -248,6 +248,61 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		return (empty($jobs) ? false : true);
 
 	}//end showProgressSection()
+
+
+	/**
+	* Paints the threshold setting checkbox, whether to override all settings or not
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintThresholdSettingCheckBox(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$use_bm_threshold = $asset->attr('use_bm_threshold');
+
+		$name = translate('bulkmail_threshold_checkbox_name');
+		$note = translate('bulkmail_threshold_checkbox_note');
+		$o->openField($name, '', $note);
+			// paint checkbox
+			if ($write_access) {
+				check_box($prefix.'_use_bm_threshold', true, $use_bm_threshold);
+			} else {
+				?>
+					<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $use_bm_threshold ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+				<?php
+			}
+		$o->closeField();
+
+		return $write_access;
+
+	}//end paintThresholdSettingCheckBox()
+
+
+	/**
+	* Process the threshold setting checkbox
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processThresholdSettingCheckBox(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return false;
+		// save whether to use bulkmail manager threshold settings
+		$use_bm_threshold = isset($_POST[$prefix.'_use_bm_threshold']);
+		$asset->setAttrValue('use_bm_threshold', $use_bm_threshold);
+
+		return true;
+
+	}//end processThresholdSettingCheckBox()
 
 
 }//end class

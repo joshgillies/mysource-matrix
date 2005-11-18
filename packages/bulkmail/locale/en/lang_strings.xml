@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.16 2005/11/17 23:55:53 ndvries Exp $
+* $Id: lang_strings.xml,v 1.17 2005/11/18 00:17:59 rong Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -77,6 +77,9 @@ Please click on the following link if you would like to proceed:
 	<string source="bulkmail_server_detail_path_field_name">Path</string>
 	<string source="bulkmail_server_detail_arg_field_name">Arguments</string>
 
+	<string source="bulkmail_threshold_checkbox_name">Override Threshold Settings</string>
+	<string source="bulkmail_threshold_checkbox_note">If selected, all Post Offices will use Default Post Office's threshold settings</string>
+	<string source="bulkmail_threshold_override_note">Using Default Post Office's threshold settings in %s</string>
 	<string source="bulkmail_threshold_current_rules">Current Rules</string>
 	<string source="bulkmail_threshold_allow_multiple">Allow Multiple ?</string>
 	<string source="bulkmail_threshold_add_rule">Add Rule</string>
