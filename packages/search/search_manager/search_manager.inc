@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.81 2005/11/16 00:16:05 lwright Exp $
+* $Id: search_manager.inc,v 1.82 2005/11/18 05:32:55 tbarrett Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1657,6 +1657,7 @@ class Search_Manager extends Asset
 		// get results from any shadow asset root nodes
 		$root_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($search_info['roots']);
 
+		$shadow_results = null;
 		foreach ($root_info as $assetid => $root) {
 			$shadow_results = Array();
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($root['type_code']);
@@ -1664,7 +1665,7 @@ class Search_Manager extends Asset
 			// assert class implements bridge and contains method
 			if (implements_interface($root['type_code'], 'bridge') && is_callable(Array($root['type_code'], 'processSearch'))) {
 				$shadow_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				$shadow_results += $shadow_asset->processSearch($search_info, $include_context);
+				$shadow_results = $this->_combineResults($shadow_results, $shadow_asset->processSearch($search_info, $include_context), array_get_index($search_info, 'root_logic', 'OR'));
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($shadow_asset);
 			}
 		}
@@ -1762,7 +1763,7 @@ class Search_Manager extends Asset
 
 		// join any results from bridges
 		if (!empty($shadow_results)) {
-			$final_results += $shadow_results;
+			$final_results = $this->_combineResults($final_results, $shadow_results, array_get_index($search_info, 'root_logic', 'OR'));
 		}
 
 		return $final_results;
