@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.26 2005/11/21 05:09:29 rong Exp $
+* $Id: bulk_mailer.inc,v 1.27 2005/11/21 23:16:20 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -342,6 +342,7 @@ class Bulk_Mailer
 						// fork since we cannot call printFrontend multiple times
 						$pid = $this->fork();
 						if (!$pid) {
+							$GLOBALS['mail_start'] = get_microtime();
 							$content = $this->generateBmailContent($details['content_id'], $details['content_gen'], $details['content_design'], $details['content_layout'], $job_path, $user_id);
 							// only queue the mail if we can generate content
 							$problematic = (empty($content)) ? true : false;
@@ -383,12 +384,16 @@ class Bulk_Mailer
 
 		$this->_reconnectDB();
 		$progress_info = $bm->getJobProgress($job_id);
+		// job completed
 		if ($progress_info['current_count'] >= $progress_info['total_count']) {
 
-			// log a message if this is not an ad-hoc job
+			// remove job entry from the db queue table
+			$bm->deleteJob($job_id);
+
+			// if this is not an ad-hoc job, log an internal message and set job back to UC
 			$job_id_parts = explode(':', $job_id);
 			if (!isset($job_id_parts[1])) {
-				// log an error with all the problematic users' id
+
 				if (count($progress_info['problematic']) > 0) {
 					trigger_localised_error('BML0010', E_USER_WARNING, implode(',', $progress_info['problematic']));
 					$log_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('log_manager');
@@ -398,9 +403,10 @@ class Bulk_Mailer
 									'log_manager_id'	=> $log_manager->id,
 								);
 					$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
-					$message = $ms->newMessage(Array(), 'bulkmail.job.completed.problematic', $msg_reps);
+					$message = $ms->newMessage(Array(), 'bulkmail.job.completed.error', $msg_reps);
 					$message->parameters['assetid'] = $job_id;
 					$message->send();
+
 				} else {
 					$msg_reps = Array('num_recip'	=> number_format($progress_info['total_count']));
 					$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
@@ -408,9 +414,10 @@ class Bulk_Mailer
 					$message->parameters['assetid'] = $job_id;
 					$message->send();
 				}
-			}
 
-			$bm->deleteJob($job_id);
+				$job =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id);
+				$job->processStatusChange(SQ_STATUS_UNDER_CONSTRUCTION, false);
+			}
 		}
 
 		return true;
@@ -463,6 +470,9 @@ class Bulk_Mailer
 			$progress_info['problematic'][] = $user_id;
 		} else {
 			$progress_info['current_count']++;
+			$time_taken = get_microtime() - $GLOBALS['mail_start'];
+			$progress_info['total_time_taken'] += $time_taken;
+			//echo "timetaken for this mail = $time_taken\ntotal timetaken = $progress_info[total_time_taken]\n";
 		}
 		$progress_info['current_recip_id'] = $user_id;
 		$progress_info['last_updated'] = time();
