@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2005/11/09 10:10:48 rong Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10 2005/11/21 04:54:02 ndvries Exp $
 *
 */
 -->
@@ -76,8 +76,14 @@
 		</field>
 		<field show_if="showJobHeader">
 			<function_call>
-				<paint_function name="paintHeaderDetails" />
-				<process_function name="processHeaderDetails" />
+				<paint_function name="paintCurrentHeaders" />
+				<process_function name="processCurrentHeaders" />
+			</function_call>
+		</field>
+		<field show_if="showJobHeader">
+			<function_call>
+				<paint_function name="paintNewHeader" />
+				<process_function name="processNewHeader" />
 			</function_call>
 		</field>
 	</section>

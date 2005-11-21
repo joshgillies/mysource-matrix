@@ -13,7 +13,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_offi
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -111,7 +111,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 						if (!isset($job_id_parts[1])) {
 							$msg_reps = Array(
 											'assetid'	=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
-										);
+							);
 							$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 							$message = $ms->newMessage(Array(), 'bulkmail.job.cancelled', $msg_reps);
 							$message->parameters['assetid'] = $job_id;
@@ -276,18 +276,14 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$use_bm_threshold = $asset->attr('use_bm_threshold');
 
-		$name = translate('bulkmail_threshold_checkbox_name');
-		$note = translate('bulkmail_threshold_checkbox_note');
-		$o->openField($name, '', $note);
-			// paint checkbox
-			if ($write_access) {
-				check_box($prefix.'_use_bm_threshold', true, $use_bm_threshold);
-			} else {
-				?>
-					<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $use_bm_threshold ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
-				<?php
-			}
-		$o->closeField();
+		// paint checkbox
+		if ($write_access) {
+			check_box($prefix.'_use_bm_threshold', true, $use_bm_threshold);
+		} else {
+			?>
+				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $use_bm_threshold ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+			<?php
+		}
 
 		return $write_access;
 
