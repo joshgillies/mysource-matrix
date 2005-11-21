@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.19 2005/11/18 01:15:46 rong Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.20 2005/11/21 01:29:13 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -216,19 +216,21 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 
 				$o->openField('');
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$logs = $ms->getMessages(0, 'bulkmail.job.history', Array(), Array(), null, null, 'name', Array('assetid' => $asset->id), 5);
+			$logs = $ms->getMessages(0, 'bulkmail.job.*', Array(), Array(), null, null, 'name', Array('assetid' => $asset->id), 5);
 			if (!empty($logs)) {
 				?>
 					<table class="sq-backend-table">
 						<tr>
 							<th class="sq-backend-table-header">Date</th>
-							<th class="sq-backend-table-header">History</th>
+							<th class="sq-backend-table-header">Subject</th>
+							<th class="sq-backend-table-header">Body</th>
 						</tr>
 				<?php
 				foreach ($logs as $log_entry) {
 					?>
 						<tr>
 							<td align="left" class="sq-backend-table-cell"><?php echo ts_iso8601($log_entry['sent']); ?></td>
+							<td align="left" class="sq-backend-table-cell"><?php echo $log_entry['subject']; ?></td>
 							<td align="left" class="sq-backend-table-cell"><?php echo $log_entry['body']; ?></td>
 						</tr>
 					<?php
@@ -413,7 +415,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		$job = $bulkmail_manager->getQueuedJobs($asset->id);
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$logs = $ms->getMessages(0, 'bulkmail.job.history', Array(), Array(), null, null, 'name', Array('assetid' => $asset->id), 5);
+		$logs = $ms->getMessages(0, 'bulkmail.job.*', Array(), Array(), null, null, 'name', Array('assetid' => $asset->id), 5);
 
 		return ((empty($job) && empty($logs)) ? false : true);
 
