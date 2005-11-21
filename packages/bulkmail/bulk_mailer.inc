@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.24 2005/11/21 00:21:44 ndvries Exp $
+* $Id: bulk_mailer.inc,v 1.25 2005/11/21 01:35:02 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -91,75 +91,65 @@ class Bulk_Mailer
 			exit(1);
 		}
 
-		//mem_check(); //echo 'Process starts @ '.date('r')."\n";
+		// constant definition
 		$recip_per_chunk = 1;
-		$timeout_threshold = 60;
+		// if the time allocated for each mail (in seconds) is greater than this value,
+		// the script will quit, and a wake up time will be stored in the progress file
+		$GLOBALS['sleep_threshold'] = 60;
+		// when the last_updated field in the progress file did not get updated for this amount of time
+		// job is considered as timeout-ed and we will take over this job
+		$GLOBALS['timeout_threshold'] = 60;
 
+		//mem_check();//echo 'Process starts @ '.date('r')."\n";
 		// get a scheduled job from the database table and process it
 		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$results = $bm->getQueuedJobs();
 
-		// pick up a sleeping job (higher priority than a timeout job)
+		// pick up a sleeping job (higher priority than a timeout-ed job)
 		foreach ($results as $job_id => $info) {
 			if ($info['status'] == BML_JOB_STATE_SLEEPING) {
 				$progress_info = $bm->getJobProgress($job_id);
-				if (isset($progress_info['wake_up_time'])) {
-					//echo "current time ".time()." vs wakeuptime $progress_info[wake_up_time], time diff = ".($progress_info['wake_up_time']-time())."\n";
-					if (time() > $progress_info['wake_up_time']) {
-						//echo "wake up!\n";
-						// excluded time threshold rule
-						if ($this->checkThreshold('excluded_time', $info['details']['threshold'])) {
-							//echo " BulkMailer->Start Job #$job_id\n";
-							$bm->updateJob($job_id, BML_JOB_STATE_RUNNING);
-							$this->chunkJob($job_id, $recip_per_chunk);
-							$this->processJob($job_id, $recip_per_chunk);
-							return;
-						}
+				// check thresholds and make sure we are allowed to wake up this sleeping job
+				if ($this->checkThreshold('wakeup_time', Array(), $progress_info)) {
+					if ($this->checkThreshold('excluded_time', $info['details']['threshold'])) {
+						$bm->updateJob($job_id, BML_JOB_STATE_RUNNING);
+						$this->chunkJob($job_id, $recip_per_chunk);
+						$this->processJob($job_id, $recip_per_chunk);
+						return;
 					}
 				}
 			}
 		}
 
-		// check for crashed or timeout process (higher priority than a new job)
+		// pick up a timeout-ed job (higher priority than a new job)
 		foreach ($results as $job_id => $info) {
 			if ($info['status'] == BML_JOB_STATE_RUNNING) {
-
 				$progress_info = $bm->getJobProgress($job_id);
-				// not recovering from a pause, check timeout
-				if ($progress_info['last_updated'] != 0) {
-					$time_diff = time() - $progress_info['last_updated'];
-					//echo "time diff=$time_diff, threshold=$timeout_threshold\n";
-					// timeout threshold reached, take over
-					if ($time_diff > $timeout_threshold) {
-						if ($this->checkThreshold('excluded_time', $info['details']['threshold'])) {
-							//echo " BulkMailer->timeout! taking over Job #$job_id\n";
-							$this->chunkJob($job_id, $recip_per_chunk);
-							$this->processJob($job_id, $recip_per_chunk);
-							// exit bulkmailer (dont run the next for loop)
-							return;
-						}
-					} else {
-						//echo "Timeout threshold ok for Job #$job_id\n";
+				// check timeout and excluded time, make sure we take over this job if timeout_threshold is reached
+				if ($this->checkThreshold('time_out', Array(), $progress_info)) {
+					if ($this->checkThreshold('excluded_time', $info['details']['threshold'])) {
+						$this->chunkJob($job_id, $recip_per_chunk);
+						$this->processJob($job_id, $recip_per_chunk);
+						return;
 					}
 				}
 			}
 		}
 
-		// pick up a normal new job/ or a resumed job and run it (lowest priority)
+		// pick up a new job or a resume a paused job (normal priority)
 		foreach ($results as $job_id => $info) {
 			if ($info['status'] == BML_JOB_STATE_NOT_RUNNING) {
 				// excluded time threshold rule
 				if ($this->checkThreshold('excluded_time', $info['details']['threshold'])) {
-					//echo " BulkMailer->Start Job #$job_id\n";
 					$bm->updateJob($job_id, BML_JOB_STATE_RUNNING);
 					$this->chunkJob($job_id, $recip_per_chunk);
 					$this->processJob($job_id, $recip_per_chunk);
-					exit;
+					return;
 				}
 			}
 		}
 
-		//echo "Finished checking db table, exit\n";
+		//echo "Finished checking sq_bulkmail_queue table, nothing to run.\n";
 
 	}//end start()
 
@@ -202,6 +192,8 @@ class Bulk_Mailer
 	*/
 	function chunkJob($job_id, $recip_per_chunk)
 	{
+		//mem_check();//echo "chunkJob : Starting job #$job_id\n";
+
 		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$info = $bm->getQueuedJobs($job_id);
 		$job_path = $bm->getJobDataPath($job_id);
@@ -230,7 +222,7 @@ class Bulk_Mailer
 					$output = '<?php $recipient_chunk = '.var_export($chunk, true).'; ?>';
 					string_to_file($output, $recipient_path.'/recipient_'.$index);
 				}
-				//echo "chunkJob : Done chunkJob\n";
+				//mem_check();//echo "chunkJob : Done chunkJob\n";
 				exit;
 			}
 
@@ -252,6 +244,7 @@ class Bulk_Mailer
 	*/
 	function processJob($job_id, $recip_per_chunk)
 	{
+		//mem_check();//echo "processJob start\n";
 		$this->_reconnectDB();
 		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$info = $bm->getQueuedJobs($job_id);
@@ -303,20 +296,19 @@ class Bulk_Mailer
 				exit;
 			} else if ($state == BML_JOB_STATE_NOT_RUNNING) {
 				//echo "processJob : job cancelled\n";
-				$bm->deleteJob($job_id);
 				exit;
 			}
 
 			// threshold checking
 			if (!$this->checkThreshold('excluded_time', $details['threshold'])) {
 				// current time is in excluded time range
-				//echo "is excluded time\n";
+				//echo "processJob : is excluded time\n";
 				$bm->updateJob($job_id, BML_JOB_STATE_NOT_RUNNING);
 				exit;
 			}
 			if (!$this->checkThreshold('send_rate', $details['threshold'], $progress_path)) {
 				// threshold limit has been reached, set job to sleep
-				//echo "is sleeping\n";
+				//echo "processJob : is sleeping\n";
 				$bm->updateJob($job_id, BML_JOB_STATE_SLEEPING);
 				exit;
 			}
@@ -374,7 +366,7 @@ class Bulk_Mailer
 			} else {
 				$this->_reconnectDB();
 				$progress_info = $bm->getJobProgress($job_id);
-				//echo "processJob : Parent $pid exits\n";
+				//mem_check();//echo "processJob : Parent $pid exits\n";
 			}
 
 		}//end while()
@@ -383,7 +375,7 @@ class Bulk_Mailer
 		$progress_info = $bm->getJobProgress($job_id);
 		if ($progress_info['current_count'] >= $progress_info['total_count']) {
 
-			// log a history message if this is not an ad-hoc job
+			// log a message if this is not an ad-hoc job
 			$job_id_parts = explode(':', $job_id);
 			if (!isset($job_id_parts[1])) {
 				$msg_reps = Array(
@@ -391,7 +383,7 @@ class Bulk_Mailer
 								'num_recip'	=> number_format($progress_info['total_count']),
 							);
 				$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$message = $ms->newMessage(Array(), 'bulkmail.job.history', $msg_reps);
+				$message = $ms->newMessage(Array(), 'bulkmail.job.finished', $msg_reps);
 				$message->parameters['assetid'] = $job_id;
 				$message->send();
 
@@ -836,10 +828,23 @@ class Bulk_Mailer
 	*/
 	function checkThreshold($type, $thresholds, $extra='')
 	{
-		if ($type == 'excluded_time') {
-			return $this->checkExcludedTime($thresholds);
-		} else if ($type == 'send_rate') {
-			return $this->checkSendRate($thresholds, $extra);
+		$result = false;
+		switch ($type) {
+			case 'excluded_time' :
+				return $this->checkExcludedTime($thresholds);
+			break;
+			case 'send_rate' :
+				return $this->checkSendRate($thresholds, $extra);
+			break;
+			case 'wakeup_time':
+				return $this->checkWakeUpTime($thresholds, $extra);
+			break;
+			case 'time_out':
+				return $this->checkTimeOut($thresholds, $extra);
+			break;
+			default:
+				return false;
+			break;
 		}
 
 	}//end checkThreshold()
@@ -897,12 +902,6 @@ class Bulk_Mailer
 	*/
 	function checkSendRate($thresholds, $progress_path)
 	{
-		// if the time allocated for each mail (in seconds) is greater than this value,
-		// the script will quit, and a wake up time will be stored in the progress file
-		// otherwise, the script will sleep for allocated time before it runs again
-		// (for spreading the job across a certain amount of time, and balancing the server load)
-		$threshold_to_sleep = 60;
-
 		$progress_info = Array();
 		if (file_exists($progress_path)) {
 			include $progress_path;
@@ -918,7 +917,7 @@ class Bulk_Mailer
 					$unit = $threshold['params']['unit'];
 					// time interval allocated to each mail, minimum is 1 sec
 					$progress_info['threshold_rate'] = ceil($unit/$value);
-					//echo "send rate (time allocated) is $progress_info[threshold_rate] sec per mail\n";
+					//echo "time allocated = $progress_info[threshold_rate] sec per mail\n";
 					break;
 				}
 			}
@@ -937,7 +936,7 @@ class Bulk_Mailer
 				string_to_file($output, $progress_path);
 				return true;
 			}
-			if ($progress_info['threshold_rate'] > $threshold_to_sleep) {
+			if ($progress_info['threshold_rate'] > $GLOBALS['sleep_threshold']) {
 				// if the time allocated to each mail is greater than the threshold to sleep
 				// set a wake up time in the progress file, and pick up this job again after the wake up time
 				$progress_info['wake_up_time'] = time() + $progress_info['threshold_rate'];
@@ -946,7 +945,7 @@ class Bulk_Mailer
 				//echo "stored wake up time $progress_info[wake_up_time]\n";
 				return false;
 			} else {
-				// if time allocated for each mail is 45 sec, sleep for 44 sec and process one mail
+				// if time allocated for each mail is less than the threshold, sleep
 				//echo "sleep $progress_info[threshold_rate]-1 sec\n";
 				sleep($progress_info['threshold_rate']-1);
 				return true;
@@ -956,6 +955,53 @@ class Bulk_Mailer
 		return true;
 
 	}//end checkSendRate()
+
+
+	/**
+	* Check if a current sleeping job can wake up now by checking the wake up time
+	*
+	* @param array	$thresholds		the threshold attribute of the post office
+	* @param array	$progress_info	the current progress info from the progress file
+	*
+	* @return boolean
+	* @access public
+	*/
+	function checkWakeUpTime($thresholds, $progress_info)
+	{
+		//echo 'current time '.time()."\n wakeuptime $progress_info[wake_up_time]\n time to sleep = ".($progress_info['wake_up_time']-time())." seconds\n";
+		if (isset($progress_info['wake_up_time']) && (time() > $progress_info['wake_up_time'])) {
+			return true;
+		}
+
+		return false;
+
+	}//end checkWakeUpTime()
+
+
+		/**
+	* Check if a current sleeping job can wake up now by checking the wake up time
+	*
+	* @param array	$thresholds		the threshold attribute of the post office
+	* @param array	$progress_info	the current progress info from the progress file
+	*
+	* @return boolean
+	* @access public
+	*/
+	function checkTimeOut($thresholds, $progress_info)
+	{
+		if (isset($progress_info['last_updated']) && ($progress_info['last_updated'] != 0)) {
+			$time_diff = time() - $progress_info['last_updated'];
+			//echo "time diff=$time_diff, threshold=$GLOBALS[timeout_threshold]\n";
+			// timeout threshold reached, take over
+			if ($time_diff > $GLOBALS['timeout_threshold']) {
+				//echo "Timeout! taking over\n";
+				return true;
+			}
+		}
+
+		return false;
+
+	}//end checkTimeOut()
 
 
 }//end class
