@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_management.inc,v 1.15 2005/11/17 22:46:08 rong Exp $
+* $Id: bulkmail_post_office_management.inc,v 1.16 2005/11/21 00:23:22 ndvries Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -102,13 +102,13 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 												'added'			=> '0.1',
 												'type'			=> 'text',
 												'default'		=> SQ_CONF_DEFAULT_EMAIL,
-												'description'	=> 'The "From" header field required by PEAR send() function',
+												'description'	=> 'Sending address as per RFC822',
 											   ),
 						'subject'			=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'text',
 												'default'		=> '',
-												'description'	=> 'The "Subject" header field required by PEAR send() function',
+												'description'	=> 'Subject field of the email',
 											   ),
 						'header_details'	=> Array(
 												'added'			=> '0.1',
