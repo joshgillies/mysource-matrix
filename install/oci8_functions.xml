@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: oci8_functions.xml,v 1.9 2005/11/17 06:35:54 mmcintyre Exp $
+* $Id: oci8_functions.xml,v 1.10 2005/11/21 04:31:24 mmcintyre Exp $
 *
 */
 -->
@@ -246,7 +246,6 @@
 				free_childid VARCHAR2(2000);
 				sql_str VARCHAR2(2000);
 				child_num INTEGER;
-			PRAGMA AUTONOMOUS_TRANSACTION;
 			BEGIN
 				BEGIN
 					-- try to find any entries in the link tree under parent that are free
@@ -273,7 +272,6 @@
 												WHERE
 													l.minorid = ''' || majorid || '''
 											)';
-					COMMIT;
 					RETURN free_childid;
 				EXCEPTION
 					WHEN NO_DATA_FOUND THEN
