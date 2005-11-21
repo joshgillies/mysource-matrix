@@ -12,7 +12,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -159,6 +159,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	* @param object	$post_office_id	AssetID of the post office to use. If this is null, you MUST supply
 	*								server details
 	* @param array	$server_details	Mail options to create a post office on the fly:
+	* <pre>
 	*								Array(
 	*									'driver'	=> 'sendmail',
 	*									'path'		=> '/usr/sbin/sendmail',
@@ -174,6 +175,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	*									'username'	=> '',
 	*									'password'	=> '',
 	*								)
+	* </pre>
 	* @param int	$design_id		AssetID of the design to use with the content
 	* @param int	$layout_id		AssetID of the paint layout to use with the content (requires a design as well)
 	*
