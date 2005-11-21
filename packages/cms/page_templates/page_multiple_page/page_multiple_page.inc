@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page.inc,v 1.3 2005/11/21 04:33:47 dmckee Exp $
+* $Id: page_multiple_page.inc,v 1.4 2005/11/21 06:01:39 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -265,7 +265,7 @@ class Page_Multiple_Page extends Page
 		}
 
 		foreach ($current_children as $id => $bla) {
-			$deleted = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+			$deleted =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
 			$deleted->saveWebPaths(Array());
 		}
 
@@ -307,6 +307,8 @@ class Page_Multiple_Page extends Page
 		$keywords['current_page_name'] = 'Current Page Name';
 		$keywords['current_page_number'] = 'Current Page Number';
 		$keywords['current_page_assetid'] = 'Current Page Asset ID';
+		$keywords['toc_unordered'] = 'Table of Contents - Unordered';
+		$keywords['toc_ordered'] = 'Table of Contents - Ordered';
 
 		return $keywords;
 
@@ -405,6 +407,15 @@ class Page_Multiple_Page extends Page
 		}
 		if (!isset($this->_tmp['current_page_links']) || empty($this->_tmp['current_page_links'])) {
 			$this->_tmp['current_page_links'] = $this->getPageLinks();
+		}
+
+		//Paint TOC here, so we dont have to go through the drama below
+		if (strpos($value, 'toc_') !== false) {
+			$ordered = true;
+			if (strpos($value, '_unordered') !== false) {
+				$ordered = false;
+			}
+			return $this->paintTOC($ordered);
 		}
 
 		$am = $GLOBALS['SQ_SYSTEM']->am;
@@ -597,6 +608,62 @@ class Page_Multiple_Page extends Page
 		$this->printFrontendAsset($page_one);
 
 	}//end printFrontend()
+
+
+	/**
+	* Prints out a Table of Contents for this set of pages
+	*
+	* @param boolean	$ordered		Whether to display an OL or UL
+	* @param boolean	$link_current	Show current page as a link?
+	*
+	* @return string
+	* @access public
+	*/
+	function paintTOC($ordered=false, $link_current=false)
+	{
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$links = $this->getPageLinks();
+		$current = $this->getCurrentPageId();
+		$current_id = $links[intval($current) - 1]['minorid'];
+		$assetids = Array();
+		foreach ($links as $id => $data) {
+			$assetids[] = $data['minorid'];
+		}
+		$toc = '';
+		$urls = $am->getAssetUrl($assetids);
+		$infos = $am->getAssetInfo($assetids);
+		ob_start();
+		if ($ordered) {
+			echo '<ol>';
+		} else {
+			echo '<ul>';
+		}
+		foreach ($infos as $id => $data) {
+			?>
+			<li>
+			<?php
+			if ($id == $current_id && !$link_current) {
+				echo $data['name'];
+			} else {
+				?>
+				<a href="<?php echo $urls[$id]; ?>"><?php echo $data['name']; ?></a>
+				<?php
+			}
+			?>
+			</li>
+			<?php
+		}
+		if ($ordered) {
+			echo '</ol>';
+		} else {
+			echo '</ul>';
+		}
+		$toc = ob_get_contents();
+		ob_end_clean();
+
+		return $toc;
+
+	}//end paintTOC()
 
 
 }//end class
