@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.23 2005/11/18 01:15:46 rong Exp $
+* $Id: bulk_mailer.inc,v 1.24 2005/11/21 00:21:44 ndvries Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -264,6 +264,19 @@ class Bulk_Mailer
 		$details = $info[$job_id]['details'];
 		$header_details = $details['header_details'];
 		$header_details['from'] = $details['from'];
+
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+		$keywords = retrieve_keywords_replacements($details['subject']);
+
+		$replacements = Array();
+		$content_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($details['content_id']);
+		foreach ($keywords as $word) {
+			$replacements[$word] = $content_asset->getKeywordReplacement($word);
+		}
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_asset);
+
+		$details['subject'] = replace_keywords($details['subject'], $replacements);
+
 		$header_details['subject'] = $details['subject'];
 
 		// create the /queue and /sent directories for mail queue

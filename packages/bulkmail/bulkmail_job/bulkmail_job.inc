@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.17 2005/11/08 22:39:55 rong Exp $
+* $Id: bulkmail_job.inc,v 1.18 2005/11/21 00:22:09 ndvries Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -133,6 +133,19 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 			$header_details = $this->attr('header_details');
 		}
 		$header_details['from'] = $from;
+
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+		$keywords = retrieve_keywords_replacements($subject);
+
+		$replacements = Array();
+		$content_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($content_id);
+		foreach ($keywords as $word) {
+			$replacements[$word] = $content_asset->getKeywordReplacement($word);
+		}
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_asset);
+
+		$subject = replace_keywords($subject, $replacements);
+
 		$header_details['subject'] = $subject;
 
 		// add 'Preview' to the subject header for preview mails
