@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.3 2005/11/04 03:05:14 lwright Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.4 2005/11/21 22:41:44 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -310,13 +310,13 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$assetid = array_shift($this->_running_vars['re_lock_assets']);
 		unset($this->_running_vars['re_lock_assets'][$assetid]);
 
-		$children = &$GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
+		$children = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
 
 		foreach ($children as $dep_child_id => $dep_child_type_code) {
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($dep_child_id, 'all');
 		}
 
-		$asset_info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
 		$step_data['message'] = translate('sch_tool_global_sr_releasing_locks', $asset_info[$assetid]['name']);
 
