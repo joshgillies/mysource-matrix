@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.21 2005/11/18 00:17:59 rong Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.22 2005/11/21 01:34:03 ndvries Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -311,8 +311,6 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the header details interface for the bmail
 	*
-	* This paint function is used by bulkmail job too
-	*
 	* @param object	&$asset	the asset to which we belong
 	* @param object	&$o		the outputter class
 	* @param string	$prefix	prefix for the form element
@@ -320,16 +318,13 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintHeaderDetails(&$asset, &$o, $prefix)
+	function paintCurrentHeaders(&$asset, &$o, $prefix)
 	{
 		$width = 30;
 		$write_access = $asset->writeAccess('attributes');
 
-		// paint extra header fields
 		$header_details = $asset->attr('header_details');
-		//$o->openField(translate('bulkmail_header_detail_extra_fields'));
-		$index = 0;
-		foreach ($header_details as $field_name => $field_body) {
+		if (!empty($header_details)) {
 			?>
 			<table class="sq-backend-table">
 				<tr>
@@ -342,38 +337,33 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 					?>
 				</tr>
 				<?php
-					if ($write_access) {
-						?><tr>
-							<td class="sq-backend-table-cell"><?php echo text_box($prefix.'_header_detail_fields_name_'.$index, $field_name);?></td>
-							<td class="sq-backend-table-cell"><?php echo text_box($prefix.'_header_detail_fields_body_'.$index, $field_body);?></td>
-							<td class="sq-backend-table-cell"><?php check_box($prefix.'_header_detail_fields_delete_'.$index, true, false);?></td>
-						</tr><?php
-					} else {
-						?><tr>
-							<td class="sq-backend-table-cell"><?php echo $field_name;?></td>
-							<td class="sq-backend-table-cell" colspan="2"><?php echo htmlspecialchars($field_body);?></td>
-						</tr><?php
+					$index = 0;
+					foreach ($header_details as $field_name => $field_body) {
+						if ($write_access) {
+							?><tr>
+								<td class="sq-backend-table-cell"><?php echo text_box($prefix.'_header_key_'.$index, $field_name);?></td>
+								<td class="sq-backend-table-cell"><?php echo text_box($prefix.'_header_value_'.$index, $field_body);?></td>
+								<td class="sq-backend-table-cell"><?php check_box($prefix.'_header_delete_'.$index, true, false);?></td>
+							</tr><?php
+						} else {
+							?><tr>
+								<td class="sq-backend-table-cell"><?php echo $field_name;?></td>
+								<td class="sq-backend-table-cell" colspan="2"><?php echo htmlspecialchars($field_body);?></td>
+							</tr><?php
+						}
+						$index++;
 					}
-					$index++;
 				?>
 			</table>
 			<?php
-		}
-		$o->closeField();
 
-		// text box for new field entry
-		if ($write_access) {
-			$o->openField(translate('bulkmail_header_new_field_name'));
-				text_box($prefix.'_header_detail_field_new_name', '', $width);
-			$o->closeField();
-			$o->openField(translate('bulkmail_header_new_field_body'));
-				text_box($prefix.'_header_detail_field_new_body', '', $width);
-			//$o->closeField();
+		} else {
+			echo translate('bulkmail_header_none');
 		}
 
 		return $write_access;
 
-	}//end paintHeaderDetails()
+	}//end paintCurrentHeaders()
 
 
 	/**
@@ -386,37 +376,85 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processHeaderDetails(&$asset, &$o, $prefix)
+	function processCurrentHeaders(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return false;
 
-		// update and delete fields
-		$header_details = Array();
+		$header_details = $asset->attr('header_details');
+
 		$index = 0;
-		// changed naming convention from name[i] to name_i to comply with xhtml standards
-		while (isset($_POST[$prefix.'_header_detail_fields_name_'.$index])) {
-			if (!isset($_POST[$prefix.'_header_detail_fields_delete_'.$index])) {
-				$name = $_POST[$prefix.'_header_detail_fields_name_'.$index];
-				$body = $_POST[$prefix.'_header_detail_fields_body_'.$index];
-				$header_details[$name] = $body;
+		$new_header_details = Array();
+		foreach ($header_details as $field_name => $field_body) {
+			$key = trim(array_get_index($_REQUEST, $prefix.'_header_key_'.$index));
+			$value = trim(array_get_index($_REQUEST, $prefix.'_header_value_'.$index));
+			$delete = array_get_index($_REQUEST, $prefix.'_header_delete_'.$index, false);
+
+			if (!empty($key) && !$delete) {
+				$new_header_details[$key] = $value;
 			}
 			$index++;
 		}
 
-		// create a new field or overwrite an existing field
-		$field_status = (isset($_POST[$prefix.'_header_detail_field_new_name']) && trim($_POST[$prefix.'_header_detail_field_new_name']) != '');
-		$body_status  = (isset($_POST[$prefix.'_header_detail_field_new_body']) && trim($_POST[$prefix.'_header_detail_field_new_body']) != '');
-		if ($field_status && $body_status) {
-			$new_field_name = trim($_POST[$prefix.'_header_detail_field_new_name']);
-			$new_field_body = trim($_POST[$prefix.'_header_detail_field_new_body']);
-			$header_details[$new_field_name] = $new_field_body;
+		$asset->setAttrValue('header_details', $new_header_details);
+		return true;
+
+	}//end processCurrentHeaders()
+
+
+	/**
+	* Paints the interface to add a new header field
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintNewHeader(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		// text box for new field entry
+		if ($write_access) {
+			echo translate('key'), ': ';
+			text_box($prefix.'_header_new_key', '', 30);
+			echo '&nbsp;', translate('value'), ': ';
+			text_box($prefix.'_header_new_value', '', 30);
+		}
+
+		$write_access;
+
+	}//end paintNewHeader()
+
+
+	/**
+	* Process the interface to add a new header field
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processNewHeader(&$asset, &$o, $prefix)
+	{
+		$header_key = array_get_index($_REQUEST, $prefix.'_header_new_key', '');
+		$header_value = array_get_index($_REQUEST, $prefix.'_header_new_value', '');
+
+		$header_details = $asset->attr('header_details');
+
+		if ( (!empty($header_key)) && (!empty($header_value)) ) {
+			$header_details[$header_key] = $header_value;
 		}
 
 		$asset->setAttrValue('header_details', $header_details);
+
 		return true;
 
-	}//end processHeaderDetails()
+	}//end processNewHeader()
 
 
 //--        THRESHOLD        --//
@@ -435,59 +473,53 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	function paintThresholds(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		// check if bulkmail manager's default's post office overrides threshold settings
-		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
-		$use_bm_threshold = $bm->attr('use_bm_threshold');
-		if ($use_bm_threshold && !is_a($asset, 'Bulkmail_Manager')) {
-			$threshold = $bm->attr('threshold');
-			$write_access = false;
-		} else {
-			$threshold = $asset->attr('threshold');
-		}
+		$threshold = $asset->attr('threshold');
 
 		// paint existing rules
-		if (!empty($threshold)) {
-			$o->openField(translate('bulkmail_threshold_current_rules'));
-			?><table class="sq-backend-table">
-				<tr>
-					<th class="sq-backend-table-header"><?php echo translate('type') ?></th>
-					<th class="sq-backend-table-header"><?php echo translate('bulkmail_threshold_allow_multiple') ?></th>
-					<th class="sq-backend-table-header"><?php echo translate('rule') ?></th>
-					<?php
-						if ($write_access) {
-							?><th class="sq-backend-table-header"><?php echo translate('delete_rule') ?></th><?php
+		$o->openField(translate('bulkmail_threshold_current_rules'));
+			if (!empty($threshold)) {
+				?>
+				<table class="sq-backend-table">
+					<tr>
+						<th class="sq-backend-table-header"><?php echo translate('type'); ?></th>
+						<th class="sq-backend-table-header"><?php echo translate('bulkmail_threshold_allow_multiple'); ?></th>
+						<th class="sq-backend-table-header"><?php echo translate('rule'); ?></th>
+						<?php
+							if ($write_access) {
+								?><th class="sq-backend-table-header"><?php echo translate('delete_question'); ?></th><?php
+							}
+						?>
+					</tr><?php
+						foreach ($threshold as $key => $rule) {
+							?><tr>
+								<td class="sq-backend-table-cell"><?php echo $rule['type']; ?></td>
+								<td class="sq-backend-table-cell"><?php echo ($rule['multiple']) ? translate('true') : translate('false'); ?></td>
+							<?php
+								switch ($rule['type']) {
+									case translate('bulkmail_threshold_rule_excluded_time') :
+										$this->_paintExcludedTimeRule($asset, $o, $prefix.'_threshold_rule_'.$key, $rule);
+									break;
+									case translate('bulkmail_threshold_rule_mpm') :
+										$this->_paintMpmRule($asset, $o, $prefix.'_threshold_rule_'.$key, $rule);
+									break;
+								}
+							?></tr><?php
 						}
-					?>
-				</tr><?php
-				foreach ($threshold as $key => $rule) {
-					?><tr>
-						<td class="sq-backend-table-cell"><?php echo $rule['type']; ?></td>
-						<td class="sq-backend-table-cell"><?php echo ($rule['multiple']) ? translate('true') : translate('false'); ?></td>
-					<?php
-						switch ($rule['type']) {
-							case translate('bulkmail_threshold_rule_excluded_time') :
-								$this->_paintExcludedTimeRule($asset, $o, $prefix.'_threshold_rule_'.$key, $rule, $write_access);
-							break;
-							case translate('bulkmail_threshold_rule_send_rate') :
-								$this->_paintSendRateRule($asset, $o, $prefix.'_threshold_rule_'.$key, $rule, $write_access);
-							break;
-							default:
-							break;
-						}
-					?></tr><?php
-				}
-			?></table><?php
-				if ($use_bm_threshold && !is_a($asset, 'Bulkmail_Manager')) {
-					$o->note(translate('bulkmail_threshold_override_note', get_asset_tag_line($bm->id)));
-				}
-			$o->closeField();
-		}
+				?>
+				</table><?php
+
+			} else {
+				echo translate('bulkmail_threshold_none');
+			}
+
+		$o->closeField();
 
 		// the dropdown box that allows user to add new rules
-		if (!($use_bm_threshold && !is_a($asset, 'Bulkmail_Manager'))) {
-			$this->paintAddRule($asset, $o, $prefix, $write_access);
+		if ($write_access) {
+			$o->openField(translate('bulkmail_threshold_add_rule'), '', translate('bulkmail_threshold_add_rule_note'));
+				$this->paintAddRule($asset, $o, $prefix);
+			$o->closeField();
 		}
-
 		return true;
 
 	}//end paintThresholds()
@@ -505,14 +537,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processThresholds(&$asset, &$o, $prefix)
 	{
-		$write_access = $asset->writeAccess('attributes');
-		// check if bulkmail manager's default's post office overrides threshold settings
-		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
-		$use_bm_threshold = $bm->attr('use_bm_threshold');
-		if ($use_bm_threshold && !is_a($asset, 'Bulkmail_Manager')) {
-			$write_access = false;
-		}
-		if (!$write_access) return false;
+		if (!$asset->writeAccess('attributes')) return false;
 
 		$threshold = $asset->attr('threshold');
 		if (!empty($threshold)) {
@@ -521,15 +546,15 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 					case translate('bulkmail_threshold_rule_excluded_time') :
 						$threshold = $this->_processExcludedTimeRule($prefix.'_threshold_rule_'.$key, $threshold, $key);
 					break;
-					case translate('bulkmail_threshold_rule_send_rate') :
-						$threshold = $this->_processSendRateRule($prefix.'_threshold_rule_'.$key, $threshold, $key);
+					case translate('bulkmail_threshold_rule_mpm') :
+						$threshold = $this->_processMpmRule($prefix.'_threshold_rule_'.$key, $threshold, $key);
 					break;
 					default:
 					break;
 				}
 			}
 		}
-		$threshold = $this->processAddRule($asset, $o, $prefix, $threshold, $write_access);
+		$threshold = $this->processAddRule($asset, $o, $prefix, $threshold);
 		$asset->setAttrValue('threshold', $threshold);
 
 		return true;
@@ -540,26 +565,25 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the dropdown to add a rule to this section
 	*
-	* @param object		&$asset			the asset whose interface we are painting
-	* @param object		&$o				the outputter class
-	* @param string		$prefix			prefix for the form elements
-	* @param boolean	$write_access	write access to the asset attribute
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
-	* @return void
+	* @return boolean
 	* @access public
 	*/
-	function paintAddRule(&$asset, &$o, $prefix, $write_access)
+	function paintAddRule(&$asset, &$o, $prefix)
 	{
-		$o->openField(translate('bulkmail_threshold_add_rule'), '', translate('bulkmail_threshold_add_rule_note'));
-		if ($write_access) {
-			$rules = Array('' => '-- '.translate('bulkmail_threshold_choose_type').' --');
-			$rules += Array(
-						translate('bulkmail_threshold_rule_excluded_time'),
-						translate('bulkmail_threshold_rule_send_rate'),
-					  );
-			combo_box($prefix.'_rule_type', $rules, false, '');
-		}
-		$o->closeField();
+		if (!$asset->writeAccess('attributes')) return false;
+
+		$rules = Array('' => '-- '.translate('bulkmail_threshold_choose_type').' --');
+		$rules += Array(
+					translate('bulkmail_threshold_rule_excluded_time'),
+					translate('bulkmail_threshold_rule_mpm'),
+				  );
+		combo_box($prefix.'_rule_type', $rules, false, '');
+
+		return true;
 
 	}//end paintAddRule()
 
@@ -567,21 +591,20 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the dropdown to add a rule to this section
 	*
-	* @param object		&$asset			the asset whose interface we are painting
-	* @param object		&$o				the outputter class
-	* @param string		$prefix			prefix for the form elements
-	* @param array		$threshold		the post office's threshold attribute
-	* @param boolean	$write_access	write access to the asset attribute
+	* @param object	&$asset		the asset whose interface we are painting
+	* @param object	&$o			the outputter class
+	* @param string	$prefix		prefix for the form elements
+	* @param array	$threshold	the post office's threshold attribute
 	*
 	* @return array
 	* @access public
 	*/
-	function processAddRule(&$asset, &$o, $prefix, $threshold, $write_access)
+	function processAddRule(&$asset, &$o, $prefix, $threshold)
 	{
-		if ($write_access) {
+		if ($asset->writeAccess('attributes')) {
 			$rules = Array(
 						translate('bulkmail_threshold_rule_excluded_time'),
-						translate('bulkmail_threshold_rule_send_rate'),
+						translate('bulkmail_threshold_rule_mpm'),
 					 );
 			if (isset($_POST[$prefix.'_rule_type'])) {
 				$type = (isset($rules[$_POST[$prefix.'_rule_type']])) ? $rules[$_POST[$prefix.'_rule_type']] : '';
@@ -598,7 +621,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 						$threshold_types[0]['type'] = $type;
 						$threshold[] = $threshold_types[0];
 					break;
-					case translate('bulkmail_threshold_rule_send_rate') :
+					case translate('bulkmail_threshold_rule_mpm') :
 						$threshold_types[1]['type'] = $type;
 						$threshold[] = $threshold_types[1];
 					break;
@@ -615,17 +638,17 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the 'excluded time' rule
 	*
-	* @param object		&$asset			the asset whose interface we are painting
-	* @param object		&$o				the outputter class
-	* @param string		$prefix			prefix for the form elements
-	* @param array		$rule			the rule that we are painting
-	* @param boolean	$write_access	write access to the asset attribute
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	* @param array	$rule	the rule that we are painting
 	*
 	* @return void
 	* @access private
 	*/
-	function _paintExcludedTimeRule(&$asset, &$o, $prefix, $rule, $write_access)
+	function _paintExcludedTimeRule(&$asset, &$o, $prefix, $rule)
 	{
+		$write_access = $asset->writeAccess('attributes');
 		$hours_array = Array(
 						0	=> '00',
 						1	=> '01',
@@ -737,51 +760,43 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Paints the 'Send Rate' rule
+	* Paints the 'Mails per Minute' rule
 	*
-	* @param object		&$asset			the asset whose interface we are painting
-	* @param object		&$o				the outputter class
-	* @param string		$prefix			prefix for the form elements
-	* @param array		$rule			the rule that we are painting
-	* @param boolean	$write_access	write access to the asset attribute
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	* @param array	$rule	the rule that we are painting
 	*
 	* @return void
 	* @access private
 	*/
-	function _paintSendRateRule(&$asset, &$o, $prefix, $rule, $write_access)
+	function _paintMpmRule(&$asset, &$o, $prefix, $rule)
 	{
-		$time_unit = Array(
-						60		=> translate('minute'),
-						3600	=> translate('hour'),
-						86400	=> translate('day'),
-					 );
+		$min = 1;
+		$max = 100;
 
+		$write_access = $asset->writeAccess('attributes');
 		if ($write_access) {
 			ob_start();
-				int_text_box($prefix.'_value', $rule['params']['value'], false);
+				int_text_box($prefix.'_value', $rule['params']['value'], false, 4, $min, $max, 4, false, 'align="right"');
 				$value = ob_get_contents();
 			ob_end_clean();
-			ob_start();
-				combo_box($prefix.'_unit', $time_unit, false, $rule['params']['unit']);
-				$unit = ob_get_contents();
-			ob_end_clean();
 			?><td class="sq-backend-table-cell"><?php
-				echo translate('bulkmail_threshold_rule_send_rate_detail', $value, $unit);
+				echo translate('bulkmail_threshold_rule_mpm_detail', $value);
 			?></td><td class="sq-backend-table-cell"><?php
 				check_box($prefix.'_delete', true, false);?></td><?php
 		} else {
 			$value = $rule['params']['value'];
-			$unit = $time_unit[$rule['params']['unit']];
 			?><td class="sq-backend-table-cell" colspan="2"><?php
-				echo translate('bulkmail_threshold_rule_send_rate_detail', $value, $unit);
+				echo translate('bulkmail_threshold_rule_mpm_detail', $value);
 			?></td><?php
 		}
 
-	}//end _paintSendRateRule()
+	}//end _paintMpmRule()
 
 
 	/**
-	* Processes the 'Send Rate' rule
+	* Processes the 'Mails per Minute' rule
 	*
 	* @param string	$prefix		prefix for the form elements
 	* @param array	$threshold	the post office's threshold attribute
@@ -790,12 +805,11 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	* @return array
 	* @access private
 	*/
-	function _processSendRateRule($prefix, $threshold, $key)
+	function _processMpmRule($prefix, $threshold, $key)
 	{
 		if (isset($_POST[$prefix.'_value'])) {
 			$params['value'] = $_POST[$prefix.'_value'];
-			$params['unit'] = $_POST[$prefix.'_unit'];
-			// do not allow zero rate
+			// do not allow zero mpm
 			if (!$params['value']) $params['value'] = 1;
 		}
 		$threshold[$key]['params'] = $params;
@@ -805,7 +819,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 		return $threshold;
 
-	}//end _processSendRateRule()
+	}//end _processMpmRule()
 
 
 //--        JOB MANAGEMENT        --//
