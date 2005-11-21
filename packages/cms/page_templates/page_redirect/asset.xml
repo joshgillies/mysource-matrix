@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.8 2005/01/14 17:54:26 brobertson Exp $
+* $Id: asset.xml,v 1.9 2005/11/21 22:56:29 lwright Exp $
 *
 */
 -->
@@ -29,7 +29,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
 	<type_code>page_redirect</type_code>
-	<version>0.2</version>
+	<version>0.3</version>
 	<name>Redirect Page</name>
 	<description>Redirect Page, a simple page template to redirect the user to another location</description>
 	<instantiable>yes</instantiable>

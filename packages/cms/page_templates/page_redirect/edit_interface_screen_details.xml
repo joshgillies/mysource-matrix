@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.13 2005/05/20 01:46:26 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.14 2005/11/21 22:56:29 lwright Exp $
 *
 */
 -->
@@ -53,6 +53,9 @@
  		<field attribute="append_querystring">
  			<boolean true_text="yes" false_text="no"/>
  		</field>
+		<field attribute="timeout">
+			<float width="5" height="1" />
+		</field>
 	</section>
 	<section name="New Window" write_access="write:attributes">
 		<field attribute="new_window">

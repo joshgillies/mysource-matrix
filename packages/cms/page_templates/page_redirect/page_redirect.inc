@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.19 2005/11/04 00:00:40 lwright Exp $
+* $Id: page_redirect.inc,v 1.20 2005/11/21 22:56:29 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -194,6 +194,8 @@ class Page_Redirect extends Page
 			$url .= ((strpos($url, '?') === false) ? '?' : '&').$_SERVER['QUERY_STRING'];
 		}
 
+		parent::printFrontend();
+
 		if ($this->attr('new_window')) {
 			$options = $this->attr('new_window_options');
 			$params  =	 'location='.((strpos($options, 'hide_location'  ) !== false) ? '0' : '1').','
@@ -224,35 +226,91 @@ class Page_Redirect extends Page
 
 		// not in a new window, just relocate them
 		} else {
+			$timeout = $this->attr('timeout');
 			if (headers_sent()) {
 				?>
 				<script language="JavaScript" type="text/javascript">
-					self.location = '<?php echo addslashes($url); ?>';
+					setTimeout("self.location = '<?php echo addslashes($url); ?>'", <?php echo $timeout * 1000 ?>);
 				</script>
 				<?php
 			} else {
 				header('Location: '.$url);
 			}
-
 		}
 
 	}//end printFrontend()
 
 
+	function getAvailableKeywords()
+	{
+		$keywords = parent::getAvailableKeywords();
+
+		$asset = new Asset();
+
+		foreach($asset->getAvailableKeywords() as $keyword => $desc) {
+			$keywords['referring_'.$keyword] = 'Referring Asset: '.$desc;
+		}
+
+		return $keywords;
+
+	}//end getAvailableKeywords()
+
+
 	/**
-	* Prints out the body of the asset
+	* Get bodycopy keyword replacement
 	*
-	* This function just calls printFrotnend()
+	* Provides a mechanism for providing keyword replacement functions by
+	* looking up the function named 'getKeywordNameKeywordReplacement'
+	* so an asset wishing to add support for 'best_ever' custom keyword
+	* should implement a function getBestEverKeywordReplacement()
+	* which returns a replacement string
 	*
-	* @return void
+	* @param string	$keyword	Keyword to find a replacement for
+	*
+	* @return string
 	* @access public
-	* @see printFrontend()
 	*/
+	function getKeywordReplacement($keyword)
+	{
+		if (preg_match('|^referring\_(.*)|', $keyword, $matches)) {
+			$referring_asset = &$this->getReferringAsset();
+			if ($referring_asset) {
+				return $referring_asset->getKeywordReplacement($matches[1]);
+			} else {
+				return '';
+			}
+		} else {
+			return parent::getKeywordReplacement($keyword);
+		}
+
+	}//end getKeywordReplacement()
+
+
 	function printBody()
 	{
-		$this->printFrontend();
 
 	}//end printBody()
+
+
+	/**
+	* Gets the referring asset
+	*
+	* @return object Asset
+	* @access public
+	*/
+	function &getReferringAsset()
+	{
+		$url = array_get_index($_SERVER, 'HTTP_REFERER', false);
+
+		// strip protocol, strip query string
+		$url = preg_replace('|^.*://|', '', $url);
+		$url = preg_replace('|\?.*$|', '', $url);
+
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(null, $url, false, true);
+
+		return $asset;
+
+	}//end getReferringAsset()
 
 
 }//end class
