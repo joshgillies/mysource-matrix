@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.27 2005/11/21 23:16:20 rong Exp $
+* $Id: bulk_mailer.inc,v 1.28 2005/11/21 23:22:21 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -390,7 +390,7 @@ class Bulk_Mailer
 			// remove job entry from the db queue table
 			$bm->deleteJob($job_id);
 
-			// if this is not an ad-hoc job, log an internal message and set job back to UC
+			// if this is not an ad-hoc job, log an internal message
 			$job_id_parts = explode(':', $job_id);
 			if (!isset($job_id_parts[1])) {
 
@@ -414,9 +414,6 @@ class Bulk_Mailer
 					$message->parameters['assetid'] = $job_id;
 					$message->send();
 				}
-
-				$job =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id);
-				$job->processStatusChange(SQ_STATUS_UNDER_CONSTRUCTION, false);
 			}
 		}
 
