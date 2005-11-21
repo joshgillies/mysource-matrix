@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_update_lookups.php,v 1.2 2005/02/23 05:49:03 gsherwood Exp $
+* $Id: system_update_lookups.php,v 1.3 2005/11/21 23:12:43 ndvries Exp $
 *
 */
 
@@ -26,11 +26,14 @@
 * Upgrade the *_ast_lookup_design table to *_ast_lookup_value
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
-if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+ini_set('memory_limit', '256M');
+if ((php_sapi_name() != 'cli')) {
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+}
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
@@ -62,16 +65,31 @@ $sites = $am->getTypeAssetids('site', false, true);
 
 foreach ($sites as $assetid => $type_code) {
 	$site = &$am->getAsset($assetid, $type_code);
-	printName('Updating Lookups for "'.$site->name.'" #'.$site->id);
 
-	$vars = Array('assetids' => Array($site->id));
-	$status_errors = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
-	if (empty($status_errors)) {
-		printUpdateStatus('OK');
-	} else {
-		printUpdateStatus('FAIL');
+	$pid = fork();
+
+	// Only run this if we are the forked process
+	if (!$pid) {
+		_reconnectDB();
+
+		printName('Updating Lookups for "'.$site->name.'" #'.$site->id);
+
+		$vars = Array('assetids' => Array($site->id));
+		$status_errors = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
+		if (empty($status_errors)) {
+			printUpdateStatus('OK');
+		} else {
+			printUpdateStatus('!!!');
+		}
+
+		// Exit the child fork process and return to the parent where it's
+		// still pcntl_wait()ing.
+		exit;
 	}
 
+	_reconnectDB();
+
+	$am->forgetAsset($site);
 }
 
 exit();
@@ -79,6 +97,15 @@ exit();
 
 //--        HELPER FUNCTIONS        --//
 
+
+/**
+* Print the current action of the script
+*
+* @param string	$name	Current action
+*
+* @return void
+* @access public
+*/
 function printName($name)
 {
 	printf ('%s%'.(60 - strlen($name)).'s', $name, '');
@@ -86,11 +113,63 @@ function printName($name)
 }//end printName()
 
 
+/**
+* Print whether or not the last action was successful
+*
+* @param string	$status	'OK' for success, or '!!!' for fail
+*
+* @return void
+* @access public
+*/
 function printUpdateStatus($status)
 {
 	echo "[ $status ]\n";
 
 }//end printUpdateStatus()
+
+
+/**
+* Fork a child process. The parent process will sleep until the child
+* exits
+*
+* @return string
+* @access public
+*/
+function fork()
+{
+	$child_pid = pcntl_fork();
+	switch ($child_pid) {
+		case -1:
+			trigger_error('Uh-oh, Spaghettios!');
+			return null;
+		break;
+		case 0:
+			return $child_pid;
+		break;
+		default :
+			$status = null;
+			pcntl_waitpid(-1, $status);
+			return $child_pid;
+		break;
+	}
+
+}//end fork()
+
+
+/**
+* Clear out the database connections and establish a new one
+*
+* @return void
+* @access private
+*/
+function _reconnectDB()
+{
+	$GLOBALS['SQ_SYSTEM']->db->disconnect();
+	unset($GLOBALS['SQ_SYSTEM']->_db_conns);
+	$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db');
+	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+}//end _reconnectDB()
 
 
 ?>
