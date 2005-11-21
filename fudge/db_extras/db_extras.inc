@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_extras.inc,v 1.16 2005/04/08 01:12:05 mmcintyre Exp $
+* $Id: db_extras.inc,v 1.17 2005/11/21 04:17:52 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     like Sub-Queries
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package Fudge
 * @subpackage DB_Extras
 */
@@ -99,7 +99,7 @@ function db_extras_subquery(&$db, $sql, $subs, $default_value=null)
 
 /**
 * Takes a DB object, the insert statement and the select statement and
-* and performs the insertions. 
+* and performs the insertions.
 *
 * Basically if you are in MySQL, it will do the select then foreach returned row perform an insert
 * this is because you cannot have the table that you are inserting to in the from clause of the select
@@ -118,7 +118,7 @@ function db_extras_insert_select(&$db, $insert, $select)
 		// INSERT INTO ... SELECT FROM Compatible DB's
 		case 'pgsql' :
 		case 'oci8'  :
-		
+
 			$result = $db->query($insert.' '.$select);
 			if (DB::isError($result)) return $result;
 			return TRUE;
@@ -177,7 +177,7 @@ function db_extras_bitand(&$db, $val1, $val2)
 {
 	if ((int) $val1 != $val1) $val1 = $db->quoteSmart($val1);
 	if ((int) $val2 != $val2) $val2 = $db->quoteSmart($val2);
-	
+
 	if ($db->phptype == 'oci8') {
 		$bit_op = 'BITAND('.$val1.', '.$val2.')';
 	} else {
@@ -227,6 +227,50 @@ function db_extras_prepare_todate(&$db)
 	}
 
 }//end db_extras_prepare_todate()
+
+
+/**
+* Returns the result of a function call to a database.
+*
+* @param &object DB	$db		the PEAR:DB object
+* @param string 	$sql	the function call including the arguments to the function
+*
+* @return the result of the function call
+* @access public
+*/
+function db_get_function_result(&$db, $sql)
+{
+	$result = null;
+
+	if ($db->phptype == 'pgsql') {
+		$sql = 'SELECT '.$sql;
+		$result = $db->getOne($sql);
+		assert_valid_db_result($result);
+
+	} else if ($db->phptype == 'oci8') {
+		// the reason that we don't do 'SELECT function() from DUAL' here is that
+		// if the function peforms any DML operations, we will get an error that
+		// you cannot perform DML operations from within a select query.
+		$sql = 'BEGIN :res := '.$sql.'; END;';
+
+		if (!$stmt = ociparse($db->connection, $sql)) {
+			$msg = ocierror($db->connection);
+			trigger_exception($msg['message'], false, true);
+		}
+
+		if (!ocibindbyname($stmt, ':res', $result, 2000)) {
+			$msg = ocierror($db->connection);
+			trigger_exception($msg['message'], false, true);
+		}
+
+		if (!ociexecute($stmt)) {
+			$msg = ocierror($db->connection);
+			trigger_exception($msg['message'], false, true);
+		}
+	}
+	return $result;
+
+}//end db_get_function_result()
 
 
 ?>

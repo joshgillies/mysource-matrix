@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.396 2005/11/17 04:09:10 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.397 2005/11/21 04:15:27 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.396 $
+* @version $Revision: 1.397 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3495,14 +3495,12 @@ class Asset_Manager extends MySource_Object
 			// 1) If there are any re-usuable treeids that have been flagged as re-usuable
 			// 2) if there is no current treeid for this branch, branch + 0000 is returned
 			// 3) the next treeid in the sequence for this branch is returned
-			$sql = 'SELECT get_next_treeid('.
-						$db->quoteSmart($existing_treeid).', '.
+			$sql = 'get_next_treeid('.$db->quoteSmart($existing_treeid).', '.
 						$db->quoteSmart($major->id).','.
 						SQ_CONF_ASSET_TREE_BASE.', '.SQ_CONF_ASSET_TREE_SIZE.')';
 
-			if ($db->phptype == 'oci8') $sql .= ' FROM DUAL';
-			$free_childid = $db->getOne($sql);
-			assert_valid_db_result($free_childid);
+			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+			$free_childid = db_get_function_result($db, $sql);
 
 			// if we don't have any existing tree entries then
 			// we are the root folder, so do a simple insert
