@@ -12,7 +12,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -302,7 +302,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 
 	/**
-	* Deletes a job entry from the DB table when it's cancelled/finished
+	* Deletes a job entry from the DB table when it's cancelled/completed
 	*
 	* Also removes the data directory if the job is an ad-hoc job
 	*
@@ -500,6 +500,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 							'current_chunk'		=> 0,
 							'last_updated'		=> 0,
 							'total_count'		=> 0,
+							'problematic'		=> Array(),
 						 );
 
 		$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';

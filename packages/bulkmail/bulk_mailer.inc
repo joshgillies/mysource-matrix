@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.25 2005/11/21 01:35:02 rong Exp $
+* $Id: bulk_mailer.inc,v 1.26 2005/11/21 05:09:29 rong Exp $
 *
 */
 
@@ -26,12 +26,14 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
 class Bulk_Mailer
 {
+
+	var $error_log_file_name = 'bulkmail_errors';
 
 
 	/**
@@ -83,8 +85,15 @@ class Bulk_Mailer
 		pcntl_signal(SIGTERM, 'sigHandler');
 		pcntl_signal(SIGHUP, 'sigHandler');
 
-		// login as root user
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$bm =& $am->getSystemAsset('bulkmail_manager');
+
+		// setup the log manager to log bulkmail errors
+		$old_log_errors = ini_set('log_errors', '1');
+		$old_error_log  = ini_set('error_log',  SQ_LOG_PATH.'/'.$this->error_log_file_name.SQ_CONF_LOG_EXTENSION);
+		set_error_handler(Array(&$this, '_errorHandler'));
+
+		// login as root user
 		$root_user =& $am->getSystemAsset('root_user');
 		if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 			trigger_localised_error('BML0003', E_USER_WARNING, $root_user->name, $root_user->id);
@@ -102,7 +111,6 @@ class Bulk_Mailer
 
 		//mem_check();//echo 'Process starts @ '.date('r')."\n";
 		// get a scheduled job from the database table and process it
-		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$results = $bm->getQueuedJobs();
 
 		// pick up a sleeping job (higher priority than a timeout-ed job)
@@ -211,13 +219,14 @@ class Bulk_Mailer
 				$this->_reconnectDB();
 				$result = $this->getAllRecipients($info[$job_id]['details']['content_id'], $info[$job_id]['details']['recipients']);
 				// update total_count in progress info file
-				$info[$job_id]['progress']['total_count'] = count($result);
+				$info[$job_id]['progress']['total_count'] = count($result['recipient']);
+				$info[$job_id]['progress']['problematic'] = $result['problematic'];
 				$output = '<?php $progress_info = '.var_export($info[$job_id]['progress'], true).'; ?>';
 				string_to_file($output, $progress_path);
 
 				// cache recipients into chunks
 				create_directory($recipient_path);
-				$chunks = array_chunk($result, $recip_per_chunk, true);
+				$chunks = array_chunk($result['recipient'], $recip_per_chunk, true);
 				foreach ($chunks as $index => $chunk) {
 					$output = '<?php $recipient_chunk = '.var_export($chunk, true).'; ?>';
 					string_to_file($output, $recipient_path.'/recipient_'.$index);
@@ -335,7 +344,8 @@ class Bulk_Mailer
 						if (!$pid) {
 							$content = $this->generateBmailContent($details['content_id'], $details['content_gen'], $details['content_design'], $details['content_layout'], $job_path, $user_id);
 							// only queue the mail if we can generate content
-							if (!empty($content)) {
+							$problematic = (empty($content)) ? true : false;
+							if (!$problematic) {
 								$mime->setHtmlBody($content);
 								//$mime->setTXTBody($content);
 								$body = @$mime->get();
@@ -344,7 +354,7 @@ class Bulk_Mailer
 								$headers = @$mime->headers($header_details);
 								$mail_id = $mail_queue->put('', $email, $headers, $body);
 							}
-							$this->updateProgress($progress_path, $user_id);
+							$this->updateProgress($progress_path, $user_id, $problematic);
 							//sleep(3);
 							exit;
 						}
@@ -378,20 +388,26 @@ class Bulk_Mailer
 			// log a message if this is not an ad-hoc job
 			$job_id_parts = explode(':', $job_id);
 			if (!isset($job_id_parts[1])) {
-				$msg_reps = Array(
-								// format recipient count with grouped thousands
-								'num_recip'	=> number_format($progress_info['total_count']),
-							);
-				$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$message = $ms->newMessage(Array(), 'bulkmail.job.finished', $msg_reps);
-				$message->parameters['assetid'] = $job_id;
-				$message->send();
-
 				// log an error with all the problematic users' id
-				//include $job_path.'/problematic_recip';
-				//if (count($problematic) > 0) {
-					//trigger_localised_error('BML0010', E_USER_WARNING, implode(',', $problematic));
-				//}
+				if (count($progress_info['problematic']) > 0) {
+					trigger_localised_error('BML0010', E_USER_WARNING, implode(',', $progress_info['problematic']));
+					$log_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('log_manager');
+					$msg_reps = Array(
+									// format recipient count with grouped thousands
+									'num_recip'			=> number_format($progress_info['total_count']),
+									'log_manager_id'	=> $log_manager->id,
+								);
+					$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+					$message = $ms->newMessage(Array(), 'bulkmail.job.completed.problematic', $msg_reps);
+					$message->parameters['assetid'] = $job_id;
+					$message->send();
+				} else {
+					$msg_reps = Array('num_recip'	=> number_format($progress_info['total_count']));
+					$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+					$message = $ms->newMessage(Array(), 'bulkmail.job.completed', $msg_reps);
+					$message->parameters['assetid'] = $job_id;
+					$message->send();
+				}
 			}
 
 			$bm->deleteJob($job_id);
@@ -425,13 +441,14 @@ class Bulk_Mailer
 	/**
 	* Writes the progress info to a file after a mail has been added to the queue
 	*
-	* @param string	$progress_path	path to the progress info file
-	* @param int	$user_id		current recipient assetid
+	* @param string		$progress_path	path to the progress info file
+	* @param int		$user_id		current recipient assetid
+	* @param boolean	$problematic	whether current user is a problematic one or not
 	*
 	* @return boolean
 	* @access public
 	*/
-	function updateProgress($progress_path, $user_id)
+	function updateProgress($progress_path, $user_id, $problematic)
 	{
 		$progress_info = Array();
 		if (file_exists($progress_path)) {
@@ -441,7 +458,12 @@ class Bulk_Mailer
 			return false;
 		}
 
-		$progress_info['current_count']++;
+		if ($problematic) {
+			$progress_info['total_count']--;
+			$progress_info['problematic'][] = $user_id;
+		} else {
+			$progress_info['current_count']++;
+		}
 		$progress_info['current_recip_id'] = $user_id;
 		$progress_info['last_updated'] = time();
 
@@ -510,7 +532,8 @@ class Bulk_Mailer
 		// handle groups and users/bulkmail_users separately
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$user_list = Array();
-		$group_ids = Array();
+		$group_list = Array();
+		$problematic_list = Array();
 
 		if (!is_array($recipients)) {
 			$recipients = Array($recipients);
@@ -536,35 +559,25 @@ class Bulk_Mailer
 				}
 				$am->forgetAsset($recipient);
 			} else {
-				// PROBLEMATIC USER/GROUP: no read access to content
+				// problematic recipient: no read access to content
+				$problematic_list[] = $recipient_id;
 			}
 		}
 
 		// expand groups and get all users/bulkmail_users from a query
-		$result = Array();
 		if (!empty($group_ids)) {
 			$type_codes = Array(
 							'user'			=> false,
 							'bulkmail_user'	=> true,
 						  );
 			$query = $this->generateGetRecipientsQuery($group_ids, $type_codes);
-			$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc($query);
-			assert_valid_db_result($result);
+			$group_list = $GLOBALS['SQ_SYSTEM']->db->getAssoc($query);
+			assert_valid_db_result($group_list);
 		}
 
 		// combine group/user results
-		$result += $user_list;
-
-		// code for multiplying the recipients, eg. turn 10 actual users into 500 users
-		// for testing purposes
-		/*foreach ($result as $user_id => $email) {
-			$count = 0;
-			while ($count<5) {
-				$result += Array( ($user_id * $count) => $email.'.'.$count.'.net');
-				$count++;
-			}
-		}*/
-
+		$result['recipient'] = $group_list + $user_list;
+		$result['problematic'] = $problematic_list;
 		return $result;
 
 	}//end getAllRecipients()
@@ -738,15 +751,14 @@ class Bulk_Mailer
 		// load this user, for content generation and keyword replacement
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$user = null;
-		//if ($user_id) $user =& $am->getAsset($user_id);
+		if ($user_id) $user =& $am->getAsset($user_id);
 
 		// always login and generate content for per user basis,
 		// unless the user is a subscriber (bulkmail user) with only an email address
 		if ($content_gen == 'each_user' && !is_null($user) && !is_a($user, 'Bulkmail_User')) {
 			// login as this user and print page content
 			if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($user)) {
-				// PROBLEMATIC USER: in trash or not live
-				// trigger_localised_error('BML0003', E_USER_WARNING, $user->name, $user->id);
+				//echo "cannot login user $user->id to generate content\n";
 				return '';
 			}
 			$page =& $am->getAsset($content_id);
@@ -978,7 +990,7 @@ class Bulk_Mailer
 	}//end checkWakeUpTime()
 
 
-		/**
+	/**
 	* Check if a current sleeping job can wake up now by checking the wake up time
 	*
 	* @param array	$thresholds		the threshold attribute of the post office
@@ -1002,6 +1014,89 @@ class Bulk_Mailer
 		return false;
 
 	}//end checkTimeOut()
+
+
+//--        ERROR        --//
+
+
+	/**
+	* This function captures all errors and warnings that occur during the execution of start()
+	*
+	* @param int	$err_no		The type of error (E_*)
+	* @param string	$err_msg	The error message
+	* @param string	$err_file	The file the error occured in
+	* @param string	$err_line	The line the error occured on
+	*
+	* @return void
+	* @access private
+	* @see Cron_Manager::_errorHandler()
+	*/
+	function _errorHandler($err_no, $err_msg, $err_file, $err_line)
+	{
+		////echo "$err_no, $err_msg, $err_file, $err_line\n\n";
+		$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
+
+		// if the function didn't have an '@' prepended OR if we are about to terminate
+		// catch the error
+		if (error_reporting() || $terminate) {
+
+			// Strip out the file path begining
+			$err_name = get_error_name($err_no);
+			$err_msg  = hide_system_root($err_msg);
+			$bt = debug_backtrace();
+			if (count($bt) > 1) {
+				// changed index from 0 to 1
+				$real_bt_index = 1;
+				while (($real_bt_index < count($bt)-1) && ((false !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (false !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) || ($bt[$real_bt_index]['function'] == 'sq_error_handler'))) {
+					$real_bt_index++;
+				}
+				$err_file = hide_system_root($bt[$real_bt_index]['file']);
+				$err_line = $bt[$real_bt_index]['line'];
+			} else {
+				$err_file = hide_system_root($err_file);
+			}
+
+			// send a report to the system error log
+			if (ini_get('log_errors')) {
+				$text_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
+				log_error($text_msg, $err_no, $err_file, $err_line, $this->error_log_file_name);
+			}
+
+			// if they haven't put tags in the err msg assume it to be plain text
+			$err_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
+			$lines = explode("\n", $err_msg);
+			$len = 7 + strlen($err_file);
+			$len = max($len, 7 + strlen($err_line));
+			foreach ($lines as $line) {
+				$len = max($len, strlen($line));
+			}
+			$len += 2;
+			$str =	'+'.str_repeat('-', $len)."+\n".
+					'| '.$err_name.str_repeat(' ', $len - 2 - strlen($err_name))." |\n".
+					'|'.str_repeat('-', $len)."|\n".
+					'| File : '.$err_file.str_repeat(' ', $len - 9 - strlen($err_file))." |\n".
+					'| Line : '.$err_line.str_repeat(' ', $len - 9 - strlen($err_line))." |\n".
+					'|'.str_repeat('-', $len)."|\n";
+			foreach ($lines as $line) {
+				$str .=  '| '.$line.str_repeat(' ', $len - 2 - strlen($line))." |\n";
+			}
+
+			$str .= '+'.str_repeat('-', $len)."+\n";
+
+			if (!isset($this->_tmp['running_errors'])) {
+				$this->_tmp['running_errors'] = '';
+			}
+			$this->_tmp['running_errors'] .= $str;
+
+		}//end error_reporting
+
+		// if this is an irrercoverable error, terminate
+		if ($terminate && empty($this->_tmp['terminate_error'])) {
+			$this->_tmp['terminate_error'] = true; // stop possible recursion
+			exit(1);
+		}
+
+	}//end _errorHandler()
 
 
 }//end class

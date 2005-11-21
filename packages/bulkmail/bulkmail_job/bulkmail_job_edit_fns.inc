@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.20 2005/11/21 01:29:13 rong Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.21 2005/11/21 05:09:29 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -221,9 +221,9 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 				?>
 					<table class="sq-backend-table">
 						<tr>
-							<th class="sq-backend-table-header">Date</th>
-							<th class="sq-backend-table-header">Subject</th>
-							<th class="sq-backend-table-header">Body</th>
+							<th class="sq-backend-table-header"><?php echo translate('date'); ?></th>
+							<th class="sq-backend-table-header"><?php echo translate('subject'); ?></th>
+							<th class="sq-backend-table-header"><?php echo translate('body'); ?></th>
 						</tr>
 				<?php
 				foreach ($logs as $log_entry) {
@@ -357,9 +357,9 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 			?>
 				<table class="sq-backend-table">
 					<tr>
-						<th class="sq-backend-table-header">Date</th>
-						<th class="sq-backend-table-header">Subject</th>
-						<th class="sq-backend-table-header">Body</th>
+						<th class="sq-backend-table-header"><?php echo translate('date'); ?></th>
+						<th class="sq-backend-table-header"><?php echo translate('subject'); ?></th>
+						<th class="sq-backend-table-header"><?php echo translate('body'); ?></th>
 					</tr>
 			<?php
 			foreach ($logs as $log_entry) {

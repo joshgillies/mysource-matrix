@@ -13,7 +13,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_offi
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -110,8 +110,8 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 						$job_id_parts = explode(':', $job_id);
 						if (!isset($job_id_parts[1])) {
 							$msg_reps = Array(
-											'assetid'	=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
-							);
+											'user_id'	=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
+										);
 							$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 							$message = $ms->newMessage(Array(), 'bulkmail.job.cancelled', $msg_reps);
 							$message->parameters['assetid'] = $job_id;
