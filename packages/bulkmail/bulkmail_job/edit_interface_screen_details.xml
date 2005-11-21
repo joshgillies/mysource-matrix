@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.10 2005/11/21 04:54:02 ndvries Exp $
+* $Id: edit_interface_screen_details.xml,v 1.11 2005/11/21 22:59:34 rong Exp $
 *
 */
 -->
@@ -33,6 +33,14 @@
 			<paint_function name="paintValidation" />
 			<process_function name="processValidation" />
 		</function_call>
+	</section>
+	<section name="Warning" show_if="showWarningSection">
+		<field>
+			<function_call>
+				<paint_function name="paintWarning" />
+				<process_function name="processWarning" />
+			</function_call>
+		</field>
 	</section>
 	<section name="Recipients" write_access="write:attributes">
 		<field>

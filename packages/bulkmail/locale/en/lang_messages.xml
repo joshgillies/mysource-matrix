@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.4 2005/11/21 05:09:29 rong Exp $
+* $Id: lang_messages.xml,v 1.5 2005/11/21 22:59:34 rong Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -27,12 +27,12 @@
 		<subject>Bulkmail Job Completed</subject>
 		<body>Mail successfully sent to %num_recip% recipients</body>
 	</message>
-	<message type="bulkmail.job.completed.problematic">
+	<message type="bulkmail.job.completed.error">
 		<subject>Bulkmail Job Completed with Error</subject>
-		<body>Mail sent to %num_recip% recipients. Please check the bmail error log for a list of problematic recipient</body>
+		<body>Mail successfully sent to %num_recip% recipients. Some recipients could not be mailed, please check the bmail error log for details</body>
 	</message>
 	<message type="bulkmail.job.cancelled">
 		<subject>Bulkmail Job Cancelled</subject>
-		<body>Job cancelled by <![CDATA[<SQ_MSG_TAGLINE>%user_id%</SQ_MSG_TAGLINE>]]></body>
+		<body>Job was cancelled by <![CDATA[<SQ_MSG_TAGLINE>%user_id%</SQ_MSG_TAGLINE>]]></body>
 	</message>
 </messages>

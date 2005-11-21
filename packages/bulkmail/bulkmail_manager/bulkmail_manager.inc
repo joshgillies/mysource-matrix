@@ -12,7 +12,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -493,6 +493,8 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			current_chunk		currently up to this chunk of recipient
 			last_updated		timestamp of when we last added a mail to the queue
 			total_count			total number of mails to send (to be updated when chunking recipient)
+			total_time_taken	to be used for thresholding the bmail send rate
+			problematic			an array of problematic recipient ids
 		*/
 		$progress_info = Array(
 							'current_count'		=> 0,
@@ -500,6 +502,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 							'current_chunk'		=> 0,
 							'last_updated'		=> 0,
 							'total_count'		=> 0,
+							'total_time_taken'	=> 0,
 							'problematic'		=> Array(),
 						 );
 
@@ -652,16 +655,6 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			$errors[] = translate('bm_warning_no_recipient');
 		}
 
-		// no 'from' field
-		if (empty($details_info['from'])) {
-			$errors[] = translate('bm_warning_no_from_field');
-		}
-
-		// no 'subject' field
-		if (empty($details_info['subject'])) {
-			$errors[] = translate('bm_warning_no_subject_field');
-		}
-
 		// no content page
 		$public_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
 		if (empty($details_info['content_id'])) {
@@ -703,6 +696,16 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($design);
 		}
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($public_user);
+
+		// no 'from' field
+		if (empty($details_info['from'])) {
+			$errors[] = translate('bm_warning_no_from_field');
+		}
+
+		// no 'subject' field
+		if (empty($details_info['subject'])) {
+			$errors[] = translate('bm_warning_no_subject_field');
+		}
 
 		if ($report_error) {
 			return $errors;

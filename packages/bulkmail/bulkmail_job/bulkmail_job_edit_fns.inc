@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.21 2005/11/21 05:09:29 rong Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.22 2005/11/21 22:59:34 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -47,6 +47,9 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		unset($this->static_screens['preview']);
 
 	}//end constructor
+
+
+//--        VALIDATION        --//
 
 
 	/**
@@ -82,12 +85,22 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 				if (empty($errors)) {
 					echo translate('bm_job_validation_successful');
 				} else {
-					?><span class="sq-backend-warning"><?php
+					?>
+					<table class="sq-backend-table">
+						<tr>
+							<th class="sq-backend-table-header"><?php echo translate('bm_configuration'); ?></th>
+							<th class="sq-backend-table-header"><?php echo translate('bm_warning'); ?></th>
+						</tr>
+					<?php
 					foreach ($errors as $error) {
-						echo $error;
-						?><br /><?php
+						//?><span class="sq-backend-warning"><?php
+						$error_msg = explode(':', $error);
+						?><tr>
+							<td><?php echo $error_msg[0]; ?></td>
+							<td><span class="sq-backend-warning"><?php echo $error_msg[1]; ?></span></td>
+						</tr><?php
 					}
-					?></span><?php
+					?></table><?php
 				}
 			$o->closeField();
 		}
@@ -122,6 +135,66 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		return true;
 
 	}//end processValidation()
+
+
+//--        WARNING        --//
+
+
+	/**
+	* Paint the 'changes in settings will not affect job-in-progress' warning message
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintWarning(&$asset, &$o, $prefix)
+	{
+		?><span class="sq-backend-warning"><?php echo translate('bm_warning_changes_no_effect'); ?></span><?php
+		return true;
+
+	}//end paintWarning()
+
+
+	/**
+	* Process the 'changes in settings will not affect job-in-progress' warning message
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processWarning(&$asset, &$o, $prefix)
+	{
+		return true;
+
+	}//end processWarning()
+
+
+	/**
+	* Returns true when the changes in settings will not affect job-in-progress
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function showWarningSection(&$asset, $prefix)
+	{
+		$bulkmail_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+		$job = $bulkmail_manager->getQueuedJobs($asset->id);
+
+		return (empty($job)) ? false : true;
+
+	}//end showWarningSection()
+
+
+//--        HEADER        --//
 
 
 	/**
@@ -194,6 +267,9 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	}//end showJobHeader()
 
 
+//--        PROGRESS        --//
+
+
 	/**
 	* Paint the job queue
 	*
@@ -219,12 +295,12 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 			$logs = $ms->getMessages(0, 'bulkmail.job.*', Array(), Array(), null, null, 'name', Array('assetid' => $asset->id), 5);
 			if (!empty($logs)) {
 				?>
-					<table class="sq-backend-table">
-						<tr>
-							<th class="sq-backend-table-header"><?php echo translate('date'); ?></th>
-							<th class="sq-backend-table-header"><?php echo translate('subject'); ?></th>
-							<th class="sq-backend-table-header"><?php echo translate('body'); ?></th>
-						</tr>
+				<table class="sq-backend-table">
+					<tr>
+						<th class="sq-backend-table-header"><?php echo translate('date'); ?></th>
+						<th class="sq-backend-table-header"><?php echo translate('subject'); ?></th>
+						<th class="sq-backend-table-header"><?php echo translate('body'); ?></th>
+					</tr>
 				<?php
 				foreach ($logs as $log_entry) {
 					?>
@@ -235,6 +311,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 						</tr>
 					<?php
 				}
+				?></table><?php
 			}
 		$o->closeField();
 
@@ -266,6 +343,28 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		return true;
 
 	}//end processJobQueue()
+
+
+	/**
+	* Function that determine whether to hide or show the progress section for this job
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function showProgressSection(&$asset, $prefix)
+	{
+		$bulkmail_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+		$job = $bulkmail_manager->getQueuedJobs($asset->id);
+
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$logs = $ms->getMessages(0, 'bulkmail.job.*', Array(), Array(), null, null, 'name', Array('assetid' => $asset->id), 5);
+
+		return ((empty($job) && empty($logs)) ? false : true);
+
+	}//end showProgressSection()
 
 
 //--        PREVIEWING        --//
@@ -355,12 +454,12 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 
 		if (!empty($logs)) {
 			?>
-				<table class="sq-backend-table">
-					<tr>
-						<th class="sq-backend-table-header"><?php echo translate('date'); ?></th>
-						<th class="sq-backend-table-header"><?php echo translate('subject'); ?></th>
-						<th class="sq-backend-table-header"><?php echo translate('body'); ?></th>
-					</tr>
+			<table class="sq-backend-table">
+				<tr>
+					<th class="sq-backend-table-header"><?php echo translate('date'); ?></th>
+					<th class="sq-backend-table-header"><?php echo translate('subject'); ?></th>
+					<th class="sq-backend-table-header"><?php echo translate('body'); ?></th>
+				</tr>
 			<?php
 			foreach ($logs as $log_entry) {
 				?>
@@ -371,8 +470,9 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 					</tr>
 				<?php
 			}
+			?></table><?php
 		} else {
-			echo 'This email has never been previewed';
+			echo translate('bm_job_preview_never');
 		}
 
 		return $write_access;
@@ -395,31 +495,6 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		return true;
 
 	}//end processPreviewLog()
-
-
-//--        PROGRESS        --//
-
-
-	/**
-	* Function that determine whether to hide or show the progress section for this job
-	*
-	* @param object	&$asset	the asset to which we belong
-	* @param string	$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function showProgressSection(&$asset, $prefix)
-	{
-		$bulkmail_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
-		$job = $bulkmail_manager->getQueuedJobs($asset->id);
-
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$logs = $ms->getMessages(0, 'bulkmail.job.*', Array(), Array(), null, null, 'name', Array('assetid' => $asset->id), 5);
-
-		return ((empty($job) && empty($logs)) ? false : true);
-
-	}//end showProgressSection()
 
 
 }//end class

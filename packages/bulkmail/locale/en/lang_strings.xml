@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18 2005/11/21 01:34:03 ndvries Exp $
+* $Id: lang_strings.xml,v 1.19 2005/11/21 22:59:34 rong Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -47,6 +47,8 @@ Please click on the following link if you would like to proceed:
 	<string source="bm_state_unknown">Unknown State</string>
 	<string source="bm_state_sleeping">Sleeping</string>
 
+	<string source="bm_job_preview_never">This email has never been previewed</string>
+
 	<string source="bm_job_table_header_id">ID</string>
 	<string source="bm_job_table_header_job">Name</string>
 	<string source="bm_job_table_header_post_office">Post Office</string>
@@ -57,7 +59,7 @@ Please click on the following link if you would like to proceed:
 	<string source="bm_job_progress_none">N/A</string>
 	<string source="bm_job_progress">%1$s of %2$s (%3$s)</string>
 
-	<string source="bm_job_validation_validate_job">Press the Validate Job button to check for setting errors.</string>
+	<string source="bm_job_validation_validate_job">Press the Validate Job button to check for setting errors</string>
 	<string source="bm_job_validation_button">Validate Job</string>
 	<string source="bm_job_validation_result">Result</string>
 	<string source="bm_job_validation_successful">Job is valid.</string>
@@ -90,16 +92,19 @@ Please click on the following link if you would like to proceed:
 	<string source="bulkmail_threshold_rule_send_rate_detail">Send %1$s emails every %2$s</string>
 	<string source="bulkmail_threshold_none">There are no threshold rules set.</string>
 
-	<string source="bm_warning_one_post_office_for_job">Bulkmail Jobs can only be linked under one Bulkmail Post Office.</string>
-	<string source="bm_warning_server_details_error">Post Office Server Details: "%s".</string>
-	<string source="bm_warning_no_recipient">Recipients: Recipients not set.</string>
-	<string source="bm_warning_no_from_field">Header Details: Missing 'From' field.</string>
-	<string source="bm_warning_no_subject_field">Header Details: Missing 'Subject' field.</string>
-	<string source="bm_warning_no_asset_to_send">Content: 'Asset to Send' not set.</string>
-	<string source="bm_warning_asset_to_send_not_live">Content: "Asset to Send", %1$s (Id #%2$s), is not live.</string>
-	<string source="bm_warning_no_generate_as">Content: 'Generate As' not set.</string>
-	<string source="bm_warning_generate_as_login_error">Content: Unable to generate content as %1$s (Id #%2$s), user is either in trash or not live.</string>
-	<string source="bm_warning_generate_as_no_read_access">Content: %1$s (Id #%2$s) does not have Read Access to 'Asset to Send' %3$s (Id #%4$s).</string>
-	<string source="bm_warning_design_no_public_read_access">Content: %1$s (Id #%2$s) does not have Public Read Access.</string>
+	<string source="bm_configuration">Configuration</string>
+	<string source="bm_warning">Warning</string>
+	<string source="bm_warning_changes_no_effect">This job has already been started Configuration changes will not affect the current mailout unless the job is cancelled and restarted</string>
+	<string source="bm_warning_one_post_office_for_job">Bulkmail Jobs can only be linked under one Bulkmail Post Office</string>
 
+	<string source="bm_warning_server_details_error">Server Details: "%s"</string>
+	<string source="bm_warning_no_recipient">Recipients: Recipients not set</string>
+	<string source="bm_warning_no_asset_to_send">Content: 'Asset to Send' not set</string>
+	<string source="bm_warning_asset_to_send_not_live">Content: "Asset to Send", %1$s (Id #%2$s), is not live</string>
+	<string source="bm_warning_no_generate_as">Content: 'Generate As' not set</string>
+	<string source="bm_warning_generate_as_login_error">Content: Unable to generate content as %1$s (Id #%2$s), user is either in trash or not live</string>
+	<string source="bm_warning_generate_as_no_read_access">Content: %1$s (Id #%2$s) does not have Read Access to 'Asset to Send' %3$s (Id #%4$s)</string>
+	<string source="bm_warning_design_no_public_read_access">Content: %1$s (Id #%2$s) does not have Public Read Access</string>
+	<string source="bm_warning_no_from_field">Header Details: Missing 'From' field</string>
+	<string source="bm_warning_no_subject_field">Header Details: Missing 'Subject' field</string>
 </strings>
