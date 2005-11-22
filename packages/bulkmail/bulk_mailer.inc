@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.30 2005/11/22 06:18:16 rong Exp $
+* $Id: bulk_mailer.inc,v 1.31 2005/11/22 06:20:50 ndvries Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -56,34 +56,9 @@ class Bulk_Mailer
 	{
 		declare(ticks=1);
 
-
-	/**
-	* Signal handler for the pcntl fork process
-	*
-	* @param int	$signo	the signals that are supported by the PHP Process Control functions
-	*
-	* @return void
-	* @access public
-	*/
-	function sigHandler($signo)
-	{
-		switch ($signo) {
-			case SIGTERM:
-				// handle shutdown tasks
-				exit;
-			break;
-			case SIGHUP:
-				// handle restart tasks
-			break;
-			default:
-				// handle all other signals
-		}
-	}//end sigHandler()
-
-
 		// setup signal handlers
-		pcntl_signal(SIGTERM, 'sigHandler');
-		pcntl_signal(SIGHUP, 'sigHandler');
+		pcntl_signal(SIGTERM, array(&$this,'sigHandler'));
+		pcntl_signal(SIGHUP, array(&$this,'sigHandler'));
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$bm =& $am->getSystemAsset('bulkmail_manager');
@@ -187,6 +162,28 @@ class Bulk_Mailer
 		}
 
 	}//end fork()
+
+
+	/**
+	* Signal handler for the pcntl fork process
+	*
+	* @param int	$signo	the signals that are supported by the PHP Process Control functions
+	*
+	* @return void
+	* @access public
+	*/
+	function sigHandler($signo)
+	{
+		switch ($signo) {
+			case SIGTERM:
+				exit;
+			break;
+			case SIGHUP:
+			case SIGUSR1:
+			default:
+		}
+
+	}//end sigHandler()
 
 
 	/**
@@ -418,7 +415,7 @@ class Bulk_Mailer
 //--        PROGRESS        --//
 
 
-/**
+	/**
 	* Reconnects to the DB as child process disconnects DB when it exits
 	*
 	* @return void
