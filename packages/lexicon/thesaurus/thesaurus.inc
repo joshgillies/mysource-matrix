@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.27 2005/11/14 04:16:50 arailean Exp $
+* $Id: thesaurus.inc,v 1.28 2005/11/22 00:34:11 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -856,7 +856,7 @@ class Thesaurus extends Asset
 
 
 		// we do not update if there are multiple parent and child terms
-		// ecause the business logic is not clear at this stage
+		// because the business logic is not clear at this stage
 		// there will be problems with figuring out the infinite loops and updating tree ids
 		// it is also not clear whether the children of this term should be moved to just the new term or
 		// kept in the old term as well.
@@ -924,13 +924,13 @@ class Thesaurus extends Asset
 		// Ensure the new name is not already in use
 		if (!is_null($this->getOneTermByName($new_name))) {
 			//can't rename an existing term
-			$this->_tmp['error'][] = translate('lexicon_new_name_in_use');//'The desired new term name is already in use');
+			$this->_tmp['error'][] = translate('lexicon_new_name_in_use');
 			return false;
 		}
 		// Ensure that the current term name is in use or we're not updating anything
 		if (is_null($this->getOneTermByName($name))) {
 			//can't rename an existing term
-			$this->_tmp['error'][] = translate('lexicon_name_not_in_use');//'The current term name is not in use. No terms will be updated');
+			$this->_tmp['error'][] = translate('lexicon_name_not_in_use');
 			return false;
 		}
 
@@ -989,7 +989,7 @@ class Thesaurus extends Asset
 
 		if (array_search($new_relation, $this->getActiveRelations())!== FALSE) {
 			//can't rename an existing term
-			$this->_tmp['error'][] = translate('lexicon_new_relation_in_use');//'The desired new term name is already in use');
+			$this->_tmp['error'][] = translate('lexicon_new_relation_in_use');
 			return false;
 		}
 
@@ -1036,7 +1036,8 @@ class Thesaurus extends Asset
 				sq_lex_thes_term
 			WHERE
 				linkid = '.$db->quoteSmart($linkid).'
-				AND thesid = '.$db->quoteSmart($this->id).'
+				AND
+				thesid = '.$db->quoteSmart($this->id).'
 		';
 		$result = $db->getRow($sql);
 
@@ -1133,13 +1134,15 @@ class Thesaurus extends Asset
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
-			SELECT count(linkid)
+			SELECT
+				count(linkid)
 			FROM
 				sq_lex_thes_term
 			WHERE
 				(
 					major = '.$db->quoteSmart($term).'
-					OR minor = '.$db->quoteSmart($term).'
+					OR
+					minor = '.$db->quoteSmart($term).'
 				)
 				AND thesid = '.$db->quoteSmart($this->id).'
 		';
