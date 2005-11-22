@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.398 2005/11/22 00:26:50 emcdonald Exp $
+* $Id: asset_manager.inc,v 1.399 2005/11/22 00:37:40 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.398 $
+* @version $Revision: 1.399 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4102,9 +4102,6 @@ class Asset_Manager extends MySource_Object
 					WHERE
 							linkid	= '.$db->quoteSmart($linkid).'
 						AND	majorid	= '.$db->quoteSmart($major->id);
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
-
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
