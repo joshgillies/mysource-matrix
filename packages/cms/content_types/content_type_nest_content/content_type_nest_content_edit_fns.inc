@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.32 2005/10/28 04:55:21 lwright Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.33 2005/11/22 01:21:09 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -136,7 +136,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		// if it's being shown in an edit interface, print a link
 		if ($editing) {
 			// get the first url off the list, use it as the list
-			$asset_link = &$GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
+			$asset_link = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
 			if (empty($asset_link)) {
 				$asset_link = strip_url(current_url(false, true)).'/?a='.$nested_asset->id;
 			}
