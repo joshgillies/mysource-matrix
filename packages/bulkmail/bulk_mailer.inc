@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.28 2005/11/21 23:22:21 rong Exp $
+* $Id: bulk_mailer.inc,v 1.29 2005/11/22 05:19:00 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -396,24 +396,17 @@ class Bulk_Mailer
 
 				if (count($progress_info['problematic']) > 0) {
 					trigger_localised_error('BML0010', E_USER_WARNING, implode(',', $progress_info['problematic']));
-					$log_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('log_manager');
-					$msg_reps = Array(
-									// format recipient count with grouped thousands
-									'num_recip'			=> number_format($progress_info['total_count']),
-									'log_manager_id'	=> $log_manager->id,
-								);
-					$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
-					$message = $ms->newMessage(Array(), 'bulkmail.job.completed.error', $msg_reps);
-					$message->parameters['assetid'] = $job_id;
-					$message->send();
-
+					$message_type = 'bulkmail.job.completed.error';
 				} else {
-					$msg_reps = Array('num_recip'	=> number_format($progress_info['total_count']));
-					$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
-					$message = $ms->newMessage(Array(), 'bulkmail.job.completed', $msg_reps);
-					$message->parameters['assetid'] = $job_id;
-					$message->send();
+					$message_type = 'bulkmail.job.completed';
 				}
+
+				// format recipient count with grouped thousands
+				$msg_reps = Array('num_recip'	=> number_format($progress_info['total_count']));
+				$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$message = $ms->newMessage(Array(), $message_type, $msg_reps);
+				$message->parameters['assetid'] = $job_id;
+				$message->send();
 			}
 		}
 
