@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.80 2005/11/17 22:27:54 mmcintyre Exp $
+* $Id: page_asset_builder.inc,v 1.81 2005/11/22 05:46:41 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -906,9 +906,16 @@ class Page_Asset_Builder extends Page
 		// catch the error
 		if (error_reporting() || $terminate) {
 
-			// Strip out the file path begining
-			$err_file = hide_system_root($err_file);
-			$err_msg  = hide_system_root($err_msg);
+			$bt = debug_backtrace();
+			if (count($bt) > 1) {
+				$real_bt_index = 0;
+				while (($real_bt_index < count($bt)-1) && ((false !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (false !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) || ($bt[$real_bt_index]['function'] == 'sq_error_handler'))) {
+					$real_bt_index++;
+				}
+				$err_file = hide_system_root($bt[$real_bt_index]['file']);
+				$err_line = $bt[$real_bt_index]['line'];
+				$err_msg  = hide_system_root($err_msg);
+			}
 
 			$text_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
 
