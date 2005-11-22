@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page.inc,v 1.5 2005/11/21 22:28:41 dmckee Exp $
+* $Id: page_multiple_page.inc,v 1.6 2005/11/22 03:38:57 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -266,7 +266,9 @@ class Page_Multiple_Page extends Page
 
 		foreach ($current_children as $id => $bla) {
 			$deleted =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
-			$deleted->saveWebPaths(Array());
+			if (!is_null($deleted)) {
+				$deleted->saveWebPaths(Array());
+			}
 		}
 
 		parent::linksUpdated();
