@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.19 2005/11/21 22:59:34 rong Exp $
+* $Id: lang_strings.xml,v 1.20 2005/11/22 05:18:46 rong Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -94,7 +94,7 @@ Please click on the following link if you would like to proceed:
 
 	<string source="bm_configuration">Configuration</string>
 	<string source="bm_warning">Warning</string>
-	<string source="bm_warning_changes_no_effect">This job has already been started Configuration changes will not affect the current mailout unless the job is cancelled and restarted</string>
+	<string source="bm_warning_changes_no_effect">This job has already been started. Configuration changes will not affect the current mailout unless the job is cancelled and restarted</string>
 	<string source="bm_warning_one_post_office_for_job">Bulkmail Jobs can only be linked under one Bulkmail Post Office</string>
 
 	<string source="bm_warning_server_details_error">Server Details: "%s"</string>
