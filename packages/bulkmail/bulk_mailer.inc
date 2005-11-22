@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.29 2005/11/22 05:19:00 rong Exp $
+* $Id: bulk_mailer.inc,v 1.30 2005/11/22 06:18:16 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -1033,68 +1033,33 @@ class Bulk_Mailer
 	*/
 	function _errorHandler($err_no, $err_msg, $err_file, $err_line)
 	{
-		////echo "$err_no, $err_msg, $err_file, $err_line\n\n";
 		$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
 
 		// if the function didn't have an '@' prepended OR if we are about to terminate
 		// catch the error
 		if (error_reporting() || $terminate) {
 
-			// Strip out the file path begining
-			$err_name = get_error_name($err_no);
-			$err_msg  = hide_system_root($err_msg);
 			$bt = debug_backtrace();
 			if (count($bt) > 1) {
-				// changed index from 0 to 1
-				$real_bt_index = 1;
-				while (($real_bt_index < count($bt)-1) && ((false !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (false !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) || ($bt[$real_bt_index]['function'] == 'sq_error_handler'))) {
+				$real_bt_index = 0;
+				while (($real_bt_index < count($bt)-1) && ((false !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (false !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) || ($bt[$real_bt_index]['function'] == '_errorhandler'))) {
 					$real_bt_index++;
 				}
 				$err_file = hide_system_root($bt[$real_bt_index]['file']);
 				$err_line = $bt[$real_bt_index]['line'];
-			} else {
-				$err_file = hide_system_root($err_file);
+				$err_msg  = hide_system_root($err_msg);
 			}
+
+			$text_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
 
 			// send a report to the system error log
 			if (ini_get('log_errors')) {
-				$text_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
 				log_error($text_msg, $err_no, $err_file, $err_line, $this->error_log_file_name);
 			}
 
-			// if they haven't put tags in the err msg assume it to be plain text
-			$err_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
-			$lines = explode("\n", $err_msg);
-			$len = 7 + strlen($err_file);
-			$len = max($len, 7 + strlen($err_line));
-			foreach ($lines as $line) {
-				$len = max($len, strlen($line));
-			}
-			$len += 2;
-			$str =	'+'.str_repeat('-', $len)."+\n".
-					'| '.$err_name.str_repeat(' ', $len - 2 - strlen($err_name))." |\n".
-					'|'.str_repeat('-', $len)."|\n".
-					'| File : '.$err_file.str_repeat(' ', $len - 9 - strlen($err_file))." |\n".
-					'| Line : '.$err_line.str_repeat(' ', $len - 9 - strlen($err_line))." |\n".
-					'|'.str_repeat('-', $len)."|\n";
-			foreach ($lines as $line) {
-				$str .=  '| '.$line.str_repeat(' ', $len - 2 - strlen($line))." |\n";
-			}
-
-			$str .= '+'.str_repeat('-', $len)."+\n";
-
-			if (!isset($this->_tmp['running_errors'])) {
-				$this->_tmp['running_errors'] = '';
-			}
-			$this->_tmp['running_errors'] .= $str;
-
 		}//end error_reporting
 
-		// if this is an irrercoverable error, terminate
-		if ($terminate && empty($this->_tmp['terminate_error'])) {
-			$this->_tmp['terminate_error'] = true; // stop possible recursion
-			exit(1);
-		}
+		if ($terminate) exit(1);
 
 	}//end _errorHandler()
 
