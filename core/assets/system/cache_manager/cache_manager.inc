@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.10.2.6 2005/11/08 22:45:12 lwright Exp $
+* $Id: cache_manager.inc,v 1.10.2.7 2005/11/22 22:44:34 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once 'Cache.php';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10.2.6 $
+* @version $Revision: 1.10.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,7 +57,9 @@ class Cache_Manager extends Asset
 		$this->_ser_attrs = true;
 
 		// the cache object REQUIRES a slash on the end
+		$old_umask = umask(0);
 		$this->cache =& new Cache('file', Array('cache_dir' => SQ_CACHE_PATH.'/'));
+		umask($old_umask);
 		$this->Asset($assetid);
 
 	}//end constructor
@@ -160,13 +162,18 @@ class Cache_Manager extends Asset
 
 		$suffix = $this->_getCacheKey($assetid, $key);
 		if (empty($suffix)) return '';
+
 		$assetid_code = md5($assetid);
+
 		$cacheid_code = $this->cache->generateID($assetid.$key.$suffix);
 		$url_code = $this->cache->generateID(current_url());
 		$final_key = $assetid_code.':'.$cacheid_code.':'.$url_code;
 
 		$group = $this->getAssetHash($assetid_code).$this->getAssetHash($cacheid_code);
+
+		$old_umask = umask(0);
 		$contents = $this->cache->get($final_key, $group);
+		umask($old_umask);
 
 		return ($contents) ? $contents : '';
 
