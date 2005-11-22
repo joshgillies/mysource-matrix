@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage_management.inc,v 1.7 2005/01/20 13:07:31 brobertson Exp $
+* $Id: design_area_asset_lineage_management.inc,v 1.8 2005/11/22 22:36:54 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -108,6 +108,12 @@ class Design_Area_Asset_Lineage_Management extends Asset_Management
 								'type'			=> 'int',
 								'default'		=> 0,
 								'description'	=> 'How many levels deep to print, (zero, blank, empty means print all)'
+							),
+							'reverse_lineage' => Array(
+								'added'			=> '0.2',
+								'type'			=> 'boolean',
+								'default'		=> false,
+								'description'	=> 'If true, reverse how the lineage is printed (ie. nearest asset first)'
 							),
 						);
 

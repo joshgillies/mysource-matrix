@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage.inc,v 1.10 2005/10/11 02:05:14 tbarrett Exp $
+* $Id: design_area_asset_lineage.inc,v 1.11 2005/11/22 22:36:54 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -129,10 +129,19 @@ class Design_Area_Asset_Lineage extends Design_Area
 
 				echo '<', '?php
 
-				for ($'.$this->attr('id_name').'_i = '.$start_index.', $'.$this->attr('id_name').'_total = '.$total.';
-					$'.$this->attr('id_name').'_i < $'.$this->attr('id_name').'_total;
-					$'.$this->attr('id_name').'_i++) {
-					';
+				';
+
+				if ($this->attr('reverse_lineage')) {
+					echo 'for ($'.$this->attr('id_name').'_i = '.$total.' - 1, $'.$this->attr('id_name').'_total = '.$total.';
+							$'.$this->attr('id_name').'_i >= '.$start_index.';
+							$'.$this->attr('id_name').'_i--) {
+							';
+				} else {
+					echo 'for ($'.$this->attr('id_name').'_i = '.$start_index.', $'.$this->attr('id_name').'_total = '.$total.';
+							$'.$this->attr('id_name').'_i < $'.$this->attr('id_name').'_total;
+							$'.$this->attr('id_name').'_i++) {
+							';
+				}
 
 				if (!$this->attr('show_hidden_links')) {
 					echo 'if ($ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'link_type\'] != SQ_LINK_TYPE_1) continue;
@@ -152,9 +161,15 @@ class Design_Area_Asset_Lineage extends Design_Area
 
 					// if there is not divider at the end we need to check that we aren't at the end of the list
 					if (!$this->attr('suffix_with_divider')) {
-					echo '
-						if ($'.$this->attr('id_name').'_i != $'.$this->attr('id_name').'_total - 1) {
-						';
+						if ($this->attr('reverse_lineage')) {
+							echo '
+								if ($'.$this->attr('id_name').'_i != '.$start_index.') {
+							';
+						} else {
+							echo '
+								if ($'.$this->attr('id_name').'_i != $'.$this->attr('id_name').'_total - 1) {
+							';
+						}
 					}
 
 					echo '?','>', $divider, '<','?php ';
