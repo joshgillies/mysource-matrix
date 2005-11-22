@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.397 2005/11/21 04:15:27 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.398 2005/11/22 00:26:50 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.397 $
+* @version $Revision: 1.398 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3213,6 +3213,7 @@ class Asset_Manager extends MySource_Object
 		$majorid_parts = explode(':', $major->id);
 		$minorid_parts = explode(':', $minor->id);
 
+		// if we are linking under a shadow asset, ask the bridge to create the link
 		if (isset($majorid_parts[1])) {
 			$asset = &$this->getAsset($majorid_parts[0]);
 
@@ -3222,16 +3223,17 @@ class Asset_Manager extends MySource_Object
 			$this->forgetAsset($asset);
 			return $linkid;
 		}
-
+		// handle linking a shadow asset as the minor
 		if (isset($minorid_parts[1])) {
 
-			// if we are linking to another shadow asset, let the bridge handle it
+			// if we are linking under another shadow asset, let the bridge handle it
 			if (isset($majorid_parts[1])) {
 				$asset = &$this->getAsset($minorid_parts[0]);
 				$linkid = $asset->createAssetLink($major, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
 				$this->forgetAsset($asset);
 			} else {
 
+				//we are linking a shadow asset under a normal asset
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -3970,14 +3972,16 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$id_parts = explode(':', $linkid);
-
+		$minorid_parts = explode(':', $link['minorid']);
 		// shadow asset found, pipe the request of to the bridge
 		if (isset($id_parts[1])) {
-			$asset =& $this->getAsset($id_parts[0]);
-			$result =  $asset->updateLink($linkid, $link_type, $value, $sort_order);
-			$this->forgetAsset($asset);
-			return $result;
+
+				$bridge =& $this->getAsset($id_parts[0]);
+				$result =  $bridge->updateLink($linkid, $link_type, $value, $sort_order);
+				$this->forgetAsset($bridge);
+				return $result;
 		}
+
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -3986,6 +3990,7 @@ class Asset_Manager extends MySource_Object
 		$link_type_changed	= (!is_null($link_type)		&& $link['link_type']	!= $link_type	);
 		$value_changed		= (!is_null($value)			&& $link['value']		!= $value		);
 		$sort_order_changed	= (!is_null($sort_order)	&& $link['sort_order']	!= $sort_order	);
+
 
 		$link_type  = (int) $link_type;
 		$sort_order = (int) $sort_order;
@@ -4067,68 +4072,142 @@ class Asset_Manager extends MySource_Object
 
 		}//end if value_changed
 
-		if ($sort_order_changed) {
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+		// If the minor is a shadow asset, we need to update the shadow link table instead
+		// There's no order field in the shadow table, so we branch before we add order to the set clause
+		if (isset($minorid_parts[1])) {
 
-			$sql = 'SELECT COUNT(*) AS count, MAX(sort_order) AS max
-					FROM
-						sq_ast_lnk
-					WHERE
-						majorid = '.$db->quoteSmart($major->id);
-
-			$row = $db->getRow($sql);
-			assert_valid_db_result($row);
-
-			$max = ($row['count'] > 0) ? (int) $row['max'] : 0;
-			if ($sort_order > $max || $sort_order < 0) {
-				$sort_order = $max;
+			if (empty($set_clauses)) {
+				$ms->abortLog();
+				return true;
 			}
 
-			$set_clauses['sort_order'] = $db->quoteSmart($sort_order);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-			$msg_reps = Array(
-							'linkid'			=> $linkid,
-							'major_name'		=> $major->name,
-							'minor_name'		=> $minor->name,
-							'old_sort_order'	=> $link['sort_order'],
-							'new_sort_order'	=> $sort_order,
-						);
-			$message = $ms->newMessage(Array(), 'asset.linking.order', $msg_reps);
-			$message->parameters['majorid'] = $major->id;
-			$message->parameters['minorid'] = $minor->id;
-			$message->parameters['linkid']  = $linkid;
-			$ms->logMessage($message);
+			$set_clauses['updated_userid']	= $db->quoteSmart($GLOBALS['SQ_SYSTEM']->currentUserId());
+			$set_clauses['updated']			= db_extras_todate($db, ts_iso8601(time()));
+
+			$set_array = Array();
+
+			foreach ($set_clauses as $key => $value) {
+				$set_array[] = $key.'='.$value;
+			}
+
+			$set_string = implode(',', $set_array);
+
+			$sql = 'UPDATE
+						sq_shdw_ast_lnk
+					SET
+						'.$set_string.'
+					WHERE
+							linkid	= '.$db->quoteSmart($linkid).'
+						AND	majorid	= '.$db->quoteSmart($major->id);
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
+			$this->forgetAsset($major);
+
+		} else {
+
+			if ($sort_order_changed) {
+
+				$sql = 'SELECT COUNT(*) AS count, MAX(sort_order) AS max
+						FROM
+							sq_ast_lnk
+						WHERE
+							majorid = '.$db->quoteSmart($major->id);
+
+				$row = $db->getRow($sql);
+				assert_valid_db_result($row);
+
+				$max = ($row['count'] > 0) ? (int) $row['max'] : 0;
+				if ($sort_order > $max || $sort_order < 0) {
+					$sort_order = $max;
+				}
+
+				$set_clauses['sort_order'] = $db->quoteSmart($sort_order);
+
+				$msg_reps = Array(
+								'linkid'			=> $linkid,
+								'major_name'		=> $major->name,
+								'minor_name'		=> $minor->name,
+								'old_sort_order'	=> $link['sort_order'],
+								'new_sort_order'	=> $sort_order,
+							);
+				$message = $ms->newMessage(Array(), 'asset.linking.order', $msg_reps);
+				$message->parameters['majorid'] = $major->id;
+				$message->parameters['minorid'] = $minor->id;
+				$message->parameters['linkid']  = $linkid;
+				$ms->logMessage($message);
+			}
+
+			if (empty($set_clauses)) {
+				$ms->abortLog();
+				return true;
+			}
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			$set_clauses['updated_userid']	= $db->quoteSmart($GLOBALS['SQ_SYSTEM']->currentUserId());
+			$set_clauses['updated']			= db_extras_todate($db, ts_iso8601(time()));
+
+			$set_array = Array();
+
+			foreach ($set_clauses as $key => $value) {
+				$set_array[] = $key.'='.$value;
+			}
+
+			$set_string = implode(',', $set_array);
+
+			$sql = 'UPDATE
+						sq_ast_lnk
+					SET
+						'.$set_string.'
+					WHERE
+							linkid	= '.$db->quoteSmart($linkid).'
+						AND	majorid	= '.$db->quoteSmart($major->id);
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
+			if ($sort_order_changed) {
+				// move 'em up, higher
+				if ($link['sort_order'] > $sort_order) {
+
+					$sql = 'UPDATE
+								sq_ast_lnk
+							SET
+								sort_order = sort_order + 1
+							WHERE
+									majorid		= '.$db->quoteSmart($major->id).'
+								AND	linkid		<> '.$db->quoteSmart($linkid).'
+								AND	sort_order	>= '.$db->quoteSmart($sort_order).'
+								AND	sort_order	<= '.$db->quoteSmart($link['sort_order']);
+
+					$result = $db->query($sql);
+					assert_valid_db_result($result);
+
+				} else {
+
+					$sql = 'UPDATE
+								sq_ast_lnk
+							SET
+								sort_order = sort_order - 1
+							WHERE
+									majorid		= '.$db->quoteSmart($major->id).'
+								AND	linkid		<> '.$db->quoteSmart($linkid).'
+								AND	sort_order	>= '.$db->quoteSmart($link['sort_order']).'
+								AND	sort_order	<= '.$db->quoteSmart($sort_order);
+
+					$result = $db->query($sql);
+					assert_valid_db_result($result);
+				}
+
+			}//end if sort order changed
 		}
-
-		if (empty($set_clauses)) {
-			$ms->abortLog();
-			return true;
-		}
-
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$set_clauses['updated_userid']	= $db->quoteSmart($GLOBALS['SQ_SYSTEM']->currentUserId());
-		$set_clauses['updated']			= db_extras_todate($db, ts_iso8601(time()));
-
-		$set_array = Array();
-
-		foreach ($set_clauses as $key => $value) {
-			$set_array[] = $key.'='.$value;
-		}
-
-		$set_string = implode(',', $set_array);
-
-		$sql = 'UPDATE
-					sq_ast_lnk
-				SET
-					'.$set_string.'
-				WHERE
-						linkid	= '.$db->quoteSmart($linkid).'
-					AND	majorid	= '.$db->quoteSmart($major->id);
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
 
 
 		if ($link_type_changed) {
@@ -4143,40 +4222,7 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		if ($sort_order_changed) {
-			// move 'em up, higher
-			if ($link['sort_order'] > $sort_order) {
 
-				$sql = 'UPDATE
-							sq_ast_lnk
-						SET
-							sort_order = sort_order + 1
-						WHERE
-								majorid		= '.$db->quoteSmart($major->id).'
-							AND	linkid		<> '.$db->quoteSmart($linkid).'
-							AND	sort_order	>= '.$db->quoteSmart($sort_order).'
-							AND	sort_order	<= '.$db->quoteSmart($link['sort_order']);
-
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
-
-			} else {
-
-				$sql = 'UPDATE
-							sq_ast_lnk
-						SET
-							sort_order = sort_order - 1
-						WHERE
-								majorid		= '.$db->quoteSmart($major->id).'
-							AND	linkid		<> '.$db->quoteSmart($linkid).'
-							AND	sort_order	>= '.$db->quoteSmart($link['sort_order']).'
-							AND	sort_order	<= '.$db->quoteSmart($sort_order);
-
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
-			}
-
-		}//end if sort order changed
 
 		// tell, the asset it has updated
 		if (!$major->linksUpdated()) {
@@ -5917,8 +5963,12 @@ class Asset_Manager extends MySource_Object
 
 		$union_select = ' UNION ALL SELECT sl.minorid';
 
-		if ($inc_type_code) $union_select .= ', null AS type_code';
-		if (!is_null($sort_by)) $union_select .= ', null AS sort_value';
+		if ($inc_type_code) {
+			$union_select .= ', null AS type_code';
+		}
+		if (!is_null($sort_by)) {
+			$union_select .= ', null AS sort_value';
+		}
 
 		$union_from   = ' FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
 		$union_where  = 'sl.majorid = '.$db->quoteSmart($asset->id);
@@ -6041,7 +6091,9 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$union_select = ' UNION ALL SELECT sl.majorid, null, null as treeid';
-		if (!is_null($sort_by)) $union_select .= ', null as sort_value';
+		if (!is_null($sort_by)) {
+			$union_select .= ', null as sort_value';
+		}
 
 		$union_from   = ' FROM sq_shdw_ast_lnk sl';
 		$union_where  = 'sl.minorid = '.$db->quoteSmart($assetid);
