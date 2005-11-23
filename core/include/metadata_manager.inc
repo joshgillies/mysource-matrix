@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.99 2005/10/31 05:49:12 lwright Exp $
+* $Id: metadata_manager.inc,v 1.100 2005/11/23 02:27:28 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1074,6 +1074,21 @@ class Metadata_Manager extends MySource_Object
 
 						$field_name = substr($keyword, 15);
 						$metadata_replacements[$keyword] = '$metadata_values[\''.$field_name.'\']';
+
+					} else if (substr($keyword, 0, 18) == 'asset_thumbnail_v_') {
+						// Print the asset variety of a thumbnail
+						$variety_name = substr($keyword, 18);
+						if (!$thumbnail_generated) {
+							echo '$thumbnail = null;';
+							echo 'if ($metadata_asset->id) {';
+							echo '    $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'image\', false, \'thumbnail\');'."\n";
+							echo '    if (!empty($link)) {'."\n";
+							echo '        $thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\'], $link[\'minor_type_code\']);'."\n";
+							echo '    }'."\n";
+							echo '}'."\n";
+						}
+
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->getKeywordReplacement(\'image_v_'.$variety_name.'\');';
 
 					} else {
 
