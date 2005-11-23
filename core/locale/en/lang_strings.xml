@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.75 2005/11/16 03:34:21 dmckee Exp $
+* $Id: lang_strings.xml,v 1.76 2005/11/23 00:53:35 arailean Exp $
 *
 */
 
@@ -1679,5 +1679,18 @@ Items to delete: %s</string>
 	<string source="private">private</string>
 	<string source="public">public</string>
 	<string source="data">data</string>
+
+	<!-- Thesaurus HIPO STRINGS -->
+	<string source="thesaurus_hipo_starting_process">Starting up process</string>
+	<string source="thesaurus_hipo_acquiring_locks">Acquiring Permission Locks</string>
+	<string source="thesaurus_hipo_parsing_xml">Parsing XML file</string>
+	<string source="thesaurus_hipo_erasing_thesaurus">Erasing Thesaurus Contents</string>
+	<string source="thesaurus_hipo_finalising">Finalising</string>
+	<string source="thesaurus_hipo_confirm_erase">Please confirm that you want to erase the existing thesaurus. Your XML file is ready to be imported. Its contents will replace the existing thesaurus data.</string>
+	<string source="thesaurus_hipo_cleaning_up">Cleaning up and moving out</string>
+	<string source="thesaurus_hipo_setting_up_env">Setting up the environment</string>
+	<string source="thesaurus_hipo_name_import_thesaurus_xml">Import Thesaurus XML</string>
+	<string source="thesaurus_hipo_name_export_thesaurus_xml">Export Thesaurus XML</string>
+	<string source="thesaurus_hipo_creating_xml">Writing XML file</string>
 
 </strings>

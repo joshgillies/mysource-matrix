@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.32 2005/11/07 05:16:56 mmcintyre Exp $
+* $Id: tables.xml,v 1.33 2005/11/23 00:52:55 arailean Exp $
 *
 */
 -->
@@ -1611,6 +1611,109 @@
 			</keys>
 			<indexes />
 		</table>
+		<table name="thes_term" require_rollback="0">
+			<columns>
+				<column name="linkid" allow_null="0">
+					<type>INTEGER</type>
+					<type_variations />
+					<default />
+					<description>ID of link between two terms</description>
+				</column>
+				<column name="major" allow_null="1">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description>Parent Term</description>
+				</column>
+				<column name="minor" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description>Term</description>
+				</column>
+				<column name="relation" allow_null="1">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default />
+					<description>Term</description>
+				</column>
+				<column name="sort_order" allow_null="0">
+					<type>INTEGER</type>
+					<type_variations />
+					<default />
+					<description>Sort Order</description>
+				</column>
+				<column name="thesid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>Thesaurus Asset ID</description>
+				</column>
+		   </columns>
+		   <keys>
+			   <primary_key>
+				   <column name="linkid" />
+			   </primary_key>
+		   </keys>
+		   <indexes>
+			   <index>
+				   <column name="linkid" />
+			   </index>
+			   <index>
+				   <column name="major" />
+			   </index>
+			   <index>
+				   <column name="minor" />
+			   </index>
+			   <index>
+				   <column name="relation" />
+			   </index>
+			   <index>
+				   <column name="thesid" />
+			   </index>
+		   </indexes>
+		</table>
+		<table name="thes_lnk_tree" require_rollback="0">
+			<columns>
+				<column name="treeid" allow_null="0">
+					<type>VARCHAR(2000)</type>
+					<type_variations>
+						<pgsql>BYTEA</pgsql>
+					</type_variations>
+					<default>''</default>
+					<description />
+				</column>
+				<column name="linkid" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="thesid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>Thesaurus Asset ID</description>
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="treeid" />
+					<column name="thesid" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="linkid" />
+				</index>
+				<index>
+					<column name="treeid" />
+				</index>
+				<index>
+					<column name="thesid" />
+				</index>
+			</indexes>
+		</table>
 	</tables>
 	<sequences>
 		<sequence name="ast" />
@@ -1620,6 +1723,7 @@
 		<sequence name="internal_msg" />
 		<sequence name="trig_id" />
 		<sequence name="file_vers_file" />
+		<sequence name="thes_term_linkid" />
 	</sequences>
 </schema>
 

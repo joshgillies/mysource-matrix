@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.21 2005/10/28 00:13:08 lwright Exp $
+* $Id: lang_errors.xml,v 1.22 2005/11/23 00:53:35 arailean Exp $
 *
 */
 
@@ -211,6 +211,23 @@
 		<!-- core/hipo/hipo_backend_outputter.inc:301: -->
 
 	<error code="HIPO0060">Unable to initialise Install Patch HIPO, no patch ID specified</error>
+
+	<!-- Thesaurus HIPO Jobs -->
+	<error code="HIPO0061">Unable to initialise "Import Thesaurus XML" HIPO, thesaurus asset ID not specified</error>
+	<error code="HIPO0062">Unable to initialise "Import Thesaurus XML" HIPO, invalid thesaurus asset ID specified (%s)</error>
+	<error code="HIPO0063">Unable to Erase Contents of the Thesaurus</error>
+	<error code="HIPO0064">Invalid tag type "%1$s"</error>
+	<error code="HIPO0065">Relations may not have relations as child nodes. Offending child: %1$s</error>
+	<error code="HIPO0066">Terms must have a name attribute</error>
+	<error code="HIPO0067">could not handle tag of type "%1$s"</error>
+	<error code="HIPO0068">Failed to close the relation "%1$s"</error>
+	<error code="HIPO0069">Expected "/term", found "/relation"</error>
+	<error code="HIPO0070">Could not open XML input file "%1$s"</error>
+	<error code="HIPO0071">XML error: "%1$s" for chunk "<![CDATA[%2$s]]>"</error>
+	<error code="HIPO0072">Unable to initialise "Export Thesaurus XML" HIPO, thesaurus asset ID not specified</error>
+	<error code="HIPO0073">Unable to initialise "Export Thesaurus XML" HIPO, invalid thesaurus asset ID specified (%s)</error>
+	<error code="HIPO0074">Unable to open XML file "%1$s" for writing</error>
+
 
 	<!-- CRON MANAGER -->
 
@@ -1553,4 +1570,14 @@ Full Node Contents :
 	<error code="CORE0232">Unable to create Trigger, incorrect format</error>
 	<error code="CORE0233">This operation requires the System Configuration lock to be acquired, but another user has that lock.  Please try again later.</error>
 	<error code="CORE0234">No design area asset with ID name %s was found.  There must have been a problem initialising the asset for this design area.  Area tag ignored.</error>
+
+	<!-- Thesaurus Support -->
+	<error code="CORE0235">Failed copying uploaded file (%1$s) to destination directory (%2$s)</error>
+	<error code="CORE0236">Cannot create new Thesaurus Term under an asset of type "%1$s"</error>
+	<error code="CORE0237">This term cannot be added because it already exists.</error>
+	<error code="CORE0238">Cannot use the supplied term link id because it conflicts with an existing one.</error>
+	<error code="CORE0239">Cannot Update. A term with these details already exists.</error>
+	<error code="CORE0240">This term link already exists. Cannot move.</error>
+	<error code="CORE0241">This term has multiple parent and child terms. Renaming of this term is not possible.</error>
+
 </errors>

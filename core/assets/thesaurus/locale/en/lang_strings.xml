@@ -1,0 +1,41 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2005/11/23 00:53:35 arailean Exp $
+*
+*/
+
+-->
+
+<strings>
+<string source="thesaurus_thesaurus_enabled">Enabled. Thesaurus has been imported and is enabled. Uploading a new file will erase the existing thesaurus.</string>
+<string source="thesaurus_thesaurus_disabled">Disabled. Thesaurus has not yet been imported. Please import a thesaurus XML file</string>
+<string source="thesaurus_example_xml_file">To demonstrate the expected structure of the imported XML file, an <![CDATA[<a href="%s" target="_blank">example file</a>]]> is available.</string>
+<string source="thesaurus_thesaurus_not_generated">XML file is not in sync with thesaurus. Thesaurus contents have been changed. Please acquire lock to generate a new file.</string>
+<string source="thesaurus_generate_file">Generate XML file</string>
+<string source="thesaurus_term_name">Term Name</string>
+<string source="thesaurus_new_term_name">New Term Name</string>
+<string source="thesaurus_name_not_in_use">The current term name is not in use. No terms will be updated</string>
+<string source="thesaurus_new_name_in_use">The desired new term name is already in use</string>
+<string source="thesaurus_relation">Relation</string>
+<string source="thesaurus_new_relation">New Relation</string>
+<string source="thesaurus_new_relation_in_use">The desired relation is already in use</string>
+
+</strings>

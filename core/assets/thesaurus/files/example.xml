@@ -1,0 +1,70 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: example.xml,v 1.1 2005/11/23 00:53:35 arailean Exp $
+*
+*/
+
+Implicit declaration:
+	The first use of a term or relation declares existence in the tree
+
+Null relations:
+	If a term tag appears within a term tag without a relation tag it is
+	assumed to have a null relation, that is, one with an empty string
+	for a name.
+
+Incremental term declaration:
+	A term may appear more than once in a document. Successive instances
+	of a term will append new relations to the internal representation of
+	that term
+
+Looping:
+	Trees containing loops are considered valid.
+
+
+-->
+<thesaurus>
+	<term name="animal">
+		<term name="lion">
+			<relation name="eats">
+				<term name="animal">
+					<term name="monkey">
+						<relation name="eats">
+							<term name="banana" />
+						</relation>
+					</term>
+				</term>
+			</relation>
+		</term>
+		<term name="monkey">
+			<relation name="lives">
+				<term name="trees" />
+			</relation>
+		</term>
+		<term name="gazelle">
+			<relation name="lives">
+				<term name="plains" />
+			</relation>
+			<relation name="eats">
+				<term name="savannah grass" />
+			</relation>
+		</term>
+	</term>
+</thesaurus>

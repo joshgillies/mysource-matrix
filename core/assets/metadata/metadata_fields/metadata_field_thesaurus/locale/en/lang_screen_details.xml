@@ -1,0 +1,64 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1 2005/11/23 00:53:35 arailean Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Field Name</display_name>
+			<note />
+		</field>
+		<field attribute="scheme">
+			<display_name>Scheme</display_name>
+			<note />
+		</field>
+		<field attribute="language">
+			<display_name>Language</display_name>
+			<note />
+		</field>
+	</section>
+
+	<section name="Thesaurus Settings">
+		<field attribute="thesaurus_assetid">
+			<display_name>Source Thesaurus Asset</display_name>
+			<note />
+		</field>
+	</section>
+
+	<section name="Options">
+		<field attribute="editable">
+			<display_name>Editable</display_name>
+			<note />
+		</field>
+		<field attribute="required">
+			<display_name>Required</display_name>
+			<note />
+		</field>
+		<field attribute="frontend">
+			<display_name>Show On Frontend</display_name>
+			<note>&lt;b&gt;Always:&lt;/b&gt; this metadata field will always be printed on the frontend.&lt;br&gt;&lt;b&gt;Only If Filled:&lt;/b&gt; this metadata field will only be printed on the frontend if data is entered in that field for that asset.&lt;br&gt;&lt;b&gt;Never:&lt;/b&gt; this metadata field will not be printed on the frontend.</note>
+		</field>
+	</section>
+
+</contents>
