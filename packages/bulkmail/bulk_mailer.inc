@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.32 2005/11/22 22:57:12 rong Exp $
+* $Id: bulk_mailer.inc,v 1.33 2005/11/23 22:26:55 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -55,13 +55,15 @@ class Bulk_Mailer
 	function start()
 	{
 		declare(ticks=1);
+		//speed_check(); mem_check('start '.ts_iso8601(time()));
 
 		// setup signal handlers
-		pcntl_signal(SIGTERM, array(&$this,'_sigHandler'));
-		pcntl_signal(SIGHUP, array(&$this,'_sigHandler'));
+		pcntl_signal(SIGTERM, Array(&$this,'_sigHandler'));
+		pcntl_signal(SIGHUP, Array(&$this,'_sigHandler'));
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$bm =& $am->getSystemAsset('bulkmail_manager');
+		//speed_check(); mem_check('bulkmail manager loaded');
 
 		// setup the log manager to log bulkmail errors
 		$old_log_errors = ini_set('log_errors', '1');
@@ -74,19 +76,20 @@ class Bulk_Mailer
 			trigger_localised_error('BML0003', E_USER_WARNING, $root_user->name, $root_user->id);
 			exit(1);
 		}
+		//speed_check(); mem_check('root user loaded');
 
 		// constant definition
-		$recip_per_chunk = 1;
+		$recip_per_chunk = 10;
 		// if the time allocated for each mail (in seconds) is greater than this value,
 		// the script will quit, and a wake up time will be stored in the progress file
 		$GLOBALS['sleep_threshold'] = 60;
 		// when the last_updated field in the progress file did not get updated for this amount of time
 		// job is considered as timeout-ed and we will take over this job
-		$GLOBALS['timeout_threshold'] = 60;
+		$GLOBALS['timeout_threshold'] = 3600;
 
-		//mem_check();//echo 'Process starts @ '.date('r')."\n";
 		// get a scheduled job from the database table and process it
 		$results = $bm->getQueuedJobs();
+		//speed_check(); mem_check('getQueuedJobs');
 
 		// pick up a sleeping job (higher priority than a timeout-ed job)
 		foreach ($results as $job_id => $info) {
@@ -127,12 +130,11 @@ class Bulk_Mailer
 					$bm->updateJob($job_id, BML_JOB_STATE_RUNNING);
 					$this->chunkJob($job_id, $recip_per_chunk);
 					$this->processJob($job_id, $recip_per_chunk);
-					return;
+					break;
 				}
 			}
 		}
-
-		//echo "Finished checking sq_bulkmail_queue table, nothing to run.\n";
+		//speed_check(); mem_check('Done checking sq_bulkmail_queue');
 
 	}//end start()
 
@@ -175,8 +177,7 @@ class Bulk_Mailer
 	*/
 	function chunkJob($job_id, $recip_per_chunk)
 	{
-		//mem_check();//echo "chunkJob : Starting job #$job_id\n";
-
+		//speed_check(); mem_check('chunkJob start');
 		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$info = $bm->getQueuedJobs($job_id);
 		$job_path = $bm->getJobDataPath($job_id);
@@ -206,13 +207,11 @@ class Bulk_Mailer
 					$output = '<?php $recipient_chunk = '.var_export($chunk, true).'; ?>';
 					string_to_file($output, $recipient_path.'/recipient_'.$index);
 				}
-				//mem_check();//echo "chunkJob : Done chunkJob\n";
 				exit;
 			}
 
-		} else {
-			//echo "chunkJob : Recipient already cached\n";
 		}
+		//speed_check(); mem_check('chunkJob end');
 
 	}//end chunkJob()
 
@@ -228,7 +227,7 @@ class Bulk_Mailer
 	*/
 	function processJob($job_id, $recip_per_chunk)
 	{
-		//mem_check();//echo "processJob start\n";
+		//speed_check(); mem_check('processJob start');
 		$this->_reconnectDB();
 		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$info = $bm->getQueuedJobs($job_id);
@@ -253,7 +252,6 @@ class Bulk_Mailer
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_asset);
 
 		$details['subject'] = replace_keywords($details['subject'], $replacements);
-
 		$header_details['subject'] = $details['subject'];
 
 		// create the /queue and /sent directories for mail queue
@@ -270,37 +268,35 @@ class Bulk_Mailer
 		}
 
 		// read chunks from cache and process them
+		//speed_check(); mem_check('start whileloop');
 		while (file_exists($recipient_path.'/recipient_'.$progress_info['current_chunk'])) {
-			$this->_reconnectDB();
+			// echo $progress_info['current_chunk'].' ';
+			////speed_check(); mem_check('processJob fork chunk '.$progress_info['current_chunk']);
+
 			// check if job state is paused/cancelled at the beginning of each chunk
-			$info = $bm->getQueuedJobs($job_id);
 			$state = $info[$job_id]['status'];
 			if ($state == BML_JOB_STATE_PAUSED) {
-				//echo "processJob : job paused\n";
+				// job paused
 				exit;
 			} else if ($state == BML_JOB_STATE_NOT_RUNNING) {
-				//echo "processJob : job cancelled\n";
+				// job cancelled
 				exit;
 			}
 
 			// threshold checking
 			if (!$this->checkThreshold('excluded_time', $details['threshold'])) {
 				// current time is in excluded time range
-				//echo "processJob : is excluded time\n";
 				$bm->updateJob($job_id, BML_JOB_STATE_NOT_RUNNING);
 				exit;
 			}
 			if (!$this->checkThreshold('send_rate', $details['threshold'], $progress_path)) {
 				// threshold limit has been reached, set job to sleep
-				//echo "processJob : is sleeping\n";
 				$bm->updateJob($job_id, BML_JOB_STATE_SLEEPING);
 				exit;
 			}
 
 			// load the current recipient chunk
-			$progress_info = $info[$job_id]['progress'];
 			include($recipient_path.'/recipient_'.$progress_info['current_chunk']);
-			//echo "\nfork process - recipient chunk ".$progress_info['current_chunk']."\n";
 
 			$pid = $this->fork();
 			if (!$pid) {
@@ -331,15 +327,11 @@ class Bulk_Mailer
 								$mail_id = $mail_queue->put('', $email, $headers, $body);
 							}
 							$this->updateProgress($progress_path, $user_id, $problematic);
-							//sleep(3);
 							exit;
 						}
-
-					} else {
-						//echo " $user_id already in queue/sent (skip, using file_exists)\n";
 					}
+
 				}
-				//echo "processJob : sendMailsInQueue\n";
 				$status = $mail_queue->sendMailsInQueue();
 				if (PEAR::isError($status)) {
 					trigger_localised_error('BML0001', E_USER_WARNING, $status->getMessage());
@@ -350,16 +342,18 @@ class Bulk_Mailer
 				exit;
 
 			} else {
+				// parent process, get updated info for next loop
 				$this->_reconnectDB();
 				$progress_info = $bm->getJobProgress($job_id);
-				//mem_check();//echo "processJob : Parent $pid exits\n";
+				$info = $bm->getQueuedJobs($job_id);
 			}
 
 		}//end while()
+		//speed_check(); mem_check('end whileloop');
 
+		// job completed
 		$this->_reconnectDB();
 		$progress_info = $bm->getJobProgress($job_id);
-		// job completed
 		if ($progress_info['current_count'] >= $progress_info['total_count']) {
 
 			// remove job entry from the db queue table
@@ -382,9 +376,12 @@ class Bulk_Mailer
 				$message = $ms->newMessage(Array(), $message_type, $msg_reps);
 				$message->parameters['assetid'] = $job_id;
 				$message->send();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($message);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ms);
 			}
-		}
 
+		}
+		//speed_check(); mem_check('processJob end');
 		return true;
 
 	}//end processJob()
@@ -402,7 +399,6 @@ class Bulk_Mailer
 	function _reconnectDB()
 	{
 			$GLOBALS['SQ_SYSTEM']->db->disconnect();
-			// need to empty conns to reconnect
 			unset($GLOBALS['SQ_SYSTEM']->_db_conns);
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -437,7 +433,6 @@ class Bulk_Mailer
 			$progress_info['current_count']++;
 			$time_taken = get_microtime() - $GLOBALS['mail_start'];
 			$progress_info['total_time_taken'] += $time_taken;
-			//echo "timetaken for this mail = $time_taken\ntotal timetaken = $progress_info[total_time_taken]\n";
 		}
 		$progress_info['current_recip_id'] = $user_id;
 		$progress_info['last_updated'] = time();
@@ -477,7 +472,6 @@ class Bulk_Mailer
 			trigger_localised_error('BML0008', E_USER_WARNING, $progress_path);
 			return false;
 		} else {
-			//echo 'nextChunk : current_chunk = '.$progress_info['current_chunk']."\n";
 			return true;
 		}
 
@@ -528,7 +522,7 @@ class Bulk_Mailer
 					if (is_a($recipient, 'user') || is_a($recipient, 'bulkmail_user')) {
 						$user_list += Array($recipient_id => $recipient->attr('email'));
 					// store all group ids
-					} else if (is_a($recipient, 'user_group')) {
+					} else if (is_a($recipient, 'user_group') || is_a($recipient, 'web_folder_users')) {
 						$group_ids[] = $recipient_id;
 					}
 				}
@@ -693,7 +687,6 @@ class Bulk_Mailer
 			trigger_localised_error('BML0008', E_USER_WARNING, $job_path.'/cache/content_file.html');
 			return false;
 		} else {
-			////echo "cacheContent: Cached\n";
 			return true;
 		}
 
@@ -733,7 +726,6 @@ class Bulk_Mailer
 		if ($content_gen == 'each_user' && !is_null($user) && !is_a($user, 'Bulkmail_User')) {
 			// login as this user and print page content
 			if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($user)) {
-				//echo "cannot login user $user->id to generate content\n";
 				return '';
 			}
 			$page =& $am->getAsset($content_id);
@@ -823,10 +815,10 @@ class Bulk_Mailer
 			case 'send_rate' :
 				return $this->checkSendRate($thresholds, $extra);
 			break;
-			case 'wakeup_time':
+			case 'wakeup_time' :
 				return $this->checkWakeUpTime($thresholds, $extra);
 			break;
-			case 'time_out':
+			case 'time_out' :
 				return $this->checkTimeOut($thresholds, $extra);
 			break;
 			default:
@@ -867,7 +859,6 @@ class Bulk_Mailer
 				if (in_array($now_day, $excluded_days)) {
 					// range: [from, to)
 					if ($now_time >= $threshold['params']['from'] && $now_time < $threshold['params']['to']) {
-						//echo "current time is in excluded time\n";
 						return false;
 					}
 				}
@@ -904,7 +895,6 @@ class Bulk_Mailer
 					$unit = $threshold['params']['unit'];
 					// time interval allocated to each mail, minimum is 1 sec
 					$progress_info['threshold_rate'] = ceil($unit/$value);
-					//echo "time allocated = $progress_info[threshold_rate] sec per mail\n";
 					break;
 				}
 			}
@@ -929,11 +919,9 @@ class Bulk_Mailer
 				$progress_info['wake_up_time'] = time() + $progress_info['threshold_rate'];
 				$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';
 				string_to_file($output, $progress_path);
-				//echo "stored wake up time $progress_info[wake_up_time]\n";
 				return false;
 			} else {
 				// if time allocated for each mail is less than the threshold, sleep
-				//echo "sleep $progress_info[threshold_rate]-1 sec\n";
 				sleep($progress_info['threshold_rate']-1);
 				return true;
 			}
@@ -955,7 +943,6 @@ class Bulk_Mailer
 	*/
 	function checkWakeUpTime($thresholds, $progress_info)
 	{
-		//echo 'current time '.time()."\n wakeuptime $progress_info[wake_up_time]\n time to sleep = ".($progress_info['wake_up_time']-time())." seconds\n";
 		if (isset($progress_info['wake_up_time']) && (time() > $progress_info['wake_up_time'])) {
 			return true;
 		}
@@ -966,7 +953,7 @@ class Bulk_Mailer
 
 
 	/**
-	* Check if a current sleeping job can wake up now by checking the wake up time
+	* Check if a running job is timeout-ed
 	*
 	* @param array	$thresholds		the threshold attribute of the post office
 	* @param array	$progress_info	the current progress info from the progress file
@@ -976,16 +963,21 @@ class Bulk_Mailer
 	*/
 	function checkTimeOut($thresholds, $progress_info)
 	{
-		if (isset($progress_info['last_updated']) && ($progress_info['last_updated'] != 0)) {
-			$time_diff = time() - $progress_info['last_updated'];
-			//echo "time diff=$time_diff, threshold=$GLOBALS[timeout_threshold]\n";
-			// timeout threshold reached, take over
-			if ($time_diff > $GLOBALS['timeout_threshold']) {
-				//echo "Timeout! taking over\n";
-				return true;
+		// rule cannot be applied, do not treat a sleeping job as a timeout-ed job
+		// otherwise Bulk Mailer will take over and two same jobs will be running simultaneously
+		if (isset($progress_info['threshold_rate'])) {
+			if ($progress_info['threshold_rate'] > $GLOBALS['timeout_threshold']) {
+				return false;
 			}
 		}
 
+		if (isset($progress_info['last_updated']) && ($progress_info['last_updated'] != 0)) {
+			$time_diff = time() - $progress_info['last_updated'];
+			// timeout threshold reached, take over
+			if ($time_diff > $GLOBALS['timeout_threshold']) {
+				return true;
+			}
+		}
 		return false;
 
 	}//end checkTimeOut()
@@ -1013,7 +1005,7 @@ class Bulk_Mailer
 			default:
 		}
 
-	}//end sigHandler()
+	}//end _sigHandler()
 
 
 	/**
@@ -1039,6 +1031,7 @@ class Bulk_Mailer
 			$bt = debug_backtrace();
 			if (count($bt) > 1) {
 				$real_bt_index = 0;
+				// note the use of '_errorhandler' instead of '_errorHandler' in the last condition
 				while (($real_bt_index < count($bt)-1) && ((false !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (false !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) || ($bt[$real_bt_index]['function'] == '_errorhandler'))) {
 					$real_bt_index++;
 				}
