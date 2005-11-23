@@ -13,7 +13,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_offi
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -178,7 +178,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 				$progress_string = translate('bm_job_progress_none');
 				if (!empty($progress) && $progress['total_count'] != 0) {
 					$percent_done = round(($progress['current_count'] / $progress['total_count']) * 100, 2).'%';
-					$progress_string = translate('bm_job_progress', $progress['current_count'], $progress['total_count'], $percent_done);
+					$progress_string = translate('bm_job_progress', number_format($progress['current_count']), number_format($progress['total_count']), $percent_done);
 				}
 		?>
 				<tr>
