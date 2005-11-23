@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.468 2005/11/14 00:14:50 tbarrett Exp $
+* $Id: asset.inc,v 1.469 2005/11/23 02:23:45 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.468 $
+* @version $Revision: 1.469 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2281,7 +2281,7 @@ class Asset extends MySource_Object
 				SQ_LINK_TYPE_2	=> Array(),
 				SQ_LINK_TYPE_3	=> Array(),
 				SQ_LINK_NOTICE	=> Array(
-									'thumbnail'	=> Array('card' => 1, 'exclusive' => false),
+									'image'		=> Array('card' => 1, 'exclusive' => false),
 									'design'	=> Array('card' => 'M', 'exclusive' => false),
 								   ),
 			   );
