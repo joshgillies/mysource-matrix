@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.32 2005/11/14 04:52:28 dmckee Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.33 2005/11/23 02:44:30 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -475,7 +475,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$content_types = Array();
 		$types = $am->getAssetTypeHierarchy('content_type');
 		foreach ($types as $type => $type_data) {
-			$content_types[$type] = Array('name' => $type_data['name']);
+			$content_types[$type] = Array('name' => str_replace(' Content Type', '', $type_data['name']));
 		}
 
 		?>

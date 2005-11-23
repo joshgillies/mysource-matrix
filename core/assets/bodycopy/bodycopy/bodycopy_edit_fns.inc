@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.33 2005/07/22 06:12:11 dmckee Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.34 2005/11/23 02:44:30 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -133,7 +133,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$content_types = Array();
 		$types = $am->getAssetTypeHierarchy('content_type');
 		foreach ($types as $type => $type_data) {
-			$content_types[$type] = Array('name' => $type_data['name']);
+			$content_types[$type] = Array('name' => str_replace(' Content Type', '', $type_data['name']));
 		}
 
 		?>
