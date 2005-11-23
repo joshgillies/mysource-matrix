@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.23 2005/08/01 08:40:50 brobertson Exp $
+* $Id: limbo_outputter.inc,v 1.24 2005/11/23 22:48:39 dmckee Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -143,6 +143,25 @@ class Limbo_Outputter extends Backend_Outputter
 		$this->addJsInclude(sq_web_path('lib').'/js/general.js');
 		$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
 		$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
+		$this->addJsInclude(sq_web_path('lib').'/js/translation.js');
+
+		list($lang, $country, $variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
+
+		if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'.js')) {
+				$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'.js');
+		}
+
+		if (!empty($country)) {
+			if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'.js')) {
+				$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'.js');
+			}
+
+			if (!empty($variant)) {
+				if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js')) {
+					$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js');
+				}
+			}
+		}
 
 		foreach ($this->_js_includes as $file) {
 			$this->_paintJsInclude($file);
@@ -183,6 +202,26 @@ class Limbo_Outputter extends Backend_Outputter
 		$this->addJsInclude(sq_web_path('lib').'/js/general.js');
 		$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
 		$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
+		$this->addJsInclude(sq_web_path('lib').'/js/translation.js');
+
+		list($lang, $country, $variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
+
+		if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'.js')) {
+				$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'.js');
+		}
+
+		if (!empty($country)) {
+			if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'.js')) {
+				$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'.js');
+			}
+
+			if (!empty($variant)) {
+				if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js')) {
+					$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js');
+				}
+			}
+		}
+
 		foreach ($this->_js_includes as $file) {
 			$this->_paintJsInclude($file);
 		}
