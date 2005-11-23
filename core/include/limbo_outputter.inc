@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.20.2.2 2005/08/01 08:41:44 brobertson Exp $
+* $Id: limbo_outputter.inc,v 1.20.2.3 2005/11/23 22:20:06 dmckee Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20.2.2 $
+* @version $Revision: 1.20.2.3 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -142,6 +142,7 @@ class Limbo_Outputter extends Backend_Outputter
 		$this->addJsInclude(sq_web_path('lib').'/js/general.js');
 		$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
 		$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
+		$this->addJsInclude(sq_web_path('lib').'/js/translation.js');
 
 		foreach ($this->_js_includes as $file) {
 			$this->_paintJsInclude($file);
@@ -182,6 +183,7 @@ class Limbo_Outputter extends Backend_Outputter
 		$this->addJsInclude(sq_web_path('lib').'/js/general.js');
 		$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
 		$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
+		$this->addJsInclude(sq_web_path('lib').'/js/translation.js');
 		foreach ($this->_js_includes as $file) {
 			$this->_paintJsInclude($file);
 		}
