@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.1 2005/11/23 00:53:35 arailean Exp $
+* $Id: thesaurus.inc,v 1.2 2005/11/23 05:22:26 arailean Exp $
 *
 */
 
@@ -35,7 +35,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -383,7 +383,7 @@ class Thesaurus extends Asset
 			}
 			$linkid = $manual_linkid;
 		} else {
-			$linkid = $db->nextId('sq_thes_term_linkid');
+			$linkid = $db->nextId('sq_thes_term');
 			assert_valid_db_result($linkid);
 		}
 
