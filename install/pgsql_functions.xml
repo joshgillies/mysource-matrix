@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.7 2005/11/17 04:39:48 mmcintyre Exp $
+* $Id: pgsql_functions.xml,v 1.8 2005/11/23 22:13:59 mmcintyre Exp $
 *
 */
 -->
@@ -302,7 +302,7 @@
 				END IF;
 			ELSE
 				num := 0;
-				x := POWER(TREE_BASE, LENGTH(value) - 1);
+				x := POW(TREE_BASE, LENGTH(value) - 1);
 				FOR i IN 1..LENGTH(value) LOOP
 					d := POSITION(ENCODE(SUBSTR(value, i, 1), ''escape'') IN DIGITS);
 					IF d = 0 THEN
