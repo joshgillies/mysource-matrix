@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.76 2005/11/23 00:53:35 arailean Exp $
+* $Id: lang_strings.xml,v 1.77 2005/11/24 22:38:18 sdanis Exp $
 *
 */
 
@@ -45,6 +45,9 @@
 	<string source="applies_to">Applies To</string>
 	<string source="asset_date_search_fields">Asset Date Search Fields</string>
 	<string source="assetid">Assetid</string>
+	<string source="asset_limit_per_node">Asset Limit Per Set</string>
+	<string source="asset_limit_per_node_note">This setting limits the number of child assets displayed under an asset. You will be able to navigate between sets by using next and previous buttons.</string>
+	<string source="asset_map_settings">Asset Map Settings</string>
 	<string source="asset_metadata">Asset Metadata</string>
 	<string source="asset_status">Asset Status</string>
 	<string source="asset_type_counts">Asset Type Counts</string>
@@ -1580,11 +1583,19 @@ Items to delete: %s</string>
 	<string source="asset_map_log_column_exception" java="1">Exception</string>
 
 	<string source="asset_map_loading_node" java="1">Loading...</string>
+	<string source="asset_map_expanding_node_one" java="1">Viewing %1$s to %2$s of %3$s</string>
+	<string source="asset_map_expanding_node_two" java="1">Set %1$s of %2$s</string>
+	<string source="asset_map_expanding_node_three" java="1">Total assets: %1$s</string>
+	<string source="asset_map_expanding_node_four" java="1">Remaining: %1$s</string>
 
 	<string source="asset_map_error_loading_children" java="1">Could not load children: %s</string>
 	<string source="asset_map_error_move_shadow_nodes" java="1">Cannot move nodes: the selection contains shadow assets</string>
 	<string source="asset_map_error_screen_url" java="1">Could not get the screen url: %s</string>
 	<string source="asset_map_error_request_failed" java="1">Request to Matrix failed: %s</string>
+	<string source="asset_map_error_invalid_node" java="1">You must select a valid node</string>
+	<string source="asset_map_error_invalid_number" java="1">Invalid number</string>
+	<string source="asset_map_error_unknown_error" java="1">Unknown Error: %s</string>
+	<string source="asset_map_error_locate_asset" java="1">Could not locate asset (#%s)</string>
 
 	<string source="asset_map_menu_move_here" java="1">Move here</string>
 	<string source="asset_map_menu_link_here" java="1">New Link here</string>
@@ -1606,6 +1617,7 @@ Items to delete: %s</string>
 
 	<string source="asset_map_button_cancel" java="1">Cancel</string>
 	<string source="asset_map_button_delete" java="1">Delete...</string>
+	<string source="asset_map_button_jump" java="1">Jump</string>
 	<string source="asset_map_button_search" java="1">Search...</string>
 	<string source="asset_map_button_remove_all" java="1">Remove All</string>
 	<string source="asset_map_button_remove_selection" java="1">Remove Selection</string>
