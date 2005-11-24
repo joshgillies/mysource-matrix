@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: move_assets.php,v 1.3 2005/08/01 08:54:19 brobertson Exp $
+* $Id: move_assets.php,v 1.4 2005/11/24 02:22:09 mmcintyre Exp $
 *
 */
 
@@ -99,3 +99,5 @@ function _getCurrentLinkId($asset){
 	$return_info = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset, 1,'',true,'minor');
 	return($return_info[0]['linkid']);
 }
+
+?>
