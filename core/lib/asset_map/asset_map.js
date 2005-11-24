@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.16 2005/11/09 23:43:02 sdanis Exp $
+* $Id: asset_map.js,v 1.17 2005/11/24 22:54:53 sdanis Exp $
 *
 */
 
@@ -129,7 +129,7 @@ function jsToJavaCall(asset_mapObj, type, command, params)
 	for (var i = 0; i < params.length; i++) {
 		params_str += params[i];
 		if (params.length - 1 != i) {
-			params_str += ',';
+			params_str += '~';
 		}
 	}
 	asset_mapObj.jsToJavaCall(type, command, params_str);
@@ -256,9 +256,9 @@ function asset_finder_start(fn, type_codes)
 *
 * @access public
 */
-function asset_locator_start(asset_ids)
+function asset_locator_start(asset_ids_and_sorts_orders)
 {
-	var params = asset_ids.split('|');
+	var params = asset_ids_and_sorts_orders.split('~');
 	var asset_mapObj = get_java_applet_object();
 	jsToJavaCall(asset_mapObj, 'asset_locator', '', params);
 

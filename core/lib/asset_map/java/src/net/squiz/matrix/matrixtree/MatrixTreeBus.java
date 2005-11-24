@@ -20,6 +20,7 @@ public class MatrixTreeBus {
 	private static List trees = new ArrayList();
 	private static MatrixTree lastExpandedTree;
 	private static MatrixTree lastCollapsedTree;
+	private static MatrixTree activeTree;
 	private static TreeExpansionHandler teHandler = new TreeExpansionHandler();
 	private static MatrixTreeCellRenderer cellRenderer = new MatrixTreeCellRenderer();
 	private static MatrixTreeComm comm = new MatrixTreeComm();
@@ -50,6 +51,14 @@ public class MatrixTreeBus {
 		}
 	}
 
+	public static void setActiveTree(MatrixTree tree) {
+		activeTree = tree;
+	}
+
+	public static MatrixTree getActiveTree() {
+		return activeTree;
+	}
+
 	public static void startAssetFinderMode(String[] assetTypes) {
 		restrictedTypes = assetTypes;
 		Iterator iterator = trees.iterator();
@@ -70,15 +79,16 @@ public class MatrixTreeBus {
 		}
 	}
 
-	public static void startAssetLocator(String[] assetIds) {
-		Iterator iterator = trees.iterator();
-		while (iterator.hasNext()) {
-			MatrixTree tree = (MatrixTree) iterator.next();
-			tree.loadChildAssets(assetIds,true);
-			tree.repaint();
-			break;
-		}
+	public static void startAssetLocator(String[] assetIds, String[] sort_orders) {
+		MatrixTree tree = getActiveTree();
 
+		if (tree == null) {
+			if (trees.size() <= 0) {
+				return;
+			}
+			tree = (MatrixTree)trees.get(0);
+		}
+		tree.loadChildAssets(assetIds, sort_orders, true);
 	}
 
 	/**
@@ -116,7 +126,7 @@ public class MatrixTreeBus {
 		tree.setCellRenderer(new MatrixTreeCellRenderer());
 		tree.setRootVisible(false);
 		tree.setShowsRootHandles(true);
-		
+
 		//disable move, right click menu and delete key
 		tree.setMoveEnabled(false);
 		tree.removeKeyStroke("DELETE");

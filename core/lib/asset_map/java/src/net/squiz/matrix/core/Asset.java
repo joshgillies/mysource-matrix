@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: Asset.java,v 1.6 2005/11/07 00:13:53 sdanis Exp $
+* $Id: Asset.java,v 1.7 2005/11/24 22:54:53 sdanis Exp $
 *
 */
 
@@ -54,7 +54,8 @@ public class Asset implements MatrixConstants, Serializable {
 	private String webPath = "";
 	private boolean childrenLoaded = false;
 	private int numKids = 0;
-
+	private int totalKidsLoaded = 0;
+	private MatrixTreeNode assetNode = null;
 
 	//{{{ Public Methods
 
@@ -78,6 +79,14 @@ public class Asset implements MatrixConstants, Serializable {
 		createNode(linkid, getLinkType(assetElement), parent, index);
 		// we need to tell the new node what its link type is
 		setLinkType(assetElement, linkid);
+	}
+
+	public void setTotalKidsLoaded(int kidsLoaded) {
+		this.totalKidsLoaded = kidsLoaded;
+	}
+
+	public int getTotalKidsLoaded() {
+		return totalKidsLoaded;
 	}
 
 	public String toString() {
@@ -154,33 +163,6 @@ public class Asset implements MatrixConstants, Serializable {
 
 	public String processAssetXML(Element assetElement) {
 		String linkid = processAssetXML(assetElement, false);
-	/*	Iterator nodeIterator = getTreeNodes();
-		int index = Integer.parseInt(assetElement.getAttribute("sort_order"));
-
-		List nodesNeedUpdating = null;
-		while (nodeIterator.hasNext()) {
-			MatrixTreeNode node = (MatrixTreeNode) nodeIterator.next();
-
-			// we cant directly modify the nodes List while we are
-			// iterating over it, so create a new list of the nodes
-			// that need this child with the specfied linkid
-			if (!node.hasChildWithLinkid(linkid)) {
-				Asset child = node.getAsset();
-				child.createNode();
-				// lazily create
-				if (nodesNeedUpdating == null)
-					nodesNeedUpdating = new ArrayList();
-				nodesNeedUpdating.add(node);
-			}
-		}
-		if (nodesNeedUpdating != null) {
-			Iterator nodesNeedUpdatingIterator = nodesNeedUpdating.iterator();
-			while (nodesNeedUpdatingIterator.hasNext()) {
-				MatrixTreeNode node = (MatrixTreeNode) nodesNeedUpdatingIterator.next();
-				childAsset.createNode(linkid, node, index);
-			}
-		}
-		*/
 		return linkid;
 	}
 
@@ -207,8 +189,6 @@ public class Asset implements MatrixConstants, Serializable {
 	public void setChildrenLoaded(boolean loaded) {
 		childrenLoaded = loaded;
 	}
-
-//	public boolean hasChildShadowAssets() {}
 
 	/**
 	 * Returns an Iterator of the TreeNodes
@@ -249,13 +229,15 @@ public class Asset implements MatrixConstants, Serializable {
 
 	public void propagateNode(Asset childAsset, String linkid, int linkType, int index) {
 		Iterator nodeIterator = getTreeNodes();
+
+		DefaultTreeModel[] components = MatrixTreeModelBus.getBusComponents();
+
 		while (nodeIterator.hasNext()) {
 			MatrixTreeNode node = (MatrixTreeNode) nodeIterator.next();
 
 			// We need a way of checking if the shadow asset already exists, because all the
 			// linkids are the same. So loop over all the children of the parent and check
 			// if the names are the same. Unfortunately this is the only check...
-
 			Enumeration children = node.children();
 			boolean childExists = false;
 			while (children.hasMoreElements()) {
@@ -267,10 +249,10 @@ public class Asset implements MatrixConstants, Serializable {
 			MatrixTreeNode child = node.getChildWithLinkid(linkid);
 
 			if (child == null || (AssetManager.isShadowAsset(childAsset) && !childExists)) {
-				childAsset.createNode(linkid, linkType, node, index);
+				//childAsset.createNode(linkid, linkType, node, index);
 			} else if (!AssetManager.isShadowAsset(childAsset)) {
 				if (node.getIndex(child) != index) {
-					MatrixTreeModelBus.moveNode(child, node, index, this.id);
+					MatrixTreeModelBus.moveNode(child, node, index);
 				}
 			}
 		}
@@ -295,6 +277,7 @@ public class Asset implements MatrixConstants, Serializable {
 							childNode.getLinkType(),
 							node
 						);
+
 					// we only want to insert the nodes into the current tree
 					// that we are accessing to save on memory consumption
 					MatrixTree tree = MatrixTreeBus.getLastExpandedTree();
@@ -335,7 +318,7 @@ public class Asset implements MatrixConstants, Serializable {
 			case EDITING_APPROVED:
 				return EDITING_APPROVED_COLOUR;
 			default:
-				System.err.println("Unknown status :" + status);
+				//System.err.println("Unknown status :" + status);
 				return UNKNOWN_STATUS_COLOUR;
 		}
 	}
@@ -436,7 +419,8 @@ public class Asset implements MatrixConstants, Serializable {
 		int index) {
 			MatrixTreeNode node = createNode(linkid, linkType, parent);
 			if (parent != null) {
-				MatrixTreeModelBus.insertNodeInto(node, parent, index, getId());
+				setNode(node);
+				MatrixTreeModelBus.insertNodeInto(node, parent, index);
 			}
 			return node;
 	}
@@ -460,6 +444,14 @@ public class Asset implements MatrixConstants, Serializable {
 		nodes.add(node);
 
 		return node;
+	}
+
+	public void setNode(MatrixTreeNode node) {
+		assetNode = node;
+	}
+
+	public MatrixTreeNode getNode() {
+		return assetNode;
 	}
 
 	//}}}
@@ -502,12 +494,25 @@ public class Asset implements MatrixConstants, Serializable {
 				}
 			}
 		}
+
 		if (staleNodes != null) {
 			Iterator staleIterator = staleNodes.iterator();
+			DefaultTreeModel[] components = MatrixTreeModelBus.getBusComponents();
 			while (staleIterator.hasNext()) {
 				MatrixTreeNode node = (MatrixTreeNode) staleIterator.next();
-				Log.log("removing " + node + " in Asset", Asset.class);
-				MatrixTreeModelBus.removeNodeFromParent(node, getId());
+				// do not want to remove next, and previous nodes
+				if (node instanceof ExpandingPreviousNode) {
+					// we have to set the previous node as the first child
+					MatrixTreeNode parent = (MatrixTreeNode)node.getParent();
+					parent.insert(node,0);
+					for (int i = 0; i < components.length; i++) {
+						DefaultTreeModel model = components[i];
+						model.nodeStructureChanged(parent);
+					}
+				} else if (!(node instanceof ExpandingNextNode)){
+					Log.log("removing " + node + " in Asset", Asset.class);
+					MatrixTreeModelBus.removeNodeFromParent(node);
+				}
 			}
 		}
 	}
@@ -563,7 +568,7 @@ public class Asset implements MatrixConstants, Serializable {
 		return true;
 	}
 
-	private boolean setName(String newName) {
+	public boolean setName(String newName) {
 		if (name.equals(newName))
 			return false;
 		name = newName;
@@ -625,3 +630,4 @@ public class Asset implements MatrixConstants, Serializable {
 		return true;
 	}
 }
+

@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMap.java,v 1.17 2005/11/09 23:43:02 sdanis Exp $
+* $Id: AssetMap.java,v 1.18 2005/11/24 22:54:53 sdanis Exp $
 *
 */
 
@@ -310,13 +310,16 @@ public class AssetMap extends JApplet implements InitialisationListener, KeyList
 	}
 
 	public void processAssetLocator(String params) {
-		String[] assetIds = params.split(",");
-		MatrixTreeBus.startAssetLocator(assetIds);
+		// we need to create 2 arrays
+		String[] info = params.split("~");
+		String[] assetIds = info[0].split("\\|");
+		String[] sort_orders = info[1].split("\\|");
+		MatrixTreeBus.startAssetLocator(assetIds, sort_orders);
 	}
 
 	private void processAssetFinder(String command, String params) {
 		if (command.equals("assetFinderStarted")) {
-			String[] assetTypes = params.split(",");
+			String[] assetTypes = params.split("~");
 			MatrixTreeBus.startAssetFinderMode(assetTypes);
 		} else if (command.equals("assetFinderStopped")) {
 			MatrixTreeBus.stopAssetFinderMode();

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.198 2005/11/22 00:50:01 dmckee Exp $
+* $Id: asset_map.inc,v 1.199 2005/11/24 22:54:53 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.198 $
+* @version $Revision: 1.199 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -153,10 +153,14 @@ class Asset_Map
 									'parameter.url.iconurl'				=> '__lib/web/images/icons',
 									'parameter.url.typecodeurl'			=> '__data/asset_types',
 									'parameter.url.notaccessibleicon'	=> 'asset_map/not_accessible.png',
+									'parameter.url.expanding_next_node'=> 'down_arrows.png',
+									'parameter.url.expanding_prev_node'=> 'up_arrows.png',
+									'parameter.url.loading_node'		=> '/loading_node.png',
 									'parameter.url.type2icon'			=> 'asset_map/not_visible.png',
 									'parameter.url.assetmapiconurl'		=> '__lib/web/images/icons/asset_map',
 									'parameter.url.baseurl'				=> $root_url,
 									'parameter.url.execurl'				=> $root_url.SQ_CONF_BACKEND_SUFFIX.'?SQ_ACTION=asset_map_request&SESSION_ID='.$_COOKIE['SQ_SYSTEM_SESSION'].'&SESSION_KEY='.$GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(),
+									'parameter.asset.limit'				=> SQ_CONF_ASSET_MAP_ASSET_LIMIT,
 								  );
 
 					// this is important because it tells the asset map what the available
@@ -563,7 +567,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	function _getChildAssets(&$root, $assetid, $dependants_only=false)
+	function _getChildAssets(&$root, $assetid, $dependants_only=false, $start=0, $limit=0)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -636,7 +640,15 @@ class Asset_Map
 		$sql .= ' '.$where;
 		$sql .= ' ORDER BY sort_order';
 
+		$limit_sql = '';
+		if ($limit != 0) {
+			$limit_sql = ' LIMIT '.$limit.' OFFSET '.$start;
+		}
+
+		$sql .= $limit_sql;
+
 		$db_result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
+
 		if (!assert_valid_db_result($db_result, '', true, false)) {
 			return $this->_error('AMAP0005', $assetid, $db_result->getMessage());
 		}
@@ -660,9 +672,10 @@ class Asset_Map
 		$where_clause = 'majorid IN ('.$sub_sql.' '.$sub_where.') AND link_type <= '.$db->quote(SQ_LINK_TYPE_2);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'lnk_', 'WHERE', false);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'ast_', 'WHERE', false);
-		$where .= ' GROUP BY majorid';
+		$where .= ' GROUP BY majorid ';
 
 		$num_kids = $db->getAssoc($sql.' '.$where, false, Array(), DB_FETCHMODE_DEFAULT, false);
+
 		if (!assert_valid_db_result($num_kids, '', true, false)) {
 			return $this->_error('AMAP0005', $assetid, $num_kids->getMessage());
 		}
@@ -688,15 +701,38 @@ class Asset_Map
 				// it may be able to handle this itself, lets check
 				if (method_exists($links_handler, 'getAssetMapLinks')) {
 					$result = array_merge($result, $links_handler->getAssetMapLinks());
+					if ($limit !=0) {
+						$chunk = Array();
+						for ($i = $start; $i < $start+$limit; $i++) {
+							if (!isset($result[$i])) break;
+							$chunk[$i - $start] = $result[$i];
+						}
+						$result = $chunk;
+						$chunk = null;
+					}
 
 				} else {
-
 					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
+					$skipped = 0;
+					$added = 0;
 
 					foreach ($links as $link_data) {
+
 						// if the colon isn't there, this isn't a shadow asset - move on
 						if (strpos($link_data['minorid'], ':') === false) {
 							 continue;
+						}
+
+						if ($limit !=0) {
+							if ($start > $skipped) {
+								$skipped++;
+								continue;
+							}
+
+							if ($limit == $added) {
+								break;
+							}
+							$added++;
 						}
 
 						// note that we pretend these assets have children so we dont have to actually
@@ -724,6 +760,7 @@ class Asset_Map
 		}//end if is a bridge
 
 		foreach ($result as $asset) {
+
 			if (!isset($asset['num_kids'])) {
 				$default_kids = 0;
 				if (isset($asset['type_code']) && !empty($asset['type_code'])) {
@@ -805,11 +842,12 @@ class Asset_Map
 			$node = &$input->root->children[$i];
 			if (empty($node->attributes['assetid'])) continue;
 			$assetid = $node->attributes['assetid'];
-
+			$start = $node->attributes['start'];
+			$limit = $node->attributes['limit'];
 			$info = $this->_getAssetInfo(rawurldecode($assetid));
 			$child = &$root->addChild('asset', '', $info);
 
-			$this->_getChildAssets($child, rawurldecode($assetid));
+			$this->_getChildAssets($child, rawurldecode($assetid), false, $start, $limit);
 		}
 
 		$this->_send($output);
@@ -1235,6 +1273,7 @@ class Asset_Map
 			if ($old_parent->id == $new_parent->id) {
 				$reordered_assets[$asset->id] = Array(
 													'linkid'	=> $link['linkid'],
+													'sort_order'	=> $link['sort_order'],
 													'parentid'	=> $old_parent->id,
 												);
 			} else {
@@ -1243,14 +1282,16 @@ class Asset_Map
 										'parentid'	=> $old_parent->id,
 									  );
 			}
+
 		}
 
 		// process the re-ordering
 		foreach ($reordered_assets as $assetid => $link_info) {
-			if (!$GLOBALS['SQ_SYSTEM']->am->moveLinkPos($link_info['linkid'], $new_parent_pos++)) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->moveLinkPos($link_info['linkid'], $new_parent_pos)) {
 				return;
 			}
-
+			if ($new_parent_pos < $link_info['sort_order'])
+				$new_parent_pos++;
 			$successTree =& new XML_Tree();
 			$successTree->addRoot('success', '', Array(
 													'linkid'	=> $link_info['linkid'],
@@ -1364,7 +1405,7 @@ class Asset_Map
 		$vars = Array(
 					'assets'			=> $assets,
 					'to_parent_assetid'	=> $new_parent->id,
-					'to_parent_pos'		=> $input->root->attributes['to_parent_pos'],
+					'to_parent_pos'		=> $input->root->attributes['to_parent_pos']+1,
 				);
 
 		$hh->queueHipo('hipo_job_clone_assets', $vars);

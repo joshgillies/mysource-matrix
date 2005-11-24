@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetManager.java,v 1.4 2005/03/07 01:07:12 mmcintyre Exp $
+* $Id: AssetManager.java,v 1.5 2005/11/24 22:54:53 sdanis Exp $
 *
 */
 
@@ -50,12 +50,13 @@ public class AssetManager {
 	private static String currentUserType = "root_user";
 	private static String workspaceid;
 	private static boolean isInited = false;
+	private static int limit = 0;
 	//TODO: MM: thinking of a better way to do this stuff with initialisiation
 	private static EventListenerList listenerList = new EventListenerList();
 
 	// cannot instantiate
 	private AssetManager() {}
-	
+
 	/**
 	 * Initialises the information needed for the Asset Map.
 	 * An xml request is made to the matrix system, which returns xml.
@@ -63,10 +64,10 @@ public class AssetManager {
 	 * @throws IOException if the request to matrix fails
 	 */
 	public static MatrixTreeNode init() throws IOException {
-		
+
 		if (isInited)
 			throw new IllegalStateException("Already Inited");
-		
+
 		Document response = null;
 		response = Matrix.doRequest("<command action=\"initialise\" />");
 		NodeList children = response.getDocumentElement().getChildNodes();
@@ -85,7 +86,7 @@ public class AssetManager {
 		}
 		fireInitialisationComplete(root);
 		isInited = true;
-	
+
 		return root;
 	}
 
@@ -167,7 +168,7 @@ public class AssetManager {
 		RootFolder parentAsset = new RootFolder(rootFolderElement);
 		assets.put(parentAsset.getId(), parentAsset);
 		processAssetsXML(rootElement, parentAsset.getRootNode());
-		
+
 		return parentAsset.getRootNode();
 	}
 
@@ -178,7 +179,6 @@ public class AssetManager {
 	 * @param refresh if TRUE frefresh current assets in the system
 	 */
 	private static void processAssetsXML(Element rootElement, MatrixTreeNode parent) {
-
 		/*
 		 The XML structure that is processed by this method is as follows:
 		   <assets>                1
@@ -228,7 +228,7 @@ public class AssetManager {
 				else
 					asset.processAssetXML(assetElement, parent, index);
 			}
-			
+
 			return asset;
 	}
 
@@ -242,12 +242,45 @@ public class AssetManager {
 		String name = xmlNodes.getAttribute("name");
 	}
 
-	public static void refreshAsset(MatrixTreeNode parent) throws IOException {
+	public static void setLimit(int newLimit) {
+		limit = newLimit;
+	}
+
+	public static int getLimit() {
+		// default limit
+		if (limit != 0) {
+			return limit;
+		} else	if (Matrix.getProperty("parameter.asset.limit") != null) {
+			limit = Integer.parseInt(Matrix.getProperty("parameter.asset.limit"));
+		} else {
+			limit = 50;
+		}
+		return limit;
+	}
+
+	public static void refreshAsset(MatrixTreeNode parent, String direction, int start, int limit) throws IOException {
 		String[] assetids = new String[] { parent.getAsset().getId() };
-		Element element = makeRefreshRequest(assetids);
+		Element element = makeRefreshRequest(assetids, direction, start, limit);
 		processAssetsXML(element, parent);
 	}
-	
+
+	public static void refreshAsset(MatrixTreeNode parent, String direction) throws IOException {
+		refreshAsset(parent, direction, -1, -1);
+	}
+
+	public static int calcNextOffset(String assetid) {
+		Asset asset = getAsset(assetid);
+		asset.setTotalKidsLoaded(asset.getTotalKidsLoaded()+getLimit());
+		return asset.getTotalKidsLoaded();
+	}
+
+	public static int calcPrevOffset(String assetid) {
+		Asset asset = getAsset(assetid);
+		asset.setTotalKidsLoaded(asset.getTotalKidsLoaded() - getLimit());
+		return asset.getTotalKidsLoaded();
+	}
+
+
 	/**
 	 * Performs a request to the matrix system for the specified assets. The
 	 * xml is returned in the following format.
@@ -265,17 +298,48 @@ public class AssetManager {
 	 * @return the xml element for the specified assetids
 	 * @throws IOException if the request fails
 	 */
-	public static Element makeRefreshRequest(String[] assetids) throws IOException {
-		StringBuffer xml = new StringBuffer("<command action=\"get assets\">");
+	public static Element makeRefreshRequest(String[] assetids, String direction, int start, int limit) throws IOException {
+		int startLoc = start;
+		if (limit < 0) {
+			limit = getLimit();
+		}
+
+		StringBuffer xml = new StringBuffer("<command action=\"get assets\" >");
 		for (int i = 0; i < assetids.length; i++) {
-			MatrixToolkit.addAssetToXML(xml, assetids[i]);
+			if (start < 0) {
+				// start was not specified, calculate it
+				if (direction.equals("prev")) {
+					startLoc = calcPrevOffset(assetids[i]);
+				} else if (direction.equals("next")) {
+					startLoc = calcNextOffset(assetids[i]);
+				} else if (direction.equals("base")) {
+					Asset asset = getAsset(assetids[i]);
+					asset.setTotalKidsLoaded(0);
+					startLoc = 0;
+				} else {
+					Asset asset = getAsset(assetids[i]);
+					if (asset != null) {
+						startLoc = asset.getTotalKidsLoaded();
+					}
+				}
+			} else {
+				Asset asset = getAsset(assetids[i]);
+				if (asset != null) {
+					asset.setTotalKidsLoaded(startLoc);
+				}
+			}
+			MatrixToolkit.addAssetToXML(xml, assetids[i], startLoc, limit);
 		}
 		xml.append("</command>");
 		Document doc = Matrix.doRequest(xml.toString());
-		
+
 		return doc.getDocumentElement();
 	}
-	
+
+	public static Element makeRefreshRequest(String[] assetids, String direction) throws IOException {
+		return makeRefreshRequest(assetids, direction, -1, -1);
+	}
+
 	public static void refreshAssets(Element element) {
 		NodeList childNodes = (NodeList) element.getChildNodes();
 		for (int i = 0; i < childNodes.getLength(); i++) {
@@ -328,12 +392,12 @@ public class AssetManager {
 		// create a set of linkids so that we can remove any nodes
 		// that are no longer children of this asset
 		List linkids = new ArrayList();
-		
+
 		// assets in the xml are in the correct order. We dont use the sort
 		// order because notice links and type 3 links have a sort order, but
 		// are not shown in the tree.
 		int index = 0;
-		
+
 		for (int i = 0; i < childNodes.getLength(); i++) {
 			if (!(childNodes.item(i) instanceof Element))
 				continue;
@@ -343,22 +407,27 @@ public class AssetManager {
 			String linkid  = assetElement.getAttribute("linkid");
 			int linkType   = Integer.parseInt(assetElement.getAttribute("link_type"));
 			Asset asset    = loadAsset(assetid, assetElement, null, index);
-
 			linkids.add(linkid);
 			// this node might be new so we need to give
 			// a parent a chance to add it
 			parent.propagateNode(asset, linkid, linkType, index);
 			parent.setChildrenLoaded(true);
-		
+
 			index++;
 		}
 
 		// remove the children that are not currently in the matrix system
 		// if there were no nodes in the xml, this will remove all children
-		parent.removeDiffChildNodes(
-			(String[]) linkids.toArray(new String[linkids.size()]));
+		parent.removeDiffChildNodes((String[]) linkids.toArray(new String[linkids.size()]));
+
+		// refresh parent node to update the tree
+		try {
+			if (parent.getNode() != null) {
+				AssetManager.refreshAsset(parent.getNode(), "");
+			}
+		} catch (IOException ex) {}
 	}
-	
+
 	public static boolean isShadowAsset(Asset asset) {
 		return (asset.getId().indexOf(":") != -1) ? true : false;
 	}
@@ -404,7 +473,7 @@ public class AssetManager {
 	public static MatrixTreeNode getRootFolderNode() {
 		return root;
 	}
-	
+
 	/**
 	 * Returns all the assetids of assets of the specified type.
 	 * @param typeCode the typeCode of the wanted assets
@@ -424,7 +493,7 @@ public class AssetManager {
 		}
 		return (String[]) assets.toArray(new String[assets.size()]);
 	}
-	
+
 
 	public static String[] getTypeCodeNames() {
 		Iterator assetTypesIterator = assetTypes.values().iterator();
@@ -437,3 +506,4 @@ public class AssetManager {
 		return names;
 	}
 }
+

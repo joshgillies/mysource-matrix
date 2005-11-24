@@ -21,7 +21,7 @@ public class ButtonMenu extends JToggleButton {
 		super(icon);
 		addActionListener(buttonAction);
 	}
-	
+
 	public ButtonMenu(Icon icon, Icon depressedIcon) {
 		super(icon);
 		this.icon = icon;
@@ -53,7 +53,6 @@ public class ButtonMenu extends JToggleButton {
 
 	private ActionListener buttonAction = new ActionListener() {
 		public void actionPerformed(ActionEvent event) {
-			System.out.println("in the action listener");
 			if (isSelected()) {
 				showPopup();
 			if (depressedIcon != null)
@@ -72,12 +71,11 @@ public class ButtonMenu extends JToggleButton {
 				setIcon(icon);
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					System.out.println("doing click");
 					doClick();
 				}
 			});
 		}
-	
+
 		public void popupMenuWillBecomeVisible(PopupMenuEvent event) {}
 		public void popupMenuCanceled(PopupMenuEvent event) {}
 	};

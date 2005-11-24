@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTreeNode.java,v 1.5 2005/11/07 00:13:53 sdanis Exp $
+* $Id: MatrixTreeNode.java,v 1.6 2005/11/24 22:54:54 sdanis Exp $
 *
 */
 
@@ -37,13 +37,13 @@ import java.io.*;
  *
  * @author Marc McIntyre <mmcintyre@squiz.net>
  */
-public class MatrixTreeNode extends DefaultMutableTreeNode 
+public class MatrixTreeNode extends DefaultMutableTreeNode
 	implements Serializable {
 
-		
+
 	/* The linkid that this node represents */
 	private final String linkid;
-	
+
 	/**
 	 * The type of link to the parent
 	 * @see MatrixConstants
@@ -53,8 +53,6 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 	/* The URL including paths to this node */
 	private String url;
 	private String webPath;
-
-	private Map assets = new HashMap();
 
 	/**
 	 * Constructs a new Asset Tree Node and sets the user object to the
@@ -74,27 +72,6 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 	public String toString() {
 		return getAsset().getName() + " Linkid : " + linkid;
 	}
-	
-	public void addChildAsset(String assetId,int index) {
-		assets.put(assetId,String.valueOf(index));
-	}
-
-	public int getChildAssetIndex(String assetId) {
-		String assetIndex = (String)assets.get(assetId);
-		if (assetIndex == null) {
-			return -1;
-		}
-		int index = Integer.parseInt(assetIndex);
-		return index;
-	}
-
-	public void removeChildAsset(String assetId) {
-		assets.remove(assetId);
-	}
-
-	public boolean hasChildAsset(String assetId) {
-		return assets.containsKey(assetId);
-	}
 
 	/**
 	 * Returns the asset that represents this node
@@ -108,11 +85,11 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 	public int getLinkType() {
 		return linkType;
 	}
-	
+
 	public void setLinkType(int linkType) {
 		this.linkType = linkType;
 	}
-	
+
 	/**
 	 * Returns the linkid to the parent asset of this node
 	 *
@@ -125,7 +102,7 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 	public boolean isShadowAsset() {
 		return (linkid.equals("0") && linkid.split(":").length > 1);
 	}
-	
+
 	/**
 	 * Returns TRUE if this node is a leaf
 	 *
@@ -192,7 +169,7 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 			node.propagateUrl(getURL());
 		}
 	}
-	
+
 	/**
 	 * Returns a comma seperated list of assetids from the root node where this
 	 * node is the last assetid in the list
@@ -208,7 +185,7 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 		}
 		return assetPath.toString();
 	}
-	
+
 	/**
 	 * Returns a comma seperated list of linkids from the root node where this
 	 * node is the last linkid in the list
@@ -224,4 +201,31 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 		}
 		return linkPath.toString();
 	}
+
+	/**
+	* Return true if this node has previous node as its first child
+	*/
+	public boolean hasPreviousNode() {
+		if (getChildCount() != 0) {
+			MatrixTreeNode node = (MatrixTreeNode)getChildAt(0);
+			if (node instanceof ExpandingPreviousNode) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	* Return true if this node has next node as its last child
+	*/
+	public boolean hasNextNode() {
+		if (getChildCount() != 0) {
+			MatrixTreeNode node = (MatrixTreeNode)getChildAt(getChildCount()-1);
+			if (node instanceof ExpandingNextNode) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
+

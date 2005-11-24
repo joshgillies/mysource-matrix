@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: InspectorGadget.java,v 1.4 2005/07/27 10:45:22 brobertson Exp $
+* $Id: InspectorGadget.java,v 1.5 2005/11/24 22:54:54 sdanis Exp $
 *
 */
 
@@ -538,7 +538,7 @@ public class InspectorGadget 	extends 	JTable
 			return;
 
 		final MatrixTreeNode node = (MatrixTreeNode) getValueAt(getSelectedRow(), getSelectedColumn());
-		
+
 		if (node.getAsset().getNumKids() == 0)
 			return;
 
@@ -552,9 +552,9 @@ public class InspectorGadget 	extends 	JTable
 			SwingWorker worker = new SwingWorker() {
 				public Object construct() {
 					try {
-						AssetManager.refreshAsset(node);
+						AssetManager.refreshAsset(node, "");
 					} catch (IOException ioe) {
-						ioe.printStackTrace();	
+						ioe.printStackTrace();
 					}
 					MatrixStatusBar.setStatusAndClear("Success!", 1000);
 					TreePath path = tree.getPathToRoot(node);
@@ -814,7 +814,6 @@ public class InspectorGadget 	extends 	JTable
 	 * @see #getGhostedNode(NodePosition[])
 	 */
 	protected Image getGhostedNode(NodePosition position) {
-		System.out.println("Trying to do getGhostedNode() for pos(" + position.getRow() + "," + position.getColumn() + ").");
 		Component c = getComponentForPosition(position);
 		if (c == null)
 			return null;
@@ -1138,10 +1137,8 @@ public class InspectorGadget 	extends 	JTable
 
 			for (int i = 0; i < paths.size(); i++) {
 				MatrixTreeNode node = (MatrixTreeNode) ((TreePath) paths.get(i)).getLastPathComponent();
-				System.out.println("Dropped component = " + node);
 				int dragIndex = node.getParent().getIndex(node);
 				MatrixTreeNode dropTarget = (MatrixTreeNode) getValueAt(dropRow, dropCol);
-				System.out.println("Component was dropped on = " + dropTarget);
 				MatrixTreeNode dropParent = (MatrixTreeNode) dropTarget.getParent();
 				fireTransfer(dragIndex, dropIndex, node, dropParent);
 
@@ -1372,9 +1369,9 @@ public class InspectorGadget 	extends 	JTable
 	}//end class MatrixTableUI
 
 	//}}}
-	
+
 	//{{{ Main (Testing)
-	
+
 /*	public static void main(String[] args) {
 		Matrix.setProperty("url.iconurl", "__lib/web/images/icons");
 		Matrix.setProperty("url.typecodeurl", "__data/asset_types");

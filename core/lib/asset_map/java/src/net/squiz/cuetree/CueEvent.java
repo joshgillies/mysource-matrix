@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueEvent.java,v 1.3 2005/07/27 10:45:22 brobertson Exp $
+* $Id: CueEvent.java,v 1.4 2005/11/24 22:54:53 sdanis Exp $
 *
 */
 
@@ -38,7 +38,7 @@ public class CueEvent extends EventObject {
 
 	private TreePath parentPath;
 	private TreePath[] sourcePaths;
-	private int index;
+	private int index, prevIndex;
 	private Point point;
 
 	/**
@@ -63,6 +63,21 @@ public class CueEvent extends EventObject {
 			this.point = point;
 	}
 
+	public CueEvent(
+		Object source,
+		TreePath[] sourcePaths,
+		TreePath parentPath,
+		int index,
+		int prevIndex,
+		Point point) {
+			super(source);
+			this.parentPath = parentPath;
+			this.sourcePaths = sourcePaths;
+			this.index = index;
+			this.prevIndex = prevIndex;
+			this.point = point;
+	}
+
 	/**
 	 * Returns the source path where the event occured
 	 * @return the source path where the event occured
@@ -81,6 +96,14 @@ public class CueEvent extends EventObject {
 	 */
 	public int getIndex() {
 		return index;
+	}
+
+	/**
+	 * Returns the prev index where the event occured
+	 * @return the prev index where the event occured
+	 */
+	public int getPrevIndex() {
+		return prevIndex;
 	}
 
 	/**

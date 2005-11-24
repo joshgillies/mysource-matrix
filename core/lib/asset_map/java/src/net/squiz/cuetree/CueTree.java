@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.10 2005/11/08 00:51:26 sdanis Exp $
+* $Id: CueTree.java,v 1.11 2005/11/24 22:54:53 sdanis Exp $
 *
 */
 
@@ -33,6 +33,9 @@ import javax.swing.event.*;
 import javax.swing.plaf.basic.BasicTreeUI;
 
 import net.squiz.matrix.ui.*;
+import net.squiz.matrix.core.*;
+import net.squiz.matrix.matrixtree.*;
+import net.squiz.matrix.plaf.*;
 
 /**
  * A CueTree provides a means for moving nodes within a tree. The cue tree
@@ -739,9 +742,10 @@ public class CueTree extends JTree {
 		TreePath sourcePath,
 		TreePath parentPath,
 		int index,
+		int prevIndex,
 		Point p) {
 			TreePath[] paths = new TreePath[] { sourcePath };
-			fireMoveGestureCompleted(paths, parentPath, index, p);
+			fireMoveGestureCompleted(paths, parentPath, index,prevIndex, p);
 	}
 
 	/**
@@ -754,6 +758,7 @@ public class CueTree extends JTree {
 		TreePath[] sourcePaths,
 		TreePath parentPath,
 		int index,
+		int prevIndex,
 		Point p) {
 
 			// Guaranteed to return a non-null array
@@ -766,7 +771,7 @@ public class CueTree extends JTree {
 				if (listeners[i] == CueGestureListener.class) {
 					// Lazily create the event:
 					if (evt == null)
-						evt = new CueEvent(this, sourcePaths, parentPath, index, p);
+						evt = new CueEvent(this, sourcePaths, parentPath, index, prevIndex, p);
 
 					if (sourcePaths.length == 1) {
 						((CueGestureListener) listeners[i + 1]).
@@ -889,7 +894,7 @@ public class CueTree extends JTree {
 		public void mouseDragged(MouseEvent evt) {}
 
 		public void mouseReleased(MouseEvent evt) {
-			if (SwingUtilities.isRightMouseButton(evt)) {
+			if (GUIUtilities.isRightMouseButton(evt)) {
 				if (inCueMode) {
 					TreePath path = getClosestPathForLocation(evt.getX(), evt.getY() - cueLineOffset);
 
@@ -908,9 +913,8 @@ public class CueTree extends JTree {
 		 * @param evt the mouse event
 		 */
 		public void mousePressed(MouseEvent evt) {
-
 			// TODO: (MM) need to make use of GUIUtilities.isRightMouseButton
-			if (SwingUtilities.isRightMouseButton(evt)) {
+			if (GUIUtilities.isRightMouseButton(evt)) {
 				if (inCueMode) {
 					TreePath path = getClosestPathForLocation(evt.getX(), evt.getY() - cueLineOffset);
 
@@ -938,12 +942,12 @@ public class CueTree extends JTree {
 					handleMultipleSources(evt.getPoint());
 				return;
 			}
-			
+
 			TreePath[] selectedPaths = getSelectionPaths();
 			if (selectedPaths != null && selectedPaths.length != 1) {
 				return;
 			}
-			
+
 			TreePath path = getPathForLocation(evt.getX(), evt.getY());
 			if (path == null)
 				return;
@@ -974,6 +978,8 @@ public class CueTree extends JTree {
 			// be added/moved
 			int index = -1;
 			int indexModifier = 0;
+			int oldIndex = 0;
+			int newIndex = 0;
 
 			if (!lastPathWasParent) {
 				// if the last path wasn't the new parent and the current path
@@ -985,13 +991,12 @@ public class CueTree extends JTree {
 				} else {
 					// if we are on the same branch...
 					if (currentPath.getParentPath() == sourcePath.getParentPath()) {
-
-						int newIndex = getModel().getIndexOfChild(
+						newIndex = getModel().getIndexOfChild(
 							currentPath.getParentPath().getLastPathComponent(),
 							currentPath.getLastPathComponent()
 						);
 
-						int oldIndex = getModel().getIndexOfChild(
+						oldIndex = getModel().getIndexOfChild(
 							sourcePath.getParentPath().getLastPathComponent(),
 							sourcePath.getLastPathComponent()
 						);
@@ -1004,28 +1009,33 @@ public class CueTree extends JTree {
 							return;
 						}
 
-						// if the new position is higher up in the tree
+						index = newIndex;
 						if (newIndex < oldIndex) {
-							indexModifier++;
+							index ++;
 						}
-					}
-
-					index = getModel().getIndexOfChild(
+					} else {
+						index = 1;
+						if (sourcePath.getParentPath() != null) {
+							oldIndex = getModel().getIndexOfChild(
+								sourcePath.getParentPath().getLastPathComponent(),
+								sourcePath.getLastPathComponent()
+							);
+						}
+						index += getModel().getIndexOfChild(
 							currentPath.getParentPath().getLastPathComponent(),
 							currentPath.getLastPathComponent()
-					);
-
-					if (sourcePath.getParentPath() == null) {
-						indexModifier++;
+							);
+						if (oldIndex < index) {
+							index--;
+						}
 					}
-
 					parentPath = currentPath.getParentPath();
 				}
 			} else {
 				parentPath = currentPath;
 			}
 
-			index += indexModifier;
+
 
 			// if the path was above the top path in the tree then the index
 			// is 0
@@ -1033,10 +1043,8 @@ public class CueTree extends JTree {
 				index = 0;
 			}
 
-	//		if (triggersPath)
-	//			triggerPath(currentPath, initPoint.y, 5);
-			if (requestMode == MOVE_REQUEST_MODE) {
-				fireMoveGestureCompleted(sourcePath, parentPath, index, initPoint);
+			if (requestMode != ADD_REQUEST_MODE) {
+				fireMoveGestureCompleted(sourcePath, parentPath, index, oldIndex, initPoint);
 			} else {
 				fireAddGestureCompleted(sourcePath, parentPath, index, initPoint);
 			}
@@ -1051,6 +1059,7 @@ public class CueTree extends JTree {
 			// the CueGestureListener to determine where in the tree the node is to
 			// be added/moved
 			int index = -1;
+			int oldIndex = 0;
 
 			if (!lastPathWasParent) {
 				// if the last path wasn't the new parent and the current path
@@ -1068,7 +1077,7 @@ public class CueTree extends JTree {
 							currentPath.getLastPathComponent()
 						);
 
-						int oldIndex = getModel().getIndexOfChild(
+						oldIndex = getModel().getIndexOfChild(
 							sourcePaths[0].getParentPath().getLastPathComponent(),
 							sourcePaths[0].getLastPathComponent()
 						);
@@ -1091,6 +1100,12 @@ public class CueTree extends JTree {
 							index = 1;
 					} else {
 						index = 1;
+						if (sourcePaths[0].getParentPath() != null) {
+							oldIndex = getModel().getIndexOfChild(
+								sourcePaths[0].getParentPath().getLastPathComponent(),
+								sourcePaths[0].getLastPathComponent()
+							);
+						}
 					}
 
 					index += getModel().getIndexOfChild(
@@ -1098,17 +1113,18 @@ public class CueTree extends JTree {
 							currentPath.getLastPathComponent()
 						);
 
+						if (index > oldIndex) {
+							index--;
+						}
 					parentPath = currentPath.getParentPath();
 				}
 			} else {
 				parentPath = currentPath;
 			}
-	//		if (triggersPath)
-	//			triggerPath(currentPath, initPoint.y, 5);
 
-			if (requestMode == MOVE_REQUEST_MODE) {
+			if (requestMode != ADD_REQUEST_MODE) {
 				sourcePaths = filterMultipleNodes(sourcePaths);
-				fireMoveGestureCompleted(sourcePaths, parentPath, index, initPoint);
+				fireMoveGestureCompleted(sourcePaths, parentPath, index, oldIndex, initPoint);
 			} else {
 				fireAddGestureCompleted(sourcePaths, parentPath, index, initPoint);
 			}
@@ -1146,7 +1162,7 @@ public class CueTree extends JTree {
 					TreePath path = getPathForLocation(evt.getX(), evt.getY());
 					// if we can move the mode, set the mouse cursor to
 					// the move cursor, else set it to the cant move cursor
-					if (canMoveNode(path.getLastPathComponent())) {
+					if (canMoveNode(path.getLastPathComponent()) || isNavNode(path.getLastPathComponent())) {
 						setCursor(moveCursor);
 					} else {
 						setCursor(noMoveCursor);
@@ -1165,6 +1181,13 @@ public class CueTree extends JTree {
 					paintGhostedNode(evt.getX() + 5, evt.getY() - 5, path);
 				drawCueLine(path, evt.getY());
 			}
+		}
+
+		private boolean isNavNode(Object node) {
+			if (!(node instanceof LoadingNode) && !(node instanceof ExpandingNextNode) && !(node instanceof ExpandingPreviousNode)) {
+				return false;
+			}
+			return true;
 		}
 
 		/**
@@ -1207,6 +1230,66 @@ public class CueTree extends JTree {
 			TreePath path = getClosestPathForLocation(CueTree.this, mouseX, mouseY);
 			return isLocationInExpandControl(path, mouseX, mouseY);
 		}
+
+		protected void paintVerticalLine(Graphics g, JComponent c, int x, int top, int bottom) {
+			MatrixTree tree = (MatrixTree)c;
+			int nodeSize = 20;
+			TreePath path = tree.getClosestPathForLocation(x,top-10);
+			MatrixTreeNode node = null;
+			if (path!=null) {
+				node = (MatrixTreeNode)path.getLastPathComponent();
+			}
+
+			if ((node != null) && top > 10) {
+				int topMod = 0;
+				int bottomMod = 0;
+				if (tree.hasNextNode(node)) {
+					bottomMod = nodeSize-4;
+				}
+				if (tree.hasPreviousNode(node)) {
+					topMod = nodeSize;
+				}
+				super.paintVerticalLine(g,c,x,top+topMod,bottom-bottomMod);
+			} else {
+				super.paintVerticalLine(g,c,x,top,bottom);
+			}
+		}
+		protected void paintRow(Graphics g, Rectangle clipBounds, Insets insets, Rectangle bounds, TreePath path, int row, boolean isExpanded, boolean hasBeenExpanded, boolean isLeaf) {
+			MatrixTreeNode node = (MatrixTreeNode)path.getLastPathComponent();
+			if (isNavNode(path)) {
+				try {
+					int nameWidth = 0;
+					if (node instanceof ExpandingNode) {
+						nameWidth = ((ExpandingNode)node).getInitStrWidth();
+					}
+
+					int minSize = 150;
+					if (nameWidth < minSize) {
+						nameWidth = minSize;
+					}
+					int modifier = getRightChildIndent()+5;
+					g.setColor(MatrixLookAndFeel.PANEL_COLOUR);
+					g.fillRoundRect((int)bounds.getX() - modifier, (int)(bounds.getY()), nameWidth+modifier, (int)(bounds.getHeight()),10,10);
+
+				} catch (NullPointerException ex) {}
+			}
+			super.paintRow(g,clipBounds,insets,bounds,path,row,isExpanded,hasBeenExpanded,isLeaf);
+		}
+
+		protected void paintHorizontalPartOfLeg(Graphics g, Rectangle clipBounds, Insets insets, Rectangle bounds, TreePath path, int row, boolean isExpanded, boolean hasBeenExpanded, boolean isLeaf) {
+			// do not print line if this is a next or previous node
+			if (!isNavNode(path)) {
+				super.paintHorizontalPartOfLeg(g,clipBounds,insets,bounds,path,row,isExpanded,hasBeenExpanded,isLeaf);
+			}
+		}
+
+		private boolean isNavNode(TreePath path) {
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
+			if (!(node instanceof ExpandingNextNode) && !(node instanceof ExpandingPreviousNode)) {
+				return false;
+			}
+			return true;
+		}
 	}
 
 	/**
@@ -1227,3 +1310,4 @@ public class CueTree extends JTree {
 		f.show();
 	}
 }
+

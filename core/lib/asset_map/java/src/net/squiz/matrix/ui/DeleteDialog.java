@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: DeleteDialog.java,v 1.4 2005/05/20 00:08:35 ndvries Exp $
+* $Id: DeleteDialog.java,v 1.5 2005/11/24 22:54:54 sdanis Exp $
 *
 */
 
@@ -75,9 +75,34 @@ public class DeleteDialog 	extends 	MatrixDialog
 		deleteBtn = new JButton(Matrix.translate("asset_map_button_delete"));
 		cancelBtn = new JButton(Matrix.translate("asset_map_button_cancel"));
 
-		ActionListener btnListener = new ButtonActionListener();
-		deleteBtn.addActionListener(btnListener);
-		cancelBtn.addActionListener(btnListener);
+		//ActionListener btnListener = new ButtonActionListener();
+		//deleteBtn.addActionListener(btnListener);
+		deleteBtn.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				btn_pressed(evt);
+			}
+		});
+
+
+		deleteBtn.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent evt) {
+				key_pressed(evt);
+			}
+		});
+
+		cancelBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				dispose();
+			}
+		});
+
+		cancelBtn.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent evt) {
+				dispose();
+			}
+		});
+
+		//cancelBtn.addActionListener(btnListener);
 
 		JPanel panel = new JPanel();
 		panel.add(deleteBtn);
@@ -90,6 +115,33 @@ public class DeleteDialog 	extends 	MatrixDialog
 		setSize(textWidth + 32, 125);
 	}
 
+	private void btn_pressed(ActionEvent evt) {
+		delete();
+		dispose();
+	}
+
+	private void key_pressed(KeyEvent evt) {
+		if(evt.getKeyCode() == evt.VK_ENTER) {
+			if (evt.getSource() == deleteBtn) {
+				delete();
+			}
+			dispose();
+		} else if(evt.getKeyCode() == evt.VK_ESCAPE) {
+			dispose();
+		}
+	}
+
+	private void delete() {
+		// there can only be on trash folder in the system.
+		String[] assetids = AssetManager.getAssetsOfType("trash_folder");
+		Asset trash = AssetManager.getAsset(assetids[0]);
+		Iterator nodes = trash.getTreeNodes();
+		MatrixTreeNode trashNode = null;
+		while (nodes.hasNext()) {
+			trashNode = (MatrixTreeNode) nodes.next();
+		}
+		MatrixTreeComm.createLink(NewLinkEvent.LINK_TYPE_MOVE, DeleteDialog.this.nodes, trashNode, 0, 0);
+	}
 
 	/**
 	 * Creates a new DeleteDialog if one does not exists, otherwise the
@@ -110,7 +162,7 @@ public class DeleteDialog 	extends 	MatrixDialog
 		return deleteDialog;
 	}
 
-	class ButtonActionListener implements ActionListener {
+	/*class ButtonActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent evt) {
 			Object source = evt.getSource();
 
@@ -123,7 +175,7 @@ public class DeleteDialog 	extends 	MatrixDialog
 				while (nodes.hasNext()) {
 					trashNode = (MatrixTreeNode) nodes.next();
 				}
-				MatrixTreeComm.createLink(NewLinkEvent.LINK_TYPE_MOVE, DeleteDialog.this.nodes, trashNode, 0);
+				MatrixTreeComm.createLink(NewLinkEvent.LINK_TYPE_MOVE, DeleteDialog.this.nodes, trashNode, 0, 0);
 
 			}
 
@@ -132,4 +184,7 @@ public class DeleteDialog 	extends 	MatrixDialog
 			dispose();
 		}
 	}//end class ButtonActionListener
+	*/
+
 }//end class DeleteDialog
+

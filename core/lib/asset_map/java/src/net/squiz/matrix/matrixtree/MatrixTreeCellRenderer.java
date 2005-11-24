@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTreeCellRenderer.java,v 1.3 2005/07/27 10:45:22 brobertson Exp $
+* $Id: MatrixTreeCellRenderer.java,v 1.4 2005/11/24 22:54:54 sdanis Exp $
 *
 */
 
@@ -28,6 +28,8 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 import net.squiz.matrix.ui.*;
+import java.awt.event.*;
+import net.squiz.matrix.plaf.*;
 
 /**
  * Renders a node for <code>AssetTree</code>.
@@ -43,6 +45,9 @@ public class MatrixTreeCellRenderer extends JLabel implements TreeCellRenderer, 
 	/** The asset that this node represents */
 	private Asset asset;
 
+	/** The node that is being rendered */
+	private MatrixTreeNode node;
+
 	/** TRUE if this node is currently selected */
 	private boolean selected = false;
 
@@ -53,16 +58,16 @@ public class MatrixTreeCellRenderer extends JLabel implements TreeCellRenderer, 
 	}
 
 	/**
-	 * Sets the value of the current tree cell to <code>value</code>.
-	 *
-	 * @param selected		whether the cell will be drawn as if selected
-	 * @param expanded		whether the node is currently expanded
-	 * @param leaf			whether the node represents a leaf
-	 * @param hasFocus		whether the node currently has focus
-	 * @param row			the row where the node exists in the sub tree
-	 * @param tree			the <code>JTree</code> the receiver is being configured for.
-	 * @return the <code>Component</code> that the renderer uses to draw the value.
-	 */
+	* Sets the value of the current tree cell to <code>value</code>.
+	*
+	* @param selected		whether the cell will be drawn as if selected
+	* @param expanded		whether the node is currently expanded
+	* @param leaf			whether the node represents a leaf
+	* @param hasFocus		whether the node currently has focus
+	* @param row			the row where the node exists in the sub tree
+	* @param tree			the <code>JTree</code> the receiver is being configured for.
+	* @return the <code>Component</code> that the renderer uses to draw the value.
+	*/
 	public Component getTreeCellRendererComponent(
 				JTree tree,
 				Object value,
@@ -73,18 +78,16 @@ public class MatrixTreeCellRenderer extends JLabel implements TreeCellRenderer, 
 				boolean hasFocus) {
 
 		if (value instanceof MatrixTreeNode) {
-
-			MatrixTreeNode node = (MatrixTreeNode) value;
+			node = (MatrixTreeNode) value;
 			Asset asset = node.getAsset();
 			this.asset = asset;
-			this.selected = selected;
 
 			setText(getNodeDisplayText(node));
 			setFont(PLAIN_FONT_10);
 
-			if (!(node instanceof LoadingNode)) {
+			if (!(node instanceof LoadingNode) && !isNavNode(node)) {
 				setToolTipText(asset.getType().getName()  + " [" + asset.getId() + "]");
-
+				this.selected = selected;
 				if (!(asset.isAccessible())) {
 					CompoundIcon icon = (CompoundIcon) GUIUtilities.getCompoundIconForTypeCode(
 							asset.getType().getTypeCode(), Matrix.getProperty("parameter.url.notaccessibleicon"));
@@ -106,6 +109,17 @@ public class MatrixTreeCellRenderer extends JLabel implements TreeCellRenderer, 
 				} else {
 					setEnabled(true);
 				}
+			} else if (node instanceof ExpandingNextNode) {
+				setToolTipText("View nex set of nodes");
+				setIcon(GUIUtilities.getIcon(Matrix.getProperty("parameter.url.assetmapiconurl") + "/"+
+					Matrix.getProperty("parameter.url.expanding_next_node")));
+			} else if (node instanceof ExpandingPreviousNode) {
+				setToolTipText("View previous set of nodes");
+				setIcon(GUIUtilities.getIcon(Matrix.getProperty("parameter.url.assetmapiconurl") + "/"+
+					Matrix.getProperty("parameter.url.expanding_prev_node")));
+			} else if (node instanceof LoadingNode) {
+				setIcon(GUIUtilities.getIcon(Matrix.getProperty("parameter.url.assetmapiconurl") + "/"+
+					Matrix.getProperty("parameter.url.loading_node")));
 			}
 
 		} else if (value instanceof DefaultMutableTreeNode) {
@@ -115,7 +129,16 @@ public class MatrixTreeCellRenderer extends JLabel implements TreeCellRenderer, 
 			}
 		}
 
+
+
 		return this;
+	}
+
+	private boolean isNavNode(MatrixTreeNode node) {
+		if (!(node instanceof LoadingNode) && !(node instanceof ExpandingNode)) {
+			return false;
+		}
+		return true;
 	}
 
 	protected String getNodeDisplayText(MatrixTreeNode node) {
@@ -123,115 +146,123 @@ public class MatrixTreeCellRenderer extends JLabel implements TreeCellRenderer, 
 	}
 
 	/**
-     * Paints the background color that is determined by the selected
-     * state of the node, and the status of the asset
-     *
-     * @param g the graphics
-     */
-    public void paint(Graphics g) {
+	* Paints the background color that is determined by the selected
+	* state of the node, and the status of the asset
+	*
+	* @param g the graphics
+	*/
+	public void paint(Graphics g) {
+		if (node instanceof ExpandingNode) {
+			((ExpandingNode)node).setInitStrWidth(getWidth()+5);
+			int width = ((ExpandingNode)node).getInitStrWidth();
+			g.setColor(MatrixLookAndFeel.PANEL_COLOUR);
+			g.fillRoundRect(0, 0, width, getHeight(), 10, 10);
+		}
 
-        if (selected || allSelected) {
-            int offset = getIcon().getIconWidth() + (getIconTextGap() / 2);
-            g.setColor(asset.getStatusColour());
-            g.fillRect(offset, 2, getWidth(), getHeight() - 4);
-            g.setColor(asset.getStatusColour().darker());
-            g.drawRect(offset, 2,  getWidth() - offset - 1, getHeight() - 4);
+		if ((selected || allSelected) && !isNavNode(node)) {
+			int offset = getIcon().getIconWidth() + (getIconTextGap() / 2);
+			g.setColor(asset.getStatusColour());
+			g.fillRect(offset, 2, getWidth(), getHeight() - 4);
+			g.setColor(asset.getStatusColour().darker());
+			g.drawRect(offset, 2,  getWidth() - offset - 1, getHeight() - 4);
+		}
+		super.paint(g);
+	}
 
-        }
-        super.paint(g);
-    }
+
 
 	/**
-    * Overridden for performance reasons.
-    * See the <a href="#override">Implementation Note</a>
-    * for more information.
-    */
-    public void validate() {}
+	* Overridden for performance reasons.
+	* See the <a href="#override">Implementation Note</a>
+	* for more information.
+	*/
+	public void validate() {}
 
-   /**
-    * Overridden for performance reasons.
-    * See the <a href="#override">Implementation Note</a>
-    * for more information.
-    */
-    public void revalidate() {}
+	/**
+	* Overridden for performance reasons.
+	* See the <a href="#override">Implementation Note</a>
+	* for more information.
+	*/
+	public void revalidate() {}
 
-   /**
-    * Overridden for performance reasons.
-    * See the <a href="#override">Implementation Note</a>
-    * for more information.
-    */
-    public void repaint(long tm, int x, int y, int width, int height) {}
+	/**
+	* Overridden for performance reasons.
+	* See the <a href="#override">Implementation Note</a>
+	* for more information.
+	*/
+	public void repaint(long tm, int x, int y, int width, int height) {}
 
-   /**
-    * Overridden for performance reasons.
-    * See the <a href="#override">Implementation Note</a>
-    * for more information.
-    */
-    public void repaint(Rectangle r) {}
+	/**
+	* Overridden for performance reasons.
+	* See the <a href="#override">Implementation Note</a>
+	* for more information.
+	*/
+	public void repaint(Rectangle r) {}
 
-   /**
-    * Overridden for performance reasons.
-    * See the <a href="#override">Implementation Note</a>
-    * for more information.
-    */
-    protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
-    	if (propertyName == "text")
-    		super.firePropertyChange(propertyName, oldValue, newValue);
-    }
+	/**
+	* Overridden for performance reasons.
+	* See the <a href="#override">Implementation Note</a>
+	* for more information.
+	*/
+	protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+		if (propertyName == "text") {
+			super.firePropertyChange(propertyName, oldValue, newValue);
+		}
+	}
 
-   /**
-    * Overridden for performance reasons.
-    * See the <a href="#override">Implementation Note</a>
-    * for more information.
-    */
-    public void firePropertyChange(String propertyName, byte oldValue, byte newValue) {}
+	/**
+	* Overridden for performance reasons.
+	* See the <a href="#override">Implementation Note</a>
+	* for more information.
+	*/
+	public void firePropertyChange(String propertyName, byte oldValue, byte newValue) {}
 
-   /**
-    * Overridden for performance reasons.
-    * See the <a href="#override">Implementation Note</a>
-    * for more information.
-    */
-    public void firePropertyChange(String propertyName, char oldValue, char newValue) {}
+	/**
+	* Overridden for performance reasons.
+	* See the <a href="#override">Implementation Note</a>
+	* for more information.
+	*/
+	public void firePropertyChange(String propertyName, char oldValue, char newValue) {}
 
-   /**
-    * Overridden for performance reasons.
-    * See the <a href="#override">Implementation Note</a>
-    * for more information.
-    */
-    public void firePropertyChange(String propertyName, short oldValue, short newValue) {}
+	/**
+	* Overridden for performance reasons.
+	* See the <a href="#override">Implementation Note</a>
+	* for more information.
+	*/
+	public void firePropertyChange(String propertyName, short oldValue, short newValue) {}
 
-   /**
-    * Overridden for performance reasons.
-    * See the <a href="#override">Implementation Note</a>
-    * for more information.
-    */
-    public void firePropertyChange(String propertyName, int oldValue, int newValue) {}
+	/**
+	* Overridden for performance reasons.
+	* See the <a href="#override">Implementation Note</a>
+	* for more information.
+	*/
+	public void firePropertyChange(String propertyName, int oldValue, int newValue) {}
 
-   /**
-    * Overridden for performance reasons.
-    * See the <a href="#override">Implementation Note</a>
-    * for more information.
-    */
-    public void firePropertyChange(String propertyName, long oldValue, long newValue) {}
+	/**
+	* Overridden for performance reasons.
+	* See the <a href="#override">Implementation Note</a>
+	* for more information.
+	*/
+	public void firePropertyChange(String propertyName, long oldValue, long newValue) {}
 
-   /**
-    * Overridden for performance reasons.
-    * See the <a href="#override">Implementation Note</a>
-    * for more information.
-    */
-    public void firePropertyChange(String propertyName, float oldValue, float newValue) {}
+	/**
+	* Overridden for performance reasons.
+	* See the <a href="#override">Implementation Note</a>
+	* for more information.
+	*/
+	public void firePropertyChange(String propertyName, float oldValue, float newValue) {}
 
-   /**
-    * Overridden for performance reasons.
-    * See the <a href="#override">Implementation Note</a>
-    * for more information.
-    */
-    public void firePropertyChange(String propertyName, double oldValue, double newValue) {}
+	/**
+	* Overridden for performance reasons.
+	* See the <a href="#override">Implementation Note</a>
+	* for more information.
+	*/
+	public void firePropertyChange(String propertyName, double oldValue, double newValue) {}
 
-   /**
-    * Overridden for performance reasons.
-    * See the <a href="#override">Implementation Note</a>
-    * for more information.
-    */
+	/**
+	* Overridden for performance reasons.
+	* See the <a href="#override">Implementation Note</a>
+	* for more information.
+	*/
 	public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {}
-}
+	}

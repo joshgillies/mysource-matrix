@@ -59,30 +59,32 @@ public class MatrixTreeModelBus {
 	public static void moveNode(
 		MatrixTreeNode child,
 		MatrixTreeNode newParent,
-		int index,
-		String assetId) {
+		int index) {
 			// if the node hasn't moved, just return
-			if ((child.getParent() == newParent)
-				&& newParent.getIndex(child) == index)
+			if ((child.getParent() == newParent) && newParent.getIndex(child) == index)
 					return;
 
-			removeNodeFromParent(child, assetId);
-			insertNodeInto(child, newParent, index, assetId);
+			removeNodeFromParent(child);
+			insertNodeInto(child, newParent, index);
 	}
 
 	public static void insertNodeInto(
 		MatrixTreeNode newChild,
 		MatrixTreeNode parent,
-		int index,
-		String assetId) {
+		int index) {
 
 			try {
 				// we have to do this ourselves, as the node tree
 				// is indepenant from the tree models
+
+				// we could have a previous node, make sure we insert the new node after it
+				if (parent.hasPreviousNode() && !(newChild instanceof ExpandingNextNode)) {
+					index++;
+				}
+
 				parent.insert(newChild, index);
 				int[] newIndexs = new int[1];
 				newIndexs[0] = index;
-				parent.addChildAsset(assetId,index);
 
 				DefaultTreeModel[] components = getBusComponents();
 
@@ -98,32 +100,27 @@ public class MatrixTreeModelBus {
 			}
 	}
 
-	public static void removeNodeFromParent(MatrixTreeNode child, String assetId) {
+	public static void removeNodeFromParent(MatrixTreeNode child) {
 		MatrixTreeNode parent = (MatrixTreeNode) child.getParent();
 		if (parent == null)
 			throw new IllegalArgumentException("node does not have a parent");
 		try {
-
 			/// TESTING
-
 			MatrixTreeNode mParent = parent;
 			MatrixTreeNode mChild = child;
 
-			parent = getMirrorNode(parent);
+			//parent = getMirrorNode(parent);
 			// TODO: this is a temp hack to get this working
-			if (parent.getIndex(child) == -1)
-				child = getMirrorNode(child);
+			//if (parent.getIndex(child) == -1)
+			//	child = getMirrorNode(child);
 
 			// END TESTING
-
 			// we have to do this ourselves, as the node tree
 			// is indepenant from the tree models
 			int[] childIndex = new int[1];
 			Object[] removedArray = new Object[1];
 			childIndex[0] = parent.getIndex(child);
-
-			parent.remove(childIndex[0]);
-			parent.removeChildAsset(assetId);
+			parent.remove(child);
 			removedArray[0] = child;
 
 			DefaultTreeModel[] components = getBusComponents();
@@ -136,7 +133,7 @@ public class MatrixTreeModelBus {
 					model.nodesWereRemoved(parent, childIndex, removedArray);
 			}
 			Log.log("removing from " + parent + "(" + child + ")", MatrixTreeModelBus.class);
-
+			child = null;
 		} catch (Throwable t) {
 			Log.log("Could not remove node" + t.getMessage(), MatrixTreeModelBus.class, t);
 		}
@@ -171,26 +168,5 @@ public class MatrixTreeModelBus {
 		}
 	}
 
-	/**
-	 * Invoke this method after you've changed how a set of noded are
-	 * to be represented in the tree.
-	 *
-	 * This method is perferred if you have a multiple set of nodes
-	 * that have been updated. If nodeChanged is called multiple times,
-	 * the TreeUI will cause the tree to revalidate and repaint for every call.
-	 *
-	 */
-/*	public static void nodesChanged() {
-		// MM: i'm unsure why the DefaultTreeModel cannot update a set of
-		// structure independant nodes without causing the tree to repaint for
-		// each node, so we will have to do a little more work here
-		Iterator modelIterator = models.iterator();
-		while (modelIterator.hasNext()) {
-			DefaultTreeModel model = (DefaultTreeModel) modelIterator.next();
-			treeModeListeners[] listeners = model.getTreeModelListeners();
-			for (int i = 0; i < listeners.length; i++) {
-				//fuck'n
-			}
-		}
-	}*/
 }
+

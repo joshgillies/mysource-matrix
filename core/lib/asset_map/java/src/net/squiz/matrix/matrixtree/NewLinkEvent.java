@@ -14,14 +14,15 @@ public class NewLinkEvent extends EventObject {
 	private String type;
 	private MatrixTreeNode[] sourceNodes;
 	private MatrixTreeNode parentNode;
-	private int index;
+	private int index, prevIndex;
 	
 	public NewLinkEvent(
 		Object source,
 		String type,
 		MatrixTreeNode[] sourceNodes,
 		MatrixTreeNode parentNode,
-		int index) {
+		int index,
+		int prevIndex) {
 			
 			super(source);
 			if (type != LINK_TYPE_MOVE &&
@@ -35,6 +36,7 @@ public class NewLinkEvent extends EventObject {
 			this.sourceNodes = sourceNodes;
 			this.parentNode = parentNode;
 			this.index = index;
+			this.prevIndex = prevIndex;
 	}
 	
 	public String getType() {
@@ -51,5 +53,9 @@ public class NewLinkEvent extends EventObject {
 	
 	public int getIndex() {
 		return index;
+	}
+
+	public int getPrevIndex() {
+		return prevIndex;
 	}
 }

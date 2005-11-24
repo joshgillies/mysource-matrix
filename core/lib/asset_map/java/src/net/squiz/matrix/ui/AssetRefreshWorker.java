@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: AssetRefreshWorker.java,v 1.3 2005/05/20 00:08:35 ndvries Exp $
+ * $Id: AssetRefreshWorker.java,v 1.4 2005/11/24 22:54:54 sdanis Exp $
  *
  */
 
@@ -92,7 +92,7 @@ public class AssetRefreshWorker extends SwingWorker {
 	 */
 	public Object construct() {
 		try {
-			return AssetManager.makeRefreshRequest(assetids);
+			return AssetManager.makeRefreshRequest(assetids, "");
 		} catch(IOException ioe) {
 			return ioe;
 		}

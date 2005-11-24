@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTreeComm.java,v 1.5 2005/07/27 10:45:22 brobertson Exp $
+ * $Id: MatrixTreeComm.java,v 1.6 2005/11/24 22:54:53 sdanis Exp $
  *
  */
 
@@ -55,7 +55,8 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 			evt.getType(),
 			evt.getSourceNodes(),
 			evt.getParentNode(),
-			evt.getIndex()
+			evt.getIndex(),
+			evt.getPrevIndex()
 		);
 	}
 
@@ -69,7 +70,7 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 		MatrixTreeNode parent = evt.getParentNode();
 		int index             = evt.getIndex();
 		String parentAssetid  = MatrixToolkit.rawUrlEncode(parent.getAsset().getId(), true);
-
+		index = (parent.getAsset().getTotalKidsLoaded()+index+1);
 
 		String xml = "<command action=\"get url\" cmd=\"add\" " +
 					 "parent_assetid=\"" + parentAssetid +
@@ -123,21 +124,42 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 			final String linkType,
 			final MatrixTreeNode[] children,
 			final MatrixTreeNode parent,
-			final int index) {
+			final int index,
+			final int prevIndex) {
 
 		final String[] assetids = new String[] { parent.getAsset().getId() };
 		AssetRefreshWorker worker = new AssetRefreshWorker(assetids, true) {
 			public Object construct() {
 				try {
+					int newIndex = index;
+
+					int limit = AssetManager.getLimit();
+
+					// we need to change the index since we are not on the first set
+					if (index > limit) {
+						// move the asset to the next set
+						newIndex = parent.getAsset().getTotalKidsLoaded() + limit + children.length - 1;
+					} else if (index <= 0) {
+						// move the asset to previous set
+						newIndex = parent.getAsset().getTotalKidsLoaded() - children.length;
+					} else {
+						// move the asset to different index on the same set
+						newIndex = parent.getAsset().getTotalKidsLoaded() + index;
+						if (parent.getAsset().getTotalKidsLoaded() > 0) {
+							// we have a previous node
+							newIndex--;
+						}
+					}
+
 					Boolean refresh = doLinkRequest(
 						linkType,
 						children,
 						parent,
-						index
+						newIndex
 					);
 					if (refresh == Boolean.TRUE) {
 						String parentid = parent.getAsset().getId();
-						return AssetManager.makeRefreshRequest(assetids);
+						return AssetManager.makeRefreshRequest(assetids, "");
 					}
 
 				} catch (IOException ioe) {
@@ -248,3 +270,4 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 		return refresh;
 	}
 }
+
