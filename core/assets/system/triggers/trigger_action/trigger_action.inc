@@ -18,10 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action.inc,v 1.4 2005/04/20 04:20:35 gsherwood Exp $
+* $Id: trigger_action.inc,v 1.5 2005/11/24 04:05:27 mmcintyre Exp $
 *
 */
 
+require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 /**
 * Trigger Action
@@ -31,7 +32,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
