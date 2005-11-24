@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.45 2005/11/02 05:40:44 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.46 2005/11/24 00:20:47 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -202,7 +202,7 @@ class Listing_Engine_Management extends Asset_Management
 		$this->vars['num_per_page'] = Array(
 										'added'		=> '0.1',
 										'type'		=> 'int',
-										'default'	=> 10,
+										'default'	=> 0,
 									  );
 
 		$this->vars['column_layout'] = Array(
