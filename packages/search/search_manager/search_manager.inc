@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.82 2005/11/18 05:32:55 tbarrett Exp $
+* $Id: search_manager.inc,v 1.83 2005/11/24 05:18:33 arailean Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -708,7 +708,7 @@ class Search_Manager extends Asset
 	/**
 	* Returns a list of components that the specified asset has indexed
 	*
-	* @param string $assetid the assetid of the wanted components
+	* @param string	$assetid	the assetid of the wanted components
 	*
 	* @return Array()
 	* @access public
@@ -729,6 +729,41 @@ class Search_Manager extends Asset
 		return $components;
 
 	}//end getIndexedComponents()
+
+
+	/**
+	* Get ids of assets having same words as the supplied asset
+	*
+	* @param string	$assetid	ID of the asset
+	* @param string	$type		type of the asset to restrict the search by
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetidsByWordIntersection($source_id, $type=null)
+	{
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$sql_components['select'][]	= 'DISTINCT target.assetid';
+		$sql_components['select'][]	= 'target.type_code';
+		$sql_components['from'][] 	= 'sq_sch_idx source INNER JOIN sq_sch_idx target ON target.value = source.value';
+		$sql_components['where'][] 	= 'source.assetid = '.$db->quoteSmart($source_id);
+		$sql_components['where'][] 	= 'target.assetid <> '.$db->quoteSmart($source_id);
+
+		if (!empty($type)) {
+			$sql_components['where'][] = 'target.type_code = '.$db->quoteSmart($type);
+		}
+
+		$sql = implode_sql($sql_components);
+
+		$result = $db->getAll($sql);
+		assert_valid_db_result($result);
+
+		return $result;
+
+	}//end getAssetidsByWordIntersection()
 
 
 	/**
