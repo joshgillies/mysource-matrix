@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.9 2005/10/31 00:23:53 lwright Exp $
+* $Id: lang_messages.xml,v 1.10 2005/11/24 23:11:08 rong Exp $
 *
 * Core Internal Messages File
 */
@@ -30,7 +30,7 @@
 	</message>
 	<message type="asset.status">
 		<subject>Asset Status Changed</subject>
-		<body>The status of "%asset_name%" was successfully changedfrom "%old_status%" to "%new_status%"</body> <!-- name, old_status, new_status -->
+		<body>The status of "%asset_name%" was successfully changed from "%old_status%" to "%new_status%"</body> <!-- name, old_status, new_status -->
 	</message>
 	<message type="asset.dates">
 		<subject>Asset Date Changed</subject>
