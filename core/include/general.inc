@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.114 2005/11/14 04:58:54 lwright Exp $
+* $Id: general.inc,v 1.115 2005/11/24 22:40:29 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.114 $
+* @version $Revision: 1.115 $
 * @package MySource_Matrix
 */
 
@@ -1212,9 +1212,33 @@ function asset_locator_js($asset_lineage=Array(),$map_frame='sq_sidenav', $new_w
 		$map_frame = 'top';
 	}
 
-	return $map_frame.'.asset_locator_start(\''.implode('|',$asset_lineage).'\');';
+	if ($asset_lineage[0] == 1) {
+		array_shift($asset_lineage);
+	}
+
+	$asset_count = count($asset_lineage);
+	$sort_orders = Array();
+	$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset(1, $asset_lineage[0]);
+	if (isset($link['sort_order'])) {
+		$sort_orders[0] = $link['sort_order'];
+	}
+
+	for ($i = 0; $i < $asset_count-1; $i++) {
+		$sort_order = -1;
+		// get the link between two assets
+		if (strpos($asset_lineage[$i],':') === false) {
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset_lineage[$i], $asset_lineage[$i+1]);
+			if (!empty($link)) {
+				if (isset($link['sort_order']) && $link['sort_order']!='') {
+					$sort_order = $link['sort_order'];
+				}
+			}
+		}
+		$sort_orders[] = $sort_order;
+	}
+
+	return $map_frame.'.asset_locator_start(\''.implode('|',$asset_lineage).'~'.implode('|',$sort_orders).'\');';
 
 }//end asset_locator_js()
-
 
 ?>
