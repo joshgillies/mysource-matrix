@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.18.2.3 2005/11/18 04:41:11 lwright Exp $
+* $Id: page_whats_new.inc,v 1.18.2.4 2005/11/24 00:25:18 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../page_templates/page_asset_listing/page_as
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18.2.3 $
+* @version $Revision: 1.18.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -145,7 +145,7 @@ class Page_Whats_New extends Page_Asset_Listing
 			$links = Array();
 
 			foreach($root_asset_ids as $root_asset_id) {
-				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, $letter_sort_by, SQ_PERMISSION_READ);
+				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, $letter_sort_by, SQ_PERMISSION_READ);
 				$query['where'] .= $where;
 
 				// special case for A-Z listings because they require another field selected from the database
