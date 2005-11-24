@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.70 2005/09/14 01:43:41 dmckee Exp $
+* $Id: system_config.inc,v 1.71 2005/11/24 22:40:57 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -68,10 +68,11 @@ class System_Config extends Config
 						'SQ_CONF_MAX_LOGIN_ATTEMPTS'		=> Array('editable' => 1, 'default' => 3),
 						'SQ_CONF_REFRESH_INTERVAL'			=> Array('editable' => 1, 'default' => 120),
 						'SQ_CONF_LOCK_LENGTH'				=> Array('editable' => 1, 'default' => 600),
+						'SQ_CONF_ASSET_MAP_ASSET_LIMIT'		=> Array('editable' => 1, 'default' => 50),
 						'SQ_CONF_LOG_FILE'					=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_LOG_ERRORS'				=> Array('editable' => 1, 'default' => true),
 						'SQ_CONF_ERRORS_HIDE_FRONTEND'		=> Array('editable' => 1, 'default' => false),
-						'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'	=> Array('editable' => 1, 'default' => 'en'),
+						'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'=> Array('editable' => 1, 'default' => 'en'),
 						'SQ_CONF_DEFAULT_BACKEND_LOCALE'	=> Array('editable' => 1, 'default' => 'en_AU'),
 						'SQ_CONF_DEFAULT_CHARACTER_SET'		=> Array('editable' => 1, 'default' => 'iso-8859-1'),
 						'SQ_CONF_ALLOW_IP_CHANGE'			=> Array('editable' => 1, 'default' => '0'),
@@ -610,6 +611,19 @@ class System_Config extends Config
 				echo !defined('SQ_CONF_COMMIT_BUTTON_TEXT') ? 'Commit' : SQ_CONF_COMMIT_BUTTON_TEXT;
 			}
 			$o->note(translate('rename_commit_button'));
+			$o->closeField();
+
+		$o->closeSection();
+
+		$o->openSection(translate('asset_map_settings'));
+
+			$o->openField(translate('asset_limit_per_node'));
+			if ($write_access) {
+				text_box($class.'[SQ_CONF_ASSET_MAP_ASSET_LIMIT]', !defined('SQ_CONF_ASSET_MAP_ASSET_LIMIT') ? '50' : SQ_CONF_ASSET_MAP_ASSET_LIMIT, 30);
+			} else {
+				echo !defined('SQ_CONF_ASSET_MAP_ASSET_LIMIT') ? '50' : SQ_CONF_ASSET_MAP_ASSET_LIMIT;
+			}
+			$o->note(translate('asset_limit_per_node_note'));
 			$o->closeField();
 
 		$o->closeSection();
