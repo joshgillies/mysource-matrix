@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.34 2005/11/24 00:44:56 ndvries Exp $
+* $Id: bulk_mailer.inc,v 1.35 2005/11/24 00:48:39 ndvries Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -99,6 +99,7 @@ class Bulk_Mailer
 					// check timeout and excluded time, make sure we take over this job if timeout_threshold is reached
 					if ($this->checkThreshold('time_out', Array(), $progress_info)) {
 						if ($this->checkThreshold('excluded_time', $info['details']['threshold'])) {
+							$bm->updateJob($job_id, BML_JOB_STATE_RUNNING);
 							$this->chunkJob($job_id, $recip_per_chunk);
 							$this->processJob($job_id, $recip_per_chunk);
 							return;
