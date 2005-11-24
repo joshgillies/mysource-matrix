@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.5 2005/07/13 04:13:56 mmcintyre Exp $
+* $Id: tables.xml,v 1.6 2005/11/24 05:07:02 arailean Exp $
 *
 */
 -->
@@ -27,7 +27,7 @@
 					<description>Value of the keydata.</description>
 				</column>
 				<column name="assetid" allow_null="0">
-					<type>VARCHAR(15)</type>
+					<type>VARCHAR(255)</type>
 					<type_variations />
 					<default />
 					<description>ID of the asset to which this keydata applies to.</description>
