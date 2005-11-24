@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_default_post_office.xml,v 1.4 2005/11/21 04:54:02 ndvries Exp $
+* $Id: lang_screen_default_post_office.xml,v 1.5 2005/11/24 00:49:23 ndvries Exp $
 *
 */
 -->
@@ -30,7 +30,7 @@
 		</field>
 		<field attribute="subject">
 			<display_name>Subject</display_name>
-			<note>Subject field is required.</note>
+			<note>Subject field is required. The normal asset keywords are available to use, eg. "%asset_name% - %asset_created%"</note>
 		</field>
 		<field>
 			<display_name>Headers</display_name>
