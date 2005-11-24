@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page.inc,v 1.6 2005/11/22 03:38:57 dmckee Exp $
+* $Id: page_multiple_page.inc,v 1.7 2005/11/24 04:19:40 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -328,7 +328,7 @@ class Page_Multiple_Page extends Page
 	*/
 	function createChildPage($name='page', $link_type=SQ_LINK_TYPE_2)
 	{
-		$import_link = Array('asset' => &$this, 'link_type' => $link_type, 'value' => '', 'sort_order' => $this->getNumberofPages(), 'is_dependant' => 1);
+		$import_link = Array('asset' => &$this, 'link_type' => $link_type, 'value' => '', 'sort_order' => $this->getNumberofPages(), 'is_dependant' => 1, 'is_exclusive' => 1);
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('page_multiple_page_page');
 		$page =& new Page_Multiple_Page_Page();
 		$page->setAttrValue('name', $name);
