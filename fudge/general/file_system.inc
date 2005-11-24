@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.37 2005/08/24 06:04:41 skim Exp $
+* $Id: file_system.inc,v 1.38 2005/11/24 23:30:15 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions for the file system
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package Fudge
 * @subpackage General
 */
@@ -152,6 +152,26 @@ function string_to_file($string, $filename)
 	}
 
 }//end string_to_file()
+
+
+/**
+* Writes an array to a file. The file can be required/included to
+* retrieve the array again
+*
+* @param array	$value		the array to write
+* @param string	$var_name	the name of the variable when included
+* @param string	$filename	the filename to write to
+*
+* @return boolean
+* @access public
+*/
+function array_to_file($value, $var_name, $filename)
+{
+	if (!is_array($array)) return false;
+	$string = '<?php $'.$var_name.' = '.var_export($value, true).'; ?>';
+	return string_to_file($string, $filename);
+
+}//end array_to_file()
 
 
 /**
@@ -498,7 +518,7 @@ function get_last_lines_from_file($filepath, $max_lines=10, $line_ending="\n")
 	$result = Array();
 	$max_lines = is_int($max_lines)?$max_lines:10;
 
-	if (!file_exists($filepath) || !is_readable($filepath)){
+	if (!file_exists($filepath) || !is_readable($filepath)) {
 		return false;
 	}
 
