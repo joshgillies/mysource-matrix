@@ -4,31 +4,31 @@
 		<title>Browser</title>
 		<style type="text/css">
 			html,body {
-				height:100%; 
-				margin:0px; 
+				height:100%;
+				margin:0px;
 				padding:0px
 			}
 			.sq_table_terms_list_del {
-				overflow:hidden
+				/* overflow: hidden; */
 			}
 			.sq_table_terms_list_del div {
-				text-align:left; 
-				font: 8pt "Lucida Grande","MS Sans Serif"; 
+				text-align:left;
+				font: 8pt "Lucida Grande","MS Sans Serif";
 				padding-left: 3pt;
-				border-bottom: solid 1px #EEEEEE; 
+				border-bottom: solid 1px #EEEEEE;
 				color:#DDDDDD;
 			}
 			.sq_table_terms_list {
-				overflow: hidden; 
-				width: 0px; 
-				width:75px; 
+				/* overflow: hidden; */
+				width: 0px;
+				width:75px;
 				height: 180px;
 				background-color: eee;
 			}
-			
+
 			.sq_table_terms_list div {
-				text-align:left; 
-				font: 8pt "Lucida Grande","MS Sans Serif"; 
+				text-align:left;
+				font: 8pt "Lucida Grande","MS Sans Serif";
 				cursor: default;
 				padding-left: 3pt;
 				border-bottom: solid 1px #EEEEEE;
@@ -40,7 +40,7 @@
 				background-color: #DFDFFF
 			}
 			body {
-				overflow-y: hidden; 
+				overflow-y: hidden;
 				background: #fff
 			}
 		</style>
@@ -88,7 +88,7 @@
 					div.style.opacity = fade/100;
 					div.style.filter= 'alpha(opacity=' + fade + ')';
 				}
-				fadeIn(GlobalList.length, 0);
+				fadeIn(GlobalList.length, 100);
 				Scroll(200, 0);
 
 			}
@@ -197,7 +197,7 @@
 						if (group != null) group.className = "selectedgroup";
 					}
 
-					ClickedTime = setTimeout("itemClick('X')", 400);
+					ClickedTime = setTimeout("itemClick('X')", 1);
 					return;
 				} else {
 					id = ClickedID;
@@ -209,7 +209,7 @@
 				var jid = id.substring(id.indexOf("g") + 1, id.indexOf("i")) * 1;
 				var lid = id.substring(id.indexOf("i") + 1) * 1;
 				var x = getOffset();
-				fadeOut(gid, 100, GlobalList[gid][1][jid][lid]);
+				fadeOut(gid, 0, GlobalList[gid][1][jid][lid]);
 			}
 
 
@@ -217,19 +217,19 @@
 			function fadeOut(gid, fadeval, entity)
 			{
 				clearTimeout(fadeout);
-				if (fadeval <= 0 || gid == GlobalList.length - 1) {
+				//if (fadeval <= 0 || gid == GlobalList.length - 1) {
 					while (GlobalList.length > gid + 1) delList();
 					Browser.loadListByEntity(entity);
 					return;
-				}
-				for (var i=gid + 2; i < GlobalList.length + 1; i++) {
+				//}
+				/*for (var i=gid + 2; i < GlobalList.length + 1; i++) {
 					div = document.getElementById("list" + i);
 					div.className = "sq_table_terms_list_del";
 					div.style.overflow = "hidden";
 					div.style.width = fadeval + "px";
 				}
 				fadeval -= 5;
-				fadeout = setTimeout("fadeOut("+gid+", "+fadeval+", '"+entity+"')", 1);
+				fadeout = setTimeout("fadeOut("+gid+", "+fadeval+", '"+entity+"')", 1);*/
 
 			}
 
@@ -238,16 +238,16 @@
 			function fadeIn(gid, fadeval)
 			{
 				clearTimeout(fadein);
-				if (fadeval >= 100) {
+				//if (fadeval >= 100) {
 					div = document.getElementById("list" + gid);
 					div.style.width = "100px";
 					div.style.overflow = "auto";
 					return;
-				}
-				div = document.getElementById("list" + gid);
+				//}
+				/*div = document.getElementById("list" + gid);
 				div.style.width = fadeval + "px";
 				fadeval += 10;
-				fadein = setTimeout("fadeIn("+gid+", "+fadeval+")", 1);
+				fadein = setTimeout("fadeIn("+gid+", "+fadeval+")", 1);*/
 
 			}
 

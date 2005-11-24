@@ -10,7 +10,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_browser.js,v 1.7 2005/05/24 05:38:32 tbarrett Exp $
+* $Id: thesaurus_browser.js,v 1.7.2.1 2005/11/24 05:56:17 lwright Exp $
 *
 */
 
@@ -84,7 +84,7 @@ ThesaurusBrowser = function (	divname,
 			date = date.getTime();
 			this.div.style.visibility = "hidden";
 			this.div.style.position = "absolute";
-			
+
 			if (navigator.userAgent.indexOf("Safari") != -1) {
 				// safari
 				this.coordX = e.clientX - 305;// - (top.innerWidth - self.innerWidth);
@@ -106,7 +106,7 @@ ThesaurusBrowser = function (	divname,
 
 			this.div.style.left = this.coordX + "px";
 			this.div.style.top  = this.coordY + "px";
-			
+
 			Browser = this;
 			this.frame.src = this.framepath + "browser.html?time=" + date;
 
@@ -151,18 +151,18 @@ ThesaurusBrowser = function (	divname,
 		{
 			clearTimeout(this.fadeTimer);
 			this.div.style.visibility = "visible";
-			if (this.fade >= 100) {
+			//if (this.fade >= 100) {
 				this.fadeTimer = null;
 				this.div.style.MozOpacity = "";
 				this.div.style.opacity = "";
 				this.div.style.filter= "";
 				return;
-			}
-			this.div.style.MozOpacity = this.fade/100;
+			//}
+			/*this.div.style.MozOpacity = this.fade/100;
 			this.div.style.opacity = this.fade/100;
 			this.div.style.filter = 'alpha(opacity=' + this.fade + ')';
 			this.fade += 7;
-			this.fadeTimer = setTimeout(this.varname+".fadein()", 1);
+			this.fadeTimer = setTimeout(this.varname+".fadein()", 1);*/
 
 		}//end fadein
 
@@ -177,7 +177,7 @@ ThesaurusBrowser = function (	divname,
 		{
 			clearTimeout(this.fadeTimer);
 			this.div.style.visibility = "visible";
-			if (this.fade <= 0) {
+			//if (this.fade <= 0) {
 				this.fadeTimer = null;
 				this.div.style.visibility = "hidden";
 				document.getElementById(this.blanket).style.visibility = "hidden";
@@ -185,12 +185,12 @@ ThesaurusBrowser = function (	divname,
 				this.div.style.opacity = "";
 				this.div.style.filter= "";
 				return;
-			}
-			this.div.style.MozOpacity = this.fade/100;
+			//}
+			/*this.div.style.MozOpacity = this.fade/100;
 			this.div.style.opacity = this.fade/100;
 			this.div.style.filter = 'alpha(opacity=' + this.fade + ')';
 			this.fade -= 7;
-			this.fadeTimer = setTimeout(this.varname+".fadeout()", 1);
+			this.fadeTimer = setTimeout(this.varname+".fadeout()", 1);*/
 
 		}//end fadeout
 
@@ -255,7 +255,7 @@ ThesaurusBrowser = function (	divname,
 			document.getElementById(this.imgArrow).src = this.imagespath + "info_on.png";
 			document.getElementById(this.infoContainer).style.visibility	= "hidden";
 			document.getElementById(this.infoContainer).style.display		= "none";
-			
+
 			this.infoIsOpen = false;
 
 		}//end infoClose
@@ -344,7 +344,7 @@ ThesaurusBrowser = function (	divname,
 	this.loadEntityInfo = function(entityid)
 		{
 			if (entityid == "") return;
-			
+
 			if (this.infoIsOpen) {
 				document.getElementById(this.helperframe).src =
 					this.helperpath + "&" +
