@@ -1,7 +1,23 @@
 <?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Commercial Module Licence                                |
+* +--------------------------------------------------------------------+
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +--------------------------------------------------------------------+
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +--------------------------------------------------------------------+
+*
+* $Id: bulkmail_manager.inc,v 1.25 2005/11/24 23:31:14 ndvries Exp $
+*
+*/
 
 require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_office.inc';
 require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
+
 
 /**
 * Bulkmail_Manager
@@ -12,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -354,8 +370,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			$progress_info = $this->getJobProgress($job_id);
 			$progress_info['last_updated'] = 0;
 			$data_dir = $this->getJobDataPath($job_id);
-			$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';
-			if (!string_to_file($output, $data_dir.'/progress_info')) {
+			if (!array_to_file($progress_info, 'progress_info', $data_dir.'/progress_info')) {
 				trigger_localised_error('BML0008', E_USER_WARNING, $data_dir.'/progress_info');
 				return false;
 			}
@@ -506,8 +521,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 							'problematic'		=> Array(),
 						 );
 
-		$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';
-		if (!string_to_file($output, $data_dir.'/progress_info')) {
+		if (!array_to_file($progress_info, 'progress_info', $data_dir.'/progress_info')) {
 			trigger_localised_error('BML0007', E_USER_WARNING, $data_dir.'/progress_info');
 			return false;
 		} else {
@@ -595,8 +609,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 											'dir'	=> $data_dir.'/queue',
 										 );
 
-		$output = ' <?php $details_info = '.var_export($details_info, true).'; ?>';
-		if (!string_to_file($output, $data_dir.'/details_info')) {
+		if (!array_to_file($details_info, 'details_info', $data_dir.'/details_info')) {
 			trigger_localised_error('BML0007', E_USER_WARNING, $data_dir.'/details_info');
 			return false;
 		} else {
