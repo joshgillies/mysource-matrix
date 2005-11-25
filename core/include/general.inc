@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.115 2005/11/24 22:40:29 sdanis Exp $
+* $Id: general.inc,v 1.116 2005/11/25 04:17:22 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.115 $
+* @version $Revision: 1.116 $
 * @package MySource_Matrix
 */
 
@@ -1023,6 +1023,14 @@ function get_asset_tag_line($assetid, $screen='')
 			$asset_info['name'] = $shadow_asset->name;
 			$asset_info['short_name'] = $shadow_asset->short_name;
 			$asset_info['status'] = $shadow_asset->status;
+			$asset_info['created'] = $shadow_asset->created;
+			$asset_info['created_userid'] = $shadow_asset->created_userid;
+			$asset_info['updated'] = $shadow_asset->updated;
+			$asset_info['updated_userid'] = $shadow_asset->updated_userid;
+			$asset_info['published'] = $shadow_asset->published;
+			$asset_info['published_userid'] = $shadow_asset->published_userid;
+			$asset_info['status_changed'] = $shadow_asset->status_changed;
+			$asset_info['status_changed_userid'] = $shadow_asset->status_changed_userid;
 		}
 	} else {
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
