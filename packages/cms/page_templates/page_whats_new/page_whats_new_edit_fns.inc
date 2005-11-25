@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_edit_fns.inc,v 1.11 2005/11/25 05:04:00 lwright Exp $
+* $Id: page_whats_new_edit_fns.inc,v 1.12 2005/11/25 06:07:17 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -182,7 +182,6 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 
 				foreach ($datetime->_edit_params['show'] as $u) {
 					$datetime->_edit_params['style'][$u] = 's';
-					$datetime->_edit_params['null'][$u] = false;
 				}
 				if (trim($range_name) != '') {
 					$datetime->value = $ranges[$rangeid][$type];
