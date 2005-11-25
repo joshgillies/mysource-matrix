@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.38 2005/11/24 23:30:15 ndvries Exp $
+* $Id: file_system.inc,v 1.39 2005/11/25 00:28:46 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions for the file system
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package Fudge
 * @subpackage General
 */
@@ -167,7 +167,7 @@ function string_to_file($string, $filename)
 */
 function array_to_file($value, $var_name, $filename)
 {
-	if (!is_array($array)) return false;
+	if (!is_array($value)) return false;
 	$string = '<?php $'.$var_name.' = '.var_export($value, true).'; ?>';
 	return string_to_file($string, $filename);
 
