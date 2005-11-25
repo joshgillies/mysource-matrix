@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.16.2.1 2005/08/18 05:09:59 pgannavarapu Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.16.2.2 2005/11/25 05:17:20 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16.2.1 $
+* @version $Revision: 1.16.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -374,13 +374,13 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$assetid = key($this->_running_vars['re_lock_assets']);
 		unset($this->_running_vars['re_lock_assets'][$assetid]);
 
-		$children = &$GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
+		$children = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
 
 		foreach ($children as $dep_child_id => $dep_child_type_code) {
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($dep_child_id, 'all');
 		}
 
-		$asset_info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
 		$step_data['message'] = translate('hipo_release_locks', $asset_info[$assetid]['name']).translate('hipo_release_locks_dependents');
 
@@ -427,7 +427,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 					<?php
 					$assets = $this->_running_vars['assets'];
 					for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
-						$asset_info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
+						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 						?><li>"<?php echo $asset_info[$assetid]['short_name']; ?>"</li><?php
 					}
 					?>
