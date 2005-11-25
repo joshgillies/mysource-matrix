@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.15.2.1 2005/09/15 04:40:47 ndvries Exp $
+* $Id: hipo_job_create_links.inc,v 1.15.2.2 2005/11/25 02:30:18 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.15.2.1 $
+* @version $Revision: 1.15.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -375,24 +375,27 @@ class HIPO_Job_Create_Links extends HIPO_Job
 									$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['majorid'], $link_data['major_type_code']);
 									$link_description = $major->describeLink($link_data['linkid']);
 									$link_lineage = array_pop($link_lineages);
-									$link_lineage = $link_lineages['lineage'];
+									$link_lineage = $link_lineage['lineage'];
 
 									// construct a human readable lineage
 									$num_in_lineage = count($link_lineage);
 									$lineage = '';
-									for ($i = 0; $i < $num_in_lineage; $i++) {
-										$entry = $link_lineage[$i];
-										if ($i == ($num_in_lineage -1)) {
+
+									$i = 0;
+									foreach ($link_lineage as $parentid => $name) {
+										if ($i == ($num_in_lineage - 1)) {
 											continue;
 										} else if ($i <= 1 || $num_in_lineage <= 5) {
-											$lineage .= $entry.' &gt; ';
+											$lineage .= $name.' &gt; ';
 										} else if ($num_in_lineage - $i <= 3 && $num_in_lineage > 5) {
-											$lineage .= $entry.' &gt; ';
+											$lineage .= $name.' &gt; ';
 										} else if ($i == 2 && $num_in_lineage > 5) {
 											$lineage .= '... &gt; ';
 										}
+										$i++;
 									}
-									$lineage .= '<b>'.$link_lineage[($num_in_lineage-1)].'</b>';
+
+									$lineage .= '<b>'.array_pop($link_lineage).'</b>';
 
 									?>
 									<tr>
