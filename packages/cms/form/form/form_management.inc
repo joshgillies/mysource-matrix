@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.36 2005/08/12 00:01:03 dmckee Exp $
+* $Id: form_management.inc,v 1.37 2005/11/25 01:05:18 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -35,6 +35,8 @@ class Form_Management extends Asset_Management
 	/**
 	* Constructor
 	*
+	* @return void
+	* @access public
 	*/
 	function Form_Management(&$pm)
 	{
@@ -140,8 +142,8 @@ class Form_Management extends Asset_Management
 	/**
 	* returns an array with information about the events that the form is listening for
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function getEventList()
 	{
@@ -166,8 +168,8 @@ class Form_Management extends Asset_Management
 	/**
 	* Gets a list of all metadata files that we want web accessable
 	*
+	* @return array
 	* @access private
-	* @return array(string)
 	*/
 	function _getFileList()
 	{
