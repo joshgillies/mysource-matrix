@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.27 2005/05/16 06:36:31 lwright Exp $
+* $Id: datetime.inc,v 1.27.2.1 2005/11/25 03:50:24 lwright Exp $
 *
 */
 
@@ -46,7 +46,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    </datetime>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.27.2.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -186,7 +186,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			if (isset($matches[1])) $period_age  = $matches[1];
 			if (isset($matches[2])) $period_num  = $matches[2];
 			if (isset($matches[3])) $period_type = $matches[3];
-			$date_field_value = date('Y-m-d h:i:s', strtotime($period_age.$period_num.' '.$period_options[$period_type]));
+			$date_field_value = date('Y-m-d H:i:s', strtotime($period_age.$period_num.' '.$period_options[$period_type]));
 		}
 
 		if (!empty($this->_params['print_format'])) {
