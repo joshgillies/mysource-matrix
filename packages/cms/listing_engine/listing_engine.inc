@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.121 2005/11/25 00:26:48 lwright Exp $
+* $Id: listing_engine.inc,v 1.122 2005/11/25 00:36:29 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.121 $
+* @version $Revision: 1.122 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -609,7 +609,7 @@ class Listing_Engine extends Page
 	*/
 	function sortAssetList($asset_list, $sort_info)
 	{
-		if (count($asset_list) == 1 || empty($sort_info)){
+		if (count($asset_list) == 1 || empty($sort_info)) {
 			return $asset_list;
 		}
 
@@ -640,7 +640,7 @@ class Listing_Engine extends Page
 				// initially we plan not to process this type code
 				$process = false;
 
-				if ($type_code == $sort_by_type_code){
+				if ($type_code == $sort_by_type_code) {
 					$process = true;
 
 				} else {
@@ -650,7 +650,7 @@ class Listing_Engine extends Page
 						array_unshift($type_anc, $type_code);
 
 						foreach ($type_anc as $this_type_code) {
-							if ($this_type_code == $sort_by_type_code){
+							if ($this_type_code == $sort_by_type_code) {
 								$process = true;
 								break;
 							}
@@ -982,7 +982,7 @@ class Listing_Engine extends Page
 			} else {
 				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($allowed_parent_type, true);
 				foreach ($descendants as $allowed_type) {
-					if (!isset($allowed_asset_map[$allowed_type])){
+					if (!isset($allowed_asset_map[$allowed_type])) {
 						$allowed_asset_map[$allowed_type] = $allowed_parent_type;
 					}
 				}
@@ -2366,6 +2366,17 @@ class Listing_Engine extends Page
 	/**
 	* Recursive function to limit the number of assets in each group
 	*
+	* The second parameter, $limit_array, contains a list of integers that determine
+	* how many assets/child groups will be kept at each level. eg. in a listing
+	* engine-derived asset with two groups, a $limit_array of Array(2,3) means that
+	* the top-level group will contain at most 2 child groups, and each child group
+	* will contain at most 3 child assets. Any value can be null or zero for all
+	* assets to be kept. The $limit_array passed to each recursive level is reduced
+	* by one (the top level) each time.
+	*
+	* @param array	&$results		The grouped and sorted results list (array of mixed)
+	* @param array	$limit_array	Contains group limits for each level (array of int|null)
+	*
 	* @return void
 	* @access public
 	*/
@@ -2373,9 +2384,9 @@ class Listing_Engine extends Page
 	{
 		$num = array_shift($limit_array);
 
-		foreach($results as $key => $val) {
+		foreach ($results as $key => $val) {
 			if (!is_null($num) && ($num >= 1)) {
-				while(count($results[$key]) > $num) {
+				while (count($results[$key]) > $num) {
 					array_pop($results[$key]);
 				}
 			}
@@ -2384,7 +2395,8 @@ class Listing_Engine extends Page
 				$this->limitAssetsRecursively($results[$key], $limit_array);
 			}
 		}
-	}
+
+	}//end limitAssetsRecursively()
 
 
 	/**
@@ -3227,6 +3239,12 @@ class Listing_Engine extends Page
 	}//end getStructuredRootNodeKeywordReplacement()
 
 
+	/**
+	* Get the replacement for "select_all_js_code" keyword
+	*
+	* @return string
+	* @access public
+	*/
 	function getSelectAllJSCodeKeywordReplacement()
 	{
 		return array_get_index($this->_tmp, 'js_relation_code', '');
