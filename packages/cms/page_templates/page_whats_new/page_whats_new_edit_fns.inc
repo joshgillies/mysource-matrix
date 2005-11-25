@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_edit_fns.inc,v 1.7 2005/05/11 06:07:33 lwright Exp $
+* $Id: page_whats_new_edit_fns.inc,v 1.7.2.1 2005/11/25 05:03:30 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/../../page_templates/page_asset_listing/page_as
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -176,8 +176,13 @@ class Page_Whats_New_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				$datetime->_edit_params['allow_period'] = true;
 				$datetime->_edit_params['use_picker'] = true;
 				$datetime->_edit_params['show'] = Array('y','m','d','h','i','s');
+				$datetime->_edit_params['null'] = Array();
 
-				foreach ($datetime->_edit_params['show'] as $u) $datetime->_edit_params['style'][$u] = 's';
+				foreach ($datetime->_edit_params['show'] as $u) {
+					$datetime->_edit_params['style'][$u] = 's';
+					$datetime->_edit_params['null'][$u] = false;
+				}
+
 				if (trim($range_name) != '') $datetime->value = $ranges[$rangeid][$type];
 
 				$datetime->paint($prefix.'_'.$type, !$write_access);
