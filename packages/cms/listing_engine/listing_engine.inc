@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.120 2005/11/18 04:53:07 lwright Exp $
+* $Id: listing_engine.inc,v 1.121 2005/11/25 00:26:48 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.120 $
+* @version $Revision: 1.121 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -488,7 +488,15 @@ class Listing_Engine extends Page
 			$result_page = $replacements['page_number'];
 			$replacements['page_asset_count'] = $num_assets_showing;
 			// compatibility
-			$replacements['first_asset_position'] = $num_per_page * ($result_page - 1) + 1;
+
+			if ($replacements['asset_count'] == 0) {
+				$replacements['first_asset_position'] = 0;
+			} else if ($num_per_page == 0) {
+				$replacements['first_asset_position'] = 1;
+			} else {
+				$replacements['first_asset_position'] = min(1, $num_per_page * ($result_page - 1) + 1);
+			}
+
 			if ($num_per_page == 0) {
 				$replacements['last_asset_position'] = $replacements['asset_count'];
 			} else {
