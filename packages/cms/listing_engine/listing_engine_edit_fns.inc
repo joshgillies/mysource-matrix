@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.49 2005/11/04 03:05:12 lwright Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.50 2005/11/25 00:48:14 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2069,16 +2069,16 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 
 		$options = Array(
-					'assetid'        => translate('asset_id'),
-					'version'        => translate('version'),
-					'name'           => translate('name'),
-					'short_name'     => translate('short_name'),
-					'status'         => translate('asset_status'),
-					'created'        => translate('created_date'),
-					'updated'        => translate('last_updated_date'),
-					'published'      => translate('last_published_date'),
-					'status_changed' => translate('status_changed_date'),
-					'type_code'      => translate('type_code'),
+					'assetid'			=> translate('asset_id'),
+					'version'			=> translate('version'),
+					'name'				=> translate('name'),
+					'short_name'		=> translate('short_name'),
+					'status'			=> translate('asset_status'),
+					'created'			=> translate('created_date'),
+					'updated'			=> translate('last_updated_date'),
+					'published'			=> translate('last_published_date'),
+					'status_changed'	=> translate('status_changed_date'),
+					'type_code'			=> translate('type_code'),
 				   );
 		$field = array_get_index($group_by_option, 'field', '');
 
@@ -3188,11 +3188,14 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process use format bodycopy dropdown
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* This function returns boolean FALSE if write access to links cannot be
+	* gained on the listing engine asset, TRUE otherwise.
 	*
-	* @return boolean false if no questions in this section, true otherwise
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
 	* @access public
 	*/
 	function paintUseNoResultsBodycopy(&$asset, &$o, $prefix)
@@ -3210,7 +3213,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			combo_box($prefix.'_use_bodycopy', $options, false, Array($enabled));
 
 		} else {
-			if($enabled) {
+			if ($enabled) {
 				echo translate('yes').' - '.get_asset_tag_line($bodycopy_link['minorid'], 'contents');
 			} else {
 				echo translate('no');
@@ -3225,9 +3228,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process use format bodycopy
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public

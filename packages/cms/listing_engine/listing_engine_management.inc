@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.46 2005/11/24 00:20:47 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.47 2005/11/25 00:50:22 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -61,11 +61,11 @@ class Listing_Engine_Management extends Asset_Management
 								  );
 
 		$this->vars['link_types'] = Array(
-									'added'			=> '0.13',
-									'type'			=> 'int',
-									'default'		=> SQ_SC_LINK_BACKEND_NAV,
-									'description'	=> 'Link types that are to be searched. Only applies when Direct Links Only is selected.',
-								  );
+										'added'			=> '0.13',
+										'type'			=> 'int',
+										'default'		=> SQ_SC_LINK_BACKEND_NAV,
+										'description'	=> 'Link types that are to be searched. Only applies when Direct Links Only is selected.',
+									);
 
 		$this->vars['submit_button_text'] = Array(
 												'added'		=> '0.1',
