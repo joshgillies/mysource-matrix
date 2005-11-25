@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.63 2005/11/04 00:00:39 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.64 2005/11/25 01:45:21 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -49,9 +49,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* paints the current sections in the form
 	*
-	* @param object Form				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -81,9 +81,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* process section links (nothing yet)
 	*
-	* @param object Form				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -98,9 +98,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the links to the bodycopies in this section
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -283,9 +283,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the links to the questions in this section
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -321,11 +321,13 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the dropdowns to add questions to this section
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* Return boolean FALSE if write access to links is not held, TRUE otherwise
 	*
-	* @return boolean false if no questions in this section, true otherwise
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
 	* @access public
 	*/
 	function paintUseBodycopy(&$asset, &$o, $prefix)
@@ -348,6 +350,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			if ($num_bodycopies == 0) {
 				echo translate('cms_form_none_customised').'<br />';
 			}
+			return false;
 		} else {
 			check_box('use_bodycopy_main', '1', $asset->attr('use_bodycopy_main'));
 			echo translate('cms_page_contents').'<br />';
@@ -362,9 +365,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* creates a new section if one was selected to be added
 	*
-	* @param object Form				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -394,11 +397,13 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the dropdowns to add questions to this section
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* Return boolean FALSE if attributes write access is not held, TRUE otherwise
 	*
-	* @return boolean false if no questions in this section, true otherwise
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
 	* @access public
 	*/
 	function paintAddQuestions(&$asset, &$o, $prefix)
@@ -433,9 +438,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the newly added questions
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -471,9 +476,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* creates a checkbox to add a new Section
 	*
-	* @param object Form				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -482,7 +487,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	{
 		if (!$asset->writeAccess('links')) return false;
 
-		$option_list = new Asset_Attribute_Option_List();
+		$option_list =& new Asset_Attribute_Option_List();
 		$option_list->paint($prefix.'_sections');
 
 		return true;
@@ -493,9 +498,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* creates a new section if one was selected to be added
 	*
-	* @param object Form				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -528,7 +533,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			$section_count = $asset->getSectionCount() + 1;
 
 			$am->includeAsset('form_section');
-			$section[$i] = new Form_Section();
+			$section[$i] =& new Form_Section();
 			$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 0, 'is_exclusive' => 0);
 
 			$section[$i]->setAttrValue('name', $section_name);
@@ -553,7 +558,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* paint the current submissions for this form
 	*
-	* @param &object $asset the form asset
+	* @param object	&$asset	the form asset
 	*
 	* @return boolean
 	* @access public
@@ -568,7 +573,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* process the current submissions for this form
 	*
-	* @param &object $asset the form asset
+	* @param object	&$asset	the form asset
 	*
 	* @return boolean
 	* @access public
@@ -583,10 +588,10 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* generates a php file for this form to be used on the frontend for a standard Form
 	*
-	* @param &object Form	$asset the form asset
+	* @param object	&$asset	the form asset
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function generateStandardContentFile(&$asset)
 	{
@@ -630,11 +635,11 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* replaces section keywords with their appropriate content
 	*
-	* @param &object Form $asset the form asset
-	* @param string $output the html output to search for replacements
+	* @param object	&$asset	the form asset
+	* @param string	$output	the html output to search for replacements
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function processSectionReplacements(&$asset, $output)
 	{
@@ -675,11 +680,11 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* replaces question keywords with their appropriate content
 	*
-	* @param &object Form $asset the form asset
-	* @param string $output the html output to search for replacements
+	* @param object	&$asset	the form asset
+	* @param string	$output	the html output to search for replacements
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function processQuestionReplacements(&$asset, $output)
 	{
@@ -716,10 +721,10 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* generates a generic section where there is no main or looping bodycopy
 	*
-	* @param &object $asset the section asset
+	* @param object	&$asset	the section asset
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function generateGenericSection(&$asset)
 	{
@@ -758,9 +763,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint a note explaining the restrictions of simple formatting
 	*
-	* @param object Form				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -779,13 +784,13 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the note explaining the restrictions of simple formatting
 	*
-	* We have nothing to process here, so return false always.
+	* We have nothing to process here, so return FALSE always.
 	*
-	* @param object Metadata_Field		$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
-	* @return boolean (false always)
+	* @return boolean
 	* @access public
 	*/
 	function processSimpleFormatting(&$asset, &$o, $prefix)
@@ -798,9 +803,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint a note giving instructions for complex formatting
 	*
-	* @param object Form				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -820,13 +825,13 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the note giving instructions for complex formatting
 	*
-	* Nothing to process, so return false always.
+	* Nothing to process, so return FALSE always.
 	*
-	* @param object Metadata_Field		$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
-	* @return boolean (false always)
+	* @return boolean
 	* @access public
 	*/
 	function processComplexFormatting(&$asset, &$o, $prefix)
