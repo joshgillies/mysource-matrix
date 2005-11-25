@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page.inc,v 1.8 2005/09/22 05:56:53 tbarrett Exp $
+* $Id: paint_layout_page.inc,v 1.9 2005/11/25 06:26:46 tbarrett Exp $
 *
 */
 
@@ -41,7 +41,7 @@ define('SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME', 'default_format');
 * Those bodycopies also support conditions.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -266,11 +266,14 @@ class Paint_Layout_Page extends Page_Standard
 	{
 		if (!empty($asset)) {
 			$bodycopy = &$this->getBodycopy();
-			$keywords = $bodycopy->getKeywords();
-			$replacements = $this->_getKeywordReplacements($keywords, $asset);
-			$bodycopy->setKeywordReplacements($replacements);
-
-			$bodycopy->printBody();
+			if (is_null($bodycopy) || !$bodycopy->readAccess()) {
+				$asset->printBody();
+			} else {
+				$keywords = $bodycopy->getKeywords();
+				$replacements = $this->_getKeywordReplacements($keywords, $asset);
+				$bodycopy->setKeywordReplacements($replacements);
+				$bodycopy->printBody();
+			}
 		}
 
 	}//end paint()
