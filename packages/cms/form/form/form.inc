@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.123 2005/11/15 04:20:49 rong Exp $
+* $Id: form.inc,v 1.124 2005/11/25 01:35:03 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.123 $
+* @version $Revision: 1.124 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -62,6 +62,8 @@ class Form extends Asset
 	*
 	* @param int	$assetid	the asset id to be loaded
 	*
+	* @return void
+	* @access public
 	*/
 	function Form($assetid=0)
 	{
@@ -74,10 +76,11 @@ class Form extends Asset
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
 	function _getName($short_name=false)
 	{
@@ -90,7 +93,7 @@ class Form extends Asset
 
 
 	/**
-	* Returns a reference to the asset represented by the passed assetid
+	* Returns a reference to the asset represented by the passed assetid (or NULL on error)
 	*
 	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
 	* @param string		$type_code		if this exists then this object is used to
@@ -99,7 +102,7 @@ class Form extends Asset
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
-	* @return object Asset or null on error
+	* @return object
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
@@ -108,7 +111,7 @@ class Form extends Asset
 		$asset = null;
 		$id_parts = explode(':', $shadowid);
 
-		if (isset($id_parts[1])){
+		if (isset($id_parts[1])) {
 			$shadowid = $id_parts[1];
 		} else {
 			return $asset;
@@ -187,16 +190,16 @@ class Form extends Asset
 
 				if ($return_link) {
 					$links[] = Array(
-									'linkid'			=> 0,
-									'majorid'			=> $this->id,
-									'minorid'			=> $this->id.':'.$assetid,
-									'major_type_code'	=> $this->type(),
-									'value'				=> '',
-									'link_type'			=> SQ_LINK_TYPE_2,
-									'is_dependant'		=> true,
-									'is_exclusive'		=> false,
-									'sort_order'		=> 0,
-								   );
+								'linkid'			=> 0,
+								'majorid'			=> $this->id,
+								'minorid'			=> $this->id.':'.$assetid,
+								'major_type_code'	=> $this->type(),
+								'value'				=> '',
+								'link_type'			=> SQ_LINK_TYPE_2,
+								'is_dependant'		=> true,
+								'is_exclusive'		=> false,
+								'sort_order'		=> 0,
+							   );
 				}
 			}
 
@@ -209,7 +212,7 @@ class Form extends Asset
 							'form_section'	=> SQ_LINK_TYPE_2,
 						   );
 
-		foreach($real_type_codes as $real_type_code => $allowed_link_types) {
+		foreach ($real_type_codes as $real_type_code => $allowed_link_types) {
 			if ($type_code == '') {
 				// not fussed what we're getting, so return me
 				$get_type = true;
@@ -226,6 +229,7 @@ class Form extends Asset
 				if (empty($query)) return Array();
 
 				$type_links = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
+				assert_valid_db_result($type_links);
 
 				foreach (array_keys($type_links) as $key) {
 					$type_links[$key]['sort_order'] = $new_sort_order;
@@ -360,10 +364,10 @@ class Form extends Asset
 	*											part after the ':')
 	* @param string|array	$type_code			the type of asset that is linked (eg 'User', 'User_Group', etc)
 	*											if an array returns link if matches any of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return array(int)
+	* @return array
 	* @access public
 	* @see Asset_Manager::getParents()
 	*/
@@ -378,9 +382,10 @@ class Form extends Asset
 		if (empty($query)) return Array();
 
 		$queried_parents = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
+		assert_valid_db_result($queried_parents);
 		$parents = Array();
 
-		foreach($queried_parents as $queried_parent) {
+		foreach ($queried_parents as $queried_parent) {
 			$parents[$queried_parent['majorid']] = $queried_parent['type_code'];
 		}
 
@@ -394,17 +399,19 @@ class Form extends Asset
 	/**
 	* Get all asset ids that are below the passed assetid in the various trees in which it exists
 	*
+	* Return structure: Array(int => string) - asset id => type_code
+	*
 	* @param int			$assetid			the id of the asset to get its children for
 	* @param string|array	$type_code			the type of asset that is linked
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	*
-	* @return array(int => string)	returns an array of assetids and their type code
+	* @return array
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
@@ -499,11 +506,11 @@ class Form extends Asset
 	/**
 	* Returns TRUE if the passed minor asset can be linked to this asset, or a string with the error msg
 	*
-	* @param object Asset	$minor		the minor asset that we are linking to
-	* @param string			$link_type	the type of link this is
-	* @param int			$exclusive	the exclusive status of the link (gets passed to canLinkToType)
+	* @param object	&$minor		the minor asset that we are linking to
+	* @param string	$link_type	the type of link this is
+	* @param int	$exclusive	the exclusive status of the link (gets passed to canLinkToType)
 	*
-	* @return mixed TRUE or error message string
+	* @return mixed boolean|string
 	* @access public
 	*/
 	function canCreateLink(&$minor, $link_type, $exclusive)
@@ -518,8 +525,8 @@ class Form extends Asset
 	/**
 	* regenerates the content file for this form
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function fileRegeneration()
 	{
@@ -535,8 +542,8 @@ class Form extends Asset
 	/**
 	* get the question links attached to this form
 	*
+	* @return array
 	* @access public
-	* @return Array(link)
 	*/
 	function getQuestions()
 	{
@@ -549,8 +556,8 @@ class Form extends Asset
 	* get the assetids of ALL of this form's questions, including those
 	* inside sections
 	*
-	* @access public
 	* @return array
+	* @access public
 	*/
 	function &getAllQuestions()
 	{
@@ -570,8 +577,8 @@ class Form extends Asset
 	/**
 	* get the question assets attached to this form
 	*
-	* @access public
 	* @return array
+	* @access public
 	*/
 	function &getQuestionAssets()
 	{
@@ -594,8 +601,8 @@ class Form extends Asset
 	/**
 	* get the question assets attached to this form, even inside sections
 	*
-	* @access public
 	* @return array
+	* @access public
 	*/
 	function &getAllQuestionAssets()
 	{
@@ -618,10 +625,13 @@ class Form extends Asset
 	/**
 	* attach a question to this form
 	*
-	* @param Form_Question &$question the question object to attach
+	* Returns boolean FALSE if a database problem occurs or if question already
+	* attached, or TRUE if sucessful
 	*
+	* @param string	$type_code	the type code of the question we are adding
+	*
+	* @return boolean
 	* @access public
-	* @return boolean false if database problem or question already attached, true if sucessful
 	*/
 	function attachQuestion($type_code)
 	{
@@ -675,10 +685,13 @@ class Form extends Asset
 	/**
 	* delete a question to this form
 	*
-	* @param Form_Question &$question the question object to delete
+	* Returns boolean FALSE if a database problem occurs or if question already
+	* attached, or TRUE if sucessful
 	*
+	* @param object	&$question	the Form_Question object to delete
+	*
+	* @return boolean
 	* @access public
-	* @return boolean false if database problem or question already deleted, true if sucessful
 	*/
 	function deleteQuestion(&$question)
 	{
@@ -716,10 +729,8 @@ class Form extends Asset
 	/**
 	* returns the number of sections in this form
 	*
-	* @param &object $asset the form asset
-	*
+	* @return int
 	* @access public
-	* @return integer number of sections
 	*/
 	function getQuestionCount()
 	{
@@ -730,10 +741,12 @@ class Form extends Asset
 
 
 	/**
-	* get a specific question
+	* get a specific question, and return the question's link
 	*
+	* @param string	$questionid	The question's (shadow?) ID
+	*
+	* @return array
 	* @access public
-	* @return Array(link)
 	*/
 	function getQuestionByID($questionid)
 	{
@@ -744,10 +757,12 @@ class Form extends Asset
 
 
 	/**
-	* get specific question by order
+	* get specific question by order, and return the question's link
 	*
+	* @param int	$orderid	The question's sort order
+	*
+	* @return array
 	* @access public
-	* @return Array(link)
 	*/
 	function &getQuestionByOrder($orderid)
 	{
@@ -760,8 +775,9 @@ class Form extends Asset
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -794,10 +810,10 @@ class Form extends Asset
 	/**
 	* returns all of the sections in this form in order of 'sort_order'
 	*
-	* @param &object $asset the form asset
+	* Structure of return array is Array(object Form_Section).
 	*
+	* @return array
 	* @access public
-	* @return &Array(object form_section)
 	*/
 	function &getSections()
 	{
@@ -816,10 +832,8 @@ class Form extends Asset
 	/**
 	* returns the number of sections in this form
 	*
-	* @param &object $asset the form asset
-	*
+	* @return int
 	* @access public
-	* @return integer number of sections
 	*/
 	function getSectionCount()
 	{
@@ -831,8 +845,8 @@ class Form extends Asset
 	/**
 	* get the section links attached to this form
 	*
+	* @return array
 	* @access public
-	* @return Array(link)
 	*/
 	function &getSectionLinks()
 	{
@@ -853,18 +867,18 @@ class Form extends Asset
 	/**
 	* Clones certain specified components of the asset
 	*
-	* @param object asset &$clone the clone asset shell
-	* @param array			$components	the wanted components to clone eg.
-	*                       Array(
-	*                           'attributes',
-	*                           'metadata_shemas',
-	*                           'metadata',
-	*                           'workflow',
-	*                           'permissions',
-	*                           'data'
-	*                       );
-	*                       or alternately
-	*                       Array('all');
+	* @param object	&$clone		the clone asset shell
+	* @param array	$components	the wanted components to clone eg.
+	*							Array(
+	*								'attributes',
+	*								'metadata_schemas',
+	*								'metadata',
+	*								'workflow',
+	*								'permissions',
+	*								'data',
+	*							);
+	*							or alternately
+	*							Array('all');
 	*
 	* @return boolean
 	* @access public
@@ -901,8 +915,8 @@ class Form extends Asset
 	/**
 	* Called by the design to print the body of this asset
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function printBody()
 	{
@@ -956,12 +970,12 @@ class Form extends Asset
 	/**
 	* Prints the form to screen
 	*
-	* @param Array	$replacements	a list of additional replacements that
+	* @param array	$replacements	a list of additional replacements that
 	*								subclasses can use to insert additional
 	*								keywords
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function printForm($replacements=Array())
 	{
@@ -1058,8 +1072,8 @@ class Form extends Asset
 	/**
 	* Prints the standard form i.e not a wizard
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function printStandard()
 	{
@@ -1079,12 +1093,21 @@ class Form extends Asset
 
 
 	/**
-	* create a bodycopy and attach to form
+	* create a bodycopy and attach to the Bodycopies folder of the form
 	*
-	* @param string $name the name of the bodycopy
+	* The $name attribute will also be used for the Link Value of the link between
+	* the form's Bodycopies folder and the new bodycopy. The name will be lowercased,
+	* spaces replaced with underscores, and assigned to the link value. So if 'Thank
+	* You' is the name of the bodycopy (for instance), it will be linked to the
+	* Bodycopies folder with the link value 'thank_you'.
 	*
+	* Returns boolean FALSE if the bodycopy already exists or if the creation
+	* failed for some reason, or TRUE if it was successfully created
+	*
+	* @param string	$name	the name of the bodycopy to create
+	*
+	* @return boolean
 	* @access public
-	* @return boolean false on error or if bodycopy already exists, true if successful
 	*/
 	function createBodycopy($name)
 	{
@@ -1145,10 +1168,10 @@ class Form extends Asset
 	/**
 	* returns a reference to a bodycopy based of the name of the bodycopy
 	*
-	* @param string		$name	the name of the bodycopy
+	* @param string	$name	the name of the bodycopy
 	*
+	* @return object
 	* @access public
-	* @return &asset bodycopy
 	*/
 	function &getBodycopy($name='')
 	{
@@ -1179,10 +1202,12 @@ class Form extends Asset
 	/**
 	* includes the content file for this form
 	*
-	* @param string $type the type of content file to generate
+	* For now 'standard' is the only option available.
 	*
-	* @access public
+	* @param string	$type	the type of content file to generate
+	*
 	* @return boolean
+	* @access public
 	*/
 	function includeContentFile($type='standard')
 	{
@@ -1204,10 +1229,10 @@ class Form extends Asset
 
 
 	/**
-	* processes the form
+	* processes the form and returns TRUE or FALSE depending on whether form processed successfully
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processForm()
 	{
@@ -1251,8 +1276,8 @@ class Form extends Asset
 	/**
 	* re-populates the active submissions of its members
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function repopulate()
 	{
@@ -1268,10 +1293,10 @@ class Form extends Asset
 
 
 	/**
-	* function to finish off form
+	* function to finish off form and print thank you bodycopy
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function finishForm()
 	{
@@ -1323,8 +1348,8 @@ class Form extends Asset
 	/**
 	* prints the errors that occured in a form submission
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function printErrors()
 	{
@@ -1343,8 +1368,8 @@ class Form extends Asset
 	/**
 	* returns an answer summary in XML format (suitable for submission logs)
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function getXML()
 	{
@@ -1405,8 +1430,8 @@ class Form extends Asset
 	*
 	* @param boolean	$html	return html formatted or not
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function printSummary($html=false)
 	{
@@ -1464,8 +1489,8 @@ class Form extends Asset
 	/**
 	* returns information about where the form exists
 	*
+	* @return array
 	* @access public
-	* @return Array(string)
 	*/
 	function getFormInfo()
 	{
@@ -1489,8 +1514,8 @@ class Form extends Asset
 	* This function assumes the skeleton of a JS validation function has been created around this code
 	* with a form variable named 'form' passed (this is done when generating the content file).
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function generateJSCode()
 	{
@@ -1543,8 +1568,8 @@ class Form extends Asset
 	/**
 	* creates a new submission object
 	*
+	* @return object
 	* @access public
-	* @return &object $submission the submission object
 	*/
 	function &createSubmission()
 	{
@@ -1573,9 +1598,9 @@ class Form extends Asset
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
-	* @param &object Asset	&$broadcaster	the asset that triggered the event
-	* @param Array			$vars			the vars that get submitted by the broadcaster
-	*										we add keywords to the $vars['keywords'] array
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
 	*
 	* @return boolean
 	* @access private
@@ -1725,9 +1750,9 @@ class Form extends Asset
 	/**
 	* Deletes a permission with the passed user or user_group
 	*
-	* @param int	$assetid		the assetid for asset whose permissions to delete
-	* @param int	$userid			the id of the user or user_group to remove the permission from
-	* @param string	$permission		the permission code you are deleting
+	* @param int	$assetid	the assetid for asset whose permissions to delete
+	* @param int	$userid		the id of the user or user_group to remove the permission from
+	* @param string	$permission	the permission code you are deleting
 	*
 	* @return boolean
 	* @access public
@@ -1855,19 +1880,19 @@ class Form extends Asset
 	/**
 	* Get details of the link(s) between the two specified assets
 	*
-	* @param int		$assetid			id of the the $side_of_link asset
-	* @param int		$other_assetid		the asset on the other side of the link
-	* @param int		$link_types			integer that can be the product of bitwise operations
-	*										on the SQ_LINK_* constants
-	* @param string		$value				the value that is associated with this link
-	* @param string		$side_of_link		Which side of the link the first assetid is on
-	*										('major' or 'minor')
-	* @param boolean	$force_array		force the results to return an array of links
-	*										even if there is only one link
-	* @param boolean	$dependant			The dependant status for all the links must be
-	*										this (if not null)
-	* @param boolean	$exclusive			The exclusive status for all the links must be
-	*										this (if not null)
+	* @param int		$assetid		id of the the $side_of_link asset
+	* @param int		$other_assetid	the asset on the other side of the link
+	* @param int		$link_types		integer that can be the product of bitwise operations
+	*									on the SQ_LINK_* constants
+	* @param string		$value			the value that is associated with this link
+	* @param string		$side_of_link	Which side of the link the first assetid is on
+	*									('major' or 'minor')
+	* @param boolean	$force_array	force the results to return an array of links
+	*									even if there is only one link
+	* @param boolean	$dependant		The dependant status for all the links must be
+	*									this (if not null)
+	* @param boolean	$exclusive		The exclusive status for all the links must be
+	*									this (if not null)
 	*
 	* @return array
 	* @access public
@@ -1882,8 +1907,8 @@ class Form extends Asset
 	/**
 	* Get details of the links from the specified asset to all its children
 	*
-	* @param string		$assetid	the assetid of the asset to find the child links for
-	* @param int		$link_type	the type of links to get
+	* @param string	$assetid	the assetid of the asset to find the child links for
+	* @param int	$link_type	the type of links to get
 	*
 	* @return array
 	* @access public
@@ -1902,7 +1927,7 @@ class Form extends Asset
 	*
 	* @param int	$linkid		the link id of the link to update
 	* @param int	$link_type	the type of the link (one of the SQ_LINK_* constants)
-	* @param string $value		the value to place on the link
+	* @param string	$value		the value to place on the link
 	* @param int	$sort_order	the position in the links list that this link should take,
 	*							if less than zero places at end of list
 	*
