@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.18 2005/05/11 06:04:57 lwright Exp $
+* $Id: cron_job_future_lineage.inc,v 1.18.2.1 2005/11/25 02:29:09 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -385,7 +385,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		}
 
 		// get all active future lineage jobs
-		$all_jobs = &$cron_mgr->getJobs(__CLASS__, false);
+		$all_jobs = $cron_mgr->getJobs(__CLASS__, false);
 
 		$dates = Array();
 		for ($i = 0, $total = count($all_jobs); $i < $total; $i++) {
