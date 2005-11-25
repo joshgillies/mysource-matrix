@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.36 2005/11/24 23:24:20 ndvries Exp $
+* $Id: bulk_mailer.inc,v 1.37 2005/11/25 00:49:25 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -197,15 +197,17 @@ class Bulk_Mailer
 				// update total_count in progress info file
 				$info[$job_id]['progress']['total_count'] = count($result['recipient']);
 				$info[$job_id]['progress']['problematic'] = $result['problematic'];
-				$output = '<?php $progress_info = '.var_export($info[$job_id]['progress'], true).'; ?>';
-				string_to_file($output, $progress_path);
+				if (!array_to_file($info[$job_id]['progress'], 'progress_info', $progress_path)) {
+					trigger_localised_error('BML0008', E_USER_WARNING, $progress_path);
+				}
 
 				// cache recipients into chunks
 				create_directory($recipient_path);
 				$chunks = array_chunk($result['recipient'], $recip_per_chunk, true);
 				foreach ($chunks as $index => $chunk) {
-					$output = '<?php $recipient_chunk = '.var_export($chunk, true).'; ?>';
-					string_to_file($output, $recipient_path.'/recipient_'.$index);
+					if (!array_to_file($chunk, 'recipient_chunk', $recipient_path.'/recipient_'.$index)) {
+						trigger_localised_error('BML0008', E_USER_WARNING, $recipient_path.'/recipient_'.$index);
+					}
 				}
 				exit;
 			}
@@ -436,8 +438,7 @@ class Bulk_Mailer
 		$progress_info['current_recip_id'] = $user_id;
 		$progress_info['last_updated'] = time();
 
-		$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';
-		if (!string_to_file($output, $progress_path)) {
+		if (!array_to_file($progress_info, 'progress_info', $progress_path)) {
 			trigger_localised_error('BML0008', E_USER_WARNING, $progress_path);
 			return false;
 		} else {
@@ -466,15 +467,13 @@ class Bulk_Mailer
 		}
 
 		$progress_info['current_chunk']++;
-		$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';
-		if (!string_to_file($output, $progress_path)) {
+
+		if (!array_to_file($progress_info, 'progress_info', $progress_path)) {
 			trigger_localised_error('BML0008', E_USER_WARNING, $progress_path);
 			return false;
 		} else {
 			return true;
 		}
-
-		return $progress_info;
 
 	}//end nextChunk()
 
@@ -908,16 +907,18 @@ class Bulk_Mailer
 			if (isset($progress_info['wake_up_time'])) {
 				// just woke up, unset the wake up time field and process the next recipient
 				unset($progress_info['wake_up_time']);
-				$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';
-				string_to_file($output, $progress_path);
+				if (!array_to_file($progress_info, 'progress_info', $progress_path)) {
+					trigger_localised_error('BML0008', E_USER_WARNING, $progress_path);
+				}
 				return true;
 			}
 			if ($progress_info['threshold_rate'] > $GLOBALS['sleep_threshold']) {
 				// if the time allocated to each mail is greater than the threshold to sleep
 				// set a wake up time in the progress file, and pick up this job again after the wake up time
 				$progress_info['wake_up_time'] = time() + $progress_info['threshold_rate'];
-				$output = '<?php $progress_info = '.var_export($progress_info, true).'; ?>';
-				string_to_file($output, $progress_path);
+				if (!array_to_file($progress_info, 'progress_info', $progress_path)) {
+					trigger_localised_error('BML0008', E_USER_WARNING, $progress_path);
+				}
 				return false;
 			} else {
 				// if time allocated for each mail is less than the threshold, sleep
@@ -972,6 +973,7 @@ class Bulk_Mailer
 
 		if (isset($progress_info['last_updated']) && ($progress_info['last_updated'] != 0)) {
 			$time_diff = time() - $progress_info['last_updated'];
+			//echo "time diff = $time_diff, threshold = $GLOBALS[timeout_threshold], (time_diff > threshold)?\n";
 			// timeout threshold reached, take over
 			if ($time_diff > $GLOBALS['timeout_threshold']) {
 				return true;
