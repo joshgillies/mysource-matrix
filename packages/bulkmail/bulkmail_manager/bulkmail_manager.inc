@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.25 2005/11/24 23:31:14 ndvries Exp $
+* $Id: bulkmail_manager.inc,v 1.26 2005/11/25 03:17:42 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -578,8 +578,15 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 					}
 				break;
 				case 'server_details':
-				case 'threshold':
 					$details_info[$var_name] = $post_office->attr($var_name);
+				break;
+				case 'threshold':
+					// whether default post office overrides the threshold settings
+					if ($this->attr('use_bm_threshold')) {
+						$details_info[$var_name] = $this->attr($var_name);
+					} else {
+						$details_info[$var_name] = $post_office->attr($var_name);
+					}
 				break;
 				default:
 					$details_info[$var_name] = $job->attr($var_name);
