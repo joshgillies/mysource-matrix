@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.27 2005/11/18 04:41:36 lwright Exp $
+* $Id: page_whats_new.inc,v 1.28 2005/11/28 00:25:31 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -120,16 +120,34 @@ class Page_Whats_New extends Listing_Engine
 		$from = $from->getISO8601();
 		$from_date = iso8601_date_component($from);
 		if (!empty($from_date)) {
+			if (!preg_match_all('|^\d{4}-\d{2}-\d{2}$|', $from_date, $matches)) {
+				trigger_localised_error('CMS0053', E_USER_WARNING, $from_date);
+				return Array();
+			}
+
 			$from_time = iso8601_time_component($from);
 			if (empty($from_time)) $from_time = '00:00:00';
+			if (!preg_match_all('|^\d{2}:\d{2}:\d{2}$|', $from_time, $matches)) {
+				trigger_localised_error('CMS0054', E_USER_WARNING, $from_time);
+				return Array();
+			}
 			$where .= ' AND a.'.$field.' >= '.$db->quote($from_date.' '.$from_time);
 		}
 
 		$to = $to->getISO8601();
 		$to_date = iso8601_date_component($to);
 		if (!empty($to_date)) {
+			if (!preg_match_all('|^\d{4}-\d{2}-\d{2}$|', $to_date, $matches)) {
+				trigger_localised_error('CMS0055', E_USER_WARNING, $to_date);
+				return Array();
+			}
+
 			$to_time = iso8601_time_component($to);
-			if (empty($to_time)) $to_time = '00:00:00';
+			if (empty($to_time)) $to_time = '23:59:59';
+			if (!preg_match_all('|^\d{2}:\d{2}:\d{2}$|', $to_time, $matches)) {
+				trigger_localised_error('CMS0056', E_USER_WARNING, $to_time);
+				return Array();
+			}
 			$where .= ' AND a.'.$field.' <= '.$db->quote($to_date.' '.$to_time);
 		}
 
