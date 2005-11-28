@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.43 2005/11/28 05:10:57 rong Exp $
+* $Id: bulk_mailer.inc,v 1.44 2005/11/28 05:22:31 ndvries Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -652,7 +652,13 @@ class Bulk_Mailer
 
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$generateUser =& $am->getAsset($content_gen_as);
-		$replaceUser =& $current_user;
+		$replaceUser =& $generateUser;
+
+		$cache = true;
+		if (!$recipient_id) {
+			$replaceUser =& $current_user;
+			$cache = false;
+		}
 
 		if ($recipient_id) {
 			$replaceUser = $am->getAsset($recipient_id);
@@ -691,7 +697,7 @@ class Bulk_Mailer
 				$content = ob_get_contents();
 			ob_end_clean();
 
-			if ($content_gen_as == $generateUser->id) {
+			if (($content_gen_as == $generateUser->id) && !$cache) {
 				string_to_file($content, $job_path.'/cache/content_file.html');
 			}
 		}
