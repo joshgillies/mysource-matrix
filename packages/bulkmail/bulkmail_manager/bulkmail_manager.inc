@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.26 2005/11/25 03:17:42 rong Exp $
+* $Id: bulkmail_manager.inc,v 1.27 2005/11/28 22:42:39 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -97,6 +97,28 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		return $linkid;
 
 	}//end create()
+
+
+	/**
+	* Returns an array of all the permitted links type, the type asset and the cardinality
+	*
+	* @return array
+	* @access private
+	* @see Asset::_getAllowLinks()
+	*/
+	function _getAllowedLinks()
+	{
+		return Array(
+			SQ_LINK_TYPE_1	=> Array(),
+			SQ_LINK_TYPE_2	=> Array(),
+			SQ_LINK_TYPE_3	=> Array(),
+			SQ_LINK_NOTICE	=> Array(
+								'image'		=> Array('card' => 1, 'exclusive' => false),
+								'design'	=> Array('card' => 'M', 'exclusive' => false),
+							   ),
+	   );
+
+	}//end _getAllowedLinks()
 
 
 	/**
