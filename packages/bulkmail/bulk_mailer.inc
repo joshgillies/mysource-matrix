@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.42 2005/11/28 04:31:53 ndvries Exp $
+* $Id: bulk_mailer.inc,v 1.43 2005/11/28 05:10:57 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -530,7 +530,6 @@ class Bulk_Mailer
 						  );
 			$query = $this->generateGetRecipientsQuery($group_ids, $type_codes);
 			$group_list = $GLOBALS['SQ_SYSTEM']->db->getAssoc($query);
-			bam($group_list);
 			assert_valid_db_result($group_list);
 		}
 
