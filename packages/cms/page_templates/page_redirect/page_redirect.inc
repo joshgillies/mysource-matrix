@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.21 2005/11/28 05:18:24 lwright Exp $
+* $Id: page_redirect.inc,v 1.22 2005/11/28 05:42:36 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -56,7 +56,7 @@ class Page_Redirect extends Page
 	/**
 	* Returns a list of lock types available for this asset type
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function lockTypes()
@@ -71,9 +71,9 @@ class Page_Redirect extends Page
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
 	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -87,7 +87,7 @@ class Page_Redirect extends Page
 	/**
 	* Returns the asset (if any) that we are redirecting to
 	*
-	* @return NULL|object Asset
+	* @return mixed object|null
 	* @access public
 	*/
 	function &getRedirectAsset()
@@ -106,7 +106,7 @@ class Page_Redirect extends Page
 	/**
 	* Set's the asset (if any) that we are going to be redirecting to
 	*
-	* @param object Asset	the asset that we want to redirect to (NULL clears the redirect asset)
+	* @param object	&$asset	the asset that we want to redirect to (NULL clears the redirect asset)
 	*
 	* @return boolean
 	* @access public
@@ -165,7 +165,7 @@ class Page_Redirect extends Page
 			return;
 		}
 
-		$url = $this->getRedirectURL();
+		$url = $this->_getRedirectURL();
 
 		parent::printFrontend();
 		$this->printBody();
@@ -178,10 +178,10 @@ class Page_Redirect extends Page
 						.'statusbar='.((strpos($options, 'hide_status'    ) !== false) ? '0' : '1').','
 						.'toolbar='.((strpos($options, 'hide_toolbar'   ) !== false) ? '0' : '1').','
 						.'resizable='.((strpos($options, 'not_resizable'  ) !== false) ? '0' : '1');
-			if ($w = $this->attr('new_window_width')){
+			if ($w = $this->attr('new_window_width')) {
 				$params .= ',width='.$w;
 			}
-			if ($h = $this->attr('new_window_height')){
+			if ($h = $this->attr('new_window_height')) {
 				$params .= ',height='.$h;
 			}
 
@@ -200,21 +200,25 @@ class Page_Redirect extends Page
 
 		// not in a new window, just relocate them
 		} else {
-			if (!headers_sent()) {
-				header('Location: '.$url);
-			}
+			if (!headers_sent()) header('Location: '.$url);
 		}
 
 	}//end printFrontend()
 
 
+	/**
+	* Get available keywords
+	*
+	* @return array
+	* @access public
+	*/
 	function getAvailableKeywords()
 	{
 		$keywords = parent::getAvailableKeywords();
 
-		$asset = new Asset();
+		$asset =& new Asset();
 
-		foreach($asset->getAvailableKeywords() as $keyword => $desc) {
+		foreach ($asset->getAvailableKeywords() as $keyword => $desc) {
 			$keywords['referring_'.$keyword] = 'Referring Asset: '.$desc;
 		}
 
@@ -258,7 +262,7 @@ class Page_Redirect extends Page
 	/**
 	* Gets the referring asset
 	*
-	* @return object Asset
+	* @return object
 	* @access public
 	*/
 	function &getReferringAsset()
@@ -276,12 +280,26 @@ class Page_Redirect extends Page
 	}//end getReferringAsset()
 
 
+	/**
+	* print body
+	*
+	* @return void
+	* @access public
+	*/
 	function printBody()
 	{
 		echo $this->getJavascriptRedirectKeywordReplacement();
-	}
 
-	function getRedirectURL()
+	}//end printBody()
+
+
+	/**
+	* get the URL that we will be redirecting to
+	*
+	* @return string
+	* @access private
+	*/
+	function _getRedirectURL()
 	{
 		$url = '';
 
@@ -314,9 +332,15 @@ class Page_Redirect extends Page
 
 		return $url;
 
-	}//end getReferringURL()
+	}//end _getRedirectURL()
 
 
+	/**
+	* Get "%javascript_redirect% keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
 	function getJavascriptRedirectKeywordReplacement()
 	{
 		static $fn_called = false;
@@ -325,7 +349,7 @@ class Page_Redirect extends Page
 		$fn_called = true;
 
 		$timeout = $this->attr('timeout');
-		$url = $this->getRedirectURL();
+		$url = $this->_getRedirectURL();
 
 		ob_start();
 			if (headers_sent()) {
@@ -338,7 +362,6 @@ class Page_Redirect extends Page
 		return ob_get_clean();
 
 	}//end getJavascriptRedirectKeywordReplacement()
-
 
 
 }//end class
