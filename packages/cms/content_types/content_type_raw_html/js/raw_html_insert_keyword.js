@@ -10,7 +10,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: raw_html_insert_keyword.js,v 1.2 2005/04/29 05:40:28 gsherwood Exp $
+* $Id: raw_html_insert_keyword.js,v 1.3 2005/11/28 01:53:15 tbarrett Exp $
 *
 */
 
@@ -43,6 +43,7 @@ function insertKeyword(prefix)
 */
 function insertText(text, myField)
 {
+	var rememberScroll = myField.scrollTop;
 	if (document.selection) {
 		// IE
 		myField.focus();
@@ -63,5 +64,6 @@ function insertText(text, myField)
 		// Others
 		myField.value += text;
 	}
+	myField.scrollTop = rememberScroll;
 
 }//end insertText()
