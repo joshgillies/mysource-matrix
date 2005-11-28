@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.39 2005/11/28 03:09:43 ndvries Exp $
+* $Id: bulk_mailer.inc,v 1.40 2005/11/28 03:20:38 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -725,6 +725,10 @@ class Bulk_Mailer
 		$keyword_replacements = Array();
 		foreach ($keywords as $key => $val){
 			$keyword_replacements['bulkmail_'.$key] = $user->getKeywordReplacement($key);
+		}
+		if (is_a($user, 'Bulkmail_User')) {
+			// bulkmail users do not have username, password and last_name
+			$keyword_replacements['bulkmail_asset_attribute_first_name'] = $keyword_replacements['bulkmail_asset_attribute_name'];
 		}
 		$content = replace_keywords($content, $keyword_replacements);
 
