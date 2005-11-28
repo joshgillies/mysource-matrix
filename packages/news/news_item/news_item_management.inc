@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item_management.inc,v 1.8 2005/08/16 23:51:12 dheppell Exp $
+* $Id: news_item_management.inc,v 1.9 2005/11/28 04:46:12 dmckee Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -44,40 +44,47 @@ class News_Item_Management extends Asset_Management
 								'added'		=> '0.1',
 								'type'		=> 'text',
 								'default'	=> '',
+								'is_admin'      => false,
 							  );
 		$this->vars['link_url'] = Array(
 									'added'		=> '0.1',
 									'type'		=> 'text',
 									'default'	=> '',
+									'is_admin'      => false,
 								  );
 		$this->vars['url_suffix'] = Array(
 										'added'			=> '0.1',
 										'type'			=> 'text',
 										'default'		=> '',
 										'description'	=> 'Extra text to send as part of the URL query string',
+										'is_admin'      => false,
 									);
 		$this->vars['summary'] = Array(
 									'added'			=> '0.1',
 									'type'			=> 'wysiwyg',
 									'default'		=> '',
 									'description'	=> 'Short summary of the item',
+									'is_admin'      => false,
 								 );
 		$this->vars['body'] = Array(
 								'added'		=> '0.1',
 								'type'		=> 'wysiwyg',
 								'default'	=> '',
+								'is_admin'      => false,
 							  );
 
 		$this->vars['contact_name'] = Array(
 										'added'		=> '0.2',
 										'type'		=> 'text',
 										'default'	=> '',
+										'is_admin'      => false,
 									  );
 
 		$this->vars['contact_phone'] = Array(
 										'added'		=> '0.2',
 										'type'		=> 'text',
 										'default'	=> '',
+										'is_admin'      => false,
 									   );
 
 		$this->vars['show_headline'] = Array(
@@ -87,6 +94,7 @@ class News_Item_Management extends Asset_Management
 										'parameters'	=> Array(
 															'allow_empty'	=> false,
 														   ),
+										'is_admin'      => false,
 									   );
 
 		$this->vars['show_summary'] = Array(
@@ -96,6 +104,7 @@ class News_Item_Management extends Asset_Management
 										'parameters'	=> Array(
 															'allow_empty'	=> false,
 														   ),
+										'is_admin'      => false,
 									  );
 
 		$this->vars['show_body'] = Array(
@@ -105,6 +114,7 @@ class News_Item_Management extends Asset_Management
 									'parameters'	=> Array(
 														'allow_empty'	=> false,
 													   ),
+									'is_admin'      => false,
 								   );
 
 		$this->vars['show_contact_name'] = Array(
@@ -114,6 +124,7 @@ class News_Item_Management extends Asset_Management
 											'parameters'	=> Array(
 																'allow_empty'	=> false,
 															   ),
+											'is_admin'      => false,
 										   );
 
 		$this->vars['show_contact_phone'] = Array(
@@ -123,6 +134,7 @@ class News_Item_Management extends Asset_Management
 												'parameters'	=> Array(
 																	'allow_empty'	=> false,
 																   ),
+												'is_admin'      => false,
 											);
 
 		$this->components['summary'] = Array (
