@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.21 2005/11/28 04:02:18 rong Exp $
+* $Id: bulkmail_job.inc,v 1.22 2005/11/28 04:09:13 ndvries Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -104,9 +104,6 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		$driver = array_get_index($server_details, 'driver', '');
 		$mail_object =& Mail::factory($driver, $server_details);
 
-		// store current session info, so that current user will not get errors
-		$old_session = $_SESSION;
-
 		// generate content as pre-selected user
 		$data_dir = $post_office->data_path.'/.data/'.$this->id;
 		$content_id = $this->attr('content_id');
@@ -115,9 +112,6 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		$content_layout = $this->attr('content_layout');
 		require_once SQ_PACKAGES_PATH.'/bulkmail/bulk_mailer.inc';
 		$content = Bulk_Mailer::generateContent($content_id, $content_gen_as, $content_design, $content_layout, $data_dir);
-
-		// restore session info
-		$_SESSION = $old_session;
 
 		// get header details, required and normal headers
 		$use_post_office_header = $this->attr('use_post_office_header');
