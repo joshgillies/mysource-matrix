@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.37 2005/11/25 00:49:25 rong Exp $
+* $Id: bulk_mailer.inc,v 1.38 2005/11/28 01:11:51 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -177,31 +177,27 @@ class Bulk_Mailer
 	*/
 	function chunkJob($job_id, $recip_per_chunk)
 	{
-		//speed_check(); mem_check('chunkJob start');
-		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
-		$info = $bm->getQueuedJobs($job_id);
-		$job_path = $bm->getJobDataPath($job_id);
-		$recipient_path = $job_path.'/cache/recipient';
-		$progress_path = $job_path.'/progress_info';
+		$pid = $this->fork();
+		if (!$pid) {
+			// reconnect because child disconnects DB when it exits
+			$this->_reconnectDB();
+			$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+			$info = $bm->getQueuedJobs($job_id);
+			$job_path = $bm->getJobDataPath($job_id);
+			$recipient_path = $job_path.'/cache/recipient';
+			$progress_path = $job_path.'/progress_info';
 
-		// start caching if not previously cached
-		if (!is_dir($recipient_path)) {
-
-			// do this in a fork process, to free up memory
-			$pid = $this->fork();
-			// is a child process
-			if (!$pid) {
-				// reconnect because child disconnects DB when it exits
-				$this->_reconnectDB();
+			// start caching if not previously cached
+			if (!is_dir($recipient_path)) {
 				$result = $this->getAllRecipients($info[$job_id]['details']['content_id'], $info[$job_id]['details']['recipients']);
-				// update total_count in progress info file
+				// update total_count and list of problematic recipients in the progress file
 				$info[$job_id]['progress']['total_count'] = count($result['recipient']);
 				$info[$job_id]['progress']['problematic'] = $result['problematic'];
 				if (!array_to_file($info[$job_id]['progress'], 'progress_info', $progress_path)) {
 					trigger_localised_error('BML0008', E_USER_WARNING, $progress_path);
 				}
 
-				// cache recipients into chunks
+				// cache recipients into smaller chunks
 				create_directory($recipient_path);
 				$chunks = array_chunk($result['recipient'], $recip_per_chunk, true);
 				foreach ($chunks as $index => $chunk) {
@@ -209,10 +205,9 @@ class Bulk_Mailer
 						trigger_localised_error('BML0008', E_USER_WARNING, $recipient_path.'/recipient_'.$index);
 					}
 				}
-				exit;
 			}
+			exit;
 		}
-		//speed_check(); mem_check('chunkJob end');
 
 	}//end chunkJob()
 
@@ -271,7 +266,7 @@ class Bulk_Mailer
 		// read chunks from cache and process them
 		//speed_check(); mem_check('start whileloop');
 		while (file_exists($recipient_path.'/recipient_'.$progress_info['current_chunk'])) {
-			// echo $progress_info['current_chunk'].' ';
+			//echo $progress_info['current_chunk'].' ';
 			////speed_check(); mem_check('processJob fork chunk '.$progress_info['current_chunk']);
 
 			// check if job state is paused/cancelled at the beginning of each chunk
@@ -768,21 +763,14 @@ class Bulk_Mailer
 	*/
 	function replaceContentKeyword($content, $user)
 	{
+		// to insert user keywords in the 'Asset to Send' content,
+		// add 'bulkmail_' prefix in front of normal keywords
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
-
-		$name = '';
-		if (is_a($user, 'User')) {
-			$name = $user->attr('first_name').' '.$user->attr('last_name');
-		} else if (is_a($user, 'Bulkmail_User')) {
-			$name = $user->attr('name');
-			// if use email address if name not found
-			if (empty($name)) $name = $user->attr('email');
+		$keywords = $user->getAvailableKeywords();
+		$keyword_replacements = Array();
+		foreach ($keywords as $key => $val){
+			$keyword_replacements['bulkmail_'.$key] = $user->getKeywordReplacement($key);
 		}
-		$keyword_replacements = Array(
-									'bmail_assetid'	=> $user->id,
-									'bmail_name'	=> $name,
-									'bmail_email'	=> $user->attr('email'),
-								);
 		$content = replace_keywords($content, $keyword_replacements);
 
 		return $content;
