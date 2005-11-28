@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_user.inc,v 1.3 2005/10/27 06:20:04 rong Exp $
+* $Id: bulkmail_user.inc,v 1.4 2005/11/28 04:21:08 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -79,7 +79,12 @@ class Bulkmail_User extends Asset
 	*/
 	function _getName($short_name=false)
 	{
-		return $this->attr('email');
+		$name = $this->attr('name');
+		if ($short_name || empty($name)) {
+			return $this->attr('email');
+		} else {
+			return $name;
+		}
 
 	}//end _getName()
 
