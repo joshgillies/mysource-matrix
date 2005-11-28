@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_user_edit_fns.inc,v 1.3 2005/10/27 06:20:04 rong Exp $
+* $Id: bulkmail_user_edit_fns.inc,v 1.4 2005/11/28 22:42:01 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -42,24 +42,6 @@ class Bulkmail_User_Edit_Fns extends Asset_Edit_Fns
 		$this->Asset_Edit_Fns();
 
 	}//end constructor
-
-
-	/**
-	* Paints XYZ
-	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintXYZ(&$asset, &$o, $prefix)
-	{
-		$write_access = $asset->writeAccess('attributes');
-		return $write_access;
-
-	}//end paintXYZ()
 
 
 }//end class
