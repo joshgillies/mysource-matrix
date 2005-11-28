@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/05/11 06:07:48 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2005/11/28 03:53:21 ndvries Exp $
 *
 *
 * Search Package Localised Strings File
@@ -23,6 +23,5 @@
 <string source="sch_folder_no_search_phrase">No search terms have been entered. All assets will be searched.</string>
 <string source="sch_folder_logic_or">Results include any terms</string>
 <string source="sch_folder_logic_and">Results include all terms</string>
-<string source="sch_folder_no_status_selected">No statuses are selected</string>
 <string source="sch_folder_only_own_links">The Search Folder can only get its own links</string>
 </strings>

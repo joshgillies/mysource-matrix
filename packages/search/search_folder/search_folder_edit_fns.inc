@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_edit_fns.inc,v 1.19 2005/11/04 03:05:14 lwright Exp $
+* $Id: search_folder_edit_fns.inc,v 1.20 2005/11/28 03:53:21 ndvries Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -279,7 +279,7 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 			combo_box($prefix.'_statuses', $options, true, $current);
 		} else {
 			if (empty($current)) {
-				echo translate('sch_folder_no_status_selected');
+				echo translate('no_status_selected');
 			} else {
 				?><ul style="margin: 1px 15px"><?php
 				foreach ($current as $status) {
