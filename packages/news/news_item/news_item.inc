@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item.inc,v 1.13 2005/08/16 23:51:12 dheppell Exp $
+* $Id: news_item.inc,v 1.14 2005/11/28 04:59:17 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * Purpose
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -89,7 +89,7 @@ class News_Item extends Page
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', true, 'link_asset');
 		if (empty($link)) {
 			$null = null;
-			return null;
+			return $null;
 		}
 
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
@@ -195,7 +195,7 @@ class News_Item extends Page
 		<div id="sq_news_summary">
 			<p><?php echo $this->attr('summary'); ?></p>
 		</div>
-		<?php 
+		<?php
 		}
 
 		if ($this->attr('show_body')) {
@@ -209,7 +209,7 @@ class News_Item extends Page
 		if ($this->attr('show_contact_name') || $this->attr('show_contact_phone')) {
 		?>
 		<div id="sq_news_contact">
-		<?php 
+		<?php
 			if ($this->attr('show_contact_name')) {
 			?>
 			<p><?php echo 'Contact: '.$this->attr('contact_name'); ?></p>
