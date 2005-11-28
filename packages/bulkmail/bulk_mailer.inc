@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.38 2005/11/28 01:11:51 rong Exp $
+* $Id: bulk_mailer.inc,v 1.39 2005/11/28 03:09:43 ndvries Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -255,14 +255,6 @@ class Bulk_Mailer
 		$sent_path = $queue_path.'/sent';
 		if (!is_dir($sent_path)) create_directory($sent_path);
 
-		// update the cached content before we start
-		// fork this process so that we can call printFrontend again
-		$pid = $this->fork();
-		if (!$pid) {
-			$this->cacheContent($details['content_id'], $details['content_gen_as'], $details['content_design'], $details['content_layout'], $job_path);
-			exit;
-		}
-
 		// read chunks from cache and process them
 		//speed_check(); mem_check('start whileloop');
 		while (file_exists($recipient_path.'/recipient_'.$progress_info['current_chunk'])) {
@@ -310,7 +302,11 @@ class Bulk_Mailer
 						$pid = $this->fork();
 						if (!$pid) {
 							$GLOBALS['mail_start'] = get_microtime();
-							$content = $this->generateBmailContent($details['content_id'], $details['content_gen'], $details['content_design'], $details['content_layout'], $job_path, $user_id);
+							$recipient = $user_id;
+							if ($details['content_gen'] == 'one_user') {
+								$recipient = 0;
+							}
+							$content = $this->generateContent($details['content_id'], $details['content_gen_as'], $details['content_design'], $details['content_layout'], $job_path, $recipient);
 							// only queue the mail if we can generate content
 							$problematic = (empty($content)) ? true : false;
 							if (!$problematic) {
@@ -534,6 +530,7 @@ class Bulk_Mailer
 						  );
 			$query = $this->generateGetRecipientsQuery($group_ids, $type_codes);
 			$group_list = $GLOBALS['SQ_SYSTEM']->db->getAssoc($query);
+			bam($group_list);
 			assert_valid_db_result($group_list);
 		}
 
@@ -634,91 +631,45 @@ class Bulk_Mailer
 
 
 	/**
-	* Caches the bulkmail page content as the pre-selected user, returns false if any error occurs
-	*
-	* @param int	$content_id		the assetid of the content page
-	* @param int	$content_gen_as	the assetid of the pre-selected user
-	* @param int	$content_design	the assetid of the effective design
-	* @param int	$content_layout	the assetid of the effective layout
-	* @param string	$job_path		path to the effective job data dir
-	*
-	* @return boolean
-	* @access public
-	*/
-	function cacheContent($content_id, $content_gen_as, $content_design, $content_layout, $job_path)
-	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$page =& $am->getAsset($content_id);
-		$user =& $am->getAsset($content_gen_as);
-
-		// login as pre-selected user and print page content
-		$GLOBALS['SQ_SYSTEM']->setCurrentUser($user);
-
-		ob_start();
-			// generate content based on design and paint layout supplied
-			if ($content_design && $content_layout) {
-				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_PAINT_LAYOUT_ID', $content_layout);
-				$design =& $am->getAsset($content_design);
-				$design->paint($page);
-			} else if ($content_design) {
-				$design =& $am->getAsset($content_design);
-				$design->paint($page);
-			} else if ($content_layout) {
-				$layout =& $am->getAsset($content_layout);
-				$layout->paint($page);
-			} else {
-				@$page->printFrontend();
-			}
-			$content = ob_get_contents();
-		ob_end_clean();
-
-		// cache html content
-		if (!is_dir($job_path.'/cache/')) {
-			create_directory($job_path.'/cache/');
-		}
-		if (!string_to_file($content, $job_path.'/cache/content_file.html')) {
-			trigger_localised_error('BML0008', E_USER_WARNING, $job_path.'/cache/content_file.html');
-			return false;
-		} else {
-			return true;
-		}
-
-	}//end cacheContent()
-
-
-	/**
 	* Generates the html bulkmail content based on the user and content generation type
 	*
 	* Used in previewing mail and sending actual bmail (use each user or one user)
 	* Pre-selected user is used when we cannot login bulkmail_users
 	*
 	* @param int	$content_id		the assetid of the content page
-	* @param string	$content_gen	the content generation type, use each user or use one user
+	* @param string	$content_gen_as	the content generation type, use each user or use one user
 	* @param int	$content_design	the assetid of the effective design
 	* @param int	$content_layout	the assetid of the effective layout
 	* @param string	$job_path		path to the effective job data dir
-	* @param int	$user_id		the recipient of this email, zero is for preview mail
+	* @param int	$recipient_id	the recipient of this email, zero is for preview mail
 	*
 	* @return string
 	* @access public
 	*/
-	function generateBmailContent($content_id, $content_gen, $content_design, $content_layout, $job_path, $user_id=0)
+	function generateContent($content_id, $content_gen_as, $content_design, $content_layout, $job_path, $recipient_id=0)
 	{
-		// note: must run cacheContent() before calling this function
-		if (file_exists($job_path.'/cache/content_file.html')) {
-			$content = file_to_string($job_path.'/cache/content_file.html');
+		// Get the user before we change it
+		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
+
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$generateUser =& $am->getAsset($content_gen_as);
+		$replaceUser =& $generateUser;
+
+		if ($recipient_id) {
+			$replaceUser = $am->getAsset($recipient_id);
+			if (!is_a($replaceUser, 'Bulkmail_User')) {
+				$generateUser =& $replaceUser;
+			}
 		}
 
-		// load this user, for content generation and keyword replacement
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$user = null;
-		if ($user_id) $user =& $am->getAsset($user_id);
+		if (is_null($generateUser) || is_null($replaceUser)) {
+			return '';
+		}
 
-		// always login and generate content for per user basis,
-		// unless the user is a subscriber (bulkmail user) with only an email address
-		if ($content_gen == 'each_user' && !is_null($user) && !is_a($user, 'Bulkmail_User')) {
-			// login as this user and print page content
-			if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($user)) {
+		if ((file_exists($job_path.'/cache/content_file.html')) && ($content_gen_as == $generateUser->id)) {
+			$content = file_to_string($job_path.'/cache/content_file.html');
+		} else {
+			if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($generateUser)) {
 				return '';
 			}
 			$page =& $am->getAsset($content_id);
@@ -740,16 +691,20 @@ class Bulk_Mailer
 				}
 				$content = ob_get_contents();
 			ob_end_clean();
-		}
 
-		// keyword replacement
-		if ($user_id && !is_null($user)) {
-			$content = $this->replaceContentKeyword($content, $user);
+			if ($content_gen_as == $generateUser->id) {
+				string_to_file($content, $job_path.'/cache/content_file.html');
+			}
 		}
+		error_log('generating the content as '.$replaceUser->name);
+		$content = Bulk_Mailer::replaceContentKeywords($content, $replaceUser);
+
+		// Restore the old user again
+		$GLOBALS['SQ_SYSTEM']->setCurrentUser($current_user);
 
 		return $content;
 
-	}//end generateBmailContent()
+	}//end generateContent()
 
 
 	/**
@@ -761,7 +716,7 @@ class Bulk_Mailer
 	* @return string
 	* @access public
 	*/
-	function replaceContentKeyword($content, $user)
+	function replaceContentKeywords($content, $user)
 	{
 		// to insert user keywords in the 'Asset to Send' content,
 		// add 'bulkmail_' prefix in front of normal keywords
@@ -775,7 +730,7 @@ class Bulk_Mailer
 
 		return $content;
 
-	}//end replaceContentKeyword()
+	}//end replaceContentKeywords()
 
 
 //--        THRESHOLD        --//
@@ -796,7 +751,7 @@ class Bulk_Mailer
 		$result = false;
 		switch ($type) {
 			case 'excluded_time' :
-				return $this->checkExcludedTime($thresholds);
+				return $this->isExcludedTime($thresholds);
 			break;
 			case 'send_rate' :
 				return $this->checkSendRate($thresholds, $extra);
@@ -823,7 +778,7 @@ class Bulk_Mailer
 	* @return boolean
 	* @access public
 	*/
-	function checkExcludedTime($thresholds)
+	function isExcludedTime($thresholds)
 	{
 		$days_array = Array(
 						0	=> 'Sun',
@@ -852,7 +807,7 @@ class Bulk_Mailer
 		}
 		return true;
 
-	}//end checkExcludedTime()
+	}//end isExcludedTime()
 
 
 	/**
