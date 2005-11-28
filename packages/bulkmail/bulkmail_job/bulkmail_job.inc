@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.20 2005/11/28 03:11:48 ndvries Exp $
+* $Id: bulkmail_job.inc,v 1.21 2005/11/28 04:02:18 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -117,7 +117,6 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		$content = Bulk_Mailer::generateContent($content_id, $content_gen_as, $content_design, $content_layout, $data_dir);
 
 		// restore session info
-		$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
 		$_SESSION = $old_session;
 
 		// get header details, required and normal headers
