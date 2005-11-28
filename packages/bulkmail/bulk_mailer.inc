@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.40 2005/11/28 03:20:38 rong Exp $
+* $Id: bulk_mailer.inc,v 1.41 2005/11/28 04:18:58 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -511,7 +511,7 @@ class Bulk_Mailer
 					if (is_a($recipient, 'user') || is_a($recipient, 'bulkmail_user')) {
 						$user_list += Array($recipient_id => $recipient->attr('email'));
 					// store all group ids
-					} else if (is_a($recipient, 'user_group') || is_a($recipient, 'web_folder_users')) {
+					} else if (is_a($recipient, 'user_group')) {
 						$group_ids[] = $recipient_id;
 					}
 				}
