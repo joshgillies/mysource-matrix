@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.29.2.3 2005/11/16 00:33:57 dmckee Exp $
+* $Id: insert_image.php,v 1.29.2.4 2005/11/28 04:20:00 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert Image Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.29.2.3 $
+* @version $Revision: 1.29.2.4 $
 * @package MySource_Matrix
 */
 
@@ -72,7 +72,9 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 
 			function Init() {
 				__dlg_init("matrixInsertImage");
-				newImg(document.getElementById('image_container'), '<?php echo sq_web_path('root_url'); ?>' + '/?a=' + document.getElementById("f_imageid[assetid]").value, document.getElementById('f_width').value, document.getElementById('f_height').value);
+				if (document.getElementById("f_imageid[assetid]").value != 0) {
+					newImg(document.getElementById('image_container'), '<?php echo sq_web_path('root_url'); ?>' + '/?a=' + document.getElementById("f_imageid[assetid]").value, document.getElementById('f_width').value, document.getElementById('f_height').value);
+				}
 			};
 
 			function onOK() {
