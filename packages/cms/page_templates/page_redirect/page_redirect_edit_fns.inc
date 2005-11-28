@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect_edit_fns.inc,v 1.15 2005/11/04 00:00:40 lwright Exp $
+* $Id: page_redirect_edit_fns.inc,v 1.16 2005/11/28 05:44:13 lwright Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -54,9 +55,9 @@ class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for selecting the asset to redirect to
 	*
-	* @param object Bodycopy			&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -81,16 +82,18 @@ class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the interface for selecting the asset to redirect to
 	*
-	* @param object Bodycopy			&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processRedirectAssetid(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_redirect_assetid']['assetid'])) return true;
+		if (!isset($_POST[$prefix.'_redirect_assetid']['assetid'])) {
+			return true;
+		}
 
 		$redirect_assetid = $_POST[$prefix.'_redirect_assetid']['assetid'];
 
