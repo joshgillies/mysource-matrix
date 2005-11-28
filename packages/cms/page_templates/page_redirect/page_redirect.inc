@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.20 2005/11/21 22:56:29 lwright Exp $
+* $Id: page_redirect.inc,v 1.21 2005/11/28 05:18:24 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -165,36 +165,10 @@ class Page_Redirect extends Page
 			return;
 		}
 
-		$url = '';
-
-		// See if we are given a query string value to look at
-		$qrystr_param = $this->attr('use_querystring_parameter');
-		if ($qrystr_param && isset($_GET[$qrystr_param]) && trim($_GET[$qrystr_param]) != '') {
-			$url = trim($_GET[$qrystr_param]);
-
-		// if there is no url, see if we have an asset selected
-		} else if (($url = $this->attr('redirect_url')) == '') {
-			$redirect_asset = &$this->getRedirectAsset();
-			if (!is_null($redirect_asset)) {
-				if (($url = $redirect_asset->getURL()) == '') {
-					$url = current_url().'?a='.$redirect_asset->id;
-				}
-			}
-		}//end if
-
-		if ($url == '') {
-			trigger_localised_error('CMS0037', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-			return;
-		}
-
-		$url .= trim($this->attr('url_suffix'));
-
-		// See if we need to append the query string and there is a query string
-		if ($this->attr('append_querystring') && !empty($_SERVER['QUERY_STRING'])) {
-			$url .= ((strpos($url, '?') === false) ? '?' : '&').$_SERVER['QUERY_STRING'];
-		}
+		$url = $this->getRedirectURL();
 
 		parent::printFrontend();
+		$this->printBody();
 
 		if ($this->attr('new_window')) {
 			$options = $this->attr('new_window_options');
@@ -226,14 +200,7 @@ class Page_Redirect extends Page
 
 		// not in a new window, just relocate them
 		} else {
-			$timeout = $this->attr('timeout');
-			if (headers_sent()) {
-				?>
-				<script language="JavaScript" type="text/javascript">
-					setTimeout("self.location = '<?php echo addslashes($url); ?>'", <?php echo $timeout * 1000 ?>);
-				</script>
-				<?php
-			} else {
+			if (!headers_sent()) {
 				header('Location: '.$url);
 			}
 		}
@@ -250,6 +217,8 @@ class Page_Redirect extends Page
 		foreach($asset->getAvailableKeywords() as $keyword => $desc) {
 			$keywords['referring_'.$keyword] = 'Referring Asset: '.$desc;
 		}
+
+		$keywords['javascript_redirect'] = 'JavaScript Redirect Code';
 
 		return $keywords;
 
@@ -286,12 +255,6 @@ class Page_Redirect extends Page
 	}//end getKeywordReplacement()
 
 
-	function printBody()
-	{
-
-	}//end printBody()
-
-
 	/**
 	* Gets the referring asset
 	*
@@ -311,6 +274,71 @@ class Page_Redirect extends Page
 		return $asset;
 
 	}//end getReferringAsset()
+
+
+	function printBody()
+	{
+		echo $this->getJavascriptRedirectKeywordReplacement();
+	}
+
+	function getRedirectURL()
+	{
+		$url = '';
+
+		// See if we are given a query string value to look at
+		$qrystr_param = $this->attr('use_querystring_parameter');
+		if ($qrystr_param && isset($_GET[$qrystr_param]) && trim($_GET[$qrystr_param]) != '') {
+			$url = trim($_GET[$qrystr_param]);
+
+		// if there is no url, see if we have an asset selected
+		} else if (($url = $this->attr('redirect_url')) == '') {
+			$redirect_asset = &$this->getRedirectAsset();
+			if (!is_null($redirect_asset)) {
+				if (($url = $redirect_asset->getURL()) == '') {
+					$url = current_url().'?a='.$redirect_asset->id;
+				}
+			}
+		}//end if
+
+		if ($url == '') {
+			trigger_localised_error('CMS0037', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			return;
+		}
+
+		$url .= trim($this->attr('url_suffix'));
+
+		// See if we need to append the query string and there is a query string
+		if ($this->attr('append_querystring') && !empty($_SERVER['QUERY_STRING'])) {
+			$url .= ((strpos($url, '?') === false) ? '?' : '&').$_SERVER['QUERY_STRING'];
+		}
+
+		return $url;
+
+	}//end getReferringURL()
+
+
+	function getJavascriptRedirectKeywordReplacement()
+	{
+		static $fn_called = false;
+
+		if ($fn_called) return '';
+		$fn_called = true;
+
+		$timeout = $this->attr('timeout');
+		$url = $this->getRedirectURL();
+
+		ob_start();
+			if (headers_sent()) {
+				?>
+				<script language="JavaScript" type="text/javascript">
+					setTimeout("self.location = '<?php echo addslashes($url); ?>'", <?php echo $timeout * 1000 ?>);
+				</script>
+				<?php
+			}
+		return ob_get_clean();
+
+	}//end getJavascriptRedirectKeywordReplacement()
+
 
 
 }//end class
