@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.41 2005/11/28 04:18:58 rong Exp $
+* $Id: bulk_mailer.inc,v 1.42 2005/11/28 04:31:53 ndvries Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -653,7 +653,7 @@ class Bulk_Mailer
 
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$generateUser =& $am->getAsset($content_gen_as);
-		$replaceUser =& $generateUser;
+		$replaceUser =& $current_user;
 
 		if ($recipient_id) {
 			$replaceUser = $am->getAsset($recipient_id);
@@ -696,7 +696,7 @@ class Bulk_Mailer
 				string_to_file($content, $job_path.'/cache/content_file.html');
 			}
 		}
-		error_log('generating the content as '.$replaceUser->name);
+
 		$content = Bulk_Mailer::replaceContentKeywords($content, $replaceUser);
 
 		// Restore the old user again
@@ -725,10 +725,6 @@ class Bulk_Mailer
 		$keyword_replacements = Array();
 		foreach ($keywords as $key => $val){
 			$keyword_replacements['bulkmail_'.$key] = $user->getKeywordReplacement($key);
-		}
-		if (is_a($user, 'Bulkmail_User')) {
-			// bulkmail users do not have username, password and last_name
-			$keyword_replacements['bulkmail_asset_attribute_first_name'] = $keyword_replacements['bulkmail_asset_attribute_name'];
 		}
 		$content = replace_keywords($content, $keyword_replacements);
 
