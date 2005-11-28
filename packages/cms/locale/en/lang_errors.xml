@@ -12,7 +12,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.7 2005/11/28 00:26:42 lwright Exp $
+* $Id: lang_errors.xml,v 1.8 2005/11/28 00:39:11 lwright Exp $
 *
 */
 -->
@@ -172,11 +172,11 @@
 	<error code="CMS0053">From date "%s" is not a valid date. No assets will be displayed.</error>
 		<!-- packages/cms/listing_engine/page_whats_new/page_whats_new.inc:getAssetList() -->
 
-	<error code="CMS0054">To date "%s" is not a valid date. No assets will be displayed.</error>
-		<!-- packages/cms/page_templates/page_whats_new/page_whats_new.inc:getAssetList() -->
-
-	<error code="CMS0055">From time "%s" is not a valid time. No assets will be displayed.</error>
+	<error code="CMS0054">From time "%s" is not a valid time. No assets will be displayed.</error>
 		<!-- packages/cms/listing_engine/page_whats_new/page_whats_new.inc:getAssetList() -->
+
+	<error code="CMS0055">To date "%s" is not a valid date. No assets will be displayed.</error>
+		<!-- packages/cms/page_templates/page_whats_new/page_whats_new.inc:getAssetList() -->
 
 	<error code="CMS0056">To time "%s" is not a valid time. No assets will be displayed.</error>
 		<!-- packages/cms/page_templates/page_whats_new/page_whats_new.inc:getAssetList() -->
