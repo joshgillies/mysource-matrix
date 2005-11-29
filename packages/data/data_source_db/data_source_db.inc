@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.11 2005/11/29 03:58:03 skim Exp $
+* $Id: data_source_db.inc,v 1.12 2005/11/29 04:33:58 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,6 +76,11 @@ class Data_Source_DB extends Data_Source
 			foreach ($tables as $table) {
 				$query = 'select * from '.$table;
 				$result = $conn->getAll($query);
+				$assert_result = assert_valid_db_result($result, 'Query execution failed : '.$sql, false, false);
+				if (!$assert_result) {
+					$empty = Array();
+					return $empty;
+				}
 				if (!empty($result)) {
 					$record = $result(0);
 					foreach ($record as $key => $value) {
@@ -137,6 +142,11 @@ class Data_Source_DB extends Data_Source
 		if (!empty($dsn)) {
 			$conn = $this->connectToDB();
 			$result = &$conn->getAll($sql);
+			$assert_result = assert_valid_db_result($result, 'Query execution failed : '.$sql, false, false);
+			if(!$assert_result) {
+				$empty = Array();
+				return $empty;
+			}
 		}
 		return $result;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.9 2005/11/29 03:58:03 skim Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.10 2005/11/29 04:33:58 skim Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -324,12 +324,9 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 			}
 			if ($type == 'postgres') {
 				$tables =& $conn->getAll('select relname from pg_stat_user_tables order by relname');
-				if (PEAR::isError($tables)) {
-					$this->_tmp['table_error_occurred']['error_msg'] = $tables->getMessage();
-					$this->_tmp['table_error_occurred']['error_code'] = $tables->getCode();
-					$this->_tmp['table_error_occurred']['debug_info'] = $tables->getDebugInfo();
-					$this->_tmp['table_error_occurred']['user_info'] = $tables->getUserInfo();
-					return $tables;
+				$assert_result = assert_valid_db_result($tables, 'Query execution failed', false, false);
+				if (!$assert_result) {
+					return Array();
 				}
 				foreach ($tables as $key =>$row) {
 					$tables[$row['relname']] = $row['relname'];
@@ -337,12 +334,9 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				}
 			} else if ($type == 'mysql') {
 				$tables =& $conn->getAll('show tables');
-				if (PEAR::isError($tables)) {
-					$this->_tmp['table_error_occurred']['error_msg'] = $tables->getMessage();
-					$this->_tmp['table_error_occurred']['error_code'] = $tables->getCode();
-					$this->_tmp['table_error_occurred']['debug_info'] = $tables->getDebugInfo();
-					$this->_tmp['table_error_occurred']['user_info'] = $tables->getUserInfo();
-					return $tables;
+				$assert_result = assert_valid_db_result($tables, 'Query execution failed', false, false);
+				if(!$assert_result) {
+					return Array();
 				}
 				foreach ($tables as $key => $row) {
 					foreach ($row as $index => $name) {
@@ -531,12 +525,9 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				}
 			}
 			$result =& $conn->getAll($query);
-			if (PEAR::isError($result)) {
-				$this->_tmp['field_error_occurred']['error_msg'] = $result->getMessage();
-				$this->_tmp['field_error_occurred']['error_code'] = $result->getCode();
-				$this->_tmp['field_error_occurred']['debug_info'] = $result->getDebugInfo();
-				$this->_tmp['field_error_occurred']['user_info'] = $result->getUserInfo();
-				return $fields;
+			$assert_result = assert_valid_db_result($tables, 'Query execution failed', false, false);
+			if (!$assert_result) {
+				return Array();
 			}
 			if (!empty($result)) {
 				foreach ($result as $record) {
@@ -1716,234 +1707,6 @@ log_dump("\n".'_queryProcessing:'.$sql."\n");
 		return false;
 
 	}//end _queryProcessing()
-
-
-//--        ERROR HANDLING        --//
-
-
-	/**
-	* Find out if there are any tables selected or not
-	*
-	* @param object	&$asset	The asset that might use the files
-	* @param string	$prefix	the prefix for this asset
-	*
-	* @return boolean
-	* @access protected
-	*/
-	function resultSetExists(&$asset, $prefix)
-	{
-		$result = $asset->getResultSet();
-		if (PEAR::isError($result) || empty($result)) {
-			return false;
-		} else {
-			return true;
-		}
-
-	}//end resultSetExists()
-
-
-	/**
-	* Returns true if any errors occurred during db execution
-	*
-	* @param object	&$asset	The asset that might use the files
-	* @param string	$prefix	the prefix for this asset
-	*
-	* @return boolean
-	* @access public
-	*/
-	function dbErrorOccurred(&$asset, $prefix)
-	{
-		$mode = $asset->attr('mode');
-		if ($mode != 'execute') return false;
-
-		return !$this->resultSetExists($asset, $prefix);
-
-	}//end dbErrorOccurred()
-
-
-	/**
-	* Returns true if any errors occurred during getting
-	* the list of tables selected
-	*
-	* @param object	&$asset	The asset that might use the files
-	* @param string	$prefix	the prefix for this asset
-	*
-	* @return boolean
-	* @access public
-	*/
-	function isTableErrorOccurred(&$asset, $prefix)
-	{
-		$mode = $asset->attr('mode');
-		if ($mode != 'execute') return false;
-
-		return isset($this->_tmp['table_error_occurred']);
-
-	}//end isTableErrorOccurred()
-
-
-	/**
-	* Returns true if any errors occurred during getting
-	* the list of fields selected
-	*
-	* @param object	&$asset	The asset that might use the files
-	* @param string	$prefix	the prefix for this asset
-	*
-	* @return boolean
-	* @access public
-	*/
-	function isFieldErrorOccurred(&$asset, $prefix)
-	{
-		$mode = $asset->attr('mode');
-		if ($mode != 'execute') return false;
-
-		return isset($this->_tmp['field_error_occurred']);
-
-	}//end isFieldErrorOccurred()
-
-
-	/**
-	* Paints the interface for displaying db error messages
-	*
-	* @param object	&$asset	the search page asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
-	*
-	* @return void
-	* @access public
-	*/
-	function paintErrorMsg(&$asset, &$o, $prefix)
-	{
-		$result =& $asset->getResultSet();
-		if (PEAR::isError($result)) {
-			$error_msg = $result->getMessage();
-			$error_code = $result->getCode();
-			$debug_info = $result->getDebugInfo();
-			$user_info = $result->getUserInfo();
-
-			$o->openField('DB Error Code');
-				echo $error_code;
-			$o->closeField();
-			$o->openField('DB Error Message');
-				echo $error_msg;
-			$o->closeField();
-			$o->openField('DB Debug Info');
-				echo $debug_info;
-			$o->closeField();
-			$o->openField('DB User Info');
-				echo $user_info;
-			$o->closeField();
-		}
-
-	}//end paintErrorMsg()
-
-
-	/**
-	* Process the interface for displaying db error messages
-	*
-	* @param object	&$asset	the search page asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
-	*
-	* @return void
-	* @access public
-	*/
-	function processErrorMsg(&$asset, &$o, $prefix)
-	{
-		return false;
-
-	}//end processErrorMsg()
-
-
-	/**
-	* Paints the interface for displaying db error messages
-	*
-	* @param object	&$asset	the search page asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
-	*
-	* @return void
-	* @access public
-	*/
-	function paintTablesErrorMsg(&$asset, &$o, $prefix)
-	{
-		$o->openField('DB Error Code');
-			echo $this->_tmp['tables_error']['error_code'];
-		$o->closeField();
-		$o->openField('DB Error Message');
-			echo $this->_tmp['tables_error']['error_msg'];
-		$o->closeField();
-		$o->openField('DB Debug Info');
-		echo $this->_tmp['tables_error']['debug_info'];
-		$o->closeField();
-		$o->openField('DB User Info');
-		echo $this->_tmp['tables_error']['user_info'];
-		$o->closeField();
-		unset($this->_tmp['tables_error']);
-
-	}//end paintTablesErrorMsg()
-
-
-	/**
-	* Process the interface for displaying db error messages
-	*
-	* @param object	&$asset	the search page asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
-	*
-	* @return void
-	* @access public
-	*/
-	function processTablesErrorMsg(&$asset, &$o, $prefix)
-	{
-		return false;
-
-	}//end processTablesErrorMsg()
-
-
-	/**
-	* Paints the interface for displaying db error messages
-	*
-	* @param object	&$asset	the search page asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
-	*
-	* @return void
-	* @access public
-	*/
-	function paintFieldsErrorMsg(&$asset, &$o, $prefix)
-	{
-		$o->openField('DB Error Code');
-			echo $this->_tmp['fields_error']['error_code'];
-		$o->closeField();
-		$o->openField('DB Error Message');
-			echo $this->_tmp['fields_error']['error_msg'];
-		$o->closeField();
-		$o->openField('DB Debug Info');
-		echo $this->_tmp['fields_error']['debug_info'];
-		$o->closeField();
-		$o->openField('DB User Info');
-		echo $this->_tmp['fields_error']['user_info'];
-		$o->closeField();
-		unset($this->_tmp['fields_error']);
-
-	}//end paintFieldsErrorMsg()
-
-
-	/**
-	* Process the interface for displaying db error messages
-	*
-	* @param object	&$asset	the search page asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
-	*
-	* @return void
-	* @access public
-	*/
-	function processFieldsErrorMsg(&$asset, &$o, $prefix)
-	{
-		return false;
-
-	}//end processFieldsErrorMsg()
 
 
 //--        HELPER        --//

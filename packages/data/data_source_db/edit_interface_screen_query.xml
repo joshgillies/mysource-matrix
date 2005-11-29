@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_query.xml,v 1.4 2005/11/29 03:58:03 skim Exp $
+* $Id: edit_interface_screen_query.xml,v 1.5 2005/11/29 04:33:58 skim Exp $
 *
 */
 -->
@@ -95,30 +95,6 @@
 			<function_call>
 				<paint_function   name="paintKeywords"   />
 				<process_function name="processKeywords" />
-			</function_call>
-		</field>
-	</section>
-	<section name="DB Tables Error" write_access="write:attributes" show_if="isTableErrorOccurred">
-		<field>
-			<function_call>
-				<paint_function   name="paintTablesErrorMsg"   />
-				<process_function name="processTablesErrorMsg" />
-			</function_call>
-		</field>
-	</section>
-	<section name="DB Fields Error" write_access="write:attributes" show_if="isFieldErrorOccurred">
-		<field>
-			<function_call>
-				<paint_function   name="paintFieldsErrorMsg"   />
-				<process_function name="processFieldsErrorMsg" />
-			</function_call>
-		</field>
-	</section>
-	<section name="DB Error Message" write_access="write:attributes" show_if="dbErrorOccurred">
-		<field>
-			<function_call>
-				<paint_function   name="paintErrorMsg"   />
-				<process_function name="processErrorMsg" />
 			</function_call>
 		</field>
 	</section>
