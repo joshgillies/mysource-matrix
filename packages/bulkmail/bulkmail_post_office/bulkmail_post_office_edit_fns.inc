@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.23 2005/11/24 01:08:34 rong Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.24 2005/11/29 06:17:30 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -792,7 +792,10 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 						3600	=> translate('hour'),
 						86400	=> translate('day'),
 					 );
-
+		// make sure the send rate is within this range
+		$min_send_rate = 1;
+		$max_send_rate = 600;
+		$send_rate = ($rule['params']['value']/$rule['params']['unit']) * 60;
 		if ($write_access) {
 			ob_start();
 				int_text_box($prefix.'_value', $rule['params']['value'], false);
@@ -804,6 +807,11 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			ob_end_clean();
 			?><td class="sq-backend-table-cell"><?php
 				echo translate('bulkmail_threshold_rule_send_rate_detail', $value, $unit);
+				if ($send_rate < $min_send_rate) {
+					?><br /><span class="sq-backend-warning"><?php echo translate('bm_warning_send_rate_min', $min_send_rate); ?></span><?php
+				} else if ($send_rate > $max_send_rate) {
+					?><br /><span class="sq-backend-warning"><?php echo translate('bm_warning_send_rate_max', $max_send_rate); ?></span><?php
+				}
 			?></td><td class="sq-backend-table-cell"><?php
 				check_box($prefix.'_delete', true, false);?></td><?php
 		} else {
@@ -811,9 +819,13 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			$unit = $time_unit[$rule['params']['unit']];
 			?><td class="sq-backend-table-cell" colspan="2"><?php
 				echo translate('bulkmail_threshold_rule_send_rate_detail', $value, $unit);
+				if ($send_rate < $min_send_rate) {
+					?><br /><span class="sq-backend-warning"><?php echo translate('bm_warning_send_rate_min', $min_send_rate); ?></span><?php
+				} else if ($send_rate > $max_send_rate) {
+					?><br /><span class="sq-backend-warning"><?php echo translate('bm_warning_send_rate_max', $max_send_rate); ?></span><?php
+				}
 			?></td><?php
 		}
-
 	}//end _paintSendRateRule()
 
 
