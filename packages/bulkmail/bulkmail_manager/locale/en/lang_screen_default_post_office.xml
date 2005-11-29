@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_default_post_office.xml,v 1.6 2005/11/29 22:25:53 rong Exp $
+* $Id: lang_screen_default_post_office.xml,v 1.7 2005/11/29 23:59:56 rong Exp $
 *
 */
 -->
@@ -59,7 +59,7 @@
 		</field>
 		<field attribute="chunk_size">
 			<display_name>Chunk Size</display_name>
-			<note>Allow pausing after this number of recipient</note>
+			<note>If there are no thresholding values for send rate, the recipients will be grouped together into chunks of this size. Jobs can only be paused / cancelled when a "chunk" is finished, so this value shouldn't be set too high.</note>
 			<int width="5" />
 		</field>
 		<field>
