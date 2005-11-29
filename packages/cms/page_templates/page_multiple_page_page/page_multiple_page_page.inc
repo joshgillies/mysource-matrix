@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page_page.inc,v 1.5 2005/11/29 23:24:27 dmckee Exp $
+* $Id: page_multiple_page_page.inc,v 1.6 2005/11/29 23:25:53 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -61,6 +61,7 @@ class Page_Multiple_Page_Page extends Bodycopy
 		$page_links[SQ_LINK_TYPE_1]['file'] = Array('card' => 'M', 'exclusive' => false);
 		$page_links[SQ_LINK_TYPE_2]['container'] = Array('card' => 'M', 'exclusive' => false);
 		$page_links[SQ_LINK_TYPE_2]['page'] = Array('card' => 'M', 'exclusive' => false);
+		$page_links[SQ_LINK_TYPE_2]['file'] = Array('card' => 'M', 'exclusive' => false);
 		$page_links[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => false);
 		return $page_links;
 
