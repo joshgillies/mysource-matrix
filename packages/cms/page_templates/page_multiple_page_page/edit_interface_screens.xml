@@ -11,12 +11,12 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.2 2005/11/21 04:34:05 dmckee Exp $
+* $Id: edit_interface_screens.xml,v 1.3 2005/11/29 00:04:27 dmckee Exp $
 *
 */
 -->
 
 <screens>
-	<screen code_name="contents" display_name="Edit Contents"     icon="create" lock_type="content" />
+	<screen code_name="contents" display_name="Edit Contents"     icon="create" lock_type="content" force_unlock="0" />
 	<screen code_name="paths"    display_name="Web Paths"         icon="web"    lock_type="lookups" />
 </screens>
