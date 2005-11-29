@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.27 2005/11/28 22:42:39 rong Exp $
+* $Id: bulkmail_manager.inc,v 1.28 2005/11/29 06:07:00 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -109,14 +109,14 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	function _getAllowedLinks()
 	{
 		return Array(
-			SQ_LINK_TYPE_1	=> Array(),
-			SQ_LINK_TYPE_2	=> Array(),
-			SQ_LINK_TYPE_3	=> Array(),
-			SQ_LINK_NOTICE	=> Array(
-								'image'		=> Array('card' => 1, 'exclusive' => false),
-								'design'	=> Array('card' => 'M', 'exclusive' => false),
-							   ),
-	   );
+				SQ_LINK_TYPE_1	=> Array(),
+				SQ_LINK_TYPE_2	=> Array(),
+				SQ_LINK_TYPE_3	=> Array(),
+				SQ_LINK_NOTICE	=> Array(
+									'image'		=> Array('card' => 1, 'exclusive' => false),
+									'design'	=> Array('card' => 'M', 'exclusive' => false),
+								   ),
+			   );
 
 	}//end _getAllowedLinks()
 
@@ -530,7 +530,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			current_chunk		currently up to this chunk of recipient
 			last_updated		timestamp of when we last added a mail to the queue
 			total_count			total number of mails to send (to be updated when chunking recipient)
-			total_time_taken	to be used for thresholding the bmail send rate
+			time_per_chunk		to be used for thresholding the send rate rule
 			problematic			an array of problematic recipient ids
 		*/
 		$progress_info = Array(
@@ -539,7 +539,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 							'current_chunk'		=> 0,
 							'last_updated'		=> 0,
 							'total_count'		=> 0,
-							'total_time_taken'	=> 0,
+							'time_per_chunk'	=> 0,
 							'problematic'		=> Array(),
 						 );
 
