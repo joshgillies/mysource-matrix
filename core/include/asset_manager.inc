@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.399 2005/11/22 00:37:40 emcdonald Exp $
+* $Id: asset_manager.inc,v 1.400 2005/11/29 22:45:43 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.399 $
+* @version $Revision: 1.400 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2621,22 +2621,27 @@ class Asset_Manager extends MySource_Object
 	*
 	* It returns Array(int => string)	returns an array of assetids and their type code
 	*
-	* @param int			$assetid			the id of the asset to get its parents for
-	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
-	*											if an array returns link if matches any of the array values
-	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	* @param string			$sort_by			a field in the asset table you would like the results
-	*											sorted by (eg. name, short_name etc)
-	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
-	*											Specify that links should be returned for assets the user has read,
-	*											write, or admin access for. Leave NULL to ignore permissions.
+	* @param int				$assetid			the id of the asset to get its parents for
+	* @param mixed string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
+	*												if an array returns link if matches any of the array values
+	* @param boolean			$strict_type_code	whether we are finding assets that are just a $type_code
+	*												or $type_code and any of it's sub-classes
+	* @param string				$sort_by			a field in the asset table you would like the results
+	*												sorted by (eg. name, short_name etc)
+	* @param int				$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
+	*												Specify that links should be returned for assets the user has read,
+	*												write, or admin access for. Leave NULL to ignore permissions.
+	* @param int				$min_height			Optional parameter that specifies minimum number of levels above
+	*												the specified asset for a parent to qualify (immediate parent is 1)
+	* @param int				$max_height			Optional parameter that specifies maximum number of levels above
+	*												the specified asset for a parent to qualify to be returned
+	*
 	*
 	* @return array
 	* @access public
 	* @see generateGetParentsQuery()
 	*/
-	function getParents($assetid, $type_code='', $strict_type_code=true, $sort_by=null, $access=null)
+	function getParents($assetid, $type_code='', $strict_type_code=true, $sort_by=null, $access=null, $min_height=null, $max_height=null)
 	{
 		// check if we are getting parents for a shadow asset, and palm the request off to the
 		// handler of the shadow asset if we are
@@ -2671,7 +2676,7 @@ class Asset_Manager extends MySource_Object
 			return $parents;
 		}
 
-		$query = $this->generateGetParentsQuery($assetid, $type_code, $strict_type_code, $sort_by, $access);
+		$query = $this->generateGetParentsQuery($assetid, $type_code, $strict_type_code, $sort_by, $access, $min_height, $max_height);
 		if (empty($query)) return Array();
 
 		$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
@@ -2693,24 +2698,28 @@ class Asset_Manager extends MySource_Object
 	* generateGetChildrenQuery function.
 	* It returns Array(int => string)	returns an array of assetids and their type code
 	*
-	* @param int|string		$assetid			the id of the asset to get its children for
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	* @param string			$sort_by			a field in the asset table you would like the results
-	*											sorted by (eg. name, short_name etc)
-	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
-	*											Specify that links should be returned for assets the user has read,
-	*											write, or admin access for. Leave NULL to ignore permissions.
+	* @param mixed int|string		$assetid			the id of the asset to get its children for
+	* @param mixed string|array		$type_code			the type of asset that is linked
+	*													(eg 'Page', 'File', etc)
+	*													if an array returns link if matches any
+	*													of the array values
+	* @param boolean				$strict_type_code	whether we are finding assets that are just a $type_code
+	*													or $type_code and any of it's sub-classes
+	* @param string					$sort_by			a field in the asset table you would like the results
+	*													sorted by (eg. name, short_name etc)
+	* @param int					$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
+	*													Specify that links should be returned for assets the user has read,
+	*													write, or admin access for. Leave NULL to ignore permissions.
+	* @param int					$min_depth			Optional parameter that specifies minimum number of levels below
+	*													the specified asset for a child to qualify (immediate child is 1)
+	* @param int					$max_depth			Optional parameter that specifies maximum number of levels below
+	*													the specified asset for a child to qualify to be returned
 	*
 	* @return array
 	* @access public
 	* @see generateGetChildrenQuery()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null, $access=null)
+	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null, $access=null, $min_depth=null, $max_depth=null)
 	{
 		assert_valid_assetid($assetid);
 
@@ -2744,7 +2753,7 @@ class Asset_Manager extends MySource_Object
 			return $children;
 		}
 
-		$query = $this->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $sort_by, $access);
+		$query = $this->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $sort_by, $access, true, $min_depth, $max_depth);
 		$this->forgetAsset($asset);
 		unset($asset);
 		if (empty($query)) return Array();
@@ -5845,25 +5854,29 @@ class Asset_Manager extends MySource_Object
 	* (which may be blank if we are not sorting). The return array is structed so you can implode
 	* it using ' ' as glue to form the full query.
 	*
-	* @param object			&$asset				the asset to get its children for
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	* @param string			$sort_by			a field in the asset table you would like the results
-	*											sorted by (eg. name, short_name etc)
-	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
-	*											Specify that links should be returned for assets the user has read,
-	*											write, or admin access for. Leave NULL to ignore permissions.
-	* @param boolean		$inc_type_code		whether to include the type code in the SELECT or not
+	* @param object				&$asset				the asset to get its children for
+	* @param mixed string|array	$type_code			the type of asset that is linked
+	*												(eg 'Page', 'File', etc)
+	*												if an array returns link if matches any
+	*												of the array values
+	* @param boolean			$strict_type_code	whether we are finding assets that are just a $type_code
+	*												or $type_code and any of it's sub-classes
+	* @param string				$sort_by			a field in the asset table you would like the results
+	*												sorted by (eg. name, short_name etc)
+	* @param int				$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
+	*												Specify that links should be returned for assets the user has read,
+	*												write, or admin access for. Leave NULL to ignore permissions.
+	* @param boolean			$inc_type_code		whether to include the type code in the SELECT or not
+	* @param int				$min_depth			Optional parameter that specifies minimum number of levels below
+	*												the specified asset for a child to qualify (immediate child is 1)
+	* @param int				$max_depth			Optional parameter that specifies maximum number of levels below
+	*												the specified asset for a child to qualify to be returned
 	*
 	* @return array
 	* @access public
 	* @see getChildren()
 	*/
-	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=true, $sort_by=null, $access=null, $inc_type_code=true)
+	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=true, $sort_by=null, $access=null, $inc_type_code=true, $min_depth=null, $max_depth=null)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -5896,6 +5909,22 @@ class Asset_Manager extends MySource_Object
 					';
 			$where = 't.treeid LIKE '.$db->quote($treeid.'%').'
 					  AND t.treeid > '.$db->quote($treeid);
+
+			if (!is_null($min_depth) && !is_null($max_depth)) {
+				if ($min_depth < $max_depth) {
+					$where .= ' AND LENGTH(t.treeid) BETWEEN '.$db->quoteSmart(strlen($treeid) + $min_depth * SQ_CONF_ASSET_TREE_SIZE)
+									.' AND '.$db->quoteSmart(strlen($treeid) + $max_depth * SQ_CONF_ASSET_TREE_SIZE);
+				} else if ($min_depth > $max_depth) {
+					$where .= ' AND LENGTH(t.treeid) BETWEEN '.$db->quoteSmart(strlen($treeid) + $max_depth * SQ_CONF_ASSET_TREE_SIZE)
+									.' AND '.$db->quoteSmart(strlen($treeid) + $min_depth * SQ_CONF_ASSET_TREE_SIZE);
+				} else {
+					$where .= ' AND LENGTH(t.treeid) = '.$db->quoteSmart(strlen($treeid) + $min_depth * SQ_CONF_ASSET_TREE_SIZE);
+				}
+			} else if (!is_null($min_depth)) {
+				$where .= ' AND LENGTH(t.treeid) >= '.$db->quoteSmart(strlen($treeid) + $min_depth * SQ_CONF_ASSET_TREE_SIZE);
+			} else if (!is_null($max_depth)) {
+				$where .= ' AND LENGTH(t.treeid) <= '.$db->quoteSmart(strlen($treeid) + $max_depth * SQ_CONF_ASSET_TREE_SIZE);
+			}
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -5987,22 +6016,26 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Get all asset ids that are above the passed assetid in the various trees in which it exists
 	*
-	* @param int			$assetid			the id of the asset to get its parents for
-	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
-	*											if an array returns link if matches any of the array values
-	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	* @param string			$sort_by			a field in the asset table you would like the results
-	*											sorted by (eg. name, short_name etc)
-	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
-	*											Specify that links should be returned for assets the user has read,
-	*											write, or admin access for. Leave NULL to ignore permissions.
+	* @param int				$assetid			the id of the asset to get its parents for
+	* @param mixed string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
+	*												if an array returns link if matches any of the array values
+	* @param boolean			$strict_type_code	whether we are finding assets that are just a $type_code
+	*												or $type_code and any of it's sub-classes
+	* @param string				$sort_by			a field in the asset table you would like the results
+	*												sorted by (eg. name, short_name etc)
+	* @param int				$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
+	*												Specify that links should be returned for assets the user has read,
+	*												write, or admin access for. Leave NULL to ignore permissions.
+	* @param int				$min_height			Optional parameter that specifies minimum number of levels above
+	*												the specified asset for a parent to qualify (immediate parent is 1)
+	* @param int				$max_height			Optional parameter that specifies maximum number of levels above
+	*												the specified asset for a parent to qualify to be returned
 	*
 	* @return array
 	* @access public
 	* @see getParents()
 	*/
-	function generateGetParentsQuery($assetid, $type_code='', $strict_type_code=true, $sort_by=null, $access=null)
+	function generateGetParentsQuery($assetid, $type_code='', $strict_type_code=true, $sort_by=null, $access=null, $min_height=null, $max_height=null)
 	{
 		assert_valid_assetid($assetid);
 
@@ -6032,9 +6065,48 @@ class Asset_Manager extends MySource_Object
 		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON l.linkid = t.linkid
 					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.majorid = a.assetid';
-		$where  ='t.treeid IN (
-								'.$in_sql.'
-							)';
+
+		// TODO: Is this feasible in getParents?
+		if (!is_null($min_height) || !is_null($max_height)) {
+			$treeids = $this->getAssetTreeids($assetid);
+
+			$where_comps = Array();
+
+			foreach($treeids as $treeid) {
+				$where_comp = $db->quote($treeid).' LIKE t.treeid || '.$db->quote('%');
+
+				// in the get children query function this section gets minor
+				// links, but we want the major links in this case, so we have
+				// to go one further link down - hence the '-1' in these queries
+				if (!is_null($min_height) && !is_null($max_height)) {
+
+					if ($min_height < $max_height) {
+						$where_comp .= ' AND LENGTH(t.treeid) BETWEEN '.$db->quoteSmart(strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE)
+										.' AND '.$db->quoteSmart(strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+					} else if ($min_height > $max_height) {
+						$where_comp .= ' AND LENGTH(t.treeid) BETWEEN '.$db->quoteSmart(strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE)
+										.' AND '.$db->quoteSmart(strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+					} else {
+						$where_comp .= ' AND LENGTH(t.treeid) = '.$db->quoteSmart(strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+					}
+				} else if (!is_null($min_height)) {
+					$where_comp .= ' AND LENGTH(t.treeid) <= '.$db->quoteSmart(strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+				} else if (!is_null($max_height)) {
+					$where_comp .= ' AND LENGTH(t.treeid) >= '.$db->quoteSmart(strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+				}
+
+				$where_comps[] = $where_comp;
+
+			}
+
+			$where = '('.implode(') OR (', $where_comps).')';
+
+		} else {
+			// No conditions, just stick the treeids query straight into the main query
+			$where  ='t.treeid IN (
+						'.$in_sql.'
+					  )';
+		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');

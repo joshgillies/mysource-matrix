@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.28 2005/11/02 05:40:47 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.29 2005/11/29 22:45:45 lwright Exp $
 *
 */
 -->
@@ -59,6 +59,12 @@
 		<field attribute="direction">
 			<selection style="list" />
 		</field>
+		<field attribute="min_depth">
+			<int width="5" />
+		</field>
+		<field attribute="max_depth">
+			<int width="5" />
+		</field>
 		<field>
 			<function_call>
 				<paint_function   name="paintLinkTypes" />
@@ -71,7 +77,6 @@
 			<selection style="list" />
 		</field>
 		<field attribute="num_per_page">
-			<display_name>Assets Per Page</display_name>
 			<int width="5" />
 		</field>
 		<field attribute="prev_page_text">

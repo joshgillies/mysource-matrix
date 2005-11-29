@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.95 2005/11/14 22:33:37 mmcintyre Exp $
+* $Id: page_asset_listing.inc,v 1.96 2005/11/29 22:45:45 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -94,7 +94,7 @@ class Page_Asset_Listing extends Listing_Engine
 
 		// if we are showing an A-Z listing but the user has not selected a proper sort field,
 		// we will use the 'name' attribute of the asset to work out the listing
-		if ($group_by == 'letter'){
+		if ($group_by == 'letter') {
 			if (empty($sort_info) || !($sort_info['type'] == 'field') || ($sort_info['params']['field'] != 'short_name')) {
 				$letter_sort_by = 'name';
 			} else {
@@ -177,13 +177,16 @@ class Page_Asset_Listing extends Listing_Engine
 				case 'number' :
 				case 'random' :
 				case 'grouped' :
+					$min_depth = ($this->attr('min_depth') === '') ? null : $this->attr('min_depth');
+					$max_depth = ($this->attr('max_depth') === '') ? null : $this->attr('max_depth');
+
 					if ($this->attr('direction') == 'down') {
 						foreach ($root_asset_ids as $root_asset_id) {
-							$assets_to_list = $assets_to_list + $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), false, null, SQ_PERMISSION_READ);
+							$assets_to_list = $assets_to_list + $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), false, null, SQ_PERMISSION_READ, $min_depth, $max_depth);
 						}
 					} else {
 						foreach ($root_asset_ids as $root_asset_id) {
-							$assets_to_list = $assets_to_list + $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), false, null, SQ_PERMISSION_READ);
+							$assets_to_list = $assets_to_list + $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), false, null, SQ_PERMISSION_READ, $min_depth, $max_depth);
 						}
 					}
 

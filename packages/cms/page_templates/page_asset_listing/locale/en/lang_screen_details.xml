@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.12 2005/11/02 05:40:47 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.13 2005/11/29 22:45:45 lwright Exp $
 *
 */
 -->
@@ -48,6 +48,14 @@
 				<paint_function   name="paintLinkTypes"  />
 				<process_function name="processLinkTypes" />
 			</function_call>
+		</field>
+		<field attribute="min_depth">
+			<display_name>Minimum Depth/Height</display_name>
+			<note>Optional setting that defines the minimum number of levels below/above a root node an asset must be to qualify for listing. The immediate child/parent is level '1' for the purposes of this and the Maximum Depth/Height setting.</note>
+		</field>
+		<field attribute="max_depth">
+			<display_name>Maximum Depth/Height</display_name>
+			<note>Optional setting that defines the maximum number of levels below/above a root node an asset can be to qualify for listing.</note>
 		</field>
 	</section>
 	<section name="Button Text">
