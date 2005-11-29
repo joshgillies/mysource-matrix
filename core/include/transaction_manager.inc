@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.19 2005/08/11 04:48:19 mmcintyre Exp $
+* $Id: transaction_manager.inc,v 1.20 2005/11/29 05:53:24 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Also to handle nested transaction calls
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 class Transaction_Manager extends MySource_Object
@@ -66,14 +66,14 @@ class Transaction_Manager extends MySource_Object
 	/**
 	* Returns whether we are in a transaction or not
 	*
-	* @param string	$db_name	the name of the database object in the $GLOBALS['SQ_SYSTEM'] object
+	* @param object	&$db	the database object to check
 	*
 	* @return boolean
 	* @access public
 	*/
-	function inTransaction($db_name)
+	function inTransaction(&$db)
 	{
-		return !empty($this->_levels[$db_name]);
+		return !empty($this->_levels[$this->_getId($db)]);
 
 	}//end inTransaction()
 
@@ -83,13 +83,15 @@ class Transaction_Manager extends MySource_Object
 	*
 	* Only does a real begin if this is the first begin
 	*
-	* @param string	$db_name	the name of the database object in the $GLOBALS['SQ_SYSTEM'] object
+	* @param object	&$db	the database object on which to begin the transaction
 	*
 	* @return boolean
 	* @access public
 	*/
-	function begin($db_name)
+	function begin(&$db)
 	{
+		$db_name = $this->_getId($db);
+
 		if (isset($this->_levels[$db_name])) {
 			$this->_levels[$db_name]++;
 		} else {
@@ -99,7 +101,7 @@ class Transaction_Manager extends MySource_Object
 		if ($this->_levels[$db_name] == 1) {
 			if ($GLOBALS['SQ_SYSTEM']->db->phptype != 'oci8') {
 				// first time we have started a transaction
-				$result = $GLOBALS['SQ_SYSTEM']->db->query('BEGIN');
+				$result = $db->query('BEGIN');
 				assert_valid_db_result($result);
 			}
 		}
@@ -113,13 +115,15 @@ class Transaction_Manager extends MySource_Object
 	*
 	* Only does a real commit if this is the last commit
 	*
-	* @param string	$db_name	the name of the database object in the $GLOBALS['SQ_SYSTEM'] object
+	* @param object	&$db	the database object on which to perform the commit
 	*
 	* @return boolean
 	* @access public
 	*/
-	function commit($db_name)
+	function commit(&$db)
 	{
+		$db_name = $this->_getId($db);
+
 		if (empty($this->_levels[$db_name])) {
 			trigger_localised_error('SYS0219', E_USER_WARNING);
 			return false;
@@ -133,7 +137,7 @@ class Transaction_Manager extends MySource_Object
 		$this->_levels[$db_name]--;
 		if ($this->_levels[$db_name] == 0) {
 			// this is the last commit
-			$result = $GLOBALS['SQ_SYSTEM']->db->commit();
+			$result = $db->commit();
 			assert_valid_db_result($result);
 		}
 		return true;
@@ -146,13 +150,15 @@ class Transaction_Manager extends MySource_Object
 	*
 	* Only does a real rollback if this is the last rollback
 	*
-	* @param string	$db_name	the name of the database object in the $GLOBALS['SQ_SYSTEM'] object
+	* @param object	&$db	the database object on which to perform the rollback
 	*
 	* @return boolean
 	* @access public
 	*/
-	function rollback($db_name)
+	function rollback(&$db)
 	{
+		$db_name = $this->_getId($db);
+
 		if (empty($this->_levels[$db_name])) {
 			trigger_localised_error('SYS0231', E_USER_WARNING);
 			return false;
@@ -161,6 +167,7 @@ class Transaction_Manager extends MySource_Object
 		// set the rollback flag
 		$this->_rollback[$db_name] = true;
 		$this->_levels[$db_name]--;
+
 		if ($this->_levels[$db_name] == 0) {
 
 			// this is the last rollback
@@ -173,6 +180,22 @@ class Transaction_Manager extends MySource_Object
 		return true;
 
 	}//end rollback()
+
+
+	/**
+	* Returns the string that identifies the passed db object
+	*
+	* @param object &$db	the database object to return the id string for
+	*
+	* @return string
+	* @access private
+	*/
+	function _getId(&$db)
+	{
+		assert_not_null($db);
+		return (string) $db->connection;
+
+	}//end getConnectionId()
 
 
 }//end class

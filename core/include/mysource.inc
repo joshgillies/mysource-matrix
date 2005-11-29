@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.148 2005/11/16 05:00:54 emcdonald Exp $
+* $Id: mysource.inc,v 1.149 2005/11/29 05:53:24 rhoward Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.148 $
+* @version $Revision: 1.149 $
 * @package MySource_Matrix
 */
 class MySource
@@ -805,7 +805,7 @@ class MySource
 					$this->addMessage(translate('login_key_incorrect'));
 				}
 
-				// deliberalty don't have a break here so it the
+				// deliberately don't have a break here so if the
 				// login fails we make sure that we're logged out
 			case 'logout' :
 				if ($this->user && !is_a($this->user, 'public_user')) {
@@ -1760,9 +1760,9 @@ class MySource
 	* Call as many times as you like.
 	* Ensures the transaction manager has been created.
 	*
-	* @param string	$type	the type of transaction to do (begin, commit, roolback)
+	* @param string	$type	the type of transaction to do (begin, commit, rollback)
 	*
-	* @return void
+	* @return boolean
 	* @access public
 	*/
 	function doTransaction($type)
@@ -1781,16 +1781,14 @@ class MySource
 		#} else {
 		#	error_log ('TRANS : '.$bt[0]['file'].'::'.$bt[0]['line'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
 		#}
+
 		switch (strtolower($type)) {
-			case 'begin'    :
-				$this->tm->begin($this->_db_stack[count($this->_db_stack) - 1]);
-			break;
-			case 'commit'   :
-				$this->tm->commit($this->_db_stack[count($this->_db_stack) - 1]);
-			break;
-			case 'rollback' :
-				$this->tm->rollback($this->_db_stack[count($this->_db_stack) - 1]);
-			break;
+			case 'begin':
+				return $this->tm->begin($this->_db_conns[$this->_db_stack[count($this->_db_stack) - 1]]);
+			case 'commit':
+				return $this->tm->commit($this->_db_conns[$this->_db_stack[count($this->_db_stack) - 1]]);
+			case 'rollback':
+				return $this->tm->rollback($this->_db_conns[$this->_db_stack[count($this->_db_stack) - 1]]);
 		}
 
 	}//end doTransaction()
