@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.78 2005/11/28 03:53:20 ndvries Exp $
+* $Id: lang_strings.xml,v 1.79 2005/11/29 22:32:51 lwright Exp $
 *
 */
 
@@ -575,7 +575,7 @@
 	<string source="hipo_permission_workflow_metadata_cascade_none">If you do not wish to cascade any permissions or schemas, press the &lt;b&gt;Next&lt;/b&gt; button without checking any boxes.</string>
 	<string source="hipo_value_divided_by_schema">Value will be divided by number of affected schemas</string>
 	<string source="hipo_value_divided_by_permission">Value will be divided by number of affected permissions</string>
-	<string source="hipo_cannot_modify_schema">Could not %1$s schema "%2$s" on "%3$S" because this asset already has this schema %4$s. The current schema setting for "%3$s" has been retained</string>
+	<string source="hipo_cannot_modify_schema">Could not %1$s schema "%2$s" on "%3$s" because this asset already has this schema %4$s. The current schema setting for "%3$s" has been retained</string>
 	<string source="hipo_cannot_modify_permission">Could not %1$s %2$s access for "%3$s" on "%4$s" because this asset already has %5$s %2$s access to "%3$s". The current permission for "%4$s" has been retained.</string>
 	<string source="hipo_editing_metadata_schema">Editing Metadata Schemas for "%s"</string>
 	<string source="hipo_skipping_metadata_schema">Skipping "%s" as it does not require metadata</string>
