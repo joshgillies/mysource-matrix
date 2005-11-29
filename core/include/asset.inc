@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.469 2005/11/23 02:23:45 lwright Exp $
+* $Id: asset.inc,v 1.470 2005/11/29 00:03:51 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.469 $
+* @version $Revision: 1.470 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3598,7 +3598,7 @@ class Asset extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function printFrontendAsset($asset)
+	function printFrontendAsset(&$asset)
 	{
 		if (!headers_sent()) {
 			if (!$asset->readAccess()) {
