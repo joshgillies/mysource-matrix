@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_default_post_office.xml,v 1.5 2005/11/24 00:49:23 ndvries Exp $
+* $Id: lang_screen_default_post_office.xml,v 1.6 2005/11/29 22:25:53 rong Exp $
 *
 */
 -->
@@ -56,6 +56,11 @@
 				<paint_function name="paintThresholdSettingCheckBox" />
 				<process_function name="processThresholdSettingCheckBox" />
 			</function_call>
+		</field>
+		<field attribute="chunk_size">
+			<display_name>Chunk Size</display_name>
+			<note>Allow pausing after this number of recipient</note>
+			<int width="5" />
 		</field>
 		<field>
 			<function_call>

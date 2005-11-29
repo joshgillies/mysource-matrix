@@ -12,7 +12,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -30,9 +30,22 @@ class Bulkmail_Manager_Management extends Asset_Management
 
 		$this->vars = Array(
 						'use_bm_threshold'	=> Array(
-												'added'		=> '0.1',
-												'type'		=> 'boolean',
-												'default'	=> false,
+												'added'			=> '0.1',
+												'type'			=> 'boolean',
+												'default'		=> false,
+												'description'	=> 'Whether to override threshold settings',
+											   ),
+						'chunk_size'		=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'int',
+												'default'		=> 100,
+												'parameters'	=> Array(
+																	'allow_negative'	=> false,
+																	'allow_empty'		=> false,
+																	'range_lower'		=> 1,
+																	'range_upper'		=> 600,
+																   ),
+												'description'	=> 'Allow pausing after this number of recipients',
 											   ),
 					  );
 
