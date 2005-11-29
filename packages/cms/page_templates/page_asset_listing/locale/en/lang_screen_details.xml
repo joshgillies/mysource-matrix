@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.13 2005/11/29 22:45:45 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.14 2005/11/29 22:47:24 lwright Exp $
 *
 */
 -->
@@ -51,7 +51,7 @@
 		</field>
 		<field attribute="min_depth">
 			<display_name>Minimum Depth/Height</display_name>
-			<note>Optional setting that defines the minimum number of levels below/above a root node an asset must be to qualify for listing. The immediate child/parent is level '1' for the purposes of this and the Maximum Depth/Height setting.</note>
+			<note>Optional setting that defines the minimum number of levels below/above a root node an asset must be to qualify for listing. The immediate child/parent is level '1' for the purposes of this and the Maximum Depth/Height setting. Only makes sense when &lt;b&gt;Direct Links Only&lt;/b&gt; is turned off.</note>
 		</field>
 		<field attribute="max_depth">
 			<display_name>Maximum Depth/Height</display_name>
