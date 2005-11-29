@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.21.2.1 2005/06/09 00:26:41 arailean Exp $
+* $Id: page_remote_content.inc,v 1.21.2.2 2005/11/29 03:59:31 arailean Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once 'HTTP/Client/CookieManager.php';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.21.2.1 $
+* @version $Revision: 1.21.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -802,7 +802,7 @@ class Page_Remote_Content extends Page
 			$final_path = $url;
 		} else {
 			// convert '././foo.ext' into 'foo.ext'
-			$url = preg_replace('|^(?:\.\/)+(\w.*)$|', '\${1}', $url);
+			$url = preg_replace('|^(?:\.\/)+(\w.*)$|', '$1', $url);
 			$url = preg_replace('|(\/+)|', '/', $url);
 			$path = array_get_index($parsed_fetch_url,'path','/');
 			if (substr($path,-1) != '/'){
