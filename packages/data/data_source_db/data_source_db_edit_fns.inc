@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.8 2005/10/28 06:51:02 pgannavarapu Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.9 2005/11/29 03:58:03 skim Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,6 +53,9 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		$this->Data_Source_Edit_Fns();
 
 	}//end constructor
+
+
+//--        DSN        --//
 
 
 	/**
@@ -223,6 +226,9 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	}//end processDSNAlone()
 
 
+//--        TABLES        --//
+
+
 	/**
 	* Paints the interface for selecting the tables
 	*
@@ -238,7 +244,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		$wa = $asset->writeAccess('attributes');
 		$tables = $this->_getAllTables($asset);
 		$mode = $asset->attr('mode');
-		if (($wa) && ($mode != 'execute')){
+		if (($wa) && ($mode != 'execute')) {
 			$wa = true;
 		} else {
 			$wa = false;
@@ -293,6 +299,65 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		return false;
 
 	}//end processTables()
+
+
+	/**
+	* Function to get all the tables of the database
+	*
+	* @param object	&$asset	the Data Source asset
+	*
+	* @return array
+	* @access public
+	*/
+	function _getAllTables(&$asset)
+	{
+		$dsn = $asset->attr('dsn');
+		$type = $asset->attr('db_type');
+		$db = null;
+		$tables = Array();
+		$conn = null;
+		if (!empty($dsn)) {
+			if (empty($this->conn)) {
+				$conn = $asset->connectToDB();
+			} else {
+				$conn = $this->conn;
+			}
+			if ($type == 'postgres') {
+				$tables =& $conn->getAll('select relname from pg_stat_user_tables order by relname');
+				if (PEAR::isError($tables)) {
+					$this->_tmp['table_error_occurred']['error_msg'] = $tables->getMessage();
+					$this->_tmp['table_error_occurred']['error_code'] = $tables->getCode();
+					$this->_tmp['table_error_occurred']['debug_info'] = $tables->getDebugInfo();
+					$this->_tmp['table_error_occurred']['user_info'] = $tables->getUserInfo();
+					return $tables;
+				}
+				foreach ($tables as $key =>$row) {
+					$tables[$row['relname']] = $row['relname'];
+					unset($tables[$key]);
+				}
+			} else if ($type == 'mysql') {
+				$tables =& $conn->getAll('show tables');
+				if (PEAR::isError($tables)) {
+					$this->_tmp['table_error_occurred']['error_msg'] = $tables->getMessage();
+					$this->_tmp['table_error_occurred']['error_code'] = $tables->getCode();
+					$this->_tmp['table_error_occurred']['debug_info'] = $tables->getDebugInfo();
+					$this->_tmp['table_error_occurred']['user_info'] = $tables->getUserInfo();
+					return $tables;
+				}
+				foreach ($tables as $key => $row) {
+					foreach ($row as $index => $name) {
+						$tables[$name] = $name;
+					}
+					unset($tables[$key]);
+				}
+			}
+		}
+		return $tables;
+
+	}//end _getAllTables()
+
+
+//--        FIELDS        --//
 
 
 	/**
@@ -385,8 +450,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 						}
 					}
 					echo implode(', ', $selected);
-				}
-				else {
+				} else {
 					echo '<b'.translate('no_selected_fields').'</b>';
 				}
 			}
@@ -439,47 +503,58 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 
 	/**
-	* Function to get all the tables of the database
+	* Function that takes the tables names and returns associative array of column names with table names as key
 	*
-	* @param object	&$asset	the Data Source asset
+	* @param array	$tables	the array of table names
+	* @param object	&$asset	the data_source_db asset
 	*
 	* @return array
 	* @access public
 	*/
-	function _getAllTables(&$asset)
+	function _getFields($tables, &$asset)
 	{
-		$dsn = $asset->attr('dsn');
-		$type = $asset->attr('db_type');
-		$db = null;
-		$tables = Array();
-		$conn = null;
-		if (!empty($dsn)) {
-			if (empty($this->conn)) {
-				$conn = $asset->connectToDB();
-			} else {
-				$conn = $this->conn;
-			}
-			if ($type == 'postgres') {
-				$tables = $conn->getAll('select relname from pg_stat_user_tables order by relname');
-				assert_valid_db_result($tables);
-				foreach ($tables as $key =>$row) {
-				$tables[$row['relname']] = $row['relname'];
+		$conn = $asset->connectToDB();
+		$fields = Array();
+		if (!is_array($tables)) $tables = Array($tables);
+		$db_type = $asset->attr('db_type');
+		$query = '';
+		foreach ($tables as $key =>  $table) {
+			if ($table == 'select') {
 				unset($tables[$key]);
+				continue;
 			}
-			} else if ($type == 'mysql') {
-				$tables = $conn->getAll('show tables');
-				assert_valid_db_result($tables);
-				foreach ($tables as $key => $row) {
-					foreach ($row as $index => $name) {
-						$tables[$name] = $name;
-					}
-					unset($tables[$key]);
+			if ($db_type == 'mysql') {
+				$query = 'show columns from '.$table;
+			} else {
+				if ($db_type == 'postgres') {
+					$query = "SELECT column_name FROM information_schema.columns where table_name = '$table'";
 				}
 			}
+			$result =& $conn->getAll($query);
+			if (PEAR::isError($result)) {
+				$this->_tmp['field_error_occurred']['error_msg'] = $result->getMessage();
+				$this->_tmp['field_error_occurred']['error_code'] = $result->getCode();
+				$this->_tmp['field_error_occurred']['debug_info'] = $result->getDebugInfo();
+				$this->_tmp['field_error_occurred']['user_info'] = $result->getUserInfo();
+				return $fields;
+			}
+			if (!empty($result)) {
+				foreach ($result as $record) {
+					if ($db_type == 'mysql') {
+						$fields[$table][$table.'.'.$record['Field']] = $record['Field'];
+					} else {
+						$fields[$table][$table.'.'.$record['column_name']] = $record['column_name'];
+					}
+				}
+				if (empty($record)) $fields[$table] = '';
+			}
 		}
-		return $tables;
+		return $fields;
 
-	}//end _getAllTables()
+	}//end _getFields()
+
+
+//--        JOIN        --//
 
 
 	/**
@@ -496,7 +571,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	{
 		$mode = $asset->attr('mode');
 		$wa = $asset->writeAccess('attributes');
-		if (($wa) && ($mode != 'execute')){
+		if (($wa) && ($mode != 'execute')) {
 			$wa = true;
 		} else {
 			$wa = false;
@@ -569,7 +644,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		$joins = $asset->attr('join');
 		$mode = $asset->attr('mode');
 		$wa = $asset->writeAccess('attributes');
-		if (($wa) && ($mode != 'execute')){
+		if (($wa) && ($mode != 'execute')) {
 			$wa = true;
 		} else {
 			$wa = false;
@@ -740,52 +815,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 
 	/**
-	* Function that takes the tables names and returns associative array of column names with table names as key
-	*
-	* @param array	$tables	the array of table names
-	* @param object	&$asset	the data_source_db asset
-	*
-	* @return array
-	* @access public
-	*/
-	function _getFields($tables, &$asset)
-	{
-		$conn = $asset->connectToDB();
-		$fields = Array();
-		if (!is_array($tables)) $tables = Array($tables);
-		$db_type = $asset->attr('db_type');
-		$query = '';
-		foreach ($tables as $key =>  $table) {
-			if ($table == 'select') {
-				unset($tables[$key]);
-				continue;
-			}
-			if ($db_type == 'mysql') {
-				$query = 'show columns from '.$table;
-			} else {
-				if ($db_type == 'postgres') {
-					$query = "SELECT column_name FROM information_schema.columns where table_name = '$table'";
-				}
-			}
-			$result = $conn->getAll($query);
-			assert_valid_db_result($result);
-			if (!empty($result)) {
-				foreach ($result as $record) {
-					if ($db_type == 'mysql') {
-						$fields[$table][$table.'.'.$record['Field']] = $record['Field'];
-					} else {
-						$fields[$table][$table.'.'.$record['column_name']] = $record['column_name'];
-					}
-				}
-				if (empty($record)) $fields[$table] = '';
-			}
-		}
-		return $fields;
-
-	}//end _getFields()
-
-
-	/**
 	* Function that assigns null and empty array to the query attributes of the asset
 	*
 	* @param object	&$asset	the DB Data source asset
@@ -813,48 +842,168 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	}//end _resetAttributes()
 
 
+//--        AGGREGATE        --//
+
+
 	/**
-	* Paints the interface for painting the query
+	* Paints the interface for entering the name of the shadow asset
 	*
-	* @param object	&$asset	the DB Data source asset
+	* @param object	&$asset	the search page asset
 	* @param object	&$o		the backend outputter
 	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
 	*/
-	function paintQuerySoFar(&$asset, &$o, $prefix)
+	function paintAggregateFunctions(&$asset, &$o, $prefix)
 	{
+		$i = 0;
 		$mode = $asset->attr('mode');
 		$wa = $asset->writeAccess('attributes');
-		$this->_queryProcessing($asset, $prefix);
-		$sql = $asset->attr('sql');
-		if (($wa) && ($mode == 'edit')){
+		if (($wa) && ($mode != 'execute')) {
 			$wa = true;
 		} else {
 			$wa = false;
 		}
+		$old_aggregates = $asset->attr('aggregates');
+		$aggregates = Array(
+						'AVG'		=> 'AVG(column)',
+						'COUNT(*)'	=> 'COUNT(*)',
+						'COUNT'		=> 'COUNT(column)',
+						'SUM'		=> 'SUM(column)',
+						'MAX'		=> 'MAX(column)',
+						'MIN'		=> 'MIN(column)',
+					  );
 		if ($wa) {
-			$sql = str_replace('<br />', ' ', $sql);
-			text_area('sql', $sql, 100, 2);
+			$tables = $asset->attr('tables');
+			$tables = explode(', ', $tables);
+			$fields = Array();
+			if (!empty($tables)) {
+				$fields = $this->_getFields($tables, $asset);
+			}
+			if (!empty($fields)) {
+			?>
+				<table class="sq-backend-table">
+					<tr>
+						<td><b><?php echo translate('select_aggregate_func');?></b></td>
+						<td><b><?php echo translate('select_table');?></b></td>
+					</tr>
+					<tr>
+						<td><?php combo_box('aggregate_func', $aggregates, false, '', 6)?> </td>
+						<td><?php combo_box('aggregate_table', $tables, false, '', 6);?></td>
+					</tr>
+				</table>
+				&nbsp;
+
+			<?php
+			}
+			if (!empty($old_aggregates) || isset($_POST['aggregate_func'])) {
+				?>
+				<table class="sq-backend-table">
+					<tr>
+						<td><b><?php echo translate('aggregate_function');?></b></td>
+						<td><b><?php echo translate('aggregate_field');?></b></td>
+						<td><b><?php echo translate('alias');?></b></td>
+						<td><b><?php echo translate('delete');?></b></td>
+					</tr>
+				<?php
+			}
+			if (!empty($old_aggregates)) {
+				?>
+					<?php
+					foreach ($old_aggregates as $key => $aggregate) {
+						$aggr_table = null;
+						if ($aggregate['function'] != 'COUNT(*)') {
+							$aggr_table = substr($aggregate['field'], 0, strpos($aggregate['field'], '.'));
+						}
+						?>
+						<tr>
+							<td><?php combo_box('aggregate['.$i.'][function]', $aggregates, false, $aggregate['function']); ?></td>
+							<?php
+							if ($aggregate['function'] != 'COUNT(*)') {
+								?>
+								<td><?php combo_box('aggregate['.$i.'][field]', $fields[$aggr_table], false, $aggregate['field']);?></td>
+							<?php
+							} else {
+								?>
+								<td>&nbsp;</td>
+							<?php
+							}
+							?>
+							<td><?php text_box('aggregate['.$i.'][alias]', !empty($aggregate['alias'])?$aggregate['alias']:'');?></td>
+							<td><?php check_box('aggregate['.$i.'][delete]', 'delete', false, '');?></td>
+						</tr>
+						<?php
+						$i++;
+					}
+					if (!isset($_POST['aggregate_func'])) echo '</table>';
+					?>
+				<?php
+			}
+			if (isset($_POST['aggregate_func'])) {
+				$function = $_POST['aggregate_func'];
+				$new_table= null;
+				isset($_POST['aggregate_table'])? $new_table = $tables[$_POST['aggregate_table']] : $new_table = null;
+				if (($function != 'COUNT(*)') && empty($new_table)) {
+					return false;
+				}
+				?>
+				<tr>
+					<td><?php combo_box('aggregate['.$i.'][function]', $aggregates, false, $function); ?></td>
+					<?php
+					if ($function != 'COUNT(*)') {
+						?>
+						<td><?php combo_box('aggregate['.$i.'][field]', $fields[$new_table], false, '');?></td>
+					<?php
+					} else {
+					?>
+					<td> &nbsp; </td>
+					<?php
+					}
+					?>
+					<td><?php text_box('aggregate['.$i.'][alias]', '');?></td>
+					<td><?php check_box('aggregate['.$i.'][delete]', 'delete', false, '');?></td>
+				</tr>
+				</table>
+				<?php
+			}
 		} else {
-			if (!empty($sql)) {
-				echo $sql;
-				hidden_field('sql', $sql);
+			if (!empty($old_aggregates)) {
+				?>
+				<table class="sq-backend-table">
+					<tr>
+						<td><b><?php echo translate('aggregate_function');?></b></td>
+						<td><b><?php echo translate('aggregate_field');?></b></td>
+						<td><b><?php echo translate('alias');?></b></td>
+					</tr>
+					<?php
+					foreach ($old_aggregates as $key => $aggregate) {
+						?>
+						<tr>
+							<td><?php echo $aggregate['function']; ?></td>
+							<td><?php echo(isset($aggregate['field'])? $aggregate['field']: '&nbsp;');?></td>
+							<td><?php echo(!empty($aggregate['alias'])? $aggregate['alias']: 'No Alias Set');?></td>
+						</tr>
+						<?php
+					}
+				?>
+				</table>
+			<?php
 			}
 		}
-		echo('&nbsp;');
+
+		echo ('&nbsp;');
 		if ($wa) {
 			return true;
 		} else {
 			return false;
 		}
 
-	}//end paintQuerySoFar()
+	}//end paintAggregateFunctions()
 
 
 	/**
-	* Processes the interface for entering and reassigning the sql query
+	* Processes the interface for entering and changin the where clause.
 	*
 	* @param object	&$asset	the search page asset
 	* @param object	&$o		the backend outputter
@@ -863,212 +1012,29 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processQuerySoFar(&$asset, &$o, $prefix)
+	function processAggregateFunctions(&$asset, &$o, $prefix)
 	{
-		return false;
-
-	}//end processQuerySoFar()
-
-
-	/**
-	* Processes the current sql by taking all the attributes
-	*
-	* @param object	&$asset	the search page asset
-	* @param string	$prefix	prefix for form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function _queryProcessing(&$asset, $prefix)
-	{
-		if ($asset->attr('mode') == 'edit') {
-			$sql = null;
-			if (isset($_POST['sql'])) {
-				$sql = $_POST['sql'];
-			} else {
-				$sql = $asset->attr('sql');
-			}
-			if (empty($sql)) {
-				$res = $this->_resetAttributes($asset, 'reset');
-			}
-			$asset->setAttrValue('sql', $sql);
-			$asset->saveAttributes();
-			return true;
-		}
-
-		//get the tables and the fields attribute values
-		$tables = $asset->attr('tables');
-		$fields = $asset->attr('fields');
-		$aggregates = $asset->attr('aggregates');
-		$joins = $asset->attr('join');
-
-		//start query
-		$sql = '';
-		if (!empty($tables)) {
-			$sql = 'SELECT ';
-			if (isset($_POST['show']) && $fields != '*') {
-				$sql .= ' '.strtoupper($_POST['show']);
-			}
-			if (($fields == '*') & !empty($aggregates)) {
-				$temp_fields = $this->_getFields(explode(', ', $tables), $asset);
-				$count = 0;
-				foreach ($temp_fields as $fields_array) {
-					if ($count !=0 ) $sql .= ' , ';
-					$sql .= implode(', ', array_keys($fields_array));
-					$count++;
-				}
-			} else {
-				$sql .= ' '.$fields;
-			}
-			if (!empty($aggregates)) {
-				foreach ($aggregates as $key => $aggregate) {
-					$sql .= ', '.$aggregate['function'];
-					if ($aggregate['function'] != 'COUNT(*)') {
-						$sql .= '('.$aggregate['field'].')';
-					}
-					if (!empty($aggregate['alias'])) {
-						$sql .= ' AS '.$aggregate['alias'];
-					}
+		if (isset($_POST['aggregate'])) {
+			$aggregates = $_POST['aggregate'];
+			foreach ($aggregates as $key => $aggregate) {
+				if (isset($aggregate['delete'])) {
+					unset($aggregates[$key]);
 				}
 			}
-			$sql .= '<br />FROM ';
-
-			//if the user has joins then we cannot add the tables to the sql normally
-			//we have to check on the tables used for the joins and add the remaining normally and add then add the joins!
-
-			if (!empty($joins)) {
-				$tab_array = explode(', ', $tables);
-				foreach ($joins as $index => $join) {
-					$table = Array();
-					foreach ($join as $key => $column) {
-						if (strcasecmp($key, 'type') != 0) {
-							$temp = substr($column, 0, strpos($column, '.'));
-							$table[] = $temp;
-							$i = array_search($temp, $tab_array);
-							if ($i !== false) unset($tab_array[$i]);
-						} else {
-							$table['type'] = ucwords(str_replace('_', ' ', $column));
-						}
-					}
-					if ($index != 0) {
-						$sql .= ' ,<br />';
-					} else {
-
-						$sql .= '<br />'.implode(', ', $tab_array);
-					}
-					$sql .= empty($tab_array)? ' ':', ';
-					$sql .= $table[0].' '.$table['type'].' '.$table[1].' ON '.$join[0].' = '.$join[1];
-				}
-			} else {
-				$sql .= ' '.$tables;
-			}
-
-			$bys = Array('where', 'group_by', 'having', 'order_by');
-			$flag_group = 0;
-
-			//get each attribute value and assign it to the query
-			foreach ($bys as $key) {
-				$value = $asset->attr($key);
-				if (empty($value)) continue;
-
-				//you cannot have 'having' without group by
-				//flag_goup os set to 1 once we have a group by clause in the sql
-				if (($key == 'having') && ($flag_group == 0)) {
-					continue;
-				}
-
-				$sql .= '<br />'.strtoupper(str_replace('_', ' ' ,$key));
-
-				if ($key == 'group_by') {
-					$groups = Array();
-					$flag_group = 1;
-					$priority = Array();
-					foreach ($value as $index => $val) {
-						$groups[$val['field']] = $val['priority'];
-						$priority[] = $val['priority'];
-					}
-					$result = asort($groups);
-					/*
-					if ($fields != '*') {
-						$fields = explode(', ', $fields);
-					} else {
-						$fields_get = $this->_getFields(explode(', ', $tables), $asset);
-						foreach ($fields_get as $table => $fields_array) {
-							$fields = array_merge($fields, array_keys($fields_array));
-						}
-
-					}
-					if (count($groups) < count($fields)) {
-						foreach ($fields as $field) {
-							$last_priority = end($groups);
-							$keys = array_keys($groups);
-							if (!in_array($field, array_keys($groups)) && $field != '*') {
-								$groups[$field] = $last_priority + 1;
-							}
-						}
-					}*/
-					foreach ($groups as $field => $priority) {
-						$sql .= '<br />'.$field.',';
-					}
-					$sql = substr($sql, 0, strlen($sql) - 1);
-					$this->group_by = $groups;
-					continue;
-				}
-
-				if ($key == 'where'|| $key == 'having') {
-					foreach ($value as $index => $val) {
-						$sql .= '<br />'.$val['field'].' ';
-						!empty($val['condition']) && !in_array($val['condition'], Array('Relation', 'Other'))? $sql .= $val['condition'] : $sql .= '';
-						isset($val['operator'])? $sql .= ' '.$val['operator'] : $sql .= '';
-						if (!empty($val['value'])) {
-							$sql .= ' '.$val['value'];
-						} else {
-							if (!empty($val['min_value']) && !empty($val['max_value'])) {
-								$sql .=' '.$val['min_value'].' AND '.$val['max_value'];
-							}
-						}
-						$val['multi'] != 'none'? $sql .= ' '.$val['multi']: $sql .= '';
-					}
-					continue;
-				}
-
-				//key is order_by
-				$new_value = Array();
-				foreach ($value as $index => $val) {
-					//if ($index != 0) $sql .= ',';
-					$new_value[$val['priority']] = $val;
-				}
-				$temp = Array();
-				foreach ($new_value as $key => $val) {
-					$temp[$key] = $key;
-				}
-				$new_one = asort($temp);
-				foreach ($temp as $key) {
-					$val = $new_value[$key];
-					if ($key != 1) $sql .= ', ';
-					$sql .= '<br />'.$val['field'].' '.$val['order'];
-				}
-
-			}//end for
-			$limit = $asset->attr('limit');
-			if (!empty($limit)) $sql .= ' LIMIT '.$limit;
-
-		}//end of if where checking if tables is not empty
-		$old_sql = $asset->attr('sql');
-		$mode = $asset->attr('mode');
-		//if the user has shifted into execute mode form edit mode then te old query has still to be retained!
-		if ($mode == 'execute') {
-			if (!empty($_POST['sql']) && empty($sql)) {
+			$old_aggr = $asset->attr('aggregates');
+			if ($old_aggr != $aggregates) {
+				$asset->setAttrValue('aggregates', $aggregates);
 				return true;
+			} else {
+				return false;
 			}
-		}
-		if (strcasecmp($old_sql, $sql) != 0) {
-			$asset->setAttrValue('sql', $sql);
-			$asset->saveAttributes();
 		}
 		return false;
 
-	}//end _queryProcessing()
+	}//end processAggregateFunctions()
+
+
+//--        WHERE HAVING        --//
 
 
 	/**
@@ -1089,7 +1055,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		$clauses = Array('where', 'having');
 		$mode = $asset->attr('mode');
 		$wa = $asset->writeAccess('attributes');
-		if (($wa) && ($mode != 'execute')){
+		if (($wa) && ($mode != 'execute')) {
 			$wa = true;
 		} else {
 			$wa = false;
@@ -1305,6 +1271,9 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	}//end processWhereHaving()
 
 
+//--        GROUP BY        --//
+
+
 	/**
 	* Paints the interface for entering and changing the where clause
 	*
@@ -1353,7 +1322,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		$clauses = Array('order_by', 'group_by');
 		$mode = $asset->attr('mode');
 		$wa = $asset->writeAccess('attributes');
-		if (($wa) && ($mode != 'execute')){
+		if (($wa) && ($mode != 'execute')) {
 			$wa = true;
 		} else {
 			$wa = false;
@@ -1486,165 +1455,48 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	}//end processGroupbyOrderby()
 
 
+//--        QUERY        --//
+
+
 	/**
-	* Paints the interface for entering the name of the shadow asset
+	* Paints the interface for painting the query
 	*
-	* @param object	&$asset	the search page asset
+	* @param object	&$asset	the DB Data source asset
 	* @param object	&$o		the backend outputter
 	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
 	*/
-	function paintAggregateFunctions(&$asset, &$o, $prefix)
+	function paintQuerySoFar(&$asset, &$o, $prefix)
 	{
-		$i = 0;
 		$mode = $asset->attr('mode');
-		$wa = $asset->writeAccess('attributes');
-		if (($wa) && ($mode != 'execute')){
-			$wa = true;
-		} else {
-			$wa = false;
+		$wa = $asset->writeAccess('attributes') && ($mode == 'edit');
+		$this->_queryProcessing($asset, $prefix);
+		$sql = $asset->attr('sql');
+
+		if ($mode == 'edit') {
+			hidden_field($prefix.'_from_edit', '1');
 		}
-		$old_aggregates = $asset->attr('aggregates');
-		$aggregates = Array(
-						'AVG'		=> 'AVG(column)',
-						'COUNT(*)'	=> 'COUNT(*)',
-						'COUNT'		=> 'COUNT(column)',
-						'SUM'		=> 'SUM(column)',
-						'MAX'		=> 'MAX(column)',
-						'MIN'		=> 'MIN(column)',
-					  );
+
 		if ($wa) {
-			$tables = $asset->attr('tables');
-			$tables = explode(', ', $tables);
-			$fields = Array();
-			if (!empty($tables)) {
-				$fields = $this->_getFields($tables, $asset);
-			}
-			if (!empty($fields)) {
-			?>
-				<table class="sq-backend-table">
-					<tr>
-						<td><b><?php echo translate('select_aggregate_func');?></b></td>
-						<td><b><?php echo translate('select_table');?></b></td>
-					</tr>
-					<tr>
-						<td><?php combo_box('aggregate_func', $aggregates, false, '', 6)?> </td>
-						<td><?php combo_box('aggregate_table', $tables, false, '', 6);?></td>
-					</tr>
-				</table>
-				&nbsp;
-
-			<?php
-			}
-			if (!empty($old_aggregates) || isset($_POST['aggregate_func'])) {
-				?>
-				<table class="sq-backend-table">
-					<tr>
-						<td><b><?php echo translate('aggregate_function');?></b></td>
-						<td><b><?php echo translate('aggregate_field');?></b></td>
-						<td><b><?php echo translate('alias');?></b></td>
-						<td><b><?php echo translate('delete');?></b></td>
-					</tr>
-				<?php
-			}
-			if (!empty($old_aggregates)) {
-				?>
-					<?php
-					foreach ($old_aggregates as $key => $aggregate) {
-						$aggr_table = null;
-						if ($aggregate['function'] != 'COUNT(*)') {
-							$aggr_table = substr($aggregate['field'], 0, strpos($aggregate['field'], '.'));
-						}
-						?>
-						<tr>
-							<td><?php combo_box('aggregate['.$i.'][function]', $aggregates, false, $aggregate['function']); ?></td>
-							<?php
-							if ($aggregate['function'] != 'COUNT(*)') {
-								?>
-								<td><?php combo_box('aggregate['.$i.'][field]', $fields[$aggr_table], false, $aggregate['field']);?></td>
-							<?php
-							} else {
-								?>
-								<td>&nbsp;</td>
-							<?php
-							}
-							?>
-							<td><?php text_box('aggregate['.$i.'][alias]', !empty($aggregate['alias'])?$aggregate['alias']:'');?></td>
-							<td><?php check_box('aggregate['.$i.'][delete]', 'delete', false, '');?></td>
-						</tr>
-						<?php
-						$i++;
-					}
-					if (!isset($_POST['aggregate_func'])) echo '</table>';
-					?>
-				<?php
-			}
-			if (isset($_POST['aggregate_func'])) {
-				$function = $_POST['aggregate_func'];
-				$new_table= null;
-				isset($_POST['aggregate_table'])? $new_table = $tables[$_POST['aggregate_table']] : $new_table = null;
-				if (($function != 'COUNT(*)') && empty($new_table)) {
-					return false;
-				}
-				?>
-				<tr>
-					<td><?php combo_box('aggregate['.$i.'][function]', $aggregates, false, $function); ?></td>
-					<?php
-					if ($function != 'COUNT(*)') {
-						?>
-						<td><?php combo_box('aggregate['.$i.'][field]', $fields[$new_table], false, '');?></td>
-					<?php
-					} else {
-					?>
-					<td> &nbsp; </td>
-					<?php
-					}
-					?>
-					<td><?php text_box('aggregate['.$i.'][alias]', '');?></td>
-					<td><?php check_box('aggregate['.$i.'][delete]', 'delete', false, '');?></td>
-				</tr>
-				</table>
-				<?php
-			}
+			$sql = str_replace('<br />', ' ', $sql);
+			text_area($prefix.'_sql', $sql, 100, 2);
 		} else {
-			if (!empty($old_aggregates)) {
-				?>
-				<table class="sq-backend-table">
-					<tr>
-						<td><b><?php echo translate('aggregate_function');?></b></td>
-						<td><b><?php echo translate('aggregate_field');?></b></td>
-						<td><b><?php echo translate('alias');?></b></td>
-					</tr>
-					<?php
-					foreach ($old_aggregates as $key => $aggregate) {
-						?>
-						<tr>
-							<td><?php echo $aggregate['function']; ?></td>
-							<td><?php echo(isset($aggregate['field'])? $aggregate['field']: '&nbsp;');?></td>
-							<td><?php echo(!empty($aggregate['alias'])? $aggregate['alias']: 'No Alias Set');?></td>
-						</tr>
-						<?php
-					}
-				?>
-				</table>
-			<?php
+			if (!empty($sql)) {
+				echo $sql;
+				hidden_field($prefix.'_sql', $sql);
 			}
 		}
+		echo('&nbsp;');
 
-		echo ('&nbsp;');
-		if ($wa) {
-			return true;
-		} else {
-			return false;
-		}
+		return $wa;
 
-	}//end paintAggregateFunctions()
+	}//end paintQuerySoFar()
 
 
 	/**
-	* Processes the interface for entering and changin the where clause.
+	* Processes the interface for entering and reassigning the sql query
 	*
 	* @param object	&$asset	the search page asset
 	* @param object	&$o		the backend outputter
@@ -1653,27 +1505,448 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processAggregateFunctions(&$asset, &$o, $prefix)
+	function processQuerySoFar(&$asset, &$o, $prefix)
 	{
-		if (isset($_POST['aggregate'])) {
-			$aggregates = $_POST['aggregate'];
-			foreach ($aggregates as $key => $aggregate) {
-				if (isset($aggregate['delete'])) {
-					unset($aggregates[$key]);
+		if (isset($_POST[$prefix.'_sql'])) {
+			$asset->setAttrValue('sql', $_POST[$prefix.'_sql']);
+		}
+
+		return true;
+
+	}//end processQuerySoFar()
+
+
+	/**
+	* Processes the current sql by taking all the attributes
+	*
+	* @param object	&$asset	the search page asset
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _queryProcessing(&$asset, $prefix)
+	{
+		if ($asset->attr('mode') == 'edit' || isset($_POST[$prefix.'_from_edit'])) {
+			$sql = null;
+			if (isset($_POST[$prefix.'_sql'])) {
+				$sql = $_POST[$prefix.'_sql'];
+			} else {
+				$sql = $asset->attr('sql');
+			}
+			if (empty($sql)) {
+				$res = $this->_resetAttributes($asset, 'reset');
+			}
+			$asset->setAttrValue('sql', $sql);
+log_dump("\n".'_queryProcessing:'.$sql."\n");
+			$asset->saveAttributes();
+			return true;
+		}
+
+		//get the tables and the fields attribute values
+		$tables = $asset->attr('tables');
+		$fields = $asset->attr('fields');
+		$aggregates = $asset->attr('aggregates');
+		$joins = $asset->attr('join');
+
+		//start query
+		$sql = '';
+		if (!empty($tables)) {
+			$sql = 'SELECT ';
+			if (isset($_POST['show']) && $fields != '*') {
+				$sql .= ' '.strtoupper($_POST['show']);
+			}
+			if (($fields == '*') & !empty($aggregates)) {
+				$temp_fields = $this->_getFields(explode(', ', $tables), $asset);
+				$count = 0;
+				foreach ($temp_fields as $fields_array) {
+					if ($count !=0 ) $sql .= ' , ';
+					$sql .= implode(', ', array_keys($fields_array));
+					$count++;
+				}
+			} else {
+				$sql .= ' '.$fields;
+			}
+			if (!empty($aggregates)) {
+				foreach ($aggregates as $key => $aggregate) {
+					$sql .= ', '.$aggregate['function'];
+					if ($aggregate['function'] != 'COUNT(*)') {
+						$sql .= '('.$aggregate['field'].')';
+					}
+					if (!empty($aggregate['alias'])) {
+						$sql .= ' AS '.$aggregate['alias'];
+					}
 				}
 			}
-			$old_aggr = $asset->attr('aggregates');
-			if ($old_aggr != $aggregates) {
-				$asset->setAttrValue('aggregates', $aggregates);
+			$sql .= '<br />FROM ';
+
+			//if the user has joins then we cannot add the tables to the sql normally
+			//we have to check on the tables used for the joins and add the remaining normally and add then add the joins!
+
+			if (!empty($joins)) {
+				$tab_array = explode(', ', $tables);
+				foreach ($joins as $index => $join) {
+					$table = Array();
+					foreach ($join as $key => $column) {
+						if (strcasecmp($key, 'type') != 0) {
+							$temp = substr($column, 0, strpos($column, '.'));
+							$table[] = $temp;
+							$i = array_search($temp, $tab_array);
+							if ($i !== false) unset($tab_array[$i]);
+						} else {
+							$table['type'] = ucwords(str_replace('_', ' ', $column));
+						}
+					}
+					if ($index != 0) {
+						$sql .= ' ,<br />';
+					} else {
+
+						$sql .= '<br />'.implode(', ', $tab_array);
+					}
+					$sql .= empty($tab_array)? ' ':', ';
+					$sql .= $table[0].' '.$table['type'].' '.$table[1].' ON '.$join[0].' = '.$join[1];
+				}
+			} else {
+				$sql .= ' '.$tables;
+			}
+
+			$bys = Array('where', 'group_by', 'having', 'order_by');
+			$flag_group = 0;
+
+			//get each attribute value and assign it to the query
+			foreach ($bys as $key) {
+				$value = $asset->attr($key);
+				if (empty($value)) continue;
+
+				//you cannot have 'having' without group by
+				//flag_goup os set to 1 once we have a group by clause in the sql
+				if (($key == 'having') && ($flag_group == 0)) {
+					continue;
+				}
+
+				$sql .= '<br />'.strtoupper(str_replace('_', ' ' ,$key));
+
+				if ($key == 'group_by') {
+					$groups = Array();
+					$flag_group = 1;
+					$priority = Array();
+					foreach ($value as $index => $val) {
+						$groups[$val['field']] = $val['priority'];
+						$priority[] = $val['priority'];
+					}
+					$result = asort($groups);
+					/*
+					if ($fields != '*') {
+						$fields = explode(', ', $fields);
+					} else {
+						$fields_get = $this->_getFields(explode(', ', $tables), $asset);
+						foreach ($fields_get as $table => $fields_array) {
+							$fields = array_merge($fields, array_keys($fields_array));
+						}
+
+					}
+					if (count($groups) < count($fields)) {
+						foreach ($fields as $field) {
+							$last_priority = end($groups);
+							$keys = array_keys($groups);
+							if (!in_array($field, array_keys($groups)) && $field != '*') {
+								$groups[$field] = $last_priority + 1;
+							}
+						}
+					}*/
+					foreach ($groups as $field => $priority) {
+						$sql .= '<br />'.$field.',';
+					}
+					$sql = substr($sql, 0, strlen($sql) - 1);
+					$this->group_by = $groups;
+					continue;
+				}
+
+				if ($key == 'where'|| $key == 'having') {
+					foreach ($value as $index => $val) {
+						$sql .= '<br />'.$val['field'].' ';
+						!empty($val['condition']) && !in_array($val['condition'], Array('Relation', 'Other'))? $sql .= $val['condition'] : $sql .= '';
+						isset($val['operator'])? $sql .= ' '.$val['operator'] : $sql .= '';
+						if (!empty($val['value'])) {
+							$sql .= ' '.$val['value'];
+						} else {
+							if (!empty($val['min_value']) && !empty($val['max_value'])) {
+								$sql .=' '.$val['min_value'].' AND '.$val['max_value'];
+							}
+						}
+						$val['multi'] != 'none'? $sql .= ' '.$val['multi']: $sql .= '';
+					}
+					continue;
+				}
+
+				//key is order_by
+				$new_value = Array();
+				foreach ($value as $index => $val) {
+					//if ($index != 0) $sql .= ',';
+					$new_value[$val['priority']] = $val;
+				}
+				$temp = Array();
+				foreach ($new_value as $key => $val) {
+					$temp[$key] = $key;
+				}
+				$new_one = asort($temp);
+				foreach ($temp as $key) {
+					$val = $new_value[$key];
+					if ($key != 1) $sql .= ', ';
+					$sql .= '<br />'.$val['field'].' '.$val['order'];
+				}
+
+			}//end for
+			$limit = $asset->attr('limit');
+			if (!empty($limit)) $sql .= ' LIMIT '.$limit;
+
+		}//end of if where checking if tables is not empty
+		$old_sql = $asset->attr('sql');
+		$mode = $asset->attr('mode');
+		//if the user has shifted into execute mode form edit mode then te old query has still to be retained!
+		if ($mode == 'execute') {
+			if (!empty($_POST['sql']) && empty($sql)) {
 				return true;
 			}
-			else {
-				return false;
-			}
+		}
+		if (strcasecmp($old_sql, $sql) != 0) {
+			$asset->setAttrValue('sql', $sql);
+			$asset->saveAttributes();
 		}
 		return false;
 
-	}//end processAggregateFunctions()
+	}//end _queryProcessing()
+
+
+//--        ERROR HANDLING        --//
+
+
+	/**
+	* Find out if there are any tables selected or not
+	*
+	* @param object	&$asset	The asset that might use the files
+	* @param string	$prefix	the prefix for this asset
+	*
+	* @return boolean
+	* @access protected
+	*/
+	function resultSetExists(&$asset, $prefix)
+	{
+		$result = $asset->getResultSet();
+		if (PEAR::isError($result) || empty($result)) {
+			return false;
+		} else {
+			return true;
+		}
+
+	}//end resultSetExists()
+
+
+	/**
+	* Returns true if any errors occurred during db execution
+	*
+	* @param object	&$asset	The asset that might use the files
+	* @param string	$prefix	the prefix for this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function dbErrorOccurred(&$asset, $prefix)
+	{
+		$mode = $asset->attr('mode');
+		if ($mode != 'execute') return false;
+
+		return !$this->resultSetExists($asset, $prefix);
+
+	}//end dbErrorOccurred()
+
+
+	/**
+	* Returns true if any errors occurred during getting
+	* the list of tables selected
+	*
+	* @param object	&$asset	The asset that might use the files
+	* @param string	$prefix	the prefix for this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isTableErrorOccurred(&$asset, $prefix)
+	{
+		$mode = $asset->attr('mode');
+		if ($mode != 'execute') return false;
+
+		return isset($this->_tmp['table_error_occurred']);
+
+	}//end isTableErrorOccurred()
+
+
+	/**
+	* Returns true if any errors occurred during getting
+	* the list of fields selected
+	*
+	* @param object	&$asset	The asset that might use the files
+	* @param string	$prefix	the prefix for this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isFieldErrorOccurred(&$asset, $prefix)
+	{
+		$mode = $asset->attr('mode');
+		if ($mode != 'execute') return false;
+
+		return isset($this->_tmp['field_error_occurred']);
+
+	}//end isFieldErrorOccurred()
+
+
+	/**
+	* Paints the interface for displaying db error messages
+	*
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintErrorMsg(&$asset, &$o, $prefix)
+	{
+		$result =& $asset->getResultSet();
+		if (PEAR::isError($result)) {
+			$error_msg = $result->getMessage();
+			$error_code = $result->getCode();
+			$debug_info = $result->getDebugInfo();
+			$user_info = $result->getUserInfo();
+
+			$o->openField('DB Error Code');
+				echo $error_code;
+			$o->closeField();
+			$o->openField('DB Error Message');
+				echo $error_msg;
+			$o->closeField();
+			$o->openField('DB Debug Info');
+				echo $debug_info;
+			$o->closeField();
+			$o->openField('DB User Info');
+				echo $user_info;
+			$o->closeField();
+		}
+
+	}//end paintErrorMsg()
+
+
+	/**
+	* Process the interface for displaying db error messages
+	*
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function processErrorMsg(&$asset, &$o, $prefix)
+	{
+		return false;
+
+	}//end processErrorMsg()
+
+
+	/**
+	* Paints the interface for displaying db error messages
+	*
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintTablesErrorMsg(&$asset, &$o, $prefix)
+	{
+		$o->openField('DB Error Code');
+			echo $this->_tmp['tables_error']['error_code'];
+		$o->closeField();
+		$o->openField('DB Error Message');
+			echo $this->_tmp['tables_error']['error_msg'];
+		$o->closeField();
+		$o->openField('DB Debug Info');
+		echo $this->_tmp['tables_error']['debug_info'];
+		$o->closeField();
+		$o->openField('DB User Info');
+		echo $this->_tmp['tables_error']['user_info'];
+		$o->closeField();
+		unset($this->_tmp['tables_error']);
+
+	}//end paintTablesErrorMsg()
+
+
+	/**
+	* Process the interface for displaying db error messages
+	*
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function processTablesErrorMsg(&$asset, &$o, $prefix)
+	{
+		return false;
+
+	}//end processTablesErrorMsg()
+
+
+	/**
+	* Paints the interface for displaying db error messages
+	*
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintFieldsErrorMsg(&$asset, &$o, $prefix)
+	{
+		$o->openField('DB Error Code');
+			echo $this->_tmp['fields_error']['error_code'];
+		$o->closeField();
+		$o->openField('DB Error Message');
+			echo $this->_tmp['fields_error']['error_msg'];
+		$o->closeField();
+		$o->openField('DB Debug Info');
+		echo $this->_tmp['fields_error']['debug_info'];
+		$o->closeField();
+		$o->openField('DB User Info');
+		echo $this->_tmp['fields_error']['user_info'];
+		$o->closeField();
+		unset($this->_tmp['fields_error']);
+
+	}//end paintFieldsErrorMsg()
+
+
+	/**
+	* Process the interface for displaying db error messages
+	*
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function processFieldsErrorMsg(&$asset, &$o, $prefix)
+	{
+		return false;
+
+	}//end processFieldsErrorMsg()
+
+
+//--        HELPER        --//
 
 
 	/**
@@ -1900,14 +2173,21 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	function notEditModeAndTablesNotEmpty(&$asset, $prefix)
 	{
 		$mode = $asset->attr('mode');
+
+		// only if the screen moved from 'edit' to 'execute', false
+		if ($mode == 'execute' && isset($_POST[$prefix.'_from_edit'])) return false;
+
 		$wa = $asset->writeAccess('attributes');
 		if ($mode == 'edit') {
 			$edit_on = $asset->attr('edit_on');
-			if (!$edit_on) {
+			// TODO: It does not reset the variable any more so that
+			// when the user changes the mode from 'edit' to 'build', the
+			// previous information can be restored
+			/*if (!$edit_on) {
 				if ($wa) {
 					$res = $this->_resetAttributes($asset, 'edit');
 				}
-			}
+			}*/
 			return false;
 		} else if ($mode == 'execute') {
 			$tables = $asset->attr('tables');
@@ -1987,7 +2267,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		if (($wa) && ($mode != 'execute')) {
 			$joins = $asset->attr('join');
 			//even if there are exisitng joins or if there are new joins or join changes then retunr true
-			if ((isset($_POST['join_tables']) && ($_POST['join_tables'][0] != 'select')) || (!empty($joins)) || (isset($_POST['join_field']))){
+			if ((isset($_POST['join_tables']) && ($_POST['join_tables'][0] != 'select')) || (!empty($joins)) || (isset($_POST['join_field']))) {
 				return true;
 			}
 		} else {

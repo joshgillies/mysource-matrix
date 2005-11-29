@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.10 2005/10/30 23:15:43 pgannavarapu Exp $
+* $Id: data_source_db.inc,v 1.11 2005/11/29 03:58:03 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,7 +76,6 @@ class Data_Source_DB extends Data_Source
 			foreach ($tables as $table) {
 				$query = 'select * from '.$table;
 				$result = $conn->getAll($query);
-				assert_valid_db_result($result);
 				if (!empty($result)) {
 					$record = $result(0);
 					foreach ($record as $key => $value) {
@@ -95,7 +94,7 @@ class Data_Source_DB extends Data_Source
 	* @return array
 	* @access public
 	*/
-	function getResultSet()
+	function &getResultSet()
 	{
 		$result = Array();
 		$sql = $this->attr('sql');
@@ -113,7 +112,7 @@ class Data_Source_DB extends Data_Source
 		//if ((empty($result) && !is_array($result)) || ($mode == 'execute')) {
 		if ($mode == 'execute') {
 			if (!empty($sql)) {
-				$result = $this->_executeQuery($sql);
+				$result = &$this->_executeQuery($sql);
 				$this->setResultSet($result);
 				$this->_tmp[$sql] = $result;
 			}
@@ -131,14 +130,13 @@ class Data_Source_DB extends Data_Source
 	* @return boolean
 	* @access public
 	*/
-	function _executeQuery($sql)
+	function &_executeQuery($sql)
 	{
 		$result = Array();
 		$dsn = $this->attr('dsn');
 		if (!empty($dsn)) {
 			$conn = $this->connectToDB();
-			$result = $conn->getAll($sql);
-			assert_valid_db_result($result);
+			$result = &$conn->getAll($sql);
 		}
 		return $result;
 
