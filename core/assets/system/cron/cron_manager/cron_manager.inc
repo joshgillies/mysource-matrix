@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.58 2005/10/14 00:46:29 rhoward Exp $
+* $Id: cron_manager.inc,v 1.59 2005/11/29 23:30:23 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -388,7 +388,7 @@ class Cron_Manager extends Asset
 		$old_error_log  = ini_set('error_log',  SQ_LOG_PATH.'/'.$this->error_log_file_name.SQ_CONF_LOG_EXTENSION);
 		set_error_handler(Array(&$this, '_errorHandler'));
 
-		if (!empty($GLOBALS['SQ_SYSTEM']->tm) && $GLOBALS['SQ_SYSTEM']->tm->inTransaction('db')) {
+		if (!empty($GLOBALS['SQ_SYSTEM']->tm) && $GLOBALS['SQ_SYSTEM']->tm->inTransaction($GLOBALS['SQ_SYSTEM']->db)) {
 			trigger_localised_error('CRON0012', E_USER_WARNING);
 			return;
 		}
