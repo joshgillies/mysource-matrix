@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.150 2005/11/16 00:44:08 lwright Exp $
+* $Id: search_page.inc,v 1.151 2005/11/30 21:59:54 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.150 $
+* @version $Revision: 1.151 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2088,7 +2088,6 @@ class Search_Page extends Listing_Engine
 				}//end thesaurus exists
 			}
 		}
-
 		if ($query_fields_exist) {
 			return $sm->processSearch($search_info);
 		} else if ($this->attr('allow_empty_search')) {

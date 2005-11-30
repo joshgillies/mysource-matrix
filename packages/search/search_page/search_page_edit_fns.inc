@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.67 2005/11/16 00:44:08 lwright Exp $
+* $Id: search_page_edit_fns.inc,v 1.68 2005/11/30 22:00:11 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -666,7 +666,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		$fields = $asset->attr('fields');
 
-		/*foreach ($fields as $fieldname => $field) {
+		foreach ($fields as $fieldname => $field) {
 			$field_datasources = $field['data_sources'];
 			$type = null;
 			foreach ($field_datasources as $field_datasource) {
@@ -679,7 +679,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					$search_styles[$attribute->id] = $attribute->processEditParams($prefix.'_'.$attribute->id);
 				}
 			}
-		}*/
+		}
 
 		$asset->setAttrValue('search_styles', $search_styles);
 
