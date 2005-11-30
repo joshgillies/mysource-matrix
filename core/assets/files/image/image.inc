@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.38.2.2 2005/11/16 00:14:40 dmckee Exp $
+* $Id: image.inc,v 1.38.2.3 2005/11/30 04:20:44 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38.2.2 $
+* @version $Revision: 1.38.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,6 +106,67 @@ class Image extends File
 		return parent::setAttrValue($name, $value);
 
 	}//end setAttrValue()
+
+
+	/**
+	* Processes the file upload from the source file so that file versioning cloned properly
+	*
+	* @param object	&$clone		the clone asset shell
+	* @param array	$components	the wanted components to clone eg.
+	*							Array(
+	*							'attributes',
+	*							'metadata_schemas',
+	*							'metadata',
+	*							'workflow',
+	*							'permissions',
+	*							'data'
+	*							);
+	*							or alternately Array('all');
+	*
+	* @return boolean
+	* @access public
+	* @see asset::cloneComponents()
+	*/
+	function cloneComponents(&$clone, $components)
+	{
+		// need to go through the varieties that have already been added, and
+		// re-upload/create them underneath this asset - to get the file
+		// versioning correct
+
+		if (in_array('attributes', $components) || in_array('all', $components)) {
+
+			$varieties = $this->attr('varieties');
+			$old_base_path = $this->data_path.'/varieties';
+			$new_base_path = $clone->data_path.'/varieties';
+
+			create_directory($new_base_path);
+
+			// file versioning magick :D
+			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+
+			foreach($varieties['data'] as $variety_shadowid => $variety) {
+				$old_variety_path = $old_base_path.'/'.$variety['filename'];
+				$new_variety_path = $new_base_path.'/'.$variety['filename'];
+
+				if (!copy($old_variety_path, $new_variety_path)) {
+					trigger_localised_error('CORE0036', E_USER_WARNING, $old_variety_path, $new_variety_path);
+					return false;
+				}
+
+				if (!$fv->add($clone->data_path_suffix.'/varieties', $new_variety_path)) {
+					return false;
+				}
+
+				if (!$fv->checkOut($clone->data_path_suffix.'/varieties/'.$variety['filename'], $clone->data_path.'/varieties')) {
+					trigger_localised_error('CORE0103', E_USER_WARNING);
+					return false;
+				}
+			}
+		}//end if attributes|all
+
+		return parent::cloneComponents($clone, $components);
+
+	}//end cloneComponents()
 
 
 	/**
