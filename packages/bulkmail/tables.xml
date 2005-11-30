@@ -11,14 +11,14 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.1 2005/10/31 22:47:05 rong Exp $
+* $Id: tables.xml,v 1.2 2005/11/30 04:28:32 ndvries Exp $
 *
 */
 -->
 
 <schema>
 	<tables>
-		<table name="bulkmail_queue" require_rollback="0">
+		<table name="bmail_queue" require_rollback="0">
 			<columns>
 				<column name="id" allow_null="0">
 					<type>VARCHAR(255)</type>
@@ -26,7 +26,7 @@
 					<default />
 					<description>The assetid of the Bulkmail_Job asset, or none if this is an ad hoc bulkmail job</description>
 				</column>
-				<column name="post_office_id" allow_null="0">
+				<column name="po_id" allow_null="0">
 					<type>VARCHAR(15)</type>
 					<type_variations />
 					<default />
@@ -46,10 +46,7 @@
 			</keys>
 			<indexes>
 				<index>
-					<column name="id" />
-				</index>
-				<index>
-					<column name="post_office_id" />
+					<column name="po_id" />
 				</index>
 				<index>
 					<column name="status" />

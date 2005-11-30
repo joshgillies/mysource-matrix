@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.28 2005/11/29 06:07:00 rong Exp $
+* $Id: bulkmail_manager.inc,v 1.29 2005/11/30 04:28:32 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -317,10 +317,10 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		// add a new entry to the database table
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'INSERT INTO
-					sq_bulkmail_queue
+					sq_bmail_queue
 					(
 						id,
-						post_office_id,
+						po_id,
 						status
 					)
 					VALUES
@@ -354,7 +354,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'DELETE FROM
-					sq_bulkmail_queue
+					sq_bmail_queue
 				WHERE
 					id = '.$db->quoteSmart($job_id);
 		$result = $db->query($sql);
@@ -400,7 +400,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'UPDATE
-					sq_bulkmail_queue
+					sq_bmail_queue
 				SET
 					status = '.$db->quoteSmart($state).'
 				WHERE
@@ -425,7 +425,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	*/
 	function getQueuedJobs($job_id=null, $post_office_id=null)
 	{
-		$db_table = SQ_TABLE_RUNNING_PREFIX.'bulkmail_queue';
+		$db_table = SQ_TABLE_RUNNING_PREFIX.'bmail_queue';
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$where = '';
@@ -434,11 +434,11 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 						id = '.$db->quoteSmart($job_id);
 		} else if (!is_null($post_office_id)) {
 			$where = ' WHERE
-						post_office_id = '.$db->quoteSmart($post_office_id);
+						po_id = '.$db->quoteSmart($post_office_id);
 		}
 
-		$sql = 'SELECT id, post_office_id, status
-				FROM sq_bulkmail_queue
+		$sql = 'SELECT id, po_id, status
+				FROM sq_bmail_queue
 				'.$where;
 
 		$results = $db->getAssoc($sql);
