@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.24 2005/11/29 06:17:30 rong Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.25 2005/11/30 00:01:06 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -930,5 +930,6 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 
 }//end class
-?>
 
+
+?>
