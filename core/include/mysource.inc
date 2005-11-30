@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.149 2005/11/29 05:53:24 rhoward Exp $
+* $Id: mysource.inc,v 1.150 2005/11/30 23:03:57 mmcintyre Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.149 $
+* @version $Revision: 1.150 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1685,20 +1685,11 @@ class MySource
 		$dsn = null;
 		switch ($conn) {
 			case 'db':
-				$dns = SQ_CONF_DB_DSN;
+				$dsn = SQ_CONF_DB_DSN;
 			break;
 
 			case 'db2':
-				// the second database connection is only valid if we are running from the command-line
-				// because if we aren't then the script isn't going to take long enough to warrant opening
-				// a second connection
-				if (SQ_PHP_CLI) {
-					$dsn = SQ_CONF_DB2_DSN;
-				} else {
-					array_push($this->_db_stack, 'db');
-					// we dont want to do any of the remaining work so just return
-					return;
-				}
+				$dsn = SQ_CONF_DB2_DSN;
 			break;
 
 			default:
@@ -1707,7 +1698,9 @@ class MySource
 		}
 
 		if (empty($this->_db_conns[$conn])) {
-			$this->_db_conns[$conn] = DB::connect(SQ_CONF_DB_DSN);
+
+			$this->_db_conns[$conn] = DB::connect($dsn);
+
 			if (DB::isError($this->_db_conns[$conn])) {
 				if (!SQ_PHP_CLI) {
 					header('HTTP/1.0 500 Internal Server Error');
@@ -1723,7 +1716,6 @@ class MySource
 			if ($this->_db_conns[$conn]->phptype == 'oci8') {
 				$this->_db_conns[$conn]->setOption('portability', DB_PORTABILITY_ALL);
 			}
-
 			$this->_db_conns[$conn]->autoCommit(false);
 		}
 
@@ -1777,9 +1769,9 @@ class MySource
 		// cat trans.log | awk '{ print $5 }' | sort | uniq -c # total number of each type of call
 		#$bt = debug_backtrace();
 		#if (isset($bt[1])) {
-		#	error_log ('TRANS : '.$bt[1]['class'].'::'.$bt[1]['function'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
+		#	error_log ($this->_db_conns[$this->_db_stack[count($this->_db_stack) - 1]]->connection.' TRANS : '.$bt[1]['class'].'::'.$bt[1]['function'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
 		#} else {
-		#	error_log ('TRANS : '.$bt[0]['file'].'::'.$bt[0]['line'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
+		#	error_log ($this->_db_conns[$this->_db_stack[count($this->_db_stack) - 1]]->connection.' TRANS : '.$bt[0]['file'].'::'.$bt[0]['line'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
 		#}
 
 		switch (strtolower($type)) {
