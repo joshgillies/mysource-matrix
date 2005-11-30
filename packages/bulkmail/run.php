@@ -1,4 +1,4 @@
-#!/usr/local/bin/php
+#!/usr/bin/php
 <?php
 /**
 * +--------------------------------------------------------------------+
@@ -12,7 +12,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: run.php,v 1.1.1.1 2005/10/25 04:53:43 ndvries Exp $
+* $Id: run.php,v 1.2 2005/11/30 04:27:01 ndvries Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
