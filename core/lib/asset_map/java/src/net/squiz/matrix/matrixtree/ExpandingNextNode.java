@@ -11,6 +11,7 @@ public class ExpandingNextNode extends ExpandingNode {
 		setViewedAssetsCount(viewedAssetsCount);
 		Asset expandingAsset = new ExpandingAsset(getName());
 		setUserObject(expandingAsset);
+		setCueModeName(Matrix.translate("asset_map_expanding_node_move_to_next_set"));
 	}
 
 	public int getStartLoc(int evtX, double boundsX) {

@@ -94,9 +94,6 @@ public class MatrixLookAndFeel extends MetalLookAndFeel implements MatrixConstan
 
 		Object[] systemColors = {
 			"scrollbar", PANEL_BORDER_COLOUR,
-		//	"control", PANEL_COLOUR,
-		//	"controlDkShadow", PANEL_COLOUR,  // divider dots
-		//	"controlHighlight", PANEL_COLOUR,
 		};
 
 		for (int i = 0; i < systemColors.length; i += 2) {

@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTreeComm.java,v 1.6 2005/11/24 22:54:53 sdanis Exp $
+ * $Id: MatrixTreeComm.java,v 1.7 2005/11/30 22:46:38 sdanis Exp $
  *
  */
 
@@ -56,7 +56,8 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 			evt.getSourceNodes(),
 			evt.getParentNode(),
 			evt.getIndex(),
-			evt.getPrevIndex()
+			evt.getPrevIndex(),
+			evt.getParentIds()
 		);
 	}
 
@@ -123,9 +124,23 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 	public static void createLink(
 			final String linkType,
 			final MatrixTreeNode[] children,
-			final MatrixTreeNode parent,
-			final int index,
-			final int prevIndex) {
+			MatrixTreeNode _parent,
+			int _index,
+			final int prevIndex,
+			final String[] parentIds) {
+	
+		// Make sure ExpandingNode is not our parent
+		if (_parent instanceof ExpandingNode) {
+			if (_parent instanceof ExpandingNextNode) {
+				_index =  AssetManager.getLimit();
+			} else {
+				_index =  -1;
+			}
+			_parent = (MatrixTreeNode)_parent.getParent();
+		}
+
+		final int index = _index;
+		final MatrixTreeNode parent = _parent;
 
 		final String[] assetids = new String[] { parent.getAsset().getId() };
 		AssetRefreshWorker worker = new AssetRefreshWorker(assetids, true) {
@@ -136,7 +151,7 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 					int limit = AssetManager.getLimit();
 
 					// we need to change the index since we are not on the first set
-					if (index > limit) {
+					if (index >= limit) {
 						// move the asset to the next set
 						newIndex = parent.getAsset().getTotalKidsLoaded() + limit + children.length - 1;
 					} else if (index <= 0) {
@@ -155,7 +170,8 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 						linkType,
 						children,
 						parent,
-						newIndex
+						newIndex,
+						parentIds
 					);
 					if (refresh == Boolean.TRUE) {
 						String parentid = parent.getAsset().getId();
@@ -201,7 +217,8 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 		String linkType,
 		String toParentId,
 		MatrixTreeNode[] children,
-		int index) {
+		int index,
+		String[] parentIds) {
 			StringBuffer xml = new StringBuffer();
 			xml.append("<command action=\"").append(linkType).append("\"");
 			xml.append(" to_parent_assetid=\"").append(toParentId).append("\"");
@@ -210,10 +227,15 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 			for (int i = 0; i < children.length; i++) {
 				String assetid  = MatrixToolkit.rawUrlEncode(children[i].getAsset().getId(), true);
 				String linkid   = children[i].getLinkid();
-				String parentid = MatrixToolkit.rawUrlEncode(
-					((MatrixTreeNode) children[i].getParent()).getAsset().getId(),
-					true
-				);
+				String parentid = null;
+				try {
+					parentid = MatrixToolkit.rawUrlEncode(
+						((MatrixTreeNode) children[i].getParent()).getAsset().getId(),
+						true
+					);
+				} catch (NullPointerException ex) {
+					parentid = parentIds[i];
+				}
 				xml.append("<asset assetid=\"").append(assetid).append("\" ");
 				xml.append(" linkid=\"").append(linkid).append("\" ");
 				xml.append(" parentid=\"").append(parentid).append("\" />");
@@ -236,7 +258,8 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 			String linkType,
 			MatrixTreeNode[] children,
 			MatrixTreeNode parent,
-			int index) throws IOException {
+			int index,
+			String[] parentIds) throws IOException {
 
 		// Cue tree defined a move to an unexpaned folder as index -1
 		// so convert this to 0 for matrix
@@ -244,7 +267,7 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 			index = 0;
 
 		String toParentId   = MatrixToolkit.rawUrlEncode(parent.getAsset().getId(), true);
-		String xml          = generateCreateLinkXML(linkType, toParentId, children, index);
+		String xml          = generateCreateLinkXML(linkType, toParentId, children, index, parentIds);
 		Document response   = Matrix.doRequest(xml);
 		NodeList childNodes = response.getDocumentElement().getChildNodes();
 

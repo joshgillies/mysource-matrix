@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.199 2005/11/24 22:54:53 sdanis Exp $
+* $Id: asset_map.inc,v 1.200 2005/11/30 22:46:38 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.199 $
+* @version $Revision: 1.200 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -153,9 +153,6 @@ class Asset_Map
 									'parameter.url.iconurl'				=> '__lib/web/images/icons',
 									'parameter.url.typecodeurl'			=> '__data/asset_types',
 									'parameter.url.notaccessibleicon'	=> 'asset_map/not_accessible.png',
-									'parameter.url.expanding_next_node'=> 'down_arrows.png',
-									'parameter.url.expanding_prev_node'=> 'up_arrows.png',
-									'parameter.url.loading_node'		=> '/loading_node.png',
 									'parameter.url.type2icon'			=> 'asset_map/not_visible.png',
 									'parameter.url.assetmapiconurl'		=> '__lib/web/images/icons/asset_map',
 									'parameter.url.baseurl'				=> $root_url,

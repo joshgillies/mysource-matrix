@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.11 2005/11/24 22:54:53 sdanis Exp $
+* $Id: CueTree.java,v 1.12 2005/11/30 22:46:38 sdanis Exp $
 *
 */
 
@@ -125,6 +125,7 @@ public class CueTree extends JTree {
 		setInvalidCursor();
 		setUI(new CueTreeUI());
 		setMoveEnabled(true);
+		addKeyListener(new KeyListener());
 	}
 
 	/**
@@ -135,7 +136,6 @@ public class CueTree extends JTree {
 		try {
 			noMoveCursor = Cursor.getSystemCustomCursor(INVALID_CURSOR);
 		} catch (Exception e) {
-			System.err.println("No invalid cursor " + INVALID_CURSOR + " found");
 			e.printStackTrace();
 			noMoveCursor = Cursor.getDefaultCursor();
 		}
@@ -314,6 +314,10 @@ public class CueTree extends JTree {
 	 */
 	public void setCueLineOffset(int offset) {
 		cueLineOffset = offset;
+	}
+
+	public boolean inCueMode() {
+		return inCueMode;
 	}
 
 	/**
@@ -583,13 +587,63 @@ public class CueTree extends JTree {
 		Rectangle bounds = getPathBounds(path);
 		Graphics2D g2d = (Graphics2D) getGraphics();
 
-		int x1 = 0, x2 = 0, y = 0;
+		int x1 = 0, x2 = 0, y = 0, ExpandingNodeModifier = 0;
 
+		boolean updateNode = false;
+		TreeNode node = (TreeNode)path.getLastPathComponent();
 		if (pathIsNewParent) {
+			
+			if (node instanceof ExpandingNextNode) {
+				if (!((ExpandingNode) node).usingCueModeName()) {
+					((ExpandingNode) node).useCueModeName();
+					updateNode = true;
+				}
+				ExpandingNodeModifier = ((ExpandingNode) node).getInitStrWidth();
+			} else if (node instanceof ExpandingPreviousNode) {
+				if (!((ExpandingNode) node).usingCueModeName()) {
+					((ExpandingNode) node).useCueModeName();
+					updateNode = true;
+				}
+				ExpandingNodeModifier = ((ExpandingNode) node).getInitStrWidth();
+			}
+			
+			if (updateNode) {
+				((DefaultTreeModel) getModel()).nodeChanged(node);
+			}
+
 			dirtyCueBounds = highlightPath(path, UIManager.getColor("CueLine.stroke"));
+			if (ExpandingNodeModifier > 0) {
+				bounds.width = ExpandingNodeModifier;
+			}
 			x1 = bounds.x + bounds.width;
 			y  = bounds.y + (bounds.height / 2);
+
 		} else {
+
+			if ((node instanceof ExpandingNextNode) || ((MatrixTreeNode)node.getParent()).hasNextNode()) {
+				if (!(node instanceof ExpandingNextNode)) {
+					node = node.getParent().getChildAt(node.getParent().getChildCount()-1);
+				}
+				if (((ExpandingNode)node).usingCueModeName()) {
+					((ExpandingNode) node).setName(((ExpandingNode) node).getName());
+					((DefaultTreeModel) getModel()).nodeChanged(node);
+				}
+			}
+
+			if (((MatrixTreeNode)node.getParent()).hasPreviousNode()) {
+				node = ((MatrixTreeNode)node.getParent()).getChildAt(0);
+			} else if (((MatrixTreeNode)node).hasPreviousNode()) {
+				node = ((MatrixTreeNode)node).getChildAt(0);
+			}
+
+			if ((node instanceof ExpandingPreviousNode)) {
+			
+				if (((ExpandingNode)node).usingCueModeName()) {
+					((ExpandingNode) node).setName(((ExpandingNode) node).getName());
+					((DefaultTreeModel) getModel()).nodeChanged(node);
+				}
+			}
+
 			if (isExpanded(path) && getModel().isLeaf(path.getLastPathComponent())) {
 				// if the path given is not the new parent then we
 				// want to draw a cue line so that it's between the first
@@ -619,9 +673,10 @@ public class CueTree extends JTree {
 		// create a union of the current bounds of the cue
 		// and the line that we are about to draw
 		dirtyCueBounds.add(new Rectangle(x1, y, Math.abs(x2 - x1), lineWidth));
-
 		g2d.setColor(UIManager.getColor("CueLine.stroke"));
 		g2d.drawLine(x1, y, x2, y);
+
+
 	}
 
 	/**
@@ -645,9 +700,10 @@ public class CueTree extends JTree {
 		} else {
 			aboveTopPath = false;
 			Rectangle bounds = getPathBounds(path);
-			lastPathWasParent
-				= !((bounds.y + bounds.height - (bounds.height / 2)) < mouseY);
-
+			lastPathWasParent = !((bounds.y + bounds.height - (bounds.height / 2)) < mouseY-4);
+			if (lastPathWasParent) {
+				forceRedraw = true;
+			}
 			// we only want to re-paint the line if the line itself has moved
 			// and we are not painting a ghosted node
 			if (!showsGhostedNode && (path == currentPath && lastPathWasParent == prevPathWasParent)) {
@@ -655,6 +711,7 @@ public class CueTree extends JTree {
 					return;
 			}
 		}
+
 		currentPath = path;
 		drawCueLine(path, lastPathWasParent, aboveTopPath);
 	}
@@ -681,8 +738,12 @@ public class CueTree extends JTree {
 			if (highlightStroke instanceof BasicStroke)
 				lineWidth = (int) ((BasicStroke) highlightStroke).getLineWidth();
 		}
+		if (path.getLastPathComponent() instanceof ExpandingNode) {
+			g2d.drawRoundRect(bounds.x-20, bounds.y, ((ExpandingNode)path.getLastPathComponent()).getInitStrWidth()+20, bounds.height, 10, 10);
+		} else {
+			g2d.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+		}
 
-		g2d.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
 		// grow by lineWidth as the current bounds are on the boundary
 		// of the highlight
 		bounds.grow(0, lineWidth);
@@ -878,6 +939,22 @@ public class CueTree extends JTree {
 			}
 	}
 
+	private String[] parentIds = null;
+
+	public String[] getCueModeParentIds() {
+		return parentIds;
+	}
+
+	public void setCueModeParentIds(TreePath[] selectedPaths) {
+		parentIds = null;
+		if (selectedPaths != null) {
+			parentIds = new String[selectedPaths.length];
+			for (int i=0; i < selectedPaths.length; i++) {
+				parentIds[i] = ((MatrixTreeNode)(((MatrixTreeNode)selectedPaths[i].getLastPathComponent())).getParent()).getAsset().getId();
+			}
+		}
+	}
+
 	/**
 	 * A <code>CueGestureHandler</code> handles mouse events for the
 	 * <code>CueTree</code>. When a mouse event occurs that initiates the cue
@@ -968,10 +1045,20 @@ public class CueTree extends JTree {
 				}
 			}
 		}
+	
+		
+
 
 		protected void handleSingleSource(Point initPoint) {
 			TreePath parentPath = null;
 			TreePath sourcePath = sourcePaths[0];
+
+			if (lastKeyPressed == KeyEvent.VK_CONTROL && (currentPath.getLastPathComponent() instanceof ExpandingNode)) {
+				if (getCueModeParentIds() == null) {
+					setCueModeParentIds(sourcePaths);
+				}
+				return;
+			}
 
 			// -1 indicates that the the parent wasn't expanded. It is up to
 			// the CueGestureListener to determine where in the tree the node is to
@@ -980,6 +1067,7 @@ public class CueTree extends JTree {
 			int indexModifier = 0;
 			int oldIndex = 0;
 			int newIndex = 0;
+
 
 			if (!lastPathWasParent) {
 				// if the last path wasn't the new parent and the current path
@@ -1054,6 +1142,13 @@ public class CueTree extends JTree {
 
 		protected void handleMultipleSources(Point initPoint) {
 			TreePath parentPath = null;
+
+			if (lastKeyPressed == KeyEvent.VK_CONTROL && (currentPath.getLastPathComponent() instanceof ExpandingNode)) {
+				if (getCueModeParentIds() == null) {
+					setCueModeParentIds(sourcePaths);
+				}
+				return;
+			}
 
 			// -1 indicates that the the parent wasn't expanded. It is up to
 			// the CueGestureListener to determine where in the tree the node is to
@@ -1173,6 +1268,15 @@ public class CueTree extends JTree {
 				}
 			} else {
 				TreePath path = getClosestPathForLocation(evt.getX(), evt.getY() - cueLineOffset);
+				if ((getLastKeyPressed() == KeyEvent.VK_CONTROL) && isNavNode(path.getLastPathComponent())) {
+					if (nodeIconContainsPoint(path, new Point(evt.getX(),evt.getY()))) {
+						setCursor(moveCursor);
+					} else {
+						setCursor(Cursor.getDefaultCursor());
+					}
+				} else {
+					setCursor(Cursor.getDefaultCursor());
+				}
 
 				// if we are showing the ghosted node, paint it onto
 				// the location where the mouse currently is before we
@@ -1184,7 +1288,7 @@ public class CueTree extends JTree {
 		}
 
 		private boolean isNavNode(Object node) {
-			if (!(node instanceof LoadingNode) && !(node instanceof ExpandingNextNode) && !(node instanceof ExpandingPreviousNode)) {
+			if (!(node instanceof LoadingNode) && !(node instanceof ExpandingNode)) {
 				return false;
 			}
 			return true;
@@ -1289,6 +1393,26 @@ public class CueTree extends JTree {
 				return false;
 			}
 			return true;
+		}
+	}
+
+	private int lastKeyPressed = -1;
+
+	public void setLastKeyPressed(int keyCode) {
+		lastKeyPressed = keyCode;
+	}
+
+	public int getLastKeyPressed() {
+		return lastKeyPressed;
+	}
+
+	private class KeyListener extends KeyAdapter {
+		public void keyPressed(KeyEvent evt) {
+			setLastKeyPressed(evt.getKeyCode());
+		}
+
+		public void keyReleased(KeyEvent evt) {
+			setLastKeyPressed(-1);
 		}
 	}
 

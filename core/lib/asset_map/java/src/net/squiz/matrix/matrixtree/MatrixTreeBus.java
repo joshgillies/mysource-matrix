@@ -56,6 +56,13 @@ public class MatrixTreeBus {
 	}
 
 	public static MatrixTree getActiveTree() {
+		if (activeTree == null) {
+			if (trees.size() > 0) {
+				activeTree = (MatrixTree)trees.get(0);
+			} else {
+				return null;
+			}
+		}
 		return activeTree;
 	}
 
@@ -135,6 +142,9 @@ public class MatrixTreeBus {
 	}
 
 	public static boolean typeIsRestricted(AssetType type) {
+		if (type == null) {
+			return false;
+		}
 		if (restrictedTypes.length == 0)
 			return true;
 		for (int i = 0; i < restrictedTypes.length; i++) {

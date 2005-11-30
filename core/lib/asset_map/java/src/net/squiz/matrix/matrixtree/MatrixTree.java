@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.14 2005/11/24 22:54:54 sdanis Exp $
+ * $Id: MatrixTree.java,v 1.15 2005/11/30 22:46:38 sdanis Exp $
  *
  */
 
@@ -292,9 +292,6 @@ public class MatrixTree extends CueTree
 
 		removeMouseListener(selTool);
 		removeMouseMotionListener(selTool);
-
-		setLargeModel(true);
-		setRowHeight(16);
 	}
 
 	/**
@@ -307,9 +304,6 @@ public class MatrixTree extends CueTree
 
 		addMouseListener(selTool);
 		addMouseMotionListener(selTool);
-
-		setLargeModel(false);
-		setRowHeight(0);
 	}
 
 	/**
@@ -743,8 +737,10 @@ public class MatrixTree extends CueTree
 			for (int i = listeners.length - 2; i >= 0; i -= 2) {
 				if (listeners[i] == NewLinkListener.class) {
 					// Lazily create the event:
+					String[] parentIds = getCueModeParentIds();
+					setCueModeParentIds(null);
 					if (evt == null)
-						evt = new NewLinkEvent(this, type, sources, parent, index, prevIndex);
+						evt = new NewLinkEvent(this, type, sources, parent, index, prevIndex, parentIds);
 					((NewLinkListener) listeners[i + 1]).
 						requestForNewLink(evt);
 				}
@@ -955,15 +951,19 @@ public class MatrixTree extends CueTree
 				if (nodes == null) {
 					return;
 				}
-				DeleteDialog deleteDialog = DeleteDialog.getDeleteDialog(nodes);
-				GUIUtilities.showInScreenCenter(deleteDialog);
+				DeleteDialog deleteDialog = DeleteDialog.getDeleteDialog(nodes, getLocationOnScreen(), getSize());
+				deleteDialog.show();
+				//deleteDialog.setVisible(true);
+
+				//GUIUtilities.showInScreenCenter(deleteDialog);
 			}
 		};
 
 		Action searchAction = new AbstractAction() {
 			public void actionPerformed(ActionEvent evt) {
-				SearchDialog searchDialog = SearchDialog.getSearchDialog();
-				GUIUtilities.showInScreenCenter(searchDialog);
+				Point topLeft = new Point(getLocationOnScreen());
+				SearchDialog searchDialog = SearchDialog.getSearchDialog(topLeft, getSize());
+				searchDialog.show();
 			}
 		};
 
@@ -991,7 +991,7 @@ public class MatrixTree extends CueTree
 
 		getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "delete");
 		getActionMap().put("delete", deleteAction);
-		getInputMap().put(KeyStroke.getKeyStroke("shift ctrl F"), "search");
+		getInputMap().put(KeyStroke.getKeyStroke("shift ctrl J"), "search");
 		getActionMap().put("search", searchAction);
 		/*getInputMap().put(KeyStroke.getKeyStroke("shift ctrl S"), "open selection");
 		getActionMap().put("open selection", openSelectionAction);
@@ -1257,7 +1257,6 @@ public class MatrixTree extends CueTree
 		}
 
 		public void mouseClicked(MouseEvent evt) {
-
 			if (evt.getClickCount() == 1) {
 				final TreePath treePath = getPathForLocation(evt.getX(), evt.getY());
 				if (treePath == null)
@@ -1275,7 +1274,6 @@ public class MatrixTree extends CueTree
 				return;
 			}
 
-			//System.out.println("Java memory in use = " + (Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()));
 			if (evt.getClickCount() != 2)
 					return;
 
@@ -1314,6 +1312,7 @@ public class MatrixTree extends CueTree
 			}
 		}
 	}//end class DoubleClickHandler
+
 
 	/**
 	 * Class that handles the menus through right clicking. If there is

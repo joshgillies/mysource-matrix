@@ -34,7 +34,7 @@ public class MatrixTabbedPane extends VerticalTabbedPane {
 						// bounds of a tab
 						if (indexAtLocation(evt.getX(), evt.getY()) == -1)
 							return;
-
+						
 						JPanel panel = new JPanel();
 						panel.setBackground(Color.WHITE);
 						JLabel tabsUndocked = new JLabel("", GUIUtilities.getAssetMapIcon("matrix_logo.png"), CENTER);
@@ -97,40 +97,41 @@ public class MatrixTabbedPane extends VerticalTabbedPane {
 		public void windowClosing(WindowEvent evt) {
 			UndockedView view = (UndockedView) evt.getComponent();
 			JComponent basicView = view.getViewComponent();
-
+			
 			JSplitPane splitPane = ((BasicView)basicView).getSplitPane();
 			splitPane.setDividerLocation(Integer.MAX_VALUE);
 
+			
 			setComponentAt(view.getIndex(), basicView);
 			setEnabledAt(view.getIndex(), true);
-			if (isAllUndocked())
-				setSelectedIndex(view.getIndex());
-
-
+			setSelectedIndex(view.getIndex());
+			allUndocked = false;
 		}
 	}
 
 	protected class CueTransferHandler implements ChangeListener {
 
 		public void stateChanged(ChangeEvent evt) {
-			JTabbedPane pane = (JTabbedPane) evt.getSource();
-
-			BasicView view = (BasicView) pane.getComponentAt(pane.getSelectedIndex());
-			MatrixTree currentTree = view.getTree();
-
-			for (int i = 0; i < pane.getTabCount(); i++) {
-				// it might be a JPanel so we need to check to see that its a BasicView
-				if (!(pane.getComponentAt(i) instanceof BasicView))
-					continue;
-				MatrixTree tree = ( (BasicView) ( pane.getComponentAt(i) ) ).getTree();
-				TreePath[] path = new TreePath[1];
-				path[0] = tree.getCuePath();
-				if (path[0] != null) {
-					currentTree.startCueMode(path);
-					tree.stopCueMode();
-					break;
+			
+			try {
+				JTabbedPane pane = (JTabbedPane) evt.getSource();
+				BasicView view = (BasicView) pane.getComponentAt(pane.getSelectedIndex());
+				MatrixTree currentTree = view.getTree();
+				System.out.println("test");
+				for (int i = 0; i < pane.getTabCount(); i++) {
+					// it might be a JPanel so we need to check to see that its a BasicView
+					if (!(pane.getComponentAt(i) instanceof BasicView))
+						continue;
+					MatrixTree tree = ( (BasicView) ( pane.getComponentAt(i) ) ).getTree();
+					TreePath[] path = new TreePath[1];
+					path[0] = tree.getCuePath();
+					if (path[0] != null) {
+						currentTree.startCueMode(path);
+						tree.stopCueMode();
+						break;
+					}
 				}
-			}
+			} catch (ArrayIndexOutOfBoundsException ex) {}
 		}
 	}
 

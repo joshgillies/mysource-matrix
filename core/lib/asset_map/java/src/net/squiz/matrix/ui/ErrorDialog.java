@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: DeleteDialog.java,v 1.6 2005/11/30 22:46:39 sdanis Exp $
+* $Id: ErrorDialog.java,v 1.1 2005/11/30 22:46:39 sdanis Exp $
 *
 */
 
@@ -39,21 +39,17 @@ import java.awt.FontMetrics;
 import java.awt.*;
 
 /**
- * The DeleteDialog class is the delete confirmation popup when a a node(s) is
+ * The ErrorDialog class is the delete confirmation popup when a a node(s) is
  * selected for deletion.
  *
  * @author Nathan de Vries <ndvries@squiz.net>
  */
-public class DeleteDialog 	extends 	MatrixDialog
+public class ErrorDialog 	extends 	MatrixDialog
 							implements 	MatrixConstants, KeyListener {
 
-	private JButton deleteBtn;
-	private JButton cancelBtn;
-	private MatrixTreeNode[] nodes;
 	private static Point prevScreenLocation = null;
 
-	private DeleteDialog(MatrixTreeNode[] nodes) {
-		this.nodes = nodes;
+	private ErrorDialog(String message, String title) {
 		JPanel contentPane = new JPanel(new BorderLayout());
 		setContentPane(contentPane);
 
@@ -63,65 +59,47 @@ public class DeleteDialog 	extends 	MatrixDialog
 		JPanel midPanel = new JPanel();
 		midPanel.setBackground(MatrixLookAndFeel.PANEL_COLOUR);
 
-		JLabel label;
-		// MM: what if nodes.length == 0 ? or nodes == null ?
-		if (nodes.length == 1) {
-			Object[] transArgs = {
-				new String(nodes[0].getAsset().getName())
-			};
-			label = new JLabel(Matrix.translate("asset_map_confirm_move_child", transArgs));
-		} else {
-			Object[] transArgs = {
-				new Integer(nodes.length)
-			};
-			label = new JLabel(Matrix.translate("asset_map_confirm_move_children", transArgs));
-		}
-
+		JLabel label = new JLabel(message);
 		label.setFont(PLAIN_FONT_10);
 		midPanel.add(label);
 
-		contentPane.add(getTopPanel(Matrix.translate("asset_map_dialog_delete")), BorderLayout.NORTH);
+		contentPane.add(getTopPanel(title), BorderLayout.NORTH);
 		contentPane.add(midPanel, BorderLayout.CENTER);
-		enableDrag(contentPane);
+
 
 		JPanel bottomPanel = new JPanel();
-		final JLabel deleteButton = new JLabel();
-		deleteButton.setIcon(GUIUtilities.getAssetMapIcon("ok.png"));
+		JLabel okButton = new JLabel();
+		okButton.setIcon(GUIUtilities.getAssetMapIcon("ok.png"));
+		closeOnClick(okButton, "ok");
+	
 
-		// mouse events
-		deleteButton.addMouseListener(new MouseAdapter(){
+	/*	// mouse events
+		okButton.addMouseListener(new MouseAdapter(){
 			public void mouseClicked(MouseEvent e){
-				setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-				delete();
+				setCursor(DEFAULT_CURSOR);
 				dispose();
 			}
 
 			public void mouseExited(MouseEvent e) {
-				deleteButton.setIcon(GUIUtilities.getAssetMapIcon("ok.png"));
-				setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+				setCursor(DEFAULT_CURSOR);
+				okButton.setIcon(GUIUtilities.getAssetMapIcon("ok.png"));
 			}
 
 			public void mouseEntered(MouseEvent e) {
-				deleteButton.setIcon(GUIUtilities.getAssetMapIcon("ok_on.png"));
-				setCursor(new Cursor(Cursor.HAND_CURSOR));
+				setCursor(HAND_CURSOR);
+				okButton.setIcon(GUIUtilities.getAssetMapIcon("ok_on.png"));
 			}
-		});
+		});*/
 
-		deleteButton.setOpaque(false);
-		bottomPanel.add(deleteButton);
-
-		JLabel cancelButton = new JLabel();
-		cancelButton.setIcon(GUIUtilities.getAssetMapIcon("cancel.png"));
-		
-		closeOnClick(cancelButton, "cancel");
-		bottomPanel.add(cancelButton);
-
+		okButton.setOpaque(false);
+		bottomPanel.add(okButton);
 		bottomPanel.setBackground(MatrixLookAndFeel.PANEL_COLOUR);
-
+		
 		contentPane.add(bottomPanel, BorderLayout.SOUTH);
 
 
 		contentPane.setBackground(MatrixLookAndFeel.PANEL_BORDER_COLOUR);
+		enableDrag(contentPane);
 
 		FontMetrics fm = getFontMetrics(label.getFont());
 		int textWidth = fm.stringWidth(label.getText());
@@ -130,23 +108,11 @@ public class DeleteDialog 	extends 	MatrixDialog
 
 	}
 
-	public void dispose() {
-		prevScreenLocation = getPrevLoc();
-		super.dispose();
-	}
-
-
-	private void btn_pressed(ActionEvent evt) {
-		delete();
-		dispose();
-	}
-
 	public void keyTyped(KeyEvent evt) {
 	}
 
 	public void keyPressed(KeyEvent evt) {
 		if(evt.getKeyCode() == evt.VK_ENTER) {
-			delete();
 			dispose();
 		} else if(evt.getKeyCode() == evt.VK_ESCAPE) {
 			dispose();
@@ -156,40 +122,32 @@ public class DeleteDialog 	extends 	MatrixDialog
 	public void keyReleased(KeyEvent evt) {
 	}
 
-	
-	private void delete() {
-		// there can only be on trash folder in the system.
-		String[] assetids = AssetManager.getAssetsOfType("trash_folder");
-		Asset trash = AssetManager.getAsset(assetids[0]);
-		Iterator nodes = trash.getTreeNodes();
-		MatrixTreeNode trashNode = null;
-		while (nodes.hasNext()) {
-			trashNode = (MatrixTreeNode) nodes.next();
-		}
-		MatrixTreeComm.createLink(NewLinkEvent.LINK_TYPE_MOVE, DeleteDialog.this.nodes, trashNode, 0, 0, null);
+	public void dispose() {
+		prevScreenLocation = getPrevLoc();
+		super.dispose();
 	}
 
 	/**
-	 * Creates a new DeleteDialog if one does not exists, otherwise the
-	 * existing DeleteDialog is brought to the front and given focus
+	 * Creates a new ErrorDialog if one does not exists, otherwise the
+	 * existing ErrorDialog is brought to the front and given focus
 	 *
-	 * @return a new or existing DeleteDialog
+	 * @return a new or existing ErrorDialog
 	 */
-	public static DeleteDialog getDeleteDialog(MatrixTreeNode[] nodes, Point locationOnScreen, Dimension treeDimension) {
-		DeleteDialog deleteDialog = null;
-		if (!MatrixDialog.hasDialog(DeleteDialog.class)) {
-			deleteDialog = new DeleteDialog(nodes);
-			MatrixDialog.putDialog(deleteDialog);
-		} else {
-			// bring the selection dialog to the front
-			deleteDialog = (DeleteDialog) MatrixDialog.getDialog(DeleteDialog.class);
-			deleteDialog.toFront();
+	public static ErrorDialog getErrorDialog(String message, String title, Point locationOnScreen, Dimension treeDimension) {
+		ErrorDialog ErrorDialog = null;
+		
+		if (MatrixDialog.hasDialog(ErrorDialog.class)) {
+			ErrorDialog = (ErrorDialog) MatrixDialog.getDialog(ErrorDialog.class);
+			ErrorDialog.dispose();
 		}
 
-		deleteDialog.pack();
-		deleteDialog.centerDialogOnTree(locationOnScreen, treeDimension, prevScreenLocation);
+		ErrorDialog = new ErrorDialog(message, title);
+		MatrixDialog.putDialog(ErrorDialog);
 
-		return deleteDialog;
+		ErrorDialog.pack();
+		ErrorDialog.centerDialogOnTree(locationOnScreen, treeDimension, prevScreenLocation);
+
+		return ErrorDialog;
 	}
 
 	/*class ButtonActionListener implements ActionListener {
@@ -205,7 +163,7 @@ public class DeleteDialog 	extends 	MatrixDialog
 				while (nodes.hasNext()) {
 					trashNode = (MatrixTreeNode) nodes.next();
 				}
-				MatrixTreeComm.createLink(NewLinkEvent.LINK_TYPE_MOVE, DeleteDialog.this.nodes, trashNode, 0, 0);
+				MatrixTreeComm.createLink(NewLinkEvent.LINK_TYPE_MOVE, ErrorDialog.this.nodes, trashNode, 0, 0);
 
 			}
 
@@ -216,4 +174,4 @@ public class DeleteDialog 	extends 	MatrixDialog
 	}//end class ButtonActionListener
 	*/
 
-}//end class DeleteDialog
+}//end class ErrorDialog

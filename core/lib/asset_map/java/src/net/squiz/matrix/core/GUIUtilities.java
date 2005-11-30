@@ -17,12 +17,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: GUIUtilities.java,v 1.3 2005/06/24 00:44:32 ndvries Exp $
+* $Id: GUIUtilities.java,v 1.4 2005/11/30 22:46:38 sdanis Exp $
 *
 */
 
 package net.squiz.matrix.core;
 
+import net.squiz.matrix.matrixtree.*;
+import net.squiz.matrix.ui.ErrorDialog;
 import javax.swing.*;
 import java.awt.*;
 import java.net.*;
@@ -49,12 +51,19 @@ public class GUIUtilities {
 	 * @param title the title to display
 	 */
 	public static void error(Component comp, String message, String title) {
-		JOptionPane.showMessageDialog(
-			comp,
-			message,
-			title,
-			JOptionPane.ERROR_MESSAGE
-		);
+		
+		MatrixTree tree = MatrixTreeBus.getActiveTree();
+		if (tree == null) {
+			JOptionPane.showMessageDialog(
+				comp,
+				message,
+				title,
+				JOptionPane.ERROR_MESSAGE
+			);
+			return;
+		}
+		ErrorDialog errorDialog = ErrorDialog.getErrorDialog(message, title, tree.getLocationOnScreen(), tree.getSize());
+		errorDialog.show();
 	}
 
 	/**

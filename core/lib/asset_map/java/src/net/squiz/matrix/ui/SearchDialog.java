@@ -1,6 +1,7 @@
 
 package net.squiz.matrix.ui;
 
+import net.squiz.matrix.plaf.MatrixLookAndFeel;
 import net.squiz.matrix.matrixtree.*;
 import net.squiz.matrix.core.*;
 import javax.swing.*;
@@ -15,15 +16,24 @@ public class SearchDialog extends MatrixDialog {
 	private JButton cancelButton;
 	private JTextField searchTerm;
 	private JLabel message;
+	private static Point prevScreenLocation = null;
 
-	private SearchDialog() {
+	private SearchDialog(Point locationOnScreen, Dimension treeDimension) {
 		JPanel contentPane = new JPanel(new BorderLayout());
 		setContentPane(contentPane);
-		contentPane.setBorder(new EmptyBorder(12, 12, 12, 12));
-		contentPane.add(getSearcFormPanel(), BorderLayout.NORTH);
-		contentPane.add(getMessagePanel());
-		contentPane.add(getButtonPanel(), BorderLayout.SOUTH);
-		setSize(300, 180);
+		contentPane.setBorder(new EmptyBorder(1, 1, 1, 1));
+
+		contentPane.add(getTopPanel(Matrix.translate("asset_map_dialog_jump")),BorderLayout.NORTH);
+
+		contentPane.add(getSearcFormPanel());
+		contentPane.setBackground(MatrixLookAndFeel.PANEL_BORDER_COLOUR);
+		enableDrag(contentPane);
+	}
+
+
+	public void dispose() {
+		prevScreenLocation = getPrevLoc();
+		super.dispose();
 	}
 
 	/**
@@ -31,28 +41,24 @@ public class SearchDialog extends MatrixDialog {
 	 * existing SearchDialog is brought to the front and given focus
 	 * @return a new or existing SearchDialog
 	 */
-	public static SearchDialog getSearchDialog() {
+	public static SearchDialog getSearchDialog(Point locationOnScreen, Dimension treeDimension) {
 
 		SearchDialog searchDialog = null;
 		if (!MatrixDialog.hasDialog(SearchDialog.class)) {
-			searchDialog = new SearchDialog();
+			searchDialog = new SearchDialog(locationOnScreen, treeDimension);
 			MatrixDialog.putDialog(searchDialog);
 		} else {
 			// bring the seach dialog to the front
 			searchDialog = (SearchDialog) MatrixDialog.getDialog(SearchDialog.class);
 			searchDialog.toFront();
 		}
+		
+		searchDialog.pack();
+		searchDialog.centerDialogOnTree(locationOnScreen, treeDimension, prevScreenLocation);
+
 		return searchDialog;
 	}
 
-	private JSplitPane getSearchPanel() {
-		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-
-		splitPane.add(getSearcFormPanel(), JSplitPane.TOP);
-		splitPane.add(getMessagePanel(), JSplitPane.BOTTOM);
-
-		return splitPane;
-	}
 
 	private JPanel getMessagePanel() {
 		JPanel messagePanel = new JPanel();
@@ -63,29 +69,27 @@ public class SearchDialog extends MatrixDialog {
 	}
 
 	private JPanel getSearcFormPanel() {
+		// create a form panel
 		JPanel searchForm = new JPanel();
-		searchTerm = new JTextField(10);
-		JLabel label = new JLabel("Jump to ");
-		searchForm.add(label);
+		searchForm.setBackground(MatrixLookAndFeel.PANEL_COLOUR);
+
+		// Text field settings
+		searchTerm = new JTextField(5);
+		searchTerm.setPreferredSize(new Dimension(150,15));
+		searchTerm.setFont(new Font("Arial",Font.PLAIN, 10));
+		searchTerm.setOpaque(false);
+		searchTerm.addKeyListener(new KeyListener());
+		searchTerm.setBorder( new LineBorder(MatrixLookAndFeel.PANEL_BORDER_COLOUR, 1) );
+
+		// Label settings
+		//JLabel label = new JLabel("Jump to ");
+		//label.setFont(new Font("Arial",Font.PLAIN, 10));
+
+		// add components to formPanel
+		//searchForm.add(label);
 		searchForm.add(searchTerm);
 
 		return searchForm;
-	}
-
-	private JPanel getButtonPanel() {
-		ButtonHandler buttonHandler = new ButtonHandler();
-
-		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		searchButton = new JButton(Matrix.translate("asset_map_button_jump"));
-		cancelButton = new JButton(Matrix.translate("asset_map_button_cancel"));
-
-		searchButton.addActionListener(buttonHandler);
-		cancelButton.addActionListener(buttonHandler);
-
-		buttonPanel.add(searchButton);
-		buttonPanel.add(cancelButton);
-
-		return buttonPanel;
 	}
 
 	class ButtonHandler implements ActionListener {
@@ -113,4 +117,22 @@ public class SearchDialog extends MatrixDialog {
 			}
 		}
 	}
+
+	private class KeyListener extends KeyAdapter {
+		public void keyPressed(KeyEvent evt) {
+			if (evt.getSource() == searchTerm) {
+				if (evt.getKeyCode() == evt.VK_ENTER) {
+					MatrixTree tree =  MatrixTreeBus.getActiveTree();
+					MatrixTreeNode[] nodes = tree.getSelectionNodes();
+					if (nodes[0].getAsset().getNumKids() >= (Integer.parseInt(searchTerm.getText())-1)) {
+						tree.loadChildAssets(nodes[0],"",Integer.parseInt(searchTerm.getText())-1,-1);
+					}
+					dispose();
+				}else if(evt.getKeyCode() == evt.VK_ESCAPE) {
+					dispose();
+				}
+			}
+		}
+	}
 }
+

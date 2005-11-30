@@ -9,6 +9,8 @@ public class ExpandingNode extends MatrixTreeNode {
 	private int clicks = 0;
 	private int names = 4;
 	private int initStrWidth = 0;
+	private int firstNameLength = 0;
+	private String cueModeName = "";
 
 	public ExpandingNode() {
 		super(null, "", 1, "", "");
@@ -56,6 +58,22 @@ public class ExpandingNode extends MatrixTreeNode {
 		}
 	}
 
+	private void setfirstNameLength(int length) {
+		firstNameLength = length;
+	}
+
+	private int getFirstNameLength() {
+		return firstNameLength;
+	}
+
+	public void setClicks(int clicks) {
+		this.clicks = clicks;
+	}
+
+	public int getClicks() {
+		return clicks;
+	}
+
 	public String getName() {
 		int to = getCurrentLoc()+AssetManager.getLimit();
 		if ((to > getParentTotalAssets()) && getParentTotalAssets() > 0) {
@@ -66,12 +84,12 @@ public class ExpandingNode extends MatrixTreeNode {
 			total = getParentTotalAssets();
 		}
 
-		if (clicks == 0 || names < clicks) {
-			clicks = 1;
+		if (getClicks() == 0 || names < getClicks()) {
+			setClicks(1);
 		}
 
 		String name = "";
-		if (clicks == 1) {
+		if (getClicks() == 1) {
 			String totalStr = "N/A";
 			String fromStr = ""+(getCurrentLoc()+1);
 			String toStr = ""+to;
@@ -86,7 +104,8 @@ public class ExpandingNode extends MatrixTreeNode {
 					};
 
 			name = Matrix.translate("asset_map_expanding_node_one",transArgs);
-		} if (clicks == 2) {
+			setfirstNameLength(name.length());
+		} if (getClicks() == 2) {
 			String fromStr = ""+((int)((getCurrentLoc()+1)/AssetManager.getLimit())+1);
 			String toStr = "N/A";
 			if (total > 0) {
@@ -97,7 +116,7 @@ public class ExpandingNode extends MatrixTreeNode {
 						toStr,
 					};
 			name = Matrix.translate("asset_map_expanding_node_two",transArgs);
-		} else if (clicks == 3) {
+		} else if (getClicks() == 3) {
 			String totalStr = "N/A";
 			if (total > 0) {
 				totalStr = ""+total;
@@ -106,7 +125,7 @@ public class ExpandingNode extends MatrixTreeNode {
 						totalStr
 					};
 			name = Matrix.translate("asset_map_expanding_node_three",transArgs);
-		} else if (clicks == 4) {
+		} else if (getClicks() == 4) {
 			int remaining = (total-getCurrentLoc()-AssetManager.getLimit());
 			String remainingStr = "0";
 			if (remaining > 0) {
@@ -117,14 +136,47 @@ public class ExpandingNode extends MatrixTreeNode {
 					};
 			name = Matrix.translate("asset_map_expanding_node_four",transArgs);
 		}
+		if (getFirstNameLength() > name.length()) {
+			int diff = getFirstNameLength() - name.length();
+			for (int i=0; i< diff+4;i++) {
+				name += " ";
+			}
+		}
+
 		return name;
+	}
+	
+
+	public void setCueModeName(String name) {
+		cueModeName = name;
+	}
+
+	public String getCueModeName() {
+		return cueModeName;
+	}
+
+	public boolean usingCueModeName() {
+		return getAsset().getName().equals(getCueModeName());
+	}
+
+	public void useCueModeName() {
+		setName(getCueModeName());
+	}
+
+	public void setName(String name) {
+		((ExpandingAsset)getUserObject()).setName(name);
+	}
+
+	public void switchName() {
+		setClicks(0);
+		setName(getName());
 	}
 
 	public void switchName(int evtX, double boundsX) {
 		int res = evtX - (int)boundsX;
 		if (res > 35) {
-			clicks++;
-			((ExpandingAsset)getUserObject()).setName(getName());
+			setClicks(getClicks()+1);
+			setName(getName());
 		}
 	}
 

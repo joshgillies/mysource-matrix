@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: FinderTree.java,v 1.2 2005/07/27 10:45:22 brobertson Exp $
+ * $Id: FinderTree.java,v 1.3 2005/11/30 22:46:38 sdanis Exp $
  *
  */
 
@@ -64,10 +64,6 @@ public class FinderTree extends MatrixTree {
 
 	protected MenuHandler getMenuHandler() {
 		return new FinderMenuHandler();
-	}
-
-	protected DoubleClickHandler getDoubleClickHandler() {
-		return null;
 	}
 
 	protected DragHandler getDragHandler() {
@@ -124,6 +120,5 @@ public class FinderTree extends MatrixTree {
 
 
 	}//end class MenuHandler
-
 
 }//end class FinderTree

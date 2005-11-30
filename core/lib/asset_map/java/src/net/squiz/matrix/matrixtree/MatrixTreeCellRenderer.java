@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTreeCellRenderer.java,v 1.4 2005/11/24 22:54:54 sdanis Exp $
+* $Id: MatrixTreeCellRenderer.java,v 1.5 2005/11/30 22:46:38 sdanis Exp $
 *
 */
 
@@ -85,7 +85,7 @@ public class MatrixTreeCellRenderer extends JLabel implements TreeCellRenderer, 
 			setText(getNodeDisplayText(node));
 			setFont(PLAIN_FONT_10);
 
-			if (!(node instanceof LoadingNode) && !isNavNode(node)) {
+			if (!isNavNode(node)) {
 				setToolTipText(asset.getType().getName()  + " [" + asset.getId() + "]");
 				this.selected = selected;
 				if (!(asset.isAccessible())) {
@@ -109,17 +109,24 @@ public class MatrixTreeCellRenderer extends JLabel implements TreeCellRenderer, 
 				} else {
 					setEnabled(true);
 				}
-			} else if (node instanceof ExpandingNextNode) {
-				setToolTipText("View nex set of nodes");
-				setIcon(GUIUtilities.getIcon(Matrix.getProperty("parameter.url.assetmapiconurl") + "/"+
-					Matrix.getProperty("parameter.url.expanding_next_node")));
-			} else if (node instanceof ExpandingPreviousNode) {
-				setToolTipText("View previous set of nodes");
-				setIcon(GUIUtilities.getIcon(Matrix.getProperty("parameter.url.assetmapiconurl") + "/"+
-					Matrix.getProperty("parameter.url.expanding_prev_node")));
+			} else if (node instanceof ExpandingNode) {
+				if (node instanceof ExpandingNextNode) {
+					setToolTipText(Matrix.translate("asset_map_tooltip_next_node"));
+					setIcon(GUIUtilities.getAssetMapIcon("down_arrows.png"));
+				} else {
+					setToolTipText(Matrix.translate("asset_map_tooltip_previous_node"));
+					setIcon(GUIUtilities.getAssetMapIcon("up_arrows.png"));
+					
+				}
+				setEnabled(true);
+				// If we are not in CueMode and we are using CueMode name then update the name
+				if (!((MatrixTree)tree).inCueMode() && ((ExpandingNode)node).usingCueModeName()) {
+					((ExpandingNode)node).switchName();
+					((DefaultTreeModel) tree.getModel()).nodeChanged(node);
+					setText(((ExpandingNode)node).getAsset().getName());
+				}
 			} else if (node instanceof LoadingNode) {
-				setIcon(GUIUtilities.getIcon(Matrix.getProperty("parameter.url.assetmapiconurl") + "/"+
-					Matrix.getProperty("parameter.url.loading_node")));
+				setIcon(GUIUtilities.getAssetMapIcon("loading_node.png"));
 			}
 
 		} else if (value instanceof DefaultMutableTreeNode) {
