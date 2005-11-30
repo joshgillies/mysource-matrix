@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.19 2005/10/25 07:15:06 ndvries Exp $
+* $Id: cron_job_future_lineage.inc,v 1.20 2005/11/30 05:10:06 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -159,11 +159,23 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	*/
 	function setAttrValue($name, $value)
 	{
-		if ($name == 'type') {
-			trigger_localised_error('CRON0039', E_USER_NOTICE);
-			return false;
-		}//end if
-
+		switch ($name) {
+			case 'type':
+				trigger_localised_error('CRON0039', E_USER_NOTICE);
+				return false;
+			break;
+			case 'delete_linkid':
+				if ($value > 0) {
+					$this->setAttrValue('delete_link_all', false);
+				}
+			break;
+			case 'delete_link_all':
+				if ($value == true) {
+					$this->setAttrValue('delete_linkid', 0);
+				}
+			break;
+		}
+		
 		return parent::setAttrValue($name, $value);
 
 	}//end setAttrValue()
@@ -295,23 +307,24 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		if ($this->attr('delete_linkid')) {
-			$delete_ok = false;
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attr('delete_linkid'));
-			if (!empty($link)) {
-				$old_major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
-				if (!is_null($old_major) && $GLOBALS['SQ_SYSTEM']->am->acquireLock($old_major->id, 'links')) {
-					$delete_ok = $old_major->deleteLink($this->attr('delete_linkid'));
-				}
+		
+		$delete_link_success = true;
+		if ($this->attr('delete_link_all') == true) {
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'minor');
+			foreach ($links as $link) {
+				if (!$delete_link_success = $this->_exec_delete_link($link['linkid'])) {
+					break;
+				}//end if
 			}
-
-			if (!$delete_ok) {
-				trigger_localised_error('CRON0007', E_USER_WARNING, $this->attr('delete_linkid'));
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return $failed_ret_val;
+		} else if ($this->attr('delete_linkid') > 0) {
+			if (!$delete_link_success = $this->_exec_delete_link($this->attr('delete_linkid'))) {
+				break;	
 			}
-
 		}//end if
+		
+		if (!$delete_link_success) {
+			return $failed_ret_val;
+		}
 
 		$new_major = &$this->getAssetInLink('major');
 		if (!is_null($new_major)) {
@@ -364,6 +377,36 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		return SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE;
 
 	}//end _exec()
+	
+	
+	/**
+	* Given the ID of a link, attempts to delete it.
+	* 
+	* @param int	$linkid	The ID of the link to delete
+	* 
+	* @return boolean
+	* @access private
+	*/
+	function _exec_delete_link($linkid)
+	{
+		$delete_ok = false;
+		
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+		if (!empty($link)) {
+			$old_major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+			if (!is_null($old_major) && $GLOBALS['SQ_SYSTEM']->am->acquireLock($old_major->id, 'links')) {
+				$delete_ok = $old_major->deleteLink($linkid, true);
+			}
+		}
+
+		if (!$delete_ok) {
+			trigger_localised_error('CRON0007', E_USER_WARNING, $linkid);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+		return true;
+		
+	}//end _exec_delete_link
 
 
 	/**
