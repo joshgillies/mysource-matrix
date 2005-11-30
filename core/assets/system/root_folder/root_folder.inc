@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_folder.inc,v 1.47 2005/05/11 06:05:01 lwright Exp $
+* $Id: root_folder.inc,v 1.48 2005/11/30 23:31:41 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,15 +69,14 @@ class Root_Folder extends Folder
 
 		if (!system_asset_fns_create_pre_check($this)) return false;
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$ret_val = parent::create($link);
 		if ($ret_val) {
 			if ($this->id != 1) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				trigger_localised_error('CORE0077', E_USER_ERROR);
 				return false;
 			}
+
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$linkid = $db->nextId('sq_ast_lnk');
 			assert_valid_db_result($linkid);
@@ -89,6 +88,10 @@ class Root_Folder extends Folder
 			}
 
 			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			// right, we need to do some manipulation for the link table to put in some initial values
 			// so that the root folder, like everything else, has a link where it is a minor party
@@ -141,18 +144,13 @@ class Root_Folder extends Folder
 			$result = $db->query($sql);
 			assert_valid_db_result($sql);
 
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
 			if (!system_asset_fns_create_cleanup($this))  {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
-
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-		} else {
-			// create failed
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-
-		}//end if ret_val
+		}
 
 		unset($this->_tmp[__CLASS__.'_in_create']);
 		return $ret_val;

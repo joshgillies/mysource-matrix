@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.8 2005/11/23 22:13:59 mmcintyre Exp $
+* $Id: pgsql_functions.xml,v 1.9 2005/11/30 23:32:10 mmcintyre Exp $
 *
 */
 -->
@@ -315,76 +315,6 @@
 				END LOOP;
 				RETURN num;
 			END IF;
-		END;' language plpgsql;
-		]]>
-	</sql_element>
-	<sql_element display_name="get_next_treeid Function">
-	<![CDATA[
-		CREATE OR REPLACE FUNCTION get_next_treeid(TEXT, VARCHAR, INTEGER, INTEGER) RETURNS VARCHAR AS '
-		DECLARE
-			existing_treeid ALIAS FOR $1;
-			majorid ALIAS FOR $2;
-			TREE_BASE ALIAS FOR $3;
-			TREE_SIZE ALIAS FOR $4;
-			free_childid TEXT;
-			sql_str TEXT;
-			child_num INTEGER;
-			res RECORD;
-		BEGIN
-			-- try to find any entries in the link tree under parent that are free
-			sql_str := ''SELECT SUBSTR(ct.treeid, (LENGTH(ct.treeid) + 1) - '' || TREE_SIZE || '') AS treeid
-				  FROM sq_ast_lnk_tree ct
-				  WHERE ct.treeid LIKE '''''' || existing_treeid || ''%''''
-				  AND ct.treeid > '''''' || existing_treeid || ''''''
-				  AND LENGTH(ct.treeid) = '' || (LENGTH(existing_treeid) + TREE_SIZE) || ''
-				  AND ct.linkid = 0 ORDER BY treeid DESC LIMIT 1'';
-
-			FOR res IN EXECUTE sql_str LOOP
-				free_childid := res.treeid;
-			END LOOP;
-
-			IF NOT FOUND THEN
-				sql_str := ''SELECT SUBSTR(ct.treeid, (LENGTH(ct.treeid) + 1) - '' || TREE_SIZE || '') AS treeid
-					   FROM sq_ast_lnk_tree ct'';
-				-- if we are not the root folder, the we need to get the correct treeid length
-				IF (existing_treeid != ''-'') THEN
-					sql_str := sql_str || '' WHERE ct.treeid LIKE '''''' || existing_treeid || ''%''''
-						AND ct.treeid > '''''' || existing_treeid || ''''''
-						AND LENGTH(ct.treeid) = '' || (LENGTH(existing_treeid) + TREE_SIZE);
-				ELSE
-					sql_str := sql_str || '' WHERE LENGTH(ct.treeid) = '' || TREE_SIZE;
-				END IF;
-				sql_str := sql_str || '' ORDER BY treeid DESC LIMIT 1'';
-
-				FOR res IN EXECUTE sql_str LOOP
-					free_childid := res.treeid;
-				END LOOP;
-
-				IF NOT FOUND THEN
-					free_childid := asset_link_treeid_convert(''0'', ''1'', TREE_BASE, TREE_SIZE);
-				ELSE
-					-- we found a max so increment it
-					child_num    := CAST(encode(asset_link_treeid_convert(decode(free_childid, ''escape''), ''0'', TREE_BASE, TREE_SIZE), ''escape'') AS INTEGER);
-					free_childid := asset_link_treeid_convert(decode((child_num + 1)::text, ''escape''), ''1'', TREE_BASE, TREE_SIZE);
-				END IF;
-			ELSE
-				-- if there was no exception then we can free up this entry and return it
-				EXECUTE ''DELETE FROM
-								sq_ast_lnk_tree
-							WHERE
-								treeid IN
-								(
-									SELECT
-										t.treeid || '''''' || free_childid || ''''''
-									FROM
-										sq_ast_lnk_tree t
-									INNER JOIN
-										sq_ast_lnk l ON t.linkid = l.linkid
-									WHERE
-										l.minorid = '''''' || majorid || ''''''
-								)'';
-			END IF;
-			RETURN free_childid;
 		END;' language plpgsql;
 		]]>
 	</sql_element>

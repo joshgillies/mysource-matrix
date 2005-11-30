@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.22 2005/11/23 00:53:35 arailean Exp $
+* $Id: lang_errors.xml,v 1.23 2005/11/30 23:32:10 mmcintyre Exp $
 *
 */
 
@@ -1318,6 +1318,9 @@ Full Node Contents %3$s</error>
 	<error code="SYS0308">Asset #%s is not a metadata field</error>
 
 	<error code="SYS0309">You do not have permission to change the status of "%1$s" (#%2$s)</error>
+
+	<error code="SYS0310">Maximum Number of calls to reserve a treeid exceeded</error>
+
 
 	<!-- CORE ASSETS -->
 

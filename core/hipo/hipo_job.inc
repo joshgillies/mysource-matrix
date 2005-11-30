@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.75 2005/08/30 08:59:25 brobertson Exp $
+* $Id: hipo_job.inc,v 1.76 2005/11/30 23:32:09 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -483,6 +483,7 @@ class HIPO_Job extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$db  = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT
@@ -554,6 +555,7 @@ class HIPO_Job extends MySource_Object
 		assert_valid_db_result($result);
 
 		$result = $db->query($sql);
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		assert_valid_db_result($result);
 

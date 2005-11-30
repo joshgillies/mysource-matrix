@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.401 2005/11/30 23:08:00 arailean Exp $
+* $Id: asset_manager.inc,v 1.402 2005/11/30 23:32:09 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.401 $
+* @version $Revision: 1.402 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -542,13 +542,17 @@ class Asset_Manager extends MySource_Object
 		assert_isset_array_index($this->_asset_types, $type_code, 'Asset Type "'.$type_code.'" is not installed on the system');
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$result = $db->getCol('SELECT inhd_type_code
-								FROM sq_ast_typ_inhd
-								WHERE type_code = '.$db->quote($type_code).'
-								  AND inhd_type_code <> type_code
-								'.(($include_asset) ? '' : ' AND inhd_type_code <> '.$db->quote('asset')).'
-								ORDER BY inhd_type_code_lvl DESC'
-								);
+		$sql = 'SELECT
+					inhd_type_code
+				FROM
+					sq_ast_typ_inhd
+				WHERE
+					type_code = '.$db->quote($type_code).'
+				AND	inhd_type_code <> type_code
+					'.(($include_asset) ? '' : ' AND inhd_type_code <> '.$db->quote('asset')).'
+				ORDER BY inhd_type_code_lvl DESC';
+
+		$result = $db->getCol($sql);
 		assert_valid_db_result($result);
 		return $result;
 
@@ -793,7 +797,6 @@ class Asset_Manager extends MySource_Object
 	function &getAsset($assetid, $type_code='', $mute_errors=false)
 	{
 		assert_valid_assetid($assetid);
-
 		$asset = &$this->_asset_cache->get($assetid);
 
 		if (empty($asset)) {
@@ -836,7 +839,9 @@ class Asset_Manager extends MySource_Object
 						} else {
 							$asset =& new $type_code($assetid);
 						}
-						if (empty($asset->id)) $asset = null;
+						if (empty($asset->id)) {
+							$asset = null;
+						}
 					}
 				}
 
@@ -3229,17 +3234,16 @@ class Asset_Manager extends MySource_Object
 			$this->forgetAsset($bridge);
 			return $linkid;
 		}
-		// handle linking a shadow asset as the minor
+
 		if (isset($minorid_parts[1])) {
 
-			// if we are linking under another shadow asset, let the bridge handle it
+			// if we are linking to another shadow asset, let the bridge handle it
 			if (isset($majorid_parts[1])) {
 				$bridge = &$this->getAsset($minorid_parts[0]);
 				$linkid = $bridge->createAssetLink($major, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
 				$this->forgetAsset($bridge);
 			} else {
 
-				//we are linking a shadow asset under a normal asset
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -3349,6 +3353,9 @@ class Asset_Manager extends MySource_Object
 		// then that we aren't moving under ourselves
 		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
 
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+
 			//// Check we aren't moving the minor asset under itself ////
 			// get all the links where the minor asset is a parent
 			// and check to see if our id is under it
@@ -3377,9 +3384,9 @@ class Asset_Manager extends MySource_Object
 				return 0;
 			}
 
-		}//end if
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		}
 
 		// make sure the sort order is in a valid range
 		$sql = 'SELECT
@@ -3401,6 +3408,7 @@ class Asset_Manager extends MySource_Object
 		$linkid = $db->nextId('sq_ast_lnk');
 		assert_valid_db_result($linkid);
 
+
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		$sql = 'UPDATE
@@ -3411,8 +3419,10 @@ class Asset_Manager extends MySource_Object
 						majorid		= '.$db->quoteSmart($major->id).'
 					AND	sort_order	>= '.$db->quoteSmart($sort_order);
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		// we need to insert into the link table
 		// before we can insert into the link_tree table to ensure
@@ -3446,12 +3456,16 @@ class Asset_Manager extends MySource_Object
 						'.$db->quoteSmart($GLOBALS['SQ_SYSTEM']->currentUserId()).'
 					)';
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		// if this is a significant link, then do stuff with the tree
 		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
+
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
 			//// UPDATE THE TREE TABLE ////
 
 			// Get one of the treeids that we have
@@ -3491,6 +3505,7 @@ class Asset_Manager extends MySource_Object
 			assert_valid_db_result($minor_tree);
 
 			$existing_treeid = (string) $existing_treeid;
+
 			if (empty($minor_tree)) {
 				$minor_tree = Array('treeid' => '', 'num_kids' => 0);
 			} else {
@@ -3498,40 +3513,227 @@ class Asset_Manager extends MySource_Object
 				$minor_tree['num_kids'] = (int) $minor_tree['num_kids'];
 			}
 
-			// ask the database for a new treeid. The resulting treeid will be determined
-			// by the following rules
-			// 1) If there are any re-usuable treeids that have been flagged as re-usuable
-			// 2) if there is no current treeid for this branch, branch + 0000 is returned
-			// 3) the next treeid in the sequence for this branch is returned
-			$sql = 'get_next_treeid('.$db->quoteSmart($existing_treeid).', '.
-						$db->quoteSmart($major->id).','.
-						SQ_CONF_ASSET_TREE_BASE.', '.SQ_CONF_ASSET_TREE_SIZE.')';
+			$i = 0;
+			$requires_update = false;
 
-			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-			$free_childid = db_get_function_result($db, $sql);
+			// Yes, this is a do-while loop. Live with it. The following code is to stop
+			// constraint violations which may occur is two processes are trying to
+			// create a link under the same branch, simultaneously
+			do {
+				// try to find the last added treeid on the branch that existing_treeid is the parent of
+				$sql = 'SELECT
+							SUBSTR(ct.treeid, (LENGTH(ct.treeid) + 1) - '.SQ_CONF_ASSET_TREE_SIZE.') AS treeid
+						FROM
+							sq_ast_lnk_tree ct';
 
-			// if we don't have any existing tree entries then
-			// we are the root folder, so do a simple insert
-			if ((string) $existing_treeid == '-') {
+				if ($existing_treeid != '-') {
+
+					$sql .= ' WHERE
+								ct.treeid LIKE '.$db->quoteSmart($existing_treeid.'%').'
+							AND	ct.treeid > '.$db->quoteSmart($existing_treeid).'
+							AND	LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE);
+				} else {
+					$sql .= ' WHERE LENGTH(ct.treeid) = '.SQ_CONF_ASSET_TREE_SIZE;
+				}
+				$sql .= ' AND linkid > 0 ORDER BY treeid DESC';
+
+				$sql = $db->modifyLimitQuery($sql, 0, 1);
+				$last_treeid = $db->getOne($sql);
+				assert_valid_db_result($last_treeid);
+
+				$treeid = ($existing_treeid == '-') ? '' : $existing_treeid;
+
+				// if we couldn't find and treeids on this branch, then we can just
+				// do a straight inert and break the loop as we are done
+
+				if (empty($last_treeid)) {
+					$sql = 'asset_link_treeid_convert('.$db->quoteSmart('0').', '.$db->quoteSmart('1').', '.SQ_CONF_ASSET_TREE_BASE.', '.SQ_CONF_ASSET_TREE_SIZE.')';
+					$free_treeid = db_get_function_result($db, $sql);
+
+					$new_treeid = ($existing_treeid == '-') ? $free_treeid : $existing_treeid.$free_treeid;
+
+					$sql = 'INSERT INTO
+								sq_ast_lnk_tree
+								(
+									treeid,
+									linkid,
+									num_kids
+								)
+								VALUES
+								(
+									'.$db->quoteSmart($new_treeid).',
+									'.$linkid.',
+									0
+								)';
+
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					$result = $db->query($sql);
+					assert_valid_db_result($result);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+					break;
+
+				}//end no existing treeid
+
+				// otherwise we could find a treeid on this branch, so increment it
+				// to get a free childid that we can use for our new link
+				$sql = 'asset_link_treeid_convert('.$db->quoteSmart($last_treeid).', '.$db->quoteSmart('0').', '.SQ_CONF_ASSET_TREE_BASE.', '.SQ_CONF_ASSET_TREE_SIZE.')';
+				$child_num = db_get_function_result($db, $sql);
+
+				$sql = 'asset_link_treeid_convert('.$db->quoteSmart((string) ($child_num + 1)).', '.$db->quoteSmart('1').', '.SQ_CONF_ASSET_TREE_BASE.', '.SQ_CONF_ASSET_TREE_SIZE.')';
+				$free_treeid = db_get_function_result($db, $sql);
+
+				// we want into try and reserve a treeid for us that we have just converted
+				// from the last treeid on the branch. So what we are doing here is inserting
+				// and entry into the tree table with our linkid appended to the end.
+				// We need to do this because someone might have already inserted into the
+				// tree table between the time that we selected the last treeid on the branch
+				// and this point here
 
 				$sql = 'INSERT INTO
 							sq_ast_lnk_tree
 							(
 								treeid,
-								linkid,
-								num_kids
+								num_kids,
+								linkid
 							)
 							VALUES
 							(
-								'.$db->quoteSmart($free_childid).',
-								'.$db->quoteSmart($linkid).',
-								'.$db->quoteSmart($minor_tree['num_kids']).'
+								'.$db->quoteSmart($treeid.$free_treeid.':'.$linkid).',
+								0,
+								0
 							)';
 
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+				// now try to select the last treeid from this branch , ordering
+				// by treeid. If a process got in before us, we will select it as
+				// the order by will cause it to come first as its linkid will be smaller
+
+				$sql = 'SELECT
+							treeid
+						FROM
+							sq_ast_lnk_tree
+						WHERE
+							(treeid LIKE '.$db->quoteSmart($treeid.$free_treeid.':%').'
+						OR	treeid = '.$db->quoteSmart($treeid.$free_treeid).')
+						AND	num_kids = 0 ORDER BY treeid DESC';
+
+				$sql = $db->modifyLimitQuery($sql, 0, 1);
+				$found_treeid = $db->getOne($sql);
+				assert_valid_db_result($found_treeid);
+
+				if ($found_treeid == $treeid.$free_treeid.':'.$linkid) {
+
+					// if the found treeid was like the one that we just inserted, then
+					// we MIGHT have a winner. The reason that I say might is because
+					// someone else might have thought that they have won between the
+					// time of the last select to now
+
+					$sql = 'UPDATE
+								sq_ast_lnk_tree
+							SET
+								linkid = -'.$linkid.'
+							WHERE
+								treeid LIKE '.$db->quoteSmart($treeid.$free_treeid.':%').'
+							AND
+								linkid = 0
+							AND NOT EXISTS(
+								SELECT
+									1
+								FROM
+									sq_ast_lnk_tree
+								WHERE
+									(treeid LIKE '.$db->quoteSmart($treeid.$free_treeid.':%').'
+								OR	treeid = '.$db->quoteSmart($treeid.$free_treeid).')
+								AND linkid <> 0)';
+
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					$result = $db->query($sql);
+					assert_valid_db_result($result);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					$aff_rows = $db->affectedRows();
+
+					// if we could update the linkid to our linkid
+					// then we have won this treeid
+					if ($aff_rows != 0) {
+						$requires_update = true;
+						break;
+					}
+				}
+
+				// otherwise we lost this treeid and will have to do another
+				// iterator to try and win a different one
+				$sql = 'DELETE FROM
+							sq_ast_lnk_tree
+						WHERE
+							treeid = '.$db->quoteSmart($treeid.$free_treeid.':'.$linkid);
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+				$i++;
+			// only try to do this 50 times. this will only be exceeded if the number
+			// of concurrent requests to create a link under this branch exceeds about 100,
+			// so its very unlikely that this will occur
+			} while ($i < 50);
+
+			if ($i >= 50) trigger_localised_error('SYS0310', E_USER_ERROR);
+
+			if ($requires_update) {
+
+				$sql = 'UPDATE
+							sq_ast_lnk_tree
+						SET
+							treeid = '.$db->quoteSmart($treeid.$free_treeid).',
+							linkid = '.$linkid.'
+						WHERE
+							treeid = '.$db->quoteSmart($treeid.$free_treeid.':'.$linkid);
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			}
+
+
+			// if we don't have any existing tree entries then
+			// we are the root folder, so do a simple insert
+			if ((string) $existing_treeid == '-') {
+
+				$sql = 'UPDATE
+							sq_ast_lnk_tree
+						SET
+							linkid   = '.$db->quoteSmart($linkid).',
+							num_kids = '.$db->quoteSmart($minor_tree['num_kids']).'
+						WHERE
+							treeid = '.$db->quoteSmart($free_treeid);
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 			} else {
+
+				$sql = 'UPDATE
+							sq_ast_lnk_tree
+						SET
+							linkid   = '.$db->quoteSmart($linkid).',
+							num_kids = '.$db->quoteSmart($minor_tree['num_kids']).'
+						WHERE
+							treeid = '.$db->quoteSmart($existing_treeid.$free_treeid);
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 				// we have existing tree entries, do a insert..select to create entries for them all
 
 				$sql = 'INSERT INTO
@@ -3542,18 +3744,22 @@ class Asset_Manager extends MySource_Object
 								num_kids
 							)
 							SELECT
-								(t.treeid || '.$db->quoteSmart($free_childid).'),
+								(t.treeid || '.$db->quoteSmart($free_treeid).'),
 								'.$db->quoteSmart($linkid).',
 								'.$db->quoteSmart($minor_tree['num_kids']).'
 							FROM
 											sq_ast_lnk_tree t
 								INNER JOIN	sq_ast_lnk l ON t.linkid = l.linkid
 							WHERE
-								l.minorid = '.$db->quoteSmart($major->id);
+								l.minorid = '.$db->quoteSmart($major->id).'
+							AND treeid || '.$db->quoteSmart($free_treeid).' <> '.$db->quoteSmart($existing_treeid.$free_treeid);
 
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
-			}//end if
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+			}//end if under root folder
 
 			$sql = 'UPDATE
 						sq_ast_lnk_tree
@@ -3576,8 +3782,10 @@ class Asset_Manager extends MySource_Object
 								t.linkid = '.$db->quoteSmart($linkid).'
 						)';
 
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 			// if this minor has already been linked so do a select into
 			if ($minor_tree['treeid'] != '') {
@@ -3594,7 +3802,7 @@ class Asset_Manager extends MySource_Object
 								num_kids
 							)
 							SELECT
-								('.$case.') || '.$db->quoteSmart($free_childid).' || SUBSTR(ct.treeid, '.$db->quoteSmart(strlen($minor_tree['treeid']) + 1).'),
+								('.$case.') || '.$db->quoteSmart($free_treeid).' || SUBSTR(ct.treeid, '.$db->quoteSmart(strlen($minor_tree['treeid']) + 1).'),
 								ct.linkid,
 								ct.num_kids
 							FROM
@@ -3606,12 +3814,20 @@ class Asset_Manager extends MySource_Object
 								AND	ct.treeid	LIKE '.$db->quoteSmart($minor_tree['treeid'].'%').'
 								AND	ct.treeid	> '.$db->quoteSmart($minor_tree['treeid']);
 
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 			}//end if
 
 		}//end if significant link
+
+		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		}
 
 		// tell, the asset it has updated
 		if (!$major->linksUpdated()) {
@@ -3634,17 +3850,17 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+
 		$msg_reps = Array(
 						'major_name'	=> $major->name,
 						'minor_name'	=> $minor->name,
 					);
+
 		$message = $ms->newMessage(Array(), 'asset.linking.create', $msg_reps);
 		$message->parameters['majorid'] = $major->id;
 		$message->parameters['minorid'] = $minor->id;
 		$message->parameters['linkid']  = $linkid;
 		$message->send();
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		// Event Manager
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
@@ -4410,13 +4626,6 @@ class Asset_Manager extends MySource_Object
 			// we can delete all the links under these nodes because it will be a clean start
 			// when we insert into the gap's we create below
 
-			$sub_where = '	pt.linkid	= '.$db->quoteSmart($linkid).'
-						AND	ct.treeid	LIKE pt.treeid || '.$db->quoteSmart('%').'
-						AND	ct.treeid	> pt.treeid';
-
-			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'pt');
-			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'ct');
-
 			$sql = 'DELETE FROM
 						sq_ast_lnk_tree
 					WHERE
@@ -4426,22 +4635,11 @@ class Asset_Manager extends MySource_Object
 								ct.treeid
 							FROM
 								sq_ast_lnk_tree pt, sq_ast_lnk_tree ct
-							'.$sub_where.'
+							WHERE
+									pt.linkid	= '.$db->quoteSmart($linkid).'
+								AND	(ct.treeid	LIKE pt.treeid || '.$db->quoteSmart('%').'
+								OR ct.treeid	= pt.treeid)
 						)';
-
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
-
-			// we are going to set the treeid nodes that this link is associated
-			// with to zero so that we can find it as a gap when we createLink() later on
-
-			$sql = 'UPDATE
-						sq_ast_lnk_tree
-					SET
-						linkid		= '.$db->quoteSmart('0').',
-						num_kids	= '.$db->quoteSmart('0').'
-					WHERE
-						linkid = '.$db->quoteSmart($linkid);
 
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
@@ -5986,12 +6184,8 @@ class Asset_Manager extends MySource_Object
 
 		$union_select = ' UNION ALL SELECT sl.minorid';
 
-		if ($inc_type_code) {
-			$union_select .= ', null AS type_code';
-		}
-		if (!is_null($sort_by)) {
-			$union_select .= ', null AS sort_value';
-		}
+		if ($inc_type_code) $union_select .= ', null AS type_code';
+		if (!is_null($sort_by)) $union_select .= ', null AS sort_value';
 
 		$union_from   = ' FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
 		$union_where  = 'sl.majorid = '.$db->quoteSmart($asset->id);
@@ -6157,9 +6351,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$union_select = ' UNION ALL SELECT sl.majorid, null, null as treeid';
-		if (!is_null($sort_by)) {
-			$union_select .= ', null as sort_value';
-		}
+		if (!is_null($sort_by)) $union_select .= ', null as sort_value';
 
 		$union_from   = ' FROM sq_shdw_ast_lnk sl';
 		$union_where  = 'sl.minorid = '.$db->quoteSmart($assetid);
