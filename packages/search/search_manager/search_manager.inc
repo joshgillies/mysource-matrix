@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.83 2005/11/24 05:18:33 arailean Exp $
+* $Id: search_manager.inc,v 1.84 2005/11/30 21:59:02 tbarrett Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1590,7 +1590,7 @@ class Search_Manager extends Asset
 	function generateWordList($words)
 	{
 		if (!is_array($words)) {
-			$words = split(' +', strtolower($words));
+			$words = split("([ \n\r])+", strtolower($words));
 			foreach (array_keys($words) as $i) {
 				// convert wildcard symbols to corresponding SQL wildcards
 				$words[$i] = strtr($words[$i], '*?', '%_');
@@ -1689,14 +1689,21 @@ class Search_Manager extends Asset
 		$this->_tmp['cache_key'] = $search_cache_key;
 		$this->_tmp['cm'] =& $cm;
 
-		// get results from any shadow asset root nodes
-		$root_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($search_info['roots']);
+		  //////////////////////
+		 //  PREPARE FIELDS  //
+		//////////////////////
+		foreach ($search_info['fields'] as $field_name => $field_details) {
+			$this->_prepareSearchField($search_info['fields'][$field_name]);
+		}
 
+		  ////////////////////////////////////////////////////
+		 //  HANDLE ANY SHADOW ASSET OR BRIDGE ROOT NODES  //
+		////////////////////////////////////////////////////
+		$root_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($search_info['roots']);
 		$shadow_results = null;
 		foreach ($root_info as $assetid => $root) {
 			$shadow_results = Array();
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($root['type_code']);
-
 			// assert class implements bridge and contains method
 			if (implements_interface($root['type_code'], 'bridge') && is_callable(Array($root['type_code'], 'processSearch'))) {
 				$shadow_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -1730,7 +1737,6 @@ class Search_Manager extends Asset
 			$field_results = null;
 			$word_logic = array_get_index($field_details, 'word_logic', 'AND');
 			$data_source_logic = array_get_index($field_details, 'data_source_logic', 'OR');
-			$this->_prepareSearchField($field_details);
 
 			if (empty($field_details['words'])) continue;
 
