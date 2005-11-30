@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.470 2005/11/29 00:03:51 tbarrett Exp $
+* $Id: asset.inc,v 1.471 2005/11/30 23:07:19 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.470 $
+* @version $Revision: 1.471 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1168,9 +1168,12 @@ class Asset extends MySource_Object
 
 			$sql = 'UPDATE
 						sq_ast
-					SET
-						name			= '.$db->quoteSmart($name).',
-						short_name		= '.$db->quoteSmart($short_name).',
+					SET ';
+
+			if (!empty($name)) $sql .= 'name = '.$db->quoteSmart($name).',';
+			if (!empty($short_name)) $sql .= 'short_name = '.$db->quoteSmart($short_name).',';
+
+			$sql .= '
 						languages		= '.$db->quoteSmart($this->languages).',
 						charset			= '.$db->quoteSmart($this->charset).',
 						force_secure	= '.$db->quoteSmart($this->force_secure).',
