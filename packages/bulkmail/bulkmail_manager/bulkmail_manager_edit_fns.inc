@@ -13,7 +13,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_offi
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -184,7 +184,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 				<tr>
 					<td align="left" class="sq-backend-table-cell"><?php echo $jobid; ?></td>
 					<td align="left" class="sq-backend-table-cell"><?php echo $name; ?></td>
-					<td align="left" class="sq-backend-table-cell"><?php echo get_asset_tag_line($job_info['post_office_id']); ?></td>
+					<td align="left" class="sq-backend-table-cell"><?php echo get_asset_tag_line($job_info['po_id']); ?></td>
 					<td align="left" class="sq-backend-table-cell">
 					<?php
 						switch ($job_info['status']) {
