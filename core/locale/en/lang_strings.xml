@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.81 2005/11/30 05:59:00 bcaldwell Exp $
+* $Id: lang_strings.xml,v 1.82 2005/11/30 22:11:57 sdanis Exp $
 *
 */
 
@@ -1590,6 +1590,8 @@ Items to delete: %s</string>
 	<string source="asset_map_expanding_node_two" java="1">Set %1$s of %2$s</string>
 	<string source="asset_map_expanding_node_three" java="1">Total assets: %1$s</string>
 	<string source="asset_map_expanding_node_four" java="1">Remaining: %1$s</string>
+	<string source="asset_map_expanding_node_move_to_next_set" java="1">Move to next set</string>
+	<string source="asset_map_expanding_node_move_to_previous_set" java="1">Move to previous set</string>
 
 	<string source="asset_map_error_loading_children" java="1">Could not load children: %s</string>
 	<string source="asset_map_error_move_shadow_nodes" java="1">Cannot move nodes: the selection contains shadow assets</string>
@@ -1599,6 +1601,10 @@ Items to delete: %s</string>
 	<string source="asset_map_error_invalid_number" java="1">Invalid number</string>
 	<string source="asset_map_error_unknown_error" java="1">Unknown Error: %s</string>
 	<string source="asset_map_error_locate_asset" java="1">Could not locate asset (#%s)</string>
+
+	<string source="asset_map_dialog_delete" java="1">Trash Assets</string>
+	<string source="asset_map_dialog_jump" java="1">Jump To Asset</string>
+
 
 	<string source="asset_map_menu_move_here" java="1">Move here</string>
 	<string source="asset_map_menu_link_here" java="1">New Link here</string>
@@ -1618,6 +1624,8 @@ Items to delete: %s</string>
 	<string source="asset_map_confirm_move_child" java="1">Are you sure you want to move the asset "%s" to the Trash?</string>
 	<string source="asset_map_confirm_move_children" java="1">Are you sure you want to move %s assets to the Trash?</string>
 
+	<string source="asset_map_tooltip_next_node" java="1">View Next Set of Assets</string>
+	<string source="asset_map_tooltip_previous_node" java="1">View Previous Set of Assets</string>
 	<string source="asset_map_button_cancel" java="1">Cancel</string>
 	<string source="asset_map_button_delete" java="1">Delete...</string>
 	<string source="asset_map_button_jump" java="1">Jump</string>
@@ -1626,8 +1634,6 @@ Items to delete: %s</string>
 	<string source="asset_map_button_remove_selection" java="1">Remove Selection</string>
 	<string source="asset_map_button_export" java="1">Export</string>
 	<string source="asset_map_button_close" java="1">Close</string>
-	<string source="better_hit_report_live" java="1">Live Only</string>
-	<string source="better_hit_report_any" java="1">Any</string>
 
 	<string source="non_existant_page" js="1">The URL you have entered points to a non-existant page</string>
 	<string source="valid_page" js="1">Valid URL</string>
