@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.45 2005/11/30 00:01:06 rong Exp $
+* $Id: bulk_mailer.inc,v 1.46 2005/11/30 03:03:51 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -283,11 +283,7 @@ class Bulk_Mailer
 						// fork since we cannot call printFrontend multiple times
 						$pid = $this->fork();
 						if (!$pid) {
-							$recipient = $user_id;
-							if ($details['content_gen'] == 'one_user') {
-								$recipient = 0;
-							}
-							$content = $this->generateContent($details['content_id'], $details['content_gen_as'], $details['content_design'], $details['content_layout'], $job_path, $recipient);
+							$content = $this->generateContent($details['content_id'], $details['content_gen_as'], $details['content_design'], $details['content_layout'], $job_path, $user_id);
 							// only queue the mail if we can generate content
 							$problematic = (empty($content)) ? true : false;
 							if (!$problematic) {
