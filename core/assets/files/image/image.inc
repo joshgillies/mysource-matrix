@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.47 2005/11/30 04:16:11 lwright Exp $
+* $Id: image.inc,v 1.48 2005/11/30 04:19:38 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -108,7 +108,7 @@ class Image extends File
 	}//end setAttrValue()
 
 
-		/**
+	/**
 	* Processes the file upload from the source file so that file versioning cloned properly
 	*
 	* @param object	&$clone		the clone asset shell
