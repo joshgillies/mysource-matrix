@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.400 2005/11/29 22:45:43 lwright Exp $
+* $Id: asset_manager.inc,v 1.401 2005/11/30 23:08:00 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.400 $
+* @version $Revision: 1.401 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3223,13 +3223,10 @@ class Asset_Manager extends MySource_Object
 		$minorid_parts = explode(':', $minor->id);
 
 		// if we are linking under a shadow asset, ask the bridge to create the link
-		if (isset($majorid_parts[1])) {
-			$asset = &$this->getAsset($majorid_parts[0]);
-
-			$linkid = $asset->createAssetLink($major, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
-
-			$this->forgetAsset($minor);
-			$this->forgetAsset($asset);
+		if (isset($majorid_parts[1]) || (isset($minorid_parts[1]) && ($majorid_parts[0] == $minorid_parts[0]))) {
+			$bridge = &$this->getAsset($majorid_parts[0]);
+			$linkid = $bridge->createAssetLink($major, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
+			$this->forgetAsset($bridge);
 			return $linkid;
 		}
 		// handle linking a shadow asset as the minor
@@ -3237,9 +3234,9 @@ class Asset_Manager extends MySource_Object
 
 			// if we are linking under another shadow asset, let the bridge handle it
 			if (isset($majorid_parts[1])) {
-				$asset = &$this->getAsset($minorid_parts[0]);
-				$linkid = $asset->createAssetLink($major, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
-				$this->forgetAsset($asset);
+				$bridge = &$this->getAsset($minorid_parts[0]);
+				$linkid = $bridge->createAssetLink($major, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
+				$this->forgetAsset($bridge);
 			} else {
 
 				//we are linking a shadow asset under a normal asset
