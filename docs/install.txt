@@ -3,7 +3,7 @@
 * | MySource Matrix - Instructional Document                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.txt,v 1.9 2005/01/20 13:37:16 brobertson Exp $
+* $Id: install.txt,v 1.10 2005/11/30 23:08:45 lwright Exp $
 *
 */
 
@@ -117,7 +117,7 @@ Still in that file, if you want to enable RollBack support change
 
 define('SQ_CONF_ROLLBACK_ENABLED', '0');
 
-to 
+to
 
 define('SQ_CONF_ROLLBACK_ENABLED', '1');
 
@@ -139,9 +139,11 @@ The SQ_CONF_TECH_EMAIL address is where any sort of errors get sent - so the tec
 
 Now we've got everything set up, it's a simple case of changing to the matrix directory and running
 
-'php install/step_01.php .' -- this sets up data paths and configs.
-'php install/step_02.php .' -- this creates database tables, sets up rollback tables and so on.
-'php install/step_03.php .' -- this installs (and updates) the asset types and creates the base assets 
+'php install/step_01.php .'        -- this sets up data paths and configs.
+'php install/step_02.php .'        -- this creates database tables, sets up rollback tables and so on.
+'php install/compile_locale.php .' -- this first call initialises the localised strings, errors and internal messages
+'php install/step_03.php .'        -- this installs (and updates) the asset types and creates the base assets
+'php install/compile_locale.php .' -- this builds the localised strings and interfaces for the newly configured assets
 
 
 Lastly, you will need to set up 4 aliases in the Apache configuration. If you are running Matrix within a section of a site, you can set up your aliases as such
@@ -160,11 +162,11 @@ Alias "/"             "/path/to/matrix/core/web/index.php/"
 
 Note: the last line requires the trailing slash on the end of index.php - otherwise Matrix will not work properly. This isn't required for a subsystem, but for the main system it is a necessity.
 
-If you are going to be using the HIPO service on the Squiz Server, then edit [NEW SYSTEM ROOT]/data/private/conf/squiz_server.inc setting the details of the server and edit [NEW SYSTEM ROOT]/data/private/conf/hipo.inc changing : 
+If you are going to be using the HIPO service on the Squiz Server, then edit [NEW SYSTEM ROOT]/data/private/conf/squiz_server.inc setting the details of the server and edit [NEW SYSTEM ROOT]/data/private/conf/hipo.inc changing :
 
 define('SQ_HIPO_USE_SERVER', '0');
 
-to 
+to
 
 define('SQ_HIPO_USE_SERVER', '1');
 
