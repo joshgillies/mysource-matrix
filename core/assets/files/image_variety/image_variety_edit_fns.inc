@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_edit_fns.inc,v 1.14 2005/11/16 03:57:54 dmckee Exp $
+* $Id: image_variety_edit_fns.inc,v 1.15 2005/11/30 03:54:44 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -307,7 +307,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			}
 
 			if (!$fv->checkOut($asset->data_path_suffix.'/'.$d_new_filename, $asset->data_path)) {
-				trigger_localised_error('CORE103', E_USER_WARNING);
+				trigger_localised_error('CORE0103', E_USER_WARNING);
 				return false;
 			}
 
