@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.80 2005/11/30 05:14:34 bcaldwell Exp $
+* $Id: lang_strings.xml,v 1.81 2005/11/30 05:59:00 bcaldwell Exp $
 *
 */
 
@@ -304,6 +304,7 @@
 	<string source="cron_job_generate_log_reports">Generate Log Reports Cron Job</string>
 	<string source="cron_fl_for">FL for %s</string>
 	<string source="cron_fl_delete_all_existing_links">All</string>
+	<string source="cron_fl_delete_all_existing_links_long">Delete all existing links</string>
 	<string source="cron_future_linking_for">Future Linking for %s</string>
 	<string source="cron_fs_for">FS for %s</string>
 	<string source="cron_future_status_for">Future Status for %s</string>
