@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.122 2005/11/25 00:36:29 lwright Exp $
+* $Id: listing_engine.inc,v 1.123 2005/11/30 23:45:25 mmcintyre Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.122 $
+* @version $Revision: 1.123 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1384,14 +1384,15 @@ class Listing_Engine extends Page
 
 		// in case it wasn't done beforehand in printContents() or something
 		$relations = $this->_analyseCheckAllRelations($todo);
+
 		ob_start();
-		?>
-		<script type="text/javascript">
-		<!--
-			<?php echo $this->_buildRelationsJS(); ?>
-		//-->
-		</script>
-		<?php
+			?>
+			<script type="text/javascript">
+			<!--
+				<?php echo $this->_buildRelationsJS(); ?>
+			//-->
+			</script>
+			<?php
 		$this->_tmp['js_relation_code'] = ob_get_clean();
 
 		if ($this->attr('group_by') == 'grouped') {
@@ -1505,6 +1506,7 @@ class Listing_Engine extends Page
 							$control_name = make_valid_html_id(str_replace(' ', '_', $selection_name.$group_cb_id));
 							check_box($control_name, '1', false, 'sq_listing_check_state(this, \''.$selection_name.'\')');
 							$replacements[$selection_name.'_check_all_in_group'] = ob_get_clean();
+							$replacements[$selection_name.'_selection_id'] = $control_name;
 						}
 					}
 
@@ -1964,6 +1966,7 @@ class Listing_Engine extends Page
 
 							if ($buffering) {
 								check_box($selection_name_field, '1', ($selection_value > 0 ? true : false), "sq_listing_check_state(this, '".$selection_name."')", 'id="'.$selection_id.'"');
+
 								// the flag is used to determine whether a checkbox is
 								// present and not ticked, or not present at all
 								//hidden_field($selection_name.'_flag', '1');
@@ -2414,7 +2417,7 @@ class Listing_Engine extends Page
 		$root_nodes = $this->getRootNodes();
 
 		$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($child_assetid, $this->attr('link_types'), '', true, 'minor');
-
+		
 		$parent_link_assetids = Array();
 		foreach ($parent_links as $parent_link) {
 			if (empty($root_nodes)) {
@@ -3041,6 +3044,7 @@ class Listing_Engine extends Page
 				$control_name = str_replace(' ', '_', $selection_name.$group_cb_id);
 				check_box($control_name, '1', false, "sq_listing_check_state(this, '".$selection_name."')");
 				$replacements[$selection_name.'_check_all'] = ob_get_clean();
+				$replacements[$selection_name.'_selection_id'] = $control_name;
 			} else {
 				$replacements[$selection_name.'_check_all'] = '';
 			}
