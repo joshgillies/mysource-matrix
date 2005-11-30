@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.11 2005/09/08 00:39:12 rong Exp $
+* $Id: metadata_field_select.inc,v 1.12 2005/11/30 00:47:54 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -103,28 +103,38 @@ class Metadata_Field_Select extends Metadata_Field
 
 
 	/**
-	* Returns the option value corresponding to the given option key
-	*
-	* If no corresponding value is found, the option_key is returned
-	*
-	* @param string	$option_key	an option key
-	*
-	* @return string
-	* @access public
-	*/
-	function getValueFromKey($option_key)
+	 * Returns the option value(s) corresponding to the given option key(s)
+	 * If no corresponding value is found, the option_str is returned
+	 *
+	 * @param string $option_str	an string of one or more option keys
+	 *
+	 * @return string
+	 * @access public
+	 */
+	function getValueFromKey($option_str)
 	{
-		$ret = $option_key;
-
-		if (isset($option_key) && $this->attr('visible_part') == 'value') {
-			// returns the Value instead of the Key
-			$options = $this->attr('select_options');
-			if (isset($options[$option_key])) {
-				$ret = $options[$option_key];
-			}
+		$option_keys = explode('\\; ', $option_str);
+		if (empty($option_keys) || $this->attr('visible_part') == 'key') {
+			return $option_str;
 		}
 
-		return $ret;
+		$value_str = '';
+		$options = $this->attr('select_options');
+
+		foreach ($option_keys as $key) {
+			if (isset($options[$key])) {
+				$value_str .= $options[$key] . '\\; ';
+			}
+		}
+		if (strlen($value_str) == 0) {
+			//no corresponding values found
+			return $option_str;
+		}
+
+		//trim the last separator
+		$value_str = substr($value_str, 0, -3);
+
+		return $value_str;
 
 	}//end getValueFromKey()
 
