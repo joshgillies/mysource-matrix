@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.402 2005/11/30 23:32:09 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.403 2005/12/01 00:59:09 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.402 $
+* @version $Revision: 1.403 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2132,6 +2132,74 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
+	* Get details of a "shadow" asset link with the specified characteristics
+	*
+	* @param int			$assetid			id of the the $side_of_link asset
+	* @param int			$link_type			integer that should be a single integer of the SQ_LINK_* constants
+	* @param string|array	$type_code			the type of asset that is linked
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
+	*											of the array values
+	* @param boolean		$strict_type_code	whether we are finding an asset that
+	*											is just a $type_code or potentially an inherited type
+	*											or $type_code and any of it's sub-classes
+	* @param string			$value				the value that is associated with this link
+	*
+	* @return array
+	* @access public
+	*/
+	function getShadowLinkByAsset($assetid, $other_assetid=null, $link_types=null, $value=null, $side_of_link='major', $force_array=false)
+	{
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
+		assert_valid_assetid($assetid);
+		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
+
+		if (!is_null($other_assetid)) {
+			assert_valid_assetid($other_assetid);
+
+			if (!$other_assetid || is_object($other_assetid)) {
+				trigger_localised_error('SYS0108', E_USER_WARNING);
+				return Array();
+			}
+		}
+
+		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk l';
+
+		$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid);
+
+		if (!is_null($other_assetid)) {
+			$where .= ' AND l.'.$other_side.'id  = '.$db->quote($other_assetid);
+		}
+
+		if (!is_null($link_types)) {
+			$where .= ' AND '.db_extras_bitand($db, 'l.link_type', $link_types).' > 0 ';
+		}
+
+		if (!is_null($value)) {
+			$where .= ' AND l.value = '.$db->quote($value);
+		}
+
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', false);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', false);
+
+		$result = $db->getAll($sql.$where);
+		assert_valid_db_result($result);
+
+		if (!$force_array && count($result) == 1) {
+			return $result[0];
+		} else {
+			return $result;
+		}
+
+	}//end getShadowLinkByAsset()
+
+
+	/**
 	* Get details of the link with specified linkid
 	*
 	* @param int	$linkid			id of the link
@@ -3243,42 +3311,7 @@ class Asset_Manager extends MySource_Object
 				$linkid = $bridge->createAssetLink($major, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
 				$this->forgetAsset($bridge);
 			} else {
-
-				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
-				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-				$db = &$GLOBALS['SQ_SYSTEM']->db;
-				// use the sq_ast_lnk sequence so that when we query any link view later
-				// on we don't have any conflicting linkids
-				$linkid = $db->nextId('sq_ast_lnk');
-				assert_valid_db_result($linkid);
-
-				$sql = 'INSERT INTO
-							sq_shdw_ast_lnk
-							(
-								linkid,
-								majorid,
-								minorid,
-								link_type,
-								value,
-								updated,
-								updated_userid
-							)
-							VALUES
-							(
-								'.$db->quoteSmart($linkid).',
-								'.$db->quoteSmart($major->id).',
-								'.$db->quoteSmart($minor->id).',
-								'.$db->quoteSmart($link_type).',
-								'.$db->quoteSmart($value).',
-								'.db_extras_todate($db, ts_iso8601(time())).',
-								'.$db->quoteSmart($GLOBALS['SQ_SYSTEM']->currentUserid()).'
-							)';
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
-
-				$this->forgetAsset($major);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				$linkid = $this->createShadowAssetLink($major, $minor, $link_type, $value);
 			}
 			return $linkid;
 
@@ -3881,6 +3914,63 @@ class Asset_Manager extends MySource_Object
 		return $linkid;
 
 	}//end createAssetLink()
+
+
+	/**
+	* Create a "shadow" asset link between the two supplied assets
+	*
+	* It returns the linkid of the created link
+	*
+	* @param object		&$major		the major asset that we are linking from
+	* @param object		&$minor		the minor asset that we are linking to
+	* @param string		$link_type	the type of link this is
+	* @param string		$value		the value that is to be associated with this link
+	*
+	* @return int
+	* @access public
+	*/
+	function createShadowAssetLink(&$major, &$minor, $link_type, $value='')
+	{
+		//we are linking a shadow asset under a normal asset
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		// use the sq_ast_lnk sequence so that when we query any link view later
+		// on we don't have any conflicting linkids
+		$linkid = $db->nextId('sq_ast_lnk');
+		assert_valid_db_result($linkid);
+
+		$sql = 'INSERT INTO
+					sq_shdw_ast_lnk
+					(
+						linkid,
+						majorid,
+						minorid,
+						link_type,
+						value,
+						updated,
+						updated_userid
+					)
+					VALUES
+					(
+						'.$db->quoteSmart($linkid).',
+						'.$db->quoteSmart($major->id).',
+						'.$db->quoteSmart($minor->id).',
+						'.$db->quoteSmart($link_type).',
+						'.$db->quoteSmart($value).',
+						'.db_extras_todate($db, ts_iso8601(time())).',
+						'.$db->quoteSmart($GLOBALS['SQ_SYSTEM']->currentUserid()).'
+					)';
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+		$this->forgetAsset($major);
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return $linkid;
+
+	}//end createShadowAssetLink()
 
 
 	/**
@@ -4708,6 +4798,30 @@ class Asset_Manager extends MySource_Object
 		return true;
 
 	}//end deleteAssetLink()
+
+
+	/**
+	* Remove a SHADOW asset link by id
+	*
+	* @param int		$linkid	the link id of the link to remove
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteShadowAssetLink($linkid)
+	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$sql = 'DELETE FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk
+					WHERE linkid = '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart($linkid);
+
+		$result = $GLOBALS['SQ_SYSTEM']->db->query($sql);
+		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end deleteShadowAssetLink()
 
 
 	/**
