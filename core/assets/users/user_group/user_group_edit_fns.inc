@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.26 2005/08/29 01:55:51 dheppell Exp $
+* $Id: user_group_edit_fns.inc,v 1.27 2005/12/01 01:29:42 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -110,7 +110,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	{
 		$current = $this->getCurrentRestrictions($asset);
 		$admin_access = $asset->adminAccess('security');
-		
+
 		if(empty($current) && !$admin_access) {
 			$o->openField('');
 				$o->note(translate('user_group_unrestricted_access_granted'));
@@ -127,7 +127,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 						<tr>
 							<td class="sq-backend-table-header" style="width: 75%;"><?php echo translate('screen_name'); ?></td>
 							<?php if ($admin_access) {
-							?><td class="sq-backend-table-header" style="width: 25%;"><?php echo translate('remove_question'); ?></td><?php 
+							?><td class="sq-backend-table-header" style="width: 25%;"><?php echo translate('remove_question'); ?></td><?php
 							}
 						?></tr>
 					<?php
@@ -146,7 +146,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 								?><td class="sq-backend-table-cell">
 								<?php check_box($prefix.'_remove_type_screen['.$type_code.']['.$screen_data['screen'].']'); ?>
 							</td>
-							<?php 
+							<?php
 							}
 							?>
 						</tr>
@@ -178,7 +178,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 							echo '<br />'.translate('grant_screen_access').' ';
 							combo_box($prefix.'_add_type_screen['.$type_code.']', $screens, false, Array());
 						} else {
-							echo '<br />'.translate('granted_unrestricted_acces_explanation');
+							echo '<br />'.translate('granted_unrestricted_access_explanation');
 							if (count($current[$type_code]) == 1) {
 								echo '<br />'.translate('remove_all_screens_explanation');
 							}
@@ -199,7 +199,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 				$uc_types[$type] = ucwords(str_replace('_',' ', $type));
 			}
 
-			$o->openSection(translate('grant_access_to_new_type'));
+			$o->openSection(translate('restrict_screen_access_to_new_type'));
 				$o->openField('');
 					combo_box($prefix.'_restrict_types', $uc_types, true, '', 6);
 				$o->closeField();

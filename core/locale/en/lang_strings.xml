@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.83 2005/12/01 00:28:58 lwright Exp $
+* $Id: lang_strings.xml,v 1.84 2005/12/01 01:29:42 ndvries Exp $
 *
 */
 
@@ -122,7 +122,7 @@
 	<string source="format">Format</string>
 	<string source="freestyle_threshold">Freestyle threshold</string>
 	<string source="future_linking">Future Linking</string>
-	<string source="restrict_access_to_new_type">Restrict Access to New Type</string>
+	<string source="restrict_screen_access_to_new_type">Add new type code to restrict</string>
 	<string source="hide_errors_on_the_frontend">Hide Errors on the Frontend</string>
 	<string source="id">ID:</string>
 	<string source="important_notice">Important Notice</string>
@@ -822,7 +822,8 @@
 	<string source="user_group_unrestricted_access_granted">Unrestricted access has been granted. No security restrictions apply on this user group.</string>
 	<string source="user_group_unrestricted_access_denied">Unrestricted access has not been granted. Security restrictions do apply on this user group.</string>
 	<string source="restrict_screen_access">Restrict access for screen</string>
-	<string source="granted_unrestricted_acces_explanation">You have granted access to all screens so you cannot grant access to any more. Remove the "All Screens" option to futher customise this asset type</string>
+	<string source="granted_unrestricted_access_explanation">You have granted access to all screens so you cannot grant access to any more. Remove the "All Screens" option to futher customise this asset type</string>
+	<string source="grant_screen_access">Allow access to the following screen (any screen not specified will be restricted): </string>
 	<string source="remove_all_screens_explanation">If you delete the "All Screens" option, the "Details" screen will be added as a default. You can choose to remove this later.</string>
 	<string source="preference_currently_customised">This preference is currently customised. The global preference setting is currently being overridden for users in this user group.</string>
 	<string source="revert_to_global_preferences">Revert to global preference</string>

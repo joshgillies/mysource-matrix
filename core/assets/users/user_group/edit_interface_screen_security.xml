@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_security.xml,v 1.5 2005/08/29 01:55:51 dheppell Exp $
+* $Id: edit_interface_screen_security.xml,v 1.6 2005/12/01 01:29:42 ndvries Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Restrict Access to Asset Types" read_access="admin:" write_access="admin:security" >
+	<section name="Restrict Access to Asset Screens" read_access="admin:" write_access="admin:security" >
 		<field>
 			<function_call>
 				<paint_function   name="paintTypeRestrictions"   />
