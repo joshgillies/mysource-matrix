@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.46 2005/11/30 03:03:51 rong Exp $
+* $Id: bulk_mailer.inc,v 1.47 2005/12/01 22:09:40 ndvries Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -284,6 +284,8 @@ class Bulk_Mailer
 						$pid = $this->fork();
 						if (!$pid) {
 							$content = $this->generateContent($details['content_id'], $details['content_gen_as'], $details['content_design'], $details['content_layout'], $job_path, $user_id);
+							$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($user_id);
+							$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $GLOBALS['SQ_SYSTEM']->user);
 							// only queue the mail if we can generate content
 							$problematic = (empty($content)) ? true : false;
 							if (!$problematic) {
