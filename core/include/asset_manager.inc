@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.404 2005/12/01 04:05:05 arailean Exp $
+* $Id: asset_manager.inc,v 1.405 2005/12/01 23:19:10 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.404 $
+* @version $Revision: 1.405 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3862,11 +3862,15 @@ class Asset_Manager extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		}
 
-		// tell, the asset it has updated
-		if (!$major->linksUpdated()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return 0;
+		// only call the linksUpdated() method on the parent if this link is dependant
+		if ($dependant) {
+			// tell, the asset it has updated
+			if (!$major->linksUpdated()) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return 0;
+			}
 		}
+
 		if (!$minor->linksUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 0;
