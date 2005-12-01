@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.7 2005/11/01 02:39:53 sdanis Exp $
+* $Id: page_poll.inc,v 1.8 2005/12/01 01:01:20 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -180,6 +180,8 @@ class Page_Poll extends Page
 	*/
 	function printBody()
 	{
+		error_log(var_export($_REQUEST,true));
+
 		// declaration
 		$active_question_id	= $this->attr('active_question');
 		$format_type 		= 'question_format';
@@ -237,17 +239,14 @@ class Page_Poll extends Page
 
 		// determine which method is used to check if a user can vote
 		if (!$this->attr('allow_multiple_votes')) {
+			// A user is logged in
 			if (!is_null($GLOBALS['SQ_SYSTEM']->user->name)) {
-				// if the user is logged in...
-				$voters = $question->attr('voters');
-
-				// if the user is not already listed...
-				if (!array_get_index($voters, $GLOBALS['SQ_SYSTEM']->user->name)) {
-					// add them to the array of previously-voted users
-					$voters[$GLOBALS['SQ_SYSTEM']->user->name] = true;
-
-					// setAttrValue() now, saveAttr() in _processVote later on.
-					$question->setAttrValue('voters', $voters);
+				// check the "shadow link" table whether this user has already voted...
+				if (!$GLOBALS['SQ_SYSTEM']->am->getShadowLinkByAsset($question->id, $GLOBALS['SQ_SYSTEM']->user->id, SQ_LINK_NOTICE)) {
+					// add them to the array of previously-voted users, only if they are voting though
+					if (isset($_POST['option_id'])) {
+						$GLOBALS['SQ_SYSTEM']->am->createShadowAssetLink($question, $GLOBALS['SQ_SYSTEM']->user, SQ_LINK_NOTICE);
+					}
 					$can_vote = true;
 				}
 			} else {
@@ -408,6 +407,9 @@ class Page_Poll extends Page
 			$option_ids = Array($option_ids);
 		}
 
+		error_log($question->id);
+		error_log(implode('; ', $option_ids));
+
 		$options = $question->attr('options');
 		$save = false;
 		foreach ($option_ids as $option_id) {
@@ -495,7 +497,7 @@ class Page_Poll extends Page
 		foreach ($options as $option_id => $option_values ) {
 
 			$keywords['poll_option_label'] = $option_values['option_text'];
-			$keywords['poll_option_number'] = $option_id;
+			$keywords['poll_option_number'] = $option_id + 1;
 			ob_start();
 			if ($question->attr('allow_multiple')) {
 				check_box('option_id[]',$option_id);
@@ -737,7 +739,7 @@ class Page_Poll extends Page
 			$width = $option_values['votes'] / $poll_total;
 
 			$keywords['poll_option_label'] = $option_values['option_text'];
-			$keywords['poll_option_number'] = $option_id;
+			$keywords['poll_option_number'] = $option_id + 1;
 
 			ob_start();
 				?>

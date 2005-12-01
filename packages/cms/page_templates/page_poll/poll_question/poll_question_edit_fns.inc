@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: poll_question_edit_fns.inc,v 1.5 2005/11/01 02:39:53 sdanis Exp $
+* $Id: poll_question_edit_fns.inc,v 1.6 2005/12/01 01:01:21 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -338,16 +338,24 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$admin_access = $asset->writeAccess('attributes');
 		$prefix = $asset->getPrefix();
-		$users_array = Array('','Delete All Users' );
+		$users_array = Array('','all' => 'Delete All Users' );
 
 		// construct delete options array
-		if (is_array($asset->attr('voters'))) {
-			$users_array = array_merge($users_array, array_keys($asset->attr('voters')));
-		}
-
+		$voters = $GLOBALS['SQ_SYSTEM']->am->getShadowLinkByAsset($asset->id, null, SQ_LINK_NOTICE, null, 'major', true);
 
 		if ($admin_access) {
-			combo_box($prefix.'options', $users_array, false, '');
+			if (empty($voters)) {
+				?><em><?php echo translate('cms_poll_question_no_voting_records_exist'); ?></em><?php
+			} else {
+				foreach ($voters as $voter) {
+					$voter_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($voter['minorid']));
+					$users_array[$voter['minorid']] = $voter_info[$voter['minorid']]['name'];
+				}
+
+				combo_box($prefix.'options', $users_array, false, '');
+			}
+		} else {
+			?><em><?php echo translate('cms_poll_question_admin_access_to_delete_user'); ?></em><?php
 		}
 
 	}//end paintDeleteUsers()
@@ -368,9 +376,19 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 		$prefix = $asset->getPrefix();
 		$voters = $asset->attr('voters');
 
-		if (isset($_POST[$prefix.'options']) == 'Delete All Users') {
-			$voters = null;
+		if (isset($_POST[$prefix.'options']) == 'all') {
+			$voter_links = $GLOBALS['SQ_SYSTEM']->am->getShadowLinkByAsset($asset->id, null, SQ_LINK_NOTICE, null, 'major', true);
+
+			foreach ($voter_links as $voter_link) {
+				$GLOBALS['SQ_SYSTEM']->am->deleteShadowAssetLink($voter_link['linkid']);
+			}
 		} else {
+			$voter_link = $GLOBALS['SQ_SYSTEM']->am->getShadowLinkByAsset($asset->id, $_POST[$prefix.'options'], SQ_LINK_NOTICE, null, 'major', true);
+
+			if (!is_null($voter_link)) {
+				$GLOBALS['SQ_SYSTEM']->am->deleteShadowAssetLink($voter_link['linkid']);
+			}
+
 			$voters[$_POST[$prefix.'options']] == null;
 		}
 
