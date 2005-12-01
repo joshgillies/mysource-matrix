@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.82 2005/11/30 22:11:57 sdanis Exp $
+* $Id: lang_strings.xml,v 1.83 2005/12/01 00:28:58 lwright Exp $
 *
 */
 
@@ -213,6 +213,7 @@
 	<string source="step_logic">Step Logic</string>
 	<string source="submissions">Submissions</string>
 	<string source="system_backend_suffix">System Backend Suffix</string>
+	<string source="system">System</string>
 	<string source="system_id">System ID</string>
 	<string source="system_name">System Name</string>
 	<string source="system_owner">System Owner</string>
