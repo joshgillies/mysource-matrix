@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.10 2005/11/29 04:33:58 skim Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.11 2005/12/01 23:25:35 skim Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -325,9 +325,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 			if ($type == 'postgres') {
 				$tables =& $conn->getAll('select relname from pg_stat_user_tables order by relname');
 				$assert_result = assert_valid_db_result($tables, 'Query execution failed', false, false);
-				if (!$assert_result) {
-					return Array();
-				}
+				if (!$assert_result) return Array();
 				foreach ($tables as $key =>$row) {
 					$tables[$row['relname']] = $row['relname'];
 					unset($tables[$key]);
@@ -335,9 +333,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 			} else if ($type == 'mysql') {
 				$tables =& $conn->getAll('show tables');
 				$assert_result = assert_valid_db_result($tables, 'Query execution failed', false, false);
-				if(!$assert_result) {
-					return Array();
-				}
+				if (!$assert_result) return Array();
 				foreach ($tables as $key => $row) {
 					foreach ($row as $index => $name) {
 						$tables[$name] = $name;
@@ -526,9 +522,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 			}
 			$result =& $conn->getAll($query);
 			$assert_result = assert_valid_db_result($tables, 'Query execution failed', false, false);
-			if (!$assert_result) {
-				return Array();
-			}
+			if (!$assert_result) return Array();
 			if (!empty($result)) {
 				foreach ($result as $record) {
 					if ($db_type == 'mysql') {
@@ -543,6 +537,177 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		return $fields;
 
 	}//end _getFields()
+
+
+	/**
+	* Paints the interface for entering and processing the custom fields
+	*
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintCustomFields(&$asset, &$o, $prefix)
+	{
+		$mode = $asset->attr('mode');
+		$wa = $asset->writeAccess('attributes');
+		if (($wa) && ($mode != 'execute')) {
+			$wa = true;
+		} else {
+			$wa = false;
+		}
+
+		$custom_fields = $asset->attr('custom_fields');
+		if ($wa) {
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td>Custom Field</td>
+					<td>Alias</td>
+					<td>Delete?</td>
+				</tr>
+				<?php
+				$i = 0;
+				if (!empty($custom_fields)) {
+					foreach ($custom_fields as $field) {
+					?>
+					<tr>
+						<td>
+							<?php
+							if ($wa) {
+								text_box('custom_field['.$i.'][field]', $field['field'], 60);
+							} else {
+								echo $field;
+							}
+							?>
+						</td>
+						<td>
+							<?php
+							if ($wa) {
+								text_box('custom_field['.$i.'][alias]', $field['alias'], 20);
+							} else {
+								echo $field['alias'];
+							}
+							?>
+						</td>
+						<?php
+							if ($wa) {
+								echo '<td>';
+								check_box('custom_field['.$i.'][delete]', '1');
+								echo '</td>';
+							}
+						?>
+					</tr>
+					<?php
+					$i++;
+					}
+				}
+				?>
+				<tr>
+					<td>
+					<?php text_box('custom_field[new][field]', '', 60); ?>
+					</td>
+					<td>
+					<?php text_box('custom_field[new][alias]', '', 20); ?>
+					</td>
+					<td>
+					</td>
+				</tr>
+			</table>
+			<?php
+			hidden_field('custom_field_submit', '1');
+		} else {
+			if (!empty($custom_fields)) {
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td>Custom Field</td>
+					<td>Alias</td>
+				</tr>
+				<?php
+				foreach ($custom_fields as $field) {
+					echo '<tr><td>';
+					echo $field['field'];
+					echo '</td><td>';
+					echo $field['alias'];
+					echo '</td></tr>';
+				}
+				?>
+			</table>
+			<?php
+			}
+		}
+		return $wa;
+
+	}//end paintCustomFields()
+
+
+	/**
+	* Processes the interface for processing the custom fields
+	*
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCustomFields(&$asset, &$o, $prefix)
+	{
+		$mode = $asset->attr('mode');
+		$process = isset($_POST['custom_field_submit']);
+		if ($process) {
+			$custom_fields = $asset->attr('custom_fields');
+			$i = 0;
+			$deleted = false;
+			if (!empty($custom_fields)) {
+				$post_fields = $_POST['custom_field'];
+				// update
+				foreach ($custom_fields as $key => $field) {
+					if ($field['field'] != $post_fields[$key]['field']) {
+						$custom_fields[$key]['field'] = $post_fields[$key]['field'];
+					}
+					if ($field['alias'] != $post_fields[$key]['alias']) {
+						$custom_fields[$key]['alias'] = $post_fields[$key]['alias'];
+					}
+					$i++;
+				}
+				// delete
+				foreach ($post_fields as $key => $field) {
+					if (isset($field['delete']) && $field['delete'] == '1' || empty($field['field'])) {
+						if (!$deleted) $deleted = true;
+						unset($custom_fields[$key]);
+					}
+				}
+			}
+			// add a new one
+			if (isset($_POST['custom_field']['new']) && !empty($_POST['custom_field']['new']['field'])) {
+				$custom_fields[$i]['field'] = $_POST['custom_field']['new']['field'];
+				$custom_fields[$i]['alias'] = $_POST['custom_field']['new']['alias'];
+			}
+
+			// reset the key if any fields have been deleted
+			if ($deleted) {
+				reset($custom_fields);
+				$new_custom_fields = Array();
+				if (!empty($custom_fields)) {
+					$i = 0;
+					foreach ($custom_fields as $field) {
+						$new_custom_fields[$i] = $field;
+						$i++;
+					}
+				}
+				$asset->setAttrValue('custom_fields', $new_custom_fields);
+			} else {
+				$asset->setAttrValue('custom_fields', $custom_fields);
+			}
+		}
+
+		return $process;
+
+	}//end processCustomFields()
 
 
 //--        JOIN        --//
@@ -1304,6 +1469,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				}
 			}
 		}
+		$custom_fields = $asset->attr('custom_fields');
+		if (!empty($custom_fields)) {
+			foreach ($custom_fields as $field) {
+				$fields[$field['alias']] = $field['alias'];
+			}
+		}
 
 		$priority = Array();
 		$order = Array('ASC' => translate('order_asc'), 'DESC' => translate('order_desc'));
@@ -1529,7 +1700,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				$res = $this->_resetAttributes($asset, 'reset');
 			}
 			$asset->setAttrValue('sql', $sql);
-log_dump("\n".'_queryProcessing:'.$sql."\n");
 			$asset->saveAttributes();
 			return true;
 		}
@@ -1537,6 +1707,7 @@ log_dump("\n".'_queryProcessing:'.$sql."\n");
 		//get the tables and the fields attribute values
 		$tables = $asset->attr('tables');
 		$fields = $asset->attr('fields');
+		$custom_fields = $asset->attr('custom_fields');
 		$aggregates = $asset->attr('aggregates');
 		$joins = $asset->attr('join');
 
@@ -1567,6 +1738,11 @@ log_dump("\n".'_queryProcessing:'.$sql."\n");
 					if (!empty($aggregate['alias'])) {
 						$sql .= ' AS '.$aggregate['alias'];
 					}
+				}
+			}
+			if (!empty($custom_fields)) {
+				foreach ($custom_fields as $key => $field) {
+					$sql .= ', '.$field['field'].' AS '.$field['alias'];
 				}
 			}
 			$sql .= '<br />FROM ';
@@ -1938,19 +2114,13 @@ log_dump("\n".'_queryProcessing:'.$sql."\n");
 		$mode = $asset->attr('mode');
 
 		// only if the screen moved from 'edit' to 'execute', false
-		if ($mode == 'execute' && isset($_POST[$prefix.'_from_edit'])) return false;
+		if ($mode == 'execute' && isset($_POST[$prefix.'_from_edit'])) {
+			return false;
+		}
 
 		$wa = $asset->writeAccess('attributes');
 		if ($mode == 'edit') {
 			$edit_on = $asset->attr('edit_on');
-			// TODO: It does not reset the variable any more so that
-			// when the user changes the mode from 'edit' to 'build', the
-			// previous information can be restored
-			/*if (!$edit_on) {
-				if ($wa) {
-					$res = $this->_resetAttributes($asset, 'edit');
-				}
-			}*/
 			return false;
 		} else if ($mode == 'execute') {
 			$tables = $asset->attr('tables');

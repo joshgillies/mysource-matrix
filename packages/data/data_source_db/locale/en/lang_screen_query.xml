@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_query.xml,v 1.3 2005/10/17 01:41:30 pgannavarapu Exp $
+* $Id: lang_screen_query.xml,v 1.4 2005/12/01 23:25:35 skim Exp $
 *
 */
 -->
@@ -46,6 +46,14 @@
 				<process_function name="processFields" />
 			</function_call>
 			<display_name>Select Fields</display_name>
+			<note />
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintCustomFields" />
+				<process_function name="processCustomFields" />
+			</function_call>
+			<display_name>Select Custom Fields(Optional)</display_name>
 			<note />
 		</field>
 		<field>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_query.xml,v 1.5 2005/11/29 04:33:58 skim Exp $
+* $Id: edit_interface_screen_query.xml,v 1.6 2005/12/01 23:25:35 skim Exp $
 *
 */
 -->
@@ -40,6 +40,12 @@
 			<function_call>
 				<paint_function   name="paintFields" />
 				<process_function name="processFields" />
+			</function_call>
+		</field>
+		<field show_if="tablesSelected">
+			<function_call>
+				<paint_function   name="paintCustomFields" />
+				<process_function name="processCustomFields" />
 			</function_call>
 		</field>
 		<field show_if="tablesSelectedWithAggregates">
