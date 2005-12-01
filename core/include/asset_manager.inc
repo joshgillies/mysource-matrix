@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.403 2005/12/01 00:59:09 lwright Exp $
+* $Id: asset_manager.inc,v 1.404 2005/12/01 04:05:05 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.403 $
+* @version $Revision: 1.404 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4563,6 +4563,16 @@ class Asset_Manager extends MySource_Object
 	*/
 	function deleteAssetLink($linkid, $moving=false)
 	{
+
+		// before anything else is done, check if this is a shadow link, i.e. a link that is managed by a bridge
+		$id_parts = explode(':', $linkid);
+		if (isset($id_parts[1])) {
+			$bridge =& $this->getAsset($id_parts[0]);
+			$result = $bridge->deleteAssetLink($linkid, $moving);
+			$this->forgetAsset($bridge);
+			return $result;
+		}
+
 		// first, we should try and find the link
 		$link = $this->getLinkById($linkid);
 
