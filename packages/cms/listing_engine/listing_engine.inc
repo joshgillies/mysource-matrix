@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.123 2005/11/30 23:45:25 mmcintyre Exp $
+* $Id: listing_engine.inc,v 1.124 2005/12/01 05:50:44 skim Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.123 $
+* @version $Revision: 1.124 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2033,17 +2033,22 @@ class Listing_Engine extends Page
 	function getRootNodes()
 	{
 		if (!isset($this->_tmp['root_asset_ids'])) {
+
 			$root_asset_ids = Array();
 			$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', false, 'major', 'root');
 			foreach ($root_links as $root_link) {
-				$root_asset_ids[] = (int)$root_link['minorid'];
+				if (strstr($root_link['minorid'], ':') !== false) {
+					$root_asset_ids[] = $root_link['minorid'];
+				} else {
+					$root_asset_ids[] = (int)$root_link['minorid'];
+				}
 			}
-
 			$parameter_map = &$this->getAttribute('parameter_map');
 			$raw_dynamic_root_nodes = $parameter_map->getParameterValue('root_node');
 
 			// check if we have a dynamic parameter -- if so, let's do some security checks
 			if (!empty($raw_dynamic_root_nodes)) {
+
 				$dynamic_root_nodes = Array();
 				// note that dynamic roots can be supplied as an array of asset ids or
 				// as a comma delimited string of asset ids
@@ -2082,6 +2087,7 @@ class Listing_Engine extends Page
 			}
 
 			$this->_tmp['root_asset_ids'] = $root_asset_ids;
+
 		}
 
 		return $this->_tmp['root_asset_ids'];
