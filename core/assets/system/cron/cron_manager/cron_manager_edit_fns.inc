@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.29 2005/11/03 23:57:27 lwright Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.30 2005/12/01 00:28:35 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -211,7 +211,11 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 									<td class="sq-backend-table-cell" style="border-bottom: none">
 										<?php
 											$user = &$jobs[$i]->getRunningUser();
-											echo get_asset_tag_line($user->id);
+											if ($user) {
+												echo get_asset_tag_line($user->id);
+											} else {
+												?><em><?php echo translate('system'); ?></em><?php
+											}
 										?>
 									</td>
 								</tr>
