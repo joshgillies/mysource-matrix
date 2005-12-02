@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_password_reset.inc,v 1.2 2005/12/02 02:56:10 bcaldwell Exp $
+* $Id: page_password_reset.inc,v 1.3 2005/12/02 03:16:41 bcaldwell Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	Allows a user to reset their password.
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -491,6 +491,9 @@ class Page_Password_Reset extends Page
 				}
 			}
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		
+		// There should probably be an attribute that turns this functionality on/off.
+		$GLOBALS['SQ_SYSTEM']->loginUser($user);
 
 		return $result;
 
