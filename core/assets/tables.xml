@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.35 2005/11/24 21:45:53 mmcintyre Exp $
+* $Id: tables.xml,v 1.36 2005/12/02 00:32:10 arailean Exp $
 *
 */
 -->
@@ -1613,6 +1613,41 @@
 		</table>
 		<table name="thes_term" require_rollback="0">
 			<columns>
+				<column name="termid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>Term ID</description>
+				</column>
+				<column name="term" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description>Term</description>
+				</column>
+				<column name="thesid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>Thesaurus Asset ID</description>
+				</column>
+		   </columns>
+		   <keys>
+			   <primary_key>
+				   <column name="termid" />
+			   </primary_key>
+		   </keys>
+		   <indexes>
+			   <index>
+				   <column name="termid" />
+			   </index>
+			   <index>
+				   <column name="thesid" />
+			   </index>
+		   </indexes>
+		</table>
+		<table name="thes_lnk" require_rollback="0">
+			<columns>
 				<column name="linkid" allow_null="0">
 					<type>INTEGER</type>
 					<type_variations />
@@ -1721,6 +1756,7 @@
 		<sequence name="trig_id" />
 		<sequence name="file_vers_file" />
 		<sequence name="thes_term" />
+		<sequence name="thes_lnk" />
 	</sequences>
 </schema>
 
