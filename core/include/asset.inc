@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.471 2005/11/30 23:07:19 mmcintyre Exp $
+* $Id: asset.inc,v 1.472 2005/12/02 05:30:36 dmckee Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.471 $
+* @version $Revision: 1.472 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3616,6 +3616,12 @@ class Asset extends MySource_Object
 			}
 		}
 
+		$original_asset = null;
+		if ($asset->id != $GLOBALS['SQ_SYSTEM']->frontend_asset->id) {
+			$original_asset = $GLOBALS['SQ_SYSTEM']->frontend_asset;
+			$GLOBALS['SQ_SYSTEM']->frontend_asset = &$asset;
+		}
+
 		if ($asset->languages) {
 			header('Content-language: '.$asset->languages);
 		}
@@ -3656,6 +3662,10 @@ class Asset extends MySource_Object
 		} else {
 			// we can't find a design, oh well let's just print out our body
 			$asset->printBody();
+		}
+
+		if (!is_null($original_asset)) {
+			$GLOBALS['SQ_SYSTEM']->frontend_asset = $original_asset;
 		}
 
 	}//end printFrontendAsset()
