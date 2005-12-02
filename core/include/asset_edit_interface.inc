@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.282 2005/10/21 02:03:24 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.283 2005/12/02 00:35:23 arailean Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.282 $
+* @version $Revision: 1.283 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -171,6 +171,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		// if there are no screens or static screens, piss off
 		assert_false(!count($this->_screens) && empty($this->_edit_fns->static_screens));
+
 
 		  /////////////////////////////
 		 //  ALLOWED SCREEN ACCESS  //
@@ -451,6 +452,7 @@ class Asset_Edit_Interface extends MySource_Object
 				$paint_layout = true;
 			}
 		}
+
 
 		// check the active screen for special system defined static screens
 		$file = null;
@@ -938,7 +940,6 @@ class Asset_Edit_Interface extends MySource_Object
 						continue;
 					}
 
-					$this->_edit_fns->_tmp['creating'] = $creating;
 					if ($this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix)) {
 						$print_commit_button = true;
 					}
@@ -1029,7 +1030,6 @@ class Asset_Edit_Interface extends MySource_Object
 								if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
 									$o->note(translate('specific_painting_function_not_found', $paint_node->attributes['name']));
 								} else {
-									$this->_edit_fns->_tmp['creating'] = $creating;
 									if ($this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix)) {
 										$print_commit_button = true;
 									}
@@ -1772,7 +1772,6 @@ class Asset_Edit_Interface extends MySource_Object
 								continue;
 							}
 
-							$this->_edit_fns->_tmp['creating'] = $creating;
 							if ($this->_edit_fns->{$process_node->attributes['name']}($owner, $o, $prefix)) {
 								$ret_val = true;
 							}
