@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication.inc,v 1.7 2005/05/16 06:59:10 tbarrett Exp $
+* $Id: authentication.inc,v 1.8 2005/12/02 00:52:50 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -112,6 +112,22 @@ class Authentication extends Asset
 
 	}//end _getName()
 
+	
+	/**
+	* Given a username, attempts to locate and return a user object.
+	*
+	* @param string	$username	The username of the user to locate
+	*
+	* @return &object
+	* @access public
+	*/
+	function &locateUser($username)
+	{
+		$null = null;
+		return $null;
+		
+	}//end locateUser()
+	
 
 	/**
 	* Attempts to find a user that matches the passed username and password

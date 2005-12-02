@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default.inc,v 1.11 2005/09/19 04:36:14 lwright Exp $
+* $Id: authentication_default.inc,v 1.12 2005/12/02 00:52:50 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authent
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,19 +55,14 @@ class Authentication_Default extends Authentication
 
 
 	/**
-	* Attempts to find a user that matches the passed username and password
+	* Given a username, attempts to locate and return a user object.
 	*
-	* If the wrong password is supllied, the user account will be locked after
-	* a system defined number of incorrect login attempts
-	* returns user or null
+	* @param string	$username	The username of the user to locate
 	*
-	* @param string	$username	the user name to search for
-	* @param string	$password	the password to match
-	*
-	* @return object
+	* @return &object
 	* @access public
 	*/
-	function &authenticateUser($username, $password)
+	function &locateUser($username)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -94,14 +89,42 @@ class Authentication_Default extends Authentication
 
 			if (is_null($user)) {
 				// no user was found with that username
-			} else if (!$user->comparePassword($password)) {
-				// a user was found, but the wrong password was supplied
-				$this->_registerInvalidLogin($user);
 			} else {
-				// user found with username and password supplied
-				unset($_SESSION['user_login_attempts']);
 				return $user;
 			}
+		}
+
+		$null = null;
+		return $null;
+
+	}//end locateUser()
+
+
+	/**
+	* Attempts to login a user given a username and password
+	*
+	* If the wrong password is supllied, the user account will be locked after
+	* a system defined number of incorrect login attempts
+	* returns user or null
+	*
+	* @param string	$username	the user name to search for
+	* @param string	$password	the password to match
+	*
+	* @return object
+	* @access public
+	*/
+	function &authenticateUser($username, $password)
+	{
+		$user = &$this->locateUser($username);
+		if (is_null($user)) {
+			// no user was found with that username
+		} else if (!$user->comparePassword($password)) {
+			// a user was found, but the wrong password was supplied
+			$this->_registerInvalidLogin($user);
+		} else {
+			// user found with username and password supplied
+			unset($_SESSION['user_login_attempts']);
+			return $user;
 		}
 
 		// need this because of return by reference
