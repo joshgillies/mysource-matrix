@@ -1,0 +1,769 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Commercial Module Licence                                |
+* +--------------------------------------------------------------------+
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +--------------------------------------------------------------------+
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +--------------------------------------------------------------------+
+*
+* $Id: page_password_reset.inc,v 1.1 2005/12/02 00:40:31 bcaldwell Exp $
+*
+*/
+
+require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
+require_once SQ_FUDGE_PATH.'/general/text.inc';
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+
+/**
+* Page_Password_Reset
+*
+* Purpose
+*	Allows a user to reset their password.
+*
+* @author  Ben Caldwell <bcaldwell@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix_Packages
+* @subpackage cms
+*/
+class Page_Password_Reset extends Page
+{
+
+	/**
+	* By default, we should display a bodycopy allowing the user to request
+	* that their password be reset.
+	*
+	* @var string
+	* @access public
+	*/
+	var $default_state = 'request';
+
+
+	/**
+	* Constructor.
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	* @return void
+	* @access public
+	*/
+	function Page_Password_Reset($assetid=0)
+	{
+		$this->Page($assetid);
+
+	}//end constructor
+
+
+	/**
+	* Perform any additional processing required during the creation of this asset.
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!parent::_createAdditional($link)) return false;
+
+		// Add a group of users
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('user_group');
+		$group_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => 'pending_accounts');
+
+		$group =& new User_Group();
+
+		$group->setAttrValue('name', translate('cms_password_reset_pending_group'));
+		if (!$group->create($group_link)) return false;
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($group);
+
+		// Add a bodycopy to this page when creating
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => '');
+
+		foreach ($this->_getBodycopies() as $value => $name) {
+			$bodycopy =& new Bodycopy();
+			$copy_link['value'] = $value;
+
+			$bodycopy->setAttrValue('name', $name);
+			if (!$bodycopy->create($copy_link)) return false;
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
+		}
+		return true;
+
+	}//end _createAdditional()
+
+
+	/**
+	* Returns an array of all the permitted link types, the asset type and the cardinality.
+	*
+	* @return array
+	* @access private
+	* @see Asset::_getAllowLinks()
+	*/
+	function _getAllowedLinks()
+	{
+		$allowed_links = parent::_getAllowedLinks();
+		
+		$allowed_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => count($this->_getBodycopies()), 'exclusive' => true);
+		$allowed_links[SQ_LINK_TYPE_2]['user_group']	= Array('card' => '1', 'exclusive'	=> true);
+
+		return $allowed_links;
+
+	}//end _getAllowedLinks()
+
+
+	/**
+	* Called by the design to print the body of this asset.
+	*
+	* @return void
+	* @access public
+	*/
+	function printBody()
+	{
+		$password_reset_action = $this->default_state;
+		if (isset($_REQUEST['action'])) { // Handle form submission.
+			$password_reset_action = $_REQUEST['action'];
+		}
+		echo $this->_printContents($password_reset_action);
+
+	}//end printBody()
+
+
+	/**
+	* Add valid keywords for this asset to an array of keywords when asked.
+	*
+	* @param &object Asset	$asset	the asset that triggered the event
+	* @param array			$vars	the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access public
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		if (!isset($vars['keywords'])) return;
+
+		// which bodycopy?
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
+		$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy');
+		foreach ($type_links as $link_info) {
+			if (isset($parents[$link_info['minorid']])) {
+				$bodycopy_type = $link_info['value'];
+			}
+		}
+
+		// Make sure this is a bodycopy we can replace keywords for...?
+		if (!isset($bodycopy_type) || empty($bodycopy_type)) return;
+		if (!in_array($bodycopy_type, array_keys($this->_getBodycopies()))) return;
+
+		// Generate the name of the function we should call for keywords
+		$tmp_type = strtr($bodycopy_type, '_', ' ');
+		$tmp_type = ucwords($tmp_type);
+		$tmp_type = preg_replace('/\s+/', '', $tmp_type);
+		$type_func = '_get'.$tmp_type.'Keywords';
+
+		if (method_exists($this, $type_func)) {
+			$vars['keywords'] = array_merge($vars['keywords'], $this->$type_func());
+		}
+
+		//$vars['keywords'] = array_merge($vars['keywords'], $this->getAvailableKeywords());
+
+	}//end onRequestKeywords()
+
+
+	/**
+	* Based on what 'action' is being performed, prints the frontend.
+	*
+	* @param string	$action	The name of the bodycopy to print
+	*
+	* @return string
+	* @access private
+	*/
+	function _printContents($action)
+	{
+		if (empty($action)) {
+			$action = $this->default_state;
+		}
+
+		// Generate the name of the function we should call for processing
+		$tmp_process = strtr($action, '_', ' ');
+		$tmp_process = ucwords($tmp_process);
+		$tmp_process = preg_replace('/\s+/', '', $tmp_process);
+		$process_func = '_print'.$tmp_process.'Action';
+
+		if (method_exists($this, $process_func)) {
+			return $this->$process_func();
+		}
+		return;
+
+	}//end _printContents()
+
+
+	/**
+	* Prints the 'request' bodycopy.
+	* 
+	* The 'request' bodycopy allows the user to enter their details so that
+	* they may begin the process of resetting their password.
+	*
+	* @return string
+	* @access private
+	*/
+	function _printRequestAction()
+	{
+		$replacements['password_reset_error'] = '';
+
+		return $this->_buildContents('request', $replacements);
+
+	}//end _printRequestAuction()
+
+
+	/**
+	* Prints the 'request_receipt' bodycopy.
+	* 
+	* This bodycopy is a receipt of whatever happend on the 'request' bodycopy. It is
+	* used to inform the user of the results of the password reset request. Note that
+	* the user won't always be taken here after the 'request' process.
+	*
+	* @return string
+	* @access private
+	*/
+	function _printRequestReceiptAction()
+	{
+		$replacements = Array();
+		if (!isset($_POST['username']) || empty($_POST['username'])) {
+			$replacements['password_reset_error'] = translate('cms_password_reset_message_empty_username');
+		} else {
+			$username = $_POST['username'];
+
+			$auth_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
+			if (is_null($auth_folder)) {
+				trigger_localised_error('SYS0249', E_USER_ERROR);
+				return Array();
+			}
+			$auth_systems = $auth_folder->getAuthSystems();
+
+			$user = null;
+			foreach ($auth_systems as $systemid) {
+				$system = &$GLOBALS['SQ_SYSTEM']->am->getAsset($systemid);
+				if (is_null($system)) continue;
+
+				if (method_exists($system, 'locateUser')) {
+					$user = &$system->locateUser($username);
+					if (!is_null($user) && $user->canLogin()) {
+						break;
+					}
+				}
+			}
+
+			$failure = false;
+			if (is_null($user)) {
+				// We don't want to go telling people what usernames exist and what don't...
+				//$replacements['password_reset_error'] = translate('cms_password_reset_message_invalid_username');
+				$failure = true;
+			} else {
+				foreach ($user->getAvailableKeywords() as $keyword => $description) {
+					$replacements[$keyword] = $user->getKeywordReplacement($keyword);
+				}
+				$user_hash = $this->_createResetLink($user->id);
+				if (!$user_hash) {
+					$failure = true;
+				}
+			}
+			
+			// Do not attempt to send mail to anyone if we're not going to go ahead with this, especially
+			// if we did't create any link!
+			if (!$failure) {
+				$email_replacements = $replacements;
+				$email_replacements['password_reset_url'] = current_url().'?action=reset&prid='.$user_hash;
+	
+				$email_attr = &$this->getAttribute('request_email_format');
+				$email_value = unserialize($email_attr->value);
+				$email_value['to'][] = $user->attr('email');
+				$email_attr->value = serialize($email_value);
+	
+				@$email_attr->sendMail($email_replacements);
+			}
+		}
+
+		return $this->_buildContents('request_receipt', $replacements);
+
+	}//end _printRequestReceiptAction()
+
+
+	/**
+	* Prints the 'reset' bodycopy.
+	* 
+	* This bodycopy should only be accessable by the link sent in the 'reset
+	* email'. It will allow the user who (hopefully) submitted the corresponding
+	* request to specify a new password.
+	*
+	* @return string
+	* @access private
+	*/
+	function _printResetAction()
+	{
+		$replacements = Array();
+		$replacements['password_reset_error'] = '';
+
+		$action = 'request';
+
+		if (!isset($_REQUEST['prid']) || empty($_REQUEST['prid'])) {
+				$replacements['password_reset_error'] = translate('cms_password_reset_message_no_prid');
+		} else {
+			$prid = $_REQUEST['prid'];
+			$user_link = $this->_getResetLink($prid);
+			if (empty($user_link)) {
+				$replacements['password_reset_error'] = translate('cms_password_reset_message_invalid_prid');
+			} else {
+				$userid = $user_link['minorid'];
+				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+				if (is_null($user)) {
+					$replacements['password_reset_error'] = translate('cms_password_reset_message_no_user');
+				} else {
+					foreach ($user->getAvailableKeywords() as $keyword => $description) {
+						$replacements[$keyword] = $user->getKeywordReplacement($keyword);
+					}
+					$action = 'reset';
+				}
+			}
+		}
+		return $this->_buildContents($action, $replacements);
+
+	}//end _printRequestAuction()
+
+
+	/**
+	* Prints the 'reset_receipt' bodycopy.
+	* 
+	* The receipt of the 'reset' bodycopy. This is rendered to inform the user of
+	* anything that happend during the 'reset' process. Note that the user will
+	* not necessarily be taken here under all circumstances.
+	*
+	* @return string
+	* @access private
+	*/
+	function _printResetReceiptAction()
+	{
+		$replacements = Array();
+		$replacements['password_reset_error'] = '';
+
+		$action = 'request';
+
+		if (!isset($_POST['password']) || empty($_POST['password'])) {
+			$replacements['password_reset_error'] = translate('cms_password_reset_message_empty_password');
+		} else if (!isset($_REQUEST['prid']) || empty($_REQUEST['prid'])) {
+			$replacements['password_reset_error'] = translate('cms_password_reset_message_no_prid');
+		} else {
+			$password_parts = array_unique($_POST['password']);
+
+			$prid = $_REQUEST['prid'];
+			$user_link = $this->_getResetLink($prid);
+			if (empty($user_link)) {
+				$replacements['password_reset_error'] = translate('cms_password_reset_message_invalid_prid');
+			} else {
+				$userid = $user_link['minorid'];
+				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+				if (is_null($user)) {
+					$replacements['password_reset_error'] = translate('cms_password_reset_message_no_user');
+				} else {
+					foreach ($user->getAvailableKeywords() as $keyword => $description) {
+						$replacements[$keyword] = $user->getKeywordReplacement($keyword);
+					}
+					$action = 'reset';
+				}
+			}
+			if (count($password_parts) == 1) {
+				if ($this->_resetPassword($user, reset($password_parts))) {
+					// The password was reset sucessfully!
+					$action = 'reset_receipt';
+				} else {
+					$replacements['password_reset_error'] = translate('cms_password_reset_message_generic_password_error');
+				}
+			} else {
+				$replacements['password_reset_error'] = translate('cms_password_reset_message_different_passwords');
+			}
+		}
+
+		$field = '';
+		if (isset($prid)) {
+			ob_start();
+				hidden_field('prid', $prid);
+			$field = ob_get_clean();
+		}
+		return $this->_buildContents($action, $replacements, $field);
+
+	}//end _printRequestReceiptAction()
+
+
+	/**
+	* Prepares a bodycopy to be rendered.
+	*
+	* @param string	$action				The action to be performed, aka. the bodycopy to be displayed
+	* @param array	$new_replacements	An array of keyword replacements to supplement
+	* @param string	$extra				An extra contents to be printed
+	*
+	* @return string
+	* @access private
+	*/
+	function _buildContents($action, $new_replacements=Array(), $extra='')
+	{
+		$replacements = Array();
+
+		ob_start();
+			$bodycopy =& $this->_getBodycopy($action);
+			$keywords = $bodycopy->getKeywords();
+
+			foreach ($keywords as $keyword) {
+				if (!in_array($keyword, array_keys($new_replacements))) {
+					$replacements[$keyword] = $this->getKeywordReplacement($keyword);
+				} else {
+					$replacements[$keyword] = $new_replacements[$keyword];
+				}
+			}
+			$bodycopy->setKeywordReplacements($replacements);
+			$bodycopy->printBody();
+
+			echo $extra;
+
+			if (in_array($action, array('request', 'reset'))) {
+				return $this->_buildForm(ob_get_clean(), $action.'_receipt');
+			}
+		return ob_get_clean();
+
+	}//end _buildContents()
+
+
+	/**
+	* Paints the bodycopy in a form.
+	* 
+	* Required for bodycopies that use form keywords so that they will function
+	* correctly.
+	*
+	* @param string	$body_contents	The contents to be rendered
+	* @param string	$action			The 'action' that will be performed when the form is submitted
+	*
+	* @return string
+	* @access private
+	*/
+	function _buildForm($body_contents, $action)
+	{
+		ob_start();
+			?><form id="<?php echo $this->getPrefix() ?>_<?php echo $action; ?>_form" method="post" action="<?php echo replace_query_string_vars(Array()); ?>" enctype="multipart/form-data">
+				<?php echo hidden_field('action', $action); ?>
+				<?php echo $body_contents; ?>
+			</form><?php
+		return ob_get_clean();
+
+	}//end _buildForm()
+
+
+	/**
+	* Resets the password for the given user to the new password supplied.
+	*
+	* @param object	&$user			The user to reset the password for
+	* @param string	$new_password	The password to set for said user
+	*
+	* @return bool
+	* @access private
+	*/
+	function _resetPassword(&$user, $new_password)
+	{
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+			$result = @$user->setAttrValue('password', $new_password);
+
+			if ($result) {
+				$user->saveAttributes();
+
+				$parentid = $this->_getPendingAccountsGroupId();
+				if ($parentid == 0) return false;
+
+				$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid, 'user_group');
+				if (is_null($parent)) return false;
+
+				$user_link = Array();
+
+				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($parentid, SQ_LINK_TYPE_1);
+				foreach ($links as $link) {
+					if ($link['minorid'] == $user->id) {
+						$parent->deleteLink($link['linkid']);
+					}
+				}
+			}
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+		return $result;
+
+	}//end _resetPassword()
+
+
+	/**
+	* Creates a 'reset' link.
+	* 
+	* We identify users that have requested to have their password reset by linking
+	* them to the user group we should have linked under this asset.
+	* 
+	* @param string	$assetid	The ID of the asset to link
+	*
+	* @return string
+	* @access private
+	*/
+	function _createResetLink($assetid) {
+		if (empty($assetid)) return false;
+
+		// The user asset.
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) return false;
+
+		$parentid = $this->_getPendingAccountsGroupId();
+		if ($parentid == 0) return false;
+
+		// The user group asset.
+		$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid, 'user_group');
+		if (is_null($parent)) return false;
+
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($parent->id, SQ_LINK_TYPE_1, 'user', false);
+			foreach ($links as $link) {
+				if ($link['minorid'] == $asset->id) {
+					$parent->deleteLink($link['linkid']);
+					break;
+				}
+			}
+
+			$hash_value = MD5(implode('::', Array($this->id, $asset->id, $asset->_getName(), (time() * rand()))));
+
+			$return_value = false;
+			if ($parent->createLink($asset, SQ_LINK_TYPE_1, $hash_value)) {
+				$return_value = $hash_value;
+			}
+
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+
+		return $return_value;
+
+	}//end _createResetLink
+
+
+	/**
+	* Returns a 'reset' link.
+	* 
+	* Given the value of the link, returns the link information between our user group
+	* and one of our 'password reset' pending users.
+	*
+	* @param string	$value	The value of the link between the two assets
+	*
+	* @return string
+	* @access private
+	*/
+	function _getResetLink($value)
+	{
+		if (empty($value)) return Array();
+
+		$parentid = $this->_getPendingAccountsGroupId();
+		if ($parentid == 0) return false;
+
+		return $GLOBALS['SQ_SYSTEM']->am->getLink($parentid, SQ_LINK_TYPE_1, 'user', false, $value);
+
+	}//end _getResetLink()
+
+
+	/**
+	* A bunch of keywords that should be available on all of our bodycopies.
+	*
+	* @return array
+	* @access protected
+	*/
+	function _getStandardKeywords()
+	{
+		$keywords = Array();
+
+		$keywords['submit_button'] = 'The submit button';
+		$keywords['password_reset_error'] = 'Error messages';
+
+		return $keywords;
+
+	}//end _getStandardKeywords()
+
+
+	/**
+	* The keywords used in the 'request' bodycopy.
+	*
+	* @return array
+	* @access protected
+	*/
+	function _getRequestKeywords()
+	{
+		$keywords = $this->_getStandardKeywords();
+
+		$keywords['username_input'] = 'The input field for username';
+
+		return $keywords;
+
+	}//end _getRequestKeywords()
+
+
+	/**
+	* The keywords used in the 'request_receipt' bodycopy.
+	*
+	* @return array
+	* @access protected
+	*/
+	function _getRequestReceiptKeywords()
+	{
+		$keywords = $this->_getStandardKeywords();
+
+		return $keywords;
+
+	}//end _getRequestReceiptKeywords()
+
+
+	/**
+	* The keywords used in the 'reset' bodycopy.
+	*
+	* @return array
+	* @access protected
+	*/
+	function _getResetKeywords()
+	{
+		$keywords = $this->_getStandardKeywords();
+
+		$keywords['password_input'] = 'The input fields for password reset';
+
+		return $keywords;
+
+	}//end _getResetKeywords()
+
+
+	/**
+	* The keywords used in the 'reset_receipt'
+	*
+	* @return array
+	* @access protected
+	*/
+	function _getResetReceiptKeywords()
+	{
+		$keywords = $this->_getStandardKeywords();
+
+		return $keywords;
+
+	}//end _getResetReceiptKeywords()
+
+
+	/**
+	* Prints form elements allowing the user to enter their username.
+	*
+	* @return string
+	* @access public
+	*/
+	function getUsernameInputKeywordReplacement()
+	{
+		$value = '';
+		if (isset($_POST['username'])) {
+			$value = $_POST['username'];
+		}
+		
+		ob_start();
+			text_box('username', '');
+		return ob_get_clean();
+
+	}//end _getUsernameInputKeywordReplacement()
+
+
+	/**
+	* Prints a form allowing the user to enter a new password.
+	*
+	* @return string
+	* @access public
+	*/
+	function getPasswordInputKeywordReplacement()
+	{
+		ob_start();
+			password_box('password[]');
+			password_box('password[]');
+		return ob_get_clean();
+
+	}//end _getPasswordInputKeywordReplacement()
+
+
+	/**
+	* Prints a form submit button.
+	*
+	* @return string
+	* @access public
+	*/
+	function getSubmitButtonKeywordReplacement()
+	{
+		ob_start();
+			submit_button('', translate('submit'));
+		return ob_get_clean();
+
+	}//end getSubmitButtonKeywordReplacement()
+
+
+	/**
+	* Get the ID of the Pending Accounts user group.
+	*
+	* @return void
+	* @access public
+	*/
+	function _getPendingAccountsGroupId()
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user_group', false, 'pending_accounts');
+		if (empty($link)) {
+			return 0;
+		}
+		return $link['minorid'];
+
+	}//end _getPendingAccountsGroupId()
+
+
+	/**
+	* Returns the linked bodycopy with the specified link value.
+	*
+	* @param string	$link_value	The value of the link between this asset and the bodycopy
+	*
+	* @return &object
+	* @access public
+	*/
+	function &_getBodycopy($link_value)
+	{
+		$null = null;
+
+		$bodycopy_data = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, $link_value, 'major', '1');
+		if (empty($bodycopy_data)) $null;
+
+		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
+		if (is_null($bodycopy)) $null;
+
+		return $bodycopy;
+
+	}//end _getBodycopy()
+
+
+	/**
+	* Return an array of bodycopies that need to be created.
+	*
+	* @return array
+	* @access private
+	*/
+	function _getBodycopies()
+	{
+		return Array(
+				'request'			=> translate('cms_password_reset_request'),
+				'request_receipt'		=> translate('cms_password_reset_request_receipt'),
+				'reset'				=> translate('cms_password_reset_reset'),
+				'reset_receipt'		=> translate('cms_password_reset_reset_receipt'),
+			   );
+
+	}//end _getBodycopies()
+
+	/* }}} */
+
+
+}//end class
