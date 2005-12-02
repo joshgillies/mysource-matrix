@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.160.2.4 2005/12/02 03:14:16 sdanis Exp $
+* $Id: page_calendar.inc,v 1.160.2.5 2005/12/02 04:52:24 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.160.2.4 $
+* @version $Revision: 1.160.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -433,7 +433,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$view = $_REQUEST['SQ_CALENDAR_VIEW'];
 		if (($view == 'event') || ($view == 'edit')) {
 			// _validateRequest already made sure we have a valid event id
-			$info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($_REQUEST['SQ_CALENDAR_EVENT_ID']));
+			$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($_REQUEST['SQ_CALENDAR_EVENT_ID']));
 			return $info[$_REQUEST['SQ_CALENDAR_EVENT_ID']]['name'];
 		} else {
 			return date($title_formats[$view], strtotime($_REQUEST['SQ_CALENDAR_DATE']));
@@ -1927,14 +1927,27 @@ class Page_Calendar extends Page_Asset_Listing
 		$recur_result = $db->getAssoc($sql);
 		assert_valid_db_result($recur_result);
 
-		$res = $single_result + $recur_result;
+		$plain_events = $single_result + $recur_result;
 
-		if ($this->attr('enable_description_popups')) {
-			$descriptions = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('description', 'calendar_event', array_keys($res));
-			foreach ($descriptions as $assetid => $description) {
-				$res[$assetid]['description'] = $description;
+		$week_start_day = $this->attr('week_starts_on');
+		$seconds_in_day = 86400;
+		$first_day = iso8601_ts($date) - ((7+(date('w', iso8601_ts($date)) - $week_start_day))%7)*$seconds_in_day;
+		$cal_date = date('Y-m-d', $first_day);
+
+		$last_day = iso8601_date_component(ts_iso8601(iso8601_ts($cal_date) + 6*$seconds_in_day));
+
+		$events =& expand_event_list($plain_events, $cal_date, $last_day);
+
+		$res = Array();
+
+		foreach ($events as $id => $details) {
+			$event_date = iso8601_ts(sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']));
+			list($assetid, ) = explode(':', $id);
+			if ($event_date >= iso8601_ts($date) && $event_date < iso8601_ts($date)+7*86400) {
+				$res[$assetid] = $plain_events[$assetid];
 			}
 		}
+
 		return $res;
 
 	}//end getWeekEvents()
