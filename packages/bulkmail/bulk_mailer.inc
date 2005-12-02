@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.47 2005/12/01 22:09:40 ndvries Exp $
+* $Id: bulk_mailer.inc,v 1.48 2005/12/02 04:36:36 ndvries Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -709,7 +709,7 @@ class Bulk_Mailer
 		$keywords = $user->getAvailableKeywords();
 		$keyword_replacements = Array();
 		foreach ($keywords as $key => $val) {
-			$keyword_replacements['bulkmail_'.$key] = $user->getKeywordReplacement($key);
+			$keyword_replacements['recipient_'.$key] = $user->getKeywordReplacement($key);
 		}
 		$content = replace_keywords($content, $keyword_replacements);
 
