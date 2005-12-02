@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.31.2.3 2005/09/27 07:14:17 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.31.2.4 2005/12/02 03:14:16 sdanis Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.31.2.3 $
+* @version $Revision: 1.31.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1206,5 +1206,41 @@ function compare_start_dates($a, $b)
 
 }//end compare_start_dates()
 
+
+/**
+* Returns array of events sorted by occurrence
+*
+* @param $date
+* @param $events	Events to be sorted
+*
+* @return array
+* @access public
+*/
+function sortByOccurrence($date, $events) {
+	$dates = Array();
+
+	foreach ($events as $event_id => $info) {
+		$event =& $GLOBALS['SQ_SYSTEM']->am->getAsset(strtok($event_id, ':'));
+		if (!empty($event)) {
+			if (method_exists($event, 'getInstanceDates')) {
+				$ocDate = $event->getInstanceDates($date);
+				$start = $ocDate['start'];
+				$dates[$event_id] = strtotime($start);
+			} else {
+				$dates[$event_id] = strtotime($event->getStartDate().' '.$event->getStartTime());
+			}
+		}
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($event);
+	}
+
+	asort($dates);
+	$sorted_events = Array();
+	foreach ($dates as $event_id => $timestamp) {
+		$sorted_events[$event_id] = $events[$event_id];
+	}
+
+	return $sorted_events;
+
+}//end sortByOccurrence()
 
 ?>
