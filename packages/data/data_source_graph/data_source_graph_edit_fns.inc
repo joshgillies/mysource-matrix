@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_edit_fns.inc,v 1.4 2005/11/04 03:44:40 lwright Exp $
+* $Id: data_source_graph_edit_fns.inc,v 1.5 2005/12/02 03:36:41 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,6 +66,7 @@ class Data_Source_Graph_Edit_Fns extends Asset_Edit_Fns
 		$data_source = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'data_source', false, 'data_source_for_graph');
 		$graph_details = $asset->attr('graph_details');
 		$types = Array('bar', 'line', 'area', 'smooth_line', 'smooth_area', 'pie', 'step', 'impulse', 'dot', 'radar', 'Image_Graph_Plot_CandleStick', 'Image_Graph_Plot_Band');
+		$accumulative = Array('0' => 'No', '1' => 'Yes');
 		$wa = $asset->writeAccess('attributes');
 		if (!empty($data_source)) {
 			$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['minorid']);
@@ -91,8 +92,12 @@ class Data_Source_Graph_Edit_Fns extends Asset_Edit_Fns
 						<td><?php combo_box('y_axis', $keys, false, !empty($graph_details) && in_array($graph_details['y_axis'], $keys)?$graph_details['y_axis']:'');?></td>
 					</tr>
 					<tr>
-						<td><b><?php echo  translate('choose').' '.translate('graph_type'); ?></b></td>
+						<td><b><?php echo translate('choose').' '.translate('graph_type'); ?></b></td>
 						<td><?php combo_box('graph_type', $types, false, !empty($graph_details) ? array_search($graph_details['type'], $types) :'');?></td>
+					</tr>
+					<tr>
+						<td><b><?php echo translate('choose').' '.translate('accumulative'); ?></b></td>
+						<td><?php combo_box('accumulative', $accumulative, false, !empty($graph_details) ? array_search($graph_details['accumulative'], $accumulative) :'No'); ?>&nbsp;&nbsp;If it's Yes, the y-axis data is accumulated.</td>
 					</tr>
 				</table>
 				<?php
@@ -151,6 +156,11 @@ class Data_Source_Graph_Edit_Fns extends Asset_Edit_Fns
 					$details['type'] = $types[$_POST['graph_type']];
 				} else {
 					$details['type'] = 'bar';
+				}
+				if ($_POST['accumulative'] == '0') {
+					$details['accumulative'] = 'No';
+				} else {
+					$details['accumulative'] = 'Yes';
 				}
 			}
 			$asset->setAttrValue('graph_details', $details);

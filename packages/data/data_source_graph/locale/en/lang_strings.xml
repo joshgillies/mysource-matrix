@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/10/17 01:56:36 pgannavarapu Exp $
+* $Id: lang_strings.xml,v 1.2 2005/12/02 03:36:41 skim Exp $
 *
 *
 * DB DataSource Localised Strings File
@@ -24,6 +24,7 @@
 <string source="x_axis">x-Axis</string>
 <string source="y_axis">y-Axis</string>
 <string source="graph_type">Type Of Graph</string>
+<string source="accumulative">Accumulative</string>
 <string source="no_co_ordinates_entered">No Co-Ordinates Have Been Entered</string>
 <string source="no_data_sources_chosen">No Data Sources Have Been Choosen</string>
 <string source="current_data_source_id">Current DataSource ID</string>

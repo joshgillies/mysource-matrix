@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.4 2005/10/30 23:15:43 pgannavarapu Exp $
+* $Id: data_source_graph.inc,v 1.5 2005/12/02 03:36:41 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -114,6 +114,16 @@ class Data_Source_Graph extends Asset
 			$result = $data_source_asset->getResultSet();
 		}
 		if (!empty($result)) {
+			if ($details['accumulative'] == 'Yes') {
+				$sum = 0;
+				$new_result = Array();
+				foreach ($result as $element) {
+					$sum += $element[$details['y_axis']];
+					$element[$details['y_axis']] = $sum;
+					$new_result[] = $element;
+				}
+				$result = $new_result;
+			}
 			$line = false;
 			if (!empty($details)) {
 				$type = $details['type'];
