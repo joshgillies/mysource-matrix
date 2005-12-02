@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.406 2005/12/02 00:31:22 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.407 2005/12/02 01:01:12 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.406 $
+* @version $Revision: 1.407 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -508,9 +508,14 @@ class Asset_Manager extends MySource_Object
 	function includeAsset($type_code, $with_edit_fns=false)
 	{
 		$error_msg = 'Asset "'.$type_code.'" is not installed on the system, unable to include its source file';
-
 		$type_code = strtolower($type_code);
 		assert_isset_array_index($this->_asset_types, $type_code, $error_msg);
+
+		// we only need to require the type_code and its asset string once
+		if (isset($this->_asset_types[$type_code]['included']) && $this->_asset_types[$type_code]['included']) {
+			return;
+		}
+
 		require_once SQ_SYSTEM_ROOT.'/'.$this->_asset_types[$type_code]['dir'].'/'.$type_code.'.inc';
 		if ($with_edit_fns) {
 			require_once SQ_SYSTEM_ROOT.'/'.$this->_asset_types[$type_code]['dir'].'/'.$type_code.'_edit_fns.inc';
@@ -521,6 +526,8 @@ class Asset_Manager extends MySource_Object
 		foreach ($this->getTypeAncestors($type_code) as $type_parent) {
 			$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings($type_parent);
 		}
+
+		$this->_asset_types[$type_code]['included'] = true;
 
 	}//end includeAsset()
 
