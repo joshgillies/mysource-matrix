@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_password_reset.inc,v 1.1 2005/12/02 00:40:31 bcaldwell Exp $
+* $Id: page_password_reset.inc,v 1.2 2005/12/02 02:56:10 bcaldwell Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	Allows a user to reset their password.
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -484,13 +484,10 @@ class Page_Password_Reset extends Page
 				$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid, 'user_group');
 				if (is_null($parent)) return false;
 
-				$user_link = Array();
-
-				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($parentid, SQ_LINK_TYPE_1);
+				// Remove this user completly from our pending reset group.
+				$links = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($parentid, $user->id, SQ_LINK_TYPE_1, null, 'major', true);
 				foreach ($links as $link) {
-					if ($link['minorid'] == $user->id) {
-						$parent->deleteLink($link['linkid']);
-					}
+					$parent->deleteLink($link['linkid']);
 				}
 			}
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
@@ -527,12 +524,10 @@ class Page_Password_Reset extends Page
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
-			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($parent->id, SQ_LINK_TYPE_1, 'user', false);
+			// That's right, delete any existing links.
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($parent->id, $assetid, SQ_LINK_TYPE_1, null, 'major', true);
 			foreach ($links as $link) {
-				if ($link['minorid'] == $asset->id) {
-					$parent->deleteLink($link['linkid']);
-					break;
-				}
+				$parent->deleteLink($link['linkid']);
 			}
 
 			$hash_value = MD5(implode('::', Array($this->id, $asset->id, $asset->_getName(), (time() * rand()))));
@@ -568,7 +563,9 @@ class Page_Password_Reset extends Page
 		$parentid = $this->_getPendingAccountsGroupId();
 		if ($parentid == 0) return false;
 
-		return $GLOBALS['SQ_SYSTEM']->am->getLink($parentid, SQ_LINK_TYPE_1, 'user', false, $value);
+		// This should return just the one link hopefully, otherwise we're in trouble ($value is a hash
+		// and should be very unique).
+		return $GLOBALS['SQ_SYSTEM']->am->getLink($parentid, SQ_LINK_TYPE_1, '', false, $value);
 
 	}//end _getResetLink()
 
@@ -756,7 +753,7 @@ class Page_Password_Reset extends Page
 	{
 		return Array(
 				'request'			=> translate('cms_password_reset_request'),
-				'request_receipt'		=> translate('cms_password_reset_request_receipt'),
+				'request_receipt'	=> translate('cms_password_reset_request_receipt'),
 				'reset'				=> translate('cms_password_reset_reset'),
 				'reset_receipt'		=> translate('cms_password_reset_reset_receipt'),
 			   );
