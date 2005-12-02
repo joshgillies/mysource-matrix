@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.2 2005/11/23 05:22:26 arailean Exp $
+* $Id: thesaurus.inc,v 1.3 2005/12/02 00:26:38 arailean Exp $
 *
 */
 
@@ -35,7 +35,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -129,25 +129,28 @@ class Thesaurus extends Asset
 	*
 	* Returns an array of terms which have a given term as their parent
 	*
-	* @param int	$term	Term
+	* @param int	$termid	Term
 	*
 	* @return array
 	* @access public
 	*/
-	function getChildTerms($term)
+	function getChildTerms($termid)
 	{
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
-				linkid, minor, relation, sort_order
+				linkid, term, termid, relation, sort_order
 			FROM
-				sq_thes_term
+				sq_thes_term term
+				INNER JOIN sq_thes_lnk link ON term.termid = link.minor
 			WHERE
-					thesid = '.$db->quoteSmart($this->id).'
+				term.thesid = '.$db->quoteSmart($this->id).'
 				AND
-					major '.(is_null($term)?'ISNULL':'= '.$db->quoteSmart($term)).'
+				link.thesid = '.$db->quoteSmart($this->id).'
+				AND
+				major '.(is_null($termid)?'ISNULL':'= '.$db->quoteSmart($termid)).'
 			ORDER BY
 				sort_order
 		';
@@ -165,12 +168,12 @@ class Thesaurus extends Asset
 	*
 	* Get a count of how many terms are linked directly under a given term
 	*
-	* @param int	$term	Term
+	* @param int	$termid	Term
 	*
 	* @return array
 	* @access public
 	*/
-	function countChildTerms($term)
+	function countChildTerms($termid)
 	{
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -179,16 +182,48 @@ class Thesaurus extends Asset
 			SELECT
 				count(linkid)
 			FROM
-				sq_thes_term
+				sq_thes_lnk
 			WHERE
-					thesid = '.$db->quoteSmart($this->id).'
+				thesid = '.$db->quoteSmart($this->id).'
 				AND
-					major '.(is_null($term)?'ISNULL':'= '.$db->quoteSmart($term)).'
+				major '.(is_null($termid)?'ISNULL':'= '.$db->quoteSmart($termid)).'
 		';
 
 		$result = $db->getOne($sql);
-
 		assert_valid_db_result($result);
+
+		return $result;
+
+	}//end countChildTerms()
+
+
+	/**
+	* Count all term links
+	*
+	* Get a count of how many terms are linked directly under a given term
+	*
+	* @param int	$termid	Term
+	*
+	* @return array
+	* @access public
+	*/
+	function countTermLinks()
+	{
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = '
+			SELECT
+				count(*)
+			FROM
+				sq_thes_lnk
+			WHERE
+				thesid = '.$db->quoteSmart($this->id).'
+		';
+
+		$result = $db->getOne($sql);
+		assert_valid_db_result($result);
+
 		return $result;
 
 	}//end countChildTerms()
@@ -199,12 +234,12 @@ class Thesaurus extends Asset
 	*
 	* Get the relations a given term is a parent in
 	*
-	* @param string	$term	term
+	* @param string	$termid	term
 	*
 	* @return array
 	* @access public
 	*/
-	function getChildRelationsForTerm($term=null)
+	function getChildRelationsForTerm($termid=null)
 	{
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -213,11 +248,11 @@ class Thesaurus extends Asset
 			SELECT DISTINCT
 				relation
 			FROM
-				sq_thes_term
+				sq_thes_lnk
 			WHERE
-					thesid     = '.$db->quoteSmart($this->id).'
+				thesid = '.$db->quoteSmart($this->id).'
 				AND
-					major '.(is_null($term)?'ISNULL':'= '.$db->quoteSmart($term)).'
+				major '.(is_null($term)?'ISNULL':'= '.$db->quoteSmart($termid)).'
 		';
 
 		$result = $db->getAll($sql);
@@ -233,12 +268,12 @@ class Thesaurus extends Asset
 	*
 	* Get the relations a given term is a child in
 	*
-	* @param string	$term	term
+	* @param string	$termid	term
 	*
 	* @return array
 	* @access public
 	*/
-	function getParentRelationsForTerm($term=null)
+	function getParentRelationsForTerm($termid=null)
 	{
 
 		if (!isset($term)) return null;
@@ -249,11 +284,11 @@ class Thesaurus extends Asset
 			SELECT DISTINCT
 				relation
 			FROM
-				sq_thes_term
+				sq_thes_lnk
 			WHERE
-					thesid     = '.$db->quoteSmart($this->id).'
+				thesid = '.$db->quoteSmart($this->id).'
 				AND
-					minor '.(is_null($term)?'ISNULL':'= '.$db->quoteSmart($term)).'
+				minor '.(is_null($term)?'ISNULL':'= '.$db->quoteSmart($termid)).'
 		';
 
 		$result = $db->getAll($sql);
@@ -269,24 +304,28 @@ class Thesaurus extends Asset
 	*
 	* Return terms which are immediate parents of a given term
 	*
-	* @param int	$term	Term
+	* @param int	$termid	Term
 	*
 	* @return array
 	* @access public
 	*/
-	function getParentTerms($term)
+	function getParentTerms($termid)
 	{
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
-				linkid, minor, relation, sort_order
+				linkid, term, termid, relation
 			FROM
-				sq_thes_term
+				sq_thes_term term
+				INNER JOIN sq_thes_lnk link ON term.termid = link.minor
 			WHERE
-				thesid = '.$db->quoteSmart($this->id).'
+				term.thesid = '.$db->quoteSmart($this->id).'
 				AND
-				minor = '.$db->quoteSmart($term).'
+				link.thesid = '.$db->quoteSmart($this->id).'
+				AND
+				minor = '.$db->quoteSmart($termid).'
 			ORDER BY
 				sort_order
 		';
@@ -302,12 +341,12 @@ class Thesaurus extends Asset
 	/**
 	* Count parent terms
 	*
-	* @param int	$term	Term
+	* @param int	$termid	Term
 	*
 	* @return array
 	* @access public
 	*/
-	function countParentTerms($term)
+	function countParentTerms($termid)
 	{
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -316,11 +355,11 @@ class Thesaurus extends Asset
 			SELECT
 				count(linkid)
 			FROM
-				sq_thes_term
+				sq_thes_lnk
 			WHERE
 				thesid = '.$db->quoteSmart($this->id).'
 				AND
-				minor = '.$db->quoteSmart($term).'
+				minor = '.$db->quoteSmart($termid).'
 		';
 
 		$result = $db->getOne($sql);
@@ -364,32 +403,75 @@ class Thesaurus extends Asset
 	*/
 	function addTerm($term, $parent=null, $relation=null, $sort_order=-1, $manual_linkid=null)
 	{
+
 		if (!isset($term) || $term == '') {
 			return null;
 		}
 
-		if ($parent == '') $parent = null;
 		if ($relation == '') $relation = null;
-		$linkid = $this->getTermLinkid($term, $parent, $relation);
-		if (!empty($linkid)) return null;
+
+		// check if parent exists
+		// if parent does not exist - bail
+		if ($parent == '') $parent = null;
+		$parentid = null;
+
+		if (!empty($parent)) {
+			$parentid = $this->getTermIdByName($parent);
+			if (is_null($parentid)) return null;
+		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
+		// determine what to use for a linkid
 		if (!is_null($manual_linkid)) {
-			$check_term = $this->getTermById($manual_linkid);
-			if (!empty($check_term)) {
+			$check_link = $this->getTermLinkById($manual_linkid);
+			if (!empty($check_link)) {
 				trigger_localised_error('CORE0238',E_USER_WARNING);
 				return null;
 			}
 			$linkid = $manual_linkid;
 		} else {
-			$linkid = $db->nextId('sq_thes_term');
+			$linkid = $db->nextId('sq_thes_lnk');
 			assert_valid_db_result($linkid);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$max_sort_order = $this->getMaxSortOrder($parent);
+
+		// if term does not exist, add it
+		$termid = $this->getTermIdByName($term);
+		if (!empty($termid)) {
+			// term exists. quickly check if the link exists to save us the headache of adding it
+			$link_info = $this->getTermLinkidByTermids($termid, $parentid, $relation);
+			if (!is_null($link_info)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				return null;
+			}
+		} else {
+			// ok, let's add the term
+			$termid = $db->nextId('sq_thes_term');
+			assert_valid_db_result($termid);
+
+			$sql = '
+				INSERT INTO sq_thes_term
+					(
+						termid,
+						term,
+						thesid
+					)
+				VALUES
+				(
+					'.$termid.',
+					'.$db->quoteSmart($term).',
+					'.$db->quoteSmart($this->id).'
+				)
+			';
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+		}
+
+
+		$max_sort_order = $this->getMaxSortOrder($parentid);
 		if (is_null($max_sort_order)) {
 			$sort_order = 0;
 		} else if (($sort_order > $max_sort_order) || ($sort_order < 0)) {
@@ -400,13 +482,13 @@ class Thesaurus extends Asset
 			// we're in a transaction, so if something goes wrong later, this will be rolled back
 			$sql = '
 				UPDATE
-					sq_thes_term
+					sq_thes_lnk
 				SET
 					sort_order = sort_order + 1
 				WHERE
 					sort_order >= '.$db->quoteSmart($sort_order).'
 					AND
-					major '.(is_null($parent)?'ISNULL':'= '.$db->quoteSmart($parent)).'
+					major '.(is_null($parentid)?'ISNULL':'= '.$db->quoteSmart($parentid)).'
 					AND
 					thesid = '.$db->quoteSmart($this->id).'
 			';
@@ -418,7 +500,7 @@ class Thesaurus extends Asset
 
 		// inserting a term is the easiest thing ever
 		$sql = '
-			INSERT INTO sq_thes_term
+			INSERT INTO sq_thes_lnk
 				(
 					linkid,
 					major,
@@ -430,8 +512,8 @@ class Thesaurus extends Asset
 			VALUES
 				(
 					'.$linkid.',
-					'.$db->quoteSmart($parent).',
-					'.$db->quoteSmart($term).',
+					'.$db->quoteSmart($parentid).',
+					'.$db->quoteSmart($termid).',
 					'.$db->quoteSmart($relation).',
 					'.$db->quoteSmart($sort_order).',
 					'.$db->quoteSmart($this->id).'
@@ -468,21 +550,21 @@ class Thesaurus extends Asset
 					parent_tree.treeid
 				FROM
 					sq_thes_lnk_tree parent_tree
-					INNER JOIN sq_thes_term parent_term ON parent_tree.linkid = parent_term.linkid,
+					INNER JOIN sq_thes_lnk parent_lnk ON parent_tree.linkid = parent_lnk.linkid,
 					sq_thes_lnk_tree test_tree
-					INNER JOIN sq_thes_term test_term ON test_tree.linkid = test_term.linkid
+					INNER JOIN sq_thes_lnk test_lnk ON test_tree.linkid = test_lnk.linkid
 				WHERE
 					parent_tree.treeid LIKE (test_tree.treeid || '.$db->quoteSmart('%').')
 
 					AND
-					parent_term.minor	= '.$db->quoteSmart($parent).'
+					parent_lnk.minor	= '.$db->quoteSmart($parentid).'
 					AND
-					test_term.minor		= '.$db->quoteSmart($parent).'
+					test_lnk.minor		= '.$db->quoteSmart($parentid).'
 
 					AND
-					test_term.thesid	= '.$db->quoteSmart($this->id).'
+					test_lnk.thesid		= '.$db->quoteSmart($this->id).'
 					AND
-					parent_term.thesid	= '.$db->quoteSmart($this->id).'
+					parent_lnk.thesid	= '.$db->quoteSmart($this->id).'
 					AND
 					parent_tree.thesid	= '.$db->quoteSmart($this->id).'
 					AND
@@ -596,13 +678,13 @@ class Thesaurus extends Asset
 								tree.treeid || '.$db->quoteSmart($free_childid).'
 							FROM
 								sq_thes_lnk_tree tree
-								INNER JOIN sq_thes_term term ON tree.linkid = term.linkid
+								INNER JOIN sq_thes_lnk link ON tree.linkid = term.linkid
 							WHERE
-								term.minor	= '.$db->quoteSmart($parent).'
+								link.minor	= '.$db->quoteSmart($parentid).'
 								AND
 								tree.thesid	= '.$db->quoteSmart($this->id).'
 								AND
-								term.thesid	= '.$db->quoteSmart($this->id).'
+								link.thesid	= '.$db->quoteSmart($this->id).'
 						)
 						AND
 						thesid = '.$db->quoteSmart($this->id).'
@@ -654,21 +736,21 @@ class Thesaurus extends Asset
 					'.$db->quoteSmart($this->id).' as thesid
 				FROM
 					sq_thes_lnk_tree parent_tree
-					INNER JOIN sq_thes_term parent_term ON parent_tree.linkid = parent_term.linkid,
+					INNER JOIN sq_thes_lnk parent_link ON parent_tree.linkid = parent_link.linkid,
 					sq_thes_lnk_tree test_tree
-					INNER JOIN sq_thes_term test_term ON test_tree.linkid = test_term.linkid
+					INNER JOIN sq_thes_lnk test_link ON test_tree.linkid = test_link.linkid
 				WHERE
 					parent_tree.treeid LIKE (test_tree.treeid || '.$db->quoteSmart('%').')
 
 					AND
-					parent_term.minor	= '.$db->quoteSmart($parent).'
+					parent_link.minor	= '.$db->quoteSmart($parentid).'
 					AND
-					test_term.minor		= '.$db->quoteSmart($parent).'
+					test_link.minor		= '.$db->quoteSmart($parentid).'
 
 					AND
-					test_term.thesid	= '.$db->quoteSmart($this->id).'
+					test_link.thesid	= '.$db->quoteSmart($this->id).'
 					AND
-					parent_term.thesid	= '.$db->quoteSmart($this->id).'
+					parent_link.thesid	= '.$db->quoteSmart($this->id).'
 					AND
 					parent_tree.thesid	= '.$db->quoteSmart($this->id).'
 					AND
@@ -722,12 +804,12 @@ class Thesaurus extends Asset
 					'.$db->quoteSmart($this->id).'
 				FROM
 					sq_thes_lnk_tree tree
-					INNER JOIN sq_thes_term term ON tree.linkid = term.linkid,
+					INNER JOIN sq_thes_lnk link ON tree.linkid = link.linkid,
 					sq_thes_lnk_tree prop_tree
 
 				WHERE
 				-- Get the tree we are about to propagate to and siblings on that tree
-					term.minor = '.$db->quoteSmart($term).'
+					link.minor = '.$db->quoteSmart($termid).'
 					AND
 					tree.linkid <> '.$db->quoteSmart($linkid).'
 					AND
@@ -740,7 +822,7 @@ class Thesaurus extends Asset
 
 						FROM
 							sq_thes_lnk_tree tree
-							INNER JOIN sq_thes_term term ON tree.linkid = term.linkid,
+							INNER JOIN sq_thes_lnk link ON tree.linkid = link.linkid,
 
 							sq_thes_lnk_tree prop_tree
 							INNER JOIN sq_thes_lnk_tree sibling_tree ON prop_tree.linkid = sibling_tree.linkid,
@@ -749,7 +831,7 @@ class Thesaurus extends Asset
 
 						WHERE
 							-- Get the tree we are about to propagate to and their siblings
-							term.minor = '.$db->quoteSmart($term).'
+							link.minor = '.$db->quoteSmart($termid).'
 							AND
 							tree.linkid <> '.$db->quoteSmart($linkid).'
 							AND
@@ -772,7 +854,7 @@ class Thesaurus extends Asset
 							AND
 							tree.thesid 		= '.$db->quoteSmart($this->id).'
 							AND
-							term.thesid 		= '.$db->quoteSmart($this->id).'
+							link.thesid 		= '.$db->quoteSmart($this->id).'
 							AND
 							prop_tree.thesid 	= '.$db->quoteSmart($this->id).'
 							AND
@@ -783,7 +865,7 @@ class Thesaurus extends Asset
 					AND
 					tree.thesid 		= '.$db->quoteSmart($this->id).'
 					AND
-					term.thesid 		= '.$db->quoteSmart($this->id).'
+					link.thesid 		= '.$db->quoteSmart($this->id).'
 					AND
 					prop_tree.thesid 	= '.$db->quoteSmart($this->id).'
 			';
@@ -802,55 +884,22 @@ class Thesaurus extends Asset
 	*
 	* Returns true on success, false on failure
 	*
-	* @param int	$linkid		link id to update
-	* @param string	$name		the name of the minor term in the link
-	* @param string	$relation	the relation of the link
+	* @param int	$termid	link id to update
+	* @param string	$name	the name of term
 	*
 	* @return boolean
 	* @access public
 	*/
-	function updateTerm($linkid, $name, $relation=null)
+	function updateTerm($termid, $name)
 	{
-		if ($relation == '') $relation = null;
 
-		$term = $this->getTermById($linkid);
+		$term = $this->getTermById($termid);
 
 		// if nothing has changed, no need to do any work
-		if ($term['minor'] == $name && $term['relation'] == $relation) {
-			return true;
-		}
+		if ($term['term'] == $name) return true;
 
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		// cannot change term to something that already exists
-		$check_linkid = $this->getTermLinkid($name, $term['major'], $relation);
-		if (!empty($check_linkid) && ($check_linkid != $linkid)) {
-			trigger_localised_error('CORE0239', E_USER_WARNING);
-			return false;
-		}
-
-
-		// renaming just the relation is easy, no treeid re-shuffling is required
-		if ($name == $term['minor'] && $term['relation'] != $relation) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$sql = '
-				UPDATE
-					sq_thes_term
-				SET
-					relation = '.$db->quoteSmart($relation).'
-				WHERE
-					linkid = '.$db->quoteSmart($linkid).'
-					AND
-					thesid = '.$db->quoteSmart($this->id).'
-			';
-
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
-
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
-		}
 
 
 		// if the new name is being used by another term, do not update
@@ -862,19 +911,6 @@ class Thesaurus extends Asset
 		}
 
 
-		// we do not update if there are multiple parent and child terms
-		// because the business logic is not clear at this stage
-		// there will be problems with figuring out the infinite loops and updating tree ids
-		// it is also not clear whether the children of this term should be moved to just the new term or
-		// kept in the old term as well.
-		$parent_count = $this->countParentTerms($term['minor']);
-		$child_count = $this->countChildTerms($term['minor']);
-
-		if ($parent_count > 1 && $child_count > 0) {
-			trigger_localised_error('CORE0241', E_USER_WARNING);
-			return false;
-		}
-
 		// if the term has only one parent and the name is not used anywhere else - it is safe to update it
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		// update the term itself
@@ -882,10 +918,9 @@ class Thesaurus extends Asset
 			UPDATE
 				sq_thes_term
 			SET
-				minor = '.$db->quoteSmart($name).',
-				relation = '.$db->quoteSmart($relation).'
+				term = '.$db->quoteSmart($name).'
 			WHERE
-				linkid = '.$db->quoteSmart($linkid).'
+				termid = '.$db->quoteSmart($termid).'
 				AND
 				thesid = '.$db->quoteSmart($this->id).'
 		';
@@ -893,90 +928,10 @@ class Thesaurus extends Asset
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
-		if ($child_count > 0) {
-			// if term name changed, rename it everywhere it is major
-			$sql = '
-				UPDATE
-					sq_thes_term
-				SET
-					major = '.$db->quoteSmart($name).'
-				WHERE
-					major = '.$db->quoteSmart($term['minor']).'
-					AND
-					thesid = '.$db->quoteSmart($this->id).'
-			';
-
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
-		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
 	}//end updateTerm()
-
-
-	/**
-	* Renames all instances of a term unless the desired new name is in use or the current term ins not in use.
-	*
-	* Returns true on success, false on failure
-	*
-	* @param string	$name		the current term name
-	* @param string	$new_name	the desired new term name
-	*
-	* @return boolean
-	* @access public
-	*/
-	function renameTerm($name, $new_name)
-	{
-		// Ensure the new name is not already in use
-		if (!is_null($this->getOneTermByName($new_name))) {
-			//can't rename an existing term
-			$this->_tmp['error'][] = translate('thesaurus_new_name_in_use');
-			return false;
-		}
-		// Ensure that the current term name is in use or we're not updating anything
-		if (is_null($this->getOneTermByName($name))) {
-			//can't rename an existing term
-			$this->_tmp['error'][] = translate('thesaurus_name_not_in_use');
-			return false;
-		}
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		// Update term links where the minor is being renamed
-		$sql = '
-			UPDATE
-				sq_thes_term
-			SET
-				minor = '.$db->quoteSmart($new_name).'
-			WHERE
-				minor = '.$db->quoteSmart($name).'
-				AND
-				thesid = '.$db->quoteSmart($this->id).'
-		';
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
-		// Update term links where the major is being renamed
-
-		$sql = '
-			UPDATE
-				sq_thes_term
-			SET
-				major = '.$db->quoteSmart($new_name).'
-			WHERE
-				major = '.$db->quoteSmart($name).'
-				AND
-				thesid = '.$db->quoteSmart($this->id).'
-		';
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
-		$this->markContentsChanged();
-		return;
-
-	}//end renameTerm()
 
 
 	/**
@@ -1005,7 +960,7 @@ class Thesaurus extends Asset
 		// Update relations
 		$sql = '
 			UPDATE
-				sq_thes_term
+				sq_thes_lnk
 			SET
 				relation = '.$db->quoteSmart($new_relation).'
 			WHERE
@@ -1027,12 +982,79 @@ class Thesaurus extends Asset
 	*
 	* Gets the term that is linked as a minor by a particular link id
 	*
+	* @param int	$termid	link id of the term
+	*
+	* @return void
+	* @access public
+	*/
+	function getTermById($termid)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = '
+			SELECT
+				term, termid
+			FROM
+				sq_thes_term
+			WHERE
+				termid = '.$db->quoteSmart($termid).'
+				AND
+				thesid = '.$db->quoteSmart($this->id).'
+		';
+		$result = $db->getRow($sql);
+
+		assert_valid_db_result($result);
+		return $result;
+
+	}//end getTermById()
+
+
+	/**
+	* Get term by its link id
+	*
+	* Gets the term that is linked as a minor by a particular link id
+	*
 	* @param int	$linkid	link id of the term
 	*
 	* @return void
 	* @access public
 	*/
-	function getTermById($linkid)
+	function getTermByLinkId($linkid)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = '
+			SELECT
+				term, termid
+			FROM
+				sq_thes_term term
+				INNER JOIN sq_thes_lnk link ON  term.termid = link.minor
+			WHERE
+				link.linkid = '.$db->quoteSmart($linkid).'
+				AND
+				link.thesid = '.$db->quoteSmart($this->id).'
+				AND
+				term.thesid = '.$db->quoteSmart($this->id).'
+		';
+		$result = $db->getRow($sql);
+
+		assert_valid_db_result($result);
+		return $result;
+
+	}//end getTermByLinkId()
+
+
+	/**
+	* Get term link by its id
+	*
+	* Gets the term that is linked as a minor by a particular link id
+	*
+	* @param int	$linkid	link id of the term
+	*
+	* @return void
+	* @access public
+	*/
+	function getTermLinkById($linkid)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -1040,7 +1062,7 @@ class Thesaurus extends Asset
 			SELECT
 				minor, major, relation, linkid, sort_order
 			FROM
-				sq_thes_term
+				sq_thes_lnk
 			WHERE
 				linkid = '.$db->quoteSmart($linkid).'
 				AND
@@ -1051,7 +1073,7 @@ class Thesaurus extends Asset
 		assert_valid_db_result($result);
 		return $result;
 
-	}//end getTermById()
+	}//end getTermLinkById()
 
 
 	/**
@@ -1074,7 +1096,7 @@ class Thesaurus extends Asset
 			SELECT
 				linkid
 			FROM
-				sq_thes_term
+				sq_thes_lnk
 			WHERE
 				minor = '.$db->quoteSmart($name).'
 				AND
@@ -1094,36 +1116,77 @@ class Thesaurus extends Asset
 
 
 	/**
-	* Returns the lowest link id that has the supplied name as the minor
+	* Get link id by child and parent term ids
 	*
-	* @param string	$name	The name of the sought term
+	* Given term information, returns a link id corresponding to that term
+	*
+	* @param string	$termid		the id of the child in this link
+	* @param string	$parentid	the id of the parent in this link
+	* @param string	$relation	the relation of the link
 	*
 	* @return void
 	* @access public
 	*/
-	function getOneTermByName($name)
+	function getTermLinkidByTermids($termid, $parentid=null, $relation=null)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
-				linkid
+				linkid,
+				relation,
+				sort_order,
+				major,
+				minor
 			FROM
-				sq_thes_term
+				sq_thes_lnk
 			WHERE
-				minor = '.$db->quoteSmart($name).'
+				minor = '.$db->quoteSmart($termid).'
+				AND
+				major '.(is_null($parentid)?'ISNULL ':('= '.$db->quoteSmart($parentid))).'
+				AND
+				relation '.(is_null($relation)?'ISNULL ':('= '.$db->quoteSmart($relation))).'
 				AND
 				thesid = '.$db->quoteSmart($this->id).'
-			ORDER BY
-				sort_order ASC
 		';
 
-		$result = $db->getRow($db->modifyLimitQuery($sql, 0, 1));
+		$result = $db->getRow($sql, DB_FETCHMODE_ASSOC);
 
 		assert_valid_db_result($result);
 		return $result;
 
-	}//end getOneTermByName()
+	}//end getTermLinkidByTermids()
+
+
+	/**
+	* Returns the lowest link id that has the supplied name as the minor
+	*
+	* @param string	$name	The name of the sought term
+	*
+	* @return int
+	* @access public
+	*/
+	function getTermIdByName($name)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = '
+			SELECT
+				termid
+			FROM
+				sq_thes_term
+			WHERE
+				term = '.$db->quoteSmart($name).'
+				AND
+				thesid = '.$db->quoteSmart($this->id).'
+		';
+
+		$result = $db->getOne($sql);
+
+		assert_valid_db_result($result);
+		return $result;
+
+	}//end getTermIdByName()
 
 
 	/**
@@ -1142,16 +1205,13 @@ class Thesaurus extends Asset
 
 		$sql = '
 			SELECT
-				count(linkid)
+				termid
 			FROM
 				sq_thes_term
 			WHERE
-				(
-					major = '.$db->quoteSmart($term).'
-					OR
-					minor = '.$db->quoteSmart($term).'
-				)
-				AND thesid = '.$db->quoteSmart($this->id).'
+				term = '.$db->quoteSmart($term).'
+				AND
+				thesid = '.$db->quoteSmart($this->id).'
 		';
 		$result = $db->getOne($sql);
 
@@ -1176,7 +1236,7 @@ class Thesaurus extends Asset
 			SELECT DISTINCT
 				relation
 			FROM
-				sq_thes_term
+				sq_thes_lnk
 			WHERE
 				thesid = '.$db->quoteSmart($this->id).'
 		';
@@ -1225,6 +1285,7 @@ class Thesaurus extends Asset
 
 		$sql = '
 			DELETE FROM sq_thes_term WHERE thesid = '.$db->quoteSmart($this->id).';
+			DELETE FROM sq_thes_lnk WHERE thesid = '.$db->quoteSmart($this->id).';
 			DELETE FROM sq_thes_lnk_tree WHERE thesid = '.$db->quoteSmart($this->id).';
 		';
 
@@ -1287,9 +1348,9 @@ class Thesaurus extends Asset
 
 		$id_parts = explode(':', $shadowid);
 		if (!empty($id_parts[1])) {
-			$link_id = $id_parts[1];
+			$id = $id_parts[1];
 
-			$term = $this->getTermById($link_id);
+			$term = $this->getTermById($id);
 			if (!empty($term)) {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('thesaurus_term');
 				$asset =& new Thesaurus_Term($shadowid);
@@ -1332,37 +1393,36 @@ class Thesaurus extends Asset
 		if (!is_null($parent_term_id)) {
 			$majorid .= ':'.$parent_term_id;
 			$term = $this->getTermById($parent_term_id);
-			$term_name = $term['minor'];
+			$term_name = $term['term'];
 		}
 
-		$linked_terms = $this->getChildTerms($term_name);
-
+		$linked_terms = $this->getChildTerms($parent_term_id);
 		$links = Array();
 
-		foreach ($linked_terms as $one_term) {
+		foreach ($linked_terms as $one_term_link) {
 			$link = Array();
 
 			// mould it all to the asset map's liking
 			$link['url'] = '';
 			$link['path'] = '';
-			$link['num_kids'] = $this->countChildTerms($one_term['minor']);
+			$link['num_kids'] = $this->countChildTerms($one_term_link['termid']);
 			$link['accessible'] = 1;
 
 			$link['majorid'] = $majorid;
-			$link['minorid'] = $bridge_id.':'.$one_term['linkid'];
-			$link['assetid'] = $bridge_id.':'.$one_term['linkid'];
+			$link['minorid'] = $bridge_id.':'.$one_term_link['termid'];
+			$link['assetid'] = $bridge_id.':'.$one_term_link['termid'];
 			$link['minor_type_code'] = 'thesaurus_term';
 			$link['type_code'] = 'thesaurus_term';
-			$link['linkid'] = $bridge_id.':'.$one_term['linkid'];
+			$link['linkid'] = $bridge_id.':'.$one_term_link['linkid'];
 
 			// make name and short name the same
-			$name_prefix = (empty($one_term['relation'])?'':'('.$one_term['relation'].') ');
-			$link['name'] = $name_prefix.$one_term['minor'];
+			$name_prefix = (empty($one_term_link['relation'])?'':'('.$one_term_link['relation'].') ');
+			$link['name'] = $name_prefix.$one_term_link['term'];
 			$link['short_name'] = $link['name'];
 
 			$link['status'] = $this->status;
 			$link['link_type'] = SQ_LINK_TYPE_2;
-			$link['sort_order'] = $one_term['sort_order'];
+			$link['sort_order'] = $one_term_link['sort_order'];
 
 			$links[] = $link;
 		}
@@ -1398,12 +1458,12 @@ class Thesaurus extends Asset
 			if (empty($term)) continue;
 
 			$info_array[$id]['assetid']		= $id;
-			$info_array[$id]['name']		= $term['minor'];
-			$info_array[$id]['short_name']	= $term['minor'];
+			$info_array[$id]['name']		= $term['term'];
+			$info_array[$id]['short_name']	= $term['term'];
 			$info_array[$id]['version']		= $this->version;
 			$info_array[$id]['status']		= $this->status;
 			$info_array[$id]['type_code']	= 'thesaurus_term';
-			$info_array[$id]['num_kids']	= $this->countChildTerms($term['minor']);
+			$info_array[$id]['num_kids']	= $this->countChildTerms($term['termid']);
 			$info_array[$id]['accessible']	= 1;
 			$info_array[$id]['url']			= '';
 			$info_array[$id]['web_path']	= '';
@@ -1437,15 +1497,13 @@ class Thesaurus extends Asset
 		$term = $this->getTermById($id_parts[1]);
 		if (empty($term)) return $asset_info;
 
-		$prefix = empty($term['relation'])?'':'('.$term['relation'].') ';
-
 		$asset_info['assetid']		= $assetid;
-		$asset_info['name']			= $prefix.$term['minor'];
-		$asset_info['short_name']	= $term['minor'];
+		$asset_info['name']			= $term['term'];
+		$asset_info['short_name']	= $term['term'];
 		$asset_info['version']		= $this->version;
 		$asset_info['status']		= $this->status;
 		$asset_info['type_code']	= 'thesaurus_term';
-		$asset_info['num_kids']		= $this->countChildTerms($term['minor']);
+		$asset_info['num_kids']		= $this->countChildTerms($term['termid']);
 		$asset_info['accessible']	= 1;
 		$asset_info['url']			= '';
 		$asset_info['web_path']		= '';
@@ -1534,20 +1592,26 @@ class Thesaurus extends Asset
 	function getLinkByAsset($assetid, $other_assetid, $link_types=null, $value=null, $side_of_link='major', $force_array=false, $dependant=null, $exclusive=null)
 	{
 		$major_parts = explode(':',$assetid);
-		$minor_parts = explode(':',$other_assetid);
+		$majorid = array_get_index($major_parts, 1, null);
 
-		$minor = $this->getTermById($minor_parts[1]);
+		$minor_parts = explode(':',$other_assetid);
+		$minorid = array_get_index($minor_parts, 1, null);
+		if (empty($minorid)) return Array();
+
+		$link_info = $this->getTermLinkidByTermids($minorid, $majorid, $value);
+
+		if (empty($link_info)) return Array();
 
 		// construct template
 		$link = Array(
 					'majorid'			=> $assetid,
-					'minorid'			=> $this->id.':'.$minor_parts[1],
+					'minorid'			=> $other_assetid,
 					'link_type'			=> SQ_LINK_TYPE_2,
 					'major_type_code'	=> '',
 					'minor_type_code'	=> 'thesaurus_term',
-					'value'				=> $minor['relation'],
-					'linkid'			=> $this->id.':'.$minor['linkid'],
-					'sort_order'		=> $minor['sort_order'],
+					'value'				=> $value,
+					'linkid'			=> $this->id.':'.$link_info['linkid'],
+					'sort_order'		=> $link_info['sort_order'],
 					'is_dependant'		=> 0,
 					'is_exclusive'		=> 0,
 				);
@@ -1574,27 +1638,25 @@ class Thesaurus extends Asset
 		$term_linkid = array_get_index($link_parts, 1);
 		if (is_null($term_linkid)) return null;
 
-		$term = $this->getTermById($term_linkid);
+		$link_info = $this->getTermLinkById($term_linkid);
 
 		// construct template
 		$link = Array(
-					'majorid'			=> $this->id.':'.$term_linkid,
-					'minorid'			=> $this->id.':'.$term_linkid,
+					'majorid'			=> $this->id,
+					'minorid'			=> $this->id.':'.$link_info['minor'],
 					'link_type'			=> SQ_LINK_TYPE_2,
-					'major_type_code'	=> '',
+					'major_type_code'	=> 'thesaurus',
 					'minor_type_code'	=> 'thesaurus_term',
-					'value'				=> $term['relation'],
-					'linkid'			=> $this->id.':'.$term_linkid,
-					'sort_order'		=> $term['sort_order'],
+					'value'				=> $link_info['relation'],
+					'linkid'			=> $linkid,
+					'sort_order'		=> $link_info['sort_order'],
 					'is_dependant'		=> 0,
 					'is_exclusive'		=> 0,
 				);
 
-		if (is_null($term['major'])) {
-			$link['major_type_code'] = 'thesaurus';
-			$link['majorid'] = $this->id;
-		} else {
+		if (!is_null($link_info['major'])) {
 			$link['major_type_code'] = 'thesaurus_term';
+			$link['majorid'] .=':'.$link_info['major'];
 		}
 
 		return $link;
@@ -1676,30 +1738,31 @@ class Thesaurus extends Asset
 	*/
 	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0', $moving=false)
 	{
-		$major_parts = explode(':', $major->id);
-		$minor_parts = explode(':', $minor->id);
+		$major_parts = explode(':',$major->id);
+		$majorid = array_get_index($major_parts, 1);
+
+		$minor_parts = explode(':',$minor->id);
+		$minorid = array_get_index($minor_parts, 1);
+		if (empty($minorid)) return null;
+
 		$relation = null;
 		$minor_term = null;
 		$major_term = null;
 
 		// can only link terms which belong to this thesaurus
-		if (($minor_parts[0] != $this->id) || ($minor_parts[0] != $major_parts[0])) {
+		if (($minor_parts[0] != $this->id) || ($major_parts[0] != $this->id)) {
 			return 0;
 		}
 
-		if (!isset($minor_parts[1])) {
-			return;
-		} else {
-			$minor_term = $minor->name;
-			$relation = $minor->attr('relation');
-		}
+		$minor_term = $minor->name;
+		$relation = $minor->attr('relation');
 
 		if (isset($major_parts[1])) {
 			$major_term = $major->name;
 		}
 
 		if ($moving) {
-			$term_linkid = $this->getTermLinkid($minor_term, $major_term, $relation);
+			$link_info = $this->getTermLinkidByTermids($minorid, $majorid, $relation);
 			if (!is_null($term_linkid)) {
 				trigger_localised_error('CORE0240');
 				return false;
@@ -1790,8 +1853,8 @@ class Thesaurus extends Asset
 
 		$id_parts = explode(':', $assetid);
 
-		$term_linkid = array_get_index($id_parts, 1);
-		if (is_null($term_linkid)) return -1;
+		$termid = array_get_index($id_parts, 1);
+		if (is_null($termid)) return -1;
 
 		$relations = Array();
 
@@ -1801,7 +1864,7 @@ class Thesaurus extends Asset
 			$keyword = 'Parent';
 		}
 		$get_term_function = 'count'.$keyword.'Terms';
-		return $this->$get_term_function($term_linkid);
+		return $this->$get_term_function($termid);
 
 	}//end countLinks()
 
@@ -1829,13 +1892,12 @@ class Thesaurus extends Asset
 	/**
 	* Delete a link between two terms
 	*
-	* @param int		$linkid		link id to remove
-	* @param boolean	$recurse	flag to allow recursion
+	* @param int	$linkid	link id to remove
 	*
 	* @return void
 	* @access public
 	*/
-	function deleteTermLink($linkid, $recurse=true)
+	function deleteTermLink($linkid)
 	{
 		if (empty($linkid)) return false;
 
@@ -1947,16 +2009,16 @@ class Thesaurus extends Asset
 
 		// update the sort order
 		foreach ($links_to_delete as $id => $quoted_linkid) {
-			$term_to_delete = $this->getTermById($id);
+			$link_to_delete = $this->getTermLinkById($id);
 			$sql = '
 				UPDATE
-					sq_thes_term
+					sq_thes_lnk
 				SET
 					sort_order = sort_order - 1
 				WHERE
-					major = '.$db->quoteSmart($term_to_delete['major']).'
+					major = '.$db->quoteSmart($link_to_delete['major']).'
 					AND
-					sort_order > '.$db->quoteSmart($term_to_delete['sort_order']).'
+					sort_order > '.$db->quoteSmart($link_to_delete['sort_order']).'
 					AND
 					thesid = '.$db->quoteSmart($this->id).'
 			';
@@ -1964,20 +2026,68 @@ class Thesaurus extends Asset
 			assert_valid_db_result($result);
 		}
 
-		if (!empty($links_to_delete)) {
-			$sql = '
-				DELETE FROM
-					sq_thes_term
-				WHERE
-					linkid in
-					('.implode(',', $links_to_delete).')
-					AND
-					thesid = '.$db->quoteSmart($this->id).'
-			';
+		// delete terms that will be stranded after the deletion of this link
+		// NOTE: This query will need to be taken apart when we need to broadcast events BEFORE and AFTER deletion
+		$sql = '
+			DELETE FROM
+				sq_thes_term
+			WHERE
+				termid IN
+				(
+					SELECT
+						finished.minor
+					FROM
+						sq_thes_lnk finished
+						INNER JOIN sq_thes_lnk selected ON finished.minor = selected.minor
+					WHERE
+						selected.linkid IN ('.implode(',', $links_to_delete).')
+						AND
+						selected.minor NOT IN
+						(
+							SELECT
+								surviving.minor
+							FROM
+								sq_thes_lnk surviving
+								INNER JOIN sq_thes_lnk selected ON surviving.minor = selected.minor,
+								sq_thes_lnk every
+							WHERE
+								selected.linkid IN ('.implode(',', $links_to_delete).')
+								AND
+								surviving.minor = every.minor
+								AND
+								every.linkid <> selected.linkid
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
-		}
+								AND
+								surviving.thesid = '.$db->quoteSmart($this->id).'
+								AND
+								selected.thesid = '.$db->quoteSmart($this->id).'
+								AND
+								every.thesid = '.$db->quoteSmart($this->id).'
+						)
+						AND
+						selected.thesid = '.$db->quoteSmart($this->id).'
+						AND
+						finished.thesid = '.$db->quoteSmart($this->id).'
+				)
+				AND
+				thesid = '.$db->quoteSmart($this->id).'
+		';
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+		// finally delete all links
+		$sql = '
+			DELETE FROM
+				sq_thes_lnk
+			WHERE
+				linkid in
+				('.implode(',', $links_to_delete).')
+				AND
+				thesid = '.$db->quoteSmart($this->id).'
+		';
+
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
@@ -1999,7 +2109,7 @@ class Thesaurus extends Asset
 	*/
 	function moveLink($linkid, $to_parentid, $link_type, $to_parent_pos)
 	{
-		log_dump('moveLink');
+		log_dump();
 	}//end moveLink()
 
 
@@ -2028,17 +2138,17 @@ class Thesaurus extends Asset
 		}
 
 		$term_linkid = $linkid_parts[1];
-		$term = $this->getTermById($term_linkid);
+		$link_info = $this->getTermLinkById($term_linkid);
 		if (empty($term)) return false;
 
-		$current_sort_order = $term['sort_order'];
-		$parent = $term['major'];
+		$current_sort_order = $link_info['sort_order'];
+		$parentid = $link_info['major'];
 
 		if ($current_sort_order == $new_sort_order) {
 			return true;
 		}
 
-		$max_sort_order = $this->getMaxSortOrder($parent);
+		$max_sort_order = $this->getMaxSortOrder($parentid);
 
 		if (($new_sort_order > $max_sort_order) || ($new_sort_order < 0)) {
 			$new_sort_order = $max_sort_order;
@@ -2047,7 +2157,7 @@ class Thesaurus extends Asset
 		if ($new_sort_order > $current_sort_order) {
 			$shift_sql = '
 				UPDATE
-					sq_thes_term
+					sq_thes_lnk
 				SET
 					sort_order = sort_order - 1
 				WHERE
@@ -2055,14 +2165,14 @@ class Thesaurus extends Asset
 					AND
 					sort_order <= '.$db->quoteSmart($new_sort_order).'
 					AND
-					major '.(is_null($parent)?'ISNULL':'= '.$db->quoteSmart($parent)).'
+					major '.(is_null($parentid)?'ISNULL':'= '.$db->quoteSmart($parentid)).'
 					AND
 					thesid = '.$db->quoteSmart($this->id).'
 			';
 		} else {
 			$shift_sql = '
 				UPDATE
-					sq_thes_term
+					sq_thes_lnk
 				SET
 					sort_order = sort_order + 1
 				WHERE
@@ -2070,7 +2180,7 @@ class Thesaurus extends Asset
 					AND
 					sort_order >= '.$db->quoteSmart($new_sort_order).'
 					AND
-					major '.(is_null($parent)?'ISNULL':'= '.$db->quoteSmart($parent)).'
+					major '.(is_null($parentid)?'ISNULL':'= '.$db->quoteSmart($parentid)).'
 					AND
 					thesid = '.$db->quoteSmart($this->id).'
 			';
@@ -2078,7 +2188,7 @@ class Thesaurus extends Asset
 
 		$update_sql = '
 			UPDATE
-				sq_thes_term
+				sq_thes_lnk
 			SET
 				sort_order = '.$db->quoteSmart($new_sort_order).'
 			WHERE
@@ -2103,12 +2213,12 @@ class Thesaurus extends Asset
 	/**
 	* Get the maximum sort order value under a major term
 	*
-	* @param string	$major	Major term
+	* @param string	$majorid	Major term id
 	*
 	* @return mixed int|null
 	* @access public
 	*/
-	function getMaxSortOrder($major=null)
+	function getMaxSortOrder($majorid=null)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -2116,15 +2226,16 @@ class Thesaurus extends Asset
 			SELECT
 				max(sort_order)
 			FROM
-				sq_thes_term
+				sq_thes_lnk
 			WHERE
-				major '.(is_null($major)?'ISNULL':'= '.$db->quoteSmart($major)).'
+				major '.(is_null($majorid)?'ISNULL':'= '.$db->quoteSmart($majorid)).'
 				AND
 				thesid = '.$db->quoteSmart($this->id).'
 		';
 
 		$max_sort_order = $db->getOne($sql);
 		assert_valid_db_result($max_sort_order);
+
 		return $max_sort_order;
 
 	}//end getMaxSortOrder()
@@ -2146,7 +2257,7 @@ class Thesaurus extends Asset
 		$sql = '
 			SELECT
 				child_tree.treeid 		as our_treeid,
-				parent_term.relation 	as relation,
+				parent_term.relation	as relation,
 				parent_term.minor 		as term,
 				parent_tree.treeid 		as parent_treeid
 			FROM

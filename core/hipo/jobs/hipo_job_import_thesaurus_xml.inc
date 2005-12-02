@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_thesaurus_xml.inc,v 1.1 2005/11/23 00:53:35 arailean Exp $
+* $Id: hipo_job_import_thesaurus_xml.inc,v 1.2 2005/12/02 00:26:29 arailean Exp $
 *
 */
 
@@ -31,7 +31,8 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    thesaurus_id	-	the ID of the thesaurus that is being added to
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @author  Elden McDonald <emcdonald@squiz.net>
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -244,51 +245,47 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	* Process a start element from the XML parser
 	*
 	* @param object	$parser	the calling xml parser
-	* @param string	$name	tag name
+	* @param string	$tag	tag name
 	* @param array	$attrs	tag attributes
 	*
 	* @return boolean
 	* @access public
 	*/
-	function startElement($parser, $name, $attrs)
+	function startElement($parser, $tag, $attrs)
 	{
 
 		$stack =& $this->_running_vars['stack'];
 
-		$type = $name; //reduce confusion with the name attribute.
-
-		$element = htmlentities('<'.$type.' name="'.array_get_index($attrs,'name').'">');
-		//echo($element);
-		if (! ($type == 'thesaurus' ||$type == TERM || $type == RELATION)) {
-			trigger_localised_error('HIPO0064', E_USER_WARNING, $type);
+		if (! ($tag == 'thesaurus' || $tag == TERM || $tag == RELATION)) {
+			trigger_localised_error('HIPO0064', E_USER_WARNING, $tag);
 		}
+
 		//whip the top element off and have a squiz
 		$top_of_stack = array_pop($stack);
-		array_push($stack,$top_of_stack);
+		array_push($stack, $top_of_stack);
 
 		//check new terms to make sure they're either a term or a relation
-
-		if ($type == RELATION) {
-			if ($top_of_stack['type']==TERM) {
-				$new_relation  = Array(
-									'type'	=> 'relation',
-									'name'	=> array_get_index($attrs,'name'),
-								 );
+		if ($tag == RELATION) {
+			if ($top_of_stack['tag'] == TERM) {
+				$new_relation = Array(
+									'tag'	=> 'relation',
+									'name'	=> array_get_index($attrs, 'name'),
+								);
 				array_push($stack, $new_relation);
 
-			} else if ($top_of_stack['type']==RELATION) {
+			} else if ($top_of_stack['tag'] == RELATION) {
 			// Error You cant relate a relation to a term.
 				trigger_localised_error('HIPO0065', E_USER_WARNING, $element);
 			}
-		} else if ($type == TERM) {
+		} else if ($tag == TERM) {
 			$term_name = array_get_index($attrs,'name');
 			if (empty($term_name)) {
 				trigger_localised_error('HIPO0066', E_USER_WARNING);
 			}
-			if ($top_of_stack['type']!=RELATION) {
+			if ($top_of_stack['tag'] != RELATION) {
 			// if the top of stack is not a relation, throw a null relation in to extend the shorthand form.
 				$null_relation  = Array(
-									'type'	=> 'relation',
+									'tag'	=> 'relation',
 									'name'	=> '',
 								  );
 				array_push($stack, $null_relation);
@@ -298,22 +295,21 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 			//this term link is composed of the current term, the top of stack(relation, and the one under that (parent term)
 			$relation = array_pop($stack);
 			$parent_term = array_pop($stack);
-			array_push($stack,$parent_term);
-			array_push($stack,$relation);
+			array_push($stack, $parent_term);
+			array_push($stack, $relation);
 
 			$th_asset = &$this->getThesaurusRef();
-
 			$th_asset->addTerm($attrs['name'], $parent_term['name'], $relation['name']);
 
 			// add the term to the stack
-			$new_term  = Array(
-							'type'	=> 'term',
+			$new_term = Array(
+							'tag'	=> 'term',
 							'name'	=> $attrs['name'],
-						 );
-				array_push($stack, $new_term);
+						);
+			array_push($stack, $new_term);
 
-		} else if (!$type == 'thesaurus') {
-			trigger_localised_error('HIPO0067', E_USER_WARNING, $type);
+		} else if (!$tag == 'thesaurus') {
+			trigger_localised_error('HIPO0067', E_USER_WARNING, $tag);
 		}
 	}//end startElement()
 
@@ -322,50 +318,47 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	* Process an end element from the XML parser
 	*
 	* @param object	$parser	the calling xml parser
-	* @param string	$name	tag name
+	* @param string	$tag	tag name
 	*
 	* @return boolean
 	* @access public
 	*/
-	function endElement($parser, $name)
+	function endElement($parser, $tag)
 	{
-		$type = $name; //less confusion with the name attribute
-
 		$stack =& $this->_running_vars['stack'];
-		$element = htmlentities('</'.$type.'>');
-		//echo $element;
-		if (! ($type == 'thesaurus' ||$type == TERM || $type == RELATION)) {
-			trigger_localised_error('HIPO0064', E_USER_WARNING, $type);
+
+		if (! ($tag == 'thesaurus' ||$tag == TERM || $tag == RELATION)) {
+			trigger_localised_error('HIPO0064', E_USER_WARNING, $tag);
 		}
 		//whip the top element off and have a squiz
 		$top_of_stack = array_pop($stack);
-		array_push($stack,$top_of_stack);
+		array_push($stack, $top_of_stack);
 
 		// we want to pop a tag off the stack, so hopefully the last tag on the stack is a match, or a null relation
-		if ($type == TERM) {
+		if ($tag == TERM) {
 		// if this tag is a term
-			if ($top_of_stack['type'] == TERM) {
+			if ($top_of_stack['tag'] == TERM) {
 			// if the top of stack is a term
-				array_pop($stack); // pop the term
-			} else if ($top_of_stack['type'] == RELATION && empty($top_of_stack['name'])) {
+				array_pop($stack);
+			} else if ($top_of_stack['tag'] == RELATION && empty($top_of_stack['name'])) {
 			// if the top of the stack is a null relation
 				// We could check these and make sure we popped what we expected...
 				array_pop($stack);// pop the null relation
 				array_pop($stack);// then pop the term
-			} else if ($top_of_stack['type'] == RELATION &&  ! empty($top_of_stack['name'])) {
+			} else if ($top_of_stack['tag'] == RELATION &&  ! empty($top_of_stack['name'])) {
 			// if the top of the stack is a non-null relation
 				trigger_localised_error('HIPO0068', E_USER_WARNING, $top_of_stack['name']);
 			}
-		} else if ($type == RELATION) {
+		} else if ($tag == RELATION) {
 		// elseif this tag is a relation
-			if ($top_of_stack['type'] == TERM) {
+			if ($top_of_stack['tag'] == TERM) {
 			// if the top of the stack is a term
 				trigger_localised_error('HIPO0069', E_USER_WARNING);
-			} else if ($top_of_stack['type'] == RELATION) {
-			// if the top of the stack is a relation
-				array_pop($stack); // pop the relation
+			} else if ($top_of_stack['tag'] == RELATION) {
+				// pop the relation
+				array_pop($stack);
 			}
-		} else if ($type == 'thesaurus') {
+		} else if ($tag == 'thesaurus') {
 			//we're at the end. do nothing for now. Could do a bunch of checking to make sure our stack is empty when we get to the end of the file
 		}
 
@@ -392,9 +385,9 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 
 		if (!isset($step_data['total_read'])) {
 			//assume this is the first step because we must read something on each step
-			$step_data['total_parsed']= 0;
-			$step_data['total_read']= 0;
-			$step_data['remainder'] ='';
+			$step_data['total_parsed'] = 0;
+			$step_data['total_read'] = 0;
+			$step_data['remainder'] = '';
 		}
 		if (!isset($this->_running_vars['stack'])) {
 			//Create and initialise the parser
@@ -425,37 +418,32 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 			// We have to parse the seen portion of the file with the tag handlers unset to recreate the parser state. Sad but true.
 			$data = fread($fp, $step_data['total_read']);
 			if (!xml_parse($xml_parser, $data, feof($fp))) {
-				trigger_localised_error('HIPO0071', E_USER_WARNING,
-										xml_error_string(xml_get_error_code($xml_parser)),
-										htmlentities($data)
-										);
+				trigger_localised_error('HIPO0071', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data));
 				return false;
 			}
 		}
 
 		$blocks = 1;
-		while (!feof($fp) && $blocks<=$blocks_per_step) {
+		while (!feof($fp) && $blocks <= $blocks_per_step) {
 
 			// Parse blocks from the file
 			$data = fread($fp, $block_size);
-			xml_set_element_handler($xml_parser, Array(&$this,'startElement'),Array(&$this,'endElement'));
+			xml_set_element_handler($xml_parser, Array(&$this,'startElement'), Array(&$this,'endElement'));
 			if (!xml_parse($xml_parser, $data, feof($fp))) {
-				trigger_localised_error('HIPO0071', E_USER_WARNING,
-										xml_error_string(xml_get_error_code($xml_parser)),
-										htmlentities($data)
-										);
+				trigger_localised_error('HIPO0071', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data));
 				return false;
 			}
 
 			$parsed = xml_get_current_byte_index($xml_parser);
-			$step_data['remainder'] = substr($data,$parsed);
-			$step_data['total_read'] = $step_data['total_read'] + $block_size;
+
+			$step_data['remainder'] = substr($data, $parsed);
+			$step_data['total_read'] = $step_data['total_read'] + strlen($data);
 			$step_data['total_parsed'] = $step_data['total_parsed'] + $parsed;
 			$blocks++;
 		}
 
 
-		$step_data['percent_done'] = ($step_data['total_read']/$file_size) * 100;
+		$step_data['percent_done'] = ($step_data['total_parsed']/$file_size) * 100;
 
 		if (feof($fp)) {
 			//unset all running vars we are now finished with

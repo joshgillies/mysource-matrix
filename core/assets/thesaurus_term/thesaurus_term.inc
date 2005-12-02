@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term.inc,v 1.1 2005/11/23 00:53:35 arailean Exp $
+* $Id: thesaurus_term.inc,v 1.2 2005/12/02 00:26:39 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,27 +63,24 @@ class Thesaurus_Term extends Asset
 		}
 		if (strpos($asset_id, ':') === false) return;
 
-
-		list($thesaurus_id, $term_linkid) = explode(':', $asset_id);
+		list($thesaurus_id, $termid) = explode(':', $asset_id);
 
 		$this->_thesaurus =& $GLOBALS['SQ_SYSTEM']->am->getAsset($thesaurus_id);
 
-		$term = $this->_thesaurus->getTermById($term_linkid);
+		$term = $this->_thesaurus->getTermById($termid);
 		if (is_null($term)) return;
 
 
 		$this->id = $asset_id;
+		$this->_termid = $termid;
 		$this->_loadVars();
 
-		$this->name = $term['minor'];
+		$this->name = $term['term'];
 		$this->short_name = $this->name;
 		$this->_thesaurus_id = $thesaurus_id;
-		$this->_term_linkid = $term_linkid;
-		$this->_parent_term = $term['major'];
 		$this->status = $this->_thesaurus->status;
 
-		$this->setAttrValue('name', $term['minor']);
-		$this->setAttrValue('relation', $term['relation']);
+		$this->setAttrValue('name', $term['term']);
 
 	}//end constructor
 
@@ -100,7 +97,6 @@ class Thesaurus_Term extends Asset
 	{
 		$this->name = $this->attr('name');
 		if (empty($this->name)) return false;
-
 
 		$shadow_parent = null;
 		$parent_term = null;
@@ -124,19 +120,21 @@ class Thesaurus_Term extends Asset
 		$term = $this->attr('name');
 		$relation = $this->attr('relation');
 
-		$assetid = $this->_thesaurus->addTerm($term, $parent_term, $relation);
-		if (is_null($assetid)) {
+		$linkid = $this->_thesaurus->addTerm($term, $parent_term, $relation, $link['sort_order']);
+		if (is_null($linkid)) {
 			trigger_localised_error('CORE0237', E_USER_WARNING);
 			return false;
 		}
 
-		$this->id = $this->_thesaurus_id.':'.$assetid;
-		$this->_term_linkid = $assetid;
+		$term = $this->_thesaurus->getTermByLinkid($linkid);
+
+		$this->id = $this->_thesaurus_id.':'.$term['termid'];
+		$this->_termid = $term['termid'];
 
 		$this->_thesaurus->markContentsChanged();
 
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
-		$em->broadcastEvent($link['asset'], 'CreateLink', Array('linkid' => ''));
+		$em->broadcastEvent($link['asset'], 'CreateLink', Array('linkid' => $this->_thesaurus_id.':'.$linkid));
 
 		return true;
 
@@ -153,8 +151,8 @@ class Thesaurus_Term extends Asset
 	{
 		$links = Array();
 
-		if (isset($this->_term_linkid)) {
-			$links = $this->_thesaurus->_getShadowAssetMapLinks($this->_term_linkid);
+		if (isset($this->_termid)) {
+			$links = $this->_thesaurus->_getShadowAssetMapLinks($this->_termid);
 		}
 
 		return $links;
@@ -202,9 +200,8 @@ class Thesaurus_Term extends Asset
 		if (empty($this->_thesaurus)) return true;
 
 		$name = $this->attr('name');
-		$relation = $this->attr('relation');
 
-		$success = $this->_thesaurus->updateTerm($this->_term_linkid, $name, $relation);
+		$success = $this->_thesaurus->updateTerm($this->_termid, $name);
 
 		if ($success) {
 			$this->_thesaurus->saveAttributes();

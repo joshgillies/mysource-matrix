@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/11/23 00:53:35 arailean Exp $
+* $Id: lang_screen_details.xml,v 1.2 2005/12/02 00:26:39 arailean Exp $
 *
 */
 -->
@@ -27,21 +27,6 @@
 	<section name="Term Information">
 		<field attribute="name">
 			<display_name>Name</display_name>
-			<note />
-		</field>
-		<field>
-			<display_name>Relation Name</display_name>
-			<function_call>
-				<paint_function		name="paintRelationSelector" />
-				<process_function	name="processRelationSelector" />
-			</function_call>
-			<note>This term is linked to its parent using the relation specified here. Select from a dropdown list of existing relations, or name your own relation. The new relation will become available to other terms (in the same thesaurus)</note>
-		</field>
-		<field>
-			<display_name>Parent Term</display_name>
-			<function_call>
-				<paint_function		name="paintParentTermName" />
-			</function_call>
 			<note />
 		</field>
 	</section>

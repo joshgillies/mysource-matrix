@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.1 2005/11/23 00:53:35 arailean Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.2 2005/12/02 00:26:38 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -238,87 +238,6 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 		exit;
 
 	}//end outputXmlDirect()
-
-
-	/**
-	* Paint interface for renaming a term
-	*
-	* @param object	&$asset	asset to paint
-	* @param object	&$o		outputter object
-	* @param string	$prefix	prefix
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintRenameTerm(&$asset, &$o, $prefix)
-	{
-		 if (isset($asset->_tmp['error'])) {
-			 echo '<ul>';
-			 foreach ($asset->_tmp['error'] as $message) {
-				 echo '<li class="sq-backend-warning">'.$message.'</li>';
-			 }
-			 echo '</ul>';
-		  }
-
-		$write_access_allowed = $asset->writeAccess('attributes');
-
-		if (!$write_access_allowed) {
-			return $write_access_allowed;
-		}
-		// we need 2 text boxes with labels
-		echo '<table>
-				<tr>
-					<td>';
-					label(translate('thesaurus_term_name'),$prefix.'_term_name');
-			echo '</td>
-				<td>';
-					text_box($prefix.'_term_name', null, $size='30', $max='255');
-			echo '</td>
-				</tr>
-				<tr>
-					<td>';
-					label(translate('thesaurus_new_term_name'),$prefix.'_new_term_name');
-			echo '</td>
-				<td>';
-					text_box($prefix.'_new_term_name', null, $size='30', $max='255');
-			echo '</td>
-				</tr>
-			</table>';
-
-		return $write_access_allowed;
-
-	}//end paintRenameTerm()
-
-
-	/**
-	* Rename all instances of a term
-	*
-	* @param object	&$asset	asset to paint
-	* @param object	&$o		outputter object
-	* @param string	$prefix	prefix
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processRenameTerm(&$asset, &$o, $prefix)
-	{
-		$success = false;
-		$write_access_allowed = $asset->writeAccess('attributes');
-		if (!$write_access_allowed) {
-			return $write_access_allowed;
-		}
-
-		$term_name		= array_get_index($_REQUEST, $prefix.'_term_name');
-		$new_term_name	= array_get_index($_REQUEST, $prefix.'_new_term_name');
-
-		if (!empty($term_name) && !empty($new_term_name) ) {
-
-			$success = $asset->renameTerm($term_name, $new_term_name);
-		}
-
-		return $success;
-
-	}//end processRenameTerm()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_export_thesaurus_xml.inc,v 1.1 2005/11/23 00:53:35 arailean Exp $
+* $Id: hipo_job_export_thesaurus_xml.inc,v 1.2 2005/12/02 00:26:29 arailean Exp $
 *
 */
 
@@ -31,7 +31,8 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    thesaurus_id	-	the ID of the thesaurus that is being added to
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @author  Elden McDonald <emcdonald@squiz.net>
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -200,9 +201,9 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 	function processFinish(&$step_data, $prefix)
 	{
 
-		$asset = &$this->getThesaurusRef();
-		$asset->setAttrValue('contents_changed', false);
-		$asset->saveAttributes();
+		$thesaurus = &$this->getThesaurusRef();
+		$thesaurus->setAttrValue('contents_changed', false);
+		$thesaurus->saveAttributes();
 		$step_data['percent_done'] = 100;
 		$step_data['complete'] = true;
 		return true;
@@ -221,8 +222,8 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 	*/
 	function processCreateXML(&$step_data, $prefix)
 	{
-		$asset = &$this->getThesaurusRef();
-		$filepath = $asset->getXmlFilePath();
+		$thesaurus = &$this->getThesaurusRef();
+		$filepath = $thesaurus->getXmlFilePath();
 		$filepath = realpath($filepath);
 		if (!is_writable($filepath)) {
 			trigger_localised_error('HIPO0074', E_USER_WARNING, $filepath);
@@ -234,44 +235,35 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 		if (!isset($step_data['unprocessed'])) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$sql = '
-				SELECT
-					count(*)
-				FROM
-					sq_thes_term
-				WHERE
-						thesid = '.$db->quoteSmart($asset->id)
-						;
-
-			$result = $db->getOne($sql);
-
-			assert_valid_db_result($result);
-			$step_data['total_links'] = $result;
+			$step_data['total_links'] = $thesaurus->countTermLinks();
 			$step_data['links_closed'] = 0;
 			$filehandle = fopen($filepath, 'wb');
 
-			$indent = 0; // we start the XML file with an indent of 0
 			$parent = null;
+			$parentid = null;
 			$depth = 0;
 
 			$seen_terms = Array(); // the list of files that have been seen
-			$open_terms[0]['name']=null;
-			$open_terms[0]['relation']=null;
+			$open_terms[0]['term'] = null;
+			$open_terms[0]['termid'] = null;
+			$open_terms[0]['relation'] = null;
 
 			//the parent of the level 0 children is the null term
-			$unprocessed[-1][0]['minor'] = null;
+			$unprocessed[-1][0]['term'] = null;
+			$unprocessed[-1][0]['termid'] = null;
 
 			fwrite($filehandle, "<thesaurus>\n");
 
 		} else {
 			$filehandle = fopen($filepath, 'ab');
 
-			$parent =$step_data['parent'];
+			$parent = $step_data['parent'];
+			$parentid = $step_data['parentid'];
 			$depth = $step_data['depth'];
 
 			$seen_terms = $step_data['seen_terms']; // the list of files that have been seen
-			$open_terms=$step_data['open_terms']; // the stack of term tags that are open right now and the relations they have open
-			$unprocessed =$step_data['unprocessed']; // the tree of unprocessed children
+			$open_terms = $step_data['open_terms']; // the stack of term tags that are open right now and the relations they have open
+			$unprocessed = $step_data['unprocessed']; // the tree of unprocessed children
 
 		}
 
@@ -279,38 +271,40 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 			$iterations_this_step++;
 
 			// First try to load links for processing in case this parent needs them loaded
-			if (empty($unprocessed[$depth])&&!isset($seen_terms[$parent])) {
-				$unprocessed[$depth] = $asset->getChildTerms($parent);
+			if (empty($unprocessed[$depth]) && !isset($seen_terms[$parentid])) {
+				$unprocessed[$depth] = $thesaurus->getChildTerms($parentid);
 			}
 
-			// There are no child term relations to output for this parent, so close it.
+			// there are no child term relations to output for this parent, so close it.
 			if (empty($unprocessed[$depth])) {
 
-				// If the term is already open. It will be if we have been outputting children for it earlier
-				if ($open_terms[0]['name']==$parent) {
+				// if the term is already open. It will be if we have been outputting children for it earlier
+				if ($open_terms[0]['term'] == $parent) {
 
-					// Before we close the term, close any open relations remaining
+					// before we close the term, close any open relations remaining
 					if (!is_null($open_terms[0]['relation'])) {
-						// close it
 						fwrite($filehandle, "</relation>\n");
 					}
 
 					// close the term tag unless the term is null
-					if (!$parent==null) fwrite($filehandle, "</term>\n");
+					if (!is_null($parent)) {
+						fwrite($filehandle, "</term>\n");
+					}
 
 					$closed_term = array_shift($open_terms);
 
 				} else {
-					//Output a self closing tag
 					fwrite($filehandle, '<term name="'.$parent.'"/>'."\n");
 				}
 				$step_data['links_closed']++;
+
 				//now we can remove this term from the stack
 				if ($depth > 0) {
 					$depth--;
 					$finished_parent = array_shift($unprocessed[$depth]);
 					//go back to our parent to find the next child
-					$parent = $unprocessed[$depth-1][0]['minor'];
+					$parent = $unprocessed[$depth - 1][0]['term'];
+					$parentid = $unprocessed[$depth - 1][0]['termid'];
 				} else {
 					$finished = true;
 				}
@@ -319,15 +313,16 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 
 			// Put this term in the 'seen' array so that we don't output it's children again
 			// Array indexed by parent name, value is the depth at which we started processing it
-			$seen_terms[$parent]=$depth;
+			$seen_terms[$parentid] = $depth;
 
 			// open the term tag unless the term is null or the tag is open
-			if (!(is_null($parent)||$parent==$open_terms[0]['name'])) {
-				$new_term=Array(
-							'name'		=> $parent,
-							'relation'	=> null,
-						  );
-				array_unshift($open_terms,$new_term);
+			if (!(is_null($parent) || $parent == $open_terms[0]['term'])) {
+				$new_term = Array(
+								'term'		=> $parent,
+								'termid'	=> $parentid,
+								'relation'	=> null,
+							);
+				array_unshift($open_terms, $new_term);
 				fwrite($filehandle, '<term name="'.$parent.'">'."\n");
 			}
 
@@ -336,24 +331,26 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 			$term_link = $unprocessed[$depth][0];
 
 			$link_relation = $term_link['relation'];
-			$link_child = $term_link['minor'];
+			$link_child = $term_link['term'];
+			$link_childid = $term_link['termid'];
 
 			// Deal with the relation tags
 			// if there is a relation open
 
-			if ($open_terms[0]['relation'] !== $link_relation) { //
+			if ($open_terms[0]['relation'] !== $link_relation) {
 
 				if (!is_null($open_terms[0]['relation'])) {
 					// close it
 					fwrite($filehandle, "</relation>\n");
 				}
-				$open_terms[0]['relation']=$link_relation;
+				$open_terms[0]['relation'] = $link_relation;
 				if (!is_null($link_relation)) {
 					fwrite($filehandle, '<relation name="'.$link_relation.'">'."\n");
 				}
 			}
 			// Reiterate the loop down one depth step with a new parent
 			$parent = $link_child;
+			$parentid = $link_childid;
 			$depth++;
 		} //end while.
 
@@ -365,6 +362,7 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 			$step_data['complete'] = true;
 		} else {
 			$step_data['parent'] = $parent;
+			$step_data['parentid'] = $parentid;
 			$step_data['depth'] = $depth;
 
 			$step_data['seen_terms'] = $seen_terms; // the list of files that have been seen
