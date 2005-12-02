@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.170 2005/11/15 04:03:50 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.171 2005/12/02 03:10:57 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.170 $
+* @version $Revision: 1.171 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -832,7 +832,8 @@ class Page_Calendar extends Page
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getWeekEvents($date);
-			uasort($events, 'compare_start_dates');
+			$events = sortByOccurrence($date, $events);
+
 			if ($list_entry_types['week'] == 'title') {
 				echo $this->_getTitleList($events, $enabled_views['event']);
 			} else {
@@ -854,6 +855,7 @@ class Page_Calendar extends Page
 			}
 		} else {
 			$events = $this->getWeekEventsByDayAndTime($date);
+
 			$column_names = Array();
 			$column_links = Array();
 			foreach ($events as $day_date => $day_events) {
@@ -1354,6 +1356,8 @@ class Page_Calendar extends Page
 	*/
 	function _getMonthCellContents(&$events, $show_event_link, $event_link_date, &$root_nodes, $width)
 	{
+		$events = sortByOccurrence($event_link_date, $events);
+
 		$res = '';
 		foreach ($events as $assetid => $details) {
 			$popup_div_id = str_replace(':', '_', $assetid);

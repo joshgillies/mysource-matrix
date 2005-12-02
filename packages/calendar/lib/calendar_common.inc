@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.37 2005/09/27 07:02:05 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.38 2005/12/02 03:10:56 sdanis Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -506,6 +506,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null, $g
 	// stop date
 	$sql .= ' AND ('.$last_day.' >= start_date_ds)';
 	$sql .= ' AND (stop_date = '.$db->quote('----------').' OR stop_date >= '.$db->quote($iso).')';
+
 	return $sql;
 
 }//end build_recurring_event_query_base()
@@ -1245,9 +1246,46 @@ function quoted_descendants($type_code)
 */
 function compare_start_dates($a, $b)
 {
-	return ($a['start_date_ts'] > $b['start_date_ts']);
+	return ($a['start_date_ts'] < $b['start_date_ts'])? -1 : 1;
 
 }//end compare_start_dates()
+
+
+/**
+* Returns array of events sorted by occurrence
+*
+* @param $date
+* @param $events	Events to be sorted
+*
+* @return array
+* @access public
+*/
+function sortByOccurrence($date, $events) {
+	$dates = Array();
+
+	foreach ($events as $event_id => $info) {
+		$event =& $GLOBALS['SQ_SYSTEM']->am->getAsset(strtok($event_id, ':'));
+		if (!empty($event)) {
+			if (method_exists($event, 'getInstanceDates')) {
+				$ocDate = $event->getInstanceDates($date);
+				$start = $ocDate['start'];
+				$dates[$event_id] = strtotime($start);
+			} else {
+				$dates[$event_id] = strtotime($event->getStartDate().' '.$event->getStartTime());
+			}
+		}
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($event);
+	}
+
+	asort($dates);
+	$sorted_events = Array();
+	foreach ($dates as $event_id => $timestamp) {
+		$sorted_events[$event_id] = $events[$event_id];
+	}
+
+	return $sorted_events;
+
+}//end sortByOccurrence()
 
 
 ?>
