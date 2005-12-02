@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.405 2005/12/01 23:19:10 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.406 2005/12/02 00:31:22 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.405 $
+* @version $Revision: 1.406 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -518,7 +518,7 @@ class Asset_Manager extends MySource_Object
 
 		// include the language strings
 		$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings($type_code);
-		foreach ($GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code) as $type_parent) {
+		foreach ($this->getTypeAncestors($type_code) as $type_parent) {
 			$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings($type_parent);
 		}
 
@@ -1221,7 +1221,9 @@ class Asset_Manager extends MySource_Object
 			// make each bridge get its info
 			foreach ($shadowids as $assetid => $shadows) {
 				$asset = &$this->getAsset($assetid);
-				$shadow_results += $asset->getAssetInfo($shadows, $type_code, $strict_type_code, $field);
+				if (method_exists($asset, 'getAssetInfo')) {
+					$shadow_results += $asset->getAssetInfo($shadows, $type_code, $strict_type_code, $field);
+				}
 			}
 		}
 
@@ -2615,7 +2617,7 @@ class Asset_Manager extends MySource_Object
 
 		}//end if shadow asset
 
-		$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_SC_LINK_ALL, '', true, 'minor');
+		$asset_links = $this->getLinks($assetid, SQ_SC_LINK_ALL, '', true, 'minor');
 
 		foreach ($asset_links as $link) {
 			$assetids[$link['majorid']] = Array();
@@ -3004,12 +3006,12 @@ class Asset_Manager extends MySource_Object
 		static $USERIDS_COND = null;
 
 		if (is_null($USERIDS_COND)) {
-			// because even public users are users now add their parents to the list
 			if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 				$USERIDS_COND = '';
 			} else {
-				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
-				array_push($userids, 0, $GLOBALS['SQ_SYSTEM']->user->id);
+				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
+				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
+				$userids[] = $this->getSystemAssetdid('public_user');
 				for (reset($userids); null !== ($i = key($userids)); next($userids)) {
 					$userids[$i] = $db->quote($userids[$i]);
 				}
@@ -3051,7 +3053,7 @@ class Asset_Manager extends MySource_Object
 		$assetids = Array();
 		while (DB_OK === $result->fetchInto($row)) {
 			if (!($row['status'] & (SQ_STATUS_LIVE | SQ_STATUS_LIVE_APPROVAL))) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($row['assetid']);
+				$asset = &$this->getAsset($row['assetid']);
 				$read_access = $asset->readAccess();
 
 				$row['name'] = $asset->name;
@@ -3062,7 +3064,7 @@ class Asset_Manager extends MySource_Object
 					$row['name']       = '(( '.$row['name'].' ))';
 					$row['short_name'] = '(( '.$row['short_name'].' ))';
 				}
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				$this->forgetAsset($asset);
 				unset($asset);
 				if (!$read_access) continue;
 			}
@@ -5211,7 +5213,7 @@ class Asset_Manager extends MySource_Object
 			// been set up correctly, and if an user or LDAP user's asset has been deleted then we
 			// know we want it out. So we'll use getAssetInfo() instead which does not throw an
 			// assertion, just instead just gives an empty array
-			$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), 'user', false);
+			$user_info = $this->getAssetInfo(Array($userid), 'user', false);
 
 			// check that the passed userid is a user or user_group
 			if (empty($user_info)) {
@@ -6108,8 +6110,9 @@ class Asset_Manager extends MySource_Object
 			$where .= ' AND p.assetid = l.minorid';
 			$userid_cond = '';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
-				array_push($userids, 0, $GLOBALS['SQ_SYSTEM']->user->id);
+				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
+				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
+				$userids[] = $this->getSystemAssetid('public_user');
 				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 					$userids[$i] = $db->quote($userids[$i]);
 				}
@@ -6265,9 +6268,9 @@ class Asset_Manager extends MySource_Object
 			$where .= 'p.assetid = a.assetid';
 			$userid_cond = '';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
-
-				array_push($userids, 0, $userid = $GLOBALS['SQ_SYSTEM']->user->id);
+				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
+				$userids[] = $this->getSystemAssetid('public_user');
+				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
 				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 					$userids[$i] = $db->quote($userids[$i]);
 				}
@@ -6468,8 +6471,9 @@ class Asset_Manager extends MySource_Object
 			$where .= ' AND a.assetid = p.assetid';
 			$userid_cond = '';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
-				array_push($userids, 0, $GLOBALS['SQ_SYSTEM']->user->id);
+				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
+				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
+				$userids[] = $this->getSystemAssetid('public_user');
 				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 					$userids[$i] = $db->quote($userids[$i]);
 				}
