@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.63 2005/05/27 00:14:04 amiller Exp $
+* $Id: calendar_event_recurring.inc,v 1.63.2.1 2005/12/02 04:51:09 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.63.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -815,7 +815,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	{
 		if (is_null($id)) $id = $this->id;
 		$child_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($id, SQ_SC_LINK_ALL, Array('calendar_event_cancellation', 'calendar_event_modification'), false, 'major', $date);
-		$res =& current($child_links);
+		$res = current($child_links);
 		if ($res['minor_type_code'] == 'calendar_event_cancellation') {
 			$replacement_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($res['minorid'], SQ_SC_LINK_ALL, 'calendar_event_single', false);
 			if (!empty($replacement_links)) {
