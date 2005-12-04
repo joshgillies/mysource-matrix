@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.36 2005/12/02 00:32:10 arailean Exp $
+* $Id: tables.xml,v 1.37 2005/12/04 22:40:09 gsherwood Exp $
 *
 */
 -->
@@ -1144,6 +1144,9 @@
 				<index>
 					<column name="userto" />
 				</index>
+				<index>
+					<column name="type" />
+				</index>
 			</indexes>
 		</table>
 		<table name="hipo_job" require_rollback="0">
@@ -1289,46 +1292,7 @@
 				</primary_key>
 			</keys>
 		</table>
-		<table name="sch_idx_wgt_dflt" require_rollback="0">
-			<columns>
-				<column name="type_code" allow_null="0">
-					<type>VARCHAR(100)</type>
-					<type_variations />
-					<default />
-					<description>The type code of the asset type to which this component weighting applies to.</description>
-				</column>
-				<column name="component" allow_null="0">
-					<type>VARCHAR(255)</type>
-					<type_variations />
-					<default />
-					<description />
-				</column>
-				<column name="description" allow_null="1">
-					<type>VARCHAR(255)</type>
-					<type_variations />
-					<default></default>
-					<description />
-				</column>
-				<column name="weight" allow_null="0">
-					<type>SMALLINT</type>
-					<type_variations />
-					<default>0</default>
-					<description />
-				</column>
-			</columns>
-			<keys>
-				<primary_key>
-					<column name="type_code" />
-					<column name="component" />
-				</primary_key>
-			</keys>
-			<indexes>
-				<index>
-					<column name="type_code" />
-					<column name="component" />
-				</index>
-			</indexes>
-		</table>
+		
 		<table name="trig" require_rollback="1">
 			<columns>
 				<column name="id" allow_null="0">
@@ -1631,20 +1595,20 @@
 					<default />
 					<description>Thesaurus Asset ID</description>
 				</column>
-		   </columns>
-		   <keys>
-			   <primary_key>
-				   <column name="termid" />
-			   </primary_key>
-		   </keys>
-		   <indexes>
-			   <index>
-				   <column name="termid" />
-			   </index>
-			   <index>
-				   <column name="thesid" />
-			   </index>
-		   </indexes>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="termid" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="termid" />
+				</index>
+				<index>
+					<column name="thesid" />
+				</index>
+			</indexes>
 		</table>
 		<table name="thes_lnk" require_rollback="0">
 			<columns>
@@ -1684,26 +1648,26 @@
 					<default />
 					<description>Thesaurus Asset ID</description>
 				</column>
-		   </columns>
-		   <keys>
-			   <primary_key>
-				   <column name="linkid" />
-			   </primary_key>
-		   </keys>
-		   <indexes>
-			   <index>
-				   <column name="major" />
-			   </index>
-			   <index>
-				   <column name="minor" />
-			   </index>
-			   <index>
-				   <column name="relation" />
-			   </index>
-			   <index>
-				   <column name="thesid" />
-			   </index>
-		   </indexes>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="linkid" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="major" />
+				</index>
+				<index>
+					<column name="minor" />
+				</index>
+				<index>
+					<column name="relation" />
+				</index>
+				<index>
+					<column name="thesid" />
+				</index>
+			</indexes>
 		</table>
 		<table name="thes_lnk_tree" require_rollback="0">
 			<columns>
