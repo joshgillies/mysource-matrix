@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.37 2005/12/04 22:40:09 gsherwood Exp $
+* $Id: tables.xml,v 1.38 2005/12/05 23:26:16 lwright Exp $
 *
 */
 -->
@@ -1292,7 +1292,7 @@
 				</primary_key>
 			</keys>
 		</table>
-		
+
 		<table name="trig" require_rollback="1">
 			<columns>
 				<column name="id" allow_null="0">
@@ -1600,11 +1600,12 @@
 				<primary_key>
 					<column name="termid" />
 				</primary_key>
+				<unique_key>
+					<column name="thesid" />
+					<column name="term" />
+				</unique_key>
 			</keys>
 			<indexes>
-				<index>
-					<column name="termid" />
-				</index>
 				<index>
 					<column name="thesid" />
 				</index>
