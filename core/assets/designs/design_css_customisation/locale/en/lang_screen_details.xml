@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2005/08/23 01:07:40 mnyeholt Exp $
+* $Id: lang_screen_details.xml,v 1.4 2005/12/05 03:18:24 lwright Exp $
 *
 */
 -->
@@ -62,7 +62,7 @@
 	<section name="Customise Associated Files">
 		<field>
 			<display_name>New</display_name>
-			<note>Uploading a tar archive (.tar) or a gzipped tar archive (.tag.gz or .tgz) will result in those archives being extracted and their files being placed in the files directory</note>
+			<note>Uploading a tar archive (.tar) or a gzipped tar archive (.tar.gz or .tgz) will result in those archives being extracted and their files being placed in the files directory</note>
 			<function_call>
 				<paint_function   name="paintNewFiles"   />
 				<process_function name="processNewFiles" />
