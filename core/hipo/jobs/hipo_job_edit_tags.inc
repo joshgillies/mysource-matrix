@@ -1,0 +1,402 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: hipo_job_edit_tags.inc,v 1.1 2005/12/05 06:03:24 emcdonald Exp $
+*
+*/
+
+require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
+
+/**
+* Highly Intensive Processing Object (HIPO) to edit content tags
+*
+* @author  Elden McDonald <emcdonald@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix
+* @subpackage HIPO
+*/
+class HIPO_Job_Edit_Tags extends HIPO_Job
+{
+
+
+	/**
+	* Constructor
+	*
+	* @param string	$code_name	a unique codename the HIPO
+	*/
+	function HIPO_Job_Edit_Tags($code_name='')
+	{
+		$this->HIPO_Job($code_name);
+
+	}//end constructor
+
+
+	/**
+	* Paints backend of this job
+	*
+	* @param object	&$o		reference to the backend outputter
+	* @param string	$class	calling class name
+	*
+	* @return void
+	* @access private
+	*/
+	function paintConfig(&$o, $class)
+	{
+		$write_access = $this->writeAccess();
+
+		// metadata regeneration threshhold HIPO config entry
+		$o->openField(translate('edit_tag_threshold'));
+
+		if ($write_access) {
+			text_box($class.'[SQ_HIPO_TAG_THRESHOLD]', SQ_HIPO_TAG_THRESHOLD, 5);
+			echo ' '.translate('assets');
+			$o->note(translate('hipo_value_divided_by_tag'));
+		} else {
+			echo SQ_HIPO_TAG_THRESHOLD;
+			echo ' '.translate('assets');
+		}
+
+		$o->closeField();
+
+	}//end paintConfig()
+
+
+	/**
+	* Sets some info about thresholds that this hipo requires.
+	*
+	* @return array
+	* @access public
+	*/
+	function getConfigVars()
+	{
+		return Array(
+				'SQ_HIPO_TAG_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> '15'),
+			   );
+
+	}//end getConfigVars()
+
+
+	/**
+	* Returns a unique codename the HIPO can use to ensure it is not being run twice
+	*
+	* The Edit Tag HIPO appends the ID of the asset that the tags are being set at
+	* (the top most parent) so that any other tag jobs on this asset do not start while it
+	* is running. Due to locking of the interface, nobody should be allowed to run this HIPO at
+	* the same time on the same parent asset.
+	*
+	* @return string
+	* @access public
+	*/
+	function getCodeName()
+	{
+		return parent::getCodeName().'-'.md5(implode('-',array_keys($this->_running_vars['assets'])));
+
+	}//end getCodeName()
+
+
+	/**
+	* Returns the (localised) HIPO name
+	*
+	* @return string
+	* @access public
+	*/
+	function getHipoName()
+	{
+		return translate('hipo_name_edit_tags');
+
+	}//end getHipoName()
+
+
+	/**
+	* Returns the steps in this hipo, possibly with localised step names
+	* and messages
+	*
+	* @return string
+	* @access public
+	*/
+	function getInitialStepData()
+	{
+		return Array(
+				Array(
+					'name'			=> translate('hipo_acquiring_locks'),
+					'hipo_job'		=> Array(
+										'init_details_function'	=> 'getLockAssetDetails',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'allow_cancel'	=> true,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_updating_tags'),
+					'function_call'	=> Array(
+										'process_function'	=> 'processTags',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'allow_cancel'	=> true,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_releasing_locks'),
+					'function_call'	=> Array(
+										'process_function'	=> 'releaseLocks',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'allow_cancel'	=> false,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+			   );
+
+	}//end getInitialStepData()
+
+
+	/**
+	* Returns the current Threshold.
+	*
+	* Returns a value that represents the total percentage that this hipo would run
+	* in freestyle mode in its current state
+	*
+	* @return float
+	* @access public
+	*/
+	function getThresholdPercentageRequired()
+	{
+
+		if (SQ_HIPO_TAG_THRESHOLD == 0) return 0;
+		if (!isset($this->_running_vars['todo_assetids'])) {
+			return 0;
+		}
+		return ((count($this->_running_vars['todo_assetids']) / (SQ_HIPO_TAG_THRESHOLD / count($this->_running_vars['tag_changes']))) * 100);
+
+
+	}//end getThresholdPercentageRequired()
+
+
+	/**
+	* Performs the duties of this hipo, without showing any output on the frontend.
+	*
+	* @return boolean
+	* @access public
+	*/
+	function freestyle()
+	{
+		while (!empty($this->_running_vars['todo_assetids'])) {
+			if (!$this->processTags($this->_steps[0], get_class($this))) {
+				return false;
+			}
+		}
+		return true;
+
+	}//end freestyle()
+
+
+	/**
+	* Prepares the running vars and gets the children of the asset in question
+	*
+	* @return boolean
+	* @access public
+	*/
+	function prepare()
+	{
+		// to start editing tags, we need to have an asset id to start editing tags at
+		if (empty($this->_running_vars['assets'])) {
+			trigger_localised_error('HIPO0017', E_USER_WARNING);
+			return false;
+		}
+
+		$this->_running_vars['done_assetids'] = Array();
+
+		if (empty($this->_running_vars['tag_changes'])) {
+			// no tag changes, so do nothing
+			$this->_running_vars['todo_assetids'] = Array();
+		} else {
+			$assets = $this->_running_vars['assets'];
+			$child_assets = Array();
+			for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if (is_null($asset)) {
+					trigger_localised_error('HIPO0016', E_USER_WARNING, $assetid);
+					return '';
+				}
+				$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
+				$child_assets[$assetid] = $asset->type();
+				unset($asset);
+			}
+			$this->_running_vars['todo_assetids'] = $child_assets;
+		}
+
+		return parent::prepare();
+
+	}//end prepare()
+
+
+	/**
+	* Edit Tags for a single asset in the to-do list
+	*
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param string	$prefix		prefix for form vars
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processTags(&$step_data, $prefix)
+	{
+		if (!empty($this->_running_vars['todo_assetids'])) {
+			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
+
+			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
+			unset($this->_running_vars['todo_assetids'][$assetid]);
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+
+			if (!is_null($asset)) {
+
+				foreach ($this->_running_vars['tag_changes'] as $tag_data) {
+					switch ($tag_data['action']) {
+						case 'add':
+							$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $tag_data['tag_id'], SQ_LINK_NOTICE);
+							if (empty($link)) {
+								$new_tag_object = &$GLOBALS['SQ_SYSTEM']->am->getAsset($tag_data['tag_id']);
+								$GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $new_tag_object, SQ_LINK_NOTICE, $tag_data['weight']);
+							} else {
+								$success =$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], SQ_LINK_NOTICE, $tag_data['weight']);
+							}
+
+						break;
+
+						case 'delete':
+							$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $tag_data['tag_id'], SQ_LINK_NOTICE);
+							if (empty($link)) break;
+							$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
+
+						break;
+					}
+				}
+				$step_data['message'] = translate('hipo_editing_tags', $asset->name);
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				unset($asset);
+			} else {
+				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
+				$this->_addError(translate('hipo_cannot_edit_tags', $assetid));
+			}
+
+			// add this assetid to the done array so we dont do it again
+			$this->_running_vars['done_assetids'][] = $assetid;
+		}
+
+		if (empty($this->_running_vars['todo_assetids'])) {
+			$step_data['percent_done'] = 100;
+			$step_data['complete']     = true;
+			unset($this->_running_vars['done_assetids']);
+		} else {
+			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
+			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
+			$step_data['complete']     = false;
+		}
+
+		return true;
+
+	}//end processTags()
+
+
+	/**
+	* This function is used to set-up the details for the locking the assets by the nested HIPO_Job
+	*
+	* @param string	&$job_type		Job type
+	* @param array	&$running_vars	hipo job's running vars
+	* @param array	&$options		Options supplied
+	*
+	* @return void
+	* @access public
+	*/
+	function getLockAssetDetails(&$job_type, &$running_vars, &$options)
+	{
+		$job_type = 'hipo_job_acquire_locks';
+
+		$options['auto_complete'] = true;
+
+
+		$running_vars = Array(
+							'assetids'			=> array_keys($this->_running_vars['assets']),
+							'lock_type'			=> Array('links'),
+							'forceably_acquire'	=> false,
+							'dependants_only'	=> false,
+						);
+
+	}//end getLockAssetDetails()
+
+
+	/**
+	* Release the locks we acquired while setting the tags
+	*
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param string	$prefix		prefix for form vars
+	*
+	* @return boolean
+	* @access public
+	*/
+	function releaseLocks(&$step_data, $prefix)
+	{
+		if (!isset($this->_running_vars['re_lock_assets'])) {
+			$this->_running_vars['re_lock_assets'] = $this->_running_vars['assets'];
+		}
+
+		$assetid = key($this->_running_vars['re_lock_assets']);
+		unset($this->_running_vars['re_lock_assets'][$assetid]);
+
+		$children = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
+
+		foreach ($children as $dep_child_id => $dep_child_type_code) {
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($dep_child_id, 'links');
+		}
+
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
+
+		$step_data['message'] = translate('hipo_release_locks', $asset_info[$assetid]['name']).translate('hipo_release_locks_dependents');
+
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
+
+		$this->_running_vars['done_assetids'][] = $assetid;
+
+		if (empty($this->_running_vars['re_lock_assets'])) {
+			unset($this->_running_vars['done_assetids']);
+			$step_data['percent_done'] = 100;
+			$step_data['complete']     = true;
+		} else {
+			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / count($this->_running_vars['assets'])) * 100;
+			$step_data['complete']     = false;
+		}
+
+		return true;
+
+	}//end releaseLocks()
+
+
+}//end class
+
+?>
