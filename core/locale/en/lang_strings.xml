@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.84 2005/12/01 01:29:42 ndvries Exp $
+* $Id: lang_strings.xml,v 1.85 2005/12/05 05:58:07 emcdonald Exp $
 *
 */
 
@@ -270,6 +270,7 @@
 	<string source="metadata_screen">Metadata screen</string>
 	<string source="cms_ct_raw_html_pref_editor_size">Raw HTML Editor Size</string>
 	<string source="back_to">Back to</string>
+	<string source="edit_tag_threshold">Edit Tag Threshold</string>
 
 	<!-- Page Title translations -->
 	<string source="page_title_simple_edit_interface">%s Simple Edit Interface</string>
@@ -489,10 +490,16 @@
 	<string source="metadata_edit_fields">Edit Metadata Field</string>
 	<string source="metadata_use_editing_interface">The editing interface for this metadata section has already been shown above. The current metadata values are displayed below but cannot be edited. To edit these metadata values, please use the editing interface displayed above.</string>
 	<string source="url_remap_explanation">The "Old URL" is the URL that you want remapped. The "New URL" is the URL that a user will be redirected to when they visit the "Old URL".</string>
-
-
-
-
+	<string source="tagging_suggest_indexed">If indexing is enabled in the Search Manager, you can generate a list of tags from the index using %s</string>
+	<string source="tagging_cascade_changes_note">Apply all the tag changes made to this asset to all its children</string>
+	<string source="tagging_manual_cascade_note">Applies all of this asset's tags to all of its children</string>
+	<string source="manually_cascade_all_tags">Manually cascade all tags</string>
+	<string source="cascade_tag_changes">Cascade tag changes</string>
+	<string source="tag_list_not_available">Tag list not available</string>
+	<string source="tag_suggestion">Tag Suggestion</string>
+	<string source="suggested_tags_for">Suggested tags for</string>
+	<string source="click_to_tag">Click 'Add Tag' to tag this asset with the term</string>
+	<string source="no_tags_to_add">No tags to add</string>
 
 
 
@@ -577,6 +584,7 @@
 	<string source="hipo_permission_workflow_metadata_cascade_select">To cascade the permissions, workflow schemas, and/or metadata schemas of "%s" to the newly linked asset(s) and their children, check the appropriate boxes below and press the &lt;b&gt;Next&lt;/b&gt; button.</string>
 	<string source="hipo_permission_workflow_metadata_cascade_none">If you do not wish to cascade any permissions or schemas, press the &lt;b&gt;Next&lt;/b&gt; button without checking any boxes.</string>
 	<string source="hipo_value_divided_by_schema">Value will be divided by number of affected schemas</string>
+	<string source="hipo_value_divided_by_tag">Value will be divided by number of affected tags</string>
 	<string source="hipo_value_divided_by_permission">Value will be divided by number of affected permissions</string>
 	<string source="hipo_cannot_modify_schema">Could not %1$s schema "%2$s" on "%3$s" because this asset already has this schema %4$s. The current schema setting for "%3$s" has been retained</string>
 	<string source="hipo_cannot_modify_permission">Could not %1$s %2$s access for "%3$s" on "%4$s" because this asset already has %5$s %2$s access to "%3$s". The current permission for "%4$s" has been retained.</string>
@@ -602,6 +610,8 @@
 	<string source="hipo_edit_permission">Editing Permissions for "%s"</string>
 	<string source="hipo_aborting">Aborting...</string>
 	<string source="hipo_abort_complete">Abort Complete</string>
+	<string source="hipo_cannot_edit_tags">Could not edit tags for asset #%s, asset does not exist</string>
+	<string source="hipo_editing_tags">Editing Tags for "%s"</string>
 
 	<string source="inbox_lock">Please lock the Inbox to send messages</string>
 	<string source="inbox_trash_empty">Your trash is empty.</string>
@@ -943,7 +953,7 @@
 
 	<string source="security_key_incorrect_message">The security key entered was incorrect. The lock on "%s" has not been forceably acquired. You may try again using the new security key displayed below.</string>
 
-
+	<string source="trigger_log_name">Log name: %1$s</string>
 
 
 
@@ -1521,6 +1531,7 @@ Items to delete: %s</string>
 	<string source="hipo_name_trigger_batch_events">Trigger Batch Events</string>
 	<string source="hipo_name_uninstall_patch">Uninstall Patch</string>
 	<string source="hipo_name_update_lookups">Update Lookups</string>
+	<string source="hipo_name_edit_tags">Edit Tags</string>
 	<string source="hipo_processing_assets">Processing Assets</string>
 
 	<string source="hipo_purging_trash_determining">Determining which assets to delete</string>
@@ -1540,6 +1551,7 @@ Items to delete: %s</string>
 	<string source="hipo_updating_metadata_schemas">Updating Metadata Schemas</string>
 	<string source="hipo_updating_permissions">Updating Permissions</string>
 	<string source="hipo_updating_workflow_schemas">Updating Workflow Schemas</string>
+	<string source="hipo_updating_tags">Updating Tags</string>
 
 	<!-- JAVA STRINGS -->
 	<string source="tree_one" java="1">Tree One</string>
