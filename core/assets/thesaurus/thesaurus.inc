@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.4 2005/12/05 00:33:40 arailean Exp $
+* $Id: thesaurus.inc,v 1.5 2005/12/05 03:07:15 arailean Exp $
 *
 */
 
@@ -35,7 +35,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -676,7 +676,7 @@ class Thesaurus extends Asset
 								tree.treeid || '.$db->quoteSmart($free_childid).'
 							FROM
 								sq_thes_lnk_tree tree
-								INNER JOIN sq_thes_lnk link ON tree.linkid = term.linkid
+								INNER JOIN sq_thes_lnk link ON tree.linkid = tree.linkid
 							WHERE
 								link.minor	= '.$db->quoteSmart($parentid).'
 								AND
