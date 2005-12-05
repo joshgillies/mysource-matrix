@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: conditions_list.inc,v 1.6 2005/10/13 02:12:40 tbarrett Exp $
+* $Id: conditions_list.inc,v 1.7 2005/12/05 05:11:15 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('SQ_KEYWORD_CONDITION_ELSE', 'else');
 * parameters in a single attribute (of type Array).
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class Conditions_List
@@ -244,7 +244,8 @@ class Conditions_List
 		$included_file .= $condition_type.'.inc';
 		require_once $included_file;
 
-		return new $condition_type();
+		$new_condition = new $condition_type();
+		return $new_condition;
 
 	}//end _getConditionAsset()
 
