@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.472 2005/12/02 05:30:36 dmckee Exp $
+* $Id: asset.inc,v 1.473 2005/12/05 04:42:32 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.472 $
+* @version $Revision: 1.473 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2502,7 +2502,7 @@ class Asset extends MySource_Object
 	*/
 	function linksUpdated()
 	{
-		return $this->_updated();
+		return true;
 
 	}//end linksUpdated()
 
