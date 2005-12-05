@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.107 2005/11/17 05:15:17 mmcintyre Exp $
+* $Id: html_form.inc,v 1.108 2005/12/05 03:43:56 emcdonald Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.107 $
+* @version $Revision: 1.108 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -839,7 +839,7 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 
 		$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9]/', '_', $name);
 		$type_codes_string = get_type_codes_string($type_codes);
-		echo '<input type="button" value="'.translate('more').'..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes_string).'\', \''.htmlentities($map_frame_exp).'\', '.$done_fn.', '.(in_array('clear', $buttons) ? 'true' : 'false').')" />';
+		echo '<input type="button" name="'.htmlspecialchars($safe_name.'_more_btn').'" id="'.htmlspecialchars($safe_name.'_more_btn').'" value="'.translate('more').'..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes_string).'\', \''.htmlentities($map_frame_exp).'\', '.$done_fn.', '.(in_array('clear', $buttons) ? 'true' : 'false').')" />';
 		echo '<br />';
 	}
 	echo '</div>';
