@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term.inc,v 1.2 2005/12/02 00:26:39 arailean Exp $
+* $Id: thesaurus_term.inc,v 1.3 2005/12/05 03:10:48 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,14 +45,9 @@ class Thesaurus_Term extends Asset
 	var $_thesaurus;
 
 	/**
-	* @var string	$_parent_term	Name of the parent term, null for top level
+	* @var int	$_termid	Id of this term
 	*/
-	var $_parent_term;
-
-	/**
-	* @var int	$_term_linkid	Link id this term was found by
-	*/
-	var $_term_linkid;
+	var $_termid;
 
 
 	function Thesaurus_Term($asset_id=0)
@@ -77,7 +72,6 @@ class Thesaurus_Term extends Asset
 
 		$this->name = $term['term'];
 		$this->short_name = $this->name;
-		$this->_thesaurus_id = $thesaurus_id;
 		$this->status = $this->_thesaurus->status;
 
 		$this->setAttrValue('name', $term['term']);
@@ -95,30 +89,32 @@ class Thesaurus_Term extends Asset
 	*/
 	function create($link)
 	{
+
 		$this->name = $this->attr('name');
 		if (empty($this->name)) return false;
 
 		$shadow_parent = null;
 		$parent_term = null;
+		$thesaurus_id = null;
 
 		if (is_a($link['asset'], 'thesaurus')) {
-			$this->_thesaurus_id = $link['asset']->id;
+			$thesaurus_id = $link['asset']->id;
 		} else if (is_a($link['asset'], 'thesaurus_term')) {
-			$this->_thesaurus_id = $link['asset']->_thesaurus_id;
+			$thesaurus_id = $link['asset']->_thesaurus->id;
 			$shadow_parent = $link['asset']->id;
 			$parent_term = $link['asset']->name;
 		}
 
-		if (empty($this->_thesaurus_id)) {
+		if (empty($thesaurus_id)) {
 			trigger_localised_error('CORE0236', E_USER_WARNING, $link['asset']->type());
 			return false;
 		}
 
-		$this->_thesaurus =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_thesaurus_id);
+		$this->_thesaurus =& $GLOBALS['SQ_SYSTEM']->am->getAsset($thesaurus_id);
 
 		// see if a term with this name already exists under this parent with this particular relation
 		$term = $this->attr('name');
-		$relation = $this->attr('relation');
+		$relation = $link['value'];
 
 		$linkid = $this->_thesaurus->addTerm($term, $parent_term, $relation, $link['sort_order']);
 		if (is_null($linkid)) {
@@ -128,13 +124,13 @@ class Thesaurus_Term extends Asset
 
 		$term = $this->_thesaurus->getTermByLinkid($linkid);
 
-		$this->id = $this->_thesaurus_id.':'.$term['termid'];
+		$this->id = $thesaurus_id.':'.$term['termid'];
 		$this->_termid = $term['termid'];
 
 		$this->_thesaurus->markContentsChanged();
 
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
-		$em->broadcastEvent($link['asset'], 'CreateLink', Array('linkid' => $this->_thesaurus_id.':'.$linkid));
+		$em->broadcastEvent($link['asset'], 'CreateLink', Array('linkid' => $thesaurus_id.':'.$linkid));
 
 		return true;
 
