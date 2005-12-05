@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.52 2005/11/03 23:57:28 lwright Exp $
+* $Id: asset_edit_fns.inc,v 1.53 2005/12/05 06:16:25 emcdonald Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -102,7 +102,12 @@ class Asset_Edit_Fns extends MySource_Object
 													'force_unlock'	=> false,
 													'lock_type'		=> 'all',
 												   ),
-						  );
+							'tagging'		=> Array(
+													'name'			=> 'Tagging',
+													'force_unlock'	=> true,
+													'lock_type'		=> 'all',
+												   ),
+							   );
 
 
 	/**
@@ -308,6 +313,22 @@ class Asset_Edit_Fns extends MySource_Object
 		return $success;
 
 	}//end processNoticeLinkedAsset()
+
+
+	/**
+	* Return true if the search manager asset type is installed
+	*
+	* @param object Asset        $asset  the asset whose interface we are painting
+	* @param string                        $prefix        the prefix for this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isSearchInstalled(&$asset, $prefix)
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->installed('search_manager');
+
+	}//end isSearchInstalled()
 
 
 }//end class
