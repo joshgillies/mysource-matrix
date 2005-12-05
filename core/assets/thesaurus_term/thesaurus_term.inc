@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term.inc,v 1.3 2005/12/05 03:10:48 arailean Exp $
+* $Id: thesaurus_term.inc,v 1.4 2005/12/05 03:41:31 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -130,7 +130,7 @@ class Thesaurus_Term extends Asset
 		$this->_thesaurus->markContentsChanged();
 
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
-		$em->broadcastEvent($link['asset'], 'CreateLink', Array('linkid' => $thesaurus_id.':'.$linkid));
+		$em->broadcastEvent($this, 'AssetCreate', Array('name','assetid'));
 
 		return true;
 
