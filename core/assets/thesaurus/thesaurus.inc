@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.3 2005/12/02 00:26:38 arailean Exp $
+* $Id: thesaurus.inc,v 1.4 2005/12/05 00:33:40 arailean Exp $
 *
 */
 
@@ -35,7 +35,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -202,8 +202,6 @@ class Thesaurus extends Asset
 	*
 	* Get a count of how many terms are linked directly under a given term
 	*
-	* @param int	$termid	Term
-	*
 	* @return array
 	* @access public
 	*/
@@ -226,7 +224,7 @@ class Thesaurus extends Asset
 
 		return $result;
 
-	}//end countChildTerms()
+	}//end countTermLinks()
 
 
 	/**
@@ -442,7 +440,7 @@ class Thesaurus extends Asset
 		$termid = $this->getTermIdByName($term);
 		if (!empty($termid)) {
 			// term exists. quickly check if the link exists to save us the headache of adding it
-			$link_info = $this->getTermLinkidByTermids($termid, $parentid, $relation);
+			$link_info = $this->getTermLinkByTermids($termid, $parentid, $relation);
 			if (!is_null($link_info)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				return null;
@@ -1116,9 +1114,7 @@ class Thesaurus extends Asset
 
 
 	/**
-	* Get link id by child and parent term ids
-	*
-	* Given term information, returns a link id corresponding to that term
+	* Get link by child and parent term ids
 	*
 	* @param string	$termid		the id of the child in this link
 	* @param string	$parentid	the id of the parent in this link
@@ -1127,7 +1123,7 @@ class Thesaurus extends Asset
 	* @return void
 	* @access public
 	*/
-	function getTermLinkidByTermids($termid, $parentid=null, $relation=null)
+	function getTermLinkByTermids($termid, $parentid=null, $relation=null)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -1155,7 +1151,7 @@ class Thesaurus extends Asset
 		assert_valid_db_result($result);
 		return $result;
 
-	}//end getTermLinkidByTermids()
+	}//end getTermLinkByTermids()
 
 
 	/**
@@ -1598,7 +1594,7 @@ class Thesaurus extends Asset
 		$minorid = array_get_index($minor_parts, 1, null);
 		if (empty($minorid)) return Array();
 
-		$link_info = $this->getTermLinkidByTermids($minorid, $majorid, $value);
+		$link_info = $this->getTermLinkByTermids($minorid, $majorid, $value);
 
 		if (empty($link_info)) return Array();
 
@@ -1745,7 +1741,7 @@ class Thesaurus extends Asset
 		$minorid = array_get_index($minor_parts, 1);
 		if (empty($minorid)) return null;
 
-		$relation = null;
+		$relation = empty($value)?null:$value;
 		$minor_term = null;
 		$major_term = null;
 
@@ -1755,15 +1751,14 @@ class Thesaurus extends Asset
 		}
 
 		$minor_term = $minor->name;
-		$relation = $minor->attr('relation');
 
 		if (isset($major_parts[1])) {
 			$major_term = $major->name;
 		}
 
 		if ($moving) {
-			$link_info = $this->getTermLinkidByTermids($minorid, $majorid, $relation);
-			if (!is_null($term_linkid)) {
+			$link_info = $this->getTermLinkByTermids($minorid, $majorid, $relation);
+			if (!is_null($link_info)) {
 				trigger_localised_error('CORE0240');
 				return false;
 			}
