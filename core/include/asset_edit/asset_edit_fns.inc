@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.53 2005/12/05 06:16:25 emcdonald Exp $
+* $Id: asset_edit_fns.inc,v 1.54 2005/12/05 22:12:12 emcdonald Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -102,12 +102,12 @@ class Asset_Edit_Fns extends MySource_Object
 													'force_unlock'	=> false,
 													'lock_type'		=> 'all',
 												   ),
-							'tagging'		=> Array(
+							'tagging'			=> Array(
 													'name'			=> 'Tagging',
 													'force_unlock'	=> true,
 													'lock_type'		=> 'all',
 												   ),
-							   );
+						  );
 
 
 	/**
@@ -124,9 +124,9 @@ class Asset_Edit_Fns extends MySource_Object
 	/**
 	* Paint the interface for the asset paths
 	*
-	* @param object Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -157,9 +157,9 @@ class Asset_Edit_Fns extends MySource_Object
 	/**
 	* Processes the Paths posted from the paintPaths fn above
 	*
-	* @param object Asset				$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -183,9 +183,9 @@ class Asset_Edit_Fns extends MySource_Object
 	/**
 	* Paint the interface for the asset paths
 	*
-	* @param object Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -218,7 +218,7 @@ class Asset_Edit_Fns extends MySource_Object
 	/**
 	* Starts workflow by writing out all workflow arrays to the workflow table for the passed assetID
 	*
-	* @param int    $assetid        the ID of the asset to check workflow completness for
+	* @param int	&$asset	the asset to check workflow completness for
 	*
 	* @return boolean
 	* @access public
@@ -233,12 +233,14 @@ class Asset_Edit_Fns extends MySource_Object
 	/**
 	* Paint a generic interface for editing assets that are notice linked to this asset
 	*
-	* @param object Asset	$asset		the asset whose interface we are painting
-	* @param Array			$link		the current link
-	* @param Array			$type_codes type_codes to pass to asset_finder()
-	* @param string			$field_name field_name to pass to asset_finder()
+	* Returns true if editable interface printed
 	*
-	* @return boolean true if editable interface printed
+	* @param object	&$asset		the asset whose interface we are painting
+	* @param array	$link_value	the current link
+	* @param array	$type_codes	type_codes to pass to asset_finder()
+	* @param string	$field_name	field_name to pass to asset_finder()
+	*
+	* @return boolean
 	* @access public
 	*/
 	function paintNoticeLinkedAsset(&$asset, $link_value, $type_codes=Array(), $field_name='')
@@ -246,7 +248,9 @@ class Asset_Edit_Fns extends MySource_Object
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, $link_value);
 		$selected = (empty($link)) ? 0 : $link['minorid'];
 
-		if (empty($field_name))	$field_name = $asset->getPrefix().'_'.str_replace(' ', '_', strtolower($link_value));
+		if (empty($field_name)) {
+			$field_name = $asset->getPrefix().'_'.str_replace(' ', '_', strtolower($link_value));
+		}
 
 		if (!$asset->writeAccess('links')) {
 			echo '<i>';
@@ -275,16 +279,18 @@ class Asset_Edit_Fns extends MySource_Object
 	/**
 	* Process a generic interface for editing assets that are notice linked to this asset
 	*
-	* @param object Asset	$asset		the asset whose interface we are painting
-	* @param string			$link_value	the value to put on the link
-	* @param string			$field_name	the name used for the asset finder
+	* @param object	&$asset		the asset whose interface we are painting
+	* @param string	$link_value	the value to put on the link
+	* @param string	$field_name	the name used for the asset finder
 	*
-	* @return boolean	whether a change was made or not
+	* @return boolean
 	* @access public
 	*/
 	function processNoticeLinkedAsset(&$asset, $link_value, $field_name='')
 	{
-		if (empty($field_name))	$field_name = $asset->getPrefix().'_'.str_replace(' ', '_', strtolower($link_value));
+		if (empty($field_name)) {
+			$field_name = $asset->getPrefix().'_'.str_replace(' ', '_', strtolower($link_value));
+		}
 		if (!isset($_POST[$field_name])) return false;
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, $link_value);
@@ -318,8 +324,8 @@ class Asset_Edit_Fns extends MySource_Object
 	/**
 	* Return true if the search manager asset type is installed
 	*
-	* @param object Asset        $asset  the asset whose interface we are painting
-	* @param string                        $prefix        the prefix for this asset
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param string	$prefix	the prefix for this asset
 	*
 	* @return boolean
 	* @access public
