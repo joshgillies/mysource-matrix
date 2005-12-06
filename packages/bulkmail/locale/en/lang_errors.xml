@@ -8,4 +8,8 @@
 	<error code="BML0008">File "%s" is not writable.</error>
 	<error code="BML0009">File "%s" is not readable.</error>
 	<error code="BML0010">Problematic recipient id found: %s.</error>
+
+	<error code="BML0011">Import file not selected.</error>
+	<error code="BML0012">User group not selected.</error>
+
 </errors>
