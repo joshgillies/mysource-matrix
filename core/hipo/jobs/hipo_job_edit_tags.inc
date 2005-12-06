@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_tags.inc,v 1.1 2005/12/05 06:03:24 emcdonald Exp $
+* $Id: hipo_job_edit_tags.inc,v 1.2 2005/12/06 04:57:36 emcdonald Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit content tags
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -245,6 +245,9 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 				}
 				$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
 				$child_assets[$assetid] = $asset->type();
+
+				// getChildren is not supposed to return any assets that are linked by notice links, but at time of writing it did. Check for assets returned that have no type.
+				$child_assets = array_filter($child_assets);
 				unset($asset);
 			}
 			$this->_running_vars['todo_assetids'] = $child_assets;
@@ -274,7 +277,6 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset)) {
-
 				foreach ($this->_running_vars['tag_changes'] as $tag_data) {
 					switch ($tag_data['action']) {
 						case 'add':
