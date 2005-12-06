@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_management.inc,v 1.13.6.2 2005/05/02 02:44:57 gsherwood Exp $
+* $Id: form_question_type_select_management.inc,v 1.13.6.3 2005/12/06 05:18:46 sdanis Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13.6.2 $
+* @version $Revision: 1.13.6.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -67,6 +67,11 @@ class Form_Question_Type_Select_Management extends Asset_Management
 										'added'		=> '0.0.1',
 										'type'		=> 'option_list',
 										'default'	=> '',
+									   ),
+						'required'	=> Array(
+										'added'			=> '0.0.1',
+										'type'			=> 'boolean',
+										'default'		=> false,
 									   ),
 					  );
 
