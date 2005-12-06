@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.19.2.1 2005/06/28 01:09:58 tbarrett Exp $
+* $Id: option_list.inc,v 1.19.2.2 2005/12/06 05:19:49 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19.2.1 $
+* @version $Revision: 1.19.2.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -74,6 +74,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 			<div id="option-list-<?php echo $prefix; ?>">
 				<?php
 				foreach ($value as $v) {
+					$v = htmlentities($v);
 					?>
 					<input type="text"  name="<?php echo $prefix; ?>_options[]" value="<?php echo $v; ?>" /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button><br />
 					<?php
