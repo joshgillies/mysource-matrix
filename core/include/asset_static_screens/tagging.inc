@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tagging.inc,v 1.1 2005/12/05 06:14:49 emcdonald Exp $
+* $Id: tagging.inc,v 1.2 2005/12/06 05:05:15 emcdonald Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Tagging Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
@@ -94,8 +94,6 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=null)
 
 					$o->openField('');
 
-					$current_tag_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_LINK_NOTICE);
-
 					if ($write_access) {
 						ob_start();
 						$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager', true);
@@ -117,7 +115,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=null)
 				case 'tags' :
 
 					$o->openField('');
-					$current_tag_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_LINK_NOTICE);
+					$current_tag_links = getCurrentTagLinks($owner);
 					ob_start();
 					if ($write_access) {
 
@@ -142,7 +140,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=null)
 
 				case 'weights' :
 
-					$current_tag_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_LINK_NOTICE);
+					$current_tag_links = getCurrentTagLinks($owner);
 					$o->openField('');
 					ob_start();
 
@@ -229,7 +227,6 @@ function processTagging(&$owner, &$o, $ei)
 	$prefix = $owner->getPrefix();
 
 	$submitted_tags = array_get_index($_REQUEST, $prefix.'_tags', Array());
-
 	// are we cascading these tag changes to our children? If we are doing a manual cascade, that is handled later, after changes have been made to the parent asset.
 	$cascade_changes = false;
 	if (isset($_POST[$prefix.'_tagging']['cascade_changes']) && $_POST[$prefix.'_tagging']['cascade_changes'] ) {
@@ -237,6 +234,7 @@ function processTagging(&$owner, &$o, $ei)
 	}
 	// are we manually cascading?
 	$manual_cascade = false;
+
 
 	if (isset($_POST[$prefix.'_tagging']['manual_cascade']) && $_POST[$prefix.'_tagging']['manual_cascade'] ) {
 		$manual_cascade = true;
@@ -251,7 +249,7 @@ function processTagging(&$owner, &$o, $ei)
 		$submitted_tag_ids[$key] = $submitted_tag['assetid'];
 	}
 
-	$current_tag_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_LINK_NOTICE);
+	$current_tag_links = getCurrentTagLinks($owner);
 	$current_tag_ids = Array();
 	$current_weights = Array();
 
@@ -304,7 +302,6 @@ function processTagging(&$owner, &$o, $ei)
 	$submitted_weights = array_get_index($_REQUEST, $prefix.'_weights', Array());
 	$modified_weights = array_diff_assoc($submitted_weights, $current_weights);
 	foreach ($modified_weights as $link_id => $weight) {
-
 		if ($cascade_changes) {
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($link_id);
 			// cascading add, so queue it up for the HIPO
@@ -321,7 +318,7 @@ function processTagging(&$owner, &$o, $ei)
 
 	// to perform a manual cascade, we make any changes necessary to the parent asset, then build a list of actions required to add all the tags of the parent to any children
 	if ($manual_cascade) {
-		$current_tag_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_LINK_NOTICE);
+		$current_tag_links = getCurrentTagLinks($owner);
 
 		foreach ($current_tag_links as $link) {
 			$tag_vars[] = Array(
@@ -351,5 +348,29 @@ function processTagging(&$owner, &$o, $ei)
 
 }//end processTagging()
 
+
+/**
+* Returns a list of tag links, being notice links to thesaurus terms
+*
+* @param object	&$asset	the asset whose links we are finding
+*
+* @return array
+* @access public
+*/
+function getCurrentTagLinks(&$asset)
+{
+	$tag_links = Array();
+	$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE);
+	foreach($notice_links as $notice_link) {
+		$id_parts = explode(':', $notice_link['minorid']);
+		$thes_id = $id_parts[0];
+			if($GLOBALS['SQ_SYSTEM']->am->getAsset($thes_id, 'thesaurus')) {
+				$tag_links[] = $notice_link;
+			}
+	}
+
+	return $tag_links;
+
+}//getCurrentTagLinks()
 
 ?>
