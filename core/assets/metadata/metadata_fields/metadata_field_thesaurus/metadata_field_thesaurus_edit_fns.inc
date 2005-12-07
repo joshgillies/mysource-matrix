@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.1 2005/11/23 00:53:35 arailean Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.2 2005/12/07 00:51:18 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -127,8 +127,9 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		$term_assetids = Array();
 
 		foreach ($values as $term) {
-			$term_data = $thesaurus->getOneTermByName($term);
-			$term_assetids[] = $thesaurus->id.':'.$term_data['linkid'];
+			$termid = $thesaurus->getTermIdByName($term);
+			$term_assetids[] = $thesaurus->id.':'.$termid;
+			$term_info[$termid] = $term;
 		}
 
 		echo '<p>'.translate('thesaurus_meta_thesaurus_note').get_asset_tag_line($thesaurus->id, 'details').'</p>';
@@ -147,10 +148,10 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		if (!empty($values)) {
 			$o->openSection(translate('thesaurus_term_lineages'));
-			foreach ($values as $one_term) {
-				$lineages = $thesaurus->getLineagesForTerm($one_term);
+			foreach ($term_info as $term_id => $term_name) {
+				$lineages = $thesaurus->getLineagesForTerm($term_id);
 				if (!$lineages) continue;
-				$o->openField($one_term);
+				$o->openField($term_name);
 				foreach ($lineages as $lineage) {
 					foreach ($lineage as $ancestor) {
 						echo ' / ';
