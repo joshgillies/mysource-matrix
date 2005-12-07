@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.85 2005/12/05 05:58:07 emcdonald Exp $
+* $Id: lang_strings.xml,v 1.86 2005/12/07 05:01:06 lwright Exp $
 *
 */
 
@@ -132,6 +132,7 @@
 	<string source="internal_links">Internal Links</string>
 	<string source="internationalisation_settings">Internationalisation Settings</string>
 	<string source="intervals">Intervals</string>
+	<string source="keyword">Keyword</string>
 	<string source="keyword_extraction_tools">Keyword Extraction Tools</string>
 	<string source="keyword_name">Keyword Name</string>
 	<string source="layout_code">Layout Code</string>
@@ -764,6 +765,8 @@
 	<string source="condition_user_frequency_false"> </string>
 	<string source="condition_server_variable_true">The following server variable matches the specified pattern</string>
 	<string source="condition_server_variable_false">The following server variable does not match the specified pattern</string>
+	<string source="condition_keyword_regexp_true">The following keyword matches the specified pattern</string>
+	<string source="condition_keyword_regexp_false">The following keyword does not match the specified pattern</string>
 	<string source="condition_logical_true">The following combination of keywords evaluates to True</string>
 	<string source="condition_logical_false">The following combination of keywords evaluates to False</string>
 
