@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_logical.inc,v 1.3 2005/10/13 02:07:37 tbarrett Exp $
+* $Id: condition_logical.inc,v 1.4 2005/12/07 05:06:46 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 * of logical keywords.
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -124,6 +124,52 @@ class Condition_Logical extends Condition
 		return $ret;
 
 	}//end evaluate()
+
+
+	/**
+	* Populate info about additional logical keywords into this condition
+	*
+	* Used predominantly with paint layouts - not entirely generic but if a
+	* condition requires other keywords (as Condition_Logical does) then it's
+	* not likely to be able to be used in user restrictions anyway
+	*
+	* @param array	$logical_keywords	Logical keywords already evaluated
+	* @param array	&$condition_data	Condition data array for this condition
+	*
+	* @return void
+	* @access public
+	* @static
+	*/
+	function updateKeywords($logical_keywords, &$condition_data)
+	{
+		$condition_logical_keywords = Condition_Logical::getLogicalKeywords($condition_data);
+		foreach (array_keys($condition_logical_keywords) as $condition_logical_keyword_name) {
+			$condition_logical_keywords[$condition_logical_keyword_name] = isset($logical_keywords[$condition_logical_keyword_name]) ? $logical_keywords[$condition_logical_keyword_name] : '';
+		}
+
+		Condition_Logical::setLogicalKeywords($condition_data, $condition_logical_keywords);
+
+	}//end updateKeywords()
+
+
+	/**
+	* Get additional keywords that this condition requires in order to be evaluated
+	*
+	* Used predominantly with paint layouts - not entirely generic but if a
+	* condition requires other keywords (as Condition_Logical does) then it's
+	* not likely to be able to be used in user restrictions anyway
+	*
+	* @param array	$condition_data	Condition data array for this condition
+	*
+	* @return array
+	* @access public
+	* @static
+	*/
+	function getRequiredKeywords($condition_data)
+	{
+		return array_keys(Condition_Logical::getLogicalKeywords($condition_data));
+
+	}//end getRequiredKeywords()
 
 
 }//end class
