@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_thesaurus_xml.inc,v 1.2 2005/12/02 00:26:29 arailean Exp $
+* $Id: hipo_job_import_thesaurus_xml.inc,v 1.3 2005/12/07 00:48:34 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -256,61 +256,63 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 
 		$stack =& $this->_running_vars['stack'];
 
-		if (! ($tag == 'thesaurus' || $tag == TERM || $tag == RELATION)) {
+		if ($tag != 'thesaurus' && $tag != 'term' && $tag != 'relation') {
 			trigger_localised_error('HIPO0064', E_USER_WARNING, $tag);
 		}
 
-		//whip the top element off and have a squiz
-		$top_of_stack = array_pop($stack);
-		array_push($stack, $top_of_stack);
-
-		//check new terms to make sure they're either a term or a relation
-		if ($tag == RELATION) {
-			if ($top_of_stack['tag'] == TERM) {
-				$new_relation = Array(
-									'tag'	=> 'relation',
-									'name'	=> array_get_index($attrs, 'name'),
-								);
-				array_push($stack, $new_relation);
-
-			} else if ($top_of_stack['tag'] == RELATION) {
-			// Error You cant relate a relation to a term.
-				trigger_localised_error('HIPO0065', E_USER_WARNING, $element);
-			}
-		} else if ($tag == TERM) {
-			$term_name = array_get_index($attrs,'name');
-			if (empty($term_name)) {
-				trigger_localised_error('HIPO0066', E_USER_WARNING);
-			}
-			if ($top_of_stack['tag'] != RELATION) {
-			// if the top of stack is not a relation, throw a null relation in to extend the shorthand form.
-				$null_relation  = Array(
-									'tag'	=> 'relation',
-									'name'	=> '',
-								  );
-				array_push($stack, $null_relation);
-				$top_of_stack = $null_relation;
-			}
-			// We've got a term link. Send this to thesaurus.
-			//this term link is composed of the current term, the top of stack(relation, and the one under that (parent term)
-			$relation = array_pop($stack);
-			$parent_term = array_pop($stack);
-			array_push($stack, $parent_term);
-			array_push($stack, $relation);
-
-			$th_asset = &$this->getThesaurusRef();
-			$th_asset->addTerm($attrs['name'], $parent_term['name'], $relation['name']);
-
-			// add the term to the stack
-			$new_term = Array(
-							'tag'	=> 'term',
-							'name'	=> $attrs['name'],
-						);
-			array_push($stack, $new_term);
-
-		} else if (!$tag == 'thesaurus') {
-			trigger_localised_error('HIPO0067', E_USER_WARNING, $tag);
+		if (empty($stack) && $tag != 'thesaurus') {
+			trigger_error('EMPTY STACK');
+			return false;
 		}
+
+		switch ($tag) {
+			case 'thesaurus':
+				if (empty($stack)) {
+					array_unshift($stack, Array('term' => null, 'relation' => null));
+				} else {
+					trigger_localised_error('HIPO0067', E_USER_WARNING, $tag);
+					return false;
+				}
+			break;
+
+			case 'relation':
+				if (!is_null($stack[0]['relation'])) {
+					trigger_localised_error('HIPO0065', E_USER_WARNING, $tag);
+					return false;
+				} else {
+					$stack[0]['relation'] = array_get_index($attrs, 'name');
+				}
+			break;
+
+			case 'term':
+				if (empty($attrs['name'])) {
+					trigger_localised_error('HIPO0066', E_USER_WARNING);
+					return false;
+
+				} else {
+					// add the term
+					if (is_null($stack[0]['term'])) {
+						$parent_asset =& $this->getThesaurusRef();
+					} else {
+						$parent_asset = $stack[0]['term'];
+					}
+
+					$create_link['asset'] = &$parent_asset;
+					$create_link['value'] = $stack[0]['relation'];
+
+					$term_asset = new Thesaurus_Term();
+					$term_asset->setAttrValue('name', $attrs['name']);
+					$term_asset->create($create_link);
+
+					// put it onto the stack
+					array_unshift($stack, Array('term' => &$term_asset, 'relation' => null));
+				}
+			break;
+
+			default:
+				trigger_localised_error('HIPO0067', E_USER_WARNING, $tag);
+		}
+
 	}//end startElement()
 
 
@@ -327,41 +329,46 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	{
 		$stack =& $this->_running_vars['stack'];
 
-		if (! ($tag == 'thesaurus' ||$tag == TERM || $tag == RELATION)) {
+		if ($tag != 'thesaurus' && $tag != 'term' && $tag != 'relation') {
 			trigger_localised_error('HIPO0064', E_USER_WARNING, $tag);
 		}
-		//whip the top element off and have a squiz
-		$top_of_stack = array_pop($stack);
-		array_push($stack, $top_of_stack);
 
-		// we want to pop a tag off the stack, so hopefully the last tag on the stack is a match, or a null relation
-		if ($tag == TERM) {
-		// if this tag is a term
-			if ($top_of_stack['tag'] == TERM) {
-			// if the top of stack is a term
-				array_pop($stack);
-			} else if ($top_of_stack['tag'] == RELATION && empty($top_of_stack['name'])) {
-			// if the top of the stack is a null relation
-				// We could check these and make sure we popped what we expected...
-				array_pop($stack);// pop the null relation
-				array_pop($stack);// then pop the term
-			} else if ($top_of_stack['tag'] == RELATION &&  ! empty($top_of_stack['name'])) {
-			// if the top of the stack is a non-null relation
-				trigger_localised_error('HIPO0068', E_USER_WARNING, $top_of_stack['name']);
-			}
-		} else if ($tag == RELATION) {
-		// elseif this tag is a relation
-			if ($top_of_stack['tag'] == TERM) {
-			// if the top of the stack is a term
-				trigger_localised_error('HIPO0069', E_USER_WARNING);
-			} else if ($top_of_stack['tag'] == RELATION) {
-				// pop the relation
-				array_pop($stack);
-			}
-		} else if ($tag == 'thesaurus') {
-			//we're at the end. do nothing for now. Could do a bunch of checking to make sure our stack is empty when we get to the end of the file
+		if (empty($stack)) {
+			trigger_error('EMPTY STACK');
+			return false;
 		}
 
+		switch ($tag) {
+			case 'thesaurus':
+				if (is_null($stack[0]['term'])) {
+					array_shift($stack);
+				} else {
+					trigger_error('Malformed XML. Unexpected tag: <'.$tag.'>.');
+					return false;
+				}
+			break;
+
+			case 'relation':
+				if (!is_null($stack[0]['relation'])) {
+					$stack[0]['relation'] = null;
+				} else {
+					trigger_error('Malformed XML. Unexpected tag: <'.$tag.'>.');
+					return false;
+				}
+			break;
+
+			case 'term':
+				if (!is_null($stack[0]['term'])) {
+					array_shift($stack);
+				} else {
+					trigger_error('Malformed XML. Unexpected tag: <'.$tag.'>.');
+					return false;
+				}
+			break;
+
+			default:
+				trigger_localised_error('HIPO0067', E_USER_WARNING, $tag);
+		}
 	}//end endElement()
 
 
@@ -376,12 +383,12 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	*/
 	function processParseXml(&$step_data, $prefix)
 	{
-		define('TERM', 'term');
-		define('RELATION','relation');
 
 		$block_size = 4096;
 		$blocks_per_step = 10;
 
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('thesaurus_term');
 
 		if (!isset($step_data['total_read'])) {
 			//assume this is the first step because we must read something on each step
@@ -389,10 +396,9 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 			$step_data['total_read'] = 0;
 			$step_data['remainder'] = '';
 		}
+
 		if (!isset($this->_running_vars['stack'])) {
-			//Create and initialise the parser
-			$stack = Array();
-			$this->_running_vars['stack'] = $stack;
+			$this->_running_vars['stack'] = Array();
 		}
 
 
@@ -484,7 +490,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 
 
 	/**
-	* Get a reference to the thesaurus asset
+	* Get a reference to the thesaurus assets
 	*
 	* @return object
 	* @access public

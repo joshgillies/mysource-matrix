@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.5 2005/12/05 03:07:15 arailean Exp $
+* $Id: thesaurus.inc,v 1.6 2005/12/07 00:48:34 arailean Exp $
 *
 */
 
@@ -35,7 +35,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -378,10 +378,491 @@ class Thesaurus extends Asset
 	*/
 	function getAllRelations()
 	{
-
 		return $this->attr('relations');
 
 	}//end getAllRelations()
+
+
+	/**
+	* Helper function to add a term to the system
+	*
+	* NOTE: Does NOT check if the term already exists
+	*
+	* @param string	$term	Term
+	*
+	* @return mixed null|int
+	* @access private
+	*/
+	function _addTerm($term)
+	{
+		if (!isset($term) || $term == '') {
+			return null;
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$termid = $db->nextId('sq_thes_term');
+		assert_valid_db_result($termid);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$sql = '
+			INSERT INTO sq_thes_term
+				(
+					termid,
+					term,
+					thesid
+				)
+			VALUES
+			(
+				'.$termid.',
+				'.$db->quoteSmart($term).',
+				'.$db->quoteSmart($this->id).'
+			)
+		';
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return $termid;
+
+	}//end _addTerm()
+
+
+	/**
+	* Link two terms together
+	*
+	* NOTE: This function does not check if the terms exist
+	* NOTE: Does not check if the LINK already EXISTS
+	*
+	* @param string	$minorid	Minor term
+	* @param string	$majorid	Major term, if null, linking to the top
+	* @param string	$relation	Relation
+	* @param string	$sort_order	Asset map sort order index
+	*
+	* @return mixed null|int
+	* @access public
+	*/
+	function _linkTerms($minorid, $majorid=null, $relation=null, $sort_order=-1)
+	{
+		if (is_null($minorid)) return null;
+
+		if (is_null($sort_order)) $sort_order = -1;
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$linkid = $db->nextId('sq_thes_lnk');
+		assert_valid_db_result($linkid);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+
+		$max_sort_order = $this->getMaxSortOrder($majorid);
+		if (is_null($max_sort_order)) {
+			$sort_order = 0;
+		} else if (($sort_order > $max_sort_order) || ($sort_order < 0)) {
+			$sort_order = $max_sort_order + 1;
+		} else {
+			// inserting somewhere in the middle
+			// update all other sort orders before inserting this one
+			// we're in a transaction, so if something goes wrong later, this will be rolled back
+			$sql = '
+				UPDATE
+					sq_thes_lnk
+				SET
+					sort_order = sort_order + 1
+				WHERE
+					sort_order >= '.$db->quoteSmart($sort_order).'
+					AND
+					major '.(is_null($majorid)?'ISNULL':'= '.$db->quoteSmart($majorid)).'
+					AND
+					thesid = '.$db->quoteSmart($this->id).'
+			';
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+		}
+
+
+		// inserting a term link is the easiest thing ever
+		$sql = '
+			INSERT INTO sq_thes_lnk
+				(
+					linkid,
+					major,
+					minor,
+					relation,
+					sort_order,
+					thesid
+				)
+			VALUES
+				(
+					'.$linkid.',
+					'.$db->quoteSmart($majorid).',
+					'.$db->quoteSmart($minorid).',
+					'.$db->quoteSmart($relation).',
+					'.$db->quoteSmart($sort_order).',
+					'.$db->quoteSmart($this->id).'
+				)
+		';
+
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+
+		//// The Fun Part: Link Tree
+
+		// This code is similar to the one in the asset manager, with a few exceptions
+		// the major difference is that loops are allowed, i.e. a term can be its own grand-parent, etc
+		// this requirement makes the tree operations more complicated than those of the asset manager
+
+		// Thesaurus Tree Ids definitions:
+		// -- Node - one level of the link tree that has tree ids pointing to it (everything is a node)
+		// -- Incoming tree id - a tree id that a node has to its parent
+		// -- Outgoing tree id - a tree id that a node has to its child
+
+		// Thesaurus Tree Ids conditions:
+		// - Every link has at least one tree id
+		// - Every node has as many outgoing as incoming treeids
+		//		MINUS the number of those incoming, which have another incoming as their subset
+		// - A node cannot have an outgoing tree id that has another outgoing treeid as its subset (loop prevention)
+
+		// Get one of the treeids that a parent term has
+		if (is_null($majorid)) {
+			$parents_treeid = '';
+		} else {
+			$sql = '
+				SELECT
+					parent_tree.treeid
+				FROM
+					sq_thes_lnk_tree parent_tree
+					INNER JOIN sq_thes_lnk parent_lnk ON parent_tree.linkid = parent_lnk.linkid,
+					sq_thes_lnk_tree test_tree
+					INNER JOIN sq_thes_lnk test_lnk ON test_tree.linkid = test_lnk.linkid
+				WHERE
+					parent_tree.treeid LIKE (test_tree.treeid || '.$db->quoteSmart('%').')
+
+					AND
+					parent_lnk.minor	= '.$db->quoteSmart($majorid).'
+					AND
+					test_lnk.minor		= '.$db->quoteSmart($majorid).'
+
+					AND
+					test_lnk.thesid		= '.$db->quoteSmart($this->id).'
+					AND
+					parent_lnk.thesid	= '.$db->quoteSmart($this->id).'
+					AND
+					parent_tree.thesid	= '.$db->quoteSmart($this->id).'
+					AND
+					test_tree.thesid	= '.$db->quoteSmart($this->id).'
+
+				GROUP BY
+					parent_tree.treeid
+				HAVING
+					count(parent_tree.treeid) = 1
+			';
+
+			$sql = $db->modifyLimitQuery($sql, 0, 1);
+
+			$parents_treeid = $db->getOne($sql);
+			assert_valid_db_result($parents_treeid);
+		}
+		$parents_treeid = (string) $parents_treeid;
+
+
+		// when links are deleted their entries in the tree table are set to have a linkid of zero
+		// (see deleteTermLink()) so we can attempt to find unused treeids that are forming gaps
+		$sql = '
+			SELECT
+				treeid
+			FROM
+				sq_thes_lnk_tree
+			WHERE
+				treeid LIKE '.$db->quote($parents_treeid.'_%').'
+				AND
+				LENGTH(treeid) = '.(strlen($parents_treeid) + SQ_CONF_ASSET_TREE_SIZE).'
+				AND
+				linkid = 0
+				AND
+				thesid = '.$db->quoteSmart($this->id).'
+		';
+
+		$sql = $db->modifyLimitQuery($sql, 0, 1);
+		$free_childid = $db->getOne($sql);
+		assert_valid_db_result($free_childid);
+
+		if (is_null($free_childid)) {
+			// no free children, generate one from the max value (note that
+			// we have to do this by a LIMIT query as the binary string fields
+			// do not allow the MAX() aggregate to be run over it)
+			$sql = '
+				SELECT
+					treeid
+				FROM
+					sq_thes_lnk_tree
+				WHERE
+					treeid LIKE '.$db->quote($parents_treeid.'_%').'
+					AND
+					LENGTH(treeid) = '.(strlen($parents_treeid) + SQ_CONF_ASSET_TREE_SIZE).'
+					AND
+					thesid = '.$db->quoteSmart($this->id).'
+				ORDER BY
+					treeid DESC
+			';
+
+			$free_childid = $db->getOne($db->modifyLimitQuery($sql, 0, 1));
+			assert_valid_db_result($free_childid);
+
+			if (is_null($free_childid)) {
+				// no max, we must be the first
+				if (($free_childid = asset_link_treeid_convert(0, true)) === false) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return 0;
+				}
+			} else {
+				// we found a max so increment it
+
+				// get only the child part
+				$free_childid = substr($free_childid, -1 * SQ_CONF_ASSET_TREE_SIZE);
+
+				if (($child_num = asset_link_treeid_convert($free_childid, false)) === false) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return 0;
+				}
+				if (($free_childid = asset_link_treeid_convert($child_num + 1, true)) === false) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return 0;
+				}
+			}//end if
+
+		} else {
+			// there was a free entry
+
+			// get only the child part
+			$free_childid = substr($free_childid, -1 * SQ_CONF_ASSET_TREE_SIZE);
+
+			// remove the current zeroed entries in the tree table,
+			// as we will be inserting over the top of them
+
+			if (is_null($majorid)) {
+				$sql = '
+					DELETE FROM
+						sq_thes_lnk_tree
+					WHERE
+						treeid = '.$db->quoteSmart($free_childid).'
+						AND
+						thesid = '.$db->quoteSmart($this->id).'
+				';
+			} else {
+				$sql = '
+					DELETE FROM
+						sq_thes_lnk_tree
+					WHERE
+						treeid IN
+						(
+							SELECT
+								tree.treeid || '.$db->quoteSmart($free_childid).'
+							FROM
+								sq_thes_lnk_tree tree
+								INNER JOIN sq_thes_lnk link ON tree.linkid = tree.linkid
+							WHERE
+								link.minor	= '.$db->quoteSmart($majorid).'
+								AND
+								tree.thesid	= '.$db->quoteSmart($this->id).'
+								AND
+								link.thesid	= '.$db->quoteSmart($this->id).'
+						)
+						AND
+						thesid = '.$db->quoteSmart($this->id).'
+				';
+			}
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
+		}//end if
+
+
+		// if we don't have any existing tree entries then
+		// we are the root term, so do a simple insert
+		if ($parents_treeid == '') {
+			$sql = '
+				INSERT INTO
+					sq_thes_lnk_tree
+					(
+						treeid,
+						linkid,
+						thesid
+					)
+				VALUES
+					(
+						'.$db->quoteSmart($free_childid).',
+						'.$db->quoteSmart($linkid).',
+						'.$db->quoteSmart($this->id).'
+					)
+			';
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
+		} else {
+			// we have existing tree entries, do a insert..select to create entries for them all
+
+			$sql = '
+				INSERT INTO
+					sq_thes_lnk_tree
+					(
+						treeid,
+						linkid,
+						thesid
+					)
+				SELECT
+					(parent_tree.treeid || '.$db->quoteSmart($free_childid).') as treeid,
+					'.$db->quoteSmart($linkid).' as linkid,
+					'.$db->quoteSmart($this->id).' as thesid
+				FROM
+					sq_thes_lnk_tree parent_tree
+					INNER JOIN sq_thes_lnk parent_link ON parent_tree.linkid = parent_link.linkid,
+					sq_thes_lnk_tree test_tree
+					INNER JOIN sq_thes_lnk test_link ON test_tree.linkid = test_link.linkid
+				WHERE
+					parent_tree.treeid LIKE (test_tree.treeid || '.$db->quoteSmart('%').')
+
+					AND
+					parent_link.minor	= '.$db->quoteSmart($majorid).'
+					AND
+					test_link.minor		= '.$db->quoteSmart($majorid).'
+
+					AND
+					test_link.thesid	= '.$db->quoteSmart($this->id).'
+					AND
+					parent_link.thesid	= '.$db->quoteSmart($this->id).'
+					AND
+					parent_tree.thesid	= '.$db->quoteSmart($this->id).'
+					AND
+					test_tree.thesid	= '.$db->quoteSmart($this->id).'
+
+				GROUP BY
+					parent_tree.treeid
+				HAVING
+					count(parent_tree.treeid) = 1
+			';
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
+		}//end if
+
+
+		// select the incoming tree ids that were assigned to this link id
+		$sql = '
+			SELECT
+				treeid
+			FROM
+				sq_thes_lnk_tree
+			WHERE
+				linkid = '.$db->quoteSmart($linkid).'
+				AND
+				thesid = '.$db->quoteSmart($this->id).'
+			ORDER BY
+				treeid
+		';
+		$new_treeids = $db->getCol($sql);
+		assert_valid_db_result($new_treeids);
+
+
+		// now we propagate all new incoming tree ids to each outgoing tree branch
+		// we cannot do this in one query because we have to check for loops and prune some tree branches
+		// this section makes sure the above conditions for the link tree always hold
+		foreach ($new_treeids as $new_treeid) {
+
+			$sql = '
+				INSERT INTO
+					sq_thes_lnk_tree
+					(
+						treeid,
+						linkid,
+						thesid
+					)
+				SELECT DISTINCT
+					'.$db->quoteSmart($new_treeid).' || SUBSTR(prop_tree.treeid, LENGTH(tree.treeid) +1 ),
+					prop_tree.linkid,
+					'.$db->quoteSmart($this->id).'
+				FROM
+					sq_thes_lnk_tree tree
+					INNER JOIN sq_thes_lnk link ON tree.linkid = link.linkid,
+					sq_thes_lnk_tree prop_tree
+
+				WHERE
+				-- Get the tree we are about to propagate to and siblings on that tree
+					link.minor = '.$db->quoteSmart($minorid).'
+					AND
+					tree.linkid <> '.$db->quoteSmart($linkid).'
+					AND
+					prop_tree.treeid LIKE (tree.treeid || '.$db->quoteSmart('_%').')
+					AND
+					prop_tree.treeid NOT IN
+					(
+						SELECT DISTINCT
+							cut_tree.treeid
+
+						FROM
+							sq_thes_lnk_tree tree
+							INNER JOIN sq_thes_lnk link ON tree.linkid = link.linkid,
+
+							sq_thes_lnk_tree prop_tree
+							INNER JOIN sq_thes_lnk_tree sibling_tree ON prop_tree.linkid = sibling_tree.linkid,
+
+							sq_thes_lnk_tree cut_tree
+
+						WHERE
+							-- Get the tree we are about to propagate to and their siblings
+							link.minor = '.$db->quoteSmart($minorid).'
+							AND
+							tree.linkid <> '.$db->quoteSmart($linkid).'
+							AND
+							prop_tree.treeid LIKE (tree.treeid || '.$db->quoteSmart('_%').')
+
+							-- Get the copy of the propagate tree we are about to cut
+							AND
+							cut_tree.treeid LIKE (tree.treeid || '.$db->quoteSmart('_%').')
+
+							-- Find a prune tree in one of the siblings of the propagate tree
+							-- This is a treeid that is a subset of the treeid that we are trying to propagate
+							AND
+							'.$db->quoteSmart($new_treeid).' LIKE (SUBSTR(sibling_tree.treeid, 1, LENGTH(sibling_tree.treeid) - '.$db->quoteSmart(SQ_CONF_ASSET_TREE_SIZE).') || '.$db->quoteSmart('%').')
+
+							-- Everything thats below the parent of the propagate tree that has a sibling which is a subset
+							-- of the new tree is to be cut out of propagation
+							AND
+							cut_tree.treeid LIKE (SUBSTR(prop_tree.treeid, 1, LENGTH(prop_tree.treeid) - '.$db->quoteSmart(SQ_CONF_ASSET_TREE_SIZE).') || '.$db->quoteSmart('_%').')
+
+							AND
+							tree.thesid 		= '.$db->quoteSmart($this->id).'
+							AND
+							link.thesid 		= '.$db->quoteSmart($this->id).'
+							AND
+							prop_tree.thesid 	= '.$db->quoteSmart($this->id).'
+							AND
+							sibling_tree.thesid	= '.$db->quoteSmart($this->id).'
+							AND
+							cut_tree.thesid 	= '.$db->quoteSmart($this->id).'
+					)
+					AND
+					tree.thesid 		= '.$db->quoteSmart($this->id).'
+					AND
+					link.thesid 		= '.$db->quoteSmart($this->id).'
+					AND
+					prop_tree.thesid 	= '.$db->quoteSmart($this->id).'
+			';
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return $linkid;
+
+	}//end _linkTerms()
 
 
 	/**
@@ -435,38 +916,6 @@ class Thesaurus extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-
-		// if term does not exist, add it
-		$termid = $this->getTermIdByName($term);
-		if (!empty($termid)) {
-			// term exists. quickly check if the link exists to save us the headache of adding it
-			$link_info = $this->getTermLinkByTermids($termid, $parentid, $relation);
-			if (!is_null($link_info)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-				return null;
-			}
-		} else {
-			// ok, let's add the term
-			$termid = $db->nextId('sq_thes_term');
-			assert_valid_db_result($termid);
-
-			$sql = '
-				INSERT INTO sq_thes_term
-					(
-						termid,
-						term,
-						thesid
-					)
-				VALUES
-				(
-					'.$termid.',
-					'.$db->quoteSmart($term).',
-					'.$db->quoteSmart($this->id).'
-				)
-			';
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
-		}
 
 
 		$max_sort_order = $this->getMaxSortOrder($parentid);
@@ -1764,7 +2213,7 @@ class Thesaurus extends Asset
 			}
 		}
 
-		$term_linkid = $this->addTerm($minor_term, $major_term, $relation, $sort_order);
+		$term_linkid = $this->_linkTerms($minorid, $majorid, $relation, $sort_order);
 
 		if (is_null($term_linkid)) return false;
 
@@ -2239,12 +2688,12 @@ class Thesaurus extends Asset
 	/**
 	* Get all lineages for a term
 	*
-	* @param string	$term	the name of the term
+	* @param string	$termid	the name of the term
 	*
 	* @return array
 	* @access public
 	*/
-	function getLineagesForTerm($term)
+	function getLineagesForTerm($termid)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -2252,52 +2701,63 @@ class Thesaurus extends Asset
 		$sql = '
 			SELECT
 				child_tree.treeid 		as our_treeid,
-				parent_term.relation	as relation,
-				parent_term.minor 		as term,
+				parent_link.relation	as relation,
+				term_t.term				as term,
+				term_t.termid			as termid,
 				parent_tree.treeid 		as parent_treeid
 			FROM
-				sq_thes_term child_term
-				INNER JOIN sq_thes_lnk_tree child_tree ON child_term.linkid = child_tree.linkid,
-				sq_thes_term parent_term
-				INNER JOIN sq_thes_lnk_tree parent_tree ON parent_term.linkid = parent_tree.linkid
+				sq_thes_lnk child_link
+				INNER JOIN sq_thes_lnk_tree child_tree ON child_link.linkid = child_tree.linkid,
+				sq_thes_term term_t,
+				sq_thes_lnk parent_link
+				INNER JOIN sq_thes_lnk_tree parent_tree ON parent_link.linkid = parent_tree.linkid
 			WHERE
 				child_tree.treeid IN (
 					SELECT
 						result_tree.treeid as child_treeid
 					FROM
 						sq_thes_lnk_tree test_tree
-						INNER JOIN sq_thes_term test_term ON test_tree.linkid = test_term.linkid,
+						INNER JOIN sq_thes_lnk test_link ON test_tree.linkid = test_link.linkid,
 						sq_thes_lnk_tree result_tree
-						INNER JOIN sq_thes_term result_term ON result_tree.linkid = result_term.linkid
+						INNER JOIN sq_thes_lnk result_link ON result_tree.linkid = result_link.linkid
 					WHERE
 						result_tree.treeid LIKE (test_tree.treeid || '.$db->quoteSmart('%').')
 						AND
-						test_term.minor = '.$db->quoteSmart($term).'
+						test_link.minor = '.$db->quoteSmart($termid).'
 						AND
-						result_term.minor = '.$db->quoteSmart($term).'
+						result_link.minor = '.$db->quoteSmart($termid).'
+
 						AND
 						test_tree.thesid = '.$db->quoteSmart($this->id).'
 						AND
 						result_tree.thesid = '.$db->quoteSmart($this->id).'
 						AND
-						test_term.thesid = '.$db->quoteSmart($this->id).'
+						test_link.thesid = '.$db->quoteSmart($this->id).'
 						AND
-						result_term.thesid = '.$db->quoteSmart($this->id).'
+						result_link.thesid = '.$db->quoteSmart($this->id).'
 					GROUP BY
 						result_tree.treeid
 					HAVING
-						count(result_tree.treeid) =1
+						count(result_tree.treeid) = 1
 				)
 				AND
 				child_tree.treeid LIKE parent_tree.treeid || '.$db->quoteSmart('%').'
 				AND
 				parent_tree.treeid <= child_tree.treeid
 				AND
-				parent_tree.thesid = '.$db->quoteSmart($this->id).'
+				term_t.termid = parent_link.minor
 				AND
-				child_tree.thesid = '.$db->quoteSmart($this->id).'
+				parent_tree.thesid	= '.$db->quoteSmart($this->id).'
+				AND
+				child_tree.thesid	= '.$db->quoteSmart($this->id).'
+				AND
+				parent_link.thesid	= '.$db->quoteSmart($this->id).'
+				AND
+				child_link.thesid	= '.$db->quoteSmart($this->id).'
+				AND
+				term_t.thesid		= '.$db->quoteSmart($this->id).'
 			ORDER BY
-				child_term.linkid,
+				child_link.linkid,
 				child_tree.treeid,
 				parent_tree.treeid
 		';
