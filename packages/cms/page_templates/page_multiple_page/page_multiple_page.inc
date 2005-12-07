@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page.inc,v 1.7 2005/11/24 04:19:40 dmckee Exp $
+* $Id: page_multiple_page.inc,v 1.8 2005/12/07 21:55:23 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -245,6 +245,7 @@ class Page_Multiple_Page extends Page
 	*/
 	function linksUpdated()
 	{
+		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes', 0, true);
 		//This is bugging out so we can delay the updating of our web paths
 		if (isset($this->_tmp['deleting_links']) && $this->_tmp['deleting_links'] == true) {
 			return true;
@@ -280,6 +281,7 @@ class Page_Multiple_Page extends Page
 		// This will store all current pages,
 		$this->setAttrValue('current_page_ids', $new_page_children);
 		$this->saveAttributes();
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 		return true;
 
 	}//end linksUpdated()
