@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tagging.inc,v 1.2 2005/12/06 05:05:15 emcdonald Exp $
+* $Id: tagging.inc,v 1.3 2005/12/07 03:54:57 emcdonald Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Tagging Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 
@@ -232,19 +232,18 @@ function processTagging(&$owner, &$o, $ei)
 	if (isset($_POST[$prefix.'_tagging']['cascade_changes']) && $_POST[$prefix.'_tagging']['cascade_changes'] ) {
 		$cascade_changes = true;
 	}
+
+
 	// are we manually cascading?
 	$manual_cascade = false;
-
-
 	if (isset($_POST[$prefix.'_tagging']['manual_cascade']) && $_POST[$prefix.'_tagging']['manual_cascade'] ) {
 		$manual_cascade = true;
 		$cascade_changes = false;
 	}
 
+
 	$tag_vars = Array();
-
 	// Build a 'to do' list for the hippo job with additions, deletions and weight changes
-
 	foreach ($submitted_tags as $key => $submitted_tag) {
 		$submitted_tag_ids[$key] = $submitted_tag['assetid'];
 	}
@@ -280,6 +279,23 @@ function processTagging(&$owner, &$o, $ei)
 	}
 
 
+	$submitted_weights = array_get_index($_REQUEST, $prefix.'_weights', Array());
+	$modified_weights = array_diff_assoc($submitted_weights, $current_weights);
+	foreach ($modified_weights as $link_id => $weight) {
+		if ($cascade_changes) {
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($link_id);
+			// cascading add, so queue it up for the HIPO
+			$tag_vars[] = Array(
+							'tag_id'	=> $link['minorid'],
+							'action'	=> 'add',
+							'weight'	=> $weight,
+						  );
+		} else {
+			$success = $GLOBALS['SQ_SYSTEM']->am->updateLink($link_id, SQ_LINK_NOTICE, $weight);
+		}
+	}
+
+
 	//delete any tags that haven't been resubmitted
 	$deleted_tag_ids = array_diff($current_tag_ids, $submitted_tag_ids);
 	foreach ($deleted_tag_ids as $one_tag_id) {
@@ -295,23 +311,6 @@ function processTagging(&$owner, &$o, $ei)
 		} else {
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($owner->id, $one_tag_id, SQ_LINK_NOTICE);
 			$success = $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
-		}
-	}
-
-
-	$submitted_weights = array_get_index($_REQUEST, $prefix.'_weights', Array());
-	$modified_weights = array_diff_assoc($submitted_weights, $current_weights);
-	foreach ($modified_weights as $link_id => $weight) {
-		if ($cascade_changes) {
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($link_id);
-			// cascading add, so queue it up for the HIPO
-			$tag_vars[] = Array(
-							'tag_id'	=> $link['minorid'],
-							'action'	=> 'add',
-							'weight'	=> $weight,
-						  );
-		} else {
-			$success = $GLOBALS['SQ_SYSTEM']->am->updateLink($link_id, SQ_LINK_NOTICE, $weight);
 		}
 	}
 
@@ -361,16 +360,16 @@ function getCurrentTagLinks(&$asset)
 {
 	$tag_links = Array();
 	$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE);
-	foreach($notice_links as $notice_link) {
+	foreach ($notice_links as $notice_link) {
 		$id_parts = explode(':', $notice_link['minorid']);
 		$thes_id = $id_parts[0];
-			if($GLOBALS['SQ_SYSTEM']->am->getAsset($thes_id, 'thesaurus')) {
-				$tag_links[] = $notice_link;
-			}
+		$thes = &$GLOBALS['SQ_SYSTEM']->am->getAsset($thes_id, 'thesaurus', true);
+		if ($thes) $tag_links[] = $notice_link;
 	}
 
 	return $tag_links;
 
-}//getCurrentTagLinks()
+}//end getCurrentTagLinks()
+
 
 ?>
