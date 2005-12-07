@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect_management.inc,v 1.15 2005/11/21 22:56:29 lwright Exp $
+* $Id: page_redirect_management.inc,v 1.16 2005/12/07 05:33:04 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,15 +47,16 @@ class Page_Redirect_Management extends Asset_Management
 
 		$this->vars = Array(
 						'redirect_url'              => Array(
-														'added'   => '0.0.1',
-														'type'    => 'text',
-														'default' => '',
+														'added'		=> '0.0.1',
+														'type'		=> 'text',
+														'default'	=> '',
+														'is_admin'	=> false,
 													   ),
 						'url_suffix'                => Array(
-														'added'       => '0.0.1',
-														'type'        => 'text',
-														'default'     => '',
-														'description' => 'Extra text to append as part of the URL',
+														'added'			=> '0.0.1',
+														'type'			=> 'text',
+														'default'		=> '',
+														'description'	=> 'Extra text to append as part of the URL',
 													   ),
 						'timeout'                   => Array(
 														'added'       => '0.3',
