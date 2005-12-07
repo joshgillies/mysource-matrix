@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition.inc,v 1.7 2005/10/13 02:07:36 tbarrett Exp $
+* $Id: condition.inc,v 1.8 2005/12/07 05:05:55 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -103,6 +103,47 @@ class Condition extends Asset
 		return false;
 
 	}//end evaluate()
+
+
+	/**
+	* Populate info about additional logical keywords into this condition
+	*
+	* Used predominantly with paint layouts in conjunction with getRequiredKeywords() -
+	* not entirely generic but if a condition requires other keywords then it's
+	* not likely to be able to be used in user restrictions anyway
+	*
+	* @param array	$logical_keywords	Logical keywords already evaluated
+	* @param array	&$condition_data	Condition data array for this condition
+	*
+	* @return void
+	* @access public
+	* @static
+	*/
+	function updateKeywords($logical_keywords, &$condition_data)
+	{
+		return;
+
+	}//end updateKeywords()
+
+
+	/**
+	* Get additional keywords that this condition requires in order to be evaluated
+	*
+	* Used predominantly with paint layouts - not entirely generic but if a
+	* condition requires other keywords then it's not likely to be able to
+	* be used in user restrictions anyway
+	*
+	* @param array	$condition_data	Condition data array for this condition
+	*
+	* @return array
+	* @access public
+	* @static
+	*/
+	function getRequiredKeywords($condition_data)
+	{
+		return Array();
+
+	}//end getRequiredKeywords()
 
 
 }//end class
