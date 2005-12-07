@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.52 2005/10/13 02:16:36 tbarrett Exp $
+* $Id: edit.css,v 1.53 2005/12/07 05:57:42 dmckee Exp $
 *
 */
 
@@ -369,7 +369,7 @@ td.sq-backend-lock-table-cell-alt {
 
 .sq-backend-new-message-body {
 	color:				#342939;
-	font-weight:		none;
+	font-weight:		normal;
 }
 
 
@@ -394,7 +394,7 @@ td.sq-backend-lock-table-cell-alt {
 }
 
 .sq-backend-popups-blocked-body, .sq-backend-popups-blocked-cell {
-	font-weight:		boldest;
+	font-weight:		900;
 	font-size:			10px;
 }
 
@@ -420,13 +420,13 @@ td.sq-backend-lock-table-cell-alt {
 
 .sq-backend-search-failed-body {
 	color:				#342939;
-	font-weight:		none;
+	font-weight:		normal;
 }
 
 .delete-button {
 	background-image: url(../images/icons/delete.png);
 	background-position: 50% 50%;
-	background-repeat: norepeat;
+	background-repeat: no-repeat;
 	width: 16px;
 	height: 16px;
 	background-color: transparent;
