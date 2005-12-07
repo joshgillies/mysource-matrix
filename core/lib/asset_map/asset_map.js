@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.18 2005/12/07 02:49:37 lwright Exp $
+* $Id: asset_map.js,v 1.19 2005/12/07 22:14:59 lwright Exp $
 *
 */
 
@@ -185,9 +185,11 @@ function asset_finder_change_btn_press(name, safe_name, type_codes, done_fn)
 		ASSET_FINDER_FIELD_NAME = name;
 		ASSET_FINDER_FIELD_SAFE_NAME = safe_name;
 
-		ASSET_FINDER_WAS_HIDDEN = resizer_frame.hidden;
-		if (resizer_frame.hidden) {
-			resizer_frame.toggleFrame();
+		if (resizer_frame) {
+			ASSET_FINDER_WAS_HIDDEN = resizer_frame.hidden;
+			if (resizer_frame.hidden) {
+				resizer_frame.toggleFrame();
+			}
 		}
 
 		asset_finder_start('asset_finder_done', type_codes);
@@ -201,8 +203,10 @@ function asset_finder_change_btn_press(name, safe_name, type_codes, done_fn)
 		ASSET_FINDER_FIELD_NAME = null;
 		ASSET_FINDER_FIELD_SAFE_NAME = null;
 
-		if (ASSET_FINDER_WAS_HIDDEN && !resizer_frame.hidden) {
-			resizer_frame.toggleFrame();
+		if (resizer_frame) {
+			if (ASSET_FINDER_WAS_HIDDEN && !resizer_frame.hidden) {
+				resizer_frame.toggleFrame();
+			}
 		}
 		ASSET_FINDER_WAS_HIDDEN = null;
 	}
@@ -222,8 +226,10 @@ function asset_finder_change_btn_press(name, safe_name, type_codes, done_fn)
 function asset_finder_done(params, label, url)
 {
 	resizer_frame = window.top.frames['sq_resizer'];
-	if (ASSET_FINDER_WAS_HIDDEN && !resizer_frame.hidden) {
-		resizer_frame.toggleFrame();
+	if (resizer_frame) {
+		if (ASSET_FINDER_WAS_HIDDEN && !resizer_frame.hidden) {
+			resizer_frame.toggleFrame();
+		}
 	}
 	ASSET_FINDER_WAS_HIDDEN = null;
 

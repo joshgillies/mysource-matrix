@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.109 2005/12/07 02:49:37 lwright Exp $
+* $Id: html_form.inc,v 1.110 2005/12/07 22:14:59 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.109 $
+* @version $Revision: 1.110 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -784,7 +784,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	if (SQ_IN_BACKEND || SQ_IN_LIMBO || defined('SQ_PAINTED_SIMPLE_ASSET_MAP')) {
 		?>
 			<script type="text/javascript">
-				if (<?php echo $map_frame; ?>.SQ_DOCUMENT_LOADED) {
+				if (!window.top.frames['sq_resizer'] || <?php echo $map_frame; ?>.SQ_DOCUMENT_LOADED) {
 					<?php echo $map_frame; ?>.set_finder(<?php echo $finder_frame; ?>);
 				} else {
 					// this gets overridden when multiple asset finders exist anyway,
