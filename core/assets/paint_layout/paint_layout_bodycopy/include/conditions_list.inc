@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: conditions_list.inc,v 1.7 2005/12/05 05:11:15 lwright Exp $
+* $Id: conditions_list.inc,v 1.8 2005/12/07 05:04:04 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('SQ_KEYWORD_CONDITION_ELSE', 'else');
 * parameters in a single attribute (of type Array).
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 class Conditions_List
@@ -142,7 +142,11 @@ class Conditions_List
 
 	/**
 	 * Set the values of the conditional keywords in the condition parameters
-	 * This is only usefull for the condition_logical
+	 *
+	 * The call_user_func_array() is messy but we need it to be able to statically
+	 * call the same function in a variable type code (which is not as easy with
+	 * static calls as it is creating objects of a variable type code). Could not
+	 * use plain call_user_func() either because of the need to pass by reference
 	 *
 	 * @param Array(keyword => value) 	&$logical_keywords	logical keywords
 	 * @param Array() 					&$condition_parameters	condition
@@ -153,17 +157,10 @@ class Conditions_List
 	 */
 	function _updateKeywordsInRestriction(&$logical_keywords, &$condition_parameters)
 	{
-		if ($condition_parameters['type_code'] == 'condition_logical') {
+		$type_code = $condition_parameters['type_code'];
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset($condition_parameters['type_code']);
-			$condition_logical_keywords = Condition_Logical::getLogicalKeywords($condition_parameters['restriction']['condition_data']);
-			foreach (array_keys($condition_logical_keywords) as $condition_logical_keyword_name) {
-				$condition_logical_keywords[$condition_logical_keyword_name] = isset($logical_keywords[$condition_logical_keyword_name]) ? $logical_keywords[$condition_logical_keyword_name] : '';
-			}
-
-			Condition_Logical::setLogicalKeywords($condition_parameters['restriction']['condition_data'], $condition_logical_keywords);
-
-		}
+		call_user_func_array(Array($type_code, 'updateKeywords'), Array($logical_keywords, &$condition_parameters['restriction']['condition_data']));
 
 	}//end _updateKeywordsInRestriction()
 
@@ -186,6 +183,10 @@ class Conditions_List
 	/**
 	 * Returns the list of keywords required by a condition
 	 *
+	 * The call_user_func() is messy but we need it to be able to statically
+	 * call the same function in a variable type code (which is not as easy with
+	 * static calls as it is creating objects of a variable type code).
+	 *
 	 * @param $string condition_name	condition name
 	 *
 	 * @return Array()
@@ -198,10 +199,9 @@ class Conditions_List
 		$conditions = $this->_getAllConditions();
 
 		if (!empty($conditions[$condition_name])) {
-			if ($conditions[$condition_name]['type_code'] == 'condition_logical') {
-				$GLOBALS['SQ_SYSTEM']->am->includeAsset($conditions[$condition_name]['type_code']);
-				$ret = array_keys(Condition_Logical::getLogicalKeywords($conditions[$condition_name]['restriction']['condition_data']));
-			}
+			$type_code = $conditions[$condition_name]['type_code'];
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+			$ret = call_user_func(Array($type_code, 'getRequiredKeywords'), $conditions[$condition_name]['restriction']['condition_data']);
 		}
 
 		return $ret;
