@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.17 2005/11/24 22:54:53 sdanis Exp $
+* $Id: asset_map.js,v 1.18 2005/12/07 02:49:37 lwright Exp $
 *
 */
 
@@ -171,6 +171,8 @@ function set_finder(finder)
 */
 function asset_finder_change_btn_press(name, safe_name, type_codes, done_fn)
 {
+	resizer_frame = window.top.frames['sq_resizer'];
+
 	ASSET_FINDER_DONE_FUNCTION = done_fn;
 
 	if (ASSET_FINDER_FIELD_NAME != null && ASSET_FINDER_FIELD_NAME != name) {
@@ -183,6 +185,11 @@ function asset_finder_change_btn_press(name, safe_name, type_codes, done_fn)
 		ASSET_FINDER_FIELD_NAME = name;
 		ASSET_FINDER_FIELD_SAFE_NAME = safe_name;
 
+		ASSET_FINDER_WAS_HIDDEN = resizer_frame.hidden;
+		if (resizer_frame.hidden) {
+			resizer_frame.toggleFrame();
+		}
+
 		asset_finder_start('asset_finder_done', type_codes);
 
 		ASSET_FINDER_OBJ.set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', js_translate('cancel'));
@@ -193,6 +200,11 @@ function asset_finder_change_btn_press(name, safe_name, type_codes, done_fn)
 		ASSET_FINDER_OBJ.set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', js_translate('change'));
 		ASSET_FINDER_FIELD_NAME = null;
 		ASSET_FINDER_FIELD_SAFE_NAME = null;
+
+		if (ASSET_FINDER_WAS_HIDDEN && !resizer_frame.hidden) {
+			resizer_frame.toggleFrame();
+		}
+		ASSET_FINDER_WAS_HIDDEN = null;
 	}
 
 }//end asset_finder_change_btn_press()
@@ -209,6 +221,12 @@ function asset_finder_change_btn_press(name, safe_name, type_codes, done_fn)
 */
 function asset_finder_done(params, label, url)
 {
+	resizer_frame = window.top.frames['sq_resizer'];
+	if (ASSET_FINDER_WAS_HIDDEN && !resizer_frame.hidden) {
+		resizer_frame.toggleFrame();
+	}
+	ASSET_FINDER_WAS_HIDDEN = null;
+
 	var win = ASSET_FINDER_OBJ.window;
 	win.focus();
 

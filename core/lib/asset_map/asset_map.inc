@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.200 2005/11/30 22:46:38 sdanis Exp $
+* $Id: asset_map.inc,v 1.201 2005/12/07 02:49:37 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.200 $
+* @version $Revision: 1.201 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -176,7 +176,7 @@ class Asset_Map
 		ob_end_clean();
 
 		if ($height <= 0) {
-			$height = "' + (document.body.offsetHeight - 70) + '";
+			$height = "' + (document.body.offsetHeight - ".(SQ_IN_LIMBO ? 51 : 70).") + '";
 			$applet_tag = str_replace("\n", ' ', $applet_tag);
 			?>
 			<script type="text/javascript"><!--

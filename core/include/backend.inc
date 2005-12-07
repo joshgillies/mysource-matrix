@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.135 2005/10/05 04:09:59 lwright Exp $
+* $Id: backend.inc,v 1.136 2005/12/07 02:49:37 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.135 $
+* @version $Revision: 1.136 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -245,25 +245,16 @@ class Backend extends MySource_Object
 			</head>
 			<?php
 			if (!$limbo_hipo) {
-				if (SQ_IN_LIMBO) {
-					?>
-					<frameset rows="28,*" frameborder="0" border="0">
-						<frame src="<?php echo $frame_urls['header']; ?>" name="sq_header" scrolling="no" marginwidth="0" marginheight="0">
+				?>
+				<frameset rows="28,*" frameborder="0" border="0">
+					<frame src="<?php echo $frame_urls['header']; ?>" name="sq_header" scrolling="no" marginwidth="0" marginheight="0">
+					<frameset cols="<?php echo (SQ_IN_LIMBO ? 0 : 280) ?>,10,*" frameborder="0" border="0" id ="main_frameset">
+						<frame src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0">
+						<frame src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0">
 						<frame src="<?php echo $frame_urls['main']; ?>" name="sq_main" marginwidth="0" marginheight="0" scrolling="yes">
 					</frameset>
-					<?php
-				} else {
-					?>
-					<frameset rows="28,*" frameborder="0" border="0">
-						<frame src="<?php echo $frame_urls['header']; ?>" name="sq_header" scrolling="no" marginwidth="0" marginheight="0">
-						<frameset cols="280,10,*" frameborder="0" border="0" id ="main_frameset">
-							<frame src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0">
-							<frame src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0">
-							<frame src="<?php echo $frame_urls['main']; ?>" name="sq_main" marginwidth="0" marginheight="0" scrolling="yes">
-						</frameset>
-					</frameset>
-					<?php
-				}
+				</frameset>
+				<?php
 			}
 			?>
 		</html>
@@ -821,94 +812,123 @@ class Backend extends MySource_Object
 
 			}//end switchSideNav()
 		</script>
-		<table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%">
-			<tr>
-				<td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 7px; margin-bottom: 5px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="MySource Matrix" /></td>
-			</tr>
-			<tr>
-				<td height="100%" valign="top">
-					<table cellspacing="0" cellpadding="0">
-						<tr>
-							<td><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="24" height="1" /></td>
 
-							<td class="sidenav-tab-start-active" id="asset_map_tab_start"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="2" height="20" /></td>
-							<td class="sidenav-tab-icon-active" id="asset_map_tab_icon"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/tree.png", "14", "14", "");</script></td>
-							<td class="sidenav-tab-active" id="asset_map_tab"><a href="#" onClick="Javascript: switchSideNav('asset_map'); return false;"><?php echo translate('asset_map'); ?></a></td>
-							<td class="sidenav-tab-end-active" id="asset_map_tab_end"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="3" height="20" /></td>
-
-							<td class="sidenav-tab-start" id="my_space_tab_start"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="2" height="20" /></td>
-							<td class="sidenav-tab-icon" id="my_space_tab_icon"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/myspace.png", "14", "14", "");</script></td>
-							<td class="sidenav-tab" id="my_space_tab"><a href="#" onClick="Javascript: switchSideNav('my_space'); return false;"><?php echo translate('my_space'); ?></a></td>
-							<td class="sidenav-tab-end" id="my_space_tab_end"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="3" height="20" /></td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-			<tr>
-				<td class="sq-backend-header-item" style="padding-bottom: 5px;">
-					<a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-header-item" target="_blank" style="text-decoration:none;"><?php echo SQ_SYSTEM_LONG_NAME;?></a>
-				</td>
-			</tr>
-		</table>
-
-		<div id="asset_map" style="position: absolute; top: 47px; left: 6px; visibility: visible; border-top: 0px none; border-left: 0px none;">
-			<?php
-			require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
-			$asset_map =& new Asset_Map();
-			$asset_map->embedAssetMap('complex', '275');
+		<?php
+		if (SQ_IN_LIMBO) {
 			?>
-		</div>
-		<div id="my_space" style="position: absolute; top: 44px; left: 0px; visibility: hidden;">
-			<?php
-			$user = &$GLOBALS['SQ_SYSTEM']->user;
-			$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($user->id, SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
-
-			if (empty($inbox_link)) {
-				$inbox_url = '';
-			} else {
-				$inbox_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
-				$inbox_url       = $inbox_asset->getBackendHref('details');
-				$new_message_url = $inbox_asset->getBackendHref('new_message');
-				$sent_url        = $inbox_asset->getBackendHref('sent');
-			}
-
-			$details_url = $user->getBackendHref('details');
-
-			// get all unread messages and read messages that are less than 8 hours old
-			if (!empty($inbox_url)) {
-				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$from = time() - (8 * 3600); // 8 hours ago
-				$read_messages   = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), null, Array(SQ_MSG_READ), Array(), $from, null, 'short_name');
-				$unread_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), null, Array(SQ_MSG_UNREAD), Array(), null, null, 'short_name');
-
-				$messages = array_merge($read_messages, $unread_messages);
-				?>
-				<table class="myspace-section">
+				<table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%">
 					<tr>
-						<td valign="top"><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/inbox_icon.png" align="left" border="0" /></a></td>
-						<td width="100%">
-							<p><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header"><?php echo translate('my_inbox'); ?></span><br /><?php echo translate('inbox_new_messages', count($unread_messages), count($messages)); ?></a></p>
-							<p><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header"><?php echo translate('inbox_actions'); ?></span><br />
-							<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main">+ <?php echo translate('inbox_view'); ?></a><br />
-							<a href="<?php echo $_SERVER['PHP_SELF'].$new_message_url; ?>" target="sq_main">+ <?php echo translate('inbox_send'); ?></a><br />
-							<a href="<?php echo $_SERVER['PHP_SELF'].$sent_url; ?>" target="sq_main">+ <?php echo translate('inbox_view_sent'); ?></a></p>
+						<td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 7px; margin-bottom: 5px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="MySource Matrix" /></td>
+					</tr>
+					<tr>
+						<td height="100%" valign="top">&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="sq-backend-header-item" style="padding-bottom: 5px;">
+							<a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-header-item" target="_blank" style="text-decoration:none;"><?php echo SQ_SYSTEM_LONG_NAME;?></a>
 						</td>
 					</tr>
 				</table>
-				<?php
-			}//end if user has an inbox
-
+				<div id="asset_map" style="position: absolute; top: 27px; left: 6px; visibility: visible; border-top: 0px none; border-left: 0px none;">
+					<?php
+					require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
+					$asset_map =& new Asset_Map();
+					$asset_map->embedAssetMap('simple', '275');
+					?>
+				</div>
+			<?php
+		} else {
+			// we are on the backend
 			?>
-			<table class="myspace-section">
-				<tr>
-					<td valign="top"><a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/mydetails_icon.png" align="left" border="0" /></a></td>
-					<td width="100%">
-						<span class="myspace-section-header"><a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><?php echo translate('my_details'); ?></span><br /><?php echo translate('details_edit'); ?></a>
-					</td>
-				</tr>
-			</table>
-		</div>
-		<?php
+				<table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%">
+					<tr>
+						<td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 7px; margin-bottom: 5px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="MySource Matrix" /></td>
+					</tr>
+					<tr>
+						<td height="100%" valign="top">
+							<table cellspacing="0" cellpadding="0">
+								<tr>
+									<td><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="24" height="1" /></td>
+
+									<td class="sidenav-tab-start-active" id="asset_map_tab_start"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="2" height="20" /></td>
+									<td class="sidenav-tab-icon-active" id="asset_map_tab_icon"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/tree.png", "14", "14", "");</script></td>
+									<td class="sidenav-tab-active" id="asset_map_tab"><a href="#" onClick="Javascript: switchSideNav('asset_map'); return false;"><?php echo translate('asset_map'); ?></a></td>
+									<td class="sidenav-tab-end-active" id="asset_map_tab_end"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="3" height="20" /></td>
+
+									<td class="sidenav-tab-start" id="my_space_tab_start"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="2" height="20" /></td>
+									<td class="sidenav-tab-icon" id="my_space_tab_icon"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/myspace.png", "14", "14", "");</script></td>
+									<td class="sidenav-tab" id="my_space_tab"><a href="#" onClick="Javascript: switchSideNav('my_space'); return false;"><?php echo translate('my_space'); ?></a></td>
+									<td class="sidenav-tab-end" id="my_space_tab_end"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="3" height="20" /></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td class="sq-backend-header-item" style="padding-bottom: 5px;">
+							<a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-header-item" target="_blank" style="text-decoration:none;"><?php echo SQ_SYSTEM_LONG_NAME;?></a>
+						</td>
+					</tr>
+				</table>
+
+				<div id="asset_map" style="position: absolute; top: 47px; left: 6px; visibility: visible; border-top: 0px none; border-left: 0px none;">
+					<?php
+					require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
+					$asset_map =& new Asset_Map();
+					$asset_map->embedAssetMap('complex', '275');
+					?>
+				</div>
+				<div id="my_space" style="position: absolute; top: 44px; left: 0px; visibility: hidden;">
+					<?php
+					$user = &$GLOBALS['SQ_SYSTEM']->user;
+					$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($user->id, SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
+
+					if (empty($inbox_link)) {
+						$inbox_url = '';
+					} else {
+						$inbox_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
+						$inbox_url       = $inbox_asset->getBackendHref('details');
+						$new_message_url = $inbox_asset->getBackendHref('new_message');
+						$sent_url        = $inbox_asset->getBackendHref('sent');
+					}
+
+					$details_url = $user->getBackendHref('details');
+
+					// get all unread messages and read messages that are less than 8 hours old
+					if (!empty($inbox_url)) {
+						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+						$from = time() - (8 * 3600); // 8 hours ago
+						$read_messages   = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), null, Array(SQ_MSG_READ), Array(), $from, null, 'short_name');
+						$unread_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), null, Array(SQ_MSG_UNREAD), Array(), null, null, 'short_name');
+
+						$messages = array_merge($read_messages, $unread_messages);
+						?>
+						<table class="myspace-section">
+							<tr>
+								<td valign="top"><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/inbox_icon.png" align="left" border="0" /></a></td>
+								<td width="100%">
+									<p><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header"><?php echo translate('my_inbox'); ?></span><br /><?php echo translate('inbox_new_messages', count($unread_messages), count($messages)); ?></a></p>
+									<p><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header"><?php echo translate('inbox_actions'); ?></span><br />
+									<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main">+ <?php echo translate('inbox_view'); ?></a><br />
+									<a href="<?php echo $_SERVER['PHP_SELF'].$new_message_url; ?>" target="sq_main">+ <?php echo translate('inbox_send'); ?></a><br />
+									<a href="<?php echo $_SERVER['PHP_SELF'].$sent_url; ?>" target="sq_main">+ <?php echo translate('inbox_view_sent'); ?></a></p>
+								</td>
+							</tr>
+						</table>
+						<?php
+					}//end if user has an inbox
+
+					?>
+					<table class="myspace-section">
+						<tr>
+							<td valign="top"><a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/mydetails_icon.png" align="left" border="0" /></a></td>
+							<td width="100%">
+								<span class="myspace-section-header"><a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><?php echo translate('my_details'); ?></span><br /><?php echo translate('details_edit'); ?></a>
+							</td>
+						</tr>
+					</table>
+				</div>
+			<?php
+		}//end if not in limbo
 
 		$this->out->closeRaw();
 
@@ -934,9 +954,9 @@ class Backend extends MySource_Object
 
 		<script language="Javascript" type="text/javascript">
 			var clickSize = 50;
-			var hidden = false;
 			var lastSize = "280,10,*";
 			var fset = top.document.getElementById('main_frameset');
+			hidden = <?php var_export(SQ_IN_LIMBO); ?>;
 
 			function toggleFrame() {
 				if (hidden == false) {
