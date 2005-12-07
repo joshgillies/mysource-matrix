@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tagging.inc,v 1.3 2005/12/07 03:54:57 emcdonald Exp $
+* $Id: tagging.inc,v 1.4 2005/12/07 22:55:23 emcdonald Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Tagging Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 
@@ -115,7 +115,8 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=null)
 				case 'tags' :
 
 					$o->openField('');
-					$current_tag_links = getCurrentTagLinks($owner);
+					$tm = $GLOBALS['SQ_SYSTEM']->getTagManager();
+					$current_tag_links = $tm->getTagLinks($owner->id);
 					ob_start();
 					if ($write_access) {
 
@@ -140,7 +141,8 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=null)
 
 				case 'weights' :
 
-					$current_tag_links = getCurrentTagLinks($owner);
+					$tm = $GLOBALS['SQ_SYSTEM']->getTagManager();
+					$current_tag_links = $tm->getTagLinks($owner->id);
 					$o->openField('');
 					ob_start();
 
@@ -226,6 +228,8 @@ function processTagging(&$owner, &$o, $ei)
 	if (!$owner->writeAccess('all')) return false;
 	$prefix = $owner->getPrefix();
 
+	$tm = $GLOBALS['SQ_SYSTEM']->getTagManager();
+
 	$submitted_tags = array_get_index($_REQUEST, $prefix.'_tags', Array());
 	// are we cascading these tag changes to our children? If we are doing a manual cascade, that is handled later, after changes have been made to the parent asset.
 	$cascade_changes = false;
@@ -248,7 +252,7 @@ function processTagging(&$owner, &$o, $ei)
 		$submitted_tag_ids[$key] = $submitted_tag['assetid'];
 	}
 
-	$current_tag_links = getCurrentTagLinks($owner);
+	$current_tag_links = $tm->getTagLinks($owner->id);
 	$current_tag_ids = Array();
 	$current_weights = Array();
 
@@ -317,7 +321,7 @@ function processTagging(&$owner, &$o, $ei)
 
 	// to perform a manual cascade, we make any changes necessary to the parent asset, then build a list of actions required to add all the tags of the parent to any children
 	if ($manual_cascade) {
-		$current_tag_links = getCurrentTagLinks($owner);
+		$current_tag_links = $tm->getTagLinks($owner->id);
 
 		foreach ($current_tag_links as $link) {
 			$tag_vars[] = Array(
@@ -346,30 +350,6 @@ function processTagging(&$owner, &$o, $ei)
 	return false;
 
 }//end processTagging()
-
-
-/**
-* Returns a list of tag links, being notice links to thesaurus terms
-*
-* @param object	&$asset	the asset whose links we are finding
-*
-* @return array
-* @access public
-*/
-function getCurrentTagLinks(&$asset)
-{
-	$tag_links = Array();
-	$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE);
-	foreach ($notice_links as $notice_link) {
-		$id_parts = explode(':', $notice_link['minorid']);
-		$thes_id = $id_parts[0];
-		$thes = &$GLOBALS['SQ_SYSTEM']->am->getAsset($thes_id, 'thesaurus', true);
-		if ($thes) $tag_links[] = $notice_link;
-	}
-
-	return $tag_links;
-
-}//end getCurrentTagLinks()
 
 
 ?>

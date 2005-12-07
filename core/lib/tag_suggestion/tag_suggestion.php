@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_suggestion.php,v 1.1 2005/12/05 06:07:54 emcdonald Exp $
+* $Id: tag_suggestion.php,v 1.2 2005/12/07 22:55:23 emcdonald Exp $
 *
 */
 
@@ -54,7 +54,8 @@ if (empty($sm)) {
 	$quoted_keyword_ids = Array();
 	$keywords = $sm->getAssetidsByWordIntersection($asset->id, 'thesaurus_term');
 
-	$current_tag_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_NOTICE);
+	$tm = $GLOBALS['SQ_SYSTEM']->getTagManager();
+	$current_tag_links = $tm->getTagLinks($asset->id);
 
 	foreach ($current_tag_links as $key => $current_tag_link) {
 		$current_tag_ids[] = $current_tag_link['minorid'];

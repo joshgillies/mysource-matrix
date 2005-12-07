@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.150 2005/11/30 23:03:57 mmcintyre Exp $
+* $Id: mysource.inc,v 1.151 2005/12/07 22:55:23 emcdonald Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.150 $
+* @version $Revision: 1.151 $
 * @package MySource_Matrix
 */
 class MySource
@@ -119,6 +119,11 @@ class MySource
 	* @var object Event_Manager
 	*/
 	var $em;
+
+	/**
+	* @var object Tag_Manager
+	*/
+	var $tag_manager;
 
 	/**
 	* @var object Locale_Manager
@@ -1541,6 +1546,25 @@ class MySource
 		return $this->em;
 
 	}//end getEventManager()
+
+
+	/**
+	* Get the tag manager
+	*
+	* Always call this function to get the event manager, dont use $this->tm directly
+	*
+	* @return object
+	* @access public
+	*/
+	function &getTagManager()
+	{
+		if (!isset($this->tag_manager) || get_class($this->tag_manager) != 'tag_manager') {
+			require_once SQ_INCLUDE_PATH.'/tag_manager.inc';
+			$this->tag_manager =& new Tag_Manager();
+		}
+		return $this->tag_manager;
+
+	}//end getTagManager()
 
 
 	/**
