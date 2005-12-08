@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.12 2005/05/20 01:46:26 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.12.2.1 2005/12/08 04:08:30 arailean Exp $
 *
 */
 -->
@@ -34,6 +34,12 @@
 		</field>
 		<field attribute="only_local_links">
 			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintWhiteList" />
+				<process_function name="processWhiteList" />
+			</function_call>
 		</field>
 	</section>
 	<section name="Content Filtering" write_access="write:attributes">

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: lang_screen_details.xml,v 1.2.2.1 2005/12/08 04:08:30 arailean Exp $
 *
 */
 -->
@@ -40,6 +40,14 @@
 		<field attribute="only_local_links">
 			<display_name>Only Replace Local Links</display_name>
 			<note>If Replace Links is selected, this option will make sure that only the links to the Remote URL domain name specified above get replaced. Links to remote sites will be left intact.</note>
+		</field>
+		<field>
+			<display_name>Allowed Base URLs</display_name>
+			<function_call>
+				<paint_function   name="paintWhiteList" />
+				<process_function name="processWhiteList" />
+			</function_call>
+			<note>Only those urls which are based on the listed domains are allowed to pass through this system. URLs based on "Remote URL" are implied to be in this list. DO NOT include the protocol, i.e. (http://), example entry: www.squiz.net or www.squiz.net/services. NOTE: When this list is empty and 'Only Replace Local Links' option is set to 'No' all URLs are allowed.</note>
 		</field>
 	</section>
 	<section name="Content Filtering">
