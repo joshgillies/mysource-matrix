@@ -12,7 +12,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.8 2005/11/28 00:39:11 lwright Exp $
+* $Id: lang_errors.xml,v 1.9 2005/12/08 00:27:27 arailean Exp $
 *
 */
 -->
@@ -180,5 +180,8 @@
 
 	<error code="CMS0056">To time "%s" is not a valid time. No assets will be displayed.</error>
 		<!-- packages/cms/page_templates/page_whats_new/page_whats_new.inc:getAssetList() -->
+
+	<error code="CMS0057">URL not allowed: "%s"</error>
+	<error code="CMS0058">Redirected to a disallowed url: "%1$s" from "%2$s"</error>
 
 </errors>
