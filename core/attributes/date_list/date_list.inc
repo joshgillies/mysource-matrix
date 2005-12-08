@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: date_list.inc,v 1.1 2005/12/08 01:30:23 tbarrett Exp $
+* $Id: date_list.inc,v 1.2 2005/12/08 03:53:07 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
 *    <date_list />
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -72,7 +72,11 @@ class Asset_Attribute_Date_List extends Asset_Attribute_Datetime
 	function paint($prefix, $read_only=false)
 	{
 		$prefix = str_replace(':','_',$prefix); // handle shadow assets
-		$value = explode("\r\n", $this->value);
+		if (empty($this->value)) {
+			$value = Array('---------- --:--:--');
+		} else {
+			$value = explode("\r\n", $this->value);
+		}
 		$dta =& new Asset_Attribute_Datetime();
 		$dta->_params = $this->_params;
 		$dta->_edit_params = $this->_edit_params;
@@ -85,7 +89,7 @@ class Asset_Attribute_Date_List extends Asset_Attribute_Datetime
 		$dta_template = preg_replace('/value\[([^"]+)\]/', '_value[\\1][]', $dta_template);
 		if (!$read_only) {
 			?>
-			<div id="option-list-<?php echo $prefix; ?>">
+			<div id="date-list-<?php echo $prefix; ?>">
 				<?php
 				foreach ($value as $v) {
 					echo '<span>';
@@ -109,7 +113,7 @@ class Asset_Attribute_Date_List extends Asset_Attribute_Datetime
 			<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/edit.js"></script>
 			<script type="text/javascript">
 				// attach the event handlers
-				attachDateListEventHandlers(document.getElementById('option-list-<?php echo $prefix; ?>'));
+				attachDateListEventHandlers(document.getElementById('date-list-<?php echo $prefix; ?>'));
 			</script>
 			<?php
 		} else {
