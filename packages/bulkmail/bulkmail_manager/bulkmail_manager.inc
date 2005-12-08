@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.29 2005/11/30 04:28:32 ndvries Exp $
+* $Id: bulkmail_manager.inc,v 1.30 2005/12/08 00:32:40 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -685,7 +685,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		// cannot create a PEAR mail instance
 		$driver = array_get_index($details_info['server_details'], 'driver', '');
-		$mail_object =& Mail::factory($driver, $details_info['server_details']);
+		$mail_object = Mail::factory($driver, $details_info['server_details']);
 		if (PEAR::isError($mail_object)) {
 			$errors[] = translate('bm_warning_server_details_error', $mail_object->getMessage());
 		}
