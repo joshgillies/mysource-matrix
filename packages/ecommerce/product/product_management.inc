@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: product_management.inc,v 1.6 2005/12/08 22:13:36 lwright Exp $
+* $Id: product_management.inc,v 1.7 2005/12/08 22:15:45 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -48,6 +48,7 @@ class Product_Management extends Asset_Management
 
 		// images for products will be linked assets so dont include here
 		// Also quantity is not an issue at the moment
+		// NB: Price is 0 (zero) if free, or -1 if unknown
 		$this->vars = array(
 						'name' => array(
 							'added'			=> '0.1',
@@ -59,7 +60,7 @@ class Product_Management extends Asset_Management
 							'added'			=> '0.1',
 							'type'			=> 'float',
 							'default'		=> 0.0,
-							'description'	=> 'Sale value of this Product, used mostly for searching and accessing directly. If 0 (zero) it means that the product is free, if -1 it means that the price is not known',
+							'description'	=> 'Sale value of this Product',
 							'is_admin'		=> false,
 						),
 						'price_obj' => array(
