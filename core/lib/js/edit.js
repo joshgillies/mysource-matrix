@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.28 2005/06/03 06:09:59 tbarrett Exp $
+* $Id: edit.js,v 1.29 2005/12/08 01:30:45 tbarrett Exp $
 *
 */
 
@@ -316,4 +316,106 @@ function deleteOptionListRow(button)
 	button.parentNode.removeChild(input);
 	button.parentNode.removeChild(brTag);
 	button.parentNode.removeChild(button);
+}
+
+// Functions for date list
+var expandDateListFn = new Function('expandDateList(this)');
+var deleteDateRowFn = new Function('deleteDateListRow(this); return false;');
+
+function allVisibleInputsEmpty(elt)
+{
+	var inputs = elt.getElementsByTagName('INPUT');
+	for (var i=0; i < inputs.length; i++) {
+		if (inputs[i].type == 'hidden') continue;
+		if (inputs[i].value != '') {
+			return false;
+		}
+	}
+	var selects = elt.getElementsByTagName('SELECT');
+	for (var i=0; i < selects.length; i++) {
+		if ((selects[i].value != '') && (selects[i].value != '--')) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function clearAllVisibleInputs(elt)
+{
+	var inputs = elt.getElementsByTagName('INPUT');
+	for (var i=0; i < inputs.length; i++) {
+		if (inputs[i].type == 'hidden') continue;
+		inputs[i].value = '';
+	}
+	var selects = elt.getElementsByTagName('SELECT');
+	for (var i=0; i < selects.length; i++) {
+		selects[i].selectedIndex = 0;
+	}
+}
+
+function expandDateList(input) 
+{
+	// abort if we are not the last line in the list
+	var currentSpan = input.parentNode;
+	while (currentSpan.tagName != 'SPAN') currentSpan = currentSpan.parentNode;
+	var nextSpan = currentSpan.nextSibling;
+	while (nextSpan !== null) {
+		if (nextSpan.tagName == 'SPAN') {
+			return;
+		}
+		nextSpan = nextSpan.nextSibling;
+	}
+
+	// abort if we and the second-last input are both empty
+	lastSpan = currentSpan.previousSibling;
+	while (lastSpan.tagName != 'SPAN') lastSpan = lastSpan.previousSibling;
+	if (allVisibleInputsEmpty(lastSpan) && allVisibleInputsEmpty(currentSpan)) {
+		return;
+	}
+
+	// add the extra fields
+	var newSpan = currentSpan.cloneNode(true);
+	attachDateListEventHandlers(newSpan);
+	clearAllVisibleInputs(newSpan);
+	var delButton = currentSpan.nextSibling;
+	while (delButton.tagName != 'BUTTON') {
+		delButton = delButton.nextSibling;
+	}
+	delButton = delButton.cloneNode(true);
+	delButton.onclick = deleteRowFn;
+	input.parentNode.parentNode.appendChild(newSpan);
+	input.parentNode.parentNode.appendChild(delButton);
+	input.parentNode.parentNode.appendChild(document.createElement('BR'));
+}
+
+function deleteDateListRow(button) 
+{
+	var span = button.previousSibling;
+	while (span.tagName != 'SPAN') {
+		span = span.previousSibling;
+	}
+	if (span.getElementsByTagName('INPUT')[0].value == '') return;
+	var brTag = button.nextSibling;
+	while (brTag.tagName != 'BR') {
+		brTag = brTag.nextSibling;
+	}
+	button.parentNode.removeChild(span);
+	button.parentNode.removeChild(brTag);
+	button.parentNode.removeChild(button);
+}
+
+function attachDateListEventHandlers(parent)
+{
+	var	inputs = parent.getElementsByTagName('INPUT');
+	for (var j=0; j < inputs.length; j++) {
+		inputs[j].onfocus = expandDateListFn;
+	}
+	var	selects = parent.getElementsByTagName('SELECT');
+	for (var j=0; j < selects.length; j++) {
+		selects[j].onchange = expandDateListFn;
+	}
+	var buttons = parent.getElementsByTagName('BUTTON');
+	for (var j=0; j < buttons.length; j++) {
+		buttons[j].onclick = deleteDateRowFn;
+	}
 }
