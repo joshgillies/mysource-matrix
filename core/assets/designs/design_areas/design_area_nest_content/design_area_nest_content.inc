@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content.inc,v 1.19 2005/10/11 02:06:09 tbarrett Exp $
+* $Id: design_area_nest_content.inc,v 1.20 2005/12/08 00:58:56 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,8 +43,8 @@ class Design_Area_Nest_Content extends Design_Area
 	/**
 	* Set the value for the passed variable to the passed value
 	*
-	* @param string		$name		the name of the attribute
-	* @param string		$value		the new value of the attribute
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -157,7 +157,7 @@ class Design_Area_Nest_Content extends Design_Area
 	}//end _printInitCode()
 
 
-	/*
+	/**
 	* Print code that actually results in HTML output to the browser for this design area
 	*
 	* This function is called at the AREA tag if print != no, and at the point of any PRINT
@@ -177,19 +177,7 @@ class Design_Area_Nest_Content extends Design_Area
 
 				// global keyword replacements
 				if (!empty($body)) {
-					require_once SQ_FUDGE_PATH.\'/general/text.inc\';
-					$keywords = retrieve_keywords_replacements($body);
-					if (!empty($keywords)) {
-						$keyword_replacements = Array();
-						foreach ($keywords as $global_keyword) {
-							$keyword = preg_replace(\'/^globals_user_/\', \'asset_\', $global_keyword);
-							$keyword_replacements[$global_keyword] = $GLOBALS[\'SQ_SYSTEM\']->user->getKeywordReplacement($keyword);
-							if ($keyword_replacements[$global_keyword] == \'%\'.$keyword.\'%\') {
-								$keyword_replacements[$global_keyword] = \'%\'.$global_keyword.\'%\';
-							}
-						}
-						$body = replace_keywords($body, $keyword_replacements);
-					}
+					$body = replace_global_keywords($body);
 				}
 
 				echo $body;

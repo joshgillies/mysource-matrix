@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.116 2005/11/25 04:17:22 skim Exp $
+* $Id: general.inc,v 1.117 2005/12/08 00:58:56 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.116 $
+* @version $Revision: 1.117 $
 * @package MySource_Matrix
 */
 
@@ -1248,5 +1248,38 @@ function asset_locator_js($asset_lineage=Array(),$map_frame='sq_sidenav', $new_w
 	return $map_frame.'.asset_locator_start(\''.implode('|',$asset_lineage).'~'.implode('|',$sort_orders).'\');';
 
 }//end asset_locator_js()
+
+
+/**
+* Replaces global keywords on a string
+*
+* @param string	$text			the text to replace keywords in
+*
+* @return string
+* @access public
+*/
+function replace_global_keywords($text)
+{
+	require_once SQ_FUDGE_PATH.'/general/text.inc';
+
+	$keywords = retrieve_keywords_replacements($text);
+	if (!empty($keywords)) {
+		$keyword_replacements = Array();
+		foreach ($keywords as $global_keyword) {
+			if (preg_match('/^globals_user_/', $global_keyword)) {
+				$keyword = preg_replace('/^globals_user_/', 'asset_', $global_keyword);
+				$keyword_replacements[$global_keyword] = $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($keyword);
+				if ($keyword_replacements[$global_keyword] == '%'.$keyword.'%') {
+					$keyword_replacements[$global_keyword] = '%'.$global_keyword.'%';
+				}
+			}
+		}
+		$text = replace_keywords($text, $keyword_replacements);
+	}
+
+	return $text;
+
+}//end replace_global_keywords()
+
 
 ?>

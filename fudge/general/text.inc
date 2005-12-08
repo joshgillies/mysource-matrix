@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.22 2005/10/27 01:39:20 lwright Exp $
+* $Id: text.inc,v 1.23 2005/12/08 00:58:57 rhoward Exp $
 *
 */
 
@@ -30,19 +30,19 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package Fudge
 * @subpackage Text
 */
 
 
 /**
-* Takes a string an associative array of keyword => replacements
+* Replaces keywords on a string or array using the keywords supplied in the $replacements array
+* $text can either be an array or string containing keywords to be replaced
 *
-* It return whatever the type of argument $text
-* The argument $text can text either string text or array to replace in
-* If the type verification is successful, then, it calls
-* _replace_keywords_recursive() method to repclce any occurences of keywords
+* (replace_keywords() is a wrapper function for _replace_keywords_recursive() - if
+* the arguments pass validation, it passes them off to the latter function to do
+* the actual replacement)
 *
 * @param mixed	$text			the text or array to replace in
 * @param array	&$replacements	an array of replacements (keyword => replacement)
