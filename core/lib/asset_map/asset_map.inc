@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.201 2005/12/07 02:49:37 lwright Exp $
+* $Id: asset_map.inc,v 1.202 2005/12/08 00:46:12 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.201 $
+* @version $Revision: 1.202 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -637,12 +637,9 @@ class Asset_Map
 		$sql .= ' '.$where;
 		$sql .= ' ORDER BY sort_order';
 
-		$limit_sql = '';
 		if ($limit != 0) {
-			$limit_sql = ' LIMIT '.$limit.' OFFSET '.$start;
+			$sql = $db->modifyLimitQuery($sql, $start, $limit);
 		}
-
-		$sql .= $limit_sql;
 
 		$db_result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
 
