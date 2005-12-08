@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.407 2005/12/02 01:01:12 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.408 2005/12/08 22:31:41 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.407 $
+* @version $Revision: 1.408 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3018,7 +3018,7 @@ class Asset_Manager extends MySource_Object
 			} else {
 				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
 				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
-				$userids[] = $this->getSystemAssetdid('public_user');
+				$userids[] = $this->getSystemAsset('public_user');
 				for (reset($userids); null !== ($i = key($userids)); next($userids)) {
 					$userids[$i] = $db->quote($userids[$i]);
 				}
