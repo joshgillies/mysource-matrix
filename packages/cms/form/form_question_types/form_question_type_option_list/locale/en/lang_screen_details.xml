@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6.2.1 2005/10/13 04:14:12 sdanis Exp $
+* $Id: lang_screen_details.xml,v 1.6.2.2 2005/12/08 00:36:29 sdanis Exp $
 *
 */
 -->
@@ -47,10 +47,6 @@
 				<paint_function   name="paintDefault"   />
 				<process_function name="processDefault" />
 			</function_call>
-		</field>
-		<field attribute="horizontal">
-			<display_name>Orientation</display_name>
-			<note>Defines if options are listed horizontally or vertically</note>
 		</field>
 		<field attribute="extra">
 			<display_name>Extras</display_name>

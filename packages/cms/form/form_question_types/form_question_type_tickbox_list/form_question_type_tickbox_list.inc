@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.37.2.3 2005/10/07 03:51:40 lwright Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.37.2.4 2005/12/08 00:36:29 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.37.2.3 $
+* @version $Revision: 1.37.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -68,7 +68,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*/
 	function getHtmlField()
 	{
-		return $this->listBox($this->getOptions(), true, $this->attr('horizontal'), $this->attr('extra'));
+		return $this->listBox($this->getOptions(), true, $this->attr('extra'));
 
 	}//end getHtmlField()
 
@@ -78,13 +78,12 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*
 	* @param Array(mixed)	$options	the options in the list
 	* @param boolean		$multiple	if TRUE checkboxes, otherwise RADIO buttons will be used
-	* @param boolean		$hor		if TRUE the list will be printed horizontally
 	* @param sting			$extra		extras in the input tag eg. className
 	*
 	* @access public
 	* @return string
 	*/
-	function listBox($options, $multiple=false, $hor=false, $extras='')
+	function listBox($options, $multiple=false, $extras='')
 	{
 		$type  = ($multiple) ? 'checkbox' : 'radio';
 		if (!stristr($extras, 'class=')) {
@@ -92,20 +91,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		}
 		$name  = 'q'.$this->id;
 
-		$html  = '
-			<style type="text/css">
-				ul.tickboxes {
-					list-style-type:	none;
-					margin-left:		0px;
-					padding-left:		0px;
-				}
-				ul.horizontal-tickboxes li {
-					display:			inline;
-					margin-right:		15px;
-				}
-			</style>
-		';
-		$html .= '<ul class="tickboxes'.($hor ? ' horizontal-tickboxes' : '').'">';
+		$html = '<ul>';
 		$defaults = $this->getValue();
 		if (!is_array($defaults)) $defaults = Array($defaults);
 		foreach ($options as $key => $value) {
