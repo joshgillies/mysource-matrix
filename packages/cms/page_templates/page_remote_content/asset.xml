@@ -14,7 +14,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1.6.1 2005/05/02 02:44:58 gsherwood Exp $
+* $Id: asset.xml,v 1.1.6.2 2005/12/08 05:39:34 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -22,7 +22,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
 	<type_code>page_remote_content</type_code>
-	<version>0.1</version>
+	<version>1.4.4</version>
 	<name>Remote Content</name>
 	<description>This page template allows you to retrieve a remote page without it being inside an iFrame</description>
 	<instantiable>yes</instantiable>

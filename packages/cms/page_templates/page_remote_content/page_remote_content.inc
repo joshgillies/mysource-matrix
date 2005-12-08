@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.14.2.5 2005/06/09 00:15:40 arailean Exp $
+* $Id: page_remote_content.inc,v 1.14.2.6 2005/12/08 05:39:34 arailean Exp $
 *
 */
 
@@ -29,12 +29,26 @@ require_once 'HTTP/Client/CookieManager.php';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.14.2.5 $
+* @version $Revision: 1.14.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Remote_Content extends Page
 {
+
+
+	/**
+	* Constructor
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	*/
+	function Page_Remote_Content($assetid=0)
+	{
+		$this->_ser_attrs = true;
+		$this->Page($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -230,6 +244,49 @@ class Page_Remote_Content extends Page
 
 
 	/**
+	* Checks whether url is allowed by security settings
+	*
+	* @param string	$url	URL to check
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isUrlAllowed($url)
+	{
+		$Net_URL =& new Net_URL($url);
+		$url = $Net_URL->host;
+		if (!empty($Net_URL->path)) {
+			$url = $url.$Net_URL->path;
+		}
+
+		$url = strtolower($url);
+
+		$white_list = $this->attr('url_white_list');
+		if (!isset($this->_tmp['_start_url_'])) {
+			$Net_URL =& new Net_URL($this->attr('remote_url'));
+			$this->_tmp['_start_url_'] = strtolower($Net_URL->host.$Net_URL->path);
+		}
+
+		if ($url == $this->_tmp['_start_url_']) {
+			return true;
+		} else if (empty($white_list) && !$this->attr('only_local_links')) {
+			return true;
+		} else {
+			foreach ($white_list as $white_url) {
+				if (strlen($white_url) > strlen($url)) {
+					continue;
+				} else if (strtolower($white_url) == substr($url, 0, strlen($white_url))) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+
+	}//end isUrlAllowed()
+
+
+	/**
 	* Process the remote content request and return the processed HTML
 	*
 	* @access public
@@ -252,7 +309,15 @@ class Page_Remote_Content extends Page
 		}
 
 		$fetch_url = undo_htmlspecialchars($fetch_url);
-		$Fetch_URL	= &new Net_URL($fetch_url);
+		$Fetch_URL =& new Net_URL($fetch_url);
+
+
+		if (!$this->isUrlAllowed($Fetch_URL->getURL())) {
+			trigger_error('URL not allowed: "'.$fetch_url.'"', E_USER_WARNING);
+			$this->_tmp['success'] = false;
+			$this->_tmp['processed'] = true;
+			return false;
+		}
 
 		// let's see if we're getting any variables in the get string
 		// so we can pass them back to the  original page .
@@ -283,7 +348,9 @@ class Page_Remote_Content extends Page
 			$request_parameters['pass'] = $this->attr('password');
 		}
 
-		$HTTP_Request = &new HTTP_Request($Fetch_URL->getURL(), $request_parameters);
+		$url = $Fetch_URL->getURL();
+
+		$HTTP_Request = &new HTTP_Request($url, $request_parameters);
 
 		$HTTP_Request->addHeader('User-Agent', SQ_SYSTEM_LONG_NAME);
 
@@ -322,11 +389,18 @@ class Page_Remote_Content extends Page
 
 		// obtain new fetch url. important if there were redirects.
 		$Fetch_URL = $HTTP_Request->_url;
+		$this->_tmp['url'] = $Fetch_URL->getURL();
+
+		// check if we were redirected to a bad destination
+		if ($this->_tmp['url'] != $url && !$this->isUrlAllowed($this->_tmp['url'])) {
+			trigger_error('Redirected to a disallowed url: "'.$this->_tmp['url'].'" from "'.$fetch_url.'"', E_USER_WARNING);
+			$this->_tmp['success'] = false;
+			$this->_tmp['processed'] = true;
+			return false;
+		}
 
 		// prepare temporary variables for output
 		$this->_tmp['type'] = $HTTP_Request->getResponseHeader('content-type');
-		$this->_tmp['url']	= $Fetch_URL->getURL();
-
 		$this->_tmp['headers'] = $HTTP_Request->getResponseHeader();
 		$this->_tmp['content'] = $HTTP_Request->getResponseBody();
 
@@ -810,10 +884,8 @@ REGEX;
 			$url = $parsed_fetch_url['scheme'].':'.$url;
 		}
 
-		$parsed_url = parse_url($url);
-
 		// ignore absolute urls
-		if (isset($parsed_url['scheme']) && !empty($parsed_url['host'])) {
+		if (preg_match('/^[a-z0-9]+:\/\//i', $url)) {
 			return true;
 		}
 
@@ -823,18 +895,13 @@ REGEX;
 			$full_url .= ':'.$parsed_fetch_url['port'];
 		}
 
-		if (strlen($url) && $url{0} == '/') { // Its an absolute path
+		if (strlen($url) && $url{0} == '/') {
 			$final_path = $url;
 		} else {
-			// convert '././foo.ext' into 'foo.ext'
-			$url = preg_replace("|^(?:\.\/)+(\w.*)$|","\${1}",$url);
-			$url = preg_replace("|(\/+)|",'/',$url);
 			$path = array_get_index($parsed_fetch_url,'path','/');
 			if (substr($path,-1) != '/'){
 				$path = dirname($path);
-				if (strlen($path) > 1) {
-					$path .= '/';
-				}
+				if (strlen($path) > 1) $path .= '/';
 			}
 
 			$final_path = $path.$url;

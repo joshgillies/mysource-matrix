@@ -11,8 +11,8 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content_management.inc,v 1.7.2.1 2005/05/02 02:44:58 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_remote_content_management.inc,v 1.7.2.2 2005/12/08 05:39:34 arailean Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.7.2.1 $
+* @version $Revision: 1.7.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -40,144 +40,111 @@ class Page_Remote_Content_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-			'remote_url' => Array(
-				'added'     => '0.1',
-				'type'      => 'text',
-				'default'   => 'http://matrix.squiz.net',
-			),
-
-			'load_links' => Array(
-				'added'       => '0.1',
-				'type'      => 'boolean',
-				'default'   => true,
-				'parameters' => Array(
-					'allow_empty' => false
-				),
-			),
-
-			'only_local_links' => Array(
-				'added'       => '0.1',
-				'type'      => 'boolean',
-				'default'   => false,
-				'parameters' => Array(
-					'allow_empty' => false
-				),
-			),
-
-			'allow_redirect' => Array(
-				'added'       => '0.1',
-				'type'      => 'boolean',
-				'default'   => true,
-				'parameters' => Array(
-					'allow_empty' => false
-				),
-			),
-
-			'username' => Array(
-				'added'     => '0.1',
-				'type'      => 'text',
-				'default'   => '',
-			),
-
-			'password' => Array(
-				'added'     => '0.1',
-				'type'      => 'password',
-				'default'   => '',
-			),
-
-			'include_tags' => Array (
-				'added'       => '0.1',
-				'type'      => 'boolean',
-				'default'   => true,
-				'parameters' => Array(
-					'allow_empty' => false
-				),
-			),
-
-			'start_tag' => Array(
-				'added'     => '0.1',
-				'type'      => 'text',
-				'default'   => '',
-			),
-
-			'end_tag' => Array(
-				'added'     => '0.1',
-				'type'      => 'text',
-				'default'   => '',
-			),
-
-			'timeout' => Array(
-				'added'     => '0.1',
-				'type'      => 'int',
-				'default'   => '30',
-				'parameters'=> Array(
-					'allow_negative' => false
-				),
-			),
-
-			'error_message' => Array(
-				'added'     => '0.1',
-				'type'      => 'wysiwyg',
-				'default'   => '<p>Content cannot be accessed</p>',
-			),
-
-			'display_error' => Array(
-				'added'       => '0.1',
-				'type'      => 'boolean',
-				'default'   => true,
-				'parameters' => Array(
-					'allow_empty' => false
-				),
-			),
-
-			'binary_message' => Array(
-				'added'     => '0.1',
-				'type'      => 'wysiwyg',
-				'default'   => "<p>
-								The requested document appears to be a binary file.
-								Please click the url to open it in another window.<br />
-								<a href='%remote_url%' target='_blank'>%remote_url%</a>
-								</p>",
-
-			),
-
-			'strip_images' => Array(
-				'added'       => '1.4',
-				'type'      => 'boolean',
-				'default'   => false,
-				'parameters' => Array(
-					'allow_empty' => false
-				),
-			),
-
-			'tunnel_images' => Array(
-				'added'       => '1.4',
-				'type'      => 'boolean',
-				'default'   => false,
-				'parameters' => Array(
-					'allow_empty' => false
-				),
-			),
-
-			'tunnel_media' => Array(
-				'added'       => '1.4',
-				'type'      => 'boolean',
-				'default'   => false,
-				'parameters' => Array(
-					'allow_empty' => false
-				),
-			),
-
-			'tunnel_scripts' => Array(
-				'added'       => '1.4',
-				'type'      => 'boolean',
-				'default'   => false,
-				'parameters' => Array(
-					'allow_empty' => false
-				),
-			),
-
-		);
+						'remote_url'		=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'text',
+												'default'	=> 'http://matrix.squiz.net',
+											   ),
+						'load_links'		=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'boolean',
+												'default'		=> true,
+												'parameters'	=> Array('allow_empty'	=> false),
+											   ),
+						'only_local_links'	=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'boolean',
+												'default'		=> false,
+												'parameters'	=> Array('allow_empty'	=> false),
+											   ),
+						'allow_redirect'	=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'boolean',
+												'default'		=> true,
+												'parameters'	=> Array('allow_empty'	=> false),
+											   ),
+						'username'			=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'text',
+												'default'	=> '',
+											   ),
+						'password'			=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'password',
+												'default'	=> '',
+											   ),
+						'include_tags'		=> Array (
+												'added'			=> '0.1',
+												'type'			=> 'boolean',
+												'default'		=> true,
+												'parameters'	=> Array('allow_empty'	=> false),
+											   ),
+						'start_tag'			=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'text',
+												'default'	=> '',
+											   ),
+						'end_tag'			=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'text',
+												'default'	=> '',
+											   ),
+						'timeout'			=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'int',
+												'default'		=> '30',
+												'parameters'	=> Array('allow_negative' => false),
+											   ),
+						'error_message'		=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'wysiwyg',
+												'default'	=> '<p>Content cannot be accessed</p>',
+											   ),
+						'display_error'		=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'boolean',
+												'default'		=> true,
+												'parameters'	=> Array('allow_empty'	=> false),
+											   ),
+						'binary_message'	=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'wysiwyg',
+												'default'	=> "<p>
+																The requested document appears to be a binary file.
+																Please click the url to open it in another window.<br />
+																<a href='%remote_url%' target='_blank'>%remote_url%</a>
+																</p>",
+											   ),
+						'strip_images'		=> Array(
+												'added'			=> '1.4',
+												'type'			=> 'boolean',
+												'default'		=> false,
+												'parameters'	=> Array('allow_empty' => false),
+											   ),
+						'tunnel_images'		=> Array(
+												'added'			=> '1.4',
+												'type'			=> 'boolean',
+												'default'		=> false,
+												'parameters'	=> Array('allow_empty' => false),
+											   ),
+						'tunnel_media'		=> Array(
+												'added'			=> '1.4',
+												'type'			=> 'boolean',
+												'default'		=> false,
+												'parameters'	=> Array('allow_empty' => false),
+											   ),
+						'tunnel_scripts'	=> Array(
+												'added'			=> '1.4',
+												'type'			=> 'boolean',
+												'default'		=> false,
+												'parameters'	=> Array('allow_empty' => false),
+											   ),
+						'url_white_list'	=> Array(
+												'added'		=> '1.4.4',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
+											   ),
+					  );
 
 	}//end constructor
 
