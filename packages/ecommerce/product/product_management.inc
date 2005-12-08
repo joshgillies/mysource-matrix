@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: product_management.inc,v 1.5 2005/04/29 05:39:37 gsherwood Exp $
+* $Id: product_management.inc,v 1.6 2005/12/08 22:13:36 lwright Exp $
 *
 */
 
@@ -24,13 +24,13 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
 class Product_Management extends Asset_Management
 {
-	
+
 	/**
 	* Constructor
 	*
@@ -42,7 +42,7 @@ class Product_Management extends Asset_Management
 	function Product_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
-		
+
 		// include price class so unserialize() doesn't barf
 		require_once SQ_PACKAGES_PATH.'/ecommerce/price/product_price.inc';
 
@@ -60,6 +60,7 @@ class Product_Management extends Asset_Management
 							'type'			=> 'float',
 							'default'		=> 0.0,
 							'description'	=> 'Sale value of this Product, used mostly for searching and accessing directly. If 0 (zero) it means that the product is free, if -1 it means that the price is not known',
+							'is_admin'		=> false,
 						),
 						'price_obj' => array(
 							'added'			=> '0.1',
@@ -67,7 +68,7 @@ class Product_Management extends Asset_Management
 							'default'		=> new Product_Price(),
 							'description'	=> 'Proper object for manipulation of the price',
 						),
-			/*				
+			/*
 						'quantity' => array(
 							'added'			=> '0.1',
 							'type'			=> 'int',
@@ -80,23 +81,26 @@ class Product_Management extends Asset_Management
 							'type'			=> 'text',
 							'default'		=> '',
 							'description'	=> 'Contains the long description of the product',
+							'is_admin'		=> false,
 						),
 						'short_description' => array(
 							'added'			=> '0.1',
 							'type'			=> 'text',
 							'default'		=> '',
 							'description'	=> 'Short description of product for small display space',
+							'is_admin'		=> false,
 						),
 						'details' => array(
 							'added'			=> '0.1',
 							'type'			=> 'text',
 							'default'		=> '',
 							'description'	=> 'Detailed specifications of the Product',
+							'is_admin'		=> false,
 						),
 		);
-			
+
 	}//end Product_Management()
-	
-	
+
+
 }//end class
 ?>
