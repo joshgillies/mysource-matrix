@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: product_management.inc,v 1.7 2005/12/08 22:15:45 lwright Exp $
+* $Id: product_management.inc,v 1.8 2005/12/08 22:18:10 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -81,7 +81,7 @@ class Product_Management extends Asset_Management
 							'added'			=> '0.1',
 							'type'			=> 'text',
 							'default'		=> '',
-							'description'	=> 'Contains the long description of the product',
+							'description'	=> 'Long description of the product',
 							'is_admin'		=> false,
 						),
 						'short_description' => array(
