@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.24 2005/12/08 01:09:23 arailean Exp $
+* $Id: page_remote_content.inc,v 1.25 2005/12/08 22:23:54 arailean Exp $
 *
 */
 
@@ -29,7 +29,7 @@ define ('SQ_REMOTE_MAX_REDIRECTS', 10);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -297,8 +297,8 @@ class Page_Remote_Content extends Page
 	{
 		$remote_url = trim($this->attr('remote_url'));
 
-		$fetch_url = array_get_index($_REQUEST, 'sq_remote_page_url');
-		$action    = array_get_index($_REQUEST, 'sq_remote_page_action');
+		$fetch_url	= array_get_index($_REQUEST, 'sq_remote_page_url');
+		$action		= array_get_index($_REQUEST, 'sq_remote_page_action');
 
 		if (!isset($fetch_url) || ($action != 'fetch_url')) {
 			$fetch_url = $remote_url;
@@ -580,10 +580,10 @@ class Page_Remote_Content extends Page
 
 		// fix these matches up
 		foreach ($matches as $data) {
-			$subject = $data[0];
-			$prefix  = $data[1];
-			$url     = $data[2];
-			$postfix = $data[3];
+			$subject	= $data[0];
+			$prefix		= $data[1];
+			$url		= $data[2];
+			$postfix	= $data[3];
 
 			// make full url, ignore invalid urls
 			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
@@ -610,10 +610,10 @@ class Page_Remote_Content extends Page
 
 		// fix these matches up
 		foreach ($matches as $data) {
-			$subject = $data[0];
-			$prefix  = $data[1];
-			$url     = $data[2];
-			$postfix = $data[3];
+			$subject	= $data[0];
+			$prefix		= $data[1];
+			$url		= $data[2];
+			$postfix	= $data[3];
 
 			// find the name of the subject
 			$pattern = '/name\s*=\s*[\'"]*\s*([^\'" >]+)[\'"> ]+/i';
@@ -634,8 +634,8 @@ class Page_Remote_Content extends Page
 				$url = $replacement_url.rawurlencode($url);
 			}
 
-			$subjects[]     = $subject;
-			$replacements[] = $prefix.$url.$postfix;
+			$subjects[]		= $subject;
+			$replacements[]	= $prefix.$url.$postfix;
 		}
 		// local cleanup
 		$name_matches = null;
@@ -665,10 +665,10 @@ class Page_Remote_Content extends Page
 		$matches_local = null;
 
 		foreach ($matches as $data) {
-			$subject = $data[0];
-			$prefix  = $data[1];
-			$url     = $data[2];
-			$postfix = $data[3];
+			$subject	= $data[0];
+			$prefix		= $data[1];
+			$url		= $data[2];
+			$postfix	= $data[3];
 
 			// make full url, ignore invalid urls
 			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
@@ -680,8 +680,8 @@ class Page_Remote_Content extends Page
 				$url = $replacement_url.rawurlencode($url);
 			}
 
-			$subjects[] = $subject;
-			$replacements[] = $prefix.$url.$postfix;
+			$subjects[]		= $subject;
+			$replacements[]	= $prefix.$url.$postfix;
 
 		}
 		//// END IMAGES
@@ -689,8 +689,8 @@ class Page_Remote_Content extends Page
 
 		//// BEGIN LINKS
 		// prepare for the next round of url replacements
-		$matches  = Array();
-		$patterns = Array();
+		$matches	= Array();
+		$patterns	= Array();
 
 		// PATTERNS for urls that might need to be rewritten to point back to remote content
 		// links and frames except mailto and javascript
@@ -713,10 +713,10 @@ class Page_Remote_Content extends Page
 		$only_local_links = $this->attr('only_local_links');
 
 		foreach ($matches as $data) {
-			$subject = $data[0];
-			$prefix  = $data[1];
-			$url     = $data[2];
-			$postfix = $data[3];
+			$subject	= $data[0];
+			$prefix		= $data[1];
+			$url		= $data[2];
+			$postfix	= $data[3];
 
 			// make full url, ignore invalid urls
 			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
@@ -734,8 +734,8 @@ class Page_Remote_Content extends Page
 				$url = $replacement_url.rawurlencode($url);
 			}
 
-			$subjects[]     = $subject;
-			$replacements[] = $prefix.$url.$postfix;
+			$subjects[]		= $subject;
+			$replacements[]	= $prefix.$url.$postfix;
 
 		}
 		//// END LINKS
@@ -782,8 +782,8 @@ class Page_Remote_Content extends Page
 				$url = $replacement_url.rawurlencode($url);
 			}
 
-			$subjects[]     = $subject;
-			$replacements[] = $prefix.$url.$postfix;
+			$subjects[]		= $subject;
+			$replacements[]	= $prefix.$url.$postfix;
 
 		}
 		//// END FORMS
