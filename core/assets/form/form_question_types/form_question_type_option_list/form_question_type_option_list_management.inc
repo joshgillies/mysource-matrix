@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list_management.inc,v 1.1 2005/07/20 00:02:45 lwright Exp $
+* $Id: form_question_type_option_list_management.inc,v 1.2 2005/12/08 00:47:52 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,14 +63,6 @@ class Form_Question_Type_Option_List_Management extends Asset_Management
 											'added'		=> '0.0.1',
 											'type'		=> 'text',
 											'default'	=> '',
-										   ),
-						'horizontal'	=> Array(
-											'added'			=> '0.0.1',
-											'type'			=> 'boolean',
-											'default'		=> false,
-											'parameters'	=> Array(
-																'allow_empty'	=> false,
-															   ),
 										   ),
 						'required'		=> Array(
 											'added'			=> '0.0.1',
