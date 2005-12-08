@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.86 2005/12/07 05:01:06 lwright Exp $
+* $Id: lang_strings.xml,v 1.87 2005/12/08 22:36:25 lwright Exp $
 *
 */
 
@@ -1185,6 +1185,7 @@
 
 	<string source="expression_must_be">Expression must be %s</string>
 	<string source="must_be_backend_user">You need to be a backend user in order to access the backend</string>
+	<string source="unknown_or_deleted_user">Unknown or deleted user</string>
 	<string source="deleted_user_or_usergroup">Deleted user or user group</string>
 	<string source="no_access_permissions_set">No %s access permissions have been set</string>
 	<string source="cascade_permissions">Yes, cascade permission changes</string>
