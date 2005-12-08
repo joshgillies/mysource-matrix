@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.32 2005/10/23 23:00:25 dmckee Exp $
+* $Id: datetime_field.inc,v 1.33 2005/12/08 01:31:45 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -392,7 +392,7 @@ class DateTime_Field
 			}
 
 			// minutes value should always be 2 digits
-			if ($u == 'i') $value = sprintf('%02d', $value);
+			if (($value !== '') && ($u == 'i')) $value = sprintf('%02d', $value);
 
 			$adjustExtra = 'onkeydown="adjustDate(this, event);'.$onchange.'" onfocus="this.select()"';
 			// merge onChange local values with those coming in from extras
