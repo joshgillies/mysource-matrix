@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.117 2005/12/08 00:58:56 rhoward Exp $
+* $Id: general.inc,v 1.118 2005/12/08 22:40:16 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.117 $
+* @version $Revision: 1.118 $
 * @package MySource_Matrix
 */
 
@@ -1083,7 +1083,11 @@ function get_asset_tag_line($assetid, $screen='')
 					$user_name = 'System';
 				} else {
 					$user_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($asset_info[$time_type.'_userid']), Array('asset'), false, 'name');
-					$user_name = $user_name[$asset_info[$time_type.'_userid']];
+					if (empty($user_name)) {
+						$user_name = '<span style="color: red">'.translate('unknown_or_deleted_user').'</span>';
+					} else {
+						$user_name = $user_name[$asset_info[$time_type.'_userid']];
+					}
 				}
 
 				$user_name = 'by '.$user_name;
