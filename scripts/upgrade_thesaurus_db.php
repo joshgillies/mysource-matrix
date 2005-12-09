@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_thesaurus_db.php,v 1.1 2005/11/23 00:53:35 arailean Exp $
+* $Id: upgrade_thesaurus_db.php,v 1.2 2005/12/09 05:32:16 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Upgrades thesaurus contents from 0.1 to 0.2
 *
 * @author  Elden McDonald
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,18 +62,21 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 $am = &$GLOBALS['SQ_SYSTEM']->am;
 
+$GLOBALS['SQ_SYSTEM']->am->includeAsset('thesaurus_term');
+
+
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 
  //Add a column to the old table to mark a record as deleted.
 // Add another column that marks a record as seen
 
- $sql = 'ALTER TABLE ONLY sq_lex_thes_ent_rel
+$sql = 'ALTER TABLE ONLY sq_lex_thes_ent_rel
 		 ADD deleted boolean';
 	$result = $db->query($sql);
 	assert_valid_db_result($result);
-  $sql = 'ALTER TABLE ONLY sq_lex_thes_ent_rel
-		 ADD depth integer';
+$sql = 'ALTER TABLE ONLY sq_lex_thes_ent_rel
+		ADD depth integer';
 	$result = $db->query($sql);
 	assert_valid_db_result($result);
 
@@ -84,6 +87,8 @@ foreach ($thesaurii as $thesaurus_id) {
 	$thesaurus = &$am->getAsset($thesaurus_id);
 	$depth=1;
 	$num_children=0;
+
+	$term_id_map = Array();
 
 	//Select all the absolute parent terms for this thesaurus as a starting point
 	printName('Retrieving absolute parents for '.$thesaurus_id);
@@ -98,11 +103,22 @@ foreach ($thesaurii as $thesaurus_id) {
 	printUpdateStatus('OK');
 	echo '... Processing '.$result->numRows().' links at level '.$depth."\n";
 	while (null !== ($row = $result->fetchRow())) {
+
 		// link each absolute parent to the null term in the new tables
 		$minor = $row['name'];
 		$minor_id = $row['id'];
 		//Use the thesaurus instance to add the term link from abs parent to null term
-		$thesaurus->addTerm($minor);
+
+		$create_link['asset'] = &$thesaurus;
+		$create_link['value'] = null;
+		$term_asset = new Thesaurus_Term();
+		$term_asset->setAttrValue('name', $minor);
+		if(!$term_asset->create($create_link)) {
+			trigger_error('Move term to new thesaurus: "'.$minor.'" #'.$minor_id, E_USER_FAILURE);
+			return false;
+		}
+
+		$term_id_map[$minor_id] = $term_asset->id;
 
 		//Now mark each relation in which this entity is a parent as depth 1.
 		$sql ='
@@ -126,20 +142,34 @@ foreach ($thesaurii as $thesaurus_id) {
 		//Traverse the tree level by level until we have processed all the descendents of the absolute parent nodes
 		printName('Retrieving relations at depth '.($depth+1).' for thesaurus '.$thesaurus_id);
 
-		$sql = 'SELECT 	e1.name as major,
-						e2.name as minor,
-						e2.id as minor_id,
-						r.id as rel_id,
-						r.name as relation,
-						er.thes_id as thesid
-				FROM sq_lex_thes_ent_rel er INNER JOIN sq_lex_thes_rel r ON er.rel_id = r.id
-											INNER JOIN sq_lex_thes_ent e1 ON er.pnt_ent_id = e1.id
-											INNER JOIN sq_lex_thes_ent e2 ON er.cld_ent_id = e2.id
-				WHERE er.depth = '.$db->quoteSmart($depth).'
-				AND er.thes_id = '.$db->quoteSmart($thesaurus_id).'
-				AND(er.deleted IS FALSE
-					OR er.deleted IS NULL)
-				ORDER BY major';
+		$sql = '
+			SELECT
+				e1.name as major,
+				e1.id as major_id,
+				e2.name as minor,
+				e2.id as minor_id,
+				r.id as rel_id,
+				r.name as relation,
+				er.thes_id as thesid
+
+			FROM
+				sq_lex_thes_ent_rel er
+				INNER JOIN sq_lex_thes_rel r ON er.rel_id = r.id
+				INNER JOIN sq_lex_thes_ent e1 ON er.pnt_ent_id = e1.id
+				INNER JOIN sq_lex_thes_ent e2 ON er.cld_ent_id = e2.id
+
+			WHERE
+				er.depth = '.$db->quoteSmart($depth).'
+				AND
+				er.thes_id = '.$db->quoteSmart($thesaurus_id).'
+				AND
+				(
+					er.deleted IS FALSE
+					OR
+					er.deleted IS NULL
+				)
+			ORDER BY major
+		';
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
@@ -151,10 +181,24 @@ foreach ($thesaurii as $thesaurus_id) {
 			$minor = $row['minor'];
 			$minor_id = $row['minor_id'];
 			$major = $row['major'];
+			$major_id = $row['major_id'];
 			$relation = $row['relation'];
 			$rel_id = $row['rel_id'];
+
+			$major_asset = &$am->getAsset($term_id_map[$major_id]);
 			//Use the thesaurus instance to add this term link
-			$thesaurus->addTerm($minor,$major,$relation);
+
+			$create_link['asset'] =& $major_asset;
+			$create_link['value'] = $relation;
+
+			$term_asset = new Thesaurus_Term();
+			$term_asset->setAttrValue('name', $minor);
+			if(!$term_asset->create($create_link)) {
+				trigger_error('Move term to new thesaurus: "'.$minor.'" #'.$minor_id, E_USER_FAILURE);
+				return false;
+			}
+
+			$term_id_map[$minor_id] = $term_asset->id;
 
 			//Mark each relation in which the minor is a parent as depth++.
 			$sql ='
@@ -211,7 +255,17 @@ foreach ($thesaurii as $thesaurus_id) {
 			$minor = $row['name'];
 			$minor_id = $row['id'];
 			printStep('Linking '.$minor.' to the null term for thesaurus '.$thesaurus_id);
-			$thesaurus->addTerm($minor);
+
+			$create_link['asset'] = &$thesaurus;
+			$create_link['value'] = null;
+			$term_asset = new Thesaurus_Term();
+			$term_asset->setAttrValue('name', $minor);
+			if(!$term_asset->create($create_link)) {
+				trigger_error('Move term to new thesaurus: "'.$minor.'" #'.$minor_id, E_USER_FAILURE);
+				return false;
+			}
+
+			$term_id_map[$minor_id] = $term_asset->id;
 
 			//Now mark each relation in which this entity is a parent as depth 1
 			$sql ='
@@ -228,14 +282,32 @@ foreach ($thesaurii as $thesaurus_id) {
 				$num_children=0;
 
 				printName('Retrieving relations at depth '.($depth+1).' for thesaurus '.$thesaurus_id);
-				$sql = 'SELECT e1.name as major, e2.name as minor, e2.id as minor_id, r.id as rel_id, r.name as relation, er.thes_id as thesid
-						FROM sq_lex_thes_ent_rel er INNER JOIN sq_lex_thes_rel r ON er.rel_id = r.id
-													INNER JOIN sq_lex_thes_ent e1 ON er.pnt_ent_id = e1.id
-													INNER JOIN sq_lex_thes_ent e2 ON er.cld_ent_id = e2.id
-						WHERE er.depth = '.$db->quoteSmart($depth).'
-						AND er.thes_id = '.$db->quoteSmart($thesaurus_id).'
-						AND(er.deleted IS FALSE OR er.deleted IS NULL)
-						ORDER BY major';
+				$sql = '
+					SELECT
+						e1.name as major,
+						e1.id as major_id,
+						e2.name as minor,
+						e2.id as minor_id,
+						r.id as rel_id,
+						r.name as relation,
+						er.thes_id as thesid
+					FROM
+						sq_lex_thes_ent_rel er
+						INNER JOIN sq_lex_thes_rel r ON er.rel_id = r.id
+						INNER JOIN sq_lex_thes_ent e1 ON er.pnt_ent_id = e1.id
+						INNER JOIN sq_lex_thes_ent e2 ON er.cld_ent_id = e2.id
+					WHERE
+						er.depth = '.$db->quoteSmart($depth).'
+						AND
+						er.thes_id = '.$db->quoteSmart($thesaurus_id).'
+						AND
+						(
+							er.deleted IS FALSE
+							OR
+							er.deleted IS NULL
+						)
+					ORDER BY major
+				';
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
 				printUpdateStatus('OK');
@@ -247,10 +319,25 @@ foreach ($thesaurii as $thesaurus_id) {
 					$minor = $row['minor'];
 					$minor_id = $row['minor_id'];
 					$major = $row['major'];
+					$major_id = $row['major_id'];
 					$relation = $row['relation'];
 					$rel_id = $row['rel_id'];
 					//Use the thesaurus instance to add this term link
-					$thesaurus->addTerm($minor,$major,$relation);
+
+					$major_asset = &$am->getAsset($term_id_map[$major_id]);
+					//Use the thesaurus instance to add this term link
+
+					$create_link['asset'] =& $major_asset;
+					$create_link['value'] = $relation;
+
+					$term_asset = new Thesaurus_Term();
+					$term_asset->setAttrValue('name', $minor);
+					if(!$term_asset->create($create_link)) {
+						trigger_error('Move term to new thesaurus: "'.$minor.'" #'.$minor_id, E_USER_FAILURE);
+						return false;
+					}
+
+					$term_id_map[$minor_id] = $term_asset->id;
 
 					//Mark each relation in which the minor is a parent as depth++.
 					$sql ='
