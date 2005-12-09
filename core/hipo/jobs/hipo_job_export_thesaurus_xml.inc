@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_export_thesaurus_xml.inc,v 1.2 2005/12/02 00:26:29 arailean Exp $
+* $Id: hipo_job_export_thesaurus_xml.inc,v 1.3 2005/12/09 04:02:21 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -224,6 +224,7 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 	{
 		$thesaurus = &$this->getThesaurusRef();
 		$filepath = $thesaurus->getXmlFilePath();
+		if (!file_exists($filepath)) touch($filepath);
 		$filepath = realpath($filepath);
 		if (!is_writable($filepath)) {
 			trigger_localised_error('HIPO0074', E_USER_WARNING, $filepath);
