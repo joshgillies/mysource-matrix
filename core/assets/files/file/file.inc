@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.116 2005/11/15 04:19:19 dmckee Exp $
+* $Id: file.inc,v 1.117 2005/12/09 05:25:03 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.116 $
+* @version $Revision: 1.117 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -943,7 +943,12 @@ class File extends Asset
 		if (!empty($existing)) {
 			require_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
 			$ext = get_file_type($existing['filename']);
+			if (($this->status & SQ_SC_STATUS_SAFE_EDITING) && (is_a($GLOBALS['SQ_SYSTEM']->user, 'public_user'))) {
+				// strip file versioning suffix from the file extension, e.g. 'pdf,ffv5' becomes 'pdf'
+				$ext = preg_replace('/,ffv\d+$/', '', $ext);
+			}
 			$type = (empty($standards_lists_mime_types[$ext])) ? 'text/plain' : $standards_lists_mime_types[$ext];
 			header('Cache-Control:');
 			header('Pragma: cache');
@@ -1019,6 +1024,15 @@ class File extends Asset
 			$then = iso8601_ts($_SESSION['sq_rollback_view']['rollback_time']);
 			$info = $fv->_checkOutCheck($rep_file, null, $then);
 			$path = $info['source_file'];
+		} else if (($this->status & SQ_SC_STATUS_SAFE_EDITING) && (is_a($GLOBALS['SQ_SYSTEM']->user, 'public_user'))) {
+			// safe edit, get the previous live version from the file versioning repository for public user (bug #1049)
+			if (is_file($this->data_path.'/sq_system_version_no')) {
+				$file_version = file_to_string($this->data_path.'/sq_system_version_no');
+				$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+				$rep_file = $this->data_path_suffix.'/'.$this->name;
+				$info = $fv->_checkOutCheck($rep_file, $file_version);
+				$path = $info['source_file'];
+			}
 		} else {
 			// get the latest file
 			$path = $this->data_path.'/'.$this->attr('name');
