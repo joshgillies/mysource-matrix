@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.55 2005/10/18 05:50:26 mmcintyre Exp $
+* $Id: install.inc,v 1.56 2005/12/09 05:29:31 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -234,10 +234,14 @@ function uninstall_packages()
 				assert_valid_db_result($result);
 
 				// remove its asset map file from the data directory
-				if (!unlink(SQ_DATA_PATH.'/private/asset_map/'.$package.'.xml')) {
-					trigger_error('Could not delete the asset map file for "'.$package.'"', E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					exit(1);
+				if (file_exists(SQ_DATA_PATH.'/private/asset_map/'.$package.'.xml')) {
+					if (!unlink(SQ_DATA_PATH.'/private/asset_map/'.$package.'.xml')) {
+						trigger_error('Could not delete the asset map file for "'.$package.'"', E_USER_WARNING);
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						exit(1);
+					}
+				} else {
+					trigger_error('Package file does not exist, it must have been deleted before', E_USER_NOTICE);
 				}
 
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
