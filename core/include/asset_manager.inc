@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.409 2005/12/08 22:42:21 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.410 2005/12/09 04:56:15 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.409 $
+* @version $Revision: 1.410 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4576,6 +4576,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function deleteAssetLink($linkid, $moving=false)
 	{
+		if ($linkid == 0) return false;
 
 		// before anything else is done, check if this is a shadow link, i.e. a link that is managed by a bridge
 		$id_parts = explode(':', $linkid);
