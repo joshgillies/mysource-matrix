@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.19 2005/09/21 01:46:02 mmcintyre Exp $
+* $Id: hipo_job_reindex.inc,v 1.20 2005/12/09 02:34:00 mmcintyre Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -130,21 +130,27 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	function prepare()
 	{
 		// to start regenerating metadata, we need to have a root assetid - default to root folder if none is supplied
-		if (is_null($this->_running_vars['root_assetid']) || $this->_running_vars['root_assetid'] <= 0) {
+		if (is_null($this->_running_vars['root_assetid']) || empty($this->_running_vars['root_assetid'])) {
 			$this->_running_vars['root_assetid'] = 1;	// the root folder
 		}
 
-		// so we have an assetid to start at, but make sure it is a valid assetid
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['root_assetid']);
-		if (is_null($asset)) {
-			trigger_localised_error('SCH0022', E_USER_WARNING, $this->_running_vars['root_assetid']);
-			return false;
+		if (!is_array($this->_running_vars['root_assetid'])) {
+			$this->_running_vars['root_assetid'] = Array($this->_running_vars['root_assetid']);
 		}
 
-		$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
-		$child_assets[$asset->id] = $asset->type();
-		$this->_running_vars['todo_assetids'] = $child_assets;
-		$this->_running_vars['done_assetids'] = Array();
+		foreach ($this->_running_vars['root_assetid'] as $assetid) {
+			// so we have an assetid to start at, but make sure it is a valid assetid
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			if (is_null($asset)) {
+				trigger_localised_error('SCH0022', E_USER_WARNING, $assetid);
+				return false;
+			}
+
+			$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
+			$child_assets[$asset->id] = $asset->type();
+			$this->_running_vars['todo_assetids'] = $child_assets;
+			$this->_running_vars['done_assetids'] = Array();
+		}
 
 		return parent::prepare();
 
