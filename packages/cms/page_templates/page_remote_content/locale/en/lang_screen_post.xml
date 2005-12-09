@@ -11,13 +11,25 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.5 2005/12/09 05:49:24 bcaldwell Exp $
+* $Id: lang_screen_post.xml,v 1.1 2005/12/09 05:50:12 bcaldwell Exp $
 *
 */
 -->
 
-<screens>
-	<screen code_name="messages"	display_name="Messages" icon="edit" lock_type="attributes" />
-	<screen code_name="post"		display_name="Post Data" icon="edit" lock_type="attributes" force_unlock="0" />
-	<screen code_name="paths"		display_name="Web Paths" icon="web" lock_type="lookups"/>
-</screens>
+<contents>
+	<section name="Post Data">
+		<field>
+			<function_call>
+				<paint_function name="paintPostVariableTable" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function		name="paintNewPostVariableInput"	/>
+				<process_function	name="processNewPostVariableInput"/>
+			</function_call>
+			<display_name>New ?</display_name>
+			<note>Post data with the name(s) and value(s) above will be sent with the request to the Remote URL specified for this asset only.</note>
+		</field>
+	</section>
+</contents>

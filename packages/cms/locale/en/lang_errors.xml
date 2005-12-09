@@ -12,7 +12,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.9 2005/12/08 00:27:27 arailean Exp $
+* $Id: lang_errors.xml,v 1.10 2005/12/09 05:51:02 bcaldwell Exp $
 *
 */
 -->
@@ -183,5 +183,7 @@
 
 	<error code="CMS0057">URL not allowed: "%s"</error>
 	<error code="CMS0058">Redirected to a disallowed url: "%1$s" from "%2$s"</error>
+	
+	<error code="CMS0059">Cannot add duplicate variable.</error>
 
 </errors>
