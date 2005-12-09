@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_record_set.inc,v 1.4 2005/10/30 22:33:36 pgannavarapu Exp $
+* $Id: data_source_record_set.inc,v 1.5 2005/12/09 04:47:06 dheppell Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -201,6 +201,76 @@ class Data_Source_Record_Set extends Asset
 		return $replacement;
 
 	}//end getKeywordReplacement()
+
+
+	/**
+	* Returns true if at least one of the passed assetids has read access to this asset
+	*
+	* @param array	$assetids	An array of user_group and/or user ids to check for read access
+	*							If the array is empty, the current user will be checked
+	*
+	* @return boolean
+	* @access public
+	*/
+	function readAccess($assetids=Array())
+	{
+		$parent = &$this->_getBridge();
+		if (!is_null($parent)) {
+			$result = $parent->readAccess($assetids);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
+			return $result;
+		}
+
+		return false;
+
+	}//end readAccess()
+
+
+	/**
+	* Returns true if at least one of the passed assetids has write access to this asset
+	*
+	* The extra parameter, $only_workflow, is currently only be used in
+	* determining read access for an asset before it goes live.
+	*
+	* @param string		$lock_type		the type of write access required - if blank returns a plain check against
+	*									permissions set for this asset, otherwise returns effective access based
+	*									on locking and status
+	* @param array		$assetids		An array of user_group and/or user ids to check for write access
+	*									If the array is empty, the current user will be checked
+	* @param boolean	$only_workflow	If true (default), users with write access normally will be denied write access
+	*									if outside the current step of the workflow. If false, both those in the workflow
+	*									and those with normal write access will be granted write access.
+	*
+	* @return boolean
+	* @access public
+	*/
+	function writeAccess($lock_type='', $assetids=Array(), $only_workflow=true)
+	{
+		$parent = &$this->_getBridge();
+		if (!is_null($parent)) {
+			$result = $parent->writeAccess($lock_type, $assetids, $only_workflow);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
+			return $result;
+		}
+
+		return false;
+
+	}//end writeAccess()
+
+
+	/**
+	* returns the owning bridge asset of this shadow asset
+	*
+	* @return mixed object|null
+	* @access private
+	*/
+	function &_getBridge()
+	{
+		list($bridgeid, $childid) = explode(':', $this->id);
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
+		return $asset;
+
+	}//end _getBridge()
 
 
 }//end class
