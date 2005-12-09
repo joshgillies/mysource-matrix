@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.322.2.28 2005/11/16 04:34:53 lwright Exp $
+* $Id: asset_manager.inc,v 1.322.2.29 2005/12/09 02:47:37 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322.2.28 $
+* @version $Revision: 1.322.2.29 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -563,6 +563,11 @@ class Asset_Manager extends MySource_Object
 
 		$type_code = strtolower($type_code);
 		assert_isset_array_index($this->_asset_types, $type_code, $error_msg);
+
+		// we only need to require the type_code and its asset string once
+		if (isset($this->_asset_types[$type_code]['included']) && $this->_asset_types[$type_code]['included']) {
+			return;
+		}
 		require_once SQ_SYSTEM_ROOT.'/'.$this->_asset_types[$type_code]['dir'].'/'.$type_code.'.inc';
 
 		// include the language strings
@@ -570,6 +575,8 @@ class Asset_Manager extends MySource_Object
 		foreach ($GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code) as $type_parent) {
 			$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings($type_parent);
 		}
+
+		$this->_asset_types[$type_code]['included'] = true;
 
 	}//end includeAsset()
 
