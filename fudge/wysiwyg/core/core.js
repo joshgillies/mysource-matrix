@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: core.js,v 1.20 2005/05/16 06:36:35 lwright Exp $
+* $Id: core.js,v 1.20.2.1 2005/12/12 04:08:07 sdanis Exp $
 *
 */
 
@@ -159,9 +159,10 @@ HTMLArea.prototype.generate = function () {
 			 function (event) {
 				 return editor._editorEvent(HTMLArea.is_ie ? editor._iframe.contentWindow.event : event);
 			 });
+
+		editor._initialised = true;
 		editor.updateToolbar();
 		editor.focusEditor();
-		editor._initialised = true;
 	};
 
 	function initDiv() {
