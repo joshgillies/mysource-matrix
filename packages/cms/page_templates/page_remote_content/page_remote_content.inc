@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.25 2005/12/08 22:23:54 arailean Exp $
+* $Id: page_remote_content.inc,v 1.26 2005/12/12 06:05:01 arailean Exp $
 *
 */
 
@@ -29,7 +29,7 @@ define ('SQ_REMOTE_MAX_REDIRECTS', 10);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -262,23 +262,24 @@ class Page_Remote_Content extends Page
 
 		$url = strtolower($url);
 
-		$white_list = $this->attr('url_white_list');
-		if (!isset($this->_tmp['_start_url_'])) {
+		if (!isset($this->_tmp['_white_list_'])) {
+			$this->_tmp['_white_list_'] = Array();
 			$Net_URL =& new Net_URL($this->attr('remote_url'));
-			$this->_tmp['_start_url_'] = strtolower($Net_URL->host.$Net_URL->path);
+			if (!$this->attr('only_local_links')) {
+				$this->_tmp['_white_list_'] = $this->attr('url_white_list');
+				$this->_tmp['_white_list_'][] = strtolower($Net_URL->host.$Net_URL->path);
+			} else {
+				// this is to support legacy functionality where 'Only Local Links' meant all the links in the local domain
+				$this->_tmp['_white_list_'][] = strtolower($Net_URL->host);
+			}
+
 		}
 
-		if ($url == $this->_tmp['_start_url_']) {
-			return true;
-		} else if (empty($white_list) && !$this->attr('only_local_links')) {
-			return true;
-		} else {
-			foreach ($white_list as $white_url) {
-				if (strlen($white_url) > strlen($url)) {
-					continue;
-				} else if (strtolower($white_url) == substr($url, 0, strlen($white_url))) {
-					return true;
-				}
+		foreach ($this->_tmp['_white_list_'] as $white_url) {
+			if (strlen($white_url) > strlen($url)) {
+				continue;
+			} else if (strtolower($white_url) == substr($url, 0, strlen($white_url))) {
+				return true;
 			}
 		}
 
@@ -558,7 +559,7 @@ class Page_Remote_Content extends Page
 			}
 
 			// if images need to be tunneled, prepare a new source url
-			if ($this->attr('tunnel_scripts')) {
+			if ($this->attr('tunnel_scripts') && $this->isUrlAllowed($url)) {
 				$url = $replacement_url.rawurlencode($url);
 			}
 
@@ -591,7 +592,7 @@ class Page_Remote_Content extends Page
 			}
 
 			// if images need to be tunneled, prepare a new source url
-			if ($this->attr('tunnel_media')) {
+			if ($this->attr('tunnel_media') && $this->isUrlAllowed($url)) {
 				$url = $replacement_url.rawurlencode($url);
 			}
 
@@ -630,7 +631,7 @@ class Page_Remote_Content extends Page
 			}
 
 			// if images need to be tunneled, prepare a new source url
-			if ($this->attr('tunnel_media')) {
+			if ($this->attr('tunnel_media') && $this->isUrlAllowed($url)) {
 				$url = $replacement_url.rawurlencode($url);
 			}
 
@@ -676,7 +677,7 @@ class Page_Remote_Content extends Page
 			}
 
 			// if images need to be tunneled, prepare a new source url
-			if ($this->attr('tunnel_images')) {
+			if ($this->attr('tunnel_images') && $this->isUrlAllowed($url)) {
 				$url = $replacement_url.rawurlencode($url);
 			}
 
@@ -710,7 +711,6 @@ class Page_Remote_Content extends Page
 		$matches_local = null;
 
 		$load_links = $this->attr('load_links');
-		$only_local_links = $this->attr('only_local_links');
 
 		foreach ($matches as $data) {
 			$subject	= $data[0];
@@ -724,13 +724,7 @@ class Page_Remote_Content extends Page
 			}
 
 			// if urls need to point back to us, prepare a new url
-			if ($load_links) {
-				if ($only_local_links){
-					$parsed_full_url = parse_url($url);
-					if ($parsed_full_url['host'] != $parsed_fetch_url['host']) {
-						continue;
-					}
-				}
+			if ($load_links && $this->isUrlAllowed($url)) {
 				$url = $replacement_url.rawurlencode($url);
 			}
 
@@ -768,17 +762,11 @@ class Page_Remote_Content extends Page
 				continue;
 			}
 
-			// forms require the parameters to be set to the hidden fields for proper functioning
-			$postfix .= '<input type="hidden" name="sq_remote_page_action" value="fetch_url" /><input type="hidden" name="sq_remote_page_url" value="'.htmlspecialchars($url).'" />';
-
 			// if urls need to point back to us, prepare a new url
-			if ($load_links) {
-				if ($only_local_links){
-					$parsed_full_url = parse_url($url);
-					if ($parsed_full_url['host'] != $parsed_fetch_url['host']) {
-						continue;
-					}
-				}
+			if ($load_links && $this->isUrlAllowed($url)) {
+				// forms require the parameters to be set to the hidden fields for proper functioning
+				$postfix .= '<input type="hidden" name="sq_remote_page_action" value="fetch_url" /><input type="hidden" name="sq_remote_page_url" value="'.htmlspecialchars($url).'" />';
+
 				$url = $replacement_url.rawurlencode($url);
 			}
 
