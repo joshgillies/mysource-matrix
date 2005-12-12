@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.38 2005/12/12 22:31:35 lwright Exp $
+* $Id: form_management.inc,v 1.39 2005/12/12 22:45:43 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -240,7 +240,7 @@ class Form_Management extends Asset_Management
 														FROM
 															sq_ast_typ_inhd
 														WHERE
-															inhd_type_code = '.$db-quoteSmart('form').'
+															inhd_type_code = '.$db->quoteSmart('form').'
 													 )
 								   )
 					AND
@@ -256,7 +256,7 @@ class Form_Management extends Asset_Management
 														FROM
 															sq_ast_typ_inhd
 														WHERE
-															inhd_type_code = '.$db-quoteSmart('form_section').'
+															inhd_type_code = '.$db->quoteSmart('form_section').'
 													 )
 								   )';
 			$result = $db->query($sql);
