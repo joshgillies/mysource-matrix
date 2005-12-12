@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.38.2.2 2005/08/22 04:04:48 dheppell Exp $
+* $Id: form_section_edit_fns.inc,v 1.38.2.3 2005/12/12 22:32:42 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.38.2.2 $
+* @version $Revision: 1.38.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -172,7 +172,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 						?>
 					</tr>
 				<?php
-				$questions = &$asset->getQuestions();
+				$questions = $asset->getQuestions();
 				$sort_order = $asset->attr('sort_order');
 
 				if (!empty($sort_order)) {
