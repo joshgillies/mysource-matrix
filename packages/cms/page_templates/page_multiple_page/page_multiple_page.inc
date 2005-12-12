@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page.inc,v 1.8 2005/12/07 21:55:23 dmckee Exp $
+* $Id: page_multiple_page.inc,v 1.9 2005/12/12 03:20:02 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -642,7 +642,9 @@ class Page_Multiple_Page extends Page
 		} else {
 			echo '<ul>';
 		}
-		foreach ($infos as $id => $data) {
+		foreach ($links as $link_data) {
+			$id = $link_data['minorid'];
+			$data = $infos[$id];
 			?>
 			<li>
 			<?php
