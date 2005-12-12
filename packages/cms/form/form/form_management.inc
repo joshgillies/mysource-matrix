@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.35 2005/05/20 05:27:25 tbarrett Exp $
+* $Id: form_management.inc,v 1.35.2.1 2005/12/12 22:31:20 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.35.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -210,6 +210,57 @@ class Form_Management extends Asset_Management
 				}
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($form);
 			}
+			bam('DONE');
+		}
+
+
+		if (version_compare($current_version, '0.7', '<')) {
+			bam('UPGRADING FORM TO v0.7');
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			// It's going to be best to do this via an SQL query
+			$sql = 'UPDATE
+						sq_ast_lnk
+					SET
+						is_dependant = 1
+					WHERE
+						majorid IN (
+									SELECT
+										assetid
+									FROM
+										sq_ast
+									WHERE
+										type_code IN (
+														SELECT
+															type_code
+														FROM
+															sq_ast_typ_inhd
+														WHERE
+															inhd_type_code = '.$db->quoteSmart('form').'
+													 )
+								   )
+					AND
+						minorid IN (
+									SELECT
+										assetid
+									FROM
+										sq_ast
+									WHERE
+										type_code IN (
+														SELECT
+															type_code
+														FROM
+															sq_ast_typ_inhd
+														WHERE
+															inhd_type_code = '.$db->quoteSmart('form_section').'
+													 )
+								   )';
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			bam('DONE');
 		}
 
