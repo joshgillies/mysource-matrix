@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.65 2005/11/04 00:00:39 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.66 2005/12/12 04:11:51 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -368,7 +368,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 								<tr>
 									<?php
 									$i = 0;
-									$elements =& $sub_asset->getSummary();
+									$elements = $sub_asset->getSummary();
 									if (count($elements) % 2 != 0) {
 										$elements[] = Array('name' => '', 'answer' => '');
 									}
