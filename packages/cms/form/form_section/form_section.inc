@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.45 2005/09/30 06:29:58 lwright Exp $
+* $Id: form_section.inc,v 1.46 2005/12/12 06:05:55 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -688,6 +688,45 @@ class Form_Section extends Asset
 			// save the information
 			$clone->setAttrValue('sort_order', $sort_order);
 			$clone->saveAttributes();
+
+			// Now remap any parent forms, but only if we are being cloned along with a form clone:
+			// remap to the cloned form. If we are being clone within a form, we will not remap.
+			$form_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($this->id, 'form_email', false);
+			$clone_form_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($clone->id, 'form_email', false);
+
+			$clone_form_parents = array_diff($clone_form_parents, $form_parents);
+
+			foreach ($clone_form_parents as $parent_assetid) {
+				$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
+
+				$recip = unserialize($form->attr('recipient_emails_format'));
+				$recip = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $recip);
+				$rec = unserialize($form->attr('receipt_emails_format'));
+				$rec = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $rec);
+				$staf = unserialize($form->attr('staf_format'));
+				$staf = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $staf);
+				$sel = $form->attr('selective_emails');
+				foreach ($sel as $key => $null) {
+					$sel[$key]['address'] = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $sel[$key]['address']);
+					$sel[$key]['assetid'] = str_replace($this->id.':q', $clone->id.':q', $sel[$key]['assetid']);
+				}
+
+				// field selections for STAF and receipt
+				$staf_field = str_replace($this->id.':q', $clone->id.':q', $form->attr('staf_field'));
+				$receipt_field = str_replace($this->id.':q', $clone->id.':q', $form->attr('receipt_field'));
+
+				// save the information
+				$form->setAttrValue('recipient_emails_format', serialize($recip));
+				$form->setAttrValue('receipt_emails_format', serialize($rec));
+				$form->setAttrValue('staf_format', serialize($staf));
+				$form->setAttrValue('selective_emails', $sel);
+
+				$form->setAttrValue('staf_field', $staf_field);
+				$form->setAttrValue('receipt_field', $receipt_field);
+
+				$form->saveAttributes();
+			}
+
 
 		}
 
