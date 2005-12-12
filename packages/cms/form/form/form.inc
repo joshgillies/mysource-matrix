@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.100.2.12 2005/09/07 23:53:31 mmcintyre Exp $
+* $Id: form.inc,v 1.100.2.13 2005/12/12 22:18:29 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.100.2.12 $
+* @version $Revision: 1.100.2.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -215,7 +215,7 @@ class Form extends Asset
 			if ($get_type) {
 				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($assetid, $link_types & $allowed_link_types, $real_type_code, false);
 				if (empty($query)) return Array();
-				
+
 				$type_links = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
 
 				foreach (array_keys($type_links) as $key) {
@@ -363,7 +363,7 @@ class Form extends Asset
 		// basically get the parents of the section, and add itself in the
 		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
 		if (empty($query)) return Array();
-		
+
 		$queried_parents = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
 		$parents = Array();
 
@@ -516,6 +516,35 @@ class Form extends Asset
 		return parent::canCreateLink($minor, $link_type, $exclusive);
 
 	}//end canCreateLink()
+
+
+	/**
+	* Prepares for linking by checking that the link values are valid for this link
+	*
+	* This function will be called if this asset is the major or minor party in the link, so the side_of_link flag
+	* should be checked to work out what side of the link this asset is on. The return value should indicate
+	* if any of the link fields were changed.
+	*
+	* @param object	&$asset			the major or minor asset that we are linking to
+	* @param string	$side_of_link	the side of the link we are on (major or minor)
+	* @param string	&$link_type		the type of link we are creating
+	* @param string	&$value			the value that is to be associated with the link
+	* @param string	&$sort_order	the position in the links list that this link should take,
+	* @param string	&$dependant		'0' / '1' on whether the this asset is dependant on the
+	*								asset that will be linked by the new link
+	* @param string	&$exclusive		'0' / '1' on whether the this asset is linked exclusivly
+	*								to the asset that will be linked by the new link
+	*
+	* @return boolean
+	* @access public
+	*/
+	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
+	{
+		if ($side_of_link == 'major' && $asset->type() == 'form_section') {
+			$dependant = true;
+		}
+
+	}//end prepareLink()
 
 
 	/**
