@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.125 2005/12/12 22:10:09 lwright Exp $
+* $Id: form.inc,v 1.126 2005/12/12 22:17:30 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.125 $
+* @version $Revision: 1.126 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -522,7 +522,7 @@ class Form extends Asset
 	}//end canCreateLink()
 
 
-		/**
+	/**
 	* Prepares for linking by checking that the link values are valid for this link
 	*
 	* This function will be called if this asset is the major or minor party in the link, so the side_of_link flag
