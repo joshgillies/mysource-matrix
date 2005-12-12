@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.40.2.4 2005/09/08 00:13:48 mmcintyre Exp $
+* $Id: form_section.inc,v 1.40.2.5 2005/12/12 22:18:14 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.40.2.4 $
+* @version $Revision: 1.40.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -317,8 +317,8 @@ class Form_Section extends Asset
 		// basically get the parents of the section, and add itself
 		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
 		if (empty($query)) return Array();
-		
-		
+
+
 		$queried_parents = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
 		$parents = Array();
 
@@ -367,7 +367,7 @@ class Form_Section extends Asset
 		$children = Array();
 
 		// we don't have to get any real links, sections only have question children
-		
+
 		// now questions
 		$entries = $this->attr('questions');
 		if (empty($type_code)) {
@@ -414,7 +414,7 @@ class Form_Section extends Asset
 	{
 		return Array();
 	}//end getLineageFromURL()
-	
+
 
 	/**
 	* get the section links attached to this form
@@ -648,7 +648,7 @@ class Form_Section extends Asset
 	}//end fileRegeneration()
 
 
-	/**
+/**
 	* Clones certain specified components of the asset
 	*
 	* @param object asset &$clone the clone asset shell
@@ -684,6 +684,44 @@ class Form_Section extends Asset
 			// save the information
 			$clone->setAttrValue('sort_order', $sort_order);
 			$clone->saveAttributes();
+
+			// Now remap any parent forms, but only if we are being cloned along with a form clone:
+			// remap to the cloned form. If we are being clone within a form, we will not remap.
+			$form_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($this->id, 'form_email', false);
+			$clone_form_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($clone->id, 'form_email', false);
+
+			$clone_form_parents = array_diff($clone_form_parents, $form_parents);
+
+			foreach ($clone_form_parents as $parent_assetid) {
+				$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
+
+				$recip = unserialize($form->attr('recipient_emails_format'));
+				$recip = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $recip);
+				$rec = unserialize($form->attr('receipt_emails_format'));
+				$rec = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $rec);
+				$staf = unserialize($form->attr('staf_format'));
+				$staf = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $staf);
+				$sel = $form->attr('selective_emails');
+				foreach ($sel as $key => $null) {
+					$sel[$key]['address'] = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $sel[$key]['address']);
+					$sel[$key]['assetid'] = str_replace($this->id.':q', $clone->id.':q', $sel[$key]['assetid']);
+				}
+
+				// field selections for STAF and receipt
+				$staf_field = str_replace($this->id.':q', $clone->id.':q', $form->attr('staf_field'));
+				$receipt_field = str_replace($this->id.':q', $clone->id.':q', $form->attr('receipt_field'));
+
+				// save the information
+				$form->setAttrValue('recipient_emails_format', serialize($recip));
+				$form->setAttrValue('receipt_emails_format', serialize($rec));
+				$form->setAttrValue('staf_format', serialize($staf));
+				$form->setAttrValue('selective_emails', $sel);
+
+				$form->setAttrValue('staf_field', $staf_field);
+				$form->setAttrValue('receipt_field', $receipt_field);
+
+				$form->saveAttributes();
+			}
 
 		}
 
