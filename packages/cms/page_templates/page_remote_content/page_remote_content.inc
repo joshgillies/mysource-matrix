@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.21.2.3 2005/12/08 04:08:30 arailean Exp $
+* $Id: page_remote_content.inc,v 1.21.2.4 2005/12/13 00:46:29 arailean Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once 'HTTP/Client/CookieManager.php';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.21.2.3 $
+* @version $Revision: 1.21.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -208,17 +208,17 @@ class Page_Remote_Content extends Page
 		$response_body	= $this->_tmp['content'];
 
 		// prepare the tags
-		$start_tag	= preg_quote($this->attr('start_tag'), '/');
-		$end_tag	= preg_quote($this->attr('end_tag'), '/');
+		$start_tag = preg_quote($this->attr('start_tag'), '/');
+		$end_tag   = preg_quote($this->attr('end_tag'), '/');
 
 		// strip anything outside of the special tags
 		// if the start or stop tags are specified, we scan the page for the necessary content
 		// otherwise the page is good as it is, no scanning necessary
-		if (isset($start_tag) || isset($end_tag)) {
+		if (!empty($start_tag) || !empty($end_tag)) {
 			if ($this->attr('include_tags')) {
-				$pattern = "/($start_tag(?:.*)?$end_tag)/Us";
+				$pattern = "/($start_tag.*?$end_tag)/s";
 			} else {
-				$pattern = "/$start_tag(.*)?$end_tag/Us";
+				$pattern = "/$start_tag(.*?)$end_tag/s";
 			}
 
 			// note that we can find more than one section identified by the tags
@@ -230,6 +230,7 @@ class Page_Remote_Content extends Page
 					$response_body .= $match;
 				}
 			}
+			$matches = null;
 		}
 
 		// prepare the url that will be used to replace the links that have to be tunnelled through remote content
@@ -253,31 +254,37 @@ class Page_Remote_Content extends Page
 	*/
 	function isUrlAllowed($url)
 	{
+		if (!isset($this->_tmp['_white_list_'])) {
+			$this->_tmp['_white_list_'] = Array();
+			$Net_URL =& new Net_URL($this->attr('remote_url'));
+			if ($this->attr('only_local_links')) {
+				// this is to support legacy functionality where 'Only Local Links' meant all the links in the local domain
+				$this->_tmp['_white_list_'][] = strtolower($Net_URL->host);
+			} else {
+				$this->_tmp['_white_list_'] = $this->attr('url_white_list');
+				if (!empty($this->_tmp['_white_list_'])) {
+					$this->_tmp['_white_list_'][] = strtolower($Net_URL->host.$Net_URL->path);
+				}
+			}
+		}
+
+		if (empty($this->_tmp['_white_list_'])) {
+			return true;
+		}
+
+
 		$Net_URL =& new Net_URL($url);
 		$url = $Net_URL->host;
 		if (!empty($Net_URL->path)) {
 			$url = $url.$Net_URL->path;
 		}
-
 		$url = strtolower($url);
 
-		$white_list = $this->attr('url_white_list');
-		if (!isset($this->_tmp['_start_url_'])) {
-			$Net_URL =& new Net_URL($this->attr('remote_url'));
-			$this->_tmp['_start_url_'] = strtolower($Net_URL->host.$Net_URL->path);
-		}
-
-		if ($url == $this->_tmp['_start_url_']) {
-			return true;
-		} else if (empty($white_list) && !$this->attr('only_local_links')) {
-			return true;
-		} else {
-			foreach ($white_list as $white_url) {
-				if (strlen($white_url) > strlen($url)) {
-					continue;
-				} else if (strtolower($white_url) == substr($url, 0, strlen($white_url))) {
-					return true;
-				}
+		foreach ($this->_tmp['_white_list_'] as $white_url) {
+			if (strlen($white_url) > strlen($url)) {
+				continue;
+			} else if (strtolower($white_url) == substr($url, 0, strlen($white_url))) {
+				return true;
 			}
 		}
 
@@ -350,7 +357,7 @@ class Page_Remote_Content extends Page
 
 		$url = $Fetch_URL->getURL();
 
-		$HTTP_Request = &new HTTP_Request($url, $request_parameters);
+		$HTTP_Request =& new HTTP_Request($url, $request_parameters);
 
 		$HTTP_Request->addHeader('User-Agent', SQ_SYSTEM_LONG_NAME);
 
@@ -367,7 +374,7 @@ class Page_Remote_Content extends Page
 			$Cookie_Manager = unserialize($Cookie_Manager);
 			$Cookie_Manager->passCookies($HTTP_Request);
 		} else {
-			$Cookie_Manager = new HTTP_Client_CookieManager();
+			$Cookie_Manager =& new HTTP_Client_CookieManager();
 		}
 
 		// process the request
@@ -392,13 +399,11 @@ class Page_Remote_Content extends Page
 		$this->_tmp['url'] = $Fetch_URL->getURL();
 
 		// check if we were redirected to a bad destination
-		if ($this->_tmp['url'] != $url) {
-			if (!$this->isUrlAllowed($this->_tmp['url'])) {
-				trigger_localised_error('CMS0058', E_USER_WARNING, $this->_tmp['url'], $fetch_url);
-				$this->_tmp['success'] = false;
-				$this->_tmp['processed'] = true;
-				return false;
-			}
+		if ($this->_tmp['url'] != $url && !$this->isUrlAllowed($this->_tmp['url'])) {
+			trigger_localised_error('CMS0058', E_USER_WARNING, $this->_tmp['url'], $fetch_url);
+			$this->_tmp['success'] = false;
+			$this->_tmp['processed'] = true;
+			return false;
 		}
 
 		// prepare temporary variables for output
@@ -410,7 +415,7 @@ class Page_Remote_Content extends Page
 		if (strpos($this->_tmp['type'],'text/') !== false) {
 			$this->_tmp['content'] = $this->processHtml();
 		} else {
-			$this->_tmp['binary']  = true;
+			$this->_tmp['binary'] = true;
 		}
 
 		$this->_tmp['processed'] = true;
@@ -499,14 +504,14 @@ class Page_Remote_Content extends Page
 		// get all info about the remote URL
 		$parsed_fetch_url = parse_url($fetch_url);
 
-		// first, we strip the images if necessary
+		// strip the images if necessary
 		if ($this->attr('strip_images')) {
 
 			// replace HTML images with their ALT tags
-			$image_pattern = '/(<(?:img)[^>]*?>)/i';
+			$pattern = '/(<(?:img)[^>]*?>)/i';
 
 			$content = preg_replace_callback(
-				$image_pattern,
+				$pattern,
 				create_function(
 					'$matches',
 					'return Page_Remote_Content::_imageStrip($matches[0]);'
@@ -515,18 +520,18 @@ class Page_Remote_Content extends Page
 			);
 
 			// remove HTML background images
-			$background_image_pattern = '/(background\s*=\s*[\'\"]?\s*[^\'\" <>]+[\'\"]?)/i';
-			$content = preg_replace($background_image_pattern, '', $content);
+			$pattern = '/(background\s*=\s*[\'\"]?\s*[^\'\" <>]+[\'\"]?)/i';
+			$content = preg_replace($pattern, '', $content);
 
 			// strip CSS backgrounds
-			$css_background_image_pattern = '/(background.*?)(url\(.*?\))/i';
-			$content = preg_replace($css_background_image_pattern, '\$1', $content);
+			$pattern = '/(background.*?)(url\(.*?\))/i';
+			$content = preg_replace($pattern, '\$1', $content);
 
 			// change Form Image buttons with regular buttons
-			$image_button_patterns = '/(<(?:input)[^>]*type=["\' ]image["\' ][^>]*?>)/i';
+			$pattern = '/(<(?:input)[^>]*type=["\' ]image["\' ][^>]*?>)/i';
 
 			$content = preg_replace_callback(
-				$image_button_patterns,
+				$pattern,
 				create_function(
 					'$matches',
 					'return Page_Remote_Content::_imageButtonReplace($matches[0]);'
@@ -540,19 +545,22 @@ class Page_Remote_Content extends Page
 		$replacements = Array();
 
 		//// BEGIN SCRIPTS
-		$matches      = Array();
+		$matches = Array();
+		$patterns = Array();
 
 		// scripts and linked CSS or JavaScript
-		$script_patterns[] = '/(<(?:script|link)\s+.*?(?:src|href)\s*=\s*[\'"]*)\s*([^\'" \>]+)([\'"> ]?[^<]*\>)/i';
+		$patterns[] = '/(<(?:script|link)\s+.*?(?:src|href)\s*=\s*[\'"]*)\s*([^\'" \>]+)([\'"> ]?[^<]*\>)/i';
 
 		// CSS url definitions for scripts
-		$script_patterns[] = '/(@import\s+url\s*\([\'"]?\s*)([^\'" ]+)([\'"]?\s*\))/i';
+		$patterns[] = '/(@import\s+url\s*\([\'"]?\s*)([^\'" ]+)([\'"]?\s*\))/i';
 
 		// find whatever matches the above patterns
-		foreach ($script_patterns as $pattern) {
+		foreach ($patterns as $pattern) {
 			preg_match_all($pattern, $content, $matches_local, PREG_SET_ORDER);
 			$matches = array_merge($matches, $matches_local);
 		}
+		// local cleanup
+		$matches_local = null;
 
 		// fix these matches up
 		foreach ($matches as $data) {
@@ -567,7 +575,7 @@ class Page_Remote_Content extends Page
 			}
 
 			// if images need to be tunneled, prepare a new source url
-			if ($this->attr('tunnel_scripts')) {
+			if ($this->attr('tunnel_scripts') && $this->isUrlAllowed($url)) {
 				$url = $replacement_url.rawurlencode($url);
 			}
 
@@ -582,10 +590,10 @@ class Page_Remote_Content extends Page
 		$matches      = Array();
 
 		// objects
-		$embed_pattern = '/(<(?:embed)\s+.*?(?:src)\s*=\s*[\'"]*)\s*([^\'" >]+)([\'"> ]?[^<]*>)/i';
+		$pattern = '/(<(?:embed)\s+.*?(?:src)\s*=\s*[\'"]*)\s*([^\'" >]+)([\'"> ]?[^<]*>)/i';
 
 		// find whatever matches the above patterns
-		preg_match_all($embed_pattern, $content, $matches, PREG_SET_ORDER);
+		preg_match_all($pattern, $content, $matches, PREG_SET_ORDER);
 
 		// fix these matches up
 		foreach ($matches as $data) {
@@ -600,7 +608,7 @@ class Page_Remote_Content extends Page
 			}
 
 			// if images need to be tunneled, prepare a new source url
-			if ($this->attr('tunnel_media')) {
+			if ($this->attr('tunnel_media') && $this->isUrlAllowed($url)) {
 				$url = $replacement_url.rawurlencode($url);
 			}
 
@@ -613,9 +621,9 @@ class Page_Remote_Content extends Page
 		$matches      = Array();
 
 		// object parameters (flash)
-		$param_pattern = '/(<(?:param)\s+.*?(?:value)\s*=\s*[\'"]*)\s*([^\'" >]+)([\'"> ]?[^<]*>)/i';
+		$pattern = '/(<(?:param)\s+.*?(?:value)\s*=\s*[\'"]*)\s*([^\'" >]+)([\'"> ]?[^<]*>)/i';
 
-		preg_match_all($param_pattern, $content, $matches, PREG_SET_ORDER);
+		preg_match_all($pattern, $content, $matches, PREG_SET_ORDER);
 
 		// fix these matches up
 		foreach ($matches as $data) {
@@ -639,33 +647,39 @@ class Page_Remote_Content extends Page
 			}
 
 			// if images need to be tunneled, prepare a new source url
-			if ($this->attr('tunnel_media')) {
+			if ($this->attr('tunnel_media') && $this->isUrlAllowed($url)) {
 				$url = $replacement_url.rawurlencode($url);
 			}
 
 			$subjects[]		= $subject;
 			$replacements[]	= $prefix.$url.$postfix;
 		}
+		// local cleanup
+		$name_matches = null;
+
 		//// END OBJECTS
 
 
 		//// BEGIN IMAGES
-		$matches      = Array();
+		$matches = Array();
+		$patterns = Array();
 
 		// prepare the image patterns
-		$image_patterns[] = '/(<(?:img)\s+.*?(?:src)\s*=\s*[\'"]*)\s*([^\'" <>]+)([\'"> ]?[^<>]*\>)/i';
+		$patterns[] = '/(<(?:img)\s+.*?(?:src)\s*=\s*[\'"]*)\s*([^\'" <>]+)([\'"> ]?[^<>]*\>)/i';
 
-		$image_patterns[] = '/(background\s*=\s*[\'"]?)\s*([^\'"<> ]+)([\'" ]?[^<]*>)/i';
+		$patterns[] = '/(background\s*=\s*[\'"]?)\s*([^\'"<> ]+)([\'" ]?[^<]*>)/i';
 
-		$image_patterns[] = '/((?:background.*?)url\s*\([\'"]?\s*)([^\'"; ]+)([\'"]?\s*\))/i';
+		$patterns[] = '/((?:background.*?)url\s*\([\'"]?\s*)([^\'"; ]+)([\'"]?\s*\))/i';
 
-		$image_patterns[] = '/(<(?:input)\s+.*?(?:src)\s*=\s*[\'"]+)\s*([^\'" >]+)([\'"> ]?[^<>]*\>)/i';
+		$patterns[] = '/(<(?:input)\s+.*?(?:src)\s*=\s*[\'"]+)\s*([^\'" >]+)([\'"> ]?[^<>]*\>)/i';
 
 		// find whatever matches the above patterns
-		foreach ($image_patterns as $pattern) {
+		foreach ($patterns as $pattern) {
 			preg_match_all($pattern, $content, $matches_local, PREG_SET_ORDER);
 			$matches = array_merge($matches, $matches_local);
 		}
+		// local cleanup
+		$matches_local = null;
 
 		foreach ($matches as $data) {
 			$subject	= $data[0];
@@ -679,7 +693,7 @@ class Page_Remote_Content extends Page
 			}
 
 			// if images need to be tunneled, prepare a new source url
-			if ($this->attr('tunnel_images')) {
+			if ($this->attr('tunnel_images') && $this->isUrlAllowed($url)) {
 				$url = $replacement_url.rawurlencode($url);
 			}
 
@@ -709,6 +723,10 @@ class Page_Remote_Content extends Page
 			preg_match_all($pattern, $content, $matches_local, PREG_SET_ORDER);
 			$matches = array_merge($matches, $matches_local);
 		}
+		// local cleanup
+		$matches_local = null;
+
+		$load_links = $this->attr('load_links');
 
 		foreach ($matches as $data) {
 			$subject	= $data[0];
@@ -722,11 +740,7 @@ class Page_Remote_Content extends Page
 			}
 
 			// if urls need to point back to us, prepare a new url
-			if ($this->attr('load_links')) {
-				$parsed_full_url = parse_url($url);
-				if ($this->attr('only_local_links') && ($parsed_full_url['host'] != $parsed_fetch_url['host'])) {
-					continue;
-				}
+			if ($load_links && $this->isUrlAllowed($url)) {
 				$url = $replacement_url.rawurlencode($url);
 			}
 
@@ -750,6 +764,8 @@ class Page_Remote_Content extends Page
 			preg_match_all($pattern, $content, $matches_local, PREG_SET_ORDER);
 			$matches = array_merge($matches, $matches_local);
 		}
+		// local cleanup
+		$matches_local = null;
 
 		foreach ($matches as $data) {
 			$subject = $data[0];
@@ -757,21 +773,16 @@ class Page_Remote_Content extends Page
 			$url     = $data[2];
 			$postfix = $data[3];
 
-
 			// make full url, ignore invalid urls
 			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
 				continue;
 			}
 
-			// forms require the parameters to be set to the hidden fields for proper functioning
-			$postfix .= '<input type="hidden" name="sq_remote_page_action" value="fetch_url" /><input type="hidden" name="sq_remote_page_url" value="'.htmlspecialchars($url).'" />';
-
 			// if urls need to point back to us, prepare a new url
-			if ($this->attr('load_links')) {
-				$parsed_full_url = parse_url($url);
-				if ($this->attr('only_local_links') && ($parsed_full_url['host'] != $parsed_fetch_url['host'])) {
-					continue;
-				}
+			if ($load_links && $this->isUrlAllowed($url)) {
+				// forms require the parameters to be set to the hidden fields for proper functioning
+				$postfix .= '<input type="hidden" name="sq_remote_page_action" value="fetch_url" /><input type="hidden" name="sq_remote_page_url" value="'.htmlspecialchars($url).'" />';
+
 				$url = $replacement_url.rawurlencode($url);
 			}
 
