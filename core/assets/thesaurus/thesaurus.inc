@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.6 2005/12/07 00:48:34 arailean Exp $
+* $Id: thesaurus.inc,v 1.7 2005/12/13 06:03:34 arailean Exp $
 *
 */
 
@@ -35,7 +35,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -129,13 +129,19 @@ class Thesaurus extends Asset
 	*
 	* Returns an array of terms which have a given term as their parent
 	*
-	* @param int	$termid	Term
+	* @param int	$termid		Term
+	* @param string	$relation	Relation name to limit the lookup by
 	*
 	* @return array
 	* @access public
 	*/
-	function getChildTerms($termid)
+	function getChildTerms($termid, $relation='')
 	{
+
+		$limit_relation = true;
+		if (empty($relation) && !is_null($relation)) {
+			$limit_relation = false;
+		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -151,6 +157,16 @@ class Thesaurus extends Asset
 				link.thesid = '.$db->quoteSmart($this->id).'
 				AND
 				major '.(is_null($termid)?'ISNULL':'= '.$db->quoteSmart($termid)).'
+		';
+
+		if ($limit_relation) {
+			$sql .= '
+				AND
+				relation '.(is_null($relation)?'ISNULL':'= '.$db->quoteSmart($relation)).'
+			';
+		}
+
+		$sql .= '
 			ORDER BY
 				sort_order
 		';
@@ -1615,13 +1631,15 @@ class Thesaurus extends Asset
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
+		$name = strtolower($name);
+
 		$sql = '
 			SELECT
 				termid
 			FROM
 				sq_thes_term
 			WHERE
-				term = '.$db->quoteSmart($name).'
+				lower(term) = '.$db->quoteSmart($name).'
 				AND
 				thesid = '.$db->quoteSmart($this->id).'
 		';
@@ -1646,6 +1664,7 @@ class Thesaurus extends Asset
 	{
 		if (is_null($term)) return false;
 
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
@@ -1654,7 +1673,7 @@ class Thesaurus extends Asset
 			FROM
 				sq_thes_term
 			WHERE
-				term = '.$db->quoteSmart($term).'
+				lower(term) = '.$db->quoteSmart(strtolower($term)).'
 				AND
 				thesid = '.$db->quoteSmart($this->id).'
 		';
