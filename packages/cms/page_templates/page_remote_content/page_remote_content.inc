@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.26 2005/12/12 06:05:01 arailean Exp $
+* $Id: page_remote_content.inc,v 1.27 2005/12/13 00:36:02 arailean Exp $
 *
 */
 
@@ -29,7 +29,7 @@ define ('SQ_REMOTE_MAX_REDIRECTS', 10);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -254,26 +254,31 @@ class Page_Remote_Content extends Page
 	*/
 	function isUrlAllowed($url)
 	{
+		if (!isset($this->_tmp['_white_list_'])) {
+			$this->_tmp['_white_list_'] = Array();
+			$Net_URL =& new Net_URL($this->attr('remote_url'));
+			if ($this->attr('only_local_links')) {
+				// this is to support legacy functionality where 'Only Local Links' meant all the links in the local domain
+				$this->_tmp['_white_list_'][] = strtolower($Net_URL->host);
+			} else {
+				$this->_tmp['_white_list_'] = $this->attr('url_white_list');
+				if (!empty($this->_tmp['_white_list_'])) {
+					$this->_tmp['_white_list_'][] = strtolower($Net_URL->host.$Net_URL->path);
+				}
+			}
+		}
+
+		if (empty($this->_tmp['_white_list_'])) {
+			return true;
+		}
+
+
 		$Net_URL =& new Net_URL($url);
 		$url = $Net_URL->host;
 		if (!empty($Net_URL->path)) {
 			$url = $url.$Net_URL->path;
 		}
-
 		$url = strtolower($url);
-
-		if (!isset($this->_tmp['_white_list_'])) {
-			$this->_tmp['_white_list_'] = Array();
-			$Net_URL =& new Net_URL($this->attr('remote_url'));
-			if (!$this->attr('only_local_links')) {
-				$this->_tmp['_white_list_'] = $this->attr('url_white_list');
-				$this->_tmp['_white_list_'][] = strtolower($Net_URL->host.$Net_URL->path);
-			} else {
-				// this is to support legacy functionality where 'Only Local Links' meant all the links in the local domain
-				$this->_tmp['_white_list_'][] = strtolower($Net_URL->host);
-			}
-
-		}
 
 		foreach ($this->_tmp['_white_list_'] as $white_url) {
 			if (strlen($white_url) > strlen($url)) {
