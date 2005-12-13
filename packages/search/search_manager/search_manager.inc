@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.86 2005/12/07 04:49:25 sdanis Exp $
+* $Id: search_manager.inc,v 1.87 2005/12/13 06:07:34 arailean Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2341,13 +2341,20 @@ class Search_Manager extends Asset
 			return Array();
 		}
 
-		$entity = $thesaurus->getEntityByName($word);
+		$termid = $thesaurus->getTermIdByName($word);
 
-		if (empty($entity)) return Array();
+		if (empty($termid)) return Array();
 
-		$relation = $thesaurus->getRelationByName('Synonyms');
+		$synonyms = $thesaurus->getChildTerms($termid, 'Synonym');
+		$result = Array();
 
-		return $thesaurus->getChildEntitiesInRelation($relation['id'], $entity['id']);
+		if (!empty($synonyms)) {
+			foreach ($synonyms as $synonym) {
+				$result[$synonym['term']] = $synonym['term'];
+			}
+		}
+
+		return $result;
 
 	}//end findSynonymsForWord()
 
