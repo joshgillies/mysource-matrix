@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.14.2.6 2005/12/08 05:39:34 arailean Exp $
+* $Id: page_remote_content.inc,v 1.14.2.7 2005/12/13 00:46:57 arailean Exp $
 *
 */
 
@@ -25,11 +25,11 @@ require_once 'HTTP/Client/CookieManager.php';
 /**
 * Page_Remote_Content
 *
-* Purpose
+* Parse content from the remote location
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.14.2.6 $
+* @version $Revision: 1.14.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -57,11 +57,11 @@ class Page_Remote_Content extends Page
 	* NOTE: If called directly, this function does not allow the output of binary
 	* data because usually the output has been started before the function is called.
 	* If binary output is required, printFrontend function should be used, or _tmp variable set.
-	*
+	**
 	* NOTE: No Output should be done after the call to _outputContent (in this function)
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function printBody()
 	{
@@ -91,8 +91,8 @@ class Page_Remote_Content extends Page
 	/**
 	* Output Binary Content directly, avoiding matrix output wrappers
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function _outputBinaryContent()
 	{
@@ -120,8 +120,8 @@ class Page_Remote_Content extends Page
 	*
 	* @param boolean	$allow_binary	determines whether binary output is allowed
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function _outputContent($allow_binary=true)
 	{
@@ -171,8 +171,8 @@ class Page_Remote_Content extends Page
 	* Assumes that no output is being done before it is allowed to output, so
 	* outputting binaries is allowed. Relies on printBody to do the outputting.
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function printFrontend()
 	{
@@ -194,13 +194,13 @@ class Page_Remote_Content extends Page
 	* Takes HTML content (text in general),
 	* tries to find the sections identified by start and stop tags,
 	* requests for urls to be conditionally replaced
-	*
+	*.
 	* Assumptions:
 	*   processing has already taken place AND
 	*   no error checking of input is necessary
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function processHtml()
 	{
@@ -208,17 +208,17 @@ class Page_Remote_Content extends Page
 		$response_body	= $this->_tmp['content'];
 
 		// prepare the tags
-		$start_tag	= preg_quote($this->attr('start_tag'), '/');
-		$end_tag	= preg_quote($this->attr('end_tag'), '/');
+		$start_tag = preg_quote($this->attr('start_tag'), '/');
+		$end_tag   = preg_quote($this->attr('end_tag'), '/');
 
 		// strip anything outside of the special tags
 		// if the start or stop tags are specified, we scan the page for the necessary content
 		// otherwise the page is good as it is, no scanning necessary
-		if (isset($start_tag) || isset($end_tag)) {
+		if (!empty($start_tag) || !empty($end_tag)) {
 			if ($this->attr('include_tags')) {
-				$pattern = "/($start_tag(?:.*)?$end_tag)/Us";
+				$pattern = "/($start_tag.*?$end_tag)/s";
 			} else {
-				$pattern = "/$start_tag(.*)?$end_tag/Us";
+				$pattern = "/$start_tag(.*?)$end_tag/s";
 			}
 
 			// note that we can find more than one section identified by the tags
@@ -230,6 +230,7 @@ class Page_Remote_Content extends Page
 					$response_body .= $match;
 				}
 			}
+			$matches = null;
 		}
 
 		// prepare the url that will be used to replace the links that have to be tunnelled through remote content
@@ -253,31 +254,37 @@ class Page_Remote_Content extends Page
 	*/
 	function isUrlAllowed($url)
 	{
+		if (!isset($this->_tmp['_white_list_'])) {
+			$this->_tmp['_white_list_'] = Array();
+			$Net_URL =& new Net_URL($this->attr('remote_url'));
+			if ($this->attr('only_local_links')) {
+				// this is to support legacy functionality where 'Only Local Links' meant all the links in the local domain
+				$this->_tmp['_white_list_'][] = strtolower($Net_URL->host);
+			} else {
+				$this->_tmp['_white_list_'] = $this->attr('url_white_list');
+				if (!empty($this->_tmp['_white_list_'])) {
+					$this->_tmp['_white_list_'][] = strtolower($Net_URL->host.$Net_URL->path);
+				}
+			}
+		}
+
+		if (empty($this->_tmp['_white_list_'])) {
+			return true;
+		}
+
+
 		$Net_URL =& new Net_URL($url);
 		$url = $Net_URL->host;
 		if (!empty($Net_URL->path)) {
 			$url = $url.$Net_URL->path;
 		}
-
 		$url = strtolower($url);
 
-		$white_list = $this->attr('url_white_list');
-		if (!isset($this->_tmp['_start_url_'])) {
-			$Net_URL =& new Net_URL($this->attr('remote_url'));
-			$this->_tmp['_start_url_'] = strtolower($Net_URL->host.$Net_URL->path);
-		}
-
-		if ($url == $this->_tmp['_start_url_']) {
-			return true;
-		} else if (empty($white_list) && !$this->attr('only_local_links')) {
-			return true;
-		} else {
-			foreach ($white_list as $white_url) {
-				if (strlen($white_url) > strlen($url)) {
-					continue;
-				} else if (strtolower($white_url) == substr($url, 0, strlen($white_url))) {
-					return true;
-				}
+		foreach ($this->_tmp['_white_list_'] as $white_url) {
+			if (strlen($white_url) > strlen($url)) {
+				continue;
+			} else if (strtolower($white_url) == substr($url, 0, strlen($white_url))) {
+				return true;
 			}
 		}
 
@@ -289,8 +296,8 @@ class Page_Remote_Content extends Page
 	/**
 	* Process the remote content request and return the processed HTML
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function _process()
 	{
@@ -320,7 +327,7 @@ class Page_Remote_Content extends Page
 		}
 
 		// let's see if we're getting any variables in the get string
-		// so we can pass them back to the  original page .
+		// so we can pass them back to the original page
 		unset($_GET['sq_remote_page_action']);
 		unset($_GET['sq_remote_page_url']);
 		unset($_POST['sq_remote_page_action']);
@@ -336,10 +343,10 @@ class Page_Remote_Content extends Page
 
 		// parameters for HTTP_Request. See Package for description.
 		$request_parameters = Array(
-									'timeout'        => $this->attr('timeout'),
-									'allowRedirects' => $this->attr('allow_redirect'),
-									'maxRedirects'   => 10,
-									);
+								'timeout'			=> $this->attr('timeout'),
+								'allowRedirects'	=> $this->attr('allow_redirect'),
+								'maxRedirects'		=> 10,
+							  );
 
 		// set HTTP authentication
 		$user = $this->attr('username');
@@ -350,7 +357,7 @@ class Page_Remote_Content extends Page
 
 		$url = $Fetch_URL->getURL();
 
-		$HTTP_Request = &new HTTP_Request($url, $request_parameters);
+		$HTTP_Request =& new HTTP_Request($url, $request_parameters);
 
 		$HTTP_Request->addHeader('User-Agent', SQ_SYSTEM_LONG_NAME);
 
@@ -367,7 +374,7 @@ class Page_Remote_Content extends Page
 			$Cookie_Manager = unserialize($Cookie_Manager);
 			$Cookie_Manager->passCookies($HTTP_Request);
 		} else {
-			$Cookie_Manager = new HTTP_Client_CookieManager();
+			$Cookie_Manager =& new HTTP_Client_CookieManager();
 		}
 
 		// process the request
@@ -378,7 +385,7 @@ class Page_Remote_Content extends Page
 		$_SESSION['SQ_REMOTE_COOKIE_MANAGER'] = serialize($Cookie_Manager);
 
 		// check if there was an error of type 4xx or 5xx in the HTTP response
-		$is_error = preg_match("/^[45].*?/", $HTTP_Request->getResponseCode());
+		$is_error = preg_match('/^[45].*?/', $HTTP_Request->getResponseCode());
 
 		// exit on error, checking for object because if it is true, than it is
 		// a PEAR error object
@@ -408,7 +415,7 @@ class Page_Remote_Content extends Page
 		if (strpos($this->_tmp['type'],'text/') !== false) {
 			$this->_tmp['content'] = $this->processHtml();
 		} else {
-			$this->_tmp['binary']  = true;
+			$this->_tmp['binary'] = true;
 		}
 
 		$this->_tmp['processed'] = true;
@@ -423,21 +430,16 @@ class Page_Remote_Content extends Page
 	/**
 	* Replace image button with a regular HTML Submit button
 	*
-	* @param  string $input_string          full input tag
-	* @param  string $default_button_name   default name of the button to replace the image
+	* @param string	$input_string			full input tag
+	* @param string	$default_button_name	default name of the button to replace the image
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
 	function _imageButtonReplace($input_string, $default_button_name='Submit Button')
 	{
-		$alt_pattern = <<<REGEX
-/(?:alt\s*=['" ]([^'"><]+)['" ])/i
-REGEX;
-
-		$type_pattern =<<<REGEX
-/(type\s*=['" ][^'"><]+['" ])/i
-REGEX;
+		$alt_pattern  = '/(?:alt\s*=[\'" ]([^\'"><]+)[\'" ])/i';
+		$type_pattern = '/(type\s*=[\'" ][^\'"><]+[\'" ])/i';
 
 		if (preg_match($alt_pattern, $input_string, $matches)) {
 			$button_name = ucfirst($matches[1]);
@@ -459,18 +461,15 @@ REGEX;
 	*
 	* Replaces an HTML image tag with its ALT tag or a default name
 	*
-	* @param  string $image_string          full image tag
-	* @param  string $default_image_name    default word to replace image with if Alt tag is not found
+	* @param string	$image_string		full image tag
+	* @param string	$default_image_name	default word to replace image with if Alt tag is not found
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
 	function _imageStrip($image_string, $default_image_name='Image')
 	{
-
-		$alt_pattern = <<<REGEX
-/(?:alt\s*=['" ]([^'"><]+)['" ])/i
-REGEX;
+		$alt_pattern = '/(?:alt\s*=[\'" ]([^\'"><]+)[\'" ])/i';
 
 		if (preg_match($alt_pattern, $image_string, $matches)) {
 			$image_name = ucfirst($matches[1]);
@@ -490,29 +489,29 @@ REGEX;
 	* href's into full URLs.
 	*
 	* @param string	$content			the input
-	* @param string	$fetch_url			the url
-	* @param string	$replacement_url	the replacement
+	* @param string	$fetch_url			the url of the page being transformed
+	* @param string	$replacement_url	the replacement url that points back to our system
 	*
 	* @return string
 	* @access private
 	*/
 	function _transformContent($content, $fetch_url, $replacement_url)
 	{
-		if (!$content || !$fetch_url || !$replacement_url) return false;
+		if (!$content || !$fetch_url || !$replacement_url) {
+			return false;
+		}
 
 		// get all info about the remote URL
 		$parsed_fetch_url = parse_url($fetch_url);
 
-		// first, we strip the images if necessary
+		// strip the images if necessary
 		if ($this->attr('strip_images')) {
 
 			// replace HTML images with their ALT tags
-			$image_pattern = <<<REGEX
-/(<(?:img)[^>]*?>)/i
-REGEX;
+			$pattern = '/(<(?:img)[^>]*?>)/i';
 
 			$content = preg_replace_callback(
-				$image_pattern,
+				$pattern,
 				create_function(
 					'$matches',
 					'return Page_Remote_Content::_imageStrip($matches[0]);'
@@ -521,29 +520,23 @@ REGEX;
 			);
 
 			// remove HTML background images
-			$background_image_pattern = <<<REGEX
-/(background\s*=\s*['\"]?\s*[^'\" <>]+['\"]?)/i
-REGEX;
-			$content = preg_replace($background_image_pattern, "", $content);
+			$pattern = '/(background\s*=\s*[\'\"]?\s*[^\'\" <>]+[\'\"]?)/i';
+			$content = preg_replace($pattern, '', $content);
 
 			// strip CSS backgrounds
-			$css_background_image_pattern = <<<REGEX
-/(background.*?)(url\(.*?\))/i
-REGEX;
-			$content = preg_replace($css_background_image_pattern, "\$1", $content);
+			$pattern = '/(background.*?)(url\(.*?\))/i';
+			$content = preg_replace($pattern, '\$1', $content);
 
 			// change Form Image buttons with regular buttons
-			$image_button_patterns =<<<REGEX
-/(<(?:input)[^>]*type=["' ]image["' ][^>]*?>)/i
-REGEX;
+			$pattern = '/(<(?:input)[^>]*type=["\' ]image["\' ][^>]*?>)/i';
 
 			$content = preg_replace_callback(
-				$image_button_patterns,
+				$pattern,
 				create_function(
 					'$matches',
 					'return Page_Remote_Content::_imageButtonReplace($matches[0]);'
-				 ),
-				 $content
+				),
+				$content
 			);
 
 		}
@@ -552,50 +545,42 @@ REGEX;
 		$replacements = Array();
 
 		//// BEGIN SCRIPTS
-		$matches      = Array();
+		$matches = Array();
+		$patterns = Array();
 
 		// scripts and linked CSS or JavaScript
-		$script_patterns[] = <<<REGEX
-/(<(?:script|link)\s+.*?(?:src|href)\s*=\s*['"]*)\s*([^'" \>]+)(['"> ]?[^<]*\>)/i
-REGEX;
+		$patterns[] = '/(<(?:script|link)\s+.*?(?:src|href)\s*=\s*[\'"]*)\s*([^\'" \>]+)([\'"> ]?[^<]*\>)/i';
 
 		// CSS url definitions for scripts
-		$script_patterns[] = <<<REGEX
-/(@import\s+url\s*\(['"]?\s*)([^'" ]+)(['"]?\s*\))/i
-REGEX;
+		$patterns[] = '/(@import\s+url\s*\([\'"]?\s*)([^\'" ]+)([\'"]?\s*\))/i';
 
 		// find whatever matches the above patterns
-		foreach ($script_patterns as $pattern) {
+		foreach ($patterns as $pattern) {
 			preg_match_all($pattern, $content, $matches_local, PREG_SET_ORDER);
-			$matches = array_merge($matches,$matches_local);
-
+			$matches = array_merge($matches, $matches_local);
 		}
+		// local cleanup
+		$matches_local = null;
 
 		// fix these matches up
 		foreach ($matches as $data) {
-			$subject	= $data[0];
-			$prefix		= $data[1];
-			$url		= $data[2];
-			$postfix	= $data[3];
-
-			$full_url = $this->_makeFullURL($parsed_fetch_url, $url);
+			$subject = $data[0];
+			$prefix  = $data[1];
+			$url     = $data[2];
+			$postfix = $data[3];
 
 			// if conversion is unnecessary, ignore this url
 			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
 				continue;
-			} else {
-				$full_url = $url;
 			}
 
 			// if images need to be tunneled, prepare a new source url
-			if ($this->attr('tunnel_scripts')) {
-				$full_url = $replacement_url.rawurlencode($full_url);
+			if ($this->attr('tunnel_scripts') && $this->isUrlAllowed($url)) {
+				$url = $replacement_url.rawurlencode($url);
 			}
 
-			$replacement = $prefix.$full_url.$postfix;
-
-			$subjects[]		= $subject;
-			$replacements[] = $replacement;
+			$subjects[]     = $subject;
+			$replacements[] = $prefix.$url.$postfix;
 
 		}
 		//// END SCRIPTS
@@ -605,12 +590,10 @@ REGEX;
 		$matches      = Array();
 
 		// objects
-		$embed_pattern = <<<REGEX
-/(<(?:embed)\s+.*?(?:src)\s*=\s*['"]*)\s*([^'" >]+)(['"> ]?[^<]*>)/i
-REGEX;
+		$pattern = '/(<(?:embed)\s+.*?(?:src)\s*=\s*[\'"]*)\s*([^\'" >]+)([\'"> ]?[^<]*>)/i';
 
 		// find whatever matches the above patterns
-		preg_match_all($embed_pattern, $content, $matches, PREG_SET_ORDER);
+		preg_match_all($pattern, $content, $matches, PREG_SET_ORDER);
 
 		// fix these matches up
 		foreach ($matches as $data) {
@@ -619,25 +602,18 @@ REGEX;
 			$url		= $data[2];
 			$postfix	= $data[3];
 
-			$full_url = $this->_makeFullURL($parsed_fetch_url, $url);
-
-			// if conversion is unnecessary, ignore this url
+			// make full url, ignore invalid urls
 			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
 				continue;
-			} else {
-				$full_url = $url;
 			}
 
 			// if images need to be tunneled, prepare a new source url
-			if ($this->attr('tunnel_media')) {
-				$full_url = $replacement_url.rawurlencode($full_url);
+			if ($this->attr('tunnel_media') && $this->isUrlAllowed($url)) {
+				$url = $replacement_url.rawurlencode($url);
 			}
 
-			$replacement = $prefix.$full_url.$postfix;
-
-			$subjects[]		= $subject;
-			$replacements[] = $replacement;
-
+			$subjects[]     = $subject;
+			$replacements[] = $prefix.$url.$postfix;
 		}
 
 
@@ -645,11 +621,9 @@ REGEX;
 		$matches      = Array();
 
 		// object parameters (flash)
-		$param_pattern = <<<REGEX
-/(<(?:param)\s+.*?(?:value)\s*=\s*['"]*)\s*([^'" >]+)(['"> ]?[^<]*>)/i
-REGEX;
+		$pattern = '/(<(?:param)\s+.*?(?:value)\s*=\s*[\'"]*)\s*([^\'" >]+)([\'"> ]?[^<]*>)/i';
 
-		preg_match_all($param_pattern, $content, $matches, PREG_SET_ORDER);
+		preg_match_all($pattern, $content, $matches, PREG_SET_ORDER);
 
 		// fix these matches up
 		foreach ($matches as $data) {
@@ -659,65 +633,53 @@ REGEX;
 			$postfix	= $data[3];
 
 			// find the name of the subject
-			$pattern = <<<REGEX
-/name\s*=\s*['"]*\s*([^'" >]+)['"> ]+/i
-REGEX;
+			$pattern = '/name\s*=\s*[\'"]*\s*([^\'" >]+)[\'"> ]+/i';
 
 			preg_match($pattern, $subject, $name_matches);
 			$param_name = $name_matches['1'];
-			if ($param_name != 'movie') { // only look at parameter whose name is movie (for flash)
-				continue;
-			}
 
-			$full_url = $this->_makeFullURL($parsed_fetch_url, $url);
+			// only look at parameter whose name is movie (for flash)
+			if ($param_name != 'movie') continue;
 
-			// if conversion is unnecessary, ignore this url
+			// make full url, ignore invalid urls
 			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
 				continue;
-			} else {
-				$full_url = $url;
 			}
 
 			// if images need to be tunneled, prepare a new source url
-			if ($this->attr('tunnel_media')) {
-				$full_url = $replacement_url.rawurlencode($full_url);
+			if ($this->attr('tunnel_media') && $this->isUrlAllowed($url)) {
+				$url = $replacement_url.rawurlencode($url);
 			}
 
-			$replacement = $prefix.$full_url.$postfix;
-
 			$subjects[]		= $subject;
-			$replacements[] = $replacement;
-
+			$replacements[]	= $prefix.$url.$postfix;
 		}
+		// local cleanup
+		$name_matches = null;
+
 		//// END OBJECTS
 
 
 		//// BEGIN IMAGES
-		$matches      = Array();
+		$matches = Array();
+		$patterns = Array();
 
 		// prepare the image patterns
-		$image_patterns[] = <<<REGEX
-/(<(?:img)\s+.*?(?:src)\s*=\s*['"]*)\s*([^'" <>]+)(['"> ]?[^<>]*\>)/i
-REGEX;
+		$patterns[] = '/(<(?:img)\s+.*?(?:src)\s*=\s*[\'"]*)\s*([^\'" <>]+)([\'"> ]?[^<>]*\>)/i';
 
-		$image_patterns[] = <<<REGEX
-/(background\s*=\s*['"]?)\s*([^'"<> ]+)(['" ]?[^<]*>)/i
-REGEX;
+		$patterns[] = '/(background\s*=\s*[\'"]?)\s*([^\'"<> ]+)([\'" ]?[^<]*>)/i';
 
-		$image_patterns[] = <<<REGEX
-/((?:background.*?)url\s*\(['"]?\s*)([^'"; ]+)(['"]?\s*\))/i
-REGEX;
+		$patterns[] = '/((?:background.*?)url\s*\([\'"]?\s*)([^\'"; ]+)([\'"]?\s*\))/i';
 
-		$image_patterns[] = <<<REGEX
-/(<(?:input)\s+.*?(?:src)\s*=\s*['"]+)\s*([^'" >]+)(['"> ]?[^<>]*\>)/i
-REGEX;
+		$patterns[] = '/(<(?:input)\s+.*?(?:src)\s*=\s*[\'"]+)\s*([^\'" >]+)([\'"> ]?[^<>]*\>)/i';
 
 		// find whatever matches the above patterns
-		foreach ($image_patterns as $pattern) {
+		foreach ($patterns as $pattern) {
 			preg_match_all($pattern, $content, $matches_local, PREG_SET_ORDER);
-			$matches = array_merge($matches,$matches_local);
-
+			$matches = array_merge($matches, $matches_local);
 		}
+		// local cleanup
+		$matches_local = null;
 
 		foreach ($matches as $data) {
 			$subject	= $data[0];
@@ -725,22 +687,18 @@ REGEX;
 			$url		= $data[2];
 			$postfix	= $data[3];
 
-			// if new_url cannot not be made, assume the original was correct
+			// make full url, ignore invalid urls
 			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
 				continue;
-			} else {
-				$full_url = $url;
 			}
 
 			// if images need to be tunneled, prepare a new source url
-			if ($this->attr('tunnel_images')) {
-				$full_url = $replacement_url.rawurlencode($full_url);
+			if ($this->attr('tunnel_images') && $this->isUrlAllowed($url)) {
+				$url = $replacement_url.rawurlencode($url);
 			}
 
-			$replacement = $prefix.$full_url.$postfix;
-
 			$subjects[]		= $subject;
-			$replacements[] = $replacement;
+			$replacements[]	= $prefix.$url.$postfix;
 
 		}
 		//// END IMAGES
@@ -748,28 +706,27 @@ REGEX;
 
 		//// BEGIN LINKS
 		// prepare for the next round of url replacements
-		$matches 	= Array();
-		$patterns 	= Array();
+		$matches	= Array();
+		$patterns	= Array();
 
 		// PATTERNS for urls that might need to be rewritten to point back to remote content
 		// links and frames except mailto and javascript
-		$patterns[] = <<<REGEX
-/(<(?:(?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src))\s*=\s*['"]?)\s*((?:(?![\#]|mailto|javascript))[^'"> ]+)(['"> ]?[^<]*>)/i
-REGEX;
+		$patterns[] = '/(<(?:(?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src))\s*=\s*[\'"]?)\s*((?:(?![\#]|mailto|javascript))[^\'"> ]+)([\'"> ]?[^<]*>)/i';
 
 		// this pattern is a special case. we don't generally look at JavaScript
-		// because that is a whole new territory.
+		// because that is a whole new territory
 		// this one was added for compatibility with MySource v2 ecom module
-		$patterns[] = <<<REGEX
-/(<input[^>]*?onclick\s*=\s*['"]location=')\s*([^'"> ]+)(['"> ]?[^<]*>)/i
-REGEX;
+		$patterns[] = '/(<input[^>]*?onclick\s*=\s*[\'"]location=\')\s*([^\'"> ]+)([\'"> ]?[^<]*>)/i';
 
 		// find whatever matches the above patterns
 		foreach ($patterns as $pattern) {
 			preg_match_all($pattern, $content, $matches_local, PREG_SET_ORDER);
-			$matches = array_merge($matches,$matches_local);
-
+			$matches = array_merge($matches, $matches_local);
 		}
+		// local cleanup
+		$matches_local = null;
+
+		$load_links = $this->attr('load_links');
 
 		foreach ($matches as $data) {
 			$subject	= $data[0];
@@ -777,26 +734,18 @@ REGEX;
 			$url		= $data[2];
 			$postfix	= $data[3];
 
-			// if new_url cannot not be made, assume the original was correct
+			// make full url, ignore invalid urls
 			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
 				continue;
-			} else {
-				$full_url = $url;
 			}
 
 			// if urls need to point back to us, prepare a new url
-			if ($this->attr('load_links')) {
-				$parsed_full_url = parse_url($full_url);
-				if ($this->attr('only_local_links') && ($parsed_full_url['host'] != $parsed_fetch_url['host'])) {
-					continue;
-				}
-				$full_url = $replacement_url.rawurlencode($full_url);
+			if ($load_links && $this->isUrlAllowed($url)) {
+				$url = $replacement_url.rawurlencode($url);
 			}
 
-			$replacement = $prefix.$full_url.$postfix;
-
 			$subjects[]		= $subject;
-			$replacements[] = $replacement;
+			$replacements[]	= $prefix.$url.$postfix;
 
 		}
 		//// END LINKS
@@ -804,57 +753,47 @@ REGEX;
 
 		//// BEGIN FORMS
 		// prepare for the next round of url replacements
-		$matches 	= Array();
-		$patterns 	= Array();
+		$matches  = Array();
+		$patterns = Array();
 
-// forms. note this captures even those actions that are empty
-		$patterns[] = <<<REGEX
-/(<(?:form[^>]*?action)\s*=\s*['\"]?)\s*([^'\"> ]*)(['\"\> ]?[^<]*\>)/i
-REGEX;
+		// forms. note this captures even those actions that are empty
+		$patterns[] = '/(<(?:form[^>]*?action)\s*=\s*[\'\"]?)\s*([^\'\"> ]*)([\'\"\> ]?[^<]*\>)/i';
 
 		// find whatever matches the above patterns
 		foreach ($patterns as $pattern) {
 			preg_match_all($pattern, $content, $matches_local, PREG_SET_ORDER);
-			$matches = array_merge($matches,$matches_local);
-
+			$matches = array_merge($matches, $matches_local);
 		}
+		// local cleanup
+		$matches_local = null;
 
 		foreach ($matches as $data) {
-			$subject	= $data[0];
-			$prefix		= $data[1];
-			$url		= $data[2];
-			$postfix	= $data[3];
+			$subject = $data[0];
+			$prefix  = $data[1];
+			$url     = $data[2];
+			$postfix = $data[3];
 
-
-			// if new_url cannot not be made, assume the original was correct
+			// make full url, ignore invalid urls
 			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
 				continue;
-			} else {
-				$full_url = $url;
 			}
-
-			// forms require the parameters to be set to the hidden fields for proper functioning
-			$postfix .= '<input type="hidden" name="sq_remote_page_action" value="fetch_url" /><input type="hidden" name="sq_remote_page_url" value="'.htmlspecialchars($full_url).'" />';
 
 			// if urls need to point back to us, prepare a new url
-			if ($this->attr('load_links')) {
-				$parsed_full_url = parse_url($full_url);
-				if ($this->attr('only_local_links') && ($parsed_full_url['host'] != $parsed_fetch_url['host'])) {
-					continue;
-				}
-				$full_url = $replacement_url.rawurlencode($full_url);
+			if ($load_links && $this->isUrlAllowed($url)) {
+				// forms require the parameters to be set to the hidden fields for proper functioning
+				$postfix .= '<input type="hidden" name="sq_remote_page_action" value="fetch_url" /><input type="hidden" name="sq_remote_page_url" value="'.htmlspecialchars($url).'" />';
+
+				$url = $replacement_url.rawurlencode($url);
 			}
 
-			$replacement = $prefix.$full_url.$postfix;
-
 			$subjects[]		= $subject;
-			$replacements[] = $replacement;
+			$replacements[]	= $prefix.$url.$postfix;
 
 		}
 		//// END FORMS
 
 		// finally, we replace all the urls with the re-written ones.
-		$content = str_replace($subjects,$replacements,$content);
+		$content = str_replace($subjects, $replacements, $content);
 
 		return $content;
 
@@ -867,11 +806,11 @@ REGEX;
 	* The required missing information is taken from the parsed_fetch_url,
 	* which is a url of the remote file that references the item whose url is supplied
 	*
-	* @param  array $parsed_fetch_url   fetch url that has been parsed with parse_url()
-	* @param  string $url               reference to url that needs to be converted
+	* @param array	$parsed_fetch_url	fetch url that has been parsed with parse_url()
+	* @param string	&$url				reference to url that needs to be converted
 	*
+	* @return boolean
 	* @access public
-	* @return string processed page
 	*/
 	function _makeFullURL($parsed_fetch_url, &$url)
 	{
@@ -922,15 +861,15 @@ REGEX;
 	* Works similar to php's realpath(), but doesn't rely on a file system
 	* Given a string representing a path, it tries to remove the relative references
 	* in short: given "/this/dir/../another/file.php" will produce "/this/another/file.php"
-	*
+	**
 	* NOTE: paths that try to jump outside the root will produce possibly erroneous result
 	* eg.: "/root/dir/../../../another/file.php" will become "/another/file.php"
 	* this behaviour is similar to how browsers treat relative paths
 	*
-	* @param strting $path    path that needs shortening
+	* @param string	$path	path that needs shortening
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function _makeProperPath($path='')
 	{
@@ -950,9 +889,7 @@ REGEX;
 		foreach ($path_components as $component) {
 			switch ($component) {
 				case '..':
-					if (!empty($stack)) {
-						array_pop($stack);
-					}
+					if (!empty($stack)) array_pop($stack);
 				break;
 
 				case '.':
