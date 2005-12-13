@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.23.2.1 2005/10/07 03:51:38 lwright Exp $
+* $Id: form_question_type_datetime.inc,v 1.23.2.2 2005/12/13 05:10:23 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.23.2.1 $
+* @version $Revision: 1.23.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -253,7 +253,7 @@ class Form_Question_Type_Datetime extends Form_Question
 			break;
 
 			case 'hi':
-				$show_time = substr($time,5);
+				$show_time = substr($time, 0, 5);
 			break;
 
 			case 'hs':
