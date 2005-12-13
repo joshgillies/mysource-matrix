@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_management.inc,v 1.2 2005/10/13 03:51:37 sdanis Exp $
+* $Id: form_question_management.inc,v 1.3 2005/12/13 05:49:54 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -91,11 +91,34 @@ class Form_Question_Management extends Asset_Management
 		// first do things as normal
 		$res = parent::_upgrade($current_version);
 
-		if (version_compare($current_version, '0.3', '<')) {
-			bam('UPGRADING FORM QUESTION FROM v < 0.3');
-			// get all question assets and fill in their is_required attr from their required attr if necessary
-			$question_assets = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form_question', false, true);
-			$irrelevant_types = Array();
+		if (true || version_compare($current_version, '0.6', '<')) {
+			bam('UPGRADING FORM QUESTION FROM v < 0.6');
+			// Upgrade the 'is_required' attr.  This didn't work in the 0.2 - 0.3 upgrade
+			// so we need to do some trickiness here to fix failed upgrades where appropriate,
+			// or do a first-time upgrade otherwise
+			if (version_compare($current_version, '0.3', '<')) {
+				// Simple case - just copy values from the old 'required' attrs to the new 'is_required' attr
+				$fixing_upgrade = false;
+			} else {
+				// complex case - need to preserve non-default values of the 'is_required' attr
+				$fixing_upgrade = true;
+			}
+
+			// get all question assets
+			$form_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form', false, true);
+			$question_assets = Array();
+			foreach ($form_ids as $form_id => $type) {
+				$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id, $type);
+				$question_assets += $form->getChildren($form->id, 'form_question', false);
+			}
+			$section_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form_section', false, true);
+			foreach ($section_ids as $section_id => $type) {
+				$section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section_id, $type);
+				$question_assets += $section->getChildren($section->id, 'form_question', false);
+			}
+
+			// update them
+			$irrelevant_types = Array(); // these don't have a required attr
 			foreach ($question_assets as $id => $type) {
 				if (!isset($irrelevant_types[$type])) {
 					$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id, $type);
@@ -103,15 +126,19 @@ class Form_Question_Management extends Asset_Management
 						$irrelevant_types[$type] = 1;
 						continue;
 					}
-					$q->setAttrValue('is_required', $q->attr('required'));
-					$q->saveAttributes();
+					if ((!$fixing_upgrade) || ($q->attr('is_required') == false)) {
+						// either we are doing a first-time upgrade, or we are fixing and
+						// the new attr's value is still the default
+						// therefore we'll copy the value from the old attr to the new
+						$q->setAttrValue('is_required', $q->attr('required'));
+						$q->saveAttributes();
+					}
 				}
 			}
 		}
 		return true;
 
 	}//end _upgrade()
-
 
 }//end class
 ?>
