@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTreeNode.java,v 1.6 2005/11/24 22:54:54 sdanis Exp $
+* $Id: MatrixTreeNode.java,v 1.7 2005/12/13 22:18:48 sdanis Exp $
 *
 */
 
@@ -54,6 +54,9 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 	private String url;
 	private String webPath;
 
+	/* Name of node */
+	protected String name;
+
 	/**
 	 * Constructs a new Asset Tree Node and sets the user object to the
 	 * specified asset
@@ -61,17 +64,28 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 	 * @param asset the asset that represents this node
 	 * @param linkid the linkid of this node
 	 */
-	public MatrixTreeNode(Asset asset, String linkid, int linkType, String url, String webPath) {
+	public MatrixTreeNode(Asset asset, String linkid, int linkType, String url, String webPath, String name) {
 		setUserObject(asset);
 		this.linkid = linkid;
 		this.linkType = linkType;
 		this.url = url;
 		this.webPath = webPath;
+		this.name = name;
 	}
 
 	public String toString() {
-		return getAsset().getName() + " Linkid : " + linkid;
+		return getName() + " Linkid : " + linkid;
 	}
+
+	/* Each node can have different name, but belong to same asset*/
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
+	}
+
 
 	/**
 	 * Returns the asset that represents this node

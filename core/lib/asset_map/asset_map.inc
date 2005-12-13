@@ -18,10 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.202 2005/12/08 00:46:12 lwright Exp $
+* $Id: asset_map.inc,v 1.203 2005/12/13 22:18:47 sdanis Exp $
 *
 */
-
 
 require_once 'XML/Tree.php';
 
@@ -33,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.202 $
+* @version $Revision: 1.203 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -391,11 +390,12 @@ class Asset_Map
 	* @return array
 	* @access private
 	*/
-	function _getAssetInfo($assetid)
+	function _getAssetInfo($assetid, $linkid=0)
 	{
 		$attrs = Array();
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) {
+
 			// this is a shadow asset so we need to get info differently
 
 			$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id_parts[0]);
@@ -487,9 +487,12 @@ class Asset_Map
 			$sql .= ','.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l';
 			$where = '	a.assetid = l.minorid AND ';
 
-			$where .= 'a.assetid = '.$db->quote($assetid);
-			$where .= ' AND
-						l.link_type <= '.$db->quote(SQ_LINK_TYPE_2);
+			$where .= 'a.assetid = '.$db->quoteSmart((int)$assetid);
+			if ($linkid) {
+				$where .= ' AND l.linkid = '.$db->quoteSmart((int)$linkid);
+			}
+
+			$where .=' AND l.link_type <= '.$db->quote(SQ_LINK_TYPE_2);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
@@ -637,9 +640,12 @@ class Asset_Map
 		$sql .= ' '.$where;
 		$sql .= ' ORDER BY sort_order';
 
+		$limit_sql = '';
 		if ($limit != 0) {
 			$sql = $db->modifyLimitQuery($sql, $start, $limit);
 		}
+
+		$sql .= $limit_sql;
 
 		$db_result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
 
@@ -789,8 +795,14 @@ class Asset_Map
 				$bridge     = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id_parts[0]);
 				$shdw_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset['assetid']);
 
-				$asset['short_name'] = $shdw_asset->short_name;
-				$asset['type_code']  = $shdw_asset->type();
+				// We dont want asset map to break so make sure we send valid values
+				if ($shdw_asset != null) {
+					$asset['short_name'] = $shdw_asset->short_name;
+					$asset['type_code']  = $shdw_asset->type();
+				} else {
+					$asset['short_name'] = translate('asset_not_found', $asset['assetid']);
+					$asset['type_code']  = '';
+				}
 				$asset['status']     = $bridge->status;
 			}
 
@@ -838,7 +850,8 @@ class Asset_Map
 			$assetid = $node->attributes['assetid'];
 			$start = $node->attributes['start'];
 			$limit = $node->attributes['limit'];
-			$info = $this->_getAssetInfo(rawurldecode($assetid));
+			$linkid = $node->attributes['linkid'];
+			$info = $this->_getAssetInfo(rawurldecode($assetid), rawurldecode($linkid));
 			$child = &$root->addChild('asset', '', $info);
 
 			$this->_getChildAssets($child, rawurldecode($assetid), false, $start, $limit);
@@ -1467,19 +1480,16 @@ class Asset_Map
 				return;
 			}
 
-//			if (empty($link)) {
-//				$this->_error('AMAP0042', $asset_node->attributes['linkid']);
-//				return;
-//			}
-
 			if ($trash_folder->id == $input->root->attributes['to_parent_assetid']) {
 				$this->_error('AMAP0043');
 				return;
 			}
 
+			$link_type = array_get_index('link_type', $link, 1);
+
 			$assets[$asset_node->attributes['assetid']] = Array(
 															'linkid'	=> $asset_node->attributes['linkid'],
-															'link_type'	=> $link['link_type'],
+															'link_type'	=> $link_type,
 															'parentid'	=> $old_parent->id,
 														  );
 		}

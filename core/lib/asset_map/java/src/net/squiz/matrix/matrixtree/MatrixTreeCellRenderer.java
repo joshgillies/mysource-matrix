@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTreeCellRenderer.java,v 1.5 2005/11/30 22:46:38 sdanis Exp $
+* $Id: MatrixTreeCellRenderer.java,v 1.6 2005/12/13 22:18:48 sdanis Exp $
 *
 */
 
@@ -83,7 +83,7 @@ public class MatrixTreeCellRenderer extends JLabel implements TreeCellRenderer, 
 			this.asset = asset;
 
 			setText(getNodeDisplayText(node));
-			setFont(PLAIN_FONT_10);
+			setFont(((MatrixTree)tree).getFontInUse());
 
 			if (!isNavNode(node)) {
 				setToolTipText(asset.getType().getName()  + " [" + asset.getId() + "]");
@@ -116,14 +116,14 @@ public class MatrixTreeCellRenderer extends JLabel implements TreeCellRenderer, 
 				} else {
 					setToolTipText(Matrix.translate("asset_map_tooltip_previous_node"));
 					setIcon(GUIUtilities.getAssetMapIcon("up_arrows.png"));
-					
+
 				}
 				setEnabled(true);
 				// If we are not in CueMode and we are using CueMode name then update the name
 				if (!((MatrixTree)tree).inCueMode() && ((ExpandingNode)node).usingCueModeName()) {
 					((ExpandingNode)node).switchName();
 					((DefaultTreeModel) tree.getModel()).nodeChanged(node);
-					setText(((ExpandingNode)node).getAsset().getName());
+					setText(((ExpandingNode)node).getAssetName());
 				}
 			} else if (node instanceof LoadingNode) {
 				setIcon(GUIUtilities.getAssetMapIcon("loading_node.png"));
@@ -149,7 +149,10 @@ public class MatrixTreeCellRenderer extends JLabel implements TreeCellRenderer, 
 	}
 
 	protected String getNodeDisplayText(MatrixTreeNode node) {
-		return node.getAsset().getName() + " ";
+		if ((node instanceof ExpandingNode)) {
+			return ((ExpandingNode)node).getAssetName();
+		}
+		return node.getName() + " ";
 	}
 
 	/**

@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTreeComm.java,v 1.7 2005/11/30 22:46:38 sdanis Exp $
+ * $Id: MatrixTreeComm.java,v 1.8 2005/12/13 22:18:48 sdanis Exp $
  *
  */
 
@@ -71,7 +71,15 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 		MatrixTreeNode parent = evt.getParentNode();
 		int index             = evt.getIndex();
 		String parentAssetid  = MatrixToolkit.rawUrlEncode(parent.getAsset().getId(), true);
-		index = (parent.getAsset().getTotalKidsLoaded()+index+1);
+		int mod = 0;
+
+		if (index >= 0) {
+			// check if we have a previous node
+			if (parent.getAsset().getTotalKidsLoaded() > 0) {
+				mod = -1;
+			}
+			index = (parent.getAsset().getTotalKidsLoaded()+index+mod);
+		}
 
 		String xml = "<command action=\"get url\" cmd=\"add\" " +
 					 "parent_assetid=\"" + parentAssetid +
@@ -128,7 +136,7 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 			int _index,
 			final int prevIndex,
 			final String[] parentIds) {
-	
+
 		// Make sure ExpandingNode is not our parent
 		if (_parent instanceof ExpandingNode) {
 			if (_parent instanceof ExpandingNextNode) {
@@ -147,22 +155,23 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 			public Object construct() {
 				try {
 					int newIndex = index;
+					if (!parent.getAsset().getId().equals("1")) {
+						int limit = AssetManager.getLimit();
 
-					int limit = AssetManager.getLimit();
-
-					// we need to change the index since we are not on the first set
-					if (index >= limit) {
-						// move the asset to the next set
-						newIndex = parent.getAsset().getTotalKidsLoaded() + limit + children.length - 1;
-					} else if (index <= 0) {
-						// move the asset to previous set
-						newIndex = parent.getAsset().getTotalKidsLoaded() - children.length;
-					} else {
-						// move the asset to different index on the same set
-						newIndex = parent.getAsset().getTotalKidsLoaded() + index;
-						if (parent.getAsset().getTotalKidsLoaded() > 0) {
-							// we have a previous node
-							newIndex--;
+						// we need to change the index since we are not on the first set
+						if (index >= limit) {
+							// move the asset to the next set
+							newIndex = parent.getAsset().getTotalKidsLoaded() + limit + children.length - 1;
+						} else if (index <= 0) {
+							// move the asset to previous set
+							newIndex = parent.getAsset().getTotalKidsLoaded() - children.length;
+						} else {
+							// move the asset to different index on the same set
+							newIndex = parent.getAsset().getTotalKidsLoaded() + index;
+							if (parent.getAsset().getTotalKidsLoaded() > 0) {
+								// we have a previous node
+								newIndex--;
+							}
 						}
 					}
 

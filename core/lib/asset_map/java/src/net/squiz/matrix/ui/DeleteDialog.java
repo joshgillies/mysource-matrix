@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: DeleteDialog.java,v 1.6 2005/11/30 22:46:39 sdanis Exp $
+* $Id: DeleteDialog.java,v 1.7 2005/12/13 22:18:48 sdanis Exp $
 *
 */
 
@@ -67,7 +67,7 @@ public class DeleteDialog 	extends 	MatrixDialog
 		// MM: what if nodes.length == 0 ? or nodes == null ?
 		if (nodes.length == 1) {
 			Object[] transArgs = {
-				new String(nodes[0].getAsset().getName())
+				new String(nodes[0].getName())
 			};
 			label = new JLabel(Matrix.translate("asset_map_confirm_move_child", transArgs));
 		} else {
@@ -112,7 +112,7 @@ public class DeleteDialog 	extends 	MatrixDialog
 
 		JLabel cancelButton = new JLabel();
 		cancelButton.setIcon(GUIUtilities.getAssetMapIcon("cancel.png"));
-		
+
 		closeOnClick(cancelButton, "cancel");
 		bottomPanel.add(cancelButton);
 
@@ -156,7 +156,7 @@ public class DeleteDialog 	extends 	MatrixDialog
 	public void keyReleased(KeyEvent evt) {
 	}
 
-	
+
 	private void delete() {
 		// there can only be on trash folder in the system.
 		String[] assetids = AssetManager.getAssetsOfType("trash_folder");

@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetManager.java,v 1.5 2005/11/24 22:54:53 sdanis Exp $
+* $Id: AssetManager.java,v 1.6 2005/12/13 22:18:48 sdanis Exp $
 *
 */
 
@@ -299,6 +299,7 @@ public class AssetManager {
 	 * @throws IOException if the request fails
 	 */
 	public static Element makeRefreshRequest(String[] assetids, String direction, int start, int limit) throws IOException {
+
 		int startLoc = start;
 		if (limit < 0) {
 			limit = getLimit();
@@ -306,6 +307,7 @@ public class AssetManager {
 
 		StringBuffer xml = new StringBuffer("<command action=\"get assets\" >");
 		for (int i = 0; i < assetids.length; i++) {
+
 			if (start < 0) {
 				// start was not specified, calculate it
 				if (direction.equals("prev")) {
@@ -328,7 +330,18 @@ public class AssetManager {
 					asset.setTotalKidsLoaded(startLoc);
 				}
 			}
-			MatrixToolkit.addAssetToXML(xml, assetids[i], startLoc, limit);
+
+			Asset asset = getAsset(assetids[i]);
+			if (asset != null) {
+				String[] linkids = asset.getLinkIds();
+				if (assetids[i].equals("1")) {
+					MatrixToolkit.addAssetToXML(xml, assetids[i], "0", startLoc, limit);
+				} else {
+					for (int j=0; j< linkids.length; j++) {
+						MatrixToolkit.addAssetToXML(xml, assetids[i], linkids[j], startLoc, limit);
+					}
+				}
+			}
 		}
 		xml.append("</command>");
 		Document doc = Matrix.doRequest(xml.toString());
@@ -420,10 +433,19 @@ public class AssetManager {
 		// if there were no nodes in the xml, this will remove all children
 		parent.removeDiffChildNodes((String[]) linkids.toArray(new String[linkids.size()]));
 
-		// refresh parent node to update the tree
 		try {
-			if (parent.getNode() != null) {
-				AssetManager.refreshAsset(parent.getNode(), "");
+			if (!parent.getId().equals("1")) {
+				// refresh parent node to update the tree
+				Iterator nodeIterator = parent.getTreeNodes();
+				while (nodeIterator.hasNext()) {
+					MatrixTreeNode node = (MatrixTreeNode) nodeIterator.next();
+					if (node != null) {
+						refreshAsset(node, "");
+					}
+				}
+			} else {
+				// refresh root node
+				refreshAsset((MatrixTreeNode)MatrixTreeBus.getActiveTree().getModel().getRoot(), "");
 			}
 		} catch (IOException ex) {}
 	}

@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.12 2005/11/30 22:46:38 sdanis Exp $
+* $Id: CueTree.java,v 1.13 2005/12/13 22:18:48 sdanis Exp $
 *
 */
 
@@ -592,7 +592,7 @@ public class CueTree extends JTree {
 		boolean updateNode = false;
 		TreeNode node = (TreeNode)path.getLastPathComponent();
 		if (pathIsNewParent) {
-			
+
 			if (node instanceof ExpandingNextNode) {
 				if (!((ExpandingNode) node).usingCueModeName()) {
 					((ExpandingNode) node).useCueModeName();
@@ -606,7 +606,7 @@ public class CueTree extends JTree {
 				}
 				ExpandingNodeModifier = ((ExpandingNode) node).getInitStrWidth();
 			}
-			
+
 			if (updateNode) {
 				((DefaultTreeModel) getModel()).nodeChanged(node);
 			}
@@ -637,7 +637,7 @@ public class CueTree extends JTree {
 			}
 
 			if ((node instanceof ExpandingPreviousNode)) {
-			
+
 				if (((ExpandingNode)node).usingCueModeName()) {
 					((ExpandingNode) node).setName(((ExpandingNode) node).getName());
 					((DefaultTreeModel) getModel()).nodeChanged(node);
@@ -1045,8 +1045,8 @@ public class CueTree extends JTree {
 				}
 			}
 		}
-	
-		
+
+
 
 
 		protected void handleSingleSource(Point initPoint) {
@@ -1102,6 +1102,7 @@ public class CueTree extends JTree {
 							index ++;
 						}
 					} else {
+
 						index = 1;
 						if (sourcePath.getParentPath() != null) {
 							oldIndex = getModel().getIndexOfChild(
@@ -1113,9 +1114,6 @@ public class CueTree extends JTree {
 							currentPath.getParentPath().getLastPathComponent(),
 							currentPath.getLastPathComponent()
 							);
-						if (oldIndex < index) {
-							index--;
-						}
 					}
 					parentPath = currentPath.getParentPath();
 				}

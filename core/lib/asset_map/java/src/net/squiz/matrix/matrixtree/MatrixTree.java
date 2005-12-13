@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.15 2005/11/30 22:46:38 sdanis Exp $
+ * $Id: MatrixTree.java,v 1.16 2005/12/13 22:18:48 sdanis Exp $
  *
  */
 
@@ -941,6 +941,47 @@ public class MatrixTree extends CueTree
 		return true;
 	}
 
+	private int currentFontSize = 10;
+	private int previousFontSize = 0;
+	private int initialFontSize = 10;
+	private Font nodeFont;
+
+	public Font getFontInUse() {
+		if (currentFontSize != previousFontSize) {
+			nodeFont = null;
+			nodeFont = new Font("nodeFont", Font.PLAIN, currentFontSize);
+			// update previous font size so we create font when size changes
+			previousFontSize = currentFontSize;
+		}
+		return nodeFont;
+	}
+
+	private void setFontSize(int size) {
+		if (size > 7 && size < 18) {
+			currentFontSize = size;
+		}
+	}
+
+	private java.util.List getExpandedChildren(TreeNode parent) {
+		java.util.List paths = new  ArrayList();
+		int count = parent.getChildCount();
+		for (int i = 0; i < count; i++) {
+			MatrixTreeNode node = (MatrixTreeNode)parent.getChildAt(i);
+			TreePath path = getPathToRoot(node);
+			if (isExpanded(path)) {
+				paths.add(path);
+				paths.addAll(getExpandedChildren(node));
+			}
+		}
+		return paths;
+	}
+
+	private void expandPaths(java.util.List paths) {
+		for (int i=0; i< paths.size(); i++) {
+			expandPath((TreePath)paths.get(i));
+		}
+	}
+
 	/**
 	 * Sets the keyboard actions for the tree to trigger ui components
 	 */
@@ -953,9 +994,6 @@ public class MatrixTree extends CueTree
 				}
 				DeleteDialog deleteDialog = DeleteDialog.getDeleteDialog(nodes, getLocationOnScreen(), getSize());
 				deleteDialog.show();
-				//deleteDialog.setVisible(true);
-
-				//GUIUtilities.showInScreenCenter(deleteDialog);
 			}
 		};
 
@@ -967,38 +1005,50 @@ public class MatrixTree extends CueTree
 			}
 		};
 
-	/*	Action openSelectionAction = new AbstractAction() {
+		Action increaseFontAction = new AbstractAction() {
 			public void actionPerformed(ActionEvent evt) {
-				MatrixTreeNode[] nodes = getSelectionNodes();
-				if (nodes == null) {
-					return;
-				}
-				SelectionDialog selectionDialog = SelectionDialog.getSelectionDialog(nodes);
-				GUIUtilities.showInScreenCenter(selectionDialog);
+				setFontSize(currentFontSize+1);
+				java.util.List expandedChildren = getExpandedChildren((TreeNode)getModel().getRoot());
+				((DefaultTreeModel) getModel()).reload();
+				expandPaths(expandedChildren);
+
 			}
 		};
 
-		Action createSelectionAction = new AbstractAction() {
+		Action decreaseFontAction = new AbstractAction() {
 			public void actionPerformed(ActionEvent evt) {
-				createSelection();
+				setFontSize(currentFontSize-1);
+				java.util.List expandedChildren = getExpandedChildren((TreeNode)getModel().getRoot());
+				((DefaultTreeModel) getModel()).reload();
+				expandPaths(expandedChildren);
 			}
-		};*/
+		};
 
-		/*Action findAssetAction = new AbstractAction() {
+		Action normalFontAction = new AbstractAction() {
 			public void actionPerformed(ActionEvent evt) {
+				setFontSize(initialFontSize);
+				java.util.List expandedChildren = getExpandedChildren((TreeNode)getModel().getRoot());
+				((DefaultTreeModel) getModel()).reload();
+				expandPaths(expandedChildren);
 			}
-		};*/
+		};
+
 
 		getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "delete");
 		getActionMap().put("delete", deleteAction);
 		getInputMap().put(KeyStroke.getKeyStroke("shift ctrl J"), "search");
 		getActionMap().put("search", searchAction);
-		/*getInputMap().put(KeyStroke.getKeyStroke("shift ctrl S"), "open selection");
-		getActionMap().put("open selection", openSelectionAction);
-		getInputMap().put(KeyStroke.getKeyStroke("shift ctrl C"), "create selection");
-		getActionMap().put("create selection", createSelectionAction);
-		getInputMap().put(KeyStroke.getKeyStroke("shift ctrl A"), "find asset");
-		getActionMap().put("find asset", findAssetAction);*/
+		getInputMap().put(KeyStroke.getKeyStroke("shift ctrl EQUALS"), "increase_font_size");
+		getActionMap().put("increase_font_size", increaseFontAction);
+		getInputMap().put(KeyStroke.getKeyStroke("shift ctrl ADD"), "increase_font_size");
+		getActionMap().put("increase_font_size", increaseFontAction);
+		getInputMap().put(KeyStroke.getKeyStroke("shift ctrl MINUS"), "decrease_font_size");
+		getActionMap().put("decrease_font_size", decreaseFontAction);
+		getInputMap().put(KeyStroke.getKeyStroke("shift ctrl SUBTRACT"), "decrease_font_size");
+		getActionMap().put("decrease_font_size", decreaseFontAction);
+		getInputMap().put(KeyStroke.getKeyStroke("shift ctrl BACK_SPACE"), "normal_font_size");
+		getActionMap().put("normal_font_size", normalFontAction);
+
 	}
 
 	public void removeKeyStroke(String key) {

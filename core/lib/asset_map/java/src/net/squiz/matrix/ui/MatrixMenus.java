@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixMenus.java,v 1.7 2005/07/27 10:45:22 brobertson Exp $
+* $Id: MatrixMenus.java,v 1.8 2005/12/13 22:18:48 sdanis Exp $
 *
 */
 
@@ -210,7 +210,7 @@ public class MatrixMenus implements MatrixConstants {
 				Asset asset = node.getAsset();
 				String[] info = new String[] {
 					asset.getId(),
-					asset.getName(),
+					node.getName(),
 					node.getURL(),
 					node.getLinkid(),
 				};

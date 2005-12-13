@@ -7,14 +7,14 @@ import net.squiz.matrix.matrixtree.*;
 public class RootFolder extends Asset {
 
 	private MatrixTreeNode rootNode;
-	
+
 	public RootFolder(Element assetElement) {
 		super(assetElement.getAttribute("assetid"));
 		String linkid = processAssetXML(assetElement, true);
-		rootNode = new MatrixTreeNode(this, linkid, getLinkType(assetElement), null, null);
-		nodes.add(rootNode);
+		rootNode = new MatrixTreeNode(this, linkid, getLinkType(assetElement), null, null, null);
+		addNode(rootNode, linkid);
 	}
-	
+
 	/**
 	 * Processes the xml for the asset, and returns the MatrixTreeNode
 	 * with the corresponding linkid from the xml
@@ -26,7 +26,7 @@ public class RootFolder extends Asset {
 			String linkid = processAssetXML(assetElement, false);
 			return rootNode;
 	}
-	
+
 	public MatrixTreeNode getRootNode() {
 		return rootNode;
 	}

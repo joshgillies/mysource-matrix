@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: InspectorNavigator.java,v 1.3 2005/07/27 10:45:22 brobertson Exp $
+* $Id: InspectorNavigator.java,v 1.4 2005/12/13 22:18:48 sdanis Exp $
 *
 */
 
@@ -175,7 +175,7 @@ class InspectorNavigator extends JPanel {
 		AbstractButton button = null;
 		if (buttonMenu)
 			button = new ButtonMenu(icon, pressedIcon);
-		else 
+		else
 			button = new JButton(icon);
 
 		button.setDisabledIcon(disabledIcon);
@@ -224,12 +224,12 @@ class InspectorNavigator extends JPanel {
 	private String convertPathToString(TreePath path) {
 		return convertPathToString(path.getPath());
 	}
-	
+
 	private String convertPathToString(Object[] nodes) {
 		String pathStr = "";
 
 		for (int i = 0; i < nodes.length; i++) {
-			pathStr = pathStr + ((MatrixTreeNode) nodes[i]).getAsset().getName();
+			pathStr = pathStr + ((MatrixTreeNode) nodes[i]).getName();
 			if (i != nodes.length - 1)
 				pathStr = pathStr + " > ";
 		}
@@ -267,24 +267,24 @@ class InspectorNavigator extends JPanel {
 				showPathBtn.setPopupMenu(getMenu());
 			}
 		}
-		
+
 		private JPopupMenu getMenu() {
 			JPopupMenu menu = new JPopupMenu();
-	
+
 			ActionListener matrixListener = new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					MatrixTreeNode rootNode 
+					MatrixTreeNode rootNode
 						= (MatrixTreeNode) AssetManager.getRootFolderNode();
 					TreePath rootPath = inspector.getTree().getPathToRoot(rootNode);
 					inspector.populateInspector(rootPath);
 					setBackPath(rootPath);
 				}
 			};
-			
+
 			JMenuItem matrixItem = new JMenuItem("My Matrix System");
 			matrixItem.addActionListener(matrixListener);
 			menu.add(matrixItem);
-			
+
 			if (current.getPathCount() > 1) menu.addSeparator();
 
 			for (int i = 1; i < current.getPathCount(); i++) {
@@ -302,19 +302,19 @@ class InspectorNavigator extends JPanel {
 						setBackPath(path);
 					}
 				};
-				
+
 				MatrixTreeNode node = (MatrixTreeNode) path.getLastPathComponent();
 				Icon icon = node.getAsset().getType().getIcon();
 				JMenuItem pathItem = new JMenuItem(pathStr);
 				pathItem.addActionListener(pathListener);
 				pathItem.setIcon(icon);
-			
+
 				menu.add(pathItem);
 			}
-			
+
 			return menu;
 		}
-		
+
 	}//end class ButtonActionListener
 
 	//}}}

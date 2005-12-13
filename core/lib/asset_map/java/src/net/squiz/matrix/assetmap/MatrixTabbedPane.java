@@ -117,7 +117,7 @@ public class MatrixTabbedPane extends VerticalTabbedPane {
 				JTabbedPane pane = (JTabbedPane) evt.getSource();
 				BasicView view = (BasicView) pane.getComponentAt(pane.getSelectedIndex());
 				MatrixTree currentTree = view.getTree();
-				System.out.println("test");
+
 				for (int i = 0; i < pane.getTabCount(); i++) {
 					// it might be a JPanel so we need to check to see that its a BasicView
 					if (!(pane.getComponentAt(i) instanceof BasicView))

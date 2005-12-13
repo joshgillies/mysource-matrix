@@ -92,8 +92,9 @@ public class MatrixTreeModelBus {
 					DefaultTreeModel model = components[i];
 					// only fire the event if the node is below the models
 					// current root
-					if (((MatrixTreeNode) model.getRoot()).isNodeDescendant(parent))
+					if (((MatrixTreeNode) model.getRoot()).isNodeDescendant(parent)) {
 						model.nodesWereInserted(parent, newIndexs);
+					}
 				}
 			} catch (Throwable t) {
 				Log.log("Could Not insert node", MatrixTreeModelBus.class, t);

@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixToolkit.java,v 1.3 2005/11/24 22:54:53 sdanis Exp $
+* $Id: MatrixToolkit.java,v 1.4 2005/12/13 22:18:48 sdanis Exp $
 *
 */
 
@@ -103,7 +103,7 @@ public class MatrixToolkit {
 	}
 
 	public static void addAssetToXML(StringBuffer xml, Asset asset, int start, int limit) {
-		addAssetToXML(xml, asset.getId(), start, limit);
+		addAssetToXML(xml, asset.getId(), "0", start, limit);
 	}
 
 	/**
@@ -112,14 +112,15 @@ public class MatrixToolkit {
 	 * @param xml the string buffer that contains the xml
 	 * @param asset the asset to add.
 	 */
-	public static void addAssetToXML(StringBuffer xml, String assetid, int start, int limit) {
+	public static void addAssetToXML(StringBuffer xml, String assetid, String linkid, int start, int limit) {
 		if (assetid.equals("1")) {
 			start = 0;
 			limit = 0;
+			linkid = "0";
 		}
 		String limitstr = "start=\""+start+"\" limit=\""+limit+"\"";
 
 		xml.append("<asset assetid=\"").append(
-				rawUrlEncode(assetid, false)).append("\" "+limitstr+"/>");
+				rawUrlEncode(assetid, false)).append("\" "+limitstr).append(" linkid=\""+linkid+"\" />");
 	}
 }

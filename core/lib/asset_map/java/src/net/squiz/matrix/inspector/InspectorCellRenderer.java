@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: InspectorCellRenderer.java,v 1.2 2005/07/27 10:45:22 brobertson Exp $
+* $Id: InspectorCellRenderer.java,v 1.3 2005/12/13 22:18:48 sdanis Exp $
 *
 */
 
@@ -92,7 +92,7 @@ public class InspectorCellRenderer 	extends 	JLabel
 				this.asset = asset;
 				this.selected = isSelected;
 
-				String name = asset.getName();
+				String name = node.getName();
 				int len = 12;
 				if (name.length() > len) {
 					name = name.substring(0, len - 3) + "...";
@@ -109,7 +109,7 @@ public class InspectorCellRenderer 	extends 	JLabel
 
 				setText("<html><center>" + name + "<br><font color=\"#AAAAAA\">" + numAssetsStr + "</font></center></html>");
 				String toolTip = new String("<html>" +
-											asset.getName() + "<br>" +
+											node.getName() + "<br>" +
 											asset.getType().getName() + " [" + asset.getId() + "]" +
 											"</html>");
 				setToolTipText(toolTip);

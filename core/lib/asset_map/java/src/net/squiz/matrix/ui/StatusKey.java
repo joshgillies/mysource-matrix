@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: StatusKey.java,v 1.3 2005/09/05 06:43:31 ndvries Exp $
+* $Id: StatusKey.java,v 1.4 2005/12/13 22:18:48 sdanis Exp $
 *
 */
 
@@ -90,7 +90,6 @@ public class StatusKey extends JPanel implements MatrixConstants {
 		g.setColor(c.darker());
 		g.drawRect(0, 0, KEY_SIZE - 1, KEY_SIZE - 1);
 		g.dispose();
-
 		ImageIcon icon = new ImageIcon(image);
 
 		return icon;

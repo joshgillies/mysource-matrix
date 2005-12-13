@@ -13,7 +13,7 @@ public class ExpandingNode extends MatrixTreeNode {
 	private String cueModeName = "";
 
 	public ExpandingNode() {
-		super(null, "", 1, "", "");
+		super(null, "", 1, "", "", "");
 	}
 
 	public void setParentTotalAssets(int parentTotalAssets) {
@@ -145,7 +145,7 @@ public class ExpandingNode extends MatrixTreeNode {
 
 		return name;
 	}
-	
+
 
 	public void setCueModeName(String name) {
 		cueModeName = name;
@@ -155,8 +155,12 @@ public class ExpandingNode extends MatrixTreeNode {
 		return cueModeName;
 	}
 
+	public String getAssetName() {
+		return ((ExpandingAsset)getUserObject()).getName();
+	}
+
 	public boolean usingCueModeName() {
-		return getAsset().getName().equals(getCueModeName());
+		return getAssetName().equals(getCueModeName());
 	}
 
 	public void useCueModeName() {
@@ -182,9 +186,18 @@ public class ExpandingNode extends MatrixTreeNode {
 
 	public class ExpandingAsset extends Asset {
 
+		String name;
 		public ExpandingAsset(String assetName) {
 			super("0");
 			name = assetName;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
 		}
 	}
 }

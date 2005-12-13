@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: GUIUtilities.java,v 1.4 2005/11/30 22:46:38 sdanis Exp $
+* $Id: GUIUtilities.java,v 1.5 2005/12/13 22:18:48 sdanis Exp $
 *
 */
 
@@ -51,7 +51,7 @@ public class GUIUtilities {
 	 * @param title the title to display
 	 */
 	public static void error(Component comp, String message, String title) {
-		
+
 		MatrixTree tree = MatrixTreeBus.getActiveTree();
 		if (tree == null) {
 			JOptionPane.showMessageDialog(

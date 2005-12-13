@@ -48,7 +48,8 @@ public interface MatrixConstants {
 
 	/** plain font 10pt */
 	public static final Font PLAIN_FONT_10 = new Font("plain_font_10", Font.PLAIN, 10);
-
+	public static final Font PLAIN_FONT_11 = new Font("plain_font_11", Font.PLAIN, 11);
+	public static final Font PLAIN_FONT_12 = new Font("plain_font_12", Font.PLAIN, 12);
 
 	//{{{ LINK TYPES
 
