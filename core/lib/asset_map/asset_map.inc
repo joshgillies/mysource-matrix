@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.203 2005/12/13 22:18:47 sdanis Exp $
+* $Id: asset_map.inc,v 1.204 2005/12/13 22:45:16 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.203 $
+* @version $Revision: 1.204 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -548,6 +548,7 @@ class Asset_Map
 						'url'			=> $asset['url'],
 						'web_path'		=> $asset['path'],
 						'num_kids'		=> $num_kids,
+						'linkid'		=> $linkid,
 					 );
 
 		}//end if shadow asset
