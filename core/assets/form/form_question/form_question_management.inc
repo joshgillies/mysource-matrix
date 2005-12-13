@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_management.inc,v 1.3 2005/12/13 05:49:54 tbarrett Exp $
+* $Id: form_question_management.inc,v 1.4 2005/12/13 05:57:47 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -91,7 +91,7 @@ class Form_Question_Management extends Asset_Management
 		// first do things as normal
 		$res = parent::_upgrade($current_version);
 
-		if (true || version_compare($current_version, '0.6', '<')) {
+		if (version_compare($current_version, '0.6', '<')) {
 			bam('UPGRADING FORM QUESTION FROM v < 0.6');
 			// Upgrade the 'is_required' attr.  This didn't work in the 0.2 - 0.3 upgrade
 			// so we need to do some trickiness here to fix failed upgrades where appropriate,
