@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.36.2.1 2005/08/17 05:33:11 dmckee Exp $
+* $Id: design_customisation.inc,v 1.36.2.2 2005/12/13 01:51:33 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36.2.1 $
+* @version $Revision: 1.36.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -232,7 +232,12 @@ class Design_Customisation extends Design
 	{
 		if (empty($this->_tmp['parent_design'])) {
 			$parent_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'design', false, 'customisation', 'minor');
-			$this->_tmp['parent_design'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid'], $parent_link['major_type_code']);
+			if (!$parent_link) {
+				$null_asset = null;
+				return $null_asset;
+			} else {
+				$this->_tmp['parent_design'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid'], $parent_link['major_type_code']);
+			}
 		}
 		return $this->_tmp['parent_design'];
 
