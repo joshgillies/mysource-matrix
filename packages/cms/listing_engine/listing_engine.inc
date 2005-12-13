@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.124 2005/12/01 05:50:44 skim Exp $
+* $Id: listing_engine.inc,v 1.125 2005/12/13 05:21:48 sdanis Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.124 $
+* @version $Revision: 1.125 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1504,7 +1504,7 @@ class Listing_Engine extends Page
 							$onclick = Array();
 							$group_cb_id  = 'g_'.implode('_', $this->_tmp['group_info']);
 							$control_name = make_valid_html_id(str_replace(' ', '_', $selection_name.$group_cb_id));
-							check_box($control_name, '1', false, 'sq_listing_check_state(this, \''.$selection_name.'\')');
+							check_box($control_name, '1', false, 'sq_listing_check_state(this, \''.$selection_name.'\',\''.$this->getPrefix().'\')');
 							$replacements[$selection_name.'_check_all_in_group'] = ob_get_clean();
 							$replacements[$selection_name.'_selection_id'] = $control_name;
 						}
@@ -1965,7 +1965,7 @@ class Listing_Engine extends Page
 							$selection_id = make_valid_html_id(str_replace(' ', '_', $selection_name.'_'.$assetid), '_');
 
 							if ($buffering) {
-								check_box($selection_name_field, '1', ($selection_value > 0 ? true : false), "sq_listing_check_state(this, '".$selection_name."')", 'id="'.$selection_id.'"');
+								check_box($selection_name_field, '1', ($selection_value > 0 ? true : false), "sq_listing_check_state(this, '".$selection_name."','".$this->getPrefix()."')", 'id="'.$selection_id.'"');
 
 								// the flag is used to determine whether a checkbox is
 								// present and not ticked, or not present at all
@@ -2423,7 +2423,7 @@ class Listing_Engine extends Page
 		$root_nodes = $this->getRootNodes();
 
 		$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($child_assetid, $this->attr('link_types'), '', true, 'minor');
-		
+
 		$parent_link_assetids = Array();
 		foreach ($parent_links as $parent_link) {
 			if (empty($root_nodes)) {
@@ -3048,7 +3048,7 @@ class Listing_Engine extends Page
 				$onclick = Array();
 				$group_cb_id  = 'all';
 				$control_name = str_replace(' ', '_', $selection_name.$group_cb_id);
-				check_box($control_name, '1', false, "sq_listing_check_state(this, '".$selection_name."')");
+				check_box($control_name, '1', false, "sq_listing_check_state(this, '".$selection_name."','".$this->getPrefix()."')");
 				$replacements[$selection_name.'_check_all'] = ob_get_clean();
 				$replacements[$selection_name.'_selection_id'] = $control_name;
 			} else {
@@ -3349,8 +3349,7 @@ class Listing_Engine extends Page
 		// order is important, and we actually need the 'ALL' one LAST so we need
 		// to reverse this
 		$rels = array_reverse($this->_tmp['check_all_relations']);
-
-		$code = 'select_list = [';
+		$code = 'init_select_list_array(); select_list[\''.$this->getPrefix().'\'] = [';
 
 		$select_lines = Array();
 		foreach ($rels as $rel) {

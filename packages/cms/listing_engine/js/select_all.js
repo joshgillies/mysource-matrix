@@ -1,4 +1,11 @@
-function sq_listing_check_state(el, prefix) {
+var select_list;
+function init_select_list_array() {
+	if (!select_list) {
+		select_list = new Array();
+	}
+}
+
+function sq_listing_check_state(el, prefix, assetPrefix) {
 	var i, j, k;
 
 	form = el.form;
@@ -13,9 +20,9 @@ function sq_listing_check_state(el, prefix) {
 	while(to_check.length > 0) {
 		this_el = to_check.shift();
 
-		for (i in select_list) {
-			lhs = select_list[i][0];
-			rhs = select_list[i][1];
+		for (i in select_list[assetPrefix]) {
+			lhs = select_list[assetPrefix][i][0];
+			rhs = select_list[assetPrefix][i][1];
 
 			for(j in lhs) {
 				full_name = prefix + lhs[j];
@@ -53,9 +60,9 @@ function sq_listing_check_state(el, prefix) {
 
 	tested = [];
 
-	for (i in select_list) {
-		lhs = select_list[i][0];
-		rhs = select_list[i][1];
+	for (i in select_list[assetPrefix]) {
+		lhs = select_list[assetPrefix][i][0];
+		rhs = select_list[assetPrefix][i][1];
 		select_all = true;
 		for(j in rhs) {
 			full_name = prefix + rhs[j];
