@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_frequency.inc,v 1.6 2005/11/16 03:19:13 dheppell Exp $
+* $Id: condition_user_frequency.inc,v 1.7 2005/12/14 06:53:54 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *    the current user.  (It sets a cookie to keep track of this).
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,12 +74,18 @@ class Condition_User_Frequency extends Condition
 		$result = false;
 
 		// Retrieve the cookie or initialise it
-		if (!($data = @unserialize($_COOKIE['user_frequency_'.$condition_data['id_name']]))) {
+		if (isset($_COOKIE['user_frequency_cond_'.$condition_data['id_name']]) && (false !== strpos($_COOKIE['user_frequency_cond_'.$condition_data['id_name']], '__'))) {
+			$data = Array();
+			list($data['value'], $data['last_date']) = explode('__', $_COOKIE['user_frequency_cond_'.$condition_data['id_name']]);
+		} else {
 			$data = Array(
 						'value'		=> 1,
 						'last_date'	=> time(),
 					);
 		}
+		
+		
+		$headers = getallheaders();
 
 		// time difference between now and last update in days
 		$difference = (time() - $data['last_date']) / 86400;
@@ -91,12 +97,11 @@ class Condition_User_Frequency extends Condition
 			$hits = (int) $condition_data['value'];
 
 			// if the current counter divides evenly into condition return true
-			if (($data['value'] % $hits) == 0) {
+			if (($hits != 0) && (($data['value'] % $hits) == 0)) {
 				$result = true;
 			} else {
 				$result = false;
 			}
-
 			$data['value']++;
 		}
 
@@ -138,8 +143,14 @@ class Condition_User_Frequency extends Condition
 		}
 		// update the time, and set the cookie
 		$data['last_date'] = time();
-		setcookie('user_frequency_'.$condition_data['id_name'], serialize($data));
-//bam($data);
+		$root_url = str_replace(Array('http://', 'https://'), '', sq_web_path('root_url'));
+		$domain = $root_url;
+		$path = '';
+		if (false !== ($slashpos = strpos($root_url, '/'))) {
+			$domain = substr($root_url, 0, $slashpos);
+			$path = substr($root_url, $slashpos);
+		}
+		setcookie('user_frequency_cond_'.$condition_data['id_name'], $data['value'].'__'.$data['last_date'], strtotime('+3 months'), $path, $domain);
 
 		return $result;
 
