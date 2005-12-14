@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.33 2005/11/17 03:14:30 lwright Exp $
+* $Id: workflow.inc,v 1.34 2005/12/14 00:27:56 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 */
 
@@ -358,6 +358,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 					if (!empty($running_schemas)) {
 
 						$o->closeSection();
+
 						if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) {
 							ob_start();
 						}
@@ -372,15 +373,19 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 							} else {
 								$schema_title .= ' <span style="color:#880000">['.translate('not_completed').']</span>';
 							}
+
 							$o->openSection($schema_title);
 
+								$o->openSection(translate('workflow_summary'));
 								$o->openField(translate('workflow_started'));
 									echo $GLOBALS['SQ_SYSTEM']->datetime($workflow['started']);
 								$o->closeField();
+
 								$o->openField(translate('time_running'));
 									require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 									echo easy_time_total(time() - $workflow['started'], true);
 								$o->closeField();
+								$o->closeSection();
 
 								foreach ($workflow['steps'] as $stepid => $step_data) {
 									$section_title = "Step $stepid - ".$step_data['step_name'];
@@ -409,6 +414,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 													echo easy_time_total(time() - $step_data['started'], true);
 												}
 												echo '</i>)';
+											$o->closeField();
 										}
 
 										$o->openField(translate('step_logic'));
@@ -532,6 +538,8 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 							}
 
 						}// end foreach
+
+						$o->openSection();
 
 					} else {
 						$o->openField(translate('workflow_status'));
