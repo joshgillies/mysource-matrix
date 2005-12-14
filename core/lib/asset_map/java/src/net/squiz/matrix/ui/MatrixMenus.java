@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixMenus.java,v 1.8 2005/12/13 22:18:48 sdanis Exp $
+* $Id: MatrixMenus.java,v 1.9 2005/12/14 23:07:24 sdanis Exp $
 *
 */
 
@@ -127,6 +127,7 @@ public class MatrixMenus implements MatrixConstants {
 		while (screens.hasNext()) {
 			AssetTypeScreen screen = (AssetTypeScreen) screens.next();
 			JMenuItem item = new JMenuItem(screen.getScreenName());
+			item.setFont(MatrixTreeBus.getActiveTree().getFontInUse());
 			item.addActionListener(listener);
 			item.setActionCommand(screen.getCodeName());
 			menu.add(item);
@@ -222,6 +223,7 @@ public class MatrixMenus implements MatrixConstants {
 
 		JMenuItem item = new JMenuItem(Matrix.translate("asset_map_menu_useme"));
 		item.addActionListener(useMeListener);
+		item.setFont(MatrixTreeBus.getActiveTree().getFontInUse());
 		menu.add(item);
 
 		return menu;
@@ -429,6 +431,7 @@ public class MatrixMenus implements MatrixConstants {
 		JMenuItem item,
 		int index,
 		ActionListener listener) {
+			item.setFont(MatrixTreeBus.getActiveTree().getFontInUse());
 			if (parent instanceof JPopupMenu)
 				((JPopupMenu) parent).add(item, index);
 			else

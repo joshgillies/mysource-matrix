@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: DeleteDialog.java,v 1.7 2005/12/13 22:18:48 sdanis Exp $
+* $Id: DeleteDialog.java,v 1.8 2005/12/14 23:07:24 sdanis Exp $
 *
 */
 
@@ -77,7 +77,7 @@ public class DeleteDialog 	extends 	MatrixDialog
 			label = new JLabel(Matrix.translate("asset_map_confirm_move_children", transArgs));
 		}
 
-		label.setFont(PLAIN_FONT_10);
+		label.setFont(MatrixTreeBus.getActiveTree().getFontInUse());
 		midPanel.add(label);
 
 		contentPane.add(getTopPanel(Matrix.translate("asset_map_dialog_delete")), BorderLayout.NORTH);

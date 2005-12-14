@@ -78,7 +78,7 @@ public class MatrixDialog extends JDialog {
 	*/
 	public void centerDialogOnTree(Point locationOnScreen, Dimension treeDimension, Point prevLoc) {
 		setPrevLoc(prevLoc);
-		
+
 		int locX = (int)locationOnScreen.getX()+(int)((treeDimension.getWidth()/2)-(getWidth()/2));
 		if (locX < 0) {
 			locX = 5;
@@ -93,7 +93,7 @@ public class MatrixDialog extends JDialog {
 		topPanel.setBackground(MatrixLookAndFeel.PANEL_COLOUR);
 
 		JLabel title = new JLabel(dialogTitle);
-		title.setFont(new Font("Arial",Font.BOLD, 10));
+		title.setFont(MatrixTreeBus.getActiveTree().getFontInUse());
 		title.setHorizontalTextPosition(SwingConstants.CENTER);
 		title.setOpaque(false);
 		title.setForeground(Color.black);
@@ -145,7 +145,7 @@ public class MatrixDialog extends JDialog {
 		});
 	}
 
-	
+
 
 	public void setLocation(int x, int y, boolean force) {
 		if (force || (getPrevLoc() == null)) {

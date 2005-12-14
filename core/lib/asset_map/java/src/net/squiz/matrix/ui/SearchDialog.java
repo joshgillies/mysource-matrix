@@ -52,7 +52,7 @@ public class SearchDialog extends MatrixDialog {
 			searchDialog = (SearchDialog) MatrixDialog.getDialog(SearchDialog.class);
 			searchDialog.toFront();
 		}
-		
+
 		searchDialog.pack();
 		searchDialog.centerDialogOnTree(locationOnScreen, treeDimension, prevScreenLocation);
 
@@ -76,7 +76,7 @@ public class SearchDialog extends MatrixDialog {
 		// Text field settings
 		searchTerm = new JTextField(5);
 		searchTerm.setPreferredSize(new Dimension(150,15));
-		searchTerm.setFont(new Font("Arial",Font.PLAIN, 10));
+		searchTerm.setFont(MatrixTreeBus.getActiveTree().getFontInUse());
 		searchTerm.setOpaque(false);
 		searchTerm.addKeyListener(new KeyListener());
 		searchTerm.setBorder( new LineBorder(MatrixLookAndFeel.PANEL_BORDER_COLOUR, 1) );

@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.16 2005/12/13 22:18:48 sdanis Exp $
+ * $Id: MatrixTree.java,v 1.17 2005/12/14 23:07:24 sdanis Exp $
  *
  */
 
@@ -1187,6 +1187,7 @@ public class MatrixTree extends CueTree
 	 */
 	private void addMenuItem(JMenuItem item, JPopupMenu menu, ActionListener l) {
 		item.addActionListener(l);
+		item.setFont(getFontInUse());
 		menu.add(item);
 	}
 
@@ -1493,8 +1494,10 @@ public class MatrixTree extends CueTree
 				// and before the add menu
 				JMenuItem[] items = getAncillaryMenuItems();
 				if (items != null) {
-					for (int i = 0; i < items.length; i++)
+					for (int i = 0; i < items.length; i++) {
+						items[i].setFont(getFontInUse());
 						menu.add(items[i]);
+					}
 				}
 
 				// when we click on a node and choose add, we want to go
@@ -1512,6 +1515,7 @@ public class MatrixTree extends CueTree
 
 				JMenu addMenu = MatrixMenus.getAddMenu(explicitAddListener);
 				addMenu.setText(Matrix.translate("asset_map_menu_new_child"));
+				addMenu.setFont(getFontInUse());
 				menu.add(addMenu);
 			}
 
@@ -1545,6 +1549,11 @@ public class MatrixTree extends CueTree
 			moveItem.addActionListener(multiplelistener);
 			newLinkItem.addActionListener(multiplelistener);
 			cloneItem.addActionListener(multiplelistener);
+
+			// fonts
+			moveItem.setFont(getFontInUse());
+			newLinkItem.setFont(getFontInUse());
+			cloneItem.setFont(getFontInUse());
 
 			menu.add(moveItem);
 			menu.add(newLinkItem);

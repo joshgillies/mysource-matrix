@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: Asset.java,v 1.8 2005/12/13 22:18:48 sdanis Exp $
+* $Id: Asset.java,v 1.9 2005/12/14 23:07:24 sdanis Exp $
 *
 */
 
@@ -126,10 +126,17 @@ public class Asset implements MatrixConstants, Serializable {
 		}
 
 		MatrixTreeNode node = getNode(linkid);
-		if (node == null || node.getName().equals(name)) {
+		if (node != null) {
+			String nodeName = node.getName();
+			if (nodeName != null) {
+				if (nodeName.equals(name)) {
+					return false;
+				}
+			}
+			node.setName(name);
+		} else {
 			return false;
 		}
-		node.setName(name);
 		return true;
 	}
 

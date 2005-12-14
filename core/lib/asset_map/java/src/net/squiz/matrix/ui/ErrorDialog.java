@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ErrorDialog.java,v 1.1 2005/11/30 22:46:39 sdanis Exp $
+* $Id: ErrorDialog.java,v 1.2 2005/12/14 23:07:24 sdanis Exp $
 *
 */
 
@@ -60,7 +60,7 @@ public class ErrorDialog 	extends 	MatrixDialog
 		midPanel.setBackground(MatrixLookAndFeel.PANEL_COLOUR);
 
 		JLabel label = new JLabel(message);
-		label.setFont(PLAIN_FONT_10);
+		label.setFont(MatrixTreeBus.getActiveTree().getFontInUse());
 		midPanel.add(label);
 
 		contentPane.add(getTopPanel(title), BorderLayout.NORTH);
@@ -71,7 +71,7 @@ public class ErrorDialog 	extends 	MatrixDialog
 		JLabel okButton = new JLabel();
 		okButton.setIcon(GUIUtilities.getAssetMapIcon("ok.png"));
 		closeOnClick(okButton, "ok");
-	
+
 
 	/*	// mouse events
 		okButton.addMouseListener(new MouseAdapter(){
@@ -94,7 +94,7 @@ public class ErrorDialog 	extends 	MatrixDialog
 		okButton.setOpaque(false);
 		bottomPanel.add(okButton);
 		bottomPanel.setBackground(MatrixLookAndFeel.PANEL_COLOUR);
-		
+
 		contentPane.add(bottomPanel, BorderLayout.SOUTH);
 
 
@@ -135,7 +135,7 @@ public class ErrorDialog 	extends 	MatrixDialog
 	 */
 	public static ErrorDialog getErrorDialog(String message, String title, Point locationOnScreen, Dimension treeDimension) {
 		ErrorDialog ErrorDialog = null;
-		
+
 		if (MatrixDialog.hasDialog(ErrorDialog.class)) {
 			ErrorDialog = (ErrorDialog) MatrixDialog.getDialog(ErrorDialog.class);
 			ErrorDialog.dispose();
