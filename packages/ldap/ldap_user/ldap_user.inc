@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user.inc,v 1.13 2005/08/16 23:58:08 dheppell Exp $
+* $Id: ldap_user.inc,v 1.14 2005/12/14 03:54:34 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -85,7 +85,11 @@ class Ldap_User extends Backend_User
 		foreach ($data as $key => $value) {
 			if (!is_array($value)) continue;
 			if (isset($value['count'])) unset($value['count']);
-			$this->vars[$key] = $value;
+			$this->vars[$key] = Array(
+									'value' => $value,
+									'type'  => is_array($value) ? 'serialise' : 'text',
+								);
+			//$this->vars[$key] = $value;
 		}
 
 		// set the data paths

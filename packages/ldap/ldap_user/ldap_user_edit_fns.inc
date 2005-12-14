@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_edit_fns.inc,v 1.9 2005/08/28 23:28:27 dmckee Exp $
+* $Id: ldap_user_edit_fns.inc,v 1.10 2005/12/14 03:54:34 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user_edit_fns.inc
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -86,13 +86,23 @@ class Ldap_User_Edit_Fns extends Backend_User_Edit_Fns
 		foreach ($info as $field_name => $field_data) {
 			if (!isset($show[$field_name])) continue;
 			$field_name = $show[$field_name];
-			$count = count($field_data);
+			$count = count($field_data['value']);
 			if ($count > 1) $field_name .= ' ('.$count.' values)';
+
 			$o->openField($field_name);
 				if (isset($field_data['value']) && is_array($field_data['value'])) {
-					$field_data['value'] = implode(',', $field_data['value']);
+					$field_data['value'] = implode('<br />', $field_data['value']);
 				}
-				echo implode('<br />', $field_data);
+
+				echo $field_data['value'];
+
+				// TODO: Leaving this in by request, until we are sure all implementations work
+				echo '<br />';
+				if (isset($field_data['attrid'])) {
+					echo '<span style="color:#666">(attrid = '.$field_data['attrid'].')</span> ';
+				}
+				echo '<span style="color:#666">(type = '.$field_data['type'].')</span>';
+
 			$o->closeField();
 		}
 
