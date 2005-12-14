@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.25 2005/11/09 02:06:43 skim Exp $
+* $Id: hipo_job_create_links.inc,v 1.26 2005/12/14 04:44:19 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -547,10 +547,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				$link  = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid'], $assetid, 'minor');
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid']);
 
-				// if the major of this link is not a bridge, then its a real asset
+				// if the major of this link contains no colon, and is not a bridge, then it's a real asset
 				// with a shadow asset linked underneath, so get the asset manager to handle this delete
-				if (!empty($link) && !implements_interface($asset, 'bridge')) {
-
+				if (!empty($link) && (false === strpos($link['majorid'], ':')) && !implements_interface($asset, 'bridge')) {
 					if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($value['linkid'], false)) {
 						trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -558,7 +557,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					}
 
 				} else {
-					// its a shadow asset linked to a bridge, so get the bridge to handle the delete
+					// its a shadow asset linked to a bridge or to another shadow,
+					// so get the bridge to handle the delete
 					$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bridge_id);
 					if (!$bridge->deleteAssetLink($value['linkid'])) {
 						trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
