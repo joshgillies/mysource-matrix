@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.18 2005/08/16 23:58:08 dheppell Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.19 2005/12/14 03:11:35 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -215,7 +215,7 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 
 		// connect through the bridge and find out what type of information
 		// we get back for the users
-		$user = &$asset->getAsset($asset->attr('bind_dn'));
+		$user = &$asset->getAsset($asset->id.':'.$asset->attr('bind_dn'));
 		if (is_null($user)) {
 			trigger_localised_error('LDAP0001', E_USER_WARNING);
 			return;
