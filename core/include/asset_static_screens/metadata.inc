@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.15 2005/06/02 05:47:39 lwright Exp $
+* $Id: metadata.inc,v 1.15.2.1 2005/12/14 00:30:02 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.2.1 $
 * @package MySource_Matrix
 */
 
@@ -180,7 +180,6 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 							}
 						$o->closeField();
 					} else {
-						$o->closeSection();
 						$write_access = $owner->writeAccess('metadata');
 						$print_commit_button = $write_access;
 
