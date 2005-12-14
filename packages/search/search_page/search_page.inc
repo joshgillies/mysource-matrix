@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.152 2005/12/13 06:09:30 arailean Exp $
+* $Id: search_page.inc,v 1.153 2005/12/14 00:25:18 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.152 $
+* @version $Revision: 1.153 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2073,15 +2073,16 @@ class Search_Page extends Listing_Engine
 				// thesaurus synonym searching
 				$t_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', false, 'thesaurus');
 
+				$synonyms =& $this->_tmp['search_synonyms'];
+
 				if (!empty($t_link)) {
-					$t_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($t_link['minorid']);
-					$this->_tmp['search_synonyms'][$field_name] = Array();
+					$thesaurus = &$GLOBALS['SQ_SYSTEM']->am->getAsset($t_link['minorid']);
+					$synonyms[$field_name] = Array();
 
 					// loop over each word, find synonyms
 					foreach ($words as $word) {
-						if (!isset($this->_tmp['search_synonyms'][$field_name][$word])) {
-							$suggestions = $sm->findSynonymsForWord($word, $t_asset);
-							$this->_tmp['search_synonyms'][$field_name][$word] = $suggestions;
+						if (!isset($synonyms[$field_name][$word])) {
+							$synonyms[$field_name][$word] = $thesaurus->getSynonymsForTerm($word);
 						}
 					}
 				}//end thesaurus exists
