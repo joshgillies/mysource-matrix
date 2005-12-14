@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.7 2005/12/13 06:03:34 arailean Exp $
+* $Id: thesaurus.inc,v 1.8 2005/12/14 00:23:27 arailean Exp $
 *
 */
 
@@ -32,17 +32,19 @@ register_implementation('thesaurus', 'bridge');
 /**
 * Thesaurus
 *
+* NOTE: All term comparisons are case insensitive. Term case is preserved.
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Thesaurus extends Asset
 {
 
-	var $REL_ABBREVIATION = 'Abbreviation';
+	var $REL_ABBREVIATION	= 'Abbreviation';
+	var $REL_SYNONYM		= 'Synonym';
 
 
 	/**
@@ -97,7 +99,8 @@ class Thesaurus extends Asset
 	}//end _createAdditional()
 
 
-//--        ABBREVIATIONS        --//
+//--		CONVENIENCE FUNCTIONS		--//
+//// Functions in this section are intended to make life simpler for other assets
 
 
 	/**
@@ -105,20 +108,53 @@ class Thesaurus extends Asset
 	*
 	* the result is an array of format ("A" => "Australia")
 	* abbreviation => expansion
-	* NOTICE: An expansion can have only one abbreviation
+	* NOTE: An expansion can have only one abbreviation
 	*
 	* @return array
 	* @access public
 	*/
 	function getAbbreviations()
 	{
-		//TODO: add abbreviation support
+		$abbr_rows = $this->getRelatedTerms($this->REL_ABBREVIATION);
+
+		if (is_null($abbr_rows)) return Array();
 
 		$result = Array();
+		foreach ($abbr_rows as $abbr) {
+			$result[$abbr['major']] = $abbr['minor'];
+		}
 
 		return $result;
 
 	}//end getAbbreviations()
+
+
+	/**
+	* Get synonyms for a given term
+	*
+	* @param string	$term	Term to find synonyms for
+	*
+	* @return void
+	* @access public
+	*/
+	function getSynonymsForTerm($term)
+	{
+		$termid = $this->getTermIdByName($term);
+
+		if (empty($termid)) return Array();
+
+		$synonyms = $this->getChildTerms($termid, $this->REL_SYNONYM);
+		$result = Array();
+
+		if (!empty($synonyms)) {
+			foreach ($synonyms as $synonym) {
+				$result[$synonym['term']] = $synonym['term'];
+			}
+		}
+
+		return $result;
+
+	}//end getSynonymsForTerm()
 
 
 //--        CORE THESAURUS RELATIONAL ENGINE        --//
@@ -397,6 +433,51 @@ class Thesaurus extends Asset
 		return $this->attr('relations');
 
 	}//end getAllRelations()
+
+
+	/**
+	* Given a relation, get all the Parent-Child pairs
+	*
+	* NOTE: Currently it's impossible to get related term pairs when parent is null
+	*
+	* @param string	$relation	Relation to lookup
+	*
+	* @return void
+	* @access public
+	*/
+	function getRelatedTerms($relation='')
+	{
+		if (empty($relation) && !is_null($relation)) {
+			return null;
+		}
+
+		$sql = '
+			SELECT
+				major.term		as major,
+				major.termid	as majorid,
+				minor.term		as minor,
+				minor.termid	as minorid,
+			FROM
+				sq_thes_term major
+				INNER JOIN sq_thes_term_lnk link ON major.termid = link.major
+				INNER JOIN sq_thes_term minor ON minor.termid = link.minor
+			WHERE
+				link.relation '.(is_null($relation)?'ISNULL':'= '.$db->quoteSmart($relation)).'
+				AND
+				major.thesid = '.$db->quoteSmart($this->id).'
+				AND
+				minor.thesid = '.$db->quoteSmart($this->id).'
+				AND
+				link.thesid = '.$db->quoteSmart($this->id).'
+		';
+
+		$result = $db->getAll($sql);
+
+		assert_valid_db_result($result);
+
+		return $result;
+
+	}//end getRelatedTerms()
 
 
 	/**
