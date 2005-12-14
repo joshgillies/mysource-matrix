@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.24.2.2 2005/09/07 06:47:08 lwright Exp $
+* $Id: workflow.inc,v 1.24.2.3 2005/12/14 00:30:45 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.24.2.2 $
+* @version $Revision: 1.24.2.3 $
 * @package MySource_Matrix
 */
 
@@ -357,6 +357,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 							}
 							$o->openSection($schema_title);
 
+								$o->openSection(translate('workflow_summary'));
 								$o->openField(translate('workflow_started'));
 									echo $GLOBALS['SQ_SYSTEM']->datetime($workflow['started']);
 								$o->closeField();
@@ -364,6 +365,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 									require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 									echo easy_time_total(time() - $workflow['started'], true);
 								$o->closeField();
+								$o->closeSection();
 
 								foreach ($workflow['steps'] as $stepid => $step_data) {
 									$section_title = "Step $stepid - ".$step_data['step_name'];
