@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_frequency.inc,v 1.7 2005/12/14 06:53:54 tbarrett Exp $
+* $Id: condition_user_frequency.inc,v 1.8 2005/12/14 22:42:59 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *    the current user.  (It sets a cookie to keep track of this).
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -84,9 +84,6 @@ class Condition_User_Frequency extends Condition
 					);
 		}
 		
-		
-		$headers = getallheaders();
-
 		// time difference between now and last update in days
 		$difference = (time() - $data['last_date']) / 86400;
 
