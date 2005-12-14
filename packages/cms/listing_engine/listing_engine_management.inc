@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.47 2005/11/25 00:50:22 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.48 2005/12/14 23:01:06 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -319,6 +319,26 @@ class Listing_Engine_Management extends Asset_Management
 																					   ),
 																   ),
 											);
+
+		$this->vars['min_depth'] = Array(
+									'added'			=> '0.14',
+									'type'			=> 'int',
+									'default'		=> '',
+									'parameters'	=> Array(
+														'allow_negative'	=> false,
+														'allow_empty'		=> true,
+													   ),
+								   );
+
+		$this->vars['max_depth'] = Array(
+									'added'			=> '0.14',
+									'type'			=> 'int',
+									'default'		=> '',
+									'parameters'	=> Array(
+														'allow_negative'	=> false,
+														'allow_empty'		=> true,
+													   ),
+								   );
 
 	}//end constructor
 

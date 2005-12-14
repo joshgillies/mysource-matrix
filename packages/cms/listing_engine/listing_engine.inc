@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.125 2005/12/13 05:21:48 sdanis Exp $
+* $Id: listing_engine.inc,v 1.126 2005/12/14 23:01:06 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.125 $
+* @version $Revision: 1.126 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2251,6 +2251,11 @@ class Listing_Engine extends Page
 	*/
 	function groupAssetsRecursively($group_levels, $assetids, &$results)
 	{
+		$min_depth = $this->attr('min_depth');
+		$max_depth = $this->attr('max_depth');
+
+		$root_nodes = $this->getRootNodes();
+
 		// we need assets and groups, so if none given, let's bail
 		if (empty($assetids) || empty($group_levels)) {
 			return;
@@ -2272,6 +2277,14 @@ class Listing_Engine extends Page
 			array_unshift($limit_array, array_get_index($group_level, 'max_children', null));
 			$new_asset_groups = Array();
 
+			// go one node UP the tree, no matter whether we're going up or down
+			if (!is_null($min_depth)) {
+				$min_depth -= 1 * ($this->attr('direction') == 'up' ? -1 : 1);
+			}
+			if (!is_null($max_depth)) {
+				$max_depth -= 1 * ($this->attr('direction') == 'up' ? -1 : 1);
+			}
+
 			foreach ($asset_groups as $key => $group_data) {
 				$assetid = $group_data['assetid'];
 
@@ -2284,6 +2297,25 @@ class Listing_Engine extends Page
 				switch ($group_level['group_type']) {
 					case 'parent_asset':
 						$value = $this->getGroupableParentAssetids($current_parent);
+
+						// skip this whole section if both depth fields are null
+						// otherwise, we are limiting by parent's depth, relative
+						// to what is set for leaf nodes
+						if (!is_null($min_depth) || !is_null($max_depth)) {
+
+							foreach($value as $key => $parent_assetid) {
+								if ($this->attr('direction') == 'down') {
+									$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($parent_assetid, '', false, null, null, $min_depth, $max_depth);
+								} else {
+									$parents = $GLOBALS['SQ_SYSTEM']->am->getChildren($parent_assetid, '', false, null, null, $min_depth, $max_depth);
+								}
+
+								$intersection = array_intersect(array_keys($parents), $root_nodes);
+								if (empty($intersection)) {
+									unset($value[$key]);
+								}
+							}
+						}
 
 					break;
 
@@ -2426,7 +2458,7 @@ class Listing_Engine extends Page
 
 		$parent_link_assetids = Array();
 		foreach ($parent_links as $parent_link) {
-			if (empty($root_nodes)) {
+			if (empty($root_nodes) || ($this->attr('direction') == 'up')) {
 				// if no root nodes set, allow all parents
 				$parent_link_assetids[] = $parent_link['majorid'];
 			} else {
