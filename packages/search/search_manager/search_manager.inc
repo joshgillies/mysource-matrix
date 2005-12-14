@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.88 2005/12/13 23:58:38 rhoward Exp $
+* $Id: search_manager.inc,v 1.89 2005/12/14 00:26:20 arailean Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.88 $
+* @version $Revision: 1.89 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2322,41 +2322,6 @@ class Search_Manager extends Asset
 		return $search_results;
 
 	}//end processBasicSearch()
-
-
-	/**
-	* Checks a word against a thesaurus asset for synonyms
-	*
-	* @param string				$word		the word being checked
-	* @param object Thesaurus	$thesaurus	thesaurus asset being used
-	*
-	* @return Array(string)	the list of suggestions
-	* @access public
-	*/
-	function findSynonymsForWord($word, &$thesaurus)
-	{
-		if (!is_a($thesaurus, 'thesaurus')) {
-			// why did you pass us a lemon instead of a thesaurus?
-			trigger_localised_error('SCH0008', E_USER_WARNING, $thesaurus->getName(), $thesaurus->id);
-			return Array();
-		}
-
-		$termid = $thesaurus->getTermIdByName($word);
-
-		if (empty($termid)) return Array();
-
-		$synonyms = $thesaurus->getChildTerms($termid, 'Synonym');
-		$result = Array();
-
-		if (!empty($synonyms)) {
-			foreach ($synonyms as $synonym) {
-				$result[$synonym['term']] = $synonym['term'];
-			}
-		}
-
-		return $result;
-
-	}//end findSynonymsForWord()
 
 
 	/**
