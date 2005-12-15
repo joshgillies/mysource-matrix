@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.80 2005/12/02 05:32:26 dmckee Exp $
+* $Id: site.inc,v 1.81 2005/12/15 03:08:44 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -513,7 +513,7 @@ class Site extends Folder
 			return;
 		}
 
-		$this->printFrontendAsset($index_page);
+		$this->paintAsset($index_page);
 
 	}//end printFrontend()
 
@@ -592,9 +592,9 @@ class Site extends Folder
 		if ($result) {
 			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
 			if (SQ_IN_LIMBO) {
-				$design->paint($this);
+				$this->printFrontendAsset($this, $design);
 			} else {
-				$design->paint($asset);
+				$this->printFrontendAsset($asset, $design);
 			}
 		} else {
 			// we can't find a design, oh well let's just print out our body
