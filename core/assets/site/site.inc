@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.81 2005/12/15 03:08:44 dmckee Exp $
+* $Id: site.inc,v 1.82 2005/12/15 03:17:49 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Site extends Folder
 	/**
 	* Returns a list of lock types available for this asset type
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function lockTypes()
@@ -71,6 +71,10 @@ class Site extends Folder
 	/**
 	* Returns the urls for this site
 	*
+	* @param boolean	$url	Url
+	*
+	* @return array
+	* @access public
 	* @see Asset::updateLookups()
 	*/
 	function getWebPaths($url=false)
@@ -100,7 +104,7 @@ class Site extends Folder
 	/**
 	* Attempts to delete a path to this asset
 	*
-	* @param string	$path	the path to add to this asset's list
+	* @param string	$url	the path to add to this asset's list
 	*
 	* @return boolean
 	* @access public
@@ -149,7 +153,7 @@ class Site extends Folder
 	/**
 	* Returns a list of urls that point to this asset
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function getSiteURLs()
@@ -176,7 +180,7 @@ class Site extends Folder
 	/**
 	* Attempts to add a url to this site, site's don't have paths, only URLs
 	*
-	* @param Array $save_urls	an Array($urlid => Array(url => '', http => boolean, https => boolean)
+	* @param array	$save_urls	an Array($urlid => Array(url => '', http => boolean, https => boolean)
 	*
 	* @return boolean
 	* @access public
@@ -525,7 +529,7 @@ class Site extends Folder
 	* If no design can be found fo
 	* this site, the page will be displayed without the design
 	*
-	* @param object &Asset $asset the asset to paint
+	* @param object	&$asset	the asset to paint
 	*
 	* @return void
 	* @access public
@@ -632,7 +636,7 @@ class Site extends Folder
 	*
 	* @param string	$page	the page that the user wants
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getSpecialPageLink($page)
@@ -657,7 +661,7 @@ class Site extends Folder
 	*
 	* @param string	$page	the page that the user wants
 	*
-	* @return object Asset
+	* @return object
 	* @access public
 	*/
 	function &getSpecialPage($page)
@@ -679,7 +683,7 @@ class Site extends Folder
 	*
 	* If this site is not in a Site Network, NULL will be returned.
 	*
-	* @return object Site_Network | NULL
+	* @return mixed object|null
 	* @access public
 	*/
 	function &getSiteNetwork()
