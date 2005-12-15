@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/11/23 00:53:35 arailean Exp $
+* $Id: lang_strings.xml,v 1.2 2005/12/15 06:17:51 arailean Exp $
 *
 */
 
@@ -28,5 +28,6 @@ LDAP Localised String File
 <strings>
 	<string source="thesaurus_or_create_new">or create new</string>
 	<string source="thesaurus_top_level_term">Top Level Term (Has no parent terms)</string>
-
+	<string source="thesaurus_creating_top_level_term">Creating a top level term. No options to set.</string>
+	<string source="relation">Relation</string>
 </strings>
