@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.8 2005/12/14 00:23:27 arailean Exp $
+* $Id: thesaurus.inc,v 1.9 2005/12/15 06:13:22 arailean Exp $
 *
 */
 
@@ -36,7 +36,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -366,16 +366,20 @@ class Thesaurus extends Asset
 
 		$sql = '
 			SELECT
-				linkid, term, termid, relation
+				link.linkid, term.term, term.termid, link.relation
 			FROM
-				sq_thes_term term
-				INNER JOIN sq_thes_lnk link ON term.termid = link.minor
+				sq_thes_lnk link
+				LEFT JOIN sq_thes_term term on link.major = term.termid
 			WHERE
-				term.thesid = '.$db->quoteSmart($this->id).'
+				link.minor = '.$db->quoteSmart($termid).'
+				AND
+				(
+					term.thesid = '.$db->quoteSmart($this->id).'
+					OR
+					term.thesid ISNULL
+				)
 				AND
 				link.thesid = '.$db->quoteSmart($this->id).'
-				AND
-				minor = '.$db->quoteSmart($termid).'
 			ORDER BY
 				sort_order
 		';
@@ -1522,6 +1526,51 @@ class Thesaurus extends Asset
 
 
 	/**
+	* Renames the relation value on the term link
+	*
+	* @param int	$linkid		ID of link to be renamed
+	* @param string	$relation	New name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function renameLinkRelation($linkid, $relation=null)
+	{
+		if (empty($relation)) $relation = null;
+
+		$link_info = $this->getTermLinkById($linkid);
+		if (is_null($link_info)) return false;
+
+		if ($link_info['relation'] == $relation) return true;
+
+		$existing_linkid = $this->getTermLinkid($link_info['minor'], $link_info['major'], $relation);
+		if (!is_null($existing_linkid)) {
+			trigger_localised_error('CORE0242', E_USER_WARNING, $linkid, $link_info['relation'], $relation, $existing_linkid);
+			return false;
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = '
+			UPDATE
+				sq_thes_lnk
+			SET
+				relation = '.(is_null($relation)?'NULL':$db->quoteSmart($relation)).'
+			WHERE
+				linkid = '.$db->quoteSmart($linkid).'
+				AND
+				thesid = '.$db->quoteSmart($this->id).'
+		';
+
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+		return true;
+
+	}//end renameLinkRelation()
+
+
+	/**
 	* Get term by its (link) id
 	*
 	* Gets the term that is linked as a minor by a particular link id
@@ -1786,10 +1835,14 @@ class Thesaurus extends Asset
 				thesid = '.$db->quoteSmart($this->id).'
 		';
 		$result = $db->getCol($sql);
-
 		assert_valid_db_result($result);
 
-		return $result;
+		$relations = Array();
+		foreach ($result as $relation) {
+			$relations[$relation] = $relation;
+		}
+
+		return $relations;
 
 	}//end getActiveRelations()
 
