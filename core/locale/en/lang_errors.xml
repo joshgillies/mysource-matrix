@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.23 2005/11/30 23:32:10 mmcintyre Exp $
+* $Id: lang_errors.xml,v 1.24 2005/12/15 06:07:33 arailean Exp $
 *
 */
 
@@ -1582,5 +1582,5 @@ Full Node Contents :
 	<error code="CORE0239">Cannot Update. A term with these details already exists.</error>
 	<error code="CORE0240">This term link already exists. Cannot move.</error>
 	<error code="CORE0241">This term has multiple parent and child terms. Renaming of this term is not possible.</error>
-
+	<error code="CORE0242">Cannot Rename Term Link ID#%1$s from "%2$s" to "%3$s". Identical Term Link with ID#%4$s already exists.</error>
 </errors>
