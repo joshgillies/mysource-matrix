@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list_edit_fns.inc,v 1.7.2.1 2005/08/30 04:32:42 skim Exp $
+* $Id: form_question_type_option_list_edit_fns.inc,v 1.7.2.2 2005/12/15 22:24:47 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../form_question_type_tickbox_list/form_questio
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7.2.1 $
+* @version $Revision: 1.7.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -71,9 +71,7 @@ class Form_Question_Type_Option_List_Edit_Fns extends Form_Question_Type_Tickbox
 			foreach ($options as $ref => $option) {
 				if (!trim($option)) continue;
 				echo '<tr><td>';
-				$val  = explode(':', $option);
 				$name = $prefix.'default[]';
-				$title = (count($val) > 1) ? $val[1] : $val[0];
 
 				if ($option == 'none') {
 					$checked = (empty($defaults)) ? true : false;
@@ -87,7 +85,7 @@ class Form_Question_Type_Option_List_Edit_Fns extends Form_Question_Type_Tickbox
 					radio_button($name, ($ref - 1), $checked);
 				}
 
-				echo '&nbsp;<span onclick="this.previousSibling.previousSibling.checked = (!this.previousSibling.previousSibling.checked || this.previousSibling.previousSibling.type==\'radio\')">'.$title.'</span>';
+				echo '&nbsp;<span onclick="this.previousSibling.previousSibling.checked = (!this.previousSibling.previousSibling.checked || this.previousSibling.previousSibling.type==\'radio\')">'.$option.'</span>';
 				echo '</td></tr>';
 			}
 

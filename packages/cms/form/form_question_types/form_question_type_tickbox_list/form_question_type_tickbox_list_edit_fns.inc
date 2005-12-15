@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list_edit_fns.inc,v 1.12.2.2 2005/08/30 04:32:42 skim Exp $
+* $Id: form_question_type_tickbox_list_edit_fns.inc,v 1.12.2.3 2005/12/15 22:24:49 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12.2.2 $
+* @version $Revision: 1.12.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -62,17 +62,17 @@ class Form_Question_Type_Tickbox_List_Edit_Fns extends Form_Question_Edit_Fns
 		$multiple = (get_class($asset) == 'form_question_type_tickbox_list') ? true : false;
 		$defaults = $asset->attr('default');
 
+		bam($options);
+
 		foreach ($options as $ref => $option) {
 			if (!trim($option)) continue;
 
-			$val  = explode(':', $option);
 			$type = ($multiple) ? 'check_box' : 'radio_button';
 			$name = $prefix.'default[]';
 
-			$title = (count($val) > 1) ? $val[1] : $val[0];
 			$checked = (in_array($ref, $defaults)) ? true : false;
 			$type($name, $ref, $checked, '', 'id="'.$prefix.'default'.$ref.'"');
-			label($title, $prefix.'default'.$ref);
+			label($option, $prefix.'default'.$ref);
 			echo '<br />';
 		}
 
