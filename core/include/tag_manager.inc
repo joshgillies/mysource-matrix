@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_manager.inc,v 1.1 2005/12/07 22:55:23 emcdonald Exp $
+* $Id: tag_manager.inc,v 1.2 2005/12/15 00:15:07 emcdonald Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 * Tag Manager
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Tag_Manager extends MySource_Object
@@ -68,6 +68,83 @@ class Tag_Manager extends MySource_Object
 		return $tag_links;
 
 	}//end getTagLinks()
+
+
+	/**
+	* Get all the assets that are tagged with a tag or tags
+	*
+	* @param int	$tagid	The tag or array of tags in which we are interested
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetsByTag($tagid)
+	{
+		//get a list of assets using this tag from the shadow links table
+
+		if (!is_array($tagid)) {
+			$tagids = Array($tagid);
+		} else {
+			$tagids = $tagid;
+		}
+		$assets = Array();
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		foreach ($tagids as $tagid) {
+			$sql = 'SELECT
+						majorid
+					FROM
+						'.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk
+					WHERE
+						minorid = '.$db->quoteSmart($tagid).'
+					AND
+						link_type = '.$db->quoteSmart(SQ_LINK_NOTICE).'
+					';
+
+			$result = $db->getAll($sql);
+			assert_valid_db_result($result);
+
+			foreach ($result as $majorid) {
+				$assets[] = $majorid['majorid'];
+			}
+		}
+
+
+		return $assets;
+
+	}//end getAssetsByTag()
+
+
+	/**
+	* Get all the assets that are related to an asset or assets
+	*
+	* @param array	$relator_id	The tag or array of tags in which we are interested
+	*
+	* @return array
+	* @access public
+	*/
+	function getRelatedAssets($relator_id)
+	{
+		$tag_ids = Array();
+		if (!is_array($relator_id)) {
+			$$relator_ids = Array($relator_id);
+		} else {
+			$relator_ids = $relator_id;
+		}
+
+		foreach ($relator_ids as $relator_id) {
+			$tag_links = $this->getTagLinks($relator_id);
+
+			foreach ($tag_links as $tag_link) {
+				$tag_ids[] = $tag_link['minorid'];
+			}
+		}
+
+		$related_assets = $this->getAssetsByTag($tag_ids);
+		$related_assets = array_diff($related_assets, $relator_ids);
+
+		return $related_assets;
+
+	}//end getRelatedAssets()
 
 
 }//end class
