@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.126 2005/12/14 23:01:06 lwright Exp $
+* $Id: listing_engine.inc,v 1.127 2005/12/15 23:15:41 mmcintyre Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.126 $
+* @version $Revision: 1.127 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2252,7 +2252,9 @@ class Listing_Engine extends Page
 	function groupAssetsRecursively($group_levels, $assetids, &$results)
 	{
 		$min_depth = $this->attr('min_depth');
+		if ($min_depth == '') $min_depth = null;
 		$max_depth = $this->attr('max_depth');
+		if ($max_depth == '') $max_depth = null;
 
 		$root_nodes = $this->getRootNodes();
 
