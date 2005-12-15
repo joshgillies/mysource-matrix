@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_related_asset_listing.inc,v 1.1 2005/12/15 04:49:09 emcdonald Exp $
+* $Id: page_related_asset_listing.inc,v 1.2 2005/12/15 22:47:11 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -73,11 +73,11 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 	function getAssetList()
 	{
 		//get all the assets that would be listed in a normal asset listing in this case
-		$unfiltered_assets_to_list = Page_Asset_Listing::getAssetList();
+		$unfiltered_assets_to_list = parent::getAssetList();
 
 		//get all the assets related to any of the relators
 		$relator_ids = $this->getRelators();
-		$tag_manager = $GLOBALS['SQ_SYSTEM']->getTagManager();
+		$tag_manager = &$GLOBALS['SQ_SYSTEM']->getTagManager();
 		$related_assets = $tag_manager->getRelatedAssets($relator_ids);
 
 		$related_ids = array_values($related_assets);
