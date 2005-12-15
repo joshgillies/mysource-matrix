@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.410 2005/12/09 04:56:15 sdanis Exp $
+* $Id: asset_manager.inc,v 1.411 2005/12/15 03:25:12 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.410 $
+* @version $Revision: 1.411 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6493,7 +6493,7 @@ class Asset_Manager extends MySource_Object
 		$union_select = ' UNION ALL SELECT sl.majorid, null, null as treeid';
 		if (!is_null($sort_by)) $union_select .= ', null as sort_value';
 
-		$union_from   = ' FROM sq_shdw_ast_lnk sl';
+		$union_from   = ' FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
 		$union_where  = 'sl.minorid = '.$db->quoteSmart($assetid);
 		$union_where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
 
