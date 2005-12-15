@@ -1,0 +1,149 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: page_related_asset_listing_edit_fns.inc,v 1.1 2005/12/15 04:49:09 emcdonald Exp $
+*
+*/
+
+
+require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset_listing_edit_fns.inc';
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+
+/**
+* Page_Asset_Listing_Edit_Fns
+*
+* Purpose
+*
+*
+*
+* @author  Elden McDonald <emcdonald@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix_Packages
+* @subpackage cms
+*/
+class Page_Related_Asset_Listing_Edit_Fns extends Page_Asset_Listing_Edit_Fns
+{
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function Page_Related_Asset_Listing_Edit_Fns()
+	{
+		$this->Page_Asset_Listing_Edit_Fns();
+
+	}//end constructor
+
+
+	/**
+	* Paints the relator selection box
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintRelator(&$asset, &$o, $prefix)
+	{
+		// get relator links
+		$relator_asset_ids = $asset->getStaticRelators();
+
+		if ($asset->writeAccess('links')) {
+			multiple_asset_finder($prefix.'_relator_nodes', $relator_asset_ids);
+		} else {
+			$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($relator_asset_ids);
+			?><ul style="margin: 1px 15px;"><?php
+			foreach ($infos as $assetid => $info) {
+				echo '<li>'.get_asset_tag_line($assetid).'</li>';
+			}
+			?></ul><?php
+		}
+		return true;
+
+	}//end paintRelator()
+
+
+	/**
+	* Processes the value input from relator node selection box
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
+	*
+	* @return void
+	* @access public
+	*/
+	function processRelator(&$asset, &$o, $prefix)
+	{
+		if (!isset($_POST[$prefix.'_relator_nodes'])) {
+			return false;
+		}
+		$new_relator_nodes = $_POST[$prefix.'_relator_nodes'];
+		foreach ($new_relator_nodes as $new_relator_node) {
+			$new_relator_node_ids[] = $new_relator_node['assetid'];
+		}
+
+		// get existing relator links
+		$relator_asset_ids = $asset->getStaticRelators();
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// lets delete the relator nodes that have been removed
+		foreach ($relator_asset_ids as $relator_asset_id) {
+			if (!in_array($relator_asset_id, $new_relator_node_ids)) {
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($relator_asset_id, $asset->id, SQ_LINK_NOTICE, 'relator', $side_of_link='minor');
+				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid'])) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}
+		}
+
+		// now, create the new node links
+		foreach ($new_relator_nodes as $index => $node) {
+			// first test to see if the node already exists -- if so, ignore it
+
+			if (isset($relator_asset_ids[$node['assetid']])) {
+				continue;
+			}
+			// otherwise, create the appropriate notice link
+			if (!empty($node['assetid'])) {
+				$new_relator = &$GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
+				if (!$asset->createLink($new_relator, SQ_LINK_NOTICE, 'relator')) {
+					trigger_localised_error('CMS0016', E_USER_WARNING, $new_relator->name, $new_relator->id);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+
+				}
+			}
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+
+	}//end processRelator()
+
+
+}//end class
+
+?>
