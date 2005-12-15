@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.473 2005/12/05 04:42:32 sdanis Exp $
+* $Id: asset.inc,v 1.474 2005/12/15 03:04:37 dmckee Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.473 $
+* @version $Revision: 1.474 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1170,8 +1170,12 @@ class Asset extends MySource_Object
 						sq_ast
 					SET ';
 
-			if (!empty($name)) $sql .= 'name = '.$db->quoteSmart($name).',';
-			if (!empty($short_name)) $sql .= 'short_name = '.$db->quoteSmart($short_name).',';
+			if (!empty($name)) {
+				$sql .= 'name = '.$db->quoteSmart($name).',';
+			}
+			if (!empty($short_name)) {
+				$sql .= 'short_name = '.$db->quoteSmart($short_name).',';
+			}
 
 			$sql .= '
 						languages		= '.$db->quoteSmart($this->languages).',
@@ -3596,12 +3600,13 @@ class Asset extends MySource_Object
 	* Paint the passed asset on the frontend
 	* Override printFrontend() if you wish to pass a different asset to print
 	*
-	* @param object	$asset	the asset to print in frontend
+	* @param object	&$asset	the asset to print in frontend
+	* @param object	$design	the design to print the asset with
 	*
 	* @return void
 	* @access public
 	*/
-	function printFrontendAsset(&$asset)
+	function printFrontendAsset(&$asset, $design=null)
 	{
 		if (!headers_sent()) {
 			if (!$asset->readAccess()) {
@@ -3629,35 +3634,42 @@ class Asset extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$url = strip_url(current_url(false, true));
 
-		// Have they set a design name that they want to view ??
-		if (!empty($_GET['SQ_DESIGN_NAME'])) {
-			$design_name = 'design::user::'.$_GET['SQ_DESIGN_NAME'];
-		} else if (!empty($_SESSION['SQ_DESIGN_NAME'])) {
-			$design_name = 'design::user::'.$_SESSION['SQ_DESIGN_NAME'];
-		} else {
-			$design_name = 'design::system::frontend';
-		}
+		//No design has been passed in, so we need to find one
+		if (is_null($design)) {
+			// Have they set a design name that they want to view ??
+			if (!empty($_GET['SQ_DESIGN_NAME'])) {
+				$design_name = 'design::user::'.$_GET['SQ_DESIGN_NAME'];
+			} else if (!empty($_SESSION['SQ_DESIGN_NAME'])) {
+				$design_name = 'design::user::'.$_SESSION['SQ_DESIGN_NAME'];
+			} else {
+				$design_name = 'design::system::frontend';
+			}
 
-		$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, $design_name);
-
-		// if no design was found, try and get the default frontend
-		// design if we were not already trying to get it
-		if (empty($result) && $design_name != 'design::system::frontend') {
-			$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, 'design::system::frontend');
-		}
-
-		// if no design was found, try using the asset's URL from the DB
-		if (empty($result)) {
-			$url = strip_url($asset->getUrl(), true);
 			$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, $design_name);
+
+			// if no design was found, try and get the default frontend
+			// design if we were not already trying to get it
 			if (empty($result) && $design_name != 'design::system::frontend') {
 				$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, 'design::system::frontend');
 			}
+
+			// if no design was found, try using the asset's URL from the DB
+			if (empty($result)) {
+				$url = strip_url($asset->getUrl(), true);
+				$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, $design_name);
+				if (empty($result) && $design_name != 'design::system::frontend') {
+					$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, 'design::system::frontend');
+				}
+			}
+		} else {
+			$result = true;
 		}
 
-		if ($result) {
-			// we have found the design to use
-			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
+		if (!is_null($design) || $result) {
+			if (is_null($design)) {
+				// we have found the design to use
+				$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
+			}
 			$design->paint($asset);
 		} else {
 			// we can't find a design, oh well let's just print out our body
