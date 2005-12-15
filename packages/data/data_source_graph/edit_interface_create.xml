@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_create.xml,v 1.1.1.1 2005/09/28 05:35:28 pgannavarapu Exp $
+* $Id: edit_interface_create.xml,v 1.2 2005/12/15 01:43:30 skim Exp $
 *
 */
 -->
 <contents screen="details">
 	<section name="Details">
-		<field attribute="name" />
+		<field attribute="title" />
 	</section>
 </contents>
 

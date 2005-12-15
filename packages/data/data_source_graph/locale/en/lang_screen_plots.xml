@@ -18,16 +18,16 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2005/12/15 01:43:30 skim Exp $
+* $Id: lang_screen_plots.xml,v 1.1 2005/12/15 01:43:30 skim Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Details">
-		<field attribute="title">
-			<display_name>Name</display_name>
-			<note />
-		</field>
-	</section>
+	<section name="Add a new plot" />
+	<section name="Choose a plot" />
+	<section name="Plot Settings" />
+	<section name="Marker Settings" />
+	<section name="Single Preview" />
+	<section name="Final Preview" />
 </contents>

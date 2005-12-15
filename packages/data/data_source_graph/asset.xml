@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1.1.1 2005/09/28 05:35:28 pgannavarapu Exp $
+* $Id: asset.xml,v 1.2 2005/12/15 01:43:30 skim Exp $
 *
 */
 -->
@@ -34,7 +34,7 @@
 	<description>You can choose a datsource for this asset and it draws a Graph with the specifid co-ordinates</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>
-	<parent_type>asset</parent_type>
+	<parent_type>image</parent_type>
 	<requirements />
 	<flash_menu_path>Data Sources</flash_menu_path>
 </asset_info>

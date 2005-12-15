@@ -1,0 +1,75 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_plots.xml,v 1.1 2005/12/15 01:43:30 skim Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Add a new plot" write_access="write:attributes" limbo_access="1">
+		<field>
+			<function_call>
+				<paint_function   name="paintAddPlots"   />
+				<process_function name="processAddPlots" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Choose a plot" write_access="write:attributes" limbo_access="1" show_if="datasetNotEmpty">
+		<field>
+			<function_call>
+				<paint_function   name="paintChoosePlots"   />
+				<process_function name="processChoosePlots" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Plot Settings" write_access="write:attributes" limbo_access="1" show_if="datasetNotEmpty">
+		<field>
+			<function_call>
+				<paint_function   name="paintPlotSettings"   />
+				<process_function name="processPlotSettings" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Marker Settings" write_access="write:attributes" limbo_access="1" show_if="datasetNotEmpty">
+		<field>
+			<function_call>
+				<paint_function   name="paintMarkerSettings"   />
+				<process_function name="processMarkerSettings" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Single Preview" write_access="write:attributes" limbo_access="1" show_if="datasetNotEmpty">
+		<field>
+			<function_call>
+				<paint_function   name="paintSinglePreview"   />
+				<process_function name="processSinglePreview" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Final Preview" write_access="write:attributes" limbo_access="1" show_if="moreThanOnePlot">
+		<field>
+			<function_call>
+				<paint_function   name="paintFinalPreview"   />
+				<process_function name="processFinalPreview" />
+			</function_call>
+		</field>
+	</section>
+</contents>

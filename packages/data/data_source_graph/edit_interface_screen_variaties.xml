@@ -18,16 +18,22 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2005/12/15 01:43:30 skim Exp $
+* $Id: edit_interface_screen_variaties.xml,v 1.1 2005/12/15 01:43:30 skim Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Details">
-		<field attribute="title">
-			<display_name>Name</display_name>
-			<note />
-		</field>
+	<section name="New Variety" write_access="write:attributes" read_access="write:attributes" limbo_access="0">
+		<function_call>
+			<paint_function   name="paintNewVariety"   />
+			<process_function name="processNewVariety" />
+		</function_call>
+	</section>
+	<section name="Current Varieties" write_access="write:attributes" limbo_access="0" show_if="hasVarieties">
+		<function_call>
+			<paint_function   name="paintCurrentVarieties"   />
+			<process_function name="processCurrentVarieties" />
+		</function_call>
 	</section>
 </contents>

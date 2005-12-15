@@ -18,12 +18,14 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.2 2005/10/17 01:52:14 pgannavarapu Exp $
+* $Id: edit_interface_screens.xml,v 1.3 2005/12/15 01:43:30 skim Exp $
 *
 */
 -->
 
 <screens>
-	<screen code_name="paths" display_name="Web Paths"  icon="web"    lock_type="lookups"/>
-	<screen code_name="graph_details" display_name="Edit Graph" icon="create" lock_type="attributes" />
+	<screen code_name="global_settings"	display_name="Global Settings"	icon="create"	force_unlock="0"	lock_type="attributes" />
+	<screen code_name="plots"			display_name="Plots"			icon="create"	force_unlock="0"	lock_type="attributes" />
+	<screen code_name="varieties"		display_name="Varieties"  		icon="create"	force_unlock="0"	lock_type="attributes" />
+	<screen code_name="paths"			display_name="Web Paths"		icon="web"		force_unlock="0"	lock_type="lookups"/>
 </screens>

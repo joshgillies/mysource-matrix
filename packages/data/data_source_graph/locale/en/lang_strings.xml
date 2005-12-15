@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2005/12/02 03:36:41 skim Exp $
+* $Id: lang_strings.xml,v 1.3 2005/12/15 01:43:30 skim Exp $
 *
 *
 * DB DataSource Localised Strings File
@@ -21,6 +21,8 @@
 <strings>
 <string source="none">None</string>
 <string source="choose">Choose</string>
+<string source="vertical">Vertical</string>
+<string source="horizontal">Horizontal</string>
 <string source="x_axis">x-Axis</string>
 <string source="y_axis">y-Axis</string>
 <string source="graph_type">Type Of Graph</string>

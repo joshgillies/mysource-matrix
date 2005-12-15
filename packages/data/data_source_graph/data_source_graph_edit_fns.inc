@@ -18,26 +18,92 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_edit_fns.inc,v 1.5 2005/12/02 03:36:41 skim Exp $
+* $Id: data_source_graph_edit_fns.inc,v 1.6 2005/12/15 01:43:30 skim Exp $
 *
 */
 
-
-require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 
 /**
 * Data_Source_Graph_Edit_Fns
 *
 * Purpose
 *
-*
-* @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
+* @author  Scott Kim <skim@squiz.net>
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Data_Source_Graph_Edit_Fns extends Asset_Edit_Fns
+class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 {
+
+	/**
+	* Option list for the type of graph
+	* @var array
+	*/
+	var $graph_types = Array(
+						'Image_Graph_Plot_Bar',
+						'Image_Graph_Plot_Line',
+						'Image_Graph_Plot_Area',
+						'Image_Graph_Plot_Smoothed_Line',
+						'Image_Graph_Plot_Smoothed_Area',
+						'Image_Graph_Plot_Pie',
+						'Image_Graph_Plot_Step',
+						'Image_Graph_Plot_Impulse',
+						'Image_Graph_Plot_Dot',
+						'Image_Graph_Plot_Radar',
+						'Image_Graph_Plot_CandleStick',
+						'Image_Graph_Plot_Band',
+					   );
+
+	/**
+	* Option list for gradient types
+	* @var array
+	*/
+	var $fill_grad_types = Array(
+							'none'									=> '-- Leave Empty --',
+							'IMAGE_GRAPH_GRAD_VERTICAL'				=> 'Vertically',
+							'IMAGE_GRAPH_GRAD_HORIZONTAL'			=> 'Horizontally',
+							'IMAGE_GRAPH_GRAD_VERTICAL_MIRRORED'	=> 'Mirrored Vertically (the color grades from a-b-a vertically)',
+							'IMAGE_GRAPH_GRAD_HORIZONTAL_MIRRORED'	=> 'Mirrored Horizontally (the color grades from a-b-a horizontally)',
+							'IMAGE_GRAPH_GRAD_DIAGONALLY_TL_BR'		=> 'Diagonally from top-left to right-bottom',
+							'IMAGE_GRAPH_GRAD_DIAGONALLY_BL_TR'		=> 'Diagonally from bottom-left to top-right',
+							'IMAGE_GRAPH_GRAD_RADIAL'				=> 'Radially (concentric circles in the center)',
+						   );
+
+	/**
+	* Option list for marker value types
+	* @var array
+	*/
+	var $value_marker_types = Array(
+								'none'					=> '-- Leave Empty --',
+								'IMAGE_GRAPH_VALUE_X'	=> 'Mark x-Axis Values',
+								'IMAGE_GRAPH_VALUE_Y'	=> 'Mark y-Axis Values',
+							  );
+
+	/**
+	* Option list for general markers
+	* @var array
+	*/
+	var $general_markers = Array(
+							'Image_Graph_Marker_Star'		=> 'Mark Star For A Dataset',
+							'Image_Graph_Marker_Asterisk'	=> 'Mark Asterisk For A Dataset',
+							'Image_Graph_Marker_Box'		=> 'Mark Box For A Dataset',
+							'Image_Graph_Marker_Circle'		=> 'Mark Circle For A Dataset',
+							'Image_Graph_Marker_Cross'		=> 'Mark Cross For A Dataset',
+							'Image_Graph_Marker_Diamond'	=> 'Mark Diamond For A Dataset',
+							'Image_Graph_Marker_Triangle'	=> 'Mark Triangle For A Dataset',
+						   );
+
+	/**
+	* Option list for mark types
+	* @var array
+	*/
+	var $marker_types = Array(
+							'Image_Graph_Marker_Pointing_Angular'	=> 'Marker that points away from the graph',
+							'Image_Graph_Marker_Pointing_Radial'	=> 'A pointing marker in a random angle from the data',
+						);
 
 
 	/**
@@ -51,8 +117,11 @@ class Data_Source_Graph_Edit_Fns extends Asset_Edit_Fns
 	}//end constructor
 
 
+//--        DATASETS SCREEN        --//
+
+
 	/**
-	* Paints the interface for entering the Graph Details
+	* Paints the interface for adding a new plot
 	*
 	* @param object	&$asset	the graph asset
 	* @param object	&$o		the backend outputter
@@ -61,118 +130,129 @@ class Data_Source_Graph_Edit_Fns extends Asset_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function paintGraphDetails(&$asset, &$o, $prefix)
+	function paintAddPlots(&$asset, &$o, $prefix)
 	{
-		$data_source = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'data_source', false, 'data_source_for_graph');
-		$graph_details = $asset->attr('graph_details');
-		$types = Array('bar', 'line', 'area', 'smooth_line', 'smooth_area', 'pie', 'step', 'impulse', 'dot', 'radar', 'Image_Graph_Plot_CandleStick', 'Image_Graph_Plot_Band');
-		$accumulative = Array('0' => 'No', '1' => 'Yes');
 		$wa = $asset->writeAccess('attributes');
-		if (!empty($data_source)) {
-			$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['minorid']);
-			$result = $data_source_asset->getResultSet();
-			$keys = Array();
-			if (!empty($result)) {
-				$record = $result[0];
-				foreach ($record as $key => $value) {
-					$keys[$key] = $key;
-					//if (is_numeric($value) && $key != 'dn') $keys[$key] = $key;
-				}
-			}
-			$keys['none'] = translate('none');
-			if ($wa) {
+		if ($wa) {
+			$o->openField('Name');
+				text_box($prefix.'_new_name', '', '20', '20');
+			$o->closeField();
+			$o->openField('Data Source');
+				asset_finder($prefix.'_new_data_source', 0, Array('data_source_db'	=> 'I', 'data_source_rss'	=> 'I'));
+			$o->closeField();
+		}
+
+		$datasets = $asset->attr('datasets');
+		$plot_order = $asset->attr('plot_order');
+		if (!empty($datasets)) {
+			$o->openField('Current Plots');
+			echo '<table class="sq-backend-table">';
+			echo '<tr>
+					<td>Plot Name</td>
+					<td>Data Source</td>';
+			if ($wa) echo '<td>Delete?</td>';
+			echo '</tr>';
+			//foreach ($datasets as $key => $dataset) {
+			foreach ($plot_order as $key => $plot_name) {
 				?>
-				<table>
-					<tr>
-						<td><b><?php echo translate('choose').' '.translate('x_axis'); ?></b></td>
-						<td><?php combo_box('x_axis', $keys, false, !empty($graph_details) && in_array($graph_details['x_axis'], $keys)?$graph_details['x_axis']:''); ?></td>
-					</tr>
-					<tr>
-						<td><b><?php echo translate('choose').' '.translate('y_axis');?></b></td>
-						<td><?php combo_box('y_axis', $keys, false, !empty($graph_details) && in_array($graph_details['y_axis'], $keys)?$graph_details['y_axis']:'');?></td>
-					</tr>
-					<tr>
-						<td><b><?php echo translate('choose').' '.translate('graph_type'); ?></b></td>
-						<td><?php combo_box('graph_type', $types, false, !empty($graph_details) ? array_search($graph_details['type'], $types) :'');?></td>
-					</tr>
-					<tr>
-						<td><b><?php echo translate('choose').' '.translate('accumulative'); ?></b></td>
-						<td><?php combo_box('accumulative', $accumulative, false, !empty($graph_details) ? array_search($graph_details['accumulative'], $accumulative) :'No'); ?>&nbsp;&nbsp;If it's Yes, the y-axis data is accumulated.</td>
-					</tr>
-				</table>
-				<?php
-				return true;
-			} else {
-				if (!empty($graph_details)) {
+				<tr>
+					<td><?php echo $plot_name; ?></td>
+					<td><?php echo get_asset_tag_line($datasets[$plot_name]['assetid']); ?></td>
+					<?php
+					if ($wa) {
+						echo '<td>';
+						check_box($prefix.'_delete_plot_'.$plot_name, $plot_name);
+						echo '</td>';
+					}
 					?>
-					<table>
-						<?php
-						foreach ($graph_details as $key => $value) {
-							if ($key != 'colors') {
-								?>
-								<tr>
-									<td><b><?php echo (ucwords(strpos($key, '_') !== false? str_replace('_','-', $key) : $key));?></b></td>
-									<td><?php echo(ucwords($value));?></td>
-								</tr>
-							<?php
-							}
+				</tr>
+				<?php
+			}
+			echo '</table>';
+			$o->closeField();
+		} else {
+			$o->openField('Current Plots');
+				echo 'There is no plot.';
+			$o->closeField();
+		}
+		return true;
+
+	}//end paintAddPlots()
+
+
+	/**
+	* Processes the interface for adding a new plot
+	*
+	* @param object	&$asset	the graph asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function processAddPlots(&$asset, &$o, $prefix)
+	{
+		$datasets = $asset->attr('datasets');
+		$plot_order = $asset->attr('plot_order');
+
+		if (!empty($_POST[$prefix.'_new_name']) && $_POST[$prefix.'_new_data_source']['assetid'] != '0') {
+			$datasets = $asset->attr('datasets');
+			$datasets[$_POST[$prefix.'_new_name']] = Array(
+														'assetid'	=> $_POST[$prefix.'_new_data_source']['assetid'],
+														'settings'	=> Array(
+																		'plot_name'		=> $_POST[$prefix.'_new_name'],
+																		'graph_type'	=> 'Image_Graph_Plot_Bar',
+																		'x_axis'		=> 'Not saved',
+																		'y_axis'		=> 'Not saved',
+																		'accumulative'	=> 0,
+																		'fill_colour'	=> '',
+																		'gradient_type'	=> 'none',
+																		'gradient_1'	=> '',
+																		'gradient_2'	=> '',
+																	   ),
+													 );
+			// add plot_order entry
+			$index = count($plot_order);
+			$plot_order[$index] = $_POST[$prefix.'_new_name'];
+
+			// plot has been added. Modify $_POST value here to bring the
+			// moved plot's settings in the next screen
+			$_POST[$prefix.'_plot_name'] = $index;
+			$_POST[$prefix.'_prev_plot_name'] = $index;
+		}
+
+		if (!empty($datasets)) {
+			foreach ($datasets as $key => $dataset) {
+				if (isset($_POST[$prefix.'_delete_plot_'.str_replace(' ', '_', $key)]) && !empty($_POST[$prefix.'_delete_plot_'.str_replace(' ', '_', $key)])) {
+					unset($datasets[$key]);
+					unset($plot_order[array_search($key, $plot_order)]);
+
+					// re-order plot_order array
+					if (!empty($datasets)) {
+						$keys = array_keys($plot_order);
+						ksort($keys, SORT_NUMERIC);
+
+						$index = 0;
+						$new_plot_order = Array();
+						foreach ($keys as $key) {
+							$new_plot_order[$index] = $plot_order[$key];
+							$index++;
 						}
-					?>
-					</table>
-				<?php
-				} else {
-					echo translate('no_co_ordinates_entered');
+						$plot_order = $new_plot_order;
+					}
+
 				}
 			}
-		} else {
-			echo translate('no_data_sources_chosen');
 		}
-		return false;
+		$asset->setAttrValue('datasets', $datasets);
+		$asset->setAttrValue('plot_order', $plot_order);
+		return true;
 
-	}//end paintGraphDetails()
+	}//end processAddPlots()
 
 
 	/**
-	* Processes the interface for entering graph details
-	*
-	* @param object	&$asset	the graph asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processGraphDetails(&$asset, &$o, $prefix)
-	{
-		$types = Array('bar', 'line', 'area', 'smooth_line', 'smooth_area', 'pie', 'step', 'impulse', 'dot', 'radar', 'Image_Graph_Plot_CandleStick', 'Image_Graph_Plot_Band');
-		$details = Array();
-		if (isset($_POST['x_axis']) && isset($_POST['y_axis'])) {
-			$x_axis =$_POST['x_axis'];
-			$y_axis = $_POST['y_axis'];
-			if ($x_axis != $y_axis) {
-				$details['x_axis'] = $x_axis;
-				$details['y_axis'] = $y_axis;
-				if (isset($_POST['graph_type'])) {
-					$details['type'] = $types[$_POST['graph_type']];
-				} else {
-					$details['type'] = 'bar';
-				}
-				if ($_POST['accumulative'] == '0') {
-					$details['accumulative'] = 'No';
-				} else {
-					$details['accumulative'] = 'Yes';
-				}
-			}
-			$asset->setAttrValue('graph_details', $details);
-			$asset->saveAttributes();
-			return true;
-		}
-
-	}//end processGraphDetails()
-
-
-	/**
-	* Paints the interface for entering the DataSource Details
+	* Paints the interface for choosing a plot to edit
 	*
 	* @param object	&$asset	the graph asset
 	* @param object	&$o		the backend outputter
@@ -181,66 +261,29 @@ class Data_Source_Graph_Edit_Fns extends Asset_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function paintDataSourceChooser(&$asset, &$o, $prefix)
+	function paintChoosePlots(&$asset, &$o, $prefix)
 	{
-		$wa = $asset->writeAccess('attributes');
-		$already_linked = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'data_source', false, 'data_source_for_graph');
-		if ($wa) {
+		$plot_order = $asset->attr('plot_order');
+		$o->openField('Choose a plot');
+			$plot_name = '';
+
+			if (!empty($_POST[$prefix.'_plot_name'])) {
+				$plot_name = $_POST[$prefix.'_plot_name'];
+			}
+			combo_box($prefix.'_plot_name', $plot_order, false, $plot_name);
 			?>
-			<table>
-			<tr>
-				<td><?php asset_finder($prefix.'_data_source', !empty($already_linked)? $already_linked['minorid'] : 0, Array('data_source_db'	=> 'I', 'data_source_rss'	=> 'I'));?></td>
-			</tr>
-			</table>
-		<?php
-		} else {
-			if (!empty($already_linked)) {
-				?>
-				<table>
-				<tr>
-					<td><b><?php echo translate('current_data_source_id');?></b></td>
-					<td><b><?php echo get_asset_tag_line($already_linked['minorid']);?></b></td>
-				</tr>
-				</table>
+				<br /><b>Note</b>&nbsp;:&nbsp;If you choose a plot other than one displayed below and submit, then the current changes in the plot settings <b>WILL NOT</b> be applied,
+				i.e. If you want to submit the changes in the plot settings, <b>DO NOT</b> choose a new plot here
 			<?php
-			}
-		}
+			hidden_field($prefix.'_prev_plot_name', isset($_POST[$prefix.'_plot_name']) ? $_POST[$prefix.'_plot_name'] : '');
+		$o->closeField();
 		return true;
 
-	}//end paintDataSourceChooser()
+	}//end paintChoosePlots()
 
 
 	/**
-	* Processes the interface for choosing the data source
-	*
-	* @param object	&$asset	the search page asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processDataSourceChooser(&$asset, &$o, $prefix)
-	{
-		if (isset($_POST[$prefix.'_data_source'])) {
-			$data_source_id = $_POST[$prefix.'_data_source']['assetid'];
-			$is_a_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $data_source_id, SQ_LINK_NOTICE,'data_source_for_graph');
-			if (empty($is_a_link)) {
-				$already_linked = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'data_source', false, 'data_source_for_graph');
-				if (!empty($already_linked)) {
-					$asset->deleteLink($already_linked['linkid']);
-				}
-				$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source_id);
-				$res = $asset->createLink($data_source_asset, SQ_LINK_NOTICE, 'data_source_for_graph');
-			}
-		}
-		return true;
-
-	}//end processDataSourceChooser()
-
-
-	/**
-	* Paints the interface for displaying the chosen fill colours and option to delete them
+	* Processes the interface for choosing a plot to edit
 	*
 	* @param object	&$asset	the graph asset
 	* @param object	&$o		the backend outputter
@@ -249,123 +292,554 @@ class Data_Source_Graph_Edit_Fns extends Asset_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function paintFillColour(&$asset, &$o, $prefix)
+	function processChoosePlots(&$asset, &$o, $prefix)
 	{
-		$fill_colours = $asset->attr('colour_array');
+		return true;
+
+	}//end processChoosePlots()
+
+
+	/**
+	* Paints the interface for editing the plot settings
+	*
+	* @param object	&$asset	the graph asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintPlotSettings(&$asset, &$o, $prefix)
+	{
 		$wa = $asset->writeAccess('attributes');
+		$datasets = $asset->attr('datasets');
+		$plot_order = $asset->attr('plot_order');
+		$plot_not_deleted = @isset($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
+
+		if (!empty($_POST[$prefix.'_plot_name']) && $plot_not_deleted) {
+			$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
+		} else {
+			$plot_name = $plot_order[0];
+		}
+
+		$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($datasets[$plot_name]['assetid']);
+		$result = $data_source_asset->getResultSet();
+		$data = array_keys($result[0]);
+		foreach ($data as $field) {
+			$fields[$field] = $field;
+		}
+
+		$o->openField('Plot Name');
+			echo '<b>'.$plot_name.'</b>';
+		$o->closeField();
+
+		if ($wa) {
+
+			if ($this->moreThanOnePlot($asset, $prefix)) {
+				$o->openField('Move the plot');
+					combo_box($prefix.'_move_this_plot', Array(0 => '-- Leave Empty --', 1 => 'Backward', 2 => 'Forward'), false, 0);
+					?>
+					<br /><b>Note</b>&nbsp;:&nbsp;You can move this plot <b>backward</b> or <b>forward</b> as shown in the final graph
+					<?php
+				$o->closeField();
+			}
+			$o->openField('Data Source');
+				asset_finder($prefix.'_data_source', !empty($datasets[$plot_name]['assetid']) ? $datasets[$plot_name]['assetid'] : '0', Array('data_source_db'	=> 'I', 'data_source_rss'	=> 'I'));
+			$o->closeField();
+			$o->openField(translate('choose').' x-Axis');
+				combo_box($prefix.'_x_axis', $fields, false, empty($datasets[$plot_name]['settings']['x_axis']) ? current($fields) : $datasets[$plot_name]['settings']['x_axis']);
+			$o->closeField();
+			$o->openField(translate('choose').' y-Axis');
+				combo_box($prefix.'_y_axis', $fields, false, empty($datasets[$plot_name]['settings']['y_axis']) ? current($fields) : $datasets[$plot_name]['settings']['y_axis']);
+			$o->closeField();
+			$o->openField(translate('choose').' '.translate('graph_type'));
+				combo_box($prefix.'_graph_type', $this->graph_types, false, array_search($datasets[$plot_name]['settings']['graph_type'], $this->graph_types));
+			$o->closeField();
+			$o->openField('Accumulative?');
+				combo_box($prefix.'_accumulative', Array(1 => 'Yes', 0 => 'No'), false, $datasets[$plot_name]['settings']['accumulative']);
+				?>
+				<br /><b>Note</b>&nbsp;:&nbsp;If it's yes, y-Axis values are accumulated
+				<?php
+				// Hidden Field!!!
+				hidden_field($prefix.'_plot_settings_submit', '1');
+			$o->closeField();
+
+			$o->openField('Fill Colour');
+				colour_box($prefix.'_fill_colour', empty($datasets[$plot_name]['settings']['fill_colour']) ? 'ffffff' : $datasets[$plot_name]['settings']['fill_colour']);
+			$o->closeField();
+			$o->openField('Fill Gradient Type');
+				combo_box($prefix.'_gradient_type', $this->fill_grad_types, false, $datasets[$plot_name]['settings']['gradient_type']);
+				?>
+				<br /><b>Note</b>&nbsp;:&nbsp;If the type is set other than 'Leave Empty', a fill colour is ignored
+				<?php
+			$o->closeField();
+			$o->openField('Gradient Colour 1');
+				colour_box($prefix.'_gradient_1', empty($datasets[$plot_name]['settings']['gradient_1']) ? '000000' : $datasets[$plot_name]['settings']['gradient_1']);
+			$o->closeField();
+			$o->openField('Gradient Colour 2');
+				colour_box($prefix.'_gradient_2', empty($datasets[$plot_name]['settings']['gradient_2']) ? '000000' : $datasets[$plot_name]['settings']['gradient_2']);
+			$o->closeField();
+
+		} else {
+
+			$o->openField('Data Source');
+				echo get_asset_tag_line($datasets[$plot_name]['assetid']);
+			$o->closeField();
+			$o->openField('x-Axis');
+				echo $datasets[$plot_name]['settings']['x_axis'];
+			$o->closeField();
+			$o->openField('y-Axis');
+				echo $datasets[$plot_name]['settings']['y_axis'];
+			$o->closeField();
+			$o->openField('Type of Graph');
+				echo $datasets[$plot_name]['settings']['graph_type'];
+			$o->closeField();
+			$o->openField('Accumulative');
+				echo (intval($datasets[$plot_name]['settings']['accumulative'])) ? 'Yes' : 'No';
+				?>
+				<br /><b>Note</b>&nbsp;:&nbsp;If it's yes, y-Axis values are accumulated
+				<?php
+			$o->closeField();
+			$o->openField('Fill Colour');
+				if (empty($datasets[$plot_name]['settings']['fill_colour'])) {
+					echo 'none';
+				} else {
+					echo '<table><tr>
+					<td width="20" height="13" style="background-color: #'.$datasets[$plot_name]['settings']['fill_colour'].'"></td>
+					<td>&nbsp;#'.$datasets[$plot_name]['settings']['fill_colour'].'</td>
+					</tr></table>';
+				}
+			$o->closeField();
+			$o->openField('Fill Gradient Type');
+				echo $datasets[$plot_name]['settings']['gradient_type'];
+				?>
+				<br /><b>Note</b>&nbsp;:&nbsp;If the type is set other than 'Leave Empty', a fill colour is ignored
+				<?php
+			$o->closeField();
+			$o->openField('Gradient Colour 1');
+				if (empty($datasets[$plot_name]['settings']['gradient_1'])) {
+					echo 'none';
+				} else {
+					echo '<table><tr>
+					<td width="20" height="13" style="background-color: #'.$datasets[$plot_name]['settings']['gradient_1'].'"></td>
+					<td>&nbsp;#'.$datasets[$plot_name]['settings']['gradient_1'].'</td>
+					</tr></table>';
+				}
+			$o->closeField();
+			$o->openField('Gradient Colour 2');
+				if (empty($datasets[$plot_name]['settings']['gradient_2'])) {
+					echo 'none';
+				} else {
+					echo '<table><tr>
+					<td width="20" height="13" style="background-color: #'.$datasets[$plot_name]['settings']['gradient_2'].'"></td>
+					<td>&nbsp;#'.$datasets[$plot_name]['settings']['gradient_2'].'</td>
+					</tr></table>';
+				}
+			$o->closeField();
+		}
+		return true;
+
+	}//end paintPlotSettings()
+
+
+	/**
+	* Processes the interface for editing the plot settings
+	*
+	* @param object	&$asset	the graph asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function processPlotSettings(&$asset, &$o, $prefix)
+	{
+		$plot_settings_submit = isset($_POST[$prefix.'_plot_settings_submit']);
+		$wa = $asset->writeAccess('attributes');
+		if ($wa && $plot_settings_submit) {
+			$datasets = $asset->attr('datasets');
+			$plot_order = $asset->attr('plot_order');
+
+			$plot_not_deleted = isset($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
+			$first_plot_added = $_POST[$prefix.'_prev_plot_name'] == '';
+			$plot_changed = ($_POST[$prefix.'_plot_name'] != $_POST[$prefix.'_prev_plot_name']);
+
+			if (($first_plot_added || !$plot_changed) && $plot_not_deleted) {
+				$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
+				$datasets[$plot_name]['assetid'] = $_POST[$prefix.'_data_source']['assetid'];
+				$datasets[$plot_name]['settings']['x_axis']			= $_POST[$prefix.'_x_axis'];
+				$datasets[$plot_name]['settings']['y_axis']			= $_POST[$prefix.'_y_axis'];
+				$datasets[$plot_name]['settings']['graph_type']		= $this->graph_types[intval($_POST[$prefix.'_graph_type'])];
+				$datasets[$plot_name]['settings']['accumulative']	= $_POST[$prefix.'_accumulative'];
+				$datasets[$plot_name]['settings']['fill_colour']	= $_POST[$prefix.'_fill_colour'];
+				$datasets[$plot_name]['settings']['gradient_type']	= $_POST[$prefix.'_gradient_type'];
+				$datasets[$plot_name]['settings']['gradient_1']		= $_POST[$prefix.'_gradient_1'];
+				$datasets[$plot_name]['settings']['gradient_2']		= $_POST[$prefix.'_gradient_2'];
+				$asset->setAttrValue('datasets', $datasets);
+
+				// Re-order plots
+				if (isset($_POST[$prefix.'_move_this_plot']) && $_POST[$prefix.'_move_this_plot'] != '0') {
+
+					$current_index = array_search($plot_name, $plot_order);
+
+					$swap = false;
+					switch ($_POST[$prefix.'_move_this_plot']) {
+						case '1':
+							// move backward
+							if ($current_index > 0) {
+								$dest_index = $current_index - 1;
+								$swap = true;
+							}
+						break;
+						case '2':
+							// move forward
+							if ($current_index < (count($plot_order) - 1)) {
+								$dest_index = $current_index + 1;
+								$swap = true;
+							}
+						break;
+					}
+					if ($swap) {
+						$dest_value = $plot_order[$dest_index];
+						$current_value = $plot_order[$current_index];
+						$plot_order[$dest_index] = $current_value;
+						$plot_order[$current_index] = $dest_value;
+						$asset->setAttrValue('plot_order', $plot_order);
+
+						// plot has been moved. Modify $_POST value here to bring the
+						// moved plot's settings in the next screen
+						$_POST[$prefix.'_plot_name'] = $dest_index;
+						$_POST[$prefix.'_prev_plot_name'] = $dest_index;
+					}
+				}
+
+			}
+		}
+
+		return true;
+
+	}//end processPlotSettings()
+
+
+	/**
+	* Paints the interface for editing the marker settings
+	*
+	* @param object	&$asset	the graph asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintMarkerSettings(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$datasets = $asset->attr('datasets');
+		$plot_not_deleted = @isset($datasets[$_POST[$prefix.'_plot_name']]);
+		if (!empty($_POST[$prefix.'_plot_name']) && $plot_not_deleted) {
+			$plot_name = $_POST[$prefix.'_plot_name'];
+		} else {
+			asort($datasets);
+			$plot_name = array_pop(array_keys($datasets));
+		}
+
+		$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($datasets[$plot_name]['assetid']);
+		$result = $data_source_asset->getResultSet();
+		$data = array_keys($result[0]);
+		foreach ($data as $field) {
+			$fields[$field] = $field;
+		}
+
+		if ($wa) {
+
+			$o->openField('Choose Value To be Marked On The Graph');
+				combo_box($prefix.'_value_marker', $this->value_marker_types, false, empty($datasets[$plot_name]['settings']['value_marker']) ? 'none' : $datasets[$plot_name]['settings']['value_marker']);
+				?>
+					<br /><b>Note</b>&nbsp;:&nbsp;If you don't want to use marker, leave this empty
+				<?php
+			$o->closeField();
+			$o->openField('Choose The Type Of Marker');
+				combo_box($prefix.'_general_marker', $this->general_markers, true, empty($datasets[$plot_name]['settings']['general_marker']) ? 'Image_Graph_Marker_Star' : $datasets[$plot_name]['settings']['general_marker']);
+			$o->closeField();
+			$o->openField('Choose The Type Of Marker For The Value');
+				combo_box($prefix.'_marker_type', $this->marker_types, false, empty($datasets[$plot_name]['settings']['marker_type']) ? 'Image_Graph_Marker_Pointing_Angular' : $datasets[$plot_name]['settings']['marker_type']);
+			$o->closeField();
+			$o->openField('Choose The Fill Colour For The Markers');
+				colour_box($prefix.'_marker_background', empty($datasets[$plot_name]['settings']['marker_background']) ? 'ffffff' : $datasets[$plot_name]['settings']['marker_background']);
+			$o->closeField();
+
+		} else {
+
+			$o->openField('Choose Value To be Marked On The Graph');
+				echo isset($datasets[$plot_name]['settings']['value_marker']) ? $datasets[$plot_name]['settings']['value_marker'] : 'none';
+				?>
+					<br /><b>Note</b>&nbsp;:&nbsp;If you don't want to use marker, leave this empty
+				<?php
+			$o->closeField();
+			$o->openField('Choose The Type Of Marker');
+				if (empty($datasets[$plot_name]['settings']['general_marker'])) {
+					echo 'none';
+				} else {
+					foreach ($datasets[$plot_name]['settings']['general_marker'] as $marker) {
+						echo $marker.'<br />';
+					}
+				}
+			$o->closeField();
+			$o->openField('Choose The Type Of Marker For The Value');
+				echo isset($datasets[$plot_name]['settings']['marker_type']) ? $datasets[$plot_name]['settings']['marker_type'] : 'none';
+			$o->closeField();
+			$o->openField('Choose The Fill Colour For The Markers');
+				if (empty($datasets[$plot_name]['settings']['marker_background'])) {
+					echo 'none';
+				} else {
+					echo '<table><tr>
+					<td width="20" height="13" style="background-color: #'.$datasets[$plot_name]['settings']['marker_background'].'"></td>
+					<td>&nbsp;#'.$datasets[$plot_name]['settings']['marker_background'].'</td>
+					</tr></table>';
+				}
+			$o->closeField();
+
+		}
+
+	}//end paintMarkerSettings()
+
+
+	/**
+	* Processes the interface for editing the plot settings
+	*
+	* @param object	&$asset	the graph asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function processMarkerSettings(&$asset, &$o, $prefix)
+	{
+		$plot_settings_submit = isset($_POST[$prefix.'_plot_settings_submit']);
+		$wa = $asset->writeAccess('attributes');
+		if ($wa && $plot_settings_submit) {
+			$datasets = $asset->attr('datasets');
+			$plot_not_deleted = isset($datasets[$_POST[$prefix.'_plot_name']]);
+			$first_plot_added = $_POST[$prefix.'_prev_plot_name'] == '';
+			$plot_changed = ($_POST[$prefix.'_plot_name'] != $_POST[$prefix.'_prev_plot_name']);
+			if (($first_plot_added || !$plot_changed) && $plot_not_deleted) {
+				$datasets[$_POST[$prefix.'_plot_name']]['settings']['value_marker']			= $_POST[$prefix.'_value_marker'];
+				$datasets[$_POST[$prefix.'_plot_name']]['settings']['general_marker']		= $_POST[$prefix.'_general_marker'];
+				$datasets[$_POST[$prefix.'_plot_name']]['settings']['marker_type']			= $_POST[$prefix.'_marker_type'];
+				$datasets[$_POST[$prefix.'_plot_name']]['settings']['marker_background']	= $_POST[$prefix.'_marker_background'];
+				$asset->setAttrValue('datasets', $datasets);
+			}
+		}
+
+		return true;
+
+	}//end processMarkerSettings()
+
+
+//--        PREVIEWS        --//
+
+
+	/**
+	* Paints the interface for display the global settings preview
+	*
+	* @param object	&$asset	the graph asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintGlobalSettingPreview(&$asset, &$o, $prefix)
+	{
+		$href	= $asset->getBackendHref('global_settings');
+		$width	= $asset->attr('width');
+		$height	= $asset->attr('height');
+		$alt	= $asset->attr('alt');
+		$title	= $asset->attr('title');
 		?>
-		<table class="sq-backend-table">
-			<tr>
-				<?php
-				if (!empty($fill_colours)) {
-					?>
-					<th><?php echo translate('colour');?></th>
-					<?php
-					if ($wa) {
-						?>
-						<th><?php echo translate('delete_question');?></th>
-						<?php
-					}
-				}
-				?>
-			</tr>
-			<?php
-			foreach ($fill_colours as $i => $colour) {
-				?>
-				<tr>
-					<?php
-					if ($wa) {
-						?>
-						<td><?php colour_box('fill_colour['.$i.'][colour]', $colour, true);?></td>
-						<td><?php check_box('fill_colour['.$i.'][delete]', 'delete', false);?></td>
-					<?php
-					} else {
-						?>
-						<td><?php echo $colour;?></td>
-					<?php
-					}
-					?>
-				</tr>
-			<?php
-			}
-			?>
-			<tr>
-		</table>
-		<br />
-
+			<b>Note</b><br />
+			<ul>
+				<li>
+					This graph is generated with <b>random dataset</b> to present the look and feel of the graph
+				</li>
+				<li>
+					The front end image <b>WILL NOT</b> be updated until a dataset is added.<br />i.e. the changes on this screen is not shown in the front end unless a dataset is set.
+				</li>
+			</ul>
+			<img alt="<?php echo $alt; ?>" title="<?php echo $title; ?>" src="<?php echo $href.'&preview_graph=1' ?>" width="<?php echo $width; ?>" height="<?php echo $height; ?>" alt="" />
 		<?php
-		if ($wa) {
-			return true;
-		} else {
-			return false;
-		}
 
-	}//end paintFillColour()
+		return true;
+
+	}//end paintGlobalSettingPreview()
 
 
 	/**
-	* Processes the interface for fill colours
+	* Processes the interface for display the global settings preview
 	*
 	* @param object	&$asset	the graph asset
 	* @param object	&$o		the backend outputter
 	* @param string	$prefix	prefix for form elements
 	*
-	* @return boolean
+	* @return void
 	* @access public
 	*/
-	function processFillColour(&$asset, &$o, $prefix)
+	function processGlobalSettingPreview(&$asset, &$o, $prefix)
 	{
-		$colours = Array();
-		if (isset($_POST['fill_colour'])) {
-			$fill_colours = $_POST['fill_colour'];
-			$colours = Array();
-			foreach ($fill_colours as $i => $colour) {
-				if (!empty($colour['colour']) && !isset($colour['delete'])) {
-					$colours[] = '#'.$colour['colour'];
-				}
-			}
-		}
-		$colour = $asset->attr('fill_colour');
-		if (!empty($colour)) $colours[] = $colour;
-		$asset->setAttrValue('fill_colour', null);
-		$asset->setAttrValue('colour_array', $colours);
 		return true;
 
-	}//end processFillColour()
+	}//end processGlobalSettingPreview()
 
 
 	/**
-	* Check if the user has chosen to have a value marker
+	* Paints the interface for display the single settings preview
 	*
-	* @param object	&$asset	The asset that might use the files
-	* @param string	$prefix	The prefix for this asset
+	* @param object	&$asset	the graph asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
-	* @return boolean
-	* @access protected
+	* @return void
+	* @access public
 	*/
-	function valueMarkerNotEmpty(&$asset, $prefix)
+	function paintSinglePreview(&$asset, &$o, $prefix)
 	{
-		$marker = $asset->attr('value_marker');
-		if (!empty($marker)) return true;
+		$datasets = $asset->attr('datasets');
+		$plot_order = $asset->attr('plot_order');
+		$plot_not_deleted = @isset($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
+		if (!empty($_POST[$prefix.'_plot_name']) && $plot_not_deleted) {
+			$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
+		} else {
+			$plot_name = $plot_order[0];
+		}
+		if ($datasets[$plot_name]['settings']['x_axis'] == 'Not saved' || $datasets[$plot_name]['settings']['y_axis'] == 'Not saved') {
+			?>
+			<b>Not available</b>&nbsp;:&nbsp;Please set both of x-Axis and y-Axis correctly<br />
+			<?php
+		} else {
+			$graph_info	= serialize($datasets[$plot_name]);
+			$href		= $asset->getBackendHref('datasets');
+			$alt		= $asset->attr('alt');
+			$title		= $asset->attr('title');
+			?>
+			<b>Note</b>&nbsp;:&nbsp;This graph is generated with <b>random dataset</b> to present the look and feel of the graph<br /><br />
+			<img alt="<?php echo $alt; ?>" title="<?php echo $title; ?>" src="<?php echo $href.'&preview_graph=1&graph_info='.urlencode($graph_info) ?>" width="<?php echo $asset->attr('width'); ?>" height="<?php echo $asset->attr('height'); ?>" />
+			<?php
+		}
 		return false;
 
-	}//end valueMarkerNotEmpty()
+	}//end paintSinglePreview()
 
 
 	/**
-	* Check if we have write access to the asset
+	* Processes the interface for display the single settings preview
 	*
-	* @param object	&$asset	The asset that might use the files
-	* @param string	$prefix	the prefix for this asset
+	* @param object	&$asset	the graph asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
-	* @return boolean
-	* @access protected
+	* @return void
+	* @access public
 	*/
-	function assetWriteAccess(&$asset, $prefix)
+	function processSinglePreview(&$asset, &$o, $prefix)
 	{
-		return $asset->writeAccess('attributes');
+		return false;
 
-	}//end assetWriteAccess()
+	}//end processSinglePreview()
+
+
+	/**
+	* Paints the interface for display the final graph preview
+	*
+	* @param object	&$asset	the graph asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintFinalPreview(&$asset, &$o, $prefix)
+	{
+		$datasets	= $asset->attr('datasets');
+		$preview	= true;
+		$not_set	= Array();
+		foreach ($datasets as $name => $dataset) {
+			if ($dataset['settings']['x_axis'] == 'Not saved' || $dataset['settings']['y_axis'] == 'Not saved') {
+				$preview = false;
+				$not_set[] = $name;
+			}
+		}
+
+		if (!$preview) {
+			?>
+			<b>Not available</b>&nbsp;:&nbsp;Please set both of x-Axis and y-Axis correctly for <?php echo implode(',', $not_set); ?><br />
+			<?php
+		} else {
+			$href	= $asset->getBackendHref('datasets');
+			$alt	= $asset->attr('alt');
+			$title	= $asset->attr('title');
+			?>
+			<b>Note</b>&nbsp;:&nbsp;This graph is the same as one that is printed on the frontend with <b>real datasets</b>.<br /><br />
+			<img alt="<?php echo $alt; ?>" title="<?php echo $title; ?>" src="<?php echo $href.'&preview_graph=1&final_preview=1' ?>" width="<?php echo $asset->attr('width'); ?>" height="<?php echo $asset->attr('height'); ?>" alt="" />
+			<?php
+		}
+
+		return false;
+
+	}//end paintFinalPreview()
+
+
+	/**
+	* Processes the interface for display the final graph preview
+	*
+	* @param object	&$asset	the graph asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function processFinalPreview(&$asset, &$o, $prefix)
+	{
+		return false;
+
+	}//end processFinalPreview()
+
+
+//--        SHOW IFS        --//
+
+
+	/**
+	* It returns true if there are not dataset
+	*
+	* @param object	&$asset	the graph asset
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function datasetNotEmpty(&$asset, $prefix)
+	{
+		$datasets = $asset->attr('datasets');
+		return !empty($datasets);
+
+	}//end datasetNotEmpty()
+
+
+	/**
+	* It reuturns true if there exist more than one plot
+	*
+	* @param object	&$asset	the graph asset
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function moreThanOnePlot(&$asset, $prefix)
+	{
+		return count($asset->attr('datasets')) > 1;
+
+	}//end moreThanOnePlot()
 
 
 }//end class
