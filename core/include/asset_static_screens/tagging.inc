@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tagging.inc,v 1.5 2005/12/15 00:20:58 emcdonald Exp $
+* $Id: tagging.inc,v 1.6 2005/12/15 22:43:00 emcdonald Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Tagging Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 
@@ -115,7 +115,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=null)
 				case 'tags' :
 
 					$o->openField('');
-					$tag_manager = $GLOBALS['SQ_SYSTEM']->getTagManager();
+					$tag_manager = &$GLOBALS['SQ_SYSTEM']->getTagManager();
 					$current_tag_links = $tag_manager->getTagLinks($owner->id);
 					ob_start();
 					if ($write_access) {
@@ -141,7 +141,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=null)
 
 				case 'weights' :
 
-					$tag_manager = $GLOBALS['SQ_SYSTEM']->getTagManager();
+					$tag_manager = &$GLOBALS['SQ_SYSTEM']->getTagManager();
 					$current_tag_links = $tag_manager->getTagLinks($owner->id);
 					$o->openField('');
 					ob_start();
@@ -228,7 +228,7 @@ function processTagging(&$owner, &$o, $ei)
 	if (!$owner->writeAccess('all')) return false;
 	$prefix = $owner->getPrefix();
 
-	$tag_manager = $GLOBALS['SQ_SYSTEM']->getTagManager();
+	$tag_manager = &$GLOBALS['SQ_SYSTEM']->getTagManager();
 
 	$submitted_tags = array_get_index($_REQUEST, $prefix.'_tags', Array());
 	// are we cascading these tag changes to our children? If we are doing a manual cascade, that is handled later, after changes have been made to the parent asset.
