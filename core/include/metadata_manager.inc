@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.100 2005/11/23 02:27:28 lwright Exp $
+* $Id: metadata_manager.inc,v 1.101 2005/12/15 03:11:45 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1264,12 +1264,11 @@ class Metadata_Manager extends MySource_Object
 			$sql = 'SELECT
 						COUNT(*)
 					FROM
-						'.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd ati
+						sq_ast_typ_inhd ati
 							JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON ati.type_code = a.type_code';
 			$where = 'a.assetid = '.$db->quoteSmart($field_assetid).'
 						AND	ati.inhd_type_code	= '.$db->quoteSmart('metadata_field');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ati');
 
 			$count = $db->getOne($sql.$where);
 			assert_valid_db_result($count);
