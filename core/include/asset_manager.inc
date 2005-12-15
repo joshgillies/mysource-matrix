@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.411 2005/12/15 03:25:12 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.412 2005/12/15 23:53:34 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.411 $
+* @version $Revision: 1.412 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -846,9 +846,7 @@ class Asset_Manager extends MySource_Object
 						} else {
 							$asset =& new $type_code($assetid);
 						}
-						if (empty($asset->id)) {
-							$asset = null;
-						}
+						if (empty($asset->id)) $asset = null;
 					}
 				}
 
@@ -2143,16 +2141,12 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Get details of a "shadow" asset link with the specified characteristics
 	*
-	* @param int			$assetid			id of the the $side_of_link asset
-	* @param int			$link_type			integer that should be a single integer of the SQ_LINK_* constants
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param boolean		$strict_type_code	whether we are finding an asset that
-	*											is just a $type_code or potentially an inherited type
-	*											or $type_code and any of it's sub-classes
-	* @param string			$value				the value that is associated with this link
+	* @param int		$assetid		id of the the $side_of_link asset
+	* @param int		$other_assetid	id of the the other asset
+	* @param int		$link_types		integer that should be a single integer of the SQ_LINK_* constants
+	* @param string		$value			the value that is associated with this link
+	* @param string		$side_of_link	side of this asset in this link
+	* @param boolean	$force_array	if it's true, the returned value is always an array
 	*
 	* @return array
 	* @access public
@@ -2703,21 +2697,20 @@ class Asset_Manager extends MySource_Object
 	*
 	* It returns Array(int => string)	returns an array of assetids and their type code
 	*
-	* @param int				$assetid			the id of the asset to get its parents for
-	* @param mixed string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
-	*												if an array returns link if matches any of the array values
-	* @param boolean			$strict_type_code	whether we are finding assets that are just a $type_code
-	*												or $type_code and any of it's sub-classes
-	* @param string				$sort_by			a field in the asset table you would like the results
-	*												sorted by (eg. name, short_name etc)
-	* @param int				$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
-	*												Specify that links should be returned for assets the user has read,
-	*												write, or admin access for. Leave NULL to ignore permissions.
-	* @param int				$min_height			Optional parameter that specifies minimum number of levels above
-	*												the specified asset for a parent to qualify (immediate parent is 1)
-	* @param int				$max_height			Optional parameter that specifies maximum number of levels above
-	*												the specified asset for a parent to qualify to be returned
-	*
+	* @param int			$assetid			the id of the asset to get its parents for
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
+	*											if an array returns link if matches any of the array values
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	* @param string			$sort_by			a field in the asset table you would like the results
+	*											sorted by (eg. name, short_name etc)
+	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
+	*											Specify that links should be returned for assets the user has read,
+	*											write, or admin access for. Leave NULL to ignore permissions.
+	* @param int			$min_height			Optional parameter that specifies minimum number of levels above
+	*											the specified asset for a parent to qualify (immediate parent is 1)
+	* @param int			$max_height			Optional parameter that specifies maximum number of levels above
+	*											the specified asset for a parent to qualify to be returned
 	*
 	* @return array
 	* @access public
@@ -2780,22 +2773,22 @@ class Asset_Manager extends MySource_Object
 	* generateGetChildrenQuery function.
 	* It returns Array(int => string)	returns an array of assetids and their type code
 	*
-	* @param mixed int|string		$assetid			the id of the asset to get its children for
-	* @param mixed string|array		$type_code			the type of asset that is linked
-	*													(eg 'Page', 'File', etc)
-	*													if an array returns link if matches any
-	*													of the array values
-	* @param boolean				$strict_type_code	whether we are finding assets that are just a $type_code
-	*													or $type_code and any of it's sub-classes
-	* @param string					$sort_by			a field in the asset table you would like the results
-	*													sorted by (eg. name, short_name etc)
-	* @param int					$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
-	*													Specify that links should be returned for assets the user has read,
-	*													write, or admin access for. Leave NULL to ignore permissions.
-	* @param int					$min_depth			Optional parameter that specifies minimum number of levels below
-	*													the specified asset for a child to qualify (immediate child is 1)
-	* @param int					$max_depth			Optional parameter that specifies maximum number of levels below
-	*													the specified asset for a child to qualify to be returned
+	* @param int|string		$assetid			the id of the asset to get its children for
+	* @param string|array	$type_code			the type of asset that is linked
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
+	*											of the array values
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	* @param string			$sort_by			a field in the asset table you would like the results
+	*											sorted by (eg. name, short_name etc)
+	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
+	*											Specify that links should be returned for assets the user has read,
+	*											write, or admin access for. Leave NULL to ignore permissions.
+	* @param int			$min_depth			Optional parameter that specifies minimum number of levels below
+	*											the specified asset for a child to qualify (immediate child is 1)
+	* @param int			$max_depth			Optional parameter that specifies maximum number of levels below
+	*											the specified asset for a child to qualify to be returned
 	*
 	* @return array
 	* @access public
@@ -3698,6 +3691,7 @@ class Asset_Manager extends MySource_Object
 					assert_valid_db_result($result);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 					$aff_rows = $db->affectedRows();
+					assert_valid_db_result($aff_rows);
 
 					// if we could update the linkid to our linkid
 					// then we have won this treeid
@@ -3725,7 +3719,9 @@ class Asset_Manager extends MySource_Object
 			// so its very unlikely that this will occur
 			} while ($i < 50);
 
-			if ($i >= 50) trigger_localised_error('SYS0310', E_USER_ERROR);
+			if ($i >= 50) {
+				trigger_localised_error('SYS0310', E_USER_ERROR);
+			}
 
 			if ($requires_update) {
 
@@ -3934,10 +3930,10 @@ class Asset_Manager extends MySource_Object
 	*
 	* It returns the linkid of the created link
 	*
-	* @param object		&$major		the major asset that we are linking from
-	* @param object		&$minor		the minor asset that we are linking to
-	* @param string		$link_type	the type of link this is
-	* @param string		$value		the value that is to be associated with this link
+	* @param object	&$major		the major asset that we are linking from
+	* @param object	&$minor		the minor asset that we are linking to
+	* @param string	$link_type	the type of link this is
+	* @param string	$value		the value that is to be associated with this link
 	*
 	* @return int
 	* @access public
@@ -4827,7 +4823,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Remove a SHADOW asset link by id
 	*
-	* @param int		$linkid	the link id of the link to remove
+	* @param int	$linkid	the link id of the link to remove
 	*
 	* @return boolean
 	* @access public
@@ -6188,23 +6184,23 @@ class Asset_Manager extends MySource_Object
 	* (which may be blank if we are not sorting). The return array is structed so you can implode
 	* it using ' ' as glue to form the full query.
 	*
-	* @param object				&$asset				the asset to get its children for
-	* @param mixed string|array	$type_code			the type of asset that is linked
-	*												(eg 'Page', 'File', etc)
-	*												if an array returns link if matches any
-	*												of the array values
-	* @param boolean			$strict_type_code	whether we are finding assets that are just a $type_code
-	*												or $type_code and any of it's sub-classes
-	* @param string				$sort_by			a field in the asset table you would like the results
-	*												sorted by (eg. name, short_name etc)
-	* @param int				$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
-	*												Specify that links should be returned for assets the user has read,
-	*												write, or admin access for. Leave NULL to ignore permissions.
-	* @param boolean			$inc_type_code		whether to include the type code in the SELECT or not
-	* @param int				$min_depth			Optional parameter that specifies minimum number of levels below
-	*												the specified asset for a child to qualify (immediate child is 1)
-	* @param int				$max_depth			Optional parameter that specifies maximum number of levels below
-	*												the specified asset for a child to qualify to be returned
+	* @param object			&$asset				the asset to get its children for
+	* @param string|array	$type_code			the type of asset that is linked
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
+	*											of the array values
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	* @param string			$sort_by			a field in the asset table you would like the results
+	*											sorted by (eg. name, short_name etc)
+	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
+	*											Specify that links should be returned for assets the user has read,
+	*											write, or admin access for. Leave NULL to ignore permissions.
+	* @param boolean		$inc_type_code		whether to include the type code in the SELECT or not
+	* @param int			$min_depth			Optional parameter that specifies minimum number of levels below
+	*											the specified asset for a child to qualify (immediate child is 1)
+	* @param int			$max_depth			Optional parameter that specifies maximum number of levels below
+	*											the specified asset for a child to qualify to be returned
 	*
 	* @return array
 	* @access public
@@ -6323,12 +6319,16 @@ class Asset_Manager extends MySource_Object
 
 		$union_select = ' UNION ALL SELECT sl.minorid';
 
-		if ($inc_type_code) $union_select .= ', null AS type_code';
-		if (!is_null($sort_by)) $union_select .= ', null AS sort_value';
+		if ($inc_type_code) {
+			$union_select .= ', null AS type_code';
+		}
+		if (!is_null($sort_by)) {
+			$union_select .= ', null AS sort_value';
+		}
 
-		$union_from   = ' FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
-		$union_where  = 'sl.majorid = '.$db->quoteSmart($asset->id);
-		$union_where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
+		$union_from		= ' FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
+		$union_where	= 'sl.majorid = '.$db->quoteSmart($asset->id);
+		$union_where	= $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
 
 		return Array(
 				'select'		=> '('.$select,
@@ -6346,20 +6346,20 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Get all asset ids that are above the passed assetid in the various trees in which it exists
 	*
-	* @param int				$assetid			the id of the asset to get its parents for
-	* @param mixed string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
-	*												if an array returns link if matches any of the array values
-	* @param boolean			$strict_type_code	whether we are finding assets that are just a $type_code
-	*												or $type_code and any of it's sub-classes
-	* @param string				$sort_by			a field in the asset table you would like the results
-	*												sorted by (eg. name, short_name etc)
-	* @param int				$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
-	*												Specify that links should be returned for assets the user has read,
-	*												write, or admin access for. Leave NULL to ignore permissions.
-	* @param int				$min_height			Optional parameter that specifies minimum number of levels above
-	*												the specified asset for a parent to qualify (immediate parent is 1)
-	* @param int				$max_height			Optional parameter that specifies maximum number of levels above
-	*												the specified asset for a parent to qualify to be returned
+	* @param int			$assetid			the id of the asset to get its parents for
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
+	*											if an array returns link if matches any of the array values
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	* @param string			$sort_by			a field in the asset table you would like the results
+	*											sorted by (eg. name, short_name etc)
+	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
+	*											Specify that links should be returned for assets the user has read,
+	*											write, or admin access for. Leave NULL to ignore permissions.
+	* @param int			$min_height			Optional parameter that specifies minimum number of levels above
+	*											the specified asset for a parent to qualify (immediate parent is 1)
+	* @param int			$max_height			Optional parameter that specifies maximum number of levels above
+	*											the specified asset for a parent to qualify to be returned
 	*
 	* @return array
 	* @access public
@@ -6402,7 +6402,7 @@ class Asset_Manager extends MySource_Object
 
 			$where_comps = Array();
 
-			foreach($treeids as $treeid) {
+			foreach ($treeids as $treeid) {
 				$where_comp = $db->quote($treeid).' LIKE t.treeid || '.$db->quote('%');
 
 				// in the get children query function this section gets minor
@@ -6491,7 +6491,9 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$union_select = ' UNION ALL SELECT sl.majorid, null, null as treeid';
-		if (!is_null($sort_by)) $union_select .= ', null as sort_value';
+		if (!is_null($sort_by)) {
+			$union_select .= ', null as sort_value';
+		}
 
 		$union_from   = ' FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
 		$union_where  = 'sl.minorid = '.$db->quoteSmart($assetid);
