@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term.inc,v 1.5 2005/12/07 00:48:34 arailean Exp $
+* $Id: thesaurus_term.inc,v 1.6 2005/12/15 06:17:05 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -116,7 +116,10 @@ class Thesaurus_Term extends Asset
 
 		// see if a term with this name already exists under this parent with this particular relation
 		$term = $this->attr('name');
-		$relation = $link['value'];
+		$relation = isset($this->_tmp['relation'])?$this->_tmp['relation']:$link['value'];
+
+		$relation = trim($relation);
+		if ($relation == '') $relation = null;
 
 		$created = true;
 
