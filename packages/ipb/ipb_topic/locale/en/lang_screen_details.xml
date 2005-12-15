@@ -1,0 +1,42 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Name</display_name>
+			<note>%description%</note>
+		</field>
+		<field attribute="description">
+			<display_name>Description</display_name>
+			<note>%description%</note>
+		</field>
+		<field attribute="posts">
+			<display_name>Number of Posts</display_name>
+			<note>%description%</note>
+		</field>
+		<field attribute="start_date">
+			<display_name>Topic start date</display_name>
+			<note>%description%</note>
+		</field>
+		<field attribute="last_post">
+			<display_name>Last post date</display_name>
+			<note>%description%</note>
+		</field>
+	</section>
+</contents>

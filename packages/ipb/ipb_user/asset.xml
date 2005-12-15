@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../../asset.xsl" type="text/xsl"?>
+
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: asset.xml,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+*
+*/
+-->
+
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
+	<package>ipb</package>
+	<type_code>ipb_user</type_code>
+	<version>0.1</version>
+	<name>IPB User</name>
+	<description>An asset to represent an user in Invision Power Board</description>
+	<instantiable>no</instantiable>
+	<allowed_access>system</allowed_access>
+	<parent_type>backend_user</parent_type>
+	<requirements>
+		<requirement type="asset">
+			<code>backend_user</code>
+			<version>0.1</version>
+		</requirement>
+	</requirements>
+	<flash_menu_path>Users</flash_menu_path>
+</asset_info>

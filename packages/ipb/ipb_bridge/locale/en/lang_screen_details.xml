@@ -1,0 +1,44 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Identification">
+		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="IPB Details">
+		<field>
+			<display_name>Connection Status</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintIpbTest"   />
+				<process_function name="processIpbTest" />
+			</function_call>
+		</field>
+		<field attribute="version">
+			<display_name>Invision Power Board Version</display_name>
+			<note>The version of your Invision Power Board system</note>
+		</field>
+		<field attribute="location">
+			<display_name>Location</display_name>
+			<note>The full path of Invision Power Board</note>
+		</field>
+	</section>
+</contents>

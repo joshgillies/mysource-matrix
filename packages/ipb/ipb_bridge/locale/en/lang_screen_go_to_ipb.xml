@@ -1,0 +1,30 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_go_to_ipb.xml,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Go To IPB">
+		<field>
+			<display_name />
+			<note />
+			<function_call>
+				<paint_function   name="paintGoToIpb"   />
+				<process_function name="processGoToIpb" />
+			</function_call>
+		</field>
+	</section>
+</contents>

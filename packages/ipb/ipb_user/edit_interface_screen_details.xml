@@ -1,0 +1,63 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="User Details" write_access="write:attributes" limbo_access="1">
+		<field attribute="name">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="email">
+			<email width="25" />
+		</field>
+		<field attribute="date_of_birth">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="aim_name">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="icq_number">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="yahoo">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="msnname">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="location">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="website">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="signature">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="interests">
+			<text width="40" height="10" />
+		</field>
+	</section>
+	<section name="Custom Field Information" write_access="write:attributes" limbo_access="1">
+		<field>
+			<function_call>
+				<paint_function   name="paintCustomField"   />
+				<process_function name="processCustomField" />
+			</function_call>
+		</field>
+	</section>
+</contents>

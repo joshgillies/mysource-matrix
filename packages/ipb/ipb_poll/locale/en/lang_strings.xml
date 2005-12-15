@@ -1,0 +1,35 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+*
+*
+* DB DataSource Localised Strings File
+*/
+-->
+
+<strings>
+	<string source="list_of_polls">List of Polls</string>
+	<string source="no_poll_in_forum">Currently there is no polls in IPB</string>
+	<string source="question">Question</string>
+	<string source="state">State</string>
+	<string source="num_of_polls">Number of Polls</string>
+	<string source="poll_question">Poll Question</string>
+	<string source="start_date">Start Date</string>
+	<string source="started_by">Started by</string>
+	<string source="total_votes">Total votes</string>
+	<string source="poll_result_error">Can not retrieve the result data. Serialization error occurred.</string>
+	<string source="option">Option</string>
+	<string source="votes">Votes</string>
+	<string source="percentage">Percentage</string>
+</strings>

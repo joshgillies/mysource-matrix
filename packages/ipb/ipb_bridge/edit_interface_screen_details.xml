@@ -1,0 +1,39 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Identification" write_access="write:attributes">
+		<field attribute="name">
+			<text width="30" height="1" />
+		</field>
+	</section>
+	<section name="IPB Details" write_access="admin:attributes">
+		<field>
+			<function_call>
+				<paint_function   name="paintIpbTest"   />
+				<process_function name="processIpbTest" />
+			</function_call>
+		</field>
+		<field attribute="version">
+			<selection style="list" />
+		</field>
+		<field attribute="location">
+			<text width="100" height="1" />
+		</field>
+	</section>
+</contents>

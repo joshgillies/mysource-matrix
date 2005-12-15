@@ -1,0 +1,45 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details" write_access="write:attributes" limbo_access="1">
+		<field>
+			<function_call>
+				<paint_function   name="paintAuthor"   />
+				<process_function name="processAuthor" />
+			</function_call>
+		</field>
+		<field attribute="post_date">
+			<text width="40" height="5" />
+		</field>
+		<field attribute="post_title">
+			<text width="40" height="5" />
+		</field>
+		<field attribute="post_parent">
+			<text width="40" height="5" />
+		</field>
+	</section>
+	<section name="Content" write_access="write:attributes" limbo_access="1">
+		<field>
+			<function_call>
+				<paint_function   name="paintPostContent"   />
+				<process_function name="processPostContent" />
+			</function_call>
+		</field>
+	</section>
+</contents>

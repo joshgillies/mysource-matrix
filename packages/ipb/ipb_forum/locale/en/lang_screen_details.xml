@@ -1,0 +1,48 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="All Forums">
+		<field attribute="name">
+			<display_name>Name</display_name>
+			<note>%description%</note>
+		</field>
+		<field attribute="description">
+			<display_name>Description</display_name>
+			<note>%description%</note>
+		</field>
+		<field attribute="root_forums">
+			<display_name>Number of Root Forums</display_name>
+			<note>%description%</note>
+		</field>
+	</section>
+	<section name="Forum Details">
+		<field attribute="name">
+			<display_name>Name</display_name>
+			<note>%description%</note>
+		</field>
+		<field attribute="description">
+			<display_name>Description</display_name>
+			<note>%description%</note>
+		</field>
+		<field attribute="topics">
+			<display_name>Number of topics</display_name>
+			<note>%description%</note>
+		</field>
+	</section>
+</contents>
