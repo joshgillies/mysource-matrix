@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-*$Id: asset_cache.inc,v 1.5 2005/06/02 07:10:48 ndvries Exp $
+*$Id: asset_cache.inc,v 1.6 2005/12/15 05:34:44 rong Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_ASSET_CACHE_DEBUG', 0);
 * limits. They can also be manually removed by calling remove().
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class Asset_Cache extends MySource_Object
@@ -371,6 +371,19 @@ class Asset_Cache extends MySource_Object
 		$this->_items[$itemid]['callers'][$caller] += $rc_diff;
 
 	}//end _trackCaller()
+
+
+	/**
+	*  Returns all item ids currently loaded in asset cache
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetKeys()
+	{
+		return array_keys($this->_items);
+
+	}//end getAssetKeys()
 
 
 }//end class
