@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.30 2005/09/08 00:39:12 rong Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.31 2005/12/16 05:41:50 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -93,7 +93,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 					$edit_fns = $field->getEditFns();
 					?>
 					<tr>
-						<td align="left" class="sq-backend-table-cell"><?php echo $field->name;?></td>
+						<td align="left" class="sq-backend-table-cell"><?php echo get_asset_tag_line($field->id);?></td>
 						<td align="center" class="sq-backend-table-cell">[ <a href="<?php echo $asset_href[$field->id];?>"><?php echo translate('metadata_edit_fields'); ?></a> ]</td>
 					<?php
 					if ($write_access) {
@@ -321,6 +321,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 
 			$edit_fns = $field->getEditFns();
 			$tag_values[$field->name] = '';
+
 			if (!$edit_fns->generateMetadata($field, ((isset($values[$field->id])) ? $values[$field->id]['value'] : null), $tag_values[$field->name], $keywords)) {
 				return false;
 			}
