@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.18.2.1 2005/11/16 00:10:19 dmckee Exp $
+* $Id: image_variety.inc,v 1.18.2.2 2005/12/16 04:24:10 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.18.2.1 $
+* @version $Revision: 1.18.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -448,7 +448,7 @@ class Image_Variety extends Asset
 	* @access public
 	* @see Asset::updateLookups(), Asset::saveWebPaths()
 	*/
-	function updateLookups($public)
+	function updateLookups($public=false)
 	{
 		// if we aren't meant to be having the public paths, let our parent run as normal
 		if (!$public) return parent::updateLookups();
