@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.6 2005/11/02 22:09:34 dmckee Exp $
+* $Id: lang_strings.xml,v 1.7 2005/12/16 05:35:56 dmckee Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -80,5 +80,13 @@
 <string source="not_specified">Not Specified</string>
 <string source="currently_no_pages_to_display">There are currently no pages to display</string>
 <string source="create_new_page">Create New Page</string>
-
+<string source="code_editor_size">Code Editor Size</string>
+<string source="show_line_numbers">Show Line Numbers:</string>
+<string source="line_number_orientation">Line Number Orientation:</string>
+<string source="line_number_style">Line Number Style:</string>
+<string source="line_number_class">Line Number Class:</string>
+<string source="php_code_classes">PHP Code Highlighting Classes</string>
+<string source="html_code_classes">HTML Code Highlighting Classes</string>
+<string source="javascript_code_classes">Javascript Code Highlighting Classes</string>
+<string source="line_numbers">Line Numbers</string>
 </strings>
