@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.412 2005/12/15 23:53:34 skim Exp $
+* $Id: asset_manager.inc,v 1.413 2005/12/16 00:21:40 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.412 $
+* @version $Revision: 1.413 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3415,6 +3415,7 @@ class Asset_Manager extends MySource_Object
 			assert_valid_db_result($moving_under);
 
 			if ($moving_under) {
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				trigger_localised_error('CORE0114', E_USER_WARNING, $minor->name, $minor->id, $major->name, $major->id);
 				return 0;
 			}
@@ -3521,6 +3522,11 @@ class Asset_Manager extends MySource_Object
 			if ((string) $existing_treeid == '-' && get_class($major) != 'root_folder') {
 				trigger_localised_error('SYS0240', E_USER_WARNING, $major->name, $major->id);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+
+				if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				}
+
 				return 0;
 			}
 

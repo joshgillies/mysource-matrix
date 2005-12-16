@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.151 2005/12/07 22:55:23 emcdonald Exp $
+* $Id: mysource.inc,v 1.152 2005/12/16 00:21:40 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.151 $
+* @version $Revision: 1.152 $
 * @package MySource_Matrix
 */
 class MySource
@@ -212,6 +212,7 @@ class MySource
 	*/
 	function init()
 	{
+		error_log('---------- NEW REQUEST ----------');
 		$this->changeDatabaseConnection('db');
 
 		// initialise the asset manager as we are going to need it pretty much everywhere
@@ -1706,6 +1707,7 @@ class MySource
 	*/
 	function changeDatabaseConnection($conn)
 	{
+		error_log('*** CHANGING CONNECTION TO: '.$conn);
 		$dsn = null;
 		switch ($conn) {
 			case 'db':
@@ -1764,6 +1766,7 @@ class MySource
 			$this->db = null;
 		} else {
 			$conn = $this->_db_stack[count($this->_db_stack) - 1];
+			error_log('RESTORING DB CONNECTION TO: '.$conn);
 			$this->db = &$this->_db_conns[$conn];
 		}
 

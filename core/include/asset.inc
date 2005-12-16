@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.474 2005/12/15 03:04:37 dmckee Exp $
+* $Id: asset.inc,v 1.475 2005/12/16 00:21:40 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.474 $
+* @version $Revision: 1.475 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4189,6 +4189,7 @@ class Asset extends MySource_Object
 					WHERE
 						url IN ('.implode(',', $current_urls).')';
 
+			error_log('DELETE LV IN UPDATE LOOKUPS: GENERIC ASSET ('.$this->type().'):'.$this->id);
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
@@ -4396,6 +4397,7 @@ class Asset extends MySource_Object
 						WHERE
 							assetid = '.$db->quoteSmart($this->id).'
 					)';
+		error_log('DELETE LV IN SET LOOKUP VALUES: GENERIC ASSET ('.$this->type().'):'.$this->id);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
