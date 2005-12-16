@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.26 2005/10/25 04:49:45 sdanis Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.27 2005/12/16 05:44:02 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -108,6 +108,9 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 				$selection = $asset->getSelectionAttribute();
 				$selection->value = $value;
 				$selection->_edit_params['extras'] = 'onclick="document.getElementById(\''.$prefix.'_default\').checked = false;"';
+				if ($is_default) {
+					$selection->_edit_params['extras'] .= ' disabled="disabled"';
+				}
 				$selection->paint($prefix, !$write_access);
 			} else {
 				if ((is_array($value) && empty($value)) || (is_string($value) && $value == '')) {
@@ -125,12 +128,23 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 
 			if ($write_access) {
-				echo ' '.strtolower(translate('or')).' ';
-				check_box($prefix.'_default', '1', $is_default);
-				echo ' '.strtolower(translate('use_default'));
-				if ($is_default) {
-					echo ' <em style="color: #666">('.translate('metadata_field_default_currently_set').')</em>';
+				echo ' &nbsp; &nbsp; &nbsp; ';
+
+				// Work out which options we have to set if we have to
+				$i = 0;
+				$default_keys = explode('; ', $asset->attr('default'));
+				$default_selected = Array();
+
+				foreach ($select_options as $key => $select_option) {
+					if (in_array($key, $default_keys)) {
+						$default_selected[] = 'options['.$i.'].selected = true;';
+					}
+					$i++;
 				}
+
+
+				check_box($prefix.'_default', '1', $is_default, 'with(this.form.elements[\''.$prefix.'\']) { disabled = this.checked; if (this.checked) { selectedIndex = -1; '.implode(' ', $default_selected).'; } }');
+				echo ' '.translate('use_default');
 			} else {
 				if ($is_default) {
 					echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
@@ -167,6 +181,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		//Default is not checked, so process ur select attribute
 		$selection = $asset->getSelectionAttribute();
 		$selection->process($prefix);
+		bam($selection->value);
 		//Get the string into proper form for the metadata field function
 		$value = str_replace('|', '; ', $selection->value);
 		$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
@@ -377,6 +392,9 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	function generateMetadata(&$asset, $value_str, &$tag_value, &$keywords)
 	{
+		if (is_null($value_str)) {
+			$value_str = str_replace('; ', '\\; ', $asset->attr('default'));
+		}
 		$value_str = $asset->getValueFromKey($value_str);
 
 		return parent::generateMetadata($asset, $value_str, $tag_value, $keywords);
