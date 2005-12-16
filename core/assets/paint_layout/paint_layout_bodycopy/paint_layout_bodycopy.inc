@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.14 2005/10/31 22:38:25 dmckee Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.15 2005/12/16 04:21:12 dmckee Exp $
 *
 */
 
@@ -49,7 +49,7 @@ require_once 'include/conditions_list.inc';
 * If an attribute is not recognised, the condition will be evaluated as false.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -313,8 +313,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			ob_end_clean();
 		}
 
-		// 2. asset keywords (includes attributes)
-		$asset_keywords = $asset->getAvailableKeywords();
+		// 2. asset keywords (includes attributes and metadata)
 		foreach ($required_keywords as $required_keyword) {
 			if ($required_keyword != 'asset_contents') {
 				$ret[$required_keyword] = $asset->getKeywordReplacement($required_keyword);
@@ -340,15 +339,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			}
 		}
 
-		// 3. asset metadata
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		$metadata_keywords = $mm->getMetadataFieldValues($asset->id);
-
-		foreach ($metadata_keywords as $field => $value) {
-			$ret['asset_metadata_'.$field] = $value;
-		}
-
-		// 4. Conditions
+		// 3. Conditions
 		// TODO:
 		// This will make this harder once the $required_keywords will be really applied by getAssetKeywords()
 		// function, because the logical conditions may need other keywords which are not in $required_keywords
