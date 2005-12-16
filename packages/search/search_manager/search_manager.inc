@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.56.2.10 2005/09/28 13:17:49 gnoel Exp $
+* $Id: search_manager.inc,v 1.56.2.11 2005/12/16 03:34:04 sdanis Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.56.2.10 $
+* @version $Revision: 1.56.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -718,6 +718,7 @@ class Search_Manager extends Asset
 
 						foreach ($attr_info['words'] as $word) {
 							$this->_tmp['terms_used'][$word] = $word;
+
 							if (!$this->isWordIndexable($word)) continue;
 
 							$result = $cm->loadFromCache($this->id, $this->type(), $search_cache_key.'asset_attrib'.$word);
@@ -948,7 +949,7 @@ class Search_Manager extends Asset
 				foreach (array_keys($result) as $exclude_assetid) {
 					if (isset($total_asset_scores[$exclude_assetid])) {
 						unset($total_asset_scores[$exclude_assetid]);
-						unset($this->tmp_['term_totals'][$exclude_assetid]);
+						unset($this->_tmp['term_totals'][$exclude_assetid]);
 					}
 				}
 			}
