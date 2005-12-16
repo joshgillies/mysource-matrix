@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.15 2005/11/15 23:04:21 skim Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.16 2005/12/16 05:43:27 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -92,9 +92,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 				echo ' '.strtolower(translate('or')).' ';
 				check_box($prefix.'_default', '1', $is_default);
 				echo ' '.strtolower(translate('use_default'));
-				if ($is_default) {
-					echo ' <em style="color: #666">('.translate('metadata_field_default_currently_set').')</em>';
-				}
+				echo ' <em style="color: #666">('.$asset->attr('default').')</em>';
 			} else {
 					echo $value;
 					if ($is_default) {
@@ -188,16 +186,14 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 			if ($asset->attr('editable')) {
 				if ($write_access) {
 					if ($asset->attr('multi_line')) {
-						text_area($prefix.'_value', $value, 45, 7, 0, 'onkeydown="document.getElementById(\''.$prefix.'_default\').checked = false;"');
+						text_area($prefix.'_value', $value, 45, 7, 0, ($is_default ? 'disabled="disabled" ' : '').'onkeydown="document.getElementById(\''.$prefix.'_default\').checked = false;"');
 					} else {
-						text_box($prefix.'_value', $value, 30, '', false, 'onkeydown="document.getElementById(\''.$prefix.'_default\').checked = false;"');
+						text_box($prefix.'_value', $value, 30, '', false, ($is_default ? 'disabled="disabled" ' : '').'onkeydown="document.getElementById(\''.$prefix.'_default\').checked = false;"');
 					}
-					echo ' '.strtolower(translate('or')).' ';
-					check_box($prefix.'_default', '1', $is_default);
-					echo ' '.strtolower(translate('use_default'));
-					if ($is_default) {
-						echo ' <em style="color: #666">('.translate('metadata_field_default_currently_set').')</em>';
-					}
+					echo ' &nbsp; &nbsp; &nbsp; ';
+					check_box($prefix.'_default', '1', $is_default, 'with(this.form.elements[\''.$prefix.'_value\']) { disabled = this.checked; if (this.checked) { value = \''.addslashes($asset->getDefaultValue()).'\'; } }');
+					echo ' '.translate('use_default');
+					//echo ' <em style="color: #666">('.$asset->attr('default').')</em>';
 				} else {
 					echo $value;
 					if ($is_default) {
