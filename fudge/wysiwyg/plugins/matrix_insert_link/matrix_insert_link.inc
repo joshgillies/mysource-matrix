@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.35.2.2 2005/12/09 04:44:57 dmckee Exp $
+* $Id: matrix_insert_link.inc,v 1.35.2.3 2005/12/16 05:04:32 rong Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35.2.2 $
+* @version $Revision: 1.35.2.3 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -248,6 +248,20 @@ class matrix_insert_link extends wysiwyg_plugin
 
 					}// end if paragraphs exist
 
+					// check for multiple list items <li>
+					var para_html = inside_html.replace(/(<\/?)LI/gi, "$1li");
+					if (para_html.indexOf("<li") > -1) {
+						if (para_html.indexOf("<li") != para_html.lastIndexOf("<li")) {
+							alert(js_translate('select_one_list_at_a_time'));
+							return;
+						} else if (para_html.indexOf("</li") > -1) {
+							// we don't want our href's going around a pair of list tags (IE problem)
+							// eg. <a href='url'> <li>item1</li> <li></a>item2</li>
+							alert(js_translate('select_one_list_at_a_time'));
+							return;
+						}
+					}
+
 				}// end if existing link
 
 				var in_popup = '0';
@@ -321,12 +335,25 @@ class matrix_insert_link extends wysiwyg_plugin
 							if (param["onClick"] != null && param["onClick"] != "") {
 								html += ' onClick="' + param["onClick"] + '"';
 							}
+
+							// remove existing link(s) before inserting a new link
+							if (current_a) {
+								current_a.parentNode.removeChild(current_a);
+							} else {
+								// overlap/partially overlap (existing links)
+								// note: regex doesn't work on nested tags, like in '<a>one<a>two</a>one</a>'
+								var e = '<a[^>]*>(.*?)</a>';
+								var re = new RegExp(e, "gim");
+								inside_html = inside_html.replace(re, "$1");
+							}
+
 							html += '>' + inside_html + '</a>';
 							html = editor.make_absolute_urls(html);
 
 							// replace with new URL
 							editor.insertHTML(html, range);
 						}
+
 
 					}// end if param exists
 
