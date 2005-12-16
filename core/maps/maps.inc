@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.20 2005/08/14 23:45:09 mmcintyre Exp $
+* $Id: maps.inc,v 1.21 2005/12/16 05:12:52 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MAPS_INSTALLED'  , 'I');
 *    Looks aftet the automated patching of the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -553,7 +553,7 @@ class Maps extends MySource_Object
 									<?php
 									$expires_in = easy_time_total((strtotime($expires) - time()), true);
 									if (!$expires_in) $expires_in = '1 second';
-									echo translate('due_to_expire_in', $expires_in);
+									echo translate('due_to_expire', $expires_in);
 									?>
 								</td>
 							</tr>
