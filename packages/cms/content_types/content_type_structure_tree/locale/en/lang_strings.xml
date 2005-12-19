@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/12/19 01:05:09 dmckee Exp $
+* $Id: lang_strings.xml,v 1.2 2005/12/19 05:21:58 dmckee Exp $
 *
 *
 * CMS Package: Raw HTML Content Type Localised Strings File
@@ -26,4 +26,5 @@
 <string source="tree_formatting_options">Formatting Options to Show</string>
 <string source="node_text">Node Text</string>
 <string source="node_branches">Node Branches</string>
+<string source="tree_class_title">Structured Tree CSS Classes</string>
 </strings>

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_structure_tree_prefs.inc,v 1.1 2005/12/19 01:05:04 dmckee Exp $
+* $Id: content_type_structure_tree_prefs.inc,v 1.2 2005/12/19 05:21:58 dmckee Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Structure Tree
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Content_Type_Structure_Tree_Prefs extends Prefs
@@ -185,7 +185,7 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 		}
 		if (is_null($pref) || $pref == 'SQ_STRUCTURE_TREE_NODE_CLASSES') {
 			if (is_null($pref)) {
-				$o->openField('Structured Tree CSS Classes');
+				$o->openField(translate('tree_class_title'));
 			}
 				$classes = $this->pref_vars['SQ_STRUCTURE_TREE_NODE_CLASSES']['default'];
 				?>
