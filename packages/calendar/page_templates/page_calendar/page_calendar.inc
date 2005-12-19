@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.172 2005/12/02 03:18:44 lwright Exp $
+* $Id: page_calendar.inc,v 1.173 2005/12/19 02:51:27 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.172 $
+* @version $Revision: 1.173 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -87,9 +87,6 @@ class Page_Calendar extends Page
 	*/
 	function create(&$link)
 	{
-		// note our event types and that they're all customised
-		$this->setAttrValue('types', Array('calendar_event_single'=>1, 'calendar_event_recurring'=>1));
-
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$linkid = Page::create($link);
 		if (!$linkid) {
