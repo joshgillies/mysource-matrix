@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.128 2005/12/19 00:34:18 lwright Exp $
+* $Id: listing_engine.inc,v 1.129 2005/12/19 04:06:17 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.128 $
+* @version $Revision: 1.129 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1513,7 +1513,7 @@ class Listing_Engine extends Page
 							$onclick = Array();
 							$group_cb_id  = 'g_'.implode('_', $this->_tmp['group_info']);
 							$control_name = make_valid_html_id(str_replace(' ', '_', $selection_name.$group_cb_id));
-							check_box($control_name, '1', false, 'sq_listing_check_state(this, \''.$selection_name.'\',\''.$this->getPrefix().'\')');
+							check_box($control_name, '1', false, 'sq_listing_check_state(this, \''.$selection_name.'\')');
 							$replacements[$selection_name.'_check_all_in_group'] = ob_get_clean();
 							$replacements[$selection_name.'_selection_id'] = $control_name;
 						}
@@ -1974,7 +1974,7 @@ class Listing_Engine extends Page
 							$selection_id = make_valid_html_id(str_replace(' ', '_', $selection_name.'_'.$assetid), '_');
 
 							if ($buffering) {
-								check_box($selection_name_field, '1', ($selection_value > 0 ? true : false), "sq_listing_check_state(this, '".$selection_name."','".$this->getPrefix()."')", 'id="'.$selection_id.'"');
+								check_box($selection_name_field, '1', ($selection_value > 0 ? true : false), "sq_listing_check_state(this, '".$selection_name."')", 'id="'.$selection_id.'"');
 
 								// the flag is used to determine whether a checkbox is
 								// present and not ticked, or not present at all
@@ -3091,7 +3091,7 @@ class Listing_Engine extends Page
 				$onclick = Array();
 				$group_cb_id  = 'all';
 				$control_name = str_replace(' ', '_', $selection_name.$group_cb_id);
-				check_box($control_name, '1', false, "sq_listing_check_state(this, '".$selection_name."','".$this->getPrefix()."')");
+				check_box($control_name, '1', false, "sq_listing_check_state(this, '".$selection_name."')");
 				$replacements[$selection_name.'_check_all'] = ob_get_clean();
 				$replacements[$selection_name.'_selection_id'] = $control_name;
 			} else {

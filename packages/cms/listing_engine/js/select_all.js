@@ -5,10 +5,11 @@ function init_select_list_array() {
 	}
 }
 
-function sq_listing_check_state(el, prefix, assetPrefix) {
+function sq_listing_check_state(el, prefix) {
 	var i, j, k;
 
 	form = el.form;
+	assetPrefix = form.id;
 
 	// do tests to work out which check boxes should be checked/unchecked along
 	// with the aggregate that we are unchecking
