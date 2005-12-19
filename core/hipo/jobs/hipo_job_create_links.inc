@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.15.2.2 2005/11/25 02:30:18 lwright Exp $
+* $Id: hipo_job_create_links.inc,v 1.15.2.3 2005/12/19 22:56:12 sdanis Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.15.2.2 $
+* @version $Revision: 1.15.2.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -507,7 +507,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				$this->skipStep(5);
 				$this->skipStep(6);
 
-				$children = &$GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
+				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
 				$this->_running_vars['assets_children'] = array_merge($this->_running_vars['assets_children'], array_keys($children));
 			}
 
