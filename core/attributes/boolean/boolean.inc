@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.34 2005/07/13 01:34:24 mmcintyre Exp $
+* $Id: boolean.inc,v 1.35 2005/12/19 05:49:53 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <boolean true_text="true" false_text="false" empty_text="maybe" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -234,7 +234,7 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	{
 		if (!isset($_REQUEST[$prefix])) return false;
 		$value = $_REQUEST[$prefix];
-		if ($this->value != $value && $this->setValue($value)) {
+		if ($this->value !== $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {
 			$this->processed = false;
