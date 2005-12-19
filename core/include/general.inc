@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.118 2005/12/08 22:40:16 lwright Exp $
+* $Id: general.inc,v 1.119 2005/12/19 05:25:47 bcaldwell Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.118 $
+* @version $Revision: 1.119 $
 * @package MySource_Matrix
 */
 
@@ -1272,7 +1272,8 @@ function replace_global_keywords($text)
 		foreach ($keywords as $global_keyword) {
 			if (preg_match('/^globals_user_/', $global_keyword)) {
 				$keyword = preg_replace('/^globals_user_/', 'asset_', $global_keyword);
-				$keyword_replacements[$global_keyword] = $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($keyword);
+				// convert our replacement to a string always so it gets replaced even if zero
+				$keyword_replacements[$global_keyword] = (string) $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($keyword);
 				if ($keyword_replacements[$global_keyword] == '%'.$keyword.'%') {
 					$keyword_replacements[$global_keyword] = '%'.$global_keyword.'%';
 				}
