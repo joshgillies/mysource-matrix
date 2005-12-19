@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/11/23 00:53:35 arailean Exp $
+* $Id: lang_screen_details.xml,v 1.2 2005/12/19 05:04:07 arailean Exp $
 *
 */
 -->
@@ -36,6 +36,13 @@
 		<field attribute="language">
 			<display_name>Language</display_name>
 			<note />
+		</field>
+		<field>
+			<display_name>Default Value</display_name>
+			<function_call>
+				<paint_function name="paintDefault" />
+				<process_function name="processDefault" />
+			</function_call>
 		</field>
 	</section>
 

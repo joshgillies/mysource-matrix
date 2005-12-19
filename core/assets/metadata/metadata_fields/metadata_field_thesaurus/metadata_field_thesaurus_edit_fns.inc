@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.2 2005/12/07 00:51:18 arailean Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.3 2005/12/19 05:04:07 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -105,8 +105,11 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
+		$is_default = false;
+		$default = $asset->attr('default');
 		if (is_null($value_str)) {
-			$value = $asset->attr('default');
+			$is_default = true;
+			$value = $default;
 			$value_components = $asset->attr('value_components');
 		} else {
 			$value='';
@@ -132,8 +135,6 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 			$term_info[$termid] = $term;
 		}
 
-		echo '<p>'.translate('thesaurus_meta_thesaurus_note').get_asset_tag_line($thesaurus->id, 'details').'</p>';
-
 		if (isset($asset->_tmp['error'])) {
 			echo '<ul>';
 			foreach ($asset->_tmp['error'] as $message) {
@@ -142,8 +143,54 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 			echo '</ul>';
 		}
 
-		if ($write_access) {
+		$editable = $asset->attr('editable');
+
+		if ($write_access && $editable) {
+			?>
+			<script type="text/javascript">
+				//<![CDATA[
+				function toggleManualInterface(div_1, div_2)
+				{
+					if (document.getElementById(div_1).style.display == 'block') {
+						document.getElementById(div_1).style.display = 'none';
+						document.getElementById(div_2).style.display = 'block';
+					} else {
+						document.getElementById(div_2).style.display = 'none';
+						document.getElementById(div_1).style.display = 'block';
+					}
+				}
+				//]]>
+			</script>
+			<?php
+			echo 'Use default values: ';
+			check_box($prefix.'_default', '1', $is_default, 'toggleManualInterface(\''.$prefix.'_interface\',\''.$prefix.'_defaults\')');
+			echo ' (untick to customise) ';
+			echo '<br />';
+			echo '<br />';
+
+			echo '<div id="'.$prefix.'_interface" style="display:'.($is_default?'none':'block').'">';
 			multiple_asset_finder($prefix.'_thes_term', $term_assetids, Array('thesaurus_term'=>'D'));
+
+			echo '<br />';
+			echo translate('thesaurus_meta_thesaurus_note');
+			echo get_asset_tag_line($thesaurus->id, 'details');
+			echo '</div>';
+
+			echo '<div id="'.$prefix.'_defaults" style="display:'.($is_default?'block':'none').'">';
+			echo $default;
+			echo '</div>';
+
+		} else {
+			if (!empty($term_assetids)) {
+				if ($is_default) {
+					echo translate('defaults_used').'<br />';
+				}
+
+				foreach ($term_assetids as $one_id) {
+					echo get_asset_tag_line($one_id, 'details');
+					echo '<br />';
+				}
+			}
 		}
 
 		if (!empty($values)) {
@@ -163,6 +210,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 					echo '<br>';
 				}
 			}
+			$o->closeSection();
 		}
 		return true;
 	}//end paintValueInterface()
@@ -183,7 +231,104 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		$thesaurus =& $asset->getThesaurusRef();
 		$value = Array();
 
-		$new_terms = array_get_index($_REQUEST, $prefix.'_thes_term', Array());
+		if (isset($_REQUEST[$prefix.'_default'])) {
+			$new_value_str = null;
+
+		} else {
+
+			$new_terms = array_get_index($_REQUEST, $prefix.'_thes_term', Array());
+			foreach ($new_terms as $one_term) {
+				if (empty($one_term['assetid'])) continue;
+				$term_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_term['assetid']);
+				$term_name = $term_asset->attr('name');
+				if ($term_asset->_thesaurus->id != $thesaurus->id) {
+					$asset->_tmp['error'][] = translate('thesaurus_meta_wrong_thesaurus', $term_name, $term_asset->_thesaurus->name, $term_asset->_thesaurus->id);
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($term_asset);
+					continue;
+				}
+				$value[] = $term_name;
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($term_asset);
+			}
+
+			$old_count = count($value);
+			$value = array_unique($value);
+			if ($old_count != count($value)) {
+				$asset->_tmp['error'][] = translate('thesaurus_term_duplicate_removed');
+			}
+			$value = implode(',', $value);
+			$new_value_str = Metadata_Field::encodeValueString($value, Array());
+
+		}
+
+		return true;
+
+	}//end processInlineValueInterface()
+
+
+	/**
+	* Paints the default value selection box
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintDefault(&$asset, &$o, $prefix)
+	{
+
+		$write_access = $asset->writeAccess('attributes');
+		$default = $asset->attr('default');
+		if (!$write_access) {
+			echo $default;
+			return true;
+		}
+
+		$thesaurus =& $asset->getThesaurusRef();
+
+		if (empty($default)) {
+			$values = Array();
+		} else if (!is_array($default)) {
+			$values = explode(',', $default);
+		}
+
+		if (!is_array($values)) $values = Array($values);
+
+		$term_assetids = Array();
+
+		foreach ($values as $term) {
+			$termid = $thesaurus->getTermIdByName($term);
+			$term_assetids[] = $thesaurus->id.':'.$termid;
+			$term_info[$termid] = $term;
+		}
+
+		multiple_asset_finder($prefix.'_default_term', $term_assetids, Array('thesaurus_term'=>'D'));
+
+		return true;
+
+	}//end paintDefault()
+
+
+	/**
+	* Process the default value selection box
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processDefault(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return false;
+
+		$prefix = $asset->getPrefix();
+		$thesaurus =& $asset->getThesaurusRef();
+		$value = Array();
+
+		$new_terms = array_get_index($_REQUEST, $prefix.'_default_term', Array());
 		foreach ($new_terms as $one_term) {
 			if (empty($one_term['assetid'])) continue;
 			$term_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_term['assetid']);
@@ -203,11 +348,14 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 			$asset->_tmp['error'][] = translate('thesaurus_term_duplicate_removed');
 		}
 		$value = implode(',', $value);
-		$new_value_str = Metadata_Field::encodeValueString($value, Array());
+
+		$default = Metadata_Field::encodeValueString($value, Array());
+		$asset->setAttrValue('default', $default);
+
 
 		return true;
 
-	}//end processInlineValueInterface()
+	}//end processDefault()
 
 
 }//end class
