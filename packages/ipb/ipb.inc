@@ -18,10 +18,10 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb.inc,v 1.2 2005/12/19 23:34:46 skim Exp $
+* $Id: ipb.inc,v 1.3 2005/12/19 23:35:39 skim Exp $
 *
 */
- 
+
 
 /**
 * IPB
@@ -31,7 +31,7 @@
 * from Invision Power Board database
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package Fudge
 * @subpackage ipb
 */
