@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.127 2005/12/15 23:15:41 mmcintyre Exp $
+* $Id: listing_engine.inc,v 1.128 2005/12/19 00:34:18 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.127 $
+* @version $Revision: 1.128 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -349,13 +349,20 @@ class Listing_Engine extends Page
 		if (!empty($used_fields) || $this->requires_form) {
 
 			// include the 'select all' js if required
+			$using_select_all = false;
 			foreach ($selections as $selection_name => $selection_settings) {
 				if (array_get_index($selection_settings, 'type', null) == 'radio' && !empty($selection_settings['options']['allow_multiple'])) {
 					?>
 					<script type="text/javascript" src="<?php echo sq_web_path('data') ?>/asset_types/listing_engine/js/select_all.js"></script>
 					<?php
+					$using_select_all = true;
 					break;
 				}
+			}
+
+			// we're not using stuff that requires the select all code
+			if (!$using_select_all) {
+				$contents = str_replace($this->getSelectAllJSCodeKeywordReplacement(), '', $contents);
 			}
 
 			// if we are posting, we really shouldn't be having anything in the GET
@@ -371,6 +378,8 @@ class Listing_Engine extends Page
 			</form>
 			<?php
 		} else {
+			// no form at all - remove the JS code relations stuff
+			$contents = str_replace($this->getSelectAllJSCodeKeywordReplacement(), '', $contents);
 			echo $contents;
 		}
 
