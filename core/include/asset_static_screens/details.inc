@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.24 2005/11/04 03:46:11 lwright Exp $
+* $Id: details.inc,v 1.25 2005/12/19 00:50:16 bcaldwell Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 
@@ -160,7 +160,8 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 							<tr>
 								<td class="sq-backend-table-header"><?php echo translate('status'); ?></td>
 								<td class="sq-backend-table-header"><?php echo translate('when'); ?></td>
-								<td align="center" class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td>
+								<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('cascade_question'); ?></td>
+								<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></td>
 							</tr>
 							<?php
 							for ($i = 0; $i < count($fs_jobs); $i++) {
@@ -171,6 +172,15 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 									</td>
 									<td class="sq-backend-table-cell">
 										<?php echo $fs_jobs[$i]->readableWhen(); ?>
+									</td>
+									<td align="center" class="sq-backend-table-cell">
+									<?php
+										if ($fs_jobs[$i]->attr('dependants_only')) {
+											echo translate('no');
+										} else {
+											echo translate('yes');
+										}
+									?>
 									</td>
 									<td align="center" class="sq-backend-table-cell">
 									<?php
