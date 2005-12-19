@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.32 2005/11/06 23:00:33 rhoward Exp $
+* $Id: cron_job_future_status.inc,v 1.33 2005/12/19 00:18:33 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -276,7 +276,11 @@ class Cron_Job_Future_Status extends Cron_Job
 
 			// process the status change
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$vars = Array('assetid' => $asset->id, 'new_status' => $this->attr('status'));
+			$vars = Array('assetid' => $asset->id, 'new_status' => $this->attr('status'), 'dependants_only' => $this->attr('dependants_only'));
+			
+			// we might want to do a status change for all children too
+			/*if ($this->attr('cascade'))*/ //$vars['dependants_only'] = 0;
+			
 			$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
 			if (empty($status_errors)) {
 				// all OK, and we can be removed because we have done our one off task

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status_edit_fns.inc,v 1.12 2005/05/11 06:04:57 lwright Exp $
+* $Id: cron_job_future_status_edit_fns.inc,v 1.13 2005/12/19 00:18:33 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,14 +65,21 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	function paintInLineBackend(&$asset, &$o, $prefix, $when='', $form_extra_elements='')
 	{
 		echo translate('set_status_to');
+
 		$descs = $asset->_getAllStatiiDescs();
 		if ($asset->writeAccess('attributes')) {
 			combo_box($prefix.'_status', $descs, false, $asset->attr('status'), null, $form_extra_elements);
 		} else {
 			echo $descs[$asset->attr('status')];
 		}
+		
 		echo ' '.strtolower(translate('at')).' ';
 		$this->_paintWhenBox($asset, $o, $prefix, $when, $form_extra_elements);
+		
+		echo '&nbsp;';
+		check_box($prefix.'_change_status_all_children');
+		echo translate('cascade_status_change');
+		
 		return true;
 
 	}//end paintInLineBackend()
@@ -91,8 +98,10 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	function processInLineBackend(&$asset, &$o, $prefix)
 	{
 		if (!empty($_POST[$prefix.'_status']) && $asset->setAttrValue('status', $_POST[$prefix.'_status'])) {
-			return $asset->setAttrValue('when', $this->_processWhenBox($asset, $o, $prefix));
+			$dependants_only = (isset($_POST[$prefix.'_change_status_all_children']) && $_POST[$prefix.'_change_status_all_children']) ? false : true;
+			return ($asset->setAttrValue('when', $this->_processWhenBox($asset, $o, $prefix)) && $asset->setAttrValue('dependants_only', $dependants_only));
 		}
+		
 		return false;
 
 	}//end processInLineBackend()
