@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.88 2005/12/12 00:51:14 rong Exp $
+* $Id: lang_strings.xml,v 1.89 2005/12/19 00:53:00 tbarrett Exp $
 *
 */
 
@@ -60,6 +60,7 @@
 	<string source="cascade_options">Cascade Options</string>
 	<string source="cascade_permission_changes">Cascade Permission Changes?</string>
 	<string source="cascade">Cascade</string>
+	<string source="cascade_question">Cascade ?</string>
 	<string source="case_sensitive">Case Sensitive ?</string>
 	<string source="category_specific_search_settings">Category Specific Search Settings</string>
 	<string source="change_log_of_original_patch">Change Log of Original Patch</string>
@@ -761,8 +762,8 @@
 	<string source="condition_in_user_group_false">The user is not in any of the following user groups</string>
 	<string source="condition_user_ip_true">The user's IP address matches the following pattern</string>
 	<string source="condition_user_ip_false">The user's IP address does not match the following pattern</string>
-	<string source="condition_user_frequency_true"> </string>
-	<string source="condition_user_frequency_false"> </string>
+	<string source="condition_user_frequency_true">The following amount of time or activity has passed</string>
+	<string source="condition_user_frequency_false">The following amount of time or activity has passed</string>
 	<string source="condition_server_variable_true">The following server variable matches the specified pattern</string>
 	<string source="condition_server_variable_false">The following server variable does not match the specified pattern</string>
 	<string source="condition_keyword_regexp_true">The following keyword matches the specified pattern</string>
@@ -778,11 +779,9 @@
 	<string source="condition_user_agent_is_regular_expression_enabled">This condition matches using a regular expression. You can enter a simple string (eg. "MSIE") to match that in any part of the user agent. Or, you can use a more advanced pattern.</string>
 	<string source="condition_server_variable_is_regular_expression_enabled">This condition matches using a regular expression. You can enter a simple string (eg. "MSIE") to match that in any part of the server variable chosen. Or, you can use a more advanced pattern.</string>
 	<string source="condition_user_ip_wildcard_enabled">In the IP address expression you can use an asterisk ("*") in place of a number to match all possible numbers within that octet.</string>
-	<string source="condition_user_frequency_description">For "Session" and "Hits", value refers to the number of times the condition is checked before returning true.&lt;br /&gt;For the rest it represents the period of time to pass before the condition returns true.</string>
-	<string source="condition_user_frequency_note">"Session" works the same as "Hits" but will record only 1 hit per day</string>
-
-
-
+	<string source="condition_user_frequency_note">A "hit" is an occasion when the condition is evaluated for a user.  &lt;br /&gt;
+	A "session" is a calendar day on which there was at least one hit.&lt;br /&gt;
+	Whenever this condition returns true the counter is reset.</string>
 
 
 	<string source="no_layouts_defined">There are no Layouts Defined</string>
