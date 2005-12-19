@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.476 2005/12/16 00:22:13 lwright Exp $
+* $Id: asset.inc,v 1.477 2005/12/19 05:51:41 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.476 $
+* @version $Revision: 1.477 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2734,7 +2734,7 @@ class Asset extends MySource_Object
 		}
 
 		// if the value being set is the same as the current value - dont do anything
-		if ($this->vars[$name]['value'] == $value) {
+		if ($this->vars[$name]['value'] === $value) {
 			return true;
 		}
 
