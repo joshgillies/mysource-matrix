@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.5 2005/08/26 07:14:35 skim Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.6 2005/12/19 22:59:45 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -34,7 +34,7 @@
 class Ecommerce_Cart_Processor
 {
 
-	var $cart = null;
+	var $cart = NULL;
 
 
 	/**
@@ -183,6 +183,7 @@ class Ecommerce_Cart_Processor
 	*/
 	function getCount()
 	{
+		if (is_null($this->cart)) return 0;
 		$count = 0;
 		foreach ($this->cart as $assetid => $details) {
 			$count += $details['quantity'];
