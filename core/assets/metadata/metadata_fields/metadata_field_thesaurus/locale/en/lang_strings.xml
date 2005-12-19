@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/11/23 00:53:35 arailean Exp $
+* $Id: lang_strings.xml,v 1.2 2005/12/19 04:57:21 arailean Exp $
 *
 */
 
@@ -29,8 +29,9 @@
 	<string source="thesaurus_entity_description">Description: %s</string>
 	<string source="thesaurus_linked_thesaurus_inactive">Linked thesaurus is <![CDATA[<strong>INACTIVE</strong>]]>. This value cannot be set.</string>
 	<string source="thesaurus_term_duplicate_removed">Duplicate terms were removed</string>
-	<string source="thesaurus_meta_thesaurus_note">NOTE: You can only select terms from Thesaurus: </string>
+	<string source="thesaurus_meta_thesaurus_note">NOTE: You can only select terms from </string>
 	<string source="thesaurus_meta_wrong_thesaurus">Cannot use term "%1$s"! It belongs to wrong thesaurus (%2$s #%3$s)</string>
 	<string source="thesaurus_term_lineages">Term Lineages</string>
 	<string source="thesaurus_lineage">Lineage</string>
+	<string source="defaults_used">Using default values</string>
 </strings>
