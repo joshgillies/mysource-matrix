@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.97.2.12 2005/12/16 06:12:56 rong Exp $
+* $Id: file.inc,v 1.97.2.13 2005/12/20 05:59:28 dmckee Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.97.2.12 $
+* @version $Revision: 1.97.2.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -576,10 +576,11 @@ class File extends Asset
 							WHERE
 								assetid = '.$db->quoteSmart($this->id).'
 						)
-					AND	name LIKE '.$db->quoteSmart('design::%');
+					AND	(name LIKE '.$db->quoteSmart('design::%');
 		if ($this->_tmp['deleting_file']) {
 			$sql .= ' OR name LIKE '.$db->quoteSmart('paint_layout::%');
 		}
+		$sql .= ')';
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
