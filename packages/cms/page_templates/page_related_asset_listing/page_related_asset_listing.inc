@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_related_asset_listing.inc,v 1.2 2005/12/15 22:47:11 emcdonald Exp $
+* $Id: page_related_asset_listing.inc,v 1.3 2005/12/20 03:06:25 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -72,6 +72,7 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 	*/
 	function getAssetList()
 	{
+
 		//get all the assets that would be listed in a normal asset listing in this case
 		$unfiltered_assets_to_list = parent::getAssetList();
 
@@ -79,18 +80,18 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 		$relator_ids = $this->getRelators();
 		$tag_manager = &$GLOBALS['SQ_SYSTEM']->getTagManager();
 		$related_assets = $tag_manager->getRelatedAssets($relator_ids);
-
-		$related_ids = array_values($related_assets);
+		$related_ids = array_keys($related_assets);
+		$related_ids = array_diff($related_ids, $relator_ids);
 
 		//get all the elements of the unfiltered list that are on the related list
 		$assets_to_list = Array();
-
 		foreach ($related_ids as $related_id) {
 			$asset_to_list = array_get_index($unfiltered_assets_to_list, $related_id);
 			if (!is_null($asset_to_list)) {
 				$assets_to_list[$related_id] = $asset_to_list;
 			}
 		}
+
 		return $assets_to_list;
 	}//end getAssetList()
 

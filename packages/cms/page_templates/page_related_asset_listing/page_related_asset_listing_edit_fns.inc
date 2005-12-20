@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_related_asset_listing_edit_fns.inc,v 1.1 2005/12/15 04:49:09 emcdonald Exp $
+* $Id: page_related_asset_listing_edit_fns.inc,v 1.2 2005/12/20 03:06:25 emcdonald Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -66,7 +66,9 @@ class Page_Related_Asset_Listing_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function paintRelator(&$asset, &$o, $prefix)
 	{
 		// get relator links
+		//we need them indexed numerically for getAssetInfo.
 		$relator_asset_ids = $asset->getStaticRelators();
+		sort($relator_asset_ids);
 
 		if ($asset->writeAccess('links')) {
 			multiple_asset_finder($prefix.'_relator_nodes', $relator_asset_ids);
@@ -122,7 +124,6 @@ class Page_Related_Asset_Listing_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		// now, create the new node links
 		foreach ($new_relator_nodes as $index => $node) {
 			// first test to see if the node already exists -- if so, ignore it
-
 			if (isset($relator_asset_ids[$node['assetid']])) {
 				continue;
 			}
