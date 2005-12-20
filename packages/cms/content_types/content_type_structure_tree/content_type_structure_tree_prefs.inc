@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_structure_tree_prefs.inc,v 1.2 2005/12/19 05:21:58 dmckee Exp $
+* $Id: content_type_structure_tree_prefs.inc,v 1.3 2005/12/20 05:22:27 dmckee Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Structure Tree
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Content_Type_Structure_Tree_Prefs extends Prefs
@@ -230,13 +230,17 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 	*/
 	function processBackend(&$o, $have_lock, $pref=null)
 	{
-		$this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['default']['bold'] = isset($_POST['SQ_STRUCTURE_SHOW_BOLD']);
-		$this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['default']['underline'] = isset($_POST['SQ_STRUCTURE_SHOW_UNDERLINE']);
-		$this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['default']['italic'] = isset($_POST['SQ_STRUCTURE_SHOW_ITALIC']);
-		$this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['default']['delete'] = isset($_POST['SQ_STRUCTURE_SHOW_DELETE']);
-		$this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['default']['insert'] = isset($_POST['SQ_STRUCTURE_SHOW_INSERT']);
-		$this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['default']['connections'] = isset($_POST['SQ_STRUCTURE_SHOW_CONNECTIONS']);
-		$this->pref_vars['SQ_STRUCTURE_TREE_NODE_CLASSES']['default'] = $_POST['SQ_STRUCTURE_TREE_NODE_CLASSES'];
+		if (is_null($pref) || $pref == 'SQ_STRUCTURE_TREE_FORMATTING') {
+			$this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['default']['bold'] = isset($_POST['SQ_STRUCTURE_SHOW_BOLD']);
+			$this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['default']['underline'] = isset($_POST['SQ_STRUCTURE_SHOW_UNDERLINE']);
+			$this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['default']['italic'] = isset($_POST['SQ_STRUCTURE_SHOW_ITALIC']);
+			$this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['default']['delete'] = isset($_POST['SQ_STRUCTURE_SHOW_DELETE']);
+			$this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['default']['insert'] = isset($_POST['SQ_STRUCTURE_SHOW_INSERT']);
+			$this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['default']['connections'] = isset($_POST['SQ_STRUCTURE_SHOW_CONNECTIONS']);
+		}
+		if (is_null($pref) || $pref == 'SQ_STRUCTURE_TREE_NODE_CLASSES') {
+			$this->pref_vars['SQ_STRUCTURE_TREE_NODE_CLASSES']['default'] = $_POST['SQ_STRUCTURE_TREE_NODE_CLASSES'];
+		}
 		return true;
 	}//end processBackend()
 

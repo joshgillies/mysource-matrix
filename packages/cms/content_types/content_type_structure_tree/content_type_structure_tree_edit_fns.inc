@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_structure_tree_edit_fns.inc,v 1.1 2005/12/19 01:05:04 dmckee Exp $
+* $Id: content_type_structure_tree_edit_fns.inc,v 1.2 2005/12/20 05:22:27 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz
 */
@@ -142,6 +142,7 @@ class Content_Type_Structure_Tree_Edit_Fns extends Content_Type_Edit_Fns
 							if (this.rows[i].italic == '1') inline_style += 'font-style: italic;';
 							if (this.rows[i].bold == '1') inline_style += 'font-weight: bold;';
 							if (this.rows[i].underline == '1') inline_style += 'text-decoration: underline;';
+							inline_style += '
 							inline_style += '"';
 							src += '<span style="margin-left: ' + indent + 'px; ">';
 							src += '<input class="structure" type="text" value="' + this.rows[i].content + '" ';

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_structure_tree.inc,v 1.1 2005/12/19 01:05:04 dmckee Exp $
+* $Id: content_type_structure_tree.inc,v 1.2 2005/12/20 05:22:27 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -68,7 +68,7 @@ class Content_Type_Structure_Tree extends Content_Type
 			$indent = 0;
 				for ($i = 0; $i < $data['indent']; $i++) {
 					if ($i == ($data['indent'] - 1)) {
-						//Check out whats after to see what to output
+						// Check out whats after to see what to output
 						if (($treecount == count($tree_data) - 1) || ($tree_data[$treecount + 1]['indent'] != $data['indent'])) {
 							?>
 							<span class="<?php echo $classes['node_branches']; ?>" style="margin-left: 10px;">|_</span>
@@ -85,14 +85,13 @@ class Content_Type_Structure_Tree extends Content_Type
 							$span_text = '|';
 							$class_text = 'class="'.$classes['node_branches'].'" ';
 						}
-
 						?>
 						<span <?php echo $class_text; ?>style="margin-left: 10px;"><?php echo $span_text; ?></span>
 						<?php
 					}
 				}
 
-				//Get the styles for the content text
+				// Get the styles for the content text
 				$style_text = '';
 				if ($data['bold'] != '0') {
 					if ($style_text == '') $style_text = ' style="';
@@ -110,10 +109,10 @@ class Content_Type_Structure_Tree extends Content_Type
 				?>
 				<span class="<?php echo $classes['node_text']; ?>" <?php echo $style_text; ?>><?php echo $data['content']; ?></span><br />
 				<?php
-				//Below is a mess, but it unsets any trailers, then searches for new ones based on this
+				// Below is a mess, but it unsets any trailers, then searches for new ones based on this
 				if ($show_trailers) {
 					unset($current_trailers[$data['indent'] - 1]);
-					//Now we check to see if we should add some trailers, so this is linked to later instances
+					// Now we check to see if we should add some trailers, so this is linked to later instances
 					if (isset($tree_data[$treecount + 1]) && ($tree_data[$treecount + 1]['indent'] > $data['indent'])) {
 						for ($ja = $treecount + 2; $ja < count($tree_data); $ja++) {
 							$next_data = $tree_data[$ja];
