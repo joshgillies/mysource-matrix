@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2005/11/01 22:24:01 pgannavarapu Exp $
+* $Id: asset.xml,v 1.2 2005/12/20 04:24:27 dmckee Exp $
 *
 */
 -->
@@ -30,7 +30,7 @@
 	<package>news</package>
 	<type_code>page_rss_feed</type_code>
 	<version>0.1</version>
-	<name>RSS Feeds Page</name>
+	<name>RSS Feed</name>
 	<description>This is used to generate the RSS Feeds</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>
