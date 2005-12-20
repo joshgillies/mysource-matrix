@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.414 2005/12/19 05:00:12 skim Exp $
+* $Id: asset_manager.inc,v 1.415 2005/12/20 00:25:02 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.414 $
+* @version $Revision: 1.415 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2408,12 +2408,14 @@ class Asset_Manager extends MySource_Object
 								l.linkid,
 								l.majorid,
 								l.minorid,
+								l.value,
+								l.link_type,
 								a.type_code AS major_type_code
 							FROM
 								'.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk l
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a on l.majorid = a.assetid';
 
-					$where = 'majorid = '.$db->quoteSmart($assetid);
+					$where = 'minorid = '.$db->quoteSmart($assetid);
 					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
@@ -2427,8 +2429,8 @@ class Asset_Manager extends MySource_Object
 											'majorid'			=> $shdw_link['majorid'],
 											'major_type_code'	=> $shdw_link['major_type_code'],
 											'minorid'			=> $shdw_link['minorid'],
-											'value'				=> NULL,
-											'link_type'			=> SQ_LINK_TYPE_1,
+											'value'				=> $shdw_link['value'],
+											'link_type'			=> $shdw_link['link_type'],
 											'is_dependant'		=> '0',
 											'is_exclusive'		=> '0',
 											'sort_order'		=> 0,
