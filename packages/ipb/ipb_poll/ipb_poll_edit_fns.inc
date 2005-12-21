@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_poll_edit_fns.inc,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+* $Id: ipb_poll_edit_fns.inc,v 1.2 2005/12/21 04:18:25 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -44,12 +44,12 @@ class Ipb_Poll_Edit_Fns extends Asset_Edit_Fns
 		$this->static_screens = Array(
 									'details'		=> Array(
 														'name'			=> 'Details',
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'none',
 													   ),
 									'dependants'	=> Array(
 														'name'			=> 'Dependants',
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'none',
 													   ),
 								);
@@ -71,8 +71,8 @@ class Ipb_Poll_Edit_Fns extends Asset_Edit_Fns
 	{
 
 		if ($asset->_suffix == '0') {
-			$ipb_bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_ipbid, 'ipb_bridge');
-			$ipb = &$ipb_bridge->getIpbConn();
+			$ipb_bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_ipbid, 'ipb_bridge');
+			$ipb =& $ipb_bridge->getIpbConn();
 			$list_of_polls = $ipb->getListOfPolls();
 
 			if (empty($list_of_polls)) {
@@ -86,7 +86,7 @@ class Ipb_Poll_Edit_Fns extends Asset_Edit_Fns
 					$o->closeField();
 
 					$o->openField(translate('list_of_polls'));
-						$ipb = &$ipb_bridge->getIpbConn();
+						$ipb =& $ipb_bridge->getIpbConn();
 						?>
 						<table class="sq-backend-table">
 							<tr>
@@ -134,7 +134,7 @@ class Ipb_Poll_Edit_Fns extends Asset_Edit_Fns
 
 				$o->openField('Results');
 					$poll_data = @unserialize(stripslashes($asset->attr('choices')));
-					if ($poll_data === false) {
+					if ($poll_data === FALSE) {
 						echo '<b>'.translate('poll_result_error').'</b>';
 					} else {
 						$total_votes = $asset->attr('votes');
@@ -163,7 +163,7 @@ class Ipb_Poll_Edit_Fns extends Asset_Edit_Fns
 			$o->closeSection();
 		}
 
-		return false;
+		return FALSE;
 
 	}//end paintPoll()
 
@@ -182,7 +182,7 @@ class Ipb_Poll_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processPoll(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processPoll()
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_root_forum_edit_fns.inc,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+* $Id: ipb_root_forum_edit_fns.inc,v 1.2 2005/12/21 04:18:25 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/ipb/ipb_forum/ipb_forum_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -86,7 +86,7 @@ class Ipb_Root_Forum_Edit_Fns extends Ipb_Forum_Edit_Fns
 				}
 			$o->closeField();
 		}
-		return false;
+		return FALSE;
 
 	}//end paintListOfForums()
 
@@ -103,7 +103,7 @@ class Ipb_Root_Forum_Edit_Fns extends Ipb_Forum_Edit_Fns
 	*/
 	function processListOfForums(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processListOfForums()
 

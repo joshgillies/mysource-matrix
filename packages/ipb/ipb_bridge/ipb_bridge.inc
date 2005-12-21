@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_bridge.inc,v 1.2 2005/12/21 03:45:07 skim Exp $
+* $Id: ipb_bridge.inc,v 1.3 2005/12/21 04:18:25 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/ipb/ipb.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -38,7 +38,7 @@ class IPB_Bridge extends Asset
 	* Reference to IPB connector object
 	* @var object
 	*/
-	var $ipb = null;
+	var $ipb = NULL;
 
 	/**
 	* An array of objectclass values that represent groups in LDAP
@@ -92,7 +92,7 @@ class IPB_Bridge extends Asset
 	*/
 	function IPB_Bridge($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Asset($assetid);
 
 	}//end constructor
@@ -107,7 +107,7 @@ class IPB_Bridge extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSEt)
 	{
 		return $this->attr('name');
 
@@ -124,7 +124,7 @@ class IPB_Bridge extends Asset
 	{
 		$location = $this->attr('location');
 		$set_location = empty($location);
-		if ($set_location) return null;
+		if ($set_location) return NULL;
 
 		if (is_null($this->ipb)) {
 			$this->ipb =& new Ipb($this->attr('location'), $this->attr('version'));
@@ -146,7 +146,7 @@ class IPB_Bridge extends Asset
 		$location = $this->attr('location');
 		$set_location = empty($location);
 		if ($set_location) {
-			$null = null;
+			$null = NULL;
 			return $null;
 		}
 
@@ -176,9 +176,9 @@ class IPB_Bridge extends Asset
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($shadowid, $type_code='', $mute_errors=false)
+	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
 	{
-		$asset = null;
+		$asset = NULL;
 
 		$id_parts = explode(':', $shadowid);
 		if (isset($id_parts[1])) {
@@ -187,7 +187,7 @@ class IPB_Bridge extends Asset
 			return $asset;
 		}
 
-		$ipb = &$this->getIpbConn();
+		$ipb =& $this->getIpbConn();
 		if (is_null($ipb)) return $asset;
 		$prefix = substr($shadowid, 0, 1);
 
@@ -245,7 +245,7 @@ class IPB_Bridge extends Asset
 				$class_name	= 'Ipb_Poll';
 			}
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-			$ipb = &$this->getIpbConn();
+			$ipb =& $this->getIpbConn();
 				eval('$data = $ipb->'.$method.'($this->id.\':\'.$shadowid);');
 			$data['id'] = $shadowid;
 
@@ -283,7 +283,7 @@ class IPB_Bridge extends Asset
 	* @access public
 	* @see Asset_Manager::getLinks()
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null, $dependant=null, $exclusive=null)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL, $dependant=NULL, $exclusive=NULL)
 	{
 		$links = Array();
 
@@ -297,12 +297,12 @@ class IPB_Bridge extends Asset
 			return Array();
 		}
 
-		$no_id_parts = false;
+		$no_id_parts = FALSE;
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) {
 			$assetid = $id_parts[1];
 		} else {
-			$no_id_parts = true;
+			$no_id_parts = TRUE;
 		}
 
 		if (!is_array($type_code)) {
@@ -314,7 +314,7 @@ class IPB_Bridge extends Asset
 		}
 
 		// is not connected yet...
-		$ipb = &$this->getIpbConn();
+		$ipb =& $this->getIpbConn();
 		if (is_null($ipb) || !$ipb->isConnected()) {
 			return $links;
 		}
@@ -337,8 +337,8 @@ class IPB_Bridge extends Asset
 									'minor_type_code'	=> $top_data['type_code'],
 									'value'				=> '',
 									'link_type'			=> $this->ipb_shdw_link_type,
-									'is_dependant'		=> false,
-									'is_exclusive'		=> false,
+									'is_dependant'		=> FALSE,
+									'is_exclusive'		=> FALSE,
 									'sort_order'		=> 0,
 								   );
 					}
@@ -356,7 +356,7 @@ class IPB_Bridge extends Asset
 				if ($side_of_link == 'major') {
 
 					// major
-					$ipb = &$this->getIpbConn();
+					$ipb =& $this->getIpbConn();
 					if (!$ipb->isConnected()) return $links;
 
 					$list_function = $this->top_categories[$assetid]['list_function'];
@@ -372,8 +372,8 @@ class IPB_Bridge extends Asset
 									'minor_type_code'	=> $type_code,
 									'value'				=> '',
 									'link_type'			=> $this->ipb_shdw_link_type,
-									'is_dependant'		=> false,
-									'is_exclusive'		=> false,
+									'is_dependant'		=> FALSE,
+									'is_exclusive'		=> FALSE,
 									'sort_order'		=> 0,
 								   );
 					}
@@ -388,8 +388,8 @@ class IPB_Bridge extends Asset
 								'minorid'			=> $this->id.':'.$assetid,
 								'value'				=> '',
 								'link_type'			=> $this->ipb_shdw_link_type,
-								'is_dependant'		=> false,
-								'is_exclusive'		=> false,
+								'is_dependant'		=> FALSE,
+								'is_exclusive'		=> FALSE,
 								'sort_order'		=> 0,
 							   );
 				}
@@ -405,7 +405,7 @@ class IPB_Bridge extends Asset
 					if ($prefix == 'g') {
 
 						// ipb_user_group => ipb_user
-						$ipb = &$this->getIpbConn();
+						$ipb =& $this->getIpbConn();
 							$tmp = explode('_', $assetid);
 							$group_id = $tmp[1];
 							$members = $ipb->getMembers(0, $group_id);
@@ -417,8 +417,8 @@ class IPB_Bridge extends Asset
 											'minor_type_code'	=> 'ipb_user',
 											'value'				=> '',
 											'link_type'			=> $this->ipb_shdw_link_type,
-											'is_dependant'		=> false,
-											'is_exclusive'		=> false,
+											'is_dependant'		=> FALSE,
+											'is_exclusive'		=> FALSE,
 											'sort_order'		=> 0,
 										   );
 							}
@@ -431,7 +431,7 @@ class IPB_Bridge extends Asset
 					} else if ($prefix == 'r') {
 
 						// ipb_root_forum => ipb_forum
-						$ipb = &$this->getIpbConn();
+						$ipb =& $this->getIpbConn();
 							$list_of_topics = $ipb->getListOfForums($assetid);
 						foreach ($list_of_topics as $topic) {
 							$links[] = Array(
@@ -441,8 +441,8 @@ class IPB_Bridge extends Asset
 										'minor_type_code'	=> 'ipb_forum',
 										'value'				=> '',
 										'link_type'			=> $this->ipb_shdw_link_type,
-										'is_dependant'		=> false,
-										'is_exclusive'		=> false,
+										'is_dependant'		=> FALSE,
+										'is_exclusive'		=> FALSE,
 										'sort_order'		=> 0,
 									   );
 						}
@@ -450,7 +450,7 @@ class IPB_Bridge extends Asset
 					} else if ($prefix == 'f') {
 
 						// ipb_forum => ipb_topic
-						$ipb = &$this->getIpbConn();
+						$ipb =& $this->getIpbConn();
 							$list_of_topics = $ipb->getListOfTopics($assetid);
 						foreach ($list_of_topics as $topic) {
 							$links[] = Array(
@@ -460,8 +460,8 @@ class IPB_Bridge extends Asset
 										'minor_type_code'	=> 'ipb_topic',
 										'value'				=> '',
 										'link_type'			=> $this->ipb_shdw_link_type,
-										'is_dependant'		=> false,
-										'is_exclusive'		=> false,
+										'is_dependant'		=> FALSE,
+										'is_exclusive'		=> FALSE,
 										'sort_order'		=> 0,
 									   );
 
@@ -470,7 +470,7 @@ class IPB_Bridge extends Asset
 					} else if ($prefix == 't') {
 
 						// ipb_forum => ipb_topic
-						$ipb = &$this->getIpbConn();
+						$ipb =& $this->getIpbConn();
 							$list_of_posts = $ipb->getListOfPosts($assetid);
 						foreach ($list_of_posts as $post) {
 							$links[] = Array(
@@ -480,8 +480,8 @@ class IPB_Bridge extends Asset
 										'minor_type_code'	=> 'ipb_post',
 										'value'				=> '',
 										'link_type'			=> $this->ipb_shdw_link_type,
-										'is_dependant'		=> false,
-										'is_exclusive'		=> false,
+										'is_dependant'		=> FALSE,
+										'is_exclusive'		=> FALSE,
 										'sort_order'		=> 0,
 									   );
 						}
@@ -495,8 +495,8 @@ class IPB_Bridge extends Asset
 								'linkid'		=> 0,
 								'value'			=> '',
 								'link_type'		=> $this->ipb_shdw_link_type,
-								'is_dependant'	=> false,
-								'is_exclusive'	=> false,
+								'is_dependant'	=> FALSE,
+								'is_exclusive'	=> FALSE,
 								'sort_order'	=> 0,
 							   );
 
@@ -510,7 +510,7 @@ class IPB_Bridge extends Asset
 					} else if ($prefix == 'u') {
 
 						// ipb_user => ipb_user_group
-						$ipb = &$this->getIpbConn();
+						$ipb =& $this->getIpbConn();
 						$tmp = explode('_', $assetid);
 						$user_id = $tmp[1];
 						$group = $ipb->getMembers($user_id);
@@ -528,7 +528,7 @@ class IPB_Bridge extends Asset
 					} else if ($prefix == 'f') {
 
 						// ipb_forum => ipb_root_forum
-						$ipb = &$this->getIpbConn();
+						$ipb =& $this->getIpbConn();
 						$forum_info = $ipb->getForumInfo($this->id.':'.$assetid);
 						$links['majorid']			= $this->id.':'.'r_'.$forum_info['parent_id'];
 						$links['major_type_code']	= 'ipb_root_forum';
@@ -537,7 +537,7 @@ class IPB_Bridge extends Asset
 					} else if ($prefix == 't') {
 
 						// ipb_topic => ipb_forum
-						$ipb = &$this->getIpbConn();
+						$ipb =& $this->getIpbConn();
 						$forum_info = $ipb->getTopicInfo($this->id.':'.$assetid);
 						$links['majorid']			= $this->id.':'.'f_'.$forum_info['forum_id'];
 						$links['major_type_code']	= 'ipb_forum';
@@ -545,7 +545,7 @@ class IPB_Bridge extends Asset
 
 					} else if ($prefix == 'p') {
 						// ipb_topic => ipb_forum
-						$ipb = &$this->getIpbConn();
+						$ipb =& $this->getIpbConn();
 						$forum_info = $ipb->getPostInfo($this->id.':'.$assetid);
 						$links['majorid']			= $this->id.':'.'t_'.$forum_info['tid'];
 						$links['major_type_code']	= 'ipb_topic';
@@ -582,14 +582,14 @@ class IPB_Bridge extends Asset
 	* @access public
 	* @see Asset_Manager::getParents()
 	*/
-	function getParents($assetid, $type_code='', $strict_type_code=true)
+	function getParents($assetid, $type_code='', $strict_type_code=TRUE)
 	{
-		$no_id_parts = false;
+		$no_id_parts = FALSE;
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) {
 			$assetid = $id_parts[1];
 		} else {
-			$no_id_parts = true;
+			$no_id_parts = TRUE;
 		}
 
 		if (!is_array($type_code)) {
@@ -625,7 +625,7 @@ class IPB_Bridge extends Asset
 
 			} else {
 
-				$ipb = &$this->getIpbConn();
+				$ipb =& $this->getIpbConn();
 				if ($prefix == 'u') {
 					// IPB USER
 					$parents['g_0'] = 'ipb_user_group';
@@ -656,7 +656,9 @@ class IPB_Bridge extends Asset
 
 			}
 			$this->_tmp['getParents'][$assetid] = $parents;
-		}
+
+		}//end if
+
 		return $this->_tmp['getParents'][$assetid];
 
 	}//end getParents()
@@ -679,16 +681,16 @@ class IPB_Bridge extends Asset
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $sort_by=NULL)
 	{
 		$children = Array();
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) {
 			$assetid = $id_parts[1];
 		} else {
-			$links = $this->getLinks($assetid, SQ_LINK_TYPE_1, '', true, 'major');
+			$links = $this->getLinks($assetid, SQ_LINK_TYPE_1, '', TRUE, 'major');
 			foreach ($links as $link) {
-				if (empty($type_code) || (!empty($type_code) && (array_search($link['minor_type_code'], $type_code) !== false))) {
+				if (empty($type_code) || (!empty($type_code) && (array_search($link['minor_type_code'], $type_code) !== FALSE))) {
 					$children[$link['minorid']] = $link['minor_type_code'];
 				}
 				$children = array_merge($children, $this->getChildren($link['minorid'], $type_code, $strict_type_code, $sort_by));
@@ -711,14 +713,14 @@ class IPB_Bridge extends Asset
 			$suffix = substr($assetid, -1);
 			$is_top_category = strlen($assetid) == 3 && $suffix == '0';
 
-			$ipb = &$this->getIpbConn();
+			$ipb =& $this->getIpbConn();
 			if ($prefix == 'g') {
 				if ($is_top_category) {
 					// all groups + all users
 					$all_groups = Array();
 					$all_members = Array();
-					$add_user_group	= (array_search('ipb_user_group', $type_code) !== false);
-					$add_user		= (array_search('ipb_user', $type_code) !== false);
+					$add_user_group	= (array_search('ipb_user_group', $type_code) !== FALSE);
+					$add_user		= (array_search('ipb_user', $type_code) !== FALSE);
 					if ($no_type_code || (!$no_type_code && $add_user_group)) {
 						$all_groups = $ipb->getListOfGroups();
 					}
@@ -736,7 +738,7 @@ class IPB_Bridge extends Asset
 					// all users of the one group
 					$tmp = explode('_', $assetid);
 					$group_members = Array();
-					$add_user = (array_search('ipb_user', $type_code) !== false);
+					$add_user = (array_search('ipb_user', $type_code) !== FALSE);
 					if ($no_type_code || (!$no_type_code && $add_user)) {
 						$group_members = $ipb->getListOfMembers($this->id.':'.$assetid);
 					}
@@ -770,10 +772,10 @@ class IPB_Bridge extends Asset
 						}
 					} else {
 						// type code specified
-						$add_ipb_root_forum	= (array_search('ipb_root_forum', $type_code) !== false);
-						$add_ipb_forum		= (array_search('ipb_forum', $type_code) !== false);
-						$add_ipb_topic		= (array_search('ipb_topic', $type_code) !== false);
-						$add_ipb_post		= (array_search('ipb_post', $type_code) !== false);
+						$add_ipb_root_forum	= (array_search('ipb_root_forum', $type_code) !== FALSE);
+						$add_ipb_forum		= (array_search('ipb_forum', $type_code) !== FALSE);
+						$add_ipb_topic		= (array_search('ipb_topic', $type_code) !== FALSE);
+						$add_ipb_post		= (array_search('ipb_post', $type_code) !== FALSE);
 
 						$all_root_forums = $ipb->getListOfRootForums();
 						foreach ($all_root_forums  as $root_forum) {
@@ -825,8 +827,8 @@ class IPB_Bridge extends Asset
 							}
 						}
 					} else {
-						$add_ipb_topic		= (array_search('ipb_topic', $type_code) !== false);
-						$add_ipb_post		= (array_search('ipb_post', $type_code) !== false);
+						$add_ipb_topic		= (array_search('ipb_topic', $type_code) !== FALSE);
+						$add_ipb_post		= (array_search('ipb_post', $type_code) !== FALSE);
 						if ($strict_type_code && !$add_ipb_topic && !$add_ipb_post) {
 							;
 						} else {
@@ -870,9 +872,9 @@ class IPB_Bridge extends Asset
 				} else {
 					// forums + topics + posts
 					// type code specified
-					$add_ipb_forum		= (array_search('ipb_forum', $type_code) !== false);
-					$add_ipb_topic		= (array_search('ipb_topic', $type_code) !== false);
-					$add_ipb_post		= (array_search('ipb_post', $type_code) !== false);
+					$add_ipb_forum		= (array_search('ipb_forum', $type_code) !== FALSE);
+					$add_ipb_topic		= (array_search('ipb_topic', $type_code) !== FALSE);
+					$add_ipb_post		= (array_search('ipb_post', $type_code) !== FALSE);
 					if ($strict_type_code && !$add_ipb_forum && !$add_ipb_topic && !$add_ipb_post) {
 						;
 					} else {
@@ -913,7 +915,7 @@ class IPB_Bridge extends Asset
 						$children[$this->id.':p_'.$post['id']] = 'ipb_post';
 					}
 				} else {
-					$add_ipb_post		= (array_search('ipb_post', $type_code) !== false);
+					$add_ipb_post		= (array_search('ipb_post', $type_code) !== FALSE);
 					if ($strict_type_code && !$add_ipb_post) {
 						;
 					} else {
@@ -935,7 +937,7 @@ class IPB_Bridge extends Asset
 							$children[$this->id.':o_'.$poll['id']] = 'ipb_poll';
 						}
 					} else {
-						$add_ipb_poll = (array_search('ipb_poll', $type_code) !== false);
+						$add_ipb_poll = (array_search('ipb_poll', $type_code) !== FALSE);
 						if ($strict_type_code && !$add_ipb_poll) {
 							;
 						} else {
@@ -951,7 +953,8 @@ class IPB_Bridge extends Asset
 			}
 
 			$this->_tmp['getChildren'][$assetid] = $children;
-		}
+
+		}//end if
 
 		return $this->_tmp['getChildren'][$assetid];
 
@@ -962,8 +965,8 @@ class IPB_Bridge extends Asset
 	* Returns an array of assetid's + info in the order that they propogate out from THIS BRIDGE'S url
 	*
 	* @param string	$assetid	the id of the last asset in the lineage
-	* @param string	$protocol	the protocol to match -> null means it is ignored
-	* @param string	$url		the urls to check for -> null defaults it to current url
+	* @param string	$protocol	the protocol to match -> NULL means it is ignored
+	* @param string	$url		the urls to check for -> NULL defaults it to current url
 	*
 	* @return array
 	* @access public
@@ -974,7 +977,7 @@ class IPB_Bridge extends Asset
 
 		$shadow_ids = split(',', $assetid);
 		foreach ($shadow_ids as $id) {
-			$asset = &$this->getAsset($this->id.':'.$id);
+			$asset =& $this->getAsset($this->id.':'.$id);
 			$url = substr($asset->getURL(), strlen(current_protocol()) +3);
 			$lineage[] = Array (
 							'url'			=> $url,
@@ -1006,11 +1009,11 @@ class IPB_Bridge extends Asset
 	* @return array
 	* @access public
 	*/
-	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=true, $field='')
+	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=TRUE, $field='')
 	{
 		$info = Array();
 		foreach ($assetids as $assetid) {
-			$asset = &$this->getAsset($assetid);
+			$asset =& $this->getAsset($assetid);
 
 			if (!empty($field)) {
 				if ($field == 'assetid') {
@@ -1043,7 +1046,8 @@ class IPB_Bridge extends Asset
 									'status_changed_userid'	=> $this->status_changed_userid,
 								  );
 			}
-		}
+
+		}//end foreach
 
 		return $info;
 
@@ -1066,7 +1070,7 @@ class IPB_Bridge extends Asset
 	*/
 	function assetExists($assetids)
 	{
-		return false;
+		return FALSE;
 
 	}//end assetExists()
 
@@ -1087,12 +1091,12 @@ class IPB_Bridge extends Asset
 	* @param string		$side_of_link		Which side of the link this (the current) asset
 	*										is on ('major' or 'minor')
 	* @param boolean	$exclusive			The exclusive status for the link must be
-	*										this (if not null)
+	*										this (if not NULL)
 	*
 	* @return array
 	* @access public
 	*/
-	function getLink($assetid, $link_type=null, $type_code='', $strict_type_code=true, $value=null, $side_of_link='major', $exclusive=null)
+	function getLink($assetid, $link_type=NULL, $type_code='', $strict_type_code=TRUE, $value=NULL, $side_of_link='major', $exclusive=NULL)
 	{
 		return Array();
 
@@ -1138,7 +1142,7 @@ class IPB_Bridge extends Asset
 	* @return int
 	* @access public
 	*/
-	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=true, $ignore_linkid=0)
+	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
 	{
 		return 0;
 
@@ -1158,14 +1162,14 @@ class IPB_Bridge extends Asset
 	* @param boolean	$force_array	force the results to return an array of links
 	*									even if there is only one link
 	* @param boolean	$dependant		The dependant status for all the links must be
-	*									this (if not null)
+	*									this (if not NULL)
 	* @param boolean	$exclusive		The exclusive status for all the links must be
-	*									this (if not null)
+	*									this (if not NULL)
 	*
 	* @return array
 	* @access public
 	*/
-	function getLinkByAsset($assetid, $other_assetid, $link_types=null, $value=null, $side_of_link='major', $force_array=false, $dependant=null, $exclusive=null)
+	function getLinkByAsset($assetid, $other_assetid, $link_types=NULL, $value=NULL, $side_of_link='major', $force_array=FALSE, $dependant=NULL, $exclusive=NULL)
 	{
 		return Array();
 
@@ -1202,9 +1206,9 @@ class IPB_Bridge extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function updateLink($linkid, $link_type=null, $value=null, $sort_order=null)
+	function updateLink($linkid, $link_type=NULL, $value=NULL, $sort_order=NULL)
 	{
-		return false;
+		return FALSE;
 
 	}//end updateLink()
 
@@ -1218,9 +1222,9 @@ class IPB_Bridge extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function deleteAssetLink($linkid, $moving=false)
+	function deleteAssetLink($linkid, $moving=FALSE)
 	{
-		return false;
+		return FALSE;
 
 	}//end deleteAssetLink()
 
@@ -1239,7 +1243,7 @@ class IPB_Bridge extends Asset
 	*/
 	function canCreateLink(&$major, &$minor, $link_type, $exclusive)
 	{
-		return false;
+		return FALSE;
 
 	}//end canCreateLink()
 
@@ -1252,7 +1256,7 @@ class IPB_Bridge extends Asset
 	* @param string		$link_type	the type of link this is
 	* @param string		$value		the value that is to be associated with this link
 	* @param string		$sort_order	the position in the links list that this link should take,
-	*								if null or less than zero places at end of list
+	*								if NULL or less than zero places at end of list
 	* @param string		$dependant	'0' / '1' - whether the minor asset is dependant on the major
 	* @param string		$exclusive	'0' / '1' - whether the major asset is to be the minor's only parent
 	* @param boolean	$moving		whether or not this asset is being moved
@@ -1260,7 +1264,7 @@ class IPB_Bridge extends Asset
 	* @return int
 	* @access public
 	*/
-	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0', $moving=false)
+	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0', $moving=FALSE)
 	{
 		return 0;
 
@@ -1272,22 +1276,22 @@ class IPB_Bridge extends Asset
 	*
 	* @param int		$assetid		the assetid for asset whose permissions to get
 	* @param string		$permission		the permission code you are getting
-	* @param boolean	$granted		type of Access : null = all, true = granted, false = denied
+	* @param boolean	$granted		type of Access : NULL = all, TRUE = granted, FALSE = denied
 	* @param boolean	$and_greater	get effective permission (eg read access = read
 	*									or write or admin)
 	* @param boolean	$expand_groups	expand user groups so only user ids get returned
-	*									(NOTE: only valid if $all_info is false)
-	* @param boolean	$all_info		when false fn just returns an array of userids for
+	*									(NOTE: only valid if $all_info is FALSE)
+	* @param boolean	$all_info		when FALSE fn just returns an array of userids for
 	*									those that have permission
-	*									When true fn returns all info about the permission in the form of
+	*									When TRUE fn returns all info about the permission in the form of
 	*									Array(userid => granted)
 	*									(NOTE: TRUE is only valid if $and_greater and
-										 *									$expand_groups are false)
+										 *									$expand_groups are FALSE)
 	*
 	* @return array
 	* @access public
 	*/
-	function getPermission($assetid, $permission, $granted=null, $and_greater=true, $expand_groups=false, $all_info=false)
+	function getPermission($assetid, $permission, $granted=NULL, $and_greater=TRUE, $expand_groups=FALSE, $all_info=FALSE)
 	{
 		return Array();
 
@@ -1307,7 +1311,7 @@ class IPB_Bridge extends Asset
 	*/
 	function setPermission($assetid, $userid, $permission, $granted)
 	{
-		return false;
+		return FALSE;
 
 	}//end setPermission()
 
@@ -1324,7 +1328,7 @@ class IPB_Bridge extends Asset
 	*/
 	function deletePermission($assetid, $userid, $permission)
 	{
-		return false;
+		return FALSE;
 
 	}//end deletePermission()
 

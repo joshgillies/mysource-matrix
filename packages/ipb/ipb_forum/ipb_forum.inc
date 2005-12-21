@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_forum.inc,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+* $Id: ipb_forum.inc,v 1.2 2005/12/21 04:18:25 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -61,14 +61,14 @@ class Ipb_Forum extends Asset
 	*/
 	function Ipb_Forum($ipbid=0, $data=Array())
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->_loadVars();
 
 		if (!$ipbid || empty($data)) {
 			return;
 		}
 
-		$ipb_bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($ipbid, 'ipb_bridge');
+		$ipb_bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($ipbid, 'ipb_bridge');
 		if (is_null($ipb_bridge)) return;
 
 		$this->_ipbid = $ipbid;
@@ -154,7 +154,7 @@ class Ipb_Forum extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return 'IPB All Forums';
 

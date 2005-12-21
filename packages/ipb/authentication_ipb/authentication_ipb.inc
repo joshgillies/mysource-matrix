@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ipb.inc,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+* $Id: authentication_ipb.inc,v 1.2 2005/12/21 04:18:25 skim Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -62,18 +62,18 @@ class Authentication_IPB extends Authentication
 	*/
 	function &authenticateUser($username, $password)
 	{
-		$user = null;
+		$user = NULL;
 
-		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ipb_bridge', true);
+		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ipb_bridge', TRUE);
 		foreach ($bridges as $bridgeid => $type_code) {
 
-			$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
+			$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
 			if (is_null($bridge)) continue;
 
-			$ipb = &$bridge->getIpbConn();
+			$ipb =& $bridge->getIpbConn();
 
-			$email_login = false;
-			if (valid_email($username)) $email_login = true;
+			$email_login = FALSE;
+			if (valid_email($username)) $email_login = TRUE;
 
 			if (!$this->attr('allow_banned')) {
 				// check banned group option
@@ -93,7 +93,7 @@ class Authentication_IPB extends Authentication
 		}
 
 		// if we are here, we could not find the user
-		$null = null;
+		$null = NULL;
 		return $null;
 
 	}//end authenticateUser()
@@ -107,13 +107,13 @@ class Authentication_IPB extends Authentication
 	*/
 	function &authenticateHttpUser()
 	{
-		$user = null;
-		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ipb_bridge', true);
+		$user = NULL;
+		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ipb_bridge', TRUE);
 		foreach ($bridges as $bridgeid => $type_code) {
-			$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
+			$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
 			if (is_null($bridge)) continue;
 
-			$ipb = &$bridge->getIpbConn();
+			$ipb =& $bridge->getIpbConn();
 			$data = $ipb->getMemberByName($_SERVER['REMOTE_USER']);
 			if (empty($data)) continue;
 
@@ -149,7 +149,7 @@ class Authentication_IPB extends Authentication
 		if ($_SESSION['user_login_attempts'][$username] >= SQ_CONF_MAX_LOGIN_ATTEMPTS) {
 			if (!is_null($user) && $user->canLogin()) {
 				// log a message so we know someone has tried to log in too many times
-				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$msg_reps = Array(
 								'asset_name'	=> $user->name,
 								'user_name'		=> $username,
@@ -178,7 +178,7 @@ class Authentication_IPB extends Authentication
 				SQ_LINK_TYPE_1	=> Array(
 									'ipb_bridge'	=> Array(
 														'card'		=> 'M',
-														'exclusive'	=> false,
+														'exclusive'	=> FALSE,
 													   ),
 								   ),
 			   );

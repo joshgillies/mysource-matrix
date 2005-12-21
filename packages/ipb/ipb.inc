@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb.inc,v 1.4 2005/12/21 03:45:07 skim Exp $
+* $Id: ipb.inc,v 1.5 2005/12/21 04:18:25 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 * from Invision Power Board database
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package Fudge
 * @subpackage ipb
 */
@@ -56,7 +56,7 @@ class Ipb
 							'/ips_kernel/class_converge.php',
 						);
 
-	var $info = null;
+	var $info = NULL;
 
 
 	/**
@@ -82,7 +82,8 @@ class Ipb
 	* This function includes all necessary files from IPB,
 	* then establishes db connection to their database
 	*
-	* @param string	$path	absolute path to Invision Power Board installation
+	* @param string	$path		the absolute path to Invision Power Board installation
+	* @param string	$version	the version of the Invision Power Board installation
 	*
 	* @return boolean
 	* @access public
@@ -125,15 +126,15 @@ class Ipb
 				$this->db->connect_vars[$k] = $INFO[$k];
 			}
 		}
-		if ($this->db->connect()) return true;
+		if ($this->db->connect()) return TRUE;
 
-		return false;
+		return FALSE;
 
 	}//end setup()
 
 
 	/**
-	* Return true if IPB is connected
+	* Return TRUE if IPB is connected
 	*
 	* @return boolean
 	* @access public
@@ -141,9 +142,9 @@ class Ipb
 	function isConnected()
 	{
 		if (!is_null($this->db)) {
-			return true;
+			return TRUE;
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end isConnected()
@@ -161,7 +162,7 @@ class Ipb
 			$result = $this->db->close_db();
 			return assert_valid_db_result($result);
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end disconnect()
@@ -204,7 +205,7 @@ class Ipb
 		$prefix = $tmp[0];
 
 		if (empty($id) || empty($prefix)) {
-			return false;
+			return FALSE;
 		}
 		if ( $prefix == 'u') {
 			// ipb member
@@ -214,7 +215,7 @@ class Ipb
 			$result = $this->getMemberGroupInfo('groups', Array(), $id);
 		}
 
-		if (empty($result)) return false;
+		if (empty($result)) return FALSE;
 
 		return $result;
 
@@ -229,7 +230,7 @@ class Ipb
 	*
 	* @param string		$username		the user name to verify
 	* @param string		$password		the password to verify
-	* @param boolean	$is_email_login	it's true if email is used for loggin
+	* @param boolean	$is_email_login	it's TRUE if email is used for loggin
 	*
 	* @return boolean
 	* @access public
@@ -241,7 +242,7 @@ class Ipb
 
 		if ($is_email_login) {
 			if (!$converge->converge_check_for_member_by_email($username)) {
-				return false;
+				return FALSE;
 			}
 			$converge->converge_load_member_by_email($username);
 		} else {
@@ -257,7 +258,7 @@ class Ipb
 			while ($row = mysql_fetch_array($db_result, MYSQL_ASSOC)) {
 				$test[] = $row;
 			}
-			if (empty($test)) return false;
+			if (empty($test)) return FALSE;
 
 			@$converge->converge_load_member_by_id($test[0]['id']);
 		}
@@ -308,7 +309,7 @@ class Ipb
 	{
 		// add column names
 		$columns			= Array();
-		$custom_columns		= false;
+		$custom_columns		= FALSE;
 		$table_name			= 'members';
 		$table_short_name	= 'm';
 		$m_cols				= Array('id', 'name', 'mgroup', 'email', 'title', 'member_login_key');
@@ -322,7 +323,7 @@ class Ipb
 				$columns[] = 'g.'.$c;
 			}
 		} else {
-			$custom_columns = true;
+			$custom_columns = TRUE;
 		}
 
 		// build query
@@ -400,7 +401,7 @@ class Ipb
 	{
 		// add column names
 		$columns		= Array();
-		$custom_columns	= false;
+		$custom_columns	= FALSE;
 
 		if ($table_name == 'members') {
 			$table_short_name='u';
@@ -439,7 +440,7 @@ class Ipb
 				$cols = Array('g.g_id', 'g.g_title', 'g.g_mem_info', 'g.prefix', 'g.suffix');
 			}
 		} else {
-			$custom_columns = true;
+			$custom_columns = TRUE;
 		}
 
 		$columns = $cols;
@@ -510,13 +511,13 @@ class Ipb
 
 		// add column names
 		$columns		= Array();
-		$custom_columns	= false;
+		$custom_columns	= FALSE;
 		$table_name = 'members';
 		$table_short_name='m';
 		if (empty($cols)) {
 			$cols = Array('id', 'name', 'mgroup', 'email', 'title', 'member_login_key');
 		} else {
-			$custom_columns = true;
+			$custom_columns = TRUE;
 		}
 
 		// add prefix
@@ -529,7 +530,7 @@ class Ipb
 		if ($member_id || $group_id) {
 			$where = ' WHERE ';
 			if ($member_id) {
-				$where .= $table_short_name.'.id='.$member_id.(($group_id)?' and ':'');
+				$where .= $table_short_name.'.id='.$member_id.(($group_id) ? ' and ' : '');
 			}
 			if ($group_id) {
 				$where .= $table_short_name.'.mgroup='.$group_id;
@@ -586,7 +587,7 @@ class Ipb
 	{
 		$sql = $this->_buildQuery('*', 'pfields_data', 'pfd');
 
-		return $this->_getResult($sql, Array(), false);
+		return $this->_getResult($sql, Array(), FALSE);
 
 	}//end getCustomFields()
 
@@ -609,7 +610,7 @@ class Ipb
 
 		$sql = $this->_buildQuery('*', 'pfields_content', 'pfc', ' WHERE pfc.member_id='.$id);
 
-		return $this->_getResult($sql, Array(), false);
+		return $this->_getResult($sql, Array(), FALSE);
 
 	}//end getMemberCustomFieldData()
 
@@ -633,7 +634,7 @@ class Ipb
 		$id = $tmp[1];
 
 		$sql = $this->_buildQuery('*', 'groups', 'g', ' WHERE g.g_id='.$id);
-		return $this->_getResult($sql, Array(), true);
+		return $this->_getResult($sql, Array(), TRUE);
 
 	}//end getGroupInfo()
 
@@ -653,7 +654,7 @@ class Ipb
 
 		$sql = $this->_buildQuery($fields, 'groups', 'g');
 
-		return $this->_getResult($sql, Array('g_id' => 'id'), false);
+		return $this->_getResult($sql, Array('g_id' => 'id'), FALSE);
 
 	}//end getListOfGroups()
 
@@ -662,7 +663,7 @@ class Ipb
 
 
 	/**
-	* Returns true if the user's group has the access
+	* Returns TRUE if the user's group has the access
 	* to view the IPB board
 	*
 	* @param int	$username	the name of the ipb user
@@ -681,7 +682,7 @@ class Ipb
 					m.mgroup=g.g_id and
 					m.name=\''.$username.'\'
 				;';
-		return $this->_getResult($sql, Array(), true);
+		return $this->_getResult($sql, Array(), TRUE);
 
 	}//end canViewBoard()
 
@@ -703,7 +704,7 @@ class Ipb
 
 		$sql = $this->_buildQuery('*', 'members', 'm', ' WHERE m.id='.$id, ' LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'member_extra me ON me.id=m.id');
 
-		return $this->_getResult($sql, Array(), true);
+		return $this->_getResult($sql, Array(), TRUE);
 
 	}//end getMemberInfo()
 
@@ -720,7 +721,7 @@ class Ipb
 	{
 		$sql = $this->_buildQuery('*', 'members', 'm', ' WHERE m.name=\''.$member_name.'\'', ' LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'member_extra me ON me.id=m.id');
 
-		return $this->_getResult($sql, Array(), true);
+		return $this->_getResult($sql, Array(), TRUE);
 
 	}//end getMemberInfoByName()
 
@@ -742,7 +743,7 @@ class Ipb
 
 		$sql = $this->_buildQuery(Array('mgroup'), 'members', 'm', ' WHERE m.id='.$id);
 
-		return $this->_getResult($sql, Array(), true);
+		return $this->_getResult($sql, Array(), TRUE);
 
 	}//end getMemberParent()
 
@@ -773,7 +774,7 @@ class Ipb
 			$sql = $this->_buildQuery($fields, 'members', 'u', ' WHERE u.mgroup='.$id);
 		}
 
-		return $this->_getResult($sql, Array(), false);
+		return $this->_getResult($sql, Array(), FALSE);
 
 	}//end getListOfMembers()
 
@@ -803,7 +804,7 @@ class Ipb
 				  );
 		$sql = $this->_buildQuery($fields, 'forums', 'f', ' WHERE f.id='.$id);
 
-		return $this->_getResult($sql, Array(), true);
+		return $this->_getResult($sql, Array(), TRUE);
 
 	}//end getRootForumInfo()
 
@@ -822,7 +823,7 @@ class Ipb
 				  );
 		$sql = $this->_buildQuery($fields, 'forums', 'f', ' WHERE f.parent_id=-1');
 
-		return $this->_getResult($sql, Array(), false);
+		return $this->_getResult($sql, Array(), FALSE);
 
 	}//end getListOfRootForums()
 
@@ -856,7 +857,7 @@ class Ipb
 				  );
 		$sql = $this->_buildQuery($fields, 'forums', 'f', ' WHERE f.id='.$id);
 
-		return $this->_getResult($sql, Array(), true);
+		return $this->_getResult($sql, Array(), TRUE);
 
 	}//end getForumInfo()
 
@@ -878,7 +879,7 @@ class Ipb
 
 		$sql = $this->_buildQuery(Array('parent_id'), 'forums', 'f', ' WHERE f.id='.$id);
 
-		return $this->_getResult($sql, Array(), true);
+		return $this->_getResult($sql, Array(), TRUE);
 
 	}//end getForumParent()
 
@@ -904,7 +905,7 @@ class Ipb
 				  );
 		$sql = $this->_buildQuery($fields, 'forums', 'f', ' WHERE f.parent_id='.$id);
 
-		return $this->_getResult($sql, Array(), false);
+		return $this->_getResult($sql, Array(), FALSE);
 
 	}//end getListOfForums()
 
@@ -941,7 +942,7 @@ class Ipb
 				  );
 		$sql = $this->_buildQuery($fields, 'topics', 't', ' WHERE t.tid='.$id);
 
-		return $this->_getResult($sql, Array('title' => 'name'), true);
+		return $this->_getResult($sql, Array('title' => 'name'), TRUE);
 
 	}//end getTopicInfo()
 
@@ -972,7 +973,7 @@ class Ipb
 					and t.tid='.$id.';
 				';
 
-		return $this->_getResult($sql, Array(), true);
+		return $this->_getResult($sql, Array(), TRUE);
 
 	}//end getTopicParent()
 
@@ -1043,7 +1044,7 @@ class Ipb
 				order by
 					post_date desc;';
 
-		return $this->_getResult($sql, Array(), true);
+		return $this->_getResult($sql, Array(), TRUE);
 
 	}//end getPostInfo()
 
@@ -1077,7 +1078,7 @@ class Ipb
 					and p.pid='.$id.';
 				';
 
-		return $this->_getResult($sql, Array(), true);
+		return $this->_getResult($sql, Array(), TRUE);
 
 	}//end getPostParent()
 
@@ -1092,7 +1093,7 @@ class Ipb
 	* @return array
 	* @access public
 	*/
-	function getListOfPosts($topic_id, $forum_id=null, $limit=0)
+	function getListOfPosts($topic_id, $forum_id=NULL, $limit=0)
 	{
 		if (is_null($forum_id)) {
 			$tmp = explode('_', $topic_id);
@@ -1158,7 +1159,7 @@ class Ipb
 		$join =  ' LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'topics t ON t.tid=o.tid';
 		$sql = $this->_buildQuery($fields, 'polls', 'o', ' WHERE o.pid='.$id, $join);
 
-		return $this->_getResult($sql, Array(), true);
+		return $this->_getResult($sql, Array(), TRUE);
 
 	}//end getPollInfo()
 
@@ -1230,12 +1231,12 @@ class Ipb
 	* @param string		$sql			the sql query to execute
 	* @param array		$key_change		The caller can specify the name of the key
 	*									by providing the pair of the old and new key
-	* @param boolean	$one_element	If the result only contains one element, it's true
+	* @param boolean	$one_element	If the result only contains one element, it's TRUE
 	*
 	* @return array
 	* @access private
 	*/
-	function _getResult($sql, $key_change=Array(), $one_element=false)
+	function _getResult($sql, $key_change=Array(), $one_element=FALSE)
 	{
 		$db_result = $this->db->query($sql);
 		assert_valid_db_result($db_result);

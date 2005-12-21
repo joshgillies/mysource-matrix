@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ipb_edit_fns.inc,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+* $Id: authentication_ipb_edit_fns.inc,v 1.2 2005/12/21 04:18:25 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authent
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -87,7 +87,7 @@ class Authentication_IPB_Edit_Fns extends Authentication_Edit_Fns
 			$o->closeField();
 		}
 
-		return true;
+		return TRUE;
 
 	}//end paintAllowBannedList()
 
@@ -105,12 +105,12 @@ class Authentication_IPB_Edit_Fns extends Authentication_Edit_Fns
 	function processAllowBannedList(&$asset, &$o, $prefix)
 	{
 		if (!empty($_POST[$prefix.'_allow_banned_user'])) {
-			$asset->setAttrValue('allow_banned', true);
+			$asset->setAttrValue('allow_banned', TRUE);
 		}
 		if (!empty($_POST[$prefix.'_disallow_banned_user'])) {
-			$asset->setAttrValue('allow_banned', false);
+			$asset->setAttrValue('allow_banned', FALSE);
 		}
-		return true;
+		return TRUE;
 
 	}//end processAllowBannedList()
 

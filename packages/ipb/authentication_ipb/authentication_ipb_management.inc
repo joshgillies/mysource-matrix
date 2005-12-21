@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ipb_management.inc,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+* $Id: authentication_ipb_management.inc,v 1.2 2005/12/21 04:18:25 skim Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -43,16 +43,16 @@ class Authentication_IPB_Management extends Asset_Management
 											'added'		=> '0.1',
 											'type'		=> 'text',
 											'default'	=> 'IPB Authentication',
-											'is_admin'	=> false,
+											'is_admin'	=> FALSE,
 										   ),
 						'allow_banned'	=> Array(
 											'added'			=> '0.1',
 											'type'			=> 'boolean',
-											'default'		=> false,
+											'default'		=> FALSE,
 											'parameters'	=> Array(
-																'allow_empty'	=> false,
+																'allow_empty'	=> FALSE,
 															   ),
-											'is_admin'		=> false,
+											'is_admin'		=> FALSE,
 										   ),
 					  );
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_user_group_edit_fns.inc,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+* $Id: ipb_user_group_edit_fns.inc,v 1.2 2005/12/21 04:18:25 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -44,12 +44,12 @@ class Ipb_User_Group_Edit_Fns extends User_Group_Edit_Fns
 		$this->static_screens = Array(
 									'details'		=> Array(
 														'name'			=> 'Details',
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'none',
 													   ),
 									'dependants'	=> Array(
 														'name'			=> 'Dependants',
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'none',
 													   ),
 								);
@@ -88,7 +88,7 @@ class Ipb_User_Group_Edit_Fns extends User_Group_Edit_Fns
 			}
 		}
 		// no committing allowed
-		return false;
+		return FALSE;
 
 	}//end paintDetails()
 
@@ -107,7 +107,7 @@ class Ipb_User_Group_Edit_Fns extends User_Group_Edit_Fns
 	*/
 	function processDetails(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processDetails()
 
@@ -152,7 +152,7 @@ class Ipb_User_Group_Edit_Fns extends User_Group_Edit_Fns
 				}
 			$o->closeField();
 		}
-		return false;
+		return FALSE;
 
 	}//end paintListOfUserGroups()
 
@@ -171,13 +171,13 @@ class Ipb_User_Group_Edit_Fns extends User_Group_Edit_Fns
 	*/
 	function processListOfUserGroups(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processListOfUserGroups()
 
 
 	/**
-	* Function that returns true is this ipb_user_group is not
+	* Function that returns TRUE is this ipb_user_group is not
 	* a top category.
 	*
 	* @param object	&$asset	the asset to which we belong
@@ -189,15 +189,15 @@ class Ipb_User_Group_Edit_Fns extends User_Group_Edit_Fns
 	function notCategory(&$asset, $prefix)
 	{
 		$id_parts = explode(':', $asset->id);
-		if ($id_parts[1] != 'g_0') return true;
+		if ($id_parts[1] != 'g_0') return TRUE;
 
-		return false;
+		return FALSE;
 
 	}//end notCategory()
 
 
 	/**
-	* Function that returns true is this ipb_user_group is a top category.
+	* Function that returns TRUE is this ipb_user_group is a top category.
 	*
 	* @param object	&$asset	the asset to which we belong
 	* @param string	$prefix	prefix for the form element

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_user.inc,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+* $Id: ipb_user.inc,v 1.2 2005/12/21 04:18:25 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -49,14 +49,14 @@ class Ipb_User extends Backend_User
 	*/
 	function Ipb_User($ipbid=0, $data=Array())
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->_loadVars();
 
 		if (!$ipbid || empty($data)) {
 			return;
 		}
 
-		$ipb_bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($ipbid, 'ipb_bridge');
+		$ipb_bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($ipbid, 'ipb_bridge');
 		if (is_null($ipb_bridge)) return;
 
 		$this->_ipbid = $ipbid;
@@ -89,19 +89,19 @@ class Ipb_User extends Backend_User
 
 		// set variable values
 		$this->vars['mgroup']['type']	= 'text';
-		$this->vars['mgroup']['value']	= (empty($data['mgroup']))?'none':$data['mgroup'];
+		$this->vars['mgroup']['value']	= (empty($data['mgroup'])) ? 'none' : $data['mgroup'];
 
 		$this->vars['name']['type']		= 'text';
-		$this->vars['name']['value']	= (empty($data['name']))?'none':$data['name'];
+		$this->vars['name']['value']	= (empty($data['name'])) ? 'none' : $data['name'];
 
 		$this->vars['email']['type']	= 'email';
-		$this->vars['email']['value']	= (empty($data['email']))?'none':$data['email'];
+		$this->vars['email']['value']	= (empty($data['email'])) ? 'none' : $data['email'];
 
 		$this->vars['title']['type']	= 'text';
-		$this->vars['title']['value']	= (empty($data['title']))?'none':$data['title'];
+		$this->vars['title']['value']	= (empty($data['title'])) ? 'none' : $data['title'];
 
 		$this->vars['member_login_key']['type']		= 'text';
-		$this->vars['member_login_key']['value']	= (empty($data['member_login_key']))?'none':$data['member_login_key'];
+		$this->vars['member_login_key']['value']	= (empty($data['member_login_key'])) ? 'none' : $data['member_login_key'];
 
 		$day_empty = empty($data['bday_day']);
 		$month_empty = empty($data['bday_month']);
@@ -120,40 +120,40 @@ class Ipb_User extends Backend_User
 		$this->vars['photo_location']['value']	= $data['photo_location'];
 
 		$this->vars['aim_name']['type']			= 'text';
-		$this->vars['aim_name']['value']		= (empty($data['aim_name']))?'none':$data['aim_name'];
+		$this->vars['aim_name']['value']		= (empty($data['aim_name'])) ? 'none' : $data['aim_name'];
 
 		$this->vars['icq_number']['type']		= 'text';
-		$this->vars['icq_number']['value']		= (empty($data['icq_number']))?'none':$data['icq_number'];
+		$this->vars['icq_number']['value']		= (empty($data['icq_number'])) ? 'none' : $data['icq_number'];
 
 		$this->vars['website']['type']			= 'text';
-		$this->vars['website']['value']			= (empty($data['website']))?'none':$data['website'];
+		$this->vars['website']['value']			= (empty($data['website'])) ? 'none' : $data['website'];
 
 		$this->vars['yahoo']['type']			= 'text';
-		$this->vars['yahoo']['value']			= (empty($data['yahoo']))?'none':$data['yahoo'];
+		$this->vars['yahoo']['value']			= (empty($data['yahoo'])) ? 'none' : $data['yahoo'];
 
 		$this->vars['interests']['type']		= 'text';
-		$this->vars['interests']['value']		= (empty($data['interests']))?'none':html_entity_decode($data['interests']);
+		$this->vars['interests']['value']		= (empty($data['interests'])) ? 'none' : html_entity_decode($data['interests']);
 
 		$this->vars['msnname']['type']			= 'text';
-		$this->vars['msnname']['value']			= (empty($data['msnname']))?'none':$data['msnname'];
+		$this->vars['msnname']['value']			= (empty($data['msnname'])) ? 'none' : $data['msnname'];
 
 		$this->vars['vdirs']['type']			= 'text';
-		$this->vars['vdirs']['value']			= (empty($data['vdirs']))?'none':$data['vdirs'];
+		$this->vars['vdirs']['value']			= (empty($data['vdirs'])) ? 'none' : $data['vdirs'];
 
 		$this->vars['location']['type']			= 'text';
-		$this->vars['location']['value']		= (empty($data['location']))?'none':$data['location'];
+		$this->vars['location']['value']		= (empty($data['location'])) ? 'none' : $data['location'];
 
 		$this->vars['signature']['type']		= 'text';
-		$this->vars['signature']['value']		= (empty($data['signature']))?'none':$data['signature'];
+		$this->vars['signature']['value']		= (empty($data['signature'])) ? 'none' : $data['signature'];
 
 		$this->vars['avatar_location']['type']	= 'text';
-		$this->vars['avatar_location']['value']	= (empty($data['avatar_location']))?'none':$data['avatar_location'];
+		$this->vars['avatar_location']['value']	= (empty($data['avatar_location'])) ? 'none' : $data['avatar_location'];
 
 		$this->vars['avatar_size']['type']		= 'text';
-		$this->vars['avatar_size']['value']		= (empty($data['avatar_size']))?'none':$data['avatar_size'];
+		$this->vars['avatar_size']['value']		= (empty($data['avatar_size'])) ? 'none' : $data['avatar_size'];
 
 		$this->vars['avatar_type']['type']		= 'text';
-		$this->vars['avatar_type']['value']		= (empty($data['avatar_type']))?'none':$data['avatar_type'];
+		$this->vars['avatar_type']['value']		= (empty($data['avatar_type'])) ? 'none' : $data['avatar_type'];
 
 	}//end constructor
 
@@ -181,7 +181,7 @@ class Ipb_User extends Backend_User
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return 'IPB User';
 
@@ -198,7 +198,7 @@ class Ipb_User extends Backend_User
 	*/
 	function canLogin()
 	{
-		return true;
+		return TRUE;
 
 	}//end canLogin()
 
@@ -211,7 +211,7 @@ class Ipb_User extends Backend_User
 	*/
 	function &getWorkspace()
 	{
-		$null = null;
+		$null = NULL;
 		return $null;
 
 	}//end getWorkspace()

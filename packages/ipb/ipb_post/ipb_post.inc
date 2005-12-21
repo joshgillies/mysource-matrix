@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_post.inc,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+* $Id: ipb_post.inc,v 1.2 2005/12/21 04:18:25 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/ipb/ipb_topic/ipb_topic.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -57,12 +57,12 @@ class Ipb_Post extends Ipb_Topic
 
 		if (array_key_exists('post_title', $data)) {
 			$this->vars['post_title']['type'] = 'text';
-			$this->vars['post_title']['value'] = (empty($data['post_title']))?'none':$data['post_title'];
+			$this->vars['post_title']['value'] = (empty($data['post_title'])) ? 'none' : $data['post_title'];
 		}
 
 		if (array_key_exists('post_parent', $data)) {
 			$this->vars['post_parent']['type'] = 'text';
-			$this->vars['post_parent']['value'] = ($data['post_parent'])?'Yes':'No';
+			$this->vars['post_parent']['value'] = ($data['post_parent']) ? 'Yes' : 'No';
 		}
 
 		if (array_key_exists('post', $data)) {

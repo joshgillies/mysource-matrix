@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_user_edit_fns.inc,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+* $Id: ipb_user_edit_fns.inc,v 1.2 2005/12/21 04:18:25 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user_edit_fns.inc
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -43,12 +43,12 @@ class Ipb_User_Edit_Fns extends Backend_User_Edit_Fns
 		$this->static_screens = Array(
 									'details'		=> Array(
 														'name'			=> 'Details',
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'none',
 													   ),
 									'dependants'	=> Array(
 														'name'			=> 'Dependants',
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'none',
 													   ),
 								);
@@ -69,7 +69,7 @@ class Ipb_User_Edit_Fns extends Backend_User_Edit_Fns
 	function paintCustomField(&$asset, &$o, $prefix)
 	{
 		$ipb_bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_ipbid);
-		$ipb = &$ipb_bridge->getIpbConn();
+		$ipb =& $ipb_bridge->getIpbConn();
 		$custom_fields = $ipb->getCustomFields();
 		$user_custom_data = $ipb->getMemberCustomFieldData($asset->id);
 
@@ -87,7 +87,7 @@ class Ipb_User_Edit_Fns extends Backend_User_Edit_Fns
 			}
 		}
 
-		return false;
+		return FALSE;
 
 	}//end paintCustomField()
 
@@ -106,7 +106,7 @@ class Ipb_User_Edit_Fns extends Backend_User_Edit_Fns
 	*/
 	function processCustomField(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processCustomField()
 

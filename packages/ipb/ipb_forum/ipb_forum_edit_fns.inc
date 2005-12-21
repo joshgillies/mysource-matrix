@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_forum_edit_fns.inc,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+* $Id: ipb_forum_edit_fns.inc,v 1.2 2005/12/21 04:18:25 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -43,12 +43,12 @@ class Ipb_Forum_Edit_Fns extends Asset_Edit_Fns
 		$this->static_screens = Array(
 									'details'		=> Array(
 														'name'			=> 'Details',
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'none',
 													   ),
 									'dependants'	=> Array(
 														'name'			=> 'Dependants',
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'none',
 													   ),
 								);
@@ -101,7 +101,7 @@ class Ipb_Forum_Edit_Fns extends Asset_Edit_Fns
 				echo '</table>';
 			$o->closeField();
 		}
-		return false;
+		return FALSE;
 
 	}//end paintRecentPosts()
 
@@ -118,7 +118,7 @@ class Ipb_Forum_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processRecentPosts(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processRecentPosts()
 
@@ -139,8 +139,8 @@ class Ipb_Forum_Edit_Fns extends Asset_Edit_Fns
 
 		if (!empty($last_poster_name)) {
 
-			$ipb_bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_ipbid);
-			$ipb = &$ipb_bridge->getIpbConn();
+			$ipb_bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_ipbid);
+			$ipb =& $ipb_bridge->getIpbConn();
 			$result = $ipb->getMemberInfoByName($asset->attr('last_poster_name'));
 
 			$o->openField(translate('last_posted_by'));
@@ -156,7 +156,7 @@ class Ipb_Forum_Edit_Fns extends Asset_Edit_Fns
 
 		}
 
-		return false;
+		return FALSE;
 
 	}//end paintLastPosterName()
 
@@ -201,7 +201,7 @@ class Ipb_Forum_Edit_Fns extends Asset_Edit_Fns
 				}
 			$o->closeField();
 		}
-		return false;
+		return FALSE;
 
 	}//end paintListOfRootForums()
 
@@ -218,13 +218,13 @@ class Ipb_Forum_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processListOfRootForums(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processListOfRootForums()
 
 
 	/**
-	* Returns true if this forum is used as a category
+	* Returns TRUE if this forum is used as a category
 	*
 	* @param object	&$asset	the asset to which we belong
 	* @param string	$prefix	prefix for the form element
@@ -240,7 +240,7 @@ class Ipb_Forum_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Returns true if this forum is used as a normal forum
+	* Returns TRUE if this forum is used as a normal forum
 	*
 	* @param object	&$asset	the asset to which we belong
 	* @param string	$prefix	prefix for the form element

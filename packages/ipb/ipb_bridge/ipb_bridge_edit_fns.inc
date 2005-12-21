@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_bridge_edit_fns.inc,v 1.2 2005/12/21 03:45:07 skim Exp $
+* $Id: ipb_bridge_edit_fns.inc,v 1.3 2005/12/21 04:18:25 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -60,17 +60,17 @@ class IPB_Bridge_Edit_Fns extends Asset_Edit_Fns
 		$location_entered = !empty($location);
 
 		if ($version_selected && $location_entered) {
-			$ipb = &$asset->getIpbConn();
+			$ipb =& $asset->getIpbConn();
 			if (!is_null($ipb) && $ipb->isConnected()) {
 				echo '<span style="color: green"><b>'.translate('ipb_connected').'</b></span>';
 			} else {
 				echo '<span style="color: red"><b>'.translate('ipb_unable_to_connect').'</b></span>';
 			}
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLinks('42:p_160', SQ_LINK_TYPE_1, '', true, 'minor');
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinks('42:p_160', SQ_LINK_TYPE_1, '', TRUE, 'minor');
 		} else {
 			echo '<span style="color: red"><b>'.translate('ipb_setup_note').'</b></span>';
 		}
-		return false;
+		return FALSE;
 
 	}//end paintIpbTest()
 
@@ -87,7 +87,7 @@ class IPB_Bridge_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processIpbTest(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processIpbTest()
 
@@ -104,7 +104,7 @@ class IPB_Bridge_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintGoToIpb(&$asset, &$o, $prefix)
 	{
-		$ipb = &$asset->getIpbConn();
+		$ipb =& $asset->getIpbConn();
 
 		if (!is_null($ipb) && $ipb->isConnected()) {
 			$url = $ipb->getIpbURL();
@@ -128,7 +128,7 @@ class IPB_Bridge_Edit_Fns extends Asset_Edit_Fns
 				$o->closeField();
 			$o->closeSection();
 		}
-		return false;
+		return FALSE;
 
 	}//end paintGoToIpb()
 
@@ -145,7 +145,7 @@ class IPB_Bridge_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processGoToIpb(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processGoToIpb()
 
@@ -178,7 +178,7 @@ class IPB_Bridge_Edit_Fns extends Asset_Edit_Fns
 				}
 			$o->closeField();
 		}
-		return false;
+		return FALSE;
 
 	}//end paintGetLocation()
 
@@ -202,21 +202,21 @@ class IPB_Bridge_Edit_Fns extends Asset_Edit_Fns
 			if (!empty($location)) {
 
 				$needed_files = Array(
-							'/conf_global.php',
-							'/ips_kernel/class_db_mysql.php',
-							'/ips_kernel/class_converge.php',
-						);
+									'/conf_global.php',
+									'/ips_kernel/class_db_mysql.php',
+									'/ips_kernel/class_converge.php',
+								);
 
 				if (is_dir($location)) {
 					foreach ($needed_files as $file) {
 						if (!is_file($location.$file)) {
 							trigger_localised_error('IPB0002', E_USER_WARNING, $location.$file);
 							$asset->setAttrValue('location', '');
-							return true;
+							return TRUE;
 						}
 					}
 					$asset->setAttrValue('location', $location);
-					return true;
+					return TRUE;
 				} else {
 					trigger_localised_error('IPB0001', E_USER_WARNING, $location);
 				}
@@ -225,7 +225,7 @@ class IPB_Bridge_Edit_Fns extends Asset_Edit_Fns
 
 		}//end if write access
 
-		return false;
+		return FALSE;
 
 	}//end processGetLocation()
 
