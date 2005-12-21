@@ -18,12 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.20 2005/11/08 22:45:37 lwright Exp $
+* $Id: cache_manager.inc,v 1.21 2005/12/21 21:55:28 rong Exp $
 *
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
-require_once 'Cache.php';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 /**
 * Cache Manager
@@ -31,19 +32,12 @@ require_once 'Cache.php';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Cache_Manager extends Asset
 {
-
-	/**
-	* The PEAR cache object
-	*
-	* @var Object
-	*/
-	var $cache = null;
 
 
 	/**
@@ -55,11 +49,6 @@ class Cache_Manager extends Asset
 	function Cache_Manager($assetid=0)
 	{
 		$this->_ser_attrs = true;
-
-		// the cache object REQUIRES a slash on the end
-		$old_umask = umask(0);
-		$this->cache = new Cache('file', Array('cache_dir' => SQ_CACHE_PATH.'/'));
-		umask($old_umask);
 		$this->Asset($assetid);
 
 	}//end constructor
@@ -146,62 +135,72 @@ class Cache_Manager extends Asset
 	*
 	* returns false if no cache version exist
 	*
-	* @param string	$assetid	id of the the asset that owns the cache file
-	* @param string	$asset_type	type_code of that asset
-	* @param string	$key		the unique identifer for the cache file
+	* @param string		$assetid	id of the the asset that owns the cache file
+	* @param string		$asset_type	type_code of that asset
+	* @param string		$cache_key	the cache key for this entry
+	* @param boolean	$use_url	whether to use the current url
 	*
 	* @return string
 	* @access public
 	*/
-	function loadFromCache($assetid, $asset_type, $key='', $use_url = true)
+	function loadFromCache($assetid, $asset_type, $cache_key='', $use_url=true)
 	{
 		if (SQ_ROLLBACK_VIEW) return '';
 		if (basename($_SERVER['PHP_SELF']) == SQ_CONF_NOCACHE_SUFFIX) {
 			return '';
 		}
-		if (!$this->cacheEnabled($asset_type)) {
-			return '';
-		}
-		$suffix = $this->_getCacheKey($assetid, $key);
-		if (empty($suffix)) {
-			return '';
+
+		if (!$this->cacheEnabled($asset_type)) return false;
+
+		$perm_key = $this->_getPermKey($assetid, $cache_key);
+		if (empty($perm_key)) return '';
+
+		// use assetid if we are not using current url as an identifier
+		$url = ($use_url) ? current_url() : $assetid;
+		$cache_key = md5($cache_key);
+
+		// check expiry time if entry already exists
+		$cached = $this->_getCache($cache_key, $perm_key, $url);
+		if (!is_null($cached)) {
+			// expired
+			if (time() > strtotime($cached['expires'])) {
+				// TODO: last modified header
+				//extend expiry
+				$this->_deleteCache($cache_key, $perm_key, $url);
+				return '';
+			} else {
+				$contents = file_to_string(SQ_CACHE_PATH.'/'.$cached['path']);
+				if (!$contents && !file_exists(SQ_CACHE_PATH.'/'.$cached['path'])) {
+					trigger_localised_error('CORE0244', E_USER_WARNING, SQ_CACHE_PATH.'/'.$cached['path']);
+					return '';
+				}
+				//$contents .= ' (cached version)';
+				return $contents;
+			}
 		}
 
-		$assetid_code = md5($assetid);
-
-		$cacheid_code = $this->cache->generateID($assetid.$key.$suffix);
-		$url_code = '';
-		if ($use_url) {
-			$url_code = $this->cache->generateID(current_url());
-		}
-
-		$final_key = $assetid_code.':'.$cacheid_code;
-		if (!empty($url_code)) {
-			$final_key .= ':'.$url_code;
-		}
-		$group = $this->getAssetHash($assetid_code).$this->getAssetHash($cacheid_code);
-		$old_umask = umask(0);
-		$contents = $this->cache->get($final_key, $group);
-		umask($old_umask);
-		return ($contents) ? $contents : '';
+		return '';
 
 	}//end loadFromCache()
 
 
 	/**
 	* Saves the specified contents to the cache, which will be identified
-	* by the specfied asset and key
+	* by the specfied asset and key/url
 	*
-	* @param string	$assetid	id of the the asset that owns the cache
-	*							file
-	* @param string	$asset_type	type_code of that asset
-	* @param string	$key		the unique key for this cache entry
-	* @param string	$contents	the contents to save to cache
+	* If cache entry already exists, it will be overwritten with the new contents
+	* and expiry time
+	*
+	* @param string		$assetid	id of the the asset that owns the cache file
+	* @param string		$asset_type	type_code of that asset
+	* @param string		$cache_key	the cache key for this entry
+	* @param string		$contents	the contents to save to cache
+	* @param boolean	$use_url	whether to use the current url
 	*
 	* @return boolean
 	* @access public
 	*/
-	function saveToCache($assetid, $asset_type, $key, $contents, $use_url = true)
+	function saveToCache($assetid, $asset_type, $cache_key, $contents, $use_url=true)
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
 		if (basename($_SERVER['PHP_SELF']) == SQ_CONF_NOCACHE_SUFFIX) {
@@ -210,28 +209,102 @@ class Cache_Manager extends Asset
 
 		if (!$this->cacheEnabled($asset_type)) return false;
 
-		$suffix = $this->_getCacheKey($assetid, $key);
-		if (empty($suffix)) return false;
-		$assetid_code = md5($assetid);
-		$cacheid_code = $this->cache->generateID($assetid.$key.$suffix);
-		$url_code = '';
-		if ($use_url) {
-			$url_code = $this->cache->generateID(current_url());
-		}
-		$final_key = $assetid_code.':'.$cacheid_code;
-		if (!empty($url_code)) {
-			$final_key .= ':'.$url_code;
-		}
-		$group = $this->getAssetHash($assetid_code).$this->getAssetHash($cacheid_code);
-		$expiry = time() + $this->getExpiry($asset_type);
+		$perm_key = $this->_getPermKey($assetid, $cache_key);
+		if (empty($perm_key)) return false;
 
+		// use assetid if we are not using current url as an identifier
+		$url = ($use_url) ? current_url() : $assetid;
+		$cache_key = md5($cache_key);
+
+		// work out the file path and expiry time
+		$group = $this->getAssetHash($cache_key).$this->getAssetHash($perm_key);
+		$file_name = md5($cache_key.':'.$perm_key.':'.$url);
+		$file_path = $group.'/'.$file_name;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$expiry = time() + $this->getExpiry($asset_type);
+		$expiry_sql = db_extras_todate($db, ts_iso8601($expiry));
+
+		// entry is not expired, this is an update
+		$cached = $this->_getCache($cache_key, $perm_key, $url);
+		if (!is_null($cached) && (time() < strtotime($cached['expires']))) {
+			$this->_updateCache($cache_key, $perm_key, $url, $expiry_sql, $file_path, $contents);
+			return true;
+		}
+
+		// cache the content file
 		$old_umask = umask(0);
-		$return = $this->cache->save($final_key, $contents, $expiry, $group);
+		if (!is_dir(SQ_CACHE_PATH.'/'.$group)) {
+			$status = mkdir(SQ_CACHE_PATH.'/'.$group, 0755);
+			clearstatcache();
+			if (!$status) {
+				trigger_localised_error('CORE0245', E_USER_WARNING, SQ_CACHE_PATH.'/'.$group);
+				return false;
+			}
+		}
+		$status = string_to_file($contents, SQ_CACHE_PATH.'/'.$file_path);
+		if (!$status) {
+			trigger_localised_error('CORE0243', E_USER_WARNING, SQ_CACHE_PATH.'/'.$file_path);
+			return false;
+		}
 		umask($old_umask);
 
-		return $return;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+
+		$sql = 'INSERT INTO
+					sq_cache
+				(
+					cache_key,
+					perm_key,
+					url,
+					assetid,
+					expires,
+					path
+				)
+				VALUES
+				(
+					'.$db->quoteSmart($cache_key).',
+					'.$db->quoteSmart($perm_key).',
+					'.$db->quoteSmart($url).',
+					'.$db->quoteSmart($assetid).',
+					'.$expiry_sql.',
+					'.$db->quoteSmart($file_path).'
+				)';
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
 
 	}//end saveToCache()
+
+	/**
+	* Removes all cache entries related to this assetid
+	*
+	* @param array	$assetids	id of the the asset that owns the cache file
+	*
+	* @return void
+	* @access public
+	*/
+	function clearCache($assetids)
+	{
+		if (!empty($assetids)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$sql = 'DELETE FROM
+						sq_cache
+					WHERE
+						assetid in ('.implode(',', $assetids).')';
+			$result = $db->query($sql);
+			error_log(implode(',', $assetids));
+			assert_valid_db_result($result);
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		}
+
+	}//end clearCache()
 
 
 	/**
@@ -241,22 +314,22 @@ class Cache_Manager extends Asset
 	* Also takes the type of asset being cached into account (standard or listing based)
 	*
 	* @param string	$assetid	the id of asset that identifies this cache entry
-	* @param string	$key		the cache key passed by the asset being cached
+	* @param string	$cache_key	the cache key passed by the asset being cached
 	*
 	* @return string
 	* @access private
 	*/
-	function _getCacheKey($assetid, $key)
+	function _getPermKey($assetid, $cache_key)
 	{
-		$cache_key = '';
+		$perm_key = '';
 		$current_user = &$GLOBALS['SQ_SYSTEM']->user;
 		if (is_null($current_user) || is_a($current_user, 'public_user')) {
 			// if your not logged in and public level caching is on - you get the public copy
 			if ($this->attr('public_caching')) {
-				$cache_key = 'public';
+				$perm_key = 'public';
 			}
 		} else {
-			if (empty($key)) {
+			if (empty($cache_key)) {
 				// if permission level caching is on - check read/write/admin access for this asset
 				// if the key is blank (representing a non list style asset)
 				if ($this->attr('permission_caching')) {
@@ -280,13 +353,13 @@ class Cache_Manager extends Asset
 
 					switch ($permission) {
 						case SQ_PERMISSION_READ  :
-							$cache_key .= ':read';
+							$perm_key .= ':read';
 						break;
 						case SQ_PERMISSION_WRITE :
-							$cache_key .= ':write';
+							$perm_key .= ':write';
 						break;
 						case SQ_PERMISSION_ADMIN :
-							$cache_key .= ':admin';
+							$perm_key .= ':admin';
 						break;
 					}
 				}
@@ -295,14 +368,14 @@ class Cache_Manager extends Asset
 				if ($this->attr('group_caching')) {
 					$groups = array_keys($current_user->getGroups());
 					sort($groups);
-					$cache_key = implode('|', $groups);
+					$perm_key = implode('|', $groups);
 				}
 			}
 		}//end if logged in
 
-		return $cache_key;
+		return $perm_key;
 
-	}//end _getCacheKey()
+	}//end _getPermKey()
 
 
 	/**
@@ -378,6 +451,108 @@ class Cache_Manager extends Asset
 		return $this->attr('expiry');
 
 	}//end getExpiry()
+
+
+	/**
+	* Returns the expiry time and file path of a cache entry
+	*
+	* @param string	$cache_key	the cache key for this entry
+	* @param string	$perm_key	the permission key for this entry
+	* @param string	$url		the url identifier
+	*
+	* @return mixed array|null
+	* @access private
+	*/
+	function _getCache($cache_key, $perm_key, $url)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'SELECT
+					expires, path
+				FROM
+					sq_cache
+				WHERE
+					cache_key = '.$db->quoteSmart($cache_key).' AND
+					perm_key = '.$db->quoteSmart($perm_key).' AND
+					url = '.$db->quoteSmart($url);
+		$result = $db->getAll($sql);
+		assert_valid_db_result($result);
+
+		return array_shift($result);
+
+	}//end _getCache()
+
+
+	/**
+	* Deletes an expired entry from the cache table
+	*
+	* @param string	$cache_key	the cache key for this entry
+	* @param string	$perm_key	the permission key for this entry
+	* @param string	$url		the url identifier
+	*
+	* @return void
+	* @access private
+	*/
+	function _deleteCache($cache_key, $perm_key, $url)
+	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'DELETE FROM
+					sq_cache
+				WHERE
+					cache_key = '.$db->quoteSmart($cache_key).' AND
+					perm_key = '.$db->quoteSmart($perm_key).' AND
+					url = '.$db->quoteSmart($url);
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+	}//end _deleteCache()
+
+
+	/**
+	* Updates the cache file and the extends the expiry time
+	*
+	* @param string	$cache_key			the cache key for this entry
+	* @param string	$perm_key			the permission key for this entry
+	* @param string	$url				the url identifier
+	* @param string	$expiry_sql			the updated expiry time
+	* @param string	$file_path			the file path to the cached content
+	* @param array	$updated_content	the updated content
+	*
+	* @return void
+	* @access private
+	*/
+	function _updateCache($cache_key, $perm_key, $url, $expiry_sql, $file_path='', $updated_content='')
+	{
+		// update the expiry time
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'UPDATE
+					sq_cache
+				SET
+					expires = '.$expiry_sql.'
+				WHERE
+					cache_key = '.$db->quoteSmart($cache_key).' AND
+					perm_key = '.$db->quoteSmart($perm_key).' AND
+					url = '.$db->quoteSmart($url);
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		// update the content file
+		if ($file_path) {
+			$old_umask = umask(0);
+			$status = string_to_file($updated_content, SQ_CACHE_PATH.'/'.$file_path);
+			if (!$status) {
+				trigger_localised_error('CORE0243', E_USER_WARNING, SQ_CACHE_PATH.'/'.$file_path);
+				return false;
+			}
+			umask($old_umask);
+		}
+
+	}//end _updateCache()
 
 
 }//end class
