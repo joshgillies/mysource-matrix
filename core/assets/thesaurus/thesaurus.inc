@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.9 2005/12/15 06:13:22 arailean Exp $
+* $Id: thesaurus.inc,v 1.10 2005/12/21 04:17:21 arailean Exp $
 *
 */
 
@@ -36,15 +36,12 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Thesaurus extends Asset
 {
-
-	var $REL_ABBREVIATION	= 'Abbreviation';
-	var $REL_SYNONYM		= 'Synonym';
 
 
 	/**
@@ -99,8 +96,7 @@ class Thesaurus extends Asset
 	}//end _createAdditional()
 
 
-//--		CONVENIENCE FUNCTIONS		--//
-//// Functions in this section are intended to make life simpler for other assets
+//--		BUILT-IN RELATION SUPPORT		--//
 
 
 	/**
@@ -115,7 +111,13 @@ class Thesaurus extends Asset
 	*/
 	function getAbbreviations()
 	{
-		$abbr_rows = $this->getRelatedTerms($this->REL_ABBREVIATION);
+		$abbreviation_attr = $this->getAttribute('abbreviation_rel');
+		$abbreviation_rel = $abbreviation_attr->value;
+		if (empty($abbreviation_rel)) {
+			$abbreviation_rel = null;
+		}
+
+		$abbr_rows = $this->getRelatedTerms($abbreviation_rel);
 
 		if (is_null($abbr_rows)) return Array();
 
@@ -143,7 +145,13 @@ class Thesaurus extends Asset
 
 		if (empty($termid)) return Array();
 
-		$synonyms = $this->getChildTerms($termid, $this->REL_SYNONYM);
+		$synonym_attr = $this->getAttribute('synonym_rel');
+		$synonym_rel = $synonym_attr->value;
+		if (empty($synonym_rel)) {
+			$synonym_rel = null;
+		}
+
+		$synonyms = $this->getChildTerms($termid, $synonym_rel);
 		$result = Array();
 
 		if (!empty($synonyms)) {
@@ -1016,7 +1024,6 @@ class Thesaurus extends Asset
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
 
 
 		$max_sort_order = $this->getMaxSortOrder($parentid);

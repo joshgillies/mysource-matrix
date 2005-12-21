@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2005/12/02 00:26:38 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2005/12/21 04:17:21 arailean Exp $
 *
 */
 -->
@@ -68,6 +68,24 @@
 				<process_function	name="processRenameRelation" />
 			</function_call>
 		</field>
+	</section>
+
+	<section name="Built-in Relations" write_access="write:attributes">
+
+		<field>
+			<function_call>
+				<paint_function		name="paintSynonymSupport" />
+				<process_function	name="processSynonymSupport" />
+			</function_call>
+		</field>
+
+		<field>
+			<function_call>
+				<paint_function		name="paintAbbreviationSupport" />
+				<process_function	name="processAbbreviationSupport" />
+			</function_call>
+		</field>
+
 	</section>
 
 </contents>

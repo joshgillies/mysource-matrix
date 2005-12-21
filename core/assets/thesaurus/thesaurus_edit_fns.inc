@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.2 2005/12/02 00:26:38 arailean Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.3 2005/12/21 04:17:21 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -318,6 +318,122 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 		return $success;
 
 	}//end processRenameRelation()
+
+
+	/**
+	* Synonym relation selection interface
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintSynonymSupport(&$asset, &$o, $prefix)
+	{
+		$current_rel = $asset->attr('synonym_rel');
+		if (empty($current_rel)) {
+			$current_rel = null;
+		}
+		if (!$asset->writeAccess('attributes')) {
+			echo (is_null($current_rel)?'<em>NULL</em>':$current_rel);
+		} else {
+			$relations = $asset->getActiveRelations();
+
+			if (!isset($relations[$current_rel]) && !is_null($current_rel)) {
+				$relations[$current_rel] = '-- '.$current_rel;
+			}
+			combo_box($prefix.'_synonym', $relations, false, $current_rel);
+		}
+
+		return true;
+
+	}//end paintSynonymSupport()
+
+
+	/**
+	* Synonym relation selection interface
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processSynonymSupport(&$asset, &$o, $prefix)
+	{
+
+		$synonym_rel = $asset->attr('synonym_rel');
+		if ($asset->writeAccess('attributes')) {
+			$selected_rel = array_get_index($_REQUEST, $prefix.'_synonym');
+			$selected_rel = trim($selected_rel);
+			if (empty($selected_rel)) $selected_rel = null;
+
+			$asset->setAttrValue('synonym_rel', $selected_rel);
+		}
+
+		return true;
+
+	}//end processSynonymSupport()
+
+
+	/**
+	* Abbreviation relation selection interface
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAbbreviationSupport(&$asset, &$o, $prefix)
+	{
+		$current_rel = $asset->attr('abbreviation_rel');
+		if (empty($current_rel)) {
+			$current_rel = null;
+		}
+		if (!$asset->writeAccess('attributes')) {
+			echo (is_null($current_rel)?'<em>NULL</em>':$current_rel);
+		} else {
+			$relations = $asset->getActiveRelations();
+
+			if (!isset($relations[$current_rel]) && !is_null($current_rel)) {
+				$relations[$current_rel] = '-- '.$current_rel;
+			}
+			combo_box($prefix.'_abbrev', $relations, false, $current_rel);
+		}
+
+		return true;
+
+	}//end paintAbbreviationSupport()
+
+
+	/**
+	* Synonym relation selection interface
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAbbreviationSupport(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			$selected_rel = array_get_index($_REQUEST, $prefix.'_abbrev');
+			$selected_rel = trim($selected_rel);
+			if (empty($selected_rel)) $selected_rel = null;
+
+			$asset->setAttrValue('abbreviation_rel', $selected_rel);
+		}
+
+		return true;
+
+	}//end processAbbreviationSupport()
 
 
 }//end class

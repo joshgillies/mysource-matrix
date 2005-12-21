@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_management.inc,v 1.1 2005/11/23 00:53:35 arailean Exp $
+* $Id: thesaurus_management.inc,v 1.2 2005/12/21 04:17:21 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,8 +67,17 @@ class Thesaurus_Management extends Asset_Management
 												'type'		=> 'boolean',
 												'default'	=> '0',
 											   ),
+						'synonym_rel'		=> Array(
+												'added'		=> '0.3',
+												'type'		=> 'text',
+												'default'	=> 'Synonym',
+											   ),
+						'abbreviation_rel'	=> Array(
+												'added'		=> '0.3',
+												'type'		=> 'text',
+												'default'	=> 'Abbreviation',
+											   ),
 					  );
-
 	}//end constructor
 
 
