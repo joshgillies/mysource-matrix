@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.27 2005/12/13 00:36:02 arailean Exp $
+* $Id: page_remote_content.inc,v 1.28 2005/12/21 03:15:19 bcaldwell Exp $
 *
 */
 
@@ -29,7 +29,7 @@ define ('SQ_REMOTE_MAX_REDIRECTS', 10);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -336,6 +336,14 @@ class Page_Remote_Content extends Page
 		if (!empty($_GET)) {
 			foreach ($_GET as $key => $data) {
 				$Fetch_URL->addQueryString($key, $data);
+			}
+		}
+		
+		// support custom post variables if possible
+		$post_variables = $this->attr('post_variables');
+		if ((!isset($fetch_url) || ($action != 'fetch_url')) && !empty($post_variables)) {
+			foreach ($post_variables as $index => $variable) {
+				$_POST[$variable['name']] = replace_global_keywords($variable['value']);
 			}
 		}
 
