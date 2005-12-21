@@ -1,0 +1,30 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2005/12/21 06:02:27 dmckee Exp $
+*
+*
+* CMS Package: Raw HTML Content Type Localised Strings File
+*/
+-->
+<strings>
+<string source="constrain_proportions">Constrain Proportions</string>
+<string source="fit_dimensions">Shrink/Stretch to Dimensions</string>
+<string source="on_click">On Click</string>
+<string source="caption_position">Caption Position</string>
+<string source="use_caption_attribute">Use Caption Attribute</string>
+<string source="image_defaults_title">Content Type Image Value Defaults</string>
+<string source="image_fields_title">Image Fields to Show</string>
+<string source="image_css_classes">Image CSS Classes</string>
+<string source="image_preview_css_classes">Image Preview CSS Classes</string>
+</strings>
