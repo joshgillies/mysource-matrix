@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.89 2005/12/14 00:26:20 arailean Exp $
+* $Id: search_manager.inc,v 1.90 2005/12/21 21:56:28 rong Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2024,7 +2024,6 @@ class Search_Manager extends Asset
 
 			assert_valid_db_result($result);
 			$r = $this->_tmp['cm']->saveToCache($this->id, $this->type(), $cache_key, serialize($result));
-			assert_valid_cache_result($r);
 		} else {
 			$result = unserialize($result);
 		}
@@ -2103,7 +2102,6 @@ class Search_Manager extends Asset
 			}
 			assert_valid_db_result($result);
 			$r = $this->_tmp['cm']->saveToCache($this->id, $this->type(), $cache_key, serialize($result));
-			assert_valid_cache_result($r);
 		} else {
 			$result = unserialize($result);
 		}
@@ -2185,7 +2183,6 @@ class Search_Manager extends Asset
 
 			assert_valid_db_result($result);
 			$r = $this->_tmp['cm']->saveToCache($this->id, $this->type(), $cache_key, serialize($result));
-			assert_valid_cache_result($r);
 		} else {
 			$result = unserialize($result);
 		}

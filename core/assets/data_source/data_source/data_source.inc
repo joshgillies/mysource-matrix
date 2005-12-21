@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.7 2005/12/21 02:14:31 rong Exp $
+* $Id: data_source.inc,v 1.8 2005/12/21 21:56:27 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -153,7 +153,6 @@ class Data_Source extends Asset
 	{
 		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$r = $cm->saveToCache($this->id, $this->type(), $cache_key, serialize($result), false);
-		assert_valid_cache_result($r);
 
 	}//end setResultSet()
 
