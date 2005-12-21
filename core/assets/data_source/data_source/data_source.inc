@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.6 2005/11/01 22:32:50 pgannavarapu Exp $
+* $Id: data_source.inc,v 1.7 2005/12/21 02:14:31 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -125,13 +125,15 @@ class Data_Source extends Asset
 	/**
 	* Returns an array of the result of query execution
 	*
+	* @param string	$cache_key	the cache key for this entry
+	*
 	* @return array
 	* @access public
 	*/
-	function getResultSet()
+	function getResultSet($cache_key='')
 	{
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$result = $cm->loadFromCache($this->id, $this->type(), '', false);
+		$result = $cm->loadFromCache($this->id, $this->type(), $cache_key, false);
 		$result = unserialize($result);
 		return $result;
 
@@ -141,15 +143,16 @@ class Data_Source extends Asset
 	/**
 	* Accepts an array of info and saves it to cache
 	*
-	* @param array	$result	the result set that has to be cached
+	* @param array	$result		the result set that has to be cached
+	* @param string	$cache_key	the cache key for this entry
 	*
 	* @return void
 	* @access public
 	*/
-	function setResultSet($result)
+	function setResultSet($result, $cache_key='')
 	{
 		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$r = $cm->saveToCache($this->id, $this->type(), '', serialize($result), false);
+		$r = $cm->saveToCache($this->id, $this->type(), $cache_key, serialize($result), false);
 		assert_valid_cache_result($r);
 
 	}//end setResultSet()
