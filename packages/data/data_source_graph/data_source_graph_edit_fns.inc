@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_edit_fns.inc,v 1.6 2005/12/15 01:43:30 skim Exp $
+* $Id: data_source_graph_edit_fns.inc,v 1.7 2005/12/21 21:58:35 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -323,7 +323,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 		}
 
 		$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($datasets[$plot_name]['assetid']);
-		$result = $data_source_asset->getResultSet();
+		$result = $data_source_asset->getResultSet('default');
 		$data = array_keys($result[0]);
 		foreach ($data as $field) {
 			$fields[$field] = $field;
@@ -544,7 +544,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 		}
 
 		$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($datasets[$plot_name]['assetid']);
-		$result = $data_source_asset->getResultSet();
+		$result = $data_source_asset->getResultSet('default');
 		$data = array_keys($result[0]);
 		foreach ($data as $field) {
 			$fields[$field] = $field;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.6 2005/12/15 01:43:30 skim Exp $
+* $Id: data_source_graph.inc,v 1.7 2005/12/21 21:58:35 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -427,7 +427,7 @@ class Data_Source_Graph extends Image
 
 			// dataset processing
 			$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($dataset['assetid']);
-			$result = $data_source_asset->getResultSet();
+			$result = $data_source_asset->getResultSet('default');
 
 			$x_axis_name = $dataset['settings']['x_axis'];
 			$y_axis_name = $dataset['settings']['y_axis'];
@@ -702,9 +702,8 @@ class Data_Source_Graph extends Image
 			trigger_localised_error('DATA0003', E_USER_WARNING, $this->name);
 			return false;
 		}
-		// set the cache
-		$result = $cm->saveToCache($this->id, $this->type(), 'default', 'this is weird');
-		assert_valid_cache_result($result);
+		// cache dummy string, will be used later to check for expiry time of this image file
+		$result = $cm->saveToCache($this->id, $this->type(), 'default', 'Dummy String');
 
 		return $result;
 

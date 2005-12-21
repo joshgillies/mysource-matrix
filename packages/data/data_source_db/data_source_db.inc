@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.12 2005/11/29 04:33:58 skim Exp $
+* $Id: data_source_db.inc,v 1.13 2005/12/21 21:58:35 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,19 +106,20 @@ class Data_Source_DB extends Data_Source
 		$sql = str_replace('<br />', ' ', $sql);
 		//if the query is already excuted then we get results from cache otherwise we execute the
 		//query (only if in execute mode or the cache manager returns aan empty string instead of an empty array)
-		$result = parent::getResultSet();
+		$result = parent::getResultSet($this->attr('sql'));
 		if (empty($result)) {
 			if (isset($this->_tmp[$sql])) {
 				$result = $this->_tmp[$sql];
 			}
-			if (!empty($result)) $this->setResultSet($result);
+			// use the sql query as the cache key of this cache entry
+			if (!empty($result)) $this->setResultSet($result, $this->attr('sql'));
 		}
 		$mode = $this->attr('mode');
 		//if ((empty($result) && !is_array($result)) || ($mode == 'execute')) {
 		if ($mode == 'execute') {
 			if (!empty($sql)) {
 				$result = &$this->_executeQuery($sql);
-				$this->setResultSet($result);
+				$this->setResultSet($result, $this->attr('sql'));
 				$this->_tmp[$sql] = $result;
 			}
 		}

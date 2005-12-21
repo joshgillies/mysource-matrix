@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_rss.inc,v 1.3 2005/11/01 22:31:31 pgannavarapu Exp $
+* $Id: data_source_rss.inc,v 1.4 2005/12/21 21:58:35 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -65,17 +65,19 @@ class Data_Source_RSS extends Data_Source
 	*/
 	function getResultSet()
 	{
+		// use feed url as the cache key
+		$url = $this->attr('url');
+
 		$result = Array();
-		$result = parent::getResultSet();
+		$result = parent::getResultSet($url);
 		if (empty($result)) {
-			$url = $this->attr('url');
 			if (!empty($url)) {
 				if (isset($this->_tmp[$url])) {
 					$result = $this->_tmp[$url];
 				}
 				if (empty($result)) $result = $this->getItems();
 				if (!empty($result)) {
-					parent::setResultSet($result);
+					parent::setResultSet($result, $url);
 					$this->_tmp[$url] = $result;
 				}
 			}

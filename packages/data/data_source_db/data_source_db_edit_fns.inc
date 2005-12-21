@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.11 2005/12/01 23:25:35 skim Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.12 2005/12/21 21:58:35 rong Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -2089,7 +2089,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				if ($mode == 'execute') {
 					if ($wa) {
 						//speed_check('BEFORE QUERYNOTEMPTY');
-						$result = $asset->getResultSet();
+						$result = $asset->getResultSet($asset->attr('sql'));
 						//speed_check('AFTER QUERYNOTEMPTY');
 					}
 				}
@@ -2130,7 +2130,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 			} else {
 				if ($wa) {
 					//speed_check();
-					$result = $asset->getResultSet();
+					$result = $asset->getResultSet($asset->attr('sql'));
 					//speed_check();
 				}
 				return true;
