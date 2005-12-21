@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_bridge.inc,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+* $Id: ipb_bridge.inc,v 1.2 2005/12/21 03:45:07 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/ipb/ipb.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -127,7 +127,7 @@ class IPB_Bridge extends Asset
 		if ($set_location) return null;
 
 		if (is_null($this->ipb)) {
-			$this->ipb =& new Ipb($this->attr('location'));
+			$this->ipb =& new Ipb($this->attr('location'), $this->attr('version'));
 		}
 
 		return $this->ipb;
@@ -151,7 +151,7 @@ class IPB_Bridge extends Asset
 		}
 
 		if (is_null($this->ipb)) {
-			$this->ipb =& new Ipb($this->attr('location'));
+			$this->ipb =& new Ipb($this->attr('location'), $this->attr('version'));
 		}
 
 		return $this->ipb;
@@ -188,7 +188,7 @@ class IPB_Bridge extends Asset
 		}
 
 		$ipb = &$this->getIpbConn();
-			if (!$ipb->isConnected()) return $asset;
+		if (is_null($ipb)) return $asset;
 		$prefix = substr($shadowid, 0, 1);
 
 		if (strlen($shadowid) == 3 && substr($shadowid, -1) == '0') {

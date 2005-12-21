@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_bridge_management.inc,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+* $Id: ipb_bridge_management.inc,v 1.2 2005/12/21 03:45:07 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -49,10 +49,12 @@ class IPB_Bridge_Management extends Asset_Management
 						'version'			=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'selection',
-												'default'		=> '2_0_4',
+												'default'		=> 'none',
 												'parameters'	=> Array(
 																	'options'		=> Array(
-																						'2_0_4'	=> 'IPB (v2.0.4)',
+																						'none'	=> '-- Select One --',
+																						'2_0_4'	=> 'IPB (v2.0.x)',
+																						'2_1_3'	=> 'IPB (v2.1.x)',
 																					   ),
 																	'multiple'		=> false,
 																	'allow_empty'	=> false,

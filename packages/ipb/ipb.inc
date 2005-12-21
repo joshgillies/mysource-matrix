@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb.inc,v 1.3 2005/12/19 23:35:39 skim Exp $
+* $Id: ipb.inc,v 1.4 2005/12/21 03:45:07 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 * from Invision Power Board database
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package Fudge
 * @subpackage ipb
 */
@@ -56,15 +56,19 @@ class Ipb
 							'/ips_kernel/class_converge.php',
 						);
 
+	var $info = null;
+
 
 	/**
 	* Constructor
 	*
 	* @param string	$path	absolute path to Invision Power Board installation
 	*/
-	function Ipb($path)
+	function Ipb($path, $version)
 	{
-		if (!empty($path)) $this->setup($path);
+		if (!empty($path) && !empty($version)) {
+			$this->setup($path, $version);
+		}
 
 	}//end constructor
 
@@ -83,7 +87,7 @@ class Ipb
 	* @return boolean
 	* @access public
 	*/
-	function setup($path)
+	function setup($path, $version)
 	{
 		$ipb_root_path = $path;
 		$ipb_kernel_path = $ipb_root_path.'/ips_kernel';
@@ -91,9 +95,17 @@ class Ipb
 		// Database details
 		$INFO = Array();
 		include $ipb_root_path.'/conf_global.php';
+		$this->info =& $INFO;
 
 		// set URL
-		$this->ipb_url = $INFO['html_url'];
+		switch ($version) {
+			case '2_0_4' :
+				$this->ipb_url = $INFO['html_url'];
+			break;
+			case '2_1_3' :
+				$this->ipb_url = $INFO['board_url'];
+			break;
+		}
 
 		$INFO['sql_driver'] = ! $INFO['sql_driver'] ? 'mysql' : strtolower($INFO['sql_driver']);
 

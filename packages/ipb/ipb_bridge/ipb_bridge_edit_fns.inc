@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_bridge_edit_fns.inc,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+* $Id: ipb_bridge_edit_fns.inc,v 1.2 2005/12/21 03:45:07 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -55,13 +55,21 @@ class IPB_Bridge_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintIpbTest(&$asset, &$o, $prefix)
 	{
-		$ipb = &$asset->getIpbConn();
-		if (!is_null($ipb) && $ipb->isConnected()) {
-			echo '<span style="color: green"><b>'.translate('ipb_connected').'</b></span>';
+		$version_selected = ($asset->attr('version') != 'none');
+		$location = $asset->attr('location');
+		$location_entered = !empty($location);
+
+		if ($version_selected && $location_entered) {
+			$ipb = &$asset->getIpbConn();
+			if (!is_null($ipb) && $ipb->isConnected()) {
+				echo '<span style="color: green"><b>'.translate('ipb_connected').'</b></span>';
+			} else {
+				echo '<span style="color: red"><b>'.translate('ipb_unable_to_connect').'</b></span>';
+			}
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinks('42:p_160', SQ_LINK_TYPE_1, '', true, 'minor');
 		} else {
-			echo '<span style="color: red"><b>'.translate('ipb_unable_to_connect').'</b></span>';
+			echo '<span style="color: red"><b>'.translate('ipb_setup_note').'</b></span>';
 		}
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLinks('42:p_160', SQ_LINK_TYPE_1, '', true, 'minor');
 		return false;
 
 	}//end paintIpbTest()
@@ -120,7 +128,6 @@ class IPB_Bridge_Edit_Fns extends Asset_Edit_Fns
 				$o->closeField();
 			$o->closeSection();
 		}
-
 		return false;
 
 	}//end paintGoToIpb()
@@ -141,6 +148,86 @@ class IPB_Bridge_Edit_Fns extends Asset_Edit_Fns
 		return false;
 
 	}//end processGoToIpb()
+
+
+	/**
+	* Paint the interface for editing for location
+	*
+	* @param object	&$asset	Ipb_Bridge the asset whose interface we are painting
+	* @param object	&$o		Backend_Outputte the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintGetLocation(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$location = $asset->attr('location');
+		if ($wa) {
+			$o->openField('Location');
+				text_box($prefix.'_location', $location, '100', '100');
+				echo '<br />The full path of Invision Power Board';
+			$o->closeField();
+		} else {
+			$o->openField('Location');
+				if (empty($location)) {
+					echo 'none';
+				} else {
+					echo $location;
+				}
+			$o->closeField();
+		}
+		return false;
+
+	}//end paintGetLocation()
+
+
+	/**
+	* Process the interface for editing for location
+	*
+	* @param object	&$asset	Ipb_Bridge the asset whose interface we are painting
+	* @param object	&$o		Backend_Outputte the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processGetLocation(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+
+		if ($wa) {
+			$location = trim($_POST[$prefix.'_location']);
+			if (!empty($location)) {
+
+				$needed_files = Array(
+							'/conf_global.php',
+							'/ips_kernel/class_db_mysql.php',
+							'/ips_kernel/class_converge.php',
+						);
+
+				if (is_dir($location)) {
+					foreach ($needed_files as $file) {
+						if (!is_file($location.$file)) {
+							trigger_localised_error('IPB0002', E_USER_WARNING, $location.$file);
+							$asset->setAttrValue('location', '');
+							return true;
+						}
+					}
+					$asset->setAttrValue('location', $location);
+					return true;
+				} else {
+					trigger_localised_error('IPB0001', E_USER_WARNING, $location);
+				}
+
+			}
+
+		}//end if write access
+
+		return false;
+
+	}//end processGetLocation()
 
 
 }//end class

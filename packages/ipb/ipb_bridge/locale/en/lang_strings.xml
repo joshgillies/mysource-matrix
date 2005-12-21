@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+* $Id: lang_strings.xml,v 1.2 2005/12/21 03:45:07 skim Exp $
 *
 *
 * DB DataSource Localised Strings File
@@ -22,6 +22,7 @@
 	<string source="ipb_connected">Connected</string>
 	<string source="ipb_unable_to_connect">Unable to connect</string>
 	<string source="ipb_site_url_not_set">IPB Site URL is not set in IPB configuration. Ask to your network administrator.</string>
+	<string source="ipb_setup_note">Please select the version number and enter the path to IPB</string>
 	<string source="warning">Warning</string>
 	<string source="connection">Connection</string>
 	<string source="url">URL</string>
