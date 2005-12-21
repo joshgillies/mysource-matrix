@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_edit_fns.inc,v 1.1 2005/12/21 06:02:23 dmckee Exp $
+* $Id: content_type_image_edit_fns.inc,v 1.2 2005/12/21 23:42:31 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -355,29 +355,49 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 					</div>
 
 					<script type="text/javascript">
+						/* Functions for Image Content Type: <?php echo $current_image->name; ?> */
 
-						function <?php echo $prefix; ?>_preview(evt, img)
+						function <?php echo $prefix; ?>_find_posX()
+						{
+							obj = document.getElementById('<?php echo $prefix; ?>_img');
+							var curleft = 0;
+							if (obj.offsetParent) {
+								while (obj.offsetParent) {
+									curleft += obj.offsetLeft
+									obj = obj.offsetParent;
+								}
+							} else if (obj.x) {
+								curleft += obj.x;
+							}
+							return curleft;
+						}
+
+						function <?php echo $prefix; ?>_find_posY()
+						{
+							obj = document.getElementById('<?php echo $prefix; ?>_img');
+							var curtop = 0;
+							if (obj.offsetParent) {
+								while (obj.offsetParent) {
+									curtop += obj.offsetTop
+									obj = obj.offsetParent;
+								}
+							} else if (obj.y) {
+								curtop += obj.y;
+							}
+							return curtop;
+						}
+
+						function <?php echo $prefix; ?>_preview(evt)
 						{
 							var div = document.getElementById('<?php echo $prefix; ?>_roll_preview');
 							if (div.style.visibility != 'hidden') return;
 							var posx = 0;
 							var posy = 0;
-							if (!e) var e = window.event;
-							if (evt.pageX || evt.pageY)
-							{
-								posx = evt.pageX;
-								posy = evt.pageY;
-							}
-							else if (evt.clientX || evt.clientY)
-							{
-								posx = evt.clientX + document.body.scrollLeft;
-								posy = evt.clientY + document.body.scrollTop;
-							}
-
+							posx = <?php echo $prefix; ?>_find_posX();
+							posy = <?php echo $prefix; ?>_find_posY();
 							div.style.left = posx + 'px';
 							div.style.top = posy + 'px';
 							div.style.visibility = '';
-							<?php echo $prefix; ?>_running = true;
 						}
 
 						function <?php echo $prefix; ?>_preview_close()
@@ -417,7 +437,7 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 							<?php
 							// Add onclick events for inline previewing
 							if ($on_click_option == 'inline') {
-								echo 'onclick="return '.$prefix.'_preview(event, this);"';
+								echo 'onclick="return '.$prefix.'_preview(event);"';
 							}
 							?>
 						/>
