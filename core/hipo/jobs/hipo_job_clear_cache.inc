@@ -18,19 +18,18 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clear_cache.inc,v 1.13 2005/12/21 23:42:28 rong Exp $
+* $Id: hipo_job_clear_cache.inc,v 1.14 2005/12/21 23:50:08 rong Exp $
 *
 */
 
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
-require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 /**
 * Highly Intensive Processing Object (HIPO) to clear cache
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -197,12 +196,6 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 			$path = array_shift($this->_running_vars['todo_filepaths']);
 			$path_name = SQ_CACHE_PATH.'/'.$path['path'];
 			unlink($path_name);
-			// delete the directory too, if this is the last file in it
-			$dir_name = dirname($path_name);
-			$files = list_files($dir_name);
-			if (empty($files)) {
-				delete_directory($dir_name);
-			}
 			$this->_running_vars['done_filepaths'][] = $path;
 
 		}//end if
