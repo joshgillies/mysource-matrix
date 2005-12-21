@@ -18,18 +18,19 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clear_cache.inc,v 1.12 2005/06/30 02:13:25 dheppell Exp $
+* $Id: hipo_job_clear_cache.inc,v 1.13 2005/12/21 23:42:28 rong Exp $
 *
 */
 
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 /**
 * Highly Intensive Processing Object (HIPO) to clear cache
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -142,25 +143,11 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 			break;
 		}
 
-		$this->_running_vars['done_assetids'] = Array();
-
-		// find the cache dirs that are currently in the cache repository
-		$this->_running_vars['cache_dirs'] = Array();
-		$dh = opendir(SQ_CACHE_PATH);
-		while (false !== ($file = readdir($dh))) {
-			if ($file == '.' || $file == '..') {
-				continue;
-			}
-			if (!is_dir(SQ_CACHE_PATH.'/'.$file)) continue;
-
-			// cache directories should only be 4 digits long
-			if (!preg_match('|\d{4}|', $file)) continue;
-
-			// just add the relative path to the cache dir so
-			// we can compare the name with the asset hash
-			$this->_running_vars['cache_dirs'][] = $file;
-		}
-		closedir($dh);
+		// get all the cache file path to be cleared
+		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$this->_running_vars['todo_filepaths'] = $cm->getFilePaths($this->_running_vars['todo_assetids']);
+		$this->_running_vars['done_filepaths'] = Array();
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cm);
 
 		return parent::prepare();
 
@@ -175,7 +162,7 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 	*/
 	function freestyle()
 	{
-		while (!empty($this->_running_vars['todo_assetids'])) {
+		while (!empty($this->_running_vars['todo_filepaths'])) {
 			if (!$this->processClearCache($this->_steps[0], get_class($this))) {
 				return false;
 			}
@@ -196,49 +183,36 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 	*/
 	function processClearCache(&$step_data, $prefix)
 	{
-		if (!empty($this->_running_vars['todo_assetids'])) {
+		if (!empty($this->_running_vars['todo_filepaths'])) {
 
-			$assetid = array_shift($this->_running_vars['todo_assetids']);
-			$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			// clear all related db entries
+			if (!empty($this->_running_vars['todo_assetids'])) {
+				$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+				$cm->clearCache($this->_running_vars['todo_assetids']);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cm);
+				$this->_running_vars['todo_assetids'] = Array();
+			}
 
-			// get the group that is used as the first 2 digits of the
-			// cache directory names, and get the asset id code whics is used as
-			// the first string on each of the cache files
-
-			$assetid_code = md5($assetid);
-			$group = $cm->getAssetHash($assetid_code);
-
-			foreach ($this->_running_vars['cache_dirs'] as $dir) {
-				if (substr($dir, 0, strlen($group)) == $group) {
-
-					// this directory contains cache entries for this particular asset
-					// now files the files in this cache dir that belong to this asset
-					$dh = opendir(SQ_CACHE_PATH.'/'.$dir);
-
-					while (false !== ($file = readdir($dh))) {
-						$abs_path = SQ_CACHE_PATH.'/'.$dir.'/'.$file;
-						if (is_dir($abs_path)) continue;
-						// if the file starts with the assetid_code for the asset
-						// then back up in the unlinking with the resurection
-						if (substr($file, 0, strlen($assetid_code)) == $assetid_code) {
-							unlink($abs_path);
-						}
-					}
-					closedir($dh);
-				}
-			}//end foreach
-
-			// add this assetid to the done array so we dont do it again
-			$this->_running_vars['done_assetids'][] = $assetid;
+			// delete a content file in the todo array
+			$path = array_shift($this->_running_vars['todo_filepaths']);
+			$path_name = SQ_CACHE_PATH.'/'.$path['path'];
+			unlink($path_name);
+			// delete the directory too, if this is the last file in it
+			$dir_name = dirname($path_name);
+			$files = list_files($dir_name);
+			if (empty($files)) {
+				delete_directory($dir_name);
+			}
+			$this->_running_vars['done_filepaths'][] = $path;
 
 		}//end if
 
-		if (empty($this->_running_vars['todo_assetids'])) {
+		if (empty($this->_running_vars['todo_filepaths'])) {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = true;
 		} else {
-			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
-			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
+			$total = count($this->_running_vars['todo_filepaths']) + count($this->_running_vars['done_filepaths']);
+			$step_data['percent_done'] =(count($this->_running_vars['done_filepaths']) / $total) * 100;
 			$step_data['complete'] = false;
 		}
 		return true;
