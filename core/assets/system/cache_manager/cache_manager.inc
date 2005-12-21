@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.21 2005/12/21 21:55:28 rong Exp $
+* $Id: cache_manager.inc,v 1.22 2005/12/21 23:41:48 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -279,6 +279,7 @@ class Cache_Manager extends Asset
 
 	}//end saveToCache()
 
+
 	/**
 	* Removes all cache entries related to this assetid
 	*
@@ -298,13 +299,39 @@ class Cache_Manager extends Asset
 					WHERE
 						assetid in ('.implode(',', $assetids).')';
 			$result = $db->query($sql);
-			error_log(implode(',', $assetids));
 			assert_valid_db_result($result);
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		}
 
 	}//end clearCache()
+
+
+	/**
+	* Returns an array of file paths for clear cache HIPO job
+	*
+	* @param array	$assetids	id of the the asset that owns the cache file
+	*
+	* @return array
+	* @access public
+	*/
+	function getFilePaths($assetids)
+	{
+		if (!empty($assetids)) {
+
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$sql = 'SELECT
+						path
+					FROM
+						sq_cache
+					WHERE
+						assetid in ('.implode(',', $assetids).')';
+			$result = $db->getAll($sql);
+			assert_valid_db_result($result);
+			return $result;
+		}
+
+	}//end getFilePaths()
 
 
 	/**
