@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.10 2005/12/21 04:17:21 arailean Exp $
+* $Id: thesaurus.inc,v 1.11 2005/12/22 22:39:40 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -2321,6 +2321,20 @@ class Thesaurus extends Asset
 	{
 		return Array();
 	}//end getChildren()
+
+
+	function getParents($assetid, $type_code='', $strict_type_code=true)
+	{
+		if (strpos(':', $assetid) !== false) {
+			list($realid, $shadowid) = explode(':', $assetid);
+			$parents = Array($realid => $this->type());
+			$parents += $GLOBALS['SQ_SYSTEM']->am->getParents($realid, $type_code, $strict_type_code);
+			return $parents;
+		}
+
+		return Array();
+
+	}//end getParents()
 
 
 	/**
