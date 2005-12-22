@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18.2.23 2005/12/16 05:08:11 rong Exp $
+* $Id: lang_strings.xml,v 1.18.2.24 2005/12/22 04:42:36 lwright Exp $
 *
 */
 
@@ -230,6 +230,7 @@
 	<string source="key">Key</string>
 	<string source="variety_type">Variety Type</string>
 	<string source="version_history">Version History</string>
+	<string source="workflow_summary">Workflow Summary</string>
 	<string source="warning">WARNING</string>
 	<string source="wysiwyg_editor_tools">WYSIWYG Editor Tools</string>
 	<string source="wysiwyg_plugins">WYSIWYG Plugins</string>
