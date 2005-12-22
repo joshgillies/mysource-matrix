@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.17.2.3 2005/09/15 06:47:37 ndvries Exp $
+* $Id: user_edit_fns.inc,v 1.17.2.4 2005/12/22 22:58:25 dmckee Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17.2.3 $
+* @version $Revision: 1.17.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -140,7 +140,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 
 				//get array of restrictions for this group
 				foreach ($restrictions[$group_assetid] as $key => $value) {
-					$condition_prefix = $prefix.'_condition_'.$key;
+					$condition_prefix = $prefix.'_condition_'.$group_assetid.'_'.$key;
 					$type_code = $value['name'];
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 
@@ -195,7 +195,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 
 				// get array of restrictions for this group
 				foreach ($restrictions[$group_assetid] as $key => $value) {
-					$condition_prefix = $prefix.'_condition_'.$key;
+					$condition_prefix = $prefix.'_condition_'.$group_assetid.'_'.$key;
 
 					// if this condition has been marked to delete, unset it now
 					if (array_get_index($_POST[$condition_prefix], 'delete', 0)) {
