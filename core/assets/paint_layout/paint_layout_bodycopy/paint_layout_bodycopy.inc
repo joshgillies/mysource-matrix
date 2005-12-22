@@ -18,12 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.15 2005/12/16 04:21:12 dmckee Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.16 2005/12/22 01:54:02 tbarrett Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy.inc';
 require_once 'include/conditions_list.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 /**
 * Paint_Layout_Bodycopy
@@ -49,7 +50,7 @@ require_once 'include/conditions_list.inc';
 * If an attribute is not recognised, the condition will be evaluated as false.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
