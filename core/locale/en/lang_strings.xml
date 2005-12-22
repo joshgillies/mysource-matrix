@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.89 2005/12/19 00:53:00 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.90 2005/12/22 02:44:12 lwright Exp $
 *
 */
 
@@ -257,6 +257,7 @@
 	<string source="version_history">Version History</string>
 	<string source="version_compare">Compare</string>
 	<string source="comparison">Comparison</string>
+	<string source="workflow_summary">Workflow Summary</string>
 	<string source="warning">WARNING</string>
 	<string source="wysiwyg_editor_tools">WYSIWYG Editor Tools</string>
 	<string source="wysiwyg_plugins">WYSIWYG Plugins</string>
