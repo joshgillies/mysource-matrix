@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assertions.inc,v 1.18 2005/12/21 21:56:26 rong Exp $
+* $Id: assertions.inc,v 1.19 2005/12/22 23:13:30 arailean Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 
@@ -437,7 +437,7 @@ function assert_valid_db_result($result, $msg='', $silent=false, $fatal=true)
 /**
 * Assert that the value passed in is a valid asset ID
 *
-* @param string		$assetid	the assetid to be checked
+* @param mixed		$assetids	the assetid(s) to be checked
 * @param string		$msg		an error message to print on failure
 * @param boolean	$silent		is this exception silent (ie not shown to the user)
 * @param boolean	$fatal		is this exception fatal (ie should the script exit)
@@ -445,33 +445,47 @@ function assert_valid_db_result($result, $msg='', $silent=false, $fatal=true)
 * @return boolean
 * @access public
 */
-function assert_valid_assetid($assetid, $msg='', $silent=false, $fatal=true)
+function assert_valid_assetid($assetids, $msg='', $silent=false, $fatal=true)
 {
 	$valid = false;
-	// valid asset IDs are INTs or STRINGs
-	if (is_int($assetid) || is_string($assetid)) {
-		if (!empty($assetid)) {
-			$int_assetid = (int) $assetid;
 
-			// must compare the converted int as string values because a non-numeric string will
-			// convert to int(0) which compares TRUE with said non-numeric string - therefore it will
-			// be assumed as int! This cast will make it string('0') which compares as FALSE
-			if ((string)$int_assetid == $assetid) {
-				// assetid is a standard integer
-				// it's valid if it's positive, essentially
-				$valid = ($int_assetid > 0);
-			} else {
-				// assetid is a string - so it must be a shadow asset
-				if (preg_match('|^[0-9]+:.*$|', $assetid)) {
-					$valid = true;
-				}
-			}
+	if (!is_array($assetids)) {
+		$assetid_array = Array($assetids);
+	} else {
+		$assetid_array = $assetids;
+	}
+
+	$current_id = null;
+
+	foreach ($assetid_array as $one_id) {
+		$valid = false;
+
+		$current_id = $one_id;
+
+		if (empty($one_id)) break;
+
+		// valid asset IDs are INTs or STRINGs
+		if (!is_int($one_id) && !is_string($one_id)) {
+			break;
 		}
+
+		// must compare the converted int as string values because a non-numeric string will
+		// convert to int(0) which compares TRUE with said non-numeric string - therefore it will
+		// be assumed as int! This cast will make it string('0') which compares as FALSE
+
+		$is_int_id = (((string)(int)$one_id) == $one_id);
+
+		if ($is_int_id && !($one_id > 0)) {
+			break;
+		} else if (!$is_int_id && !preg_match('|^[0-9]+:.*$|', $one_id)) {
+			break;
+		}
+		$valid = true;
 	}
 
 	if (!$valid) {
 		if (empty($msg)) {
-			$msg = translate('assert_assetid', gettype($assetid), $assetid);
+			$msg = translate('assert_assetid', gettype($current_id), $current_id);
 		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
