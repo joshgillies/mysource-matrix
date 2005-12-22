@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email.inc,v 1.20 2005/01/20 13:10:34 brobertson Exp $
+* $Id: email.inc,v 1.20.2.1 2005/12/22 04:43:48 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *    <email width="40" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.2.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -91,7 +91,7 @@ class Asset_Attribute_Email extends Asset_Attribute_Text
 		if (!isset($_REQUEST[$prefix])) return false;
 		$value = (string) $_REQUEST[$prefix];
 
-		if ($this->value != $value && $this->setValue($value)) {
+		if ($this->value !== $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {
 			$this->processed = false;

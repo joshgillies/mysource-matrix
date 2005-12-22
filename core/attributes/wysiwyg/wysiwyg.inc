@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.16 2005/01/20 13:10:34 brobertson Exp $
+* $Id: wysiwyg.inc,v 1.16.2.1 2005/12/22 04:43:48 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 *    <wysiwyg style="div" width="100%" height="300" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.2.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -220,8 +220,11 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	{
 		$wysiwyg = &$this->_createEditor($prefix);
 		$html = $wysiwyg->process();
-		if ($html != $this->value && $this->setValue($html)) $this->processed = true;
-		else $this->processed = false;
+		if ($html !== $this->value && $this->setValue($html)) {
+			$this->processed = true;
+		} else {
+			$this->processed = false;
+		}
 
 	}//end process()
 
