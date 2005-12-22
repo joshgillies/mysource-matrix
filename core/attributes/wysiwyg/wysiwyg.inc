@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.10.2.1 2004/12/07 05:09:54 dbaranovskiy Exp $
+* $Id: wysiwyg.inc,v 1.10.2.2 2005/12/22 04:45:30 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -216,7 +216,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
     {
         $wysiwyg = &$this->_createEditor($prefix);
         $html = $wysiwyg->process();
-        if ($html != $this->value && $this->setValue($html)) $this->processed = true;
+        if ($html !== $this->value && $this->setValue($html)) $this->processed = true;
         else $this->processed = false;
 
     }//end process()

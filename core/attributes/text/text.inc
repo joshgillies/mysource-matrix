@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.30 2004/10/19 04:33:01 arailean Exp $
+* $Id: text.inc,v 1.30.2.1 2005/12/22 04:45:30 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <text width="40" height="4" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.30.2.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -186,7 +186,7 @@ class Asset_Attribute_Text extends Asset_Attribute
 	{
 		if (!isset($_REQUEST[$prefix])) return false;
 		$value = (string) $_REQUEST[$prefix];
-		if ($this->value != $value && $this->setValue($value)) {
+		if ($this->value !== $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {
 			$this->processed = false;

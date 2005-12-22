@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.338.2.16 2005/09/07 02:13:29 dmckee Exp $
+* $Id: asset.inc,v 1.338.2.17 2005/12/22 04:45:30 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.338.2.16 $
+* @version $Revision: 1.338.2.17 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2445,7 +2445,7 @@ class Asset extends MySource_Object
 		}
 
 		// if the value being set is the same as the current value - dont do anything
-		if ($this->vars[$name]['value'] == $value) return true;
+		if ($this->vars[$name]['value'] === $value) return true;
 
 		if ($this->vars[$name]['type'] == 'serialise') $value = unserialize($value);
 

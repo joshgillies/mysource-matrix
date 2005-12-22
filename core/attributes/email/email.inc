@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email.inc,v 1.19 2004/09/10 07:10:23 gsherwood Exp $
+* $Id: email.inc,v 1.19.6.1 2005/12/22 04:45:30 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -91,7 +91,7 @@ class Asset_Attribute_Email extends Asset_Attribute_Text
 		if (!isset($_REQUEST[$prefix])) return false;
 		$value = (string) $_REQUEST[$prefix];
 
-		if ($this->value != $value && $this->setValue($value)) {
+		if ($this->value !== $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {
 			$this->processed = false;

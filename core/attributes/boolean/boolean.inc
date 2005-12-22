@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.26 2004/12/03 15:33:23 brobertson Exp $
+* $Id: boolean.inc,v 1.26.2.1 2005/12/22 04:45:30 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -213,7 +213,7 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	{
 		if (!isset($_REQUEST[$prefix])) return false;
 		$value = $_REQUEST[$prefix];
-		if ($this->value != $value && $this->setValue($value)) {
+		if ($this->value !== $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {
 			$this->processed = false;
