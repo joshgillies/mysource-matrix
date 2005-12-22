@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.205 2005/12/14 23:14:05 sdanis Exp $
+* $Id: asset_map.inc,v 1.206 2005/12/22 01:09:33 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.205 $
+* @version $Revision: 1.206 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -840,6 +840,7 @@ class Asset_Map
 	{
 		if (!count($input->root->children)) {
 			$this->_error('AMAP0006');
+			return;
 		}
 
 		$output =& new XML_Tree();
