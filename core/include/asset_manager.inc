@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.415 2005/12/20 00:25:02 emcdonald Exp $
+* $Id: asset_manager.inc,v 1.416 2005/12/22 01:19:46 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.415 $
+* @version $Revision: 1.416 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3392,6 +3392,7 @@ class Asset_Manager extends MySource_Object
 		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
 
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			// reassign $db after changing the database connection because PHP doesn't handle the reference properly
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			//// Check we aren't moving the minor asset under itself ////
@@ -4659,7 +4660,15 @@ class Asset_Manager extends MySource_Object
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
+/*
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			// reassign $db after changing the database connection because PHP doesn't handle the reference properly
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+		}
+		
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$minor =& $this->getAsset($link['minorid'], $link['minor_type_code']);
@@ -4667,10 +4676,28 @@ class Asset_Manager extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return FALSE;
 		}
+*/
 
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		
 		// if this is a significant link
 		if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
 
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			// reassign $db after changing the database connection because PHP doesn't handle the reference properly
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+			
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			$minor =& $this->getAsset($link['minorid'], $link['minor_type_code']);
+			if (is_null($minor)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				return FALSE;
+			}
+
+			
 			$num_other_links = $this->countLinks($minor->id, 'minor', SQ_SC_LINK_SIGNIFICANT, '', TRUE, $linkid);
 
 			// we create a new link to the trash if this is the last significant link
@@ -4686,12 +4713,14 @@ class Asset_Manager extends MySource_Object
 					if (!$minor->canDelete()) {
 						trigger_localised_error('SYS0069', E_USER_WARNING, $minor->name);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;
 					}
 
 					$trash_folder =& $this->getSystemAsset('trash_folder');
 					if (is_null($trash_folder)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;
 					}
 
@@ -4710,6 +4739,7 @@ class Asset_Manager extends MySource_Object
 
 					if (!$trash_folder->createLink($minor, SQ_LINK_TYPE_2)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;
 					}
 				}//end if
@@ -4763,7 +4793,24 @@ class Asset_Manager extends MySource_Object
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
-		}//end if significant link
+			// finished dealing with sq_ast_lnk_tree, restore the database connection and reassign $db
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		} else {
+			// if not significant link
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			
+			$minor =& $this->getAsset($link['minorid'], $link['minor_type_code']);
+			if (is_null($minor)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return FALSE;
+			}
+		
+		} //end if significant link
 
 		// move 'em up, higher
 
