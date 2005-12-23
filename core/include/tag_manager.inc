@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_manager.inc,v 1.4 2005/12/23 00:23:56 emcdonald Exp $
+* $Id: tag_manager.inc,v 1.5 2005/12/23 00:30:21 arailean Exp $
 *
 */
 
@@ -27,7 +27,8 @@
 * Tag Manager
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.4 $
+* @author  Andrei Railean <arailean@squiz.net>
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 class Tag_Manager extends MySource_Object
@@ -61,13 +62,49 @@ class Tag_Manager extends MySource_Object
 		foreach ($notice_links as $notice_link) {
 			$id_parts = explode(':', $notice_link['minorid']);
 			$thes_id = $id_parts[0];
-			$thes = &$GLOBALS['SQ_SYSTEM']->am->getAsset($thes_id, 'thesaurus', true);
+			$thes =& $GLOBALS['SQ_SYSTEM']->am->getAsset($thes_id, 'thesaurus', TRUE);
 			if ($thes) $tag_links[] = $notice_link;
 		}
 
 		return $tag_links;
 
 	}//end getTagLinks()
+
+
+	/**
+	* Is asset tagged with a certain tag
+	*
+	* @param int	$assetid	The asset who's tag we want.
+	* @param mixed	$tagids		Tag ID (array, or one value)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isAssetTaggedWith($assetid, $tagids)
+	{
+		$tag_link = $this->getAssetTagLink($assetid, $tagids);
+
+		return !empty($tag_link);
+
+	}//end isAssetTaggedWith()
+
+
+	/**
+	* Get info of the link between asset and tag
+	*
+	* @param int	$assetid	The asset who's tag we want.
+	* @param mixed	$tagids		Tag ID (array, or one value)
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetTagLinks($assetid, $tagids)
+	{
+		$tag_links = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($assetid, $tagids, SQ_LINK_NOTICE);
+
+		return $tag_links;
+
+	}//end getAssetTagLinkss()
 
 
 	/**
@@ -80,7 +117,7 @@ class Tag_Manager extends MySource_Object
 	*/
 	function getAssetLinksByTag($tagid)
 	{
-		//get a list of links to assets from these tags
+		// get a list of links to assets from these tags
 
 		if (!is_array($tagid)) {
 			$tagids = Array($tagid);
@@ -89,7 +126,7 @@ class Tag_Manager extends MySource_Object
 		}
 
 		$links = Array();
-		$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($tagids, SQ_LINK_NOTICE, null, false, 'minor');
+		$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($tagids, SQ_LINK_NOTICE, NULL, FALSE, 'minor');
 
 		foreach ($asset_links as $asset_link) {
 			foreach ($asset_link as $tag_link) {
@@ -112,9 +149,9 @@ class Tag_Manager extends MySource_Object
 	*/
 	function getRelatedAssets($relator_id)
 	{
-		//Get the tag links for all the relators then all the asset links these tags have.
-		//we need to iterate through the relator's tag links to build the array for getting the tags' assets, so
-		//build another array of link values.
+		// Get the tag links for all the relators then all the asset links these tags have.
+		// we need to iterate through the relator's tag links to build the array for getting the tags' assets, so
+		// build another array of link values.
 
 		$tag_ids = Array();
 		if (!is_array($relator_id)) {
@@ -136,11 +173,11 @@ class Tag_Manager extends MySource_Object
 			}
 		}
 
-		//related_asset_links are links from the relatees to the relator's tags
+		// related_asset_links are links from the relatees to the relator's tags
 		$related_asset_links = $this->getAssetLinksByTag($tag_ids);
 
 		$related_ids = Array();
-		//loop through relateds and check relators for each.
+		// loop through relateds and check relators for each.
 		foreach ($related_asset_links as $related_asset_link) {
 
 			foreach ( $multiplicands[$related_asset_link['minorid']] as $multiplicand) {
@@ -154,7 +191,7 @@ class Tag_Manager extends MySource_Object
 
 		arsort($related_ids);
 
-		return $related_ids;;
+		return $related_ids;
 
 	}//end getRelatedAssets()
 
