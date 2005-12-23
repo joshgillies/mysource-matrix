@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.24 2005/11/23 22:48:39 dmckee Exp $
+* $Id: limbo_outputter.inc,v 1.25 2005/12/23 04:26:14 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -253,12 +253,7 @@ class Limbo_Outputter extends Backend_Outputter
 		//<![CDATA[
 
 			// slip our own onLoad function into the onLoad event of the window
-			if (window.onload) {
-				var sqOtherOnLoad = window.onload;
-				window.onload = function() { sqOtherOnLoad(); page_on_load(); }
-			} else {
-				window.onload = function() { page_on_load(); }
-			}
+			page_on_load();
 
 			var SQ_DOCUMENT_LOADED = false;
 
