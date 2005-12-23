@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_manager.inc,v 1.5 2005/12/23 00:30:21 arailean Exp $
+* $Id: tag_manager.inc,v 1.6 2005/12/23 04:26:38 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class Tag_Manager extends MySource_Object
@@ -74,17 +74,25 @@ class Tag_Manager extends MySource_Object
 	/**
 	* Is asset tagged with a certain tag
 	*
-	* @param int	$assetid	The asset who's tag we want.
-	* @param mixed	$tagids		Tag ID (array, or one value)
+	* @param int		$assetid	The asset who's tag we want.
+	* @param mixed		$tagids		Tag ID (array, or one value)
+	* @param boolean	$strict		Whether all tags must be present for success
 	*
 	* @return boolean
 	* @access public
 	*/
-	function isAssetTaggedWith($assetid, $tagids)
+	function isAssetTaggedWith($assetid, $tagids, $strict=FALSE)
 	{
-		$tag_link = $this->getAssetTagLink($assetid, $tagids);
+		if (!is_array($tagids)) $tagids = Array($tagids);
 
-		return !empty($tag_link);
+		$tag_link = $this->getAssetTagLinks($assetid, $tagids);
+		if (!$strict) {
+			return !empty($tag_link);
+		} else {
+			$array_keys = array_keys($tag_link);
+			$result = array_diff($tagids, $array_keys);
+			return empty($result);
+		}
 
 	}//end isAssetTaggedWith()
 
@@ -101,10 +109,17 @@ class Tag_Manager extends MySource_Object
 	function getAssetTagLinks($assetid, $tagids)
 	{
 		$tag_links = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($assetid, $tagids, SQ_LINK_NOTICE);
+		if (isset($tag_links['minorid'])) {
+			$tag_links = Array($tag_links);
+		}
 
-		return $tag_links;
+		foreach ($tag_links as $link) {
+			$links[$link['minorid']] = $link;
+		}
 
-	}//end getAssetTagLinkss()
+		return $links;
+
+	}//end getAssetTagLinks()
 
 
 	/**
@@ -208,8 +223,8 @@ class Tag_Manager extends MySource_Object
 	*/
 	function setTag($assetid, $tag, $weight)
 	{
-		$new_tag_object = &$GLOBALS['SQ_SYSTEM']->am->getAsset($tag);
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$new_tag_object =& $GLOBALS['SQ_SYSTEM']->am->getAsset($tag);
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		$new_link_id = $GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $new_tag_object, SQ_LINK_NOTICE, $weight);
 
 		return $new_link_id;
