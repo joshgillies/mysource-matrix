@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tagging.inc,v 1.6 2005/12/15 22:43:00 emcdonald Exp $
+* $Id: tagging.inc,v 1.7 2005/12/23 00:52:55 emcdonald Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Tagging Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 
@@ -206,6 +206,64 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=null)
 
 
 /**
+* Paint the interface for viewing Tags (used in popups etc)
+*
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
+*
+* @return boolean
+* @access public
+*/
+function paintInlineTagging(&$owner, &$o, &$ei)
+{
+	$prefix = $owner->getPrefix();
+
+	$tag_manager = &$GLOBALS['SQ_SYSTEM']->getTagManager();
+	$current_tag_links = $tag_manager->getTagLinks($owner->id);
+
+	if (empty($current_tag_links)) return false;
+
+		$o->openSection(translate('content_tags'));
+		$o->openField('&nbsp;');
+		?>
+		<table class="sq-backend-table">
+		<tr>
+				<td class="sq-backend-table-header">
+					<?php echo translate('content_tag'); ?>
+				</td>
+				<td class="sq-backend-table-header" align="right">
+					<?php echo translate('weight'); ?>
+				</td>
+			</tr>
+
+			<?php
+			foreach ($current_tag_links as $key => $current_tag_link) {
+				?>
+					<tr>
+						<td class="sq-backend-table-cell">
+						<?php
+						echo get_asset_tag_line($current_tag_link['minorid']);
+						?>
+						</td>
+						<td class="sq-backend-table-cell" align="right">
+						<?php
+						echo $current_tag_link['value'];
+						?>
+						</td>
+					</tr>
+				<?php
+			}
+		?></table><?php
+		$o->closeField();
+	$o->closeSection();
+
+	return true;
+
+}//end paintInlineTagging()
+
+
+/**
 * Process the interface for managing asset tag values
 *
 * Returns TRUE is there is a change, false on error or no change
@@ -276,9 +334,7 @@ function processTagging(&$owner, &$o, $ei)
 								'weight'	=> '1',
 							  );
 		} else {
-			// lets do this ourselves
-			$new_tag_object = &$GLOBALS['SQ_SYSTEM']->am->getAsset($one_tag_id);
-			$new_link_id = $GLOBALS['SQ_SYSTEM']->am->createAssetLink($owner, $new_tag_object, SQ_LINK_NOTICE);
+			$tag_manager->setTag($owner->id, $one_tag_id, $weight);
 		}
 	}
 
@@ -295,7 +351,7 @@ function processTagging(&$owner, &$o, $ei)
 							'weight'	=> $weight,
 						  );
 		} else {
-			$success = $GLOBALS['SQ_SYSTEM']->am->updateLink($link_id, SQ_LINK_NOTICE, $weight);
+			$tag_manager-setTagWeight($linkid, $weight);
 		}
 	}
 
@@ -313,8 +369,7 @@ function processTagging(&$owner, &$o, $ei)
 							'weight'	=> null,
 						  );
 		} else {
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($owner->id, $one_tag_id, SQ_LINK_NOTICE);
-			$success = $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
+			$tag_manager->deleteTag($owner->id, $one_tag_id);
 		}
 	}
 
