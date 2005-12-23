@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.478 2005/12/19 21:55:54 lwright Exp $
+* $Id: asset.inc,v 1.479 2005/12/23 02:35:13 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.478 $
+* @version $Revision: 1.479 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -426,7 +426,7 @@ class Asset extends MySource_Object
 				// has if the parent is not the root folder
 				$this->_tmp[__CLASS__.'_in_create_cascading'] = true;
 
-				if (!$link['asset']->cloneComponents($this, Array('permissions', 'metadata_schemas', 'workflow'))) {
+				if (!$link['asset']->cloneComponents($this, Array('permissions', 'metadata_schemas', 'workflow', 'content_tags'))) {
 					return $this->_abortCreate($trigger_level_changed);
 				}
 				unset($this->_tmp[__CLASS__.'_in_create_cascading']);
@@ -1768,7 +1768,8 @@ class Asset extends MySource_Object
 	*                         'metadata',
 	*                         'workflow',
 	*                         'permissions',
-	*                         'data'
+	*                         'data',
+	*						  'content_tags'
 	*                       );
 	*                       or alternately
 	*                       Array('all');
@@ -1895,6 +1896,19 @@ class Asset extends MySource_Object
 			}
 		}//end if data
 
+
+		  ////////////////////
+		 /// CONTENT TAGS ///
+		////////////////////
+
+		if (in_array('content_tags', $components) || in_array('all', $components)) {
+			$tag_manager = &$GLOBALS['SQ_SYSTEM']->getTagManager();
+			$current_tag_links = $tag_manager->getTagLinks($this->id);
+
+			foreach ($current_tag_links as $link) {
+				$tag_manager->setTag($clone->id, $link['minorid'], $link['value']);
+			}
+		}//end if content tags
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
