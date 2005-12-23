@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.416 2005/12/22 01:19:46 rhoward Exp $
+* $Id: asset_manager.inc,v 1.417 2005/12/23 00:12:50 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.416 $
+* @version $Revision: 1.417 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2264,7 +2264,7 @@ class Asset_Manager extends MySource_Object
 	* array of arrays of link info otherwise
 	*
 	* @param int		$assetid		id of the the $side_of_link asset
-	* @param int		$other_assetid	the asset on the other side of the link
+	* @param mixed		$other_assetid	the asset(s) on the other side of the link - can be an array of assets
 	* @param int		$link_types		integer that can be the product of bitwise operations
 	*									on the SQ_LINK_* constants
 	* @param string		$value			the value that is associated with this link
@@ -2301,15 +2301,27 @@ class Asset_Manager extends MySource_Object
 			return $link;
 		}
 
-		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+
+		if (!is_array($other_assetid)) {
+			$other_assetid = Array($other_assetid);
+		}
+
+		$prepared_otherids = Array();
+		foreach ($other_assetid as $id) {
+			$prepared_otherids[] = $db->quoteSmart($id);
+		}
+
+		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
+
 		$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type,
 					   l.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
 
 		$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid).'
-				  AND l.'.$other_side.'id  = '.$db->quote($other_assetid);
+				  AND l.'.$other_side.'id  IN ( '.implode(',', $prepared_otherids).')';
 
 		if (!is_null($link_types)) {
 		  $where .= ' AND '.db_extras_bitand($db, 'l.link_type', $link_types).' > 0 ';
@@ -4668,7 +4680,7 @@ class Asset_Manager extends MySource_Object
 			// reassign $db after changing the database connection because PHP doesn't handle the reference properly
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 		}
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$minor =& $this->getAsset($link['minorid'], $link['minor_type_code']);
@@ -4679,7 +4691,7 @@ class Asset_Manager extends MySource_Object
 */
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		
+
 		// if this is a significant link
 		if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
 
@@ -4687,7 +4699,7 @@ class Asset_Manager extends MySource_Object
 			// reassign $db after changing the database connection because PHP doesn't handle the reference properly
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-			
+
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			$minor =& $this->getAsset($link['minorid'], $link['minor_type_code']);
@@ -4697,7 +4709,7 @@ class Asset_Manager extends MySource_Object
 				return FALSE;
 			}
 
-			
+
 			$num_other_links = $this->countLinks($minor->id, 'minor', SQ_SC_LINK_SIGNIFICANT, '', TRUE, $linkid);
 
 			// we create a new link to the trash if this is the last significant link
@@ -4803,13 +4815,13 @@ class Asset_Manager extends MySource_Object
 		} else {
 			// if not significant link
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			
+
 			$minor =& $this->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($minor)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return FALSE;
 			}
-		
+
 		} //end if significant link
 
 		// move 'em up, higher
