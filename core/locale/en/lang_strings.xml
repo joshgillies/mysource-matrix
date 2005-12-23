@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.90 2005/12/22 02:44:12 lwright Exp $
+* $Id: lang_strings.xml,v 1.91 2005/12/23 00:54:02 emcdonald Exp $
 *
 */
 
@@ -76,6 +76,8 @@
 	<string source="conditions">Conditions</string>
 	<string source="confirm">Confirm</string>
 	<string source="contains">Contains</string>
+	<string source="content_tag">Content Tag</string>
+	<string source="content_tags">Content Tags</string>
 	<string source="cron_manager_appears_to_be_fine">Cron Manager appears to be fine.</string>
 	<string source="current_hipo_jobs">Current HIPO Jobs</string>
 	<string source="current_linking">Current Linking</string>
@@ -1508,6 +1510,7 @@ Items to delete: %s</string>
 	<string source="hipo_cascading_options">Cascading Options</string>
 	<string source="hipo_cascading_permissions">Cascading Permissions</string>
 	<string source="hipo_cascading_workflow">Cascading Workflow</string>
+	<string source="hipo_cascading_content_tags">Cascading Content Tags</string>
 	<string source="hipo_checking_asset_types">Checking Asset Types</string>
 	<string source="hipo_checking_file_updates">Checking File Updates</string>
 	<string source="hipo_checking_versions">Checking Versions</string>
