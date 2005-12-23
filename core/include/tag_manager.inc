@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_manager.inc,v 1.3 2005/12/20 03:06:24 emcdonald Exp $
+* $Id: tag_manager.inc,v 1.4 2005/12/23 00:23:56 emcdonald Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 * Tag Manager
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class Tag_Manager extends MySource_Object
@@ -157,6 +157,63 @@ class Tag_Manager extends MySource_Object
 		return $related_ids;;
 
 	}//end getRelatedAssets()
+
+
+	/**
+	* Tag an asset
+	*
+	* @param string	$assetid	the ID of the asset to tag
+	* @param int	$tag		the tag to add
+	* @param int	$weight		the weight of the tag link
+	*
+	* @return int
+	* @access public
+	*/
+	function setTag($assetid, $tag, $weight)
+	{
+		$new_tag_object = &$GLOBALS['SQ_SYSTEM']->am->getAsset($tag);
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$new_link_id = $GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $new_tag_object, SQ_LINK_NOTICE, $weight);
+
+		return $new_link_id;
+
+	}//end setTag()
+
+
+	/**
+	* Change the weight of a tag link for an asset
+	*
+	* @param int	$linkid	the ID of the link to update
+	* @param int	$weight	the new weight of the tag link
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setTagWeight($linkid, $weight)
+	{
+		$success = $GLOBALS['SQ_SYSTEM']->am->updateLink($link_id, SQ_LINK_NOTICE, $weight);
+		return $success;
+
+	}//end setTagWeight()
+
+
+	/**
+	* Delete a tag from an asset
+	*
+	* @param string	$assetid	the ID of the asset to tag
+	* @param int	$tag		the tag to delete
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteTag($assetid, $tag)
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($assetod, $one_tag_id, SQ_LINK_NOTICE);
+		$success = $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
+
+		return $success;
+
+	}//end deleteTag()
 
 
 }//end class
