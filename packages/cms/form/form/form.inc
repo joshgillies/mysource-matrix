@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.100.2.13 2005/12/12 22:18:29 lwright Exp $
+* $Id: form.inc,v 1.100.2.14 2005/12/23 02:17:42 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.100.2.13 $
+* @version $Revision: 1.100.2.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -871,7 +871,7 @@ class Form extends Asset
 		// This is what one would find in Asset_Manager::&getAsset() except we can't call that,
 		// lest we spin off into an infinite loop involving OUR &getAsset().
 
-		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($this->id, SQ_LINK_TYPE_2, 'form_section', true, 'major', '', '0', '0');
+		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($this->id, SQ_LINK_TYPE_2, 'form_section', true, 'major', '', '1', '0');
 		if (empty($query)) return Array();
 		$query['select'] .= ', l.majorid';		// we need the major id too
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
