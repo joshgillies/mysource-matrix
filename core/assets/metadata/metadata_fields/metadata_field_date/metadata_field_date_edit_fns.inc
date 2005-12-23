@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.28 2005/09/08 04:11:15 gsherwood Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.29 2005/12/23 00:17:04 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -374,17 +374,50 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 											's'	=> 'onchange="dateSelectionChanged(\''.$prefix.'\')"',
 											'i'	=> 'onchange="dateSelectionChanged(\''.$prefix.'\')"',
 										   );
+
 			if ($write_access && $asset->attr('editable')) {
 				$field->printField();
-				echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
 
+				echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
 				combo_box($prefix.'_repkeys', $select_options, false, $value, 0, 'onchange="dateSelectionChanged(\''.$prefix.'\')"'); // replacement keys
-				echo '<b>-'.strtoupper(translate('or')).'-</b>';
-				check_box($prefix.'_default', '1', $is_default);
-				echo ' '.strtolower(translate('use_default'));
-				if ($is_default) {
-					echo ' <em style="color: #666">('.translate('metadata_field_default_currently_set').')</em>';
-				}
+
+				?><script type="text/javascript"><!--
+				//<![CDATA[
+				if (typeof to_change == 'undefined') to_change = [];
+				  to_change["<?php echo $prefix ?>"] = {'d': -1, 'm': -1, 'y': -1, 'h': -1, 'i': -1, 's': -1, 'repkeys': -1};
+				  for (x in to_change["<?php echo $prefix ?>"]) {
+					  if (x != 'repkeys') {
+						  expanded_x = 'datetimevalue[' + x + ']';
+					  } else {
+						  expanded_x = x;
+					  }
+					to_change["<?php echo $prefix ?>"][x] = eval('document.getElementById("<?php echo $prefix ?>_' + expanded_x + '").selectedIndex');
+				  }
+
+				  function disable_metadata_date_field(form, prefix, disabled) {
+					  for (x in to_change[prefix]) {
+						  if (x != 'repkeys') {
+							  expanded_x = 'datetimevalue[' + x + ']';
+						  } else {
+							  expanded_x = x;
+						  }
+						  eval('form.elements["' + prefix + '_' + expanded_x + '"].disabled = ' + disabled);
+						  if (disabled) {
+						    eval('form.elements["' + prefix + '_' + expanded_x + '"].selectedIndex = ' + to_change[prefix][x]);
+						  }
+					  }
+				  }
+				// ]]> -->
+				</script><?php
+
+				echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
+				check_box($prefix.'_default', '1', $is_default, 'disable_metadata_date_field(this.form, "'.addslashes($prefix).'", this.checked)');
+				echo ' '.translate('use_default');
+				?><script type="text/javascript"><!--
+				//<![CDATA[
+					disable_metadata_date_field(document.getElementById("<?php echo addslashes($prefix) ?>_default").form, "<?php echo addslashes($prefix) ?>", document.getElementById("<?php echo addslashes($prefix) ?>_default").checked);
+				// ]]> -->
+				</script><?php
 			} else if ($uses_keyword && isset($select_options[$value])) {
 				echo '<i>'.translate('keyword_replacement').': </i>', $select_options[$value];
 				if ($is_default) {
