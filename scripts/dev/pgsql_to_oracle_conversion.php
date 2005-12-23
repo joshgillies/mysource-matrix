@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pgsql_to_oracle_conversion.php,v 1.1 2005/12/23 00:24:06 amiller Exp $
+* $Id: pgsql_to_oracle_conversion.php,v 1.1.2.1 2005/12/23 00:24:35 amiller Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Migrates an existing PostgreSQL-based Matrix database into an Oracle database
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
