@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.91 2005/12/23 00:54:02 emcdonald Exp $
+* $Id: lang_strings.xml,v 1.92 2005/12/23 04:21:02 arailean Exp $
 *
 */
 
@@ -964,6 +964,8 @@
 
 	<!-- common single word strings -->
 
+	<string source="all">All</string>
+	<string source="some">Some</string>
 	<string source="go">Go</string>
 	<string source="unknown">Unknown</string>
 	<string source="default">Default</string>
@@ -1467,7 +1469,7 @@ Unable to accept non-digit characters in this field.</string>
 	<string source="insert_link" js="1">Insert Link</string>
 	<string source="remove_link" js="1">Remove Link</string>
 	<string source="select_one_paragraph_at_a_time" js="1">Please select only one paragraph to link at a time otherwise bad things happen.</string>
-        <string source="select_one_list_at_a_time" js="1">Please select only one list item to link at a time otherwise bad things happen.</string>
+		<string source="select_one_list_at_a_time" js="1">Please select only one list item to link at a time otherwise bad things happen.</string>
 	<string source="unknown_toolbar_item" js="1">FIXME: Unknown toolbar item: %s</string>
 	<string source="combo_box_not_implemented" js="1">FIXME: combo box "%s" not implemented</string>
 	<string source="brower_does_not_support_getelementbyid" js="1">Browser cannot support script - Get Element By ID is not defined</string>
