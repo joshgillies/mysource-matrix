@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.26 2005/12/14 04:44:19 tbarrett Exp $
+* $Id: hipo_job_create_links.inc,v 1.27 2005/12/23 00:42:30 emcdonald Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -182,6 +182,19 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					'name'			=> translate('hipo_cascading_workflow'),
 					'hipo_job'		=> Array(
 										'init_details_function'	=> 'cascadeWorkflow',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'skip_step'		=> false,
+					'allow_cancel'	=> false,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_cascading_content_tags'),
+					'hipo_job'		=> Array(
+										'init_details_function'	=> 'cascadeTags',
 									   ),
 					'running_mode'	=> 'server',
 					'auto_step'		=> true,
@@ -677,6 +690,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				$ei->includeStaticScreen('metadataSchemas');
 				$ms = paintInlineMetadataSchemas($parent, $o, $ei);
 
+				$ei->includeStaticScreen('tagging');
+				$ta = paintInlineTagging($parent, $o, $ei);
+
 				$o->addHiddenField('form_submitted', 1);
 			$o->closeField();
 		$o->closeSection();
@@ -686,6 +702,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				echo ($pe) ? translate('permissions').' '.check_box('cascade[]', 'cascade_pe').'<br />' : '';
 				echo ($ms) ? translate('metadata_schemas').' '.check_box('cascade[]', 'cascade_ms').'<br />' : '';
 				echo ($wf) ? translate('workflow').' '.check_box('cascade[]', 'cascade_wf').'<br />' : '';
+				echo ($ta) ? translate('content_tags').' '.check_box('cascade[]', 'cascade_ta').'<br />' : '';
 			$o->closeField();
 		$o->closeSection();
 
@@ -723,10 +740,16 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				if (!in_array('cascade_wf', $_REQUEST['cascade'])) {
 					$this->skipStep(6);
 				}
+				//tags
+				if (!in_array('cascade_ta', $_REQUEST['cascade'])) {
+					log_dump('skipping tag cascade');
+					$this->skipStep(7);
+				}
 			} else {
 				$this->skipStep(4); // permissions
 				$this->skipStep(5); // metadata
 				$this->skipStep(6); // workflow
+				$this->skipStep(7); // tags
 			}
 			$step_data['percent_done'] = 100;
 			$step_data['complete'] = true;
@@ -864,6 +887,37 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 
 	/**
+	* Cascade tags (if not skipped)
+	*
+	* @param string	&$job_type		job type
+	* @param array	&$running_vars	running vars
+	* @param array	&$options		options
+	*
+	* @return void
+	* @access public
+	*/
+	function cascadeTags(&$job_type, &$running_vars, &$options)
+	{
+		$job_type = 'hipo_job_edit_tags';
+		$tag_manager = &$GLOBALS['SQ_SYSTEM']->getTagManager();
+		$current_tag_links = $tag_manager->getTagLinks($this->_running_vars['to_parent_assetid']);
+		$tag_vars = Array();
+
+		foreach ($current_tag_links as $link) {
+			$tag_vars[] = Array(
+							'tag_id'	=> $link['minorid'],
+							'action'	=> 'add',
+							'weight'	=> $link['value'],
+						  );
+		}
+
+		$running_vars['tag_changes'] = $tag_vars;
+		$running_vars['assets'] = $this->_running_vars['assets'];
+
+	}//end cascadeTags()
+
+
+	/**
 	* Refreshes the asset map to reflect the new link changes we made
 	*
 	* @param array	&$step_data	a reference to the array of information about the current step
@@ -944,6 +998,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 							'cascadePermissions'	=> 'cascade_pe',
 							'cascadeMetadata'		=> 'cascade_ms',
 							'cascadeWorkflow'		=> 'cascade_wf',
+							'cascadeTags'			=> 'cascade_ta',
 						  );
 
 		foreach ($cascading_list as $fn_name => $value) {
