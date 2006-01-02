@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.129 2005/12/19 04:06:17 lwright Exp $
+* $Id: listing_engine.inc,v 1.130 2006/01/02 22:30:57 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.129 $
+* @version $Revision: 1.130 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -346,7 +346,7 @@ class Listing_Engine extends Page
 
 		$selections = $this->attr('asset_selections');
 
-		if (!empty($used_fields) || $this->requires_form) {
+		if (!empty($used_fields) || !empty($selections) || $this->requires_form) {
 
 			// include the 'select all' js if required
 			$using_select_all = false;
