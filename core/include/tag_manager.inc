@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_manager.inc,v 1.6 2005/12/23 04:26:38 arailean Exp $
+* $Id: tag_manager.inc,v 1.7 2006/01/02 22:24:13 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class Tag_Manager extends MySource_Object
@@ -112,6 +112,8 @@ class Tag_Manager extends MySource_Object
 		if (isset($tag_links['minorid'])) {
 			$tag_links = Array($tag_links);
 		}
+
+		$links = Array();
 
 		foreach ($tag_links as $link) {
 			$links[$link['minorid']] = $link;
