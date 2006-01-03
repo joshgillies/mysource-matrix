@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.28 2005/07/19 07:19:26 skim Exp $
+* $Id: bodycopy.inc,v 1.29 2006/01/03 21:49:14 dmckee Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -217,6 +217,7 @@ class Bodycopy extends Asset
 		// if this is a bodycopy container then we need to make it a dependant link
 		if ($side_of_link == 'major' && is_a($asset, 'bodycopy_container') && $dependant != '1') {
 			$dependant = '1';
+			$link_type = SQ_LINK_TYPE_2;
 			return true;
 		}
 
