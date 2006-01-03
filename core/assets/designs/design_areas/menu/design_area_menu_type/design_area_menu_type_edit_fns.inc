@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.46 2005/10/11 02:07:39 tbarrett Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.47 2006/01/03 05:59:55 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -210,7 +210,6 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function _processSubMenu(&$asset, &$contents, $design_area)
 	{
-		error_log("Creating sub menu");
 		// let's see if we already have a sub menu
 		$sub = &$asset->getSubMenu();
 		// nup ? create one now
