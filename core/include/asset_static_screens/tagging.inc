@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tagging.inc,v 1.8 2005/12/23 04:13:04 emcdonald Exp $
+* $Id: tagging.inc,v 1.9 2006/01/03 05:05:36 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Tagging Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 
@@ -340,10 +340,10 @@ function processTagging(&$owner, &$o, $ei)
 
 
 	$submitted_weights = array_get_index($_REQUEST, $prefix.'_weights', Array());
-	foreach($submitted_weights as $link_id => $weight) {
+	foreach ($submitted_weights as $link_id => $weight) {
 		if (empty($weight)) $submitted_weights[$link_id] = 1;
 	}
-	log_dump($submitted_weights);
+
 	$modified_weights = array_diff_assoc($submitted_weights, $current_weights);
 	foreach ($modified_weights as $link_id => $weight) {
 		if ($cascade_changes) {
@@ -355,7 +355,7 @@ function processTagging(&$owner, &$o, $ei)
 							'weight'	=> $weight,
 						  );
 		} else {
-			$tag_manager-setTagWeight($linkid, $weight);
+			$tag_manager->setTagWeight($linkid, $weight);
 		}
 	}
 
