@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_manager.inc,v 1.7 2006/01/02 22:24:13 arailean Exp $
+* $Id: tag_manager.inc,v 1.8 2006/01/03 05:21:35 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 class Tag_Manager extends MySource_Object
@@ -61,9 +61,11 @@ class Tag_Manager extends MySource_Object
 		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_NOTICE);
 		foreach ($notice_links as $notice_link) {
 			$id_parts = explode(':', $notice_link['minorid']);
-			$thes_id = $id_parts[0];
-			$thes =& $GLOBALS['SQ_SYSTEM']->am->getAsset($thes_id, 'thesaurus', TRUE);
-			if ($thes) $tag_links[] = $notice_link;
+			if (!empty($id_parts[1])) {
+				$thes_id = $id_parts[0];
+				$thes =& $GLOBALS['SQ_SYSTEM']->am->getAsset($thes_id, 'thesaurus', TRUE);
+				if (!is_null($thes)) $tag_links[] = $notice_link;
+			}
 		}
 
 		return $tag_links;
@@ -145,13 +147,7 @@ class Tag_Manager extends MySource_Object
 		$links = Array();
 		$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($tagids, SQ_LINK_NOTICE, NULL, FALSE, 'minor');
 
-		foreach ($asset_links as $asset_link) {
-			foreach ($asset_link as $tag_link) {
-				$links[] = $tag_link;
-			}
-		}
-
-		return $links;
+		return $asset_links;
 
 	}//end getAssetLinksByTag()
 
@@ -170,43 +166,44 @@ class Tag_Manager extends MySource_Object
 		// we need to iterate through the relator's tag links to build the array for getting the tags' assets, so
 		// build another array of link values.
 
-		$tag_ids = Array();
 		if (!is_array($relator_id)) {
-			$$relator_ids = Array($relator_id);
+			$relator_ids = Array($relator_id);
 		} else {
 			$relator_ids = $relator_id;
 		}
-		$multiplicands = Array();
+
+
+		$relator_weightings = Array();
 		foreach ($relator_ids as $relator_id) {
 			$tag_links = $this->getTagLinks($relator_id);
-
 			foreach ($tag_links as $tag_link) {
-				$tag_asset_id =  $tag_link['minorid'];
-				$tag_ids[] = $tag_asset_id;
-				if (is_null(array_get_index($multiplicands, $tag_asset_id))) {
-					$multiplicands[$tag_asset_id] = Array();
-				}
-				$multiplicands[$tag_asset_id][] = $tag_link['value'];
+				$tag_id =  $tag_link['minorid'];
+				$current_value = array_get_index($relator_weightings, $tag_id, 0);
+				$relator_weightings[$tag_id] = $current_value + $tag_link['value'];
 			}
 		}
 
+
 		// related_asset_links are links from the relatees to the relator's tags
-		$related_asset_links = $this->getAssetLinksByTag($tag_ids);
+		$all_related_asset_links = $this->getAssetLinksByTag(array_keys($relator_weightings));
+
 
 		$related_ids = Array();
-		// loop through relateds and check relators for each.
-		foreach ($related_asset_links as $related_asset_link) {
+		// loop through relateds and check relators for each
+		foreach ($all_related_asset_links as $tag_id => $related_asset_links) {
+			$multiplier = array_get_index($relator_weightings, $tag_id);
 
-			foreach ( $multiplicands[$related_asset_link['minorid']] as $multiplicand) {
-				$current_value = array_get_index($related_ids, $related_asset_link['majorid']);
-				if (is_null($current_value)) {
-					$related_ids[$related_asset_link['majorid']] = Array();
-				}
-				$related_ids[$related_asset_link['majorid']] = $current_value + $multiplicand*$related_asset_link['value'];
+			if (is_null($multiplier)) continue;
+
+			foreach ($related_asset_links as $one_related_link) {
+				$related_assetid = $one_related_link['majorid'];
+				$current_value = array_get_index($related_ids, $related_assetid, 0);
+				$related_ids[$related_assetid] = $current_value + $multiplier * $one_related_link['value'];
 			}
 		}
 
 		arsort($related_ids);
+
 
 		return $related_ids;
 
