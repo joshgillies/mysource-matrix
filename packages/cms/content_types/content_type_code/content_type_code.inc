@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code.inc,v 1.3 2006/01/03 02:53:54 dmckee Exp $
+* $Id: content_type_code.inc,v 1.4 2006/01/03 03:31:30 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -224,13 +224,17 @@ class Content_Type_Code extends Content_Type
 		//Get our user preferences
 		$classes = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_CODE_EDITOR_JS_CLASSES');
 
-		//Highlight any reserved words
-		foreach ($reserved as $word) {
-			$highlighted = str_replace($word, '<span class="'.$classes['reserved'].'">'.$word.'</span>', $highlighted);
-		}
 		$highlighted = preg_replace('/(\".*\")/i', '<span class="'.$classes['string'].'">\\1</span>', $highlighted);
 		$highlighted = preg_replace('/(\'.*\')/i', '<span class="'.$classes['string'].'">\\1</span>', $highlighted);
-		$highlighted = preg_replace('/([a-zA-Z]*)\((.*)\)/i', '<span class="'.$classes['function'].'">\\1</span><span class="'.$classes['brackets'].'">(</span><span class="'.$classes['default'].'">\\2</span><span class="'.$classes['brackets'].'">)</span>', $highlighted);
+
+		//Highlight any reserved words
+
+		foreach ($reserved as $word) {
+			$highlighted = str_replace(' '.$word.' ', '<span class="'.$classes['reserved'].'"> '.$word.' </span>', $highlighted);
+			$highlighted = str_replace(' '.$word.'.', '<span class="'.$classes['reserved'].'"> '.$word.'.</span>', $highlighted);
+		}
+
+		$highlighted = preg_replace('/([a-zA-Z_]*)\((.*)\)/i', '<span class="'.$classes['function'].'">\\1</span><span class="'.$classes['brackets'].'">(</span><span class="'.$classes['default'].'">\\2</span><span class="'.$classes['brackets'].'">)</span>', $highlighted);
 
 		return $highlighted;
 
@@ -300,7 +304,9 @@ class Content_Type_Code extends Content_Type
 		$end_pos = strpos($highlighted, 'jsender');
 		$script = substr($highlighted, $start_pos, $end_pos - $start_pos + 7);
 		if ($end_pos !== FALSE || $start_pos !== FALSE) {
-			$highlighted = str_replace($script, $this->highlightScript($script), $highlighted);
+			$result = $this->highlightScript($script);
+			bam($result);
+			$highlighted = str_replace($script, $result, $highlighted);
 		}
 
 		$highlighted = str_replace(Array('inlinephpstart', 'inlinephpend'), Array('&lt;?php', '?&gt;'), $highlighted);
