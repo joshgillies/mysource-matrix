@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code.inc,v 1.5 2006/01/03 03:48:00 dmckee Exp $
+* $Id: content_type_code.inc,v 1.6 2006/01/03 05:08:50 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -305,12 +305,16 @@ class Content_Type_Code extends Content_Type
 		$start_pos = strpos($highlighted, 'jsstarter');
 		$end_pos = strpos($highlighted, 'jsender');
 		$script = substr($highlighted, $start_pos, $end_pos - $start_pos + 7);
-		if ($end_pos !== FALSE || $start_pos !== FALSE) {
+
+		if ($end_pos !== FALSE && $start_pos !== FALSE) {
 			$result = $this->highlightScript($script);
 			$highlighted = str_replace($script, $result, $highlighted);
+		} else {
+			$highlighted = str_replace(Array ('jsender', 'jsstarter'), '', $highlighted);
 		}
 
 		$highlighted = str_replace(Array('inlinephpstart', 'inlinephpend'), Array('&lt;?php', '?&gt;'), $highlighted);
+		$highlighted = str_replace('>jsender<', '><', $highlighted);
 
 		$line_num_prefs = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_CODE_EDITOR_LINE_NUMBERS');
 		if ($line_num_prefs['use_line_numbers'] == true) {
