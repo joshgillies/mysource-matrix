@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_prefs.inc,v 1.6 2005/06/02 04:41:54 ndvries Exp $
+* $Id: file_prefs.inc,v 1.7 2006/01/03 01:09:18 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class File_Prefs extends Prefs
@@ -79,6 +79,14 @@ class File_Prefs extends Prefs
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 			// work out the max file size that PHP is allowing
+			$ini_size = strtolower(ini_get('upload_max_filesize'));
+			if (substr($ini_size, -1) == 'k') {
+				$ini_size = $ini_size * 1024;
+			} else if (substr($ini_size, -1) == 'm') {
+				$ini_size = $ini_size * 1024 * 1024;
+			}
+
+			// work out the max post size that PHP is allowing
 			$post_size = strtolower(ini_get('post_max_size'));
 			if (substr($post_size, -1) == 'k') {
 				$post_size = $post_size * 1024;
@@ -92,7 +100,7 @@ class File_Prefs extends Prefs
 			} else if (substr($mem_limit_size, -1) == 'm') {
 				$mem_limit_size = $mem_limit_size * 1024 * 1024;
 			}
-			$php_max_file_size = min($post_size, $mem_limit_size);
+			$php_max_file_size = min($ini_size, $post_size, $mem_limit_size);
 
 			if (is_null($pref)) {
 				$o->openField(translate('max_file_upload'));

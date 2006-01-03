@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.110 2005/12/07 22:14:59 lwright Exp $
+* $Id: html_form.inc,v 1.111 2006/01/03 01:09:18 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.110 $
+* @version $Revision: 1.111 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -559,7 +559,7 @@ function get_file_upload_info($name)
 {
 	if (empty($_FILES[$name])) return false;
 
-	$nice_name = str_replace('_', ' ', $name);
+	$nice_name = $_FILES[$name]['name'];
 
 	// if something went wrong, sorry bad luck
 	switch ($_FILES[$name]['error']) {
@@ -569,7 +569,7 @@ function get_file_upload_info($name)
 		break;
 
 		case UPLOAD_ERR_INI_SIZE  :
-			trigger_localised_error('SYS0022', E_USER_WARNING, $nice_name, easy_filesize(ini_get('upload_max_size')));
+			trigger_localised_error('SYS0022', E_USER_WARNING, $nice_name, ini_get('upload_max_filesize'));
 			return false;
 		break;
 

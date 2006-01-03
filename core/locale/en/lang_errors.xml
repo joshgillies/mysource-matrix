@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.25 2005/12/21 21:52:23 rong Exp $
+* $Id: lang_errors.xml,v 1.26 2006/01/03 01:09:18 gsherwood Exp $
 *
 */
 
@@ -711,7 +711,7 @@
 
 	<error code="SYS0021">The uploaded file "%1$s" exceeded the MAX_FILE_SIZE directive in form (%2$s)</error><!-- core/lib/html_form/html_form.inc:519: -->
 
-	<error code="SYS0022">The uploaded file "%1$s" exceeded the size specified by the 'upload_max_size' directive in php.ini (%2$s)</error><!-- core/lib/html_form/html_form.inc:514: -->
+	<error code="SYS0022">The uploaded file "%1$s" exceeded the size specified by the 'upload_max_filesize' directive in php.ini (%2$s)</error><!-- core/lib/html_form/html_form.inc:514: -->
 
 	<error code="SYS0023">The uploaded file "%s" was only partially uploaded.</error><!-- core/lib/html_form/html_form.inc:524: -->
 

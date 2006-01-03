@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.66 2005/09/21 01:43:28 mmcintyre Exp $
+* $Id: file_edit_fns.inc,v 1.67 2006/01/03 01:09:18 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -87,6 +87,14 @@ class File_Edit_Fns extends Asset_Edit_Fns
 				}
 			} else {
 				// work out the max file size that PHP is allowing
+				$ini_size = strtolower(ini_get('upload_max_filesize'));
+				if (substr($ini_size, -1) == 'k') {
+					$ini_size = $ini_size * 1024;
+				} else if (substr($ini_size, -1) == 'm') {
+					$ini_size = $ini_size * 1024 * 1024;
+				}
+
+				// work out the max post size that PHP is allowing
 				$post_size = strtolower(ini_get('post_max_size'));
 				if (substr($post_size, -1) == 'k') {
 					$post_size = $post_size * 1024;
@@ -100,7 +108,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 				} else if (substr($mem_limit_size, -1) == 'm') {
 					$mem_limit_size = $mem_limit_size * 1024 * 1024;
 				}
-				$max_size = min($post_size, $mem_limit_size);
+				$max_size = min($ini_size, $post_size, $mem_limit_size);
 			}
 			?><br/><span style="font-size: 10px;"><?php echo translate('core_cannot_upload_file_larger_than', strtoupper(easy_filesize($max_size))); ?></span><?php
 		}
