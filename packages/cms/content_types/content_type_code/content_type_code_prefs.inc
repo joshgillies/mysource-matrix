@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code_prefs.inc,v 1.1 2005/12/16 05:42:13 dmckee Exp $
+* $Id: content_type_code_prefs.inc,v 1.2 2006/01/03 04:03:47 dmckee Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Raw HTML preferences
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Content_Type_Code_Prefs extends Prefs
@@ -127,7 +127,7 @@ class Content_Type_Code_Prefs extends Prefs
 			if (is_null($pref)) {
 				$o->openField(translate('code_editor_size'));
 			}
-				$html_size = $this->pref_vars['SQ_CODE_EDITOR_SIZE']['default'];
+				$code_editor_size = $this->pref_vars['SQ_CODE_EDITOR_SIZE']['default'];
 				?>
 				<table class="sq-backend-table" style="width: 350px;">
 					<tr>
@@ -135,9 +135,9 @@ class Content_Type_Code_Prefs extends Prefs
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if ($have_lock && $is_admin) {
-							$this->css_dimension_width->paint('width', $have_lock, $html_size['width']);
+							$this->css_dimension_width->paint('code_width', $have_lock, $code_editor_size['width']);
 						} else {
-							echo $html_size['width'];
+							echo $code_editor_size['width'];
 						}
 						?>
 						</td>
@@ -147,9 +147,9 @@ class Content_Type_Code_Prefs extends Prefs
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if ($have_lock && $is_admin) {
-							$this->css_dimension_height->paint('height', $have_lock, $html_size['height']);
+							$this->css_dimension_height->paint('code_height', $have_lock, $code_editor_size['height']);
 						} else {
-							echo $html_size['height'];
+							echo $code_editor_size['height'];
 						}
 						?>
 						</td>
@@ -346,7 +346,13 @@ class Content_Type_Code_Prefs extends Prefs
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if (!$is_admin) return false;
-
+		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_SIZE') {
+			$this->css_dimension_width->process('code_width');
+			$this->css_dimension_height->process('code_height');
+			$this->pref_vars['SQ_CODE_EDITOR_SIZE']['default']['width'] = $this->css_dimension_width->getContent();
+			$this->pref_vars['SQ_CODE_EDITOR_SIZE']['default']['height'] = $this->css_dimension_height->getContent();
+			return true;
+		}
 		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_HTML_CLASSES') {
 			$this->pref_vars['SQ_CODE_EDITOR_HTML_CLASSES']['default'] = $_POST['SQ_CODE_EDITOR_HTML_CLASSES'];
 		}
