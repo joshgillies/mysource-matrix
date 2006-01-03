@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.417 2005/12/23 00:12:50 arailean Exp $
+* $Id: asset_manager.inc,v 1.418 2006/01/03 05:12:10 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.417 $
+* @version $Revision: 1.418 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2390,9 +2390,12 @@ class Asset_Manager extends MySource_Object
 		// $dependant_links = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'minor', null, 1);
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 
+		$force_array = FALSE;
+
 		if (!is_array($assetid)) {
 			$assetids = Array($assetid);
 		} else {
+			$force_array = TRUE;
 			$assetids = $assetid;
 		}
 
@@ -2485,7 +2488,7 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		return (count($links) == 1) ? array_shift($links) : $links;
+		return (count($links) == 1 && !$force_array) ? array_shift($links) : $links;
 
 	}//end getLinks()
 
