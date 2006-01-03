@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code.inc,v 1.2 2005/12/23 00:24:15 dmckee Exp $
+* $Id: content_type_code.inc,v 1.3 2006/01/03 02:53:54 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -300,7 +300,7 @@ class Content_Type_Code extends Content_Type
 		$end_pos = strpos($highlighted, 'jsender');
 		$script = substr($highlighted, $start_pos, $end_pos - $start_pos + 7);
 		if ($end_pos !== FALSE || $start_pos !== FALSE) {
-			$highlighted .= str_replace($script, $this->highlightScript($script), $highlighted);
+			$highlighted = str_replace($script, $this->highlightScript($script), $highlighted);
 		}
 
 		$highlighted = str_replace(Array('inlinephpstart', 'inlinephpend'), Array('&lt;?php', '?&gt;'), $highlighted);
