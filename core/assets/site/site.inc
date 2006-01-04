@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.82 2005/12/15 03:17:49 dmckee Exp $
+* $Id: site.inc,v 1.83 2006/01/04 03:11:52 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -413,6 +413,14 @@ class Site extends Folder
 		foreach ($our_design_links as $link) {
 			if (preg_match('/^design::(system|user)::(.*)$/', $link['value'])) {
 				$our_designs[$link['value']] = $link['minorid'];
+			}
+		}
+
+		// look for overrides and overwrite the array in these places
+		foreach ($our_design_links as $link) {
+			if (preg_match('/^override::design::(system|user)::(.*)$/', $link['value'])) {
+				$name = preg_replace('/^override::(.*)$/', '$1', $link['value']);
+				$our_designs[$name] = $link['minorid'];
 			}
 		}
 
