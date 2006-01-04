@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.21.2.4 2005/12/13 00:46:29 arailean Exp $
+* $Id: page_remote_content.inc,v 1.21.2.5 2006/01/04 05:40:38 arailean Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once 'HTTP/Client/CookieManager.php';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.21.2.4 $
+* @version $Revision: 1.21.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -129,7 +129,7 @@ class Page_Remote_Content extends Page
 		$result = '';
 
 		$binary = array_get_index($this->_tmp, 'binary', false);
-		if ($binary && $allow_binary){
+		if ($binary && $allow_binary) {
 			// binary types need special treatment
 			$type = $this->_tmp['type'];
 
@@ -152,7 +152,7 @@ class Page_Remote_Content extends Page
 				$result = replace_keywords($this->attr('binary_message'), $replacements);
 			}
 
-		} else if ($binary && !$allow_binary){
+		} else if ($binary && !$allow_binary) {
 			$result = '['.translate('cms_remote_content_binary_data').']';
 
 		} else {
@@ -268,9 +268,7 @@ class Page_Remote_Content extends Page
 			}
 		}
 
-		if (empty($this->_tmp['_white_list_'])) {
-			return true;
-		}
+		if (empty($this->_tmp['_white_list_'])) return TRUE;
 
 
 		$Net_URL =& new Net_URL($url);
@@ -350,7 +348,7 @@ class Page_Remote_Content extends Page
 
 		// set HTTP authentication
 		$user = $this->attr('username');
-		if (!empty($user)){
+		if (!empty($user)) {
 			$request_parameters['user'] = $user;
 			$request_parameters['pass'] = $this->attr('password');
 		}
@@ -358,7 +356,6 @@ class Page_Remote_Content extends Page
 		$url = $Fetch_URL->getURL();
 
 		$HTTP_Request =& new HTTP_Request($url, $request_parameters);
-
 		$HTTP_Request->addHeader('User-Agent', SQ_SYSTEM_LONG_NAME);
 
 		if (!empty($_POST)) {
@@ -377,9 +374,9 @@ class Page_Remote_Content extends Page
 			$Cookie_Manager =& new HTTP_Client_CookieManager();
 		}
 
+
 		// process the request
 		$result = $HTTP_Request->sendRequest();
-
 		// get new cookies and save cookie manager
 		$Cookie_Manager->updateCookies($HTTP_Request);
 		$_SESSION['SQ_REMOTE_COOKIE_MANAGER'] = serialize($Cookie_Manager);
@@ -391,6 +388,7 @@ class Page_Remote_Content extends Page
 		// a PEAR error object
 		if (!$result || PEAR::isError($result) || $is_error) {
 			$this->_tmp['success'] = false;
+			$this->_tmp['processed'] = true;
 			return false;
 		}
 
@@ -838,7 +836,7 @@ class Page_Remote_Content extends Page
 			$final_path = $url;
 		} else {
 			$path = array_get_index($parsed_fetch_url,'path','/');
-			if (substr($path,-1) != '/'){
+			if (substr($path,-1) != '/') {
 				$path = dirname($path);
 				if (strlen($path) > 1) $path .= '/';
 			}
