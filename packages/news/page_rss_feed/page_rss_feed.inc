@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.4 2005/11/04 02:50:50 pgannavarapu Exp $
+* $Id: page_rss_feed.inc,v 1.5 2006/01/04 22:06:51 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -313,7 +313,6 @@ class Page_RSS_Feed extends Page
 				$rss = $writer->getRSSString();
 				$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 				$r = $cm->saveToCache($this->id, $this->type(), '', serialize($rss), false);
-				assert_valid_cache_result($r);
 			}
 		} else {
 			//we need to send headers as we got the feed from cache
@@ -477,7 +476,6 @@ class Page_RSS_Feed extends Page
 				$rss = $writer->getRSSString();
 				$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 				$r = $cm->saveToCache($this->id, $this->type(), '', serialize($rss), false);
-				assert_valid_cache_result($r);
 			}
 		} else {
 			//we need to send headers as we got the feed from cache
