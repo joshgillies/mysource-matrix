@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: dev.inc,v 1.19 2005/05/17 01:32:35 tbarrett Exp $
+* $Id: dev.inc,v 1.19.2.1 2006/01/04 00:37:22 arailean Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 *     Generic functions that are useful for developers
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.19.2.1 $
 * @package Fudge
 * @subpackage dev
 */
@@ -376,6 +376,25 @@ function get_calling_func()
 	return $res;
 
 }//end get_calling_func()
+
+
+/**
+* Dump a variable to error log
+*
+* @param mixed	$var	variable to dump
+*
+* @return void
+* @access public
+*/
+function log_dump($var=null)
+{
+	static $count = 0;
+	if (is_null($var)) {
+		$var = '---------- Debugging ----------';
+	}
+	error_log($count++.': '.get_calling_func().': '.print_r($var, 1));
+
+}//end log_dump()
 
 
 ?>
