@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.28 2005/12/21 03:15:19 bcaldwell Exp $
+* $Id: page_remote_content.inc,v 1.29 2006/01/04 06:00:39 arailean Exp $
 *
 */
 
@@ -22,6 +22,7 @@ require_once 'HTTP/Client.php';
 
 define ('SQ_REMOTE_MAX_REDIRECTS', 10);
 
+
 /**
 * Page_Remote_Content
 *
@@ -29,7 +30,7 @@ define ('SQ_REMOTE_MAX_REDIRECTS', 10);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -45,7 +46,7 @@ class Page_Remote_Content extends Page
 	*/
 	function Page_Remote_Content($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Page($assetid);
 
 	}//end constructor
@@ -67,9 +68,9 @@ class Page_Remote_Content extends Page
 	{
 
 		// do not allow binary content, unless that decision has already been made elsewhere
-		$allow_binary = array_get_index($this->_tmp, 'allow_binary', false);
+		$allow_binary = array_get_index($this->_tmp, 'allow_binary', FALSE);
 
-		if (!array_get_index($this->_tmp, 'processed', false)) {
+		if (!array_get_index($this->_tmp, 'processed', FALSE)) {
 			$this->_process();
 		}
 
@@ -83,7 +84,7 @@ class Page_Remote_Content extends Page
 			$this->_outputContent($allow_binary);
 		}
 
-		return true;
+		return TRUE;
 
 	}//end printBody()
 
@@ -106,7 +107,7 @@ class Page_Remote_Content extends Page
 		// then print the content itself
 		echo $this->_tmp['content'];
 
-		return true;
+		return TRUE;
 
 	}//end _outputBinaryContent()
 
@@ -123,18 +124,18 @@ class Page_Remote_Content extends Page
 	* @return void
 	* @access public
 	*/
-	function _outputContent($allow_binary=true)
+	function _outputContent($allow_binary=TRUE)
 	{
 
 		$result = '';
 
-		$binary = array_get_index($this->_tmp, 'binary', false);
-		if ($binary && $allow_binary){
+		$binary = array_get_index($this->_tmp, 'binary', FALSE);
+		if ($binary && $allow_binary) {
 			// binary types need special treatment
 			$type = $this->_tmp['type'];
 
 			// if content is an image and we are tunneling images, otput it as binary
-			if ((strpos($type,'image/')!==false) && $this->attr('tunnel_images')) {
+			if ((strpos($type,'image/')!==FALSE) && $this->attr('tunnel_images')) {
 				if ($this->attr('strip_images')) {
 					$result = '[Image]';
 				} else {
@@ -142,7 +143,7 @@ class Page_Remote_Content extends Page
 					return;
 				}
 			// media content is otput as binary if tunneling
-			} else if ((strpos($type,'application/')!==false) && $this->attr('tunnel_media')) {
+			} else if ((strpos($type,'application/')!==FALSE) && $this->attr('tunnel_media')) {
 				$this->_outputBinaryContent();
 				return;
 
@@ -152,7 +153,7 @@ class Page_Remote_Content extends Page
 				$result = replace_keywords($this->attr('binary_message'), $replacements);
 			}
 
-		} else if ($binary && !$allow_binary){
+		} else if ($binary && !$allow_binary) {
 			$result = '['.translate('cms_remote_content_binary_data').']';
 
 		} else {
@@ -178,8 +179,8 @@ class Page_Remote_Content extends Page
 	{
 		$this->_process();
 
-		if (array_get_index($this->_tmp, 'binary', false)) {
-			$this->_tmp['allow_binary'] = true;
+		if (array_get_index($this->_tmp, 'binary', FALSE)) {
+			$this->_tmp['allow_binary'] = TRUE;
 			return $this->printBody();
 		} else {
 			return parent::printFrontend();
@@ -230,7 +231,7 @@ class Page_Remote_Content extends Page
 					$response_body .= $match;
 				}
 			}
-			$matches = null;
+			$matches = NULL;
 		}
 
 		// prepare the url that will be used to replace the links that have to be tunnelled through remote content
@@ -268,9 +269,7 @@ class Page_Remote_Content extends Page
 			}
 		}
 
-		if (empty($this->_tmp['_white_list_'])) {
-			return true;
-		}
+		if (empty($this->_tmp['_white_list_'])) return TRUE;
 
 
 		$Net_URL =& new Net_URL($url);
@@ -284,11 +283,11 @@ class Page_Remote_Content extends Page
 			if (strlen($white_url) > strlen($url)) {
 				continue;
 			} else if (strtolower($white_url) == substr($url, 0, strlen($white_url))) {
-				return true;
+				return TRUE;
 			}
 		}
 
-		return false;
+		return FALSE;
 
 	}//end isUrlAllowed()
 
@@ -311,8 +310,8 @@ class Page_Remote_Content extends Page
 		}
 
 		if (!$fetch_url) {
-			$this->_tmp['success'] = false;
-			return false;
+			$this->_tmp['success'] = FALSE;
+			return FALSE;
 		}
 
 		$fetch_url = undo_htmlspecialchars($fetch_url);
@@ -321,9 +320,9 @@ class Page_Remote_Content extends Page
 
 		if (!$this->isUrlAllowed($Fetch_URL->getURL())) {
 			trigger_localised_error('CMS0057', E_USER_WARNING, $fetch_url);
-			$this->_tmp['success'] = false;
-			$this->_tmp['processed'] = true;
-			return false;
+			$this->_tmp['success'] = FALSE;
+			$this->_tmp['processed'] = TRUE;
+			return FALSE;
 		}
 
 		// let's see if we're getting any variables in the get string
@@ -338,12 +337,14 @@ class Page_Remote_Content extends Page
 				$Fetch_URL->addQueryString($key, $data);
 			}
 		}
-		
+
 		// support custom post variables if possible
 		$post_variables = $this->attr('post_variables');
+		$local_post = $_POST;
+
 		if ((!isset($fetch_url) || ($action != 'fetch_url')) && !empty($post_variables)) {
 			foreach ($post_variables as $index => $variable) {
-				$_POST[$variable['name']] = replace_global_keywords($variable['value']);
+				$local_post[$variable['name']] = replace_global_keywords($variable['value']);
 			}
 		}
 
@@ -357,7 +358,7 @@ class Page_Remote_Content extends Page
 
 			// set HTTP authentication
 			$user = $this->attr('username');
-			if (!empty($user)){
+			if (!empty($user)) {
 				$request_parameters['user'] = $user;
 				$request_parameters['pass'] = $this->attr('password');
 			}
@@ -369,12 +370,13 @@ class Page_Remote_Content extends Page
 			if ($this->attr('allow_redirect')) {
 				$HTTP_Client->setMaxRedirects(SQ_REMOTE_MAX_REDIRECTS);
 			}
-			$HTTP_Client->enableHistory(false);
+			$HTTP_Client->enableHistory(FALSE);
 		}
 
 		$url = $Fetch_URL->getURL();
-		if (!empty($_POST)) {
-			$result = $HTTP_Client->post($url, make_raw_post_data($_POST), true);
+
+		if (!empty($local_post)) {
+			$result = $HTTP_Client->post($url, make_raw_post_data($local_post), TRUE);
 		} else {
 			$result = $HTTP_Client->get($url);
 		}
@@ -384,9 +386,10 @@ class Page_Remote_Content extends Page
 
 		// exit on error
 		if (PEAR::isError($result) || preg_match('/^[45].*?/', $result)) {
-			$this->_tmp['success'] = false;
+			$this->_tmp['success'] = FALSE;
+			$this->_tmp['processed'] = TRUE;
 			unset($HTTP_Client);
-			return false;
+			return FALSE;
 		}
 
 		$response = $HTTP_Client->currentResponse();
@@ -397,9 +400,9 @@ class Page_Remote_Content extends Page
 		if ($this->_tmp['url'] != $url) {
 			if (!$this->isUrlAllowed($this->_tmp['url'])) {
 				trigger_localised_error('CMS0058', E_USER_WARNING, $this->_tmp['url'], $fetch_url);
-				$this->_tmp['success'] = false;
-				$this->_tmp['processed'] = true;
-				return false;
+				$this->_tmp['success'] = FALSE;
+				$this->_tmp['processed'] = TRUE;
+				return FALSE;
 			}
 		}
 
@@ -409,17 +412,17 @@ class Page_Remote_Content extends Page
 		$this->_tmp['content'] = $response['body'];
 
 		// if content is not binary, it needs further processing
-		if (strpos($this->_tmp['type'],'text/') !== false) {
+		if (strpos($this->_tmp['type'],'text/') !== FALSE) {
 			$this->_tmp['content'] = $this->processHtml();
 		} else {
-			$this->_tmp['binary'] = true;
+			$this->_tmp['binary'] = TRUE;
 		}
 
-		$this->_tmp['processed'] = true;
-		$this->_tmp['success'] = true;
+		$this->_tmp['processed'] = TRUE;
+		$this->_tmp['success'] = TRUE;
 
 		unset($HTTP_Client);
-		return true;
+		return TRUE;
 
 	}//end _process()
 
@@ -495,7 +498,7 @@ class Page_Remote_Content extends Page
 	function _transformContent($content, $fetch_url, $replacement_url)
 	{
 		if (!$content || !$fetch_url || !$replacement_url) {
-			return false;
+			return FALSE;
 		}
 
 		// get all info about the remote URL
@@ -536,7 +539,7 @@ class Page_Remote_Content extends Page
 				$content
 			);
 
-		}
+		}//end if
 
 		$subjects     = Array();
 		$replacements = Array();
@@ -557,7 +560,7 @@ class Page_Remote_Content extends Page
 			$matches = array_merge($matches, $matches_local);
 		}
 		// local cleanup
-		$matches_local = null;
+		$matches_local = NULL;
 
 		// fix these matches up
 		foreach ($matches as $data) {
@@ -652,7 +655,7 @@ class Page_Remote_Content extends Page
 			$replacements[]	= $prefix.$url.$postfix;
 		}
 		// local cleanup
-		$name_matches = null;
+		$name_matches = NULL;
 
 		//// END OBJECTS
 
@@ -676,7 +679,7 @@ class Page_Remote_Content extends Page
 			$matches = array_merge($matches, $matches_local);
 		}
 		// local cleanup
-		$matches_local = null;
+		$matches_local = NULL;
 
 		foreach ($matches as $data) {
 			$subject	= $data[0];
@@ -721,7 +724,7 @@ class Page_Remote_Content extends Page
 			$matches = array_merge($matches, $matches_local);
 		}
 		// local cleanup
-		$matches_local = null;
+		$matches_local = NULL;
 
 		$load_links = $this->attr('load_links');
 
@@ -762,7 +765,7 @@ class Page_Remote_Content extends Page
 			$matches = array_merge($matches, $matches_local);
 		}
 		// local cleanup
-		$matches_local = null;
+		$matches_local = NULL;
 
 		foreach ($matches as $data) {
 			$subject = $data[0];
@@ -813,7 +816,7 @@ class Page_Remote_Content extends Page
 	{
 		// ignore invalid urls
 		if (!isset($url) || (substr($url, -3) == '://' )) {
-			return false;
+			return FALSE;
 		}
 
 		if (substr($url,0,2) == '//') {
@@ -822,7 +825,7 @@ class Page_Remote_Content extends Page
 
 		// ignore absolute urls
 		if (preg_match('/^[a-z0-9]+:\/\//i', $url)) {
-			return true;
+			return TRUE;
 		}
 
 		// start building full URL
@@ -835,7 +838,7 @@ class Page_Remote_Content extends Page
 			$final_path = $url;
 		} else {
 			$path = array_get_index($parsed_fetch_url,'path','/');
-			if (substr($path,-1) != '/'){
+			if (substr($path,-1) != '/') {
 				$path = dirname($path);
 				if (strlen($path) > 1) $path .= '/';
 			}
@@ -847,7 +850,7 @@ class Page_Remote_Content extends Page
 
 		$url = $full_url;
 
-		return true;
+		return TRUE;
 
 	}//end _makeFullURL()
 
