@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.52.2.2 2005/09/06 01:25:38 dheppell Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.52.2.3 2006/01/04 00:33:16 arailean Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52.2.2 $
+* @version $Revision: 1.52.2.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -253,7 +253,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 		$assets = $this->_running_vars['assets'];
 		$child_assets = Array();
 		for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
-			$asset_info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
+			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 			if (empty($asset_info)) {
 				trigger_localised_error('HIPO0013', E_USER_WARNING, $assetid);
 				return '';
