@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8.2.2 2005/12/08 00:36:29 sdanis Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8.2.3 2006/01/04 02:34:50 lwright Exp $
 *
 */
 -->
@@ -47,7 +47,7 @@
 	</section>
 	<section name="Simple Validation Rules" write_access="write:attributes">
 		<field attribute="is_required">
-			<boolean true_text="Required" false_text="Optional" />
+			<boolean true_text="required" false_text="optional" />
 		</field>
 		<field attribute="cust_required_error">
 			<text width="60" />
