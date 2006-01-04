@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.92 2005/12/23 04:21:02 arailean Exp $
+* $Id: lang_strings.xml,v 1.93 2006/01/04 03:13:54 lwright Exp $
 *
 */
 
@@ -185,6 +185,8 @@
 	<string source="option">Option</string>
 	<string source="option_key">Option Key</string>
 	<string source="other">Other</string>
+	<string source="override_design_question">Override ?</string>
+	<string source="override_design_explanation">You can override the design this asset would inherit from its parent, with a design that is applied to this asset only. This override design does not affect the inheritance to this asset's children of any parent design.</string>
 	<string source="patch_details">Patch Details</string>
 	<string source="patches_available_to_install">Patches Available To Install</string>
 	<string source="path_to_antiword">Path to Antiword</string>
