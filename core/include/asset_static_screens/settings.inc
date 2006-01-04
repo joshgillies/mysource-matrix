@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.33 2005/11/03 23:57:28 lwright Exp $
+* $Id: settings.inc,v 1.34 2006/01/04 03:13:31 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 */
 
@@ -383,11 +383,18 @@ function paintSettings(&$owner, &$o, &$ei)
 									'design::system::frontend'	=> 0,
 									'design::system::login'		=> 0,
 								   );
+					$override_designs = Array(
+									'design::system::frontend'	=> 0,
+									'design::system::login'		=> 0,
+								   );
 
 					$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_LINK_NOTICE, 'design', false);
 					foreach ($our_design_links as $link) {
 						if (preg_match('/^design::(system|user)::.*$/', $link['value'])) {
 							$our_designs[$link['value']] = $link['minorid'];
+						} else if (preg_match('/^override::design::(system|user)::.*$/', $link['value'])) {
+							$design_name = preg_replace('/^override::(.*)$/', '$1', $link['value']);
+							$override_designs[$design_name] = $link['minorid'];
 						}// end if
 					}// end foreach
 
@@ -409,6 +416,7 @@ function paintSettings(&$owner, &$o, &$ei)
 
 					foreach ($our_designs as $design_name => $designid) {
 
+						$override_designid = array_get_index($override_designs, $design_name, 0);
 						$matches = Array();
 						preg_match('/^design::(system|user)::(.*)$/', $design_name, $matches);
 
@@ -500,6 +508,29 @@ function paintSettings(&$owner, &$o, &$ei)
 						if ($design_type == 'system' && isset($system_designs[$design_name])) {
 							$o->note($system_designs[$design_name]);
 						}
+
+						$o->closeField();
+
+						$o->openField(translate('override_design_question'));
+
+						if (!$owner->writeAccess('links')) {
+							$created = true;
+							echo '<i>';
+							if (!$override_designid) {
+								echo translate('none');
+							} else {
+								echo get_asset_tag_line($override_designid);
+							}
+							echo '</i>';
+
+						} else {
+							$buttons = Array('clear');
+							if (!$new_user_design) $buttons[] = 'reset';
+							asset_finder($prefix.'_designs['.$design_name.'][override]', $override_designid, Array('design' => 'D'), 'sq_sidenav', false, 'null', $buttons);
+						}
+
+
+						$o->note(translate('override_design_explanation'));
 
 						$o->closeField();
 
@@ -682,6 +713,7 @@ function processSettings(&$owner, &$o, &$ei)
 		foreach ($_POST[$prefix.'_designs'] as $design_name => $design_data) {
 
 			$new_designid = $design_data['designid']['assetid'];
+			$new_override_designid = $design_data['override']['assetid'];
 
 			if ($design_name == 'design::user::') {
 				if (empty($design_data['name'])) continue;
@@ -697,31 +729,60 @@ function processSettings(&$owner, &$o, &$ei)
 				$old_design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'design', false, $design_name);
 				$old_designid    = (empty($old_design_link)) ? 0 : $old_design_link['minorid'];
 
+				$old_override_design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'design', false, 'override::'.$design_name);
+				$old_override_designid    = (empty($old_override_design_link)) ? 0 : $old_override_design_link['minorid'];
+
 			}// end if
 
 			// if they are the same then there is nothing to do.
-			if ($old_designid == $new_designid) continue;
+			if ($new_designid != $old_designid) {
+				// if there is an existing entry delete it
+				if ($old_designid) {
+					if (!$owner->deleteLink($old_design_link['linkid'])) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$designs_ok = false;
+						break;
+					}
+				}
 
-			// if there is an existing entry delete it
-			if ($old_designid) {
-				if (!$owner->deleteLink($old_design_link['linkid'])) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$designs_ok = false;
-					break;
+				if ($new_designid) {
+					$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_designid);
+					if (is_null($design)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$designs_ok = false;
+						break;
+					}
+					if (!$owner->createLink($design, SQ_LINK_NOTICE, $design_name)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$designs_ok = false;
+						break;
+					}
 				}
 			}
 
-			if ($new_designid) {
-				$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_designid);
-				if (is_null($design)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$designs_ok = false;
-					break;
+			// same with the overrides
+			if ($new_override_designid != $old_override_designid) {
+				// if there is an existing entry delete it
+				if ($old_override_designid) {
+					if (!$owner->deleteLink($old_override_design_link['linkid'])) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$designs_ok = false;
+						break;
+					}
 				}
-				if (!$owner->createLink($design, SQ_LINK_NOTICE, $design_name)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$designs_ok = false;
-					break;
+
+				if ($new_override_designid) {
+					$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_override_designid);
+					if (is_null($design)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$designs_ok = false;
+						break;
+					}
+					if (!$owner->createLink($design, SQ_LINK_NOTICE, 'override::'.$design_name)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$designs_ok = false;
+						break;
+					}
 				}
 			}
 
