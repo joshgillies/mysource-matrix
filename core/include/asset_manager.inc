@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.418 2006/01/03 05:12:10 arailean Exp $
+* $Id: asset_manager.inc,v 1.419 2006/01/04 03:10:41 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.418 $
+* @version $Revision: 1.419 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5712,6 +5712,49 @@ class Asset_Manager extends MySource_Object
 		return $result;
 
 	}//end getDesignFromURL()
+
+
+	/**
+	* Return an inheritable design value, given a URL
+	*
+	* Currently called by Asset::updateLookups() when a design or paint layout is being
+	* handled and the asset's gone to its parents for an inherited value. In the case
+	* of designs we need to now go directly to links, because we can't use the lookup
+	* table values by itself anymore - we might end up inheriting an override instead
+	*
+	* @param string	$url			the url to get the design for
+	* @param string	$design_name	the code for the design (eg. design::system::frontend)
+	*
+	* @see Asset::updateLookups()
+	* @return mixed array|NULL
+	* @access public
+	*/
+	function getInheritedDesignValueFromURL($url, $design_name='design::system::frontend')
+	{
+		$asset =& $this->getAssetFromURL(NULL, $url, TRUE, TRUE);
+		$design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', FALSE, $design_name);
+
+		while(empty($design_link) && ($url != '')) {
+			$slash_pos = strrpos($url, '/');
+			if ($slash_pos === FALSE) $slash_pos = 0;
+			$url = substr_replace($url, '', $slash_pos);
+
+			$asset =& $this->getAssetFromURL(NULL, $url, TRUE, TRUE);
+			if (empty($asset)) break;
+
+			$design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', FALSE, $design_name);
+		}
+
+		if (empty($design_link)) {
+			return NULL;
+		}
+
+		return Array(
+						'designid'	=> $design_link['minorid'],
+						'type_code'	=> $design_link['minor_type_code'],
+					);
+
+	}//end getInheritedDesignValueFromURL()
 
 
 	/**

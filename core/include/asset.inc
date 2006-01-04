@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.479 2005/12/23 02:35:13 emcdonald Exp $
+* $Id: asset.inc,v 1.480 2006/01/04 03:10:41 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.479 $
+* @version $Revision: 1.480 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4232,6 +4232,17 @@ class Asset extends MySource_Object
 												   );
 				}
 			}
+
+			// override designs take priority over normal, inheritable designs
+			foreach ($our_design_links as $link) {
+				if (preg_match('/^override::design::(system|user)::.*$/', $link['value'])) {
+					$name = preg_replace('/^override::(.*)$/', '$1', $link['value']);
+					$our_designs[$name] = Array(
+													'value'	=> $link['minorid'],
+													'inhd'	=> '0',
+												 );
+				}
+			}
 			unset($link);
 			unset($our_design_links);
 
@@ -4298,12 +4309,24 @@ class Asset extends MySource_Object
 						if (!empty($parent_lookup_values[$parent_urls[$j]['url']])) {
 							foreach ($parent_lookup_values[$parent_urls[$j]['url']] as $name => $value_data) {
 								if (isset($lookup_values[$name])) continue;
-								$lookup_values[$name] = Array(
-															'value'	=> $value_data['value'],
-															'inhd'	=> '1',
-														);
+
+								if (preg_match('/^(design|paint_layout)::(system|user)::.*$/', $name)) {
+									$inherited_lookup_value = $GLOBALS['SQ_SYSTEM']->am->getInheritedDesignValueFromURL($parent_urls[$j]['url'], $name);
+									if (!empty($inherited_lookup_value)) {
+										$lookup_values[$name] = Array(
+																	'value'	=> $inherited_lookup_value['designid'],
+																	'inhd'	=> '1',
+																);
+									}
+								} else {
+									$lookup_values[$name] = Array(
+																'value'	=> $value_data['value'],
+																'inhd'	=> '1',
+															);
+								}
 							}
 						}
+
 						foreach ($lookup_values as $name => $data) {
 							$sql = 'INSERT INTO
 										sq_ast_lookup_value
