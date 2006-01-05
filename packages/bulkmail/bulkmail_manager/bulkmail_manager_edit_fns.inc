@@ -13,7 +13,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_offi
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -77,7 +77,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		$jobs = $asset->getQueuedJobs();
 		$this->_processJobQueue($asset, $jobs);
 
-		return true;
+		return TRUE;
 
 	}//end processJobQueue()
 
@@ -106,7 +106,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 						$bulkmail_manager->updateJob($job_id, BML_JOB_STATE_PAUSED);
 					break;
 					case 'cancel':
-						//log a message if this is not an ad-hoc job
+						// log a message if this is not an ad-hoc job
 						$job_id_parts = explode(':', $job_id);
 						if (!isset($job_id_parts[1])) {
 							$msg_reps = Array(
@@ -143,7 +143,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	function _paintJobQueue(&$asset, $jobs)
 	{
 		if (empty($jobs)) {
-			//echo translate('bm_job_progress_none');
+			// echo translate('bm_job_progress_none');
 			return;
 		}
 
@@ -171,7 +171,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 				if (isset($jobid_parts[1])) {
 					$name = translate('bm_adhoc_job_name');
 				} else {
-					$name = array_shift($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($jobid), Array(), true, 'name'));
+					$name = array_shift($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($jobid), Array(), TRUE, 'name'));
 				}
 
 				$progress = $job_info['progress'];
@@ -227,7 +227,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 							default:
 						}
 
-						combo_box($asset->getPrefix().'_'.$jobid, $options, false, '');
+						combo_box($asset->getPrefix().'_'.$jobid, $options, FALSE, '');
 					?>
 					</td>
 					<?php
@@ -236,7 +236,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 				<tr>
 		<?php
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($post_office);
-			}
+			}//end foreach
 		?>
 			</table>
 		<?php
@@ -256,7 +256,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	function showProgressSection(&$asset, $prefix)
 	{
 		$jobs = $asset->getQueuedJobs();
-		return (empty($jobs) ? false : true);
+		return (empty($jobs) ? FALSE : TRUE);
 
 	}//end showProgressSection()
 
@@ -278,7 +278,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 
 		// paint checkbox
 		if ($write_access) {
-			check_box($prefix.'_use_bm_threshold', true, $use_bm_threshold);
+			check_box($prefix.'_use_bm_threshold', TRUE, $use_bm_threshold);
 		} else {
 			?>
 				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $use_bm_threshold ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
@@ -302,12 +302,12 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	*/
 	function processThresholdSettingCheckBox(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 		// save whether to use bulkmail manager threshold settings
 		$use_bm_threshold = isset($_POST[$prefix.'_use_bm_threshold']);
 		$asset->setAttrValue('use_bm_threshold', $use_bm_threshold);
 
-		return true;
+		return TRUE;
 
 	}//end processThresholdSettingCheckBox()
 

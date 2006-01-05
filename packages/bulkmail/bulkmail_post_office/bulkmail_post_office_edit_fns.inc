@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.25 2005/11/30 00:01:06 rong Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.26 2006/01/05 22:39:05 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -71,7 +71,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 				foreach ($recipients as $assetid) {
 					$group_asset = null;
 					if (!empty($assetid)) {
-						$group_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						$group_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					}
 
 					if (!is_null($group_asset)) {
@@ -101,7 +101,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	function processRecipients(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$groups = Array();
 		if (is_array($_POST[$prefix.'_groups'])) {
@@ -142,7 +142,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			$onChange = 'onChange="switchDriver(this.value)"';
 			$value = array_get_index($server_details, 'driver', 'smtp');
 			if ($write_access) {
-				combo_box($prefix.'_server_det_driver', $options, false, $value, 0, $onChange);
+				combo_box($prefix.'_server_det_driver', $options, FALSE, $value, 0, $onChange);
 			} else {
 				echo $options[$value];
 			}
@@ -166,7 +166,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		$o->openField($field_name, '', '', $smtp, $name.'_field');
 			$value = array_get_index($server_details, 'port', '');
 			if ($write_access) {
-				int_text_box($name, $value, false, 4);
+				int_text_box($name, $value, FALSE, 4);
 			} else {
 				echo $value;
 			}
@@ -175,10 +175,10 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		$field_name = translate('bulkmail_server_detail_auth_field_name');
 		$name = $prefix.'_server_detail_smtp_auth';
 		$o->openField($field_name, '', 'Server requires authentication?', $smtp, $name.'_field');
-			$auth = array_get_index($server_details, 'auth', false);
+			$auth = array_get_index($server_details, 'auth', FALSE);
 
 			if ($write_access) {
-				check_box($name, true, $auth, 'switchAuthentication(this.checked)');
+				check_box($name, TRUE, $auth, 'switchAuthentication(this.checked)');
 			} else {
 				?>
 					<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $auth ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
@@ -186,14 +186,14 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			}
 		$o->closeField();
 
-		$disabled = ($auth) ? '' : 'disabled=true';
+		$disabled = ($auth) ? '' : 'disabled=TRUE';
 
 		$name = $prefix.'_server_detail_smtp_auth_username';
 		$o->openField(translate('username'), '', '', $smtp, $name.'_field');
 			$value = array_get_index($server_details, 'username', '');
 			if ($write_access) {
-				//text_box($name, $value, '', '', false, 'disabled='.$disabled);
-				text_box($name, $value, '', '', false, $disabled);
+				// text_box($name, $value, '', '', FALSE, 'disabled='.$disabled);
+				text_box($name, $value, '', '', FALSE, $disabled);
 			} else {
 				echo $value;
 			}
@@ -229,7 +229,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			} else {
 				echo $value;
 			}
-		//$o->closeField(); This field is closed in the edit interface
+		// $o->closeField(); This field is closed in the edit interface
 
 		?>
 			<script type="text/javascript">
@@ -285,7 +285,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	function processServerDetails(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$driver = array_get_index($_REQUEST, $prefix.'_server_det_driver', 'smtp');
 		foreach ($_REQUEST as $key => $value) {
@@ -297,8 +297,8 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		$server_details['driver'] = $driver;
 
 		if (array_get_index($server_details, 'driver', 'smtp') == 'smtp') {
-			if (array_get_index($server_details, 'auth', false) == false) {
-				$server_details['auth'] = false;
+			if (array_get_index($server_details, 'auth', FALSE) == FALSE) {
+				$server_details['auth'] = FALSE;
 				$server_details['username'] = '';
 				$server_details['password'] = '';
 			}
@@ -343,7 +343,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 							?><tr>
 								<td class="sq-backend-table-cell"><?php echo text_box($prefix.'_header_key_'.$index, $field_name);?></td>
 								<td class="sq-backend-table-cell"><?php echo text_box($prefix.'_header_value_'.$index, $field_body);?></td>
-								<td class="sq-backend-table-cell"><?php check_box($prefix.'_header_delete_'.$index, true, false);?></td>
+								<td class="sq-backend-table-cell"><?php check_box($prefix.'_header_delete_'.$index, TRUE, FALSE);?></td>
 							</tr><?php
 						} else {
 							?><tr>
@@ -379,7 +379,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	function processCurrentHeaders(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$header_details = $asset->attr('header_details');
 
@@ -388,7 +388,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		foreach ($header_details as $field_name => $field_body) {
 			$key = trim(array_get_index($_REQUEST, $prefix.'_header_key_'.$index));
 			$value = trim(array_get_index($_REQUEST, $prefix.'_header_value_'.$index));
-			$delete = array_get_index($_REQUEST, $prefix.'_header_delete_'.$index, false);
+			$delete = array_get_index($_REQUEST, $prefix.'_header_delete_'.$index, FALSE);
 
 			if (!empty($key) && !$delete) {
 				$new_header_details[$key] = $value;
@@ -397,7 +397,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		$asset->setAttrValue('header_details', $new_header_details);
-		return true;
+		return TRUE;
 
 	}//end processCurrentHeaders()
 
@@ -452,7 +452,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 		$asset->setAttrValue('header_details', $header_details);
 
-		return true;
+		return TRUE;
 
 	}//end processNewHeader()
 
@@ -478,7 +478,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		$use_bm_threshold = $bm->attr('use_bm_threshold');
 		if ($use_bm_threshold && !is_a($asset, 'Bulkmail_Manager')) {
 			$threshold = $bm->attr('threshold');
-			$write_access = false;
+			$write_access = FALSE;
 		} else {
 			$threshold = $asset->attr('threshold');
 		}
@@ -500,7 +500,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 				foreach ($threshold as $key => $rule) {
 					?><tr>
 						<td class="sq-backend-table-cell"><?php echo $rule['type']; ?></td>
-						<td class="sq-backend-table-cell"><?php echo ($rule['multiple']) ? translate('true') : translate('false'); ?></td>
+						<td class="sq-backend-table-cell"><?php echo ($rule['multiple']) ? translate('TRUE') : translate('FALSE'); ?></td>
 					<?php
 						switch ($rule['type']) {
 							case translate('bulkmail_threshold_rule_excluded_time') :
@@ -519,14 +519,14 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 					$o->note(translate('bulkmail_threshold_override_note', get_asset_tag_line($bm->id)));
 				}
 			$o->closeField();
-		}
+		}//end if
 
 		// the dropdown box that allows user to add new rules
 		if (!($use_bm_threshold && !is_a($asset, 'Bulkmail_Manager'))) {
 			$this->paintAddRule($asset, $o, $prefix, $write_access);
 		}
 
-		return true;
+		return TRUE;
 
 	}//end paintThresholds()
 
@@ -548,9 +548,9 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$use_bm_threshold = $bm->attr('use_bm_threshold');
 		if ($use_bm_threshold && !is_a($asset, 'Bulkmail_Manager')) {
-			$write_access = false;
+			$write_access = FALSE;
 		}
-		if (!$write_access) return false;
+		if (!$write_access) return FALSE;
 
 		$threshold = $asset->attr('threshold');
 		if (!empty($threshold)) {
@@ -569,7 +569,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		}
 		$threshold = $this->processAddRule($asset, $o, $prefix, $threshold, $write_access);
 		$asset->setAttrValue('threshold', $threshold);
-		return true;
+		return TRUE;
 
 	}//end processThresholds()
 
@@ -594,7 +594,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 						translate('bulkmail_threshold_rule_excluded_time'),
 						translate('bulkmail_threshold_rule_send_rate'),
 					  );
-			combo_box($prefix.'_rule_type', $rules, false, '');
+			combo_box($prefix.'_rule_type', $rules, FALSE, '');
 		}
 		$o->closeField();
 
@@ -701,22 +701,22 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 		if ($write_access) {
 			ob_start();
-				combo_box($prefix.'_from', $hours_array, false, $rule['params']['from']);
+				combo_box($prefix.'_from', $hours_array, FALSE, $rule['params']['from']);
 				$from = ob_get_contents();
 			ob_end_clean();
 			ob_start();
-				combo_box($prefix.'_to', $hours_array, false, $rule['params']['to']);
+				combo_box($prefix.'_to', $hours_array, FALSE, $rule['params']['to']);
 				$to = ob_get_contents();
 			ob_end_clean();
 			ob_start();
-				combo_box($prefix.'_days', $days_array, true, $rule['params']['days']);
+				combo_box($prefix.'_days', $days_array, TRUE, $rule['params']['days']);
 				$days = ob_get_contents();
 			ob_end_clean();
 			?><td class="sq-backend-table-cell"><?php
 				echo translate('bulkmail_threshold_rule_excluded_time_hour', $from, $to);
 				echo translate('bulkmail_threshold_rule_excluded_time_days', $days);
 			?></td><td class="sq-backend-table-cell"><?php
-				check_box($prefix.'_delete', true, false);?></td><?php
+				check_box($prefix.'_delete', TRUE, FALSE);?></td><?php
 		} else {
 			$from = $hours_array[$rule['params']['from']];
 			$to = $hours_array[$rule['params']['to']];
@@ -798,11 +798,11 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		$send_rate = ($rule['params']['value']/$rule['params']['unit']) * 60;
 		if ($write_access) {
 			ob_start();
-				int_text_box($prefix.'_value', $rule['params']['value'], false);
+				int_text_box($prefix.'_value', $rule['params']['value'], FALSE);
 				$value = ob_get_contents();
 			ob_end_clean();
 			ob_start();
-				combo_box($prefix.'_unit', $time_unit, false, $rule['params']['unit']);
+				combo_box($prefix.'_unit', $time_unit, FALSE, $rule['params']['unit']);
 				$unit = ob_get_contents();
 			ob_end_clean();
 			?><td class="sq-backend-table-cell"><?php
@@ -813,7 +813,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 					?><br /><span class="sq-backend-warning"><?php echo translate('bm_warning_send_rate_max', $max_send_rate); ?></span><?php
 				}
 			?></td><td class="sq-backend-table-cell"><?php
-				check_box($prefix.'_delete', true, false);?></td><?php
+				check_box($prefix.'_delete', TRUE, FALSE);?></td><?php
 		} else {
 			$value = $rule['params']['value'];
 			$unit = $time_unit[$rule['params']['unit']];
@@ -826,6 +826,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 				}
 			?></td><?php
 		}
+
 	}//end _paintSendRateRule()
 
 
@@ -905,7 +906,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		$jobs = $bulkmail_manager->getQueuedJobs(null, $asset->id);
 		$bulkmail_manager_edit_fns->_processJobQueue($asset, $jobs);
 
-		return true;
+		return TRUE;
 
 	}//end processJobQueue()
 
@@ -924,7 +925,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		$bulkmail_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$jobs = $bulkmail_manager->getQueuedJobs(null, $asset->id);
 
-		return (empty($jobs) ? false : true);
+		return (empty($jobs) ? FALSE : TRUE);
 
 	}//end showProgressSection()
 

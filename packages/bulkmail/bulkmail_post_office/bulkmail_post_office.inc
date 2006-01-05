@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office.inc,v 1.17 2005/11/15 04:58:25 rong Exp $
+* $Id: bulkmail_post_office.inc,v 1.18 2006/01/05 22:39:05 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once 'Mail.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -47,7 +47,7 @@ class Bulkmail_Post_Office extends Asset
 	*/
 	function Bulkmail_Post_Office($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Asset($assetid);
 
 	}//end constructor
@@ -62,7 +62,7 @@ class Bulkmail_Post_Office extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
@@ -84,19 +84,19 @@ class Bulkmail_Post_Office extends Asset
 				SQ_LINK_TYPE_1	=> Array(
 									'bulkmail_job'	=> Array(
 														'card'		=> 'M',
-														'exclusive'	=> false,
+														'exclusive'	=> FALSE,
 													   ),
 								   ),
 				SQ_LINK_TYPE_2	=> Array(
 									'bulkmail_job'	=> Array(
 														'card'		=> 'M',
-														'exclusive'	=> false,
+														'exclusive'	=> FALSE,
 													   ),
 								   ),
 				SQ_LINK_NOTICE	=> Array(
 									'bulkmail_job'	=> Array(
 														'card'		=> 'M',
-														'exclusive'	=> false,
+														'exclusive'	=> FALSE,
 													   ),
 								   ),
 			   );
@@ -117,17 +117,17 @@ class Bulkmail_Post_Office extends Asset
 	function canCreateLink(&$minor, $link_type, $exclusive)
 	{
 		$result = parent::canCreateLink($minor, $link_type, $exclusive);
-		if ($result !== true) return $result;
+		if ($result !== TRUE) return $result;
 
 		if (is_a($minor, 'bulkmail_job') && ($link_type != SQ_LINK_NOTICE)) {
 			// bulkmail job can only link to one bulkmail post office
-			$bmail_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'bulkmail_post_office', false, 'minor');
+			$bmail_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'bulkmail_post_office', FALSE, 'minor');
 			if (!empty($bmail_link)) {
 				return translate('bm_warning_one_post_office_for_job');
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end canCreateLink()
 
@@ -146,7 +146,7 @@ class Bulkmail_Post_Office extends Asset
 	{
 		if (is_a($minor, 'bulkmail_job') && is_a($old_major, 'bulkmail_post_office') && ($link_type != SQ_LINK_NOTICE)) {
 			 // tolerate one existing bmail_link if we are moving jobs from one post office to another
-			$bmail_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'bulkmail_post_office', false, 'minor');
+			$bmail_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'bulkmail_post_office', FALSE, 'minor');
 			if (count($bmail_link) > 1) {
 				return translate('bm_warning_one_post_office_for_job');
 			}
@@ -155,7 +155,7 @@ class Bulkmail_Post_Office extends Asset
 			return parent::canMoveLink($minor, $old_major, $link_type);
 		}
 
-		return true;
+		return TRUE;
 
 	}//end canMoveLink()
 

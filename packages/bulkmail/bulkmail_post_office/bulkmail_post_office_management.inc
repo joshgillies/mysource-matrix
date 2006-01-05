@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_management.inc,v 1.16 2005/11/21 00:23:22 ndvries Exp $
+* $Id: bulkmail_post_office_management.inc,v 1.17 2006/01/05 22:39:05 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -66,8 +66,8 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 												'default'		=> 'one_user',
 												'description'	=> 'The method of content generation',
 												'parameters'	=> Array(
-																	'multiple'		=> false,
-																	'allow_empty'	=> false,
+																	'multiple'		=> FALSE,
+																	'allow_empty'	=> FALSE,
 																	'options'		=> Array(
 																						'each_user'	=> 'Generate as recipient',
 																						'one_user'	=> 'Generate as set user',
@@ -126,18 +126,18 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 												'added'			=> '0.1',
 												'type'			=> 'serialise',
 												'default'		=> Array(
-																	//bulkmail_threshold_rule_excluded_time
+																	// bulkmail_threshold_rule_excluded_time
 																	0	=> Array(
-																			'multiple'	=> true,
+																			'multiple'	=> TRUE,
 																			'params'	=> Array(
 																							'from'	=> 0,
 																							'to'	=> 0,
 																							'days'	=> Array(),
 																						   ),
 																		   ),
-																	//bulkmail_threshold_rule_send_rate
+																	// bulkmail_threshold_rule_send_rate
 																	1	=> Array(
-																			'multiple'	=> false,
+																			'multiple'	=> FALSE,
 																			'params'	=> Array(
 																							'value'	=> 60,
 																							'unit'	=> 60,

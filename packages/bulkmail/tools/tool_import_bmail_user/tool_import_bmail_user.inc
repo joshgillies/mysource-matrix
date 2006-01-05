@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_import_bmail_user.inc,v 1.1 2005/12/06 04:30:26 rong Exp $
+* $Id: tool_import_bmail_user.inc,v 1.2 2006/01/05 22:39:05 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -116,9 +116,9 @@ class Tool_Import_Bmail_User extends Tool
 		$vars['create_in_assetid'] = $_REQUEST[$type_code.'_create_in_assetid']['assetid'];
 
 		// run HIPO job
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$hh->queueHipo('hipo_job_tool_import_bmail_user', $vars, '', SQ_PACKAGES_PATH.'/bulkmail/hipo_jobs');
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$url = $hh->runQueuedJobs();
 		if (!empty($url)) $o->setRedirect($url);
 

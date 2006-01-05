@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_user_management.inc,v 1.4 2005/11/28 03:20:38 rong Exp $
+* $Id: bulkmail_user_management.inc,v 1.5 2006/01/05 22:39:05 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -53,7 +53,7 @@ class Bulkmail_User_Management extends Asset_Management
 									'added'			=> '0.1',
 									'type'			=> 'email',
 									'default'		=> '',
-									'uniq'			=> true,
+									'uniq'			=> TRUE,
 									'description'	=> 'The users email address',
 									'is_admin'		=> 0,
 								   ),

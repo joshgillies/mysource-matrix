@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_import_bmail_user.inc,v 1.1 2005/12/06 04:31:39 rong Exp $
+* $Id: hipo_job_tool_import_bmail_user.inc,v 1.2 2006/01/05 22:39:05 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -41,7 +41,7 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 	*/
 	function HIPO_Job_Tool_Import_Bmail_User($code_name='')
 	{
-		$this->uses_trans = false;
+		$this->uses_trans = FALSE;
 		$this->HIPO_Job($code_name);
 		$GLOBALS['SQ_SYSTEM']->lm->includePackageStrings('bulkmail');
 
@@ -93,11 +93,11 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 										'process_function'	=> 'processImport',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
+					'auto_step'		=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
-					'allow_cancel'	=> true,
+					'allow_cancel'	=> TRUE,
 				),
 			   );
 
@@ -114,10 +114,10 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 	{
 		while (!empty($this->_running_vars['todo_asset_users'])) {
 			if (!$this->processImport($this->_steps[0], get_class($this))) {
-				return false;
+				return FALSE;
 			}
 		}
-		return true;
+		return TRUE;
 
 	}//end freestyle()
 
@@ -174,7 +174,7 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 						'asset'		=> $create_in,
 						'link_type'	=> SQ_LINK_TYPE_1,
 					);
-			//$user->processStatusChange(SQ_STATUS_LIVE, false);
+			// $user->processStatusChange(SQ_STATUS_LIVE, FALSE);
 			$status = $user->create($link);
 
 			// add this user to the done array
@@ -190,14 +190,14 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 		// update progress
 		if (empty($this->_running_vars['todo_asset_users'])) {
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
+			$step_data['complete']     = TRUE;
 		} else {
 			$total = count($this->_running_vars['todo_asset_users']) + count($this->_running_vars['done_asset_users']);
 			$step_data['percent_done'] =(count($this->_running_vars['done_asset_users']) / $total) * 100;
-			$step_data['complete']     = false;
+			$step_data['complete']     = FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processImport()
 

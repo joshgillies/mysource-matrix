@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.30 2005/12/08 00:32:40 ndvries Exp $
+* $Id: bulkmail_manager.inc,v 1.31 2006/01/05 22:39:05 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -44,7 +44,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	*/
 	function Bulkmail_Manager($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Asset($assetid);
 
 	}//end constructor
@@ -58,7 +58,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	* @return string
 	* @access private
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 
@@ -78,13 +78,13 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
-			return false;
+			return FALSE;
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
 			if (!system_asset_fns_create_cleanup($this)) {
-				$linkid = false;
+				$linkid = FALSE;
 			}
 		}
 
@@ -113,8 +113,8 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 				SQ_LINK_TYPE_2	=> Array(),
 				SQ_LINK_TYPE_3	=> Array(),
 				SQ_LINK_NOTICE	=> Array(
-									'image'		=> Array('card' => 1, 'exclusive' => false),
-									'design'	=> Array('card' => 'M', 'exclusive' => false),
+									'image'		=> Array('card' => 1, 'exclusive' => FALSE),
+									'design'	=> Array('card' => 'M', 'exclusive' => FALSE),
 								   ),
 			   );
 
@@ -133,7 +133,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	*/
 	function canMoveLink(&$minor, &$old_major, $link_type)
 	{
-		return false;
+		return FALSE;
 
 	}//end canMoveLink()
 
@@ -149,7 +149,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	function deleteLink($linkid)
 	{
 			trigger_localised_error('CORE0118', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-			return false;
+			return FALSE;
 
 	}//end deleteLink()
 
@@ -162,7 +162,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	*/
 	function canDelete()
 	{
-			return false;
+			return FALSE;
 
 	}//end canDelete()
 
@@ -175,7 +175,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	*/
 	function canClone()
 	{
-			return false;
+			return FALSE;
 
 	}//end canClone()
 
@@ -209,7 +209,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	*									'driver'	=> 'smtp',
 	*									'host'		=> 'mail.yourcompany.com',
 	*									'port'		=> 25,
-	*									'auth'		=> false,
+	*									'auth'		=> FALSE,
 	*									'username'	=> '',
 	*									'password'	=> '',
 	*								)
@@ -231,7 +231,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		$recipients = $am->assetExists($recipients);
 		if (empty($recipients)) {
 			trigger_localised_error('BML0010', E_USER_ERROR);
-			return false;
+			return FALSE;
 		}
 
 		$am->includeAsset('bulkmail_job');
@@ -253,7 +253,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			$post_office->setAttrValue('server_details', $value);
 		} else if ($post_office_id) {
 			$post_office =& $am->getAsset($post_office_id, 'bulkmail_post_office');
-			if (is_null($post_office)) return false;
+			if (is_null($post_office)) return FALSE;
 		}
 
 		return $this->addJob($bulkmail_job, $post_office);
@@ -288,10 +288,10 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		// validate normal/ad-hoc jobs before adding entry to db
 		$details_info = $this->generateJobDetails($job, $post_office);
-		$errors = $this->isValidJob($details_info, true);
+		$errors = $this->isValidJob($details_info, TRUE);
 		if (!empty($errors)) {
 			trigger_localised_error('BML0001', E_USER_WARNING, $errors[0]);
-			return false;
+			return FALSE;
 		}
 
 		// work out the unique id for this job in the db table
@@ -334,7 +334,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		assert_valid_db_result($result);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		return true;
+		return TRUE;
 
 	}//end addJob()
 
@@ -369,7 +369,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			if (is_dir($path)) delete_directory($path);
 		}
 
-		return true;
+		return TRUE;
 
 	}//end deleteJob()
 
@@ -394,7 +394,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			$data_dir = $this->getJobDataPath($job_id);
 			if (!array_to_file($progress_info, 'progress_info', $data_dir.'/progress_info')) {
 				trigger_localised_error('BML0008', E_USER_WARNING, $data_dir.'/progress_info');
-				return false;
+				return FALSE;
 			}
 		}
 
@@ -409,7 +409,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		assert_valid_db_result($result);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		return true;
+		return TRUE;
 
 	}//end updateJob()
 
@@ -426,7 +426,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	function getQueuedJobs($job_id=null, $post_office_id=null)
 	{
 		$db_table = SQ_TABLE_RUNNING_PREFIX.'bmail_queue';
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$where = '';
 		if (!is_null($job_id)) {
@@ -545,9 +545,9 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		if (!array_to_file($progress_info, 'progress_info', $data_dir.'/progress_info')) {
 			trigger_localised_error('BML0007', E_USER_WARNING, $data_dir.'/progress_info');
-			return false;
+			return FALSE;
 		} else {
-			return true;
+			return TRUE;
 		}
 
 	}//end initProgressFile()
@@ -640,9 +640,9 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		if (!array_to_file($details_info, 'details_info', $data_dir.'/details_info')) {
 			trigger_localised_error('BML0007', E_USER_WARNING, $data_dir.'/details_info');
-			return false;
+			return FALSE;
 		} else {
-			return true;
+			return TRUE;
 		}
 
 	}//end initDetailsFile()
@@ -669,17 +669,17 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 
 	/**
-	* Check if job is not valid or true if we can set this job to live
+	* Check if job is not valid or TRUE if we can set this job to live
 	*
 	* Returns an array of error messages if extra parameter is passed in, otherwise returns a boolean
 	*
 	* @param array		$details_info	job details generated by generateJobDetails()
-	* @param boolean	$report_error	returns an array of error messages if true
+	* @param boolean	$report_error	returns an array of error messages if TRUE
 	*
 	* @return mixed boolean|array
 	* @access public
 	*/
-	function isValidJob($details_info, $report_error=false)
+	function isValidJob($details_info, $report_error=FALSE)
 	{
 		$errors = Array();
 
@@ -717,7 +717,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 						$errors[] = translate('bm_warning_generate_as_login_error', $user->name, $user->id);
 					}
 					// pre-selected user does not have (effective) read permission for content page
-					$read_access =$GLOBALS['SQ_SYSTEM']->am->getPermission($content_page->id, SQ_PERMISSION_READ, true, true, true);
+					$read_access =$GLOBALS['SQ_SYSTEM']->am->getPermission($content_page->id, SQ_PERMISSION_READ, TRUE, TRUE, TRUE);
 					$public_read_access = $content_page->readAccess(Array($public_user->id));
 					if (!in_array($user->id, $read_access) && !$public_read_access) {
 						$errors[] = translate('bm_warning_generate_as_no_read_access', $user->name, $user->id, $content_page->name, $content_page->id);
@@ -752,7 +752,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		if ($report_error) {
 			return $errors;
 		} else {
-			return (empty($errors) ? true : false);
+			return (empty($errors) ? TRUE : FALSE);
 		}
 
 	}//end isValidJob()

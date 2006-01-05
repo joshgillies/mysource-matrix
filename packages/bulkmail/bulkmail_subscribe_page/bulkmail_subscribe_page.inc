@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.4 2005/10/27 02:41:00 ndvries Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.5 2006/01/05 22:39:05 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -67,7 +67,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	*/
 	function Bulkmail_Subscribe_Page($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Page_User_Group_Manager($assetid);
 
 	}//end constructor
@@ -86,11 +86,11 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 				SQ_LINK_TYPE_2	=> Array(
 									'bodycopy'	=> Array(
 													'card'		=> 'M',
-													'exclusive'	=> false,
+													'exclusive'	=> FALSE,
 												   ),
 									'folder'	=> Array(
 													'card'		=> 'M',
-													'exclusive'	=> false,
+													'exclusive'	=> FALSE,
 												   ),
 								   ),
 			   );
@@ -110,7 +110,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!parent::_createAdditional($link)) return false;
+		if (!parent::_createAdditional($link)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 
@@ -125,10 +125,10 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$unverified_users =& new Folder();
 		$unverified_users->setAttrValue('name', 'Unverified Users');
 		if (!$unverified_users->create($copy_link)) {
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _createAdditional()
 
@@ -141,7 +141,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	*/
 	function &getUnverifiedUsersFolder()
 	{
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'unverified_users', 'major', '1');
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'unverified_users', 'major', '1');
 		$folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		return $folder;
 
@@ -158,7 +158,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	*/
 	function getExistingBulkmailUserid($value)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT assetid
 				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_uniq_val uv
@@ -193,7 +193,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$asset_info_ids = Array();
 		$invalid = Array();
 
-		//weed out any unwanted entries
+		// weed out any unwanted entries
 		foreach ($all_child_links as $treeid => $data) {
 			// build an array of assetids as we go
 			$asset_info_ids[] = $data['assetid'];
@@ -301,14 +301,14 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		// folder with $uniqid as the link value
 
 		$unverified_folder =& $this->getUnverifiedUsersFolder();
-		$type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('user', true);
+		$type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('user', TRUE);
 		$type_codes[] = 'bulkmail_user';
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($unverified_folder->id, null, $type_codes, true, $uniqid);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($unverified_folder->id, null, $type_codes, TRUE, $uniqid);
 
 		if (empty($link)) {
 			// Validating and sub/unsubscribing straight after will probably be
 			// confusing if we don't just return silently
-			//$this->errors[] = 'We have no record of your email address. You may need to subscribe again.';
+			// $this->errors[] = 'We have no record of your email address. You may need to subscribe again.';
 			return;
 		}
 
@@ -317,7 +317,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		// This is to trip up all the sneaky bastards who want to
 		// try and re-write the URL to link themselves under other groups
 		$all_mailing_lists = $this->getAvailableLocations();
-		$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($bulkmail_user->id, 'user_group', false));
+		$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($bulkmail_user->id, 'user_group', FALSE));
 		$current_subscriptions = array_intersect($all_mailing_lists, $parents);
 
 		$bad_subscriptions = array_diff($subscriptions, $all_mailing_lists);
@@ -397,15 +397,15 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			break;
 			case 'subscribe':
 				$sub_verify = !empty($subscriptions);
-				$unsub_verify = false;
+				$unsub_verify = FALSE;
 			break;
 			case 'unsubscribe':
-				$sub_verify = false;
+				$sub_verify = FALSE;
 				$unsub_verify = !empty($unsubscriptions);
 			break;
 			case 'never':
 			default:
-				$sub_verify = $unsub_verify = false;
+				$sub_verify = $unsub_verify = FALSE;
 			break;
 		}
 
@@ -483,7 +483,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			}
 
 			$all_mailing_lists = $this->getAvailableLocations();
-			$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($bulkmail_user->id, 'user_group', false));
+			$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($bulkmail_user->id, 'user_group', FALSE));
 			$current_subscriptions = array_intersect($all_mailing_lists, $parents);
 
 			$curr_plus_new = array_merge($current_subscriptions, $subscriptions);
@@ -521,15 +521,15 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			break;
 			case 'subscribe':
 				$sub_verify = !empty($subscriptions);
-				$unsub_verify = false;
+				$unsub_verify = FALSE;
 			break;
 			case 'unsubscribe':
-				$sub_verify = false;
+				$sub_verify = FALSE;
 				$unsub_verify = !empty($unsubscriptions);
 			break;
 			case 'never':
 			default:
-				$sub_verify = $unsub_verify = false;
+				$sub_verify = $unsub_verify = FALSE;
 			break;
 		}
 
@@ -582,7 +582,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		}
 
 		$all_mailing_lists = $this->getAvailableLocations();
-		$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($current_user->id, 'user_group', false));
+		$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($current_user->id, 'user_group', FALSE));
 		$current_subscriptions = array_intersect($all_mailing_lists, $parents);
 
 		$curr_plus_new = array_merge($current_subscriptions, $subscriptions);
@@ -757,12 +757,12 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	{
 		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
 		$all_mailing_lists = $this->getAvailableLocations();
-		$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($current_user->id, 'user_group', false));
+		$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($current_user->id, 'user_group', FALSE));
 		$current_subscriptions = array_intersect($all_mailing_lists, $parents);
 		$string = '';
 		if (!empty($current_subscriptions)) {
 			$string .= '<ul>';
-			$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_values($current_subscriptions), Array(), true, 'name');
+			$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_values($current_subscriptions), Array(), TRUE, 'name');
 			foreach ($current_subscriptions as $current_subscription) {
 				$string .= '<li class="'.$this->getPrefix().'_current_subscriptions">'.$info[$current_subscription].'</li>';
 			}

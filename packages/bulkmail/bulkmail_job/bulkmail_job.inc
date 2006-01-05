@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.23 2005/12/02 04:36:36 ndvries Exp $
+* $Id: bulkmail_job.inc,v 1.24 2006/01/05 22:39:05 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -45,7 +45,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	*/
 	function Bulkmail_Job($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Asset($assetid);
 
 	}//end constructor
@@ -60,7 +60,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	function &getPostOffice()
 	{
 		$post_office = null;
-		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'bulkmail_post_office', true);
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'bulkmail_post_office', TRUE);
 		if (!empty($parents)) {
 			$assetid = array_pop(array_keys($parents));
 			// make sure the parent post office is not in trash
@@ -93,10 +93,10 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		$post_office = $this->getPostOffice();
 		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$details_info = $bm->generateJobDetails($this, $post_office);
-		$errors = $bm->isValidJob($details_info, true);
+		$errors = $bm->isValidJob($details_info, TRUE);
 		if (!empty($errors)) {
 			trigger_localised_error('BML0001', E_USER_WARNING, $errors[0]);
-			return false;
+			return FALSE;
 		}
 
 		// create the mail object
@@ -147,7 +147,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		}
 
 		$mime =& new Mail_mime();
-		//$mime->setTxtBody($textMessage);
+		// $mime->setTxtBody($textMessage);
 		$mime->setHtmlBody($content);
 		$body = @$mime->get();
 		$headers = @$mime->headers($header_details);
@@ -155,10 +155,10 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		if (PEAR::isError($status)) {
 			// unable to send bulkmail
 			trigger_localised_error('BML0002', E_USER_WARNING, $status->getMessage());
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end sendPreviewMail()
 
@@ -172,18 +172,18 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	* @return boolean
 	* @access public
 	*/
-	function processStatusChange($new_status, $update_parents=true)
+	function processStatusChange($new_status, $update_parents=TRUE)
 	{
 		// get the current state from the bmail queue db table
 		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$queued_jobs = $bm->getQueuedJobs($this->id);
 
 		// cannot change the status of the job is in the db table
-		if (!empty($queued_jobs)) return false;
+		if (!empty($queued_jobs)) return FALSE;
 
 		// user set the job to live, do validation in addJob()
 		if ($new_status == SQ_STATUS_LIVE) {
-			if (!$bm->addJob($this)) return false;
+			if (!$bm->addJob($this)) return FALSE;
 		}
 
 		return parent::processStatusChange($new_status, $update_parents);

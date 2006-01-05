@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.22 2005/11/21 22:59:34 rong Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.23 2006/01/05 22:39:05 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -80,7 +80,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 			$post_office = $asset->getPostOffice();
 			$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 			$details_info = $bm->generateJobDetails($asset, $post_office);
-			$errors = $bm->isValidJob($details_info, true);
+			$errors = $bm->isValidJob($details_info, TRUE);
 			$o->openField(translate('bm_job_validation_result'));
 				if (empty($errors)) {
 					echo translate('bm_job_validation_successful');
@@ -93,7 +93,6 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 						</tr>
 					<?php
 					foreach ($errors as $error) {
-						//?><span class="sq-backend-warning"><?php
 						$error_msg = explode(':', $error);
 						?><tr>
 							<td><?php echo $error_msg[0]; ?></td>
@@ -132,7 +131,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	*/
 	function processValidation(&$asset, &$o, $prefix)
 	{
-		return true;
+		return TRUE;
 
 	}//end processValidation()
 
@@ -153,7 +152,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	function paintWarning(&$asset, &$o, $prefix)
 	{
 		?><span class="sq-backend-warning"><?php echo translate('bm_warning_changes_no_effect'); ?></span><?php
-		return true;
+		return TRUE;
 
 	}//end paintWarning()
 
@@ -170,13 +169,13 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	*/
 	function processWarning(&$asset, &$o, $prefix)
 	{
-		return true;
+		return TRUE;
 
 	}//end processWarning()
 
 
 	/**
-	* Returns true when the changes in settings will not affect job-in-progress
+	* Returns TRUE when the changes in settings will not affect job-in-progress
 	*
 	* @param object	&$asset	the asset to which we belong
 	* @param string	$prefix	prefix for the form element
@@ -189,7 +188,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		$bulkmail_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$job = $bulkmail_manager->getQueuedJobs($asset->id);
 
-		return (empty($job)) ? false : true;
+		return (empty($job)) ? FALSE : TRUE;
 
 	}//end showWarningSection()
 
@@ -214,7 +213,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 
 		// paint checkbox
 		if ($write_access) {
-			check_box($prefix.'_use_post_office_header', true, $use_post_office_header);
+			check_box($prefix.'_use_post_office_header', TRUE, $use_post_office_header);
 		} else {
 			?>
 				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $use_post_office_header ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
@@ -240,13 +239,13 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	*/
 	function processHeaderDetailsCheckBox(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		// save whether to use post office header details
 		$use_header_details = isset($_POST[$prefix.'_use_post_office_header']);
 		$asset->setAttrValue('use_post_office_header', $use_header_details);
 
-		return true;
+		return TRUE;
 
 	}//end processHeaderDetailsCheckBox()
 
@@ -291,7 +290,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		$o->closeField();
 
 				$o->openField('');
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$logs = $ms->getMessages(0, 'bulkmail.job.*', Array(), Array(), null, null, 'name', Array('assetid' => $asset->id), 5);
 			if (!empty($logs)) {
 				?>
@@ -340,7 +339,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		$jobs = $bulkmail_manager->getQueuedJobs($asset->id);
 		$bulkmail_manager_edit_fns->_processJobQueue($asset, $jobs);
 
-		return true;
+		return TRUE;
 
 	}//end processJobQueue()
 
@@ -359,10 +358,10 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		$bulkmail_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$job = $bulkmail_manager->getQueuedJobs($asset->id);
 
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$logs = $ms->getMessages(0, 'bulkmail.job.*', Array(), Array(), null, null, 'name', Array('assetid' => $asset->id), 5);
 
-		return ((empty($job) && empty($logs)) ? false : true);
+		return ((empty($job) && empty($logs)) ? FALSE : TRUE);
 
 	}//end showProgressSection()
 
@@ -410,10 +409,10 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	*/
 	function processPreviewAddress(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$recipient = array_get_index($_REQUEST, $prefix.'_preview_address', '');
-		if (empty($recipient)) return false;
+		if (empty($recipient)) return FALSE;
 
 		if ($asset->sendPreviewMail($recipient)) {
 			$msg_reps = Array(
@@ -428,9 +427,9 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 			$message->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
 			$message->send();
 
-			return true;
+			return TRUE;
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end processPreviewAddress()
@@ -449,7 +448,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	function paintPreviewLog(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$logs = $ms->getMessages(0, 'bulkmail.preview', Array(), Array(), null, null, 'name', Array('assetid' => $asset->id), 5);
 
 		if (!empty($logs)) {
@@ -492,7 +491,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	*/
 	function processPreviewLog(&$asset, &$o, $prefix)
 	{
-		return true;
+		return TRUE;
 
 	}//end processPreviewLog()
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.48 2005/12/02 04:36:36 ndvries Exp $
+* $Id: bulk_mailer.inc,v 1.49 2006/01/05 22:39:04 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -185,7 +185,7 @@ class Bulk_Mailer
 
 				// cache recipients into smaller chunks
 				create_directory($recipient_path);
-				$chunks = array_chunk($result['recipient'], $recip_per_chunk, true);
+				$chunks = array_chunk($result['recipient'], $recip_per_chunk, TRUE);
 				foreach ($chunks as $index => $chunk) {
 					if (!array_to_file($chunk, 'recipient_chunk', $recipient_path.'/recipient_'.$index)) {
 						trigger_localised_error('BML0008', E_USER_WARNING, $recipient_path.'/recipient_'.$index);
@@ -193,7 +193,7 @@ class Bulk_Mailer
 				}
 			}
 			exit;
-		}
+		}//end if
 
 	}//end chunkJob()
 
@@ -242,7 +242,7 @@ class Bulk_Mailer
 		$GLOBALS['chunk_start'] = get_microtime();
 		// read chunks from cache and process them
 		while (file_exists($recipient_path.'/recipient_'.$progress_info['current_chunk'])) {
-			//echo $progress_info['current_chunk'].' ';
+			// echo $progress_info['current_chunk'].' ';
 
 			// check if job state is paused/cancelled at the beginning of each chunk
 			if (!isset($info[$job_id])) {
@@ -287,10 +287,10 @@ class Bulk_Mailer
 							$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($user_id);
 							$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $GLOBALS['SQ_SYSTEM']->user);
 							// only queue the mail if we can generate content
-							$problematic = (empty($content)) ? true : false;
+							$problematic = (empty($content)) ? TRUE : FALSE;
 							if (!$problematic) {
 								$mime->setHtmlBody($content);
-								//$mime->setTXTBody($content);
+								// $mime->setTXTBody($content);
 								$body = @$mime->get();
 								// pass in custom_id as extra header details, for queue file naming
 								$header_details['custom_id'] = $user_id;
@@ -320,7 +320,7 @@ class Bulk_Mailer
 				$info = $bm->getQueuedJobs($job_id);
 			}
 
-		}//end while()
+		}//end while
 
 		// job completed
 		$this->_reconnectDB();
@@ -352,7 +352,7 @@ class Bulk_Mailer
 			}
 
 		}
-		return true;
+		return TRUE;
 
 	}//end processJob()
 
@@ -393,7 +393,7 @@ class Bulk_Mailer
 			include $progress_path;
 		} else {
 			trigger_localised_error('BML0009', E_USER_WARNING, $progress_path);
-			return false;
+			return FALSE;
 		}
 
 		if ($problematic) {
@@ -407,9 +407,9 @@ class Bulk_Mailer
 
 		if (!array_to_file($progress_info, 'progress_info', $progress_path)) {
 			trigger_localised_error('BML0008', E_USER_WARNING, $progress_path);
-			return false;
+			return FALSE;
 		} else {
-			return true;
+			return TRUE;
 		}
 
 	}//end updateProgress()
@@ -430,7 +430,7 @@ class Bulk_Mailer
 			include $progress_path;
 		} else {
 			trigger_localised_error('BML0009', E_USER_WARNING, $progress_path);
-			return false;
+			return FALSE;
 		}
 
 		$progress_info['current_chunk']++;
@@ -441,9 +441,9 @@ class Bulk_Mailer
 
 		if (!array_to_file($progress_info, 'progress_info', $progress_path)) {
 			trigger_localised_error('BML0008', E_USER_WARNING, $progress_path);
-			return false;
+			return FALSE;
 		} else {
-			return true;
+			return TRUE;
 		}
 
 	}//end nextChunk()
@@ -468,7 +468,7 @@ class Bulk_Mailer
 	function getAllRecipients($asset_to_send, $recipients)
 	{
 		// handle groups and users/bulkmail_users separately
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$user_list = Array();
 		$group_list = Array();
 		$problematic_list = Array();
@@ -479,7 +479,7 @@ class Bulk_Mailer
 
 		// an array of userids that have read access to the asset to send (content page)
 		// if public user has read access, then everyone should be able to read it
-		$read_permission = $am->getPermission($asset_to_send, SQ_PERMISSION_READ, true);
+		$read_permission = $am->getPermission($asset_to_send, SQ_PERMISSION_READ, TRUE);
 		$public_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
 		$public_read_access = in_array($public_user->id, $read_permission);
 
@@ -505,8 +505,8 @@ class Bulk_Mailer
 		// expand groups and get all users/bulkmail_users from a query
 		if (!empty($group_ids)) {
 			$type_codes = Array(
-							'user'			=> false,
-							'bulkmail_user'	=> true,
+							'user'			=> FALSE,
+							'bulkmail_user'	=> TRUE,
 						  );
 			$query = $this->generateGetRecipientsQuery($group_ids, $type_codes);
 			$group_list = $GLOBALS['SQ_SYSTEM']->db->getAssoc($query);
@@ -528,14 +528,14 @@ class Bulk_Mailer
 	* @param array	$type_codes	the type of asset that is linked
 	*							and whether we are finding assets that are just a $type_code (strict)
 	*							or $type_code and any of it's sub-classes (not strict)
-	*							format: type_code => strict ? true : false
+	*							format: type_code => strict ? TRUE : FALSE
 	*
 	* @return string
 	* @access public
 	*/
 	function generateGetRecipientsQuery($group_ids, $type_codes)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$select = 'SELECT DISTINCT l.minorid, val.custom_val';
 		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
 						 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
@@ -634,10 +634,10 @@ class Bulk_Mailer
 		$generateUser =& $am->getAsset($content_gen_as);
 		$replaceUser =& $generateUser;
 
-		$cache = true;
+		$cache = TRUE;
 		if (!$recipient_id) {
 			$replaceUser =& $current_user;
-			$cache = false;
+			$cache = FALSE;
 		}
 
 		if ($recipient_id) {
@@ -783,11 +783,11 @@ class Bulk_Mailer
 			include $progress_path;
 		} else {
 			trigger_localised_error('BML0009', E_USER_WARNING, $progress_path);
-			return false;
+			return FALSE;
 		}
 		if (!isset($progress_info['mpm'])) {
 			// send rate rule is not defined
-			return true;
+			return TRUE;
 		}
 
 		// finished processing one recipient chunk, work out the time to sleep between each recipient
@@ -813,7 +813,7 @@ class Bulk_Mailer
 			usleep($progress_info['sleep_time']);
 		}
 
-		return true;
+		return TRUE;
 
 	}//end enforceSendRate()
 
@@ -841,7 +841,7 @@ class Bulk_Mailer
 				return $this->checkTimeOut($thresholds, $extra);
 			break;
 			default:
-				return false;
+				return FALSE;
 			break;
 		}
 
@@ -878,12 +878,12 @@ class Bulk_Mailer
 				if (in_array($now_day, $excluded_days)) {
 					// range: [from, to)
 					if ($now_time >= $threshold['params']['from'] && $now_time < $threshold['params']['to']) {
-						return false;
+						return FALSE;
 					}
 				}
 			}
 		}
-		return true;
+		return TRUE;
 
 	}//end isExcludedTime()
 
@@ -903,10 +903,10 @@ class Bulk_Mailer
 			$time_diff = time() - $progress_info['last_updated'];
 			// timeout threshold reached, take over
 			if ($time_diff > $GLOBALS['timeout_threshold']) {
-				return true;
+				return TRUE;
 			}
 		}
-		return false;
+		return FALSE;
 
 	}//end checkTimeOut()
 
@@ -960,7 +960,7 @@ class Bulk_Mailer
 			if (count($bt) > 1) {
 				$real_bt_index = 0;
 				// note the use of '_errorhandler' instead of '_errorHandler' in the last condition
-				while (($real_bt_index < count($bt)-1) && ((false !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (false !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) || ($bt[$real_bt_index]['function'] == '_errorhandler'))) {
+				while (($real_bt_index < count($bt)-1) && ((FALSE !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (FALSE !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) || ($bt[$real_bt_index]['function'] == '_errorhandler'))) {
 					$real_bt_index++;
 				}
 				$err_file = hide_system_root($bt[$real_bt_index]['file']);

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_bulkmail.inc,v 1.6 2005/11/07 04:30:55 ndvries Exp $
+* $Id: package_manager_bulkmail.inc,v 1.7 2006/01/05 22:39:04 rong Exp $
 *
 */
 
@@ -67,7 +67,7 @@ class Package_Manager_Bulkmail extends Package_Manager
 	function &createBulkmailManager()
 	{
 		// set default asset name in management.inc and define _getName() function
-		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bulkmail_manager');
 		$bulkmail_manager =& new Bulkmail_Manager();

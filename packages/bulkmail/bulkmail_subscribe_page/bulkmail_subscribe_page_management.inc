@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page_management.inc,v 1.2 2005/10/27 02:41:00 ndvries Exp $
+* $Id: bulkmail_subscribe_page_management.inc,v 1.3 2006/01/05 22:39:05 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -54,8 +54,8 @@ class Bulkmail_Subscribe_Page_Management extends Asset_Management
 																							'subscribe'		=> 'Verify on subscription',
 																							'unsubscribe'	=> 'Verify on unsubscription',
 																						   ),
-																		'multiple'		=> false,
-																		'allow_empty'	=> false,
+																		'multiple'		=> FALSE,
+																		'allow_empty'	=> FALSE,
 																	   ),
 													'description'	=> '',
 												   ),
@@ -70,8 +70,8 @@ class Bulkmail_Subscribe_Page_Management extends Asset_Management
 																							'subscribe'		=> 'Verify on subscription',
 																							'unsubscribe'	=> 'Verify on unsubscription',
 																						   ),
-																		'multiple'		=> false,
-																		'allow_empty'	=> false,
+																		'multiple'		=> FALSE,
+																		'allow_empty'	=> FALSE,
 																	   ),
 													'description'	=> '',
 												   ),
@@ -98,10 +98,10 @@ class Bulkmail_Subscribe_Page_Management extends Asset_Management
 				Array(
 					'event_name'					=> 'requestKeywords',
 					'broadcast_type_code'			=> 'content_type',
-					'broadcast_strict_type_code'	=> false,
+					'broadcast_strict_type_code'	=> FALSE,
 					'options'						=> Array(
 														'side_of_link'	=> 'major',
-														'indirect'		=> true,
+														'indirect'		=> TRUE,
 														'is_exclusive'	=> null,
 														'is_dependant'	=> 1,
 														'value'			=> '',
