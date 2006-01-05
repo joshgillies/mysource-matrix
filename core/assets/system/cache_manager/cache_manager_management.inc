@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_management.inc,v 1.6 2005/09/20 05:05:05 rong Exp $
+* $Id: cache_manager_management.inc,v 1.7 2006/01/05 23:33:21 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6 $ - 0.1
+* @version $Revision: 1.7 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,30 +51,30 @@ class Cache_Manager_Management extends Asset_Management
 						'enabled'				=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'boolean',
-													'default'		=> false,
+													'default'		=> FALSE,
 													'description'	=> 'Turns caching on or off',
-													'parameters'	=> Array('allow_empty'	=> false),
+													'parameters'	=> Array('allow_empty'	=> FALSE),
 												   ),
 						'public_caching'		=> Array (
 													'added'			=> '0.1',
 													'type'			=> 'boolean',
-													'default'		=> false,
+													'default'		=> FALSE,
 													'description'	=> 'Turns caching on or off for not logged in users',
-													'parameters'	=> Array('allow_empty'	=> false),
+													'parameters'	=> Array('allow_empty'	=> FALSE),
 												   ),
 						'permission_caching'	=> Array (
 													'added'			=> '0.1',
 													'type'			=> 'boolean',
-													'default'		=> false,
+													'default'		=> FALSE,
 													'description'	=> 'Turns read/write/admin level caching on or off',
-													'parameters'	=> Array('allow_empty' => false),
+													'parameters'	=> Array('allow_empty' => FALSE),
 												   ),
 						'group_caching'			=> Array (
 													'added'			=> '0.1',
 													'type'			=> 'boolean',
-													'default'		=> false,
+													'default'		=> FALSE,
 													'description'	=> 'Turns group level caching on or off',
-													'parameters'	=> Array('allow_empty' => false),
+													'parameters'	=> Array('allow_empty' => FALSE),
 												   ),
 						'num_cache_dirs'		=> Array(
 													'added'		=> '0.1',

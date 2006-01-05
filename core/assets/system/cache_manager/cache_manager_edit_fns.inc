@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.4 2005/09/20 05:05:05 rong Exp $
+* $Id: cache_manager_edit_fns.inc,v 1.5 2006/01/05 23:33:21 rong Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */
@@ -98,14 +98,14 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 		?></select><?php
 
-		$o->addFormActionGetVar($prefix.'_type', $selected, true);
+		$o->addFormActionGetVar($prefix.'_type', $selected, TRUE);
 		submit_button($prefix.'_go', translate('go'));
 
 		if (isset($_REQUEST[$prefix.'_select_type']) && !empty($_REQUEST[$prefix.'_select_type'])) {
 			echo '<br/><br/><b>'.translate('currently_customising', $options[$_REQUEST[$prefix.'_select_type']]).'</b>';
 		}
 
-		return false;
+		return FALSE;
 
 	}//end paintChooseTypeCode()
 
@@ -122,7 +122,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processChooseTypeCode(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processChooseTypeCode()
 
@@ -158,7 +158,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				} else {
 					$caching = ($type_codes[$selected]['enabled']) ? 1 : 0;
 					if ($write_access) {
-						combo_box($prefix.'_enabled', Array('1' => translate('on'), '0' => translate('off')), false, $caching);
+						combo_box($prefix.'_enabled', Array('1' => translate('on'), '0' => translate('off')), FALSE, $caching);
 					} else {
 						echo ($type_codes[$selected]['enabled']) ? translate('on') : translate('off');
 					}
@@ -188,7 +188,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		} else {
 			echo translate('customise_asset_selection');
-			return false;
+			return FALSE;
 
 		}//end if !empty()
 
@@ -214,18 +214,18 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 		if (isset($_REQUEST[$prefix.'_type'])) {
 			$type = $_REQUEST[$prefix.'_type'];
 			$defaults = Array('enabled', 'expiry');
-			$save = false;
+			$save = FALSE;
 
 			foreach ($defaults as $default) {
-				$using_default = false;
+				$using_default = FALSE;
 				if (!isset($_POST[$prefix.'_default_'.$default])) {
 					if (!isset($type_codes[$type][$default])) {
-						$save = true;
+						$save = TRUE;
 						$type_codes[$type][$default] = $asset->attr($default);
 					}
 				} else {
-					$save = true;
-					$using_default = true;
+					$save = TRUE;
+					$using_default = TRUE;
 					if (isset($type_codes[$type][$default])) {
 						unset($type_codes[$type][$default]);
 					}
@@ -233,16 +233,16 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				if (isset($_POST[$prefix.'_'.$default]) && !$using_default) {
 					if (!isset($type_codes[$type][$default]) || $type_codes[$type][$default] != $_POST[$prefix.'_'.$default]) {
 						$type_codes[$type][$default] = $_POST[$prefix.'_'.$default];
-						$save = true;
+						$save = TRUE;
 					}
 				}
 			}
 			if (isset($type_codes[$type]) && empty($type_codes[$type])) {
 				unset($type_codes[$type]);
 			}
-			return ($save) ? $asset->setAttrValue('type_codes', $type_codes) : false;
+			return ($save) ? $asset->setAttrValue('type_codes', $type_codes) : FALSE;
 		}
-		return false;
+		return FALSE;
 
 	}//end processCustomiseTypeCodeCaching()
 
@@ -261,7 +261,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) {
 			echo translate('cannot_clear_cache');
-			return false;
+			return FALSE;
 		}
 		asset_finder($prefix.'_clear_cache', '');
 
@@ -271,7 +271,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 						'dependants'	=> translate('this_asset_and_dependants'),
 						'children'		=> translate('this_asset_and_children'),
 					   );
-			combo_box($prefix.'_level', $options, '', false);
+			combo_box($prefix.'_level', $options, '', FALSE);
 		$o->closeField();
 
 		$o->openField(translate('asset_types'));
@@ -284,13 +284,13 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 
 			asort($options);
-			$options = array_reverse($options, true);
+			$options = array_reverse($options, TRUE);
 			$options[''] = '-- '.translate('all_asset_types').' --';
-			$options = array_reverse($options, true);
-			combo_box($prefix.'_type_codes', $options, true, '', 8);
+			$options = array_reverse($options, TRUE);
+			combo_box($prefix.'_type_codes', $options, TRUE, '', 8);
 		$o->closeField();
 
-		return true;
+		return TRUE;
 
 	}//end paintClearCache()
 
@@ -317,7 +317,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 
 			$assetid = $_POST[$prefix.'_clear_cache']['assetid'];
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
 			$vars = Array(
 						'assetid'		=> $assetid,
@@ -326,8 +326,9 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 					);
 			$hh->queueHipo('hipo_job_clear_cache', $vars);
 
-			return true;
+			return TRUE;
 		}
+
 	}//end processClearCache()
 
 
