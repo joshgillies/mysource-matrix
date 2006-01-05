@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.5 2006/01/04 22:06:51 rong Exp $
+* $Id: page_rss_feed.inc,v 1.6 2006/01/05 04:38:14 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -51,7 +51,7 @@ class Page_RSS_Feed extends Page
 	*/
 	function Page_RSS_Feed($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Page($assetid);
 
 	}//end constructor
@@ -66,7 +66,7 @@ class Page_RSS_Feed extends Page
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return ($this->attr('name'));
 
@@ -83,7 +83,7 @@ class Page_RSS_Feed extends Page
 	function _getAllowedLinks()
 	{
 		$links = Array();
-		$links[SQ_LINK_NOTICE]['listing_engine']    = Array('card' => 'M', 'exclusive' => false);
+		$links[SQ_LINK_NOTICE]['listing_engine']    = Array('card' => 'M', 'exclusive' => FALSE);
 		return $links;
 
 	}//end _getAllowedLinks()
@@ -105,7 +105,7 @@ class Page_RSS_Feed extends Page
 		$initial_path = strtolower($this->attr('name'));
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_paths = make_valid_web_paths(Array($initial_path));
-		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, TRUE);
 		return $this->saveWebPaths($good_paths);
 
 	}//end _createAdditional()
@@ -170,11 +170,12 @@ class Page_RSS_Feed extends Page
 		}
 		$rss = '';
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$rss = $cm->loadFromCache($this->id, $this->type(), '', false);
+		$rss = $cm->loadFromCache($this->id, $this->type(), '', FALSE);
 		$rss = unserialize($rss);
 		if (empty($rss)) {
+			$num_assets_as_items = $this->attr('num_assets_as_items');
 			$assets_to_list = Array();
-			$rss_source_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'listing_engine', false, 'major', 'generate_rss');
+			$rss_source_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'listing_engine', FALSE, 'major', 'generate_rss');
 			if (empty($rss_source_links)) {
 				trigger_error(translate('no_listing_engine_assets_linked'), E_USER_WARNING);
 				return;
@@ -202,22 +203,22 @@ class Page_RSS_Feed extends Page
 				$new_channel = Array();
 				$rss_type = implode('_', $type);
 				foreach ($channel as $tag => $value) {
-					if (strpos($tag, '_') !== false) {
+					if (strpos($tag, '_') !== FALSE) {
 						$sub_tag = explode('_', $tag);
 						$new_channel[$sub_tag[0]]['SUBTAGS'][$sub_tag[1]] = $value;
-					} else if (strpos($tag, '.') !== false) {
+					} else if (strpos($tag, '.') !== FALSE) {
 						if ($tag == 'link.href') {
-							if (assert_valid_assetid($value, '', true, false)) {
+							if (assert_valid_assetid($value, '', TRUE, FALSE)) {
 								$value = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($value);
 							}
 						}
 						$sub_tag = explode('.', $tag);
 						$new_channel[$sub_tag[0]]['ATTRIBUTES'][$sub_tag[1]] = $value;
 					} else {
-						//converting date values into the respective formats
+						// converting date values into the respective formats
 						if (in_array($tag, Array('updated', 'pubDate', 'lastBuildDate', 'published'))) {
 							$timestamp = strtotime($value);
-							if (($timestamp == -1) ||($timestamp === false)) {
+							if (($timestamp == -1) ||($timestamp === FALSE)) {
 								$timestamp = mktime($value);
 							}
 							if ($rss_type == 'rss_2.0') {
@@ -227,26 +228,26 @@ class Page_RSS_Feed extends Page
 							}
 						} else {
 							if ($tag == 'link') {
-								if (assert_valid_assetid($value, '', true, false)) {
+								if (assert_valid_assetid($value, '', TRUE, FALSE)) {
 									$value = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($value);
 								}
 							}
 						}
 						$new_channel[$tag] = $value;
 					}
-				}
+				}//end foreach of channel
 				$no_errors = $this->validateChannel($new_channel);
 				if (!$no_errors) return;
-				//adding channel info to the writer
+				// adding channel info to the writer
 				$writer->addChannel($new_channel);
 				$new_image = Array();
 				foreach ($image as $tag => $value) {
-					if (strpos($tag, '_') !== false) {
+					if (strpos($tag, '_') !== FALSE) {
 						$sub_tag = explode('_', $tag);
 						$new_image[$sub_tag[0]][$sub_tag[1]] = $value;
 					} else {
 						if ($tag == 'link') {
-							if (assert_valid_assetid($value, '', true, false)) {
+							if (assert_valid_assetid($value, '', TRUE, FALSE)) {
 								$value = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($value);
 							}
 						}
@@ -256,25 +257,41 @@ class Page_RSS_Feed extends Page
 				if (!empty($new_image)) {
 					$no_errors = $this->validateImage($new_image);
 					if (!$no_errors) return;
-					//adding image details to the writer
+					// adding image details to the writer
 					$writer->addImage($new_image);
 				}
 				$new_items = Array();
 				$index = 0;
 				$mm = null;
-				//now we have to add items
+				// now we have to add items
 				foreach ($items as $type => $keywords) {
 					foreach ($assets_to_list as $assetid => $asset_type) {
+						if (!empty($num_assets_as_items)) {
+							if ($index >= $num_assets_as_items) break;
+						}
 						$asset = null;
 						if (strcasecmp($type, $asset_type) == 0) {
 							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
-							foreach ($keywords as $tag => $keyword) {
-								if ($asset) {
-									$replacement = $asset->getKeywordReplacement($keyword);
+							if ($asset) {
+								foreach ($keywords as $tag => $keyword) {
+									// if the user enters multiple keywords or some text along with keywords then
+									// we need to pick the keywords and insert the replacements in the entered text.
+									if (strpos($keyword, '%') !== FALSE) {
+										$sub_keywords = Array();
+										require_once SQ_FUDGE_PATH.'/general/text.inc';
+										$sub_keywords = retrieve_keywords_replacements($keyword);
+										$replacements = Array();
+										foreach ($sub_keywords as $key) {
+											$replacements[$key] = $asset->getKeywordReplacement($key);
+										}
+										$replacement = replace_keywords($keyword, $replacements);
+									} else {
+										$replacement = $asset->getKeywordReplacement($keyword);
+									}
 									if (substr($keyword, 0, 15) == 'asset_metadata_') {
 										$metadata_keyword = substr($keyword, 15);
 										if (is_null($mm)) {
-											$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+											$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 										}
 										// get all the metadata keywords for this asset
 										$metadata_values = $mm->getMetadataFieldValues($assetid, Array($metadata_keyword));
@@ -283,39 +300,39 @@ class Page_RSS_Feed extends Page
 											$replacement = $value;
 										}
 									}
-									if (strpos($tag, '_') !== false) {
+									if (strpos($tag, '_') !== FALSE) {
 										$sub_tag = explode('_', $tag);
 										$new_items[$index][$sub_tag[0]]['SUBTAGS'][$sub_tag[1]] = $replacement;
-									} else if (strpos($tag, '.') !== false) {
+									} else if (strpos($tag, '.') !== FALSE) {
 										$sub_tag = explode('.', $tag);
 										$new_items[$index][$sub_tag[0]]['ATTRIBUTES'][$sub_tag[1]] = $replacement;
 									} else {
-										//converting date values into the respective formats
+										// converting date values into the respective formats
 										if (in_array($tag, Array('updated', 'pubDate', 'lastBuildDate', 'published'))) {
 											$timestamp = strtotime($replacement);
 											if ($rss_type == 'rss_2.0') {
-												$replacement = date('D, j M Y G:i:s T', $timestamp);
+												$replacement = date('D, j M Y H:i:s T', $timestamp);
 											} else if ($rss_type == 'atom_1.0') {
-												$replacement = date('Y-m-d', $timestamp).'T'.date('G:i:s', $timestamp).'Z';
+												$replacement = date('Y-m-d', $timestamp).'T'.date('H:i:s', $timestamp).'Z';
 											}
 										}
 										$new_items[$index][$tag] = $replacement;
 									}
-								}
-							}
+								}//end foreach keywords
+							}//end if asset exists
 							$index++;
-						}
-					}
-				}
+						}//end if type and asset_type are equal
+					}//end foreach assets_to_list
+				}//end foreach items
 				$no_errors = $this->validateItems($new_items);
 				if (!$no_errors) return;
 				$writer->addItems($new_items);
 				$rss = $writer->getRSSString();
-				$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-				$r = $cm->saveToCache($this->id, $this->type(), '', serialize($rss), false);
+				$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+				$r = $cm->saveToCache($this->id, $this->type(), '', serialize($rss), FALSE);
 			}
 		} else {
-			//we need to send headers as we got the feed from cache
+			// we need to send headers as we got the feed from cache
 			header('Content-type: text/xml');
 		}
 		echo $rss;
@@ -324,170 +341,7 @@ class Page_RSS_Feed extends Page
 
 
 	/**
-	* Called by the design to print the body of this asset
-	*
-	* @return void
-	* @access public
-	*/
-	function printBody()
-	{
-		$rss = '';
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$rss = $cm->loadFromCache($this->id, $this->type(), '', false);
-		$rss = unserialize($rss);
-		if (empty($rss)) {
-			$assets_to_list = Array();
-			$rss_source_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'listing_engine', false, 'major', 'generate_rss');
-			if (empty($rss_source_links)) {
-				trigger_error(translate('no_listing_engine_assets_linked'), E_USER_WARNING);
-				return;
-			}
-			foreach ($rss_source_links as $links) {
-				$listing_engine =& $GLOBALS['SQ_SYSTEM']->am->getAsset($links['minorid']);
-				$assets_to_list += $listing_engine->getAssetList();
-			}
-
-			$channel = $this->attr('channel');
-			$image = $this->attr('image');
-			$items = $this->attr('items');
-			if (empty($channel) || empty($items)) {
-				trigger_error(translate('no_channel_or_items_found'), E_USER_WARNING);
-				return;
-			} else if (empty($assets_to_list)) {
-				trigger_error(translate('no_assets_found_for_items'), E_USER_WARNING);
-				return;
-			} else {
-				require_once SQ_FUDGE_PATH.'/rss_feeds/rss_feed_writer.inc';
-				$writer =& new RSS_Feed_Writer();
-				$type = $this->attr('rss_types');
-				$type = explode('_', $type);
-				$writer->setTypeVersion($type[0], $type[1]);
-				$new_channel = Array();
-				$rss_type = implode('_', $type);
-				foreach ($channel as $tag => $value) {
-					if (strpos($tag, '_') !== false) {
-						$sub_tag = explode('_', $tag);
-						$new_channel[$sub_tag[0]]['SUBTAGS'][$sub_tag[1]] = $value;
-					} else if (strpos($tag, '.') !== false) {
-						if ($tag == 'link.href') {
-							if (assert_valid_assetid($value, '', true, false)) {
-								$value = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($value);
-							}
-						}
-						$sub_tag = explode('.', $tag);
-						$new_channel[$sub_tag[0]]['ATTRIBUTES'][$sub_tag[1]] = $value;
-					} else {
-						//converting date values into the respective formats
-						if (in_array($tag, Array('updated', 'pubDate', 'lastBuildDate', 'published'))) {
-							$timestamp = strtotime($value);
-							if (($timestamp == -1) ||($timestamp === false)) {
-								$timestamp = mktime($value);
-							}
-							if ($rss_type == 'rss_2.0') {
-								$value = date('D, j M Y H:i:s T', $timestamp);
-							} else if ($rss_type == 'atom_1.0') {
-								$value = date('Y-m-j', $timestamp).'T'.date('H:i:s', $timestamp).'Z';
-							}
-						} else {
-							if ($tag == 'link') {
-								if (assert_valid_assetid($value, '', true, false)) {
-									$value = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($value);
-								}
-							}
-						}
-						$new_channel[$tag] = $value;
-					}
-				}
-				$no_errors = $this->validateChannel($new_channel);
-				if (!$no_errors) return;
-				//adding channel info to the writer
-				$writer->addChannel($new_channel);
-				$new_image = Array();
-				foreach ($image as $tag => $value) {
-					if (strpos($tag, '_') !== false) {
-						$sub_tag = explode('_', $tag);
-						$new_image[$sub_tag[0]][$sub_tag[1]] = $value;
-					} else {
-						if ($tag == 'link') {
-							if (assert_valid_assetid($value, '', true, false)) {
-								$value = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($value);
-							}
-						}
-						$new_image[$tag] = $value;
-					}
-				}
-				if (!empty($new_image)) {
-					$no_errors = $this->validateImage($new_image);
-					if (!$no_errors) return;
-					//adding image details to the writer
-					$writer->addImage($new_image);
-				}
-				$new_items = Array();
-				$index = 0;
-				$mm = null;
-				//now we have to add items
-				foreach ($items as $type => $keywords) {
-					foreach ($assets_to_list as $assetid => $asset_type) {
-						$asset = null;
-						if (strcasecmp($type, $asset_type) == 0) {
-							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
-							foreach ($keywords as $tag => $keyword) {
-								if ($asset) {
-									$replacement = $asset->getKeywordReplacement($keyword);
-									if (substr($keyword, 0, 15) == 'asset_metadata_') {
-										$metadata_keyword = substr($keyword, 15);
-										if (is_null($mm)) {
-											$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-										}
-										// get all the metadata keywords for this asset
-										$metadata_values = $mm->getMetadataFieldValues($assetid, Array($metadata_keyword));
-
-										foreach ($metadata_values as $field => $value) {
-											$replacement = $value;
-										}
-									}
-									if (strpos($tag, '_') !== false) {
-										$sub_tag = explode('_', $tag);
-										$new_items[$index][$sub_tag[0]]['SUBTAGS'][$sub_tag[1]] = $replacement;
-									} else if (strpos($tag, '.') !== false) {
-										$sub_tag = explode('.', $tag);
-										$new_items[$index][$sub_tag[0]]['ATTRIBUTES'][$sub_tag[1]] = $replacement;
-									} else {
-										//converting date values into the respective formats
-										if (in_array($tag, Array('updated', 'pubDate', 'lastBuildDate', 'published'))) {
-											$timestamp = strtotime($replacement);
-											if ($rss_type == 'rss_2.0') {
-												$replacement = date('D, j M Y G:i:s T', $timestamp);
-											} else if ($rss_type == 'atom_1.0') {
-												$replacement = date('Y-m-d', $timestamp).'T'.date('G:i:s', $timestamp).'Z';
-											}
-										}
-										$new_items[$index][$tag] = $replacement;
-									}
-								}
-							}
-							$index++;
-						}
-					}
-				}
-				$no_errors = $this->validateItems($new_items);
-				if (!$no_errors) return;
-				$writer->addItems($new_items);
-				$rss = $writer->getRSSString();
-				$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-				$r = $cm->saveToCache($this->id, $this->type(), '', serialize($rss), false);
-			}
-		} else {
-			//we need to send headers as we got the feed from cache
-			header('Content-type: text/xml');
-		}
-		echo $rss;
-
-	}//end printBody()
-
-
-	/**
-	* Checks if the passed items have all of the required tags or not and returns true if yes
+	* Checks if the passed items have all of the required tags or not and returns TRUE if yes
 	*
 	* @param array	$items	itemso that the user has created for this feed
 	*
@@ -498,7 +352,7 @@ class Page_RSS_Feed extends Page
 	{
 		if (empty($items)) {
 			trigger_error('Missing Items', E_USER_WARNING);
-			return false;
+			return FALSE;
 		} else {
 			$required = Array();
 			$rss_type = $this->attr('rss_types');
@@ -518,32 +372,32 @@ class Page_RSS_Feed extends Page
 					$temp = $items['category']['ATTRIBUTUES'];
 					if (!in_array('term', array_keys($temp))) {
 						trigger_error(translate('required_attr_term_unassigned'), E_USER_WARNING);
-						return false;
+						return FALSE;
 					}
 				}
 				if ($rss_type == 'rss_2.0') {
 					if (!in_array('title', $keys)) {
 						if (!in_array('description', $keys)) {
 							trigger_error(translate('required_tag_title_or_description_missing'), E_USER_WARNING);
-							return false;
+							return FALSE;
 						}
 					}
 				}
 				foreach ($required as $req) {
 					if (!in_array($req, $keys)) {
 						trigger_error('Required Tag '.$req.' Is Not Assigned In Items', E_USER_WARNING);
-						return false;
+						return FALSE;
 					}
 				}
 			}
-			return true;
+			return TRUE;
 		}
 
 	}//end validateItems()
 
 
 	/**
-	* Checks if the passed channel information has all of the required tags or not and returns true if yes
+	* Checks if the passed channel information has all of the required tags or not and returns TRUE if yes
 	*
 	* @param array	$channel	channel info that the user has created for this feed
 	*
@@ -554,7 +408,7 @@ class Page_RSS_Feed extends Page
 	{
 		if (empty($channel)) {
 			trigger_error('Missing Channel Information', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 		$required = Array();
 		$rss_type = $this->attr('rss_types');
@@ -566,16 +420,16 @@ class Page_RSS_Feed extends Page
 		foreach ($required as $tag) {
 			if (!in_array($tag, array_keys($channel))) {
 				trigger_error(translate('required_attribute').' "'.$tag.'" '.translate('missing_for_channel'), E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 		}
-		return true;
+		return TRUE;
 
 	}//end validateChannel()
 
 
 	/**
-	* Checks if the passed image information has all of the required tags or not and returns true if yes
+	* Checks if the passed image information has all of the required tags or not and returns TRUE if yes
 	*
 	* @param array	$image	image info that the user has created for this feed
 	*
@@ -586,13 +440,13 @@ class Page_RSS_Feed extends Page
 	{
 		if (empty($image)) {
 			trigger_error(translate('missing_image_info'), E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 		$required = Array();
 		$rss_type = $this->attr('rss_types');
 		switch ($rss_type) {
 			case 'atom_1.0':
-				return true;
+				return TRUE;
 			break;
 			default:
 				$required = Array('title', 'url', 'link');
@@ -600,10 +454,10 @@ class Page_RSS_Feed extends Page
 		foreach ($required as $tag) {
 			if (!in_array($tag, array_keys($image))) {
 				trigger_error(translate('required_attribute').' "'.$tag.'" '.translate('missing_for_image'), E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 		}
-		return true;
+		return TRUE;
 
 	}//end validateImage()
 

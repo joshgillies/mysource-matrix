@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2005/11/02 04:17:57 pgannavarapu Exp $
+* $Id: lang_screen_details.xml,v 1.3 2006/01/05 04:38:14 pgannavarapu Exp $
 *
 */
 -->
@@ -48,6 +48,10 @@
 				<paint_function   name="paintLisitngChooser"   />
 				<process_function name="processLisitngChooser" />
 			</function_call>
+		</field>
+		<field attribute="num_assets_as_items">
+			<display_name>Number Of Assets To Be Added In The RSS</display_name>
+			<note> Leave this to Zero to have all the assets from the asset listing of the listing engine assets to be added as items. Or enter a value to restrict the number of assets being added as items in the feed.</note>
 		</field>
 	</section>
 </contents>

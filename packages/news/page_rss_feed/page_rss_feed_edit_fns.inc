@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed_edit_fns.inc,v 1.5 2005/11/04 03:09:29 lwright Exp $
+* $Id: page_rss_feed_edit_fns.inc,v 1.6 2006/01/05 04:38:14 pgannavarapu Exp $
 *
 */
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
@@ -29,7 +29,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -60,7 +60,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintLisitngChooser(&$asset, &$o, $prefix)
 	{
-		$current_rss_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, 'listing_engine', false, 'major', 'generate_rss');
+		$current_rss_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, 'listing_engine', FALSE, 'major', 'generate_rss');
 		$rss_links = Array();
 		foreach ($current_rss_links as $i => $link) {
 			$rss_links[$link['minorid']] = $link['minor_type_code'];
@@ -68,7 +68,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 		$wa = $asset->writeAccess('attributes');
 		if ($wa) {
 			multiple_asset_finder($prefix.'_listing_engines', array_keys($rss_links), Array('listing_engine' => 'D'));
-			return true;
+			return TRUE;
 		} else {
 			$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($rss_links));
 			?>
@@ -89,7 +89,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 			?>
 			</table>
 			<?php
-			return false;
+			return FALSE;
 		}
 
 	}//end paintLisitngChooser()
@@ -115,7 +115,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 					$listing_ids[] = $listing['assetid'];
 				}
 			}
-			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, 'listing_engine', false, 'major', 'generate_rss');
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, 'listing_engine', FALSE, 'major', 'generate_rss');
 			$existing_list_ids = Array();
 			foreach ($links as $link) {
 				if (!in_array($link['minorid'], $listing_ids)) {
@@ -148,7 +148,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 	function paintKeywords(&$asset, &$o, $prefix)
 	{
 		$types = Array();
-		$rss_source_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, 'listing_engine', false, 'major', 'generate_rss');
+		$rss_source_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, 'listing_engine', FALSE, 'major', 'generate_rss');
 		if (!empty($rss_source_links)) {
 			$keywords = Array();
 			foreach ($rss_source_links as $links) {
@@ -182,7 +182,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 						<td> <?php echo translate('choose_asset_type');?></td>
 						<td>
 							<?php
-							combo_box('asset_type', $types, false, !empty($type)? $type: 'select');
+							combo_box('asset_type', $types, FALSE, !empty($type)? $type: 'select');
 							?>
 						</td>
 						<td>&nbsp;</td>
@@ -201,7 +201,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 								<td><?php echo translate('choose_or_enter_keyword');?></td>
 								<td>
 									<?php
-									combo_box($prefix.'_keyword', $keywords[$type], false, !empty($keyword)? $keyword: 'select');
+									combo_box($prefix.'_keyword', $keywords[$type], FALSE, !empty($keyword)? $keyword: 'select');
 									?>
 								</td>
 								<td>
@@ -218,11 +218,11 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 							} else if ($type == 'rss_2.0') {
 								$tags = Array('title', 'description', 'link', 'pubDate', 'category', 'author', 'comments', 'guid', 'enclosure');
 							} else {
-								//it is of type ATOM 1.0
+								// it is of type ATOM 1.0
 								$tags = Array('title', 'content', 'link.rel', 'link.type', 'link.href', 'category.term', 'category.label',  'id', 'contributor_name', 'author_name', 'author_email', 'author_url', 'summary', 'published', 'updated', 'source_id', 'source_title', 'source_rights');
 							}
 							foreach ($tags as $key => $val) {
-								$tags[$val] = strpos($val, '_') !== false? str_replace('_', ' ', $val): (strpos($val, '.') !== false? str_replace('.', ' ', $val).' = ':$val);
+								$tags[$val] = strpos($val, '_') !== FALSE? str_replace('_', ' ', $val): (strpos($val, '.') !== FALSE? str_replace('.', ' ', $val).' = ':$val);
 								unset($tags[$key]);
 							}
 							?>
@@ -230,23 +230,23 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 								<td><?php echo translate('choose_tag');?></td>
 								<td>
 									<?php
-									combo_box($prefix.'_tag', $tags, false, !empty($tag)? $tag: '');
+									combo_box($prefix.'_tag', $tags, FALSE, !empty($tag)? $tag: '');
 									?>
 								</td>
 								<td>&nbsp;</td>
 							</tr>
 						<?php
-						}
-					}
+						}//end if tag is not empty
+					}//end if type is not empty
 				?>
 				</table>
 				<?php
-				return true;
-			}
+				return TRUE;
+			}//end if write access
 		} else {
 			echo 'No Listing Engine Assets Have Been Selected To Generate The RSS';
 		}
-		return false;
+		return FALSE;
 
 	}//end paintKeywords()
 
@@ -276,10 +276,10 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 				$items = $asset->attr('items');
 				$items[$type][$tag] = $keyword;
 				$asset->setAttrValue('items', $items);
-				return true;
+				return TRUE;
 			}
 		}
-		return false;
+		return FALSE;
 
 	}//end processKeywords()
 
@@ -335,9 +335,9 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 			?>
 			</table>
 		<?php
-		}
-		if ($wa) return true;
-		return false;
+		}//end if where items is not empty
+		if ($wa) return TRUE;
+		return FALSE;
 
 	}//end paintSelectedKeywords()
 
@@ -362,17 +362,15 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 					unset($selected_items[$type][$tag]);
 				}
 			}
-			//if there are no keywords and tags for a particular asset type then unset the asset type from the items array
-			//you dont want to have a key in an array with an empty value.. no !! never.. unless i want a messy interface
+			// if there are no keywords and tags for a particular asset type then unset the asset type from the items array
+			// you dont want to have a key in an array with an empty value.. no !! never.. unless i want a messy interface
 			foreach ($selected_items as $key => $value) {
-				if (empty($value)) {
-					unset($selected_items[$key]);
-				}
+				if (empty($value)) unset($selected_items[$key]);
 			}
 			$asset->setAttrValue('items', $selected_items);
-			return true;
+			return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end processSelectedKeywords()
 
@@ -401,9 +399,9 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 						$required = Array('title', 'link', 'description');
 					} else if ($type == 'rss_2.0') {
 						$required = Array('title', 'link', 'description');
-						$tags = Array('title', 'link', 'description', 'pubDate', 'lastBuildDate', 'language', 'copyright', 'webmaster', 'managingEditor', 'category', 'generator', 'ttl', 'docs');
+						$tags = Array('title', 'link', 'description', 'pubDate', 'lastBuildDate', 'language', 'copyright', 'webMaster', 'managingEditor', 'category', 'generator', 'ttl', 'docs');
 					} else {
-						//type is ATOM 1.0
+						// type is ATOM 1.0
 						$required = Array('title', 'id', 'updated');
 						$tags = Array('title', 'id', 'link.rel', 'link.type', 'link.href', 'subtitle', 'updated', 'rights', 'author_name', 'author_email', 'author_url', 'category.term', 'category.label', 'category.scheme', 'rights');
 					}
@@ -416,7 +414,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 						$tags = Array('title', 'description', 'url', 'weight', 'height', 'link');
 						$required = Array('title', 'url', 'link');
 					} else {
-						//ATOM 1.0
+						// ATOM 1.0
 						$tags = Array('icon');
 						$required = Array('icon');
 					}
@@ -450,9 +448,9 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 							<td>
 								<?php
 								if ($wa) {
-									//if the tag is not a link then just use the value normally
-									//else check if the value is a valid asset id and if yes then print the asset finder with the assetid
-									//else just print the value normally in a text box
+									// if the tag is not a link then just use the value normally
+									// else check if the value is a valid asset id and if yes then print the asset finder with the assetid
+									// else just print the value normally in a text box
 									if (($tag != 'link') && ($tag !== 'link.href')) {
 										text_box($attr.'['.$tag.']', isset($attr_val[$tag])? $attr_val[$tag]: '', 30);
 										if (($wa) && (in_array('link', $tags) || in_array('link.href', $tags))) {
@@ -465,7 +463,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 										$id = 0;
 										$url = null;
 										if (isset($attr_val[$tag])) {
-											if (assert_valid_assetid($attr_val[$tag], '', true, false)) {
+											if (assert_valid_assetid($attr_val[$tag], '', TRUE, FALSE)) {
 												$id = $attr_val[$tag];
 											} else {
 												$url = $attr_val[$tag];
@@ -477,13 +475,13 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 										<td><?php text_box($attr.'['.$tag.'_text]', $url);
 									}
 								} else {
-									//if the tag is not a link then just use the value normally
-									//else check if the value is a valid asset id and if yes then print the asset's url
-									//else just print the value normally
+									// if the tag is not a link then just use the value normally
+									// else check if the value is a valid asset id and if yes then print the asset's url
+									// else just print the value normally
 									if (($tag != 'link') && ($tag !== 'link.href')) {
 										echo isset($attr_val[$tag])? $attr_val[$tag]: '&nbsp;';
 									} else if (isset($attr_val[$tag])) {
-										if (assert_valid_assetid($attr_val[$tag], '', true, false)) {
+										if (assert_valid_assetid($attr_val[$tag], '', TRUE, FALSE)) {
 											$value = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($attr_val[$tag]);
 											echo $value;
 										} else {
@@ -497,7 +495,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 							</td>
 							<td>
 								<?php
-								//if the current tag is a required tag or not
+								// if the current tag is a required tag or not
 								if (!empty($required)) {
 									if (in_array($tag, $required)) {
 										echo 'Yes';
@@ -508,12 +506,12 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 								?></td>
 						</tr>
 						<?php
-					}
+					}//end foreach of tags
 					?>
 				</table>
 			<?php
-			}
-		}
+			}//end if write access or attribute value is not empty
+		}//end foreach of modes
 
 	}//end paintChannelImage()
 
@@ -540,7 +538,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 					if ($tag == 'link_text') continue;
 					if (!empty($value)) {
 						if (in_array($tag, Array('link', 'link.href'))) {
-							//if there is a text value for the link then it is taken
+							// if there is a text value for the link then it is taken
 							// else the asset id is taken and its url is stored
 							if (!empty($attr_val['link_text'])) {
 								$value = $attr_val['link_text'];
@@ -555,7 +553,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 				$asset->setAttrValue($attr, $new_val);
 			}
 		}
-		return true;
+		return TRUE;
 
 	}//end processChannelImage()
 
@@ -572,8 +570,8 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 	function ifWriteAccess(&$asset, $prefix)
 	{
 		$wa = $asset->writeAccess('attributes');
-		if ($wa) return true;
-		return false;
+		if ($wa) return TRUE;
+		return FALSE;
 
 	}//end ifWriteAccess()
 
@@ -590,10 +588,10 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 	function ItemsNotEmpty(&$asset, $prefix)
 	{
 		$items = $asset->attr('items');
-		if (!empty($items)) return true;
-		return false;
+		if (!empty($items)) return TRUE;
+		return FALSE;
 
-	}//end ifWriteAccess()
+	}//end ItemsNotEmpty()
 
 
 }//end class
