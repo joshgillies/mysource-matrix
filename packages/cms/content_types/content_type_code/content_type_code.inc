@@ -8,10 +8,10 @@
 * | This source file is not open source or freely usable and may be    |
 * | used subject to, and only in accordance with, the Squiz Commercial |
 * | Module Licence.                                                    |
-* | Please refer to http://www.squiz.net/licence for more information. |
+* | Please refer to http:// www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code.inc,v 1.7 2006/01/05 04:45:24 dmckee Exp $
+* $Id: content_type_code.inc,v 1.8 2006/01/05 04:58:21 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -41,7 +41,7 @@ class Content_Type_Code extends Content_Type
 	*/
 	function Content_Type_Code($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Content_Type($assetid);
 
 	}//end constructor
@@ -62,14 +62,14 @@ class Content_Type_Code extends Content_Type
 
 		$classes = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_CODE_EDITOR_HTML_CLASSES');
 
-		//Match Comments
+		// Match Comments
 		$highlighted = str_replace('<!--', '&lt!--', $highlighted);
 		$highlighted = str_replace('-->', '--&gt;', $highlighted);
 
-		//$highlighted = preg_replace('/COMMENT_START(.*|\n)COMMENT_END/i', 'SPANSTART class="'.$classes['html_comment'].'>&lt;--\\1--&gt;ENDSPAN',$highlighted);
+		// $highlighted = preg_replace('/COMMENT_START(.*|\n)COMMENT_END/i', 'SPANSTART class="'.$classes['html_comment'].'>&lt;--\\1--&gt;ENDSPAN',$highlighted);
 
 
-		//Below Matches Single html tags(those without attributes specifified, as well as singleton tags);
+		// Below Matches Single html tags(those without attributes specifified, as well as singleton tags);
 		preg_match_all('/\<([A-Za-z]+[A-Za-z0-9]*)(\s*\/)\>/i', $highlighted, $matches=Array());
 
 		for ($i = 0; $i < count($matches[0]); $i++) {
@@ -80,7 +80,7 @@ class Content_Type_Code extends Content_Type
 			$highlighted = str_replace($needle, $replace, $highlighted);
 		}
 
-		//End tags ( </aaa> )
+		// End tags ( </aaa> )
 		preg_match_all('/\<\/\s*([A-Za-z][A-Za-z0-9]*)\>/i', $highlighted, $matches=Array());
 
 		for ($i = 0; $i < count($matches[0]); $i++) {
@@ -93,7 +93,7 @@ class Content_Type_Code extends Content_Type
 
 		$simple_matches = Array();
 
-		//Tags like <h1> etc;
+		// Tags like <h1> etc;
 		preg_match_all('/\<\s*([A-Za-z]+[A-Za-z0-9]*)\>/i', $highlighted, $matches=Array());
 
 		for ($i = 0; $i < count($matches[0]); $i++) {
@@ -109,7 +109,7 @@ class Content_Type_Code extends Content_Type
 			$highlighted = str_replace($needle, $replace, $highlighted);
 		}
 
-		//Match Param Names
+		// Match Param Names
 		preg_match_all('/<\\s*([A-Za-z][A-Za-z0-9]*)\\s+([^>]*)\\s*>/i', $highlighted, $matches=Array());
 
 		for ($i = 0; $i < count($matches[0]); $i++) {
@@ -149,7 +149,7 @@ class Content_Type_Code extends Content_Type
 	{
 		$highlighted = $str;
 
-		//Grab the preferences
+		// Grab the preferences
 		$classes = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_CODE_EDITOR_PHP_CLASSES');
 
 		$system_colours = Array();
@@ -160,13 +160,13 @@ class Content_Type_Code extends Content_Type
 		$system_colours[strtolower(strval(ini_get('highlight.comment')))] = $classes['comment'];
 		$system_colours[strtolower(strval(ini_get('highlight.string')))] = $classes['string'];
 
-		$one_liner = false;
-		//Check if its only one line
+		$one_liner = FALSE;
+		// Check if its only one line
 		if (substr_count($highlighted, ';') <= 1) {
-			$one_liner = true;
+			$one_liner = TRUE;
 		}
 
-		$highlighted = highlight_string($highlighted, true);
+		$highlighted = highlight_string($highlighted, TRUE);
 
 		$highlighted = str_replace('<code>', '', $highlighted);
 		$highlighted = str_replace('</code>', '', $highlighted);
@@ -184,14 +184,14 @@ class Content_Type_Code extends Content_Type
 			$highlighted = str_replace($needle, $replace, $highlighted);
 		}
 
-		//If there is only one expression, we want it to appear in the current context, so we have to strip out any new lines
-		if ($one_liner == true) {
+		// If there is only one expression, we want it to appear in the current context, so we have to strip out any new lines
+		if ($one_liner == TRUE) {
 			$highlighted = str_replace("\n", '', $highlighted);
 		}
-		//PHP Seems to pop this span over multiple lines when it has similar elements in a row
-		//eg. if there is a brace ({) and a var on the next line, the highlighter sees them as the same
-		//grouping and the span puts both inside. This will split those up into 2 spans
-		//preg_match_all('/<span class\=".*">\{<br \/>.*<\/span>/i', $highlighted, $matches=Array());
+		// PHP Seems to pop this span over multiple lines when it has similar elements in a row
+		// eg. if there is a brace ({) and a var on the next line, the highlighter sees them as the same
+		// grouping and the span puts both inside. This will split those up into 2 spans
+		// preg_match_all('/<span class\=".*">\{<br \/>.*<\/span>/i', $highlighted, $matches=Array());
 
 		$highlighted = str_replace('<br />', "\n", $highlighted);
 
@@ -213,21 +213,21 @@ class Content_Type_Code extends Content_Type
 	{
 		$reserved = Array(
 						'abstract', 'as', 'boolean', 'break', 'byte', 'case', 'catch', 'char', 'class', 'continue', 'const',
-						'debugger', 'default', 'delete', 'do', 'double', 'else', 'enum', 'export', 'extends', 'false', 'final',
+						'debugger', 'default', 'delete', 'do', 'double', 'else', 'enum', 'export', 'extends', 'FALSE', 'final',
 						'finally', 'float', 'for', 'function', 'goto', 'if', 'implements', 'import', 'in', 'instanceof', 'int', 'interface',
 						'is', 'long', 'namespace', 'native', 'new', 'null', 'package', 'private', 'protected', 'public', 'return', 'short', 'static',
-						'super', 'switch', 'synchronized', 'this', 'throw', 'throws', 'transient', 'true', 'try', 'typeof', 'use', 'var', 'void', 'volatile',
+						'super', 'switch', 'synchronized', 'this', 'throw', 'throws', 'transient', 'TRUE', 'try', 'typeof', 'use', 'var', 'void', 'volatile',
 						'while', 'with',
 					);
 		$highlighted = str_replace(Array('jsender', 'jsstarter'), '' , $str);
 
-		//Get our user preferences
+		// Get our user preferences
 		$classes = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_CODE_EDITOR_JS_CLASSES');
 
 		$highlighted = preg_replace('/(\".*\")/i', '<span class="'.$classes['string'].'">\\1</span>', $highlighted);
 		$highlighted = preg_replace('/(\'.*\')/i', '<span class="'.$classes['string'].'">\\1</span>', $highlighted);
 
-		//Highlight any reserved words
+		// Highlight any reserved words
 
 		foreach ($reserved as $word) {
 			$highlighted = str_replace(' '.$word.' ', '<span class="'.$classes['reserved'].'"> '.$word.' </span>', $highlighted);
@@ -259,7 +259,7 @@ class Content_Type_Code extends Content_Type
 		$php_start_token = 'PHPSTARTTAG';
 		$php_end_token = 'PHPENDTAG';
 
-		//Handle the XML Tags, so they don't get messed up with the PHP start tags
+		// Handle the XML Tags, so they don't get messed up with the PHP start tags
 		preg_match_all('/<\?\s*xml.*\?>/i', $str, $matches=Array());
 		foreach ($matches as $text) {
 			$replace = str_replace(Array('<?', '?>'), Array('<XMLSTART', 'XMLEND>'), $text);
@@ -272,23 +272,23 @@ class Content_Type_Code extends Content_Type
 		$str = str_replace('<?', $php_start_token.' ', $str);
 		$str = str_replace('?>', ' '.$php_end_token, $str);
 
-		//Replace any php code that appears between quotes (ie in an html attribute)
-		//Replaced with an alphabetical string, so that attributes see this as a valid attribute value
+		// Replace any php code that appears between quotes (ie in an html attribute)
+		// Replaced with an alphabetical string, so that attributes see this as a valid attribute value
 		$str = preg_replace('/\"(.*)'.$php_start_token.'(.*)'.$php_end_token.'(.*)\"/i', '"\\1inlinephpstart\\2inlinephpend\\3"',$str);
 
-		//Get some javascript gear in here now. The rest of the text will be parsed as usual(like inline PHP, quotes etc.
-		//But this may highlight some reserved words etc.
+		// Get some javascript gear in here now. The rest of the text will be parsed as usual(like inline PHP, quotes etc.
+		// But this may highlight some reserved words etc.
 		$str = preg_replace('/(script .*javascript.*>)/i', '\\1jsstarter', $str);
 		$str = preg_replace('/(\<\/script>)/i', 'jsender\\1', $str);
 
-		//Keep shortening the original string, by cutting it at the php tags
-		while (false !== ($start_pos = strpos($str, $php_start_token))) {
+		// Keep shortening the original string, by cutting it at the php tags
+		while (FALSE !== ($start_pos = strpos($str, $php_start_token))) {
 			$other_string = substr($str, 0, $start_pos);
 
 			$highlighted .= $this->highlightOther($other_string);
 			$str = substr($str, $start_pos);
 			$length = strlen($str);
-			if (strpos($str, $php_end_token) === false) {
+			if (strpos($str, $php_end_token) === FALSE) {
 				$str .= $php_end_token;
 			}
 
@@ -303,9 +303,9 @@ class Content_Type_Code extends Content_Type
 
 			$str = substr($str, strpos($str, $php_end_token) + strlen($php_end_token));
 
-		}//End While PHP Tags exist
+		}// End While PHP Tags exist
 
-		//Get the bit after the last PHP tag
+		// Get the bit after the last PHP tag
 		$highlighted .= $this->highlightOther($str);
 
 		$start_pos = strpos($highlighted, 'jsstarter');
@@ -324,7 +324,7 @@ class Content_Type_Code extends Content_Type
 		$highlighted = str_replace(Array('XMLSTART', 'XMLEND'), Array('?', '?'), $highlighted);
 
 		$line_num_prefs = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_CODE_EDITOR_LINE_NUMBERS');
-		if ($line_num_prefs['use_line_numbers'] == true) {
+		if ($line_num_prefs['use_line_numbers'] == TRUE) {
 			$highlighted = $this->addLineNumbers($highlighted, $line_num_prefs['line_number_left'], $line_num_prefs['line_number_style'], $line_num_prefs['line_number_class']);
 		}
 		return '<pre>'.$highlighted.'</pre>';
@@ -344,11 +344,11 @@ class Content_Type_Code extends Content_Type
 	* @return string
 	* @access public
 	*/
-	function addLineNumbers($str, $left=true, $style='span', $class='line_numbers')
+	function addLineNumbers($str, $left=TRUE, $style='span', $class='line_numbers')
 	{
 		$lines = explode("\n", $str);
 
-		if ($left == false) $style='span';
+		if ($left == FALSE) $style='span';
 		switch (strtolower($style)) {
 			case 'span':
 				if ($left) {
@@ -356,33 +356,33 @@ class Content_Type_Code extends Content_Type
 					// We leave -margin_value- and -line_number- in there, as they will be determined later
 					$replace = '<span class="'.$class.'" style="-margin_value-">-line_number-</span>';
 					$replace_right = '<span class="'.$class.'" style="right: 0px;">-line_number-</span>';
-					$replace = ($left==true) ? "\n$replace" : "$replace\n";
+					$replace = ($left==TRUE) ? "\n$replace" : "$replace\n";
 
-					//Replace all the new lines with our gear
+					// Replace all the new lines with our gear
 					if ($left) {
 						$str = preg_replace('/\n/i', $replace, $str);
-						//$str = preg_replace('/\r/i', '', $str);
-						//Add one for the first line
+						// $str = preg_replace('/\r/i', '', $str);
+						// Add one for the first line
 						$str = $replace.$str;
 					}
 
-					//Now we've gotta get through all the line numbers, and replace them, but also keep a track
-					//of how many there are
+					// Now we've gotta get through all the line numbers, and replace them, but also keep a track
+					// of how many there are
 					$line_number = 1;
-					while (false !== strpos($str, '-line_number-')) {
+					while (FALSE !== strpos($str, '-line_number-')) {
 						$str = preg_replace('/-line_number-/i', $line_number.'.', $str, 1);
 						$line_number++;
 					}
 
-					//Work out the margin based on the number of digits in our line numbers
+					// Work out the margin based on the number of digits in our line numbers
 					$margin = strlen(strval($line_number)) * 5 + 5;
 
-					$margin_replace = ($left == true) ? 'margin-right' : 'margin-left';
+					$margin_replace = ($left == TRUE) ? 'margin-right' : 'margin-left';
 					$margin_replace .= ': '.$margin.'px;';
 
 					$str = str_replace('-margin_value-', $margin_replace, $str);
 				} else {
-					//Line Numbers on the right
+					// Line Numbers on the right
 					$new_str = '<table style="width: 100%;" ><tr><td><pre>'.$str.'</pre></td><td style="width: 100px;" >';
 					$line_numbers = range(1, count($lines));
 					$new_str .= '<pre>'.implode("\n", $line_numbers).'</pre>';
@@ -394,7 +394,7 @@ class Content_Type_Code extends Content_Type
 				$str = implode('</pre></li><li class="'.$class.'"><pre>', $lines);
 				$str = '<ol><li class="'.$class.'">'.$str.'</li></ol>';
 			break;
-		}
+		}//end switch line style
 		return $str;
 
 	}//end addLineNumbers()
