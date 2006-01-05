@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code_edit_fns.inc,v 1.1 2005/12/16 05:42:13 dmckee Exp $
+* $Id: content_type_code_edit_fns.inc,v 1.2 2006/01/05 04:48:48 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -62,7 +62,7 @@ class Content_Type_Code_Edit_Fns extends Content_Type_Edit_Fns
 			$html = str_replace('&lt;script', '<script', $html);
 			text_area($prefix.'_html', $html, '', '', 0, 'style="width: '.$size['width'].'; height: '.$size['height'].'; font-family: monospace; display: block"');
 		}
-		return true;
+		return TRUE;
 
 	}//end paintBackend()
 
@@ -89,11 +89,11 @@ class Content_Type_Code_Edit_Fns extends Content_Type_Edit_Fns
 
 				$current_html = $asset->attr('html');
 				if ($html != $current_html) {
-					if ($asset->setAttrValue('html', $html)) return true;
+					if ($asset->setAttrValue('html', $html)) return TRUE;
 				}
 			}
 		}
-		return false;
+		return FALSE;
 
 	}//end processBackend()
 
@@ -109,10 +109,10 @@ class Content_Type_Code_Edit_Fns extends Content_Type_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function paint(&$asset, $prefix, $editing=false, $generating=false)
+	function paint(&$asset, $prefix, $editing=FALSE, $generating=FALSE)
 	{
-		//This may be changed to use the styles of the design, to show
-		//what it will look like. If $editing == true, then we do this
+		// This may be changed to use the styles of the design, to show
+		// what it will look like. If $editing == TRUE, then we do this
 		echo $asset->attr('html');
 
 	}//end paint()

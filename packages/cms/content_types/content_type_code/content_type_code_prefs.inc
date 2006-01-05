@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code_prefs.inc,v 1.2 2006/01/03 04:03:47 dmckee Exp $
+* $Id: content_type_code_prefs.inc,v 1.3 2006/01/05 04:52:23 dmckee Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Raw HTML preferences
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Content_Type_Code_Prefs extends Prefs
@@ -38,7 +38,7 @@ class Content_Type_Code_Prefs extends Prefs
 															'name'			=> 'Raw HTML Size',
 															'description'	=> 'This preference allows you to change the size of the Raw HTML editor',
 															'default'		=> Array('width' => '400', 'height' => '400'),
-															'protected'		=> false,
+															'protected'		=> FALSE,
 														   ),
 						'SQ_CODE_EDITOR_HTML_CLASSES'	=> Array(
 															'name'			=> 'HTML Classes to display',
@@ -50,7 +50,7 @@ class Content_Type_Code_Prefs extends Prefs
 																				'tag_name'			=> 'html_tag_names',
 																				'html_comment'		=> 'html_comment',
 																			   ),
-															'protected'		=> false,
+															'protected'		=> FALSE,
 														   ),
 						'SQ_CODE_EDITOR_PHP_CLASSES'	=> Array(
 															'name'			=> 'PHP Classes to display',
@@ -63,7 +63,7 @@ class Content_Type_Code_Prefs extends Prefs
 																				'keyword'		=> 'php_keyword',
 																				'string'		=> 'php_string',
 																			   ),
-															'protected'		=> false,
+															'protected'		=> FALSE,
 														   ),
 						'SQ_CODE_EDITOR_JS_CLASSES'		=> Array(
 															'name'			=> 'Javascript Classes to display',
@@ -76,18 +76,18 @@ class Content_Type_Code_Prefs extends Prefs
 																				'default'	=> 'js_default',
 																				'string'	=> 'js_string',
 																			   ),
-															'protected'		=> false,
+															'protected'		=> FALSE,
 														   ),
 						'SQ_CODE_EDITOR_LINE_NUMBERS'	=> Array(
 															'name'			=> 'Line Number Options',
 															'description'	=> 'Whether to use line numbers, and what options to use',
 															'default'		=> Array(
-																				'use_line_numbers'	=> false,
-																				'line_number_left'	=> true,
+																				'use_line_numbers'	=> FALSE,
+																				'line_number_left'	=> TRUE,
 																				'line_number_style'	=> 'span',
 																				'line_number_class'	=> 'line_numbers',
 																			   ),
-															'protected'		=> false,
+															'protected'		=> FALSE,
 														   ),
 					 );
 	var $css_dimension_width;
@@ -122,7 +122,7 @@ class Content_Type_Code_Prefs extends Prefs
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 
-		//Width and Height
+		// Width and Height
 		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_SIZE') {
 			if (is_null($pref)) {
 				$o->openField(translate('code_editor_size'));
@@ -157,9 +157,9 @@ class Content_Type_Code_Prefs extends Prefs
 				</table>
 				<?php
 			if (is_null($pref)) $o->closeField();
-		}
+		}//end if all prefs, or code_editor_size
 
-		//Classes
+		// Classes
 		if (is_null($pref)) {
 			$o->openField(translate('html_code_classes'));
 		}
@@ -254,7 +254,7 @@ class Content_Type_Code_Prefs extends Prefs
 			<?php
 		}
 
-		//Line Numbers
+		// Line Numbers
 		if (is_null($pref)) {
 			$o->openField(translate('line_numbers'));
 		}
@@ -271,7 +271,7 @@ class Content_Type_Code_Prefs extends Prefs
 					if ($have_lock && $is_admin) {
 						check_box('SQ_CODE_show_line_numbers', '1', $line_prefs['use_line_numbers']);
 					} else {
-						echo ($line_prefs['use_line_numbers'] == true) ? translate('yes') : translate('No');
+						echo ($line_prefs['use_line_numbers'] == TRUE) ? translate('yes') : translate('No');
 					}
 					?>
 					</td>
@@ -283,12 +283,12 @@ class Content_Type_Code_Prefs extends Prefs
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
 					if ($have_lock && $is_admin) {
-						radio_button('SQ_CODE_line_number_left', 'left', $line_prefs['line_number_left'] == true);
+						radio_button('SQ_CODE_line_number_left', 'left', $line_prefs['line_number_left'] == TRUE);
 						label(translate('left'), 'SQ_CODE_line_number_left');
-						radio_button('SQ_CODE_line_number_left', 'right', $line_prefs['line_number_left'] == false);
+						radio_button('SQ_CODE_line_number_left', 'right', $line_prefs['line_number_left'] == FALSE);
 						label(translate('right'), 'SQ_CODE_line_number_left');
 					} else {
-						echo ($line_prefs['line_number_left'] == true) ? translate('left') : translate('right');
+						echo ($line_prefs['line_number_left'] == TRUE) ? translate('left') : translate('right');
 					}
 					?>
 					</td>
@@ -300,7 +300,7 @@ class Content_Type_Code_Prefs extends Prefs
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
 					if ($have_lock && $is_admin) {
-						combo_box('SQ_CODE_line_style', Array('span'=>'Span','list'=>'List'), false, $line_prefs['line_number_style']);
+						combo_box('SQ_CODE_line_style', Array('span'=>'Span','list'=>'List'), FALSE, $line_prefs['line_number_style']);
 					} else {
 						echo ucwords($line_prefs['line_number_style']);
 					}
@@ -323,10 +323,10 @@ class Content_Type_Code_Prefs extends Prefs
 				</tr>
 			</table>
 			<?php
-		}
+		}//end if line numbers
 		if (is_null($pref)) $o->closeField();
 
-		return true;
+		return TRUE;
 
 	}//end paintBackend()
 
@@ -345,13 +345,13 @@ class Content_Type_Code_Prefs extends Prefs
 	{
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-		if (!$is_admin) return false;
+		if (!$is_admin) return FALSE;
 		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_SIZE') {
 			$this->css_dimension_width->process('code_width');
 			$this->css_dimension_height->process('code_height');
 			$this->pref_vars['SQ_CODE_EDITOR_SIZE']['default']['width'] = $this->css_dimension_width->getContent();
 			$this->pref_vars['SQ_CODE_EDITOR_SIZE']['default']['height'] = $this->css_dimension_height->getContent();
-			return true;
+			return TRUE;
 		}
 		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_HTML_CLASSES') {
 			$this->pref_vars['SQ_CODE_EDITOR_HTML_CLASSES']['default'] = $_POST['SQ_CODE_EDITOR_HTML_CLASSES'];
@@ -367,10 +367,10 @@ class Content_Type_Code_Prefs extends Prefs
 			$line_prefs['use_line_numbers'] = isset($_POST['SQ_CODE_show_line_numbers']);
 			$line_prefs['line_number_style'] = $_POST['SQ_CODE_line_style'];
 			$line_prefs['line_number_class'] = $_POST['SQ_CODE_line_class'];
-			$line_prefs['line_number_left'] = ($_POST['SQ_CODE_line_number_left'] == 'right') ? false : true;
+			$line_prefs['line_number_left'] = ($_POST['SQ_CODE_line_number_left'] == 'right') ? FALSE : TRUE;
 			$this->pref_vars['SQ_CODE_EDITOR_LINE_NUMBERS']['default'] = $line_prefs;
 		}
-		return true;
+		return TRUE;
 
 	}//end processBackend()
 
