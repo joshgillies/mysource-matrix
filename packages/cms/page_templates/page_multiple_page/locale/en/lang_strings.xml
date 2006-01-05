@@ -1,0 +1,39 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2006/01/05 05:45:28 sdanis Exp $
+*
+*
+* CMS Package Localised Strings File
+*/
+-->
+<strings>
+<string source="cms_page_multiple_page_get_content_msg">This asset uses its children to display its content. Getting here is a mistake</string>
+<string source="cms_page_multiple_page_previous_page_href">Previous Page Href</string>
+<string source="cms_page_multiple_page_next_page_href">Next Page Href</string>
+<string source="cms_page_multiple_page_previous_page_name">Previous Page Title</string>
+<string source="cms_page_multiple_page_next_page_name">Next Page Title</string>
+<string source="cms_page_multiple_page_previous_page_link">Previous Page Title</string>
+<string source="cms_page_multiple_page_next_page_link">Next Page Title</string>
+<string source="cms_page_multiple_page_total_page_count">Total Page Count</string>
+<string source="cms_page_multiple_page_page_name_x">Specific Page Name</string>
+<string source="cms_page_multiple_page_page_href_x">Specific Page Href</string>
+<string source="cms_page_multiple_page_page_link_x">Specific Page Link</string>
+<string source="cms_page_multiple_page_page_assetid_x">Specific Page Asset ID</string>
+<string source="cms_page_multiple_page_current_page_name">Current Page Name</string>
+<string source="cms_page_multiple_page_current_page_number">Current Page Number</string>
+<string source="cms_page_multiple_page_current_page_assetid">Current Page Asset ID</string>
+<string source="cms_page_multiple_page_toc_unordered">Table of Contents - Unordered</string>
+<string source="cms_page_multiple_page_toc_ordered">Table of Contents - Ordered</string>
+<string source="cms_page_multiple_page_navigation_menu_selection_list">Navigation Menu - Selection List</string>
+</strings>

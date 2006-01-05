@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page.inc,v 1.10 2006/01/05 01:32:02 sdanis Exp $
+* $Id: page_multiple_page.inc,v 1.11 2006/01/05 05:45:28 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -119,7 +119,7 @@ class Page_Multiple_Page extends Page
 	*/
 	function getContent()
 	{
-		$contents = 'This asset uses its children to display its content. Getting here is a mistake';
+		$contents = translate('cms_page_multiple_page_get_content_msg');
 		return $contents;
 
 	}//end getContent()
@@ -297,23 +297,23 @@ class Page_Multiple_Page extends Page
 	{
 		$keywords = parent::getAvailableKeywords();
 
-		$keywords['previous_page_href'] = 'Previous Page Href';
-		$keywords['next_page_href'] = 'Next Page Href';
-		$keywords['previous_page_name'] = 'Previous Page Title';
-		$keywords['next_page_name'] = 'Next Page Title';
-		$keywords['previous_page_link'] = 'Previous Page Title';
-		$keywords['next_page_link'] = 'Next Page Title';
-		$keywords['total_page_count'] = 'Total Page Count';
-		$keywords['page_name_x'] = 'Specific Page Name';
-		$keywords['page_href_x'] = 'Specific Page Href';
-		$keywords['page_link_x'] = 'Specific Page Link';
-		$keywords['page_assetid_x'] = 'Specific Page Asset ID';
-		$keywords['current_page_name'] = 'Current Page Name';
-		$keywords['current_page_number'] = 'Current Page Number';
-		$keywords['current_page_assetid'] = 'Current Page Asset ID';
-		$keywords['toc_unordered'] = 'Table of Contents - Unordered';
-		$keywords['toc_ordered'] = 'Table of Contents - Ordered';
-		$keywords['navigation_menu_selection_list'] = 'Navigation Menu - Selection List';
+		$keywords['previous_page_href'] = translate('cms_page_multiple_page_previous_page_href');
+		$keywords['next_page_href'] = translate('cms_page_multiple_page_next_page_href');
+		$keywords['previous_page_name'] = translate('cms_page_multiple_page_previous_page_name');
+		$keywords['next_page_name'] = translate('cms_page_multiple_page_next_page_name');
+		$keywords['previous_page_link'] = translate('cms_page_multiple_page_previous_page_link');
+		$keywords['next_page_link'] = translate('cms_page_multiple_page_next_page_link');
+		$keywords['total_page_count'] = translate('cms_page_multiple_page_total_page_count');
+		$keywords['page_name_x'] = translate('cms_page_multiple_page_page_name_x');
+		$keywords['page_href_x'] = translate('cms_page_multiple_page_page_href_x');
+		$keywords['page_link_x'] = translate('cms_page_multiple_page_page_link_x');
+		$keywords['page_assetid_x'] = translate('cms_page_multiple_page_page_assetid_x');
+		$keywords['current_page_name'] = translate('cms_page_multiple_page_current_page_name');
+		$keywords['current_page_number'] = translate('cms_page_multiple_page_current_page_number');
+		$keywords['current_page_assetid'] = translate('cms_page_multiple_page_current_page_assetid');
+		$keywords['toc_unordered'] = translate('cms_page_multiple_page_toc_unordered');
+		$keywords['toc_ordered'] = translate('cms_page_multiple_page_toc_ordered');
+		$keywords['navigation_menu_selection_list'] = translate('cms_page_multiple_page_navigation_menu_selection_list');
 
 		return $keywords;
 
