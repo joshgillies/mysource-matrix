@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.71 2005/11/24 22:40:57 sdanis Exp $
+* $Id: system_config.inc,v 1.72 2006/01/05 03:14:50 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -69,10 +69,12 @@ class System_Config extends Config
 						'SQ_CONF_REFRESH_INTERVAL'			=> Array('editable' => 1, 'default' => 120),
 						'SQ_CONF_LOCK_LENGTH'				=> Array('editable' => 1, 'default' => 600),
 						'SQ_CONF_ASSET_MAP_ASSET_LIMIT'		=> Array('editable' => 1, 'default' => 50),
+						'SQ_CONF_SEND_LAST_MODIFIED_HEADER'	=> Array('editable' => 1, 'default' => '0'),
+						'SQ_CONF_SEND_NOT_MODIFIED_HEADER'	=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_LOG_FILE'					=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_LOG_ERRORS'				=> Array('editable' => 1, 'default' => true),
 						'SQ_CONF_ERRORS_HIDE_FRONTEND'		=> Array('editable' => 1, 'default' => false),
-						'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'=> Array('editable' => 1, 'default' => 'en'),
+						'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'	=> Array('editable' => 1, 'default' => 'en'),
 						'SQ_CONF_DEFAULT_BACKEND_LOCALE'	=> Array('editable' => 1, 'default' => 'en_AU'),
 						'SQ_CONF_DEFAULT_CHARACTER_SET'		=> Array('editable' => 1, 'default' => 'iso-8859-1'),
 						'SQ_CONF_ALLOW_IP_CHANGE'			=> Array('editable' => 1, 'default' => '0'),
@@ -624,6 +626,29 @@ class System_Config extends Config
 				echo !defined('SQ_CONF_ASSET_MAP_ASSET_LIMIT') ? '50' : SQ_CONF_ASSET_MAP_ASSET_LIMIT;
 			}
 			$o->note(translate('asset_limit_per_node_note'));
+			$o->closeField();
+
+		$o->closeSection();
+
+		$o->openSection(translate('http_header_section_name'));
+
+			$o->openField(translate('http_header_last_modified_field'));
+				if ($write_access && $is_root) {
+					combo_box($class.'[SQ_CONF_SEND_LAST_MODIFIED_HEADER]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_SEND_LAST_MODIFIED_HEADER);
+				} else {
+					echo (SQ_CONF_SEND_LAST_MODIFIED_HEADER) ? translate('yes') : translate('no');
+				}
+				$o->note(translate('http_header_last_modified_field_note'));
+			$o->closeField();
+
+			$o->openField(translate('http_header_not_modified_field'));
+				if ($write_access && $is_root) {
+					combo_box($class.'[SQ_CONF_SEND_NOT_MODIFIED_HEADER]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_SEND_NOT_MODIFIED_HEADER);
+				} else {
+					echo (SQ_CONF_SEND_NOT_MODIFIED_HEADER) ? translate('yes') : translate('no');
+				}
+				$o->note(translate('http_header_not_modified_field_note'));
+				$o->note(translate('http_header_conditional_note'));
 			$o->closeField();
 
 		$o->closeSection();
