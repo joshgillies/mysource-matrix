@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_writer.inc,v 1.4 2005/11/09 04:43:20 pgannavarapu Exp $
+* $Id: rss_feed_writer.inc,v 1.5 2006/01/05 04:49:50 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * Creates an XML document with all the data that is provided
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -102,17 +102,17 @@ class RSS_Feed_Writer
 	{
 		if (empty($items)) {
 			trigger_error('You cannot set empty values to items	', E_USER_ERROR);
-			return false;
+			return FALSE;
 		}
 		if ($this->_isTypeVersionSet()) {
 			if (!is_array($items)) {
 				trigger_error('You can assign Associative Arrays only to the items', E_USER_ERROR);
-				return false;
+				return FALSE;
 			}
 			$this->items = $items;
-			return true;
+			return TRUE;
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end addItems()
@@ -130,17 +130,17 @@ class RSS_Feed_Writer
 	{
 		if (empty($channel)) {
 			trigger_error('You cannot set empty values to channel', E_USER_ERROR);
-			return false;
+			return FALSE;
 		}
 		if ($this->_isTypeVersionSet()) {
 			if (!is_array($channel)) {
 				trigger_error('You can assign Associative Arrays only to the items', E_USER_ERROR);
-				return false;
+				return FALSE;
 			}
 			$this->channel = $channel;
-			return true;
+			return TRUE;
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end addChannel()
@@ -158,17 +158,17 @@ class RSS_Feed_Writer
 	{
 		if (empty($image)) {
 			trigger_error('You cannot set empty values to image	', E_USER_ERROR);
-			return false;
+			return FALSE;
 		}
 		if ($this->_isTypeVersionSet()) {
 			if (!is_array($image)) {
 				trigger_error('You can assign Associative Arrays only to the items', E_USER_ERROR);
-				return false;
+				return FALSE;
 			}
 			$this->image = $image;
-			return true;
+			return TRUE;
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end addImage()
@@ -187,11 +187,11 @@ class RSS_Feed_Writer
 	{
 		if (empty($type)  || empty($version)) {
 			trigger_error('You Have To Set The Type And The Version Of RSS Before Adding the element', E_USER_WARNING);
-			return false;
+			return FALSE;
 		} else {
 			if (!is_string($type) || !is_string($version)) {
 				trigger_error('The Type And Version Of The RSS Feed To Be Generated Have To Be Strings', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 			$type_version = $type.'_'.$version;
 			switch ($type_version) {
@@ -203,11 +203,11 @@ class RSS_Feed_Writer
 				break;
 				default:
 					trigger_error('The Type The RSS Feed Can Only Be Either rss Or atom', E_USER_ERROR);
-				return false;
+				return FALSE;
 			}
 			$this->type = $type;
 			$this->version = $version;
-			return true;
+			return TRUE;
 		}
 
 	}//end setTypeVersion()
@@ -216,25 +216,25 @@ class RSS_Feed_Writer
 	/**
 	* Gets the RSS in a string format for all of the information saved like the channel, image and items
 	*
-	* @param boolean	$header	if an appropriate header has to be included or not. Defaults to true
+	* @param boolean	$header	if an appropriate header has to be included or not. Defaults to TRUE
 	*
 	* @return string
 	* @access public
 	*/
-	function getRSSString($header=true)
+	function getRSSString($header=TRUE)
 	{
 		$channel = $this->channel;
 		$image = $this->image;
 		$items = $this->items;
 		$type = $this->type;
 		$version = $this->version;
-		//if no type or version is specified then trigger error
-		//we NEED TYPE AND VERSION as this writer can build rss1.0, rss2.0, atom 1.0 versions
+		// if no type or version is specified then trigger error
+		// we NEED TYPE AND VERSION as this writer can build rss1.0, rss2.0, atom 1.0 versions
 		if (empty($type) || empty($version)) {
 			trigger_error('There Is No Type Or Version Set.. Please Set the Type And Version And Try Again', E_USER_WARNING);
 			return;
 		}
-		//if the channel is empty ir the items is empoty then trigger error as there is no feed without items or channel
+		// if the channel is empty ir the items is empoty then trigger error as there is no feed without items or channel
 		if (empty($channel)) {
 			trigger_error('Channel Info Required As Per The RSS Standards', E_USER_WARNING);
 			return;
@@ -246,11 +246,11 @@ class RSS_Feed_Writer
 		$name = 'item';
 		ob_start();
 		if ($header) header('Content-type: text/xml');
-		echo '<?xml version="1.0" encoding="utf-8"?>';
+		echo '<?xml version="1.0" encoding="UTF-8"?>';
 
-		//open tag for atom is feed
-		//for rss 1.0 it is rdf:RDF
-		//for rss 2.0 it is rss version 2.0
+		// open tag for atom is feed
+		// for rss 1.0 it is rdf:RDF
+		// for rss 2.0 it is rss version 2.0
 		if (strcasecmp($type, 'atom') == 0) {
 			$type = 'feed';
 			$name = 'entry';
@@ -266,12 +266,12 @@ class RSS_Feed_Writer
 			}
 			echo '>';
 		}
-		//you do not have channel tag in atom 1.0 Instead we use feed tag itself
+		// you do not have channel tag in atom 1.0 Instead we use feed tag itself
 		if ($type != 'feed') {
 			$type .= ' '.$version;
 			echo '<channel>';
 		}
-		//add data to the chaannel or the feed tags
+		// add data to the chaannel or the feed tags
 		foreach ($channel as $key => $info) {
 			if (is_array($info)) {
 				if ($type != 'feed') {
@@ -284,7 +284,7 @@ class RSS_Feed_Writer
 					echo '<'.$key.' ';
 					$attributes = $info['ATTRIBUTES'];
 					foreach ($attributes as $sub => $sub_info) {
-						//change the tags if any present in the info
+						// change the tags if any present in the info
 						$sub_info = str_replace('&', '&amp;', $sub_info);
 						$sub_info = str_replace('<', '&lt;', $sub_info);
 						$sub_info = str_replace('>', '&gt;', $sub_info);
@@ -296,7 +296,7 @@ class RSS_Feed_Writer
 					echo '<'.$key.'>';
 					$sub_tags = $info['SUBTAGS'];
 					foreach ($sub_tags as $sub => $sub_info) {
-						//change the tags if any present in the info
+						// change the tags if any present in the info
 						$sub_info = str_replace('&', '&amp;', $sub_info);
 						$sub_info = str_replace('<', '&lt;', $sub_info);
 						$sub_info = str_replace('>', '&gt;', $sub_info);
@@ -305,13 +305,13 @@ class RSS_Feed_Writer
 				}
 				echo '</'.$key.'>';
 			} else {
-				//change the tags if any present in the info
+				// change the tags if any present in the info
 				$info = str_replace('&', '&amp;', $info);
 				$info = str_replace('<', '&lt;', $info);
 				$info = str_replace('>', '&gt;', $info);
 				echo '<'.$key.'>'.$info.'</'.$key.'>';
 			}
-		}
+		}//end foreach channnel
 
 		if ($type == 'rss 1.0') echo '</channel>';
 
@@ -322,7 +322,7 @@ class RSS_Feed_Writer
 				echo '<image>';
 			}
 			foreach ($image as $key => $info) {
-				//change the tags if any present in the info
+				// change the tags if any present in the info
 				$info = str_replace('&', '&amp;', $info);
 				$info = str_replace('<', '&lt;', $info);
 				$info = str_replace('>', '&gt;', $info);
@@ -357,7 +357,7 @@ class RSS_Feed_Writer
 							echo '<'.$key.' ';
 							$attributes = $info['ATTRIBUTES'];
 							foreach ($attributes as $sub => $sub_info) {
-								//change the tags if any present in the info
+								// change the tags if any present in the info
 								$sub_info = str_replace('&', '&amp;', $sub_info);
 								$sub_info = str_replace('<', '&lt;', $sub_info);
 								$sub_info = str_replace('>', '&gt;', $sub_info);
@@ -369,7 +369,7 @@ class RSS_Feed_Writer
 							echo '<'.$key.'>';
 							$sub_tags = $info['SUBTAGS'];
 							foreach ($sub_tags as $sub => $sub_info) {
-								//change the tags if any present in the info
+								// change the tags if any present in the info
 								$sub_info = str_replace('&', '&amp;', $sub_info);
 								$sub_info = str_replace('<', '&lt;', $sub_info);
 								$sub_info = str_replace('>', '&gt;', $sub_info);
@@ -378,27 +378,27 @@ class RSS_Feed_Writer
 						}
 						echo '</'.$key.'>';
 					} else {
-						//change the tags if any present in the info
+						// change the tags if any present in the info
 						$info = str_replace('&', '&amp;', $info);
 						$info = str_replace('<', '&lt;', $info);
 						$info = str_replace('>', '&gt;', $info);
 						echo '<'.$key.'>'.$info.'</'.$key.'>';
 					}
-				}
+				}//end foreach item
 				echo '</'.$name.'>';
-			}
-		}
+			}//end foreach items
+		}//end if items not empty
 		if ($type != 'rss 1.0') {
 			if ($type != 'feed') {
-				//rss 2.0
+				// rss 2.0
 				echo '</channel>';
 				echo '</'.$this->type.'>';
 			} else {
-				//atom 1.0
+				// atom 1.0
 				echo '</feed>';
 			}
 		} else {
-			//rss 1.0
+			// rss 1.0
 			echo '</rdf:RDF>';
 		}
 
@@ -413,7 +413,7 @@ class RSS_Feed_Writer
 
 
 	/**
-	* Checks if the type and version are set or not and returns true if set else triggers error
+	* Checks if the type and version are set or not and returns TRUE if set else triggers error
 	*
 	* @return boolean
 	* @access private
@@ -421,10 +421,10 @@ class RSS_Feed_Writer
 	function _isTypeVersionSet()
 	{
 		if (!empty($this->type) && (!empty($this->version))) {
-			return true;
+			return TRUE;
 		} else {
 			trigger_error('You Have To Set The Type And The Version Of RSS Before Adding the element', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 	}//end _isTypeVersionSet()
