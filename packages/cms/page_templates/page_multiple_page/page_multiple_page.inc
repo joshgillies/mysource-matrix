@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page.inc,v 1.9 2005/12/12 03:20:02 dmckee Exp $
+* $Id: page_multiple_page.inc,v 1.10 2006/01/05 01:32:02 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -313,6 +313,7 @@ class Page_Multiple_Page extends Page
 		$keywords['current_page_assetid'] = 'Current Page Asset ID';
 		$keywords['toc_unordered'] = 'Table of Contents - Unordered';
 		$keywords['toc_ordered'] = 'Table of Contents - Ordered';
+		$keywords['navigation_menu_selection_list'] = 'Navigation Menu - Selection List';
 
 		return $keywords;
 
@@ -411,6 +412,11 @@ class Page_Multiple_Page extends Page
 		}
 		if (!isset($this->_tmp['current_page_links']) || empty($this->_tmp['current_page_links'])) {
 			$this->_tmp['current_page_links'] = $this->getPageLinks();
+		}
+
+		// Navigation menus
+		if ($value == 'navigation_menu_selection_list') {
+			return $this->paintNavSelectionList();
 		}
 
 		//Paint TOC here, so we dont have to go through the drama below
@@ -670,6 +676,52 @@ class Page_Multiple_Page extends Page
 		return $toc;
 
 	}//end paintTOC()
+
+
+	/**
+	* Prints a Selection List with onChange event to navigate between pages.
+	*
+	* @param boolean	$link_current	Show current page as a link?
+	*
+	* @return string
+	* @access public
+	*/
+	function paintNavSelectionList($link_current=FALSE)
+	{
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$links = $this->getPageLinks();
+		$current = $this->getCurrentPageId();
+		$current_id = $links[intval($current) - 1]['minorid'];
+		$assetids = Array();
+		foreach ($links as $id => $data) {
+			$assetids[] = $data['minorid'];
+		}
+		$nav = '';
+		$urls = $am->getAssetUrl($assetids);
+		$infos = $am->getAssetInfo($assetids);
+		ob_start();
+		echo '<select id="'.$this->getPrefix().'nav_selection_list'.'" onchange="location.href=this.options[selectedIndex].value">';
+
+		foreach ($links as $link_data) {
+			$id = $link_data['minorid'];
+			$data = $infos[$id];
+			if ($id == $current_id && !$link_current) {
+				echo '<option value="" selected>'.$data['name'];
+			} else {
+				echo '<option value="'.$urls[$id].'">'.$data['name'];
+			}
+			?>
+			</option>
+			<?php
+		}
+
+		echo '</select>';
+		$nav = ob_get_contents();
+		ob_end_clean();
+
+		return $nav;
+
+	}//end paintNavSelectionList()
 
 
 }//end class
