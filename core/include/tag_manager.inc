@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_manager.inc,v 1.8 2006/01/03 05:21:35 arailean Exp $
+* $Id: tag_manager.inc,v 1.9 2006/01/05 04:11:08 emcdonald Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 class Tag_Manager extends MySource_Object
@@ -64,7 +64,12 @@ class Tag_Manager extends MySource_Object
 			if (!empty($id_parts[1])) {
 				$thes_id = $id_parts[0];
 				$thes =& $GLOBALS['SQ_SYSTEM']->am->getAsset($thes_id, 'thesaurus', TRUE);
-				if (!is_null($thes)) $tag_links[] = $notice_link;
+				if (!is_null($thes)) {
+					$tag_term_exists =& $GLOBALS['SQ_SYSTEM']->am->getAsset($notice_link['minorid'], 'thesaurus_term', FALSE);
+					if (!is_null($tag_term_exists)) {
+						$tag_links[] = $notice_link;
+					}
+				}
 			}
 		}
 
