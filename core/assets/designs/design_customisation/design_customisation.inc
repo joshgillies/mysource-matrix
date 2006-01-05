@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.39 2005/12/13 01:50:30 lwright Exp $
+* $Id: design_customisation.inc,v 1.40 2006/01/05 05:46:14 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,6 +63,8 @@ class Design_Customisation extends Design
 	function _getAllowedLinks()
 	{
 		$links = parent::_getAllowedLinks();
+		$links[SQ_LINK_TYPE_1]['file'] = Array('card' => 'M', 'exclusive' => false);
+		$links[SQ_LINK_TYPE_2]['file'] = Array('card' => 'M', 'exclusive' => false);
 		$links[SQ_LINK_TYPE_3]['file'] = Array('card' => 'M', 'exclusive' => false);
 		return $links;
 
