@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.93 2006/01/04 03:13:54 lwright Exp $
+* $Id: lang_strings.xml,v 1.94 2006/01/05 03:15:37 rong Exp $
 *
 */
 
@@ -1739,5 +1739,13 @@ Items to delete: %s</string>
 	<string source="thesaurus_hipo_name_import_thesaurus_xml">Import Thesaurus XML</string>
 	<string source="thesaurus_hipo_name_export_thesaurus_xml">Export Thesaurus XML</string>
 	<string source="thesaurus_hipo_creating_xml">Writing XML file</string>
+
+	<!-- HTTP Headers Strings -->
+	<string source="http_header_section_name">HTTP Headers Settings</string>
+	<string source="http_header_last_modified_field">Send Last-Modified Header</string>
+	<string source="http_header_last_modified_field_note">If enabled, server will send a timestamp indicating when the asset was last modified.</string>
+	<string source="http_header_not_modified_field">Send Not Modified Status-Code</string>
+	<string source="http_header_not_modified_field_note">If enabled, server will send a "304 Not Modified" Status-Code indicating nothing has been changed since last visit.</string>
+	<string source="http_header_conditional_note">Note: Only applicable to Live assets that are accessible by public users.</string>
 
 </strings>
