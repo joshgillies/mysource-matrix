@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.22 2005/12/21 23:41:48 rong Exp $
+* $Id: cache_manager.inc,v 1.23 2006/01/05 03:19:41 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -150,7 +150,7 @@ class Cache_Manager extends Asset
 			return '';
 		}
 
-		if (!$this->cacheEnabled($asset_type)) return false;
+		if (!$this->cacheEnabled($asset_type)) return '';
 
 		$perm_key = $this->_getPermKey($assetid, $cache_key);
 		if (empty($perm_key)) return '';
@@ -164,8 +164,6 @@ class Cache_Manager extends Asset
 		if (!is_null($cached)) {
 			// expired
 			if (time() > strtotime($cached['expires'])) {
-				// TODO: last modified header
-				//extend expiry
 				$this->_deleteCache($cache_key, $perm_key, $url);
 				return '';
 			} else {
@@ -224,7 +222,7 @@ class Cache_Manager extends Asset
 		$expiry = time() + $this->getExpiry($asset_type);
 		$expiry_sql = db_extras_todate($db, ts_iso8601($expiry));
 
-		// entry is not expired, this is an update
+		// force update (for RSS Data Sources etc)
 		$cached = $this->_getCache($cache_key, $perm_key, $url);
 		if (!is_null($cached) && (time() < strtotime($cached['expires']))) {
 			$this->_updateCache($cache_key, $perm_key, $url, $expiry_sql, $file_path, $contents);
@@ -539,7 +537,7 @@ class Cache_Manager extends Asset
 
 
 	/**
-	* Updates the cache file and the extends the expiry time
+	* Extends the expiry time (and updates the cache file)
 	*
 	* @param string	$cache_key			the cache key for this entry
 	* @param string	$perm_key			the permission key for this entry
