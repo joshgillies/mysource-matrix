@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.480 2006/01/04 03:10:41 lwright Exp $
+* $Id: asset.inc,v 1.481 2006/01/05 03:18:35 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.480 $
+* @version $Revision: 1.481 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3244,6 +3244,46 @@ class Asset extends MySource_Object
 		return false;
 
 	}//end setContent()
+
+
+	/**
+	* Returns the most recent 'last modified time' among all component parts
+	*
+	* used in conjunction with printFrontend to get a list of loaded asset ids
+	* see  _sendHTTPHeaders() in mysource.inc for more information
+	*
+	* @param array	$assetids	id of all assets that get loaded during printFrontend
+	*
+	* @return int
+	* @access public
+	*/
+	function getEffectiveLastUpdatedTime($assetids)
+	{
+		$assetids[] = $this->id; // add self
+
+		// do not include shadow assets
+		foreach ($assetids as $key => $assetid) {
+			$id_parts = explode(':', $assetid);
+			if (isset($id_parts[1])) {
+				unset($assetids[$key]);
+			}
+		}
+
+		// get all updated time from DB
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'SELECT assetid, updated
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast
+				WHERE assetid in ('.implode(',', $assetids).')
+				ORDER BY updated DESC';
+		$result =& $db->getAssoc($sql);
+		assert_valid_db_result($result);
+
+		// get the effective (most recent) updated time
+		//echo key($result);
+		$most_recent = array_shift($result);
+		return (!is_null($most_recent)) ? strtotime($most_recent) : 0;
+
+	}//end getEffectiveLastUpdatedTime()
 
 
 //--        PERMISSIONS/ACCESS        --//
