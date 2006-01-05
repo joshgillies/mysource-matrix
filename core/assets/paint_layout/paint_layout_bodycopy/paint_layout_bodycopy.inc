@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.16 2005/12/22 01:54:02 tbarrett Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.17 2006/01/05 05:15:45 sdanis Exp $
 *
 */
 
@@ -50,7 +50,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as false.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -392,7 +392,6 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	function getKeywordsDescription(&$keywords, $asset_type_code='')
 	{
 		if (is_array($keywords)) {
-			$show_description = false;
 
 			// 1. asset content
 			$keywords['asset_contents'] = translate('asset_contents');
@@ -407,7 +406,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 			$asset_keywords = $asset->getAvailableKeywords();
 			foreach ($asset_keywords as $keyword_name => $description) {
-				$keywords[$keyword_name] = (empty($description) || !$show_description) ? ucwords(str_replace('_', ' ', $keyword_name)) : $description;
+				$keywords[$keyword_name] = (empty($description)) ? ucwords(str_replace('_', ' ', $keyword_name)) : $description;
 			}
 
 			unset($asset);
