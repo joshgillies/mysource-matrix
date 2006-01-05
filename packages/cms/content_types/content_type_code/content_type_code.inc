@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code.inc,v 1.6 2006/01/03 05:08:50 dmckee Exp $
+* $Id: content_type_code.inc,v 1.7 2006/01/05 04:45:24 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -259,9 +259,15 @@ class Content_Type_Code extends Content_Type
 		$php_start_token = 'PHPSTARTTAG';
 		$php_end_token = 'PHPENDTAG';
 
+		//Handle the XML Tags, so they don't get messed up with the PHP start tags
+		preg_match_all('/<\?\s*xml.*\?>/i', $str, $matches=Array());
+		foreach ($matches as $text) {
+			$replace = str_replace(Array('<?', '?>'), Array('<XMLSTART', 'XMLEND>'), $text);
+			$str = str_replace($text, $replace, $str);
+		}
 		$str = str_replace('<?php', $php_start_token, $str);
 		$str = str_replace('<?PHP', $php_start_token, $str);
-		$str = str_replace('<? ', $php_start_token.' ', $str);
+		$str = str_replace('<?', $php_start_token.' ', $str);
 		$str = str_replace(' ?>', ' '.$php_end_token, $str);
 		$str = str_replace('<?', $php_start_token.' ', $str);
 		$str = str_replace('?>', ' '.$php_end_token, $str);
@@ -315,6 +321,7 @@ class Content_Type_Code extends Content_Type
 
 		$highlighted = str_replace(Array('inlinephpstart', 'inlinephpend'), Array('&lt;?php', '?&gt;'), $highlighted);
 		$highlighted = str_replace('>jsender<', '><', $highlighted);
+		$highlighted = str_replace(Array('XMLSTART', 'XMLEND'), Array('?', '?'), $highlighted);
 
 		$line_num_prefs = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_CODE_EDITOR_LINE_NUMBERS');
 		if ($line_num_prefs['use_line_numbers'] == true) {
