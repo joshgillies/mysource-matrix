@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.30 2005/11/17 04:15:02 mmcintyre Exp $
+* $Id: db_install.inc,v 1.31 2006/01/05 22:52:10 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -247,7 +247,7 @@ function create_table($tablename, $table_info)
 
 	// build the keys string
 	if (!empty($table_info['primary_key'])) {
-		$sql .= ', PRIMARY KEY ('.implode(',', $table_info['primary_key']).')';
+		$sql .= ', CONSTRAINT '.$tablename.'_pk PRIMARY KEY ('.implode(',', $table_info['primary_key']).')';
 	}
 	if (!empty($table_info['unique_key'])) {
 		$sql .= ', UNIQUE ('.implode(',', $table_info['unique_key']).')';
