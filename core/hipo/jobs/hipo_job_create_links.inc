@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.27 2005/12/23 00:42:30 emcdonald Exp $
+* $Id: hipo_job_create_links.inc,v 1.28 2006/01/05 02:56:34 emcdonald Exp $
 *
 */
 
@@ -35,14 +35,14 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *                                                                       Array(
 *                                                                           'granted'         => $granted,
 *                                                                           'userid'          => $userid,
-*                                                                           'previous_access' => null,
+*                                                                           'previous_access' => NULL,
 *                                                                      ),
 *                                                   ),
 * </pre>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -105,11 +105,11 @@ class HIPO_Job_Create_Links extends HIPO_Job
 										'process_function'	=> 'processConfirmation',
 									   ),
 					'running_mode'	=> 'web',
-					'auto_step'		=> false,
-					'skip_step'		=> false,
-					'allow_cancel'	=> true,
+					'auto_step'		=> FALSE,
+					'skip_step'		=> FALSE,
+					'allow_cancel'	=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -118,11 +118,11 @@ class HIPO_Job_Create_Links extends HIPO_Job
 										'process_function'	=> 'processCreateLinks',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'skip_step'		=> false,
-					'allow_cancel'	=> true,
+					'auto_step'		=> TRUE,
+					'skip_step'		=> FALSE,
+					'allow_cancel'	=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -131,11 +131,11 @@ class HIPO_Job_Create_Links extends HIPO_Job
 										'init_details_function'	=> 'updateLookups',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'skip_step'		=> false,
-					'allow_cancel'	=> true,
+					'auto_step'		=> TRUE,
+					'skip_step'		=> FALSE,
+					'allow_cancel'	=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -145,11 +145,11 @@ class HIPO_Job_Create_Links extends HIPO_Job
 										'process_function'	=> 'processInterface',
 									   ),
 					'running_mode'	=> 'web',
-					'auto_step'		=> false,
-					'skip_step'		=> false,
-					'allow_cancel'	=> false,
+					'auto_step'		=> FALSE,
+					'skip_step'		=> FALSE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -158,11 +158,11 @@ class HIPO_Job_Create_Links extends HIPO_Job
 										'init_details_function'	=> 'cascadePermissions',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'skip_step'		=> false,
-					'allow_cancel'	=> false,
+					'auto_step'		=> TRUE,
+					'skip_step'		=> FALSE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -171,11 +171,11 @@ class HIPO_Job_Create_Links extends HIPO_Job
 										'init_details_function'	=> 'cascadeMetadata',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'skip_step'		=> false,
-					'allow_cancel'	=> false,
+					'auto_step'		=> TRUE,
+					'skip_step'		=> FALSE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -184,11 +184,11 @@ class HIPO_Job_Create_Links extends HIPO_Job
 										'init_details_function'	=> 'cascadeWorkflow',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'skip_step'		=> false,
-					'allow_cancel'	=> false,
+					'auto_step'		=> TRUE,
+					'skip_step'		=> FALSE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -197,11 +197,11 @@ class HIPO_Job_Create_Links extends HIPO_Job
 										'init_details_function'	=> 'cascadeTags',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'skip_step'		=> false,
-					'allow_cancel'	=> false,
+					'auto_step'		=> TRUE,
+					'skip_step'		=> FALSE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -211,11 +211,11 @@ class HIPO_Job_Create_Links extends HIPO_Job
 										'process_function'	=> 'processRefresh',
 									   ),
 					'running_mode'	=> 'web',
-					'auto_step'		=> true,
-					'skip_step'		=> false,
-					'allow_cancel'	=> false,
+					'auto_step'		=> TRUE,
+					'skip_step'		=> FALSE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 			   );
@@ -233,7 +233,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	* @return string
 	* @access public
 	*/
-	function initialise($source_code_name=null)
+	function initialise($source_code_name=NULL)
 	{
 		if (empty($this->_running_vars['assets'])) {
 			trigger_localised_error('HIPO0026', E_USER_WARNING);
@@ -270,7 +270,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	*/
 	function paintConfirmation(&$step_data, &$o, $prefix)
 	{
-		$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
+		$new_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 		$assets = $this->_running_vars['assets'];
 		if (isset($this->_running_vars['reordered_assets'])) {
 			$reordered_assets = $this->_running_vars['reordered_assets'];
@@ -288,10 +288,10 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				$o->openField('&nbsp;');
 						echo '<p>'.translate('hipo_confirm_new_links', $new_parent->name).'</p>';
 						echo '<ul>';
-						for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
-							$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
+							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 							$current = current($assets);
-							$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current['parentid']);
+							$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current['parentid']);
 							echo '<li>"'.translate('hipo_from_under', $asset->name, $parent->name).'</li>';
 						}
 						echo '</ul>';
@@ -310,7 +310,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					$o->closeField();
 				}
 
-				$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+				$trash_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 
 				// Check if any assets were re-ordered outside the HIPO job (ie, parentid == to_parent_id)
 				// and print them here to avoid confusion
@@ -318,8 +318,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					$o->openField('&nbsp;');
 							echo '<p>'.translate('hipo_assets_not_require_move', $new_parent->name).'</p>';
 							echo '<ul>';
-							for (reset($reordered_assets); null !== ($assetid = key($reordered_assets)); next($reordered_assets)) {
-								$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+							for (reset($reordered_assets); NULL !== ($assetid = key($reordered_assets)); next($reordered_assets)) {
+								$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 								echo '<li>"'.$asset->name.'".</li>';
 							}
 							echo '</ul>';
@@ -345,10 +345,10 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					} else {
 						echo '<p>'.translate('hipo_confirm_move_under', $new_parent->name).'</p>';
 						echo '<ul>';
-						for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
-							$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
+							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 							$current = current($assets);
-							$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current['parentid']);
+							$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current['parentid']);
 							echo '<li>"'.translate('hipo_from_under', $asset->name, $parent->name).'</li>';
 						}
 					}
@@ -357,7 +357,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 					if ($new_parent->id == $trash_folder->id) {
 						?><p><?php echo translate('hipo_trash_warn_break_urls'); ?></p><?php
-						asset_finder($prefix.'_remap_new_url', null, Array(), 'sq_sidenav', true);
+						asset_finder($prefix.'_remap_new_url', NULL, Array(), 'sq_sidenav', TRUE);
 					}
 				$o->closeField();
 
@@ -368,13 +368,13 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					// any link to the trash folder because even if this asset is already in the trash,
 					// we should warn about deleting it
 
-					$trash_section_painted = false;
+					$trash_section_painted = FALSE;
 
-					for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
+					for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 						$current = current($assets);
-						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						$trash_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($trash_folder->id, $asset->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
-						$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_LINK_TYPE_1 + SQ_LINK_TYPE_2, '', true, $current['linkid']);
+						$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_LINK_TYPE_1 + SQ_LINK_TYPE_2, '', TRUE, $current['linkid']);
 
 						if (!empty($trash_link)) $num_other_links--;
 						if (!$num_other_links) {
@@ -382,14 +382,14 @@ class HIPO_Job_Create_Links extends HIPO_Job
 							// display them to the user
 							// note that we are also going to ask the major asset in the link
 							// to describe it so it makes sense to the user looking at it
-							$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE, '', true, 'minor');
+							$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE, '', TRUE, 'minor');
 
 							if (!empty($links)) {
 								if (!$trash_section_painted) {
 									$o->openSection(translate('warning_-_moving_to_trash'));
 										$o->openField('&nbsp;');
 											?><p><?php echo translate('hipo_warning_trashing_affects_other_assets'); ?></p><?php
-											$trash_section_painted = true;
+											$trash_section_painted = TRUE;
 								}
 
 								echo $asset->name;
@@ -398,7 +398,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 								?><table class="sq-backend-table"><?php
 								foreach ($links as $link_data) {
-									$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['majorid'], $link_data['major_type_code']);
+									$major =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['majorid'], $link_data['major_type_code']);
 									$link_description = $major->describeLink($link_data['linkid']);
 									$link_lineage = array_pop($link_lineages);
 									$link_lineage = $link_lineage['lineage'];
@@ -431,22 +431,22 @@ class HIPO_Job_Create_Links extends HIPO_Job
 										</td>
 									</tr>
 									<?php
-								}
+								}//end foreach
 										?></table><?php
-							}//end if
-						}//end if
-					} //end foreach
+							}//end if !empty($links)
+						}//end if !$num_other_links
+					}//end for
 
 					if ($trash_section_painted) {
 						$o->closeField();
 						$o->closeSection();
 					}
-				}
+				}//end if the assets have been moved to the trash
 				$o->closeSection();
-			}//end if
+			}//end if action is 'move'
 
 		$o->addHiddenField('form_submitted', 1);
-		return true;
+		return TRUE;
 
 	}//end paintConfirmation()
 
@@ -466,10 +466,10 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$step_data['percent_done'] = 50;
 		} else {
 			$step_data['percent_done'] = 100;
-			$step_data['complete'] = true;
+			$step_data['complete'] = TRUE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processConfirmation()
 
@@ -498,20 +498,20 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 		if ($this->_running_vars['link_action'] == 'create') {
 
-			$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
+			$new_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 
 			if (is_null($new_parent)) {
 				trigger_localised_error('HIPO0023', E_USER_WARNING, $this->_running_vars['to_parent_assetid']);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+				return FALSE;
 			}
 
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			if (is_null($asset)) {
 				trigger_localised_error('HIPO0022', E_USER_WARNING, $assetid);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+				return FALSE;
 			}
 
 			$step_data['message'] = 'Creating a link between "'.$asset->name.'" and "'.$new_parent->name.'".';
@@ -520,7 +520,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			if (!$linkid) {
 				trigger_localised_error('HIPO0021', E_USER_WARNING, $asset->name, $new_parent->name);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+				return FALSE;
 			}
 
 			$this->_running_vars['to_parent_pos']++;
@@ -533,17 +533,18 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			// if we are moving to the trash, we want to skip all the steps that ask us if we want
 			// to cascade permissions, metadata, and workflow. We also need to get all the children
 			// so the lookups can be updated later
-			$moving_to_trash = false;
-			$bridge_id = null;
+			$moving_to_trash = FALSE;
+			$bridge_id = NULL;
 
-			$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+			$trash_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 			if ($this->_running_vars['to_parent_assetid'] == $trash_folder->id) {
 				$this->skipStep(3);
 				$this->skipStep(4);
 				$this->skipStep(5);
 				$this->skipStep(6);
+				$this->skipStep(7);
 
-				$moving_to_trash = true;
+				$moving_to_trash = TRUE;
 
 				$id_parts = explode(':', $assetid);
 				if (isset($id_parts[1])) $bridge_id = $id_parts[0];
@@ -558,25 +559,25 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			if ($moving_to_trash && !is_null($bridge_id)) {
 
 				$link  = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid'], $assetid, 'minor');
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid']);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid']);
 
 				// if the major of this link contains no colon, and is not a bridge, then it's a real asset
 				// with a shadow asset linked underneath, so get the asset manager to handle this delete
-				if (!empty($link) && (false === strpos($link['majorid'], ':')) && !implements_interface($asset, 'bridge')) {
-					if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($value['linkid'], false)) {
+				if (!empty($link) && (FALSE === strpos($link['majorid'], ':')) && !implements_interface($asset, 'bridge')) {
+					if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($value['linkid'], FALSE)) {
 						trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
+						return FALSE;
 					}
 
 				} else {
 					// its a shadow asset linked to a bridge or to another shadow,
 					// so get the bridge to handle the delete
-					$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bridge_id);
+					$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bridge_id);
 					if (!$bridge->deleteAssetLink($value['linkid'])) {
 						trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
+						return FALSE;
 					}
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bridge);
 				}
@@ -587,16 +588,16 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				if (!$linkid) {
 					trigger_localised_error('HIPO0020', E_USER_WARNING, $assetid, $this->_running_vars['to_parent_assetid']);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
+					return FALSE;
 				}
 
 				$new_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
-				$asset    = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_link['minorid'], $new_link['minor_type_code']);
+				$asset    =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_link['minorid'], $new_link['minor_type_code']);
 
 				if (is_null($asset)) {
 					trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
+					return FALSE;
 				}
 				$new_parent_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($this->_running_vars['to_parent_assetid']));
 				$step_data['message'] = translate('hipo_move', $asset->name, $new_parent_info[$this->_running_vars['to_parent_assetid']]['name']);
@@ -614,16 +615,16 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		if (empty($this->_running_vars['process_create_links'])) {
 			unset($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
+			$step_data['complete']     = TRUE;
 		} else {
 			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / count($this->_running_vars['assets'])) * 100;
-			$step_data['complete']     = false;
+			$step_data['complete']     = FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 		unset($asset);
 
-		return true;
+		return TRUE;
 
 	}//end processCreateLinks()
 
@@ -640,23 +641,23 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	*/
 	function paintInterface(&$step_data, &$o, $prefix)
 	{
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		if (is_null($hh)) return false;
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		if (is_null($hh)) return FALSE;
 
 		$assets = $this->_running_vars['assets'];
 
 		$c = 1;
-		for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
+		for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 			$o->addHiddenField('link_assetid['.$c.']',  $assetid);
 			$c++;
 		}
 
 		$o->addHiddenField('link_parentid', $this->_running_vars['to_parent_assetid']);
 
-		$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
+		$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 		if (is_null($parent)) {
 			trigger_localised_error('HIPO0018', E_USER_WARNING, $this->_running_vars['to_parent_assetid']);
-			return false;
+			return FALSE;
 		}
 
 		$o->openSection(translate('note'));
@@ -666,7 +667,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				if (count($this->_running_vars['assets']) > 0) {
 					echo '<p><b>'.translate('hipo_asset_link_successful', $parent->name).'</b></p>';
 					echo '<ul>';
-					for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
+					for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid,));
 						echo '<li>"'.$asset_info[$assetid]['name'].'"</li>';
 					}
@@ -679,7 +680,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				<p><?php echo translate('hipo_permission_workflow_metadata_cascade_select', $parent->name); ?></p>
 				<p><?php echo translate('hipo_permission_workflow_metadata_cascade_none'); ?></p>
 				<?php
-				$ei = &$parent->getEI();
+				$ei =& $parent->getEI();
 
 				$ei->includeStaticScreen('permissions');
 				$pe = paintInlinePermissions($parent, $o, $ei);
@@ -709,7 +710,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
 		unset($parent);
 
-		return true;
+		return TRUE;
 
 	}//end paintInterface()
 
@@ -736,11 +737,11 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				if (!in_array('cascade_ms', $_REQUEST['cascade'])) {
 					$this->skipStep(5);
 				}
-				//workflow
+				// workflow
 				if (!in_array('cascade_wf', $_REQUEST['cascade'])) {
 					$this->skipStep(6);
 				}
-				//tags
+				// tags
 				if (!in_array('cascade_ta', $_REQUEST['cascade'])) {
 					log_dump('skipping tag cascade');
 					$this->skipStep(7);
@@ -752,10 +753,10 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				$this->skipStep(7); // tags
 			}
 			$step_data['percent_done'] = 100;
-			$step_data['complete'] = true;
+			$step_data['complete'] = TRUE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processInterface()
 
@@ -776,12 +777,12 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	function updateLookups(&$job_type, &$running_vars, &$options)
 	{
 		$job_type = 'hipo_job_update_lookups';
-		$options['auto_complete'] = true;
+		$options['auto_complete'] = TRUE;
 
 		$assetids = Array();
 		$assets = $this->_running_vars['assets'];
 
-		for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
+		for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 			$assetids[] = $assetid;
 		}
 
@@ -810,12 +811,12 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		$permission_vars = Array();
 
 		foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-			$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->_running_vars['to_parent_assetid'], $perm, null, false, false, true);
+			$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->_running_vars['to_parent_assetid'], $perm, NULL, FALSE, FALSE, TRUE);
 			foreach ($set_perms as $userid => $granted) {
 				$permission_vars[$perm][] = Array(
 												'granted'			=> $granted,
 												'userid'			=> $userid,
-												'previous_access'	=> null,
+												'previous_access'	=> NULL,
 											);
 			}
 		}
@@ -839,7 +840,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	function cascadeMetadata(&$job_type, &$running_vars, &$options)
 	{
 		$job_type = 'hipo_job_edit_metadata_schemas';
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$schemas = $mm->getSchemas($this->_running_vars['to_parent_assetid']);
 		$schema_vars = Array();
 
@@ -847,7 +848,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$schema_vars[] = Array(
 								'granted'			=> $granted,
 								'schemaid'			=> $schemaid,
-								'previous_access'	=> null,
+								'previous_access'	=> NULL,
 							 );
 		}
 		$running_vars['schema_changes'] = $schema_vars;
@@ -869,7 +870,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	function cascadeWorkflow(&$job_type, &$running_vars, &$options)
 	{
 		$job_type = 'hipo_job_edit_workflow_schemas';
-		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$schemas = $wfm->getSchemas($this->_running_vars['to_parent_assetid']);
 		$schema_vars = Array();
 
@@ -877,7 +878,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$schema_vars[] = Array(
 								'granted'			=> $granted,
 								'schemaid'			=> $schemaid,
-								'previous_access'	=> null,
+								'previous_access'	=> NULL,
 							 );
 		}
 		$running_vars['schema_changes'] = $schema_vars;
@@ -899,7 +900,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	function cascadeTags(&$job_type, &$running_vars, &$options)
 	{
 		$job_type = 'hipo_job_edit_tags';
-		$tag_manager = &$GLOBALS['SQ_SYSTEM']->getTagManager();
+		$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
 		$current_tag_links = $tag_manager->getTagLinks($this->_running_vars['to_parent_assetid']);
 		$tag_vars = Array();
 
@@ -940,7 +941,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$o->addOnLoad('if (window.opener.parent.frames["sq_sidenav"] && window.opener.parent.frames["sq_sidenav"].reload_asset) window.opener.parent.frames["sq_sidenav"].reload_asset("'.$refreshid.'");');
 		}
 
-		return true;
+		return TRUE;
 
 	}//end paintRefresh()
 
@@ -960,10 +961,10 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$step_data['percent_done'] = 50;
 		} else {
 			$step_data['percent_done'] = 100;
-			$step_data['complete'] = true;
+			$step_data['complete'] = TRUE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processRefresh()
 
@@ -981,16 +982,16 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		// process confirmation
 		if (!$this->processCreateLinks($step_data, '')) {
 			$this->_addError('creating links failed');
-			return false;
+			return FALSE;
 		}
 
 		// update lookups
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assetids' => Array(key($this->_running_vars['assets'])));
 		$lookup_errors = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
 		if (!empty($lookup_errors)) {
 			$this->_addError('hipo_job_update_lookups failed');
-			return false;
+			return FALSE;
 		}
 
 		// process cascading options
@@ -1013,12 +1014,12 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 			if (!empty($errors)) {
 				$this->_addError('error occured during '.$fn_name);
-				return false;
+				return FALSE;
 			}
 
 		}//end foreach
 
-		return true;
+		return TRUE;
 
 	}//end freestyle()
 
