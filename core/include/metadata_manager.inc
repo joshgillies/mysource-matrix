@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.101 2005/12/15 03:11:45 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.102 2006/01/05 22:54:52 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -942,6 +942,18 @@ class Metadata_Manager extends MySource_Object
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'d M Y g:ia\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_readable') - strlen('asset_')).');'."\n";
 				break;
 
+				case 'asset_created_readabledate' :
+				case 'asset_updated_readabledate' :
+				case 'asset_status_changed_readabledate':
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'d M Y\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_readabledate') - strlen('asset_')).');'."\n";
+				break;
+
+				case 'asset_created_readabletime' :
+				case 'asset_updated_readabletime' :
+				case 'asset_status_changed_readabletime':
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'g:ia\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_readabletime') - strlen('asset_')).');'."\n";
+				break;
+
 				case 'asset_created_iso8601' :
 				case 'asset_updated_iso8601' :
 				case 'asset_status_changed_iso8601' :
@@ -959,7 +971,6 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_status_changed_ical' :
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'Ymd\\THis\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_ical') - strlen('asset_')).');'."\n";
 				break;
-
 
 				case 'asset_created_by_name' :
 				case 'asset_updated_by_name' :
@@ -1003,6 +1014,14 @@ class Metadata_Manager extends MySource_Object
 
 				case 'asset_published_readable' :
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'d M Y g:ia\', $metadata_asset->published);'."\n";
+				break;
+
+				case 'asset_published_readabledate' :
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'d M Y\', $metadata_asset->published);'."\n";
+				break;
+
+				case 'asset_published_readabletime' :
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'g:ia\', $metadata_asset->published);'."\n";
 				break;
 
 				case 'asset_published_iso8601' :
