@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.153 2005/12/16 00:22:36 lwright Exp $
+* $Id: mysource.inc,v 1.154 2006/01/05 03:28:19 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.153 $
+* @version $Revision: 1.154 $
 * @package MySource_Matrix
 */
 class MySource
@@ -405,7 +405,14 @@ class MySource
 
 			$this->frontend_asset = &$asset;
 			$this->broadcastTriggerEvent('trigger_event_asset_accessed', $asset);
-			$asset->printFrontend();
+
+			// caching is enabled and asset is readable by public user, send HTTP headers
+			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && is_a($GLOBALS['SQ_SYSTEM']->user, 'public_user')
+				&& $asset->effectiveUnrestricted()) {
+				$this->_sendHTTPHeaders($asset);
+			} else {
+				$asset->printFrontend();
+			}
 
 		}//end if backend/limbo
 
@@ -417,6 +424,72 @@ class MySource
 		$this->db->disconnect();
 
 	}//end start()
+
+
+	/**
+	* Sends appropiate HTTP Headers based on the system config
+	*
+	* @param object	$asset	the asset being processed
+	*
+	* @return void
+	* @access private
+	*/
+	function _sendHTTPHeaders($asset)
+	{
+		header('Cache-Control: public');
+		header('Pragma: cache');
+
+		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cache_info = $cm->loadFromCache($asset->id, $asset->type(), 'cache_info', false);
+
+		ob_start();
+			$loaded_assetids = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->getAssetKeys();
+			$asset->printFrontend();
+			$all_assetids = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->getAssetKeys();
+			$content = ob_get_contents();
+		ob_end_clean();
+
+		// content is not cached (or has expired)
+		if (empty($cache_info)) {
+
+			// work out the new assets that get loaded during printFrontend
+			// to get the real last updated time (for example, of a nested asset)
+			$assetids = array_diff($all_assetids, $loaded_assetids);
+			$last_updated = $asset->getEffectiveLastUpdatedTime($assetids);
+			$cache_expiry = $cm->getExpiry($asset->type());
+
+			$info = Array(
+						'last_modified'	=> $last_updated,
+						'expires'		=> (time() + $cache_expiry),
+					);
+			$cache_status = $cm->saveToCache($asset->id, $asset->type(), 'cache_info', serialize($info), false);
+			// if cache_status is false, then caching is probably disabled, expiry time = now
+			$expiry_time = $cache_status ? $info['expires'] : time();
+			header('Expires: '.gmdate('D, d M Y H:i:s', $expiry_time).' GMT');
+			if (SQ_CONF_SEND_LAST_MODIFIED_HEADER && $cache_status) {
+				header('Last-Modified: '.gmdate('D, d M Y H:i:s', $info['last_modified']).' GMT');
+			}
+			echo $content;
+
+		// content is cached
+		} else {
+			$info = unserialize($cache_info);
+			header('Expires: '.gmdate('D, d M Y H:i:s', $info['expires']).' GMT');
+			if (SQ_CONF_SEND_LAST_MODIFIED_HEADER) {
+				header('Last-Modified: '.gmdate('D, d M Y H:i:s', $info['last_modified']).' GMT');
+			}
+			if (SQ_CONF_SEND_NOT_MODIFIED_HEADER) {
+				header("HTTP/1.1 304 Not Modified");
+				exit();
+			} else {
+				// not sending 304 header, print the cached content
+				echo $content;
+			}
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cm);
+
+	}//end _sendHTTPHeaders()
 
 
 //--        GLOBAL DEFINES        --//
