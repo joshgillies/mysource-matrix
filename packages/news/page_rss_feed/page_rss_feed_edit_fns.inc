@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed_edit_fns.inc,v 1.6 2006/01/05 04:38:14 pgannavarapu Exp $
+* $Id: page_rss_feed_edit_fns.inc,v 1.7 2006/01/06 06:15:26 pgannavarapu Exp $
 *
 */
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
@@ -29,7 +29,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -214,12 +214,12 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 							$type = $asset->attr('rss_types');
 							$tags = Array();
 							if ($type == 'rss_1.0') {
-								$tags = Array('title', 'description', 'link');
+								$tags = Array('title', 'description', 'link', 'rdf:about');
 							} else if ($type == 'rss_2.0') {
-								$tags = Array('title', 'description', 'link', 'pubDate', 'category', 'author', 'comments', 'guid', 'enclosure');
+								$tags = Array('title', 'description', 'link', 'pubDate', 'category', 'author', 'comments', 'guid', 'enclosure.url', 'enclosure.length', 'enclosure.type');
 							} else {
 								// it is of type ATOM 1.0
-								$tags = Array('title', 'content', 'link.rel', 'link.type', 'link.href', 'category.term', 'category.label',  'id', 'contributor_name', 'author_name', 'author_email', 'author_url', 'summary', 'published', 'updated', 'source_id', 'source_title', 'source_rights');
+								$tags = Array('title', 'content', 'link.rel', 'link.type', 'link.href', 'category.term', 'category.label',  'id', 'contributor_name', 'author_name', 'author_email', 'summary', 'published', 'updated', 'source_id', 'source_title', 'source_rights');
 							}
 							foreach ($tags as $key => $val) {
 								$tags[$val] = strpos($val, '_') !== FALSE? str_replace('_', ' ', $val): (strpos($val, '.') !== FALSE? str_replace('.', ' ', $val).' = ':$val);
@@ -395,15 +395,15 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 			switch ($mode) {
 				case 'add_channel':
 					if ($type == 'rss_1.0') {
-						$tags = Array('title', 'link', 'description');
-						$required = Array('title', 'link', 'description');
+						$tags = Array('title', 'link', 'description', 'rdf:about');
+						$required = $tags;
 					} else if ($type == 'rss_2.0') {
 						$required = Array('title', 'link', 'description');
-						$tags = Array('title', 'link', 'description', 'pubDate', 'lastBuildDate', 'language', 'copyright', 'webMaster', 'managingEditor', 'category', 'generator', 'ttl', 'docs');
+						$tags = Array('title', 'link', 'description', 'pubDate', 'lastBuildDate', 'language', 'copyright', 'webMaster', 'managingEditor', 'category', 'generator', 'ttl');
 					} else {
 						// type is ATOM 1.0
 						$required = Array('title', 'id', 'updated');
-						$tags = Array('title', 'id', 'link.rel', 'link.type', 'link.href', 'subtitle', 'updated', 'rights', 'author_name', 'author_email', 'author_url', 'category.term', 'category.label', 'category.scheme', 'rights');
+						$tags = Array('title', 'id', 'link.rel', 'link.type', 'link.href', 'subtitle', 'updated', 'rights', 'author_name', 'author_email', 'category.term', 'category.label', 'category.scheme', 'rights');
 					}
 				break;
 				case 'add_image':

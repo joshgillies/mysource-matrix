@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_writer.inc,v 1.5 2006/01/05 04:49:50 pgannavarapu Exp $
+* $Id: rss_feed_writer.inc,v 1.6 2006/01/06 06:16:13 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * Creates an XML document with all the data that is provided
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -269,10 +269,15 @@ class RSS_Feed_Writer
 		// you do not have channel tag in atom 1.0 Instead we use feed tag itself
 		if ($type != 'feed') {
 			$type .= ' '.$version;
-			echo '<channel>';
+			if ($type == 'rss 2.0') {
+				echo '<channel>';
+			} else {
+				echo '<channel rdf:about="'.$channel['rdf:about'].'">';
+			}
 		}
 		// add data to the chaannel or the feed tags
 		foreach ($channel as $key => $info) {
+			if ($key == 'rdf:about') continue;
 			if (is_array($info)) {
 				if ($type != 'feed') {
 					trigger_error('Attributes And SubTags In Channel Not Allowed For RSS Versions', E_USER_ERROR);
@@ -313,7 +318,13 @@ class RSS_Feed_Writer
 			}
 		}//end foreach channnel
 
-		if ($type == 'rss 1.0') echo '</channel>';
+		if ($type == 'rss 1.0') {
+			echo '<items><rdf:Seq>';
+			foreach ($items as $item) {
+				echo '<rdf:li rdf:resource="'.$item['rdf:about'].'"/>';
+			}
+			echo '</rdf:Seq></items></channel>';
+		}
 
 		if (!empty($image)) {
 			if ($type == 'feed') {
@@ -344,14 +355,14 @@ class RSS_Feed_Writer
 		}
 		if (!empty($items)) {
 			foreach ($items as $item) {
-				echo '<'.$name.'>';
+				if ($type != 'rss 1.0') {
+					echo '<'.$name.'>';
+				} else {
+					echo '<item rdf:about="'.$item['rdf:about'].'">';
+					unset($item['rdf:about']);
+				}
 				foreach ($item as $key => $info) {
 					if (is_array($info)) {
-						if ($type != 'feed') {
-							trigger_error('Attributes And SubTags In Items Not Allowed For RSS Versions', E_USER_ERROR);
-							ob_end_clean();
-							return '';
-						}
 						$keys = array_keys($info);
 						if (in_array('ATTRIBUTES', $keys)) {
 							echo '<'.$key.' ';

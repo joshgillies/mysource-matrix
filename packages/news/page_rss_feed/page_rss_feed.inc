@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.6 2006/01/05 04:38:14 pgannavarapu Exp $
+* $Id: page_rss_feed.inc,v 1.7 2006/01/06 06:15:26 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -156,23 +156,44 @@ class Page_RSS_Feed extends Page
 
 
 	/**
-	* Prints out the Frontend for this asset
-	* it's up to the kids to override
+	* This function looks on converting the channel, image and items arrays into the RSS Feed Writer class acceptable forms
+	* adds them to the writer and prints the feed. The Writer class acceptable form of the channel and items arrays is as follows:
+	*	Array(
+	*		tag1 => value,
+	*		tag2 => Array (
+	*					'SUBTAGS' => Array(
+	*									subtag1	=> value,
+	*									subtag2	=> value,
+	*								),
+	*				),
+	*		tag3 => Array (
+	*					'ATTRIBUTES' => Array(
+	*										attr1 => value,
+	*										attr2 => value,
+	*									),
+	*				),
+	* 	)
+	* This is explained more clearly with an example in the _traverseChannel function
 	*
 	* @return void
 	* @access public
 	*/
 	function printFrontend()
 	{
+		// check if read access
 		if (!$this->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
 			return;
 		}
+		// try to get the feed from cache
 		$rss = '';
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$rss = $cm->loadFromCache($this->id, $this->type(), '', FALSE);
 		$rss = unserialize($rss);
+
+		// if cache returns nothing then build the feed
 		if (empty($rss)) {
+			// get the assets to be listed in the feed
 			$num_assets_as_items = $this->attr('num_assets_as_items');
 			$assets_to_list = Array();
 			$rss_source_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'listing_engine', FALSE, 'major', 'generate_rss');
@@ -188,6 +209,9 @@ class Page_RSS_Feed extends Page
 			$channel = $this->attr('channel');
 			$image = $this->attr('image');
 			$items = $this->attr('items');
+
+			// A feed should consist of both channel and items. If either of them is empty then throw an error
+			// If there are no assets to list then throw an error
 			if (empty($channel) || empty($items)) {
 				trigger_error(translate('no_channel_or_items_found'), E_USER_WARNING);
 				return;
@@ -196,74 +220,42 @@ class Page_RSS_Feed extends Page
 				return;
 			} else {
 				require_once SQ_FUDGE_PATH.'/rss_feeds/rss_feed_writer.inc';
+				// Create an RSS Feed writer object and set the type and version of the feed to be built
 				$writer =& new RSS_Feed_Writer();
 				$type = $this->attr('rss_types');
 				$type = explode('_', $type);
 				$writer->setTypeVersion($type[0], $type[1]);
 				$new_channel = Array();
 				$rss_type = implode('_', $type);
-				foreach ($channel as $tag => $value) {
-					if (strpos($tag, '_') !== FALSE) {
-						$sub_tag = explode('_', $tag);
-						$new_channel[$sub_tag[0]]['SUBTAGS'][$sub_tag[1]] = $value;
-					} else if (strpos($tag, '.') !== FALSE) {
-						if ($tag == 'link.href') {
-							if (assert_valid_assetid($value, '', TRUE, FALSE)) {
-								$value = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($value);
-							}
-						}
-						$sub_tag = explode('.', $tag);
-						$new_channel[$sub_tag[0]]['ATTRIBUTES'][$sub_tag[1]] = $value;
-					} else {
-						// converting date values into the respective formats
-						if (in_array($tag, Array('updated', 'pubDate', 'lastBuildDate', 'published'))) {
-							$timestamp = strtotime($value);
-							if (($timestamp == -1) ||($timestamp === FALSE)) {
-								$timestamp = mktime($value);
-							}
-							if ($rss_type == 'rss_2.0') {
-								$value = date('D, j M Y H:i:s T', $timestamp);
-							} else if ($rss_type == 'atom_1.0') {
-								$value = date('Y-m-j', $timestamp).'T'.date('H:i:s', $timestamp).'Z';
-							}
-						} else {
-							if ($tag == 'link') {
-								if (assert_valid_assetid($value, '', TRUE, FALSE)) {
-									$value = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($value);
-								}
-							}
-						}
-						$new_channel[$tag] = $value;
-					}
-				}//end foreach of channel
+
+				// pass the user entered channel array to the _traverseChannel which now converts it into
+				// RSS Feed Writer Class acceptable format
+				$new_channel = $this->_traverseChannel($channel, $rss_type);
+
+				// check if the user has entered all of the required tags for the channel information
 				$no_errors = $this->validateChannel($new_channel);
 				if (!$no_errors) return;
+
 				// adding channel info to the writer
 				$writer->addChannel($new_channel);
-				$new_image = Array();
-				foreach ($image as $tag => $value) {
-					if (strpos($tag, '_') !== FALSE) {
-						$sub_tag = explode('_', $tag);
-						$new_image[$sub_tag[0]][$sub_tag[1]] = $value;
-					} else {
-						if ($tag == 'link') {
-							if (assert_valid_assetid($value, '', TRUE, FALSE)) {
-								$value = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($value);
-							}
-						}
-						$new_image[$tag] = $value;
-					}
-				}
+
+				// traverse the image information array in the same way as we did for the channel
+				$new_image = $this->_traverseImage($image);
+
 				if (!empty($new_image)) {
+					// check if the user has enetered the values for all of the required tags
 					$no_errors = $this->validateImage($new_image);
 					if (!$no_errors) return;
 					// adding image details to the writer
 					$writer->addImage($new_image);
 				}
+
+				// now we have to add items
+				// Check if the user has eneterd the number of assets that are to be added to the list. If not
+				// then we have to add all the assets to the feed.
 				$new_items = Array();
 				$index = 0;
 				$mm = null;
-				// now we have to add items
 				foreach ($items as $type => $keywords) {
 					foreach ($assets_to_list as $assetid => $asset_type) {
 						if (!empty($num_assets_as_items)) {
@@ -324,6 +316,7 @@ class Page_RSS_Feed extends Page
 						}//end if type and asset_type are equal
 					}//end foreach assets_to_list
 				}//end foreach items
+
 				$no_errors = $this->validateItems($new_items);
 				if (!$no_errors) return;
 				$writer->addItems($new_items);
@@ -338,6 +331,139 @@ class Page_RSS_Feed extends Page
 		echo $rss;
 
 	}//end printFrontend()
+
+
+	/**
+	* Traverses the entered channel array and returns it in the RSS Writer class acceptable format
+	*
+	* @param array	$channel	the channel information for this feed
+	* @param string $rss_type	the rss type and version e.g. rss_1.0, atom_1.0
+	*
+	* @return array
+	* @access private
+	*/
+	function _traverseChannel($channel, $rss_type)
+	{
+		// parse the entered channel information and build an array of information in the proper format
+		// For example the channel array now is of the format:
+		/*
+			Array(
+				title => value,
+				description => value,
+				author_name => value,
+				author_email => value,
+				link.href => assetid of the asset whose URL has to be picked up for the value,
+				category.type => value,
+			);
+		*/
+		// The above array now gets traversed using the for loop below resulting in an array of the following format
+		/*
+			Array(
+				tag1 => value,
+				tag2 => Array (
+						 'SUBTAGS' => Array(
+										subtag1	=> value,
+										subtag2	=> value,
+									  ),
+						),
+				tag3 => Array (
+							'ATTRIBUTES' => Array(
+												attr1 => value,
+												attr2 => value,
+											)
+						)
+			)
+		*/
+		// The example array should get transformed as follows:
+		/*
+			Array(
+				title => value,
+				description => value,
+				author => Array(
+							'SUBTAGS' => Array(
+											name => value,
+											email => value,
+										),
+						 ),
+				link => Array(
+							'ATTRIBUTES' => Array(
+												href => asset url,
+											),
+						)
+				category => Array(
+								'ATTRIBUTES' => Array(
+													type => value,
+												),
+							)
+			)
+		*/
+		$new_channel = Array();
+		foreach ($channel as $tag => $value) {
+			if (strpos($tag, '_') !== FALSE) {
+				$sub_tag = explode('_', $tag);
+				$new_channel[$sub_tag[0]]['SUBTAGS'][$sub_tag[1]] = $value;
+			} else if (strpos($tag, '.') !== FALSE) {
+				if ($tag == 'link.href') {
+					if (assert_valid_assetid($value, '', TRUE, FALSE)) {
+						$value = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($value);
+					}
+				}
+				$sub_tag = explode('.', $tag);
+				$new_channel[$sub_tag[0]]['ATTRIBUTES'][$sub_tag[1]] = $value;
+			} else {
+				// converting date values into the respective formats
+				if (in_array($tag, Array('updated', 'pubDate', 'lastBuildDate', 'published'))) {
+					$timestamp = strtotime($value);
+					if (($timestamp == -1) ||($timestamp === FALSE)) {
+						$timestamp = mktime($value);
+					}
+					if ($rss_type == 'rss_2.0') {
+						$value = date('D, j M Y H:i:s T', $timestamp);
+					} else if ($rss_type == 'atom_1.0') {
+						$value = date('Y-m-j', $timestamp).'T'.date('H:i:s', $timestamp).'Z';
+					}
+				} else {
+					if ($tag == 'link') {
+						if (assert_valid_assetid($value, '', TRUE, FALSE)) {
+							$value = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($value);
+						}
+					}
+				}
+				$new_channel[$tag] = $value;
+			}
+		}//end foreach of channel
+		return $new_channel;
+
+	}//end _traverseChannel()
+
+
+	/**
+	* Traverses the entered image array and returns it in the RSS Writer class acceptable format
+	*
+	* @param array	$image	the image information for this feed
+	*
+	* @return array
+	* @access private
+	*/
+	function _traverseImage($image)
+	{
+		$new_image = Array();
+		foreach ($image as $tag => $value) {
+			if (strpos($tag, '_') !== FALSE) {
+				$sub_tag = explode('_', $tag);
+				$new_image[$sub_tag[0]][$sub_tag[1]] = $value;
+			} else {
+				if ($tag == 'link') {
+					if (assert_valid_assetid($value, '', TRUE, FALSE)) {
+						$value = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($value);
+					}
+				}
+				$new_image[$tag] = $value;
+			}
+		} //end foreach where image array is traversed
+		return $new_image;
+
+	}//end _traverseImage()
 
 
 	/**
@@ -361,9 +487,10 @@ class Page_RSS_Feed extends Page
 					$required = Array('id', 'updated', 'title');
 				break;
 				case 'rss_1.0':
-					$required = Array('link', 'title');
+					$required = Array('link', 'title', 'rdf:about');
 				break;
 				case 'rss_2.0':
+					$required = Array('link', 'title', 'author', 'description', 'pubDate');
 				break;
 			}
 			foreach ($items as $item) {
@@ -412,10 +539,15 @@ class Page_RSS_Feed extends Page
 		}
 		$required = Array();
 		$rss_type = $this->attr('rss_types');
-		if ($rss_type != 'atom_1.0') {
-			$required = Array('title', 'link', 'description');
-		} else {
-			$required = Array('title', 'id', 'updated');
+		switch ($rss_type) {
+			case 'rss_1.0':
+				$required = Array('title', 'link', 'description', 'rdf:about');
+			break;
+			case 'rss_2.0':
+				$required = Array('title', 'link', 'description');
+			break;
+			case 'atom_1.0':
+				$required = Array('title', 'id', 'updated');
 		}
 		foreach ($required as $tag) {
 			if (!in_array($tag, array_keys($channel))) {
