@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_management.inc,v 1.7 2005/01/20 13:07:33 brobertson Exp $
+* $Id: design_customisation_management.inc,v 1.8 2006/01/06 01:09:40 dmckee Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Customisation_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -45,7 +46,11 @@ class Design_Customisation_Management extends Asset_Management
 	function Design_Customisation_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
+
 	}//end constructor
 
+
 }//end class
+
+
 ?>
