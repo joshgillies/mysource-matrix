@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.100 2005/11/03 23:57:26 lwright Exp $
+* $Id: design_edit_fns.inc,v 1.101 2006/01/06 00:31:30 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,7 +47,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	function Design_Edit_Fns()
 	{
 		$this->Design_Area_Edit_Fns();
-		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
 
@@ -66,9 +66,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		if ($asset->writeAccess('parsing')) {
 			file_upload($prefix.'_parse_file');
-			return true;
+			return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end paintParseFile()
 
@@ -88,28 +88,28 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		// make sure a file was uploaded before processing it
 		$upload_info = get_file_upload_info($prefix.'_parse_file');
-		if (empty($upload_info)) return false;
+		if (empty($upload_info)) return FALSE;
 
 		$parse_file  = $asset->data_path.'/parse.txt';
-		$changes     = false;
-		$new_version = false;
+		$changes     = FALSE;
+		$new_version = FALSE;
 
-		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 		// delete existing parse file if it exists
 		if (is_file($parse_file)) {
-			$new_version = true;
+			$new_version = TRUE;
 			if (!unlink($parse_file)) {
 				trigger_localised_error('CORE0164', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 		}
 
 		// copy over the uploaded file
-		if (commit_file_upload($prefix.'_parse_file', $parse_file, true)) {
+		if (commit_file_upload($prefix.'_parse_file', $parse_file, TRUE)) {
 			// tell the asset to update the customisation at the end of the interface processing
-			$asset->_tmp['update_customisations'] = true;
-			$asset->_tmp['generate_design'] = true;
+			$asset->_tmp['update_customisations'] = TRUE;
+			$asset->_tmp['generate_design'] = TRUE;
 			$changes = $this->parseAndProcessFile($asset);
 
 			// if we are overwriting our current parse file, we need to add a new version to the repository
@@ -131,7 +131,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// make sure we have the latest version of our file
 		if (!$fv->checkOut($asset->data_path_suffix.'/parse.txt', $asset->data_path)) {
 			trigger_localised_error('CORE0158', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		return $changes;
@@ -159,9 +159,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				check_box($prefix.'_reparse');
 				echo translate('core_manually_reparse');
 			}
-			return true;
+			return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end paintReparseFile()
 
@@ -180,12 +180,12 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		if (isset($_POST[$prefix.'_reparse'])) {
 			if ($this->parseAndProcessFile($asset)) {
-				$asset->_tmp['update_customisations'] = true;
-				$asset->_tmp['generate_design'] = true;
-				return true;
+				$asset->_tmp['update_customisations'] = TRUE;
+				$asset->_tmp['generate_design'] = TRUE;
+				return TRUE;
 			}
 		}
-		return false;
+		return FALSE;
 
 	}//end processReparseFile()
 
@@ -206,7 +206,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		if (SQ_ROLLBACK_VIEW) {
 			// get an older version of the parse file
-			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			$rep_file = $asset->data_path_suffix.'/parse.txt';
 			$then = iso8601_ts($_SESSION['sq_rollback_view']['rollback_time']);
 			$info = @$fv->_checkOutCheck($rep_file, null, $then);
@@ -216,18 +216,18 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}
 		if (!is_file($parse_file)) {
 			echo translate('core_require_upload_parsefile');
-			return true;
+			return TRUE;
 		}
 
 		$str = file_to_string($parse_file);
 
 		if ($asset->writeAccess('parsing')) {
 			text_area($prefix.'_new_parse_file', str_replace("\t", '    ', $str), 0, 0, 0, 'style="font-family: monospace; white-space: pre; width: 99%; height: 480px"');
-			return true;
+			return TRUE;
 		} else {
 			echo '<pre>', htmlspecialchars($str), '</pre>';
 		}
-		return false;
+		return FALSE;
 
 	}//end paintEditParseFile()
 
@@ -249,22 +249,22 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$parse_file  = $asset->data_path.'/parse.txt';
 			$new_file    = $_POST[$prefix.'_new_parse_file'];
 
-			if (!is_file($parse_file)) return false;
+			if (!is_file($parse_file)) return FALSE;
 
-			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 			// delete existing parse file
 			if (!unlink($parse_file)) {
 				trigger_localised_error('CORE0164', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 
 			// copy over the uploaded file
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			if (string_to_file($new_file, $parse_file)) {
 				// tell the asset to update the customisation at the end of the interface processing
-				$asset->_tmp['update_customisations'] = true;
-				$asset->_tmp['generate_design'] = true;
+				$asset->_tmp['update_customisations'] = TRUE;
+				$asset->_tmp['generate_design'] = TRUE;
 				$changes = $this->parseAndProcessFile($asset);
 
 				// add a new version to the repository
@@ -274,7 +274,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 						trigger_localised_error('CORE0160', E_USER_WARNING);
 					}
 				} else {
-					$changes = true;
+					$changes = TRUE;
 				}
 
 			} else {
@@ -284,15 +284,15 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			// make sure we have the latest version of our file
 			if (!$fv->checkOut($asset->data_path_suffix.'/parse.txt', $asset->data_path)) {
 				trigger_localised_error('CORE0158', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 
 			if ($changes) {
 				return $this->parseAndProcessFile($asset);
 			}
-		}
+		}//end if new parse file submitted
 
-		return false;
+		return FALSE;
 
 	}//end processEditParseFile()
 
@@ -309,7 +309,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintNewFiles(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('links')) return false;
+		if (!$asset->writeAccess('links')) return FALSE;
 		for ($i = 0; $i < 2; $i++) {
 			file_upload($prefix.'_assoc_file_'.$i);
 			echo "<br />\n";
@@ -332,7 +332,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
-		$changes = false;
+		$changes = FALSE;
 
 		for ($i = 0; $i < 2; $i++) {
 			$info = get_file_upload_info($prefix.'_assoc_file_'.$i);
@@ -366,8 +366,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 					foreach ($extract_list as $remove_path => $files) {
 						// extract the files from the tar archive to a temporary directory
 						$files_dir = $asset->data_path.'/.temp_files';
-						if (!create_directory($files_dir)) return false;
-						if (!clear_directory($files_dir)) return false;
+						if (!create_directory($files_dir)) return FALSE;
+						if (!clear_directory($files_dir)) return FALSE;
 
 						$result = $tar_ball->extractList($files, $files_dir, $remove_path);
 						if (PEAR::isError($result)) {
@@ -381,9 +381,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 								$filename = preg_replace('|^'.$remove_path.'/|', '', $filename);
 								$temp_path = $files_dir.'/'.$filename;
 								$temp_info = Array('name' => $filename, 'tmp_name' => $temp_path);
-								$temp_info['non_uploaded_file'] = true;
+								$temp_info['non_uploaded_file'] = TRUE;
 								if ($this->_processUploadedFile($asset, $temp_info)) {
-									$changes = true;
+									$changes = TRUE;
 								}
 							}
 						}
@@ -398,7 +398,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			} else {
 
 				if ($this->_processUploadedFile($asset, $info)) {
-					$changes = true;
+					$changes = TRUE;
 				}
 
 			}//end if tar archive
@@ -424,7 +424,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		$existing_ids = Array();
-		$existing = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'file', false);
+		$existing = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'file', FALSE);
 		foreach ($existing as $link) {
 			$existing_ids[$link['minorid']] = $link['linkid'];
 		}
@@ -459,7 +459,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($new_asset_type);
 			$new_file =& new $new_asset_type();
-			$new_file->_tmp['uploading_file'] = true;
+			$new_file->_tmp['uploading_file'] = TRUE;
 			$new_file->setAttrValue('name', $info['name']);
 			$design_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'is_dependant' => 1);
 
@@ -468,7 +468,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		} else {
 
 			// we already have a design file with the same name, so just upload over the top of it
-			$new_file = &$GLOBALS['SQ_SYSTEM']->am->getAsset($existing_fileid);
+			$new_file =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_fileid);
 
 			$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($new_file->id, 'attributes');
 			$edit_fns = $new_file->getEditFns();
@@ -499,12 +499,12 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		if (!$asset->writeAccess('all')) {
 			$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
 			echo translate('core_design_must_acquire_locks_new_customisation', strtolower($type_name));
-			return false;
+			return FALSE;
 		}
 
 		check_box($prefix.'_new_customisation');
 		text_box($prefix.'_new_customisation_name', $asset->name.' - Customisation', 40);
-		return true;
+		return TRUE;
 
 	}//end paintNewCustomisation()
 
@@ -522,7 +522,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	function processNewCustomisation(&$asset, &$o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_new_customisation']) || !($new_name = trim($_POST[$prefix.'_new_customisation_name']))) {
-			return false;
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -531,44 +531,44 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$map = Array();
 		$create_link = Array();
 
-		$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions'), false);
+		$clone =& $GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions'), FALSE);
 		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		// Acquire a lock on the new object
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($clone->id, 'all')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		// Now let's morph the dupe into a design customisation
 		if (!$clone->morph('design_customisation')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		// and link it back to ourselves
 		if (!$asset->createLink($clone, SQ_LINK_TYPE_2, 'customisation', null, '1')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 		if (!($clone->setAttrValue('id_name', $new_name) && $clone->saveAttributes())) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		// Now create the links to our design areas
 		$da_links = $asset->getDesignAreaLink();
 		foreach ($da_links as $link) {
-			$da = &$am->getAsset($link['minorid'], $link['minor_type_code'], true);
+			$da =& $am->getAsset($link['minorid'], $link['minor_type_code'], TRUE);
 			if (is_null($da)) continue;
 			if (!$clone->createLink($da, SQ_LINK_TYPE_3, $link['value'], null, '1')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+				return FALSE;
 			}
 		}//end foreach
 
@@ -576,36 +576,36 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$initial_path = strtolower($new_name);
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_paths = make_valid_web_paths(Array($initial_path));
-		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($asset, $valid_paths, $clone->id, true);
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($asset, $valid_paths, $clone->id, TRUE);
 		if (!$clone->saveWebPaths($good_paths)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		// link up all the files from this design to the customisation
 		$file_link_ids = Array();
-		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', false);
+		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', FALSE);
 		foreach ($file_links as $link) {
-			$minor = &$am->getAsset($link['minorid'], $link['minor_type_code']);
+			$minor =& $am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
 				trigger_localised_error('CORE0162', E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+				return FALSE;
 			}
 		}
 		$am->forgetAsset($minor);
 
 		// link up all the css files from this design to the customisation
 		$css_link_ids = Array();
-		$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'design_css', false);
+		$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'design_css', FALSE);
 		foreach ($css_links as $link) {
-			$minor = &$am->getAsset($link['minorid'], $link['minor_type_code']);
+			$minor =& $am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
 				trigger_localised_error('CORE0161', E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+				return FALSE;
 			}
 		}
 		$am->forgetAsset($minor);
@@ -613,12 +613,12 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// release the lock on the new object
 		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($clone->id, 'all')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		return true;
+		return TRUE;
 
 	}//end processNewCustomisation()
 
@@ -635,11 +635,11 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintCurrentCustomisations(&$asset, &$o, $prefix)
 	{
-		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
+		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_customisation', TRUE, 'major', 'customisation');
 		if ($customisation_links) {
-			$am = &$GLOBALS['SQ_SYSTEM']->am;
+			$am =& $GLOBALS['SQ_SYSTEM']->am;
 			foreach ($customisation_links as $link) {
-				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
+				$customisation =& $am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
 				echo get_asset_tag_line($customisation->id, 'details').'<br/>';
 			}
@@ -734,13 +734,13 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			// if there is a name and it's not the the same type as the current design area
 			if (empty($element['attributes']['id_name']) || empty($element['attributes']['design_area'])) {
 				trigger_localised_error('CORE0143', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}//end if
 
 			// validate id name
 			if (!preg_match('/^[a-z][a-z0-9_]*$/i', $element['attributes']['id_name']) || $element['attributes']['id_name'] != preg_replace('/__+/', '', $element['attributes']['id_name'])) {
 				trigger_localised_error('CORE0181', E_USER_WARNING, $element['attributes']['id_name']);
-				return false;
+				return FALSE;
 			}
 
 			$element['attributes']['design_area'] = 'design_area_'.strtolower($element['attributes']['design_area']);
@@ -748,7 +748,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			// if there is a name and it's not the the same type as the current design area
 			if (isset($id_names[$element['attributes']['id_name']])) {
 				trigger_localised_error('CORE0142', E_USER_WARNING, $element['attributes']['id_name']);
-				return false;
+				return FALSE;
 			}//end if
 
 			$id_names[$element['attributes']['id_name']] = $element['attributes']['design_area'];
@@ -771,7 +771,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			foreach ($removed_id_names as $id_name) {
 				if (!$asset->deleteLink($existing_id_names[$id_name])) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
+					return FALSE;
 				}
 			}//end foreach
 		} else {
@@ -786,14 +786,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// and check if they are the same type as the one in the contents
 		foreach ($id_names as $id_name => $design_area) {
 
-			$da = &$asset->getDesignArea($id_name);
+			$da =& $asset->getDesignArea($id_name);
 
 			// if it's a different type, then convert them
 			if (!is_null($da) && $da->type() !== $design_area) {
-				$link = $asset->getDesignAreaLink($id_name, false);
+				$link = $asset->getDesignAreaLink($id_name, FALSE);
 				if (!$asset->deleteLink($link['linkid'])) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
+					return FALSE;
 				}
 				unset($da); // unset so we don't set the value or all ref's to null
 				$da = null; // do this so a new version will be created
@@ -807,15 +807,15 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$da->setAttrValue('id_name', $id_name);
 				if (!$da->create($da_link)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
+					return FALSE;
 				}
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($da->id, 'parsing')) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
+					return FALSE;
 				}
 			}
 
-			$design_areas[$id_name] = &$da;
+			$design_areas[$id_name] =& $da;
 
 		}//end foreach
 
@@ -829,17 +829,17 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$edit_fns = $design_areas[$element['attributes']['id_name']]->getEditFns();
 			if (!$edit_fns->_processContents($design_areas[$element['attributes']['id_name']], $element['contents'])) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+				return FALSE;
 			}
 
-			$print = !in_array(array_get_index($element['attributes'], 'print', 'yes'), Array('no', 'false', '0'));
+			$print = !in_array(array_get_index($element['attributes'], 'print', 'yes'), Array('no', 'FALSE', '0'));
 			$design_areas[$element['attributes']['id_name']]->setAttrValue('print', $print);
-			$cache = in_array(array_get_index($element['attributes'], 'cache', false), Array('yes', 'true', '1'));
+			$cache = in_array(array_get_index($element['attributes'], 'cache', FALSE), Array('yes', 'TRUE', '1'));
 			$design_areas[$element['attributes']['id_name']]->setAttrValue('cache', $cache);
 
 			if (!$design_areas[$element['attributes']['id_name']]->saveAttributes()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+				return FALSE;
 			}
 
 			// if they want this design area to be printed then what we need to do is alter the contents
@@ -852,7 +852,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 									'attributes'		=> Array ('id_name' => $element['attributes']['id_name']),
 									'operation'			=> 'print',
 									'self_terminating'	=> 1,
-									'cache'				=> (isset($element['attributes']['cache']) && in_array($element['attributes']['cache'], Array('yes', '1', 'true'))) ? 1 : 0,
+									'cache'				=> (isset($element['attributes']['cache']) && in_array($element['attributes']['cache'], Array('yes', '1', 'TRUE'))) ? 1 : 0,
 								);
 */
 		}//end foreach
@@ -860,10 +860,10 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// now just set the contents and we are away...
 		if ($asset->setAttrValue('contents', $contents)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
+			return TRUE;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 	}//end _processContents()
