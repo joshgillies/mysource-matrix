@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.153 2005/12/14 00:25:18 arailean Exp $
+* $Id: search_page.inc,v 1.154 2006/01/06 06:14:36 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.153 $
+* @version $Revision: 1.154 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -864,22 +864,29 @@ class Search_Page extends Listing_Engine
 	/**
 	* Get Category Chooser Replacement
 	*
-	* @param string	$cat_set_name		Category Name
-	* @param array	$cat_set_details	Category details
+	* @param string		$cat_set_name		Category Name
+	* @param array		$cat_set_details	Category details
+	* @param string		$default			Default value of the category
+	* @param boolean	$show_empty			Whether to show the 'unselected text'
 	*
 	* @return void
 	* @access public
 	*/
-	function getCategoryChooserReplacement($cat_set_name, $cat_set_details)
+	function getCategoryChooserReplacement($cat_set_name, $cat_set_details, $default='', $show_empty=TRUE)
 	{
 		$prefix = $this->getPrefix();
-		$options = Array('' => $cat_set_details['unselected_text']);
+		$options = Array();
+
+		if ($show_empty) {
+			$options[''] = $cat_set_details['unselected_text'];
+		}
+
 		foreach ($cat_set_details['options'] as $code_name => $cat_option) {
 			$options[$code_name] = $cat_option['full_name'];
 		}
 		ob_start();
 			$this->registerFormField('category_'.$cat_set_name);
-			combo_box('category_'.$cat_set_name, $options, false, '');
+			combo_box('category_'.$cat_set_name, $options, false, $default);
 			$res = ob_get_contents();
 		ob_end_clean();
 		return $res;
