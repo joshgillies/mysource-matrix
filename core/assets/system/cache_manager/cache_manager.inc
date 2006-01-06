@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.24 2006/01/05 23:33:21 rong Exp $
+* $Id: cache_manager.inc,v 1.25 2006/01/06 06:36:34 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -155,9 +155,14 @@ class Cache_Manager extends Asset
 		$perm_key = $this->_getPermKey($assetid, $cache_key);
 		if (empty($perm_key)) return '';
 
-		// use assetid if we are not using current url as an identifier
-		$url = ($use_url) ? current_url() : $assetid;
-		$cache_key = md5($cache_key);
+		if ($use_url) {
+			$url = current_url();
+		}
+		// append assetid to the end of url because:
+		// 1. some assets do not use url as identifier
+		// 2. nested contents always have the same url
+		$url .= $assetid;
+		//$cache_key = md5($cache_key);
 
 		// check expiry time if entry already exists
 		$cached = $this->_getCache($cache_key, $perm_key, $url);
@@ -210,9 +215,14 @@ class Cache_Manager extends Asset
 		$perm_key = $this->_getPermKey($assetid, $cache_key);
 		if (empty($perm_key)) return FALSE;
 
-		// use assetid if we are not using current url as an identifier
-		$url = ($use_url) ? current_url() : $assetid;
-		$cache_key = md5($cache_key);
+		if ($use_url) {
+			$url = current_url();
+		}
+		// append assetid to the end of url because:
+		// 1. some assets do not use url as identifier
+		// 2. nested contents always have the same url
+		$url .= $assetid;
+		//$cache_key = md5($cache_key);
 
 		// work out the file path and expiry time
 		$group = $this->getAssetHash($cache_key).$this->getAssetHash($perm_key);
@@ -222,7 +232,8 @@ class Cache_Manager extends Asset
 		$expiry = time() + $this->getExpiry($asset_type);
 		$expiry_sql = db_extras_todate($db, ts_iso8601($expiry));
 
-		// force update (for RSS Data Sources etc)
+		// replace/update existing cache entry
+		// warning: will NOT cause duplicate primary key db error
 		$cached = $this->_getCache($cache_key, $perm_key, $url);
 		if (!is_null($cached) && (time() < strtotime($cached['expires']))) {
 			$this->_updateCache($cache_key, $perm_key, $url, $expiry_sql, $file_path, $contents);
