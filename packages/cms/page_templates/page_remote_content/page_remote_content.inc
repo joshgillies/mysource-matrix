@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.29 2006/01/04 06:00:39 arailean Exp $
+* $Id: page_remote_content.inc,v 1.30 2006/01/06 03:09:30 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define ('SQ_REMOTE_MAX_REDIRECTS', 10);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -280,9 +280,10 @@ class Page_Remote_Content extends Page
 		$url = strtolower($url);
 
 		foreach ($this->_tmp['_white_list_'] as $white_url) {
-			if (strlen($white_url) > strlen($url)) {
+			$white_url_len = strlen($white_url);
+			if ($white_url_len > strlen($url)) {
 				continue;
-			} else if (strtolower($white_url) == substr($url, 0, strlen($white_url))) {
+			} else if (strtolower($white_url) == substr($url, 0, $white_url_len)) {
 				return TRUE;
 			}
 		}
@@ -305,7 +306,10 @@ class Page_Remote_Content extends Page
 		$fetch_url	= array_get_index($_REQUEST, 'sq_remote_page_url');
 		$action		= array_get_index($_REQUEST, 'sq_remote_page_action');
 
+		$initial_request = FALSE;
+
 		if (!isset($fetch_url) || ($action != 'fetch_url')) {
+			$initial_request = TRUE;
 			$fetch_url = $remote_url;
 		}
 
@@ -325,33 +329,33 @@ class Page_Remote_Content extends Page
 			return FALSE;
 		}
 
-		// let's see if we're getting any variables in the get string
-		// so we can pass them back to the original page
 		unset($_GET['sq_remote_page_action']);
 		unset($_GET['sq_remote_page_url']);
 		unset($_POST['sq_remote_page_action']);
 		unset($_POST['sq_remote_page_url']);
 
+		// let's see if we're getting any variables in the get string
+		// so we can pass them back to the original page
 		if (!empty($_GET)) {
 			foreach ($_GET as $key => $data) {
 				$Fetch_URL->addQueryString($key, $data);
 			}
 		}
 
-		// support custom post variables if possible
+		// support custom post variables if they've been set
+		// NOTE: custom post variables are only sent on INITIAL request
 		$post_variables = $this->attr('post_variables');
-		$local_post = $_POST;
-
-		if ((!isset($fetch_url) || ($action != 'fetch_url')) && !empty($post_variables)) {
+		$transit_post_data = $_POST;
+		if ($initial_request && !empty($post_variables)) {
 			foreach ($post_variables as $index => $variable) {
-				$local_post[$variable['name']] = replace_global_keywords($variable['value']);
+				$transit_post_data[$variable['name']] = replace_global_keywords($variable['value']);
 			}
 		}
-
 		////// Remote Communication Section. Using HTTP_Client PEAR package
 		$HTTP_Client = array_get_index($_SESSION, 'SQ_REMOTE_HTTP_CLIENT');
 		if (!empty($HTTP_Client)) {
 			$HTTP_Client = unserialize($HTTP_Client);
+			$HTTP_Client->_responses = null;
 		} else {
 			// parameters for HTTP_Request. See Package for description.
 			$request_parameters['timeout'] = $this->attr('timeout');
@@ -375,14 +379,12 @@ class Page_Remote_Content extends Page
 
 		$url = $Fetch_URL->getURL();
 
-		if (!empty($local_post)) {
-			$result = $HTTP_Client->post($url, make_raw_post_data($local_post), TRUE);
+		if (!empty($transit_post_data)) {
+			$result = $HTTP_Client->post($url, $transit_post_data);
 		} else {
 			$result = $HTTP_Client->get($url);
 		}
 
-		// get new cookies and save cookie manager
-		$_SESSION['SQ_REMOTE_HTTP_CLIENT'] = serialize($HTTP_Client);
 
 		// exit on error
 		if (PEAR::isError($result) || preg_match('/^[45].*?/', $result)) {
@@ -406,6 +408,7 @@ class Page_Remote_Content extends Page
 			}
 		}
 
+
 		// prepare temporary variables for output
 		$this->_tmp['type'] = $response['headers']['content-type'];
 		$this->_tmp['headers'] = $response['headers'];
@@ -420,6 +423,10 @@ class Page_Remote_Content extends Page
 
 		$this->_tmp['processed'] = TRUE;
 		$this->_tmp['success'] = TRUE;
+
+
+		// get new cookies and save cookie manager
+		$_SESSION['SQ_REMOTE_HTTP_CLIENT'] = serialize($HTTP_Client);
 
 		unset($HTTP_Client);
 		return TRUE;
