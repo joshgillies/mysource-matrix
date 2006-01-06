@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.102 2006/01/05 22:54:52 skim Exp $
+* $Id: metadata_manager.inc,v 1.103 2006/01/06 00:21:08 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.103 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -871,232 +871,86 @@ class Metadata_Manager extends MySource_Object
 				ob_start();
 			}
 
-			switch ($keyword) {
-
-				case 'asset_name'       :
-				case 'asset_short_name' :
-				case 'asset_version'    :
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_asset->'.substr($keyword,6).';'."\n";
-				break;
-
-				case 'asset_version_major'    :
-					echo 'list($metadata_replacements['.var_export($keyword, 1).'],,) = explode(\'.\',$metadata_asset->version);'."\n";
-				break;
-
-				case 'asset_version_minor'    :
-					echo 'list(,$metadata_replacements['.var_export($keyword, 1).'],) = explode(\'.\',$metadata_asset->version);'."\n";
-				break;
-
-				case 'asset_version_micro'    :
-					echo 'list(,,$metadata_replacements['.var_export($keyword, 1).']) = explode(\'.\',$metadata_asset->version);'."\n";
-				break;
-
-				case 'asset_url' :
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_asset->getURL();'."\n";
-				break;
-
-				case 'asset_href' :
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_asset->getHref();'."\n";
-				break;
-
-				case 'asset_thumbnail' :
-				case 'asset_thumbnail_url' :
-				case 'asset_thumbnail_caption' :
-					if (!$thumbnail_generated) {
-						echo '$thumbnail = null;';
-						echo 'if ($metadata_asset->id) {';
-						echo '    $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'image\', false, \'thumbnail\');'."\n";
-						echo '    if (!empty($link)) {'."\n";
-						echo '        $thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\'], $link[\'minor_type_code\']);'."\n";
-						echo '    }'."\n";
-						echo '}'."\n";
+			// Date/Time keywords are processed first.
+			$replaced = FALSE;
+			$prefix = Array(
+						'asset_created',
+						'asset_updated',
+						'asset_status_changed',
+						'asset_published',
+					  );
+			foreach ($prefix as $name) {
+				if (strpos($keyword, $name) === 0) {
+					// NOTE: These format strings contain an escape '\' character
+					// unlike the ones in getKeywordReplecement() asset.inc since they
+					// will be concatenated within eval string.
+					$date_formats = Array(
+										'short'			=> 'Y-m-d',
+										'readable'		=> 'd M Y g:ia',
+										'readabledate'	=> 'd M Y',
+										'readabletime'	=> 'g:ia',
+										'iso8601'		=> 'Y-m-d\\TH:i:s',
+										'rfc2822'		=> 'r',
+										'ical'			=> 'Ymd\\THis',
+									);
+					if ($keyword == $name) {
+						$default_format = 'Y-m-d H:i:s';
+						if ($keyword == 'asset_published') {
+							echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\''.$default_format.'\', $metadata_asset->published);'."\n";
+						} else {
+							echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\''.$default_format.'\', $metadata_asset->'.substr($keyword,6).');'."\n";
+						}
+						$replaced = TRUE;
+					} else {
+						$format_name = substr($keyword, strlen($name.'_'));
+						if (array_key_exists($format_name, $date_formats)) {
+							if ($keyword == 'asset_published') {
+								echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\''.$date_formats[$format_name].'\', $metadata_asset->published);'."\n";
+							} else {
+								if ($format_name == 'iso8601') {
+									echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\''.$date_formats[$format_name].'\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_'.$format_name) - strlen('asset_')).').substr(date(\'O\'),0,3).\':\'.substr(date(\'O\'),-2);'."\n";
+								} else {
+									echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\''.$date_formats[$format_name].'\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_'.$format_name) - strlen('asset_')).');'."\n";
+								}
+							}
+							$replaced = TRUE;
+						}
 					}
-					switch ($keyword) {
-						case 'asset_thumbnail' :
-							echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->printImageTag(\'\', \'\', true);'."\n";
-						break;
-						case 'asset_thumbnail_url' :
-							echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->getURL();'."\n";
-						break;
-						case 'asset_thumbnail_caption' :
-							echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->attr(\'caption\');'."\n";
-						break;
-					}
-				break;
+				}
+			}//end foreach which loops through $prefix array
 
-				case 'asset_created' :
-				case 'asset_updated' :
-				case 'asset_status_changed':
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'Y-m-d H:i:s\', $metadata_asset->'.substr($keyword,6).');'."\n";
-				break;
+			if (!$replaced) {
+				switch ($keyword) {
 
-				case 'asset_created_short' :
-				case 'asset_updated_short' :
-				case 'asset_status_changed_short':
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'Y-m-d\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_short') - strlen('asset_')).');'."\n";
-				break;
+					case 'asset_name'       :
+					case 'asset_short_name' :
+					case 'asset_version'    :
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_asset->'.substr($keyword,6).';'."\n";
+					break;
 
-				case 'asset_created_readable' :
-				case 'asset_updated_readable' :
-				case 'asset_status_changed_readable':
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'d M Y g:ia\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_readable') - strlen('asset_')).');'."\n";
-				break;
+					case 'asset_version_major'    :
+						echo 'list($metadata_replacements['.var_export($keyword, 1).'],,) = explode(\'.\',$metadata_asset->version);'."\n";
+					break;
 
-				case 'asset_created_readabledate' :
-				case 'asset_updated_readabledate' :
-				case 'asset_status_changed_readabledate':
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'d M Y\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_readabledate') - strlen('asset_')).');'."\n";
-				break;
+					case 'asset_version_minor'    :
+						echo 'list(,$metadata_replacements['.var_export($keyword, 1).'],) = explode(\'.\',$metadata_asset->version);'."\n";
+					break;
 
-				case 'asset_created_readabletime' :
-				case 'asset_updated_readabletime' :
-				case 'asset_status_changed_readabletime':
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'g:ia\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_readabletime') - strlen('asset_')).');'."\n";
-				break;
+					case 'asset_version_micro'    :
+						echo 'list(,,$metadata_replacements['.var_export($keyword, 1).']) = explode(\'.\',$metadata_asset->version);'."\n";
+					break;
 
-				case 'asset_created_iso8601' :
-				case 'asset_updated_iso8601' :
-				case 'asset_status_changed_iso8601' :
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'Y-m-d\\TH:i:s\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_iso8601') - strlen('asset_')).').substr(date(\'O\'),0,3).\':\'.substr(date(\'O\'),-2);'."\n";
-				break;
+					case 'asset_url' :
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_asset->getURL();'."\n";
+					break;
 
-				case 'asset_created_rfc2822' :
-				case 'asset_updated_rfc2822' :
-				case 'asset_status_changed_rfc2822' :
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'r\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_rfc2822') - strlen('asset_')).');'."\n";
-				break;
+					case 'asset_href' :
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_asset->getHref();'."\n";
+					break;
 
-				case 'asset_created_ical' :
-				case 'asset_updated_ical' :
-				case 'asset_status_changed_ical' :
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'Ymd\\THis\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_ical') - strlen('asset_')).');'."\n";
-				break;
-
-				case 'asset_created_by_name' :
-				case 'asset_updated_by_name' :
-				case 'asset_status_changed_by_name':
-					$field_name = substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_by_name') - strlen('asset_'));
-					echo 'if (!isset($metadata_'.$field_name.'_by_user) && !empty($metadata_asset->'.$field_name.'_userid)) {'."\n";
-					echo '	$metadata_'.$field_name.'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.$field_name.'_userid);'."\n";
-					echo '}'."\n";
-					echo 'if (!empty($metadata_'.$field_name.'_by_user)) {'."\n";
-					echo '	$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.$field_name.'_by_user->name;'."\n";
-					echo '} else {'."\n";
-					echo '	$metadata_replacements['.var_export($keyword, 1).'] = \'System\';'."\n";
-					echo '}'."\n";
-				break;
-
-				case 'asset_created_by_first_name' :
-				case 'asset_created_by_last_name'  :
-				case 'asset_created_by_email'      :
-				case 'asset_updated_by_first_name' :
-				case 'asset_updated_by_last_name'  :
-				case 'asset_updated_by_email'      :
-					echo 'if (!isset($metadata_'.substr($keyword,6,7).'_by_user)) {
-					$metadata_'.substr($keyword,6,7).'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid,\'\', true);'."\n}\n";
-					echo 'if (!empty($metadata_'.substr($keyword,6,7).'_by_user)) { ';
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.substr($keyword,6,7).'_by_user->attr(\''.substr($keyword,17).'\');'."\n";
-					echo '} else {'."\n";
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
-					echo '}'."\n";
-
-				break;
-
-				// can't handle 'last published' stuff in the same way as created/updated because
-				// there is a chance that it has never been published
-				case 'asset_published' :
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'Y-m-d H:i:s\', $metadata_asset->published);'."\n";
-				break;
-
-				case 'asset_published_short' :
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'Y-m-d\', $metadata_asset->published);'."\n";
-				break;
-
-				case 'asset_published_readable' :
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'d M Y g:ia\', $metadata_asset->published);'."\n";
-				break;
-
-				case 'asset_published_readabledate' :
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'d M Y\', $metadata_asset->published);'."\n";
-				break;
-
-				case 'asset_published_readabletime' :
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'g:ia\', $metadata_asset->published);'."\n";
-				break;
-
-				case 'asset_published_iso8601' :
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'Y-m-d\\TH:i:s\', $metadata_asset->published);'."\n";
-				break;
-
-				case 'asset_published_ical' :
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'Ymd\\THis\', $metadata_asset->published);'."\n";
-				break;
-
-				case 'asset_published_rfc2822' :
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'r\', $metadata_asset->published);'."\n";
-				break;
-
-				case 'asset_published_by_name' :
-					echo 'if (empty($metadata_asset->published_userid)) {'."\n";
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'Never Published\';'."\n";
-					echo '} else { if (!isset($metadata_published_by_user)) {
-					$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n";
-					echo 'if (!empty($metadata_published_by_user)) { ';
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_published_by_user->name;'."\n";
-					echo '} else {'."\n";
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'System\';'."\n";
-					echo '}}'."\n";
-				break;
-
-				case 'asset_published_by_first_name' :
-				case 'asset_published_by_last_name'  :
-				case 'asset_published_by_email'      :
-					echo 'if (empty($metadata_asset->published_userid)) {'."\n";
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
-					echo '} else { if (!isset($metadata_published_by_user)) {
-					$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n";
-					echo 'if (!empty($metadata_published_by_user)) { ';
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_published_by_user->attr(\''.substr($keyword,19).'\');'."\n";
-					echo '} else {'."\n";
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
-					echo '}}'."\n";
-
-				break;
-
-				case 'asset_read_permission'  :
-				case 'asset_write_permission' :
-				case 'asset_admin_permission' :
-					$perm_type = str_replace('_permission', '', $keyword);
-					$perm_type = substr($perm_type,6);
-					echo '$metadata_'.$perm_type.'_perms = $GLOBALS[\'SQ_SYSTEM\']->am->getPermission($metadata_asset->id, SQ_PERMISSION_'.strtoupper($perm_type).', true, false, true);'."\n";
-					echo '$metadata_'.$perm_type.'_perm_names = \'\';'."\n";
-					echo 'foreach ($metadata_'.$perm_type.'_perms as $userid) {'."\n";
-					echo '	$user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($userid);'."\n";
-					echo '	if (is_null($user)) continue;'."\n";
-					echo '	$metadata_'.$perm_type.'_perm_names .= $user->name.\', \';'."\n";
-					echo '}'."\n";
-					echo '$metadata_'.$perm_type.'_perm_names = trim($metadata_'.$perm_type.'_perm_names, \', \');'."\n";
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.$perm_type.'_perm_names;'."\n";
-				break;
-
-				case 'system_name'   :
-				case 'system_owner'  :
-				case 'default_email' :
-				case 'tech_email'    :
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = SQ_CONF_'.strtoupper($keyword).';'."\n";
-				break;
-
-				default :
-
-					// searching for keywords that replace the content of another field
-					if (substr($keyword, 0, 15) == 'metadata_field_') {
-
-						$field_name = substr($keyword, 15);
-						$metadata_replacements[$keyword] = '$metadata_values[\''.$field_name.'\']';
-
-					} else if (substr($keyword, 0, 18) == 'asset_thumbnail_v_') {
-						// Print the asset variety of a thumbnail
-						$variety_name = substr($keyword, 18);
+					case 'asset_thumbnail' :
+					case 'asset_thumbnail_url' :
+					case 'asset_thumbnail_caption' :
 						if (!$thumbnail_generated) {
 							echo '$thumbnail = null;';
 							echo 'if ($metadata_asset->id) {';
@@ -1106,43 +960,159 @@ class Metadata_Manager extends MySource_Object
 							echo '    }'."\n";
 							echo '}'."\n";
 						}
-
-						echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->getKeywordReplacement(\'image_v_'.$variety_name.'\');';
-
-					} else {
-
-						// searching for special date format keywords
-						$original = $keyword;
-						$keyword = substr($keyword, 6);
-						$key     = substr($keyword, 0, strpos($keyword, '_'));
-						$extras  = substr($keyword, strpos($keyword, '_') +1);
-
-						if (strpos($extras, '_') === false) {
-							$format = $extras;
-							$offset = '';
-						} else {
-							list ($format, $offset) = explode('_', $extras);
-						}
-						$format = str_replace('~', ' ', $format);
-
-						switch ($key) {
-							case 'created':
-							case 'updated':
-							case 'published':
-								if (empty($offset)) {
-									$date = '$metadata_asset->'.$key;
-								} else {
-									$date = 'strtotime(\''.$offset.'\', $metadata_asset->'.$key.')';
-								}
-								echo '$metadata_replacements[\''.$original.'\'] = date(\''.$format.'\', '.$date.');'."\n";
+						switch ($keyword) {
+							case 'asset_thumbnail' :
+								echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->printImageTag(\'\', \'\', true);'."\n";
+							break;
+							case 'asset_thumbnail_url' :
+								echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->getURL();'."\n";
+							break;
+							case 'asset_thumbnail_caption' :
+								echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->attr(\'caption\');'."\n";
 							break;
 						}
+					break;
 
-					}//end if
+					case 'asset_created_by_name' :
+					case 'asset_updated_by_name' :
+					case 'asset_status_changed_by_name':
+						$field_name = substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_by_name') - strlen('asset_'));
+						echo 'if (!isset($metadata_'.$field_name.'_by_user) && !empty($metadata_asset->'.$field_name.'_userid)) {'."\n";
+						echo '	$metadata_'.$field_name.'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.$field_name.'_userid);'."\n";
+						echo '}'."\n";
+						echo 'if (!empty($metadata_'.$field_name.'_by_user)) {'."\n";
+						echo '	$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.$field_name.'_by_user->name;'."\n";
+						echo '} else {'."\n";
+						echo '	$metadata_replacements['.var_export($keyword, 1).'] = \'System\';'."\n";
+						echo '}'."\n";
+					break;
 
-				break;
+					case 'asset_created_by_first_name' :
+					case 'asset_created_by_last_name'  :
+					case 'asset_created_by_email'      :
+					case 'asset_updated_by_first_name' :
+					case 'asset_updated_by_last_name'  :
+					case 'asset_updated_by_email'      :
+						echo 'if (!isset($metadata_'.substr($keyword,6,7).'_by_user)) {
+						$metadata_'.substr($keyword,6,7).'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid,\'\', true);'."\n}\n";
+						echo 'if (!empty($metadata_'.substr($keyword,6,7).'_by_user)) { ';
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.substr($keyword,6,7).'_by_user->attr(\''.substr($keyword,17).'\');'."\n";
+						echo '} else {'."\n";
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
+						echo '}'."\n";
 
-			}//end switch
+					break;
+
+					// can't handle 'last published' stuff in the same way as created/updated because
+					// there is a chance that it has never been published
+					case 'asset_published_by_name' :
+						echo 'if (empty($metadata_asset->published_userid)) {'."\n";
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = \'Never Published\';'."\n";
+						echo '} else { if (!isset($metadata_published_by_user)) {
+						$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n";
+						echo 'if (!empty($metadata_published_by_user)) { ';
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_published_by_user->name;'."\n";
+						echo '} else {'."\n";
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = \'System\';'."\n";
+						echo '}}'."\n";
+					break;
+
+					case 'asset_published_by_first_name' :
+					case 'asset_published_by_last_name'  :
+					case 'asset_published_by_email'      :
+						echo 'if (empty($metadata_asset->published_userid)) {'."\n";
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
+						echo '} else { if (!isset($metadata_published_by_user)) {
+						$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n";
+						echo 'if (!empty($metadata_published_by_user)) { ';
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_published_by_user->attr(\''.substr($keyword,19).'\');'."\n";
+						echo '} else {'."\n";
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
+						echo '}}'."\n";
+
+					break;
+
+					case 'asset_read_permission'  :
+					case 'asset_write_permission' :
+					case 'asset_admin_permission' :
+						$perm_type = str_replace('_permission', '', $keyword);
+						$perm_type = substr($perm_type,6);
+						echo '$metadata_'.$perm_type.'_perms = $GLOBALS[\'SQ_SYSTEM\']->am->getPermission($metadata_asset->id, SQ_PERMISSION_'.strtoupper($perm_type).', true, false, true);'."\n";
+						echo '$metadata_'.$perm_type.'_perm_names = \'\';'."\n";
+						echo 'foreach ($metadata_'.$perm_type.'_perms as $userid) {'."\n";
+						echo '	$user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($userid);'."\n";
+						echo '	if (is_null($user)) continue;'."\n";
+						echo '	$metadata_'.$perm_type.'_perm_names .= $user->name.\', \';'."\n";
+						echo '}'."\n";
+						echo '$metadata_'.$perm_type.'_perm_names = trim($metadata_'.$perm_type.'_perm_names, \', \');'."\n";
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.$perm_type.'_perm_names;'."\n";
+					break;
+
+					case 'system_name'   :
+					case 'system_owner'  :
+					case 'default_email' :
+					case 'tech_email'    :
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = SQ_CONF_'.strtoupper($keyword).';'."\n";
+					break;
+
+					default :
+
+						// searching for keywords that replace the content of another field
+						if (substr($keyword, 0, 15) == 'metadata_field_') {
+
+							$field_name = substr($keyword, 15);
+							$metadata_replacements[$keyword] = '$metadata_values[\''.$field_name.'\']';
+
+						} else if (substr($keyword, 0, 18) == 'asset_thumbnail_v_') {
+							// Print the asset variety of a thumbnail
+							$variety_name = substr($keyword, 18);
+							if (!$thumbnail_generated) {
+								echo '$thumbnail = null;';
+								echo 'if ($metadata_asset->id) {';
+								echo '    $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'image\', false, \'thumbnail\');'."\n";
+								echo '    if (!empty($link)) {'."\n";
+								echo '        $thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\'], $link[\'minor_type_code\']);'."\n";
+								echo '    }'."\n";
+								echo '}'."\n";
+							}
+
+							echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->getKeywordReplacement(\'image_v_'.$variety_name.'\');';
+
+						} else {
+
+							// searching for special date format keywords
+							$original = $keyword;
+							$keyword = substr($keyword, 6);
+							$key     = substr($keyword, 0, strpos($keyword, '_'));
+							$extras  = substr($keyword, strpos($keyword, '_') +1);
+
+							if (strpos($extras, '_') === false) {
+								$format = $extras;
+								$offset = '';
+							} else {
+								list ($format, $offset) = explode('_', $extras);
+							}
+							$format = str_replace('~', ' ', $format);
+
+							switch ($key) {
+								case 'created':
+								case 'updated':
+								case 'published':
+									if (empty($offset)) {
+										$date = '$metadata_asset->'.$key;
+									} else {
+										$date = 'strtotime(\''.$offset.'\', $metadata_asset->'.$key.')';
+									}
+									echo '$metadata_replacements[\''.$original.'\'] = date(\''.$format.'\', '.$date.');'."\n";
+								break;
+							}
+
+						}//end if
+
+					break;
+
+				}//end switch
+			}
 
 			if (!$generating) {
 				eval(ob_get_contents());
