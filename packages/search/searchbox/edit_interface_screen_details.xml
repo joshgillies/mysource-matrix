@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.11 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.12 2006/01/06 04:56:21 lwright Exp $
 *
 */
 -->
@@ -33,6 +33,12 @@
 			<function_call>
 				<paint_function name="paintSearchFieldName" />
 				<process_function name="processSearchFieldName" />
+			</function_call>
+		</field>
+		<field write_access="write:attributes" show_if="hasValidSearchPage">
+			<function_call>
+				<paint_function name="paintSearchCategorySet" />
+				<process_function name="processSearchCategorySet" />
 			</function_call>
 		</field>
 	</section>

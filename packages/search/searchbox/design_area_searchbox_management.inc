@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_management.inc,v 1.11 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: design_area_searchbox_management.inc,v 1.12 2006/01/06 04:56:21 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -88,6 +88,13 @@ class Design_Area_SearchBox_Management extends Asset_Management
 										'default'		=> '',
 										'description'	=> 'The default text to display in the search box.',
 									  );
+
+		$this->vars['category_set'] = Array(
+											'added'			=> '0.3',
+											'type'			=> 'text',
+											'default'		=> '',
+											'description'	=> 'The category set to be used for the search box.',
+										  );
 
 	}//end constructor
 

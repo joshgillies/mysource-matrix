@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_edit_fns.inc,v 1.20 2005/11/04 03:05:15 lwright Exp $
+* $Id: design_area_searchbox_edit_fns.inc,v 1.21 2006/01/06 04:56:21 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 * @see Design_Area_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -149,6 +149,47 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 	}//end processBackendSubmitImage()
 
 
+	function paintSearchCategorySet(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) {
+			echo $asset->attr('category_set');
+			return false;
+		}
+
+		$search_assetid = $asset->attr('search_page_assetid');
+		if (empty($search_assetid)) {
+			return false;
+		}
+
+		$search_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($search_assetid);
+
+		$categories[''] = '-- Please Select --';
+		foreach(array_keys($search_page->attr('categories')) as $category_id) {
+			$categories[$category_id] = $category_id;
+		}
+
+		combo_box($prefix.'_category_set', $categories, false, $asset->attr('category_set'));
+		return true;
+
+	}//end paintSearchCategorySet()
+
+
+	function processSearchCategorySet(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) {
+			return false;
+		}
+
+		if (!isset($_POST[$prefix.'_category_set'])) {
+			return false;
+		}
+
+		$asset->setAttrValue('category_set', $_POST[$prefix.'_category_set']);
+		return true;
+
+	}//end processSearchCategorySet()
+
+
 	/**
 	* Paint the field interface for specifying the search field to which this search query corresponds to on the search page
 	*
@@ -174,7 +215,7 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 			foreach ($fields as $field_name => $field) {
 				$field_description = $fields[$field_name];
 				$field_description = $field_name.' ';
-				switch ($field['type']) {
+				/* switch ($field['type']) {
 					case 'include_all':
 						$field_description .= '(include all)';
 					break;
@@ -190,7 +231,7 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 					default:
 						$field_description .= '(unknown)';
 					break;
-				}
+				} */
 				$options[$field_name] = $field_description;
 			}
 

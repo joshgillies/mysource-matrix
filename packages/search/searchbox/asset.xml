@@ -13,7 +13,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.7 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: asset.xml,v 1.8 2006/01/06 04:56:21 lwright Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>search</package>
 	<type_code>design_area_searchbox</type_code>
-	<version>0.2</version>
+	<version>0.3</version>
 	<name>Searchbox design area</name>
 	<description>Input textbox to be used in designs for searching.</description>
 	<instantiable>yes</instantiable>

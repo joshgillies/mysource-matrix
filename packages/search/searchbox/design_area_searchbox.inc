@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.23 2005/10/11 02:09:10 tbarrett Exp $
+* $Id: design_area_searchbox.inc,v 1.24 2006/01/06 04:56:21 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -115,6 +115,19 @@ class Design_Area_Searchbox extends Design_Area
 						// no image defined
 					}
 				}
+			break;
+
+			case 'category_list':
+				$category_set = $this->attr('category_set');
+				if (!empty($category_set)) {
+					echo '
+						<?php
+							$asset = &$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');
+							$categories = $asset->attr("categories");
+							echo $asset->getCategoryChooserReplacement("'.substr($var, 0, -17).'", $categories["'.$category_set.'"]);
+						?>';
+				}
+
 			break;
 
 			case 'box' :
