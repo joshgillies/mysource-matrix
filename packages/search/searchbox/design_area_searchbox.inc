@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.24 2006/01/06 04:56:21 lwright Exp $
+* $Id: design_area_searchbox.inc,v 1.25 2006/01/06 05:02:51 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -124,7 +124,7 @@ class Design_Area_Searchbox extends Design_Area
 						<?php
 							$asset = &$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');
 							$categories = $asset->attr("categories");
-							echo $asset->getCategoryChooserReplacement("'.substr($var, 0, -17).'", $categories["'.$category_set.'"]);
+							echo $asset->getCategoryChooserReplacement("'.$category_set.'", $categories["'.$category_set.'"]);
 						?>';
 				}
 
