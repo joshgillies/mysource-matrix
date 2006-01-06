@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_anchor.inc,v 1.8 2005/05/16 06:36:36 lwright Exp $
+* $Id: matrix_insert_anchor.inc,v 1.9 2006/01/06 02:21:02 rong Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     an anchor in the editable document
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -177,11 +177,11 @@ class matrix_insert_anchor extends wysiwyg_plugin
 						var insideP = inside_html.replace(para, "$1");
 
 						if (insideP != inside_html) {
-							var html = '<p><a name="' + param["name"] + '"';
-							html += '>' + insideP + '</a></p>';
+							var html = '<p><a name="' + param["name"] + '" id="' + param["name"];
+							html += '">' + insideP + '</a></p>';
 						} else {
-							var html = '<a name="' + param["name"] + '"';
-							html += '>' + inside_html + '</a>';
+							var html = '<a name="' + param["name"] + '" id="' + param["name"];
+							html += '">' + inside_html + '</a>';
 						}
 
 						html = editor.make_absolute_urls(html);
