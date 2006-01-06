@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.419 2006/01/04 03:10:41 lwright Exp $
+* $Id: asset_manager.inc,v 1.420 2006/01/06 00:54:37 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.419 $
+* @version $Revision: 1.420 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -285,7 +285,7 @@ class Asset_Manager extends MySource_Object
 	* @param mixed	$type_code	the code name (or array of code names) for the asset that you want to check
 	* @param string	$field		if exists, returns this information from the array for this specific field
 	*
-	* @return mixed string|array|null
+	* @return mixed string|array|NULL
 	* @access public
 	*/
 	function getTypeInfo($type_code, $field='')
@@ -677,7 +677,7 @@ class Asset_Manager extends MySource_Object
 	*									because you can't use the '@' operator when
 	*									returning by reference
 	*
-	* @return mixed object|null
+	* @return mixed object|NULL
 	* @access public
 	*/
 	function &getAttribute($attrid, $value=NULL, $mute_errors=FALSE)
@@ -798,7 +798,7 @@ class Asset_Manager extends MySource_Object
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
-	* @return mixed object|null
+	* @return mixed object|NULL
 	* @access public
 	*/
 	function &getAsset($assetid, $type_code='', $mute_errors=FALSE)
@@ -1127,7 +1127,7 @@ class Asset_Manager extends MySource_Object
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
-	* @return mixed object|null
+	* @return mixed object|NULL
 	* @access public
 	*/
 	function &getSystemAsset($name, $mute_errors=FALSE)
@@ -1445,7 +1445,7 @@ class Asset_Manager extends MySource_Object
 	* @param array	&$clone_map	a map for that can be used for re-indexing data held in
 	*							assets of the form Array([old asset id] => [new asset id])
 	*
-	* @return mixed object|null
+	* @return mixed object|NULL
 	* @access private
 	*/
 	function &_cloneAsset(&$source, &$link, &$clone_map)
@@ -1746,7 +1746,7 @@ class Asset_Manager extends MySource_Object
 	*									plus 'all' which will attempt to acquire all locks that this asset has
 	* @param int		$source_assetid	the id of the asset that started this locking process
 	* @param boolean	$force			attempt to forcibly acquire (if allowed)
-	* @param int|null	$expires		when the lock expires (timestamp or NULL)
+	* @param int|NULL	$expires		when the lock expires (timestamp or NULL)
 	*									If expires is null or zero, the lock will be acquired for the
 	*									current time plus SQ_CONF_LOCK_LENGTH
 	*
@@ -1919,7 +1919,7 @@ class Asset_Manager extends MySource_Object
 	*
 	* @param int		$assetid	the assetid of the asset that we want to release
 	* @param string		$lock_type	the type of the lock (eg 'contents', 'permissions', etc)
-	* @param int|null	$expires	when the lock expires (timestamp or NULL)
+	* @param int|NULL	$expires	when the lock expires (timestamp or NULL)
 	*
 	* @return boolean
 	* @access public
@@ -5361,7 +5361,7 @@ class Asset_Manager extends MySource_Object
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
-	* @return mixed object|null
+	* @return mixed object|NULL
 	* @access public
 	*/
 	function &getAssetFromURL($protocol=NULL, $url=NULL, $exact_match=TRUE, $mute_errors=FALSE)
@@ -5725,16 +5725,16 @@ class Asset_Manager extends MySource_Object
 	* @param string	$url			the url to get the design for
 	* @param string	$design_name	the code for the design (eg. design::system::frontend)
 	*
-	* @see Asset::updateLookups()
 	* @return mixed array|NULL
 	* @access public
+	* @see Asset::updateLookups()
 	*/
 	function getInheritedDesignValueFromURL($url, $design_name='design::system::frontend')
 	{
 		$asset =& $this->getAssetFromURL(NULL, $url, TRUE, TRUE);
 		$design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', FALSE, $design_name);
 
-		while(empty($design_link) && ($url != '')) {
+		while (empty($design_link) && ($url != '')) {
 			$slash_pos = strrpos($url, '/');
 			if ($slash_pos === FALSE) $slash_pos = 0;
 			$url = substr_replace($url, '', $slash_pos);
@@ -5745,14 +5745,12 @@ class Asset_Manager extends MySource_Object
 			$design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', FALSE, $design_name);
 		}
 
-		if (empty($design_link)) {
-			return NULL;
-		}
+		if (empty($design_link)) return NULL;
 
 		return Array(
-						'designid'	=> $design_link['minorid'],
-						'type_code'	=> $design_link['minor_type_code'],
-					);
+				'designid'	=> $design_link['minorid'],
+				'type_code'	=> $design_link['minor_type_code'],
+			   );
 
 	}//end getInheritedDesignValueFromURL()
 
