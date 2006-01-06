@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.90 2005/12/21 21:56:28 rong Exp $
+* $Id: search_manager.inc,v 1.91 2006/01/06 00:04:35 dheppell Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,14 +23,14 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
 class Search_Manager extends Asset
 {
-	var $standard_date_fields = null;
-	var $standard_text_fields = null;
+	var $standard_date_fields = NULL;
+	var $standard_text_fields = NULL;
 
 
 	/**
@@ -41,7 +41,7 @@ class Search_Manager extends Asset
 	*/
 	function Search_Manager($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Asset($assetid);
 		$this->standard_date_fields = Array(
 										'created'			=> translate('asset_created_date'),
@@ -62,23 +62,24 @@ class Search_Manager extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
 	* @see Asset::create()
-	* @return mixed int or false
+	*
+	* @return mixed int|boolean
 	* @access public
 	*/
 	function create(&$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
-			return false;
+			return FALSE;
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
 			if (!system_asset_fns_create_cleanup($this)) {
-				$linkid = false;
+				$linkid = FALSE;
 			}
 		}
 
@@ -96,12 +97,14 @@ class Search_Manager extends Asset
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @see Asset::_getName()
+	*
+	* @return string
 	* @access private
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 
@@ -116,7 +119,7 @@ class Search_Manager extends Asset
 	*/
 	function canDelete()
 	{
-		return false;
+		return FALSE;
 
 	}//end canDelete()
 
@@ -129,7 +132,7 @@ class Search_Manager extends Asset
 	*/
 	function canClone()
 	{
-		return false;
+		return FALSE;
 
 	}//end canClone()
 
@@ -140,19 +143,19 @@ class Search_Manager extends Asset
 	/**
 	* Event fired when an asset is updated
 	*
-	* @param &object Asset	&$broadcaster	the asset that triggered the event
-	* @param Array			$vars			the vars that get submitted by the broadcaster
-	*										Component is set as $vars['component']
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
+	*								Component is set as $vars['component']
 	*
 	* @return boolean
 	* @access public
 	*/
 	function onAssetUpdate(&$broadcaster, $vars=Array())
 	{
-		if (!$this->attr('indexing')) return false;
+		if (!$this->attr('indexing')) return FALSE;
 		$this->reindexAsset($broadcaster, $vars);
 
-		return true;
+		return TRUE;
 
 	}//end onAssetUpdate()
 
@@ -160,19 +163,19 @@ class Search_Manager extends Asset
 	/**
 	* Event fired when an asset is created
 	*
-	* @param &object Asset	&$broadcaster	the asset that triggered the event
-	* @param Array			$vars			the vars that get submitted by the broadcaster
-	*										Component is set as $vars['component']
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
+	*								Component is set as $vars['component']
 	*
 	* @return boolean
 	* @access public
 	*/
 	function onAssetCreate(&$broadcaster, $vars=Array())
 	{
-		if (!$this->attr('indexing')) return false;
+		if (!$this->attr('indexing')) return FALSE;
 		$this->reindexAsset($broadcaster, $vars);
 
-		return true;
+		return TRUE;
 
 	}//end onAssetCreate()
 
@@ -180,19 +183,19 @@ class Search_Manager extends Asset
 	/**
 	* Event fired when an asset has its status changed
 	*
-	* @param &object Asset	&$broadcaster	the asset that triggered the event
-	* @param Array			$vars			the vars that get submitted by the broadcaster
-	*										Component is set as $vars['component']
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
+	*								Component is set as $vars['component']
 	*
 	* @return boolean
 	* @access public
 	*/
 	function onAssetStatusUpdate(&$broadcaster, $vars=Array())
 	{
-		if (!$this->attr('indexing')) return false;
+		if (!$this->attr('indexing')) return FALSE;
 		$this->reindexAsset($broadcaster, Array('status_changed', 'published'));
 
-		return true;
+		return TRUE;
 
 	}//end onAssetStatusUpdate()
 
@@ -200,18 +203,18 @@ class Search_Manager extends Asset
 	/**
 	* Event fired when an assets atrtributes have changed
 	*
-	* @param &object Asset	&$broadcaster	the asset that triggered the event
-	* @param Array			$vars			a list of attributes that have changed
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			a list of attributes that have changed
 	*
 	* @return boolean
 	* @access public
 	*/
 	function onAttributeChange(&$broadcaster, $vars=Array())
 	{
-		if (!$this->attr('indexing')) return false;
+		if (!$this->attr('indexing')) return FALSE;
 		$this->reindexAttributes($broadcaster, $vars);
 
-		return true;
+		return TRUE;
 
 	}//end onAttributeChange()
 
@@ -219,19 +222,19 @@ class Search_Manager extends Asset
 	/**
 	* Event fired when an asset is created
 	*
-	* @param &object Asset	&$broadcaster	the asset that triggered the event
-	* @param Array			$vars			the vars that get submitted by the broadcaster
-	*										Component is set as $vars['component']
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
+	*								Component is set as $vars['component']
 	*
 	* @return boolean
 	* @access public
 	*/
 	function onContentsUpdated(&$broadcaster, $vars=Array())
 	{
-		if (!$this->attr('indexing')) return false;
+		if (!$this->attr('indexing')) return FALSE;
 		$this->reindexContents($broadcaster, $vars);
 
-		return true;
+		return TRUE;
 
 	}//end onContentsUpdated()
 
@@ -239,16 +242,16 @@ class Search_Manager extends Asset
 	/**
 	* Event fired when an asset gets deleted. We want to flush any key data in the index table
 	*
-	* @param &object Asset	&$broadcaster	the asset that triggered the event
-	* @param Array		$vars				the vars that get submitted by the broadcaster
-	*										Component is set as $vars['component']
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
+	*								Component is set as $vars['component']
 	*
 	* @return void
 	* @access public
 	*/
 	function onAssetDeleted(&$broadcaster, $vars=Array())
 	{
-		if (!$this->attr('indexing')) return false;
+		if (!$this->attr('indexing')) return FALSE;
 		return $this->flushIndexableContent($broadcaster->id);
 
 	}//end onAssetDeleted()
@@ -260,10 +263,10 @@ class Search_Manager extends Asset
 	/**
 	* Reindex this asset and, if specified, the metadata associated with this asset
 	*
-	* @param &object Asset		$asset		the asset to reindex
-	* @param Array				$components	the components to reindex - 'asset' to
-	*										reindex the core components of the asset, and
-	*										'metadata' to reindex metadata or 'all' for both
+	* @param object	&$asset	the asset to reindex
+	* @param array	$vars	the components to reindex - 'asset' to
+	*						reindex the core components of the asset, and
+	*						'metadata' to reindex metadata or 'all' for both
 	*
 	* @return void
 	* @access public
@@ -271,7 +274,7 @@ class Search_Manager extends Asset
 	function reindexAsset(&$asset, $vars=Array())
 	{
 		// if search manager is reindexed then there is infinite recursion!!!
-		if ($asset->id == $this->id) return false;
+		if ($asset->id == $this->id) return FALSE;
 
 		// only delete the vars that have changed
 		$flush_vars = Array();
@@ -298,9 +301,9 @@ class Search_Manager extends Asset
 	/**
 	* Reindex the specified asset's attributes
 	*
-	* @param &object Asset		$asset		the asset to reindex
-	* @param Array				$vars		a list of attribute names that have
-	*										changed
+	* @param object	&$asset	the asset to reindex
+	* @param array	$vars	a list of attribute names that have
+	*						changed
 	*
 	* @return void
 	* @access public
@@ -308,7 +311,7 @@ class Search_Manager extends Asset
 	function reindexAttributes(&$asset, $vars=Array())
 	{
 		// if search manager is reindexed then there is infinite recursion!!!
-		if ($asset->id == $this->id) return false;
+		if ($asset->id == $this->id) return FALSE;
 
 		// only delete the attributes that have changed
 		$flush_vars = Array();
@@ -319,7 +322,7 @@ class Search_Manager extends Asset
 			$flush_vars = array_keys($this->getIndexableAttributes($asset->type()));
 		}
 
-		for (reset($flush_vars); null !== ($key = key($flush_vars)); next($flush_vars)) {
+		for (reset($flush_vars); NULL !== ($key = key($flush_vars)); next($flush_vars)) {
 			$flush_vars[$key] = 'attr:'.$flush_vars[$key];
 		}
 		if (!empty($flush_vars)) {
@@ -337,9 +340,9 @@ class Search_Manager extends Asset
 	/**
 	* Reindex the specified asset's attributes
 	*
-	* @param &object Asset		$asset		the asset to reindex
-	* @param Array				$vars		a list of attribute names that have
-	*										changed
+	* @param object	&$asset	the asset to reindex
+	* @param array	$vars	a list of attribute names that have
+	*						changed
 	*
 	* @return void
 	* @access public
@@ -349,9 +352,9 @@ class Search_Manager extends Asset
 		// Find the asset that we want to index the content under.
 		// this will be the top most dependant asset above this asset
 		if (!$indexing_assetid = $this->getIndexingAssetid($asset)) {
-			return false;
+			return FALSE;
 		}
-		$indexing_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($indexing_assetid);
+		$indexing_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($indexing_assetid);
 		$index_content  = $this->getIndexableContent($indexing_asset);
 
 		$this->flushIndexableContent($indexing_assetid, Array('__contents__'));
@@ -365,18 +368,18 @@ class Search_Manager extends Asset
 	/**
 	* Returns the assetid in which content should be indexed under for the specified asset
 	*
-	* @param &object Asset	$asset	the asset to find the indexing asset for
+	* @param object	&$asset	the asset to find the indexing asset for
 	*
-	* @return mixed the assetid or false if there is no indexing asset
+	* @return mixed int|boolean
 	* @access public
 	*/
 	function getIndexingAssetid(&$asset)
 	{
-		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_ALL, '', false, 'minor');
-		if (empty($links)) return false;
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_ALL, '', FALSE, 'minor');
+		if (empty($links)) return FALSE;
 
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($asset->id);
-		$parents = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($parents, Array(), false, 'type_code');
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($parents, Array(), FALSE, 'type_code');
 
 		if (empty($parents)) return $asset->id;
 
@@ -391,9 +394,10 @@ class Search_Manager extends Asset
 	/**
 	* Returns the indexable content for the specified asset
 	*
-	* @param &object	Asset	$asset			the asset to obtain the indexable content for
-	* @param Array				$changed_vars	the asset vars that have changed
-	* @return Array
+	* @param object	&$asset			the asset to obtain the indexable content for
+	* @param array	$changed_vars	the asset vars that have changed
+	*
+	* @return array
 	* @access public
 	*/
 	function getIndexableAssetContent(&$asset, $changed_vars)
@@ -409,7 +413,9 @@ class Search_Manager extends Asset
 		// index the name and the short name
 		foreach (Array('name', 'short_name') as $name_type) {
 
-			if (!in_array($name_type, $changed_vars) && !$reindex_all) continue;
+			if (!in_array($name_type, $changed_vars) && !$reindex_all) {
+				continue;
+			}
 
 			$name_index = '__'.$name_type.'__';
 			// if there are no weightings, we dont want to index this name
@@ -440,7 +446,9 @@ class Search_Manager extends Asset
 
 		foreach ($dates as $type => $date) {
 
-			if (!in_array($type, $changed_vars)  && !$reindex_all) continue;
+			if (!in_array($type, $changed_vars)  && !$reindex_all) {
+				continue;
+			}
 
 			// if there are no weightings, we don't want to index this date
 			if (!isset($weightings['__'.$type.'__'])) continue;
@@ -470,15 +478,16 @@ class Search_Manager extends Asset
 
 		return $index_content;
 
-	}//end getIndexableContent()
+	}//end getIndexableAssetContent()
 
 
 	/**
 	* Returns the indexable content for the specified asset's attributes
 	*
-	* @param &object	Asset $asset	the asset to obtain the indexable content for
+	* @param object	&$asset			the asset to obtain the indexable content for
+	* @param array	$changed_vars	attributes that have been changed
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getIndexableAttributeContent(&$asset, $changed_vars)
@@ -491,7 +500,9 @@ class Search_Manager extends Asset
 		foreach ($asset->vars as $var_name => $var_data) {
 
 			// only reindex the attributes that have been changed
-			if (!in_array($var_name, $changed_vars) && !$reindex_all) continue;
+			if (!in_array($var_name, $changed_vars) && !$reindex_all) {
+				continue;
+			}
 
 			// if there is no weightings for this attribute, then its not indexable
 			if (!isset($weightings[$var_name])) continue;
@@ -499,13 +510,13 @@ class Search_Manager extends Asset
 			// don't index attribute that are names or short names as we index these
 			// as part of the asset components
 			if ($var_name == 'name' || $var_name == 'short_name') {
-				//continue;
+				// continue;
 			}
 
 			// don't index passwords
 			if ($var_data['type'] == 'password') continue;
 
-			$attribute = &$asset->getAttribute($var_name);
+			$attribute =& $asset->getAttribute($var_name);
 			$value = strtolower($attribute->getContent());
 			if (empty($value)) continue;
 
@@ -538,9 +549,9 @@ class Search_Manager extends Asset
 	/**
 	* Returns the content for the specfied asset
 	*
-	* @param &object	Asset $asset	the asset to obtain the indexable content for
+	* @param object	&$asset	the asset to obtain the indexable content for
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getIndexableContent(&$asset)
@@ -578,7 +589,7 @@ class Search_Manager extends Asset
 	* Adds the sepecifed index content for the specified assetid to the indexing system
 	*
 	* @param string	$assetid		the assetid to index the content under
-	* @param Array	$index_content	the content to index
+	* @param array	&$index_content	the content to index
 	*
 	* @return boolean
 	* @access public
@@ -586,15 +597,15 @@ class Search_Manager extends Asset
 	function addIndexableContent($assetid, &$index_content)
 	{
 		// don't run if indexing turned OFF
-		if (!$this->attr('indexing')) return false;
-		if (!is_array($index_content)) return false;
+		if (!$this->attr('indexing')) return FALSE;
+		if (!is_array($index_content)) return FALSE;
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$param_data = Array();
 
 		$keys = array_keys($index_content);
 		foreach ($keys as $key) {
-			$data = &$index_content[$key];
+			$data =& $index_content[$key];
 			$value = $data['value'];
 
 			if (trim($value) == '') continue;
@@ -612,7 +623,7 @@ class Search_Manager extends Asset
 					$value = $this->_getRawNumberInText($value);
 
 					// filter noise words
-					if (!$this->isWordIndexable($value)) continue 2; //continue the foreach loop
+					if (!$this->isWordIndexable($value)) continue 2; // continue the foreach loop
 
 				// NOTE: break is omitted on purpose
 				case 'thesaurus':
@@ -636,7 +647,7 @@ class Search_Manager extends Asset
 
 		}//end foreach
 
-		if (empty($param_data)) return false;
+		if (empty($param_data)) return FALSE;
 		$insert_st = $db->prepare(
 					'INSERT INTO
 						sq_sch_idx
@@ -665,7 +676,7 @@ class Search_Manager extends Asset
 
 		$db->freePrepared($insert_st);
 
-		return true;
+		return TRUE;
 
 	}//end addIndexableContent()
 
@@ -673,8 +684,8 @@ class Search_Manager extends Asset
 	/**
 	* Flush the keydata for an asset
 	*
-	* @param int		$assetid	ID of the asset
-	* @param string		$component	the component to which the keydata pertains (e.g. metadata or attribute)
+	* @param int	$assetid	ID of the asset
+	* @param array	$components	the components to which the keydata pertains (e.g. metadata or attribute)
 	*
 	* @return void
 	* @access public
@@ -685,13 +696,13 @@ class Search_Manager extends Asset
 		if (!$this->attr('indexing')) return;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'DELETE FROM
 					sq_sch_idx
 				WHERE
 					assetid = '.$db->quoteSmart((string) $assetid);
 		if (!empty($components)) {
-			for (reset($components); null !== ($key = key($components)); next($components)) {
+			for (reset($components); NULL !== ($key = key($components)); next($components)) {
 				$components[$key] = $db->quoteSmart((string) $components[$key]);
 			}
 			$sql .= ' AND component IN ('.implode(',', $components).')';
@@ -710,11 +721,12 @@ class Search_Manager extends Asset
 	*
 	* @param string	$assetid	the assetid of the wanted components
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
-	function getIndexedComponents($assetid) {
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+	function getIndexedComponents($assetid)
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT
 					component
@@ -734,13 +746,13 @@ class Search_Manager extends Asset
 	/**
 	* Get ids of assets having same words as the supplied asset
 	*
-	* @param string	$assetid	ID of the asset
+	* @param string	$source_id	ID of the asset
 	* @param string	$type		type of the asset to restrict the search by
 	*
 	* @return array
 	* @access public
 	*/
-	function getAssetidsByWordIntersection($source_id, $type=null)
+	function getAssetidsByWordIntersection($source_id, $type=NULL)
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
@@ -769,7 +781,7 @@ class Search_Manager extends Asset
 	/**
 	* Returns a list of indexable compents for all assets
 	*
-	* @return Array ($component => $display_name)
+	* @return array
 	* @access public
 	*/
 	function getIndexableAssetComponents()
@@ -793,9 +805,9 @@ class Search_Manager extends Asset
 	/**
 	* Returns a list of indexable components for a specified asset type
 	*
-	* @param string	$type_code the type code
+	* @param string	$type_code	the type code
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getIndexableAttributes($type_code)
@@ -866,16 +878,16 @@ class Search_Manager extends Asset
 	*
 	* Check is performed according to the current indexing parameters
 	*
-	* @param string		$word	word to check
+	* @param string	$word	word to check
 	*
 	* @return boolean
 	* @access public
 	*/
 	function isWordIndexable($word)
 	{
-		//Make sure db constraints aren't breached
+		// Make sure db constraints aren't breached
 		$max_length = 255;
-		if (strlen($word) > $max_length) return false;
+		if (strlen($word) > $max_length) return FALSE;
 
 		$min_length = $this->attr('min_word_length');
 		return $this->isWhiteWord($word) || (strlen($word) >= $min_length && !$this->isNoiseWord($word));
@@ -911,7 +923,7 @@ class Search_Manager extends Asset
 		}
 		return $value;
 
-	}//end _checkRawNumberInText()
+	}//end _getRawNumberInText()
 
 
 //--        METADATA INDEXING        --//
@@ -920,13 +932,13 @@ class Search_Manager extends Asset
 	/**
 	* Event fired when metadata manager wants some metadata reindexed
 	*
-	* @param &object Asset	&$broadcaster	the asset that triggered the event (should be meta. mgr)
-	* @param Array			$vars			the vars that get submitted by the broadcaster
-	*										Asset ID is set as $vars['assetid']
-	*										Schema Asset IDs is set as $vars['schemaids']
+	* @param object	&$broadcaster	the asset that triggered the event (should be meta. mgr)
+	* @param array	$vars			the vars that get submitted by the broadcaster
+	*								Asset ID is set as $vars['assetid']
+	*								Schema Asset IDs is set as $vars['schemaids']
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function onMetadataUpdate(&$broadcaster, $vars=Array())
 	{
@@ -938,19 +950,19 @@ class Search_Manager extends Asset
 	/**
 	* Event fired when metadata manager wants some metadata deleted
 	*
-	* @param &object Asset	&$broadcaster	the asset that triggered the event (should be meta. mgr)
-	* @param Array			$vars			the vars that get submitted by the broadcaster
-	*										Asset ID is set as $vars['assetid']
-	*										Schema Asset IDs is set as $vars['schemaids']
+	* @param object	&$broadcaster	the asset that triggered the event (should be meta. mgr)
+	* @param array	$vars			the vars that get submitted by the broadcaster
+	*								Asset ID is set as $vars['assetid']
+	*								Schema Asset IDs is set as $vars['schemaids']
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function onMetadataDeleted(&$broadcaster, $vars=Array())
 	{
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$fieldids = array_keys($mm->getMetadataFields(Array($vars['schemaid'])));
-		for (reset($fieldids); null !== ($key = key($fieldids)); next($fieldids)) {
+		for (reset($fieldids); NULL !== ($key = key($fieldids)); next($fieldids)) {
 			$fieldids[$key] = 'metadata:'.$fieldids[$key];
 		}
 
@@ -963,6 +975,7 @@ class Search_Manager extends Asset
 	* Re-indexes the metadata components for the specified asset
 	*
 	* @param string	$assetid	the assetid to reindex
+	* @param array	$vars		the schemas to renidex
 	*
 	* @return void
 	* @access public
@@ -970,14 +983,14 @@ class Search_Manager extends Asset
 	function reindexMetadata($assetid, $vars=Array())
 	{
 		assert_valid_assetid($assetid);
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		if (in_array('all', $vars)) {
 			$fieldids = $mm->getMetadataFields($mm->getSchemas($assetid));
 		} else if (in_array('schemaid', array_keys($vars))) {
-			$fieldids = $mm->getMetadataFields($vars['schemaid'], true);
+			$fieldids = $mm->getMetadataFields($vars['schemaid'], TRUE);
 		} else {
-			$fieldids = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($vars['fieldids'], Array(), true, 'type_code');
+			$fieldids = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($vars['fieldids'], Array(), TRUE, 'type_code');
 		}
 		$flush_fieldids = Array();
 		foreach (array_keys($fieldids) as $fieldid) {
@@ -988,7 +1001,7 @@ class Search_Manager extends Asset
 			$this->flushIndexableContent($assetid, $flush_fieldids);
 		}
 
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		$this->addIndexableContent($assetid, $this->getIndexableMetadataContent($asset, $fieldids));
 
 	}//end reindexMetadata()
@@ -997,22 +1010,22 @@ class Search_Manager extends Asset
 	/**
 	* Returns the indexable metadata content for the specified asset
 	*
-	* @param &Object	Asset	$asset			The asset to get the indexable content fors
-	* @param Array				$fieldids		Array of fieldid => type_code to limit to
+	* @param object	&$asset		The asset to get the indexable content fors
+	* @param array	$fieldids	Array of fieldid => type_code to limit to
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getIndexableMetadataContent(&$asset, $fieldids=Array())
 	{
 		$index_content = Array();
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$type_code = $asset->type();
 
 		if (is_null($asset)) return $index_content;
 
 		if (empty($fieldids)) {
-			$fieldids = $mm->getMetadataFields($mm->getSchemas($asset->id, true));
+			$fieldids = $mm->getMetadataFields($mm->getSchemas($asset->id, TRUE));
 		}
 
 		$metadata = $mm->getMetadata($asset->id);
@@ -1020,11 +1033,11 @@ class Search_Manager extends Asset
 		foreach ($fieldids as $fieldid => $field_type) {
 
 			// dont index this fieldid if getMetadataWeighting return false
-			if (false === ($weighting = $this->getMetadataWeighting($asset->id, $fieldid))) {
+			if (FALSE === ($weighting = $this->getMetadataWeighting($asset->id, $fieldid))) {
 				continue;
 			}
 
-			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid, $field_type);
+			$field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid, $field_type);
 
 			if (isset($metadata[$field->id]['value'])) {
 				$value = $metadata[$field->id]['value'];
@@ -1046,7 +1059,7 @@ class Search_Manager extends Asset
 			} else {
 
 				$keywords = retrieve_keywords_replacements($value, '.');
-				$value = replace_keywords($value, $mm->generateKeywordReplacements($asset, $keywords, false));
+				$value = replace_keywords($value, $mm->generateKeywordReplacements($asset, $keywords, FALSE));
 
 				switch ($field_type) {
 					case 'metadata_field_select':
@@ -1102,9 +1115,9 @@ class Search_Manager extends Asset
 	*  <li> All components are returned a default weighing of 1</li>
 	* </ul>
 	*
-	* @param string	$assetid 	the assetid to obtain the weightings for
+	* @param string	$assetid	the assetid to obtain the weightings for
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function getWeightings($assetid)
@@ -1116,12 +1129,12 @@ class Search_Manager extends Asset
 
 			// if we can't find any weightings specific to this asset, check
 			// to see if there are any tree weightings for this asset
-			$weightings = $this->getAssetTreeWeightings($assetid, false);
+			$weightings = $this->getAssetTreeWeightings($assetid, FALSE);
 
 			// if we can't find any tree weightings that this asset exists under
 			// check the asset type weightings.
 			if (empty($weightings)) {
-				$type_code = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), true, 'type_code');
+				$type_code = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'type_code');
 				$type_code = $type_code[$assetid];
 				$weightings = $this->getAssetTypeWeightings($type_code);
 
@@ -1170,18 +1183,18 @@ class Search_Manager extends Asset
 	*  <li> A default weighing of 1 is returned </li>
 	* </ul>
 	*
-	* @param string	$assetid 	the assetid to get the weightings for
+	* @param string	$assetid	the assetid to get the weightings for
 	* @param string	$fieldid	the fieldid of the metadata field
 	*
-	* @return Array() or false if the fieldid should not be indexed
+	* @return mixed array|boolean
 	* @access public
 	*/
 	function getMetadataWeighting($assetid, $fieldid)
 	{
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
-		$section_link = $GLOBALS['SQ_SYSTEM']->am->getLink($fieldid, SQ_LINK_TYPE_2, 'metadata_section', true, null, 'minor');
-		$schema_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($section_link['majorid'], SQ_LINK_TYPE_2, 'metadata_schema', true, 'minor');
+		$section_link = $GLOBALS['SQ_SYSTEM']->am->getLink($fieldid, SQ_LINK_TYPE_2, 'metadata_section', TRUE, NULL, 'minor');
+		$schema_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($section_link['majorid'], SQ_LINK_TYPE_2, 'metadata_schema', TRUE, 'minor');
 		$sectionid    = $section_link['majorid'];
 		$schemaids    = Array();
 
@@ -1189,7 +1202,7 @@ class Search_Manager extends Asset
 			$schemaids[] = $schema_info['majorid'];
 		}
 
-		$info      = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($fieldid), Array(), true, 'type_code');
+		$info      = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($fieldid), Array(), TRUE, 'type_code');
 		$type_code = $info[$fieldid];
 
 		$weight_sources = Array(
@@ -1206,7 +1219,7 @@ class Search_Manager extends Asset
 			if (!empty($weightings) && isset($weightings['metadata_weights'])) {
 				$weight = $this->_getLocalMetadataWeightings($weightings['metadata_weights'], $fieldid, $sectionid, $schemaids);
 				// if the weight is false then we don't want to index this field
-				if ($weight === false) return false;
+				if ($weight === FALSE) return FALSE;
 				// if the weight is not -1 then this is the wieght to use
 				// otherwise continue to the next source
 				if ($weight != -1) return $weight;
@@ -1224,14 +1237,15 @@ class Search_Manager extends Asset
 	*
 	* Drills up the metadata tree going from the field => section => schema to find
 	* any metadata weightings applicable for this field
+	* Returns the weighting for the field or false if the fieldid is not to be indexed
+	* -1 if no weighting could be found
 	*
-	* @param Array		$weightings	the weightigns to search
-	* @param string		$fieldid	the fieldid of the metadata field
-	* @param string		$sectionid	the sectionid that the field is a child of
-	* @param string 	$schemaids	the schemaid that the section is a child of
+	* @param array	$weightings	the weightigns to search
+	* @param string	$fieldid	the fieldid of the metadata field
+	* @param string	$sectionid	the sectionid that the field is a child of
+	* @param string	$schemaids	the schemaid that the section is a child of
 	*
-	* @return int	the weighting for the field or false if the fieldid is not to be indexed
-	* 				-1 if no weighting could be found
+	* @return int
 	* @access private
 	*/
 	function _getLocalMetadataWeightings($weightings, $fieldid, $sectionid, $schemaids)
@@ -1239,12 +1253,12 @@ class Search_Manager extends Asset
 		if (!empty($weightings)) {
 			// check to see if there is an explicit weighting for the field
 			if (isset($weightings[$fieldid])) {
-				if (!$weightings[$fieldid]['indexed']) return false;
+				if (!$weightings[$fieldid]['indexed']) return FALSE;
 				return $weightings[$fieldid]['weight'];
 			} else {
 				// check for a weighting for the section that the field is under
 				if (isset($weightings[$sectionid])) {
-					if (!$weightings[$sectionid]['indexed']) return false;
+					if (!$weightings[$sectionid]['indexed']) return FALSE;
 					return $weightings[$sectionid]['weight'];
 				} else {
 					// check all the schemas that the section belongs under
@@ -1254,21 +1268,23 @@ class Search_Manager extends Asset
 
 					// check the index flag on all the schemas, and only turn off indexing
 					// for this fieldid if all schemas have indexing off
-					$index = false;
+					$index = FALSE;
 
 					foreach ($schemaids as $schemaid) {
 						if (isset($weightings[$schemaid])) {
-							if ($weightings[$schemaid]['indexed']) $index = true;
+							if ($weightings[$schemaid]['indexed']) $index = TRUE;
 							if ($weightings[$schemaid]['weight'] > $highest_weight) {
 								$highest_weight = $weightings[$schemaid]['weight'];
 							}
 						}
 					}
-					if (!$index && $highest_weight !== -1) return false;
+					if (!$index && $highest_weight !== -1) {
+						 return FALSE;
+					 }
 					if ($highest_weight !== -1) return $highest_weight;
 				}
 			}
-		}
+		}//end if !empty($weightings
 		// no weight could be found
 		return -1;
 
@@ -1279,24 +1295,25 @@ class Search_Manager extends Asset
 	* Returns the Asset Type weightings for the specified asset type, or all
 	* asset types if the specified type code is null
 	*
-	* @param string	$type_code	the type code of the wanted weightings, or null
-	*							for all asset type weightings
+	* @param string		$type_code			the type code of the wanted weightings, or null
+	*										for all asset type weightings
+	* @param boolean	$strict_type_code	strict or inherit type code
 	*
-	* @return Array
+	* @return array
 	* @access public
 	* @see saveTypeWeightings()
 	*/
-	function getAssetTypeWeightings($type_code=null, $strict_type_code=false)
+	function getAssetTypeWeightings($type_code=NULL, $strict_type_code=FALSE)
 	{
 		$root_folder_assetid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder');
 		// type weightings are stored under the root folder tree weightings
-		$weights = $this->getAssetTreeWeightings($root_folder_assetid, true, true);
+		$weights = $this->getAssetTreeWeightings($root_folder_assetid, TRUE, TRUE);
 
 		$type_weights = array_get_index($weights, 'type_weights', Array());
 		if (is_null($type_code)) return $type_weights;
 
 		if (!$strict_type_code) {
-			$type_hier = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, true);
+			$type_hier = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, TRUE);
 		} else {
 			$type_hier = Array($type_code);
 		}
@@ -1316,20 +1333,18 @@ class Search_Manager extends Asset
 	*
 	* @param string		$assetid			the assetid of the wanted tree weightings
 	*										or null for all asset tree weightings
-	*
 	* @param boolean	$strict_assetid		if TRUE only weightings that have been
 	*										customised explicitly using the specified assetid
 	*										will be returned, otherwise the closest weighting
 	*										customisation will be returned
-	*
 	* @param boolean	$strict_type_code	if TRUE only weightings matching the asset type of the
 	*										specified assetid will be returned
 	*
-	* @return Array
+	* @return array
 	* @access public
 	* @see saveTypeWeightings()
 	*/
-	function getAssetTreeWeightings($assetid=null, $strict_assetid=true, $strict_type_code=false)
+	function getAssetTreeWeightings($assetid=NULL, $strict_assetid=TRUE, $strict_type_code=FALSE)
 	{
 		$weightings_file = $this->data_path.'/asset_tree_weightings.inc';
 		if (file_exists($weightings_file)) {
@@ -1342,7 +1357,7 @@ class Search_Manager extends Asset
 						return $asset_tree_weightings[$assetid];
 					}
 				} else {
-					$type_code = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), true, 'type_code');
+					$type_code = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'type_code');
 					$type_code = $type_code[$assetid];
 					// firstly, check to see if there is an explicit entry for this assetid
 					if (isset($asset_tree_weightings[$assetid]['type_weights'][$type_code])) {
@@ -1362,7 +1377,7 @@ class Search_Manager extends Asset
 							// tree for the specified asset type. Note that tree proximity supersedes
 							// the type hierachy, so search the type hierachy if applicable
 							if (!$strict_type_code) {
-								$type_hier = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, true);
+								$type_hier = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, TRUE);
 								// add the current type code so that we can also find
 								// weightings for this type, not just its parent types
 								$type_hier[] = $type_code;
@@ -1396,7 +1411,7 @@ class Search_Manager extends Asset
 	/**
 	* Saves the asset tree weightings to file
 	*
-	* @param Array	$asset_tree_weightings	the complete asset tree weightings to save
+	* @param array	$asset_tree_weightings	the complete asset tree weightings to save
 	*
 	* @return boolean
 	* @access public
@@ -1414,11 +1429,11 @@ class Search_Manager extends Asset
 	* @param string	$assetid	the assetid of the wanted weightings
 	*							if null, weightings for all assets set will be returned
 	*
-	* @return Array
+	* @return array
 	* @access public
 	* @see saveTypeWeightings()
 	*/
-	function getAssetWeightings($assetid=null)
+	function getAssetWeightings($assetid=NULL)
 	{
 		$weightings_file = $this->data_path.'/asset_weightings.inc';
 		if (file_exists($weightings_file)) {
@@ -1439,7 +1454,7 @@ class Search_Manager extends Asset
 	/**
 	* Saves the Asset Weightings
 	*
-	* @param array	$type_weights	the array of weights to save
+	* @param array	$asset_weightings	the array of weights to save
 	*
 	* @return boolean
 	* @access public
@@ -1458,11 +1473,11 @@ class Search_Manager extends Asset
 	* @param string	$assetid	the assetid of the wanted weightings
 	*							if null, weightings for all assets set will be returned
 	*
-	* @return Array
+	* @return array
 	* @access public
 	* @see saveTypeWeightings()
 	*/
-	function getMetadataWeightings($assetid=null)
+	function getMetadataWeightings($assetid=NULL)
 	{
 		$weightings_file = $this->data_path.'/metadata_weightings.inc';
 		if (file_exists($weightings_file)) {
@@ -1483,7 +1498,7 @@ class Search_Manager extends Asset
 	/**
 	* Saves the metadata weightings to file
 	*
-	* @param $metadata_weightings	the complete metadata weightings to save
+	* @param array	$metadata_weightings	the complete metadata weightings to save
 	*
 	* @return boolean
 	* @access public
@@ -1498,7 +1513,7 @@ class Search_Manager extends Asset
 	/**
 	* Saves the weightings to the specified file
 	*
-	* @param array	$weightings the weightings to save
+	* @param array	$weightings	the weightings to save
 	* @param string	$type		the type of weightings, which should be one of
 	*							asset_type, asset, asset_tree
 	*
@@ -1509,12 +1524,12 @@ class Search_Manager extends Asset
 	{
 		if (!in_array($type, Array('asset_type', 'asset', 'asset_tree', 'metadata'))) {
 			trigger_error('Invalid weightings type "'.$type.'"', E_USER_ERROR);
-			return false;
+			return FALSE;
 		}
 		$weightings_file = $this->data_path.'/'.$type.'_weightings.inc';
 
 		$output = '<'.'?php'."\n".' $'.$type.'_weightings = ';
-		$output .= var_export($weightings, true);
+		$output .= var_export($weightings, TRUE);
 		$output .= "\n?".'>';
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
@@ -1522,9 +1537,9 @@ class Search_Manager extends Asset
 		create_directory($this->data_path);
 		if (!string_to_file($output, $weightings_file)) {
 			trigger_error('Could not write out the '.str_replace('_', ' ', $type).' weightings to file', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
-		return true;
+		return TRUE;
 
 	}//end _saveWeightings()
 
@@ -1540,14 +1555,14 @@ class Search_Manager extends Asset
 	* @param boolean	$include_scores	Determines whether scores are returned (true) or just
 	*									the keywords (false). Affects return value.
 	*
-	* @return Array	depends on $include_scores:
+	* @return array	depends on $include_scores:
 	*				false: Array(string) containing keywords ordered in decreasing total score
 	*				true: Array(string => int) score array indexed by keyword, ordered same way
 	* @access public
 	*/
-	function extractKeywords(&$asset, $include_metadata=false, $include_scores=false)
+	function extractKeywords(&$asset, $include_metadata=FALSE, $include_scores=FALSE)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT
 					LOWER(value) as keyword, SUM(score) as total_score
@@ -1584,7 +1599,7 @@ class Search_Manager extends Asset
 	*
 	* @param string	$words	the words string
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function generateWordList($words)
@@ -1598,7 +1613,7 @@ class Search_Manager extends Asset
 				// if this is an email, skip the following check...
 				$at_pos  = strpos($words[$i], '@');
 				$dot_pos = strpos($words[$i], '.');
-				if ($at_pos === false && $dot_pos === false) {
+				if ($at_pos === FALSE && $dot_pos === FALSE) {
 					// preserve the wildcard symbols - i.e. don't quote them
 					if (ereg('^[A-z%_0-9\']+$', $words[$i])) {
 							$words[$i] = addslashes($words[$i]);
@@ -1660,16 +1675,16 @@ class Search_Manager extends Asset
 	*				(assetid => total score) otherwise
 	* @access public
 	*/
-	function processSearch($search_info, $include_context=false)
+	function processSearch($search_info, $include_context=FALSE)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc'; // will definitely need this later.
 
 		  /////////////////////////////
 		 //  CONSTRUCT CACHING KEY  //
 		/////////////////////////////
 		// we need the cache manager to cache the results of queries
-		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		if (empty($search_info['roots'])) {
 			$search_cache_key = 'systemWide';
 		} else {
@@ -1701,13 +1716,13 @@ class Search_Manager extends Asset
 		 //  HANDLE ANY SHADOW ASSET OR BRIDGE ROOT NODES  //
 		////////////////////////////////////////////////////
 		$root_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($search_info['roots']);
-		$shadow_results = null;
+		$shadow_results = NULL;
 		foreach ($root_info as $assetid => $root) {
 			$shadow_results = Array();
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($root['type_code']);
 			// assert class implements bridge and contains method
 			if (implements_interface($root['type_code'], 'bridge') && is_callable(Array($root['type_code'], 'processSearch'))) {
-				$shadow_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$shadow_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$shadow_results = $this->_combineResults($shadow_results, $shadow_asset->processSearch($search_info, $include_context), array_get_index($search_info, 'root_logic', 'OR'));
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($shadow_asset);
 			}
@@ -1731,11 +1746,11 @@ class Search_Manager extends Asset
 		 //  PROCESS EACH FIELD  //
 		//////////////////////////
 		$field_logic = array_get_index($search_info, 'field_logic', 'OR');
-		$final_results = null;
+		$final_results = NULL;
 		$term_totals = Array();
 
 		foreach ($search_info['fields'] as $field_name => $field_details) {
-			$field_results = null;
+			$field_results = NULL;
 			$word_logic = array_get_index($field_details, 'word_logic', 'AND');
 			$data_source_logic = array_get_index($field_details, 'data_source_logic', 'OR');
 
@@ -1756,7 +1771,7 @@ class Search_Manager extends Asset
 				} else if ($search_type == 'date') {
 					$data_source_results = $this->_processDateSearch($field_details['words'], $data_source, $base_query);
 				} else {
-					$data_source_results = null;
+					$data_source_results = NULL;
 					foreach ($field_details['words'] as $search_term) {
 						$term_results = $this->_processWordSearch($search_term, $data_source, $base_query);
 						$term_totals[$search_term] = array_get_index($term_totals, $search_term, 0) + count($term_results);
@@ -1767,7 +1782,7 @@ class Search_Manager extends Asset
 				$field_results = $this->_combineResults($field_results, $data_source_results, $data_source_logic);
 			}
 			$final_results = $this->_combineResults($final_results, $field_results, $field_logic);
-		}
+		}//end foreach $search_info['fields']
 
 		  //////////////////////////////
 		 //  PROCESS EXCLUDED TERMS  //
@@ -1835,8 +1850,8 @@ class Search_Manager extends Asset
 		}
 
 		// figure out if we should treat this field as a date/time range
-		$is_datetime = true;
-		$is_numeric = false;
+		$is_datetime = TRUE;
+		$is_numeric = FALSE;
 		foreach ($field_details['data_sources'] as $i => $data_source) {
 			switch ($data_source['type']) {
 
@@ -1847,18 +1862,20 @@ class Search_Manager extends Asset
 						unset($field_details['data_sources'][$i]);
 						continue;
 					}
-					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($attrid);
+					$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($attrid);
 					if (is_null($attribute)) {
 						unset($field_details['data_sources'][$i]);
 						continue;
 					}
 					if (!is_a($attribute, 'asset_attribute_datetime')) {
-						$is_datetime = false;
+						$is_datetime = FALSE;
 					}
 					if (is_a($attribute, 'asset_attribute_int') || is_a($attribute, 'asset_attribute_float')) {
-						$is_numeric = true;
+						$is_numeric = TRUE;
 					}
-					if (!$is_datetime || $is_numeric) break 2;
+					if (!$is_datetime || $is_numeric) {
+						break 2;
+					}
 				break;
 
 				case 'metadata':
@@ -1866,13 +1883,13 @@ class Search_Manager extends Asset
 						unset($field_details['data_sources'][$i]);
 						continue;
 					}
-					$metadata_field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
+					$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
 					if (is_null($metadata_field)) {
 						unset($field_details['data_sources'][$i]);
 						continue;
 					}
 					if (!is_a($metadata_field, 'metadata_field_date')) {
-						$is_datetime = false;
+						$is_datetime = FALSE;
 						break(2);
 					}
 				break;
@@ -1884,7 +1901,7 @@ class Search_Manager extends Asset
 						continue;
 					}
 					if (isset($this->standard_text_fields[$asset_field])) {
-						$is_datetime = false;
+						$is_datetime = FALSE;
 						break(2);
 					} else if (!isset($this->standard_date_fields[$asset_field])) {
 						trigger_error('Invalid standard field "'.$asset_field.'"', E_USER_WARNING);
@@ -1893,7 +1910,7 @@ class Search_Manager extends Asset
 				break;
 
 				case 'include_all':
-					$is_datetime = false;
+					$is_datetime = FALSE;
 					break(2);
 				break;
 
@@ -1915,8 +1932,8 @@ class Search_Manager extends Asset
 			}
 			$field_details['words'] = Array('from' => $from, 'to' => $to);
 		} else if ($is_numeric) {
-			$lower = array_get_index($field_details['words'], 'lower', null);
-			$upper = array_get_index($field_details['words'], 'upper', null);
+			$lower = array_get_index($field_details['words'], 'lower', NULL);
+			$upper = array_get_index($field_details['words'], 'upper', NULL);
 			$field_details['words'] = Array('lower' => $lower, 'upper' => $upper);
 		} else {
 			// remove unindexable words
@@ -1992,7 +2009,7 @@ class Search_Manager extends Asset
 				break;
 
 				case 'metadata':
-					$metadata_field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
+					$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
 					$key_types = Array(
 									'metadata_field_select'		=> 'selection',
 									'metadata_field_thesaurus'	=> 'thesaurus',
@@ -2039,8 +2056,8 @@ class Search_Manager extends Asset
 	* @param array	$data_source	Details of the data source to search in
 	* @param array	$base_query		The base of the sql query to use
 	*
-	* @access public
 	* @return void
+	* @access private
 	*/
 	function _processDateSearch($date_range, $data_source, $base_query)
 	{
@@ -2068,12 +2085,12 @@ class Search_Manager extends Asset
 
 				case 'asset_attrib':
 					// TODO: restrict by asset type here?
-					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
+					$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
 					$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attribute->name);
 				break;
 
 				case 'metadata':
-					$metadata_field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($attr_info['params']['assetid']);
+					$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($attr_info['params']['assetid']);
 					$key_types = Array(
 									'metadata_field_select'		=> 'selection',
 									'metadata_field_thesaurus'	=> 'thesaurus',
@@ -2093,7 +2110,17 @@ class Search_Manager extends Asset
 				break;
 
 			}
-			$base_query['where'][] = 'ai.value BETWEEN '.$db->quote($date_range['from']).' AND '.$db->quote($date_range['to']);
+
+			// when one field is left blank, we are searching for anything before or after that date
+			// else we look between the given dates
+			if ($date_range['from'] == '---------- --:--:--' && $date_range['to'] != '---------- --:--:--') {
+				$base_query['where'][] = 'ai.value <= '.$db->quoteSmart($date_range['to']);
+			} else if ($date_range['to'] == '---------- --:--:--' && $date_range['from'] != '---------- --:--:--') {
+				$base_query['where'][] = 'ai.value >= '.$db->quoteSmart($date_range['from']);
+			} else {
+				$base_query['where'][] = 'ai.value BETWEEN '.$db->quote($date_range['from']).' AND '.$db->quote($date_range['to']);
+			}
+
 			$sql = implode_sql($base_query);
 			if (count($base_query['select']) > 2) {
 				$result = $db->getAll($sql);
@@ -2110,6 +2137,16 @@ class Search_Manager extends Asset
 	}//end _processDateSearch()
 
 
+	/**
+	* Search for a numeric range in a particular data source
+	*
+	* @param string	$numeric_range	Range of numbers to search for
+	* @param array	$data_source	Details of the data source to search in
+	* @param array	$base_query		The base of the sql query to use
+	*
+	* @return void
+	* @access private
+	*/
 	function _processNumericSearch($numeric_range, $data_source, $base_query)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -2172,7 +2209,7 @@ class Search_Manager extends Asset
 					// not implemented yet
 				break;
 
-			}
+			}//end switch $data_source['type']
 			$sql = implode_sql($base_query);
 
 			if (count($base_query['select']) > 2) {
@@ -2203,10 +2240,10 @@ class Search_Manager extends Asset
 	*
 	* @param array	$results_so_far	Results so far.  Null if no results so far
 	* @param array	$new_results	New results
-	* @param string	$logic	'AND'|'OR'
+	* @param string	$logic			'AND'|'OR'
 	*
+	* @return array
 	* @access public
-	* @return Array
 	*/
 	function _combineResults($results_so_far, $new_results, $logic)
 	{
@@ -2221,11 +2258,11 @@ class Search_Manager extends Asset
 			if (isset($results_so_far[0])) {
 				// getAll format, rather than getAssoc format
 				foreach ($new_results as $new_result) {
-					$added = false;
-					$found = false;
+					$added = FALSE;
+					$found = FALSE;
 					foreach ($results_so_far as $i => $old_result) {
 						if ($old_result['assetid'] == $new_result['assetid']) {
-							$found = true;
+							$found = TRUE;
 							if ($old_result['source'] == $new_result['source']) {
 								if ($logic == 'AND') {
 									$old_result['search_score'] += $new_result['search_score'];
@@ -2233,7 +2270,7 @@ class Search_Manager extends Asset
 								} else {
 									$res_results[$i]['search_score'] += $new_result['search_score'];
 								}
-								$added = true;
+								$added = TRUE;
 								break;
 							} else if ($logic == 'AND') {
 								// the assetid is common even though the source isn't, so the
@@ -2277,7 +2314,7 @@ class Search_Manager extends Asset
 	function processBasicSearch($search_info)
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc'; // will definitely need this later.
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$query_comps = $this->constructBaseSearchQuery($search_info);
 		if (empty($query_comps)) return Array();
 		$query_comps['select'][] = 'distinct a.assetid';
@@ -2306,7 +2343,7 @@ class Search_Manager extends Asset
 
 			// assert class implements bridge and contains method
 			if (implements_interface($root['type_code'], 'bridge') && is_callable(Array($root['type_code'], 'processBasicSearch'))) {
-				$shadow_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$shadow_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$shadow_results += $shadow_asset->processBasicSearch($search_info);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($shadow_asset);
 			}
@@ -2331,8 +2368,7 @@ class Search_Manager extends Asset
 	* @param string	$word		the word to be checked
 	* @param string $language	the language to be used to spell-check
 	*
-	* @return Array(string)	the list of suggestions, one considered most relevant
-	*						by pSpell in index zero, and so on
+	* @return array
 	* @access public
 	*/
 	function spellCheckWord($word, $language='en')
@@ -2348,20 +2384,20 @@ class Search_Manager extends Asset
 
 		if (!$pspell_instance) return Array();
 
-		$check_spelling = true;
+		$check_spelling = TRUE;
 
 		// ignore numbers
 		if ($check_spelling) {
 			$converted_word = (int)$word;
 			if ((string)$converted_word == $word) {
-				$check_spelling = false;
+				$check_spelling = FALSE;
 			}
 		}
 
 		// ignore words in all uppercase
 		if ($check_spelling) {
 			$converted_word = strtoupper($word);
-			if ($converted_word == $word) $check_spelling = false;
+			if ($converted_word == $word) $check_spelling = FALSE;
 		}
 
 		// if we aren't checking spelling OR word is correct, return no suggestions
@@ -2398,16 +2434,17 @@ class Search_Manager extends Asset
 	*
 	* Accepts the same search info array as processSearch()
 	* Does not put the search index table or anything like that in the query
+	* Returns components of search query in a format ready for implode_sql()
 	*
 	* @param array	$search_info	an array of search settings
 	*
-	* @return array	Components of search query in a format ready for implode_sql()
+	* @return array
 	* @access public
 	* @see processSearch(), general_occasional::implode_sql
 	*/
 	function constructBaseSearchQuery($search_info)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$query = Array(
 					'select'		=> Array(),
@@ -2450,14 +2487,14 @@ class Search_Manager extends Asset
 				}
 				$query['where'][] = implode(' OR ', $treeid_wheres);
 			}
-		}
+		}//end if !empty($search_info['roots'])
 
 		// ACCESS RESTRICTIONS
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if ($user_restrictions) {
 			$query['from'][] = 'sq_ast_perm ap';
 			$query['where'][] = 'a.assetid = ap.assetid';
-			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
+			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 			array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 				$userids[$i] = $db->quote($userids[$i]);
@@ -2516,16 +2553,17 @@ class Search_Manager extends Asset
 	*
 	* Returns a mapping from assetids to combined scores
 	*
-	* @param array	$asset_scores1		a mapping from assetids to scores
-	* @param array	$asset_scores2		a mapping from assetids to scores
-	* @param string	$logic				either 'AND' or 'OR'
+	* @param array	$asset_scores1	a mapping from assetids to scores
+	* @param array	$asset_scores2	a mapping from assetids to scores
+	* @param string	$logic			either 'AND' or 'OR'
+	* @param string	$word			word
 	*
 	* @return array
 	* @access private
 	*/
-	function combineAssetScores($asset_scores1, $asset_scores2, $logic='AND', $word=null)
+	function combineAssetScores($asset_scores1, $asset_scores2, $logic='AND', $word=NULL)
 	{
-		$result_scores = null;
+		$result_scores = NULL;
 		if (!is_array($asset_scores1) && !is_array($asset_scores2)) {
 			$result_scores = Array();
 		} else if (!is_array($asset_scores2)) {
@@ -2623,6 +2661,8 @@ class Search_Manager extends Asset
 	/**
 	* Return true if word is in noise words
 	*
+	* @param string	$word	The word to compare
+	*
 	* @return boolean
 	* @access public
 	*/
@@ -2630,17 +2670,17 @@ class Search_Manager extends Asset
 	{
 		$words = $this->attr('noise_word_list');
 		foreach ($words as $key => $value) {
-			if (strcasecmp($key, $word) == 0) {
-				return true;
-			}
+			if (strcasecmp($key, $word) == 0) return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end isNoiseWord()
 
 
 	/**
 	* Return true if word is in white words
+	*
+	* @param string	$word	The word to compare
 	*
 	* @return boolean
 	* @access public
@@ -2649,11 +2689,9 @@ class Search_Manager extends Asset
 	{
 		$words = $this->attr('white_word_list');
 		foreach ($words as $key => $value) {
-			if (strcasecmp($key, $word) == 0) {
-				return true;
-			}
+			if (strcasecmp($key, $word) == 0) return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end isWhiteWord()
 
