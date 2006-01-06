@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.12 2006/01/06 04:56:21 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.13 2006/01/06 06:15:12 lwright Exp $
 *
 */
 -->
@@ -35,10 +35,21 @@
 				<process_function name="processSearchFieldName" />
 			</function_call>
 		</field>
+	</section>
+	<section name="Category List Configuration">
 		<field write_access="write:attributes" show_if="hasValidSearchPage">
 			<function_call>
 				<paint_function name="paintSearchCategorySet" />
 				<process_function name="processSearchCategorySet" />
+			</function_call>
+		</field>
+		<field attribute="category_show_empty" write_access="write:attributes" show_if="hasValidCategorySet">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field write_access="write:attributes" show_if="hasValidCategorySet">
+			<function_call>
+				<paint_function name="paintSearchCategoryDefault" />
+				<process_function name="processSearchCategoryDefault" />
 			</function_call>
 		</field>
 	</section>

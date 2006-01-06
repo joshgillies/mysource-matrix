@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.25 2006/01/06 05:02:51 lwright Exp $
+* $Id: design_area_searchbox.inc,v 1.26 2006/01/06 06:15:12 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -119,12 +119,14 @@ class Design_Area_Searchbox extends Design_Area
 
 			case 'category_list':
 				$category_set = $this->attr('category_set');
+				$default = $this->attr('category_default');
+				$show_empty = $this->attr('category_show_empty');
 				if (!empty($category_set)) {
 					echo '
 						<?php
 							$asset = &$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');
 							$categories = $asset->attr("categories");
-							echo $asset->getCategoryChooserReplacement("'.$category_set.'", $categories["'.$category_set.'"]);
+							echo $asset->getCategoryChooserReplacement("'.$category_set.'", $categories["'.$category_set.'"], "'.$default.'", '.var_export($show_empty, true).');
 						?>';
 				}
 

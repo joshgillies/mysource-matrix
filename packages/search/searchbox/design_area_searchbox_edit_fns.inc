@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_edit_fns.inc,v 1.21 2006/01/06 04:56:21 lwright Exp $
+* $Id: design_area_searchbox_edit_fns.inc,v 1.22 2006/01/06 06:15:12 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 * @see Design_Area_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -184,10 +184,66 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 			return false;
 		}
 
-		$asset->setAttrValue('category_set', $_POST[$prefix.'_category_set']);
+		$new_category_set = $_POST[$prefix.'_category_set'];
+
+		// If we are changing the category then clear other category settings
+		if ($new_category_set != $asset->attr('category_set')) {
+			$asset->setAttrValue('category_show_empty', true);
+			$asset->setAttrValue('category_default', '');
+		}
+		$asset->setAttrValue('category_set', $new_category_set);
+
 		return true;
 
 	}//end processSearchCategorySet()
+
+
+	function paintSearchCategoryDefault(&$asset, &$o, $prefix)
+	{
+		$search_assetid = $asset->attr('search_page_assetid');
+		if (empty($search_assetid)) {
+			return false;
+		}
+
+		$search_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($search_assetid);
+
+		$categories = Array();
+		$category_sets = $search_page->attr('categories');
+		$category_set = $category_sets[$asset->attr('category_set')];
+
+		if ($asset->attr('category_show_empty')) {
+			$categories[''] = $category_set['unselected_text'];
+		}
+
+		foreach($category_set['options'] as $category_id => $category_data) {
+			$categories[$category_id] = $category_data['full_name'];
+		}
+
+		if (!$asset->writeAccess('attributes')) {
+			echo $categories[$asset->attr('category_default')];
+			return false;
+		} else {
+			combo_box($prefix.'_category_default', $categories, false, $asset->attr('category_default'));
+		}
+		return true;
+
+	}//end paintSearchCategoryDefault()
+
+
+	function processSearchCategoryDefault(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) {
+			return false;
+		}
+
+		if (!isset($_POST[$prefix.'_category_default'])) {
+			return false;
+		}
+
+		$asset->setAttrValue('category_default', $_POST[$prefix.'_category_default']);
+		return true;
+
+	}//end processSearchCategoryDefault()
 
 
 	/**
@@ -287,6 +343,28 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (!$asset->id) return false;
 		return $asset->type() == 'search_page';
+
+	}//end hasValidSearchPage()
+
+
+	/**
+	* Validate the category set
+	*
+	* Used to test if appropriate fields should be shown
+	*
+	* @param object		&$owner		the searchbox design area asset
+	* @param string		$prefix		the prefix for this asset
+	*
+	* @access public
+	* @return boolean
+	*/
+	function hasValidCategorySet(&$owner, $prefix)
+	{
+		if (!$this->hasValidSearchPage($owner, $prefix)) {
+			return false;
+		}
+
+		return $owner->attr('category_set') != '';
 
 	}//end hasValidSearchPage()
 
