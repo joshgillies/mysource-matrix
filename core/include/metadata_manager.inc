@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.103 2006/01/06 00:21:08 skim Exp $
+* $Id: metadata_manager.inc,v 1.104 2006/01/06 05:12:38 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -536,7 +536,10 @@ class Metadata_Manager extends MySource_Object
 					continue;
 				}
 
-				$field_values[$field->name] = $field->getMetadataValue($asset, (isset($values[$field->id]) ? $values[$field->id]['value'] : null));
+				$value_str = $field->getMetadataValue($asset, (isset($values[$field->id]) ? $values[$field->id]['value'] : null));
+				require_once SQ_CORE_PACKAGE_PATH.'/metadata/metadata_field/metadata_field.inc';
+				Metadata_Field::decodeValueString($value_str, $value='', $components=Array());
+				$field_values[$field->name] = $value;
 
 				$am->forgetAsset($field);
 				unset($field);
