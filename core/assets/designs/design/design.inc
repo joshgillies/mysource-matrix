@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.99 2005/11/17 05:15:17 mmcintyre Exp $
+* $Id: design.inc,v 1.100 2006/01/06 00:03:13 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -180,12 +180,20 @@ class Design extends Design_Area
 	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		// if this is a file then we need to make it a dependant link
-		if ($side_of_link == 'major' && is_a($asset, 'file') && $dependant != '1') {
-			$dependant = '1';
-			return true;
+		$changed = false;
+		if ($side_of_link == 'major' && is_a($asset, 'file')) {
+			if ($dependant != '1') {
+				$dependant = '1';
+				$changed = true;
+			}
+			//In order to use mysource_files urls, we need to type 2 link files below us
+			if ($link_type == SQ_LINK_TYPE_1) {
+				$link_type = SQ_LINK_TYPE_2;
+				$changed = true;
+			}
 		}
 
-		return false;
+		return $changed;
 
 	}//end prepareLink()
 
