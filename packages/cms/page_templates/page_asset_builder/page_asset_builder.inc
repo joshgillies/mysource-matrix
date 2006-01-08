@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.82 2005/11/22 06:17:20 ndvries Exp $
+* $Id: page_asset_builder.inc,v 1.83 2006/01/08 23:18:40 dmckee Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -842,7 +842,7 @@ class Page_Asset_Builder extends Page
 							if (empty($new_types['type_code'][$ii])) continue;
 							if ($new_types['inherit'][$ii] == '1') {
 								// get all descendants, add them to the types array
-								$descendant_types = &$GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($new_types['type_code'][$ii], true);
+								$descendant_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($new_types['type_code'][$ii], true);
 								foreach ($descendant_types as $type_code) {
 									if (!isset($types[$type_code])) {
 										$types[$type_code] = '';
