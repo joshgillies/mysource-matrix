@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.160.2.5 2005/12/02 04:52:24 lwright Exp $
+* $Id: page_calendar.inc,v 1.160.2.6 2006/01/08 23:13:45 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.160.2.5 $
+* @version $Revision: 1.160.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2340,7 +2340,10 @@ class Page_Calendar extends Page_Asset_Listing
 		$this->_tmp['position_formats'] = Array();
 
 		foreach ($assets as $assetid => $details) {
-			$this->_printAsset(strtok($assetid, ':'), $details['type_code'], null);
+			if (in_array($details['type_code'], $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('calendar_event_single', true)) ||
+				in_array($details['type_code'], $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('calendar_event_recurring', true))) {
+				$this->_printAsset(strtok($assetid, ':'), $details['type_code'], null);
+			}
 		}
 
 	}//end printAssetList()
