@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.26 2006/01/06 06:37:30 rong Exp $
+* $Id: cache_manager.inc,v 1.27 2006/01/08 21:51:57 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -155,14 +155,8 @@ class Cache_Manager extends Asset
 		$perm_key = $this->_getPermKey($assetid, $cache_key);
 		if (empty($perm_key)) return '';
 
-		if ($use_url) {
-			$url = current_url();
-		}
-		// append assetid to the end of url because:
-		// 1. some assets do not use url as identifier
-		// 2. nested contents always have the same url
-		$url .= $assetid;
-		$cache_key = md5($cache_key);
+		$url = ($use_url) ? current_url() : $assetid;
+		$cache_key = md5($cache_key.$assetid);
 
 		// check expiry time if entry already exists
 		$cached = $this->_getCache($cache_key, $perm_key, $url);
@@ -177,7 +171,6 @@ class Cache_Manager extends Asset
 					trigger_localised_error('CORE0244', E_USER_WARNING, SQ_CACHE_PATH.'/'.$cached['path']);
 					return '';
 				}
-				// $contents .= ' (cached version)';
 				return $contents;
 			}
 		}
@@ -215,14 +208,8 @@ class Cache_Manager extends Asset
 		$perm_key = $this->_getPermKey($assetid, $cache_key);
 		if (empty($perm_key)) return FALSE;
 
-		if ($use_url) {
-			$url = current_url();
-		}
-		// append assetid to the end of url because:
-		// 1. some assets do not use url as identifier
-		// 2. nested contents always have the same url
-		$url .= $assetid;
-		$cache_key = md5($cache_key);
+		$url = ($use_url) ? current_url() : $assetid;
+		$cache_key = md5($cache_key.$assetid);
 
 		// work out the file path and expiry time
 		$group = $this->getAssetHash($cache_key).$this->getAssetHash($perm_key);
