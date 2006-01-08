@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.php,v 1.6 2006/01/08 22:26:40 rong Exp $
+* $Id: html_tidy.php,v 1.7 2006/01/08 22:42:21 emcdonald Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert HTML Tidy for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 
@@ -34,7 +34,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 
-if (!isset($_GET['name']))		  $_GET['name'] = "";
+if (!isset($_GET['name']))		  $_GET['name'] = '';
 
 ?>
 
@@ -43,18 +43,18 @@ if (!isset($_GET['name']))		  $_GET['name'] = "";
 	<head>
 		<title>Replace Text</title>
 		<?php
-		//add required js translation files, as we are using asset finder
+		// add required js translation files, as we are using asset finder
 		$include_list = Array(sq_web_path('lib').'/js/translation.js');
 
 		$locales = $GLOBALS['SQ_SYSTEM']->lm->getCumulativeLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
 
-		foreach($locales as $locale) {
+		foreach ($locales as $locale) {
 			if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$locale.'.js')) {
 				$include_list[] = sq_web_path('data').'/system/core/js_strings.'.$locale.'.js';
 			}
 		}
 
-		foreach($include_list as $link) {
+		foreach ($include_list as $link) {
 			?><script type="text/javascript" src="<?php echo $link; ?>"></script>
 		<?php
 		}
