@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.29 2005/11/18 04:53:21 lwright Exp $
+* $Id: listing_engine.inc,v 1.38.2.30 2006/01/08 23:00:12 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.29 $
+* @version $Revision: 1.38.2.30 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1333,7 +1333,13 @@ class Listing_Engine extends Page
 
 			if (in_array($type_code, $this->_tmp['is_default'])) {
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
-				$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
+				if (empty($link)) {
+					// TODO: localise
+					trigger_error('Cannot Find the Default Bodycopy');
+					return;
+				} else {
+					$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
+				}
 				if (!is_null($bodycopy)) {
 					// get the bodycopy content
 					$this->_tmp['default_format'] = $bodycopy->getRawBodycopyContent();
