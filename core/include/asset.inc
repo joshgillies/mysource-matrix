@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.482 2006/01/05 05:29:26 lwright Exp $
+* $Id: asset.inc,v 1.483 2006/01/08 23:28:07 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.482 $
+* @version $Revision: 1.483 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4234,8 +4234,11 @@ class Asset extends MySource_Object
 
 		$current_urls = Array();
 		foreach ($old_urls as $url_data) {
-			$current_urls[] = $db->quoteSmart($url_data['url']);
-			$tmp_old_urls[] = $url_data['url'];
+			$url = $url_data['url'];
+			$current_urls[] = $db->quoteSmart($url);
+			$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, substr($url, 0, strrpos($url, '/')));
+			$tmp_old_urls[$parent_asset->id][] = $url;
+			unset($parent_asset);
 		}
 
 		if (!empty($current_urls)) {
@@ -4336,9 +4339,9 @@ class Asset extends MySource_Object
 						$result = $db->query($sql);
 						assert_valid_db_result($result);
 
-						if (!isset($tmp_old_urls[$j])) $tmp_old_urls[$j] = '';
+						if (!isset($tmp_old_urls[$parent->id][$j])) $tmp_old_urls[$parent->id][$j] = '';
 
-						$lookup_values = (isset($our_lookup_values[$tmp_old_urls[$j]])) ? $our_lookup_values[$tmp_old_urls[$j]] : Array();
+						$lookup_values = (isset($our_lookup_values[$tmp_old_urls[$parent->id][$j]])) ? $our_lookup_values[$tmp_old_urls[$parent->id][$j]] : Array();
 
 						// all designs go to all urls (at the moment anyway), so merge them all in
 						foreach ($our_designs as $name => $data) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.80 2005/09/27 01:15:10 lwright Exp $
+* $Id: workflow_manager.inc,v 1.81 2006/01/08 23:28:07 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -67,12 +67,15 @@ class Workflow_Manager extends MySource_Object
 	*
 	* Can also optionally get running workflows only.
 	*
+	* Return value: Array( schemaid => granted[1|0] ) if $granted is null
+	*	OR array(schemaid) if it is set
+	*
 	* @param int		$assetid	the ID of the asset to get schemas for
 	* @param boolean	$granted	type of access : null = all, true = applied, false = denied
 	* @param boolean	$running	only getting running workflows
 	*
+	* @return array
 	* @access public
-	* @return array( schemaid => granted[1|0] ) if $granted is null OR array(schemaid) if it is set
 	*/
 	function getSchemas($assetid, $granted=null, $running=false)
 	{
@@ -116,8 +119,8 @@ class Workflow_Manager extends MySource_Object
 	* @param int		$schemaid	the ID of the schema to set
 	* @param boolean	$granted	is this schema applied (TRUE) or denied (FALSE)?
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function setSchema($assetid, $schemaid, $granted)
 	{
@@ -217,8 +220,8 @@ class Workflow_Manager extends MySource_Object
 	* @param int	$assetid	the ID of the asset to delete the schema from
 	* @param int	$schemaid	the ID of the schema to delete
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function deleteSchema($assetid, $schemaid)
 	{
@@ -271,12 +274,14 @@ class Workflow_Manager extends MySource_Object
 	* function being called. If the asset is loaded again, an infinite loop will occur because
 	* this function is called BEFORE the original asset has been stored in the factory.
 	*
+	* Return value: Array( schemaid => workflow_array )
+	*
 	* @param int	$assetid	the ID of the asset to get workflow for
 	* @param int	$schemaid	the ID of the schema to get workflow for (NULL for all workflows)
 	*
+	* @return array
 	* @access public
-	* @return array( schemaid => workflow_array )
-	* @see Asset::useSystemVersion
+	* @see Asset::useSystemVersion()
 	*/
 	function getSchemaWorkflows($assetid, $schemaid='all')
 	{
@@ -336,8 +341,8 @@ class Workflow_Manager extends MySource_Object
 	* @param int	$assetid	the ID of the asset to set the values for
 	* @param array	$workflow	the values to set
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function setWorkflow($assetid, $workflow)
 	{
