@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.88.2.6 2006/01/09 00:24:03 dmckee Exp $
+* $Id: html_form.inc,v 1.88.2.7 2006/01/09 01:07:49 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.88.2.6 $
+* @version $Revision: 1.88.2.7 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -123,8 +123,9 @@ function normal_button($name, $value, $on_click='', $extras='')
 /**
 * Prints a hidden field
 *
-* @param string	$name		the form name to use for the hidden field
-* @param string	$value		the text that should stored in the hidden field
+* @param string	$name	the form name to use for the hidden field
+* @param string	$value	the text that should stored in the hidden field
+* @param string	$extras	Any additional data to put in the input tag
 *
 * @return void
 * @access public
@@ -145,19 +146,19 @@ function hidden_field($name, $value='', $extras='')
 /**
 * Prints a simple single line text box
 *
-* @param string		$name			the form name to use for the text box
-* @param string		$value			the text that should be pre-entered in the text box
-* @param int		$size			the width of the text box
-* @param int		$max			the maximum number of characters allowed in the text box
-* @param boolean	$hide_value		use the default value as indicative text only (hide it onFocus and restore onBlur
-*									if needed) - useful if you want to use it as instructional text (as required by priority
-*									level 3 accessability standards)
-* @param string		$extras			any input field attributes that should be placed in the <input ... > tag
+* @param string		$name		the form name to use for the text box
+* @param string		$value		the text that should be pre-entered in the text box
+* @param int		$size		the width of the text box
+* @param int		$max		the maximum number of characters allowed in the text box
+* @param boolean	$hide_value	use the default value as indicative text only (hide it onFocus and restore onBlur
+*								if needed) - useful if you want to use it as instructional text (as required by priority
+*								level 3 accessability standards)
+* @param string		$extras		any input field attributes that should be placed in the <input ... > tag
 *
 * @return void
 * @access public
 */
-function text_box($name, $value, $size='', $max='', $hide_value=false, $extras='')
+function text_box($name, $value, $size='', $max='', $hide_value=FALSE, $extras='')
 {
 	$size = (int) $size;
 	$max  = (int) $max;
@@ -195,7 +196,7 @@ function text_box($name, $value, $size='', $max='', $hide_value=false, $extras='
 * @return void
 * @access public
 */
-function int_text_box($name, $value, $allow_negative=true, $size='', $max='', $hide_value=false, $extras='')
+function int_text_box($name, $value, $allow_negative=TRUE, $size='', $max='', $hide_value=FALSE, $extras='')
 {
 	?><script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/html_form.js"></script><?php
 
@@ -213,11 +214,11 @@ function int_text_box($name, $value, $allow_negative=true, $size='', $max='', $h
 /**
 * Prints a password box
 *
-* @param string	$name		the form name to use for the password box
-* @param string	$value		the text that should be pre-entered in the password box
-* @param int	$size		the width of the password box
-* @param int	$max		the maximum number of characters allowed in the password box
-* @param string	$extras		any input field attributes that should be placed in the <input ... > tag
+* @param string	$name	the form name to use for the password box
+* @param string	$value	the text that should be pre-entered in the password box
+* @param int	$size	the width of the password box
+* @param int	$max	the maximum number of characters allowed in the password box
+* @param string	$extras	any input field attributes that should be placed in the <input ... > tag
 *
 * @return void
 * @access public
@@ -282,16 +283,16 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 /**
 * Prints a radio button
 *
-* @param string	$name		the form name to use for the radio button
-* @param string	$value		the value that will come through when the button is selected
-* @param bool	$checked	whether the button is checked by default or not
-* @param string	$on_click	any JS that should be executed when the submit button is pressed
-* @param string	$extras		any input field attributes that should be placed in the <input ... > tag
+* @param string		$name		the form name to use for the radio button
+* @param string		$value		the value that will come through when the button is selected
+* @param boolean	$checked	whether the button is checked by default or not
+* @param string		$on_click	any JS that should be executed when the submit button is pressed
+* @param string		$extras		any input field attributes that should be placed in the <input ... > tag
 *
 * @return void
 * @access public
 */
-function radio_button($name, $value='1', $checked=false, $on_click='', $extras='')
+function radio_button($name, $value='1', $checked=FALSE, $on_click='', $extras='')
 {
 	if ($on_click) {
 		$extras .= ' onclick="'.htmlspecialchars($on_click).' "';
@@ -315,16 +316,16 @@ function radio_button($name, $value='1', $checked=false, $on_click='', $extras='
 /**
 * Prints a check box
 *
-* @param string	$name		the form name to use for the check box
-* @param string	$value		the value that will come through when the box is selected
-* @param bool	$checked	whether the button is checked by default or not
-* @param string	$on_click	any JS that should be executed when the submit button is pressed
-* @param string	$extras		any input field attributes that should be placed in the <input ... > tag
+* @param string		$name		the form name to use for the check box
+* @param string		$value		the value that will come through when the box is selected
+* @param boolean	$checked	whether the button is checked by default or not
+* @param string		$on_click	any JS that should be executed when the submit button is pressed
+* @param string		$extras		any input field attributes that should be placed in the <input ... > tag
 *
 * @return void
 * @access public
 */
-function check_box($name, $value='1', $checked=false, $on_click='', $extras='')
+function check_box($name, $value='1', $checked=FALSE, $on_click='', $extras='')
 {
 	if ($on_click) {
 		$extras .= ' onclick="'.htmlspecialchars($on_click).' "';
@@ -348,16 +349,16 @@ function check_box($name, $value='1', $checked=false, $on_click='', $extras='')
 /**
 * Given a name, an array of keys and values, and a default value, prints a dropdown box
 *
-* @param string	$name		the form name to use for the dropdown box
-* @param Array	$contents	an array of whose keys are values to be returned when that
-*							option is selected and whose values are the display text for the option
-* @param bool	$multiple	whether you can multiple selections can be made or not
-* @param mixed	$defaults	if there is only one default can be a string, or if there are
-*							multiple can be an array
-* @param int	$height		the height (in lines) of the combo box
-* @param string	$extras		any input field attributes that should be placed in the <input ... > tag
-* @param int	$maxlength	the maximum number of characters displayed for any option,
-*							anything over gets truncated with '...' appended
+* @param string		$name		the form name to use for the dropdown box
+* @param array		$contents	an array of whose keys are values to be returned when that
+*								option is selected and whose values are the display text for the option
+* @param boolean	$multiple	whether you can multiple selections can be made or not
+* @param mixed		$defaults	if there is only one default can be a string, or if there are
+*								multiple can be an array
+* @param int		$height		the height (in lines) of the combo box
+* @param string		$extras		any input field attributes that should be placed in the <input ... > tag
+* @param int		$maxlength	the maximum number of characters displayed for any option,
+*								anything over gets truncated with '...' appended
 *
 * @return void
 * @access public
@@ -409,7 +410,7 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 *
 * @param string	$text	The text to go inside the label
 * @param string	$for	The ID of the form element this label applies to
-* @param string $extras	Any extra HTML to put in the label tag
+* @param string	$extras	Any extra HTML to put in the label tag
 *
 * @return void
 * @access public
@@ -426,30 +427,30 @@ function label($text, $for='', $extras='')
 /**
 * Prints an entry box for a colour picker, requires javascript and colour_picker script
 *
-* @param string	$name					the form name to use for the colour box
-* @param Array	$default				the colour you want to display to begin with
-* @param bool	$allow_blanks			allow no colour to be selected ot not
-* @param mixed	$button_text			text on the button that displays the colour picker
-* @param int	$show_text_box			show the text box to allow manual entry of a colour
-* @param string	$show_current_colour	show a box with the current displayed
-* @param int	$show_change_colour		show a tick or cross to indicate if the colour has changed
+* @param string		$name					the form name to use for the colour box
+* @param array		$default				the colour you want to display to begin with
+* @param boolean	$allow_blanks			allow no colour to be selected ot not
+* @param mixed		$button_text			text on the button that displays the colour picker
+* @param int		$show_text_box			show the text box to allow manual entry of a colour
+* @param string		$show_current_colour	show a box with the current displayed
+* @param int		$show_change_colour		show a tick or cross to indicate if the colour has changed
 *
 * @return void
 * @access public
 */
-function colour_box($name, $default='000000', $allow_blanks=false, $button_text='*', $show_text_box=true, $show_current_colour=true, $show_change_colour=true)
+function colour_box($name, $default='000000', $allow_blanks=FALSE, $button_text='*', $show_text_box=TRUE, $show_current_colour=TRUE, $show_change_colour=TRUE)
 {
 
 	$default = strtolower($default);
 	$default = preg_replace('/^#/', '', $default);
 
-	static $initialised = false;
+	static $initialised = FALSE;
 	if (!$initialised) {
 		?>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/colour_picker.js"></script>
 		<script type="text/javascript">var colour_change_image_dir='<?php echo sq_web_path('lib');?>/web/images/'</script>
 		<?php
-		$initialised = true;
+		$initialised = TRUE;
 	}
 
 	if ($show_current_colour) {
@@ -464,7 +465,7 @@ function colour_box($name, $default='000000', $allow_blanks=false, $button_text=
 		if ($show_current_colour) {
 			 $extras .= ' show_colour_change(\''.addslashes($name).'\');';
 		}
-		text_box($name, $default, 7, 6, false, $extras);
+		text_box($name, $default, 7, 6, FALSE, $extras);
 	} else {
 		hidden_box($name, $default);
 	}
@@ -484,8 +485,9 @@ function colour_box($name, $default='000000', $allow_blanks=false, $button_text=
 
 /**
 * Returns a file upload box
-* @param string	$name		the form name to use for the file upload box
-* @param string	$extras		any input field attributes that should be placed in the <input ... > tag
+*
+* @param string	$name	the form name to use for the file upload box
+* @param string	$extras	any input field attributes that should be placed in the <input ... > tag
 *
 * @return void
 * @access public
@@ -502,15 +504,16 @@ function file_upload($name, $extras='')
 
 /**
 * Returns the information for an uploaded file if the upload was successful
+* Returns FALSE on error, blank array on no file upload and the $_FILES[$name] if a file was uploaded successfully
 *
-* @param string	$name		the form name from the file upload box
+* @param string	$name	the form name from the file upload box
 *
-* @return mixed (bool|array) FALSE on error, blank array on no file upload and the $_FILES[$name] if a file was uploaded successfully
+* @return array
 * @access public
 */
 function get_file_upload_info($name)
 {
-	if (empty($_FILES[$name])) return false;
+	if (empty($_FILES[$name])) return FALSE;
 
 	$nice_name = str_replace('_', ' ', $name);
 
@@ -523,23 +526,23 @@ function get_file_upload_info($name)
 
 		case UPLOAD_ERR_INI_SIZE  :
 			trigger_localised_error('SYS0022', E_USER_WARNING, $nice_name, easy_filesize(ini_get('upload_max_size')));
-			return false;
+			return FALSE;
 		break;
 
 		case UPLOAD_ERR_FORM_SIZE :
 			trigger_localised_error('SYS0021', E_USER_WARNING, $nice_name, easy_filesize($_POST['MAX_FILE_SIZE']));
-			return false;
+			return FALSE;
 		break;
 
 		case UPLOAD_ERR_PARTIAL :
 			trigger_localised_error('SYS0023', E_USER_WARNING, $nice_name);
-			return false;
+			return FALSE;
 		break;
 
 	}//end switch
 
 	if (empty($_FILES[$name]['name']) || !is_uploaded_file($_FILES[$name]['tmp_name'])) {
-		return false;
+		return FALSE;
 	}
 
 	return $_FILES[$name];
@@ -549,31 +552,32 @@ function get_file_upload_info($name)
 
 /**
 * Commits an uploaded file to its intended place
+* Returns FALSE on error, blank string on no file upload and the filename (basename) if a file was uploaded
 *
-* @param string	$name			the form name from the file upload box
-* @param string	$dest			the destination for the uploaded file, if this is a directory,
-*								the file is put in that directory if it is a file, it is written
-*								to that file (taking into account $overwrite)
-* @param bool	$overwrite		whether to overwrite any existing file or not
-* @param int	$max_size		the maximum number of bytes that the uploaded file can be
-* @param bool	$restrict_exts	if true extension MUST BE in $extensions,
-*								if false must NOT be in $extensions
-* @param Array	$extensions		if not empty, the only extensions that are not allowed to be uploaded
+* @param string		$name			the form name from the file upload box
+* @param string		$dest			the destination for the uploaded file, if this is a directory,
+*									the file is put in that directory if it is a file, it is written
+*									to that file (taking into account $overwrite)
+* @param boolean	$overwrite		whether to overwrite any existing file or not
+* @param int		$max_size		the maximum number of bytes that the uploaded file can be
+* @param boolean	$restrict_exts	if true extension MUST BE in $extensions,
+*									if false must NOT be in $extensions
+* @param array		$extensions		if not empty, the only extensions that are not allowed to be uploaded
 *
-* @return mixed (bool|string) FALSE on error, blank string on no file upload and the filename (basename) if a file was uploaded
+* @return array
 * @access public
 */
-function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restrict_exts=true, $extensions=Array())
+function commit_file_upload($name, $dest, $overwrite=FALSE, $max_size=0, $restrict_exts=TRUE, $extensions=Array())
 {
 	$info = get_file_upload_info($name);
-	if ($info === false) return false;
+	if ($info === FALSE) return FALSE;
 	if (!count($info))   return '';
 
 	$nice_name = str_replace('_', ' ', $name);
 
 	if ($max_size > 0 && $max_size < $info['size']) {
 		trigger_localised_error('SYS0020', E_USER_WARNING, $nice_name, easy_filesize($max_size));
-		return false;
+		return FALSE;
 	}
 
 	//// if we get this far the file on the server OK ////
@@ -590,7 +594,7 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 		// see $restrict_exts documentation in function header
 		if (($restrict_exts && !$in_arr) || (!$restrict_exts && $in_arr)) {
 			trigger_localised_error('SYS0002', E_USER_WARNING, $ext, $nice_name);
-			return false;
+			return FALSE;
 		}//end if
 	}//end if
 
@@ -600,7 +604,7 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 	if (is_dir($dest)) {
 		if (!is_writable($dest)) {
 			trigger_localised_error('SYS0007', E_USER_WARNING, $dest);
-			return false;
+			return FALSE;
 		}
 		$dest .= '/'.$info['name'];
 	}
@@ -609,11 +613,11 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 	if (file_exists($dest)) {
 		if (!$overwrite) {
 			trigger_localised_error('SYS0027', E_USER_WARNING, $info['name']);
-			return false;
+			return FALSE;
 		}
 		if (!is_writable($dest)) {
 			trigger_localised_error('SYS0008', E_USER_WARNING, $dest);
-			return false;
+			return FALSE;
 		}
 
 	// the destination doesn't exist
@@ -623,17 +627,17 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 		// if the parent isn't a directory, can we create it ?
 		if (!is_dir($parent) && !create_directory($parent)) {
 			trigger_localised_error('SYS0015', E_USER_WARNING, $parent);
-			return false;
+			return FALSE;
 		} else if (!is_writable($parent)) {
 			trigger_localised_error('SYS0016', E_USER_WARNING, $parent);
-			return false;
+			return FALSE;
 		}
 	}//end dest exists
 
 	// Move file over
 	if (!move_uploaded_file($info['tmp_name'], $dest)) {
 		trigger_localised_error('SYS0025', E_USER_WARNING, $dest);
-		return false;
+		return FALSE;
 	}
 
 	return basename($dest);
@@ -644,10 +648,10 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 /**
 * Get a string version of the given array of type codes, for passing to the asset map
 *
-* @param array	$type_codes		The type codes to encode
+* @param array	$type_codes	The type codes to encode
 *
-* @access public
 * @return string
+* @access public
 */
 function get_type_codes_string($type_codes)
 {
@@ -683,21 +687,21 @@ function get_type_codes_string($type_codes)
 /**
 * Prints an interface for choosing an asset from the asset map
 *
-* @param string		$name			the name to use for the field
-* @param int		$assetid		current value for this field
-* @param array		$type_codes		Array('[type_code]' => '[flag]')
-*									where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
-* @param string		$map_frame		a reference to the map_frame so we can get the asset map
-									if this is an empty string, then the asset_finder will look for the asset map
-									in the frame where it was loaded
-* @param boolean	$new_window		is the asset finder in a different window than the asset map
-* @param string		$done_fn		a function to call when the asset finder is finished
-* @param array		$buttons		an array of which additional buttons to print (clear, reset)
+* @param string		$name		the name to use for the field
+* @param int		$assetid	current value for this field
+* @param array		$type_codes	Array('[type_code]' => '[flag]')
+*								where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
+* @param string		$map_frame	a reference to the map_frame so we can get the asset map
+*								if this is an empty string, then the asset_finder will look for the asset map
+*								in the frame where it was loaded
+* @param boolean	$new_window	is the asset finder in a different window than the asset map
+* @param string		$done_fn	a function to call when the asset finder is finished
+* @param array		$buttons	an array of which additional buttons to print (clear, reset)
 *
 * @return void
 * @access public
 */
-function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sidenav', $new_window=false, $done_fn='null', $buttons=Array('clear', 'reset'))
+function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sidenav', $new_window=FALSE, $done_fn='null', $buttons=Array('clear', 'reset'))
 {
 	$finder_frame = ($new_window || empty($map_frame)) ? 'parent.top' : 'parent.frames["sq_main"]';
 
@@ -712,7 +716,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 
 	$label = '';
 	if ($assetid) {
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			$assetid = 0;
 		} else {
@@ -728,7 +732,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	hidden_field($name.'[assetid]', $assetid);
 	hidden_field($name.'[url]', '');
 	// call the js function to set where the finder frame is
-	text_box($safe_name.'_label', $label, 30, 0, false, 'readonly="readonly" class="sq-form-asset-finder" onfocus="this.tmp = this.value;" onblur="this.value = this.tmp;"');
+	text_box($safe_name.'_label', $label, 30, 0, FALSE, 'readonly="readonly" class="sq-form-asset-finder" onfocus="this.tmp = this.value;" onblur="this.value = this.tmp;"');
 
 	// only print the buttons if in the backend (where there's an asset map frame available)
 	if (SQ_IN_BACKEND || defined('SQ_PAINTED_SIMPLE_ASSET_MAP')) {
@@ -752,22 +756,21 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 /**
 * Prints an interface for choosing several assets from the asset map
 *
-*
-* @param string		$name			the base name to use for the form fields
-* @param array		$assetids		current values for this field
-* @param array		$type_codes		Array('[type_code]' => '[flag]')
-*									where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
-* @param string		$map_frame		Name of the frame containing the asset map
-									if this is an empty string, then the asset_finder will look for the asset map
-									in the frame where it was loaded
-* @param boolean	$new_window		is the asset finder in a different window than the asset map
-* @param string		$done_fn		a javascript function to call when the asset finder is finished
-* @param array		$buttons		an array of which additional buttons to print (clear and/or reset)
+* @param string		$name		the base name to use for the form fields
+* @param array		$assetids	current values for this field
+* @param array		$type_codes	Array('[type_code]' => '[flag]')
+*								where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
+* @param string		$map_frame	Name of the frame containing the asset map
+*								if this is an empty string, then the asset_finder will look for the asset map
+*								in the frame where it was loaded
+* @param boolean	$new_window	is the asset finder in a different window than the asset map
+* @param string		$done_fn	a javascript function to call when the asset finder is finished
+* @param array		$buttons	an array of which additional buttons to print (clear and/or reset)
 *
 * @return void
 * @access public
 */
-function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $map_frame='sq_sidenav', $new_window=false, $done_fn='null', $buttons=Array('clear'))
+function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $map_frame='sq_sidenav', $new_window=FALSE, $done_fn='null', $buttons=Array('clear'))
 {
 	?><script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/html_form.js"></script><?php
 
@@ -814,7 +817,7 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 * @return void
 * @access public
 */
-function security_key($key_len, $box_len, $zoom=1, $img_on_newline=false, $bg='FFFFFF', $text='000000', $border='000000')
+function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='FFFFFF', $text='000000', $border='000000')
 {
 	// generate a random security key string
 	require_once SQ_FUDGE_PATH.'/general/general.inc';
@@ -877,10 +880,10 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=false, $bg='F
 function validate_security_key()
 {
 	if (!isset($_POST['SQ_SYSTEM_SECURITY_KEY_VALUE'])) {
-		return false;
+		return FALSE;
 	}
 	if (!isset($_SESSION['SQ_SYSTEM_SECURITY_KEY']['key'])) {
-		return false;
+		return FALSE;
 	}
 	$entered_value = $_POST['SQ_SYSTEM_SECURITY_KEY_VALUE'];
 	$real_value = $_SESSION['SQ_SYSTEM_SECURITY_KEY']['key'];
@@ -893,10 +896,8 @@ function validate_security_key()
 /**
 * Takes a variable and outputs as many hidden fields as necessary to recreate it
 *
-* @param string	$name			the form name to use for the field
-* @param int	$assetid		current value for this field
-* @param array	$type_codes		Array('[type_code]' => '[flag]')
-*								where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
+* @param object	$var	the var to print
+* @param string	$name	name for the field
 *
 * @return void
 * @access public
@@ -922,22 +923,22 @@ function var_to_hidden_field($var, $name='')
 *
 * @param string		$name					Name for the field
 * @param boolean	$multiple				Whether we want to be able to choose several types
-* @param Array		$defaults				The default values
-* @param boolean	$instatiable			Do we want instantiable or non-instantiable assets? (null means both)
+* @param array		$defaults				The default values
+* @param boolean	$instantiable			Do we want instantiable or non-instantiable assets? (null means both)
 * @param boolean	$system_accessible		Do we want to include assets that only have system access?
 * @param boolean	$show_inherit_checkbox	Do we want to show a checkbox for inheriting from a type?
-* @param Array		$specified_types 		Limit the listing to specified types and their decendants
+* @param array		$specified_types		Limit the listing to specified types and their decendants
 *
-* @access public
 * @return void
+* @access public
 */
-function asset_type_chooser($name, $multiple=false, $defaults=Array(), $instantiable=null, $system_accessible=false, $show_inherit_checkbox=false, $specified_types=Array())
+function asset_type_chooser($name, $multiple=FALSE, $defaults=Array(), $instantiable=null, $system_accessible=FALSE, $show_inherit_checkbox=FALSE, $specified_types=Array())
 {
-	//if we specified types for the listing, build a list with these
+	// if we specified types for the listing, build a list with these
 	if (!empty($specified_types)) {
 
 		foreach ($specified_types as $specified_type) {
-			$new_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($specified_type, true);
+			$new_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($specified_type, TRUE);
 
 			foreach ($new_types as $new_type) {
 				$types[$new_type] = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($new_type, 'name');
@@ -958,7 +959,7 @@ function asset_type_chooser($name, $multiple=false, $defaults=Array(), $instanti
 			if (!empty($defaults)) {
 				foreach ($defaults['type_code'] as $i => $type_code) {
 					if (empty($type_code)) continue;
-					combo_box($name.'[type_code][]', $types, false, $type_code);
+					combo_box($name.'[type_code][]', $types, FALSE, $type_code);
 					hidden_field($name.'[inherit][]', $defaults['inherit'][$i]);
 					check_box('', 1, $defaults['inherit'][$i], 'toggleLastHiddenField(this)');
 					label(strtolower(translate('inherit')), '');
@@ -966,33 +967,33 @@ function asset_type_chooser($name, $multiple=false, $defaults=Array(), $instanti
 					echo '<br />';
 				}
 			}
-			combo_box($name.'[type_code][]', $types, false, '');
+			combo_box($name.'[type_code][]', $types, FALSE, '');
 			hidden_field($name.'[inherit][]', 0);
-			check_box('', 1, false, 'toggleLastHiddenField(this)');
+			check_box('', 1, FALSE, 'toggleLastHiddenField(this)');
 			label(strtolower(translate('inherit')), '');
 			normal_button('', translate('clear'), 'resetLastSelect(this); clearLastCheckbox(this);');
 			normal_button('', translate('more').'...', 'prependTypeSelector(this); prependInheritSelector(this); prependClearButton(this, true)');
 		} else {
 			foreach ($defaults as $default) {
 				if (!empty($default)) {
-					combo_box($name.'[]', $types, false, $default);
+					combo_box($name.'[]', $types, FALSE, $default);
 					normal_button('', translate('clear'), 'resetLastSelect(this)');
 					echo '<br />';
 				}
 			}
-			combo_box($name.'[]', $types, false, '');
+			combo_box($name.'[]', $types, FALSE, '');
 			normal_button('', translate('clear'), 'resetLastSelect(this)');
 			normal_button('', translate('more').'...', 'prependTypeSelector(this); prependClearButton(this, false)');
 		}
 		echo '<br />';
 	} else {
 		if ($show_inherit_checkbox) {
-			combo_box($name.'[type_code]', $types, false, array_get_index($defaults, 'type_code', ''));
+			combo_box($name.'[type_code]', $types, FALSE, array_get_index($defaults, 'type_code', ''));
 			hidden_field($name.'[inherit]', array_get_index($defaults, 'inherit', '0'));
 			check_box('', 1, array_get_index($defaults, 'inherit', '0'), 'toggleLastHiddenField(this)');
 			label(strtolower(translate('inherit')), '');
 		} else {
-			combo_box($name, $types, false, $defaults);
+			combo_box($name, $types, FALSE, $defaults);
 		}
 	}
 
@@ -1002,25 +1003,28 @@ function asset_type_chooser($name, $multiple=false, $defaults=Array(), $instanti
 /**
 * Draws a structured dropdown list for selecting assets
 *
-* @param int					$root_id		the ID of the asset to start from
-* @param Array(string)			$type_codes		An array of type codes to restrict
-*												options to.
-* @param bool					$include_root	Whether or not to list the root node
-* @param int					$max_depth		Maximum depth to display nodes to
-* @param string					$seperator		Character(s) to display between child branches
-* @param bool 					$allow_multiple	Allow Multiple Entries
-* @param string					$seperator		String to display between entries
-* @param bool					$include_root	Include root node in the search
-* @param string					$root_text		Text to display for root node
-* @param bool					$check_boxes	Display as check boxes (false = dropdown)
-* @param Array					$statuses		statuses to filter from list
-* @param Array					$link_types		Allowed link types(Empty for all types)
-* @param Array					$allow_empty	Add an empty entry at the start
+* @param string		$name			Name to use for the input field
+* @param int		$root_id		the ID of the asset to start from
+* @param array		$type_codes		An array of type codes to restrict
+*									options to.
+* @param array		$selected		Selected options
+* @param int		$width			Width of the option box
+* @param int		$height			Height of the option box
+* @param int		$max_depth		Maximum depth to display nodes to
+* @param boolean	$allow_multiple	Allow Multiple Entries
+* @param string		$seperator		String to display between entries
+* @param boolean	$include_root	Include root node in the search
+* @param string		$root_text		Text to display for root node
+* @param boolean	$check_boxes	Display as check boxes (false = dropdown)
+* @param array		$statuses		statuses to filter from list
+* @param boolean	$structured		Whether to show levels, or display as a flat list
+* @param array		$link_types		Allowed link types(Empty for all types)
+* @param array		$allow_empty	Add an empty entry at the start
 *
-* @access protected
 * @return array
+* @access protected
 */
-function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $width=0, $height=0, $max_depth=0, $allow_multiple=false, $seperator='-', $include_root=false, $root_text='', $check_boxes=false, $statuses=Array(), $structured=true, $link_types=Array(), $allow_empty=false)
+function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $width=0, $height=0, $max_depth=0, $allow_multiple=FALSE, $seperator='-', $include_root=FALSE, $root_text='', $check_boxes=FALSE, $statuses=Array(), $structured=TRUE, $link_types=Array(), $allow_empty=FALSE)
 {
 	$all_child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($root_id);
 	$child_links = $all_child_links;
@@ -1030,7 +1034,7 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 
 	$invalid = Array();
 
-	//weed out any unwanted entries
+	// weed out any unwanted entries
 	foreach ($all_child_links as $treeid => $data) {
 		// build an array of assetids as we go
 		$asset_info_ids[] = $data['assetid'];
@@ -1079,7 +1083,7 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 		}
 		$level = 0;
 	}
-	//Insert each node into the tree
+	// Insert each node into the tree
 	$search_tree = Array();
 	foreach ($child_links as $treeid => $child) {
 		id_list_to_tree($treeid, $search_tree);
@@ -1115,18 +1119,18 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 * )
 * </pre>
 *
-* @param string		`			$treeid			the ID of the tree to format
-* @param Array(string=>mixed)	&$tree			the tree to insert the formatted ID into
-* @param string					$chunk_prefix	optional, used internally
+* @param string	$treeid			the ID of the tree to format
+* @param array	&$tree			the tree to insert the formatted ID into
+* @param string	$chunk_prefix	optional, used internally
 *
-* @access private
 * @return void
+* @access private
 */
 function id_list_to_tree($treeid, &$tree, $chunk_prefix='')
 {
 	$branch_str_len = 4;
 
-	if (strlen($treeid) < $branch_str_len) return false;
+	if (strlen($treeid) < $branch_str_len) return FALSE;
 
 	$first_chunk = substr($treeid, 0, $branch_str_len);
 
@@ -1147,22 +1151,22 @@ function id_list_to_tree($treeid, &$tree, $chunk_prefix='')
 * Takes a tree array and an output array, and fills the output array with an ascii tree,
 * with each line of the tree as an element in the array
 *
-* @param Array(string=>mixed)	$tree				the tree to format
-* @param Array(string=>mixed)	$all_child_links	assetInfo() for use when printing
-* @param Array(string=>mixed)	$output_tree		the array to store the output array
-* @param string					$branch				optional, used internally
-* @param Array(string)			&$level				Level in the tree to print as the base
-* @param string					$seperator			String to display between
-* @param int					$max_depth			Maximum depth to print
-* @param boolean				$use_seperator		Facilitates the drawing of the tree with no structure. Allows flat
-*													Dropdowns to be created, while still using levels etc.
+* @param array		$tree				the tree to format
+* @param array		&$all_child_links	assetInfo() for use when printing
+* @param array		&$output_tree		the array to store the output array
+* @param string		$branch				optional, used internally
+* @param int		$level				Level in the tree to print as the base
+* @param string		$seperator			String to display between
+* @param int		$max_depth			Maximum depth to print
+* @param boolean	$use_seperator		Facilitates the drawing of the tree with no structure. Allows flat
+*										Dropdowns to be created, while still using levels etc.
 *
-* @access private
 * @return void
+* @access private
 */
 function draw_tree($tree, &$all_child_links, &$output_tree, $branch='', $level=0, $seperator='-', $max_depth=0, $use_seperator=TRUE)
 {
-	if (empty($tree)) return false;
+	if (empty($tree)) return FALSE;
 	foreach ($tree as $branch => $branch_data) {
 		$prefix = '';
 
