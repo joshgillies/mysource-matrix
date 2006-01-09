@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.91 2006/01/06 00:04:35 dheppell Exp $
+* $Id: search_manager.inc,v 1.92 2006/01/09 22:57:13 gsherwood Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1194,7 +1194,17 @@ class Search_Manager extends Asset
 		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		$section_link = $GLOBALS['SQ_SYSTEM']->am->getLink($fieldid, SQ_LINK_TYPE_2, 'metadata_section', TRUE, NULL, 'minor');
+		if (empty($section_link)) {
+			// the field is not attached to a section, so return default weighting
+			return 1;
+		}
+
 		$schema_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($section_link['majorid'], SQ_LINK_TYPE_2, 'metadata_schema', TRUE, 'minor');
+		if (empty($schema_links)) {
+			// the section is not attached to a schema, so return default weighting
+			return 1;
+		}
+
 		$sectionid    = $section_link['majorid'];
 		$schemaids    = Array();
 
