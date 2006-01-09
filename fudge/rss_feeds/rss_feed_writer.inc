@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_writer.inc,v 1.6 2006/01/06 06:16:13 pgannavarapu Exp $
+* $Id: rss_feed_writer.inc,v 1.7 2006/01/09 00:02:32 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * Creates an XML document with all the data that is provided
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -269,10 +269,17 @@ class RSS_Feed_Writer
 		// you do not have channel tag in atom 1.0 Instead we use feed tag itself
 		if ($type != 'feed') {
 			$type .= ' '.$version;
+
 			if ($type == 'rss 2.0') {
 				echo '<channel>';
 			} else {
-				echo '<channel rdf:about="'.$channel['rdf:about'].'">';
+				if (isset($channel['rdf:about'])) {
+					echo '<channel rdf:about="'.$channel['rdf:about'].'">';
+				} else {
+					trigger_error('A required attribute "rdf:about" is undefined for the Channel tag', E_USER_ERROR);
+					ob_end_clean();
+					return '';
+				}
 			}
 		}
 		// add data to the chaannel or the feed tags

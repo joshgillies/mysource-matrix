@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.5 2005/11/09 04:43:20 pgannavarapu Exp $
+* $Id: rss_feed_reader.inc,v 1.6 2006/01/09 00:02:31 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -348,9 +348,8 @@ class RSS_Feed_Reader
 			$this->open_tags[] = $name;
 			//if there is a tag that is previously opened but not closed till now then the current tag is its child
 			//so push the parent into the parent_tags array
-			if (!empty($this->element)) {
-				$this->parent_tags[] = $this->element;
-			}
+			$this->parent_tags[] = $name;
+
 			$this->element = $name;
 			//if teh current tag has any attributes then pass the attributes to the character handler so that it can be pushed
 			//into the respective array as attribute
@@ -390,7 +389,11 @@ class RSS_Feed_Reader
 				$element = array_pop($this->open_tags);
 			}
 			//unset($this->open_tags[$key]);
-			if ($this->element == $name) $this->element = '';
+			$count = count($this->parent_tags);
+
+			if ($this->element == $this->parent_tags[$count-1]) {
+				$element = array_pop($this->parent_tags);
+			}
 		}
 
 	}//end endElementHandler()
@@ -489,7 +492,9 @@ class RSS_Feed_Reader
 						foreach ($this->parent_tags as $key => $value) {
 							if (strcasecmp($value, $var) == 0) $count++;
 						}
+
 						$index = $count - 1;
+
 					} else {
 						$index = 0;
 					}
@@ -522,6 +527,7 @@ class RSS_Feed_Reader
 							$this->{$var}[$index][$parent][$element]['value'] = $data;
 						}
 					} else {
+
 						if ($var != $element) {
 							if (empty($parent)) {
 								$this->{$var}[$index][$element]['_attributes'] = $data;
@@ -532,9 +538,9 @@ class RSS_Feed_Reader
 							$this->{$var}[$index]['_attributes'] = $data;
 						}
 					}
-				}
-			}
-		}
+				} //end if element not empty
+			}//end if where var is unrecognised or not
+		}//end if data not empty
 
 	}//end characterHandler()
 
