@@ -11,7 +11,7 @@
 * | Please refer to http:// www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code.inc,v 1.9 2006/01/09 05:34:09 dmckee Exp $
+* $Id: content_type_code.inc,v 1.10 2006/01/09 23:22:45 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -148,7 +148,7 @@ class Content_Type_Code extends Content_Type
 	function highlightPHP($str)
 	{
 		$highlighted = $str;
-
+		if (trim($str) == '') return '';
 		// Grab the preferences
 		$classes = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_CODE_EDITOR_PHP_CLASSES');
 
@@ -259,18 +259,22 @@ class Content_Type_Code extends Content_Type
 		$php_start_token = 'PHPSTARTTAG';
 		$php_end_token = 'PHPENDTAG';
 
+		// Remove windows carriage returns
+		$str = str_replace("\r", '', $str);
+
 		// Handle the XML Tags, so they don't get messed up with the PHP start tags
 		preg_match_all('/<\?\s*xml.*\?>/i', $str, $matches=Array());
 		foreach ($matches as $text) {
 			$replace = str_replace(Array('<?', '?>'), Array('<XMLSTART', 'XMLEND>'), $text);
 			$str = str_replace($text, $replace, $str);
 		}
+
 		$str = str_replace('<?php', $php_start_token, $str);
 		$str = str_replace('<?PHP', $php_start_token, $str);
 		$str = str_replace('<?', $php_start_token.' ', $str);
 		$str = str_replace(' ?>', ' '.$php_end_token, $str);
 		$str = str_replace('<?', $php_start_token.' ', $str);
-		$str = str_replace('?>', ' '.$php_end_token, $str);
+		$str = str_replace('?>', $php_end_token, $str);
 
 		// Replace any php code that appears between quotes (ie in an html attribute)
 		// Replaced with an alphabetical string, so that attributes see this as a valid attribute value
@@ -299,7 +303,11 @@ class Content_Type_Code extends Content_Type
 			$php_string = str_replace($php_start_token, '<?php', $php_string);
 			$php_string = str_replace($php_end_token, '?>', $php_string);
 
-			$highlighted .= $this->highlightPHP($php_string);
+			$php_highlighted = $this->highlightPHP($php_string);
+
+			// Remove the leading first line, that causes problems
+			$php_highlighted = preg_replace('/(<span class="php_html">)\n/i', '\\1', $php_highlighted, 1);
+			$highlighted .= $php_highlighted;
 
 			$str = substr($str, strpos($str, $php_end_token) + strlen($php_end_token));
 
@@ -328,6 +336,21 @@ class Content_Type_Code extends Content_Type
 		foreach ($current_line_settings as $name => $value) {
 			$line_num_prefs[$name] = $value;
 		}
+
+		// Some post processing. Remove trailing empty lines. Fix up end tags that seem to get indented etc
+		// Use this to process anything that seems to abnormal in highlighting
+		$lines = explode("\n", $highlighted);
+		// Iterate backwards, so we deal with only those lines at the end
+		for ($i = count($lines) -1; $i > 0; $i--) {
+			// Remove empty lines, and those that contain only span closing tags
+			if ((trim($lines[$i]) == '') || (trim($lines[$i]) == '</span>')) {
+				$lines[$i - 1] .= $lines[$i];
+				unset($lines[$i]);
+				continue;
+			}
+			break;
+		}
+		$highlighted = implode("\n", $lines);
 		if ($line_num_prefs['use_line_numbers'] == TRUE) {
 			$highlighted = $this->addLineNumbers($highlighted, $line_num_prefs['line_number_left'], $line_num_prefs['line_number_style'], $line_num_prefs['line_number_class']);
 		}
@@ -359,13 +382,11 @@ class Content_Type_Code extends Content_Type
 					// Setup the replace value.
 					// We leave -margin_value- and -line_number- in there, as they will be determined later
 					$replace = '<span class="'.$class.'" style="-margin_value-">-line_number-</span>';
-					$replace_right = '<span class="'.$class.'" style="right: 0px;">-line_number-</span>';
-					$replace = ($left==TRUE) ? "\n$replace" : "$replace\n";
+					$replace = "\n$replace";
 
 					// Replace all the new lines with our gear
 					if ($left) {
 						$str = preg_replace('/\n/i', $replace, $str);
-						// $str = preg_replace('/\r/i', '', $str);
 						// Add one for the first line
 						$str = $replace.$str;
 					}
@@ -374,17 +395,17 @@ class Content_Type_Code extends Content_Type
 					// of how many there are
 					$line_number = 1;
 					while (FALSE !== strpos($str, '-line_number-')) {
-						$str = preg_replace('/-line_number-/i', $line_number.'.', $str, 1);
+						$str = preg_replace('/-line_number-/i', $line_number.':', $str, 1);
 						$line_number++;
 					}
 
 					// Work out the margin based on the number of digits in our line numbers
-					$margin = strlen(strval($line_number)) * 5 + 5;
+					$margin = strlen(strval($line_number)) * 6 + 5;
 
-					$margin_replace = ($left == TRUE) ? 'margin-right' : 'margin-left';
-					$margin_replace .= ': '.$margin.'px;';
-
-					$str = str_replace('-margin_value-', $margin_replace, $str);
+					for ($i = 1; $i <= $line_number; $i++) {
+						$replace = 'margin-right: '.strval($margin - (strlen(strval($i)) * 6)).'px;';
+						$str = preg_replace('/-margin_value-/i', $replace, $str, 1);
+					}
 				} else {
 					// Line Numbers on the right
 					$new_str = '<table style="width: 100%;" ><tr><td><pre>'.$str.'</pre></td><td style="width: 100px;" >';
