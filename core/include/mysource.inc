@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.157 2006/01/09 02:09:12 rong Exp $
+* $Id: mysource.inc,v 1.158 2006/01/09 22:10:09 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.157 $
+* @version $Revision: 1.158 $
 * @package MySource_Matrix
 */
 class MySource
@@ -478,7 +478,9 @@ class MySource
 			if (SQ_CONF_SEND_LAST_MODIFIED_HEADER) {
 				header('Last-Modified: '.gmdate('D, d M Y H:i:s', $info['last_modified']).' GMT');
 			}
-			if (SQ_CONF_SEND_NOT_MODIFIED_HEADER) {
+			if (SQ_CONF_SEND_NOT_MODIFIED_HEADER && isset($GLOBALS['not_modified']) && $GLOBALS['not_modified'] == TRUE) {
+				// cache manager returns a cached version
+				unset($GLOBALS['not_modified']);
 				header('HTTP/1.1 304 Not Modified');
 				exit();
 			} else {
@@ -486,6 +488,7 @@ class MySource
 				echo $content;
 			}
 		}
+
 
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cm);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.27 2006/01/08 21:51:57 rong Exp $
+* $Id: cache_manager.inc,v 1.28 2006/01/09 22:10:09 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -170,6 +170,11 @@ class Cache_Manager extends Asset
 				if (!$contents && !file_exists(SQ_CACHE_PATH.'/'.$cached['path'])) {
 					trigger_localised_error('CORE0244', E_USER_WARNING, SQ_CACHE_PATH.'/'.$cached['path']);
 					return '';
+				}
+				// if we can find a cached version of this content
+				// set flag to notify the system to send a 304 Not Modified Header
+				if ($cache_key != md5('cache_info'.$assetid)) {
+					$GLOBALS['not_modified'] = TRUE;
 				}
 				return $contents;
 			}
