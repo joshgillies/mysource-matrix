@@ -11,7 +11,7 @@
 * | Please refer to http:// www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code.inc,v 1.8 2006/01/05 04:58:21 dmckee Exp $
+* $Id: content_type_code.inc,v 1.9 2006/01/09 05:34:09 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -324,6 +324,10 @@ class Content_Type_Code extends Content_Type
 		$highlighted = str_replace(Array('XMLSTART', 'XMLEND'), Array('?', '?'), $highlighted);
 
 		$line_num_prefs = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_CODE_EDITOR_LINE_NUMBERS');
+		$current_line_settings = $this->attr('line_numbers');
+		foreach ($current_line_settings as $name => $value) {
+			$line_num_prefs[$name] = $value;
+		}
 		if ($line_num_prefs['use_line_numbers'] == TRUE) {
 			$highlighted = $this->addLineNumbers($highlighted, $line_num_prefs['line_number_left'], $line_num_prefs['line_number_style'], $line_num_prefs['line_number_class']);
 		}

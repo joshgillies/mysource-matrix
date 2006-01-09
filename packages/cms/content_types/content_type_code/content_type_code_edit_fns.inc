@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code_edit_fns.inc,v 1.2 2006/01/05 04:48:48 dmckee Exp $
+* $Id: content_type_code_edit_fns.inc,v 1.3 2006/01/09 05:34:09 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -61,7 +61,59 @@ class Content_Type_Code_Edit_Fns extends Content_Type_Edit_Fns
 			$html = str_replace('&lt;?php', '<?php', $html);
 			$html = str_replace('&lt;script', '<script', $html);
 			text_area($prefix.'_html', $html, '', '', 0, 'style="width: '.$size['width'].'; height: '.$size['height'].'; font-family: monospace; display: block"');
-		}
+			$line_number_prefs = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_CODE_EDITOR_LINE_NUMBERS');
+			$current_line_settings = $asset->attr('line_numbers');
+			foreach ($current_line_settings as $name => $value) {
+				$line_number_prefs[$name] = $value;
+			}
+			?>
+			<table class="sq-backend-table" style="width: 350px;">
+				<tr>
+					<td class="sq-backend-table-header" nowrap="nowrap" style="width: 100px;">
+						<?php echo translate('show_line_numbers'); ?>
+					</td>
+					<td class="sq-backend-table-cell" style="width: 100%;">
+					<?php
+						check_box($prefix.'_show_line_numbers', '1', $line_number_prefs['use_line_numbers']);
+					?>
+					</td>
+				</tr>
+				<tr>
+					<td class="sq-backend-table-header" nowrap="nowrap" style="width: 100px;">
+						<?php echo translate('line_number_orientation'); ?>
+					</td>
+					<td class="sq-backend-table-cell" style="width: 100%;">
+					<?php
+						radio_button($prefix.'_line_number_left', 'left', $line_number_prefs['line_number_left'] == TRUE);
+						label(translate('left'), $prefix.'_line_number_left');
+						radio_button($prefix.'_line_number_left', 'right', $line_number_prefs['line_number_left'] == FALSE);
+						label(translate('right'), $prefix.'_line_number_left');
+					?>
+					</td>
+				</tr>
+				<tr>
+					<td class="sq-backend-table-header" nowrap="nowrap" style="width: 100px;">
+						<?php echo translate('line_number_style'); ?>
+					</td>
+					<td class="sq-backend-table-cell" style="width: 100%;">
+					<?php
+						combo_box($prefix.'_line_style', Array('span'=>'Span','list'=>'List'), FALSE, $line_number_prefs['line_number_style']);
+					?>
+					</td>
+				</tr>
+				<tr>
+					<td class="sq-backend-table-header" nowrap="nowrap" style="width: 100px;">
+						<?php echo translate('line_number_class'); ?>
+					</td>
+					<td class="sq-backend-table-cell" style="width: 100%;">
+					<?php
+						text_box($prefix.'_line_class', $line_number_prefs['line_number_class']);
+					?>
+					</td>
+				</tr>
+			</table>
+			<?php
+		}//end if write access
 		return TRUE;
 
 	}//end paintBackend()
@@ -80,6 +132,24 @@ class Content_Type_Code_Edit_Fns extends Content_Type_Edit_Fns
 	function processBackend($link, &$asset, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
+			$line_number_prefs = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_CODE_EDITOR_LINE_NUMBERS');
+			$new_line_data = Array();
+			// We only want to store new line number details, if they differ from the global prefs
+			if (isset($_POST[$prefix.'_show_line_numbers']) != $line_number_prefs['use_line_numbers']) {
+					$new_line_data['use_line_numbers'] = isset($_POST[$prefix.'_show_line_numbers']);
+			}
+			$side = ($_POST[$prefix.'_line_number_left'] == 'left') ? TRUE : FALSE;
+			if ($side != $line_number_prefs['line_number_left']) {
+				$new_line_data['line_number_left'] = $side;
+			}
+			if ($_POST[$prefix.'_line_style'] != $line_number_prefs['line_number_style']) {
+				$new_line_data['line_number_style'] = $_POST[$prefix.'_line_style'];
+			}
+			if ($_POST[$prefix.'_line_class'] != $line_number_prefs['line_number_class']) {
+				$new_line_data['line_number_class'] = $_POST[$prefix.'_line_class'];
+			}
+			$asset->setAttrValue('line_numbers', $new_line_data);
+
 			if (isset($_POST[$prefix.'_html'])) {
 				$html = $_POST[$prefix.'_html'];
 
@@ -89,11 +159,12 @@ class Content_Type_Code_Edit_Fns extends Content_Type_Edit_Fns
 
 				$current_html = $asset->attr('html');
 				if ($html != $current_html) {
-					if ($asset->setAttrValue('html', $html)) return TRUE;
+					if (!$asset->setAttrValue('html', $html)) return FALSE;
 				}
 			}
-		}
-		return FALSE;
+
+		}//end if write access
+		return $asset->writeAccess('attributes');
 
 	}//end processBackend()
 

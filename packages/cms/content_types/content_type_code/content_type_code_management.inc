@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code_management.inc,v 1.1 2005/12/16 05:42:13 dmckee Exp $
+* $Id: content_type_code_management.inc,v 1.2 2006/01/09 05:34:09 dmckee Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,6 +47,13 @@ class Content_Type_Code_Management extends Asset_Management
 											'default'		=> '',
 											'update_fn'		=> '',
 											'description'	=> 'The raw content of the editor',
+										   ),
+						'line_numbers'	=> Array(
+											'name'			=> 'Line Number Options',
+											'type'			=> 'serialise',
+											'description'	=> 'Whether to use line numbers, and what options to use',
+											'default'		=> Array(),
+											'protected'		=> FALSE,
 										   ),
 					  );
 
