@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.158 2006/01/09 22:10:09 rong Exp $
+* $Id: mysource.inc,v 1.159 2006/01/09 23:28:31 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.158 $
+* @version $Revision: 1.159 $
 * @package MySource_Matrix
 */
 class MySource
@@ -408,7 +408,7 @@ class MySource
 
 			// caching is enabled and asset is readable by public user, send HTTP headers
 			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && is_a($GLOBALS['SQ_SYSTEM']->user, 'public_user')
-				&& $asset->effectiveUnrestricted()) {
+				&& $asset->effectiveUnrestricted() && empty($_POST)) {
 				$this->_sendHTTPHeaders($asset);
 			} else {
 				$asset->printFrontend();
@@ -441,7 +441,7 @@ class MySource
 
 		// save/load the cache information of this asset
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$cache_info = $cm->loadFromCache($asset->id, $asset->type(), 'cache_info', FALSE);
+		$cache_info = $cm->loadFromCache($asset->id, $asset->type(), 'cache_info');
 
 		ob_start();
 			$loaded_assetids = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->getAssetKeys();
@@ -450,7 +450,7 @@ class MySource
 			$content = ob_get_contents();
 		ob_end_clean();
 
-		// not cached or expired
+		// not cached or has expired
 		if (empty($cache_info)) {
 
 			// work out the correct last updated time of this asset
@@ -462,7 +462,7 @@ class MySource
 						'last_modified'	=> $last_updated,
 						'expires'		=> (time() + $cache_expiry),
 					);
-			$cache_status = $cm->saveToCache($asset->id, $asset->type(), 'cache_info', serialize($info), FALSE);
+			$cache_status = $cm->saveToCache($asset->id, $asset->type(), 'cache_info', serialize($info));
 			// if cache_status is FALSE, then caching is probably disabled, expiry time = now
 			$expiry_time = $cache_status ? $info['expires'] : time();
 			header('Expires: '.gmdate('D, d M Y H:i:s', $expiry_time).' GMT');
@@ -471,16 +471,14 @@ class MySource
 			}
 			echo $content;
 
-		// content is cached
+		// cache version found
 		} else {
 			$info = unserialize($cache_info);
 			header('Expires: '.gmdate('D, d M Y H:i:s', $info['expires']).' GMT');
 			if (SQ_CONF_SEND_LAST_MODIFIED_HEADER) {
 				header('Last-Modified: '.gmdate('D, d M Y H:i:s', $info['last_modified']).' GMT');
 			}
-			if (SQ_CONF_SEND_NOT_MODIFIED_HEADER && isset($GLOBALS['not_modified']) && $GLOBALS['not_modified'] == TRUE) {
-				// cache manager returns a cached version
-				unset($GLOBALS['not_modified']);
+			if (SQ_CONF_SEND_NOT_MODIFIED_HEADER) {
 				header('HTTP/1.1 304 Not Modified');
 				exit();
 			} else {
