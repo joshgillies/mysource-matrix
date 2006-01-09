@@ -1,5 +1,57 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.6.4
+
+Featured Changes
+----------------------
+
+REMOTE CONTENT URL WHITELISTS
+
+	The remote content asset now has an option that allows you to specify a list of URLs that the remote content asset will fetch. This was done to stop "the bad guys" from using a remote content asset as an anonymiser. When *all* the links are re-written to point back to the remote content asset (and if the white list in *not* empty) only those remote URLs that are based on the white listed URLs are allowed through.
+
+
+Complete Changelog
+----------------------
+
+Core
+
+* Fixed bug #971: Can't close the editor in Firefox
+* Fixed bug #973: Warning when purging the trash with an Image Variety
+* Fixed bug #987: <A> Tag misplaced outside <P>
+* Fixed bug #994: Simple edit code not added to page when custom design & layout used
+* Fixed bug #1027: WYSIWYG editor not replacing links when between <li> elements
+* Fixed bug #1033: Cron fails on Oracle installs
+* Fixed bug #1034: Image variety bug when changing status
+* Fixed bug #1043: Asset Map doing unecessary requests with Java 1.5
+* Fixed bug #1047: Workflow messaging not working after first step completed
+* Fixed bug #1049: Live PDF assets not available in safe edit pending approval
+* Fixed bug #1052: Datetime field time elements missing from response
+* Fixed bug #1053: Changing a design destroys my paint layout lookups
+* Fixed bug #1057: Simple edit: Metadata screen, wrong class for section
+* Fixed bug #1058: Simple edit: Workflow keyword breaks HTML code
+* Fixed bug #1059: Purge Trash - Error with Image varieties
+* Fixed bug #1067: Some attributes should compare old and new values using '===' not '=='
+* Fixed bug #1071: %asset_metadata_DC.Description% on the frontend contains escaped characters
+* Fixed bug #1073: WYSIWYG anchor tool should also insert ID
+* Fixed bug #1075: wee typo in 'replace text'/eraser tool dialog
+
+CMS
+
+* Fixed bug #331: Form cloning issue - send-to fields of receipt and STAF emails not remapped (custom form)
+* Fixed bug #823: Remote Content does not validate the Remote URL provided in the URL (remote content)
+* Fixed bug #962: Option List uses embeded style that is not valid XHTML (custom form)
+* Fixed bug #1041: Double quotes in checkbox options deleted on subsequent edits (custom form)
+* Fixed bug #1054: Form upgrade to 3.6 obliterates 'required' setting for questions (custom form)
+* Fixed bug #1064: Colons or other characters are truncated in option lists (custom form)
+
+Search
+
+* Fixed bug #1046: Searching a term with a ' in it finds no matches (search manager)
+* Fixed bug #1063: Search Page error when 1 result found and exclude term used (search page)
+
+
+
+
 VERSION 3.6.3
 
 Featured Changes
@@ -30,9 +82,7 @@ CMS
 * Fixed bug #1016: Listing Engine does not always replace %asset_assetid% field (listing engine)
 * Fixed bug #1020: DB error if date partly filled out for Whats new pg (whats new)
 * Fixed bug #1021: Asset Builder - Numeric Attribute - Javascript Error (asset builder)
-* Fixed bug #1029: Recurring events on first days of month appear twice (calendar page)
 * Fixed bug #1030: Remote content link URLs incorrectly re-written (remote content)
-* Fixed bug #1031: Calendar events do not appear in sequence (calendar page)
 
 Calendar
 
