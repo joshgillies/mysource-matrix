@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.118 2005/12/20 05:55:01 dmckee Exp $
+* $Id: file.inc,v 1.119 2006/01/09 03:13:22 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.118 $
+* @version $Revision: 1.119 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -579,10 +579,11 @@ class File extends Asset
 							WHERE
 								assetid = '.$db->quoteSmart($this->id).'
 						)
-					AND	(name LIKE '.$db->quoteSmart('design::%');
-		if ($this->_tmp['deleting_file']) {
-			$sql .= ' OR name LIKE '.$db->quoteSmart('paint_layout::%');
-		}
+					AND	(name LIKE '.$db->quoteSmart('design::%').'
+						OR name LIKE '.$db->quoteSmart('paint_layout::%').')';
+		//if ($this->_tmp['deleting_file']) {
+		//	$sql .= ' OR name LIKE '.$db->quoteSmart('paint_layout::%');
+		//}
 		$sql .= ')';
 
 		$result = $db->query($sql);
@@ -680,6 +681,7 @@ class File extends Asset
 			// NOTE: we are not going to update the design's lookups because no
 			//       designs can be attached to a file anyway (well not at this time)
 			//       and it's one thing less to worry about updating for the moment
+			// NOTE NOTE: same applies to paint layouts...
 
 		}//end foreach
 
