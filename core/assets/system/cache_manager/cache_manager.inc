@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.28 2006/01/09 22:10:09 rong Exp $
+* $Id: cache_manager.inc,v 1.29 2006/01/09 23:27:56 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -155,7 +155,15 @@ class Cache_Manager extends Asset
 		$perm_key = $this->_getPermKey($assetid, $cache_key);
 		if (empty($perm_key)) return '';
 
-		$url = ($use_url) ? current_url() : $assetid;
+		if ($use_url) {
+			$url = current_url();
+			// append the query string (if any)
+			if (isset($_SERVER['QUERY_STRING'])) {
+				$url .= '?'.$_SERVER['QUERY_STRING'];
+			}
+		} else {
+			$url = $assetid;
+		}
 		$cache_key = md5($cache_key.$assetid);
 
 		// check expiry time if entry already exists
@@ -170,11 +178,6 @@ class Cache_Manager extends Asset
 				if (!$contents && !file_exists(SQ_CACHE_PATH.'/'.$cached['path'])) {
 					trigger_localised_error('CORE0244', E_USER_WARNING, SQ_CACHE_PATH.'/'.$cached['path']);
 					return '';
-				}
-				// if we can find a cached version of this content
-				// set flag to notify the system to send a 304 Not Modified Header
-				if ($cache_key != md5('cache_info'.$assetid)) {
-					$GLOBALS['not_modified'] = TRUE;
 				}
 				return $contents;
 			}
@@ -213,7 +216,15 @@ class Cache_Manager extends Asset
 		$perm_key = $this->_getPermKey($assetid, $cache_key);
 		if (empty($perm_key)) return FALSE;
 
-		$url = ($use_url) ? current_url() : $assetid;
+		if ($use_url) {
+			$url = current_url();
+			// append the query string (if any)
+			if (isset($_SERVER['QUERY_STRING'])) {
+				$url .= '?'.$_SERVER['QUERY_STRING'];
+			}
+		} else {
+			$url = $assetid;
+		}
 		$cache_key = md5($cache_key.$assetid);
 
 		// work out the file path and expiry time
