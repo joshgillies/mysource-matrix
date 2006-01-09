@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.111 2006/01/03 01:09:18 gsherwood Exp $
+* $Id: html_form.inc,v 1.112 2006/01/09 00:22:27 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.111 $
+* @version $Revision: 1.112 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1214,7 +1214,7 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 
 	$invalid = Array();
 
-	//weed out any unwanted entries
+	// weed out any unwanted entries
 	foreach ($all_child_links as $treeid => $data) {
 		// build an array of assetids as we go
 		$asset_info_ids[] = $data['assetid'];
@@ -1263,18 +1263,12 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 		}
 		$level = 0;
 	}
-	if ($structured) {
-		//Insert each node into the tree
-		$search_tree = Array();
-		foreach ($child_links as $treeid => $child) {
-			id_list_to_tree($treeid, $search_tree);
-		}
-		draw_tree($search_tree, $all_child_links, $options, '', $level, $seperator, $max_depth);
-	} else {
-		foreach ($child_links as $data) {
-			$options[$data['assetid']] = $data['short_name'];
-		}
+	// Insert each node into the tree
+	$search_tree = Array();
+	foreach ($child_links as $treeid => $child) {
+		id_list_to_tree($treeid, $search_tree);
 	}
+	draw_tree($search_tree, $all_child_links, $options, '', $level, $seperator, $max_depth, $structured);
 	if ($check_boxes) {
 		foreach ($options as $id => $output) {
 			if ($allow_multiple) {
@@ -1337,35 +1331,40 @@ function id_list_to_tree($treeid, &$tree, $chunk_prefix='')
 * Takes a tree array and an output array, and fills the output array with an ascii tree,
 * with each line of the tree as an element in the array
 *
-* @param array	$tree				the tree to format
-* @param array	&$all_child_links	assetInfo() for use when printing
-* @param array	&$output_tree		the array to store the output array
-* @param string	$branch				optional, used internally
-* @param array	$level				Level in the tree to print as the base
-* @param string	$seperator			String to display between
-* @param int	$max_depth			Maximum depth to print
+* @param array		$tree				the tree to format
+* @param array		&$all_child_links	assetInfo() for use when printing
+* @param array		&$output_tree		the array to store the output array
+* @param string		$branch				optional, used internally
+* @param array		$level				Level in the tree to print as the base
+* @param string		$seperator			String to display between
+* @param int		$max_depth			Maximum depth to print
+* @param boolean	$use_seperator		Facilitates the drawing of the tree with no structure. Allows flat
+*										Dropdowns to be created, while still using levels etc.
 *
 * @return void
 * @access private
 */
-function draw_tree($tree, &$all_child_links, &$output_tree, $branch='', $level=0, $seperator='-', $max_depth=0)
+function draw_tree($tree, &$all_child_links, &$output_tree, $branch='', $level=0, $seperator='-', $max_depth=0, $use_seperator=TRUE)
 {
 	if (empty($tree)) return false;
 	foreach ($tree as $branch => $branch_data) {
 		$prefix = '';
 
 		$lvl = $all_child_links[$branch]['lvl'] - $level;
-		if ($max_depth != 0 && $lvl > $max_depth) {
+		if ($max_depth != 0 && $lvl >= $max_depth) {
 			return;
 		}
-		for ($i = 0; $i < $lvl; $i++) {
-			$prefix .= ' '.$seperator.' ';
+		if ($use_seperator == TRUE) {
+			for ($i = 0; $i < $lvl; $i++) {
+				$prefix .= ' '.$seperator.' ';
+			}
 		}
 		$output_tree[$all_child_links[$branch]['assetid']] = $prefix.$all_child_links[$branch]['short_name'];
 		if (is_array($branch_data) && !empty($branch_data)) {
-			draw_tree($branch_data, $all_child_links, $output_tree, $branch, $level, $seperator, $max_depth);
+			draw_tree($branch_data, $all_child_links, $output_tree, $branch, $level, $seperator, $max_depth, $use_seperator);
 		}
 	}
+
 }//end draw_tree()
 
 
