@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.131 2006/01/09 03:41:04 emcdonald Exp $
+* $Id: listing_engine.inc,v 1.132 2006/01/09 04:33:03 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.131 $
+* @version $Revision: 1.132 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -370,11 +370,17 @@ class Listing_Engine extends Page
 				$form_url = htmlspecialchars(replace_query_string_vars($keys_to_remove, $this->getURL()));
 			}
 
+			if ($this->requires_form || !empty($used_fields)) {
 			?>
 			<form id="<?php echo $this->getPrefix() ?>" method="<?php echo $this->_getFormSubmitMethod() ?>" action="<?php echo $form_url; ?>">
-			<?php echo $contents; ?>
+			<?php
+			}
+			echo $contents;
+			if ($this->requires_form || !empty($used_fields)) {
+			?>
 			</form>
 			<?php
+			}
 		} else {
 			// no form at all - remove the JS code relations stuff
 			$contents = str_replace($this->getSelectAllJSCodeKeywordReplacement(), '', $contents);
