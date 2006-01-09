@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.422 2006/01/09 04:22:09 emcdonald Exp $
+* $Id: asset_manager.inc,v 1.423 2006/01/09 04:59:52 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.422 $
+* @version $Revision: 1.423 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2819,15 +2819,6 @@ class Asset_Manager extends MySource_Object
 	{
 
 		assert_valid_assetid($assetid);
-
-		// while the $dependant param is still new, try to catch anyone who hasn't changed their usage
-		if (!is_null($dependant)) {
-			$not_bool_message = 'The signature of this function has changed from'
-			."\n".'(object &$asset, string|array $type_code, boolean $strict_type_code, string $sort_by... ) to '
-			."\n".'(object &$asset, string|array $type_code, boolean $strict_type_code, boolean $dependant, string $sort_by... ). Please update your function call.';
-
-			assert_type($dependant, 'boolean', $not_bool_message);
-		}
 
 		// check if we are getting children for a shadow asset, and palm the request off to the
 		// handler of the shadow asset if we are
