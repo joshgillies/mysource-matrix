@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.20 2005/12/09 02:34:00 mmcintyre Exp $
+* $Id: hipo_job_reindex.inc,v 1.21 2006/01/09 23:02:03 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -58,7 +58,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	*/
 	function getCodeName()
 	{
-		return parent::getCodeName().'-'.$this->_running_vars['root_assetid'];
+		return parent::getCodeName().'-'.implode(',', $this->_running_vars['root_assetid']);
 
 	}//end getCodeName()
 
