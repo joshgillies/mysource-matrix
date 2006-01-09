@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.154 2006/01/06 06:14:36 lwright Exp $
+* $Id: search_page.inc,v 1.155 2006/01/09 05:43:08 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.154 $
+* @version $Revision: 1.155 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -93,7 +93,7 @@ class Search_Page extends Listing_Engine
 	*/
 	function Search_Page($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Listing_Engine($assetid);
 
 	}//end constructor
@@ -120,10 +120,10 @@ class Search_Page extends Listing_Engine
 
 			$bodycopy =& new Bodycopy();
 			$bodycopy->setAttrValue('name', $name);
-			if (!$bodycopy->create($copy_link)) return false;
+			if (!$bodycopy->create($copy_link)) return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _createBodycopies()
 
@@ -153,10 +153,10 @@ class Search_Page extends Listing_Engine
 		// if a bodycopy is linking to us then we need to make it a dependant link
 		if ($side_of_link == 'major' && is_a($asset, 'bodycopy') && $dependant != '1') {
 			$dependant = '1';
-			return true;
+			return TRUE;
 		}
 
-		return false;
+		return FALSE;
 
 	}//end prepareLink()
 
@@ -194,10 +194,10 @@ class Search_Page extends Listing_Engine
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 'M', 'exclusive' => true);
-		$page_links[SQ_LINK_TYPE_2]['folder']   = Array('card' => 4, 'exclusive' => false);
-		$page_links[SQ_LINK_TYPE_3]['folder']   = Array('card' => 1, 'exclusive' => false);
-		$page_links[SQ_LINK_NOTICE]['asset']    = Array('card' => 'M', 'exclusive' => false);
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 'M', 'exclusive' => TRUE);
+		$page_links[SQ_LINK_TYPE_2]['folder']   = Array('card' => 4, 'exclusive' => FALSE);
+		$page_links[SQ_LINK_TYPE_3]['folder']   = Array('card' => 1, 'exclusive' => FALSE);
+		$page_links[SQ_LINK_NOTICE]['asset']    = Array('card' => 'M', 'exclusive' => FALSE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -285,7 +285,7 @@ class Search_Page extends Listing_Engine
 		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->attr('num_per_page'));
 		$submitted_category  = array_get_index($_REQUEST, 'search_category', array_get_index($_REQUEST, 'submitted_search_category'));
 
-		if (empty($_REQUEST['search_category']) && !empty($submitted_category)){
+		if (empty($_REQUEST['search_category']) && !empty($submitted_category)) {
 			$_REQUEST['search_category'] = $submitted_category;
 		}
 
@@ -392,7 +392,7 @@ class Search_Page extends Listing_Engine
 		if (empty($proxy_settings)) return $results;
 
 		$collated_types = Array();
-		$result_types = $am->getAssetInfo(array_keys($results), 'asset', false, 'type_code');
+		$result_types = $am->getAssetInfo(array_keys($results), 'asset', FALSE, 'type_code');
 		foreach ($result_types as $result_assetid => $result_type) {
 			$collated_types[$result_type][] = $result_assetid;
 		}
@@ -408,16 +408,13 @@ class Search_Page extends Listing_Engine
 				$converted_types = Array();
 				foreach ($proxy_settings[$result_type] as $type_code => $inherit) {
 					if ($inherit) {
-						$converted_types = array_merge($am->getTypeDescendants($type_code, true), $converted_types);
+						$converted_types = array_merge($am->getTypeDescendants($type_code, TRUE), $converted_types);
 					} else {
 						$converted_types[] = $type_code;
 					}
 				}
 
 				$children = $GLOBALS['SQ_SYSTEM']->am->getLinks($result_assetids, SQ_SC_LINK_SIGNIFICANT, $converted_types);
-				if (count($result_assetids) == 1) {
-					$children = Array($result_assetids[0] => $children);
-				}
 
 				foreach ($children as $orig_assetid => $links) {
 					foreach ($links as $link) {
@@ -474,7 +471,7 @@ class Search_Page extends Listing_Engine
 	/**
 	* Retrieves a bodycopy by name
 	*
-	* Returns the bodycopy, or null if the name does not match any bodycopies
+	* Returns the bodycopy, or NULL if the name does not match any bodycopies
 	*
 	* @param string	$name	the name of the bodycopy to retrieve
 	*
@@ -484,14 +481,15 @@ class Search_Page extends Listing_Engine
 	*/
 	function &getBodycopy($name)
 	{
+		$bodycopy = NULL;
+
 		if (array_key_exists($name, $this->bodycopies)) {
-			$am = &$GLOBALS['SQ_SYSTEM']->am;
-			$link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, $name, 'major', '1');
+			$am =& $GLOBALS['SQ_SYSTEM']->am;
+			$link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name, 'major', '1');
 			$bodycopy =& $am->getAsset($link['minorid'], $link['minor_type_code']);
-			return $bodycopy;
-		} else {
-			return null;
 		}
+
+		return $bodycopy;
 
 	}//end getBodycopy()
 
@@ -549,7 +547,7 @@ class Search_Page extends Listing_Engine
 					  );
 
 		$value = '---------- --:--:--';
-		$field =& new DateTime_Field($field_name, $value, $parameters, true);
+		$field =& new DateTime_Field($field_name, $value, $parameters, TRUE);
 		return $field;
 
 	}//end _getDateField()
@@ -610,7 +608,7 @@ class Search_Page extends Listing_Engine
 	* @return void
 	* @access private
 	*/
-	function _printDateRange($field_name, $current_value=Array(), $read_only=false)
+	function _printDateRange($field_name, $current_value=Array(), $read_only=FALSE)
 	{
 		if (!isset($current_value['from'])) {
 			$current_value['from'] = '---------- --:--:--';
@@ -655,7 +653,7 @@ class Search_Page extends Listing_Engine
 						// print the JS calendar popup date selecta
 						$calendar =& new JS_Calendar();
 						$calendar->changeSetting('onDayClick', 'datetime_set_date');
-						$calendar->paint($field_name.'_from', '', true);
+						$calendar->paint($field_name.'_from', '', TRUE);
 						?>
 					</td>
 					<?php
@@ -687,7 +685,7 @@ class Search_Page extends Listing_Engine
 						// print the JS calendar popup date selecta
 						$calendar =& new JS_Calendar();
 						$calendar->changeSetting('onDayClick', 'datetime_set_date');
-						$calendar->paint($field_name.'_to', '', true);
+						$calendar->paint($field_name.'_to', '', TRUE);
 						?>
 					</td>
 					<?php
@@ -740,22 +738,20 @@ class Search_Page extends Listing_Engine
 	*/
 	function _printNumericRangeDescription($current_value, $sub_field, $params)
 	{
-		switch(array_get_index($params, 'numeric_search', 'exact')) {
+		switch (array_get_index($params, 'numeric_search', 'exact')) {
 			case 'exact':
-				if ($sub_field == '') {
-					print $current_value['lower'];
-				}
+				if ($sub_field == '') print $current_value['lower'];
 			break;
 
 			case 'range':
-				$current_value = null;
+				$current_value = NULL;
 
 				if (!isset($current_value['upper'])) {
-					$current_value['upper'] = null;
+					$current_value['upper'] = NULL;
 				}
 
 				if (!isset($current_value['lower'])) {
-					$current_value['lower'] = null;
+					$current_value['lower'] = NULL;
 				}
 
 				if ($sub_field == 'lower') {
@@ -776,7 +772,7 @@ class Search_Page extends Listing_Engine
 			case 'custom':
 				$custom_ranges = Array();
 				$range_name = '';
-				foreach($params['custom_num_search'] as $key => $num_search_data) {
+				foreach ($params['custom_num_search'] as $key => $num_search_data) {
 					if (!empty($num_search_data['name']) && ($current_value['lower'] == $num_search_data['min']) && ($current_value['upper'] == $num_search_data['max'])) {
 						$range_name = $num_search_data['name'];
 						break;
@@ -813,9 +809,9 @@ class Search_Page extends Listing_Engine
 	* @return void
 	* @access private
 	*/
-	function _printNumericRange($field_name, $current_value=null, $params, $sub_field='', $read_only=false)
+	function _printNumericRange($field_name, $current_value=NULL, $params, $sub_field='', $read_only=FALSE)
 	{
-		switch(array_get_index($params, 'numeric_search', 'exact')) {
+		switch (array_get_index($params, 'numeric_search', 'exact')) {
 			case 'exact':
 				if ($sub_field == '') {
 					text_box('queries_'.$field_name, array_get_index($current_value, 'lower', ''), 5);
@@ -823,14 +819,14 @@ class Search_Page extends Listing_Engine
 			break;
 
 			case 'range':
-				$current_value = null;
+				$current_value = NULL;
 
 				if (!isset($current_value['upper'])) {
-					$current_value['upper'] = null;
+					$current_value['upper'] = NULL;
 				}
 
 				if (!isset($current_value['lower'])) {
-					$current_value['lower'] = null;
+					$current_value['lower'] = NULL;
 				}
 
 				if ($sub_field == 'lower') {
@@ -846,13 +842,13 @@ class Search_Page extends Listing_Engine
 
 			case 'custom':
 				$custom_ranges = Array();
-				foreach($params['custom_num_search'] as $key => $num_search_data) {
+				foreach ($params['custom_num_search'] as $key => $num_search_data) {
 					if (!empty($num_search_data['name'])) {
 						$custom_ranges[$key] = $num_search_data['name'];
 					}
 				}
 				if ($sub_field == '') {
-					combo_box('queries_'.$field_name, $custom_ranges, false, $current_value);
+					combo_box('queries_'.$field_name, $custom_ranges, FALSE, $current_value);
 				}
 			break;
 
@@ -886,7 +882,7 @@ class Search_Page extends Listing_Engine
 		}
 		ob_start();
 			$this->registerFormField('category_'.$cat_set_name);
-			combo_box('category_'.$cat_set_name, $options, false, $default);
+			combo_box('category_'.$cat_set_name, $options, FALSE, $default);
 			$res = ob_get_contents();
 		ob_end_clean();
 		return $res;
@@ -898,6 +894,7 @@ class Search_Page extends Listing_Engine
 	* Returns the replacement for the specified field
 	*
 	* @param string	$field_name	the name of the field to get the replacement for
+	* @param string	$sub_field	sub field
 	*
 	* @return string
 	* @access public
@@ -908,7 +905,7 @@ class Search_Page extends Listing_Engine
 		$fields = $this->attr('fields');
 		if (!isset($fields[$field_name])) return;
 		$query = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, '');
-		$read_only = false;
+		$read_only = FALSE;
 
 		ob_start();
 
@@ -920,7 +917,7 @@ class Search_Page extends Listing_Engine
 
 					case 'metadata' :
 						$assetid = $data_source['params']['assetid'];
-						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 						if (!is_null($asset)) {
 							$params = $asset->vars;
@@ -941,12 +938,12 @@ class Search_Page extends Listing_Engine
 							}//end switch
 						} else {
 							// not printing a field, set read-only
-							$read_only = true;
+							$read_only = TRUE;
 						}//end if metadata asset exists
 					break;
 
 					case 'asset_attrib' :
-						$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
+						$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
 
 						if ($attribute->type() == 'datetime') {
 
@@ -954,14 +951,14 @@ class Search_Page extends Listing_Engine
 							$this->_printDateRange('queries_'.$query_var, $current_value);
 
 						} else if (($attribute->type() == 'int' || $attribute->type() == 'float')) {
-							//$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
+							// $current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
 							$this->_printNumericRange($query_var, $query, $data_source['params'], $sub_field);
 
 						} else {
 
 							// if this is a boolean or selection field, we want to make sure blank options are allowed
 							if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
-								$attribute->_params['allow_empty'] = true;
+								$attribute->_params['allow_empty'] = TRUE;
 							}
 
 							// set the current value of the search field
@@ -973,7 +970,7 @@ class Search_Page extends Listing_Engine
 								$attribute->_edit_params = array_merge($attribute->_edit_params, $search_styles[$attribute->id]);
 							}
 
-							$attribute->paint('queries_'.$query_var, false);
+							$attribute->paint('queries_'.$query_var, FALSE);
 						}
 					break;
 
@@ -1023,7 +1020,7 @@ class Search_Page extends Listing_Engine
 		$query_var = $field_name.'_query_sis';
 		$query = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, '');
 		$fields = $this->attr('fields');
-		$read_only = false;
+		$read_only = FALSE;
 
 		ob_start();
 
@@ -1034,15 +1031,15 @@ class Search_Page extends Listing_Engine
 
 					case 'metadata' :
 						$assetid = $data_source['params']['assetid'];
-						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						if (!is_null($asset)) {
 							$params = $asset->vars;
 							$this->registerFormField('queries_'.$query_var);
 							switch (get_class($asset)) {
 								case 'metadata_field_date' :
-									$read_only = true;
+									$read_only = TRUE;
 									$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
-									$this->_printDateRange('queries_'.$query_var, $current_value, true);
+									$this->_printDateRange('queries_'.$query_var, $current_value, TRUE);
 								break;
 								case 'metadata_field_text' :
 									text_box('queries_'.$query_var, '', $this->defaults['query_width']);
@@ -1053,7 +1050,7 @@ class Search_Page extends Listing_Engine
 
 									if (empty($selection->_params['multiple'])) {
 										if (isset($selection->_params['options'][$query])) {
-											$read_only = true;
+											$read_only = TRUE;
 										}
 										// set the value outside the if condition so that if
 										// empty text has been selected, it will get saved as the option,
@@ -1080,16 +1077,16 @@ class Search_Page extends Listing_Engine
 
 						} else {
 							// not printing a field, set read-only
-							$read_only = true;
+							$read_only = TRUE;
 						}//end if metadata asset exists
 					break;
 
 					case 'asset_attrib' :
-						$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
+						$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
 
 						if ($attribute->type() == 'datetime') {
 
-							$read_only = true;
+							$read_only = TRUE;
 							$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
 							$this->_printDateRange('queries_'.$query_var, $current_value, $read_only);
 
@@ -1097,7 +1094,7 @@ class Search_Page extends Listing_Engine
 
 							// if this is a boolean or selection field, we want to make sure blank options are allowed
 							if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
-								$attribute->_params['allow_empty'] = true;
+								$attribute->_params['allow_empty'] = TRUE;
 							}
 
 							// give the attribute our custom search styles if we have them
@@ -1110,7 +1107,7 @@ class Search_Page extends Listing_Engine
 								case 'selection' :
 									if (empty($attribute->_params['multiple'])) {
 										if (isset($attribute->_params['options'][$query])) {
-											$read_only = true;
+											$read_only = TRUE;
 										}
 									} else {
 										if (!empty($query)) {
@@ -1128,7 +1125,7 @@ class Search_Page extends Listing_Engine
 								break;
 
 								case 'boolean' :
-									if ($query != '') $read_only = true;
+									if ($query != '') $read_only = TRUE;
 								break;
 
 								case 'text' :
@@ -1142,7 +1139,7 @@ class Search_Page extends Listing_Engine
 
 					case 'asset_date' :
 						$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
-						$read_only = true;
+						$read_only = TRUE;
 						$this->_printDateRange('queries_'.$query_var, $current_value, $read_only);
 					break;
 
@@ -1174,6 +1171,7 @@ class Search_Page extends Listing_Engine
 	* Returns the current search terms for the passed field
 	*
 	* @param string	$field_name	the name of the field to get the replacement for
+	* @param string	$sub_field	sub field
 	*
 	* @return string
 	* @access public
@@ -1191,7 +1189,7 @@ class Search_Page extends Listing_Engine
 
 					case 'metadata' :
 						$assetid = $fields[$field_name]['data_sources'][0]['params']['assetid'];
-						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						if (!is_null($asset)) {
 							$params = $asset->vars;
 							switch (get_class($asset)) {
@@ -1205,7 +1203,7 @@ class Search_Page extends Listing_Engine
 								case 'metadata_field_select' :
 									$selection = $asset->getSelectionAttribute();
 									$selection->setValue($query);
-									$selection->paint('queries_'.$query_var, true);
+									$selection->paint('queries_'.$query_var, TRUE);
 								break;
 							}//end switch
 
@@ -1213,7 +1211,7 @@ class Search_Page extends Listing_Engine
 					break;
 
 					case 'asset_attrib' :
-						$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['data_sources'][0]['params']['attrid']);
+						$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['data_sources'][0]['params']['attrid']);
 
 						if ($attribute->type() == 'datetime') {
 
@@ -1227,7 +1225,7 @@ class Search_Page extends Listing_Engine
 						} else {
 							// if this is a boolean or selection field, we want to make sure blank options are allowed
 							if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
-								$attribute->_params['allow_empty'] = true;
+								$attribute->_params['allow_empty'] = TRUE;
 							}
 
 							// give the attribute our custom search styles if we have them
@@ -1238,7 +1236,7 @@ class Search_Page extends Listing_Engine
 
 							$attribute->value = $query;
 
-							$attribute->paint('queries_'.$query_var, true);
+							$attribute->paint('queries_'.$query_var, TRUE);
 						}
 					break;
 
@@ -1285,7 +1283,7 @@ class Search_Page extends Listing_Engine
 			case 'submit_button' :
 				$field_name = $prefix.'_submit_button';
 				$this->registerFormField($field_name);
-				$this->_tmp['prints_submit'] = true;
+				$this->_tmp['prints_submit'] = TRUE;
 
 				// if we are on the initial search page, don't use javascript
 				// for the submit button so enter will submit the form
@@ -1297,7 +1295,7 @@ class Search_Page extends Listing_Engine
 					$replacement  = '<input type="submit" name="'.$field_name.'" onclick="listing_form = document.getElementById(\''.$this->getPrefix().'\');
 						listing_form.current_result_page.value=\'0\';
 						if (typeof listing_form.mode != \'undefined\') listing_form.mode.value = \'results\';
-						return true;
+						return TRUE;
 					" value="'.$this->attr('submit_button_text').'" />';
 				}
 			break;
@@ -1305,12 +1303,12 @@ class Search_Page extends Listing_Engine
 			case 'search_in_search_button' :
 				$field_name = 'sis_search_button';
 				$this->registerFormField($field_name);
-				$this->_tmp['prints_submit'] = true;
+				$this->_tmp['prints_submit'] = TRUE;
 
 				$replacement  = '<input type="submit" name="'.$field_name.'" onclick="listing_form = document.getElementById(\''.$this->getPrefix().'\');
 					listing_form.current_result_page.value=\'0\';
 					listing_form.mode.value = \'sis\';
-					return true;
+					return TRUE;
 				" value="'.$this->attr('sis_button_text').'" />';
 			break;
 
@@ -1380,7 +1378,7 @@ class Search_Page extends Listing_Engine
 						   );
 				ob_start();
 					$this->registerFormField($keyword);
-					combo_box($keyword, $options, false, $current_logic);
+					combo_box($keyword, $options, FALSE, $current_logic);
 					$replaces[$keyword] = ob_get_contents();
 				ob_end_clean();
 			} else if (ereg('(.+)_query_(.+)$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
@@ -1410,7 +1408,7 @@ class Search_Page extends Listing_Engine
 	*/
 	function getFormFormatReplacements($form_name)
 	{
-		$bodycopy = &$this->getFormatBodycopy($form_name);
+		$bodycopy =& $this->getFormatBodycopy($form_name);
 		if (is_null($bodycopy)) return Array();
 
 		$fields = $this->attr('fields');
@@ -1461,7 +1459,7 @@ class Search_Page extends Listing_Engine
 	*/
 	function getFormFormatContents($form_name, $replacements)
 	{
-		$bodycopy = &$this->getFormatBodycopy($form_name);
+		$bodycopy =& $this->getFormatBodycopy($form_name);
 		if (is_null($bodycopy)) return '';
 
 		$bodycopy->setKeywordReplacements($replacements);
@@ -1637,7 +1635,7 @@ class Search_Page extends Listing_Engine
 						$options = Array('AND' => translate('sch_page_format_logic_and'), 'OR' => translate('sch_page_format_logic_or'));
 						ob_start();
 							$this->registerFormField($keyword);
-							combo_box($keyword, $options, false, $current_logic);
+							combo_box($keyword, $options, FALSE, $current_logic);
 							$replacement = ob_get_contents();
 						ob_end_clean();
 
@@ -1738,7 +1736,7 @@ class Search_Page extends Listing_Engine
 							if ($fields[$query_var]['type'] == 'metadata') {
 
 								$assetid = $fields[$query_var]['params']['assetid'];
-								$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+								$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 								$params = $asset->vars;
 								// metadata dropdown selection
 								if (isset($params['select_options'])) {
@@ -1750,7 +1748,7 @@ class Search_Page extends Listing_Engine
 								$search_styles = $this->attr('search_styles');
 								$not_selected_text = '';
 
-								$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$query_var]['params']['attrid']);
+								$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$query_var]['params']['attrid']);
 
 								if ($attribute->type() == 'selection') {
 									if (empty($attribute->_params['multiple'])) {
@@ -1805,7 +1803,7 @@ class Search_Page extends Listing_Engine
 									<?php
 									$replacement = ob_get_contents();
 								ob_end_clean();
-							}
+							}//end if
 						}//end if category links
 
 					} else {
@@ -1870,11 +1868,11 @@ class Search_Page extends Listing_Engine
 		$bodycopy =& $this->getBodycopy('result_element');
 		$keywords = $bodycopy->getKeywords();
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$asset = &$am->getAsset($assetid);
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$asset =& $am->getAsset($assetid);
 
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		$replaces = $mm->generateKeywordReplacements($asset, $keywords, false);
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$replaces = $mm->generateKeywordReplacements($asset, $keywords, FALSE);
 
 		$metadata_keywords = Array();
 		foreach ($keywords as $key) {
@@ -1917,26 +1915,26 @@ class Search_Page extends Listing_Engine
 				case 'asset_lineage':
 				case 'asset_lineage_linked':
 					$replacement = '';
-					$first = true;
-					$found_root = false;
+					$first = TRUE;
+					$found_root = FALSE;
 					$nurl = $asset->getUrl();
 					$unrl = strip_url($nurl);
 					$nurl = stristr($nurl,'/');
 					$nurl = substr($nurl,2);
-					$parent_asset_ids = $am->getLineageFromURL(null,$nurl);
+					$parent_asset_ids = $am->getLineageFromURL(NULL,$nurl);
 					// searching for the root asset
-					$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
+					$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', FALSE, 'root');
 					$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
 					foreach ($parent_asset_ids as $parent_asset_id) {
 						if ($parent_asset_id == $root_assetid) {
-							$found_root = true;
+							$found_root = TRUE;
 						}
 						if (!$found_root) continue;
 						if (!$first) {
 							$replacement .= $this->attr('lineage_seperator');
 						}
-						$first = false;
-						$ancestor_asset = &$am->getAsset($parent_asset_id);
+						$first = FALSE;
+						$ancestor_asset =& $am->getAsset($parent_asset_id);
 						if ($keyword == 'asset_lineage_linked') {
 							$replacement .= '<a href="'.$ancestor_asset->getUrl().'">';
 						}
@@ -1990,7 +1988,7 @@ class Search_Page extends Listing_Engine
 	*/
 	function processSearch()
 	{
-		$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 		$fields = $this->attr('fields');
 
@@ -2005,16 +2003,16 @@ class Search_Page extends Listing_Engine
 			$search_info['fields'] = Array();
 		}
 
-		$query_fields_exist = false;
+		$query_fields_exist = FALSE;
 
 		foreach ($queries as $field_name => $value) {
 
 			if (empty($value)) continue;
 
 			$empty_numeric = Array(
-							'upper' => null,
-							'lower' => null,
-						   );
+								'upper'	=> NULL,
+								'lower'	=> NULL,
+							 );
 			if ($value == $empty_numeric) continue;
 
 			$empty_dates = Array(
@@ -2027,7 +2025,7 @@ class Search_Page extends Listing_Engine
 				$search_info['exclude'][] = $value;
 			} else {
 				if ((count($fields[$field_name]['data_sources']) == 1) && $fields[$field_name]['data_sources'][0]['type'] == 'asset_attrib') {
-					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['data_sources'][0]['params']['attrid']);
+					$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['data_sources'][0]['params']['attrid']);
 					if (!is_null($attribute) && $attribute->type() == 'boolean') {
 						// we need to convert the value into a word representation,
 						// since indexing service will not operate just 0 or 1
@@ -2041,7 +2039,7 @@ class Search_Page extends Listing_Engine
 				}
 				$search_info['fields'][$field_name] = $fields[$field_name];
 				$search_info['fields'][$field_name]['words'] = $value;
-				$query_fields_exist = true;
+				$query_fields_exist = TRUE;
 
 				$submitted_word_logic = strtoupper(array_get_index($_REQUEST, $field_name.'_query_logic', ''));
 				if (in_array($submitted_word_logic, Array('AND', 'OR'))) {
@@ -2059,13 +2057,13 @@ class Search_Page extends Listing_Engine
 				if ($sm->spellCheckAvailable()) {
 					// suggestion 'string' - this will be imploded later with spaces
 					$suggestion_string = Array();
-					$needs_suggestions = false;
+					$needs_suggestions = FALSE;
 
 					// loop over each word
 					foreach ($words as $word) {
 						$suggestions = $sm->spellCheckWord($word);
 						if (!empty($suggestions)) {
-							$needs_suggestions = true;
+							$needs_suggestions = TRUE;
 							$suggestion_string[] = $suggestions[0];
 						} else {
 							$suggestion_string[] = $word;
@@ -2078,12 +2076,12 @@ class Search_Page extends Listing_Engine
 				}//end if spell check available
 
 				// thesaurus synonym searching
-				$t_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', false, 'thesaurus');
+				$t_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', FALSE, 'thesaurus');
 
 				$synonyms =& $this->_tmp['search_synonyms'];
 
 				if (!empty($t_link)) {
-					$thesaurus = &$GLOBALS['SQ_SYSTEM']->am->getAsset($t_link['minorid']);
+					$thesaurus =& $GLOBALS['SQ_SYSTEM']->am->getAsset($t_link['minorid']);
 					$synonyms[$field_name] = Array();
 
 					// loop over each word, find synonyms
@@ -2093,8 +2091,9 @@ class Search_Page extends Listing_Engine
 						}
 					}
 				}//end thesaurus exists
-			}
-		}
+			}//end foreach
+		}//end if
+
 		if ($query_fields_exist) {
 			return $sm->processSearch($search_info);
 		} else if ($this->attr('allow_empty_search')) {
@@ -2149,16 +2148,16 @@ class Search_Page extends Listing_Engine
 					break;
 
 					case 'asset_attrib' :
-						$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
+						$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
 						if (!is_null($attribute)) {
 							if ($attribute->type() == 'datetime') {
 								$queries[$field_name] = $this->_processDateRange($query_var);
 							} else if (($attribute->type() == 'int') || ($attribute->type() == 'float')) {
 								$queries[$field_name] = Array();
 
-								switch(array_get_index($data_source['params'], 'numeric_search', 'exact')) {
+								switch (array_get_index($data_source['params'], 'numeric_search', 'exact')) {
 									case 'exact':
-										$query = array_get_index($_REQUEST, $query_var, null);
+										$query = array_get_index($_REQUEST, $query_var, NULL);
 										if (!is_null($query)) {
 											$queries[$field_name]['lower'] = $query;
 											$queries[$field_name]['upper'] = $queries[$field_name]['lower'];
@@ -2166,21 +2165,21 @@ class Search_Page extends Listing_Engine
 									break;
 
 									case 'range':
-										$query_lower = array_get_index($_REQUEST, $query_var.'_lower', null);
-										$query_upper = array_get_index($_REQUEST, $query_var.'_upper', null);
+										$query_lower = array_get_index($_REQUEST, $query_var.'_lower', NULL);
+										$query_upper = array_get_index($_REQUEST, $query_var.'_upper', NULL);
 										if (!is_null($query_lower) || !is_null($query_upper)) {
-											$queries[$field_name]['lower'] = ($query_lower == '') ? null : $query_lower;
-											$queries[$field_name]['upper'] = ($query_upper == '') ? null : $query_upper;
+											$queries[$field_name]['lower'] = ($query_lower == '') ? NULL : $query_lower;
+											$queries[$field_name]['upper'] = ($query_upper == '') ? NULL : $query_upper;
 										}
 									break;
 
 									case 'custom':
-										$key = array_get_index($_REQUEST, $query_var, null);
+										$key = array_get_index($_REQUEST, $query_var, NULL);
 
 										if (!is_null($key)) {
 											$custom_range = array_get_index($data_source['params']['custom_num_search'], $key, Array());
-											$queries[$field_name]['lower'] = ($custom_range['min'] == '') ? null : $custom_range['min'];
-											$queries[$field_name]['upper'] = ($custom_range['max'] == '') ? null : $custom_range['max'];
+											$queries[$field_name]['lower'] = ($custom_range['min'] == '') ? NULL : $custom_range['min'];
+											$queries[$field_name]['upper'] = ($custom_range['max'] == '') ? NULL : $custom_range['max'];
 										}
 									break;
 								}
@@ -2191,7 +2190,7 @@ class Search_Page extends Listing_Engine
 									$queries[$field_name] = array_keys($attribute->getValueArray());
 								}
 							}
-						}
+						}//end if
 					break;
 
 					case 'metadata' :
@@ -2200,7 +2199,7 @@ class Search_Page extends Listing_Engine
 							$queries[$field_name] = '';
 							break;
 						}
-						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
+						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
 						if (!is_null($asset)) {
 							$params = $asset->vars;
 							switch (get_class($asset)) {
@@ -2257,9 +2256,10 @@ class Search_Page extends Listing_Engine
 						$last_search[$field_name] = array_merge($value, $last_search[$field_name]);
 					}
 				}
-			}
+			}//end foreach
+
 			$queries = $last_search;
-		}
+		}//end if
 
 		// if it seems that nothing is submitted, check if there was a previous query
 		// and use its details
@@ -2295,19 +2295,19 @@ class Search_Page extends Listing_Engine
 		}
 
 		$search_roots = Array();
-		$statuses_customised = false;
+		$statuses_customised = FALSE;
 		$root_logic = 'AND'; // if there are no roots from categories this will get changed below
 		if (!empty($active_cats)) {
 			include_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 			$search_statuses = array_keys(get_status_names());
 			foreach ($active_cats as $set_option_name => $cat) {
 				if (isset($cat['statuses'])) {
-					$statuses_customised = true;
+					$statuses_customised = TRUE;
 					$search_statuses = array_intersect($search_statuses, $cat['statuses']);
 				}
 				if (isset($cat['root_assetid'])) {
 					$link_value = 'root_'.$set_option_name;
-					$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, $link_value);
+					$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', FALSE, $link_value);
 					$root_id = array_get_index($root_link, 'minorid');
 					if ($root_id) $search_roots[] = $root_id;
 				}
@@ -2347,7 +2347,7 @@ class Search_Page extends Listing_Engine
 	*/
 	function getFormatFolderLink()
 	{
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'folder', true, 'major', 'format_folder');
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'folder', TRUE, 'major', 'format_folder');
 		return (!empty($link)) ? $link[0] : Array();
 
 	}//end getFormatFolderLink()
@@ -2361,13 +2361,13 @@ class Search_Page extends Listing_Engine
 	*/
 	function &getFormatFolder()
 	{
+		$folder = NULL;
+
 		$link = $this->getFormatFolderLink();
-		if (empty($link)) {
-			$null = null;
-			return $null;
+		if (!empty($link)) {
+			$folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		}
 
-		$folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		return $folder;
 
 	}//end getFormatFolder()
@@ -2383,10 +2383,10 @@ class Search_Page extends Listing_Engine
 	*/
 	function getFormatBodycopyLink($link_value)
 	{
-		$format_folder = &$this->getFormatFolder();
+		$format_folder =& $this->getFormatFolder();
 		if (is_null($format_folder)) return Array();
 
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLinks($format_folder->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', true, 'major', $link_value);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinks($format_folder->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', TRUE, 'major', $link_value);
 		return (!empty($link)) ? $link[0] : Array();
 
 	}//end getFormatBodycopyLink()
@@ -2395,7 +2395,7 @@ class Search_Page extends Listing_Engine
 	/**
 	* Returns the format bodycopy with the specifed link value
 	*
-	* If the bodycopy does not exist, or it have a link type 3, null is returned
+	* If the bodycopy does not exist, or it have a link type 3, NULL is returned
 	* as either no format has been customised, or the format feature has been disbled
 	*
 	* @param string	$link_value	the link value of the wanted bodycopy
@@ -2405,13 +2405,13 @@ class Search_Page extends Listing_Engine
 	*/
 	function &getFormatBodycopy($link_value)
 	{
+		$bodycopy = NULL;
+
 		$bodycopy_link = $this->getFormatBodycopyLink($link_value);
-		if (empty($bodycopy_link)) {
-			$null = null;
-			return $null;
+		if (!empty($bodycopy_link)) {
+			$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 		}
 
-		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 		return $bodycopy;
 
 	}//end getFormatBodycopy()
@@ -2429,7 +2429,6 @@ class Search_Page extends Listing_Engine
 	* the listing engine.
 	*
 	* @param string	$assetid		The assetid of the asset we are printing
-	* @param string	$type_code		Asset's type code
 	* @param int	$list_position	Asset's position in the list
 	* @param array	$keywords		Keywords
 	*
@@ -2527,7 +2526,7 @@ class Search_Page extends Listing_Engine
 	{
 		$vars['keywords'] = isset($vars['keywords']) ? $vars['keywords'] : Array();
 
-		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
 		$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy');
 
 		$bodycopies = Array();
@@ -2549,7 +2548,7 @@ class Search_Page extends Listing_Engine
 
 		// work out if forms are customised
 		$search_bodycopy_link = $this->getFormatBodycopyLink('search_form');
-		$sis_bodycopy_link    = $this->getFormatBodycopyLink('sis_form'); //search in search
+		$sis_bodycopy_link    = $this->getFormatBodycopyLink('sis_form'); // search in search
 		$search_customised    = !empty($search_bodycopy_link) && $search_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
 		$sis_customised       = !empty($sis_bodycopy_link) && $sis_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
 
