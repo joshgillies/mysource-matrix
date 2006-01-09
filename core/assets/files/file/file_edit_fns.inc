@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.60.2.3 2005/08/31 01:58:29 lwright Exp $
+* $Id: file_edit_fns.inc,v 1.60.2.4 2006/01/09 03:15:28 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60.2.3 $
+* @version $Revision: 1.60.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,6 +53,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	{
 		$this->Asset_Edit_Fns();
 		$this->static_screens['details']['lock_type'] = 'attr_links';
+		unset($this->static_screens['lookupValues']);
 
 	}//end constructor
 
