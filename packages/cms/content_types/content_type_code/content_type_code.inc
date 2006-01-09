@@ -11,7 +11,7 @@
 * | Please refer to http:// www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code.inc,v 1.10 2006/01/09 23:22:45 dmckee Exp $
+* $Id: content_type_code.inc,v 1.11 2006/01/09 23:50:47 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -391,19 +391,24 @@ class Content_Type_Code extends Content_Type
 						$str = $replace.$str;
 					}
 
-					// Now we've gotta get through all the line numbers, and replace them, but also keep a track
-					// of how many there are
-					$line_number = 1;
+					// Now we need a count of how many lines there are.
+					preg_match_all('/-line_number-/i', $str, $matches=Array());
+					$line_number = count($matches[0]);
+
+					// Now we can go through the line numbers, and pad them on the left with spaces
+					// So they appear right-aligned and in 1 column
+					$current_line = 1;
 					while (FALSE !== strpos($str, '-line_number-')) {
-						$str = preg_replace('/-line_number-/i', $line_number.':', $str, 1);
-						$line_number++;
+						$filler = str_repeat('&nbsp;', strlen(strval($line_number)) - strlen(strval($current_line)));
+						$str = preg_replace('/-line_number-/i', $filler.$current_line.':', $str, 1);
+						$current_line++;
 					}
 
 					// Work out the margin based on the number of digits in our line numbers
 					$margin = strlen(strval($line_number)) * 6 + 5;
 
 					for ($i = 1; $i <= $line_number; $i++) {
-						$replace = 'margin-right: '.strval($margin - (strlen(strval($i)) * 6)).'px;';
+						$replace = 'margin-right: 10px;';
 						$str = preg_replace('/-margin_value-/i', $replace, $str, 1);
 					}
 				} else {
