@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.421 2006/01/09 03:41:02 emcdonald Exp $
+* $Id: asset_manager.inc,v 1.422 2006/01/09 04:22:09 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.421 $
+* @version $Revision: 1.422 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2820,7 +2820,7 @@ class Asset_Manager extends MySource_Object
 
 		assert_valid_assetid($assetid);
 
-		// while the $dependant param is still new, try and catch anyone who hasn't changed their usage
+		// while the $dependant param is still new, try to catch anyone who hasn't changed their usage
 		if (!is_null($dependant)) {
 			$not_bool_message = 'The signature of this function has changed from'
 			."\n".'(object &$asset, string|array $type_code, boolean $strict_type_code, string $sort_by... ) to '
