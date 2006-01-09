@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.36 2005/11/07 05:26:56 mmcintyre Exp $
+* $Id: ldap_bridge.inc,v 1.37 2006/01/09 03:41:10 emcdonald Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -574,6 +574,9 @@ class LDAP_Bridge extends Asset
 	*										of the array values
 	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
 	*										or $type_code and any of it's sub-classes
+	* @param boolean	$dependant			if TRUE, results will be filtered to assets that are dependants.
+	*										If FALSE, results will all not be dependants.
+	*										If NULL, results will not be filtered
 	* @param string		$sort_by			a field in the asset table you would like the results
 	*										sorted by (eg. name, short_name etc)
 	*
@@ -581,7 +584,7 @@ class LDAP_Bridge extends Asset
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
 	{
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) $assetid = $id_parts[1];

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses.inc,v 1.2 2005/09/26 23:38:30 dheppell Exp $
+* $Id: report_asset_statuses.inc,v 1.3 2006/01/09 03:41:04 emcdonald Exp $
 *
 */
 
@@ -64,15 +64,11 @@ class Report_Asset_Statuses extends Report
 
 			$report_path = $this->data_path.'/report.xml';
 
-			if (!is_file($report_path)) {
-				return Array();
-			}
+			if (!is_file($report_path)) return Array();
 
-			$input = new XML_Tree($report_path);
-			$root  = &$input->getTreeFromFile();
-			if (PEAR::isError($root)) {
-				return Array();
-			}
+			$input =& new XML_Tree($report_path);
+			$root  =& $input->getTreeFromFile();
+			if (PEAR::isError($root)) return Array();
 
 			$links = Array();
 			$sort_order = 0;
@@ -86,19 +82,19 @@ class Report_Asset_Statuses extends Report
 				$status = $asset_node->children[0]->attributes['value'];
 
 				$links[] = Array(
-								'assetid'    => $assetid,
-								'short_name' => $name,
-								'name'       => $name,
-								'accessible' => 1,
-								'type_code'  => $type_code,
-								'status'     => $status,
-								'linkid'     => '0',
-								'link_type'  => SQ_LINK_TYPE_1,
-								'num_kids'   => 0,
-								'sort_order' => $sort_order,
-								'url'        => '',
-								'path'       => '',
-							);
+							'assetid'		=> $assetid,
+							'short_name'	=> $name,
+							'name'			=> $name,
+							'accessible'	=> 1,
+							'type_code'		=> $type_code,
+							'status'		=> $status,
+							'linkid'		=> '0',
+							'link_type'		=> SQ_LINK_TYPE_1,
+							'num_kids'		=> 0,
+							'sort_order'	=> $sort_order,
+							'url'			=> '',
+							'path'			=> '',
+						   );
 
 				$sort_order++;
 			}
@@ -122,7 +118,7 @@ class Report_Asset_Statuses extends Report
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	* @param string			$side_of_link		Which side of the link this (the current) asset
 	*											is on ('major' or 'minor')
@@ -133,7 +129,7 @@ class Report_Asset_Statuses extends Report
 	* @access public
 	* @see Asset_Manager::getLinks()
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL)
 	{
 		assert_equals($assetid, $this->id, 'The Asset Statuses Report can only get its own links');
 
@@ -146,15 +142,11 @@ class Report_Asset_Statuses extends Report
 
 			$report_path = $this->data_path.'/report.xml';
 
-			if (!is_file($report_path)) {
-				return Array();
-			}
+			if (!is_file($report_path)) return Array();
 
-			$input = new XML_Tree($report_path);
-			$root  = &$input->getTreeFromFile();
-			if (PEAR::isError($root)) {
-				return Array();
-			}
+			$input =& new XML_Tree($report_path);
+			$root  =& $input->getTreeFromFile();
+			if (PEAR::isError($root)) return Array();
 
 			$links = Array();
 			$sort_order = 0;
@@ -166,15 +158,15 @@ class Report_Asset_Statuses extends Report
 				$type_code = $asset_node->attributes['type_code'];
 
 				$links[] = Array(
-								'linkid'          => 0,
-								'minorid'         => $assetid,
-								'value'           => '',
-								'link_type'    	  => SQ_LINK_TYPE_1,
-								'minor_type_code' => $type_code,
-								'sort_order'      => $sort_order,
-								'is_dependant'    => '0',
-								'is_exclusive'    => '0',
-							);
+							'linkid'			=> 0,
+							'minorid'			=> $assetid,
+							'value'				=> '',
+							'link_type'			=> SQ_LINK_TYPE_1,
+							'minor_type_code'	=> $type_code,
+							'sort_order'		=> $sort_order,
+							'is_dependant'		=> '0',
+							'is_exclusive'		=> '0',
+						   );
 
 				$sort_order++;
 			}
@@ -194,14 +186,14 @@ class Report_Asset_Statuses extends Report
 	* @param int			$assetid			the id of the asset to get its parents for
 	* @param string|array	$type_code			the type of asset that is linked (eg 'User', 'User_Group', etc)
 	*											if an array returns link if matches any of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return array(int)
+	* @return array
 	* @access public
 	* @see Asset_Manager::getParents()
 	*/
-	function getParents($assetid, $type_code='', $strict_type_code=true)
+	function getParents($assetid, $type_code='', $strict_type_code=TRUE)
 	{
 		assert_equals($assetid, $this->id, 'The Asset Statuses Report can only get its own links');
 		return Array();
@@ -217,16 +209,19 @@ class Report_Asset_Statuses extends Report
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
+	* @param boolean		$dependant			if TRUE, results will be filtered to assets that are dependants.
+	*											If FALSE, results will all not be dependants.
+	*											If NULL, results will not be filtered
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	*
-	* @return array(int => string)	returns an array of assetids and their type code
+	* @return array
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
 	{
 		assert_equals($assetid, $this->id, 'The Asset Statuses Report can only get its own links');
 		return Array();
@@ -246,6 +241,8 @@ class Report_Asset_Statuses extends Report
 	*/
 	function getLineageFromURL($assetid, $protocol, $url)
 	{
+		return Array();
+
 	}//end getLineageFromURL()
 
 
@@ -262,23 +259,25 @@ class Report_Asset_Statuses extends Report
 	*/
 	function setPermission($assetid, $userid, $permission, $granted)
 	{
-		return false;
+		return FALSE;
+
 	}//end setPermission()
 
 
 	/**
 	* Deletes a permission with the passed user or user_group
 	*
-	* @param int	$assetid		the assetid for asset whose permissions to delete
-	* @param int	$userid			the id of the user or user_group to remove the permission from
-	* @param string	$permission		the permission code you are deleting
+	* @param int	$assetid	the assetid for asset whose permissions to delete
+	* @param int	$userid		the id of the user or user_group to remove the permission from
+	* @param string	$permission	the permission code you are deleting
 	*
 	* @return boolean
 	* @access public
 	*/
 	function deletePermission($assetid, $userid, $permission)
 	{
-		return false;
+		return FALSE;
+
 	}//end deletePermission()
 
 
@@ -296,9 +295,10 @@ class Report_Asset_Statuses extends Report
 	* @return array
 	* @access public
 	*/
-	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=true, $field='')
+	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=TRUE, $field='')
 	{
 		return Array();
+
 	}//end getAssetInfo()
 
 
@@ -315,7 +315,8 @@ class Report_Asset_Statuses extends Report
 	*/
 	function assetExists($assetids)
 	{
-		return false;
+		return FALSE;
+
 	}//end assetExists()
 
 
@@ -340,9 +341,10 @@ class Report_Asset_Statuses extends Report
 	* @return array
 	* @access public
 	*/
-	function getLink($assetid, $link_type=null, $type_code='', $strict_type_code=true, $value=null, $side_of_link='major', $exclusive=null)
+	function getLink($assetid, $link_type=NULL, $type_code='', $strict_type_code=TRUE, $value=NULL, $side_of_link='major', $exclusive=NULL)
 	{
 		return Array();
+
 	}//end getLink()
 
 
@@ -360,6 +362,7 @@ class Report_Asset_Statuses extends Report
 	function getLinkById($linkid, $assetid=0, $side_of_link='major')
 	{
 		return Array();
+
 	}//end getLinkById()
 
 
@@ -384,43 +387,45 @@ class Report_Asset_Statuses extends Report
 	* @return int
 	* @access public
 	*/
-	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=true, $ignore_linkid=0)
+	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
 	{
 		return 0;
+
 	}//end countLinks()
 
 
 	/**
 	* Get details of the link(s) between the two specified assets
 	*
-	* @param int		$assetid			id of the the $side_of_link asset
-	* @param int		$other_assetid		the asset on the other side of the link
-	* @param int		$link_types			integer that can be the product of bitwise operations
-	*										on the SQ_LINK_* constants
-	* @param string		$value				the value that is associated with this link
-	* @param string		$side_of_link		Which side of the link the first assetid is on
-	*										('major' or 'minor')
-	* @param boolean	$force_array		force the results to return an array of links
-	*										even if there is only one link
-	* @param boolean	$dependant			The dependant status for all the links must be
-	*										this (if not null)
-	* @param boolean	$exclusive			The exclusive status for all the links must be
-	*										this (if not null)
+	* @param int		$assetid		id of the the $side_of_link asset
+	* @param int		$other_assetid	the asset on the other side of the link
+	* @param int		$link_types		integer that can be the product of bitwise operations
+	*									on the SQ_LINK_* constants
+	* @param string		$value			the value that is associated with this link
+	* @param string		$side_of_link	Which side of the link the first assetid is on
+	*									('major' or 'minor')
+	* @param boolean	$force_array	force the results to return an array of links
+	*									even if there is only one link
+	* @param boolean	$dependant		The dependant status for all the links must be
+	*									this (if not null)
+	* @param boolean	$exclusive		The exclusive status for all the links must be
+	*									this (if not null)
 	*
 	* @return array
 	* @access public
 	*/
-	function getLinkByAsset($assetid, $other_assetid, $link_types=null, $value=null, $side_of_link='major', $force_array=false, $dependant=null, $exclusive=null)
+	function getLinkByAsset($assetid, $other_assetid, $link_types=NULL, $value=NULL, $side_of_link='major', $force_array=FALSE, $dependant=NULL, $exclusive=NULL)
 	{
 		return Array();
+
 	}//end getLinkByAsset()
 
 
 	/**
 	* Get details of the links from the specified asset to all its children
 	*
-	* @param string		$assetid	the assetid of the asset to find the child links for
-	* @param int		$link_type	the type of links to get
+	* @param string	$assetid	the assetid of the asset to find the child links for
+	* @param int	$link_type	the type of links to get
 	*
 	* @return array
 	* @access public
@@ -428,6 +433,7 @@ class Report_Asset_Statuses extends Report
 	function getAllChildLinks($assetid, $link_type=0)
 	{
 		return Array();
+
 	}//end getAllChildLinks()
 
 
@@ -438,16 +444,17 @@ class Report_Asset_Statuses extends Report
 	*
 	* @param int	$linkid		the link id of the link to update
 	* @param int	$link_type	the type of the link (one of the SQ_LINK_* constants)
-	* @param string $value		the value to place on the link
+	* @param string	$value		the value to place on the link
 	* @param int	$sort_order	the position in the links list that this link should take,
 	*							if less than zero places at end of list
 	*
 	* @return boolean
 	* @access public
 	*/
-	function updateLink($linkid, $link_type=null, $value=null, $sort_order=null)
+	function updateLink($linkid, $link_type=NULL, $value=NULL, $sort_order=NULL)
 	{
-		return false;
+		return FALSE;
+
 	}//end updateLink()
 
 
@@ -460,9 +467,10 @@ class Report_Asset_Statuses extends Report
 	* @return boolean
 	* @access public
 	*/
-	function deleteAssetLink($linkid, $moving=false)
+	function deleteAssetLink($linkid, $moving=FALSE)
 	{
-		return false;
+		return FALSE;
+
 	}//end deleteAssetLink()
 
 
@@ -482,11 +490,11 @@ class Report_Asset_Statuses extends Report
 	* @return int
 	* @access public
 	*/
-	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0', $moving=false)
+	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0', $moving=FALSE)
 	{
 		return 0;
-	}//end createAssetLink()
 
+	}//end createAssetLink()
 
 
 }//end class

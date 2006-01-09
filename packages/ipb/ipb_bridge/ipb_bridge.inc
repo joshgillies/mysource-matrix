@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_bridge.inc,v 1.3 2005/12/21 04:18:25 skim Exp $
+* $Id: ipb_bridge.inc,v 1.4 2006/01/09 03:41:06 emcdonald Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/ipb/ipb.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -674,6 +674,9 @@ class IPB_Bridge extends Asset
 	*											of the array values
 	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
+	* @param boolean		$dependant			if TRUE, results will be filtered to assets that are dependants.
+	*											If FALSE, results will all not be dependants.
+	*											If NULL, results will not be filtered
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	*
@@ -681,7 +684,7 @@ class IPB_Bridge extends Asset
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $sort_by=NULL)
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
 	{
 		$children = Array();
 		$id_parts = explode(':', $assetid);
@@ -693,7 +696,7 @@ class IPB_Bridge extends Asset
 				if (empty($type_code) || (!empty($type_code) && (array_search($link['minor_type_code'], $type_code) !== FALSE))) {
 					$children[$link['minorid']] = $link['minor_type_code'];
 				}
-				$children = array_merge($children, $this->getChildren($link['minorid'], $type_code, $strict_type_code, $sort_by));
+				$children = array_merge($children, $this->getChildren($link['minorid'], $type_code, $strict_type_code, $dependant, $sort_by));
 			}
 			return $children;
 		}

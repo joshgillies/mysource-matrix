@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links.inc,v 1.3 2005/08/16 06:56:17 dmckee Exp $
+* $Id: report_links.inc,v 1.4 2006/01/09 03:41:04 emcdonald Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -57,7 +57,7 @@ class Report_Links extends Report
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	* @param string			$side_of_link		Which side of the link this (the current) asset
 	*											is on ('major' or 'minor')
@@ -68,7 +68,7 @@ class Report_Links extends Report
 	* @access public
 	* @see Asset_Manager::getLinks()
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL)
 	{
 		assert_equals($assetid, $this->id, 'The Links Report can only get its own links');
 
@@ -83,8 +83,8 @@ class Report_Links extends Report
 
 			if (!is_file($report_path)) return Array();
 
-			$input = new XML_Tree($report_path);
-			$root  = &$input->getTreeFromFile();
+			$input =& new XML_Tree($report_path);
+			$root  =& $input->getTreeFromFile();
 			if (PEAR::isError($root)) return Array();
 
 			if (!isset($root->children[0]->attributes['type_code'])) {
@@ -138,8 +138,8 @@ class Report_Links extends Report
 
 			if (!is_file($report_path)) return Array();
 
-			$input = new XML_Tree($report_path);
-			$root  = &$input->getTreeFromFile();
+			$input =& new XML_Tree($report_path);
+			$root  =& $input->getTreeFromFile();
 			if (PEAR::isError($root)) return Array();
 
 			if (!isset($root->children[0]->attributes['type_code'])) {
@@ -184,14 +184,14 @@ class Report_Links extends Report
 	* @param int			$assetid			the id of the asset to get its parents for
 	* @param string|array	$type_code			the type of asset that is linked (eg 'User', 'User_Group', etc)
 	*											if an array returns link if matches any of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return array(int)
+	* @return array
 	* @access public
 	* @see Asset_Manager::getParents()
 	*/
-	function getParents($assetid, $type_code='', $strict_type_code=true)
+	function getParents($assetid, $type_code='', $strict_type_code=TRUE)
 	{
 		assert_equals($assetid, $this->id, 'The Links Report can only get its own links');
 		return Array();
@@ -207,16 +207,19 @@ class Report_Links extends Report
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
+	* @param boolean		$dependant			if TRUE, results will be filtered to assets that are dependants.
+	*											If FALSE, results will all not be dependants.
+	*											If NULL, results will not be filtered
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	*
-	* @return array(int => string)	returns an array of assetids and their type code
+	* @return array
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
 	{
 		assert_equals($assetid, $this->id, 'The Links Report can only get its own links');
 		return Array();
@@ -236,6 +239,8 @@ class Report_Links extends Report
 	*/
 	function getLineageFromURL($assetid, $protocol, $url)
 	{
+		return Array();
+
 	}//end getLineageFromURL()
 
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bridge.inc,v 1.7 2005/11/03 03:57:22 tbarrett Exp $
+* $Id: bridge.inc,v 1.8 2006/01/09 03:41:03 emcdonald Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,12 +55,13 @@ class Bridge extends Asset
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
@@ -82,7 +83,7 @@ class Bridge extends Asset
 
 
 	/**
-	* Returns a reference to the asset represented by the passed assetid
+	* Returns a reference to the asset represented by the passed assetid or null on error
 	*
 	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
 	* @param string		$type_code		if this exists then this object is used to
@@ -91,13 +92,13 @@ class Bridge extends Asset
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
-	* @return object Asset or null on error
+	* @return object
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($shadowid, $type_code='', $mute_errors=false)
+	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
 	{
-		$asset = null;
+		$asset = NULL;
 		return $asset;
 
 	}//end getAsset()
@@ -116,7 +117,7 @@ class Bridge extends Asset
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	* @param string			$side_of_link		Which side of the link this (the current) asset
 	*											is on ('major' or 'minor')
@@ -129,7 +130,7 @@ class Bridge extends Asset
 	* @access public
 	* @see Asset_Manager::getLinks()
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null, $dependant=null, $exclusive=null)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL, $dependant=NULL, $exclusive=NULL)
 	{
 		return Array();
 
@@ -142,14 +143,14 @@ class Bridge extends Asset
 	* @param int			$assetid			the id of the asset to get its parents for
 	* @param string|array	$type_code			the type of asset that is linked (eg 'User', 'User_Group', etc)
 	*											if an array returns link if matches any of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return array(int)
+	* @return array
 	* @access public
 	* @see Asset_Manager::getParents()
 	*/
-	function getParents($assetid, $type_code='', $strict_type_code=true)
+	function getParents($assetid, $type_code='', $strict_type_code=TRUE)
 	{
 		return Array();
 
@@ -159,21 +160,26 @@ class Bridge extends Asset
 	/**
 	* Get all asset ids that are below the passed assetid in the various trees in which it exists
 	*
+	* returns an array of assetids and their type code
+	*
 	* @param string			$assetid			the id of the asset to get its children for
 	* @param string|array	$type_code			the type of asset that is linked
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
+	* @param boolean		$dependant			if TRUE, results will be filtered to assets that are dependants.
+	*											If FALSE, results will all not be dependants.
+	*											If NULL, results will not be filtered
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	*
-	* @return array(int => string)	returns an array of assetids and their type code
+	* @return array
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
 	{
 		return Array();
 

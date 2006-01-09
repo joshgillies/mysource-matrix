@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_tags.inc,v 1.2 2005/12/06 04:57:36 emcdonald Exp $
+* $Id: hipo_job_edit_tags.inc,v 1.3 2006/01/09 03:41:03 emcdonald Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit content tags
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -140,10 +140,10 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 										'init_details_function'	=> 'getLockAssetDetails',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> true,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -152,10 +152,10 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 										'process_function'	=> 'processTags',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> true,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -164,10 +164,10 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 										'process_function'	=> 'releaseLocks',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> false,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 			   );
@@ -207,10 +207,10 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 	{
 		while (!empty($this->_running_vars['todo_assetids'])) {
 			if (!$this->processTags($this->_steps[0], get_class($this))) {
-				return false;
+				return FALSE;
 			}
 		}
-		return true;
+		return TRUE;
 
 	}//end freestyle()
 
@@ -226,7 +226,7 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 		// to start editing tags, we need to have an asset id to start editing tags at
 		if (empty($this->_running_vars['assets'])) {
 			trigger_localised_error('HIPO0017', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		$this->_running_vars['done_assetids'] = Array();
@@ -238,15 +238,16 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 			$assets = $this->_running_vars['assets'];
 			$child_assets = Array();
 			for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($asset)) {
 					trigger_localised_error('HIPO0016', E_USER_WARNING, $assetid);
 					return '';
 				}
-				$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
+				 $child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, Array(), NULL, FALSE);
+
 				$child_assets[$assetid] = $asset->type();
 
-				// getChildren is not supposed to return any assets that are linked by notice links, but at time of writing it did. Check for assets returned that have no type.
+				// getChildren is not supposed to return any assets that are linked by notice links, but at time of writing it did, resulting in tags getting tagged. Check for assets returned that have no type.
 				$child_assets = array_filter($child_assets);
 				unset($asset);
 			}
@@ -274,7 +275,7 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 
 			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
 			unset($this->_running_vars['todo_assetids'][$assetid]);
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset)) {
 				foreach ($this->_running_vars['tag_changes'] as $tag_data) {
@@ -282,7 +283,7 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 						case 'add':
 							$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $tag_data['tag_id'], SQ_LINK_NOTICE);
 							if (empty($link)) {
-								$new_tag_object = &$GLOBALS['SQ_SYSTEM']->am->getAsset($tag_data['tag_id']);
+								$new_tag_object =& $GLOBALS['SQ_SYSTEM']->am->getAsset($tag_data['tag_id']);
 								$GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $new_tag_object, SQ_LINK_NOTICE, $tag_data['weight']);
 							} else {
 								$success =$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], SQ_LINK_NOTICE, $tag_data['weight']);
@@ -309,19 +310,19 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 
 			// add this assetid to the done array so we dont do it again
 			$this->_running_vars['done_assetids'][] = $assetid;
-		}
+		}//end if there are assets to process
 
 		if (empty($this->_running_vars['todo_assetids'])) {
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
+			$step_data['complete']     = TRUE;
 			unset($this->_running_vars['done_assetids']);
 		} else {
 			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
-			$step_data['complete']     = false;
+			$step_data['complete']     = FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processTags()
 
@@ -340,14 +341,14 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 	{
 		$job_type = 'hipo_job_acquire_locks';
 
-		$options['auto_complete'] = true;
+		$options['auto_complete'] = TRUE;
 
 
 		$running_vars = Array(
 							'assetids'			=> array_keys($this->_running_vars['assets']),
 							'lock_type'			=> Array('links'),
-							'forceably_acquire'	=> false,
-							'dependants_only'	=> false,
+							'forceably_acquire'	=> FALSE,
+							'dependants_only'	=> FALSE,
 						);
 
 	}//end getLockAssetDetails()
@@ -388,13 +389,13 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 		if (empty($this->_running_vars['re_lock_assets'])) {
 			unset($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
+			$step_data['complete']     = TRUE;
 		} else {
 			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / count($this->_running_vars['assets'])) * 100;
-			$step_data['complete']     = false;
+			$step_data['complete']     = FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end releaseLocks()
 

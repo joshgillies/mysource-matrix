@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.12 2005/11/03 03:57:22 tbarrett Exp $
+* $Id: simple_form.inc,v 1.13 2006/01/09 03:41:03 emcdonald Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,7 +71,7 @@ class Simple_Form extends Asset
 	*/
 	function Simple_Form($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Asset($assetid);
 
 	}//end constructor
@@ -81,7 +81,7 @@ class Simple_Form extends Asset
 
 
 	/**
-	* Returns a reference to the asset represented by the passed assetid
+	* Returns a reference to the asset represented by the passed assetid or null on error
 	*
 	* @param int		$assetid		the asset id to be loaded
 	* @param string		$type_code		if this exists then this object is used to
@@ -90,16 +90,16 @@ class Simple_Form extends Asset
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
-	* @return object Asset or null on error
+	* @return object
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($assetid, $type_code='', $mute_errors=false)
+	function &getAsset($assetid, $type_code='', $mute_errors=FALSE)
 	{
 		$asset = null;
 		$id_parts = explode(':', $assetid);
 
-		if (isset($id_parts[1])){
+		if (isset($id_parts[1])) {
 			$shadowid = $id_parts[1];
 		} else {
 			return $asset;
@@ -119,7 +119,7 @@ class Simple_Form extends Asset
 			if (empty($type_code)) $type_code = $q_type_code;
 
 			// only give the asset back if of the right type code
-			if (in_array($q_type_code, $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true))) {
+			if (in_array($q_type_code, $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, TRUE))) {
 				$questions[$questionid]['questionid'] = $questionid;
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($q_type_code);
 
@@ -155,41 +155,41 @@ class Simple_Form extends Asset
 	* @return array
 	* @access public
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null, $dependant=null, $exclusive=null)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=null, $dependant=null, $exclusive=null)
 	{
 		// there are no links away from the shadow asset (ie:questions)
 		if (!is_numeric($assetid)) {
 			$links = Array();
 			if ($side_of_link == 'minor') {
-				$return_link = false;
+				$return_link = FALSE;
 
 				if ($type_code == '') {
 					// not fussed what we're getting, so return me
-					$return_link = true;
+					$return_link = TRUE;
 				} else if ($strict_type_code) {
 					// strict type code check
 					$return_link = ($type_code == $this->type());
 				} else {
-					$return_link = (in_array($this->type(), $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true)));
+					$return_link = (in_array($this->type(), $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, TRUE)));
 				}
 
 				if ($return_link) {
 					$links[] = Array(
-									'linkid'			=> 0,
-									'majorid'			=> $this->id,
-									'minorid'			=> $this->id.':'.$assetid,
-									'major_type_code'	=> $this->type(),
-									'value'				=> '',
-									'link_type'			=> SQ_LINK_TYPE_2,
-									'is_dependant'		=> true,
-									'is_exclusive'		=> false,
-									'sort_order'		=> 0,
-								   );
+								'linkid'			=> 0,
+								'majorid'			=> $this->id,
+								'minorid'			=> $this->id.':'.$assetid,
+								'major_type_code'	=> $this->type(),
+								'value'				=> '',
+								'link_type'			=> SQ_LINK_TYPE_2,
+								'is_dependant'		=> TRUE,
+								'is_exclusive'		=> FALSE,
+								'sort_order'		=> 0,
+							   );
 				}
 			}
 
 			return $links;
-		}
+		}//end if assetid is not numeric
 
 		$links = Array();
 		$new_sort_order = 0;
@@ -200,21 +200,22 @@ class Simple_Form extends Asset
 							'simple_form'	=> SQ_LINK_TYPE_2,
 						   );
 
-		foreach($real_type_codes as $real_type_code => $allowed_link_types) {
+		foreach ($real_type_codes as $real_type_code => $allowed_link_types) {
 			if ($type_code == '') {
 				// not fussed what we're getting, so return me
-				$get_type = true;
+				$get_type = TRUE;
 			} else if ($strict_type_code) {
 				$get_type = ($type_code == $real_type_code);
 			} else {
 				// specific type code set, non-strict check
-				$get_type = (in_array($real_type_code, $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true)));
+				$get_type = (in_array($real_type_code, $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, TRUE)));
 			}
 
 			// we are getting this type?
 			if ($get_type) {
-				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($assetid, $link_types & $allowed_link_types, $real_type_code, false);
+				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($assetid, $link_types & $allowed_link_types, $real_type_code, FALSE);
 				$type_links = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
+				assert_valid_db_result($type_links);
 
 				foreach (array_keys($type_links) as $key) {
 					$type_links[$key]['sort_order'] = $new_sort_order;
@@ -236,7 +237,7 @@ class Simple_Form extends Asset
 			foreach ($questions as $questionid => $data) {
 				if ($type_code == '') {
 					// not fussed what we're getting, so return me
-					$get_question = true;
+					$get_question = TRUE;
 				} else if ($strict_type_code) {
 					// strict type code check
 					$get_question = ($type_code == $data['type_code']);
@@ -247,7 +248,7 @@ class Simple_Form extends Asset
 						$get_question = $get_question_types[$data['type_code']];
 						$get_question_types[$data['type_code']] = $get_question;
 					} else {
-						$get_question = (in_array($data['type_code'], $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true)));
+						$get_question = (in_array($data['type_code'], $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, TRUE)));
 					}
 				}
 
@@ -259,14 +260,14 @@ class Simple_Form extends Asset
 								'minor_type_code'	=> $data['type_code'],
 								'value'				=> '',
 								'link_type'			=> SQ_LINK_TYPE_2,
-								'is_dependant'		=> true,
-								'is_exclusive'		=> false,
+								'is_dependant'		=> TRUE,
+								'is_exclusive'		=> FALSE,
 								'sort_order'		=> $new_sort_order,
 							   );
 				}
 				$new_sort_order++;
-			}
-		}
+			}//end foreach
+		}//end if
 
 		if (is_null($sort_by)) $sort_by = 'sort_order';
 
@@ -333,7 +334,7 @@ class Simple_Form extends Asset
 			unset($link['is_dependant']);
 			unset($link['is_exclusive']);
 
-		}
+		}//end foreach
 
 		return $links;
 
@@ -347,23 +348,24 @@ class Simple_Form extends Asset
 	*											part after the ':')
 	* @param string|array	$type_code			the type of asset that is linked (eg 'User', 'User_Group', etc)
 	*											if an array returns link if matches any of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return array(int)
+	* @return array
 	* @access public
 	* @see Asset_Manager::getParents()
 	*/
-	function getParents($shadowid, $type_code='', $strict_type_code=true)
+	function getParents($shadowid, $type_code='', $strict_type_code=TRUE)
 	{
 		// basically get the parents of the section, and add itself in the
 		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
 		if (empty($query)) return Array();
 
 		$queried_parents = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
+		assert_valid_db_result($queried_parents);
 		$parents = Array();
 
-		foreach($queried_parents as $queried_parent) {
+		foreach ($queried_parents as $queried_parent) {
 			$parents[$queried_parent['majorid']] = $queried_parent['type_code'];
 		}
 
@@ -382,16 +384,19 @@ class Simple_Form extends Asset
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
+	* @param boolean		$dependant			if TRUE, results will be filtered to assets that are dependants.
+	*											If FALSE, results will all not be dependants.
+	*											If NULL, results will not be filtered
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	*
-	* @return array(int => string)	returns an array of assetids and their type code
+	* @return array
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
 	{
 		// no shadow assets have children in this asset
 		if (!is_numeric($assetid)) return Array();
@@ -408,12 +413,12 @@ class Simple_Form extends Asset
 
 		// this is so we get the sections as we go
 		// have to do this all in here because calling asset manager will bring on a vicious loop
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_a($asset, 'bridge') && ($assetid != $this->id)) {
-			$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $sort_by);
+			$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $dependant, $sort_by);
 			$this->forgetAsset($asset);
 		} else {
-			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $sort_by);
+			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $dependant, $sort_by);
 			unset($asset);
 
 			if (!empty($query)) {
@@ -479,12 +484,13 @@ class Simple_Form extends Asset
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return array
 	* @access private
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
@@ -494,27 +500,28 @@ class Simple_Form extends Asset
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
 		$links = Array(
 					SQ_LINK_TYPE_2	=> Array(
-										'bodycopy'	=> Array(
+										'bodycopy'		=> Array(
 															'card'		=> '1',
-															'exclusive'	=> false,
+															'exclusive'	=> FALSE,
 														   ),
 										'simple_form'	=> Array(
 															'card'		=> 'M',
-															'exclusive'	=> false,
+															'exclusive'	=> FALSE,
 														   ),
 									   ),
 					SQ_LINK_TYPE_3	=> Array(
 										'bodycopy'	=> Array(
-															'card'		=> '1',
-															'exclusive'	=> false,
-														   ),
+														'card'		=> '1',
+														'exclusive'	=> FALSE,
+													   ),
 									   ),
 				 );
 		return $links;
@@ -551,7 +558,7 @@ class Simple_Form extends Asset
 										'name'			=> $name,
 										'sort_order'	=> count($questions),
 										'attributes'	=> Array(
-															'name' => $name,
+															'name'	=> $name,
 														   ),
 									 );
 
@@ -559,10 +566,10 @@ class Simple_Form extends Asset
 		$this->setAttrValue('next_question', $next_question + 1);
 
 		// for system integrity purposes, acquire the lock on the new question
-		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id.':q'.$next_question, 'all', $this->id, true);
+		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id.':q'.$next_question, 'all', $this->id, TRUE);
 		$GLOBALS['SQ_SYSTEM']->am->updateLock($this->id, 'all');
 
-		return true;
+		return TRUE;
 
 	}//end createQuestion()
 
@@ -570,8 +577,7 @@ class Simple_Form extends Asset
 	/**
 	* Deletes a question
 	*
-	* @param string	$assetid
-	* @param string	$name		the name of the new question
+	* @param string	$assetid	the id of the question to delete
 	*
 	* @return boolean
 	* @access public
@@ -584,7 +590,7 @@ class Simple_Form extends Asset
 		if ($sectionid != $this->id) {
 			// TRANSLATE: Get an error number for this
 			trigger_error('Cannot delete question '.$assetid.' from '.translate('asset_format', $this->_getName(), $this->id).' as it does not belong to this section', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		$questions = $this->attr('questions');
@@ -592,13 +598,13 @@ class Simple_Form extends Asset
 		if (!isset($questions[$shadowid])) {
 			// TRANSLATE: Get an error number for this
 			trigger_error('Cannot delete question '.$assetid.' from '.translate('asset_format', $this->_getName(), $this->id).' as it does not exist', E_USER_WARNING);
-			return false;
+			return FALSE;
 		} else {
 			unset($questions[$shadowid]);
 		}
 
 		$this->setAttrValue('questions', $questions);
-		return true;
+		return TRUE;
 
 	}//end deleteQuestion()
 
@@ -625,7 +631,7 @@ class Simple_Form extends Asset
 	/**
 	* Processes the form
 	*
-	* @return boolean	true if successful (false if there were errors??)
+	* @return boolean
 	* @access public
 	*/
 	function process()
@@ -640,22 +646,18 @@ class Simple_Form extends Asset
 			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			// set the value and check whether it's valid
-			if (isset($_POST[$name])) {
-				$q->setValue($_POST[$name]);
-			}
+			if (isset($_POST[$name])) $q->setValue($_POST[$name]);
 			$valid = $q->hasValidValue();
 
-			if (!$valid) {
-				$this->_errors += $q->getErrors();
-			}
+			if (!$valid) $this->_errors += $q->getErrors();
 
 			$this->_answers[$assetid] = Array(
-										'name'		=> $data['name'],
-										'type_code'	=> $data['type_code'],
-										'value'		=> $q->getValue(),
-										'summary'	=> $q->getSummary(),
-										'is_error'	=> !$valid,
-									   );
+											'name'		=> $data['name'],
+											'type_code'	=> $data['type_code'],
+											'value'		=> $q->getValue(),
+											'summary'	=> $q->getSummary(),
+											'is_error'	=> !$valid,
+										);
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($q);
 			unset($q);
@@ -663,7 +665,7 @@ class Simple_Form extends Asset
 		}//end foreach question
 
 		// Now, handle nested forms
-		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', false) as $link) {
+		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', FALSE) as $link) {
 			$sectionid = $link['minorid'];
 			$s =& $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
 
@@ -686,7 +688,7 @@ class Simple_Form extends Asset
 	/**
 	* Return a list of errors from last time we processed the form
 	*
-	* @return Array(string)	Straight array of messagesa
+	* @return array
 	* @access public
 	*/
 	function getErrors()
@@ -712,7 +714,7 @@ class Simple_Form extends Asset
 	* )
 	* </pre>
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getAnswers()
@@ -725,13 +727,13 @@ class Simple_Form extends Asset
 	/**
 	* Return a list of raw answer values recorded from processed questions
 	*
-	* @return array(string => mixed)	assetid => raw value
+	* @return array
 	* @access public
 	*/
 	function getAnswerValues()
 	{
 		$answer_values = Array();
-		foreach($this->_answers as $assetid => $data) {
+		foreach ($this->_answers as $assetid => $data) {
 			$answer_values[$assetid] = $data['value'];
 		}
 		return $answer_values;
@@ -742,13 +744,13 @@ class Simple_Form extends Asset
 	/**
 	* Return a list of answer summaries recorded from processed questions
 	*
-	* @return array(string => string)	assetid => summary
+	* @return array
 	* @access public
 	*/
 	function getAnswerSummaries()
 	{
 		$answer_values = Array();
-		foreach($this->_answers as $assetid => $data) {
+		foreach ($this->_answers as $assetid => $data) {
 			$answer_values[$assetid] = $data['summary'];
 		}
 		return $answer_values;
@@ -764,11 +766,9 @@ class Simple_Form extends Asset
 	*
 	* Note that this is only defined in the simple form and not the section, as
 	* a form should be validated as a whole
-	*
 	* The return value of this function should be placed in a function that acts
 	* as an onSubmit handler. Any text relating to failed rules will be placed
 	* in the submission_errors array; do what you wish with those.
-	*
 	* If no validation rules exist, an empty string ('') will be returned.
 	*
 	* @return string
@@ -787,7 +787,7 @@ class Simple_Form extends Asset
 
 		$questions = $this->attr('questions');
 		foreach (array_keys($questions) as $key) {
-			$q = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$key);
+			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$key);
 
 			$q_code = $q->generateJSCode();
 			$code .= $q_code.(empty($q_code) ? '' : "\n");
@@ -796,14 +796,14 @@ class Simple_Form extends Asset
 			unset($q);
 		}
 
-		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', false) as $link) {
+		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', FALSE) as $link) {
 			// get the section
 			$sectionid = $link['minorid'];
 			$s =& $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
 			$section_questions = $s->attr('questions');
 
 			foreach (array_keys($section_questions) as $key) {
-				$q = &$GLOBALS['SQ_SYSTEM']->am->getAsset($s->id.':q'.$key);
+				$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($s->id.':q'.$key);
 
 				$q_code = $q->generateJSCode();
 				$code .= $q_code.(empty($q_code) ? '' : "\n");
@@ -831,7 +831,8 @@ class Simple_Form extends Asset
 	* @return string
 	* @access public
 	*/
-	function getClientSideFunction() {
+	function getClientSideFunction()
+	{
 		$code = $this->getClientSideJS();
 		if (empty($code)) return '';
 
@@ -869,8 +870,8 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
 	*								we add keywords to the $vars['keywords'] array
 	*
 	* @return boolean
@@ -893,10 +894,12 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	/**
 	* Returns a list of display keywords for the questions handled by this section
 	*
-	* @param string	$prefix		the prefix that should be applied to each
-	*							keyword returned by this function
+	* return format is (string => string)	keyword => description
 	*
-	* @return Array(string => string)	keyword => description
+	* @param string	$prefix	the prefix that should be applied to each
+	*						keyword returned by this function
+	*
+	* @return array
 	* @access public
 	*/
 	function getDisplayKeywords($prefix)
@@ -910,7 +913,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 			$keywords[$prefix.$this->id.'_q'.$shadowid.'_id'] = 'Question ID: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
 		}
 
-		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', false) as $link) {
+		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', FALSE) as $link) {
 			// get the section
 			$sectionid = $link['minorid'];
 			$s =& $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
@@ -934,10 +937,12 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	/**
 	* Returns a list of response keywords for the questions handled by this section
 	*
-	* @param string	$prefix		the prefix that should be applied to each
-	*							keyword returned by this function
+	* Return format is (string => string)	keyword => description
 	*
-	* @return Array(string => string)	keyword => description
+	* @param string	$prefix	the prefix that should be applied to each
+	*						keyword returned by this function
+	*
+	* @return array
 	* @access public
 	*/
 	function getResponseKeywords($prefix)
@@ -950,7 +955,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 			$keywords[$prefix.$this->id.'_q'.$shadowid.'_raw'] = 'Raw Response: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
 		}
 
-		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', false) as $link) {
+		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', FALSE) as $link) {
 			// get the nested form
 			$sectionid = $link['minorid'];
 			$s =& $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
@@ -973,10 +978,12 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	/**
 	* Returns a list of display keywords for the questions handled by this section
 	*
-	* @param string	$prefix		the prefix that should be applied to each
-	*							keyword returned by this function
+	* Return format is (string => string)	keyword => description
 	*
-	* @return Array(string => string)	keyword => description
+	* @param string	$prefix	the prefix that should be applied to each
+	*						keyword returned by this function
+	*
+	* @return array
 	* @access public
 	*/
 	function getDisplayKeywordReplacement($prefix)
@@ -994,7 +1001,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 			unset($q);
 		}
 
-		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', false) as $link) {
+		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', FALSE) as $link) {
 			// get the nested form
 			$sectionid = $link['minorid'];
 			$s =& $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
@@ -1023,16 +1030,18 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 
 		return $keywords;
 
-	}//end getDisplayKeywordReplacements()
+	}//end getDisplayKeywordReplacement()
 
 
 	/**
 	* Returns a list of response keywords for the questions handled by this section
 	*
-	* @param string	$prefix		the prefix that should be applied to each
-	*							keyword returned by this function
+	* Return format is (string => string)	keyword => description
 	*
-	* @return Array(string => string)	keyword => description
+	* @param string	$prefix	the prefix that should be applied to each
+	*						keyword returned by this function
+	*
+	* @return array
 	* @access public
 	*/
 	function getResponseKeywordReplacement($prefix)
@@ -1048,7 +1057,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 			unset($q);
 		}
 
-		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', false) as $link) {
+		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', FALSE) as $link) {
 			// get the nested form
 			$sectionid = $link['minorid'];
 			$s =& $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
@@ -1062,7 +1071,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 
 		return $keywords;
 
-	}//end getResponseKeywordReplacements()
+	}//end getResponseKeywordReplacement()
 
 
 //--        CUSTOM FORMAT BODYCOPY FUNCTIONS        --//
@@ -1071,25 +1080,28 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	/**
 	* Creates the format bodycopy
 	*
+	* Returns false if bodycopy already exists
+	*
 	* @param boolean	$enable_on_create	if true, will set the bodycopy to be enabled
 	*										(TYPE_2 link) when it is created. If false,
 	*										creates it disabled (TYPE_3 link).
 	*
-	* @return boolean	indicating success (false if bodycopy already exists)
+	* @return boolean
 	* @access public
 	*/
-	function createFormatBodycopy($enable_on_create=true) {
+	function createFormatBodycopy($enable_on_create=TRUE)
+	{
 		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', 'format'));
 
 		// we already have a bodycopy link?!
 		if ($bodycopy_link) {
-			return false;
+			return FALSE;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 
 			$link_type = ($enable_on_create ? SQ_LINK_TYPE_2 : SQ_LINK_TYPE_3);
 
-			$asset = new Bodycopy();
+			$asset =& new Bodycopy();
 			$copy_link = Array(
 							'asset'			=> &$this,
 							'value'			=> 'format',
@@ -1099,28 +1111,29 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 						 );
 
 			$asset->setAttrValue('name', 'Format Bodycopy');
-			if (!$asset->create($copy_link)) return false;
+			if (!$asset->create($copy_link)) return FALSE;
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			unset($asset);
 		}
 
-		return true;
+		return TRUE;
 
 	}//end createFormatBodycopy()
 
 
 	/**
-	* Returns the format bodycopy
+	* Returns the format bodycopy or null
 	*
 	* @param boolean	$only_if_enabled	if true, will return null if the bodycopy is
 	*										disabled. If false, will only return null if
 	*										never created.
 	*
-	* @return object Bodycopy or null
+	* @return object
 	* @access public
 	*/
-	function &getFormatBodycopy($only_if_enabled=true) {
+	function &getFormatBodycopy($only_if_enabled=TRUE)
+	{
 		$asset = null;
 
 		if ($only_if_enabled) {
@@ -1137,7 +1150,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 
 		return $asset;
 
-	}//end createFormatBodycopy()
+	}//end getFormatBodycopy()
 
 
 	/**
@@ -1146,7 +1159,8 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	* @return boolean
 	* @access public
 	*/
-	function isFormatBodycopyEnabled() {
+	function isFormatBodycopyEnabled()
+	{
 		$link_types = SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3;
 
 		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_types, 'bodycopy', 'format'));
@@ -1154,11 +1168,11 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 		if ($bodycopy_link) {
 			return ($bodycopy_link['link_type'] == SQ_LINK_TYPE_2);
 		} else {
-			return false;
+			return FALSE;
 		}
 
 
-	}//end createFormatBodycopy()
+	}//end isFormatBodycopyEnabled()
 
 
 	/**
@@ -1167,19 +1181,18 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	* @param boolean	$enabled	set to true to enable the format bodycopy,
 	*								set to false to disable it
 	*
-	* @return boolean	indicating success
+	* @return boolean
 	* @access public
 	*/
-	function setUseFormatBodycopy($enabled) {
+	function setUseFormatBodycopy($enabled)
+	{
 		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', 'format'));
 
 		if (!$bodycopy_link) {
 			// no bodycopy yet? If we're trying to set to disabled, then we don't
 			// need to do anything - if not then we need to create it
 			if ($enabled) {
-				if (!$this->createFormatBodycopy()) {
-					return false;
-				}
+				if (!$this->createFormatBodycopy()) return FALSE;
 			}
 		} else {
 			// set link type to either TYPE_2 if enabled or TYPE_3 if disabled
@@ -1189,7 +1202,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end setUseFormatBodycopy()
 
@@ -1202,14 +1215,15 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	*
 	* @param boolean	$print_form_tags	also print out the form tags and client-side
 	*										validation function (if any)
+	* @param boolean	$submit_buttons		whether to paint the submit and cancel buttons
 	*
 	* @return void
 	* @access public
 	*/
-	function printBody($print_form_tags=true, $submit_buttons=true)
+	function printBody($print_form_tags=TRUE, $submit_buttons=TRUE)
 	{
 		// return custom bodycopy but ONLY if enabled
-		$format_bodycopy =& $this->getFormatBodycopy(true);
+		$format_bodycopy =& $this->getFormatBodycopy(TRUE);
 
 		if ($print_form_tags) {
 			if ($this->attr('client_side')) {
@@ -1228,9 +1242,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 			$this->printDefaultFormat($submit_buttons);
 		}
 
-		if ($print_form_tags) {
-			?></form><?php
-		}
+		if ($print_form_tags) ?></form><?php
 
 	}//end printBody()
 
@@ -1238,14 +1250,16 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	/**
 	* Paints the form using a default format
 	*
+	* @param boolean	$submit_buttons	whether to paint the submit and cancel buttons
+	*
 	* @return void
 	* @access private
 	*/
-	function printDefaultFormat($submit_buttons=true)
+	function printDefaultFormat($submit_buttons=TRUE)
 	{
 		?>
 		<table>
-		<?php foreach($this->attr('questions') as $shadowid => $question) {
+		<?php foreach ($this->attr('questions') as $shadowid => $question) {
 			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$shadowid);
 			$name = array_get_index($question['attributes'], 'name', '');
 			$note = array_get_index($question['attributes'], 'note', '');
@@ -1262,12 +1276,14 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 			unset($q);
 		}
 
-		if ($submit_buttons) { ?>
+		if ($submit_buttons) {
+			?>
 			<tr><td style="text-align:center" colspan="2"><?php
 				submit_button('submit_button', $this->attr('submit_button'));
 				reset_button('reset_button', $this->attr('reset_button'));
 			?></td></tr>
-		<?php } ?>
+		<?php }
+		?>
 		</table>
 		<?php
 
@@ -1276,6 +1292,8 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 
 	/**
 	* Paints the form using the custom format bodycopy
+	*
+	* @param object	&$bodycopy	the custom format bodycopy to be used
 	*
 	* @return void
 	* @access private
@@ -1304,7 +1322,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	* @return void
 	* @access public
 	*/
-	function printReceipt($html=true, $include_form_info=true)
+	function printReceipt($html=TRUE, $include_form_info=TRUE)
 	{
 		$answers = Array();
 
@@ -1319,36 +1337,36 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 
 			$form_info[] = Array(
 							'name'	=> 'Form Submitted',
-							'value' => $this->name.' (Id: #'.$this->id.')',
-						 );
+							'value'	=> $this->name.' (Id: #'.$this->id.')',
+						   );
 
 			$form_info[] = Array(
-							'name'	=> 'Form URL',
-							'value' => current_url(true, true),
-							'html_value' => '<a href="'.current_url(true, true).'">'.current_url(true, true).'</a>',
-						 );
+							'name'			=> 'Form URL',
+							'value'			=> current_url(TRUE, TRUE),
+							'html_value'	=> '<a href="'.current_url(TRUE, TRUE).'">'.current_url(TRUE, TRUE).'</a>',
+						   );
 
 			$form_info[] = Array(
 							'name'	=> 'Form Lineage',
-							'value' => implode(' => ', $lineage_names),
-						 );
+							'value'	=> implode(' => ', $lineage_names),
+						   );
 
 			$form_info[] = Array(
 							'name'	=> 'Time of Submission',
-							'value' => date('l, j F Y H:i:s \G\M\TO'),
-						 );
+							'value'	=> date('l, j F Y H:i:s \G\M\TO'),
+						   );
 
 			if ($GLOBALS['SQ_SYSTEM']->userPublic()) {
 				$form_info[] = Array(
 								'name'	=> 'Submitted By',
-								'value' => 'No logged in user',
+								'value'	=> 'No logged in user',
 							   );
 			} else {
 				$user =& $GLOBALS['SQ_SYSTEM']->user;
 				$form_info[] = Array(
-							'name'	=> 'Submitted By',
-							'value' => $user->name.' (Id: #'.$user->id.')',
-						 );
+								'name'	=> 'Submitted By',
+								'value'	=> $user->name.' (Id: #'.$user->id.')',
+							   );
 			}
 
 			// set max length equal to "time of submission" (we are getting the
@@ -1360,14 +1378,14 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 		}
 
 		// gather questions
-		foreach($this->attr('questions') as $shadowid => $question) {
+		foreach ($this->attr('questions') as $shadowid => $question) {
 			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$shadowid);
 			$name = array_get_index($question['attributes'], 'name', '');
 			$summary = $q->getSummary();
 
 			$answers[] = Array(
 							'name'	=> $name,
-							'value' => $summary,
+							'value'	=> $summary,
 						 );
 			$max_name_length = max($max_name_length, strlen($name));
 
@@ -1381,7 +1399,8 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 			<table>
 			<?php
 			// only show form info if asked for
-			if ($include_form_info) { ?>
+			if ($include_form_info) {
+				?>
 				<tr><td colspan="2"><strong>Form Information</strong></td></tr>
 				<?php foreach ($form_info as $form_info_item) {
 					?>
@@ -1392,7 +1411,8 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 				<?php
 				}
 				?><tr><td colspan="2"><strong>Form Responses</strong></td></tr><?php
-			}?>
+			}
+			?>
 
 			<?php foreach ($answers as $answer) {
 				?>
@@ -1400,7 +1420,8 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 					<td valign="top"><ul><li><?php echo $answer['name']; ?>:</li></ul></td>
 					<td valign="top"><?php echo $answer['value']; ?></td>
 				</tr>
-			<?php } ?>
+			<?php }
+			?>
 			</table>
 			<?php
 		} else {

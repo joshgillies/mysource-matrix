@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata.inc,v 1.7 2005/11/03 03:57:22 tbarrett Exp $
+* $Id: report_incomplete_metadata.inc,v 1.8 2006/01/09 03:41:03 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,7 +49,7 @@ class Report_Incomplete_Metadata extends Report
 	*/
 	function Report_Incomplete_Metadata($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Report($assetid);
 
 	}//end constructor
@@ -72,15 +72,11 @@ class Report_Incomplete_Metadata extends Report
 
 			$report_path = $this->data_path.'/report.xml';
 
-			if (!is_file($report_path)) {
-				return Array();
-			}
+			if (!is_file($report_path)) return Array();
 
-			$input = new XML_Tree($report_path);
-			$root  = &$input->getTreeFromFile();
-			if (PEAR::isError($root)) {
-				return Array();
-			}
+			$input =& new XML_Tree($report_path);
+			$root  =& $input->getTreeFromFile();
+			if (PEAR::isError($root)) return Array();
 
 			if (!isset($root->children[0]->attributes['type_code'])) {
 				// old xml format, needs regenerating before it can act as a bridge
@@ -93,19 +89,19 @@ class Report_Incomplete_Metadata extends Report
 				if ($result->name != 'asset') continue;
 
 				$links[] = Array(
-								'assetid'    => $result->attributes['assetid'],
-								'short_name' => $result->attributes['short_name'],
-								'name'       => $result->attributes['name'],
-								'accessible' => 1,
-								'type_code'  => $result->attributes['type_code'],
-								'status'     => $result->attributes['status'],
-								'linkid'     => '0',
-								'link_type'  => SQ_LINK_TYPE_1,
-								'num_kids'   => 0,
-								'sort_order' => $sort_order,
-								'url'        => '',
-								'path'       => '',
-							);
+							'assetid'		=> $result->attributes['assetid'],
+							'short_name'	=> $result->attributes['short_name'],
+							'name'			=> $result->attributes['name'],
+							'accessible'	=> 1,
+							'type_code'		=> $result->attributes['type_code'],
+							'status'		=> $result->attributes['status'],
+							'linkid'		=> '0',
+							'link_type'		=> SQ_LINK_TYPE_1,
+							'num_kids'		=> 0,
+							'sort_order'	=> $sort_order,
+							'url'			=> '',
+							'path'			=> '',
+						   );
 
 				$sort_order++;
 			}
@@ -129,7 +125,7 @@ class Report_Incomplete_Metadata extends Report
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	* @param string			$side_of_link		Which side of the link this (the current) asset
 	*											is on ('major' or 'minor')
@@ -142,7 +138,7 @@ class Report_Incomplete_Metadata extends Report
 	* @access public
 	* @see Asset_Manager::getLinks()
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null, $dependant=null, $exclusive=null)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=null, $dependant=null, $exclusive=null)
 	{
 		assert_equals($assetid, $this->id, 'The Asset Statuses Report can only get its own links');
 		if ($dependant || $exclusive) {
@@ -158,15 +154,11 @@ class Report_Incomplete_Metadata extends Report
 
 			$report_path = $this->data_path.'/report.xml';
 
-			if (!is_file($report_path)) {
-				return Array();
-			}
+			if (!is_file($report_path)) return Array();
 
-			$input = new XML_Tree($report_path);
-			$root  = &$input->getTreeFromFile();
-			if (PEAR::isError($root)) {
-				return Array();
-			}
+			$input =& new XML_Tree($report_path);
+			$root  =& $input->getTreeFromFile();
+			if (PEAR::isError($root)) return Array();
 
 			if (!isset($root->children[0]->attributes['type_code'])) {
 				// old xml format, needs regenerating before it can act as a bridge
@@ -179,15 +171,15 @@ class Report_Incomplete_Metadata extends Report
 				if ($result->name != 'asset') continue;
 
 				$links[] = Array(
-								'linkid'          => 0,
-								'minorid'         => $result->attributes['assetid'],
-								'value'           => '',
-								'link_type'    	  => SQ_LINK_TYPE_1,
-								'minor_type_code' => $result->attributes['type_code'],
-								'sort_order'      => $sort_order,
-								'is_dependant'    => '0',
-								'is_exclusive'    => '0',
-							);
+							'linkid'			=> 0,
+							'minorid'			=> $result->attributes['assetid'],
+							'value'				=> '',
+							'link_type'			=> SQ_LINK_TYPE_1,
+							'minor_type_code'	=> $result->attributes['type_code'],
+							'sort_order'		=> $sort_order,
+							'is_dependant'		=> '0',
+							'is_exclusive'		=> '0',
+						   );
 
 				$sort_order++;
 			}
@@ -207,14 +199,14 @@ class Report_Incomplete_Metadata extends Report
 	* @param int			$assetid			the id of the asset to get its parents for
 	* @param string|array	$type_code			the type of asset that is linked (eg 'User', 'User_Group', etc)
 	*											if an array returns link if matches any of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return array(int)
+	* @return array
 	* @access public
 	* @see Asset_Manager::getParents()
 	*/
-	function getParents($assetid, $type_code='', $strict_type_code=true)
+	function getParents($assetid, $type_code='', $strict_type_code=TRUE)
 	{
 		assert_equals($assetid, $this->id, 'The Asset Statuses Report can only get its own links');
 		return Array();
@@ -230,16 +222,19 @@ class Report_Incomplete_Metadata extends Report
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
+	* @param boolean		$dependant			if TRUE, results will be filtered to assets that are dependants.
+	*											If FALSE, results will all not be dependants.
+	*											If NULL, results will not be filtered
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	*
-	* @return array(int => string)	returns an array of assetids and their type code
+	* @return array
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
 	{
 		assert_equals($assetid, $this->id, 'The Asset Statuses Report can only get its own links');
 		return Array();
@@ -259,6 +254,7 @@ class Report_Incomplete_Metadata extends Report
 	*/
 	function getLineageFromURL($assetid, $protocol, $url)
 	{
+
 	}//end getLineageFromURL()
 
 
@@ -293,9 +289,9 @@ class Report_Incomplete_Metadata extends Report
 			} else if (!$inherit) {
 				$allowed_asset_map[$allowed_parent_type] = $allowed_parent_type;
 			} else {
-				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($allowed_parent_type, true);
+				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($allowed_parent_type, TRUE);
 				foreach ($descendants as $allowed_type) {
-					if (!isset($allowed_asset_map[$allowed_type])){
+					if (!isset($allowed_asset_map[$allowed_type])) {
 						$allowed_asset_map[$allowed_type] = $allowed_parent_type;
 					}
 				}

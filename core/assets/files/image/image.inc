@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.48 2005/11/30 04:19:38 lwright Exp $
+* $Id: image.inc,v 1.49 2006/01/09 03:41:03 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Image extends File
 	*/
 	function Image($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->File($assetid);
 
 	}//end constructor
@@ -64,15 +64,15 @@ class Image extends File
 	/**
 	* Set the value of an attribute
 	*
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
+	* @param boolean	$dont_run_updated	if TRUE this->_updated() won't be run
 	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
 	*/
-	function saveAttributes($dont_run_updated=false)
+	function saveAttributes($dont_run_updated=FALSE)
 	{
-		if (!$this->id) return true;
+		if (!$this->id) return TRUE;
 
 		// if there are no values for the alt attribute use the filename
 		if (isset($this->_tmp['vars_set']['alt']) && trim($this->attr('alt')) == '') {
@@ -142,24 +142,24 @@ class Image extends File
 			create_directory($new_base_path);
 
 			// file versioning magick :D
-			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
-			foreach($varieties['data'] as $variety_shadowid => $variety) {
+			foreach ($varieties['data'] as $variety_shadowid => $variety) {
 				$old_variety_path = $old_base_path.'/'.$variety['filename'];
 				$new_variety_path = $new_base_path.'/'.$variety['filename'];
 
 				if (!copy($old_variety_path, $new_variety_path)) {
 					trigger_localised_error('CORE0036', E_USER_WARNING, $old_variety_path, $new_variety_path);
-					return false;
+					return FALSE;
 				}
 
 				if (!$fv->add($clone->data_path_suffix.'/varieties', $new_variety_path)) {
-					return false;
+					return FALSE;
 				}
 
 				if (!$fv->checkOut($clone->data_path_suffix.'/varieties/'.$variety['filename'], $clone->data_path.'/varieties')) {
 					trigger_localised_error('CORE0103', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
 			}
 		}//end if attributes|all
@@ -179,7 +179,7 @@ class Image extends File
 	*/
 	function validFile($info)
 	{
-		if (!parent::validFile($info)) return false;
+		if (!parent::validFile($info)) return FALSE;
 
 		// check that the extension is allowed
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
@@ -187,9 +187,9 @@ class Image extends File
 		if (!in_array($ext, $this->allowed_extensions)) {
 			$edit_fns = $this->getEditFns();
 			trigger_localised_error('CORE0107', E_USER_WARNING, $edit_fns->_getExtensionString($this->allowed_extensions, 'or'), strtoupper($ext));
-			return false;
+			return FALSE;
 		}
-		return true;
+		return TRUE;
 
 	}//end validFile()
 
@@ -227,7 +227,7 @@ class Image extends File
 	* @return mixed string|void
 	* @access public
 	*/
-	function printImageTag($alt='', $title='', $return=false)
+	function printImageTag($alt='', $title='', $return=FALSE)
 	{
 		if ($title == '') {
 			$title = ($alt != '') ? $alt : $this->attr('title');
@@ -291,11 +291,11 @@ class Image extends File
 	* @return mixed boolean|int
 	* @access public
 	*/
-	function saveVariety($variety, $recreate_image=true, $save_attrs=true)
+	function saveVariety($variety, $recreate_image=TRUE, $save_attrs=TRUE)
 	{
 		if (!$this->writeAccess('attributes')) {
 			trigger_localised_error('CORE0069', E_USER_WARNING, $this->name, $this->id);
-			return false;
+			return FALSE;
 
 		}
 
@@ -303,7 +303,7 @@ class Image extends File
 		$name = $variety->attr('name');
 		if (trim($name) == '') {
 			trigger_localised_error('CORE0100', E_USER_WARNING);
-			return false;
+			return FALSE;
 
 		}
 
@@ -314,19 +314,19 @@ class Image extends File
 			list($assetid, $varietyid) = explode(':', $variety->id, 2);
 			if ($assetid != $this->id) {
 				trigger_localised_error('CORE0099', E_USER_WARNING);
-				return false;
+				return FALSE;
 
 			}
 
 			if (isset($varieties['data'][$varietyid])) {
 				if ($varieties['data'][$varietyid]['name'] != $name) {
 					trigger_localised_error('CORE0097', E_USER_WARNING, $varietyid);
-					return false;
+					return FALSE;
 
 				}
 			} else {
 				trigger_localised_error('CORE0098', E_USER_WARNING, $varietyid, $this->name, $this->id);
-				return false;
+				return FALSE;
 
 			}
 
@@ -342,7 +342,7 @@ class Image extends File
 				$varieties['lookups'][$name] = $varietyid;
 
 				if (!$this->setAttrValue('variety_count', $this->attr('variety_count') + 1)) {
-					return false;
+					return FALSE;
 				}
 
 			}
@@ -358,11 +358,11 @@ class Image extends File
 		}
 
 		if (!$this->setAttrValue('varieties', $varieties)) {
-			return false;
+			return FALSE;
 		}
 
-		$variety = &$this->getAsset($this->id.':'.$varietyid);
-		if (is_null($variety)) return false;
+		$variety =& $this->getAsset($this->id.':'.$varietyid);
+		if (is_null($variety)) return FALSE;
 
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -371,7 +371,7 @@ class Image extends File
 		if ($recreate_image) {
 			if (!$variety->updateImage()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+				return FALSE;
 
 			}
 
@@ -380,13 +380,13 @@ class Image extends File
 				$varieties['data'][$varietyid][$attr_name] = $attr_data['value'];
 			}
 			if (!$this->setAttrValue('varieties', $varieties)) {
-				return false;
+				return FALSE;
 			}
 		}
 
 		if ($save_attrs && !$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -407,26 +407,26 @@ class Image extends File
 	{
 		if (!$this->writeAccess('attributes')) {
 			trigger_localised_error('CORE0070', E_USER_WARNING, $this->name, $this->id);
-			return false;
+			return FALSE;
 		}
 
-		if (strpos($varietyid, ':') !== false) {
+		if (strpos($varietyid, ':') !== FALSE) {
 			list($assetid, $varietyid) = explode(':', $varietyid, 2);
 			if ($assetid != $this->id) {
 				trigger_localised_error('CORE088', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 		}
 
-		$variety = &$this->getAsset($this->id.':'.$varietyid);
-		if (is_null($variety)) return false;
+		$variety =& $this->getAsset($this->id.':'.$varietyid);
+		if (is_null($variety)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// delete the actual scaled image files
 		if (!$variety->deleteImage()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		$varieties = $this->attr('varieties');
@@ -434,27 +434,27 @@ class Image extends File
 		if (!isset($varieties['data'][$varietyid])) {
 			trigger_localised_error('CORE87', $varietyid, E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		unset($varieties['data'][$varietyid]);
 		$lookup_name = array_search($varietyid, $varieties['lookups']);
-		if ($lookup_name !== false) {
+		if ($lookup_name !== FALSE) {
 			unset($varieties['lookups'][$lookup_name]);
 		}
 
 		if (!$this->setAttrValue('varieties', $varieties) || !$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		if (!$this->updateLookups()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		return TRUE;
 
 	}//end deleteVariety()
 
@@ -473,11 +473,11 @@ class Image extends File
 		$varieties = $this->attr('varieties');
 		if (!empty($varieties)) {
 			foreach ($varieties['lookups'] as $varietyid) {
-				$variety = &$this->getAsset($this->id.':'.$varietyid);
+				$variety =& $this->getAsset($this->id.':'.$varietyid);
 				if (is_null($variety)) continue;
 
 				if (!$variety->checkFileState($this->effectiveUnrestricted())) {
-					return false;
+					return FALSE;
 				}
 			}
 		}
@@ -496,12 +496,12 @@ class Image extends File
 	*/
 	function updateLookups()
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!parent::updateLookups()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		$use_public_path = $this->usePublicPath();
@@ -509,19 +509,19 @@ class Image extends File
 		$varieties = $this->attr('varieties');
 		if (!empty($varieties)) {
 			foreach ($varieties['lookups'] as $varietyid) {
-				$variety = &$this->getAsset($this->id.':'.$varietyid);
+				$variety =& $this->getAsset($this->id.':'.$varietyid);
 				if (is_null($variety)) continue;
 
 				if (!$variety->updateLookups($use_public_path)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
+					return FALSE;
 				}
 
 			}//end foreach
 		}// end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		return TRUE;
 
 	}//end updateLookups()
 
@@ -544,9 +544,9 @@ class Image extends File
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($assetid, $type_code='', $mute_errors=false)
+	function &getAsset($assetid, $type_code='', $mute_errors=FALSE)
 	{
-		$asset = null;
+		$asset = NULL;
 		$id_parts = explode(':', $assetid);
 
 		if (isset($id_parts[1])) {
@@ -595,7 +595,7 @@ class Image extends File
 	* @return array
 	* @access public
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL)
 	{
 		// only TYPE_2 links are ever returned
 		if (!($link_types & SQ_LINK_TYPE_2)) {
@@ -616,7 +616,7 @@ class Image extends File
 					if ($ret_type_code != $type_code) return Array();
 				}
 			} else {
-				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true);
+				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, TRUE);
 				if (!in_array($ret_type_code, $descendants)) {
 					return Array();
 				}
@@ -647,8 +647,8 @@ class Image extends File
 										'majorid'			=> $this->id,
 										'value'				=> '',
 										'link_type'			=> SQ_LINK_TYPE_2,
-										'is_dependant'		=> true,
-										'is_exclusive'		=> true,
+										'is_dependant'		=> TRUE,
+										'is_exclusive'		=> TRUE,
 										'sort_order'		=> $i,
 									   );
 							$i++;
@@ -676,8 +676,8 @@ class Image extends File
 										'major_type_code'	=> $this->type(),
 										'value'				=> '',
 										'link_type'			=> SQ_LINK_TYPE_2,
-										'is_dependant'		=> true,
-										'is_exclusive'		=> true,
+										'is_dependant'		=> TRUE,
+										'is_exclusive'		=> TRUE,
 										'sort_order'		=> array_search($assetid, array_keys($varieties['data'])),
 									   );
 						}//endif
@@ -687,15 +687,15 @@ class Image extends File
 					} else {
 						$links = Array();
 
-					}// endif
+					}//endif
 
-				}// end if
+				}//end if
 
 				if (!is_null($sort_by)) {
 					uasort($links, create_function('$a,$b', 'return $a["'.$sort_by.'"] < $b["'.$sort_by.'"];'));
 				}
 
-			}// end if
+			}//end if
 
 			$this->_tmp['getLinks'][$assetid][$side_of_link] = $links;
 
@@ -717,6 +717,9 @@ class Image extends File
 	*											of the array values
 	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
+	* @param boolean		$dependant			if TRUE, results will be filtered to assets that are dependants.
+	*											If FALSE, results will all not be dependants.
+	*											If NULL, results will not be filtered
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	*
@@ -724,7 +727,7 @@ class Image extends File
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
 	{
 		// if this is a shadow asset, then it has no children
 		if (!is_numeric($assetid)) return Array();
@@ -742,7 +745,7 @@ class Image extends File
 					if ($ret_type_code != $type_code) return Array();
 				}
 			} else {
-				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true);
+				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, TRUE);
 				if (!in_array($ret_type_code, $descendants)) {
 					return Array();
 				}
@@ -779,9 +782,9 @@ class Image extends File
 	* @access public
 	* @see Asset_Manager::getParents()
 	*/
-	function getParents($assetid, $type_code='', $strict_type_code=true)
+	function getParents($assetid, $type_code='', $strict_type_code=TRUE)
 	{
-		if ($assetid == $this->id || strpos($assetid, ':v') === false) {
+		if ($assetid == $this->id || strpos($assetid, ':v') === FALSE) {
 			// should never happen...but anyway
 			trigger_localised_error('CORE0090', E_USER_ERROR);
 		}
@@ -801,7 +804,7 @@ class Image extends File
 					if ($ret_type_code != $type_code) return $parents;
 				}
 			} else {
-				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true);
+				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, TRUE);
 				if (!in_array($ret_type_code, $descendants)) {
 					return $parents;
 				}
@@ -825,6 +828,7 @@ class Image extends File
 	function printBody()
 	{
 		$this->printImageTag();
+
 	}//end printBody()
 
 
@@ -849,7 +853,7 @@ class Image extends File
 		$varieties = $this->attr('varieties');
 		if (!empty($varieties)) {
 			foreach ($varieties['lookups'] as $varietyid) {
-				$variety = &$this->getAsset($this->id.':'.$varietyid);
+				$variety =& $this->getAsset($this->id.':'.$varietyid);
 				if (is_null($variety)) continue;
 				$keywords['image_v_'.$variety->name] = 'Image variety '.$variety->name;
 			}
@@ -897,7 +901,7 @@ class Image extends File
 	*/
 	function getImageTagKeywordReplacement()
 	{
-		return $this->printImageTag('', '', true);
+		return $this->printImageTag('', '', TRUE);
 
 	}//end getImageTagKeywordReplacement()
 
@@ -924,7 +928,7 @@ class Image extends File
 			$variety_id = array_get_index($varieties['lookups'], $variety_name);
 			if (!empty($variety_id)) {
 				$variety =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':'.$variety_id);
-				return $variety->printImageTag($this->attr('alt'), $this->attr('title'), true);
+				return $variety->printImageTag($this->attr('alt'), $this->attr('title'), TRUE);
 			}
 		}
 		return parent::getKeywordReplacement($keyword);
@@ -945,6 +949,7 @@ class Image extends File
 	function getLineageFromURL($assetid, $protocol, $url)
 	{
 		return Array();
+
 	}//end getLineageFromURL()
 
 
@@ -953,22 +958,22 @@ class Image extends File
 	*
 	* @param int		$assetid		the assetid for asset whose permissions to get
 	* @param string		$permission		the permission code you are getting
-	* @param boolean	$granted		type of Access : null = all, true = granted, false = denied
+	* @param boolean	$granted		type of Access : NULL = all, TRUE = granted, FALSE = denied
 	* @param boolean	$and_greater	get effective permission (eg read access = read
 	*									or write or admin)
 	* @param boolean	$expand_groups	expand user groups so only user ids get returned
-	*									(NOTE: only valid if $all_info is false)
-	* @param boolean	$all_info		when false fn just returns an array of userids for
+	*									(NOTE: only valid if $all_info is FALSE)
+	* @param boolean	$all_info		when FALSE fn just returns an array of userids for
 	*									those that have permission
-	*									When true fn returns all info about the permission in the form of
+	*									When TRUE fn returns all info about the permission in the form of
 	*									Array(userid => granted)
 	*									(NOTE: TRUE is only valid if $and_greater and
-	*									$expand_groups are false)
+	*									$expand_groups are FALSE)
 	*
 	* @return array
 	* @access public
 	*/
-	function getPermission($assetid, $permission, $granted=null, $and_greater=true, $expand_groups=false, $all_info=false)
+	function getPermission($assetid, $permission, $granted=NULL, $and_greater=TRUE, $expand_groups=FALSE, $all_info=FALSE)
 	{
 		return Array();
 
@@ -988,7 +993,7 @@ class Image extends File
 	*/
 	function setPermission($assetid, $userid, $permission, $granted)
 	{
-		return false;
+		return FALSE;
 
 	}//end setPermission()
 
@@ -1005,7 +1010,7 @@ class Image extends File
 	*/
 	function deletePermission($assetid, $userid, $permission)
 	{
-		return false;
+		return FALSE;
 
 	}//end deletePermission()
 
@@ -1024,7 +1029,7 @@ class Image extends File
 	* @return array
 	* @access public
 	*/
-	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=true, $field='')
+	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=TRUE, $field='')
 	{
 		return Array();
 
@@ -1044,7 +1049,7 @@ class Image extends File
 	*/
 	function assetExists($assetids)
 	{
-		return false;
+		return FALSE;
 
 	}//end assetExists()
 
@@ -1070,7 +1075,7 @@ class Image extends File
 	* @return array
 	* @access public
 	*/
-	function getLink($assetid, $link_type=null, $type_code='', $strict_type_code=true, $value=null, $side_of_link='major', $exclusive=null)
+	function getLink($assetid, $link_type=NULL, $type_code='', $strict_type_code=TRUE, $value=NULL, $side_of_link='major', $exclusive=NULL)
 	{
 		return Array();
 
@@ -1116,7 +1121,7 @@ class Image extends File
 	* @return int
 	* @access public
 	*/
-	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=true, $ignore_linkid=0)
+	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
 	{
 		return 0;
 
@@ -1143,7 +1148,7 @@ class Image extends File
 	* @return array
 	* @access public
 	*/
-	function getLinkByAsset($assetid, $other_assetid, $link_types=null, $value=null, $side_of_link='major', $force_array=false, $dependant=null, $exclusive=null)
+	function getLinkByAsset($assetid, $other_assetid, $link_types=NULL, $value=NULL, $side_of_link='major', $force_array=FALSE, $dependant=NULL, $exclusive=NULL)
 	{
 		return Array();
 
@@ -1180,9 +1185,9 @@ class Image extends File
 	* @return boolean
 	* @access public
 	*/
-	function updateLink($linkid, $link_type=null, $value=null, $sort_order=null)
+	function updateLink($linkid, $link_type=NULL, $value=NULL, $sort_order=NULL)
 	{
-		return false;
+		return FALSE;
 
 	}//end updateLink()
 
@@ -1196,9 +1201,9 @@ class Image extends File
 	* @return boolean
 	* @access public
 	*/
-	function deleteAssetLink($linkid, $moving=false)
+	function deleteAssetLink($linkid, $moving=FALSE)
 	{
-		return false;
+		return FALSE;
 
 	}//end deleteAssetLink()
 
@@ -1219,7 +1224,7 @@ class Image extends File
 	* @return int
 	* @access public
 	*/
-	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0', $moving=false)
+	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0', $moving=FALSE)
 	{
 		return 0;
 

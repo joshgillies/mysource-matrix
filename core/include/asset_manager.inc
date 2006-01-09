@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.420 2006/01/06 00:54:37 skim Exp $
+* $Id: asset_manager.inc,v 1.421 2006/01/09 03:41:02 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.420 $
+* @version $Revision: 1.421 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1148,7 +1148,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Determine if this asset can be purged from the trash
 	*
-	* The function stops system assets and their dependant children from being purged.
+	* The function stops system assets and their dependent children from being purged.
 	*
 	* @param object	&$asset	the asset to purge
 	*
@@ -1165,7 +1165,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		// if we get to here, it is not one of the
-		// system assets, but it may be dependantly linked to one
+		// system assets, but it may be dependently linked to one
 		// so lets check for that
 		$parents = $this->getDependantParents($asset->id);
 		foreach ($parents as $parentid) {
@@ -1375,7 +1375,7 @@ class Asset_Manager extends MySource_Object
 			$child =& $this->getAsset($child_id);
 			$dependants_children = array_keys($this->getDependantChildren($child_id));
 
-			// find out if our dependant children are in the children list, otherwise
+			// find out if our dependent children are in the children list, otherwise
 			// we'll get the same content twice
 			// we have to do in array for each key, an array needle gets us nowhere
 			for ($i = 0; $i < count($dependants_children); $i++) {
@@ -1427,7 +1427,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Create the shell of a clone without cloning any of the source's components
 	*
-	* The only child assets that are cloned are the ones that are <i>DEPENDANTLY</i> linked to this asset.
+	* The only child assets that are cloned are the ones that are <i>DEPENDENTLY</i> linked to this asset.
 	* <i>NO OTHER</i> linked assets are cloned.
 	* It returns the reference to the new object or NULL if an error occured
 	*
@@ -2798,6 +2798,9 @@ class Asset_Manager extends MySource_Object
 	*											of the array values
 	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
+	* @param boolean		$dependant			if TRUE, results will be filtered to assets that are dependants.
+	*											If FALSE, results will all not be dependants.
+	*											If NULL, results will not be filtered
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
@@ -2812,9 +2815,19 @@ class Asset_Manager extends MySource_Object
 	* @access public
 	* @see generateGetChildrenQuery()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $sort_by=NULL, $access=NULL, $min_depth=NULL, $max_depth=NULL)
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $min_depth=NULL, $max_depth=NULL)
 	{
+
 		assert_valid_assetid($assetid);
+
+		// while the $dependant param is still new, try and catch anyone who hasn't changed their usage
+		if (!is_null($dependant)) {
+			$not_bool_message = 'The signature of this function has changed from'
+			."\n".'(object &$asset, string|array $type_code, boolean $strict_type_code, string $sort_by... ) to '
+			."\n".'(object &$asset, string|array $type_code, boolean $strict_type_code, boolean $dependant, string $sort_by... ). Please update your function call.';
+
+			assert_type($dependant, 'boolean', $not_bool_message);
+		}
 
 		// check if we are getting children for a shadow asset, and palm the request off to the
 		// handler of the shadow asset if we are
@@ -2827,7 +2840,7 @@ class Asset_Manager extends MySource_Object
 				if (!method_exists($asset, 'getChildren')) {
 					trigger_localised_error('SYS0204', E_USER_WARNING, $asset->name);
 				} else {
-					$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $sort_by);
+					$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $dependant, $sort_by);
 				}
 				$this->forgetAsset($asset);
 			} else {
@@ -2841,12 +2854,12 @@ class Asset_Manager extends MySource_Object
 		$asset =& $this->getAsset($assetid);
 		if (is_null($asset)) return Array();
 		if (implements_interface($asset, 'bridge')) {
-			$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $sort_by);
+			$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $dependant, $sort_by);
 			$this->forgetAsset($asset);
 			return $children;
 		}
 
-		$query = $this->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $sort_by, $access, TRUE, $min_depth, $max_depth);
+		$query = $this->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $dependant, $sort_by, $access, TRUE, $min_depth, $max_depth);
 		$this->forgetAsset($asset);
 		unset($asset);
 		if (empty($query)) return Array();
@@ -2868,7 +2881,7 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Get all dependant children of an asset in the various tress in which it exists
+	* Get all dependent children of an asset in the various tress in which it exists
 	*
 	* It returns an array of the form Array([assetid] => [type_code])
 	*
@@ -2900,7 +2913,7 @@ class Asset_Manager extends MySource_Object
 			// for the type code we want
 			$all_links = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, 1);
 			for (reset($all_links); NULL !== ($k = key($all_links)); next($all_links)) {
-				// must still be dependant
+				// must still be dependent
 				if (!$all_links[$k]['is_dependant']) continue;
 				$children = $children + $this->getDependantChildren($all_links[$k]['minorid'],$type_code, $strict_type_code);
 			}
@@ -2915,7 +2928,7 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Get all dependant parents of an asset in the various trees in which it exists
+	* Get all dependent parents of an asset in the various trees in which it exists
 	*
 	* It returns an array of assetids
 	*
@@ -3892,7 +3905,7 @@ class Asset_Manager extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		}
 
-		// only call the linksUpdated() method on the parent if this link is dependant
+		// only call the linksUpdated() method on the parent if this link is dependent
 		if ($dependant) {
 			// tell, the asset it has updated
 			if (!$major->linksUpdated()) {
@@ -6303,6 +6316,9 @@ class Asset_Manager extends MySource_Object
 	*											of the array values
 	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
+	* @param boolean		$dependant			if TRUE, results will be filtered to assets that are dependants.
+	*											If FALSE, results will all not be dependants.
+	*											If NULL, results will not be filtered
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
@@ -6318,7 +6334,7 @@ class Asset_Manager extends MySource_Object
 	* @access public
 	* @see getChildren()
 	*/
-	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=TRUE, $sort_by=NULL, $access=NULL, $inc_type_code=TRUE, $min_depth=NULL, $max_depth=NULL)
+	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $inc_type_code=TRUE, $min_depth=NULL, $max_depth=NULL)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -6327,7 +6343,7 @@ class Asset_Manager extends MySource_Object
 			$select = 'SELECT a.assetid'.(($inc_type_code) ? ', a.type_code' : '');
 			$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a';
 			$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'a');
-			if (!empty($where) && (!empty($type_code) || !is_null($access))) {
+			if (!empty($where) && (!empty($type_code) || !is_null($access) || !is_null($dependant))) {
 				$where .= ' AND ';
 			}
 
@@ -6372,11 +6388,17 @@ class Asset_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
-			if (!empty($type_code) || !is_null($access)) {
+			if (!empty($type_code) || !is_null($access) || !is_null($dependant)) {
 				$where .= ' AND ';
 			}
 
 		}//end if is root folder
+		if (!is_null($dependant)) {
+			$where .= ' l.is_dependant = '.$db->quote(($dependant) ? '1' : '0');
+			if (!empty($type_code) || !is_null($access)) {
+				$where .= ' AND ';
+			}
+		}
 
 		$group_by = '';
 		if (!is_null($access)) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.11 2005/12/22 22:39:40 lwright Exp $
+* $Id: thesaurus.inc,v 1.12 2006/01/09 03:41:03 emcdonald Exp $
 *
 */
 
@@ -36,7 +36,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,7 +52,7 @@ class Thesaurus extends Asset
 	*/
 	function Thesaurus($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Asset($assetid);
 
 	}//end constructor
@@ -61,7 +61,7 @@ class Thesaurus extends Asset
 	/**
 	* Delete Asset
 	*
-	* @param boolean	$release_lock	true, to release lock
+	* @param boolean	$release_lock	TRUE, to release lock
 	*
 	* @return boolean
 	* @access public
@@ -70,10 +70,10 @@ class Thesaurus extends Asset
 	{
 		if (parent::delete($release_lock)) {
 			$this->_deleteStoredContents();
-			return true;
+			return TRUE;
 		}
 
-		return false;
+		return FALSE;
 
 	}//end delete()
 
@@ -90,7 +90,7 @@ class Thesaurus extends Asset
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!parent::_createAdditional($link)) return false;
+		if (!parent::_createAdditional($link)) return FALSE;
 		return create_directory($this->data_path);
 
 	}//end _createAdditional()
@@ -111,7 +111,7 @@ class Thesaurus extends Asset
 	*/
 	function getAbbreviations()
 	{
-		$abbreviation_attr = $this->getAttribute('abbreviation_rel');
+		$abbreviation_attr =& $this->getAttribute('abbreviation_rel');
 		$abbreviation_rel = $abbreviation_attr->value;
 		if (empty($abbreviation_rel)) {
 			$abbreviation_rel = null;
@@ -145,11 +145,9 @@ class Thesaurus extends Asset
 
 		if (empty($termid)) return Array();
 
-		$synonym_attr = $this->getAttribute('synonym_rel');
+		$synonym_attr =& $this->getAttribute('synonym_rel');
 		$synonym_rel = $synonym_attr->value;
-		if (empty($synonym_rel)) {
-			$synonym_rel = null;
-		}
+		if (empty($synonym_rel)) $synonym_rel = null;
 
 		$synonyms = $this->getChildTerms($termid, $synonym_rel);
 		$result = Array();
@@ -182,12 +180,12 @@ class Thesaurus extends Asset
 	function getChildTerms($termid, $relation='')
 	{
 
-		$limit_relation = true;
+		$limit_relation = TRUE;
 		if (empty($relation) && !is_null($relation)) {
-			$limit_relation = false;
+			$limit_relation = FALSE;
 		}
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -236,7 +234,7 @@ class Thesaurus extends Asset
 	function countChildTerms($termid)
 	{
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -268,7 +266,7 @@ class Thesaurus extends Asset
 	function countTermLinks()
 	{
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -300,7 +298,7 @@ class Thesaurus extends Asset
 	function getChildRelationsForTerm($termid=null)
 	{
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql ='
 			SELECT DISTINCT
@@ -336,7 +334,7 @@ class Thesaurus extends Asset
 
 		if (!isset($term)) return null;
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql ='
 			SELECT DISTINCT
@@ -370,7 +368,7 @@ class Thesaurus extends Asset
 	function getParentTerms($termid)
 	{
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -411,7 +409,7 @@ class Thesaurus extends Asset
 	function countParentTerms($termid)
 	{
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -508,7 +506,7 @@ class Thesaurus extends Asset
 			return null;
 		}
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$termid = $db->nextId('sq_thes_term');
 		assert_valid_db_result($termid);
@@ -558,7 +556,7 @@ class Thesaurus extends Asset
 
 		if (is_null($sort_order)) $sort_order = -1;
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$linkid = $db->nextId('sq_thes_lnk');
 		assert_valid_db_result($linkid);
@@ -633,10 +631,10 @@ class Thesaurus extends Asset
 		// Thesaurus Tree Ids conditions:
 		// - Every link has at least one tree id
 		// - Every node has as many outgoing as incoming treeids
-		//		MINUS the number of those incoming, which have another incoming as their subset
+		//        MINUS the number of those incoming, which have another incoming as their subset
 		// - A node cannot have an outgoing tree id that has another outgoing treeid as its subset (loop prevention)
 
-		// Get one of the treeids that a parent term has
+		// get one of the treeids that a parent term has
 		if (is_null($majorid)) {
 			$parents_treeid = '';
 		} else {
@@ -724,7 +722,7 @@ class Thesaurus extends Asset
 
 			if (is_null($free_childid)) {
 				// no max, we must be the first
-				if (($free_childid = asset_link_treeid_convert(0, true)) === false) {
+				if (($free_childid = asset_link_treeid_convert(0, TRUE)) === FALSE) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
 				}
@@ -734,11 +732,11 @@ class Thesaurus extends Asset
 				// get only the child part
 				$free_childid = substr($free_childid, -1 * SQ_CONF_ASSET_TREE_SIZE);
 
-				if (($child_num = asset_link_treeid_convert($free_childid, false)) === false) {
+				if (($child_num = asset_link_treeid_convert($free_childid, FALSE)) === FALSE) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
 				}
-				if (($free_childid = asset_link_treeid_convert($child_num + 1, true)) === false) {
+				if (($free_childid = asset_link_treeid_convert($child_num + 1, TRUE)) === FALSE) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
 				}
@@ -966,7 +964,7 @@ class Thesaurus extends Asset
 			';
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
-		}
+		}//end foreach $new_treeids
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
@@ -1008,7 +1006,7 @@ class Thesaurus extends Asset
 			if (is_null($parentid)) return null;
 		}
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// determine what to use for a linkid
 		if (!is_null($manual_linkid)) {
@@ -1093,7 +1091,7 @@ class Thesaurus extends Asset
 		// Thesaurus Tree Ids conditions:
 		// - Every link has at least one tree id
 		// - Every node has as many outgoing as incoming treeids
-		//		MINUS the number of those incoming, which have another incoming as their subset
+		//        MINUS the number of those incoming, which have another incoming as their subset
 		// - A node cannot have an outgoing tree id that has another outgoing treeid as its subset (loop prevention)
 
 		// Get one of the treeids that a parent term has
@@ -1184,7 +1182,7 @@ class Thesaurus extends Asset
 
 			if (is_null($free_childid)) {
 				// no max, we must be the first
-				if (($free_childid = asset_link_treeid_convert(0, true)) === false) {
+				if (($free_childid = asset_link_treeid_convert(0, TRUE)) === FALSE) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
 				}
@@ -1194,11 +1192,11 @@ class Thesaurus extends Asset
 				// get only the child part
 				$free_childid = substr($free_childid, -1 * SQ_CONF_ASSET_TREE_SIZE);
 
-				if (($child_num = asset_link_treeid_convert($free_childid, false)) === false) {
+				if (($child_num = asset_link_treeid_convert($free_childid, FALSE)) === FALSE) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
 				}
-				if (($free_childid = asset_link_treeid_convert($child_num + 1, true)) === false) {
+				if (($free_childid = asset_link_treeid_convert($child_num + 1, TRUE)) === FALSE) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
 				}
@@ -1426,7 +1424,7 @@ class Thesaurus extends Asset
 			';
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
-		}
+		}//end foreach $new_treeids
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
@@ -1437,7 +1435,7 @@ class Thesaurus extends Asset
 	/**
 	* Update term name and relation
 	*
-	* Returns true on success, false on failure
+	* Returns TRUE on success, FALSE on failure
 	*
 	* @param int	$termid	link id to update
 	* @param string	$name	the name of term
@@ -1451,10 +1449,10 @@ class Thesaurus extends Asset
 		$term = $this->getTermById($termid);
 
 		// if nothing has changed, no need to do any work
-		if ($term['term'] == $name) return true;
+		if ($term['term'] == $name) return TRUE;
 
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 
 		// if the new name is being used by another term, do not update
@@ -1462,7 +1460,7 @@ class Thesaurus extends Asset
 		// do we merge this term's children with the others' or do we only use our children or theirs?
 		if ($this->isTerm($name)) {
 			trigger_localised_error('CORE0239', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 
@@ -1484,7 +1482,7 @@ class Thesaurus extends Asset
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		return TRUE;
 
 	}//end updateTerm()
 
@@ -1492,7 +1490,7 @@ class Thesaurus extends Asset
 	/**
 	* Renames all instances of $relation to $new_relation
 	*
-	* Returns true on success, false on failure
+	* Returns TRUE on success, FALSE on failure
 	*
 	* @param string	$relation		relation to rename
 	* @param string	$new_relation	the desired new relation
@@ -1505,12 +1503,12 @@ class Thesaurus extends Asset
 		// Ensure the new name is not already in use
 
 		if (array_search($new_relation, $this->getActiveRelations())!== FALSE) {
-			//can't rename an existing term
+			// can't rename an existing term
 			$this->_tmp['error'][] = translate('thesaurus_new_relation_in_use');
-			return false;
+			return FALSE;
 		}
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// Update relations
 		$sql = '
@@ -1546,17 +1544,17 @@ class Thesaurus extends Asset
 		if (empty($relation)) $relation = null;
 
 		$link_info = $this->getTermLinkById($linkid);
-		if (is_null($link_info)) return false;
+		if (is_null($link_info)) return FALSE;
 
-		if ($link_info['relation'] == $relation) return true;
+		if ($link_info['relation'] == $relation) return TRUE;
 
 		$existing_linkid = $this->getTermLinkid($link_info['minor'], $link_info['major'], $relation);
 		if (!is_null($existing_linkid)) {
 			trigger_localised_error('CORE0242', E_USER_WARNING, $linkid, $link_info['relation'], $relation, $existing_linkid);
-			return false;
+			return FALSE;
 		}
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			UPDATE
@@ -1572,7 +1570,7 @@ class Thesaurus extends Asset
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
-		return true;
+		return TRUE;
 
 	}//end renameLinkRelation()
 
@@ -1589,7 +1587,7 @@ class Thesaurus extends Asset
 	*/
 	function getTermById($termid)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -1621,7 +1619,7 @@ class Thesaurus extends Asset
 	*/
 	function getTermByLinkId($linkid)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -1656,7 +1654,7 @@ class Thesaurus extends Asset
 	*/
 	function getTermLinkById($linkid)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -1690,7 +1688,7 @@ class Thesaurus extends Asset
 	*/
 	function getTermLinkid($name, $parent=null, $relation=null)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -1727,7 +1725,7 @@ class Thesaurus extends Asset
 	*/
 	function getTermLinkByTermids($termid, $parentid=null, $relation=null)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -1766,7 +1764,7 @@ class Thesaurus extends Asset
 	*/
 	function getTermIdByName($name)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$name = strtolower($name);
 
@@ -1799,10 +1797,10 @@ class Thesaurus extends Asset
 	*/
 	function isTerm($term=null)
 	{
-		if (is_null($term)) return false;
+		if (is_null($term)) return FALSE;
 
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -1831,7 +1829,7 @@ class Thesaurus extends Asset
 	*/
 	function getActiveRelations()
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT DISTINCT
@@ -1869,10 +1867,10 @@ class Thesaurus extends Asset
 
 		if ($this->_deleteStoredContents() && $this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
+			return TRUE;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 	}//end erase()
@@ -1886,7 +1884,7 @@ class Thesaurus extends Asset
 	*/
 	function _deleteStoredContents()
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			DELETE FROM sq_thes_term WHERE thesid = '.$db->quoteSmart($this->id).';
@@ -1898,7 +1896,7 @@ class Thesaurus extends Asset
 		assert_valid_db_result($result);
 
 		$this->markContentsChanged();
-		return true;
+		return TRUE;
 
 	}//end _deleteStoredContents()
 
@@ -1947,7 +1945,7 @@ class Thesaurus extends Asset
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($shadowid, $type_code='', $mute_errors=false)
+	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
 	{
 		$asset = null;
 
@@ -2051,7 +2049,7 @@ class Thesaurus extends Asset
 	* @return array
 	* @access public
 	*/
-	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=true, $field='')
+	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=TRUE, $field='')
 	{
 		$info_array = Array();
 
@@ -2138,7 +2136,7 @@ class Thesaurus extends Asset
 	* @return array
 	* @access public
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=null)
 	{
 		return Array();
 
@@ -2166,7 +2164,7 @@ class Thesaurus extends Asset
 	* @return array
 	* @access public
 	*/
-	function getLink($assetid, $link_type=null, $type_code='', $strict_type_code=true, $value=null, $side_of_link='major', $exclusive=null)
+	function getLink($assetid, $link_type=null, $type_code='', $strict_type_code=TRUE, $value=null, $side_of_link='major', $exclusive=null)
 	{
 		log_dump();
 		return Array();
@@ -2194,7 +2192,7 @@ class Thesaurus extends Asset
 	* @return array
 	* @access public
 	*/
-	function getLinkByAsset($assetid, $other_assetid, $link_types=null, $value=null, $side_of_link='major', $force_array=false, $dependant=null, $exclusive=null)
+	function getLinkByAsset($assetid, $other_assetid, $link_types=null, $value=null, $side_of_link='major', $force_array=FALSE, $dependant=null, $exclusive=null)
 	{
 		$major_parts = explode(':',$assetid);
 		$majorid = array_get_index($major_parts, 1, null);
@@ -2277,7 +2275,7 @@ class Thesaurus extends Asset
 	* Where:
 	*   link_type   = SQ_LINK_TYPE_1|SQ_LINK_TYPE_2|SQ_LINK_TYPE_3|SQ_LINK_NOTICE
 	*   cardinality = [max number of links]|'M'
-	*   exclusive   = true|false
+	*   exclusive   = TRUE|FALSE
 	*
 	* @return array
 	* @access private
@@ -2289,7 +2287,7 @@ class Thesaurus extends Asset
 				SQ_LINK_TYPE_2	=> Array(
 									'thesaurus_term'	=> Array(
 															'card'		=> 'M',
-															'exclusive'	=> false,
+															'exclusive'	=> FALSE,
 														   ),
 								   ),
 				SQ_LINK_TYPE_3	=> Array(),
@@ -2310,6 +2308,9 @@ class Thesaurus extends Asset
 	*										of the array values
 	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
 	*										or $type_code and any of it's sub-classes
+	* @param boolean	$dependant			if TRUE, results will be filtered to assets that are dependants.
+	*										If FALSE, results will all not be dependants.
+	*										If NULL, results will not be filtered
 	* @param string		$sort_by			a field in the asset table you would like the results
 	*										sorted by (eg. name, short_name etc)
 	*
@@ -2317,15 +2318,30 @@ class Thesaurus extends Asset
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=TRUE, $sort_by=NULL)
 	{
 		return Array();
+
 	}//end getChildren()
 
 
-	function getParents($assetid, $type_code='', $strict_type_code=true)
+	/**
+	* Get all asset ids that are above the passed assetid in the various trees in which it exists
+	*
+	* It returns Array(int => string)	returns an array of assetids and their type code
+	*
+	* @param int			$assetid			the id of the asset to get its parents for
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
+	*											if an array returns link if matches any of the array values
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	*
+	* @return array
+	* @access public
+	*/
+	function getParents($assetid, $type_code='', $strict_type_code=TRUE)
 	{
-		if (strpos(':', $assetid) !== false) {
+		if (strpos(':', $assetid) !== FALSE) {
 			list($realid, $shadowid) = explode(':', $assetid);
 			$parents = Array($realid => $this->type());
 			$parents += $GLOBALS['SQ_SYSTEM']->am->getParents($realid, $type_code, $strict_type_code);
@@ -2355,7 +2371,7 @@ class Thesaurus extends Asset
 	* @return string
 	* @access public
 	*/
-	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0', $moving=false)
+	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0', $moving=FALSE)
 	{
 		$major_parts = explode(':',$major->id);
 		$majorid = array_get_index($major_parts, 1);
@@ -2383,13 +2399,13 @@ class Thesaurus extends Asset
 			$link_info = $this->getTermLinkByTermids($minorid, $majorid, $relation);
 			if (!is_null($link_info)) {
 				trigger_localised_error('CORE0240');
-				return false;
+				return FALSE;
 			}
 		}
 
 		$term_linkid = $this->_linkTerms($minorid, $majorid, $relation, $sort_order);
 
-		if (is_null($term_linkid)) return false;
+		if (is_null($term_linkid)) return FALSE;
 
 		return $this->id.':'.$term_linkid;
 
@@ -2401,24 +2417,25 @@ class Thesaurus extends Asset
 	*
 	* @param int		$assetid		the assetid for asset whose permissions to get
 	* @param string		$permission		the permission code you are getting
-	* @param boolean	$granted		type of Access : null = all, true = granted, false = denied
+	* @param boolean	$granted		type of Access : null = all, TRUE = granted, FALSE = denied
 	* @param boolean	$and_greater	get effective permission (eg read access = read
 	*									or write or admin)
 	* @param boolean	$expand_groups	expand user groups so only user ids get returned
-	*									(NOTE: only valid if $all_info is false)
-	* @param boolean	$all_info		when false fn just returns an array of userids for
+	*									(NOTE: only valid if $all_info is FALSE)
+	* @param boolean	$all_info		when FALSE fn just returns an array of userids for
 	*									those that have permission
-	*									When true fn returns all info about the permission in the form of
+	*									When TRUE fn returns all info about the permission in the form of
 	*									Array(userid => granted)
 	*									(NOTE: TRUE is only valid if $and_greater and
-	*									$expand_groups are false)
+	*									$expand_groups are FALSE)
 	*
 	* @return array
 	* @access public
 	*/
-	function getPermission($assetid, $permission, $granted=null, $and_greater=true, $expand_groups=false, $all_info=false)
+	function getPermission($assetid, $permission, $granted=null, $and_greater=TRUE, $expand_groups=FALSE, $all_info=FALSE)
 	{
 		return Array();
+
 	}//end getPermission()
 
 
@@ -2436,7 +2453,7 @@ class Thesaurus extends Asset
 		if ($this->attr('contents_changed')) return;
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-		$this->setAttrValue('contents_changed',true);
+		$this->setAttrValue('contents_changed',TRUE);
 		$this->saveAttributes();
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
@@ -2466,7 +2483,7 @@ class Thesaurus extends Asset
 	* @return int
 	* @access public
 	*/
-	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=true, $ignore_linkid=0)
+	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
 	{
 
 		$id_parts = explode(':', $assetid);
@@ -2496,13 +2513,13 @@ class Thesaurus extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function deleteAssetLink($linkid, $moving=false)
+	function deleteAssetLink($linkid, $moving=FALSE)
 	{
 		$link_parts = explode(':', $linkid);
 		if (isset($link_parts[1])) {
 			$this->deleteTermLink($link_parts[1]);
 		}
-		return true;
+		return TRUE;
 
 	}//end deleteAssetLink()
 
@@ -2517,9 +2534,9 @@ class Thesaurus extends Asset
 	*/
 	function deleteTermLink($linkid)
 	{
-		if (empty($linkid)) return false;
+		if (empty($linkid)) return FALSE;
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// get the list of child linkids that MAY be deleted
 		$sql = '
@@ -2577,7 +2594,7 @@ class Thesaurus extends Asset
 			foreach ($raw_links_to_delete as $id) {
 				$links_to_delete[$id] = $db->quoteSmart($id);
 			}
-		}
+		}//end if there are candidates to delete
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = '
@@ -2709,7 +2726,7 @@ class Thesaurus extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		return true;
+		return TRUE;
 
 	}//end deleteTermLink()
 
@@ -2728,6 +2745,7 @@ class Thesaurus extends Asset
 	function moveLink($linkid, $to_parentid, $link_type, $to_parent_pos)
 	{
 		log_dump();
+
 	}//end moveLink()
 
 
@@ -2748,22 +2766,22 @@ class Thesaurus extends Asset
 	function updateLink($linkid, $link_type=null, $value=null, $new_sort_order=null)
 	{
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$linkid_parts = explode(':', $linkid);
 		if (!isset($linkid_parts[1]) || ($linkid_parts[0] != $this->id)) {
-			return false;
+			return FALSE;
 		}
 
 		$term_linkid = $linkid_parts[1];
 		$link_info = $this->getTermLinkById($term_linkid);
-		if (empty($term)) return false;
+		if (empty($term)) return FALSE;
 
 		$current_sort_order = $link_info['sort_order'];
 		$parentid = $link_info['major'];
 
 		if ($current_sort_order == $new_sort_order) {
-			return true;
+			return TRUE;
 		}
 
 		$max_sort_order = $this->getMaxSortOrder($parentid);
@@ -2823,7 +2841,7 @@ class Thesaurus extends Asset
 			assert_valid_db_result($result);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		return true;
+		return TRUE;
 
 	}//end updateLink()
 
@@ -2838,7 +2856,7 @@ class Thesaurus extends Asset
 	*/
 	function getMaxSortOrder($majorid=null)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -2869,7 +2887,7 @@ class Thesaurus extends Asset
 	*/
 	function getLineagesForTerm($termid)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// Get an array of arrays of lineages.
 		$sql = '
@@ -2936,10 +2954,11 @@ class Thesaurus extends Asset
 				parent_tree.treeid
 		';
 
-		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
+		$result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
 		assert_valid_db_result($result);
 
 		return $result;
+
 	}//end getLineagesForTerm()
 
 

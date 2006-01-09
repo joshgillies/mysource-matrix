@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.23 2005/09/13 00:02:48 lwright Exp $
+* $Id: search_folder.inc,v 1.24 2006/01/09 03:41:05 emcdonald Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -42,7 +42,7 @@ class Search_Folder extends Asset
 	*/
 	function Search_Folder($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Asset($assetid);
 
 	}//end constructor
@@ -51,12 +51,13 @@ class Search_Folder extends Asset
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
@@ -73,15 +74,16 @@ class Search_Folder extends Asset
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
-	* @return object Asset or null on error
+	* @return mixed object|null
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($shadowid, $type_code='', $mute_errors=false)
+	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
 	{
 		trigger_localised_error('SCH0010', E_USER_ERROR);
-		$null = null;
+		$null = NULL;
 		return $null;
+
 	}//end getAsset()
 
 
@@ -95,7 +97,7 @@ class Search_Folder extends Asset
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	* @param string			$side_of_link		Which side of the link this (the current) asset
 	*											is on ('major' or 'minor')
@@ -106,7 +108,7 @@ class Search_Folder extends Asset
 	* @access public
 	* @see Asset_Manager::getLinks()
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL)
 	{
 		assert_equals($assetid, $this->id, translate('sch_folder_only_own_links'));
 
@@ -115,7 +117,7 @@ class Search_Folder extends Asset
 			$links = Array();
 			$settings = $this->attr('settings');
 
-			$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+			$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 			$search_info = Array();
 			$search_info['limit'] = 100;
 			$search_info['requester'] = $this->id;
@@ -131,7 +133,7 @@ class Search_Folder extends Asset
 				// handle new search manager 'inherited types' rules
 				$type_code = array_flip($type_code);
 				foreach ($type_code as $this_type_code => $value) {
-					$type_code[$this_type_code] = true;
+					$type_code[$this_type_code] = TRUE;
 				}
 				$search_info['asset_types'] = $type_code;
 			}
@@ -194,7 +196,6 @@ class Search_Folder extends Asset
 	*
 	* @return array
 	* @access public
-	* @param bool	$short_name	whether
 	*/
 	function getAssetMapLinks()
 	{
@@ -203,7 +204,7 @@ class Search_Folder extends Asset
 			$links = Array();
 			$settings = $this->attr('settings');
 
-			$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+			$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 			$search_info = Array();
 			$search_info['limit'] = 100;
 			$search_info['field_logic'] = (isset($settings['logic'])) ? strtoupper($settings['logic']) : 'AND';
@@ -273,14 +274,14 @@ class Search_Folder extends Asset
 	* @param int			$assetid			the id of the asset to get its parents for
 	* @param string|array	$type_code			the type of asset that is linked (eg 'User', 'User_Group', etc)
 	*											if an array returns link if matches any of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return array(int)
+	* @return array
 	* @access public
 	* @see Asset_Manager::getParents()
 	*/
-	function getParents($assetid, $type_code='', $strict_type_code=true)
+	function getParents($assetid, $type_code='', $strict_type_code=TRUE)
 	{
 		assert_equals($assetid, $this->id, translate('sch_folder_only_own_links'));
 		return Array();
@@ -296,16 +297,19 @@ class Search_Folder extends Asset
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
+	* @param boolean		$dependant			if TRUE, results will be filtered to assets that are dependants.
+	*											If FALSE, results will all not be dependants.
+	*											If NULL, results will not be filtered
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	*
-	* @return array(int => string)	returns an array of assetids and their type code
+	* @return array
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
 	{
 		assert_equals($assetid, $this->id, translate('sch_folder_only_own_links'));
 		return Array();
@@ -325,6 +329,8 @@ class Search_Folder extends Asset
 	*/
 	function getLineageFromURL($assetid, $protocol, $url)
 	{
+		return Array();
+
 	}//end getLineageFromURL()
 
 

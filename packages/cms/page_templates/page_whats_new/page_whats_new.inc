@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.29 2005/11/29 22:34:23 lwright Exp $
+* $Id: page_whats_new.inc,v 1.30 2006/01/09 03:41:04 emcdonald Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -85,7 +85,7 @@ class Page_Whats_New extends Listing_Engine
 		// if we are showing an A-Z listing but the user has not selected a proper sort field,
 		// we will use the 'name' attribute of the asset to work out the listing
 		$letter_sort_by = 'name';
-		if ($group_by == 'letter'){
+		if ($group_by == 'letter') {
 			if (!empty($sort_info) && ($sort_info['type'] == 'field') && ($sort_info['params']['field'] == 'short_name')) {
 				$letter_sort_by = 'short_name';
 			}
@@ -93,7 +93,7 @@ class Page_Whats_New extends Listing_Engine
 
 		$children = Array();
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// this is the field in the database that we are using the specify that something is "new"
 		$field = $this->attr('date_field');
@@ -113,8 +113,8 @@ class Page_Whats_New extends Listing_Engine
 			$to =& new Asset_Attribute_DateTime();
 			$to->value = $ranges[$id]['newest_date'];
 		} else {
-			$from = &$this->getAttribute('date_range_from');
-			$to   = &$this->getAttribute('date_range_to');
+			$from =& $this->getAttribute('date_range_from');
+			$to   =& $this->getAttribute('date_range_to');
 		}
 
 		$from = $from->getISO8601();
@@ -166,8 +166,8 @@ class Page_Whats_New extends Listing_Engine
 		if ($this->attr('subs_only')) {
 			$links = Array();
 
-			foreach($root_asset_ids as $root_asset_id) {
-				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, $letter_sort_by, SQ_PERMISSION_READ);
+			foreach ($root_asset_ids as $root_asset_id) {
+				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), FALSE, 'major', null, null, null, $letter_sort_by, SQ_PERMISSION_READ);
 				$query['where'] .= $where;
 
 				// special case for A-Z listings because they require another field selected from the database
@@ -202,9 +202,9 @@ class Page_Whats_New extends Listing_Engine
 		} else {
 			$children = Array();
 
-			foreach($root_asset_ids as $root_asset_id) {
+			foreach ($root_asset_ids as $root_asset_id) {
 				$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
-				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), false, $letter_sort_by, SQ_PERMISSION_READ);
+				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, $letter_sort_by, SQ_PERMISSION_READ);
 				$query['where'] .= $where;
 
 				// special case for A-Z listings because they require another field selected from the database
@@ -216,7 +216,7 @@ class Page_Whats_New extends Listing_Engine
 				assert_valid_db_result($new_kids);
 
 				// can't use array_merge() because we need to save the key (assetid);
-				foreach($new_kids as $kid_key => $kid_value) {
+				foreach ($new_kids as $kid_key => $kid_value) {
 					$children[$kid_key] = $kid_value;
 				}
 
@@ -277,8 +277,8 @@ class Page_Whats_New extends Listing_Engine
 	* )
 	* </pre>
 	*
+	* @return array
 	* @access public
-	* @return array(string => string)
 	*/
 	function _getContentsKeywords()
 	{
@@ -297,8 +297,8 @@ class Page_Whats_New extends Listing_Engine
 	/**
 	* Get Date Range List keyword replacement
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function getDateRangeListKeywordReplacement()
 	{
@@ -315,7 +315,7 @@ class Page_Whats_New extends Listing_Engine
 		$url = $_SERVER['PHP_SELF'];
 
 		ob_start();
-			combo_box($prefix.'_date_range', $names, false, $selected);
+			combo_box($prefix.'_date_range', $names, FALSE, $selected);
 			echo '&nbsp;';
 			$extras = 'var select = document.getElementById("'.$prefix.'_date_range"); document.location.href="'.$url.'?'.$prefix.'_date_range=" + select.selectedIndex;';
 			normal_button($prefix.'_date_range_submit', translate('go'), $extras);
@@ -331,8 +331,8 @@ class Page_Whats_New extends Listing_Engine
 	/**
 	* Get Date Range List Linked keyword replacement
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function getDateRangeListLinkedKeywordReplacement()
 	{

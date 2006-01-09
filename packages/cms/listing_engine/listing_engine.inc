@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.130 2006/01/02 22:30:57 lwright Exp $
+* $Id: listing_engine.inc,v 1.131 2006/01/09 03:41:04 emcdonald Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.130 $
+* @version $Revision: 1.131 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -57,12 +57,12 @@ class Listing_Engine extends Page
 	*
 	* @var boolean
 	*/
-	var $requires_form = false;
+	var $requires_form = FALSE;
 
 
 	function Listing_Engine($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Page($assetid);
 
 	}//end constructor
@@ -80,7 +80,7 @@ class Listing_Engine extends Page
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!parent::_createAdditional($link)) return false;
+		if (!parent::_createAdditional($link)) return FALSE;
 
 		// add a bodycopy to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
@@ -98,7 +98,7 @@ class Listing_Engine extends Page
 			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 			$asset->setAttrValue('name', ucwords(str_replace('_',' ', $name)));
-			if (!$asset->create($copy_link)) return false;
+			if (!$asset->create($copy_link)) return FALSE;
 
 			if ($name == 'type_formats') $type_formats = $asset;
 
@@ -108,7 +108,7 @@ class Listing_Engine extends Page
 		$asset =& new Bodycopy();
 		$copy_link = Array('asset' => &$type_formats, 'value' => 'default_format' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', translate('default_format'));
-		if (!$asset->create($copy_link)) return false;
+		if (!$asset->create($copy_link)) return FALSE;
 
 		return $this->_createBodycopies();
 
@@ -129,13 +129,13 @@ class Listing_Engine extends Page
 		$asset =& new Bodycopy();
 		$copy_link = Array('asset' => &$this, 'value' => 'page_contents' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', 'Page Contents');
-		if (!$asset->create($copy_link)) return false;
+		if (!$asset->create($copy_link)) return FALSE;
 
-		if (!$this->createNoResultsBodycopy(true)) {
-			return false;
+		if (!$this->createNoResultsBodycopy(TRUE)) {
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _createBodycopies()
 
@@ -184,10 +184,10 @@ class Listing_Engine extends Page
 		// if a bodycopy is linking to us then we need to make it a dependant link
 		if ($side_of_link == 'major' && is_a($asset, 'bodycopy') && $dependant != '1') {
 			$dependant = '1';
-			return true;
+			return TRUE;
 		}
 
-		return false;
+		return FALSE;
 
 	}//end prepareLink()
 
@@ -225,22 +225,22 @@ class Listing_Engine extends Page
 	*/
 	function isDeletableLink($linkid)
 	{
-		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'type_formats');
+		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'type_formats');
 		if ($folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
 			return translate('cms_listing_cannot_delete_type_formats_link', str_replace('_',' ', $this->type()));
 		}
 
-		$asset_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'position_formats');
+		$asset_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'position_formats');
 		if ($asset_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
 			return translate('cms_listing_cannot_delete_position_formats_link', str_replace('_',' ', $this->type()));
 		}
 
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
 		if ($bodycopy_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
 			return translate('cms_cannot_delete_link', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		}
 
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'no_results');
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'no_results');
 		if ($bodycopy_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
 			return translate('cms_cannot_delete_link', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		}
@@ -260,12 +260,10 @@ class Listing_Engine extends Page
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['folder']   = Array('card' => 'M', 'exclusive' => false);
-		$page_links[SQ_LINK_NOTICE]['asset']    = Array('card' => 'M', 'exclusive' => false);
-		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 2,   'exclusive' => false);
-		$page_links[SQ_LINK_TYPE_3]['bodycopy'] = Array('card' => 1,   'exclusive' => false);
-		//$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 2,   'exclusive' => true);
-		//$page_links[SQ_LINK_TYPE_3]['bodycopy'] = Array('card' => 1,   'exclusive' => true);
+		$page_links[SQ_LINK_TYPE_2]['folder']   = Array('card' => 'M', 'exclusive' => FALSE);
+		$page_links[SQ_LINK_NOTICE]['asset']    = Array('card' => 'M', 'exclusive' => FALSE);
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 2,   'exclusive' => FALSE);
+		$page_links[SQ_LINK_TYPE_3]['bodycopy'] = Array('card' => 1,   'exclusive' => FALSE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -282,10 +280,10 @@ class Listing_Engine extends Page
 	function &getFolder($type='type_formats')
 	{
 		$null = null;
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, $type);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, $type);
 		if (empty($link)) return $null;
 
-		$folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		$folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		if (is_null($folder)) return $null;
 
 		return $folder;
@@ -306,8 +304,8 @@ class Listing_Engine extends Page
 	function getFormats($type='type_formats')
 	{
 		if (!isset($this->_tmp['formats'][$type])) {
-			$folder = &$this->getFolder($type);
-			$format_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true);
+			$folder =& $this->getFolder($type);
+			$format_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE);
 			if (empty($format_links)) return Array();
 
 			$formats = Array();
@@ -349,13 +347,13 @@ class Listing_Engine extends Page
 		if (!empty($used_fields) || !empty($selections) || $this->requires_form) {
 
 			// include the 'select all' js if required
-			$using_select_all = false;
+			$using_select_all = FALSE;
 			foreach ($selections as $selection_name => $selection_settings) {
 				if (array_get_index($selection_settings, 'type', null) == 'radio' && !empty($selection_settings['options']['allow_multiple'])) {
 					?>
 					<script type="text/javascript" src="<?php echo sq_web_path('data') ?>/asset_types/listing_engine/js/select_all.js"></script>
 					<?php
-					$using_select_all = true;
+					$using_select_all = TRUE;
 					break;
 				}
 			}
@@ -399,18 +397,18 @@ class Listing_Engine extends Page
 
 		$cached_contents = '';
 		if (!empty($cache_key)) {
-			$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 			$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
 		}
 
 		// if the cache is empty, go ahead and regenerate a new version
 		if (empty($cached_contents)) {
 
-			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
-			if (empty($bodycopy_link)) return false;
+			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
+			if (empty($bodycopy_link)) return FALSE;
 
-			$format_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
-			if (is_null($format_bodycopy)) return false;
+			$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+			if (is_null($format_bodycopy)) return FALSE;
 
 			require_once SQ_FUDGE_PATH.'/general/text.inc';
 			$keywords = $format_bodycopy->getKeywords();
@@ -630,7 +628,7 @@ class Listing_Engine extends Page
 		$sort_assets = Array();
 
 		// default to a numeric sort until we are proven otherwise
-		$sort_numeric = true;
+		$sort_numeric = TRUE;
 
 		// check and prepare sorting data
 		$is_sort_by_attribute = ($sort_info['type'] == 'asset_attrib');
@@ -647,10 +645,10 @@ class Listing_Engine extends Page
 
 			foreach ($this->attr('types') as $type_code => $inherit) {
 				// initially we plan not to process this type code
-				$process = false;
+				$process = FALSE;
 
 				if ($type_code == $sort_by_type_code) {
-					$process = true;
+					$process = TRUE;
 
 				} else {
 					if ($inherit) {
@@ -660,7 +658,7 @@ class Listing_Engine extends Page
 
 						foreach ($type_anc as $this_type_code) {
 							if ($this_type_code == $sort_by_type_code) {
-								$process = true;
+								$process = TRUE;
 								break;
 							}
 						}
@@ -674,7 +672,7 @@ class Listing_Engine extends Page
 				// if we don't, we'll have to come back to it as a skipped asset
 				if ($process) {
 					if (!in_array($sort_params['attr_type'], Array('int', 'float'))) {
-						$sort_numeric = false;
+						$sort_numeric = FALSE;
 					}
 
 					$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName($sort_by_attr, $sort_by_type_code, $rem_assetids);
@@ -682,7 +680,7 @@ class Listing_Engine extends Page
 						if (isset($attr_info[$assetid])) {
 							$sort_assets[$assetid] = strtolower($attr_info[$assetid]);
 
-							if (($pos = array_search($assetid, $skipped_assets)) !== false) {
+							if (($pos = array_search($assetid, $skipped_assets)) !== FALSE) {
 								unset($skipped_assets[$pos]);
 							}
 						}
@@ -694,11 +692,11 @@ class Listing_Engine extends Page
 					// of used type codes
 					$skipped_assets = array_merge($skipped_assets, $rem_assetids);
 				}
-			}
+			}//end foreach
 		} else if ($is_sort_by_metadata) {
 			// Sort by Metadata field
-			$sort_numeric = false;
-			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$sort_numeric = FALSE;
+			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$fieldid = $sort_info['field'];
 
 			if (isset($sort_info['field'])) {
@@ -712,7 +710,7 @@ class Listing_Engine extends Page
 			}
 
 			foreach ($asset_list as $assetid => $type) {
-				$meta_field_val = $mm->getMetadataValueByAssetid($assetid,$fieldid,true);
+				$meta_field_val = $mm->getMetadataValueByAssetid($assetid,$fieldid,TRUE);
 				$field_value = $field_default_val;
 
 				if (isset($meta_field_val)) {
@@ -732,16 +730,16 @@ class Listing_Engine extends Page
 
 		} else {
 			$sort_field = $sort_params['field'];
-			//no sorting is required. So return the assetlist
+			// no sorting is required. So return the assetlist
 			if ($sort_field == 'no_sorting') return $asset_list;
 
 			if (in_array($sort_field, $this->getSortableAssetInfo())) {
-				$sort_assets = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, null, true, $sort_field);
+				$sort_assets = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, null, TRUE, $sort_field);
 				for (reset($sort_assets); null !== ($assetid = key($sort_assets)); next($sort_assets)) {
 					$sort_assets[$assetid] = strtolower($sort_assets[$assetid]);
 				}
 
-				if ($sort_field != 'assetid') $sort_numeric = false;
+				if ($sort_field != 'assetid') $sort_numeric = FALSE;
 			}
 
 		}
@@ -831,7 +829,7 @@ class Listing_Engine extends Page
 	*/
 	function filterAssetStatuses(&$todo)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$todo_keys = array_keys($todo);
 		for (reset($todo_keys); null !== ($key = key($todo_keys)); next($todo_keys)) {
 			$todo_keys[$key] = $db->quoteSmart((string) $todo_keys[$key]);
@@ -844,7 +842,7 @@ class Listing_Engine extends Page
 		$shadow_assets = Array();
 		$dummy_to_do = array_keys($todo);
 		foreach ($todo as $key => $value) {
-			if (strpos($key, ':') !== false) {
+			if (strpos($key, ':') !== FALSE) {
 				$shadow_assets[$key] = $value;
 				foreach ($dummy_to_do as $index => $key_new) {
 					if ($key_new == $key) {
@@ -904,7 +902,7 @@ class Listing_Engine extends Page
 
 			foreach ($wanted_assets as $wanted) {
 				foreach ($shadow_assets as $key => $value) {
-					if (strpos($key, $wanted) !== false) {
+					if (strpos($key, $wanted) !== FALSE) {
 						$wanted_assets[] = $key;
 					}
 				}
@@ -913,7 +911,7 @@ class Listing_Engine extends Page
 
 		foreach ($todo as $assetid => $v) {
 			if (isset($wanted_assets[$assetid])) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $wanted_assets[$assetid]);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $wanted_assets[$assetid]);
 				if (!$asset->readAccess()) unset($todo[$assetid]);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
@@ -989,7 +987,7 @@ class Listing_Engine extends Page
 			} else if (!$inherit) {
 				$allowed_asset_map[$allowed_parent_type] = $allowed_parent_type;
 			} else {
-				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($allowed_parent_type, true);
+				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($allowed_parent_type, TRUE);
 				foreach ($descendants as $allowed_type) {
 					if (!isset($allowed_asset_map[$allowed_type])) {
 						$allowed_asset_map[$allowed_type] = $allowed_parent_type;
@@ -1102,7 +1100,7 @@ class Listing_Engine extends Page
 			case 'number' :
 				// do it CHUNK Noris style
 				if ($num_per_page > 0) {
-					$chunks = array_chunk($children, $num_per_page, true);
+					$chunks = array_chunk($children, $num_per_page, TRUE);
 				} else {
 					$chunks = Array('0' => $children);
 				}
@@ -1242,18 +1240,18 @@ class Listing_Engine extends Page
 			break;
 
 			case 'grouped' :
-				//we need to do an element count so we can work out the page stuff
+				// we need to do an element count so we can work out the page stuff
 				$total_assets = $this->_arrayCountRecursive($children, count($this->attr('asset_grouping')));
 				$count = $num_per_page * $result_page;
 
-				//if were showing all, make our count equal to all
+				// if were showing all, make our count equal to all
 				if ($count == 0) {
 					$num_per_page = $total_assets;
 					$count = $total_assets;
 				}
 
-				//get a chunk of the size were after, $todo will have the contents
-				//after the function call
+				// get a chunk of the size were after, $todo will have the contents
+				// after the function call
 				$todo = Array();
 
 				// chunk it hard, baby
@@ -1264,9 +1262,9 @@ class Listing_Engine extends Page
 					$num_per_page = count($todo);
 					$num_pages = 1;
 				} else {
-					$chunks = array_chunk($todo, $num_per_page, true);
+					$chunks = array_chunk($todo, $num_per_page, TRUE);
 					$num_pages = ceil($total_assets / $num_per_page);
-					//we want the last chunk
+					// we want the last chunk
 					$todo = end($chunks);
 				}
 
@@ -1335,7 +1333,7 @@ class Listing_Engine extends Page
 	*/
 	function _groupChunk(&$todo, &$chunk, &$remaining_count, $num_per_page, $group_limit=null)
 	{
-		//keep calling this for each group until we get to the actual assets
+		// keep calling this for each group until we get to the actual assets
 		if (($group_limit > 0) || is_null($group_limit)) {
 			foreach ($todo as $index => $child) {
 				if ($remaining_count >= 0) {
@@ -1380,12 +1378,12 @@ class Listing_Engine extends Page
 
 		$this->_tmp['assets_info']    = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
 
-		$type_folder = &$this->getFolder('type_formats');
+		$type_folder =& $this->getFolder('type_formats');
 		$this->_tmp['type_folder_id'] = $type_folder->id;
 
 		$this->_tmp['position_formats'] = Array();
-		$position_folder = &$this->getFolder('position_formats');
-		$format_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($position_folder->id, SQ_LINK_TYPE_2, 'bodycopy', true);
+		$position_folder =& $this->getFolder('position_formats');
+		$format_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($position_folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE);
 		foreach ($format_links as $link_data) {
 			$position = substr($link_data['value'], 9);
 			$this->_tmp['position_formats'][$position] = $link_data['minorid'];
@@ -1447,7 +1445,7 @@ class Listing_Engine extends Page
 							$group_name = $asset->attr('name');
 							foreach ($format_keywords as $format_keyword) {
 								$pos = strpos($format_keyword, 'group');
-								if ($pos === false) {
+								if ($pos === FALSE) {
 									$keyword = substr_replace($format_keyword, 'asset', 0, 6);
 									$replacements[$format_keyword] = $asset->getKeywordReplacement($keyword);
 								}
@@ -1513,7 +1511,7 @@ class Listing_Engine extends Page
 							$onclick = Array();
 							$group_cb_id  = 'g_'.implode('_', $this->_tmp['group_info']);
 							$control_name = make_valid_html_id(str_replace(' ', '_', $selection_name.$group_cb_id));
-							check_box($control_name, '1', false, 'sq_listing_check_state(this, \''.$selection_name.'\')');
+							check_box($control_name, '1', FALSE, 'sq_listing_check_state(this, \''.$selection_name.'\')');
 							$replacements[$selection_name.'_check_all_in_group'] = ob_get_clean();
 							$replacements[$selection_name.'_selection_id'] = $control_name;
 						}
@@ -1648,12 +1646,12 @@ class Listing_Engine extends Page
 		$asset_info_fields = $this->getSortableAssetInfo();
 		$bodycopy = null;
 
-		//if a ':' exists in the assetid, then it is a shadow asset
+		// if a ':' exists in the assetid, then it is a shadow asset
 		$is_shadow = strpos($assetid, ':');
 
 		// we can get the type code from the asset info array
-		//if the asset info array is empty then there is a possibility that we are trying to print a shadow asset
-		//so we load the asset and get its typecode
+		// if the asset info array is empty then there is a possibility that we are trying to print a shadow asset
+		// so we load the asset and get its typecode
 		$type_code = null;
 		$info = array_get_index($this->_tmp['assets_info'], $assetid, Array('type_code' => ''));
 		if (!empty($info['type_code'])) {
@@ -1664,7 +1662,7 @@ class Listing_Engine extends Page
 		}
 		// check to see if there is a specific position format for us
 		if (isset($this->_tmp['position_formats'][$list_position])) {
-			$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_tmp['position_formats'][$list_position], 'bodycopy');
+			$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_tmp['position_formats'][$list_position], 'bodycopy');
 		}//end if has position format
 
 		// if we can't find a position format
@@ -1679,10 +1677,10 @@ class Listing_Engine extends Page
 				$parent = null;
 				$parents = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
 
-				if (($type_key = array_search($type_code, $customised)) === false) {
+				if (($type_key = array_search($type_code, $customised)) === FALSE) {
 					foreach ($parents as $parent) {
 						// any of parent in the custom format?
-						if (array_search($parent, $customised) !== false) {
+						if (array_search($parent, $customised) !== FALSE) {
 							$this->_tmp['type_formats'][$type_code] = $parent;
 							$type_key = array_search($this->_tmp['type_formats'][$type_code], $customised);
 							$type_code = $parent;
@@ -1690,10 +1688,10 @@ class Listing_Engine extends Page
 					}
 				}
 			}
-			if (isset($type_key) && $type_key !== false) {
-				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, $type_code);
+			if (isset($type_key) && $type_key !== FALSE) {
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', TRUE, $type_code);
 				if ($link) {
-					$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
+					$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
 				} else {
 					$this->_tmp['is_default'][] = $type_code;
 				}
@@ -1703,9 +1701,9 @@ class Listing_Engine extends Page
 
 		// if no bodycopy found, try the default format
 		if (is_null($bodycopy)) {
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'default_format');
 			if ($link) {
-				$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
+				$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
 			} else {
 				// TODO: localise
 				trigger_error('Cannot Find the Default Bodycopy');
@@ -1715,22 +1713,22 @@ class Listing_Engine extends Page
 
 
 		// by the time we reach this point we already have a bodycopy for this asset
-		$this_needs_asset = false;
+		$this_needs_asset = FALSE;
 		$bc_keywords = $bodycopy->getKeywords();
 		$keywords = Array();
-		//if the asset is a shadow asset  then get the keywords separately
+		// if the asset is a shadow asset  then get the keywords separately
 		if ($is_shadow) {
 			$keywords = $this->_getShadowAssetKeywordReplacements($assetid, $bc_keywords);
 		} else {
 			foreach ($bc_keywords as $keyword) {
 				if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
-					$this_needs_asset = true;
+					$this_needs_asset = TRUE;
 					break;
 				}
 			}
 
 			if ($this_needs_asset) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($asset)) return;
 				foreach ($bc_keywords as $keyword) {
 					$keywords[$keyword] = $asset->getKeywordReplacement($keyword);
@@ -1748,37 +1746,37 @@ class Listing_Engine extends Page
 				$keywords['asset_short_name_linked'] = '<a href="'.$asset->getUrl().'">'.$asset->short_name.'</a>';
 
 				if (in_array('asset_lineage', $bc_keywords) || in_array('asset_lineage_linked', $bc_keywords)) {
-					// There is a lineage keyword in the bodycopy
+					// there is a lineage keyword in the bodycopy
 					$lineage = '';
 					$linked_lineage = '';
-					$first = true;
-					$found_root = false;
+					$first = TRUE;
+					$found_root = FALSE;
 
-					//Prepare the url for getLineageFromUrl
+					// prepare the url for getLineageFromUrl
 					$nurl = $asset->getUrl();
 					$nurl = strip_url($nurl);
 					$nurl = stristr($nurl,'/');
 					$nurl = substr($nurl,2);
 
-					//No URL, have to use get Parents
+					// no URL, have to use get Parents
 					if (empty($nurl)) {
 
 						$parent_asset_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id));
 
 						// searching for the root asset
-						$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
+						$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', FALSE, 'root');
 						$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
 						foreach ($parent_asset_ids as $parent_asset_id) {
 							if ($parent_asset_id == $root_assetid) {
-								$found_root = true;
+								$found_root = TRUE;
 							}
 							if (!$found_root) continue;
 							if (!$first) {
 								$lineage .= $this->attr('lineage_seperator');
 								$linked_lineage .= $this->attr('lineage_seperator');
 							}
-							$first = false;
-							$ancestor_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_asset_id);
+							$first = FALSE;
+							$ancestor_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_asset_id);
 							$linked_lineage .= '<a href="'.$ancestor_asset->getUrl().'">'.$ancestor_asset->name.'</a>';
 							$lineage .= $ancestor_asset->short_name;
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ancestor_asset);
@@ -1787,17 +1785,17 @@ class Listing_Engine extends Page
 						$parent_assets = $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(null, $nurl);
 
 						// searching for the root asset
-						$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
+						$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', FALSE, 'root');
 						$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
 						$show_root = $this->attr('root_in_lineage');
-						$started = false;
+						$started = FALSE;
 						foreach ($parent_assets as $data) {
 							if ($data['assetid'] == $root_assetid) {
-								$found_root = true;
+								$found_root = TRUE;
 							}
 							if (!$found_root) continue;
 							if ($first && !$show_root) {
-								$first = false;
+								$first = FALSE;
 								continue;
 							}
 
@@ -1809,14 +1807,14 @@ class Listing_Engine extends Page
 							}
 							$linked_lineage .= '<a href="'.$data['protocol'].'://'.$data['url'].'">'.$data['short_name'].'</a>';
 							$lineage .= $data['short_name'];
-							$first = false;
+							$first = FALSE;
 						}
 
 						// We didn't find the search_root in the lineage, it's probably a file
 						// It is a valid lineage valid though, so lets print it, as it's better than the
 						// warning messages it used to spit out
 						if (!$found_root) {
-							$first = true;
+							$first = TRUE;
 							foreach ($parent_assets as $data) {
 								if (!$first && $lineage != '') {
 									$lineage .= $this->attr('lineage_seperator');
@@ -1824,7 +1822,7 @@ class Listing_Engine extends Page
 								}
 								$lineage .= $data['short_name'];
 								$linked_lineage .= '<a href="'.$data['protocol'].'://'.$data['url'].'">'.$data['short_name'].'</a>';
-								$first = false;
+								$first = FALSE;
 							}
 						}
 					}
@@ -1853,7 +1851,7 @@ class Listing_Engine extends Page
 			preg_match('/group([0-9]+)_(.*)/', $group_keyword, $matches);
 			if (isset($this->_tmp['group_levels'][$matches[1] - 1])) {
 				$parent_id = $this->_tmp['group_levels'][$matches[1] - 1];
-				if (assert_valid_assetid($parent_id, '', true, false)) {
+				if (assert_valid_assetid($parent_id, '', TRUE, FALSE)) {
 					// we have an assetid, so do what we want with the parent
 					switch ($matches[2]) {
 						case 'link_value':
@@ -1879,7 +1877,7 @@ class Listing_Engine extends Page
 		}
 		if (!empty($metadata_keywords)) {
 			if (is_null($mm)) {
-				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			}
 			// get all the metadata keywords for this asset
 			$metadata_values = $mm->getMetadataFieldValues($assetid, $metadata_keywords);
@@ -1935,9 +1933,9 @@ class Listing_Engine extends Page
 
 						if ($buffering) {
 							if ($selection_restrict_enable) {
-								int_text_box($selection_name_field, $selection_value, $selection_allow_negative, 3, $selection_restrict_min, $selection_restrict_max, '', false, 'id="'.$selection_id.'"');
+								int_text_box($selection_name_field, $selection_value, $selection_allow_negative, 3, $selection_restrict_min, $selection_restrict_max, '', FALSE, 'id="'.$selection_id.'"');
 							} else {
-								int_text_box($selection_name_field, $selection_value, $selection_allow_negative, 3, null, null, '', false, 'id="'.$selection_id.'"');
+								int_text_box($selection_name_field, $selection_value, $selection_allow_negative, 3, null, null, '', FALSE, 'id="'.$selection_id.'"');
 							}
 						}
 					break;
@@ -1974,22 +1972,22 @@ class Listing_Engine extends Page
 							$selection_id = make_valid_html_id(str_replace(' ', '_', $selection_name.'_'.$assetid), '_');
 
 							if ($buffering) {
-								check_box($selection_name_field, '1', ($selection_value > 0 ? true : false), "sq_listing_check_state(this, '".$selection_name."')", 'id="'.$selection_id.'"');
+								check_box($selection_name_field, '1', ($selection_value > 0 ? TRUE : FALSE), "sq_listing_check_state(this, '".$selection_name."')", 'id="'.$selection_id.'"');
 
 								// the flag is used to determine whether a checkbox is
 								// present and not ticked, or not present at all
-								//hidden_field($selection_name.'_flag', '1');
+								// hidden_field($selection_name.'_flag', '1');
 							}
 						} else {
 							$selection_name_field = str_replace(' ', '_', $selection_name);
 							$selection_id = make_valid_html_id(str_replace(' ', '_', $selection_name.'_'.$assetid), '_');
 
 							if ($buffering) {
-								radio_button($selection_name_field, $assetid, ($selection_value == $assetid ? true : false), '', 'id="'.$selection_id.'"');
+								radio_button($selection_name_field, $assetid, ($selection_value == $assetid ? TRUE : FALSE), '', 'id="'.$selection_id.'"');
 							}
 						}
 					break;
-				}
+				}//end switch
 
 				// set selection and its ids keywords
 				if ($buffering) {
@@ -1997,14 +1995,14 @@ class Listing_Engine extends Page
 				}
 				$keywords[$selection_name.'_selection_name'] = $selection_name_field;
 				$keywords[$selection_name.'_selection_id'] = $selection_id;
-			}
-		}
+			}//end foreach
+		}//end if
 
 		// print asset ID always
 		$keywords['asset_assetid'] = $assetid;
 
 		// kept for backwards compatibility
-		$keywords['result_no']  = &$keywords['asset_position'];
+		$keywords['result_no']  =& $keywords['asset_position'];
 		$keywords['root_nodes'] = implode(',', $this->getRootNodes());
 
 		$keywords += $this->getExtendedAssetKeywordReplacements();
@@ -2044,15 +2042,15 @@ class Listing_Engine extends Page
 		if (!isset($this->_tmp['root_asset_ids'])) {
 
 			$root_asset_ids = Array();
-			$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', false, 'major', 'root');
+			$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
 			foreach ($root_links as $root_link) {
-				if (strstr($root_link['minorid'], ':') !== false) {
+				if (strstr($root_link['minorid'], ':') !== FALSE) {
 					$root_asset_ids[] = $root_link['minorid'];
 				} else {
 					$root_asset_ids[] = (int)$root_link['minorid'];
 				}
 			}
-			$parameter_map = &$this->getAttribute('parameter_map');
+			$parameter_map =& $this->getAttribute('parameter_map');
 			$raw_dynamic_root_nodes = $parameter_map->getParameterValue('root_node');
 
 			// check if we have a dynamic parameter -- if so, let's do some security checks
@@ -2089,7 +2087,7 @@ class Listing_Engine extends Page
 				if (!empty($dynamic_root_nodes)) {
 					$root_asset_ids = $dynamic_root_nodes;
 				}
-			}
+			}//end if
 
 			if (empty($root_asset_ids)) {
 				$root_asset_ids = Array($this->id);
@@ -2097,7 +2095,7 @@ class Listing_Engine extends Page
 
 			$this->_tmp['root_asset_ids'] = $root_asset_ids;
 
-		}
+		}//end if
 
 		return $this->_tmp['root_asset_ids'];
 
@@ -2138,11 +2136,11 @@ class Listing_Engine extends Page
 		$sort_order = array_get_index($_REQUEST, $field_name);
 		switch ($sort_order) {
 			case '1':
-				$result = true;
+				$result = TRUE;
 			break;
 
 			case '0':
-				$result = false;
+				$result = FALSE;
 			break;
 			default:
 				$result = $this->attr('reverse_sort');
@@ -2281,7 +2279,7 @@ class Listing_Engine extends Page
 		}
 
 		// keep track of the last time we encountered a parent asset group
-		$last_parent_asset = false;
+		$last_parent_asset = FALSE;
 		$limit_array = Array();
 
 		foreach ($group_levels as $group_key => $group_level) {
@@ -2299,7 +2297,7 @@ class Listing_Engine extends Page
 			foreach ($asset_groups as $key => $group_data) {
 				$assetid = $group_data['assetid'];
 
-				if ($last_parent_asset === false) {
+				if ($last_parent_asset === FALSE) {
 					$current_parent = $assetid;
 				} else {
 					$current_parent = $group_data['group'][$last_parent_asset];
@@ -2314,17 +2312,16 @@ class Listing_Engine extends Page
 						// to what is set for leaf nodes
 						if (!is_null($min_depth) || !is_null($max_depth)) {
 
-							foreach($value as $key => $parent_assetid) {
+							foreach ($value as $key => $parent_assetid) {
 								if ($this->attr('direction') == 'down') {
-									$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($parent_assetid, '', false, null, null, $min_depth, $max_depth);
+									$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($parent_assetid, '', FALSE, NULL, NULL, $min_depth, $max_depth);
 								} else {
-									$parents = $GLOBALS['SQ_SYSTEM']->am->getChildren($parent_assetid, '', false, null, null, $min_depth, $max_depth);
+									$parents = $GLOBALS['SQ_SYSTEM']->am->getChildren($parent_assetid, '', FALSE, NULL, NULL, NULL, $min_depth, $max_depth);
 								}
 
 								$intersection = array_intersect(array_keys($parents), $root_nodes);
-								if (empty($intersection)) {
-									unset($value[$key]);
-								}
+								if (empty($intersection)) unset($value[$key]);
+
 							}
 						}
 
@@ -2343,7 +2340,7 @@ class Listing_Engine extends Page
 
 							$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_parent);
 							if (!is_null($parent_asset)) {
-								$value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, true);
+								$value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, TRUE);
 								$value = $metadata_field->getMetadataValue($parent_asset, $value);
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($current_parent->id);
 							}
@@ -2376,7 +2373,7 @@ class Listing_Engine extends Page
 					case 'attribute':
 						// implementation reserved
 					break;
-				}
+				}//end switch
 
 				if (!is_array($value)) {
 					$group_data['group'][$group_key] = $value;
@@ -2465,7 +2462,7 @@ class Listing_Engine extends Page
 	{
 		$root_nodes = $this->getRootNodes();
 
-		$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($child_assetid, $this->attr('link_types'), '', true, 'minor');
+		$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($child_assetid, $this->attr('link_types'), '', TRUE, 'minor');
 
 		$parent_link_assetids = Array();
 		foreach ($parent_links as $parent_link) {
@@ -2511,10 +2508,10 @@ class Listing_Engine extends Page
 	*/
 	function sortGroups($group_levels, $assetids, &$results)
 	{
-		//we need assets, so if none given, let's bail
+		// we need assets, so if none given, let's bail
 		if (empty($assetids)) return;
 
-		//point us at the first element, discarding it as we go
+		// point us at the first element, discarding it as we go
 		$group_type = array_shift($group_levels);
 
 		// sort the groups
@@ -2522,7 +2519,7 @@ class Listing_Engine extends Page
 			case 'parent_asset':
 				// find the info on the assets that are being used, sort by them,
 				// then re-order the results based upon them
-				$group_order = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($results), 'asset', false, array_get_index($group_type, 'sort_by', 'assetid'));
+				$group_order = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($results), 'asset', FALSE, array_get_index($group_type, 'sort_by', 'assetid'));
 
 				if (array_get_index($group_type, 'sort_order', 'asc') == 'asc') {
 					asort($group_order);
@@ -2560,10 +2557,10 @@ class Listing_Engine extends Page
 			case 'attribute':
 				// implementation reserved
 			break;
-		}
+		}//end switch
 
-		//if their are group levels remaining, we want to call
-		//this function again for each of the groups we have made
+		// if their are group levels remaining, we want to call
+		// this function again for each of the groups we have made
 		if (count($group_levels) > 0) {
 			foreach ($results as $index => $group) {
 				$this->sortGroups($group_levels, $group, $results[$index]);
@@ -2585,7 +2582,7 @@ class Listing_Engine extends Page
 		// if we have no group formats, it's not worth our time
 		$group_folder =& $this->getFolder('group_formats');
 		$groups = $this->attr('asset_grouping');
-		if (empty($groups)) return true;
+		if (empty($groups)) return TRUE;
 
 
 		// set forced run level because we want to change the names of these
@@ -2607,7 +2604,7 @@ class Listing_Engine extends Page
 
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		return TRUE;
 
 	}//end reindexGroupFormats()
 
@@ -2621,7 +2618,7 @@ class Listing_Engine extends Page
 	*/
 	function processAssetSelections()
 	{
-		return true;
+		return TRUE;
 
 	}//end processAssetSelections()
 
@@ -2727,8 +2724,8 @@ class Listing_Engine extends Page
 		if (!isset($this->_tmp['position_formats'])) {
 			$this->_tmp['position_formats'] = Array();
 
-			$position_folder = &$this->getFolder('position_formats');
-			$format_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($position_folder->id, SQ_LINK_TYPE_2, 'bodycopy', true);
+			$position_folder =& $this->getFolder('position_formats');
+			$format_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($position_folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE);
 			foreach ($format_links as $link_data) {
 				$position = substr($link_data['value'], 9);
 				$this->_tmp['position_formats'][$position] = $link_data['minorid'];
@@ -2757,15 +2754,15 @@ class Listing_Engine extends Page
 	{
 		$vars['keywords'] = isset($vars['keywords'])?$vars['keywords']:Array();
 
-		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
-		$parent_folders = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'folder', true);
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
+		$parent_folders = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'folder', TRUE);
 
 		// if we're being handled here (instead of one of our extensions),
 		// it must be from one of our format bodycopies, or something else altogether,
 		// so we'll try to find out which of the format types it is.
-		$group_folder = &$this->getFolder('group_formats');
-		$position_folder = &$this->getFolder('position_formats');
-		$type_folder = &$this->getFolder('type_formats');
+		$group_folder =& $this->getFolder('group_formats');
+		$position_folder =& $this->getFolder('position_formats');
+		$type_folder =& $this->getFolder('type_formats');
 
 		$keywords = Array();
 		if (in_array($group_folder->id, array_keys($parent_folders))) {
@@ -2798,6 +2795,7 @@ class Listing_Engine extends Page
 		}
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
+
 	}//end onRequestKeywords()
 
 
@@ -3091,7 +3089,7 @@ class Listing_Engine extends Page
 				$onclick = Array();
 				$group_cb_id  = 'all';
 				$control_name = str_replace(' ', '_', $selection_name.$group_cb_id);
-				check_box($control_name, '1', false, "sq_listing_check_state(this, '".$selection_name."')");
+				check_box($control_name, '1', FALSE, "sq_listing_check_state(this, '".$selection_name."')");
 				$replacements[$selection_name.'_check_all'] = ob_get_clean();
 				$replacements[$selection_name.'_selection_id'] = $control_name;
 			} else {
@@ -3132,7 +3130,7 @@ class Listing_Engine extends Page
 		}
 
 		ob_start();
-			combo_box($field_name, $options, false, $sort_by);
+			combo_box($field_name, $options, FALSE, $sort_by);
 		return ob_get_clean();
 
 	}//end getSortByKeywordReplacement()
@@ -3156,7 +3154,7 @@ class Listing_Engine extends Page
 				   );
 
 		ob_start();
-			combo_box($field_name, $options, false, (int)$this->isDescending());
+			combo_box($field_name, $options, FALSE, (int)$this->isDescending());
 		return ob_get_clean();
 
 	}//end getSortOrderKeywordReplacement()
@@ -3274,7 +3272,7 @@ class Listing_Engine extends Page
 	{
 		$options = $this->attr('structured_dropdown_options');
 
-		//Initial type_codes, before we check for inheritance
+		// initial type_codes, before we check for inheritance
 		$pass_codes = array_keys($options['asset_types']);
 		foreach ($options['asset_types'] as $code => $inherit) {
 			if ($inherit == 1) {
@@ -3284,7 +3282,7 @@ class Listing_Engine extends Page
 		$selected = (isset($_REQUEST[$options['name']])) ? Array($_REQUEST[$options['name']]) : Array();
 
 		ob_start();
-			structured_drop_down($options['name'], $options['root_node'], $pass_codes, $selected, $options['width'], $options['height'], $options['max_depth'], false, $options['seperator'], true, $options['all_text'], $this->attr('check_boxes'));
+			structured_drop_down($options['name'], $options['root_node'], $pass_codes, $selected, $options['width'], $options['height'], $options['max_depth'], FALSE, $options['seperator'], TRUE, $options['all_text'], $this->attr('check_boxes'));
 			$replacement = ob_get_contents();
 		ob_end_clean();
 		return $replacement;
@@ -3400,9 +3398,9 @@ class Listing_Engine extends Page
 			for (reset($rel['children']); null !== ($k = key($rel['children'])); next($rel['children'])) {
 				if (preg_match('|\[(.*)\]|', $rel['children'][$k], $matches)) {
 					$rel['children'][$k] = $matches[1];
-					$bracketed = true;
+					$bracketed = TRUE;
 				} else {
-					$bracketed = false;
+					$bracketed = FALSE;
 				}
 
 				if (is_numeric($rel['children'][$k])) {
@@ -3445,20 +3443,20 @@ class Listing_Engine extends Page
 	/**
 	* Creates the no-results bodycopy
 	*
-	* @param boolean	$enable_on_create	if true, will set the bodycopy to be enabled
-	*										(TYPE_2 link) when it is created. If false,
+	* @param boolean	$enable_on_create	if TRUE, will set the bodycopy to be enabled
+	*										(TYPE_2 link) when it is created. If FALSE,
 	*										creates it disabled (TYPE_3 link).
 	*
-	* @return boolean	indicating success (false if bodycopy already exists)
+	* @return boolean
 	* @access public
 	*/
-	function createNoResultsBodycopy($enable_on_create=true)
+	function createNoResultsBodycopy($enable_on_create=TRUE)
 	{
-		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', false, 'major', 'no_results'));
+		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', FALSE, 'major', 'no_results'));
 
 		// we already have a bodycopy link?!
 		if ($bodycopy_link) {
-			return false;
+			return FALSE;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 
@@ -3474,13 +3472,13 @@ class Listing_Engine extends Page
 						 );
 
 			$asset->setAttrValue('name', 'Page Contents (No Results)');
-			if (!$asset->create($copy_link)) return false;
+			if (!$asset->create($copy_link)) return FALSE;
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			unset($asset);
 		}
 
-		return true;
+		return TRUE;
 
 	}//end createNoResultsBodycopy()
 
@@ -3488,14 +3486,14 @@ class Listing_Engine extends Page
 	/**
 	* Returns the no-results bodycopy
 	*
-	* @param boolean	$only_if_enabled	if true, will return null if the bodycopy is
-	*										disabled. If false, will only return null if
+	* @param boolean	$only_if_enabled	if TRUE, will return null if the bodycopy is
+	*										disabled. If FALSE, will only return null if
 	*										never created.
 	*
-	* @return mixed	object|null
+	* @return mixed object|null
 	* @access public
 	*/
-	function &getNoResultsBodycopy($only_if_enabled=true)
+	function &getNoResultsBodycopy($only_if_enabled=TRUE)
 	{
 		$asset = null;
 
@@ -3505,7 +3503,7 @@ class Listing_Engine extends Page
 			$link_types = SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3;
 		}
 
-		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_types, 'bodycopy', false, 'major', 'no_results'));
+		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_types, 'bodycopy', FALSE, 'major', 'no_results'));
 
 		if ($bodycopy_link) {
 			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], 'bodycopy');
@@ -3526,12 +3524,12 @@ class Listing_Engine extends Page
 	{
 		$link_types = SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3;
 
-		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_types, 'bodycopy', false, 'major', 'no_results'));
+		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_types, 'bodycopy', FALSE, 'major', 'no_results'));
 
 		if ($bodycopy_link) {
 			return ($bodycopy_link['link_type'] == SQ_LINK_TYPE_2);
 		} else {
-			return false;
+			return FALSE;
 		}
 
 
@@ -3541,21 +3539,21 @@ class Listing_Engine extends Page
 	/**
 	* Handles the enabling or disabling of the no-results bodycopy
 	*
-	* @param boolean	$enabled	set to true to enable the format bodycopy,
-	*								set to false to disable it
+	* @param boolean	$enabled	set to TRUE to enable the format bodycopy,
+	*								set to FALSE to disable it
 	*
-	* @return boolean	indicating success
+	* @return boolean
 	* @access public
 	*/
 	function setUseNoResultsBodycopy($enabled)
 	{
-		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', false, 'major', 'no_results'));
+		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', FALSE, 'major', 'no_results'));
 
 		if (!$bodycopy_link) {
 			// no bodycopy yet? If we're trying to set to disabled, then we don't
 			// need to do anything - if not then we need to create it
 			if ($enabled) {
-				if (!$this->createNoResultsBodycopy()) return false;
+				if (!$this->createNoResultsBodycopy()) return FALSE;
 			}
 		} else {
 			// set link type to either TYPE_2 if enabled or TYPE_3 if disabled
@@ -3565,7 +3563,7 @@ class Listing_Engine extends Page
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end setUseNoResultsBodycopy()
 

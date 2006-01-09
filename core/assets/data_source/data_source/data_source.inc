@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.8 2005/12/21 21:56:27 rong Exp $
+* $Id: data_source.inc,v 1.9 2006/01/09 03:41:03 emcdonald Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,7 +49,7 @@ class Data_Source extends Asset
 	*/
 	function Data_Source($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Asset($assetid);
 
 	}//end constructor
@@ -67,13 +67,13 @@ class Data_Source extends Asset
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!parent::_createAdditional($link)) return false;
+		if (!parent::_createAdditional($link)) return FALSE;
 
 		// set an initial web path
 		$initial_path = strtolower($this->attr('name'));
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_paths = make_valid_web_paths(Array($initial_path));
-		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, TRUE);
 		return $this->saveWebPaths($good_paths);
 
 	}//end _createAdditional()
@@ -88,7 +88,7 @@ class Data_Source extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return ($this->attr('name'));
 
@@ -133,7 +133,7 @@ class Data_Source extends Asset
 	function getResultSet($cache_key='')
 	{
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$result = $cm->loadFromCache($this->id, $this->type(), $cache_key, false);
+		$result = $cm->loadFromCache($this->id, $this->type(), $cache_key, FALSE);
 		$result = unserialize($result);
 		return $result;
 
@@ -151,8 +151,8 @@ class Data_Source extends Asset
 	*/
 	function setResultSet($result, $cache_key='')
 	{
-		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$r = $cm->saveToCache($this->id, $this->type(), $cache_key, serialize($result), false);
+		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$r = $cm->saveToCache($this->id, $this->type(), $cache_key, serialize($result), FALSE);
 
 	}//end setResultSet()
 
@@ -162,22 +162,22 @@ class Data_Source extends Asset
 	*
 	* @param int		$assetid		the assetid for asset whose permissions to get
 	* @param string		$permission		the permission code you are getting
-	* @param boolean	$granted		type of Access : null = all, true = granted, false = denied
+	* @param boolean	$granted		type of Access : NULL = all, TRUE = granted, FALSE = denied
 	* @param boolean	$and_greater	get effective permission (eg read access = read
 	*									or write or admin)
 	* @param boolean	$expand_groups	expand data_source_record_set  so only data_source_record_set ids get returned
-	*									(NOTE: only valid if $all_info is false)
-	* @param boolean	$all_info		when false fn just returns an array of data_source_record_setids for
+	*									(NOTE: only valid if $all_info is FALSE)
+	* @param boolean	$all_info		when FALSE fn just returns an array of data_source_record_setids for
 	*									those that have permission
-	*									When true fn returns all info about the permission in the form of
+	*									When TRUE fn returns all info about the permission in the form of
 	*									Array(data_source_record_setid => granted)
 	*									(NOTE: TRUE is only valid if $and_greater and
-										 *									$expand_groups are false)
+										 *									$expand_groups are FALSE)
 	*
 	* @return array
 	* @access public
 	*/
-	function getPermission($assetid, $permission, $granted=null, $and_greater=true, $expand_groups=false, $all_info=false)
+	function getPermission($assetid, $permission, $granted=NULL, $and_greater=TRUE, $expand_groups=FALSE, $all_info=FALSE)
 	{
 		return Array();
 
@@ -197,7 +197,7 @@ class Data_Source extends Asset
 	*/
 	function setPermission($assetid, $data_source_record_setid, $permission, $granted)
 	{
-		return false;
+		return FALSE;
 
 	}//end setPermission()
 
@@ -214,7 +214,7 @@ class Data_Source extends Asset
 	*/
 	function deletePermission($assetid, $data_source_record_setid, $permission)
 	{
-		return false;
+		return FALSE;
 
 	}//end deletePermission()
 
@@ -233,7 +233,7 @@ class Data_Source extends Asset
 	* @return array
 	* @access public
 	*/
-	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=true, $field='')
+	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=TRUE, $field='')
 	{
 		return Array();
 
@@ -253,7 +253,7 @@ class Data_Source extends Asset
 	*/
 	function assetExists($assetids)
 	{
-		return false;
+		return FALSE;
 
 	}//end assetExists()
 
@@ -274,12 +274,12 @@ class Data_Source extends Asset
 	* @param string		$side_of_link		Which side of the link this (the current) asset
 	*										is on ('major' or 'minor')
 	* @param boolean	$exclusive			The exclusive status for the link must be
-	*										this (if not null)
+	*										this (if not NULL)
 	*
 	* @return array
 	* @access public
 	*/
-	function getLink($assetid, $link_type=null, $type_code='', $strict_type_code=true, $value=null, $side_of_link='major', $exclusive=null)
+	function getLink($assetid, $link_type=NULL, $type_code='', $strict_type_code=TRUE, $value=NULL, $side_of_link='major', $exclusive=NULL)
 	{
 		return Array();
 
@@ -300,6 +300,7 @@ class Data_Source extends Asset
 	function getLinkById($linkid, $assetid=0, $side_of_link='major')
 	{
 		return Array();
+
 	}//end getLinkById()
 
 
@@ -324,7 +325,7 @@ class Data_Source extends Asset
 	* @return int
 	* @access public
 	*/
-	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=true, $ignore_linkid=0)
+	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
 	{
 		return 0;
 
@@ -344,14 +345,14 @@ class Data_Source extends Asset
 	* @param boolean	$force_array	force the results to return an array of links
 	*									even if there is only one link
 	* @param boolean	$dependant		The dependant status for all the links must be
-	*									this (if not null)
+	*									this (if not NULL)
 	* @param boolean	$exclusive		The exclusive status for all the links must be
-	*									this (if not null)
+	*									this (if not NULL)
 	*
 	* @return array
 	* @access public
 	*/
-	function getLinkByAsset($assetid, $other_assetid, $link_types=null, $value=null, $side_of_link='major', $force_array=false, $dependant=null, $exclusive=null)
+	function getLinkByAsset($assetid, $other_assetid, $link_types=NULL, $value=NULL, $side_of_link='major', $force_array=FALSE, $dependant=NULL, $exclusive=NULL)
 	{
 		return Array();
 
@@ -388,9 +389,9 @@ class Data_Source extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function updateLink($linkid, $link_type=null, $value=null, $sort_order=null)
+	function updateLink($linkid, $link_type=NULL, $value=NULL, $sort_order=NULL)
 	{
-		return false;
+		return FALSE;
 
 	}//end updateLink()
 
@@ -404,9 +405,9 @@ class Data_Source extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function deleteAssetLink($linkid, $moving=false)
+	function deleteAssetLink($linkid, $moving=FALSE)
 	{
-		return false;
+		return FALSE;
 
 	}//end deleteAssetLink()
 
@@ -425,7 +426,7 @@ class Data_Source extends Asset
 	*/
 	function canCreateLink(&$major, &$minor, $link_type, $exclusive)
 	{
-		return false;
+		return FALSE;
 
 	}//end canCreateLink()
 
@@ -438,7 +439,7 @@ class Data_Source extends Asset
 	* @param string		$link_type	the type of link this is
 	* @param string		$value		the value that is to be associated with this link
 	* @param string		$sort_order	the position in the links list that this link should take,
-	*								if null or less than zero places at end of list
+	*								if NULL or less than zero places at end of list
 	* @param string		$dependant	'0' / '1' - whether the minor asset is dependant on the major
 	* @param string		$exclusive	'0' / '1' - whether the major asset is to be the minor's only parent
 	* @param boolean	$moving		whether or not this asset is being moved
@@ -446,7 +447,7 @@ class Data_Source extends Asset
 	* @return int
 	* @access public
 	*/
-	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0', $moving=false)
+	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0', $moving=FALSE)
 	{
 		return 0;
 
@@ -474,7 +475,7 @@ class Data_Source extends Asset
 	* @access public
 	* @see Asset_Manager::getLinks()
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL)
 	{
 		if (!is_array($type_code)) {
 			if (empty($type_code)) {
@@ -503,8 +504,8 @@ class Data_Source extends Asset
 										'minor_type_code'	=> 'data_source_record_set',
 										'value'				=> '',
 										'link_type'			=> SQ_LINK_TYPE_1,
-										'is_dependant'		=> false,
-										'is_exclusive'		=> false,
+										'is_dependant'		=> FALSE,
+										'is_exclusive'		=> FALSE,
 										'sort_order'		=> $index,
 									   );
 							$index++;
@@ -532,6 +533,9 @@ class Data_Source extends Asset
 	*										of the array values
 	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
 	*										or $type_code and any of it's sub-classes
+	* @param boolean	$dependant			if TRUE, results will be filtered to assets that are dependants.
+	*										If FALSE, results will all not be dependants.
+	*										If NULL, results will not be filtered
 	* @param string		$sort_by			a field in the asset table you would like the results
 	*										sorted by (eg. name, short_name etc)
 	*
@@ -539,14 +543,14 @@ class Data_Source extends Asset
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
 	{
 		// now that we have an array in the format we wanted (sorted or not)
 		// we can go through and construct our children array
 		$children = Array();
 		$links = Array();
 		if ($assetid == $this->id) {
-			$links = $this->getLinks($this->id, SQ_LINK_TYPE_1, 'data_source_record_set', true, 'major', null);
+			$links = $this->getLinks($this->id, SQ_LINK_TYPE_1, 'data_source_record_set', TRUE, 'major', NULL);
 		}
 		if (!empty($links)) {
 			foreach ($links as $link) {
@@ -572,9 +576,9 @@ class Data_Source extends Asset
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($shadowid, $type_code='', $mute_errors=false)
+	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
 	{
-		$asset = null;
+		$asset = NULL;
 		if (is_null($shadowid)) return $asset;
 		$result = $this->getResultSet();
 		if (!empty($result)) {
@@ -598,6 +602,8 @@ class Data_Source extends Asset
 	/**
 	* Get all asset ids that are above the passed assetid in the various trees in which it exists
 	*
+	* Returns an array of assetids and their type code
+	*
 	* @param int			$assetid			the id of the asset to get its parents for
 	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
 	*											if an array returns link if matches any of the array values
@@ -609,16 +615,16 @@ class Data_Source extends Asset
 	*											Specify that links should be returned for assets the user has read,
 	*											write, or admin access for. Leave NULL to ignore permissions.
 	*
-	* @return array			$parent				Array(int => string)	returns an array of assetids and their type code
+	* @return array
 	* @access public
 	* @see generateGetParentsQuery()
 	*/
-	function getParents($assetid, $type_code='', $strict_type_code=true, $sort_by=null, $access=null)
+	function getParents($assetid, $type_code='', $strict_type_code=TRUE, $sort_by=NULL, $access=NULL)
 	{
-		//get its own (datasource's) parents first
+		// get its own (datasource's) parents first
 		$id_parts = explode(':', $assetid);
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($id_parts[0]);
-		//after getting its own parent, the data soure adds itself as a pareent into the array as the shadow asset is its child
+		// after getting its own parent, the data soure adds itself as a pareent into the array as the shadow asset is its child
 		$parents[$this->id] = $this->type();
 		return $parents;
 

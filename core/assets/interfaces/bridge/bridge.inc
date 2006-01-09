@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bridge.inc,v 1.5 2005/11/07 05:26:09 arailean Exp $
+* $Id: bridge.inc,v 1.6 2006/01/09 03:41:03 emcdonald Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 *    Provides an interface bridging between the MySource system some other external system
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,8 +53,9 @@ class Bridge
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($shadowid, $type_code='', $mute_errors=false)
+	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
 	{
+
 	}//end getAsset()
 
 
@@ -79,8 +80,9 @@ class Bridge
 	* @access public
 	* @see Asset_Manager::getLinks()
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=null)
 	{
+
 	}//end getLinks()
 
 
@@ -97,8 +99,9 @@ class Bridge
 	* @access public
 	* @see Asset_Manager::getParents()
 	*/
-	function getParents($assetid, $type_code='', $strict_type_code=true)
+	function getParents($assetid, $type_code='', $strict_type_code=TRUE)
 	{
+
 	}//end getParents()
 
 
@@ -114,6 +117,9 @@ class Bridge
 	*										of the array values
 	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
 	*										or $type_code and any of it's sub-classes
+	* @param boolean	$dependant			if TRUE, results will be filtered to assets that are dependants.
+	*										If FALSE, results will all not be dependants.
+	*										If NULL, results will not be filtered
 	* @param string		$sort_by			a field in the asset table you would like the results
 	*										sorted by (eg. name, short_name etc)
 	*
@@ -121,8 +127,9 @@ class Bridge
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
 	{
+
 	}//end getChildren()
 
 
@@ -138,6 +145,7 @@ class Bridge
 	*/
 	function getLineageFromURL($assetid, $protocol, $url)
 	{
+
 	}//end getLineageFromURL()
 
 
@@ -161,8 +169,9 @@ class Bridge
 	* @return int
 	* @access public
 	*/
-	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=true, $ignore_linkid=0)
+	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
 	{
+
 	}//end countLinks()
 
 
@@ -175,8 +184,9 @@ class Bridge
 	* @return boolean
 	* @access public
 	*/
-	function deleteAssetLink($linkid, $moving=false)
+	function deleteAssetLink($linkid, $moving=FALSE)
 	{
+
 	}//end deleteAssetLink()
 
 
@@ -190,6 +200,7 @@ class Bridge
 	*/
 	function getAssetMapAssetInfo($assetid)
 	{
+
 	}//end getAssetMapAssetInfo()
 
 

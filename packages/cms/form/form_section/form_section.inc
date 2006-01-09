@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.46 2005/12/12 06:05:55 lwright Exp $
+* $Id: form_section.inc,v 1.47 2006/01/09 03:41:04 emcdonald Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -72,7 +72,7 @@ class Form_Section extends Asset
 	*/
 	function Form_Section($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Asset($assetid);
 
 	}//end constructor
@@ -91,16 +91,16 @@ class Form_Section extends Asset
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
-	* @return object Asset or null on error
+	* @return mixed object|null
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($shadowid, $type_code='', $mute_errors=false)
+	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
 	{
 		$asset = null;
 		$id_parts = explode(':', $shadowid);
 
-		if (isset($id_parts[1])){
+		if (isset($id_parts[1])) {
 			$shadowid = $id_parts[1];
 		} else {
 			return $asset;
@@ -120,7 +120,7 @@ class Form_Section extends Asset
 			if (empty($type_code)) $type_code = $q_type_code;
 
 			// only give the asset back if of the right type code
-			if (in_array($q_type_code, $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true))) {
+			if (in_array($q_type_code, $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, TRUE))) {
 				$questions[$questionid]['questionid'] = $questionid;
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($q_type_code);
 
@@ -154,37 +154,37 @@ class Form_Section extends Asset
 	* @return array
 	* @access public
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=null)
 	{
 		// there are no links away from the shadow asset (ie:questions)
 		$links = Array();
 
 		if (!is_numeric($assetid)) {
 			if ($side_of_link == 'minor') {
-				$return_link = false;
+				$return_link = FALSE;
 
 				if ($type_code == '') {
 					// not fussed what we're getting, so return me
-					$return_link = true;
+					$return_link = TRUE;
 				} else if ($strict_type_code) {
 					// strict type code check
 					$return_link = ($type_code == $this->type());
 				} else {
-					$return_link = (in_array($this->type(), $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true)));
+					$return_link = (in_array($this->type(), $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, TRUE)));
 				}
 
 				if ($return_link) {
 					$links[] = Array(
-									'linkid'			=> 0,
-									'majorid'			=> $this->id,
-									'minorid'			=> $this->id.':'.$assetid,
-									'major_type_code'	=> $this->type(),
-									'value'				=> '',
-									'link_type'			=> SQ_LINK_TYPE_2,
-									'is_dependant'		=> true,
-									'is_exclusive'		=> false,
-									'sort_order'		=> 0,
-								   );
+								'linkid'			=> 0,
+								'majorid'			=> $this->id,
+								'minorid'			=> $this->id.':'.$assetid,
+								'major_type_code'	=> $this->type(),
+								'value'				=> '',
+								'link_type'			=> SQ_LINK_TYPE_2,
+								'is_dependant'		=> TRUE,
+								'is_exclusive'		=> FALSE,
+								'sort_order'		=> 0,
+							   );
 				}
 			}
 
@@ -206,7 +206,7 @@ class Form_Section extends Asset
 			foreach ($questions as $questionid => $data) {
 				if ($type_code == '') {
 					// not fussed what we're getting, so return me
-					$get_question = true;
+					$get_question = TRUE;
 				} else if ($strict_type_code) {
 					// strict type code check
 					$get_question = ($type_code == $data['question_type_code']);
@@ -217,7 +217,7 @@ class Form_Section extends Asset
 						$get_question = $get_question_types[$data['question_type_code']];
 						$get_question_types[$data['question_type_code']] = $get_question;
 					} else {
-						$get_question = (in_array($data['question_type_code'], $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true)));
+						$get_question = (in_array($data['question_type_code'], $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, TRUE)));
 					}
 				}
 
@@ -229,14 +229,14 @@ class Form_Section extends Asset
 								'minor_type_code'	=> $data['question_type_code'],
 								'value'				=> '',
 								'link_type'			=> SQ_LINK_TYPE_2,
-								'is_dependant'		=> true,
-								'is_exclusive'		=> false,
+								'is_dependant'		=> TRUE,
+								'is_exclusive'		=> FALSE,
 								'sort_order'		=> $new_sort_order,
 							   );
 				}
 				$new_sort_order++;
-			}
-		}
+			}//end foreach
+		}//end if
 
 		if (is_null($sort_by)) $sort_by = 'sort_order';
 
@@ -297,7 +297,7 @@ class Form_Section extends Asset
 			unset($link['is_dependant']);
 			unset($link['is_exclusive']);
 
-		}
+		}//end foreach
 
 		return $links;
 
@@ -311,23 +311,24 @@ class Form_Section extends Asset
 	*											part after the ':')
 	* @param string|array	$type_code			the type of asset that is linked (eg 'User', 'User_Group', etc)
 	*											if an array returns link if matches any of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return array(int)
+	* @return array
 	* @access public
 	* @see Asset_Manager::getParents()
 	*/
-	function getParents($shadowid, $type_code='', $strict_type_code=true)
+	function getParents($shadowid, $type_code='', $strict_type_code=TRUE)
 	{
 		// basically get the parents of the section, and add itself
 		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
 		if (empty($query)) return Array();
 
 		$queried_parents = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
+		assert_valid_db_result($queried_parents);
 		$parents = Array();
 
-		foreach($queried_parents as $queried_parent) {
+		foreach ($queried_parents as $queried_parent) {
 			$parents[$queried_parent['majorid']] = $queried_parent['type_code'];
 		}
 
@@ -342,21 +343,26 @@ class Form_Section extends Asset
 	/**
 	* Get all asset ids that are below the passed assetid in the various trees in which it exists
 	*
+	* returns array(int => string)	returns an array of assetids and their type code
+	*
 	* @param int			$assetid			the id of the asset to get its children for
 	* @param string|array	$type_code			the type of asset that is linked
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
+	* @param boolean		$dependant			if TRUE, results will be filtered to assets that are dependants.
+	*											If FALSE, results will all not be dependants.
+	*											If NULL, results will not be filtered
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	*
-	* @return array(int => string)	returns an array of assetids and their type code
+	* @return array
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
 	{
 		// no shadow assets have children in this asset
 		if (!is_numeric($assetid)) return Array();
@@ -418,16 +424,19 @@ class Form_Section extends Asset
 	function getLineageFromURL($assetid, $protocol, $url)
 	{
 		return Array();
+
 	}//end getLineageFromURL()
 
 
 	/**
 	* get the section links attached to this form
 	*
+	* @param boolean	$force	whether to force... something or not
+	*
+	* @return array
 	* @access public
-	* @return array(link)
 	*/
-	function getQuestions($force=false)
+	function getQuestions($force=FALSE)
 	{
 		return $this->attr('questions');
 
@@ -437,12 +446,12 @@ class Form_Section extends Asset
 	/**
 	* get the question assets attached to this section
 	*
-	* @access public
 	* @return array
+	* @access public
 	*/
 	function &getQuestionAssets()
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$result = Array();
 
 		$questions = $this->attr('questions');
@@ -461,8 +470,10 @@ class Form_Section extends Asset
 	/**
 	* get a specific question
 	*
+	* @param int	$questionid	The id of the desired question
+	*
+	* @return array
 	* @access public
-	* @return array(link)
 	*/
 	function getQuestionByID($questionid)
 	{
@@ -475,12 +486,14 @@ class Form_Section extends Asset
 	/**
 	* get specific question by order
 	*
+	* @param int	$orderid	the sequence of the desired question
+	*
+	* @return array
 	* @access public
-	* @return array(link)
 	*/
 	function &getQuestionByOrder($orderid)
 	{
-		$sort_order = &$this->attr('sort_order');
+		$sort_order =& $this->attr('sort_order');
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($sort_order[$orderid]);
 
 	}//end getQuestionByOrder()
@@ -489,14 +502,16 @@ class Form_Section extends Asset
 	/**
 	* attach a question to this form
 	*
-	* @param object Form_Question	&$question	the question object to attach
+	* FALSE if database problem or question already attached, TRUE if sucessful
 	*
+	* @param string	$type_code	the type of the question to attach
+	*
+	* @return boolean
 	* @access public
-	* @return boolean false if database problem or question already attached, true if sucessful
 	*/
 	function attachQuestion($type_code)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -531,11 +546,11 @@ class Form_Section extends Asset
 
 		if (!$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		return true;
+		return TRUE;
 
 	}//end attachQuestion()
 
@@ -543,14 +558,16 @@ class Form_Section extends Asset
 	/**
 	* delete a question to this form
 	*
-	* @param Form_Question &$question the question object to delete
+	* returns FALSE if database problem or question already deleted, TRUE if sucessful
 	*
+	* @param object	&$question	the question object to delete
+	*
+	* @return boolean
 	* @access public
-	* @return boolean false if database problem or question already deleted, true if sucessful
 	*/
 	function deleteQuestion(&$question)
 	{
-		if ($question->_questionid == 0) return false;
+		if ($question->_questionid == 0) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$questions = $this->getQuestions();
@@ -572,11 +589,11 @@ class Form_Section extends Asset
 
 		if (!$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		return true;
+		return TRUE;
 
 	}//end deleteQuestion()
 
@@ -595,11 +612,11 @@ class Form_Section extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _updated($update_parents=true)
+	function _updated($update_parents=TRUE)
 	{
-		if (!parent::_updated($update_parents)) return false;
+		if (!parent::_updated($update_parents)) return FALSE;
 		if (SQ_IN_BACKEND) return $this->fileRegeneration();
-		return true;
+		return TRUE;
 
 	}//end _updated()
 
@@ -607,8 +624,9 @@ class Form_Section extends Asset
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -620,34 +638,34 @@ class Form_Section extends Asset
 	/**
 	* regenerates the content file for this section
 	*
-	* @param boolean $form_regen	if TRUE the section will get all its forms to regen as well
+	* @param boolean	$form_regen	if TRUE the section will get all its forms to regen as well
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function fileRegeneration($form_regen=true)
+	function fileRegeneration($form_regen=TRUE)
 	{
 		// we want to regen this section
-		$edit = &$this->getEditFns();
+		$edit =& $this->getEditFns();
 		$edit->generateContentFile($this);
 
 		// sometimes, we might not want to regen the form (eg. if the form is calling this function!)
 		if ($form_regen) {
 			// then, get all the links of this guy's form parents
-			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form', false, 'minor');
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form', FALSE, 'minor');
 
 			foreach ($links as $l) {
-				$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($l['majorid'], $l['major_type_code']);
+				$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($l['majorid'], $l['major_type_code']);
 				if (is_null($form)) continue;
 				if (!$form->_updated()) {
 					unset($form);
-					return false;
+					return FALSE;
 				}
 				unset($form);
 			}
 		}//end if
 
-		return true;
+		return TRUE;
 
 	}//end fileRegeneration()
 
@@ -655,18 +673,21 @@ class Form_Section extends Asset
 	/**
 	* Clones certain specified components of the asset
 	*
-	* @param object asset &$clone the clone asset shell
-	* @param array			$components	the wanted components to clone eg.
+	* @param object	&$clone		the clone shell
+	* @param array	$components	the wanted components to clone eg.
+	* <pre>
 	*                       Array(
-	*                           'attributes',
-	*                           'metadata_shemas',
-	*                           'metadata',
-	*                           'workflow',
-	*                           'permissions',
-	*                           'data'
+	*                         'attributes',
+	*                         'metadata_shemas',
+	*                         'metadata',
+	*                         'workflow',
+	*                         'permissions',
+	*                         'data',
+	*						  'content_tags'
 	*                       );
 	*                       or alternately
 	*                       Array('all');
+	* </pre>
 	*
 	* @return boolean
 	* @access public
@@ -678,7 +699,7 @@ class Form_Section extends Asset
 
 		if (!parent::cloneComponents($clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		if (in_array('attributes', $components) || in_array('all', $components)) {
@@ -691,8 +712,8 @@ class Form_Section extends Asset
 
 			// Now remap any parent forms, but only if we are being cloned along with a form clone:
 			// remap to the cloned form. If we are being clone within a form, we will not remap.
-			$form_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($this->id, 'form_email', false);
-			$clone_form_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($clone->id, 'form_email', false);
+			$form_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($this->id, 'form_email', FALSE);
+			$clone_form_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($clone->id, 'form_email', FALSE);
 
 			$clone_form_parents = array_diff($clone_form_parents, $form_parents);
 
@@ -726,12 +747,10 @@ class Form_Section extends Asset
 
 				$form->saveAttributes();
 			}
-
-
-		}
+		}//end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		return TRUE;
 
 	}//end cloneComponents()
 
@@ -739,9 +758,7 @@ class Form_Section extends Asset
 	/**
 	* returns the count of questions linked to this section
 	*
-	* @param &object asset the section asset
-	*
-	* @return integer question count
+	* @return int
 	* @access public
 	*/
 	function getQuestionCount()
@@ -755,12 +772,12 @@ class Form_Section extends Asset
 	/**
 	* returns the name of this section
 	*
-	* @param boolean $short_name if TRUE, returns the short name
+	* @param boolean	$short_name	if TRUE, returns the short name
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
@@ -773,8 +790,8 @@ class Form_Section extends Asset
 	* This function assumes the skeleton of a JS validation function has been created around this code
 	* with a form variable named 'form' passed (this is done when generating the content file).
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function generateJSCode()
 	{
@@ -782,7 +799,7 @@ class Form_Section extends Asset
 		$code = '';						// blank sheet of code to start with
 
 		foreach ($questions as $q_id => $question) {
-			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_code = $q_asset->generateJSCode();
 
 			$code .= $q_code.(empty($q_code) ? '' : "\n");

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tagging.inc,v 1.9 2006/01/03 05:05:36 arailean Exp $
+* $Id: tagging.inc,v 1.10 2006/01/09 03:41:03 emcdonald Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Tagging Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 
@@ -44,18 +44,18 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @return boolean
 * @access public
 */
-function paintTagging(&$owner, &$o, &$ei, $keywords=null)
+function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 {
-	$root = &$ei->findScreen('static_screen_tagging');
-	if (is_null($root)) return false;
+	$root =& $ei->findScreen('static_screen_tagging');
+	if (is_null($root)) return FALSE;
 	$write_access = $owner->writeAccess('links');
 	$prefix = $owner->getPrefix();
-	$print_commit_button = false;
+	$print_commit_button = FALSE;
 
 
 	for ($i = 0; $i < count($root->children); $i++) {
 
-		$section = &$root->children[$i];
+		$section =& $root->children[$i];
 
 		// only do this if we are not painting a layout
 		if (is_null($keywords)) {
@@ -81,7 +81,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=null)
 		}
 
 		for ($j = 0; $j < $num_fields; $j++) {
-			$field = &$section->children[$j];
+			$field =& $section->children[$j];
 
 			$field_access = $ei->_getAccess($owner, $field, $prefix);
 			if (!($field_access & SQ_EI_READ)) {
@@ -96,11 +96,11 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=null)
 
 					if ($write_access) {
 						ob_start();
-						$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager', true);
+						$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager', TRUE);
 						if (!empty($sm)) {
 							ob_start();
 								?>
-<a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('lib'); ?>/tag_suggestion/tag_suggestion.php?assetid=<?php echo $owner->id; ?>&prefix=<?php echo $prefix; ?>', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320'); return false;">
+<a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('lib'); ?>/tag_suggestion/tag_suggestion.php?assetid=<?php echo $owner->id; ?>&prefix=<?php echo $prefix; ?>', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320'); return FALSE;">
 	<?php echo translate('tag_suggestion') ?></a>
 <?php
 								$replacements_link = ob_get_contents();
@@ -115,12 +115,12 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=null)
 				case 'tags' :
 
 					$o->openField('');
-					$tag_manager = &$GLOBALS['SQ_SYSTEM']->getTagManager();
+					$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
 					$current_tag_links = $tag_manager->getTagLinks($owner->id);
 					ob_start();
 					if ($write_access) {
 
-						//There will be multiple tags, so start by getting a list of links to this assets to display
+						// there will be multiple tags, so start by getting a list of links to this assets to display
 						$current_tag_ids = Array();
 						foreach ($current_tag_links as $key => $current_tag_link) {
 							$current_tag_ids[$key] = $current_tag_link['minorid'];
@@ -141,7 +141,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=null)
 
 				case 'weights' :
 
-					$tag_manager = &$GLOBALS['SQ_SYSTEM']->getTagManager();
+					$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
 					$current_tag_links = $tag_manager->getTagLinks($owner->id);
 					$o->openField('');
 					ob_start();
@@ -166,14 +166,15 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=null)
 
 				case 'cascading' :
 					if ($write_access) {
-						$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
+						$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id, Array(), FALSE, FALSE);
+						$kiddies = array_filter($kiddies);
 						if (count($kiddies)) {
 							$o->openSection(translate('cascade_options'));
 								$o->openField('Note');
 									echo translate('action_affects_assets_below_this', count($kiddies), $owner->name);
 								$o->closeField();
 								$o->openField('&nbsp;');
-									check_box($prefix.'_tagging[cascade_changes]', '1', true);
+									check_box($prefix.'_tagging[cascade_changes]', '1', TRUE);
 									echo(translate('cascade_tag_changes'));
 									echo '<br/>';
 
@@ -219,10 +220,10 @@ function paintInlineTagging(&$owner, &$o, &$ei)
 {
 	$prefix = $owner->getPrefix();
 
-	$tag_manager = &$GLOBALS['SQ_SYSTEM']->getTagManager();
+	$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
 	$current_tag_links = $tag_manager->getTagLinks($owner->id);
 
-	if (empty($current_tag_links)) return false;
+	if (empty($current_tag_links)) return FALSE;
 
 		$o->openSection(translate('content_tags'));
 		$o->openField('&nbsp;');
@@ -258,7 +259,7 @@ function paintInlineTagging(&$owner, &$o, &$ei)
 		$o->closeField();
 	$o->closeSection();
 
-	return true;
+	return TRUE;
 
 }//end paintInlineTagging()
 
@@ -266,7 +267,7 @@ function paintInlineTagging(&$owner, &$o, &$ei)
 /**
 * Process the interface for managing asset tag values
 *
-* Returns TRUE is there is a change, false on error or no change
+* Returns TRUE is there is a change, FALSE on error or no change
 *
 * @param object	&$owner	the asset whose interface we are painting
 * @param object	&$o		the outputter class
@@ -283,24 +284,24 @@ function processTagging(&$owner, &$o, $ei)
 		exit();
 	}
 	// if we dont have write access, dont process anything
-	if (!$owner->writeAccess('all')) return false;
+	if (!$owner->writeAccess('all')) return FALSE;
 	$prefix = $owner->getPrefix();
 
-	$tag_manager = &$GLOBALS['SQ_SYSTEM']->getTagManager();
+	$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
 
 	$submitted_tags = array_get_index($_REQUEST, $prefix.'_tags', Array());
 	// are we cascading these tag changes to our children? If we are doing a manual cascade, that is handled later, after changes have been made to the parent asset.
-	$cascade_changes = false;
+	$cascade_changes = FALSE;
 	if (isset($_POST[$prefix.'_tagging']['cascade_changes']) && $_POST[$prefix.'_tagging']['cascade_changes'] ) {
-		$cascade_changes = true;
+		$cascade_changes = TRUE;
 	}
 
 
 	// are we manually cascading?
-	$manual_cascade = false;
+	$manual_cascade = FALSE;
 	if (isset($_POST[$prefix.'_tagging']['manual_cascade']) && $_POST[$prefix.'_tagging']['manual_cascade'] ) {
-		$manual_cascade = true;
-		$cascade_changes = false;
+		$manual_cascade = TRUE;
+		$cascade_changes = FALSE;
 	}
 
 
@@ -320,7 +321,7 @@ function processTagging(&$owner, &$o, $ei)
 	}
 
 
-	//Insert any new tags
+	// Insert any new tags
 	$new_tag_ids = array_diff($submitted_tag_ids, $current_tag_ids);
 	foreach ($new_tag_ids as $one_tag_id) {
 
@@ -334,7 +335,7 @@ function processTagging(&$owner, &$o, $ei)
 								'weight'	=> '1',
 							  );
 		} else {
-			$tag_manager->setTag($owner->id, $one_tag_id, $weight);
+			$tag_manager->setTag($owner->id, $one_tag_id, '1');
 		}
 	}
 
@@ -360,7 +361,7 @@ function processTagging(&$owner, &$o, $ei)
 	}
 
 
-	//delete any tags that haven't been resubmitted
+	// delete any tags that haven't been resubmitted
 	$deleted_tag_ids = array_diff($current_tag_ids, $submitted_tag_ids);
 	foreach ($deleted_tag_ids as $one_tag_id) {
 		if (empty($one_tag_id)) continue;
@@ -370,7 +371,7 @@ function processTagging(&$owner, &$o, $ei)
 			$tag_vars[] = Array(
 							'tag_id'	=> $one_tag_id,
 							'action'	=> 'delete',
-							'weight'	=> null,
+							'weight'	=> NULL,
 						  );
 		} else {
 			$tag_manager->deleteTag($owner->id, $one_tag_id);
@@ -393,7 +394,7 @@ function processTagging(&$owner, &$o, $ei)
 
 
 	if (!empty($tag_vars)) {
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
 					'assets'		=> Array(
 										$owner->id	=> Array(
@@ -402,11 +403,12 @@ function processTagging(&$owner, &$o, $ei)
 									   ),
 					'tag_changes'	=> $tag_vars,
 				);
+
 		$hh->queueHipo('hipo_job_edit_tags', $vars);
 	}
 
 	// no need to call saveAttributes
-	return false;
+	return FALSE;
 
 }//end processTagging()
 
