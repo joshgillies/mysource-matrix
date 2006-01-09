@@ -1,5 +1,31 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.4.8
+
+Featured Changes
+----------------------
+
+REMOTE CONTENT URL WHITELISTS
+
+	The remote content asset now has an option that allows you to specify a list of URLs that the remote content asset will fetch. This was done to stop "the bad guys" from using a remote content asset as an anonymiser. When *all* the links are re-written to point back to the remote content asset (and if the white list in *not* empty) only those remote URLs that are based on the white listed URLs are allowed through.
+
+
+Complete Changelog
+----------------------
+
+Core
+
+* Fixed bug #987: <A> Tag misplaced outside <P>
+* Fixed bug #1067: Some attributes should compare old and new values using '===' not '=='
+
+CMS
+
+* Fixed bug #823: Remote Content does not validate the Remote URL provided in the URL (remote content)
+* Fixed bug #1042: Select option of the custom form doesnt allow selection of first option (custom form)
+
+
+
+
 VERSION 3.4.7
 
 Complete Changelog
