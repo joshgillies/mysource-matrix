@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.156 2006/01/09 00:42:49 rong Exp $
+* $Id: mysource.inc,v 1.157 2006/01/09 02:09:12 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.156 $
+* @version $Revision: 1.157 $
 * @package MySource_Matrix
 */
 class MySource
@@ -441,7 +441,7 @@ class MySource
 
 		// save/load the cache information of this asset
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$cache_info = $cm->loadFromCache($asset->id, $asset->type(), $asset->_getCacheKey().'cache_info', FALSE);
+		$cache_info = $cm->loadFromCache($asset->id, $asset->type(), 'cache_info', FALSE);
 
 		ob_start();
 			$loaded_assetids = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->getAssetKeys();
@@ -462,7 +462,7 @@ class MySource
 						'last_modified'	=> $last_updated,
 						'expires'		=> (time() + $cache_expiry),
 					);
-			$cache_status = $cm->saveToCache($asset->id, $asset->type(), $asset->_getCacheKey().'cache_info', serialize($info), FALSE);
+			$cache_status = $cm->saveToCache($asset->id, $asset->type(), 'cache_info', serialize($info), FALSE);
 			// if cache_status is FALSE, then caching is probably disabled, expiry time = now
 			$expiry_time = $cache_status ? $info['expires'] : time();
 			header('Expires: '.gmdate('D, d M Y H:i:s', $expiry_time).' GMT');
