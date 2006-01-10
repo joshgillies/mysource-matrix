@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.18 2006/01/10 00:15:14 tbarrett Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.19 2006/01/10 00:43:40 tbarrett Exp $
 *
 */
 
@@ -50,7 +50,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as false.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -199,8 +199,8 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		// Find stored keyword replacements
 		$paint_layout_keywords = Array();
 		if (file_exists($this->data_path.'/.sq_system/.keywords')) {
-			$paint_layout_keywords = unserialize(file_to_string($this->data_path.'/.sq_system/.keywords'));
-			$paint_layout_keywords = $this->_getAssetKeywordReplacements($asset, array_keys($paint_layout_keywords));
+			$required_keywords = array_keys(unserialize(file_to_string($this->data_path.'/.sq_system/.keywords')));
+			$paint_layout_keywords = $this->_getAssetKeywordReplacements($asset, $required_keywords);
 		}
 
 		// Read in content file, find keyword replacements, spit out the results
@@ -209,15 +209,15 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			ob_start();
 				include($this->data_path.'/content_file.php');
 				$content = ob_get_contents();
+				$content = replace_keywords($content, $paint_layout_keywords);
 			ob_end_clean();
 		} else {
+			$this->setKeywordReplacements($this->_getAssetKeywordReplacements($asset, $this->getKeywords()));
 			ob_start();
 				$this->printBody();
 				$content = ob_get_contents();
 			ob_end_clean();
 		}
-		$content = replace_keywords($content, $paint_layout_keywords);
-
 		return $content;
 
 	}//end paintAsset()
