@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.67 2005/11/10 23:02:25 ndvries Exp $
+* $Id: internal_message.inc,v 1.68 2006/01/10 01:22:52 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -291,8 +291,8 @@ class Internal_Message extends MySource_Object
 						$messageid,
 						0,
 						$this->from,
-						$lm->getInternalMessageSubject($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE),
-						$lm->getInternalMessageBody($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE),
+						(empty($this->subject) ? $lm->getInternalMessageSubject($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE) : $this->subject),
+						(empty($this->body) ? $lm->getInternalMessageBody($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE) : $this->body),
 						$this->type,
 						$this->priority,
 						$this->status,
@@ -337,8 +337,11 @@ class Internal_Message extends MySource_Object
 					$to_email = '';
 
 					$user_locale = SQ_CONF_DEFAULT_BACKEND_LOCALE;
-
-					$subject = $lm->getInternalMessageSubject($this->type, $this->replacements, $user_locale);
+					
+					$subject = $this->subject;
+					if (empty($subject)) {
+						$subject = $lm->getInternalMessageSubject($this->type, $this->replacements, $user_locale);
+					}
 					$hdrs = Array(
 								'From'		=> $from_string,
 								'Subject'	=> $subject,
@@ -352,7 +355,10 @@ class Internal_Message extends MySource_Object
 
 					// get the body with a header and a footer attached
 					$owner = SQ_CONF_SYSTEM_OWNER;
-					$log_body = $lm->getInternalMessageBody($this->type, $this->replacements, $user_locale);
+					$log_body = $this->body;
+					if (empty($log_body)) {
+						$log_body = $lm->getInternalMessageBody($this->type, $this->replacements, $user_locale);
+					}
 					$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $log_body);
 
 					$tagline_reg = '|<SQ_MSG_TAGLINE[^>]*?>(.*?)</SQ_MSG_TAGLINE>|';
@@ -375,7 +381,7 @@ class Internal_Message extends MySource_Object
 					if (empty($user_locale)) {
 						$user_locale = SQ_CONF_DEFAULT_BACKEND_LOCALE;
 					}
-					$subject = $lm->getInternalMessageSubject($this->type, $this->replacements, $user_locale);
+					$subject = empty($this->subject) ? $lm->getInternalMessageSubject($this->type, $this->replacements, $user_locale) : $this->subject;
 					$hdrs = Array(
 								'From'		=> $from_string,
 								'Subject'	=> $subject,
