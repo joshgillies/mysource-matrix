@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.105 2006/01/09 03:41:03 emcdonald Exp $
+* $Id: metadata_manager.inc,v 1.106 2006/01/10 23:43:30 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -221,6 +221,7 @@ class Metadata_Manager extends MySource_Object
 		if ($granted) {
 			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($asset, 'MetadataUpdate', Array('schemaid' => $schemaid));
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_metadata_updated', $asset);
 			$this->generateContentFile($assetid, FALSE);
 		}
 
@@ -699,6 +700,7 @@ class Metadata_Manager extends MySource_Object
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		// broadcasted the assetids of the updated fields
 		$em->broadcastEvent($asset, 'MetadataUpdate', Array('fieldids' => array_keys($metadata)));
+		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_metadata_updated', $asset);
 
 		return TRUE;
 
