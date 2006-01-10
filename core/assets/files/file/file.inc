@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.119 2006/01/09 03:13:22 lwright Exp $
+* $Id: file.inc,v 1.120 2006/01/10 01:14:23 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.119 $
+* @version $Revision: 1.120 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,24 +66,24 @@ class File extends Asset
 	*/
 	function create(&$link, $info=Array())
 	{
-		$this->_tmp['file_create_data'] = &$info;
+		$this->_tmp['file_create_data'] =& $info;
 
 		$name = trim($this->attr('name'));
 		if ($name == '') {
 			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-			return false;
+			return FALSE;
 		}
 
 		// check that a file was uploaded at least and that it succeeded
 		if (empty($info)) {
 			$info = get_file_upload_info($this->getPrefix());
 		}
-		if ($info === false || empty($info)) {
+		if ($info === FALSE || empty($info)) {
 			$edit = $this->getEditFns();
 			$info = $edit->getChosenFileInfo($this->getPrefix());
-			if ($info === false || empty($info)) {
+			if ($info === FALSE || empty($info)) {
 				trigger_localised_error('CORE0056', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-				return false;
+				return FALSE;
 			}
 		}
 
@@ -94,7 +94,7 @@ class File extends Asset
 		if (!isset($info['filename'])) {
 			$info['filename'] = array_get_index($info, 'name', '');
 		}
-		if (!$this->validFile($info)) return false;
+		if (!$this->validFile($info)) return FALSE;
 
 		// check that we are not going to have web path conflicts
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -105,7 +105,7 @@ class File extends Asset
 		$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], Array($name));
 		if (!empty($bad_paths)) {
 			trigger_localised_error('CORE0086', E_USER_WARNING, $name);
-			return false;
+			return FALSE;
 		}
 
 		$this->setAttrValue('name', $name);
@@ -131,7 +131,7 @@ class File extends Asset
 		// and we have to give it back at the end, if it is 2 then it's already taken
 		// and we should leave it be
 		if (!$lock_held = $GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
-			return false;
+			return FALSE;
 		}
 
 		$edit = $this->getEditFns();
@@ -140,10 +140,10 @@ class File extends Asset
 		// process the file upload in the middle of creation
 		$this->_tmp['uploading_file'] = 1;
 		$prefix = $this->type().'_0';
-		$o = &$GLOBALS['SQ_SYSTEM']->backend->out;
+		$o =& $GLOBALS['SQ_SYSTEM']->backend->out;
 		$info = $this->_tmp['file_create_data'];
 
-		$ret_val = $edit->processFileChooser($this, $o, $prefix, true) || $edit->processFileUpload($this, $o, $prefix, $info, false);
+		$ret_val = $edit->processFileChooser($this, $o, $prefix, TRUE) || $edit->processFileUpload($this, $o, $prefix, $info, FALSE);
 
 		$this->saveAttributes();
 
@@ -178,12 +178,12 @@ class File extends Asset
 	function cloneComponents(&$clone, $components)
 	{
 		// create some information so we know where to clone the file from
-		$temp_info = Array('name' => $this->name, 'tmp_name' => $this->data_path.'/'.$this->name, 'non_uploaded_file' => true);
+		$temp_info = Array('name' => $this->name, 'tmp_name' => $this->data_path.'/'.$this->name, 'non_uploaded_file' => TRUE);
 
 		$edit_fns = $clone->getEditFns();
 		if (!$edit_fns->processFileUpload($clone, $GLOBALS['SQ_SYSTEM']->backend->out, $clone->getPrefix(), $temp_info)) {
 			trigger_localised_error('CORE0010', E_USER_WARNING, $this->name, $this->id);
-			return false;
+			return FALSE;
 		}
 
 		return parent::cloneComponents($clone, $components);
@@ -220,44 +220,44 @@ class File extends Asset
 		// make sure our data directory exists
 		if (!create_directory($this->data_path)) {
 			trigger_localised_error('CORE0049', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		// make sure our system directory exists
 		if (!create_directory($this->data_path.'/.sq_system')) {
 			trigger_localised_error('CORE0050', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		// make sure there is nothing in the system directory
 		if (!clear_directory($this->data_path.'/.sq_system')) {
 			trigger_localised_error('CORE0046', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		// save the object for later (in the restricted directory)
 		if (!string_to_file(serialize($this), $this->data_path.'/.sq_system/.object_data')) {
 			trigger_localised_error('CORE0051', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		// update our lookup tables to not use __data
 		if (!parent::updateLookups()) {
 			trigger_localised_error('CORE0053', E_USER_WARNING, $this->name);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		// store the current version of the file
-		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 		$file_info = $fv->_checkOutCheck($this->data_path_suffix.'/'.$this->name);
 		$latest_version = $file_info['version'];
 		if (!string_to_file($latest_version, $this->data_path.'/.sq_system/sq_system_version_no')) {
 			trigger_localised_error('CORE0051', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end saveSystemVersion()
 
@@ -275,16 +275,16 @@ class File extends Asset
 
 		// pretend we are uploading a file because we may be changing the name of the file
 		// and we want to fool setAttributeValue
-		$this->_tmp['uploading_file'] = true;
+		$this->_tmp['uploading_file'] = TRUE;
 		if (!parent::revertToSystemVersion()) {
-			$this->_tmp['uploading_file'] = false;
-			return false;
+			$this->_tmp['uploading_file'] = FALSE;
+			return FALSE;
 		}
-		$this->_tmp['uploading_file'] = false;
+		$this->_tmp['uploading_file'] = FALSE;
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
-		$file_version = null;
+		$file_version = NULL;
 		if (is_file($this->data_path.'/sq_system_version_no')) {
 			$file_version = file_to_string($this->data_path.'/sq_system_version_no');
 		}
@@ -292,10 +292,10 @@ class File extends Asset
 		// clear the private data directory to get rid of the new uploaded file we had there
 		if (!clear_directory($this->data_path)) {
 			trigger_localised_error('CORE0045', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
-		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 		// we want to remove the safe edit file name from the repository because
 		// there's a chance someone will try and use that name later
@@ -307,7 +307,7 @@ class File extends Asset
 		$rep_path = $this->data_path_suffix.'/'.$this->name;
 		if (!$fv->checkOut($rep_path, $this->data_path, $file_version)) {
 			trigger_localised_error('CORE0044', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		// create a new versioning entry for the old version
@@ -317,14 +317,14 @@ class File extends Asset
 		// check out the new version
 		if (!$fv->checkOut($rep_path, $this->data_path)) {
 			trigger_localised_error('CORE0044', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		// this will ensure that the lookups are updated and that the
 		// public file is properly checked out
 		$this->_checkFileState();
 
-		return true;
+		return TRUE;
 
 	}//end revertToSystemVersion()
 
@@ -340,9 +340,9 @@ class File extends Asset
 	*/
 	function morph($new_type_code)
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
-		$file_types = array_merge($am->getTypeAncestors($this->type(), false), $am->getTypeDescendants($this->type()));
+		$file_types = array_merge($am->getTypeAncestors($this->type(), FALSE), $am->getTypeDescendants($this->type()));
 
 		if (in_array($new_type_code, $file_types)) {
 			// we are morphing into another file type, so check that the actual
@@ -353,10 +353,10 @@ class File extends Asset
 			if (!empty($existing)) {
 				if (!$tmp->validFile($existing)) {
 					trigger_localised_error('CORE0008', E_USER_WARNING, $this->name, $new_type_code, $existing['filename'], $new_type_code);
-					return false;
+					return FALSE;
 				}
 
-				$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+				$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 				$fv->changeFvTypeCode($existing['path'], $new_type_code);
 			}
 			unset($tmp);
@@ -378,14 +378,14 @@ class File extends Asset
 	function processStatusChange($new_status)
 	{
 		// let ourselves know not to do any extra updating
-		$this->_tmp['IGNORE_UPDATE'] = true;
+		$this->_tmp['IGNORE_UPDATE'] = TRUE;
 		$old_status = $this->status;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!parent::processStatusChange($new_status)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		// NOTE : no need to update the files states or the lookups here because they are done in _updated() if a file exists
@@ -394,11 +394,11 @@ class File extends Asset
 		unset($this->_tmp['IGNORE_UPDATE']);
 		if (!$this->_updated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		return TRUE;
 
 	}//end processStatusChange()
 
@@ -416,7 +416,7 @@ class File extends Asset
 				SQ_LINK_TYPE_1	=> Array(),
 				SQ_LINK_TYPE_2	=> Array(),
 				SQ_LINK_TYPE_3	=> Array(),
-				SQ_LINK_NOTICE	=> Array('thumbnail' => Array('card' => 1, 'exclusive' => false)),
+				SQ_LINK_NOTICE	=> Array('thumbnail' => Array('card' => 1, 'exclusive' => FALSE)),
 			   );
 
 	}//end _getAllowedLinks()
@@ -436,12 +436,12 @@ class File extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _updated($update_parents=true)
+	function _updated($update_parents=TRUE)
 	{
-		if (!parent::_updated($update_parents)) return false;
+		if (!parent::_updated($update_parents)) return FALSE;
 
 		if ($this->status & SQ_SC_STATUS_SAFE_EDITING || !empty($this->_tmp['IGNORE_UPDATE'])) {
-			return true;
+			return TRUE;
 		}
 
 		return $this->_checkFileState();
@@ -474,11 +474,11 @@ class File extends Asset
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		$existing = $this->getExistingFile();
-		if (empty($existing)) return true;
+		if (empty($existing)) return TRUE;
 
 		$unrestricted = $this->data_path_public.'/'.$existing['filename'];
 
-		$changed = false;
+		$changed = FALSE;
 
 		// if we should be storing our file in the public
 		// data directory for all the world to see
@@ -486,10 +486,10 @@ class File extends Asset
 			// make sure our data directory exists
 			if (!create_directory($this->data_path_public)) {
 				trigger_localised_error('CORE0049', E_USER_WARNING, $this->name);
-				return false;
+				return FALSE;
 			}
 
-			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			// if there is no current file or if the current file is out of date, check out a fresh copy
 			if ($fv->upToDate($unrestricted) & (FUDGE_FV_NOT_CHECKED_OUT | FUDGE_FV_OLD_VERSION)) {
 				if (file_exists($unrestricted)) {
@@ -497,21 +497,21 @@ class File extends Asset
 				}
 
 				if ($fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path_public)) {
-					$changed = true;
+					$changed = TRUE;
 				} else {
 					trigger_localised_error('CORE0032', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
 			}
 		} else {
 			// need to make sure our file is in the NOT in the public data directory
 			if (is_file($unrestricted)) {
-				$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+				$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 				if ($fv->clearOut($unrestricted) & FUDGE_FV_OK) {
-					$changed = true;
+					$changed = TRUE;
 				} else {
 					trigger_localised_error('CORE0104', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
 			}
 		}//end if effectiveUnrestricted
@@ -519,7 +519,7 @@ class File extends Asset
 		if ($changed) {
 			return $this->updateLookups();
 		} else {
-			return true;
+			return TRUE;
 		}
 
 	}//end _checkFileState()
@@ -549,7 +549,7 @@ class File extends Asset
 	function updateLookups()
 	{
 		if (!isset($this->_tmp['deleting_file'])) {
-			$this->_tmp['deleting_file'] = false;
+			$this->_tmp['deleting_file'] = FALSE;
 		}
 		if (!$this->usePublicPath() && !$this->_tmp['deleting_file']) {
 			// this file is either in a safe edit, restricted, or doesnt want to be unrestricted
@@ -557,7 +557,7 @@ class File extends Asset
 			return parent::updateLookups();
 		}
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		unset($this->_tmp['lookups']);
@@ -581,10 +581,6 @@ class File extends Asset
 						)
 					AND	(name LIKE '.$db->quoteSmart('design::%').'
 						OR name LIKE '.$db->quoteSmart('paint_layout::%').')';
-		//if ($this->_tmp['deleting_file']) {
-		//	$sql .= ' OR name LIKE '.$db->quoteSmart('paint_layout::%');
-		//}
-		$sql .= ')';
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
@@ -601,7 +597,7 @@ class File extends Asset
 		if (!isset($existing['filename'])) {
 			// there is no filename, so commit the removal of the current web paths and return
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
+			return TRUE;
 		}
 
 		$web_path = str_replace(sq_web_path('root_url').'/', '', $this->getWebDataPath()).'/'.$existing['filename'];
@@ -618,9 +614,9 @@ class File extends Asset
 
 		} else {
 
-			$site_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', false);
+			$site_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', FALSE);
 			foreach ($site_parents as $assetid => $type_code) {
-				$site = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				$site =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				if (is_null($site)) continue;
 				$urls = $site->getSiteURLS();
 
@@ -651,7 +647,7 @@ class File extends Asset
 
 				}//end foreach
 
-			}//end if
+			}//end foreach
 
 		}//end foreach
 
@@ -686,7 +682,7 @@ class File extends Asset
 		}//end foreach
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		return TRUE;
 
 	}//end updateLookups()
 
@@ -705,8 +701,8 @@ class File extends Asset
 		switch ($_POST['asset_action']) {
 			case 'create' :
 				$this->_tmp['uploading_file'] = 1;
-				$ei = &$this->getEI();
-				if (!$ei->process($this, $o, true)) return false;
+				$ei =& $this->getEI();
+				if (!$ei->process($this, $o, TRUE)) return FALSE;
 
 				$prefix = $this->getPrefix();
 				$this->setAttrValue('name', 'temp');
@@ -731,9 +727,9 @@ class File extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function saveAttributes($dont_run_updated=false)
+	function saveAttributes($dont_run_updated=FALSE)
 	{
-		if (!$this->id) return true;
+		if (!$this->id) return TRUE;
 
 		// if there are no values for the title attribute use the filename
 		if (trim($this->attr('title')) == '') {
@@ -751,21 +747,21 @@ class File extends Asset
 
 				// try and set the new filename - return false if it fails
 				if (!parent::saveAttributes($dont_run_updated)) {
-					return false;
+					return FALSE;
 				}
 
 				if (is_file($this->data_path.'/'.$old_filename)) {
 					if (!$this->_renameFile($this->data_path, $old_filename, $new_filename)) {
 						parent::setAttrValue('name', $old_filename);
 						parent::saveAttributes($dont_run_updated);
-						return false;
+						return FALSE;
 					}
 				}
 
 				if ($this->effectiveUnrestricted()) {
 					if (is_file($this->data_path_public.'/'.$old_filename)) {
 						unlink($this->data_path_public.'/'.$old_filename);
-						$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+						$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 						$fv->checkOut($this->data_path_suffix.'/'.$new_filename, $this->data_path_public);
 					}
 				}
@@ -773,7 +769,7 @@ class File extends Asset
 				// update the lookups so that the __data path gets rewritten if applicable
 				$this->updateLookups();
 
-				return true;
+				return TRUE;
 
 			}//end if not uploading a file
 
@@ -782,7 +778,7 @@ class File extends Asset
 		if (isset($this->_tmp['vars_set']['allow_unrestricted'])) {
 			// the unrestricted setting is being changed, so we may need to update lookups
 			if ($this->effectiveUnrestricted() && !($this->status & SQ_SC_STATUS_SAFE_EDITING)) {
-				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$vars = Array('assetids' => Array($this->id));
 				$hh->queueHipo('hipo_job_update_lookups', $vars);
 			}
@@ -806,13 +802,13 @@ class File extends Asset
 	function _renameFile($data_path, $old_filename, $new_filename)
 	{
 
-		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 		// copy the file instead of a direct rename because removing the
 		// file from the repository will also remove it from the file system
 		if (!copy($data_path.'/'.$old_filename, $data_path.'/'.$new_filename)) {
 			trigger_localised_error('CORE0026', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		// we are renaming the file, so we need to remove the old name from
@@ -820,22 +816,22 @@ class File extends Asset
 		$result = $fv->remove($data_path.'/'.$old_filename, '');
 		if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
 			trigger_localised_error('CORE0042', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		// attempt to add a new version of the file to the repository
 		if (!$fv->add($this->data_path_suffix, $data_path.'/'.$new_filename, '')) {
 			trigger_localised_error('CORE0026', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		// make sure we have the latest version of our file
 		if (!$fv->checkOut($this->data_path_suffix.'/'.$new_filename, $data_path)) {
 			trigger_localised_error('CORE0032', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _renameFile()
 
@@ -853,7 +849,7 @@ class File extends Asset
 	*/
 	function setAttrValue($name, $value)
 	{
-		$uploading_file = (!empty($this->_tmp['uploading_file'])) ? true : false;
+		$uploading_file = (!empty($this->_tmp['uploading_file'])) ? TRUE : FALSE;
 
 		if ($name == 'name' && !$uploading_file) {
 			// check that we are not going to have web path conflicts
@@ -875,12 +871,12 @@ class File extends Asset
 			if (trim($old_ext) != '' && $old_ext != $new_ext) {
 				trigger_localised_error('CORE0115', E_USER_WARNING);
 				$value = $old_filename;
-				return false;
+				return FALSE;
 			}
 			if (!is_file($data_path.'/'.$old_filename)) {
 				trigger_localised_error('CORE0023', E_USER_WARNING);
 				$value = $old_filename;
-				return false;
+				return FALSE;
 			}
 		} else if ($name == 'title') {
 			$value = htmlspecialchars($value);
@@ -905,10 +901,10 @@ class File extends Asset
 		$size = filesize($info['path']);
 
 		$sq_file_max_size = $GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_MAX_SIZE');
-		if (empty($sq_file_max_size)) return true;
+		if (empty($sq_file_max_size)) return TRUE;
 
 		$max_size = strtolower($sq_file_max_size);
-		if (!$max_size) return true;
+		if (!$max_size) return TRUE;
 
 		if (substr($max_size, -1) == 'k') {
 			$max_size = $max_size * 1024;
@@ -918,9 +914,9 @@ class File extends Asset
 		if ($size > $max_size) {
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			trigger_localised_error('CORE0057', E_USER_WARNING, strtoupper(easy_filesize($max_size)), strtoupper(easy_filesize($size)));
-			return false;
+			return FALSE;
 		}
-		return true;
+		return TRUE;
 
 	}//end validFile()
 
@@ -976,11 +972,11 @@ class File extends Asset
 	* @return string
 	* @access public
 	*/
-	function getURL($base_url=null, $ignore_rollback=false)
+	function getURL($base_url=NULL, $ignore_rollback=FALSE)
 	{
 		if (SQ_ROLLBACK_VIEW) {
 			if (is_null($base_url)) $base_url = current_url();
-			$base_url = strip_url($base_url, false);
+			$base_url = strip_url($base_url, FALSE);
 			return $base_url.'/?a='.$this->id;
 		} else {
 			return parent::getURL($base_url, $ignore_rollback);
@@ -999,7 +995,7 @@ class File extends Asset
 	* @return string
 	* @access public
 	*/
-	function getHref($base_url=null, $ignore_rollback=false)
+	function getHref($base_url=NULL, $ignore_rollback=FALSE)
 	{
 		if (SQ_ROLLBACK_VIEW) {
 			return './?a='.$this->id;
@@ -1022,16 +1018,16 @@ class File extends Asset
 
 		if (SQ_ROLLBACK_VIEW) {
 			// get an older version of this file
-			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			$rep_file = $this->data_path_suffix.'/'.$this->name;
 			$then = iso8601_ts($_SESSION['sq_rollback_view']['rollback_time']);
-			$info = $fv->_checkOutCheck($rep_file, null, $then);
+			$info = $fv->_checkOutCheck($rep_file, NULL, $then);
 			$path = $info['source_file'];
 		} else if (($this->status & SQ_SC_STATUS_SAFE_EDITING) && (is_a($GLOBALS['SQ_SYSTEM']->user, 'public_user'))) {
 			// safe edit, get the previous live version from the file versioning repository for public user (bug #1049)
 			if (is_file($this->data_path.'/sq_system_version_no')) {
 				$file_version = file_to_string($this->data_path.'/sq_system_version_no');
-				$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+				$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 				$rep_file = $this->data_path_suffix.'/'.$this->name;
 				$info = $fv->_checkOutCheck($rep_file, $file_version);
 				$path = $info['source_file'];
@@ -1062,7 +1058,7 @@ class File extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return (($short_name) ? $this->attr('title') : $this->attr('name'));
 
@@ -1133,20 +1129,20 @@ class File extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function delete($release_lock=true)
+	function delete($release_lock=TRUE)
 	{
-		$this->_tmp['deleting_file'] = true;
+		$this->_tmp['deleting_file'] = TRUE;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!parent::delete($release_lock)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$this->_tmp['deleting_file'] = false;
+		$this->_tmp['deleting_file'] = FALSE;
 
-		return true;
+		return TRUE;
 
 	}//end delete()
 
