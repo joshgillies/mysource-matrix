@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.50 2005/11/25 00:48:14 lwright Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.51 2006/01/10 23:48:06 rong Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -976,7 +976,6 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				return false;
 			} else {
 				$sort_by_options = $this->_getSortByOptions($asset);
-				$sort_by_options['no_sorting'] = '-- '.translate('select').' --';
 			}
 			if ($write_access) {
 				echo ' '.translate('name').' ';
@@ -1023,7 +1022,6 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 									<tr>
 										<td class="sq-backend-table-cell">
 											<?php
-												if ($info['params']['field'] == 'no_sorting') continue;
 												hidden_field($prefix.'_fields['.$id.'][params][field]', $info['params']['field']);
 												hidden_field($prefix.'_fields['.$id.'][type]', 'field');
 												echo $sort_by_options[$info['params']['field']];
@@ -1311,7 +1309,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		}
 
 		// --- Fields --- //
-		if (!empty($sort_by) && !empty($name) && $sort_by != 'no_sorting') {
+		if (!empty($sort_by) && !empty($name)) {
 			if (!$invalid_name) {
 				$invalid = false;
 				$new_index = count($save_list);
@@ -1398,7 +1396,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			}
 
 			if ($write_access) {
-				combo_box($prefix.'_default', $names, '', $default);
+				combo_box($prefix.'_default', $names, false, $default);
 			} else {
 				if (isset($sort_by_list[$default]['name'])) {
 					echo $sort_by_list[$default]['name'];
@@ -1676,13 +1674,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	{
 		if ($asset->attr('group_by') == 'letter') {
 			return Array(
-					'no_sorting'	=> '-- No Sorting --',
 					'name'			=> translate('name'),
 					'short_name'	=> translate('short_name'),
 				   );
 		} else {
 			return Array(
-					'no_sorting'	=> '-- No Sorting --',
 					'assetid'		=> translate('asset_id'),
 					'version'		=> translate('version'),
 					'name'			=> translate('name'),

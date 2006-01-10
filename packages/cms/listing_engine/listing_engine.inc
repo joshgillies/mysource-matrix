@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.132 2006/01/09 04:33:03 lwright Exp $
+* $Id: listing_engine.inc,v 1.133 2006/01/10 23:48:06 rong Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.132 $
+* @version $Revision: 1.133 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -736,8 +736,6 @@ class Listing_Engine extends Page
 
 		} else {
 			$sort_field = $sort_params['field'];
-			// no sorting is required. So return the assetlist
-			if ($sort_field == 'no_sorting') return $asset_list;
 
 			if (in_array($sort_field, $this->getSortableAssetInfo())) {
 				$sort_assets = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, null, TRUE, $sort_field);
@@ -746,6 +744,9 @@ class Listing_Engine extends Page
 				}
 
 				if ($sort_field != 'assetid') $sort_numeric = FALSE;
+			} else {
+				// sort field is not defined, return the assetlist
+				return $asset_list;
 			}
 
 		}
