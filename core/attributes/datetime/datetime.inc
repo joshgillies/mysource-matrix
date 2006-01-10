@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.34 2005/11/25 03:50:54 lwright Exp $
+* $Id: datetime.inc,v 1.35 2006/01/10 01:25:45 tbarrett Exp $
 *
 */
 
@@ -46,7 +46,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    </datetime>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -280,7 +280,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 
 				$calendar =& new JS_Calendar();
 				$calendar->changeSetting('onDayClick', 'datetime_set_date');
-				$calendar->paint($prefix, '', true);
+				$calendar->paint(str_replace(':', '_', $prefix), '', true);
 			}
 		}
 
@@ -442,8 +442,9 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			$field =& new Datetime_Field('blah', $ref, $this->_edit_params);
 			$value = $field->validateValue($value);
 		} else {
-			if (!preg_match('|[\-\+][0-9]+['.implode('', array_keys($this->_getPeriodOptions())).']|', $value)) {
+			if (!empty($value) && !preg_match('|[\-\+][0-9]+['.implode('', array_keys($this->_getPeriodOptions())).']|', $value)) {
 				$value = '-1d';
+				return false;
 			}
 		}
 		return true;
