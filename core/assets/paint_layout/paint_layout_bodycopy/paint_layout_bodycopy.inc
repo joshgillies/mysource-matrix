@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.17 2006/01/05 05:15:45 sdanis Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.18 2006/01/10 00:15:14 tbarrett Exp $
 *
 */
 
@@ -50,7 +50,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as false.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -210,13 +210,13 @@ class Paint_Layout_Bodycopy extends Bodycopy
 				include($this->data_path.'/content_file.php');
 				$content = ob_get_contents();
 			ob_end_clean();
-			$content = replace_keywords($content, $paint_layout_keywords);
 		} else {
 			ob_start();
-				$asset->printBody();
+				$this->printBody();
 				$content = ob_get_contents();
 			ob_end_clean();
 		}
+		$content = replace_keywords($content, $paint_layout_keywords);
 
 		return $content;
 
