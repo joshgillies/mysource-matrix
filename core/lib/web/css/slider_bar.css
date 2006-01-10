@@ -1,7 +1,11 @@
 .slider-container {
 	height: 26px;
 	line-height: 26px;
-	width: 430px; /* hopefully! */
+	min-width: 430px; /* hopefully! */
+	max-width: 600px;
+	overflow: visible;
+	white-space: nowrap;
+	display: inline;
 }
 .slider-box {
 	background: #ddd;
