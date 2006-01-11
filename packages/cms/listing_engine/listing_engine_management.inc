@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.23.2.5 2005/11/24 00:21:08 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.23.2.6 2006/01/11 00:09:02 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23.2.5 $
+* @version $Revision: 1.23.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -65,47 +65,40 @@ class Listing_Engine_Management extends Asset_Management
 									'default'	=> Array(
 													0	=> Array (
 															'params'	=> Array (
-																			'field'	=> 'no_sorting',
-																		   ),
-															'type'		=> 'field',
-															'name'		=> 'No Sorting',
-														   ),
-													1	=> Array (
-															'params'	=> Array (
 																			'field'	=> 'name',
 																		   ),
 															'type'		=> 'field',
 															'name'		=> 'Name',
 														   ),
-													2	=> Array (
+													1	=> Array (
 															'params'	=> Array (
 																			'field'	=> 'short_name',
 																		   ),
 															'type'		=> 'field',
 															'name'		=> 'Short Name',
 														   ),
-													3	=> Array (
+													2	=> Array (
 															'params'	=> Array (
 																			'field'	=> 'created',
 																		   ),
 															'type'		=> 'field',
 															'name'		=> 'Created Date',
 														   ),
-													4	=> Array (
+													3	=> Array (
 															'params'	=> Array (
 																			'field'	=> 'updated',
 																		   ),
 															'type'		=> 'field',
 															'name'		=> 'Last Updated Date',
 														   ),
-													5	=> Array (
+													4	=> Array (
 															'params'	=> Array (
 																			'field'	=> 'published',
 																		   ),
 															'type'		=> 'field',
 															'name'		=> 'Last Published Date',
 														   ),
-													6	=> Array (
+													5	=> Array (
 															'params'	=> Array (
 																			'field'	=> 'type_code',
 																		   ),

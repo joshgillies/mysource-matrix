@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.30 2006/01/08 23:00:12 lwright Exp $
+* $Id: listing_engine.inc,v 1.38.2.31 2006/01/11 00:09:02 rong Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.30 $
+* @version $Revision: 1.38.2.31 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -530,6 +530,9 @@ class Listing_Engine extends Page
 				}
 
 				if ($sort_field != 'assetid') $sort_numeric = false;
+			} else {
+				// sort field is not defined, return the assetlist
+				return $asset_list;
 			}
 		}
 

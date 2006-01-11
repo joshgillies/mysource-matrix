@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.18.2.7 2005/08/19 01:13:26 dheppell Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.18.2.8 2006/01/11 00:09:02 rong Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18.2.7 $
+* @version $Revision: 1.18.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -932,7 +932,6 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				return false;
 			} else {
 				$sort_by_options = $this->_getSortByOptions($asset);
-				$sort_by_options['no_sorting'] = '-- '.translate('select').' --';
 			}
 
 			if ($write_access) {
@@ -978,7 +977,6 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 								<tr>
 									<td class="sq-backend-table-cell">
 										<?php
-											if ($info['params']['field'] == 'no_sorting') continue;
 											hidden_field($prefix.'_fields['.$id.'][params][field]', $info['params']['field']);
 											hidden_field($prefix.'_fields['.$id.'][type]', 'field');
 											echo ucwords(str_replace('_', ' ', $info['params']['field']));
@@ -1362,7 +1360,6 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 							<tr>
 								<td class="sq-backend-table-cell">
 									<?php
-									if (array_get_index($info['params'], 'field', false) == 'no_sorting') continue;
 									hidden_field($prefix.'_sort_order_list['.$id.']', $id); ?>
 									<span id ="<?php echo $prefix ?>_sort_order_<?php echo $id; ?>"><?php echo $info['name']; ?></span>
 								</td>
@@ -1505,13 +1502,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	{
 		if ($asset->attr('group_by') == 'letter') {
 			return Array(
-					'no_sorting'	=> '-- No Sorting --',
 					'name'			=> translate('name'),
 					'short_name'	=> translate('short_name'),
 				   );
 		} else {
 			return Array(
-					'no_sorting'	=> '-- No Sorting --',
 					'assetid'		=> translate('asset_id'),
 					'version'		=> translate('version'),
 					'name'			=> translate('name'),
