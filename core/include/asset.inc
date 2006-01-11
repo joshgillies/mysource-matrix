@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.483 2006/01/08 23:28:07 lwright Exp $
+* $Id: asset.inc,v 1.484 2006/01/11 05:21:04 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.483 $
+* @version $Revision: 1.484 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1157,8 +1157,8 @@ class Asset extends MySource_Object
 
 		$updated = time();
 		$updated_userid  = $GLOBALS['SQ_SYSTEM']->currentUserId();
-		$name            = $this->_getName();
-		$short_name      = $this->_getName(true);
+		$name            = substr($this->_getName(), 0, 255);
+		$short_name      = substr($this->_getName(true), 0, 255);
 
 		// if we have an ID hit the DB
 		if ($this->id) {
