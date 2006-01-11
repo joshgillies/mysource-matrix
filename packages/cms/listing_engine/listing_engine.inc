@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.133 2006/01/10 23:48:06 rong Exp $
+* $Id: listing_engine.inc,v 1.134 2006/01/11 22:54:15 rong Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.133 $
+* @version $Revision: 1.134 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -92,7 +92,7 @@ class Listing_Engine extends Page
 						'group_formats'		=> 'folder',
 					 );
 
-		$type_formats = null;
+		$type_formats = NULL;
 		foreach ($sub_assets as $name => $type) {
 			$asset =& new $type();
 			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
@@ -279,7 +279,7 @@ class Listing_Engine extends Page
 	*/
 	function &getFolder($type='type_formats')
 	{
-		$null = null;
+		$null = NULL;
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, $type);
 		if (empty($link)) return $null;
 
@@ -339,7 +339,7 @@ class Listing_Engine extends Page
 
 		// we're removing all the contents
 		foreach ($used_fields as $key) {
-			$keys_to_remove[$key] = null;
+			$keys_to_remove[$key] = NULL;
 		}
 
 		$selections = $this->attr('asset_selections');
@@ -349,7 +349,7 @@ class Listing_Engine extends Page
 			// include the 'select all' js if required
 			$using_select_all = FALSE;
 			foreach ($selections as $selection_name => $selection_settings) {
-				if (array_get_index($selection_settings, 'type', null) == 'radio' && !empty($selection_settings['options']['allow_multiple'])) {
+				if (array_get_index($selection_settings, 'type', NULL) == 'radio' && !empty($selection_settings['options']['allow_multiple'])) {
 					?>
 					<script type="text/javascript" src="<?php echo sq_web_path('data') ?>/asset_types/listing_engine/js/select_all.js"></script>
 					<?php
@@ -738,8 +738,8 @@ class Listing_Engine extends Page
 			$sort_field = $sort_params['field'];
 
 			if (in_array($sort_field, $this->getSortableAssetInfo())) {
-				$sort_assets = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, null, TRUE, $sort_field);
-				for (reset($sort_assets); null !== ($assetid = key($sort_assets)); next($sort_assets)) {
+				$sort_assets = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, NULL, TRUE, $sort_field);
+				for (reset($sort_assets); NULL !== ($assetid = key($sort_assets)); next($sort_assets)) {
 					$sort_assets[$assetid] = strtolower($sort_assets[$assetid]);
 				}
 
@@ -808,7 +808,7 @@ class Listing_Engine extends Page
 
 			case 'letter' :
 				$filtered_todo = Array();
-				for (reset($todo); null !== ($todo_id = key($todo)); next($todo)) {
+				for (reset($todo); NULL !== ($todo_id = key($todo)); next($todo)) {
 					$filtered_todo[$todo_id] =& $todo[$todo_id]['type_code'];
 				}
 				$this->filterAssetTypes($filtered_todo);
@@ -838,7 +838,7 @@ class Listing_Engine extends Page
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$todo_keys = array_keys($todo);
-		for (reset($todo_keys); null !== ($key = key($todo_keys)); next($todo_keys)) {
+		for (reset($todo_keys); NULL !== ($key = key($todo_keys)); next($todo_keys)) {
 			$todo_keys[$key] = $db->quoteSmart((string) $todo_keys[$key]);
 		}
 
@@ -1091,7 +1091,7 @@ class Listing_Engine extends Page
 	* @return array
 	* @access public
 	*/
-	function &getChunk(&$children, &$replacements, $result_page, $num_per_page, $group_by=null)
+	function &getChunk(&$children, &$replacements, $result_page, $num_per_page, $group_by=NULL)
 	{
 		// grouping by number shows a certain number of results per page (eg. 10 assets per page)
 		// grouping by letter makes this template an A-Z listing of assets
@@ -1338,13 +1338,13 @@ class Listing_Engine extends Page
 	* @return void
 	* @access private
 	*/
-	function _groupChunk(&$todo, &$chunk, &$remaining_count, $num_per_page, $group_limit=null)
+	function _groupChunk(&$todo, &$chunk, &$remaining_count, $num_per_page, $group_limit=NULL)
 	{
 		// keep calling this for each group until we get to the actual assets
 		if (($group_limit > 0) || is_null($group_limit)) {
 			foreach ($todo as $index => $child) {
 				if ($remaining_count >= 0) {
-					$this->_groupChunk($todo[$index], $chunk[$index], $remaining_count, $num_per_page, ($group_limit == null ? null : $group_limit - 1));
+					$this->_groupChunk($todo[$index], $chunk[$index], $remaining_count, $num_per_page, ($group_limit == NULL ? NULL : $group_limit - 1));
 				}
 
 				if (empty($chunk[$index])) unset($chunk[$index]);
@@ -1533,7 +1533,7 @@ class Listing_Engine extends Page
 			// otherwise we're up to the asset list, we can do the normal listing stuff here
 			// make sure we add not replace the assets info array, just in case somethings needed
 			$group_assets = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
-			for (reset($group_assets); null !== ($index = key($group_assets)); next($group_assets)) {
+			for (reset($group_assets); NULL !== ($index = key($group_assets)); next($group_assets)) {
 				$this->_tmp['assets_info'][$index] = $group_assets[$index];
 			}
 			$this->_printAssetList($todo);
@@ -1572,7 +1572,7 @@ class Listing_Engine extends Page
 
 			echo '<table width="100%">';
 
-			for (reset($todo); null !== ($assetid = key($todo));) {
+			for (reset($todo); NULL !== ($assetid = key($todo));) {
 
 				echo '<tr>';
 				$cols_in_row = array_get_index($column_layout, $current_row, $column_layout['0']);
@@ -1584,7 +1584,7 @@ class Listing_Engine extends Page
 					?>
 					<td<?php echo ($colspan > 1) ? ' colspan="'.$colspan.'"' : ''; ?>>
 						<?php
-						if ($assetid == null) {
+						if ($assetid == NULL) {
 							echo '&nbsp;';
 						} else {
 							$this->_printAsset($assetid, $list_position);
@@ -1645,13 +1645,13 @@ class Listing_Engine extends Page
 	*/
 	function _printAsset($assetid, $list_position)
 	{
-		$mm         = null;
+		$mm         = NULL;
 		$contents   = '';
 		$keywords   = Array();
 		$customised = $this->getFormats('type_formats');
 
 		$asset_info_fields = $this->getSortableAssetInfo();
-		$bodycopy = null;
+		$bodycopy = NULL;
 
 		// if a ':' exists in the assetid, then it is a shadow asset
 		$is_shadow = strpos($assetid, ':');
@@ -1659,7 +1659,7 @@ class Listing_Engine extends Page
 		// we can get the type code from the asset info array
 		// if the asset info array is empty then there is a possibility that we are trying to print a shadow asset
 		// so we load the asset and get its typecode
-		$type_code = null;
+		$type_code = NULL;
 		$info = array_get_index($this->_tmp['assets_info'], $assetid, Array('type_code' => ''));
 		if (!empty($info['type_code'])) {
 			$type_code = $info['type_code'];
@@ -1681,7 +1681,7 @@ class Listing_Engine extends Page
 				$type_code = $this->_tmp['type_formats'][$type_code];
 			} else {
 
-				$parent = null;
+				$parent = NULL;
 				$parents = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
 
 				if (($type_key = array_search($type_code, $customised)) === FALSE) {
@@ -1789,7 +1789,7 @@ class Listing_Engine extends Page
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ancestor_asset);
 						}
 					} else {
-						$parent_assets = $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(null, $nurl);
+						$parent_assets = $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(NULL, $nurl);
 
 						// searching for the root asset
 						$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', FALSE, 'root');
@@ -1942,7 +1942,7 @@ class Listing_Engine extends Page
 							if ($selection_restrict_enable) {
 								int_text_box($selection_name_field, $selection_value, $selection_allow_negative, 3, $selection_restrict_min, $selection_restrict_max, '', FALSE, 'id="'.$selection_id.'"');
 							} else {
-								int_text_box($selection_name_field, $selection_value, $selection_allow_negative, 3, null, null, '', FALSE, 'id="'.$selection_id.'"');
+								int_text_box($selection_name_field, $selection_value, $selection_allow_negative, 3, NULL, NULL, '', FALSE, 'id="'.$selection_id.'"');
 							}
 						}
 					break;
@@ -2266,9 +2266,9 @@ class Listing_Engine extends Page
 	function groupAssetsRecursively($group_levels, $assetids, &$results)
 	{
 		$min_depth = $this->attr('min_depth');
-		if ($min_depth == '') $min_depth = null;
+		if ($min_depth == '') $min_depth = NULL;
 		$max_depth = $this->attr('max_depth');
-		if ($max_depth == '') $max_depth = null;
+		if ($max_depth == '') $max_depth = NULL;
 
 		$root_nodes = $this->getRootNodes();
 
@@ -2290,7 +2290,7 @@ class Listing_Engine extends Page
 		$limit_array = Array();
 
 		foreach ($group_levels as $group_key => $group_level) {
-			array_unshift($limit_array, array_get_index($group_level, 'max_children', null));
+			array_unshift($limit_array, array_get_index($group_level, 'max_children', NULL));
 			$new_asset_groups = Array();
 
 			// go one node UP the tree, no matter whether we're going up or down
@@ -2314,7 +2314,7 @@ class Listing_Engine extends Page
 					case 'parent_asset':
 						$value = $this->getGroupableParentAssetids($current_parent);
 
-						// skip this whole section if both depth fields are null
+						// skip this whole section if both depth fields are NULL
 						// otherwise, we are limiting by parent's depth, relative
 						// to what is set for leaf nodes
 						if (!is_null($min_depth) || !is_null($max_depth)) {
@@ -2426,7 +2426,7 @@ class Listing_Engine extends Page
 	* how many assets/child groups will be kept at each level. eg. in a listing
 	* engine-derived asset with two groups, a $limit_array of Array(2,3) means that
 	* the top-level group will contain at most 2 child groups, and each child group
-	* will contain at most 3 child assets. Any value can be null or zero for all
+	* will contain at most 3 child assets. Any value can be NULL or zero for all
 	* assets to be kept. The $limit_array passed to each recursive level is reduced
 	* by one (the top level) each time.
 	*
@@ -2702,14 +2702,14 @@ class Listing_Engine extends Page
 	* @return int
 	* @access private
 	*/
-	function _arrayCountRecursive(&$array, $limit=null)
+	function _arrayCountRecursive(&$array, $limit=NULL)
 	{
 		$count = 0;
 
-		for (reset($array); null !== ($k = key($array)); next($array)) {
+		for (reset($array); NULL !== ($k = key($array)); next($array)) {
 			$el =& $array[$k];
 			if (is_array($el) && (is_null($limit) || ($limit > 0))) {
-				$count += $this->_arrayCountRecursive($el, (is_null($limit) ? null : $limit - 1));
+				$count += $this->_arrayCountRecursive($el, (is_null($limit) ? NULL : $limit - 1));
 			} else {
 				$count++;
 			}
@@ -2790,7 +2790,7 @@ class Listing_Engine extends Page
 				}
 			}
 
-			$type_name = null;
+			$type_name = NULL;
 			if ((count($type_codes) == 1) && ($type_codes[0] != 'default_format')) {
 				$type_name = $type_codes[0];
 			}
@@ -2816,7 +2816,7 @@ class Listing_Engine extends Page
 	* @return array
 	* @access private
 	*/
-	function _getGenericSingleAssetFormatKeywords($type=null)
+	function _getGenericSingleAssetFormatKeywords($type=NULL)
 	{
 		$keywords = $this->_getAdditionalSingleAssetFormatKeywords();
 
@@ -3241,7 +3241,7 @@ class Listing_Engine extends Page
 		if (isset($targets[$name])) {
 			$defaults         = $this->getAssetTargetDefaults();
 			$button_text      = array_get_index($targets[$name], 'label',        $defaults['label']);
-			$target = null;
+			$target = NULL;
 
 			// determine whether we're using the url or the asset (url takes precedence)
 			$target_url       = array_get_index($targets[$name], 'target_url',   $defaults['target_url']);
@@ -3324,9 +3324,9 @@ class Listing_Engine extends Page
 	* @return void
 	* @access private
 	*/
-	function _recurseCheckAllRelations(&$todo, &$relations, $prefix, $limit=null)
+	function _recurseCheckAllRelations(&$todo, &$relations, $prefix, $limit=NULL)
 	{
-		for (reset($todo); null !== ($k = key($todo)); next($todo)) {
+		for (reset($todo); NULL !== ($k = key($todo)); next($todo)) {
 			$el =& $todo[$k];
 			if (is_array($el) && (is_null($limit) || ($limit > 0))) {
 
@@ -3340,7 +3340,7 @@ class Listing_Engine extends Page
 				}
 				$relations[] = $new_rel;
 
-				$this->_recurseCheckAllRelations($el, $relations, $prefix.$k.'_', (is_null($limit) ? null : $limit - 1));
+				$this->_recurseCheckAllRelations($el, $relations, $prefix.$k.'_', (is_null($limit) ? NULL : $limit - 1));
 			}
 		}
 
@@ -3402,7 +3402,7 @@ class Listing_Engine extends Page
 		$select_lines = Array();
 		foreach ($rels as $rel) {
 			$parent_code = str_replace(' ', '_', $rel['parent']);
-			for (reset($rel['children']); null !== ($k = key($rel['children'])); next($rel['children'])) {
+			for (reset($rel['children']); NULL !== ($k = key($rel['children'])); next($rel['children'])) {
 				if (preg_match('|\[(.*)\]|', $rel['children'][$k], $matches)) {
 					$rel['children'][$k] = $matches[1];
 					$bracketed = TRUE;
@@ -3493,16 +3493,16 @@ class Listing_Engine extends Page
 	/**
 	* Returns the no-results bodycopy
 	*
-	* @param boolean	$only_if_enabled	if TRUE, will return null if the bodycopy is
-	*										disabled. If FALSE, will only return null if
+	* @param boolean	$only_if_enabled	if TRUE, will return NULL if the bodycopy is
+	*										disabled. If FALSE, will only return NULL if
 	*										never created.
 	*
-	* @return mixed object|null
+	* @return mixed object|NULL
 	* @access public
 	*/
 	function &getNoResultsBodycopy($only_if_enabled=TRUE)
 	{
-		$asset = null;
+		$asset = NULL;
 
 		if ($only_if_enabled) {
 			$link_types = SQ_LINK_TYPE_2;

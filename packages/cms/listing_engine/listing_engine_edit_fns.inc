@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.51 2006/01/10 23:48:06 rong Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.52 2006/01/11 22:54:15 rong Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -56,7 +56,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	function Listing_Engine_Edit_Fns($assetid=0)
 	{
 		$this->Page_Edit_Fns($assetid);
-		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['force_unlock'] = FALSE;
 		$this->static_screens['details']['lock_type'] = 'content';
 
 	}//end constructor
@@ -82,8 +82,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				$display_values['type_code'][] = $type;
 				$display_values['inherit'][] = $inherit;
 			}
-			asset_type_chooser($prefix.'_types', true, $display_values, null, true, true);
-			return true;
+			asset_type_chooser($prefix.'_types', TRUE, $display_values, NULL, TRUE, TRUE);
+			return TRUE;
 		} else {
 			// print the read-only version
 			if (empty($types)) {
@@ -115,7 +115,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					</table>
 				<?php
 			}
-			return false;
+			return FALSE;
 		}
 
 	}//end paintAssetTypes()
@@ -142,7 +142,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				}
 			}
 
-			$folder = &$asset->getFolder('type_formats');
+			$folder =& $asset->getFolder('type_formats');
 			$formats = $asset->getFormats('type_formats');
 
 			// See if any types have been removed
@@ -150,7 +150,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				if (!isset($submitted_types[$type])) {
 					if (in_array($type, $formats)) {
 						// send the type format bodycopy to the trash
-						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $type);
+						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $type);
 						if (!empty($link)) {
 							$folder->deleteLink($link['linkid']);
 						}
@@ -159,9 +159,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			}
 
 			$asset->setAttrValue('types', $submitted_types);
-			return true;
+			return TRUE;
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end processAssetTypes()
@@ -182,7 +182,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$asset_positions = $asset->attr('asset_positions');
 
-		//if were using custom grouping, this option is useless
+		// if were using custom grouping, this option is useless
 		$groups = $asset->attr('asset_grouping');
 		if ($asset->attr('group_by') == 'grouped' && !empty($groups)) {
 			$o->note(translate('cms_listing_cannot_use_asset_postitions_with_groups'));
@@ -294,7 +294,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			}
 		}
 
-		$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_values($asset_positions), 'asset', false, 'type_code');
+		$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_values($asset_positions), 'asset', FALSE, 'type_code');
 		foreach ($asset_positions as $position=>$id) {
 			$asset_positions[$position] = Array('id'=>$id, 'type'=>$asset_types[$id]);
 		}
@@ -512,7 +512,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processColumnPreview(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processColumnPreview()
 
@@ -536,7 +536,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				<td class="sq-backend-table-header"><?php echo translate('note') ?></td>
 			</tr>
 			<?php
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
 			if (!empty($link)) {
 				$info = Array($link['minorid'] => 'contents');
 				$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
@@ -552,7 +552,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				<?php
 			}
 
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'no_results');
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'no_results');
 			if (!empty($link)) {
 				$info = Array($link['minorid'] => 'contents');
 				$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
@@ -568,8 +568,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				<?php
 			}
 
-			$folder = &$asset->getFolder('type_formats');
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
+			$folder =& $asset->getFolder('type_formats');
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'default_format');
 			if (!empty($link)) {
 				$info = Array($link['minorid'] => 'contents');
 				$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
@@ -588,7 +588,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		</table>
 		<?php
 
-		return false;
+		return FALSE;
 
 	}//end paintDefaultFormatLinks()
 
@@ -605,7 +605,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	 */
 	function paintGroupFormatLinks(&$asset, &$o, $prefix)
 	{
-		//first lets get the bodycopies we want
+		// first lets get the bodycopies we want
 		$formats = $asset->getFormats('group_formats');
 
 		if (empty($formats)) {
@@ -631,7 +631,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			<?php
 		}
 
-		return true;
+		return TRUE;
 
 	}//end paintGroupFormatLinks()
 
@@ -733,11 +733,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			}
 			if (count($new_format_options) > 1) {
 				echo '<p><b>'.translate('cms_listing_new_type_format').'</b> ';
-				combo_box($prefix.'_new_type', $new_format_options, false, '');
+				combo_box($prefix.'_new_type', $new_format_options, FALSE, '');
 				echo '</p>';
 			}
 		}
-		return false;
+		return FALSE;
 
 	}//end paintTypeFormats()
 
@@ -754,7 +754,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processTypeFormats(&$asset, &$o, $prefix)
 	{
-		$folder = &$asset->getFolder('type_formats');
+		$folder =& $asset->getFolder('type_formats');
 		$types = $this->_getAvailableTypes($asset);
 
 		$deleted_formats = array_get_index($_POST, $prefix.'_delete_type', Array());
@@ -766,7 +766,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		}
 
 		foreach ($deleted_formats as $type => $on) {
-			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $type);
+			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $type);
 			if (empty($current_link)) {
 				trigger_localised_error('CMS0043', E_USER_WARNING, $type);
 			} else {
@@ -784,7 +784,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		if ($new_type != '') {
 			// check that this type isnt already customised
-			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $new_type);
+			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $new_type);
 			if (empty($current_link)) {
 				// create a new format bodycopy for this type
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -797,7 +797,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 				if (!$bodycopy->create($copy_link)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
+					return FALSE;
 				}
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			} else {
@@ -808,7 +808,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			unset($asset->_tmp['formats']['type_formats']);
 		}
 
-		return false;
+		return FALSE;
 
 	}//end processTypeFormats()
 
@@ -901,7 +901,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processPositionFormats(&$asset, &$o, $prefix)
 	{
-		$folder = &$asset->getFolder('position_formats');
+		$folder =& $asset->getFolder('position_formats');
 
 		$deleted_formats = array_get_index($_POST, $prefix.'_delete_position', Array());
 		$new_position = (int) array_get_index($_POST, $prefix.'_new_position', 0);
@@ -912,7 +912,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		}
 
 		foreach ($deleted_formats as $position => $on) {
-			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'position_'.$position);
+			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'position_'.$position);
 			if (empty($current_link)) {
 				trigger_localised_error('CMS0048', E_USER_WARNING, $position);
 			} else {
@@ -924,7 +924,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		if ($new_position > 0) {
 			// check that this position isnt already customised
-			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'position_'.$new_position);
+			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'position_'.$new_position);
 			if (empty($current_link)) {
 
 				// create a new format bodycopy for this list position
@@ -938,7 +938,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 				if (!$bodycopy->create($copy_link)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
+					return FALSE;
 				}
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			} else {
@@ -948,7 +948,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		if (isset($asset->_tmp['formats']['position_formats'])) {
 			unset($asset->_tmp['formats']['position_formats']);
 		}
-		return false;
+		return FALSE;
 
 	}//end processPositionFormats()
 
@@ -973,7 +973,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 			if ($asset->attr('group_by') == 'random') {
 				echo translate('cms_listing_random_selected_no_sort');
-				return false;
+				return FALSE;
 			} else {
 				$sort_by_options = $this->_getSortByOptions($asset);
 			}
@@ -981,7 +981,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				echo ' '.translate('name').' ';
 				text_box($prefix.'_name', '');
 				echo ' '.translate('sort_by').' ';
-				combo_box($prefix.'_sort_by', $sort_by_options, false, '');
+				combo_box($prefix.'_sort_by', $sort_by_options, FALSE, '');
 			}
 
 		$o->closeField();
@@ -1046,7 +1046,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 										</td>
 									</tr>
 								<?php
-							}
+							}//end foreach
 							?>
 							</table>
 						<?php
@@ -1090,7 +1090,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 											if ($write_access) {
 												$types = $asset->attr('types');
 												$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
-												combo_box($prefix.'_fields['.$id.'][params][type_code]', $type_info, false, $info['params']['type_code']);
+												combo_box($prefix.'_fields['.$id.'][params][type_code]', $type_info, FALSE, $info['params']['type_code']);
 											} else {
 												$type_code = $info['params']['type_code'];
 												$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name');
@@ -1116,7 +1116,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 												$display_attributes[$attribute] = ucwords(str_replace('_', ' ', $attribute));
 											}
 											if ($write_access) {
-												combo_box($prefix.'_fields['.$id.'][params][attribute]', $display_attributes, false, $info['params']['attribute']);
+												combo_box($prefix.'_fields['.$id.'][params][attribute]', $display_attributes, FALSE, $info['params']['attribute']);
 											} else {
 												echo $display_attributes[$info['params']['attribute']];
 											}
@@ -1211,7 +1211,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 								</td>
 							</tr>
 							<?php
-						}
+						}//end foreach
 						?>
 						</table>
 						<?php
@@ -1220,7 +1220,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					}
 				$o->closeField();
 			$o->closeSection();
-		}
+		}//end if
 
 		$o->closeField();
 
@@ -1251,8 +1251,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		}
 
 		$options = $this->_getSortByOptions($asset);
-		$save    = true;
-		$invalid_name = false;
+		$save    = TRUE;
+		$invalid_name = FALSE;
 
 		$remove      = array_get_index($_POST, $prefix.'_remove', Array());
 		$posted_list = array_get_index($_POST, $prefix.'_fields', Array());
@@ -1261,11 +1261,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		foreach ($posted_list as $id => $info) {
 			// skip ones that we are removing
 			if (in_array($id, array_keys($remove))) {
-				$save = true;
+				$save = TRUE;
 				continue;
 			}
 			// skip the new one if we already have a name with that id
-			if ($info['name'] == $name) $invalid_name = true;
+			if ($info['name'] == $name) $invalid_name = TRUE;
 
 			// set the attribute type for the chosen attribute if there is one
 			if ($info['type'] == 'asset_attrib') {
@@ -1274,7 +1274,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			}
 
 			$save_list[$id] = $info;
-			$save = true;
+			$save = TRUE;
 		}
 
 		// -- MetaData -- //
@@ -1283,7 +1283,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		foreach ($posted_list as $id => $info) {
 			// skip ones that we are removing
 			if (in_array($id, array_keys($remove))) {
-				$save = true;
+				$save = TRUE;
 				continue;
 			}
 
@@ -1295,7 +1295,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			$info['field'] = $info['field']['assetid'];
 
 			$save_list[$id] = $info;
-			$save = true;
+			$save = TRUE;
 		}
 
 		// add a new metadata field
@@ -1311,7 +1311,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		// --- Fields --- //
 		if (!empty($sort_by) && !empty($name)) {
 			if (!$invalid_name) {
-				$invalid = false;
+				$invalid = FALSE;
 				$new_index = count($save_list);
 				$save_list[$new_index] = Array();
 				$save_list[$new_index]['params'] = Array();
@@ -1331,7 +1331,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						$save_list[$new_index]['params']['attr_type'] = array_shift($attributes);
 					} else {
 						trigger_localised_error('CMS0051', E_USER_WARNING, $name);
-						$invalid = true;
+						$invalid = TRUE;
 					}
 				} else {
 					$type = 'field';
@@ -1340,11 +1340,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 				if (!$invalid) {
 					$save_list[$new_index]['type'] = $type;
-					$save = true;
+					$save = TRUE;
 				} else {
 					unset($save_list[$new_index]);
 				}
-			}
+			}//end if not invalid name
 		}//end if
 
 		// re-order the list so that the indexes are aligned
@@ -1357,10 +1357,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		if ($save) {
 			$asset->setAttrValue('sort_by', $reordered_list);
-			return true;
+			return TRUE;
 		}
 
-		return false;
+		return FALSE;
 
 	}//end processSortBy()
 
@@ -1385,7 +1385,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			if (empty($sort_by_list)) {
 				$asset->setAttrValue('default_sort_by', 0);
 				echo 'No Sorting';
-				return false;
+				return FALSE;
 			}
 
 			$names = Array();
@@ -1396,7 +1396,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			}
 
 			if ($write_access) {
-				combo_box($prefix.'_default', $names, false, $default);
+				combo_box($prefix.'_default', $names, FALSE, $default);
 			} else {
 				if (isset($sort_by_list[$default]['name'])) {
 					echo $sort_by_list[$default]['name'];
@@ -1426,10 +1426,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			$default = $asset->attr('default_sort_by');
 			if ($_POST[$prefix.'_default'] != $default) {
 				$asset->setAttrValue('default_sort_by', $_POST[$prefix.'_default']);
-				return true;
+				return TRUE;
 			}
 		}
-		return false;
+		return FALSE;
 
 	}//end processDefaultSortByOption()
 
@@ -1449,7 +1449,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$sort_by_list = $asset->attr('sort_by');
 
-		if (empty($sort_by_list)) return false;
+		if (empty($sort_by_list)) return FALSE;
 
 		$o->openField(translate('cms_listing_list_sort_order'));
 
@@ -1581,7 +1581,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$sort_by_list = $asset->attr('sort_by');
 		$sort_order = array_get_index($_POST, $prefix.'_sort_order_list', Array());
 
-		$save = false;
+		$save = FALSE;
 		$save_list = Array();
 		$i = 0;
 		foreach ($sort_order as $id => $order) {
@@ -1589,7 +1589,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			// we can rely on the name being unique
 			if (isset($sort_by_list[$order]) && isset($sort_by_list[$id])) {
 				if ($sort_by_list[$order]['name'] != $sort_by_list[$id]['name']) {
-					$save = true;
+					$save = TRUE;
 				}
 				$save_list[$i++] = $sort_by_list[$order];
 			}
@@ -1597,9 +1597,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		if ($save) {
 			$asset->setAttrValue('sort_by', $save_list);
-			return true;
+			return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end processOrderSortOptions()
 
@@ -1628,7 +1628,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		$o->openField('Default Sort Direction');
 			if ($write_access) {
-				combo_box($prefix.'_default_sort_direction', $options, false, $sort_direction);
+				combo_box($prefix.'_default_sort_direction', $options, FALSE, $sort_direction);
 			} else {
 				echo (!$sort_direction) ? $sort_asc_text : $sort_desc_text;
 			}
@@ -1655,9 +1655,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		if (!is_null($direction)) {
 			$direction = (int)(bool)$direction;
 			$asset->setAttrValue('reverse_sort', $direction);
-			return true;
+			return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end processDefaultSortDirection()
 
@@ -1707,7 +1707,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	function paintRootNode(&$asset, &$o, $prefix)
 	{
 		// get root links
-		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', false, 'major', 'root');
+		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
 		$root_asset_ids = Array();
 		foreach ($root_links as $root_link) {
 			$root_asset_ids[$root_link['minorid']] = $root_link['minor_type_code'];
@@ -1723,7 +1723,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			}
 			?></ul><?php
 		}
-		return true;
+		return TRUE;
 
 	}//end paintRootNode()
 
@@ -1741,7 +1741,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	function processRootNode(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_root_nodes'])) {
-			return false;
+			return FALSE;
 		}
 		$new_root_nodes = $_POST[$prefix.'_root_nodes'];
 		foreach ($new_root_nodes as $new_root_node) {
@@ -1749,16 +1749,16 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		}
 
 		// get existing root links
-		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', false, 'major', 'root');
+		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$ok = true;
+		$ok = TRUE;
 
 		// lets delete the root nodes that have been removed
 		foreach ($root_links as $root_link) {
 			if (!in_array($root_link['minorid'], $new_root_node_ids)) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
-					$ok = false;
+					$ok = FALSE;
 				}
 			}
 		}
@@ -1773,9 +1773,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			}
 			// otherwise, create the appropriate notice link
 			if ($node['assetid'] != 0) {
-				$new_root = &$GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
+				$new_root =& $GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
 				if (!$asset->createLink($new_root, SQ_LINK_NOTICE, 'root')) {
-					$ok = false;
+					$ok = FALSE;
 					trigger_localised_error('CMS0016', E_USER_WARNING, $new_root->name, $new_root->id);
 					break;
 				}
@@ -1784,10 +1784,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		if ($ok) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
+			return TRUE;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 	}//end processRootNode()
@@ -1809,7 +1809,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		$write_access = $asset->writeAccess('attributes');
 		$group_by = $asset->attr('asset_grouping');
-		$commit_button = false;
+		$commit_button = FALSE;
 
 		foreach ($group_by as $level => $group_by_option) {
 
@@ -1864,7 +1864,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 							   );
 
 					if ($write_access) {
-						combo_box($prefix.'['.$level.'][sort_order]', $options, false, array_get_index($group_by_option, 'sort_order', 'asc'));
+						combo_box($prefix.'['.$level.'][sort_order]', $options, FALSE, array_get_index($group_by_option, 'sort_order', 'asc'));
 					} else {
 						echo $options[array_get_index($group_by_option, 'sort_order', 'asc')];
 					}
@@ -1872,7 +1872,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				$o->closeField();
 
 				$o->openField(translate('cms_listing_max_children_per_group'));
-				$max_children = array_get_index($group_by_option, 'max_children', null);
+				$max_children = array_get_index($group_by_option, 'max_children', NULL);
 					if ($write_access) {
 						text_box($prefix.'['.$level.'][max_children]', $max_children, 5);
 					} else {
@@ -1890,12 +1890,12 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 					$o->openField(translate('delete_question'));
 
-						check_box($prefix.'['.$level.'][delete]', '1', array_get_index($group_by_option, 'new_page', false));
+						check_box($prefix.'['.$level.'][delete]', '1', array_get_index($group_by_option, 'new_page', FALSE));
 						label(translate('cms_listing_delete_group_format'), $prefix.'['.$level.'][delete]');
 
 					$o->closeField();
 
-					//link to group format bodycopy
+					// link to group format bodycopy
 					$o->openField('');
 						$link = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($group_by_option['format_assetid'] => 'contents'));
 						?><a href="<?php echo $link[$group_by_option['format_assetid']]; ?>"><?php echo translate('cms_listing_edit_group_format'); ?></a><?php
@@ -1905,7 +1905,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 
 			$o->closeSection();
-		}
+		}//end foreach
 
 		$o->sectionNote(translate('cms_listing_engine_grouping_section_note'));
 
@@ -1926,11 +1926,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processGroupBy(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$group_by_details = $asset->attr('asset_grouping');
 		$posted_options = array_get_index($_POST, $prefix, Array());
-		$folder = &$asset->getFolder('group_formats');
+		$folder =& $asset->getFolder('group_formats');
 
 		// go through and process deletions of groups
 		foreach ($posted_options as $key => $posted_option) {
@@ -2030,8 +2030,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processGroupByMetadata(&$asset, &$o, $prefix, $key, &$group_by_option)
 	{
-		$posted_option = array_get_index($_POST[$prefix], $key, null);
-		if (!is_array($posted_option)) return false;
+		$posted_option = array_get_index($_POST[$prefix], $key, NULL);
+		if (!is_array($posted_option)) return FALSE;
 
 		if (isset($posted_option['metadata_field'])) {
 			$group_by_option['metadata_field'] = $posted_option['metadata_field']['assetid'];
@@ -2039,12 +2039,12 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$group_by_option['sort_order'] = $posted_option['sort_order'];
 
 		if (empty($posted_option['max_children'])) {
-			$group_by_option['max_children'] = null;
+			$group_by_option['max_children'] = NULL;
 		} else {
 			$group_by_option['max_children'] = $posted_option['max_children'];
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processGroupByMetadata()
 
@@ -2081,7 +2081,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$o->openField(translate('standard_asset_field'));
 
 			if ($write_access) {
-				combo_box($prefix.'[standard_asset_field]', $options, false, $field);
+				combo_box($prefix.'[standard_asset_field]', $options, FALSE, $field);
 			} else {
 				if (empty($field)) {
 					echo '<em>'.translate('cms_listing_no_field_selected').'</em>';
@@ -2111,8 +2111,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processGroupByStandardAssetField(&$asset, &$o, $prefix, $key, &$group_by_option)
 	{
-		$posted_option = array_get_index($_POST[$prefix], $key, null);
-		if (!is_array($posted_option)) return false;
+		$posted_option = array_get_index($_POST[$prefix], $key, NULL);
+		if (!is_array($posted_option)) return FALSE;
 
 		if (isset($posted_option['standard_asset_field'])) {
 			$group_by_option['field'] = $posted_option['standard_asset_field'];
@@ -2120,12 +2120,12 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$group_by_option['sort_order'] = $posted_option['sort_order'];
 
 		if (empty($posted_option['max_children'])) {
-			$group_by_option['max_children'] = null;
+			$group_by_option['max_children'] = NULL;
 		} else {
 			$group_by_option['max_children'] = $posted_option['max_children'];
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processGroupByStandardAssetField()
 
@@ -2148,7 +2148,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$o->openField(translate('cms_listing_restrict_types'));
 
 			if ($write_access) {
-				asset_type_chooser($prefix.'[restrict_types]', true, array_get_index($group_by_option, 'restrict_types', Array()), null, false, true);
+				asset_type_chooser($prefix.'[restrict_types]', TRUE, array_get_index($group_by_option, 'restrict_types', Array()), NULL, FALSE, TRUE);
 			} else {
 				if (empty($group_by_option['restrict_types']['type_code'])) {
 					echo '<i>'.translate('cms_listing_no_types_selected').'</i>';
@@ -2183,7 +2183,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			$current_option = array_get_index($group_by_option, 'sort_by', '');
 
 			if ($write_access) {
-				combo_box($prefix.'[sort_by]', $sort_by_options, false, $current_option);
+				combo_box($prefix.'[sort_by]', $sort_by_options, FALSE, $current_option);
 			} else {
 
 				if (empty($current_option)) {
@@ -2214,8 +2214,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processGroupByParentAsset(&$asset, &$o, $prefix, $key, &$group_by_option)
 	{
-		$posted_option = array_get_index($_POST[$prefix], $key, null);
-		if (!is_array($posted_option)) return false;
+		$posted_option = array_get_index($_POST[$prefix], $key, NULL);
+		if (!is_array($posted_option)) return FALSE;
 
 		if (isset($posted_option['restrict_types'])) {
 			$group_by_option['restrict_types'] = $posted_option['restrict_types'];
@@ -2233,13 +2233,13 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			$group_by_option['sort_order']	= $posted_option['sort_order'];
 
 			if (empty($posted_option['max_children'])) {
-				$group_by_option['max_children'] = null;
+				$group_by_option['max_children'] = NULL;
 			} else {
 				$group_by_option['max_children'] = $posted_option['max_children'];
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processGroupByParentAsset()
 
@@ -2265,7 +2265,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			for ($i = 1; $i <= count($group_by); $i++) {
 				$options[$i] = 'after group level '.$i;
 			}
-			combo_box($prefix.'[new_after]', $options, false, count($group_by));
+			combo_box($prefix.'[new_after]', $options, FALSE, count($group_by));
 
 			?> of type <?php
 			$options = Array(
@@ -2275,7 +2275,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						'standard_asset'	=> translate('standard_asset_field'),
 					   );
 
-			combo_box($prefix.'[new_type]', $options, false, '');
+			combo_box($prefix.'[new_type]', $options, FALSE, '');
 
 		}
 
@@ -2300,8 +2300,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 			if (isset($_POST[$prefix]['new'])) {
 
-				$new_type = array_get_index($_POST[$prefix], 'new_type', null);
-				$new_position = array_get_index($_POST[$prefix], 'new_after', null);
+				$new_type = array_get_index($_POST[$prefix], 'new_type', NULL);
+				$new_position = array_get_index($_POST[$prefix], 'new_after', NULL);
 
 				if (!is_null($new_type) && !is_null($new_position)) {
 
@@ -2327,7 +2327,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					// create a new group format bodycopy
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-					$folder = &$asset->getFolder('group_formats');
+					$folder =& $asset->getFolder('group_formats');
 
 
 					$copy_link = Array('asset' => &$folder, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'sort_order' => $new_position);
@@ -2338,10 +2338,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 					if (!$bodycopy->create($copy_link, $group_listing_data)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
+						return FALSE;
 					}
 
-					//if we lost the lock while creating the bodycopy
+					// if we lost the lock while creating the bodycopy
 					if (!$asset->writeAccess('attributes')) {
 						$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes');
 					}
@@ -2355,19 +2355,19 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					$asset->reindexGroupFormats();
 					if (!$asset->saveAttributes()) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
+						return FALSE;
 					}
 
 
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-					return true;
-				}
+					return TRUE;
+				}//end if
 
-			}
+			}//end if
 
-		}
+		}//end if
 
-		return false;
+		return FALSE;
 
 	}//end processNewGroupBy()
 
@@ -2415,7 +2415,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					<td class="sq-backend-table-cell">
 					<?php
 						if ($write_access) {
-							combo_box($prefix.'_sel['.$name.'][type]', $input_types, false, array_get_index($settings, 'type', $defaults['type']));
+							combo_box($prefix.'_sel['.$name.'][type]', $input_types, FALSE, array_get_index($settings, 'type', $defaults['type']));
 						} else {
 							echo $input_types[array_get_index($settings, 'type', $defaults['type'])];
 						}
@@ -2474,7 +2474,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 										// From box
 										ob_start();
 											if ($write_access) {
-												int_text_box($prefix.'_sel['.$name.'][options][restrict_range][min]', array_get_index($restrict_range, 'min', $defaults['options']['restrict_range']['min']), true, 3);
+												int_text_box($prefix.'_sel['.$name.'][options][restrict_range][min]', array_get_index($restrict_range, 'min', $defaults['options']['restrict_range']['min']), TRUE, 3);
 											} else {
 												echo '<strong>'.array_get_index($restrict_range, 'min', $defaults['options']['restrict_range']['min']).'</strong>';
 											}
@@ -2484,7 +2484,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 										// To box
 										ob_start();
 											if ($write_access) {
-												int_text_box($prefix.'_sel['.$name.'][options][restrict_range][max]', array_get_index($restrict_range, 'max', $defaults['options']['restrict_range']['max']), true, 3);
+												int_text_box($prefix.'_sel['.$name.'][options][restrict_range][max]', array_get_index($restrict_range, 'max', $defaults['options']['restrict_range']['max']), TRUE, 3);
 											} else {
 												echo '<strong>'.array_get_index($restrict_range, 'max', $defaults['options']['restrict_range']['max']).'</strong>';
 											}
@@ -2506,7 +2506,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				</tr>
 			</table><br />
 			<?php
-		}//end foreach($selections)
+		}//end foreach $selections
 
 		// new
 		if ($write_access) {
@@ -2586,10 +2586,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 							$selections[$name]['options']['restrict_range']['min'] = array_get_index($restrict_range, 'max', $defaults['options']['restrict_range']['max']);
 						}
 
-					}
+					}//end if
 
-				}
-			}
+				}//end foreach
+			}//end if
 
 			// process deletions
 			if (!empty($_POST[$prefix.'_sel_delete'])) {
@@ -2610,7 +2610,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			}
 
 			$asset->setAttrValue('asset_selections', $selections);
-		}
+		}//end if
 
 
 		return $write_access;
@@ -2721,7 +2721,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				</tr>
 			</table><br />
 			<?php
-		}//end foreach($targets)
+		}//end foreach $targets
 
 		// new
 		if ($write_access) {
@@ -2788,7 +2788,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			}
 
 			$asset->setAttrValue('asset_targets', $targets);
-		}
+		}//end if
 
 		return $write_access;
 
@@ -2821,7 +2821,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				$options[$value] = get_status_description($value);
 			}
 
-			combo_box($prefix.'_statuses', $options, true, $current);
+			combo_box($prefix.'_statuses', $options, TRUE, $current);
 		} else {
 			if (empty($current)) {
 				echo translate('cms_listing_no_status_selected');
@@ -2855,7 +2855,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	function processStatus(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$statuses = Array();
 		if (isset($_POST[$prefix.'_statuses'])) {
@@ -2892,8 +2892,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				$display_values['type_code'][] = $type;
 				$display_values['inherit'][] = $inherit;
 			}
-			asset_type_chooser($prefix.'_structured_types', true, $display_values, null, true, true);
-			return true;
+			asset_type_chooser($prefix.'_structured_types', TRUE, $display_values, NULL, TRUE, TRUE);
+			return TRUE;
 		} else {
 			// print the read-only version
 			if (empty($types)) {
@@ -2922,10 +2922,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					</table>
 				<?php
 			}
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
+
 	}//end _paintStructuredTypes()
 
 
@@ -2943,7 +2944,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	function _processStructuredTypes(&$asset, &$o, $prefix, &$options)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		if (isset($_POST[$prefix.'_structured_types'])) {
 			$existing_types = $options['asset_types'];
@@ -2955,10 +2956,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			}
 			$options['asset_types'] = $submitted_types;
 			$asset->setAttrValue('structured_dropdown_options', $options);
-			return true;
+			return TRUE;
 		} else {
-			return false;
+			return FALSE;
 		}
+
 	}//end _processStructuredTypes()
 
 
@@ -3024,7 +3026,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				<td class="sq-backend-table-header">
 				<?php
 					if ($write_access) {
-						int_text_box($prefix.'_structured_max_depth', $options['max_depth'], false, 4, 0);
+						int_text_box($prefix.'_structured_max_depth', $options['max_depth'], FALSE, 4, 0);
 					} else {
 						echo ($options['max_depth'] == '0' ? translate('infinite').' '.translate('depth') : $options['max_depth']);
 					}
@@ -3050,11 +3052,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				<?php if ($write_access) {
 					?>
 					<select name="<?php echo $prefix.'_structured_input_style'; ?>">
-						<option value="false" <?php echo $asset->attr('check_boxes')== false ? 'selected="selected"' : ''; ?> ><?php echo translate('dropdown_list'); ?></option>
-						<option value="true" <?php echo $asset->attr('check_boxes')== true ? 'selected="selected"' : ''; ?> ><?php echo translate('radio_buttons'); ?></option>
+						<option value="FALSE" <?php echo $asset->attr('check_boxes')== FALSE ? 'selected="selected"' : ''; ?> ><?php echo translate('dropdown_list'); ?></option>
+						<option value="TRUE" <?php echo $asset->attr('check_boxes')== TRUE ? 'selected="selected"' : ''; ?> ><?php echo translate('radio_buttons'); ?></option>
 					</select>
 				<?php } else {
-						echo $asset->attr('check_boxes') == false ? translate('dropdown_list') : translate('radio_buttons');;
+						echo $asset->attr('check_boxes') == FALSE ? translate('dropdown_list') : translate('radio_buttons');;
 					  }
 
 				?>
@@ -3068,7 +3070,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				<td >
 				<?php
 					if ($write_access) {
-						int_text_box($prefix.'_structured_width', $options['width'], false, 4, 0);
+						int_text_box($prefix.'_structured_width', $options['width'], FALSE, 4, 0);
 					} else {
 						echo $options['width'] == 0 ? translate('fit_to_contents') : $options['width'];
 					}
@@ -3082,7 +3084,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				<td >
 				<?php
 					if ($write_access) {
-						int_text_box($prefix.'_structured_height', $options['height'], false, 4, 0);
+						int_text_box($prefix.'_structured_height', $options['height'], FALSE, 4, 0);
 					} else {
 						echo $options['height'] == 0 ? translate('not_specified') : $options['height'];
 					}
@@ -3097,7 +3099,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				<td >
 				<?php
 					if ($write_access) {
-						text_box($prefix.'_structured_seperator', $options['seperator'], false, 10, 0);
+						text_box($prefix.'_structured_seperator', $options['seperator'], FALSE, 10, 0);
 					} else {
 						echo $options['seperator'];
 					}
@@ -3125,12 +3127,12 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	function processStructuredDropdownOptions(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
-		//Get current options
+		// Get current options
 		$options = $asset->attr('structured_dropdown_options');
 
-		//Now step thrugh and see which stuff is set. If it isn't set, the value will stay the same
+		// Now step thrugh and see which stuff is set. If it isn't set, the value will stay the same
 
 		if (isset($_REQUEST[$prefix.'_structured_root'])) {
 			$options['root_node'] = $_REQUEST[$prefix.'_structured_root']['assetid'];
@@ -3158,13 +3160,13 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		}
 
 		$asset->setAttrValue('structured_dropdown_options', $options);
-		return true;
+		return TRUE;
 
 	}//end processStructuredDropdownOptions()
 
 
 	/**
-	* Returns true if this is A-Z listing format
+	* Returns TRUE if this is A-Z listing format
 	*
 	* Even though it looks trivial, this is required to perfom some show_if checks on the backend edit interface
 	*
@@ -3197,7 +3199,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	function paintUseNoResultsBodycopy(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('links');
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'no_results');
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', FALSE, 'no_results');
 		$enabled = !empty($bodycopy_link);
 
 		if ($write_access) {
@@ -3206,7 +3208,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						'0'	=> translate('no'),
 					   );
 
-			combo_box($prefix.'_use_bodycopy', $options, false, Array($enabled));
+			combo_box($prefix.'_use_bodycopy', $options, FALSE, Array($enabled));
 
 		} else {
 			if ($enabled) {
@@ -3233,19 +3235,19 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processUseNoResultsBodycopy(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('links')) return false;
+		if (!$asset->writeAccess('links')) return FALSE;
 		$enabled = $_POST[$prefix.'_use_bodycopy'];
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!$asset->setUseNoResultsBodycopy($enabled)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		return true;
+		return TRUE;
 
 	}//end processUseNoResultsBodycopy()
 

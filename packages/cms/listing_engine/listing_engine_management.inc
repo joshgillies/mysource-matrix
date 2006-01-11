@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.49 2006/01/10 23:48:06 rong Exp $
+* $Id: listing_engine_management.inc,v 1.50 2006/01/11 22:54:15 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -137,9 +137,9 @@ class Listing_Engine_Management extends Asset_Management
 		$this->vars['reverse_sort'] = Array(
 										'added'			=> '0.1',
 										'type'			=> 'boolean',
-										'default'		=> false,
+										'default'		=> FALSE,
 										'parameters'	=> Array(
-															'allow_empty'	=> false,
+															'allow_empty'	=> FALSE,
 														   ),
 									  );
 
@@ -158,8 +158,8 @@ class Listing_Engine_Management extends Asset_Management
 		$this->vars['subs_only'] = Array(
 									'added'			=> '0.1',
 									'type'			=> 'boolean',
-									'default'		=> false,
-									'parameters'	=> Array( 'allow_empty' => false,),
+									'default'		=> FALSE,
+									'parameters'	=> Array( 'allow_empty' => FALSE,),
 								   );
 
 		$this->vars['direction'] = Array(
@@ -167,8 +167,8 @@ class Listing_Engine_Management extends Asset_Management
 									'type'			=> 'selection',
 									'default'		=> 'down',
 									'parameters'	=> Array(
-														'multiple'		=> false,
-														'allow_empty'	=> false,
+														'multiple'		=> FALSE,
+														'allow_empty'	=> FALSE,
 														'options'		=> Array(
 																			'up'	=> 'Up the tree',
 																			'down'	=> 'Down the tree',
@@ -181,8 +181,8 @@ class Listing_Engine_Management extends Asset_Management
 									'type'			=> 'selection',
 									'default'		=> 'number',
 									'parameters'	=> Array(
-														'multiple'		=> false,
-														'allow_empty'	=> false,
+														'multiple'		=> FALSE,
+														'allow_empty'	=> FALSE,
 														'options'		=> Array(
 																			'number'	=> 'Standard',
 																			'letter'	=> 'A-Z listing',
@@ -220,9 +220,9 @@ class Listing_Engine_Management extends Asset_Management
 		$this->vars['root_in_lineage'] = Array(
 											'added'			=> '1.0',
 											'type'			=> 'boolean',
-											'default'		=> false,
+											'default'		=> FALSE,
 											'parameters'	=> Array(
-																'allow_empty'	=> false,
+																'allow_empty'	=> FALSE,
 															   ),
 										 );
 
@@ -287,9 +287,9 @@ class Listing_Engine_Management extends Asset_Management
 		$this->vars['check_boxes'] = Array(
 										'added'			=> '0.10',
 										'type'			=> 'boolean',
-										'default'		=> false,
+										'default'		=> FALSE,
 										'parameters'	=> Array(
-															'allow_empty'	=> false,
+															'allow_empty'	=> FALSE,
 														   ),
 									 );
 
@@ -304,8 +304,8 @@ class Listing_Engine_Management extends Asset_Management
 												'type'			=> 'selection',
 												'default'		=> 'get',
 												'parameters'	=> Array(
-																	'multiple'		=> false,
-																	'allow_empty'	=> false,
+																	'multiple'		=> FALSE,
+																	'allow_empty'	=> FALSE,
 																	'options'		=> Array(
 																						'get'	=> 'GET',
 																						'post'	=> 'POST',
@@ -318,8 +318,8 @@ class Listing_Engine_Management extends Asset_Management
 									'type'			=> 'int',
 									'default'		=> '',
 									'parameters'	=> Array(
-														'allow_negative'	=> false,
-														'allow_empty'		=> true,
+														'allow_negative'	=> FALSE,
+														'allow_empty'		=> TRUE,
 													   ),
 								   );
 
@@ -328,8 +328,8 @@ class Listing_Engine_Management extends Asset_Management
 									'type'			=> 'int',
 									'default'		=> '',
 									'parameters'	=> Array(
-														'allow_negative'	=> false,
-														'allow_empty'		=> true,
+														'allow_negative'	=> FALSE,
+														'allow_empty'		=> TRUE,
 													   ),
 								   );
 
@@ -348,11 +348,11 @@ class Listing_Engine_Management extends Asset_Management
 				Array(
 					'event_name'					=> 'requestKeywords',
 					'broadcast_type_code'			=> 'content_type',
-					'broadcast_strict_type_code'	=> false,
+					'broadcast_strict_type_code'	=> FALSE,
 					'options'						=> Array(
 														'side_of_link'	=> 'major',
-														'indirect'		=> true,
-														'is_exclusive'	=> null,
+														'indirect'		=> TRUE,
+														'is_exclusive'	=> NULL,
 														'is_dependant'	=> 1,
 														'value'			=> '',
 														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
@@ -389,7 +389,7 @@ class Listing_Engine_Management extends Asset_Management
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$search_page_fields = Array('lineage_seperator');
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$attributes = Array();
 
@@ -410,13 +410,13 @@ class Listing_Engine_Management extends Asset_Management
 		if (!parent::_install()) {
 			trigger_localised_error('CMS0038', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		$this->_restoreAttributes($attributes);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		return true;
+		return TRUE;
 
 	}//end _install()
 
@@ -456,7 +456,7 @@ class Listing_Engine_Management extends Asset_Management
 			$this->_removeAttributes($attributes);
 			if (!parent::_upgrade($current_version)) {
 				trigger_localised_error('CMS0039', E_USER_WARNING, '0.1');
-				return false;
+				return FALSE;
 			}
 			$this->_restoreAttributes($attributes);
 
@@ -485,10 +485,10 @@ class Listing_Engine_Management extends Asset_Management
 				}
 			}
 
-			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
 
 			foreach ($children as $assetid) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 				$sort_by = $asset->attr('sort_by');
 
@@ -536,26 +536,26 @@ class Listing_Engine_Management extends Asset_Management
 
 				$this->_tmp['sort_by'][$assetid] = $sort_by_list;
 
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset, true);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset, TRUE);
 
 			}//end foreach listing engines
 
 			$this->_removeAttributes($hoarded_attributes);
 			if (!parent::_upgrade($current_version)) {
 				trigger_localised_error('CMS0039', E_USER_WARNING, '0.3');
-				return false;
+				return FALSE;
 			}
 			$this->_restoreAttributes($hoarded_attributes);
 
 			$to_save = array_get_index($this->_tmp, 'sort_by', Array());
 			foreach ($to_save as $assetid => $sort_by_list) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 				$asset->setAttrValue('sort_by', $sort_by_list);
 
 				if (!$asset->saveAttributes()) {
 					trigger_localised_error('CMS0026', E_USER_WARNING, '0.3');
-					return false;
+					return FALSE;
 				}
 
 			}//end foreach listing engines
@@ -570,9 +570,9 @@ class Listing_Engine_Management extends Asset_Management
 		if (version_compare($current_version, '0.6', '<')) {
 			bam('UPGRADING LISTING ENGINE - FROM VERSION '.$current_version.' TO VERSION 0.6');
 
-			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
 			foreach ($children as $assetid) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 				$asset_positions = $asset->attr('asset_positions');
 				if (empty($asset_positions)) continue;
@@ -584,7 +584,7 @@ class Listing_Engine_Management extends Asset_Management
 					}
 				}
 
-				$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_values($asset_positions), 'asset', false, 'type_code');
+				$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_values($asset_positions), 'asset', FALSE, 'type_code');
 				foreach ($asset_positions as $position => $id) {
 					$asset_positions[$position] = Array('id'=>$id, 'type'=>$asset_types[$id]);
 				}
@@ -594,7 +594,7 @@ class Listing_Engine_Management extends Asset_Management
 
 				if (!$asset->setAttrValue('asset_positions', $asset_positions)) {
 					trigger_localised_error('CMS0039', E_USER_WARNING, '0.6');
-					return false;
+					return FALSE;
 				}
 			}
 		}//end if version < 0.6
@@ -607,11 +607,11 @@ class Listing_Engine_Management extends Asset_Management
 			$upgraded_count = 0;
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 
-			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false, true);
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE, TRUE);
 			foreach ($children as $assetid => $type_code) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 
-				$group_formats = &$asset->getFolder('group_formats');
+				$group_formats =& $asset->getFolder('group_formats');
 
 				// folder alread exists...nothing for us to do.
 				if (is_null($group_formats)) {
@@ -670,7 +670,7 @@ class Listing_Engine_Management extends Asset_Management
 			return Array();
 		}
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT * FROM sq_ast_attr WHERE name = '.$db->quote($attr_name).' AND owning_type_code = '.$db->quote($from);
 
@@ -692,8 +692,8 @@ class Listing_Engine_Management extends Asset_Management
 	*/
 	function _removeAttributes($attrs)
 	{
-		if (empty($attrs)) return true;
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		if (empty($attrs)) return TRUE;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$attrs_quoted = Array();
@@ -708,7 +708,7 @@ class Listing_Engine_Management extends Asset_Management
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		return true;
+		return TRUE;
 
 	}//end _removeAttributes()
 
@@ -723,11 +723,11 @@ class Listing_Engine_Management extends Asset_Management
 	*/
 	function _restoreAttributes($attrs)
 	{
-		if (empty($attrs)) return true;
+		if (empty($attrs)) return TRUE;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		foreach ($attrs as $attrid => $attr) {
 			$fields_quoted = Array();
@@ -762,11 +762,11 @@ class Listing_Engine_Management extends Asset_Management
 				AND owning_type_code IN (SELECT type_code FROM sq_ast_typ_inhd WHERE inhd_type_code = '.$db->quote($attr['owning_type_code']).')';
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
-		}
+		}//end foreach
 
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		return TRUE;
 
 	}//end _restoreAttributes()
 
