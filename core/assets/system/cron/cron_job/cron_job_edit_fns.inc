@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.25 2005/08/03 00:37:40 dmckee Exp $
+* $Id: cron_job_edit_fns.inc,v 1.26 2006/01/11 23:12:27 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,11 +49,11 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 		$this->static_screens = Array(
 									'details'	=> Array(
 													'name'			=> translate('view_jobs'),
-													'force_unlock'	=> true,
+													'force_unlock'	=> TRUE,
 												   ),
 									'logs'		=> Array(
 													'name'			=> translate('logs'),
-													'force_unlock'	=> true,
+													'force_unlock'	=> TRUE,
 												   ),
 								);
 
@@ -63,18 +63,19 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints out the cron job specific interface for the a date box that we can use
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
-	* @param string						$when    prepared when string
-	* @param string						$form_extra_elements any additional elements for the form entries
+	* @param object	&$asset					the owning asset
+	* @param object	&$o						the backend outputter
+	* @param string	$prefix					prefix for form elements
+	* @param string	$when					prepared when string
+	* @param string	$form_extra_elements	any additional elements for the form entries
 	*
+	* @return void
 	* @access private
 	*/
 	function _paintWhenBox(&$asset, &$o, $prefix, $when='', $form_extra_elements='')
 	{
-		$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-		if (is_null($cron_mgr)) return false;
+		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		if (is_null($cron_mgr)) return FALSE;
 
 		if ((int) $cron_mgr->attr('refresh_time') <= 0) {
 			echo translate('cron_manager_refresh_unknown');
@@ -110,7 +111,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		if ($write_access) {
-			combo_box($prefix.'_day', $days, false, $when_arr['day'], null, $form_extra_elements);
+			combo_box($prefix.'_day', $days, FALSE, $when_arr['day'], NULL, $form_extra_elements);
 		} else {
 			echo $days[$when_arr['day']];
 		}
@@ -122,7 +123,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 			for ($i = 1; $i <= 12; $i++) {
 				$months[str_pad($i, 2, '0', STR_PAD_LEFT)] = date('M', mktime(0,0,0,$i,1,2000));
 			}
-			combo_box($prefix.'_month', $months, false, $when_arr['month'], null, $form_extra_elements);
+			combo_box($prefix.'_month', $months, FALSE, $when_arr['month'], NULL, $form_extra_elements);
 		} else {
 			echo $when_arr['month'];
 		}
@@ -135,7 +136,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 				for ($i = $now['year']; $i <= $end_year; $i++) {
 					$years[str_pad($i, 4, '0', STR_PAD_LEFT)] = str_pad($i, 4, '0', STR_PAD_LEFT);
 				}
-				combo_box($prefix.'_year', $years, false, $when_arr['year'], null, $form_extra_elements);
+				combo_box($prefix.'_year', $years, FALSE, $when_arr['year'], NULL, $form_extra_elements);
 			} else {
 				echo $when_arr['year'];
 			}
@@ -149,7 +150,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 				foreach ($hours_mins['hours'] as $i) {
 					$hours[$i] = $i;
 				}
-				combo_box($prefix.'_hour', $hours, false, $when_arr['hour'], null, $form_extra_elements);
+				combo_box($prefix.'_hour', $hours, FALSE, $when_arr['hour'], NULL, $form_extra_elements);
 			} else {
 				echo $hours_mins['hours'][0];
 				hidden_field($prefix.'_hour', $hours_mins['hours'][0]);
@@ -166,7 +167,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 				foreach ($hours_mins['mins'] as $i) {
 					$mins[$i] = $i;
 				}
-				combo_box($prefix.'_minute', $mins, false, $when_arr['minute'], null, $form_extra_elements);
+				combo_box($prefix.'_minute', $mins, FALSE, $when_arr['minute'], NULL, $form_extra_elements);
 			} else {
 				echo $hours_mins['mins'][0];
 				hidden_field($prefix.'_minute', $hours_mins['mins'][0]);
@@ -214,7 +215,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 			<?php
 			normal_button($prefix.'_set_now', translate('next_run'), "setCurrentTime('$prefix');");
 			echo ' '.translate('or_in').' ';
-			text_box($prefix.'_duration', ($when_arr['duration'] <> '' ? $when_arr['duration'] : '-'), 2, '', true, $form_extra_elements)
+			text_box($prefix.'_duration', ($when_arr['duration'] <> '' ? $when_arr['duration'] : '-'), 2, '', TRUE, $form_extra_elements)
 			?>
 			&nbsp;
 			<?php
@@ -225,8 +226,8 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 						'y'	=> translate('years'),
 					   );
 
-			combo_box($prefix.'_period', $periods, false, ($when_arr['period'] <> '' ? $when_arr['period'] : '-'), null, $form_extra_elements);
-		}
+			combo_box($prefix.'_period', $periods, FALSE, ($when_arr['period'] <> '' ? $when_arr['period'] : '-'), NULL, $form_extra_elements);
+		}//end if $write_access
 
 	}//end _paintWhenBox()
 
@@ -234,11 +235,11 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the cron job specific interface for the a date box that we can use
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the owning asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
-	* @return boolean
+	* @return mixed string|boolean
 	* @access private
 	*/
 	function _processWhenBox(&$asset, &$o, $prefix)
@@ -246,7 +247,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 		$prefix .= '_when';
 
 		if (!isset($_POST[$prefix.'_minute']) || !isset($_POST[$prefix.'_duration'])) {
-			return false;
+			return FALSE;
 		}
 
 		$fields = Array();
@@ -264,8 +265,6 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 		if (isset($_POST[$prefix.'_duration']) && $_POST[$prefix.'_duration'] <> '-') {
 			// user chose a duration instead of a fixed date, so lets return that
 			$when = $type_prefix.'!'.$fields['period'].$fields['duration'];
-			error_log($when);
-
 		} else {
 			// usr chose a specific date/time, so return that
 			foreach (Array('year', 'month', 'day', 'hour', 'minute') as $field) {
@@ -296,15 +295,31 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 
 				} else if ($type_prefix) {
 					trigger_localised_error('CRON0040', E_USER_WARNING, Cron_Job::whenTypeName($type_prefix), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'), $field);
-					return false;
+					return FALSE;
 				}//end if
 
 			}//end foreach
 
+			// do some date parsing like with datetime fields so we get a valid date
+			$timestamp = mktime(
+							(int) substr($when_str,11,2),
+							(int) substr($when_str,14,2),
+							(int) substr($when_str,17,2),
+							(int) substr($when_str,5,2),
+							(int) substr($when_str,8,2),
+							(int) substr($when_str,0,4)
+						);
+			$parsed_date = date('Y-m-d', $timestamp).substr($when_str, 10);
+
+			if (strcmp($parsed_date, $when_str) != 0) {
+				$when_str = $parsed_date;
+				trigger_localised_error('SYS0311', E_USER_NOTICE);
+			}
+
 			$when = $type_prefix.'='.$when_str;
 
 		}//end if
-
+error_log($when);
 		return $when;
 
 	}//end _processWhenBox()
