@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.33 2005/12/08 01:31:45 tbarrett Exp $
+* $Id: datetime_field.inc,v 1.34 2006/01/11 05:36:03 dheppell Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -670,7 +670,17 @@ class DateTime_Field
 							(int) substr($value,8,2),
 							(int) substr($value,0,4)
 						);
+
+			$old_value = $value;
 			$value = date('Y-m-d', $timestamp).substr($value,10);
+
+			// if our date section cant have null values, check for any changes in the
+			// date since this will mean an invalid one was given, else we fall through
+			if (!(isset($this->parameters['null']['d']) || isset($this->parameters['null']['m']) || isset($this->parameters['null']['y']))) {
+				if (strcmp($value, $old_value) != 0) {
+					trigger_localised_error('SYS0311', E_USER_NOTICE);
+				}
+			}
 		}
 
 		if (strlen($value) > 20 && !$this->getParam('allow_circa')) {
