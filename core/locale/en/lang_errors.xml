@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.27 2006/01/11 05:36:02 dheppell Exp $
+* $Id: lang_errors.xml,v 1.28 2006/01/11 22:54:40 dheppell Exp $
 *
 */
 
@@ -1320,7 +1320,7 @@ Full Node Contents %3$s</error>
 	<error code="SYS0309">You do not have permission to change the status of "%1$s" (#%2$s)</error>
 
 	<error code="SYS0310">Maximum Number of calls to reserve a treeid exceeded</error>
-	<error_code="SYS0311">Date has been altered to reflect entered values</error>
+	<error code="SYS0311">Date has been altered to reflect entered values</error>
 
 
 	<!-- CORE ASSETS -->
