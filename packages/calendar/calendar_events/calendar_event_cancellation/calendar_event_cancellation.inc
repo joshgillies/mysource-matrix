@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.21 2005/05/18 05:14:00 tbarrett Exp $
+* $Id: calendar_event_cancellation.inc,v 1.21.2.1 2006/01/12 01:17:49 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -319,7 +319,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		?>
 		<table border="0" cellspacing="2" cellpadding="2">
 			<tr>
-				<td><b><?php echo translate('cal_event_name') ?></b></td>
+				<td><b><?php echo translate('name') ?></b></td>
 				<td><?php echo $this->attr('name'); ?></td>
 			</tr>
 			<tr>
