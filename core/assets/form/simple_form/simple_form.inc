@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.13 2006/01/09 03:41:03 emcdonald Exp $
+* $Id: simple_form.inc,v 1.14 2006/01/12 04:04:34 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1242,7 +1242,9 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 			$this->printDefaultFormat($submit_buttons);
 		}
 
-		if ($print_form_tags) ?></form><?php
+		if ($print_form_tags) {
+			?></form><?php
+		}
 
 	}//end printBody()
 
