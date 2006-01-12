@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.30 2006/01/11 04:18:03 rong Exp $
+* $Id: cache_manager.inc,v 1.31 2006/01/12 03:37:31 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -158,7 +158,7 @@ class Cache_Manager extends Asset
 		if ($use_url) {
 			$url = current_url();
 			// append the query string (if any)
-			if (isset($_SERVER['QUERY_STRING'])) {
+			if (isset($_SERVER['QUERY_STRING']) && !empty($_SERVER['QUERY_STRING'])) {
 				$url .= '?'.$_SERVER['QUERY_STRING'];
 			}
 		} else {
@@ -182,7 +182,6 @@ class Cache_Manager extends Asset
 				return $contents;
 			}
 		}
-
 		return '';
 
 	}//end loadFromCache()
