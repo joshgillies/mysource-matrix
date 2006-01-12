@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.75.2.4 2005/08/19 01:41:31 skim Exp $
+* $Id: page_asset_listing.inc,v 1.75.2.5 2006/01/12 22:29:14 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.75.2.4 $
+* @version $Revision: 1.75.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -242,6 +242,10 @@ class Page_Asset_Listing extends Listing_Engine
 
 			// the contents have already been cached, so just output them
 			echo $cached_contents;
+			// #1079, if form field is present in the cached content, include form tag
+			if (strpos($cached_contents, 'sq-form-field') !== FALSE) {
+				$this->requires_form = TRUE;
+			}
 
 		}//end if no cache
 
