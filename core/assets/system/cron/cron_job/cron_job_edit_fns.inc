@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.26 2006/01/11 23:12:27 dheppell Exp $
+* $Id: cron_job_edit_fns.inc,v 1.27 2006/01/12 22:11:27 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -319,7 +319,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 			$when = $type_prefix.'='.$when_str;
 
 		}//end if
-error_log($when);
+
 		return $when;
 
 	}//end _processWhenBox()
