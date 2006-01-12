@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.14 2006/01/12 04:04:34 lwright Exp $
+* $Id: simple_form.inc,v 1.15 2006/01/12 04:06:41 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -96,7 +96,7 @@ class Simple_Form extends Asset
 	*/
 	function &getAsset($assetid, $type_code='', $mute_errors=FALSE)
 	{
-		$asset = null;
+		$asset = NULL;
 		$id_parts = explode(':', $assetid);
 
 		if (isset($id_parts[1])) {
@@ -149,13 +149,13 @@ class Simple_Form extends Asset
 	*											is on ('major' or 'minor')
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
-	* @param boolean		$dependant			Whether we want dependant links, non-dependent or (null) don't care
-	* @param boolean		$exclusive			Whether we want exclusive links, non-exclusive or (null) don't care
+	* @param boolean		$dependant			Whether we want dependant links, non-dependent or (NULL) don't care
+	* @param boolean		$exclusive			Whether we want exclusive links, non-exclusive or (NULL) don't care
 	*
 	* @return array
 	* @access public
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=null, $dependant=null, $exclusive=null)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL, $dependant=NULL, $exclusive=NULL)
 	{
 		// there are no links away from the shadow asset (ie:questions)
 		if (!is_numeric($assetid)) {
@@ -465,8 +465,8 @@ class Simple_Form extends Asset
 	* Returns an array of assetid's + info in the order that they propogate out from THIS BRIDGE'S url
 	*
 	* @param string	$assetid	the id of the last asset in the lineage
-	* @param string	$protocol	the protocol to match -> null means it is ignored
-	* @param string	$url		the url to check for -> null defaults it to current url
+	* @param string	$protocol	the protocol to match -> NULL means it is ignored
+	* @param string	$url		the url to check for -> NULL defaults it to current url
 	*
 	* @return array
 	* @access public
@@ -541,7 +541,7 @@ class Simple_Form extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function createQuestion($type_code, $name=null)
+	function createQuestion($type_code, $name=NULL)
 	{
 		$next_question = $this->attr('next_question');
 		$questions = $this->attr('questions');
@@ -1123,10 +1123,10 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 
 
 	/**
-	* Returns the format bodycopy or null
+	* Returns the format bodycopy or NULL
 	*
-	* @param boolean	$only_if_enabled	if true, will return null if the bodycopy is
-	*										disabled. If false, will only return null if
+	* @param boolean	$only_if_enabled	if true, will return NULL if the bodycopy is
+	*										disabled. If false, will only return NULL if
 	*										never created.
 	*
 	* @return object
@@ -1134,7 +1134,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	*/
 	function &getFormatBodycopy($only_if_enabled=TRUE)
 	{
-		$asset = null;
+		$asset = NULL;
 
 		if ($only_if_enabled) {
 			$link_types = SQ_LINK_TYPE_2;
