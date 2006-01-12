@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.39 2005/12/21 21:50:50 rong Exp $
+* $Id: tables.xml,v 1.40 2006/01/12 03:44:36 rong Exp $
 *
 */
 -->
@@ -1726,7 +1726,7 @@
 					<description>The permission key of this entry</description>
 				</column>
 				<column name="url" allow_null="0">
-					<type>VARCHAR(500)</type>
+					<type>VARCHAR(4000)</type>
 					<type_variations />
 					<default />
 					<description>The URL of this cache entry</description>
