@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.24 2006/01/05 22:39:05 rong Exp $
+* $Id: bulkmail_job.inc,v 1.25 2006/01/12 02:55:50 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -59,7 +59,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	*/
 	function &getPostOffice()
 	{
-		$post_office = null;
+		$post_office = NULL;
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'bulkmail_post_office', TRUE);
 		if (!empty($parents)) {
 			$assetid = array_pop(array_keys($parents));

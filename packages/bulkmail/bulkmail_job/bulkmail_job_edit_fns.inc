@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.24 2006/01/12 00:01:12 rong Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.25 2006/01/12 02:55:50 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -292,7 +292,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 
 				$o->openField('');
 			$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$logs = $ms->getMessages(0, 'bulkmail.job.*', Array(), Array(), null, null, 'name', Array('assetid' => $asset->id), 5);
+			$logs = $ms->getMessages(0, 'bulkmail.job.*', Array(), Array(), NULL, NULL, 'name', Array('assetid' => $asset->id), 5);
 			if (!empty($logs)) {
 				?>
 				<table class="sq-backend-table">
@@ -360,7 +360,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		$job = $bulkmail_manager->getQueuedJobs($asset->id);
 
 		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$logs = $ms->getMessages(0, 'bulkmail.job.*', Array(), Array(), null, null, 'name', Array('assetid' => $asset->id), 5);
+		$logs = $ms->getMessages(0, 'bulkmail.job.*', Array(), Array(), NULL, NULL, 'name', Array('assetid' => $asset->id), 5);
 
 		return ((empty($job) && empty($logs)) ? FALSE : TRUE);
 
@@ -453,7 +453,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$logs = $ms->getMessages(0, 'bulkmail.preview', Array(), Array(), null, null, 'name', Array('assetid' => $asset->id), 5);
+		$logs = $ms->getMessages(0, 'bulkmail.preview', Array(), Array(), NULL, NULL, 'name', Array('assetid' => $asset->id), 5);
 
 		if (!empty($logs)) {
 			?>

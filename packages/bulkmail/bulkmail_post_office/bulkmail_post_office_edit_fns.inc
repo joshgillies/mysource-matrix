@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.26 2006/01/05 22:39:05 rong Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.27 2006/01/12 02:55:50 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -69,7 +69,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		} else {
 			?><ul><?php
 				foreach ($recipients as $assetid) {
-					$group_asset = null;
+					$group_asset = NULL;
 					if (!empty($assetid)) {
 						$group_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					}
@@ -877,7 +877,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		$bulkmail_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$bulkmail_manager_edit_fns = $bulkmail_manager->getEditFns();
 		$o->openField('');
-			$jobs = $bulkmail_manager->getQueuedJobs(null, $asset->id);
+			$jobs = $bulkmail_manager->getQueuedJobs(NULL, $asset->id);
 			$bulkmail_manager_edit_fns->_paintJobQueue($asset, $jobs);
 		$o->closeField();
 
@@ -903,7 +903,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		$bulkmail_manager_edit_fns = $bulkmail_manager->getEditFns();
 		if (!$write_access) return;
 
-		$jobs = $bulkmail_manager->getQueuedJobs(null, $asset->id);
+		$jobs = $bulkmail_manager->getQueuedJobs(NULL, $asset->id);
 		$bulkmail_manager_edit_fns->_processJobQueue($asset, $jobs);
 
 		return TRUE;
@@ -923,7 +923,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	function showProgressSection(&$asset, $prefix)
 	{
 		$bulkmail_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
-		$jobs = $bulkmail_manager->getQueuedJobs(null, $asset->id);
+		$jobs = $bulkmail_manager->getQueuedJobs(NULL, $asset->id);
 
 		return (empty($jobs) ? FALSE : TRUE);
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.5 2006/01/05 22:39:05 rong Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.6 2006/01/12 02:55:50 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -242,7 +242,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	* functions to call based on whether the user is logged in or not (or has
 	* has clicked on a link in a verification email)
 	*
-	* @return null
+	* @return NULL
 	* @access private
 	*/
 	function processForm()
@@ -281,7 +281,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	* Process a verification request. This will get called whenever the GET vars
 	* indicate that the user has done a click-through from a verification email.
 	*
-	* @return null
+	* @return NULL
 	* @access private
 	*/
 	function processVerification()
@@ -303,7 +303,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$unverified_folder =& $this->getUnverifiedUsersFolder();
 		$type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('user', TRUE);
 		$type_codes[] = 'bulkmail_user';
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($unverified_folder->id, null, $type_codes, TRUE, $uniqid);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($unverified_folder->id, NULL, $type_codes, TRUE, $uniqid);
 
 		if (empty($link)) {
 			// Validating and sub/unsubscribing straight after will probably be
@@ -375,7 +375,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	* wants to key in their email address and hit subscribe / unsubscribe), or a
 	* logged in user who has specified a different email address
 	*
-	* @return null
+	* @return NULL
 	* @access private
 	*/
 	function processPublicUserForm()
@@ -503,7 +503,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	/**
 	* Process a sub/unsubscribe request from logged in user
 	*
-	* @return null
+	* @return NULL
 	* @access private
 	*/
 	function processMatrixUserForm()

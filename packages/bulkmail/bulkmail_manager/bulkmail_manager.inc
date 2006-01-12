@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.32 2006/01/12 00:01:12 rong Exp $
+* $Id: bulkmail_manager.inc,v 1.33 2006/01/12 02:55:50 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -195,7 +195,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	* @param int	$content_gen_as	AssetID of the user you want the mail generated as
 	* @param array	$headers		Addition headers to add to the mail in the form:
 	*								Array('key'	=> 'value')
-	* @param object	$post_office_id	AssetID of the post office to use. If this is null, you MUST supply
+	* @param object	$post_office_id	AssetID of the post office to use. If this is NULL, you MUST supply
 	*								server details
 	* @param array	$server_details	Mail options to create a post office on the fly:
 	* <pre>
@@ -248,7 +248,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		$bulkmail_job->setAttrValue('content_design', $design_id);
 		$bulkmail_job->setAttrValue('content_layout', $layout_id);
 
-		$post_office = null;
+		$post_office = NULL;
 		if (empty($post_office_id) && !empty($server_details)) {
 			$post_office =& new Post_Office();
 			$post_office->setAttrValue('server_details', $value);
@@ -273,7 +273,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	* @return boolean
 	* @access private
 	*/
-	function addJob($job, $post_office=null)
+	function addJob($job, $post_office=NULL)
 	{
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -424,7 +424,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	* @return array
 	* @access public
 	*/
-	function getQueuedJobs($job_id=null, $post_office_id=null)
+	function getQueuedJobs($job_id=NULL, $post_office_id=NULL)
 	{
 		$db_table = SQ_TABLE_RUNNING_PREFIX.'bmail_queue';
 		$db =& $GLOBALS['SQ_SYSTEM']->db;

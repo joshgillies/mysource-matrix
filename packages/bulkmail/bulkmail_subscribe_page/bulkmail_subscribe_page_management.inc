@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page_management.inc,v 1.3 2006/01/05 22:39:05 rong Exp $
+* $Id: bulkmail_subscribe_page_management.inc,v 1.4 2006/01/12 02:55:50 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -102,7 +102,7 @@ class Bulkmail_Subscribe_Page_Management extends Asset_Management
 					'options'						=> Array(
 														'side_of_link'	=> 'major',
 														'indirect'		=> TRUE,
-														'is_exclusive'	=> null,
+														'is_exclusive'	=> NULL,
 														'is_dependant'	=> 1,
 														'value'			=> '',
 														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,

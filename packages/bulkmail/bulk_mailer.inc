@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.49 2006/01/05 22:39:04 rong Exp $
+* $Id: bulk_mailer.inc,v 1.50 2006/01/12 02:55:50 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -131,13 +131,13 @@ class Bulk_Mailer
 		switch ($child_pid) {
 			case -1:
 				trigger_localised_error('BML0004', E_USER_WARNING);
-				return null;
+				return NULL;
 			break;
 			case 0:
 				return $child_pid;
 			break;
 			default :
-				$status = null;
+				$status = NULL;
 				pcntl_waitpid(-1, $status);
 				return $child_pid;
 			break;
@@ -273,7 +273,7 @@ class Bulk_Mailer
 				$mime =& new Mail_mime();
 				$mail_queue =& new Mail_Queue($details['queue_details'], $details['server_details']);
 
-				for ($recipient_chunk; null !== ($user_id = key($recipient_chunk)); next($recipient_chunk)) {
+				for ($recipient_chunk; NULL !== ($user_id = key($recipient_chunk)); next($recipient_chunk)) {
 					$email = $recipient_chunk[$user_id];
 					$this->_reconnectDB();
 
@@ -574,7 +574,7 @@ class Bulk_Mailer
 		if (!empty($type_codes)) {
 			$where .= ' AND (';
 			$count = 0;
-			for (reset($type_codes); null !== ($key = key($type_codes)); next($type_codes)) {
+			for (reset($type_codes); NULL !== ($key = key($type_codes)); next($type_codes)) {
 				$type_codes_cond = '= '.$db->quote($key);
 				if ($count) $where .= 'OR ';
 				// is strict type_codes
