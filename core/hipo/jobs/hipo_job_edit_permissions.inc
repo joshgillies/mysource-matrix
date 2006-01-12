@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.52.2.3 2006/01/04 00:33:16 arailean Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.52.2.4 2006/01/12 21:49:14 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52.2.3 $
+* @version $Revision: 1.52.2.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -428,13 +428,13 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 		$assetid = key($this->_running_vars['re_lock_assets']);
 		unset($this->_running_vars['re_lock_assets'][$assetid]);
 
-		$children = &$GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
+		$children = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
 
 		foreach ($children as $dep_child_id => $dep_child_type_code) {
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($dep_child_id, 'permissions');
 		}
 
-		$asset_info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
 		$step_data['message'] = translate('hipo_release_locks', $asset_info[$assetid]['name']).translate('hipo_release_locks_dependents');
 
