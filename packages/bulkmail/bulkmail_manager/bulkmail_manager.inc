@@ -11,12 +11,13 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.31 2006/01/05 22:39:05 rong Exp $
+* $Id: bulkmail_manager.inc,v 1.32 2006/01/12 00:01:12 rong Exp $
 *
 */
 
 require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_office.inc';
 require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
+require_once SQ_FUDGE_PATH.'/general/www.inc';
 
 
 /**
@@ -28,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -742,6 +743,9 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		// no 'from' field
 		if (empty($details_info['from'])) {
 			$errors[] = translate('bm_warning_no_from_field');
+		// 'from' field is not a valid email address
+		} else if (!valid_email($details_info['from'])) {
+			$errors[] = translate('bm_warning_from_field_invalid_email');
 		}
 
 		// no 'subject' field

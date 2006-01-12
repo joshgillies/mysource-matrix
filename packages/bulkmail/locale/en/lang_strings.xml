@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.22 2005/12/06 04:32:04 rong Exp $
+* $Id: lang_strings.xml,v 1.23 2006/01/12 00:01:12 rong Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -106,6 +106,7 @@ Please click on the following link if you would like to proceed:
 	<string source="bm_warning_generate_as_no_read_access">Content: %1$s (Id #%2$s) does not have Read Access to 'Asset to Send' %3$s (Id #%4$s)</string>
 	<string source="bm_warning_design_no_public_read_access">Content: %1$s (Id #%2$s) does not have Public Read Access</string>
 	<string source="bm_warning_no_from_field">Header Details: Missing 'From' field</string>
+	<string source="bm_warning_from_field_invalid_email">Header Details: Email address provided in 'From' field is invalid</string>
 	<string source="bm_warning_no_subject_field">Header Details: Missing 'Subject' field</string>
 	<string source="bm_warning_send_rate_min">Warning: Minimum send rate is %1$s emails every minute</string>
 	<string source="bm_warning_send_rate_max">Warning: Maximum send rate is %1$s emails every minute</string>

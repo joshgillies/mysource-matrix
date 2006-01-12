@@ -12,4 +12,5 @@
 	<error code="BML0011">Import file not selected.</error>
 	<error code="BML0012">User group not selected.</error>
 
+	<error code="BML0013">Invalid email address '%s'.</error>
 </errors>

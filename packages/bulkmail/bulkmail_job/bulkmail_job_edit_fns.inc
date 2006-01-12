@@ -11,13 +11,14 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.23 2006/01/05 22:39:05 rong Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.24 2006/01/12 00:01:12 rong Exp $
 *
 */
 
 
 require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_office_edit_fns.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_FUDGE_PATH.'/general/www.inc';
 
 
 /**
@@ -29,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -412,7 +413,10 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$recipient = array_get_index($_REQUEST, $prefix.'_preview_address', '');
-		if (empty($recipient)) return FALSE;
+		if (empty($recipient) || !valid_email($recipient)) {
+			trigger_localised_error('BML0013', E_USER_WARNING, $recipient);
+			return FALSE;
+		}
 
 		if ($asset->sendPreviewMail($recipient)) {
 			$msg_reps = Array(
