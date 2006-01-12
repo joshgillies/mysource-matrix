@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.136 2006/01/12 22:14:43 rong Exp $
+* $Id: listing_engine.inc,v 1.137 2006/01/12 23:46:18 sdanis Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.136 $
+* @version $Revision: 1.137 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -543,11 +543,6 @@ class Listing_Engine extends Page
 
 			// the contents have already been cached, so just output them
 			echo $cached_contents;
-			// #1079, if form field is present in the cached content, include form tag
-			if (strpos($cached_contents, 'sq-form-field') !== FALSE) {
-				$this->requires_form = TRUE;
-			}
-
 
 		}//end if no cache
 
@@ -1841,7 +1836,7 @@ class Listing_Engine extends Page
 								$first = FALSE;
 							}
 						}
-					}
+					}//end else
 					$keywords['asset_lineage'] = $lineage;
 					$keywords['asset_lineage_linked'] = $linked_lineage;
 				} else {
@@ -1860,7 +1855,7 @@ class Listing_Engine extends Page
 				}
 
 			}//end if needs asset
-		}
+		}//end else
 
 		$group_keywords = preg_grep('/group[0-9]+.*/', $bc_keywords);
 		foreach ($group_keywords as $group_keyword) {
@@ -1882,7 +1877,7 @@ class Listing_Engine extends Page
 						break;
 					}
 				}
-			}
+			}//end if
 		}
 
 		$metadata_keywords = Array();
@@ -1909,6 +1904,12 @@ class Listing_Engine extends Page
 			$keywords['asset_position'] = $list_position;
 		} else {
 			$keywords['asset_position']  = (array_get_index($this->_tmp, 'result_page', 1) - 1) * $this->attr('num_per_page') + $list_position;
+		}
+
+		if (($list_position % 2) == 0) {
+			$keywords['asset_odd_even'] = translate('cms_listing_asset_position_even');
+		} else {
+			$keywords['asset_odd_even'] = translate('cms_listing_asset_position_odd');
 		}
 
 		// asset selections
@@ -1989,10 +1990,6 @@ class Listing_Engine extends Page
 
 							if ($buffering) {
 								check_box($selection_name_field, '1', ($selection_value > 0 ? TRUE : FALSE), "sq_listing_check_state(this, '".$selection_name."')", 'id="'.$selection_id.'"');
-
-								// the flag is used to determine whether a checkbox is
-								// present and not ticked, or not present at all
-								// hidden_field($selection_name.'_flag', '1');
 							}
 						} else {
 							$selection_name_field = str_replace(' ', '_', $selection_name);
@@ -2860,6 +2857,7 @@ class Listing_Engine extends Page
 		$keywords['asset_name_linked'] = translate('cms_listing_asset_name_linked');
 		$keywords['asset_short_name_linked'] = translate('cms_listing_asset_short_name_linked');
 		$keywords['asset_position'] = translate('cms_listing_asset_position');
+		$keywords['asset_odd_even'] = translate('cms_listing_asset_position_odd_even');
 		$keywords['root_nodes'] = translate('cms_listing_keyword_root_nodes');
 
 		// asset selections
@@ -2972,6 +2970,7 @@ class Listing_Engine extends Page
 		$keywords['asset_short_name_linked'] = translate('cms_listing_asset_short_name_linked');
 		$keywords['asset_position'] = translate('cms_listing_asset_position');
 		$keywords['root_nodes'] = translate('cms_listing_keyword_root_nodes');
+
 
 		// asset selections
 		$selections = $this->attr('asset_selections');
