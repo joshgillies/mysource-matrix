@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.135 2006/01/12 04:36:14 lwright Exp $
+* $Id: listing_engine.inc,v 1.136 2006/01/12 22:14:43 rong Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.135 $
+* @version $Revision: 1.136 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -543,6 +543,11 @@ class Listing_Engine extends Page
 
 			// the contents have already been cached, so just output them
 			echo $cached_contents;
+			// #1079, if form field is present in the cached content, include form tag
+			if (strpos($cached_contents, 'sq-form-field') !== FALSE) {
+				$this->requires_form = TRUE;
+			}
+
 
 		}//end if no cache
 
@@ -758,7 +763,7 @@ class Listing_Engine extends Page
 		$reverse_sort = $this->isDescending();
 
 		if ($sort_numeric) {
-			uasort($sort_assets, create_function('$a,$b','return '.($reverse_sort? '$b - $a' : '$a - $b').';'));
+			uasort($sort_assets, create_function('$a,$b','return '.($reverse_sort ? '$b - $a' : '$a - $b').';'));
 		} else {
 			if ($reverse_sort) {
 				arsort($sort_assets);
@@ -2763,7 +2768,7 @@ class Listing_Engine extends Page
 	*/
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
-		$vars['keywords'] = isset($vars['keywords'])?$vars['keywords']:Array();
+		$vars['keywords'] = isset($vars['keywords']) ? $vars['keywords'] : Array();
 
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
 		$parent_folders = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'folder', TRUE);
