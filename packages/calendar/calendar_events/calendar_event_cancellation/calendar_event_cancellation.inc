@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.23 2005/06/23 23:36:33 tbarrett Exp $
+* $Id: calendar_event_cancellation.inc,v 1.24 2006/01/12 01:22:52 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -165,7 +165,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		if ($existing_link = $this->getReplacementLink()) {
 			$replacement_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($existing_link['minorid']);
 		} else {
-			// create a replacement event 
+			// create a replacement event
 			$parent_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, null, '', true, null, 'minor');
 			$parent_info = reset($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($parent_link['majorid'])));
 			$new_type_code = str_replace('recurring', 'single', $parent_info['type_code']);
@@ -329,7 +329,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		?>
 		<table border="0" cellspacing="2" cellpadding="2">
 			<tr>
-				<td><b><?php echo translate('cal_event_name') ?></b></td>
+				<td><b><?php echo translate('name') ?></b></td>
 				<td><?php echo $this->attr('name'); ?></td>
 			</tr>
 			<tr>

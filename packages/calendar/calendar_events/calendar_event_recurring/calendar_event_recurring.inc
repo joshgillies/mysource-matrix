@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.66 2005/11/13 23:27:16 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.67 2006/01/12 01:22:51 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -706,7 +706,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		?>
 		<table border="0" cellspacing="2" cellpadding="2">
 			<tr>
-				<td><b><?php echo translate('cal_event_name'); ?></b></td>
+				<td><b><?php echo translate('name'); ?></b></td>
 				<td><?php echo $this->attr('name'); ?></td>
 			</tr>
 			<tr>
@@ -769,7 +769,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	* @return string
 	* @access public
 	*/
-	function getKeywordReplacement($keyword) 
+	function getKeywordReplacement($keyword)
 	{
 		switch ($keyword) {
 			case 'edit_link':
