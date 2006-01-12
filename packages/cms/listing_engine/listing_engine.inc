@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.134 2006/01/11 22:54:15 rong Exp $
+* $Id: listing_engine.inc,v 1.135 2006/01/12 04:36:14 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.134 $
+* @version $Revision: 1.135 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -359,9 +359,13 @@ class Listing_Engine extends Page
 			}
 
 			// we're not using stuff that requires the select all code
-			if (!$using_select_all) {
-				$contents = str_replace($this->getSelectAllJSCodeKeywordReplacement(), '', $contents);
+			$select_all_code = '';
+
+			if ($using_select_all) {
+				$select_all_code = $this->getSelectAllJSCodeKeywordReplacement();
 			}
+
+			$contents = str_replace('%select_all_js_code%', $select_all_code, $contents);
 
 			// if we are posting, we really shouldn't be having anything in the GET
 			if ($this->_getFormSubmitMethod() == 'post') {
@@ -383,7 +387,7 @@ class Listing_Engine extends Page
 			}
 		} else {
 			// no form at all - remove the JS code relations stuff
-			$contents = str_replace($this->getSelectAllJSCodeKeywordReplacement(), '', $contents);
+			$contents = str_replace('%select_all_js_code%', '', $contents);
 			echo $contents;
 		}
 
@@ -516,7 +520,7 @@ class Listing_Engine extends Page
 				$replacements['last_asset_position'] = min($replacements['asset_count'], $num_per_page * $result_page);
 			}
 
-			$replacements['select_all_js_code'] = $this->getSelectAllJSCodeKeywordReplacement();
+			$replacements['select_all_js_code'] = '%select_all_js_code%';
 
 			// print the contents of page - replacing the global keywords
 			$format_bodycopy->setKeywordReplacements($replacements);
@@ -524,7 +528,7 @@ class Listing_Engine extends Page
 				if (!in_array('select_all_js_code', $keywords)) {
 					// there is no asset listing keyword in the contents, so we dont
 					// need to do all the extra processing for the listing
-					echo $this->getSelectAllJSCodeKeywordReplacement();
+					echo '%select_all_js_code%';
 				}
 				$format_bodycopy->printBody();
 				if (!empty($cache_key)) {
