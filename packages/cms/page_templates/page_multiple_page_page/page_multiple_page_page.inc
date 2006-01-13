@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page_page.inc,v 1.6 2005/11/29 23:25:53 dmckee Exp $
+* $Id: page_multiple_page_page.inc,v 1.7 2006/01/13 00:33:42 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -57,12 +57,12 @@ class Page_Multiple_Page_Page extends Bodycopy
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_1]['page'] = Array('card' => 'M', 'exclusive' => false);
-		$page_links[SQ_LINK_TYPE_1]['file'] = Array('card' => 'M', 'exclusive' => false);
-		$page_links[SQ_LINK_TYPE_2]['container'] = Array('card' => 'M', 'exclusive' => false);
-		$page_links[SQ_LINK_TYPE_2]['page'] = Array('card' => 'M', 'exclusive' => false);
-		$page_links[SQ_LINK_TYPE_2]['file'] = Array('card' => 'M', 'exclusive' => false);
-		$page_links[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => false);
+		$page_links[SQ_LINK_TYPE_1]['page'] = Array('card' => 'M', 'exclusive' => FALSE);
+		$page_links[SQ_LINK_TYPE_1]['file'] = Array('card' => 'M', 'exclusive' => FALSE);
+		$page_links[SQ_LINK_TYPE_2]['container'] = Array('card' => 'M', 'exclusive' => FALSE);
+		$page_links[SQ_LINK_TYPE_2]['page'] = Array('card' => 'M', 'exclusive' => FALSE);
+		$page_links[SQ_LINK_TYPE_2]['file'] = Array('card' => 'M', 'exclusive' => FALSE);
+		$page_links[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => FALSE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -80,7 +80,7 @@ class Page_Multiple_Page_Page extends Bodycopy
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!parent::_createAdditional($link)) return false;
+		if (!parent::_createAdditional($link)) return FALSE;
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$multi_page = $link['asset'];
@@ -100,7 +100,7 @@ class Page_Multiple_Page_Page extends Bodycopy
 	*/
 	function printBody()
 	{
-		//We have to redirect to our parent, so that page numbers, and other stuff can be printed
+		// We have to redirect to our parent, so that page numbers, and other stuff can be printed
 		$parent = $this->getMultiplePageAsset();
 		$parent->printPage($this);
 
@@ -138,7 +138,7 @@ class Page_Multiple_Page_Page extends Bodycopy
 		if ($multi_id != '0') {
 			return $GLOBALS['SQ_SYSTEM']->am->getAsset($multi_id);
 		}
-		$null_minder = null;
+		$null_minder = NULL;
 		return $null_minder;
 
 	}//end getMultiplePageAsset()
