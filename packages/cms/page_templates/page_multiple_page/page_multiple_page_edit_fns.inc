@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page_edit_fns.inc,v 1.2 2005/11/21 04:33:47 dmckee Exp $
+* $Id: page_multiple_page_edit_fns.inc,v 1.3 2006/01/13 00:26:18 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -128,7 +128,8 @@ class Page_Multiple_Page_Edit_Fns extends Page_Edit_Fns
 			<?php
 		}
 
-		return true;
+		return TRUE;
+
 	}//end paintCurrentPages()
 
 
@@ -154,8 +155,8 @@ class Page_Multiple_Page_Edit_Fns extends Page_Edit_Fns
 
 		if (isset($_POST[$prefix.'_delete_page'])) {
 
-			//Set the following flag, so the updating of lookups doesnt cause dramas
-			$asset->_tmp['deleting_links'] = true;
+			// Set the following flag, so the updating of lookups doesnt cause dramas
+			$asset->_tmp['deleting_links'] = TRUE;
 			foreach ($_POST[$prefix.'_delete_page'] as $id => $flag) {
 				$doomed_link = $am->getLinkByAsset($asset->id, $id);
 				$am->moveLink($doomed_link['linkid'], $am->getSystemAssetid('trash_folder'), SQ_LINK_TYPE_2, '0');
@@ -163,12 +164,13 @@ class Page_Multiple_Page_Edit_Fns extends Page_Edit_Fns
 				$deleted->saveWebPaths(Array());
 			}
 		}
-		//Restore the flag set above
-		$asset->_tmp['deleting_links'] = false;
+		// Restore the flag set above
+		$asset->_tmp['deleting_links'] = FALSE;
 
 		$asset->linksUpdated();
 
 		return $write_access;
+
 	}//end processCurrentPages()
 
 
