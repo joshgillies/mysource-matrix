@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.485 2006/01/13 05:18:33 lwright Exp $
+* $Id: asset.inc,v 1.486 2006/01/13 05:31:50 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.485 $
+* @version $Revision: 1.486 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4244,7 +4244,6 @@ class Asset extends MySource_Object
 					$url_assetids[] = $url_lineage_item['assetid'];
 				}
 				$url_assetids = implode(' ', $url_assetids);
-				minibam($url_assetids, 'Old URL');
 
 				$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, substr($url, 0, strrpos($url, '/')));
 				$tmp_old_urls[$url_assetids][] = $url;
@@ -4357,8 +4356,6 @@ class Asset extends MySource_Object
 							$new_url_assetids[] = $url_lineage_item['assetid'];
 						}
 						$new_url_assetids = implode(' ', $new_url_assetids);
-						minibam($new_url_assetids, 'New URL');
-						minibam($tmp_old_urls, 'Old URLs');
 
 						if (!isset($tmp_old_urls[$new_url_assetids][$j])) $tmp_old_urls[$new_url_assetids][$j] = '';
 
