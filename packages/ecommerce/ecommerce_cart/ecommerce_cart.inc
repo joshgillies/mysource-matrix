@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.23 2005/11/17 06:34:28 mmcintyre Exp $
+* $Id: ecommerce_cart.inc,v 1.24 2006/01/13 00:19:23 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -56,36 +56,29 @@ class Ecommerce_Cart extends Listing_Engine
 
 
 	/**
-	* Perform any additional processing required during the creation of this asset
+	* Creates bodycopies for this asset
 	*
-	* Creates the page contents bodycopy
+	* Overridden, as the Ecommerce_Cart uses the 'no_items_text' attribute instead of a No Results bodycopy
 	*
-	* @param array	&$link	information used to create the initial link
-	*
-	* @access private
 	* @return boolean
+	* @access protected
 	*/
-	function _createAdditional(&$link)
+	function _createBodycopies()
 	{
-		if (!parent::_createAdditional($link)) return false;
-
-		// add a bodycopy to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-
 		$asset =& new Bodycopy();
 		$copy_link = Array('asset' => &$this, 'value' => 'page_contents' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', 'Page Contents');
-
 		return $asset->create($copy_link);
 
-	}//end _createAdditional()
+	}//end _createBodycopies()
 
 
 	/**
 	* Gets the current cart. If it doesn't yet exist, create a new one
 	*
+	* @return object
 	* @access private
-	* @return &Ecommerce_Cart_Processor
 	*/
 	function &_getCart()
 	{
@@ -96,7 +89,6 @@ class Ecommerce_Cart extends Listing_Engine
 			$cart =& new Ecommerce_Cart_Processor();
 		}
 
-		//if (!empty($_SESSION['sq_local_cart_contents'])) {
 		if ($this->attr('use_local_cart')) {
 			$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
 		}
@@ -155,18 +147,18 @@ class Ecommerce_Cart extends Listing_Engine
 
 
 	/**
-	* Returns an array of all the permitted link type, the type asset and
-	* the cardinality
+	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
 		$page_links[SQ_LINK_TYPE_1]['folder']   = Array('card' => 'M');
 		$page_links[SQ_LINK_TYPE_1]['product']  = Array('card' => 'M');
-		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => '1');
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 'M');
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -177,17 +169,23 @@ class Ecommerce_Cart extends Listing_Engine
 	*
 	* @param boolean	$short_name	whether or not we are after the short name or the full name
 	*
-	* @see Asset::_getName()
 	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return (($short_name) ? $this->attr('short_name') : $this->attr('name'));
 
 	}//end _getName()
 
 
+	/**
+	* Prints out the Frontend for this asset
+	*
+	* @return void
+	* @access public
+	*/
 	function printFrontend()
 	{
 		$this->processAssetSelections();
@@ -196,34 +194,34 @@ class Ecommerce_Cart extends Listing_Engine
 	}//end printFrontend()
 
 
- 	/**
-        * Gets the list of current root nodes
-        *
-        * @return array
-        * @access public
-        */
-        function getRootNodes()
-        {
+	/**
+	* Gets the list of current root nodes
+	*
+	* @return array
+	* @access public
+	*/
+	function getRootNodes()
+	{
 		return Array();
 
 	}//end getRootNodes()
 
 
 	/**
-	 * Constructs the carts contents
-	 *
-	 * @return void
-	 * @access public
-	 */
+	* Constructs the carts contents
+	*
+	* @return void
+	* @access public
+	*/
 	function printContents()
 	{
 		$cart =& $this->_getCart();
 
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
-		if (empty($bodycopy_link)) return false;
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
+		if (empty($bodycopy_link)) return FALSE;
 
-		$format_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
-		if (is_null($format_bodycopy)) return false;
+		$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+		if (is_null($format_bodycopy)) return FALSE;
 
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$keywords = $format_bodycopy->getKeywords();
@@ -280,7 +278,7 @@ class Ecommerce_Cart extends Listing_Engine
 			<script type="text/javascript">
 			<!--
 				select_list = [];
-				//-->
+			//-->
 			</script>
 			<?php
 		} else {
@@ -320,7 +318,7 @@ class Ecommerce_Cart extends Listing_Engine
 			hidden_field('result_page', $result_page);
 		}
 
-		//line below see above
+		// line below see above
 		$replacements['checkout_cart_button']  = $checkout_cart_button;
 		$replacements['checkout_cart_href']    = $checkout_cart_href;
 
@@ -351,6 +349,7 @@ class Ecommerce_Cart extends Listing_Engine
 			}
 			$format_bodycopy->printBody();
 		ob_end_flush();
+
 	}//end printContents()
 
 
@@ -358,6 +357,11 @@ class Ecommerce_Cart extends Listing_Engine
 	* Provide the default values for each of the selection fields
 	* Ecom grabs its values from the cart
 	*
+	* @param string	$selection_name	the id of the asset selection
+	* @param string	$assetid		the assetid of the item to grab out of the cart
+	*
+	* @return int
+	* @access public
 	*/
 	function getAssetSelectionValue($selection_name, $assetid)
 	{
@@ -390,7 +394,8 @@ class Ecommerce_Cart extends Listing_Engine
 	* the listing engine.
 	*
 	* @param string	$assetid		The assetid of the asset we are printing
-	* @param string $list_position
+	* @param string	$list_position	the position of this asset in the list
+	* @param array	$keywords		any keywords to replace when printing
 	*
 	* @return void
 	* @access protected
@@ -407,7 +412,7 @@ class Ecommerce_Cart extends Listing_Engine
 		$cart_contents = $cart->getCart();
 
 		$element_replacements = Array(
-									'product_quantity' => $cart_contents[$assetid]['quantity'],
+									'product_quantity'	=> $cart_contents[$assetid]['quantity'],
 								);
 
 		$element_contents = replace_keywords($element_contents, $element_replacements);
@@ -419,13 +424,13 @@ class Ecommerce_Cart extends Listing_Engine
 
 	/**
 	* Returns a list of extra keywords that should be replaced for a particular
-	* listing asset
+	* listing asset, in the format: Array(keyword name => replacement)
 	*
 	* This allows search page, for instance, to define its result number and
 	* score fields so they don't blank out when keywords are replaced in listing
 	* engine.
 	*
-	* @return Array(string => string)	keyword name => replacement
+	* @return array
 	* @access public
 	*/
 	function getExtendedAssetKeywordReplacements()
@@ -444,7 +449,7 @@ class Ecommerce_Cart extends Listing_Engine
 	* Overwritten by the cart to handle the processing of cart updates using
 	* preset asset selections and dynamic parameters
 	*
-	* @return boolean    to indicate success
+	* @return boolean
 	* @access public
 	*/
 	function processAssetSelections()
@@ -452,8 +457,8 @@ class Ecommerce_Cart extends Listing_Engine
 		$cart =& $this->_getCart();
 		$cart_contents = $cart->getCart();
 
-		$parameter_map = &$this->getAttribute('parameter_map');
-		$this->_tmp['cart_updated'] = false;
+		$parameter_map =& $this->getAttribute('parameter_map');
+		$this->_tmp['cart_updated'] = FALSE;
 
 		$add_items = $parameter_map->getParameterValue('add_item');
 		if (!empty($add_items)) {
@@ -470,7 +475,7 @@ class Ecommerce_Cart extends Listing_Engine
 				// only add if it's not going to break our Quantity selection
 				if ($this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, $quantity) == $quantity) {
 					if ($cart->addItem($assetid, $quantity)) {
-						$this->_tmp['cart_updated'] = true;
+						$this->_tmp['cart_updated'] = TRUE;
 					}
 				}
 			}
@@ -489,23 +494,15 @@ class Ecommerce_Cart extends Listing_Engine
 						$amount = $quantity[$assetid];
 					}
 					if ($cart->updateItem($assetid, $this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, $amount))) {
-						$this->_tmp['cart_updated'] = true;
+						$this->_tmp['cart_updated'] = TRUE;
 					}
 				}
 			} else {
 				// radio
 				if ($cart->updateItem($quantity, $this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, 1))) {
-					$this->_tmp['cart_updated'] = true;
+					$this->_tmp['cart_updated'] = TRUE;
 				}
 			}
-		/*} else if (isset($_REQUEST[SQ_CART_PRESET_QUANTITY.'_flag'])) {
-			// field is present, but no boxes have been ticked
-			$asset_list = $this->getAssetList();
-			foreach ($asset_list as $assetid => $type_code) {
-				if ($cart->removeItem($assetid)) {
-					$this->_tmp['cart_updated'] = true;
-				}
-			}*/
 		}
 
 		// delete
@@ -515,22 +512,35 @@ class Ecommerce_Cart extends Listing_Engine
 				// checkbox, textbox, or drop-down
 				foreach ($remove as $assetid => $amount) {
 					if ($cart->removeItem($assetid)) {
-						$this->_tmp['cart_updated'] = true;
+						$this->_tmp['cart_updated'] = TRUE;
 					}
 				}
 			} else {
 				// radio
 				if ($cart->removeItem($remove)) {
-					$this->_tmp['cart_updated'] = true;
+					$this->_tmp['cart_updated'] = TRUE;
 				}
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processAssetSelections()
 
 
+	/**
+	* Checks that the new value for the selection is valid, and matches
+	* the conditions set on the Asset Selection screen for that selection,
+	* and modifies the quanitity to match these conditions if necessary
+	*
+	* Returns the new quantity
+	*
+	* @param string	$selection_name	the id of the asset selection
+	* @param int	$quantity		the quantity to be assigned to the selection
+	*
+	* @return int
+	* @access private
+	*/
 	function _validateItemUpdate($selection_name, $quantity)
 	{
 		$selections     = $this->attr('asset_selections');
@@ -540,20 +550,20 @@ class Ecommerce_Cart extends Listing_Engine
 			return $final_quantity;
 		}
 		$options = $selections[$selection_name]['options'];
-		$restrict_range = false;
+		$restrict_range = FALSE;
 
 		// allow_negative?
 		if (isset($options['allow_negative']) && !$options['allow_negative']) {
-			$restrict_range = true;
+			$restrict_range = TRUE;
 			$min            = 0;
 
 			// will always succeed
-			$max            = null;
+			$max            = NULL;
 		}
 
 		// if restrict_range is turned on
 		if (isset($options['restrict_range']) && !empty($options['restrict_range']['enable'])) {
-			$restrict_range = true;
+			$restrict_range = TRUE;
 
 			$defaults = $this->getAssetSelectionDefaults();
 			$min      = array_get_index($options['restrict_range'], 'min', $defaults['options']['restrict_range']['min']);
@@ -562,7 +572,7 @@ class Ecommerce_Cart extends Listing_Engine
 
 		// if this is a radio button or checkbox
 		if ($selections[$selection_name]['type'] == 'radio') {
-			$restrict_range = true;
+			$restrict_range = TRUE;
 			$min = 0;
 			$max = 1;
 		}
@@ -583,9 +593,8 @@ class Ecommerce_Cart extends Listing_Engine
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
-	*								we add keywords to the $vars['keywords'] array
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster we add keywords to the $vars['keywords'] array
 	*
 	* @return boolean
 	* @access private
@@ -595,11 +604,11 @@ class Ecommerce_Cart extends Listing_Engine
 		if (!isset($vars['keywords'])) return;
 		if (!is_a($broadcaster, 'content_type')) return;
 
-		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
 
 		// the broadcaster could be our page contents bodycopy, in which case
 		// we want to supply our own keyword replacements
-		$page_contents_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
+		$page_contents_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
 		if (!empty($page_contents_link)) {
 			if (isset($parents[$page_contents_link['minorid']])) {
 				$vars['keywords'] += $this->getContentsKeywords();
@@ -608,7 +617,7 @@ class Ecommerce_Cart extends Listing_Engine
 		}
 
 		// type folder links
-		$folder = &$this->getFolder();
+		$folder =& $this->getFolder();
 		if (!is_null($folder)) {
 			$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
 			foreach ($type_links as $link_info) {
@@ -641,8 +650,8 @@ class Ecommerce_Cart extends Listing_Engine
 	* )
 	* </pre>
 	*
+	* @return array
 	* @access public
-	* @return array(string => string)
 	*/
 	function getContentsKeywords()
 	{
@@ -683,6 +692,7 @@ class Ecommerce_Cart extends Listing_Engine
 		return 'post';
 
 	}//end _getFormSubmitMethod()
+
 
 }//end class
 

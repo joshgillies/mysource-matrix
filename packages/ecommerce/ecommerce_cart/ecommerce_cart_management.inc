@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_management.inc,v 1.10 2005/09/08 04:28:34 skim Exp $
+* $Id: ecommerce_cart_management.inc,v 1.11 2006/01/13 00:19:23 rhoward Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -64,10 +64,10 @@ class Ecommerce_Cart_Management extends Asset_Management
 						'show_price'			=> Array(
 													'added'			=> '0.0.1',
 													'type'			=> 'boolean',
-													'default'		=> true,
+													'default'		=> TRUE,
 													'description'	=> 'Whether to show the price columns',
 													'parameters'	=> Array(
-																		'allow_empty'	=> false,
+																		'allow_empty'	=> FALSE,
 																	   ),
 													'update_fn'		=> '',
 												   ),
@@ -136,10 +136,10 @@ class Ecommerce_Cart_Management extends Asset_Management
 						'use_local_cart'		=> Array(
 													'added'			=> '0.4',
 													'type'			=> 'boolean',
-													'default'		=> false,
+													'default'		=> FALSE,
 													'description'	=> 'If yes, use the ecommerce_checkout local cart instead of the global cart',
 													'parameters'	=> Array(
-																		'allow_empty'	=> false,
+																		'allow_empty'	=> FALSE,
 																	   ),
 													'update_fn'		=> '',
 												   ),
@@ -151,8 +151,8 @@ class Ecommerce_Cart_Management extends Asset_Management
 	/**
 	* Return an array with information about the events that this page is listening for
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function getEventList()
 	{
@@ -160,11 +160,11 @@ class Ecommerce_Cart_Management extends Asset_Management
 				Array(
 					'event_name'					=> 'requestKeywords',
 					'broadcast_type_code'			=> 'content_type',
-					'broadcast_strict_type_code'	=> false,
+					'broadcast_strict_type_code'	=> FALSE,
 					'options'						=> Array(
 														'side_of_link'	=> 'major',
-														'indirect'		=> true,
-														'is_exclusive'	=> null,
+														'indirect'		=> TRUE,
+														'is_exclusive'	=> NULL,
 														'is_dependant'	=> 1,
 														'value'			=> '',
 														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
