@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.29 2005/12/08 01:30:45 tbarrett Exp $
+* $Id: edit.js,v 1.30 2006/01/13 03:25:45 dmckee Exp $
 *
 */
 
@@ -60,12 +60,12 @@ function switchEditingMode(contentDivID, editDivID, editor) {
 	if (editDiv.style.display == "none") { // the edit div is hidden
 		var setDesignMode = true;
 
-		// initilise the wysiwg if this is the first time
+		// initilise the wysiwyg if this is the first time
 		// it is being shown - skip this otherwise
 		if (initialisedEditors[editor._uniqueID] == null) {
 			initialisedEditors[editor._uniqueID] = true;
 			editor.generate();
-			//editor.updateToolbar(false);
+			editor.updateToolbar(true);
 			setDesignMode = false;
 		} else if (editor._initialised != true) {
 			return;
@@ -262,7 +262,7 @@ function textboxReplaceSelect(input, text)
 var expandListFn = new Function('expandOptionList(this)');
 var deleteRowFn = new Function('deleteOptionListRow(this); return false;');
 
-function expandOptionList(input) 
+function expandOptionList(input)
 {
 	// abort if we are not the last input in the lit
 	var nextInput = input.nextSibling;
@@ -302,7 +302,7 @@ function expandOptionList(input)
 	input.parentNode.appendChild(document.createElement('BR'));
 }
 
-function deleteOptionListRow(button) 
+function deleteOptionListRow(button)
 {
 	var input = button.previousSibling;
 	while (input.tagName != 'INPUT') {
@@ -353,7 +353,7 @@ function clearAllVisibleInputs(elt)
 	}
 }
 
-function expandDateList(input) 
+function expandDateList(input)
 {
 	// abort if we are not the last line in the list
 	var currentSpan = input.parentNode;
@@ -388,7 +388,7 @@ function expandDateList(input)
 	input.parentNode.parentNode.appendChild(document.createElement('BR'));
 }
 
-function deleteDateListRow(button) 
+function deleteDateListRow(button)
 {
 	var span = button.previousSibling;
 	while (span.tagName != 'SPAN') {
