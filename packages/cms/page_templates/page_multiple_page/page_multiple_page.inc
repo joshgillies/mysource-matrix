@@ -8,10 +8,10 @@
 * | This source file is not open source or freely usable and may be    |
 * | used subject to, and only in accordance with, the Squiz Commercial |
 * | Module Licence.                                                    |
-* | Please refer to http://www.squiz.net/licence for more information. |
+* | Please refer to http:// www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page.inc,v 1.11 2006/01/05 05:45:28 sdanis Exp $
+* $Id: page_multiple_page.inc,v 1.12 2006/01/13 00:22:16 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -42,7 +42,7 @@ class Page_Multiple_Page extends Page
 	*/
 	function Page_Multiple_Page($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Page($assetid);
 
 	}//end constructor
@@ -58,7 +58,7 @@ class Page_Multiple_Page extends Page
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['page_multiple_page_page'] = Array('card' => 'M', 'exclusive' => true);
+		$page_links[SQ_LINK_TYPE_2]['page_multiple_page_page'] = Array('card' => 'M', 'exclusive' => TRUE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -72,8 +72,8 @@ class Page_Multiple_Page extends Page
 	*/
 	function printBody()
 	{
-		//This should never be called, unless there are no pages linked underneath this.
-		//printFrontend will divert the attention of the output to a child asset before this is hit
+		// This should never be called, unless there are no pages linked underneath this.
+		// printFrontend will divert the attention of the output to a child asset before this is hit
 
 		echo translate('currently_no_pages_to_display');
 
@@ -91,9 +91,6 @@ class Page_Multiple_Page extends Page
 	function printPage($asset)
 	{
 		$this->_tmp['current_page_asset'] = &$asset;
-
-		//$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		//$cached_contents = $cm->loadFromCache($this->id, $this->type(), 'default');
 
 		$keywords = $asset->getKeywords();
 
@@ -170,7 +167,7 @@ class Page_Multiple_Page extends Page
 	function getNumberofPages()
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$page_links = $am->getLinks($this->id, SQ_LINK_TYPE_2|SQ_LINK_TYPE_1, 'page_multiple_page_page', true);
+		$page_links = $am->getLinks($this->id, SQ_LINK_TYPE_2|SQ_LINK_TYPE_1, 'page_multiple_page_page', TRUE);
 		return count($this->getPageLinks());
 
 	}//end getNumberofPages()
@@ -186,7 +183,7 @@ class Page_Multiple_Page extends Page
 	function getPageLinks()
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$page_links = $am->getLinks($this->id, SQ_LINK_TYPE_2|SQ_LINK_TYPE_1, 'page_multiple_page_page', true);
+		$page_links = $am->getLinks($this->id, SQ_LINK_TYPE_2|SQ_LINK_TYPE_1, 'page_multiple_page_page', TRUE);
 		return $page_links;
 
 	}//end getPageLinks()
@@ -202,7 +199,7 @@ class Page_Multiple_Page extends Page
 	*/
 	function &getPageAsset($page_number)
 	{
-		$page_asset = null;
+		$page_asset = NULL;
 		$links = $this->getPageLinks();
 		foreach ($links as $link_data) {
 			if ($link_data['sort_order'] == strval(intval($page_number) - 1)) {
@@ -227,7 +224,7 @@ class Page_Multiple_Page extends Page
 		$ids = Array();
 		$cmp = create_function('$a,$b', 'return $a[\'sort_order\'] < $b[\'sort_order\'] ? -1 : 1;');
 
-		//Sort the links, so that the pages appear in the backend, in the same order as they appear in the aset map
+		// Sort the links, so that the pages appear in the backend, in the same order as they appear in the aset map
 		usort($page_links, $cmp);
 		foreach ($page_links as $id => $data) {
 			$ids[] = $data['minorid'];
@@ -245,10 +242,10 @@ class Page_Multiple_Page extends Page
 	*/
 	function linksUpdated()
 	{
-		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes', 0, true);
-		//This is bugging out so we can delay the updating of our web paths
-		if (isset($this->_tmp['deleting_links']) && $this->_tmp['deleting_links'] == true) {
-			return true;
+		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes', 0, TRUE);
+		// This is bugging out so we can delay the updating of our web paths
+		if (isset($this->_tmp['deleting_links']) && $this->_tmp['deleting_links'] == TRUE) {
+			return TRUE;
 		}
 		$current_children = array_flip($this->attr('current_page_ids'));
 
@@ -280,9 +277,8 @@ class Page_Multiple_Page extends Page
 
 		// This will store all current pages,
 		$this->setAttrValue('current_page_ids', $new_page_children);
-		$this->saveAttributes();
-		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
-		return true;
+
+		return TRUE;
 
 	}//end linksUpdated()
 
@@ -351,18 +347,18 @@ class Page_Multiple_Page extends Page
 	function getCurrentPageId()
 	{
 		$url = $_SERVER['REQUEST_URI'];
-		if (strpos ($url, '?') !== false) {
+		if (strpos ($url, '?') !== FALSE) {
 			$url = substr($url, 0, strpos($url, '?'));
 		}
 		$url = rtrim($url, '/');
 		$stub = $url;
-		if (strrpos($url, '/') !== false) {
+		if (strrpos($url, '/') !== FALSE) {
 			$stub = substr($url, strrpos($url, '/') + 1);
 		}
 		$all_paths = $this->getWebPaths();
 		foreach ($all_paths as $path) {
 			if ($path == $stub) {
-				//this must be the base url, so we need the first page
+				// this must be the base url, so we need the first page
 				$stub = '1';
 				break;
 			}
@@ -398,7 +394,7 @@ class Page_Multiple_Page extends Page
 	*/
 	function getKeywordReplacement($value)
 	{
-		//Try this so we only have to initialise these values once for all keywords
+		// Try this so we only have to initialise these values once for all keywords
 		if (!isset($this->_tmp['current_page_id']) || empty($this->_tmp['current_page_id'])) {
 			$this->_tmp['current_page_id'] = $this->getCurrentPageId();
 		}
@@ -419,11 +415,11 @@ class Page_Multiple_Page extends Page
 			return $this->paintNavSelectionList();
 		}
 
-		//Paint TOC here, so we dont have to go through the drama below
-		if (strpos($value, 'toc_') !== false) {
-			$ordered = true;
-			if (strpos($value, '_unordered') !== false) {
-				$ordered = false;
+		// Paint TOC here, so we dont have to go through the drama below
+		if (strpos($value, 'toc_') !== FALSE) {
+			$ordered = TRUE;
+			if (strpos($value, '_unordered') !== FALSE) {
+				$ordered = FALSE;
 			}
 			return $this->paintTOC($ordered);
 		}
@@ -432,29 +428,29 @@ class Page_Multiple_Page extends Page
 
 		$replacement = '';
 
-		//Get the ids of our previous and next pages
+		// Get the ids of our previous and next pages
 		$next_page_id = '';
-		if (strpos($value, 'next_page_') !== false) {
-			$found_one = false;
+		if (strpos($value, 'next_page_') !== FALSE) {
+			$found_one = FALSE;
 			foreach ($this->_tmp['current_page_links'] as $id => $data) {
-				if ($found_one == true) {
+				if ($found_one == TRUE) {
 					$next_page_id = $data['minorid'];
 					break;
 				}
 				if ($data['sort_order'] == strval(intval($this->_tmp['current_page_id']) - 1)) {
-					$found_one = true;
+					$found_one = TRUE;
 				}
 			}
 		}
 		$prev_page_id = '';
-		if (strpos($value, 'previous_page_') !== false) {
-			$found_one = false;
+		if (strpos($value, 'previous_page_') !== FALSE) {
+			$found_one = FALSE;
 			$prev_page = '';
 			foreach ($this->_tmp['current_page_links'] as $id => $data) {
 				if ($data['sort_order'] == strval(intval($this->_tmp['current_page_id']) - 1)) {
-					$found_one = true;
+					$found_one = TRUE;
 				}
-				if ($found_one == true) {
+				if ($found_one == TRUE) {
 					$prev_page_id = $prev_page;
 					break;
 				}
@@ -462,22 +458,22 @@ class Page_Multiple_Page extends Page
 			}
 		}
 
-		//We need to handle the page_bla_X stuff first, as a switch wont be suitable with the variable page numbers
+		// We need to handle the page_bla_X stuff first, as a switch wont be suitable with the variable page numbers
 		$page_number = '';
-		$page_number_asset = null;
-		if (strpos($value, 'page_link_') !== false) {
+		$page_number_asset = NULL;
+		if (strpos($value, 'page_link_') !== FALSE) {
 			$page_number = str_replace('page_link_', '', $value);
 			$value = 'page_link_';
 		}
-		if (strpos($value, 'page_href_') !== false) {
+		if (strpos($value, 'page_href_') !== FALSE) {
 			$page_number = str_replace('page_href_', '', $value);
 			$value = 'page_href_';
 		}
-		if (strpos($value, 'page_name_') !== false) {
+		if (strpos($value, 'page_name_') !== FALSE) {
 			$page_number = str_replace('page_name_', '', $value);
 			$value = 'page_name_';
 		}
-		if (strpos($value, 'page_assetid_') !== false) {
+		if (strpos($value, 'page_assetid_') !== FALSE) {
 			$page_number = str_replace('page_assetid_', '', $value);
 			$value = 'page_assetid_';
 		}
@@ -488,7 +484,7 @@ class Page_Multiple_Page extends Page
 		// Evaluate the values we need for keyword replacement
 		switch ($value) {
 
-			//Next Page Values
+			// Next Page Values
 			case 'next_page_href':
 				if (!empty($next_page_id)) {
 					$replacement = current($am->getAssetUrl(Array($next_page_id)));
@@ -514,7 +510,7 @@ class Page_Multiple_Page extends Page
 				}
 			break;
 
-			//Previous Page Values
+			// Previous Page Values
 			case 'previous_page_href':
 				if (!empty($prev_page_id)) {
 					$replacement = current($am->getAssetUrl(Array($prev_page_id)));
@@ -540,12 +536,12 @@ class Page_Multiple_Page extends Page
 				}
 			break;
 
-			//Some additional keywords for the overall page set
+			// Some additional keywords for the overall page set
 			case 'total_page_count':
 				$replacement = $this->getNumberOfPages();
 			break;
 
-			//Provides individual links for
+			// Provides individual links for
 			case 'page_link_':
 			if (!is_null($page_number_asset)) {
 				$replacement = '<a href="'.$page_number_asset->getHref().'">'.$page_number_asset->name.'</a>';
@@ -567,7 +563,7 @@ class Page_Multiple_Page extends Page
 			}
 			break;
 
-			//current page details
+			// current page details
 			case 'current_page_name':
 				if (!is_null($this->_tmp['current_page_asset'])) {
 					$replacement = $this->_tmp['current_page_asset']->name;
@@ -580,10 +576,10 @@ class Page_Multiple_Page extends Page
 				}
 			break;
 
-			//Defaults, probably a standard keyword
+			// Defaults, probably a standard keyword
 			default:
 				$replacement = parent::getKeywordReplacement($value);
-		}
+		}//end switch keyword
 
 		return $replacement;
 
@@ -614,7 +610,7 @@ class Page_Multiple_Page extends Page
 	function printFrontend()
 	{
 		$page_one = $this->getFirstPageAsset();
-		if (is_null($page_one)) $page_one = &$this;
+		if (is_null($page_one)) $page_one =& $this;
 		$this->printFrontendAsset($page_one);
 
 	}//end printFrontend()
@@ -629,7 +625,7 @@ class Page_Multiple_Page extends Page
 	* @return string
 	* @access public
 	*/
-	function paintTOC($ordered=false, $link_current=false)
+	function paintTOC($ordered=FALSE, $link_current=FALSE)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$links = $this->getPageLinks();
