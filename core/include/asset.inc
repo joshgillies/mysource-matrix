@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.398.2.20 2006/01/08 23:31:09 lwright Exp $
+* $Id: asset.inc,v 1.398.2.21 2006/01/13 05:39:37 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.398.2.20 $
+* @version $Revision: 1.398.2.21 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3873,14 +3873,25 @@ class Asset extends MySource_Object
 
 		// get all the lookup information that we have set, ignoring designs as they are set on every url
 		$our_lookup_values = $this->getLookupValues(false, $prefix='design::', false);
+		$tmp_old_urls = Array();
 
 		$current_urls = Array();
 		foreach ($old_urls as $url_data) {
 			$url = $url_data['url'];
 			$current_urls[] = $db->quoteSmart($url);
-			$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, substr($url, 0, strrpos($url, '/')));
-			$tmp_old_urls[$parent_asset->id][] = $url;
-			unset($parent_asset);
+			if (strpos($url, '__data') === false) {
+				// get the asset lineage and use that as the basis for indexing old URLs
+				$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $url);
+				$url_assetids = Array();
+				foreach($url_lineage as $url_lineage_item) {
+					$url_assetids[] = $url_lineage_item['assetid'];
+				}
+				$url_assetids = implode(' ', $url_assetids);
+
+				$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, substr($url, 0, strrpos($url, '/')));
+				$tmp_old_urls[$url_assetids][] = $url;
+				unset($parent_asset);
+			}
 		}
 
 		if (!empty($current_urls)) {
@@ -3970,9 +3981,17 @@ class Asset extends MySource_Object
 						$result = $db->query($sql);
 						assert_valid_db_result($result);
 
-						if (!isset($tmp_old_urls[$parent->id][$j])) $tmp_old_urls[$parent->id][$j] = '';
+						// get the asset lineage and use that as the index
+						$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $new_url);
+						$new_url_assetids = Array();
+						foreach($url_lineage as $url_lineage_item) {
+							$new_url_assetids[] = $url_lineage_item['assetid'];
+						}
+						$new_url_assetids = implode(' ', $new_url_assetids);
 
-						$lookup_values = (isset($our_lookup_values[$tmp_old_urls[$parent->id][$j]])) ? $our_lookup_values[$tmp_old_urls[$parent->id][$j]] : Array();
+						if (!isset($tmp_old_urls[$new_url_assetids][$j])) $tmp_old_urls[$new_url_assetids][$j] = '';
+
+						$lookup_values = (isset($our_lookup_values[$tmp_old_urls[$new_url_assetids][$j]])) ? $our_lookup_values[$tmp_old_urls[$new_url_assetids][$j]] : Array();
 
 						// all designs go to all urls (at the moment anyway), so merge them all in
 						foreach ($our_designs as $name => $data) {
@@ -3990,21 +4009,44 @@ class Asset extends MySource_Object
 							}
 						}
 						foreach ($lookup_values as $name => $data) {
-							$sql = 'INSERT INTO
+							$sql = 'SELECT
+										url
+									FROM
 										sq_ast_lookup_value
-										(
-											url,
-											name,
-											value,
-											inhd
-										)
-										VALUES
-										(
-											'.$db->quoteSmart($new_url).',
-											'.$db->quoteSmart($name).',
-											'.$db->quoteSmart($data['value']).',
-											'.$db->quoteSmart($data['inhd']).'
-										)';
+									WHERE
+										url = '.$db->quoteSmart($new_url).'
+										AND name = '.$db->quoteSmart($name);
+							$result = $db->getRow($sql);
+							assert_valid_db_result($result);
+
+							// if the lookup value already exists, re-use it (this could happen
+							// when a file changes back from a __data url)
+							if (empty($result)) {
+								$sql = 'INSERT INTO
+											sq_ast_lookup_value
+											(
+												url,
+												name,
+												value,
+												inhd
+											)
+											VALUES
+											(
+												'.$db->quoteSmart($new_url).',
+												'.$db->quoteSmart($name).',
+												'.$db->quoteSmart($data['value']).',
+												'.$db->quoteSmart($data['inhd']).'
+											)';
+							} else {
+								$sql = 'UPDATE
+											sq_ast_lookup_value
+										SET
+											value = '.$db->quoteSmart($data['value']).',
+											inhd = '.$db->quoteSmart($data['inhd']).'
+										WHERE
+											url = '.$db->quoteSmart($new_url).'
+											AND name = '.$db->quoteSmart($name);
+							}
 
 							$result = $db->query($sql);
 							assert_valid_db_result($result);
