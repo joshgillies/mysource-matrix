@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.424 2006/01/13 03:25:07 lwright Exp $
+* $Id: asset_manager.inc,v 1.425 2006/01/13 03:28:18 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.424 $
+* @version $Revision: 1.425 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5424,7 +5424,7 @@ class Asset_Manager extends MySource_Object
 				trigger_localised_error('SYS0245', E_USER_WARNING, $fancy_url);
 			}
 			$null = NULL; // 'cause we are meant to return by reference
-			return $NULL;
+			return $null;
 
 		} else {
 			$asset =& $this->getAsset($row['assetid'], '', $mute_errors);
