@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.25.2.1 2005/06/28 05:48:27 dmckee Exp $
+* $Id: bodycopy.inc,v 1.25.2.2 2006/01/13 00:34:43 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25.2.1 $
+* @version $Revision: 1.25.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,13 +90,31 @@ class Bodycopy extends Asset
 		// save a version of the bodycopy as it appears now
 		$output = $this->getRawBodycopyContent();
 
-		$e = '|\./\?a=([0-9]+)|';
+		$replace_assetids = Array();
+
+		// gather the assetids that we are replacing - first shadow assets
+		$e = '|\./\?a=([0-9]+\:[^\$]+)\$|';
 		$matches = Array();
 		preg_match_all($e, $output, $matches);
-		$replace_assetids = $matches[1];
+		if (!empty($matches)) {
+			$replace_assetids = array_merge($replace_assetids, $matches[1]);
+		}
+
+		// and then normal assets (but then what's 'normal' anymore? :-)
+		$e = '|\./\?a=([0-9]+)[^0-9\:]|';
+		$matches = Array();
+		preg_match_all($e, $output, $matches);
+		if (!empty($matches)) {
+			$replace_assetids = array_merge($replace_assetids, $matches[1]);
+		}
+
+		// replace all ./?a=xx:shadow$ links with php echo's
+		$e = '|\./\?a=([0-9]+\:[^\$]+)\$|';
+		$with = '<'.'?php echo $sq_asset_url_list[\'\\1\']; ?'.'>';
+		$output = preg_replace($e, $with, $output);
 
 		// replace all ./?a=xx links with php echo's
-		$e = "|\./\?a=([0-9]+)([^0-9])|";
+		$e = '|\./\?a=([0-9]+)([^0-9\:])|';
 		$with = '<'.'?php echo $sq_asset_url_list[\\1]; ?'.'>\\2';
 		$output = preg_replace($e, $with, $output);
 
