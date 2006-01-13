@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.423 2006/01/09 04:59:52 emcdonald Exp $
+* $Id: asset_manager.inc,v 1.424 2006/01/13 03:25:07 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.423 $
+* @version $Revision: 1.424 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5611,7 +5611,7 @@ class Asset_Manager extends MySource_Object
 
 		if (!is_null($protocol)) {
 			$where .= ' AND l.'.$protocol.' = '.$db->quote('1');
-			$protocol_select = $db->quote($protocol).' as protocol';
+			$protocol_select = $db->quote($protocol);
 		} else {
 			$curr_proto = current_protocol();
 			$protocol_select = 'CASE WHEN l.'.$curr_proto.' = '.$db->quote('1').' THEN '.$db->quote($curr_proto).' ELSE '.$db->quote(($curr_proto == 'http') ? 'https' : 'http').' END';
