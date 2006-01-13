@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8.2.1 2005/10/13 04:14:12 sdanis Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8.2.2 2006/01/13 05:54:29 lwright Exp $
 *
 */
 -->
@@ -43,6 +43,9 @@
 		</field>
 		<field attribute="max">
 			<text width="5" height="1" />
+		</field>
+		<field attribute="extra">
+			<text width="20" height="1" />
 		</field>
 	</section>
 	<section name="Simple Validation Rules" write_access="write:attributes">

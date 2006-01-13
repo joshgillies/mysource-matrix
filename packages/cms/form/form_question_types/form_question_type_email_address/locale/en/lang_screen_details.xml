@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4.2.1 2005/10/13 04:14:12 sdanis Exp $
+* $Id: lang_screen_details.xml,v 1.4.2.2 2006/01/13 05:54:29 lwright Exp $
 *
 */
 -->
@@ -51,6 +51,10 @@
 		<field attribute="max">
 			<display_name>Maximum Length</display_name>
 			<note>Maximum length of answer (characters)</note>
+		</field>
+		<field attribute="extra">
+			<display_name>Extras</display_name>
+			<note>Provides a means of specifying CSS classes, javascript onClick functions or other INPUT tag attributes, eg class="yourCssClass"</note>
 		</field>
 	</section>
 	<section name="Simple Validation Rules">
