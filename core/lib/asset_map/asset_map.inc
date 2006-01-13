@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.206 2005/12/22 01:09:33 lwright Exp $
+* $Id: asset_map.inc,v 1.207 2006/01/13 05:54:11 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.206 $
+* @version $Revision: 1.207 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -118,7 +118,7 @@ class Asset_Map
 				$classname = 'SimpleAssetMap';
 				$jarname = 'assetmap';
 				if (!defined('SQ_PAINTED_SIMPLE_ASSET_MAP')) {
-					define('SQ_PAINTED_SIMPLE_ASSET_MAP', true);
+					define('SQ_PAINTED_SIMPLE_ASSET_MAP', TRUE);
 				}
 			break;
 			case 'complex':
@@ -228,7 +228,7 @@ class Asset_Map
 		}
 
 		$output =& new XML_Tree();
-		$root = &$output->addRoot('error', $GLOBALS['SQ_SYSTEM']->lm->getErrorMessage($code, $func_args));
+		$root =& $output->addRoot('error', $GLOBALS['SQ_SYSTEM']->lm->getErrorMessage($code, $func_args));
 		$this->_send($output);
 
 	}//end _error()
@@ -250,7 +250,7 @@ class Asset_Map
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		$input =& new XML_Tree('php://input');
-		$root  = &$input->getTreeFromFile();
+		$root  =& $input->getTreeFromFile();
 		if (PEAR::isError($root)) {
 			$this->_error('AMAP0001', $root->getMessage(), $root->getUserInfo());
 			return;
@@ -321,6 +321,7 @@ class Asset_Map
 		ob_end_clean();
 
 		echo $out;
+
 	}//end _getTranslations()
 
 
@@ -335,22 +336,22 @@ class Asset_Map
 	function _doInitialise(&$input)
 	{
 		$output =& new XML_Tree();
-		$current_user = &$GLOBALS['SQ_SYSTEM']->user;
+		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
 
 		// get the current user and its dependants (inbox and workspace)
 		// so the asset map can create a java object for each
 		$current_user_info = $this->_getAssetInfo($current_user->id);
-		$root = &$output->addRoot('current_user', '', $current_user_info);
+		$root =& $output->addRoot('current_user', '', $current_user_info);
 
-		$this->_getChildAssets($root, $current_user->id, true, true);
+		$this->_getChildAssets($root, $current_user->id, TRUE, TRUE);
 		$current_user_xml = $root->get();
 
 		// get info and children for the root folder
 		// note the hard code the assetid of the root folder because
 		// it MUST ALWAYS be the first asset created
-		$root = &$output->addRoot('assets', '');
+		$root =& $output->addRoot('assets', '');
 		$info = $this->_getAssetInfo('1');
-		$child = &$root->addChild('asset', '', $info);
+		$child =& $root->addChild('asset', '', $info);
 		$this->_getChildAssets($child, '1');
 
 		// just get the root's XML not the tree's, because it is part of
@@ -363,7 +364,7 @@ class Asset_Map
 				echo "<asset_types>\n";
 					$dir = SQ_DATA_PATH.'/private/asset_map';
 					if ($d = @opendir($dir)) {
-						while (($file = readdir($d)) !== false) {
+						while (($file = readdir($d)) !== FALSE) {
 							if (substr($file, -4) == '.xml') {
 								@readfile($dir.'/'.$file);
 							}
@@ -386,6 +387,7 @@ class Asset_Map
 	* Returns an array of the asset's information to be used by the asset map
 	*
 	* @param string	$assetid	the assetid of the asset's wanted info
+	* @param string	$linkid		the linkid of the asset's wanted info
 	*
 	* @return array
 	* @access private
@@ -398,14 +400,14 @@ class Asset_Map
 
 			// this is a shadow asset so we need to get info differently
 
-			$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id_parts[0]);
+			$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id_parts[0]);
 			if (method_exists($bridge, 'getAssetMapAssetInfo')) {
 				$attrs = $bridge->getAssetMapAssetInfo($assetid);
 			} else {
 				// note that we pretend these assets have children so we dont have to actually
 				// load all their kids - we dont know what kind of speed hit we get for the different
 				// types of shadow assets
-				$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$link_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 				if (!is_null($link_asset)) {
 					$attrs = Array(
@@ -428,11 +430,11 @@ class Asset_Map
 
 		} else {
 
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			$userid_cond = '';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
+				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 				$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 				array_push($userids, $public_userid, $GLOBALS['SQ_SYSTEM']->user->id);
 				for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
@@ -499,7 +501,7 @@ class Asset_Map
 			$sql .= ' '.$where;
 
 			$asset = $db->getRow($sql);
-			if (!assert_valid_db_result($asset, '', true, false)) {
+			if (!assert_valid_db_result($asset, '', TRUE, FALSE)) {
 				return $this->_error('AMAP0004', $assetid, $asset->getMessage());
 			}
 
@@ -528,11 +530,11 @@ class Asset_Map
 				$sql = 'SELECT COUNT(*)
 						FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_major';
 				$where = 'majorid = '.$db->quoteSmart($assetid).' AND link_type <= '.$db->quoteSmart(SQ_LINK_TYPE_2);
-				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', false);
-				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', false);
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
 
 				$num_kids = $db->getOne($sql.' '.$where);
-				if (!assert_valid_db_result($num_kids, '', true, false)) {
+				if (!assert_valid_db_result($num_kids, '', TRUE, FALSE)) {
 					return $this->_error('AMAP0004', $assetid, $num_kids->getMessage());
 				}
 			}
@@ -551,7 +553,7 @@ class Asset_Map
 						'linkid'		=> urlencode($linkid),
 					 );
 
-		}//end if shadow asset
+		}//end else shadow asset
 
 		return $attrs;
 
@@ -564,17 +566,19 @@ class Asset_Map
 	* @param object		&$root				the root to append the child assets to
 	* @param string		$assetid			the asset of the parent asset
 	* @param boolean	$dependants_only	if TRUE only the dependants will be retreived
+	* @param int		$start				asset offset
+	* @param int		$limit				max number of assets
 	*
 	* @return void
 	* @access private
 	*/
-	function _getChildAssets(&$root, $assetid, $dependants_only=false, $start=0, $limit=0)
+	function _getChildAssets(&$root, $assetid, $dependants_only=FALSE, $start=0, $limit=0)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$userid_cond = '';
 		if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
+			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 			$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 			array_push($userids, $public_userid, $GLOBALS['SQ_SYSTEM']->user->id);
 			for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
@@ -635,59 +639,63 @@ class Asset_Map
 		$where .= ' AND
 					l.link_type <= '.$db->quote(SQ_LINK_TYPE_2);
 
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', false);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', false);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
 
 		$sql .= ' '.$where;
 		$sql .= ' ORDER BY sort_order';
 
-		$limit_sql = '';
-		if ($limit != 0) {
-			$sql = $db->modifyLimitQuery($sql, $start, $limit);
-		}
+		$db_result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_DEFAULT, TRUE);
 
-		$sql .= $limit_sql;
-
-		$db_result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
-
-		if (!assert_valid_db_result($db_result, '', true, false)) {
+		if (!assert_valid_db_result($db_result, '', TRUE, FALSE)) {
 			return $this->_error('AMAP0005', $assetid, $db_result->getMessage());
 		}
 
 		// create the result array to be a single (assetid => asset_data)
 		// because the DB result contains multiple entries because of possible multiple URLs
 		$result = Array();
+		$res_count = 0;
+		$added = 0;
 		foreach ($db_result as $db_assetid => $db_data) {
-			$result[$db_assetid] = $db_data[0];
-			$result[$db_assetid]['assetid'] = $db_assetid;
+			if ($res_count >= $start) {
+				$result[$db_assetid] = $db_data[0];
+				$result[$db_assetid]['assetid'] = $db_assetid;
+				if (($limit > 0) && ($added >= $limit)) {
+					break;
+				}
+				$added++;
+			} else {
+				$res_count++;
+			}
 		}
+		unset($db_result);
 
 		$sql = 'SELECT majorid, COUNT(*)
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor';
 
 		$sub_sql = 'SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor';
 		$sub_where = 'majorid = '.$db->quoteSmart($assetid);
-		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'lnk_', 'WHERE', false);
-		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'ast_', 'WHERE', false);
+		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'lnk_', 'WHERE', FALSE);
+		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'ast_', 'WHERE', FALSE);
 
 		$where_clause = 'majorid IN ('.$sub_sql.' '.$sub_where.') AND link_type <= '.$db->quote(SQ_LINK_TYPE_2);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'lnk_', 'WHERE', false);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'ast_', 'WHERE', false);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'lnk_', 'WHERE', FALSE);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'ast_', 'WHERE', FALSE);
 		$where .= ' GROUP BY majorid ';
 
-		$num_kids = $db->getAssoc($sql.' '.$where, false, Array(), DB_FETCHMODE_DEFAULT, false);
+		$num_kids = $db->getAssoc($sql.' '.$where, FALSE, Array(), DB_FETCHMODE_DEFAULT, FALSE);
 
-		if (!assert_valid_db_result($num_kids, '', true, false)) {
+		if (!assert_valid_db_result($num_kids, '', TRUE, FALSE)) {
 			return $this->_error('AMAP0005', $assetid, $num_kids->getMessage());
 		}
 
 		// gather links for shadowed assets - only if asset descends from a bridge
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
-		$implements_shadow_assets = false;
+		$implements_shadow_assets = FALSE;
 
-		if (strpos($assetid, ':') !== false) {
+		if (strpos($assetid, ':') !== FALSE) {
 			// this is a shadow asset itself, so it will work the same way as a bridge
-			$implements_shadow_assets = true;
+			$implements_shadow_assets = TRUE;
 		} else if (isset($asset_info[$assetid]['type_code']) && !empty($asset_info[$assetid]['type_code'])) {
 			$type_code = $asset_info[$assetid]['type_code'];
 
@@ -696,7 +704,7 @@ class Asset_Map
 		}
 
 		if ($implements_shadow_assets) {
-			$links_handler = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$links_handler =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			if (!is_null($links_handler)) {
 				// it may be able to handle this itself, lets check
@@ -709,7 +717,7 @@ class Asset_Map
 							$chunk[$i - $start] = $result[$i];
 						}
 						$result = $chunk;
-						$chunk = null;
+						$chunk = NULL;
 					}
 
 				} else {
@@ -720,7 +728,7 @@ class Asset_Map
 					foreach ($links as $link_data) {
 
 						// if the colon isn't there, this isn't a shadow asset - move on
-						if (strpos($link_data['minorid'], ':') === false) {
+						if (strpos($link_data['minorid'], ':') === FALSE) {
 							 continue;
 						}
 
@@ -730,16 +738,14 @@ class Asset_Map
 								continue;
 							}
 
-							if ($limit == $added) {
-								break;
-							}
+							if ($limit == $added) break;
 							$added++;
 						}
 
 						// note that we pretend these assets have children so we dont have to actually
 						// load all their kids - we dont know what kind of speed hit we get for the different
 						// types of shadow assets
-						$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
+						$link_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
 
 						$result[] = Array(
 										'assetid'		=> $link_data['minorid'],
@@ -755,9 +761,9 @@ class Asset_Map
 										'path'			=> '',
 									);
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($link_asset);
-					}
-				}
-			}
+					}//end foreach
+				}//end else
+			}//end if
 		}//end if is a bridge
 
 		foreach ($result as $asset) {
@@ -793,11 +799,11 @@ class Asset_Map
 			// will need some information about the asset
 			$id_parts = explode(':', $asset['assetid']);
 			if (isset($id_parts[0]) && !$implements_shadow_assets) {
-				$bridge     = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id_parts[0]);
-				$shdw_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset['assetid']);
+				$bridge     =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id_parts[0]);
+				$shdw_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset['assetid']);
 
 				// We dont want asset map to break so make sure we send valid values
-				if ($shdw_asset != null) {
+				if ($shdw_asset != NULL) {
 					$asset['short_name'] = $shdw_asset->short_name;
 					$asset['type_code']  = $shdw_asset->type();
 				} else {
@@ -823,7 +829,7 @@ class Asset_Map
 
 			if (!$attrs['accessible']) $attrs['child_count'] = 0;
 			$root->addChild('asset', '', $attrs);
-		}
+		}//end foreach
 
 	}//end _getChildAssets()
 
@@ -844,19 +850,19 @@ class Asset_Map
 		}
 
 		$output =& new XML_Tree();
-		$root = &$output->addRoot('assets', '');
+		$root =& $output->addRoot('assets', '');
 
 		for ($i = 0; $i < count($input->root->children); $i++) {
-			$node = &$input->root->children[$i];
+			$node =& $input->root->children[$i];
 			if (empty($node->attributes['assetid'])) continue;
 			$assetid = $node->attributes['assetid'];
 			$start = $node->attributes['start'];
 			$limit = $node->attributes['limit'];
 			$linkid = $node->attributes['linkid'];
 			$info = $this->_getAssetInfo(rawurldecode($assetid), rawurldecode($linkid));
-			$child = &$root->addChild('asset', '', $info);
+			$child =& $root->addChild('asset', '', $info);
 
-			$this->_getChildAssets($child, rawurldecode($assetid), false, $start, $limit);
+			$this->_getChildAssets($child, rawurldecode($assetid), FALSE, $start, $limit);
 		}
 
 		$this->_send($output);
@@ -892,18 +898,18 @@ class Asset_Map
 					return;
 				}
 
-				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid, '', true);
+				$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid, '', TRUE);
 				if (is_null($parent)) {
 					$this->_error('AMAP0008', $parent_assetid);
 					return;
 				}
 
-				if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($parent_assetid, true)) {
+				if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($parent_assetid, TRUE)) {
 					$this->_error('AMAP0009', $attr['parent_assetid']);
 					return;
 				}
 
-				$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+				$trash_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 				if ($trash_folder->id == $parent_assetid) {
 					$this->_error('AMAP0010');
 					return;
@@ -913,7 +919,7 @@ class Asset_Map
 				$error_message = '';
 				$link_types = Array(SQ_LINK_TYPE_1, SQ_LINK_TYPE_2);
 				foreach ($link_types as $link_type) {
-					if (true === ($error_message = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $attr['type_code'], $link_type))) {
+					if (TRUE === ($error_message = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $attr['type_code'], $link_type))) {
 						// use this type
 						$use_link_type = $link_type;
 						break;
@@ -986,7 +992,7 @@ class Asset_Map
 			$input->root->children[$index]->attributes['assetid'] = rawurldecode($child->attributes['assetid']);
 		}
 
-		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
+		$old_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
 			$this->_error('AMAP0015', $input->root->attributes['from_parent_assetid']);
 			return;
@@ -999,7 +1005,7 @@ class Asset_Map
 			return;
 		}
 
-		$linkid = null;
+		$linkid = NULL;
 
 		// if the from and to parentids are the same we are realy just altering the sort order for a parent
 		if ($old_parent->id == $input->root->attributes['to_parent_assetid']) {
@@ -1017,25 +1023,25 @@ class Asset_Map
 
 		} else {
 
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($asset)) {
 				$this->_error('AMAP0017', $link['minorid']);
 				return;
 			}
 
 			// check if we are allowed to delete this link
-			if (($err_msg = $old_parent->isDeletableLink($link['linkid'])) !== true) {
+			if (($err_msg = $old_parent->isDeletableLink($link['linkid'])) !== TRUE) {
 				$this->_error('AMAP0018', $err_msg);
 				return;
 			}
 
-			$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
+			$new_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
 			if (is_null($new_parent)) {
 				$this->_error('AMAP0019', $input->root->attributes['to_parent_assetid']);
 				return;
 			}
 
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array(
 						'linkid'		=> $link['linkid'],
 						'parentid'		=> $new_parent->id,
@@ -1047,7 +1053,7 @@ class Asset_Map
 			$hh->queueHipo('hipo_job_create_link', $vars);
 
 			// check for any HIPOs that have been queued
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$url = $hh->runQueuedJobs('Javascript: function closeWindow() { setTimeout(\'window.close()\', 500); } closeWindow();');
 
 			if (!empty($url)) {
@@ -1056,7 +1062,7 @@ class Asset_Map
 				$output->insertChild(Array('responses'), $response_count++, $urlTree);
 			}
 
-		}// end if
+		}//end else
 
 
 		$this->_send($output);
@@ -1086,7 +1092,7 @@ class Asset_Map
 			$input->root->children[$index]->attributes['assetid'] = rawurldecode($child->attributes['assetid']);
 		}
 
-		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
+		$old_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
 			$this->_error('AMAP0020', $input->root->attributes['from_parent_assetid']);
 			return;
@@ -1098,9 +1104,9 @@ class Asset_Map
 			return;
 		}
 
-		$linkid = null;
+		$linkid = NULL;
 
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		if (is_null($asset)) {
 			$this->_error('AMAP0022', $link['minorid']);
 			return;
@@ -1111,13 +1117,13 @@ class Asset_Map
 			$this->_error('AMAP0023', $asset->name, (ucwords(str_replace('_', ' ', $asset->type()))));
 		}
 
-		$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
+		$new_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
 		if (is_null($new_parent)) {
 			$this->_error('AMAP0024', $input->root->attributes['to_parent_assetid']);
 			return;
 		}
 
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
 					'assetid'			=> $asset->id,
 					'type_code'			=> $asset->type(),
@@ -1127,7 +1133,7 @@ class Asset_Map
 		$hh->queueHipo('hipo_job_clone_asset', $vars);
 
 		// check for any HIPOs that have been queued
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$url = $hh->runQueuedJobs('Javascript: function closeWindow() { setTimeout(\'window.close()\', 500); } closeWindow();');
 
 		if (!empty($url)) {
@@ -1152,7 +1158,7 @@ class Asset_Map
 	function _newLink(&$input)
 	{
 		$output =& new XML_Tree();
-		$root = &$output->addRoot('responses');
+		$root =& $output->addRoot('responses');
 		$response_count = 0;
 
 		// ensure no url friendly values exists for assetids
@@ -1162,7 +1168,7 @@ class Asset_Map
 			$input->root->children[$index]->attributes['assetid'] = rawurldecode($child->attributes['assetid']);
 		}
 
-		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
+		$old_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
 			$this->_error('AMAP0025', $input->root->attributes['from_parent_assetid']);
 			return;
@@ -1174,25 +1180,25 @@ class Asset_Map
 			return;
 		}
 
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		if (is_null($asset)) {
 			$this->_error('AMAP0027', $link['minorid']);
 			return;
 		}
 
-		$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
+		$new_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
 		if (is_null($new_parent)) {
 			$this->_error('AMAP0028', $input->root->attributes['to_parent_assetid']);
 			return;
 		}
 
-		$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+		$trash_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 		if ($trash_folder->id == $input->root->attributes['to_parent_assetid']) {
 			$this->_error('AMAP0029');
 			return;
 		}
 
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
 					'assetid'		=> $asset->id,
 					'parentid'		=> $new_parent->id,
@@ -1216,7 +1222,6 @@ class Asset_Map
 
 	/**
 	* Attempts to move one or more assets from one position to another
-	*
 	* <pre>
 	*    <command action="move_asset", to_parent_assetid="" to_parent_pos="">
 	*       <asset assetid="" linkid="" parentid="" />
@@ -1243,7 +1248,7 @@ class Asset_Map
 			$input->root->children[$index]->attributes['assetid'] = rawurldecode($child->attributes['assetid']);
 		}
 
-		$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
+		$new_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
 		$new_parent_pos = $input->root->attributes['to_parent_pos'];
 
 		if (is_null($new_parent)) {
@@ -1255,8 +1260,8 @@ class Asset_Map
 		$reordered_assets = Array();
 
 		foreach ($input->root->children as $asset_node) {
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset_node->attributes['assetid']);
-			$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset(rawurldecode($asset_node->attributes['parentid']));
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_node->attributes['assetid']);
+			$old_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset(rawurldecode($asset_node->attributes['parentid']));
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($asset_node->attributes['linkid'], $old_parent->id);
 
 			if (is_null($old_parent)) {
@@ -1269,7 +1274,7 @@ class Asset_Map
 				return;
 			}
 
-			if (($err_msg = $old_parent->isDeletableLink($link['linkid'])) !== true) {
+			if (($err_msg = $old_parent->isDeletableLink($link['linkid'])) !== TRUE) {
 				$this->_error('AMAP0033', $err_msg);
 				return;
 			}
@@ -1281,9 +1286,9 @@ class Asset_Map
 
 			if ($old_parent->id == $new_parent->id) {
 				$reordered_assets[$asset->id] = Array(
-													'linkid'	=> $link['linkid'],
+													'linkid'		=> $link['linkid'],
 													'sort_order'	=> $link['sort_order'],
-													'parentid'	=> $old_parent->id,
+													'parentid'		=> $old_parent->id,
 												);
 			} else {
 				$assets[$asset->id] = Array(
@@ -1292,15 +1297,16 @@ class Asset_Map
 									  );
 			}
 
-		}
+		}//end foreach
 
 		// process the re-ordering
 		foreach ($reordered_assets as $assetid => $link_info) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->moveLinkPos($link_info['linkid'], $new_parent_pos)) {
 				return;
 			}
-			if ($new_parent_pos < $link_info['sort_order'])
+			if ($new_parent_pos < $link_info['sort_order']) {
 				$new_parent_pos++;
+			}
 			$successTree =& new XML_Tree();
 			$successTree->addRoot('success', '', Array(
 													'linkid'	=> $link_info['linkid'],
@@ -1313,7 +1319,7 @@ class Asset_Map
 		// Only run the HIPO if assets need to be moved from one parent to another
 		if (count($assets) > 0) {
 			//// START HIPO PROCESSING ////
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
 			$vars = Array(
 						'link_action'		=> 'move',
@@ -1327,7 +1333,7 @@ class Asset_Map
 			////  END HIPO PROCESSING  ////
 
 			// check for any HIPOs that have been queued
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
 			$url = $hh->runQueuedJobs('Javascript: function closeWindow() { setTimeout(\'window.close()\', 500); } closeWindow();');
 
@@ -1345,7 +1351,6 @@ class Asset_Map
 
 	/**
 	* Attempts to clone one or more assets
-	*
 	* <pre>
 	*    <command action="clone_asset", to_parent_assetid="" to_parent_pos="">
 	*       <asset assetid="" linkid="" parentid="" />
@@ -1371,7 +1376,7 @@ class Asset_Map
 			$input->root->children[$index]->attributes['assetid'] = rawurldecode($child->attributes['assetid']);
 		}
 
-		$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
+		$new_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
 
 		if (is_null($new_parent)) {
 			$this->_error('AMAP0035', $input->root->attributes['to_parent_assetid']);
@@ -1379,8 +1384,8 @@ class Asset_Map
 		}
 
 		foreach ($input->root->children as $asset_node) {
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset_node->attributes['assetid']);
-			$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset(rawurldecode($asset_node->attributes['parentid']));
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_node->attributes['assetid']);
+			$old_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset(rawurldecode($asset_node->attributes['parentid']));
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($asset_node->attributes['linkid'], $old_parent->id);
 
 			if (is_null($old_parent)) {
@@ -1410,7 +1415,7 @@ class Asset_Map
 								  );
 		}
 
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
 					'assets'			=> $assets,
 					'to_parent_assetid'	=> $new_parent->id,
@@ -1420,7 +1425,7 @@ class Asset_Map
 		$hh->queueHipo('hipo_job_clone_assets', $vars);
 
 		// check for any HIPOs that have been queued
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
 		$url = $hh->runQueuedJobs('Javascript: function closeWindow() { setTimeout(\'window.close()\', 500); } closeWindow();');
 
@@ -1437,7 +1442,6 @@ class Asset_Map
 
 	/**
 	* Attempts to create multiple new links
-	*
 	* <pre>
 	*    <command action="new_link", to_parent_assetid="" to_parent_pos="">
 	*       <asset assetid="" linkid="" parentid="" />
@@ -1463,7 +1467,7 @@ class Asset_Map
 			$input->root->children[$index]->attributes['assetid'] = rawurldecode($child->attributes['assetid']);
 		}
 
-		$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
+		$new_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
 
 		if (is_null($new_parent)) {
 			$this->_error('AMAP0040', $input->root->attributes['to_parent_assetid']);
@@ -1473,9 +1477,9 @@ class Asset_Map
 		$assets = Array();
 
 		foreach ($input->root->children as $asset_node) {
-			$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset(rawurldecode($asset_node->attributes['parentid']));
+			$old_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset(rawurldecode($asset_node->attributes['parentid']));
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($asset_node->attributes['linkid'], $old_parent->id);
-			$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+			$trash_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 
 			if (is_null($old_parent)) {
 				$this->_error('AMAP0041', $asset_node->attributes['parentid']);
@@ -1496,7 +1500,7 @@ class Asset_Map
 														  );
 		}
 
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
 					'link_action'		=> 'create',
 					'assets'			=> $assets,
@@ -1506,7 +1510,7 @@ class Asset_Map
 		$hh->queueHipo('hipo_job_create_links', $vars);
 
 		// check for any HIPOs that have been queued
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
 		$url = $hh->runQueuedJobs('Javascript: function closeWindow() { setTimeout(\'window.close()\', 500); } closeWindow();');
 
