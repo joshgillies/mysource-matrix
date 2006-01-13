@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_management.inc,v 1.8 2005/05/12 06:24:01 tbarrett Exp $
+* $Id: bodycopy_management.inc,v 1.9 2006/01/13 05:57:27 dmckee Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Bodycopy_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -54,7 +55,7 @@ class Bodycopy_Management extends Asset_Management
 									'default'		=> 'BodyCopy',
 									'update_fn'		=> '',
 									'description'	=> 'the name of the bodycopy asset',
-								   )
+								   ),
 					  );
 
 	}//end constructor
@@ -63,26 +64,27 @@ class Bodycopy_Management extends Asset_Management
 	/**
 	* Gets a list of all files that the bodycopy wants web accessable
 	*
+	* @return array
 	* @access private
-	* @return array(string)
 	*/
 	function _getFileList()
 	{
 		return Array(
-					 'images/icons/add.png',
-					 'images/icons/delete.png',
-					 'images/icons/reorder.png',
-					 'images/icons/create_container.png',
-					 'images/icons/table_properties.png',
-					 'images/icons/row_properties.png',
-					 'images/icons/cell_properties.png',
-					 'images/icons/edit_mode.png',
-					 'js/bodycopy_edit_tables.js',
-					 'js/bodycopy_edit_divs.js',
-					 'js/bodycopy_edit_fns.js',
-					 );
+				'images/icons/add.png',
+				'images/icons/delete.png',
+				'images/icons/reorder.png',
+				'images/icons/create_container.png',
+				'images/icons/table_properties.png',
+				'images/icons/row_properties.png',
+				'images/icons/cell_properties.png',
+				'images/icons/edit_mode.png',
+				'js/bodycopy_edit_tables.js',
+				'js/bodycopy_edit_divs.js',
+				'js/bodycopy_edit_fns.js',
+			   );
 
 	}//end _getFileList()
+
 
 }//end class
 
