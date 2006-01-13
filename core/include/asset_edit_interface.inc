@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.283 2005/12/02 00:35:23 arailean Exp $
+* $Id: asset_edit_interface.inc,v 1.284 2006/01/13 04:56:00 sdanis Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.283 $
+* @version $Revision: 1.284 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -2007,12 +2007,12 @@ class Asset_Edit_Interface extends MySource_Object
 		$where = 'userid IN ('.implode(',', $groups).')';
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-		$where .= ' AND type_code = '.$db->quote('0').'
+		$where .= ' AND (type_code = '.$db->quote('0').'
 					OR type_code IN (
 									SELECT inhd_type_code
 									FROM sq_ast_typ_inhd
 									WHERE type_code = '.$db->quote($owner->type()).'
-									)';
+									))';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$allowed_screens = $db->getAssoc($sql.$where, false, Array(), DB_FETCHMODE_ASSOC, true);
