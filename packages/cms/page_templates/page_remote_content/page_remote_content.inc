@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.30 2006/01/06 03:09:30 arailean Exp $
+* $Id: page_remote_content.inc,v 1.31 2006/01/13 05:50:17 arailean Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once 'HTTP/Client.php';
 
 define ('SQ_REMOTE_MAX_REDIRECTS', 10);
-
+define ('SQ_REMOTE_SOURCE', 'sq_content_src');
 
 /**
 * Page_Remote_Content
@@ -30,7 +30,7 @@ define ('SQ_REMOTE_MAX_REDIRECTS', 10);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -235,7 +235,7 @@ class Page_Remote_Content extends Page
 		}
 
 		// prepare the url that will be used to replace the links that have to be tunnelled through remote content
-		$replacement_url = $this->getURL().'?sq_remote_page_action=fetch_url&sq_remote_page_url=';
+		$replacement_url = $this->getURL().'?'.SQ_REMOTE_SOURCE.'=';
 
 		// convert the URLs on the remote page into the correct format
 		$page_content = $this->_transformContent($response_body, $this->_tmp['url'], $replacement_url);
@@ -301,64 +301,80 @@ class Page_Remote_Content extends Page
 	*/
 	function _process()
 	{
-		$remote_url = trim($this->attr('remote_url'));
-
-		$fetch_url	= array_get_index($_REQUEST, 'sq_remote_page_url');
-		$action		= array_get_index($_REQUEST, 'sq_remote_page_action');
+		$remote_url		= trim($this->attr('remote_url'));
+		$remote_source	= array_get_index($_REQUEST, SQ_REMOTE_SOURCE);
 
 		$initial_request = FALSE;
+		$is_post = ($_SERVER['REQUEST_METHOD'] == 'POST');
+		$url = NULL;
 
-		if (!isset($fetch_url) || ($action != 'fetch_url')) {
+		if (is_null($remote_source)) {
 			$initial_request = TRUE;
-			$fetch_url = $remote_url;
+			$url = $remote_url;
+		} else {
+			$url = $this->_decodeURL($remote_source);
 		}
 
-		if (!$fetch_url) {
+		if (!$url) {
 			$this->_tmp['success'] = FALSE;
+			$this->_tmp['processed'] = TRUE;
 			return FALSE;
 		}
 
-		$fetch_url = undo_htmlspecialchars($fetch_url);
-		$Fetch_URL =& new Net_URL($fetch_url);
 
-
-		if (!$this->isUrlAllowed($Fetch_URL->getURL())) {
+		if (!$this->isUrlAllowed($url)) {
 			trigger_localised_error('CMS0057', E_USER_WARNING, $fetch_url);
 			$this->_tmp['success'] = FALSE;
 			$this->_tmp['processed'] = TRUE;
 			return FALSE;
 		}
 
-		unset($_GET['sq_remote_page_action']);
-		unset($_GET['sq_remote_page_url']);
-		unset($_POST['sq_remote_page_action']);
-		unset($_POST['sq_remote_page_url']);
 
-		// let's see if we're getting any variables in the get string
-		// so we can pass them back to the original page
-		if (!empty($_GET)) {
-			foreach ($_GET as $key => $data) {
-				$Fetch_URL->addQueryString($key, $data);
-			}
+		$query_string = array_get_index($_SERVER, 'QUERY_STRING');
+		if (!empty($query_string) && !is_null($remote_source)) {
+			// we're preparing to pass all the query vars to the remote target
+			// remove the query var that contains the reference to the remote target
+			// because it is for our consumption only
+			$source = $is_post ? $remote_source : urlencode($remote_source);
+			$query_string = trim(str_replace(SQ_REMOTE_SOURCE.'='.$source, '', $query_string));
+		}
+		// merge the get vars of current request with those of the source string
+		$url_parts = explode('?', $url);
+		if (isset($url_parts[1])) {
+			$query_string = $url_parts[1].'&'.$query_string;
+		}
+		$url = $url_parts[0].'?'.$query_string;
+
+
+		$raw_post = '';
+		if ($is_post) {
+			$raw_post = file_get_contents('php://input');
+			$raw_post = trim(str_replace(SQ_REMOTE_SOURCE.'='.urlencode($remote_source), '', $raw_post));
 		}
 
 		// support custom post variables if they've been set
 		// NOTE: custom post variables are only sent on INITIAL request
 		$post_variables = $this->attr('post_variables');
-		$transit_post_data = $_POST;
 		if ($initial_request && !empty($post_variables)) {
+			$is_post = TRUE;
+			$addon_array = Array();
+			if (!empty($raw_post)) $addon_array[] = $raw_post;
+
 			foreach ($post_variables as $index => $variable) {
-				$transit_post_data[$variable['name']] = replace_global_keywords($variable['value']);
+				$addon_array[] = urlencode($variable['name']).'='.urlencode($variable['value']);
 			}
+			$raw_post = implode('&', $addon_array);
 		}
+
+
 		////// Remote Communication Section. Using HTTP_Client PEAR package
 		$HTTP_Client = array_get_index($_SESSION, 'SQ_REMOTE_HTTP_CLIENT');
 		if (!empty($HTTP_Client)) {
 			$HTTP_Client = unserialize($HTTP_Client);
-			$HTTP_Client->_responses = null;
 		} else {
 			// parameters for HTTP_Request. See Package for description.
 			$request_parameters['timeout'] = $this->attr('timeout');
+			$request_parameters['useBrackets'] = FALSE;
 
 			// set HTTP authentication
 			$user = $this->attr('username');
@@ -377,10 +393,9 @@ class Page_Remote_Content extends Page
 			$HTTP_Client->enableHistory(FALSE);
 		}
 
-		$url = $Fetch_URL->getURL();
 
-		if (!empty($transit_post_data)) {
-			$result = $HTTP_Client->post($url, $transit_post_data);
+		if ($is_post) {
+			$result = $HTTP_Client->post($url, $raw_post, TRUE);
 		} else {
 			$result = $HTTP_Client->get($url);
 		}
@@ -388,8 +403,8 @@ class Page_Remote_Content extends Page
 
 		// exit on error
 		if (PEAR::isError($result) || preg_match('/^[45].*?/', $result)) {
-			$this->_tmp['success'] = FALSE;
-			$this->_tmp['processed'] = TRUE;
+			$this->_tmp['success']		= FALSE;
+			$this->_tmp['processed']	= TRUE;
 			unset($HTTP_Client);
 			return FALSE;
 		}
@@ -402,8 +417,8 @@ class Page_Remote_Content extends Page
 		if ($this->_tmp['url'] != $url) {
 			if (!$this->isUrlAllowed($this->_tmp['url'])) {
 				trigger_localised_error('CMS0058', E_USER_WARNING, $this->_tmp['url'], $fetch_url);
-				$this->_tmp['success'] = FALSE;
-				$this->_tmp['processed'] = TRUE;
+				$this->_tmp['success']		= FALSE;
+				$this->_tmp['processed']	= TRUE;
 				return FALSE;
 			}
 		}
@@ -421,11 +436,11 @@ class Page_Remote_Content extends Page
 			$this->_tmp['binary'] = TRUE;
 		}
 
-		$this->_tmp['processed'] = TRUE;
-		$this->_tmp['success'] = TRUE;
-
+		$this->_tmp['processed']	= TRUE;
+		$this->_tmp['success']		= TRUE;
 
 		// get new cookies and save cookie manager
+		$HTTP_Client->_responses = NULL;
 		$_SESSION['SQ_REMOTE_HTTP_CLIENT'] = serialize($HTTP_Client);
 
 		unset($HTTP_Client);
@@ -583,7 +598,7 @@ class Page_Remote_Content extends Page
 
 			// if images need to be tunneled, prepare a new source url
 			if ($this->attr('tunnel_scripts') && $this->isUrlAllowed($url)) {
-				$url = $replacement_url.rawurlencode($url);
+				$url = $replacement_url.$this->_encodeURL($url);
 			}
 
 			$subjects[]     = $subject;
@@ -616,7 +631,7 @@ class Page_Remote_Content extends Page
 
 			// if images need to be tunneled, prepare a new source url
 			if ($this->attr('tunnel_media') && $this->isUrlAllowed($url)) {
-				$url = $replacement_url.rawurlencode($url);
+				$url = $replacement_url.$this->_encodeURL($url);
 			}
 
 			$subjects[]     = $subject;
@@ -655,7 +670,7 @@ class Page_Remote_Content extends Page
 
 			// if images need to be tunneled, prepare a new source url
 			if ($this->attr('tunnel_media') && $this->isUrlAllowed($url)) {
-				$url = $replacement_url.rawurlencode($url);
+				$url = $replacement_url.$this->_encodeURL($url);
 			}
 
 			$subjects[]		= $subject;
@@ -701,7 +716,7 @@ class Page_Remote_Content extends Page
 
 			// if images need to be tunneled, prepare a new source url
 			if ($this->attr('tunnel_images') && $this->isUrlAllowed($url)) {
-				$url = $replacement_url.rawurlencode($url);
+				$url = $replacement_url.$this->_encodeURL($url);
 			}
 
 			$subjects[]		= $subject;
@@ -748,7 +763,7 @@ class Page_Remote_Content extends Page
 
 			// if urls need to point back to us, prepare a new url
 			if ($load_links && $this->isUrlAllowed($url)) {
-				$url = $replacement_url.rawurlencode($url);
+				$url = $replacement_url.$this->_encodeURL($url);
 			}
 
 			$subjects[]		= $subject;
@@ -763,7 +778,7 @@ class Page_Remote_Content extends Page
 		$matches  = Array();
 		$patterns = Array();
 
-		// forms. note this captures even those actions that are empty
+		// forms. NOTE: this captures even those actions that are empty
 		$patterns[] = '/(<(?:form[^>]*?action)\s*=\s*[\'\"]?)\s*([^\'\"> ]*)([\'\"\> ]?[^<]*\>)/i';
 
 		// find whatever matches the above patterns
@@ -788,9 +803,9 @@ class Page_Remote_Content extends Page
 			// if urls need to point back to us, prepare a new url
 			if ($load_links && $this->isUrlAllowed($url)) {
 				// forms require the parameters to be set to the hidden fields for proper functioning
-				$postfix .= '<input type="hidden" name="sq_remote_page_action" value="fetch_url" /><input type="hidden" name="sq_remote_page_url" value="'.htmlspecialchars($url).'" />';
+				$postfix .= '<input type="hidden" name="sq_content_src" value="'.$this->_encodeURL($url).'" />';
 
-				$url = $replacement_url.rawurlencode($url);
+				$url = $replacement_url.$this->_encodeURL($url);
 			}
 
 			$subjects[]		= $subject;
@@ -914,6 +929,41 @@ class Page_Remote_Content extends Page
 		return $root.$new_path;
 
 	}//end _makeProperPath()
+
+
+	/**
+	* Encode URL
+	*
+	* Prepares URL to be used as a source in page body
+	*
+	* @param string	$url	URL to encode
+	*
+	* @return void
+	* @access public
+	*/
+	function _encodeURL($url)
+	{
+		return urlencode(base64_encode($url));
+
+	}//end _encodeURL()
+
+
+	/**
+	* Decode URL
+	*
+	* Decodes URL encoded by _encodeURL
+	*
+	* @param string	$url	URL to encode
+	*
+	* @return void
+	* @access public
+	* @see _encodeURL
+	*/
+	function _decodeURL($url)
+	{
+		return base64_decode(urldecode($url));
+
+	}//end _decodeURL()
 
 
 }//end class
