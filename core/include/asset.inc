@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.486 2006/01/13 05:31:50 lwright Exp $
+* $Id: asset.inc,v 1.487 2006/01/13 05:34:27 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.486 $
+* @version $Revision: 1.487 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4231,6 +4231,7 @@ class Asset extends MySource_Object
 
 		// get all the lookup information that we have set, ignoring designs as they are set on every url
 		$our_lookup_values = $this->getLookupValues(false, $prefix='design::', false);
+		$tmp_old_urls = Array();
 
 		$current_urls = Array();
 		foreach ($old_urls as $url_data) {
