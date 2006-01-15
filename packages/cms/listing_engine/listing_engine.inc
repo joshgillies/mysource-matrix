@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.137 2006/01/12 23:46:18 sdanis Exp $
+* $Id: listing_engine.inc,v 1.138 2006/01/15 23:44:34 rong Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.137 $
+* @version $Revision: 1.138 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -327,81 +327,6 @@ class Listing_Engine extends Page
 	*/
 	function printBody()
 	{
-		// get the contents of this page
-		// we do this because when contents are prepared the query vars that are used by the form elements
-		// need to be unset for us to use them in the form action string
-		ob_start();
-			$this->printContents();
-		$contents = ob_get_clean();
-
-		$used_fields = $this->getUsedFormFields();
-		$keys_to_remove = Array();
-
-		// we're removing all the contents
-		foreach ($used_fields as $key) {
-			$keys_to_remove[$key] = NULL;
-		}
-
-		$selections = $this->attr('asset_selections');
-
-		if (!empty($used_fields) || !empty($selections) || $this->requires_form) {
-
-			// include the 'select all' js if required
-			$using_select_all = FALSE;
-			foreach ($selections as $selection_name => $selection_settings) {
-				if (array_get_index($selection_settings, 'type', NULL) == 'radio' && !empty($selection_settings['options']['allow_multiple'])) {
-					?>
-					<script type="text/javascript" src="<?php echo sq_web_path('data') ?>/asset_types/listing_engine/js/select_all.js"></script>
-					<?php
-					$using_select_all = TRUE;
-					break;
-				}
-			}
-
-			// we're not using stuff that requires the select all code
-			$select_all_code = '';
-
-			if ($using_select_all) {
-				$select_all_code = $this->getSelectAllJSCodeKeywordReplacement();
-			}
-
-			$contents = str_replace('%select_all_js_code%', $select_all_code, $contents);
-
-			// if we are posting, we really shouldn't be having anything in the GET
-			if ($this->_getFormSubmitMethod() == 'post') {
-				$form_url = htmlspecialchars($this->getURL());
-			} else {
-				$form_url = htmlspecialchars(replace_query_string_vars($keys_to_remove, $this->getURL()));
-			}
-
-			if ($this->requires_form || !empty($used_fields)) {
-			?>
-			<form id="<?php echo $this->getPrefix() ?>" method="<?php echo $this->_getFormSubmitMethod() ?>" action="<?php echo $form_url; ?>">
-			<?php
-			}
-			echo $contents;
-			if ($this->requires_form || !empty($used_fields)) {
-			?>
-			</form>
-			<?php
-			}
-		} else {
-			// no form at all - remove the JS code relations stuff
-			$contents = str_replace('%select_all_js_code%', '', $contents);
-			echo $contents;
-		}
-
-	}//end printBody()
-
-
-	/**
-	* Called by the design to print the body of this asset
-	*
-	* @return void
-	* @access public
-	*/
-	function printContents()
-	{
 		// we need a unique cache key to represent the current result page
 		$cache_key = $this->_getCacheKey();
 
@@ -414,137 +339,212 @@ class Listing_Engine extends Page
 		// if the cache is empty, go ahead and regenerate a new version
 		if (empty($cached_contents)) {
 
-			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
-			if (empty($bodycopy_link)) return FALSE;
+			// get the contents of this page
+			// we do this because when contents are prepared the query vars that are used by the form elements
+			// need to be unset for us to use them in the form action string
+			ob_start();
+			$this->printContents();
+			$contents = ob_get_clean();
 
-			$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
-			if (is_null($format_bodycopy)) return FALSE;
+			ob_start();
+			$used_fields = $this->getUsedFormFields();
+			$keys_to_remove = Array();
 
-			require_once SQ_FUDGE_PATH.'/general/text.inc';
-			$keywords = $format_bodycopy->getKeywords();
-			$replacements = Array();
+			// we're removing all the contents
+			foreach ($used_fields as $key) {
+				$keys_to_remove[$key] = NULL;
+			}
 
-			$children = $this->getAssetList();
-			$this->filterAssetList($children);
-			$num_kids = count($children);
+			$selections = $this->attr('asset_selections');
 
-			// if there are no children available, just print the page bodycopy -
-			// or the NO RESULTS bodycopy if it exists
-			if (empty($children)) {
-				$no_results_bodycopy = $this->getNoResultsBodycopy();
+			if (!empty($used_fields) || !empty($selections) || $this->requires_form) {
 
-				$replacements['asset_count']			= 0;
-				$replacements['asset_listing']			= '';
-				$replacements['page_list']				= '';
-				$replacements['page_number']			= 0;
-				$replacements['page_asset_count']		= 0;
-				$replacements['total_pages']			= 0;
-				$replacements['first_asset_position']	= 0;
-				$replacements['last_asset_position']	= 0;
-				$replacements['previous_page']			= '';
-				$replacements['next_page']				= '';
-
-				if (!is_null($no_results_bodycopy)) {
-					$no_results_bodycopy->setKeywordReplacements($replacements);
-					$no_results_bodycopy->printBody();
-				} else {
-					$selections = $this->attr('asset_selections');
-					foreach ($selections as $selection_name => $settings) {
-						$replacements[$selection_name.'_check_all'] = '';
-						$replacements[$selection_name.'_check_all_in_group'] = '';
+				// include the 'select all' js if required
+				$using_select_all = FALSE;
+				foreach ($selections as $selection_name => $selection_settings) {
+					if (array_get_index($selection_settings, 'type', NULL) == 'radio' && !empty($selection_settings['options']['allow_multiple'])) {
+						?>
+						<script type="text/javascript" src="<?php echo sq_web_path('data') ?>/asset_types/listing_engine/js/select_all.js"></script>
+						<?php
+						$using_select_all = TRUE;
+						break;
 					}
-
-					$format_bodycopy->setKeywordReplacements($replacements);
-					$format_bodycopy->printBody();
 				}
-				return;
-			}
 
-			if (!in_array('asset_listing', $keywords)) {
-				// there is no asset listing keyword in the contents, so we dont
-				// need to do all the extra processing for the listing
-				$format_bodycopy->printBody();
-				return;
-			}
+				// we're not using stuff that requires the select all code
+				$select_all_code = '';
 
-			// the list is sorted and positions set, now we can split to groups
-			if ($this->attr('group_by') == 'grouped') {
-				$this->groupAssetsRecursively($this->attr('asset_grouping'), $children, $children);
-				$this->sortGroups($this->attr('asset_grouping'), $children, $children);
-			}
-
-			foreach ($keywords as $word) {
-				$replacements[$word] = $this->getKeywordReplacement($word);
-			}
-
-			$num_per_page = $this->attr('num_per_page');
-			$result_page = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
-			if ($result_page <= 0) $result_page = 1;
-
-			// get our page chunk here
-			$todo =& $this->getChunk($children, $replacements, $result_page, $num_per_page);
-
-			// get any extra keyword replacements from this asset or asset_listing
-			$replacements = $this->getContentsKeywordReplacements($keywords) + $replacements;
-			$num_assets_showing = count($todo);
-			ob_start();
-				$this->printAssetList($todo);
-				$global_contents = ob_get_contents();
-			ob_end_clean();
-
-			// the global replacement to print the asset listing
-			$replacements['asset_listing'] = $global_contents;
-			if ($this->attr('group_by') != 'grouped') {
-				$replacements['asset_count'] = $num_kids;
-			} else {
-				$total_assets = $this->_arrayCountRecursive($children, count($this->attr('asset_grouping')));
-				$replacements['asset_count'] = $total_assets;
-				$replacements['unique_asset_count'] = $num_kids;
-			}
-
-			$result_page = $replacements['page_number'];
-			$replacements['page_asset_count'] = $num_assets_showing;
-			// compatibility
-
-			if ($replacements['asset_count'] == 0) {
-				$replacements['first_asset_position'] = 0;
-			} else if ($num_per_page == 0) {
-				$replacements['first_asset_position'] = 1;
-			} else {
-				$replacements['first_asset_position'] = min(1, $num_per_page * ($result_page - 1) + 1);
-			}
-
-			if ($num_per_page == 0) {
-				$replacements['last_asset_position'] = $replacements['asset_count'];
-			} else {
-				$replacements['last_asset_position'] = min($replacements['asset_count'], $num_per_page * $result_page);
-			}
-
-			$replacements['select_all_js_code'] = '%select_all_js_code%';
-
-			// print the contents of page - replacing the global keywords
-			$format_bodycopy->setKeywordReplacements($replacements);
-			ob_start();
-				if (!in_array('select_all_js_code', $keywords)) {
-					// there is no asset listing keyword in the contents, so we dont
-					// need to do all the extra processing for the listing
-					echo '%select_all_js_code%';
+				if ($using_select_all) {
+					$select_all_code = $this->getSelectAllJSCodeKeywordReplacement();
 				}
-				$format_bodycopy->printBody();
-				if (!empty($cache_key)) {
-					$cm->saveToCache($this->id, $this->type(), $cache_key, ob_get_contents());
+
+				$contents = str_replace('%select_all_js_code%', $select_all_code, $contents);
+
+				// if we are posting, we really shouldn't be having anything in the GET
+				if ($this->_getFormSubmitMethod() == 'post') {
+					$form_url = htmlspecialchars($this->getURL());
+				} else {
+					$form_url = htmlspecialchars(replace_query_string_vars($keys_to_remove, $this->getURL()));
 				}
+
+				if ($this->requires_form || !empty($used_fields)) {
+				?>
+				<form id="<?php echo $this->getPrefix() ?>" method="<?php echo $this->_getFormSubmitMethod() ?>" action="<?php echo $form_url; ?>">
+				<?php
+				}
+				echo $contents;
+				if ($this->requires_form || !empty($used_fields)) {
+				?>
+				</form>
+				<?php
+				}
+			} else {
+				// no form at all - remove the JS code relations stuff
+				$contents = str_replace('%select_all_js_code%', '', $contents);
+				echo $contents;
+			}
+
+			if (!empty($cache_key)) {
+				$cm->saveToCache($this->id, $this->type(), $cache_key, ob_get_contents());
+			}
 			ob_end_flush();
 
-			// clean up after ourselves
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($format_bodycopy);
-
 		} else {
-
 			// the contents have already been cached, so just output them
 			echo $cached_contents;
 
 		}//end if no cache
+
+	}//end printBody()
+
+
+	/**
+	* Called by the design to print the body of this asset
+	*
+	* @return void
+	* @access public
+	*/
+	function printContents()
+	{
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
+		if (empty($bodycopy_link)) return FALSE;
+
+		$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+		if (is_null($format_bodycopy)) return FALSE;
+
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+		$keywords = $format_bodycopy->getKeywords();
+		$replacements = Array();
+
+		$children = $this->getAssetList();
+		$this->filterAssetList($children);
+		$num_kids = count($children);
+
+		// if there are no children available, just print the page bodycopy -
+		// or the NO RESULTS bodycopy if it exists
+		if (empty($children)) {
+			$no_results_bodycopy = $this->getNoResultsBodycopy();
+
+			$replacements['asset_count']			= 0;
+			$replacements['asset_listing']			= '';
+			$replacements['page_list']				= '';
+			$replacements['page_number']			= 0;
+			$replacements['page_asset_count']		= 0;
+			$replacements['total_pages']			= 0;
+			$replacements['first_asset_position']	= 0;
+			$replacements['last_asset_position']	= 0;
+			$replacements['previous_page']			= '';
+			$replacements['next_page']				= '';
+
+			if (!is_null($no_results_bodycopy)) {
+				$no_results_bodycopy->setKeywordReplacements($replacements);
+				$no_results_bodycopy->printBody();
+			} else {
+				$selections = $this->attr('asset_selections');
+				foreach ($selections as $selection_name => $settings) {
+					$replacements[$selection_name.'_check_all'] = '';
+					$replacements[$selection_name.'_check_all_in_group'] = '';
+				}
+
+				$format_bodycopy->setKeywordReplacements($replacements);
+				$format_bodycopy->printBody();
+			}
+			return;
+		}
+
+		if (!in_array('asset_listing', $keywords)) {
+			// there is no asset listing keyword in the contents, so we dont
+			// need to do all the extra processing for the listing
+			$format_bodycopy->printBody();
+			return;
+		}
+
+		// the list is sorted and positions set, now we can split to groups
+		if ($this->attr('group_by') == 'grouped') {
+			$this->groupAssetsRecursively($this->attr('asset_grouping'), $children, $children);
+			$this->sortGroups($this->attr('asset_grouping'), $children, $children);
+		}
+
+		foreach ($keywords as $word) {
+			$replacements[$word] = $this->getKeywordReplacement($word);
+		}
+
+		$num_per_page = $this->attr('num_per_page');
+		$result_page = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
+		if ($result_page <= 0) $result_page = 1;
+
+		// get our page chunk here
+		$todo =& $this->getChunk($children, $replacements, $result_page, $num_per_page);
+
+		// get any extra keyword replacements from this asset or asset_listing
+		$replacements = $this->getContentsKeywordReplacements($keywords) + $replacements;
+		$num_assets_showing = count($todo);
+		ob_start();
+			$this->printAssetList($todo);
+			$global_contents = ob_get_contents();
+		ob_end_clean();
+
+		// the global replacement to print the asset listing
+		$replacements['asset_listing'] = $global_contents;
+		if ($this->attr('group_by') != 'grouped') {
+			$replacements['asset_count'] = $num_kids;
+		} else {
+			$total_assets = $this->_arrayCountRecursive($children, count($this->attr('asset_grouping')));
+			$replacements['asset_count'] = $total_assets;
+			$replacements['unique_asset_count'] = $num_kids;
+		}
+
+		$result_page = $replacements['page_number'];
+		$replacements['page_asset_count'] = $num_assets_showing;
+		// compatibility
+
+		if ($replacements['asset_count'] == 0) {
+			$replacements['first_asset_position'] = 0;
+		} else if ($num_per_page == 0) {
+			$replacements['first_asset_position'] = 1;
+		} else {
+			$replacements['first_asset_position'] = min(1, $num_per_page * ($result_page - 1) + 1);
+		}
+
+		if ($num_per_page == 0) {
+			$replacements['last_asset_position'] = $replacements['asset_count'];
+		} else {
+			$replacements['last_asset_position'] = min($replacements['asset_count'], $num_per_page * $result_page);
+		}
+
+		$replacements['select_all_js_code'] = '%select_all_js_code%';
+
+		// print the contents of page - replacing the global keywords
+		$format_bodycopy->setKeywordReplacements($replacements);
+		if (!in_array('select_all_js_code', $keywords)) {
+			// there is no asset listing keyword in the contents, so we dont
+			// need to do all the extra processing for the listing
+			echo '%select_all_js_code%';
+		}
+		$format_bodycopy->printBody();
+
+		// clean up after ourselves
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($format_bodycopy);
 
 	}//end printContents()
 
