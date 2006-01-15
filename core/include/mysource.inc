@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.160 2006/01/11 05:21:04 tbarrett Exp $
+* $Id: mysource.inc,v 1.161 2006/01/15 23:05:26 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.160 $
+* @version $Revision: 1.161 $
 * @package MySource_Matrix
 */
 class MySource
@@ -470,14 +470,22 @@ class MySource
 			}
 			echo $content;
 
-		// cache version found
+		// cached version found
 		} else {
 			$info = unserialize($cache_info);
+			$last_modified = gmdate('D, d M Y H:i:s', $info['last_modified']).' GMT';
+			$headers = apache_request_headers();
+			$not_modified = FALSE;
+			// if the last modified time matches the If-Modified-Since header in HEAD request
+			if (isset($headers['If-Modified-Since']) && ($last_modified == $headers['If-Modified-Since'])) {
+				$not_modified =TRUE;
+			}
+
 			header('Expires: '.gmdate('D, d M Y H:i:s', $info['expires']).' GMT');
 			if (SQ_CONF_SEND_LAST_MODIFIED_HEADER) {
-				header('Last-Modified: '.gmdate('D, d M Y H:i:s', $info['last_modified']).' GMT');
+				header('Last-Modified: '.$last_modified);
 			}
-			if (SQ_CONF_SEND_NOT_MODIFIED_HEADER) {
+			if (SQ_CONF_SEND_NOT_MODIFIED_HEADER && $not_modified) {
 				header('HTTP/1.1 304 Not Modified');
 				exit();
 			} else {
@@ -485,7 +493,6 @@ class MySource
 				echo $content;
 			}
 		}
-
 
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cm);
 
