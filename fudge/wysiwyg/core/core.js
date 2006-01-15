@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: core.js,v 1.22 2005/12/12 04:03:31 sdanis Exp $
+* $Id: core.js,v 1.23 2006/01/15 23:13:49 dmckee Exp $
 *
 */
 
@@ -292,6 +292,10 @@ HTMLArea.prototype.insertHTML = function(html, range) {
 	if (range == null) {
 		var sel = this._getSelection();
 		var range = this._createRange(sel);
+		var node = range.startContainer;
+		if (node.tagName == 'HTML') {
+			return false;
+		}
 	}
 	if (HTMLArea.is_ie) {
 		range.pasteHTML(html);
