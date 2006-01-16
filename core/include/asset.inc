@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.488 2006/01/16 04:23:32 skim Exp $
+* $Id: asset.inc,v 1.489 2006/01/16 05:50:25 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.488 $
+* @version $Revision: 1.489 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3147,7 +3147,7 @@ class Asset extends MySource_Object
 									'readabletime'		=> 'g:ia',
 									'iso8601'			=> 'Y-m-d\TH:i:s',
 									'rfc2822'			=> 'r',
-									'rfc2822_dateonly'	=> 'D, d M Y',
+									'rfc2822-dateonly'	=> 'D, d M Y',
 									'ical'				=> 'Ymd\THis',
 								);
 

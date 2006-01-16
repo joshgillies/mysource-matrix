@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.107 2006/01/16 04:23:32 skim Exp $
+* $Id: metadata_manager.inc,v 1.108 2006/01/16 05:50:25 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.107 $
+* @version $Revision: 1.108 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -897,7 +897,7 @@ class Metadata_Manager extends MySource_Object
 										'readabletime'		=> 'g:ia',
 										'iso8601'			=> 'Y-m-d\\TH:i:s',
 										'rfc2822'			=> 'r',
-										'rfc2822_dateonly'	=> 'D, d M Y',
+										'rfc2822-dateonly'	=> 'D, d M Y',
 										'ical'				=> 'Ymd\\THis',
 									);
 					if ($keyword == $name) {
