@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.487 2006/01/13 05:34:27 lwright Exp $
+* $Id: asset.inc,v 1.488 2006/01/16 04:23:32 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.487 $
+* @version $Revision: 1.488 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3141,13 +3141,14 @@ class Asset extends MySource_Object
 			} else if (!empty($matches[1])) {
 				// we might have a datetime attribute with a date formatting suffix (readable, iso8601 etc)
 				$date_formats = Array(
-									'short'			=> 'Y-m-d',
-									'readable'		=> 'd M Y g:ia',
-									'readabledate'	=> 'd M Y',
-									'readabletime'	=> 'g:ia',
-									'iso8601'		=> 'Y-m-d\TH:i:s',
-									'rfc2822'		=> 'r',
-									'ical'			=> 'Ymd\THis',
+									'short'				=> 'Y-m-d',
+									'readable'			=> 'd M Y g:ia',
+									'readabledate'		=> 'd M Y',
+									'readabletime'		=> 'g:ia',
+									'iso8601'			=> 'Y-m-d\TH:i:s',
+									'rfc2822'			=> 'r',
+									'rfc2822_dateonly'	=> 'D, d M Y',
+									'ical'				=> 'Ymd\THis',
 								);
 
 				$suffix = $matches[1];

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.106 2006/01/10 23:43:30 lwright Exp $
+* $Id: metadata_manager.inc,v 1.107 2006/01/16 04:23:32 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.106 $
+* @version $Revision: 1.107 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -891,13 +891,14 @@ class Metadata_Manager extends MySource_Object
 					// unlike the ones in getKeywordReplecement() asset.inc since they
 					// will be concatenated within eval string.
 					$date_formats = Array(
-										'short'			=> 'Y-m-d',
-										'readable'		=> 'd M Y g:ia',
-										'readabledate'	=> 'd M Y',
-										'readabletime'	=> 'g:ia',
-										'iso8601'		=> 'Y-m-d\\TH:i:s',
-										'rfc2822'		=> 'r',
-										'ical'			=> 'Ymd\\THis',
+										'short'				=> 'Y-m-d',
+										'readable'			=> 'd M Y g:ia',
+										'readabledate'		=> 'd M Y',
+										'readabletime'		=> 'g:ia',
+										'iso8601'			=> 'Y-m-d\\TH:i:s',
+										'rfc2822'			=> 'r',
+										'rfc2822_dateonly'	=> 'D, d M Y',
+										'ical'				=> 'Ymd\\THis',
 									);
 					if ($keyword == $name) {
 						$default_format = 'Y-m-d H:i:s';
