@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.425 2006/01/13 03:28:18 lwright Exp $
+* $Id: asset_manager.inc,v 1.426 2006/01/16 23:50:50 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.425 $
+* @version $Revision: 1.426 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1205,7 +1205,7 @@ class Asset_Manager extends MySource_Object
 		$normalids = Array();
 		$shadow_results = Array();
 
-		// create a list of (hopefully) seperated assetids and shadow assetids
+		// create a list of (hopefully) separated assetids and shadow assetids
 		for ($i = 0; $i < count($assetids); $i++) {
 			$id_parts = explode(':', $assetids[$i]);
 

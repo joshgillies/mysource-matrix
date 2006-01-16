@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.49 2005/10/07 03:41:09 ndvries Exp $
+* $Id: selection.inc,v 1.50 2006/01/16 23:50:50 skim Exp $
 *
 */
 
@@ -47,7 +47,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" extras="" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -251,7 +251,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 
 
 	/**
-	* Convert an array to a | seperated string
+	* Convert an array to a | separated string
 	*
 	* @param array	$array	the array to be converted
 	*
@@ -266,7 +266,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 
 
 	/**
-	* Convert a | seperated string to an array
+	* Convert a | separated string to an array
 	*
 	* @param string	$string	the string to be converted
 	*

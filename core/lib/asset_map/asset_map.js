@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.19 2005/12/07 22:14:59 lwright Exp $
+* $Id: asset_map.js,v 1.20 2006/01/16 23:50:50 skim Exp $
 *
 */
 
@@ -165,7 +165,7 @@ function set_finder(finder)
 *
 * @param string	$name			the name of the hidden field
 * @param string	$safe_name		the name prefix for all the other form elements associated with the
-* @param string	$type_codes		the typecodes seperated by a pipe
+* @param string	$type_codes		the typecodes separated by a pipe
 *
 * @access public
 */
