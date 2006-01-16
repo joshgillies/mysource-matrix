@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.160.2.6 2006/01/08 23:13:45 lwright Exp $
+* $Id: page_calendar.inc,v 1.160.2.7 2006/01/16 04:08:18 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.160.2.6 $
+* @version $Revision: 1.160.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -494,7 +494,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$events = $this->getYearEventsByMonth($year);
 
 			foreach ($this->month_names_full as $month_num => $month_name) {
-
+				$_REQUEST['SQ_CALENDAR_DATE']= $year.'-'.sprintf('%02d', $month_num).'-01';
 				uasort($events[$month_num], 'compare_start_dates');
 				echo '<h3>';
 				if ($enabled_views['month']) {
@@ -629,7 +629,9 @@ class Page_Calendar extends Page_Asset_Listing
 				if ($drill_down_view) {
 					echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&amp;SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
 				}
-				echo date('l jS', strtotime("$year-$month-$current_day"));
+				$current_date = $year.'-'.$month.'-'.$current_day;
+				$_REQUEST['SQ_CALENDAR_DATE'] = $current_date;
+				echo date('l jS', strtotime($current_date));
 				if ($drill_down_view) echo '</a>';
 				echo '</h3>';
 				if ($list_entry_types['month'] == 'title') {
@@ -704,6 +706,7 @@ class Page_Calendar extends Page_Asset_Listing
 			// print the rest of the first week
 			while ($i < $week_length) {
 				$current_date = sprintf('%04d-%02d-%02d', $year, $month, $current_day);
+				$_REQUEST['SQ_CALENDAR_DATE'] = $current_date;
 				$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $current_date, $root_nodes, $column_width*0.99);
 				$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 				$occupied_class = ($contents) ? 'eventDate' : '';
@@ -727,6 +730,7 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 				for ($i=0; $i < $week_length; $i++) {
 					$current_date = sprintf('%04d-%02d-%02d', $year, $month, $current_day);
+					$_REQUEST['SQ_CALENDAR_DATE'] = $current_date;
 					$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $current_date, $root_nodes, $column_width*0.99);
 					$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 					$occupied_class = ($contents) ? 'eventDate' : '';
@@ -751,6 +755,7 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 				while ($current_day <= $month_length) {
 					$current_date = sprintf('%04d-%02d-%02d', $year, $month, $current_day);
+					$_REQUEST['SQ_CALENDAR_DATE'] = $current_date;
 					$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $current_date, $root_nodes, $column_width*0.99);
 					$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 					$occupied_class = ($contents) ? 'eventDate' : '';
@@ -809,6 +814,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getWeekEventsByDay($date);
 			foreach ($events as $day_date => $day_events) {
+				$_REQUEST['SQ_CALENDAR_DATE'] = $day_date;
 				uasort($events[$day_date], 'compare_start_dates');
 				echo '<h3>'.(($enabled_views['day']) ? '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=day&amp;SQ_CALENDAR_DATE='.$day_date.'"">' : '');
 				echo date('l jS', strtotime($day_date));
@@ -825,6 +831,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$column_names = Array();
 			$column_links = Array();
 			foreach ($events as $day_date => $day_events) {
+				$_REQUEST['SQ_CALENDAR_DATE'] = $day_date;
 				$column_names[$day_date] = date('l jS', strtotime($day_date));
 				if ($enabled_views['week']) {
 					$column_links[$day_date] = $this->getHref().'?SQ_CALENDAR_VIEW=day&amp;SQ_CALENDAR_DATE='.$day_date;
