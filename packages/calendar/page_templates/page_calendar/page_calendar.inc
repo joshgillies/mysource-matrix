@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.160.2.7 2006/01/16 04:08:18 lwright Exp $
+* $Id: page_calendar.inc,v 1.160.2.8 2006/01/16 04:38:09 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.160.2.7 $
+* @version $Revision: 1.160.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -611,13 +611,30 @@ class Page_Calendar extends Page_Asset_Listing
 		ob_start();
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
-			$events = $this->getMonthEvents($year, $month);
-			uasort($events, 'compare_start_dates');
-			if ($list_entry_types['month'] == 'title') {
-				echo $this->_getTitleList($events, $enabled_views['event']);
-			} else {
-				$this->filterAssetStatuses($events);
-				$this->printAssetList($events);
+			$events = $this->getMonthEventsByDay($year, $month);
+			$month_length = days_in_month($month, $year);
+			$done_events = Array();
+
+			// loop through each day, but if it's been printed before then
+			// don't print it again
+			for ($current_day = 1; $current_day <= $month_length; $current_day++) {
+				uasort($events[$current_day], 'compare_start_dates');
+				$current_date = $year.'-'.$month.'-'.$current_day;
+				$_REQUEST['SQ_CALENDAR_DATE'] = $current_date;
+				foreach($events[$current_day] as $event_id => $event_data) {
+					list($event_assetid, ) = explode(':', $event_id);
+					if (!isset($done_events[$event_assetid])) {
+						$done_events[$event_assetid] = 1;
+					} else {
+						unset($events[$current_day][$event_id]);
+					}
+				}
+				if ($list_entry_types['month'] == 'title') {
+					echo $this->_getTitleList($events[$current_day], $enabled_views['event']);
+				} else {
+					$this->filterAssetStatuses($events[$current_day]);
+					$this->printAssetList($events[$current_day]);
+				}
 			}
 		} else if ($format == 'list_with_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
@@ -803,12 +820,29 @@ class Page_Calendar extends Page_Asset_Listing
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getWeekEvents($date);
 			$events = sortByOccurrence($date, $events);
+			$done_events = Array();
 
-			if ($list_entry_types['week'] == 'title') {
-				echo $this->_getTitleList($events, $enabled_views['event']);
-			} else {
-				$this->filterAssetStatuses($events);
-				$this->printAssetList($events);
+			// loop through each day but exclude events that have already
+			// been printed
+			foreach ($events as $day_date => $day_events) {
+				$_REQUEST['SQ_CALENDAR_DATE'] = $day_date;
+				uasort($events[$day_date], 'compare_start_dates');
+
+				foreach($events[$day_date] as $event_id => $event_data) {
+					list($event_assetid, ) = explode(':', $event_id);
+					if (!isset($done_events[$event_assetid])) {
+						$done_events[$event_assetid] = 1;
+					} else {
+						unset($events[$day_date][$event_id]);
+					}
+				}
+
+				if ($list_entry_types['week'] == 'title') {
+					echo $this->_getTitleList($events[$day_date], $enabled_views['event']);
+				} else {
+					$this->filterAssetStatuses($events[$day_date]);
+					$this->printAssetList($events[$day_date]);
+				}
 			}
 		} else if ($format == 'list_with_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
