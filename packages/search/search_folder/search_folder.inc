@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.17.2.2 2005/08/16 06:49:39 ndvries Exp $
+* $Id: search_folder.inc,v 1.17.2.3 2006/01/16 01:00:40 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17.2.2 $
+* @version $Revision: 1.17.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -169,7 +169,7 @@ class Search_Folder extends Asset
 							'linkid'			=> 0,
 							'minorid'			=> $assetid,
 							'value'				=> '',
-							'link_type'			=> SQ_LINK_TYPE_1,
+							'link_type'			=> SQ_LINK_TYPE_2,
 							'minor_type_code'	=> $info['type_code'],
 							'sort_order'		=> $sort_order,
 							'is_dependant'		=> '0',
@@ -246,7 +246,7 @@ class Search_Folder extends Asset
 							'type_code'		=> $info['type_code'],
 							'status'		=> $info['status'],
 							'linkid'		=> $this->id.':'.$assetid,
-							'link_type'		=> SQ_LINK_TYPE_1,
+							'link_type'		=> SQ_LINK_TYPE_2,
 							'num_kids'		=> $num_kids,
 							'sort_order'	=> $sort_order,
 							'url'			=> '',
