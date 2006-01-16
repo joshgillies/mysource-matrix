@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.18 2005/06/02 06:09:05 arailean Exp $
+* $Id: email_format.inc,v 1.19 2006/01/16 05:06:18 dmckee Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *    <email_format />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -260,7 +260,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					} else if (editor._initialised != true) {
 						return;
 					}
-
+					textDiv.style.display = "none";
 					htmlDiv.style.display = "";
 
 					// if we are using an iframe for this editor, we set its designMode property if we need to
@@ -270,7 +270,6 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 						editor._iframe.style.height = editor.config.height;
 					}
 
-					textDiv.style.display = "none";
 					formatSpan.innerHTML = 'HTML Email Version';
 
 				} else if (editor._initialised == true) {
