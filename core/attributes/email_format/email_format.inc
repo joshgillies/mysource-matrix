@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.19 2006/01/16 05:06:18 dmckee Exp $
+* $Id: email_format.inc,v 1.20 2006/01/16 05:14:17 dmckee Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *    <email_format />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -50,7 +50,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Email_Format($attributeid=0, $value=null)
+	function Asset_Attribute_Email_Format($attributeid=0, $value=NULL)
 	{
 		$this->Asset_Attribute_WYSIWYG($attributeid, $value);
 
@@ -63,17 +63,30 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 	* @param string		$prefix		prefix for the form elements
 	* @param boolean	$read_only	are we just printing the value
 	*
+	* @return void
 	* @access public
 	*/
-	function paint($prefix, $read_only=false)
+	function paint($prefix, $read_only=FALSE)
 	{
 		$current_value = @unserialize($this->value);
-		if (!is_array($current_value))             $current_value = Array();
-		if (!isset($current_value['to']))          $current_value['to'] = Array();
-		if (!isset($current_value['from']))        $current_value['from'] = '';
-		if (!isset($current_value['subject']))     $current_value['subject'] = '';
-		if (!isset($current_value['html_format'])) $current_value['html_format'] = '';
-		if (!isset($current_value['text_format'])) $current_value['text_format'] = '';
+		if (!is_array($current_value)) {
+			$current_value = Array();
+		}
+		if (!isset($current_value['to'])) {
+			$current_value['to'] = Array();
+		}
+		if (!isset($current_value['from'])) {
+			$current_value['from'] = '';
+		}
+		if (!isset($current_value['subject'])) {
+			$current_value['subject'] = '';
+		}
+		if (!isset($current_value['html_format'])) {
+			$current_value['html_format'] = '';
+		}
+		if (!isset($current_value['text_format'])) {
+			$current_value['text_format'] = '';
+		}
 
 		if ($read_only) {
 			?>
@@ -340,23 +353,20 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 	/**
 	* Process the interface for filling in a value
 	*
-	* @param string	prefix	prefix for the form elements
+	* @param string	$prefix	prefix for the form elements
 	*
+	* @return void
 	* @access public
 	*/
 	function process($prefix)
 	{
-		if (!isset($_REQUEST[$prefix.'_to']) &&
-			!isset($_REQUEST[$prefix.'_from']) &&
-			!isset($_REQUEST[$prefix.'_new_to']) &&
-			!isset($_REQUEST[$prefix.'_subject']) &&
-			!isset($_REQUEST[$prefix.'_text_body'])) {
-			return false;
+		if (!isset($_REQUEST[$prefix.'_to']) && !isset($_REQUEST[$prefix.'_from']) && !isset($_REQUEST[$prefix.'_new_to']) && !isset($_REQUEST[$prefix.'_subject']) && !isset($_REQUEST[$prefix.'_text_body'])) {
+			return FALSE;
 		}
 
 		$value = Array();
 
-		$wysiwyg = &$this->_createEditor($prefix);
+		$wysiwyg =& $this->_createEditor($prefix);
 		$value['html_format'] = $wysiwyg->process();;
 		$value['text_format'] = (isset($_REQUEST[$prefix.'_text_body'])) ? $_REQUEST[$prefix.'_text_body'] : '';
 		$value['to'] = Array();
@@ -373,9 +383,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		}
 
 		$new_to = trim(array_get_index($_REQUEST, $prefix.'_new_to', ''));
-		if(!empty($new_to)){
-			$value['to'][] = $new_to;
-		}
+		if (!empty($new_to)) $value['to'][] = $new_to;
 
 		$value['from']    = (isset($_REQUEST[$prefix.'_from'])) ? $_REQUEST[$prefix.'_from'] : '';
 		$value['subject'] = (isset($_REQUEST[$prefix.'_subject'])) ? $_REQUEST[$prefix.'_subject'] : '';
@@ -399,19 +407,28 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		if (is_scalar($value)) {
 			// see if it is already serilised
 			$unser = @unserialize(trim((string) $value));
-			if (is_scalar($unser)) return false;
-			else $value = $unser;
+			if (is_scalar($unser)) {
+				return FALSE;
+			} else {
+				$value = $unser;
+			}
 		}
 
-		if (!is_array($value)) return false;
-		if (!isset($value['to']))          $test_value['to'] = Array();
-		if (!isset($value['from']))        $test_value['from'] = '';
-		if (!isset($value['subject']))     $test_value['subject'] = '';
-		if (!isset($value['html_format'])) $test_value['html_format'] = '';
-		if (!isset($value['text_format'])) $test_value['text_format'] = '';
+		if (!is_array($value)) return FALSE;
+		if (!isset($value['to'])) $test_value['to'] = Array();
+		if (!isset($value['from'])) $test_value['from'] = '';
+		if (!isset($value['subject'])) {
+			$test_value['subject'] = '';
+		}
+		if (!isset($value['html_format'])) {
+			$test_value['html_format'] = '';
+		}
+		if (!isset($value['text_format'])) {
+			$test_value['text_format'] = '';
+		}
 
 		$value = serialize($value);
-		return true;
+		return TRUE;
 
 	}//end validateValue()
 
@@ -440,9 +457,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		// if no 'From:' address (possibly because of empty keyword replacement)
 		// send from the system's default email address
-		if (trim($from) == '') {
-			$from = SQ_CONF_DEFAULT_EMAIL;
-		}
+		if (trim($from) == '') $from = SQ_CONF_DEFAULT_EMAIL;
 
 		// replace internal links to pages and images with their full URLs
 		$matches = Array();
@@ -457,7 +472,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		// new line is \n
 		$crlf = "\n";
-		$mime = new Mail_mime($crlf);
+		$mime =& new Mail_mime($crlf);
 
 		$from_addr = preg_replace('|.*\<(.*)\>|', '\\1', $from);
 
@@ -471,7 +486,9 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 			$to_addr = preg_replace('|.*\<(.*)\>|', '\\1', $to_email);
 
-			if (empty($to_email) || !valid_email($to_addr)) continue;
+			if (empty($to_email) || !valid_email($to_addr)) {
+				continue;
+			}
 
 			$mime->setTXTBody(strip_tags($text_body));
 			$mime->setHTMLBody($html_body);
