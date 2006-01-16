@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.5 2005/04/20 04:20:36 gsherwood Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.6 2006/01/16 23:39:22 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -143,7 +143,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		$settings['status'] = array_get_index($settings, 'status', SQ_STATUS_LIVE_APPROVAL);
 		$settings['prefix']	= $munge_prefix;
 
-		$status_list = &Trigger_Action_Set_Future_Status::_getStatusList();
+		$status_list = Trigger_Action_Set_Future_Status::_getStatusList();
 
 		if (!$write_access) {
 			$form_element_extras = 'disabled="disabled"';
