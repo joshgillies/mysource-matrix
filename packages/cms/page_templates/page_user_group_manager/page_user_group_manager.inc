@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager.inc,v 1.5 2005/11/09 23:13:11 dmckee Exp $
+* $Id: page_user_group_manager.inc,v 1.6 2006/01/16 23:51:59 skim Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Darren McKee <dmckee@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -243,16 +243,16 @@ class Page_User_Group_Manager extends Page
 		foreach ($fail_success as $message_type => $assetids) {
 			switch ($message_type) {
 				case 'add_fail':
-					$this->errors[] = 'Unable to add this user to the following groups: '.$this->_getCommaSeperatedNamesByAssetid($assetids);
+					$this->errors[] = 'Unable to add this user to the following groups: '.$this->_getCommaSeparatedNamesByAssetid($assetids);
 				break;
 				case 'add_success':
-					$this->messages[] = 'Successfully added this user to the following groups: '.$this->_getCommaSeperatedNamesByAssetid($assetids);
+					$this->messages[] = 'Successfully added this user to the following groups: '.$this->_getCommaSeparatedNamesByAssetid($assetids);
 				break;
 				case 'delete_fail':
-					$this->errors[] = 'Unable to remove this user from the following groups: '.$this->_getCommaSeperatedNamesByAssetid($assetids);
+					$this->errors[] = 'Unable to remove this user from the following groups: '.$this->_getCommaSeparatedNamesByAssetid($assetids);
 				break;
 				case 'delete_success':
-					$this->messages[] = 'Successfully removed this user from the following groups: '.$this->_getCommaSeperatedNamesByAssetid($assetids);
+					$this->messages[] = 'Successfully removed this user from the following groups: '.$this->_getCommaSeparatedNamesByAssetid($assetids);
 				break;
 			}
 		}
@@ -430,7 +430,7 @@ class Page_User_Group_Manager extends Page
 	* @return string
 	* @access private
 	*/
-	function _getCommaSeperatedNamesByAssetid($assetids)
+	function _getCommaSeparatedNamesByAssetid($assetids)
 	{
 		$string = '';
 		$names = Array();
@@ -443,7 +443,7 @@ class Page_User_Group_Manager extends Page
 
 		return $string;
 
-	}//end _getCommaSeperatedNamesByAssetid()
+	}//end _getCommaSeparatedNamesByAssetid()
 
 
 	/**

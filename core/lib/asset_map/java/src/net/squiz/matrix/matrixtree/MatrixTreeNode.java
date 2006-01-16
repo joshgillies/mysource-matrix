@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTreeNode.java,v 1.7 2005/12/13 22:18:48 sdanis Exp $
+* $Id: MatrixTreeNode.java,v 1.8 2006/01/16 23:50:50 skim Exp $
 *
 */
 
@@ -185,10 +185,10 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 	}
 
 	/**
-	 * Returns a comma seperated list of assetids from the root node where this
+	 * Returns a comma separated list of assetids from the root node where this
 	 * node is the last assetid in the list
 	 * @param node the node of the wanted asset path
-	 * @return the command seperated asset path
+	 * @return the command separated asset path
 	 * @see #getLinkPath()
 	 */
 	public String getAssetPath() {
@@ -201,7 +201,7 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 	}
 
 	/**
-	 * Returns a comma seperated list of linkids from the root node where this
+	 * Returns a comma separated list of linkids from the root node where this
 	 * node is the last linkid in the list
 	 * @param node the tree node of the wanted link path
 	 * @return the link path for the specifed tree node

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.113 2006/01/09 00:34:03 dmckee Exp $
+* $Id: html_form.inc,v 1.114 2006/01/16 23:50:50 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.113 $
+* @version $Revision: 1.114 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1137,7 +1137,7 @@ function url_tester($name, $value='', $protocols=Array('http'), $width=50)
 		unset($dd_values[$key]);
 
 		// because we are storing the protocol + URL as the value, we
-		// need to seperate the two
+		// need to separate the two
 		$protocol = substr($value, 0, strlen($replacement));
 		if ($protocol == $replacement) {
 			$default_prot = $protocol;

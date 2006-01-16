@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.18 2006/01/16 23:50:50 skim Exp $
+ * $Id: MatrixTree.java,v 1.19 2006/01/16 23:55:55 skim Exp $
  *
  */
 
@@ -1564,7 +1564,7 @@ public class MatrixTree extends CueTree
 
 		/**
 		 * Returns the ancillery items that will be displayed below the
-		 * main menu items separated by JMenu.Seperator
+		 * main menu items separated by JMenu.Separator
 		 * @return the ancillery menu items
 		 */
 		protected JMenuItem[] getAncillaryMenuItems() {

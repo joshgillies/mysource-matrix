@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.34 2006/01/11 05:36:03 dheppell Exp $
+* $Id: datetime_field.inc,v 1.35 2006/01/16 23:51:07 skim Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -428,19 +428,19 @@ class DateTime_Field
 			$use_am_pm = false;
 		}
 
-		// seperate value into date and time
+		// separate value into date and time
 		$ar_value = explode(' ',$value);
 		$date = (isset($ar_value[0])) ? $ar_value[0] : '';
 		$time = (isset($ar_value[1])) ? $ar_value[1] : '';
 		$c = (isset($ar_value[2])) ? $ar_value[2] : '';
 
-		// seperate date into year, month and day
+		// separate date into year, month and day
 		$ar_date = explode('-',$date);
 		$y = (isset($ar_date[0])) ? $ar_date[0] : '';
 		$m = (isset($ar_date[1])) ? $ar_date[1] : '';
 		$d = (isset($ar_date[2])) ? $ar_date[2] : '';
 
-		// seperate time into hour, minute, second
+		// separate time into hour, minute, second
 		$ar_time = explode(':',$time);
 		$a = (isset($ar_time[0]) && ($ar_time[0] >= 12)) ? 'pm' : 'am';
 		$h = (isset($ar_time[0])) ? ($use_am_pm ? (((($ar_time[0] % 12) + 11) % 12) + 1) : $ar_time[0]) : '';

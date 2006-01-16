@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.92 2006/01/09 22:57:13 gsherwood Exp $
+* $Id: search_manager.inc,v 1.93 2006/01/16 23:52:17 skim Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -524,7 +524,7 @@ class Search_Manager extends Asset
 
 			// if the type is text and its just a number representation
 			// index the number as a whole (remove spaces so that the number does
-			// not get indexed as two seperate entries)
+			// not get indexed as two separate entries)
 
 			if ($var_data['type'] == 'text') {
 				$value = $this->_getRawNumberInText($value);
