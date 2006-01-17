@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.426 2006/01/16 23:50:50 skim Exp $
+* $Id: asset_manager.inc,v 1.427 2006/01/17 05:42:35 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.426 $
+* @version $Revision: 1.427 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5465,6 +5465,29 @@ class Asset_Manager extends MySource_Object
 		return $result;
 
 	}//end getRootURL()
+
+
+	/**
+	* Returns an array of URLs of an asset, including the protocol information
+	*
+	* @return array
+	* @access public
+	*/
+	function getURLs($assetid)
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'SELECT
+					http, https, url
+				FROM
+					sq_ast_lookup
+				WHERE
+					assetid = '.$db->quote($assetid);
+		$result = $db->getAll($sql);
+		assert_valid_db_result($result);
+
+		return $result;
+
+	}//end getURLs()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.491 2006/01/17 03:05:26 lwright Exp $
+* $Id: asset.inc,v 1.492 2006/01/17 05:42:35 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.491 $
+* @version $Revision: 1.492 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3980,6 +3980,19 @@ class Asset extends MySource_Object
 		return $GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id, $base_url, $ignore_rollback);
 
 	}//end getURL()
+
+
+	/**
+	* Returns an array of URLs of this asset, including the protocol information
+	*
+	* @return array
+	* @access public
+	*/
+	function getURLs()
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->getURLs($this->id);
+
+	}//end getURLs()
 
 
 	/**
