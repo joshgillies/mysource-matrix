@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.207 2006/01/13 05:54:11 sdanis Exp $
+* $Id: asset_map.inc,v 1.208 2006/01/17 21:36:12 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.207 $
+* @version $Revision: 1.208 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -157,6 +157,8 @@ class Asset_Map
 									'parameter.url.baseurl'				=> $root_url,
 									'parameter.url.execurl'				=> $root_url.SQ_CONF_BACKEND_SUFFIX.'?SQ_ACTION=asset_map_request&SESSION_ID='.$_COOKIE['SQ_SYSTEM_SESSION'].'&SESSION_KEY='.$GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(),
 									'parameter.asset.limit'				=> SQ_CONF_ASSET_MAP_ASSET_LIMIT,
+									'parameter.java.supportedversion'	=> '1.4.2,1.5.0',
+									'parameter.java.sunurl'				=> 'http://java.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=www.java.com:80',
 								  );
 
 					// this is important because it tells the asset map what the available
@@ -167,8 +169,8 @@ class Asset_Map
 					foreach ($parameters as $parameter => $value) {
 						?><param name="<?php echo $parameter; ?>" value="<?php echo $value; ?>" /><?php
 					}
-				?>
-				Java is not installed on your system. Please download the latest version of the <a href="http://java.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=www.java.com:80" target="_blank">Java Runtime Environment</a> and return once it has been installed.
+				echo translate('asset_map_error_jre_latest_version_msg', '<a href="http://java.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=www.java.com:80" target="_blank">Java Runtime Environment</a>');
+			?>
 			</applet>
 			<?php
 			$applet_tag = ob_get_contents();

@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMap.java,v 1.18 2005/11/24 22:54:53 sdanis Exp $
+* $Id: AssetMap.java,v 1.19 2006/01/17 21:36:13 sdanis Exp $
 *
 */
 
@@ -122,8 +122,56 @@ public class AssetMap extends JApplet implements InitialisationListener, KeyList
 	 * @see init()
 	 */
 	public void start() {
+
+		javaVersionCheck();
 		initAssetMap();
 		startPolling();
+	}
+
+	/**
+	* Checks the JRE version of the client
+	*/
+	private void javaVersionCheck() {
+
+		boolean supportedVersion = false;
+
+		String version = System.getProperty("java.version");
+		String[] supVersions = (Matrix.getProperty("parameter.java.supportedversion")).split("\\,");
+
+		// check only the first three version numbers e.g. 1.4.2
+		if (version.indexOf('_') > 0) {
+			version = version.substring(0, version.indexOf('_'));
+		}
+
+		// compare versions
+		for (int i=0; i< supVersions.length; i++) {
+			if (supVersions[i].equals(version)) {
+				supportedVersion = true;
+				break;
+			}
+		}
+
+		if (!supportedVersion) {
+			Object[] options = { Matrix.translate("ok"), Matrix.translate("cancel") };
+			Object[] transArgs = {
+							version,
+							Matrix.getProperty("parameter.java.supportedversion").replaceAll(",",", ")
+						};
+
+			int ret = JOptionPane.showOptionDialog(null, Matrix.translate("asset_map_error_java_version", transArgs),
+			Matrix.translate("asset_map_error_java_version_title"),
+			JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+
+			if (ret == 0) {
+				// go to the SUN Java download page
+				try {
+					getAppletContext().showDocument(new URL(Matrix.getProperty("parameter.java.sunurl")), "_blank");
+				} catch (java.net.MalformedURLException exp) {
+					System.out.println(exp.getMessage());
+				}
+			}
+		}
+
 	}
 
 	/**
