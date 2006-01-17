@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.19 2006/01/10 00:43:40 tbarrett Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.20 2006/01/17 03:02:03 sdanis Exp $
 *
 */
 
@@ -50,16 +50,16 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as false.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Paint_Layout_Bodycopy extends Bodycopy
 {
 
-	var $asset_to_paint = null;
+	var $asset_to_paint = NULL;
 
-	var $conditions_list = null;
+	var $conditions_list = NULL;
 
 	var $keyword_replacements = Array();
 
@@ -72,7 +72,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	*/
 	function Paint_Layout_Bodycopy($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Asset($assetid);
 
 	}//end constructor
@@ -81,13 +81,14 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	/**
 	* Saves the paint layout bodycopy's reusable data to its data directory
 	*
-	* @return bool
+	* @return boolean
+	* @access public
 	*/
 	function saveSystemVersion()
 	{
 		// Use bodycopy's save functionality to store any notice links our containers have,
 		// and to store the original content before any substitutions take place
-		if (!parent::saveSystemVersion()) return false;
+		if (!parent::saveSystemVersion()) return FALSE;
 
 		$content = $this->getRawBodycopyContent();
 		$required_keywords = $this->getKeywords();
@@ -102,7 +103,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		// find all the required keywords and replace the condition-block keywords by PHP code
 		foreach ($required_keywords as $keyword) {
 			if (!isset($keyword_replacements[$keyword])) {
-				$value = null;
+				$value = NULL;
 
 				if (preg_match('/^('.SQ_KEYWORD_CONDITION_BEGIN.'|'.SQ_KEYWORD_CONDITION_END.'|'.SQ_KEYWORD_CONDITION_ELSE.')_(.*)$/', $keyword, $condition_parts)) {
 					if (count($condition_parts) == 3) {
@@ -132,7 +133,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 					$required_substitution_keywords[$keyword] = 1;
 				}
 			}
-		}
+		}//end foreach
 
 		// Replace all the conditional keywords in our content with valid PHP code
 		$content = replace_keywords($content, $keyword_replacements);
@@ -140,7 +141,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		// Save the substitution keywords we will need to lookup for each asset display
 		if (!string_to_file(serialize($required_substitution_keywords), $this->data_path.'/.sq_system/.keywords')) {
 			trigger_localised_error('CORE0048', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		// Change each ./?a= url to reference the sq_asset_url_list array, which
@@ -154,22 +155,22 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		// save the contents of the bodycopy
 		if (!string_to_file($content, $this->data_path.'/content_file.php')) {
 			trigger_localised_error('CORE0047', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end saveSystemVersion()
 
 
 	/**
-	 * Returns the body of the painted asset
-	 *
-	 * @param object|Asset $asset 	the asset to paint
-	 *
-	 * @return string
-	 * @access public
-	 */
+	* Returns the body of the painted asset
+	*
+	* @param object	&$asset	the asset to paint
+	*
+	* @return string
+	* @access public
+	*/
 	function paintAsset(&$asset)
 	{
 		/*
@@ -224,16 +225,15 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 
 	/**
-	 * Add to an array all the keywords which value is needed to evaluate a
-	 * particular keyword
-	 *
-	 * @param string	$test_keyword		the keyword that will be evaluated
-	 * @param Array 	$required_keywords	the Array to which the needed
-	 * keywords will be added
-	 *
-	 * @return void
-	 * @access private
-	 */
+	* Add to an array all the keywords which value is needed to evaluate a
+	* particular keyword
+	*
+	* @param string	$evaluated_keyword	the keyword that will be evaluated
+	* @param array	&$required_keywords	the Array to which the needed keywords will be added
+	*
+	* @return void
+	* @access private
+	*/
 	function _addRequiredKeywordsFromEvaluatedKeyword($evaluated_keyword, &$required_keywords)
 	{
 		// if the evaluated keyword is a logical condition, then gets the logical keywords it is relying on
@@ -252,7 +252,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	* Returns true if the value of the keyword is not blank.
 	* 0 will be evaluated as true.
 	*
-	* @param mixed $keyword_name	a keyword name
+	* @param mixed	$keyword_name	a keyword name
 	*
 	* @return boolean
 	* @access public
@@ -260,7 +260,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	function _evaluateKeyword($keyword_name)
 	{
 		if (!isset($this->keyword_replacements[$keyword_name])) {
-			return false;
+			return FALSE;
 		}
 
 		$value = trim($this->keyword_replacements[$keyword_name]);
@@ -271,13 +271,13 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 
 	/**
-	 * Returns the value of a single keyword
-	 *
-	 * @param string $keyword	keyword name that must be replaced
-	 *
-	 * @return mixed
-	 * @access private
-	 */
+	* Returns the value of a single keyword
+	*
+	* @param string	$keyword	keyword name that must be replaced
+	*
+	* @return string
+	* @access private
+	*/
 	function _getKeywordValue($keyword)
 	{
 		// TODO: must optimise getAssetKeywordReplacements() with a cache
@@ -291,17 +291,15 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 
 	/**
-	 * Returns the values of a list of keywords.
-	 * The returned array may contain more keywords than needed.
-	 *
-	 * @param object 		$asset				the asset which will provide the
-	 * values for the keywords
-	 * @param Array(string) $required_keywords	keyword names that must be
-	 * replaced
-	 *
-	 * @return Array()
-	 * @access private
-	 */
+	* Returns the values of a list of keywords.
+	* The returned array may contain more keywords than needed.
+	*
+	* @param object	&$asset				the asset which will provide the values for the keywords
+	* @param array	$required_keywords	keyword names that must be replaced
+	*
+	* @return array
+	* @access private
+	*/
 	function &_getAssetKeywordReplacements(&$asset, $required_keywords)
 	{
 		$ret = Array();
@@ -345,20 +343,20 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		// This will make this harder once the $required_keywords will be really applied by getAssetKeywords()
 		// function, because the logical conditions may need other keywords which are not in $required_keywords
 		$condition_list =& new Conditions_List($this, 'conditional_keywords');
-		$ret = array_merge($ret, $condition_list->evaluate($required_keywords, $ret, Array(false, true)));
+		$ret = array_merge($ret, $condition_list->evaluate($required_keywords, $ret, Array(FALSE, TRUE)));
 		return $ret;
 
 	}//end _getAssetKeywordReplacements()
 
 
 	/**
-	 * Sets the associated type code
-	 *
-	 * @param string $asset_type	asset type
-	 *
-	 * @return void
-	 * @access public
-	 */
+	* Sets the associated type code
+	*
+	* @param string	$asset_type	asset type
+	*
+	* @return void
+	* @access public
+	*/
 	function setAssociatedAssetType($asset_type='')
 	{
 		$this->setAttrValue('associated_asset_type', $asset_type);
@@ -367,11 +365,11 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 
 	/**
-	 * Gets the associated type code
-	 *
-	 * @return string
-	 * @access public
-	 */
+	* Gets the associated type code
+	*
+	* @return string
+	* @access public
+	*/
 	function getAssociatedAssetType()
 	{
 		return $this->attr('associated_asset_type');
@@ -380,15 +378,14 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 
 	/**
-	 * Fill an array with the list of all available keywords
-	 *
-	 * @param Array 	$keywords			an array to fill
-	 * @param string 	$asset_type_code	the type of asset which should be
-	 * represented by this bodycopy.
-	 *
-	 * @return void
-	 * @access public
-	 */
+	* Fill an array with the list of all available keywords
+	*
+	* @param array	&$keywords			an array to fill
+	* @param string	$asset_type_code	the type of asset which should be represented by this bodycopy.
+	*
+	* @return void
+	* @access public
+	*/
 	function getKeywordsDescription(&$keywords, $asset_type_code='')
 	{
 		if (is_array($keywords)) {
@@ -421,13 +418,16 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			// 4. conditions
 			$condition_list =& new Conditions_List($this, 'conditional_keywords');
 			$condition_names = $condition_list->getConditionsNames();
+
 			foreach ($condition_names as $condition_name) {
 				$keywords[$condition_name] = ucwords(str_replace('_', ' ', $condition_name));
+				$keywords['begin_'.$condition_name] = translate('core_paint_layout_bodycopy_begin').' '.ucwords(str_replace('_', ' ', $condition_name));
+				$keywords['end_'.$condition_name] = translate('core_paint_layout_bodycopy_end').' '.ucwords(str_replace('_', ' ', $condition_name));
 			}
 
 			ksort($keywords);
 
-		}
+		}//end if
 
 	}//end getKeywordsDescription()
 
