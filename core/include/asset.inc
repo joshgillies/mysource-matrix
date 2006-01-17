@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.490 2006/01/17 02:57:40 lwright Exp $
+* $Id: asset.inc,v 1.491 2006/01/17 03:05:26 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.490 $
+* @version $Revision: 1.491 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3766,6 +3766,12 @@ class Asset extends MySource_Object
 	}//end printBody()
 
 
+	/**
+	* Called by the design to print the body of this asset, WITH the paint layout applied
+	*
+	* @return void
+	* @access public
+	*/
 	function printBodyWithPaintLayout()
 	{
 		$url = strip_url(current_url(false, true));
