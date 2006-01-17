@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.20 2006/01/12 23:46:18 sdanis Exp $
+* $Id: lang_strings.xml,v 1.21 2006/01/17 05:45:14 dmckee Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -116,5 +116,6 @@
 <string source="cms_listing_no_metadata_sort_options">There are no sort by metadata field options</string>
 <string source="cms_listing_max_children_per_group">Max Children Per Group</string>
 <string source="cms_listing_inherits_child_types">Inherits Child Types</string>
+<string source="cms_listing_structured_root_node">Structured Root Node Selector</string>
 
 </strings>

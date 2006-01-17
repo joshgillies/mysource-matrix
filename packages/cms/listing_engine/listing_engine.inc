@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.140 2006/01/17 04:04:09 lwright Exp $
+* $Id: listing_engine.inc,v 1.141 2006/01/17 05:45:14 dmckee Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.140 $
+* @version $Revision: 1.141 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2939,6 +2939,7 @@ class Listing_Engine extends Page
 		$keywords['first_asset_position']	= translate('cms_listing_first_asset_position');
 		$keywords['last_asset_position']	= translate('cms_listing_last_asset_position');
 		$keywords['unique_asset_count']     = translate('cms_listing_unique_asset_count');
+		$keywords['structured_root_node']	= translate('cms_listing_structured_root_node');
 
 		$keywords['select_all_js_code']		= 'Select All Script Code';
 
@@ -3289,7 +3290,7 @@ class Listing_Engine extends Page
 
 
 	/**
-	* Get the replacement for "structured_search_location" keyword
+	* Get the replacement for "structured_root_node" keyword
 	*
 	* @return string
 	* @access public
