@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_management.inc,v 1.6 2005/01/20 13:07:31 brobertson Exp $
+* $Id: bodycopy_container_management.inc,v 1.7 2006/01/17 05:23:28 lwright Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Bodycopy_Container_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -46,24 +47,27 @@ class Bodycopy_Container_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('name'			=> Array(
-												'added'		=> '0.0.1',
-												'type'		=> 'text',
-												'default'	=> '',
-											),
-							'attributes'	=> Array(
-												'added'		=> '0.0.1',
-												'type'		=> 'serialise',
-												'default'	=> Array(),
-											),
-							'shadow_links'	=> Array(
-												'added'			=> '0.3',
-												'type'			=> 'serialise',
-												'default'		=> Array(),
-												'description'	=> 'Array holding the assetids belonging to shadow assets that are used within the content. Needed because they cannot be notice linked like normal assets can.',
-											),
-							);
+		$this->vars = Array(
+						'name'			=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'text',
+											'default'	=> '',
+										   ),
+						'attributes'	=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'serialise',
+											'default'	=> Array(),
+										   ),
+						'shadow_links'	=> Array(
+											'added'			=> '0.3',
+											'type'			=> 'serialise',
+											'default'		=> Array(),
+											'description'	=> 'Array holding the assetids belonging to shadow assets that are used within the content. Needed because they cannot be notice linked like normal assets can.',
+										   ),
+					  );
+
 	}//end constructor
+
 
 }//end class
 

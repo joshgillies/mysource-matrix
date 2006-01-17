@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_prefs.inc,v 1.1 2005/07/15 04:28:35 tbarrett Exp $
+* $Id: bodycopy_container_prefs.inc,v 1.2 2006/01/17 05:23:28 lwright Exp $
 *
 */
 
@@ -33,19 +33,19 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Bodycopy_Container_Prefs extends Prefs
 {
 	var $pref_vars = Array(
-		'SQ_DEFAULT_CONTENT_TYPE'   => Array(
-										'name'			=> 'Default Content Type',
-										'description'	=> 'When bodycopy containers are created they will have this content type by default',
-										'default'		=> 'content_type_wysiwyg',
-										'protected'		=> false
-									   ),
-	);
+						'SQ_DEFAULT_CONTENT_TYPE'	=> Array(
+														'name'			=> 'Default Content Type',
+														'description'	=> 'When bodycopy containers are created they will have this content type by default',
+														'default'		=> 'content_type_wysiwyg',
+														'protected'		=> FALSE,
+													   ),
+					 );
 
 
 	/**
@@ -62,14 +62,14 @@ class Bodycopy_Container_Prefs extends Prefs
 	/**
 	* Paints the backend interface to edit preferences
 	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
-	* @param boolean					$have_lock	do we have the lock to edit these preferences or not
-	* @param string						$pref		a particular preference to paint
+	* @param object		&$o			reference to the backend outputter instance
+	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
+	* @param string		$pref		a particular preference to paint
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintBackend(&$o, $have_lock, $pref=null)
+	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
@@ -83,7 +83,7 @@ class Bodycopy_Container_Prefs extends Prefs
 				if ($have_lock) {
 					$all_content_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('content_type');
 					$content_type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($all_content_types, 'name');
-					combo_box('prefs[SQ_DEFAULT_CONTENT_TYPE]', $content_type_names, false, $default_content_type);
+					combo_box('prefs[SQ_DEFAULT_CONTENT_TYPE]', $content_type_names, FALSE, $default_content_type);
 					echo '<div class="sq-backend-note">'.translate('default_content_type_note').'</div>';
 				} else {
 					echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($default_content_type, 'name');
@@ -92,7 +92,7 @@ class Bodycopy_Container_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}
 
-		return true;
+		return TRUE;
 
 	}//end paintBackend()
 
@@ -100,18 +100,18 @@ class Bodycopy_Container_Prefs extends Prefs
 	/**
 	* Processes the backend interface to edit preferences
 	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
-	* @param boolean					$have_lock	do we have the lock to edit these preferences or not
-	* @param string						$pref		a particular preference to process
+	* @param object		&$o			reference to the backend outputter instance
+	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
+	* @param string		$pref		a particular preference to process
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend($o, $have_lock, $pref=null)
+	function processBackend(&$o, $have_lock, $pref=NULL)
 	{
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-		if (!$is_admin) return false;
+		if (!$is_admin) return FALSE;
 
 		if (is_null($pref) || $pref == 'SQ_DEFAULT_CONTENT_TYPE') {
 			if (isset($_POST['prefs']['SQ_DEFAULT_CONTENT_TYPE'])) {
@@ -119,7 +119,7 @@ class Bodycopy_Container_Prefs extends Prefs
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processBackend()
 

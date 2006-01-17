@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.33 2005/11/23 02:44:30 gsherwood Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.34 2006/01/17 05:23:28 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,9 +72,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	{
 		$name = strtolower($name);
 		if (empty($attributes[$name])) $attributes[$name] = '';
-		if ($attributes[$name] == $value) return false;
+		if ($attributes[$name] == $value) return FALSE;
 		$attributes[$name] = $value;
-		return true;
+		return TRUE;
 
 	}//end setAttribute()
 
@@ -120,7 +120,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function paint(&$asset, $editing=false, $generating=false)
+	function paint(&$asset, $editing=FALSE, $generating=FALSE)
 	{
 
 	}//end paint()
@@ -140,13 +140,13 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	{
 		if (!$asset->writeAccess('content')) {
 			if ($asset->readAccess()) {
-				$this->paint($asset, true);
+				$this->paint($asset, TRUE);
 			} else {
 				echo '<span class="sq-backend-warning">You do not have access to view the contents of this container</span>';
 			}
-			return false;
+			return FALSE;
 		}
-		return true;
+		return TRUE;
 
 	}//end paintContainer()
 
@@ -167,21 +167,21 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processContainer(&$asset, &$o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved)
 	{
-		$updated = false;
+		$updated = FALSE;
 
 		// save any changed attributes
 		if (!empty($bc_data[$prefix][$asset->id]['attributes']) || !empty($bc_saved[$prefix][$asset->id]['attributes'])) {
-			$attributes_updated = false;
+			$attributes_updated = FALSE;
 			$attributes = $asset->attr('attributes');
 			if (isset($bc_data[$prefix][$asset->id]['attributes'])) {
 				foreach ($bc_data[$prefix][$asset->id]['attributes'] as $name => $value) {
 					if ($name == 'identifier') {
 						if ($asset->setAttrValue('name', $value)) {
-							$updated = true;
+							$updated = TRUE;
 						}
 					} else {
 						if ($this->setAttribute($attributes, $name, $value)) {
-							$attributes_updated = true;
+							$attributes_updated = TRUE;
 						}
 					}
 				}
@@ -191,20 +191,20 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				foreach ($bc_saved[$prefix][$asset->id]['attributes'] as $name => $value) {
 					if ($name == 'identifier') {
 						if ($asset->setAttrValue('name', $value)) {
-							$updated = true;
+							$updated = TRUE;
 						}
 					} else {
 						if ($this->setAttribute($attributes, $name, $value)) {
-							$attributes_updated = true;
+							$attributes_updated = TRUE;
 						}
 					}
 				}
 			}
 			if ($attributes_updated) {
 				$asset->setAttrValue('attributes', $attributes);
-				$updated = true;
+				$updated = TRUE;
 			}
-		}
+		}//end if - there are any attributes to be saved
 
 		return $updated;
 
@@ -222,12 +222,12 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	function generateContentFile(&$asset)
 	{
 		ob_start();
-			$this->paint($asset, false, true);
+			$this->paint($asset, FALSE, TRUE);
 			$output = ob_get_contents();
 		ob_end_clean();
 
 		if (!$this->createContentLinks($asset, $output)) {
-			return false;
+			return FALSE;
 		}
 
 		// replacing normal assetids is simple because they can only be numerical chars :)
@@ -270,17 +270,17 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	* For shadow assets it
 	*
 	* @param object			&$asset	the container
-	* @param string|null	$output	the content of the bodycopy container,
+	* @param string|NULL	$output	the content of the bodycopy container,
 	*								leave NULL to have it generated for you
 	*
 	* @return boolean
 	* @access public
 	*/
-	function createContentLinks(&$asset, $output=null)
+	function createContentLinks(&$asset, $output=NULL)
 	{
 		if (is_null($output)) {
 			ob_start();
-				$this->paint($asset, true);
+				$this->paint($asset, TRUE);
 				$output = ob_get_contents();
 			ob_end_clean();
 		}
@@ -326,7 +326,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 					if (!in_array($link_data['minorid'], $replace_assetids)) {
 						if (!$asset->deleteLink($link_data['linkid'])) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							return false;
+							return FALSE;
 						}
 					}
 				}
@@ -334,15 +334,15 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 			$shadow_links = array_values(array_intersect($asset->attr('shadow_links'), $replace_assetids));
 			foreach ($replace_assetids as $assetid) {
-				if (!assert_valid_assetid($assetid, '', false, false)) {
+				if (!assert_valid_assetid($assetid, '', FALSE, FALSE)) {
 					continue;
 				}
 				if (in_array($assetid, $existing_links)) continue;
 
-				$ereg_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$ereg_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($ereg_asset)) continue;
 
-				if (strpos($ereg_asset->id, ':') !== false) {
+				if (strpos($ereg_asset->id, ':') !== FALSE) {
 					$shadow_links[] = $ereg_asset->id;
 
 				} else {
@@ -359,7 +359,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 			if (!$asset->setAttrValue('shadow_links', $shadow_links) || !$asset->saveAttributes()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+				return FALSE;
 			}
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -367,7 +367,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 		}//end if replace_assetids or notice_links
 
-		return true;
+		return TRUE;
 
 	}//end createContentLinks()
 
@@ -382,8 +382,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function _contentsUpdated(&$asset)
 	{
-		if (is_null($asset)) return false;
-		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		if (is_null($asset)) return FALSE;
+		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		return $em->broadcastEvent($asset, 'contentsUpdated', Array());
 
 	}//end _contentsUpdated()
@@ -405,7 +405,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintBodycopyContainer(&$asset, &$o, $prefix)
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		// if there's a preview url set for this asset, get the design info for
 		// it.
@@ -413,7 +413,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			$url = $GLOBALS['sq_preview_url'];
 			$url = preg_replace('|^http[s]?://|', '', $url);
 
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT value
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
 			$where = '    url = '.$db->quote($url).'
@@ -424,7 +424,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			assert_valid_db_result($designid);
 			if ($designid) {
 				if (!SQ_IN_LIMBO) {
-					$design = &$am->getAsset($designid);
+					$design =& $am->getAsset($designid);
 					$stylesheets = $design->getStylesheets();
 
 					// save the ids of all the css files into a global var so the wysiwyg style
@@ -464,7 +464,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			} else {
 				$this->paintContainer($asset, $o, $prefix);
 			}
-			return false;
+			return FALSE;
 		}
 
 		// the initial width and height to have the layer display created at;
@@ -501,20 +501,20 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			// (as apposed to inserted or deleted) so that the pop-ups can get the info once
 			// they have loaded themselves
 			var bodycopy_current_edit = new Object();
-			bodycopy_current_edit["data"] = null;
-			bodycopy_current_edit["bodycopy_name"] = null;
+			bodycopy_current_edit["data"] = NULL;
+			bodycopy_current_edit["bodycopy_name"] = NULL;
 
-			var bodycopy_initialised = false;	// true once init() has been run
-			var bodycopy_popup = null;			// pointer to the popup Layer_Handler Object
-			var bodycopy_popup_visible = false;	// boolean indicating whether the popup is visisble ( not access directly )
-			var bodycopy_nested_doc = null;		// pointer to the Netscape Layer or the IE Iframe
+			var bodycopy_initialised = FALSE;	// TRUE once init() has been run
+			var bodycopy_popup = NULL;			// pointer to the popup Layer_Handler Object
+			var bodycopy_popup_visible = FALSE;	// boolean indicating whether the popup is visisble ( not access directly )
+			var bodycopy_nested_doc = NULL;		// pointer to the Netscape Layer or the IE Iframe
 
 			// initialise the popup
 			function bodycopy_init() {
 				bodycopy_popup   = new Layer_Handler("bodycopyPopupDiv", 0,<?php echo $init_layer_width?>,<?php echo $init_layer_height?>,0);
 				set_bodycopy_nested_doc();
 				bodycopy_hide_popup();
-				bodycopy_initialised = true;
+				bodycopy_initialised = TRUE;
 				bodycopy_otheronload();
 			}
 
@@ -560,8 +560,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 					return;
 				}
 
-				var w = (width  != null) ? width  : 500;
-				var h = (height != null) ? height : 400;
+				var w = (width  != NULL) ? width  : 500;
+				var h = (height != NULL) ? height : 400;
 				var border = 15;
 				var top_offset = 20;
 
@@ -576,8 +576,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 				bodycopy_popup.w = w;
 				bodycopy_popup.h = h;
-				bodycopy_popup.clip(null, w, h, null);
-				bodycopy_popup_visible = true;
+				bodycopy_popup.clip(NULL, w, h, NULL);
+				bodycopy_popup_visible = TRUE;
 
 				if (is_ie4up) {
 					// %!%#, frameElement is IE 5.5 only
@@ -598,22 +598,22 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 				// how far down the page we want to display this popup
 				var scroll_top  = ((is_ie4up) ? document.body.scrollTop  : self.pageYOffset);
-				bodycopy_popup.move(null, scroll_top + top_offset);
+				bodycopy_popup.move(NULL, scroll_top + top_offset);
 				bodycopy_popup.show();
 			}//end bodycopy_show_popup()
 
 			function bodycopy_hide_popup() {
 				if (!bodycopy_initialised) { return; }
 				bodycopy_show_popup("blank.php");
-				bodycopy_popup_visible = false;
+				bodycopy_popup_visible = FALSE;
 				bodycopy_popup.hide();
 			}//end bodycopy_hide_popup()
 
 			// get the available cell types
-			var BODYCOPY_AVAILABLE_CONTENT_TYPES = null;
+			var BODYCOPY_AVAILABLE_CONTENT_TYPES = NULL;
 			function get_bodycopy_available_content_types() {
-				if (BODYCOPY_AVAILABLE_CONTENT_TYPES == null) {
-					BODYCOPY_AVAILABLE_CONTENT_TYPES = var_unserialise('<?php echo var_serialise($content_types, true)?>');
+				if (BODYCOPY_AVAILABLE_CONTENT_TYPES == NULL) {
+					BODYCOPY_AVAILABLE_CONTENT_TYPES = var_unserialise('<?php echo var_serialise($content_types, TRUE)?>');
 				}
 				return BODYCOPY_AVAILABLE_CONTENT_TYPES;
 			}
@@ -628,10 +628,10 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 						default :
 							str += '["' + args[i] + '"]';
 					}
-					eval('var exists = (' + str + ') ? true : false;');
-					if (!exists) return false;
+					eval('var exists = (' + str + ') ? TRUE : FALSE;');
+					if (!exists) return FALSE;
 				}
-				return true;
+				return TRUE;
 			}
 
 			function bodycopy_chgColor(id, colour) {
@@ -711,7 +711,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		</table>
 		<?php
 
-		return true;
+		return TRUE;
 
 	}//end paintBodycopyContainer()
 
@@ -729,7 +729,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processBodycopyContainer(&$asset, &$o, $prefix)
 	{
-		$updated = false;
+		$updated = FALSE;
 		$bc_action = (empty($_POST['bodycopy_action'])) ? ''      : $_POST['bodycopy_action'];
 		$bc_name   = (empty($_POST['bodycopy_name']))   ? ''      : $_POST['bodycopy_name'];
 		$bc_data   = (empty($_POST['bodycopy_data']))   ? Array() : $_POST['bodycopy_data'];
@@ -741,7 +741,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 		// unserialize the data for a bodycopy.
 		for (reset($bc_saved); NULL !== ($k = key($bc_saved)); next($bc_saved)) {
-			$containers = &$bc_saved[$k];
+			$containers =& $bc_saved[$k];
 			for (reset($containers); NULL !== ($containersid = key($containers)); next($containers)) {
 				$containers[$containersid] = var_unserialise($containers[$containersid]);
 			}
@@ -750,7 +750,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		unset($containers);
 
 		if ($this->processContainer($asset, $o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved)) {
-			if ($asset->saveAttributes()) $updated = true;
+			if ($asset->saveAttributes()) $updated = TRUE;
 		}
 		return $updated;
 
