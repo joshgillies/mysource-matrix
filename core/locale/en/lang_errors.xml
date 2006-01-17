@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.28 2006/01/11 22:54:40 dheppell Exp $
+* $Id: lang_errors.xml,v 1.29 2006/01/17 03:28:43 lwright Exp $
 *
 */
 
@@ -1589,4 +1589,7 @@ Full Node Contents :
 	<error code="CORE0243">Unable to write to cache file "%s"</error>
 	<error code="CORE0244">Unable to read from cache file "%s"</error>
 	<error code="CORE0245">Unable to create cache directory "%s"</error>
+
+	<!-- Set Metadata Value Trigger -->
+	<error code="CORE0246">Metadata field "%1$s" (Id: #%2$s) is marked as not editable; it cannot be set as the field to set</error>
 </errors>

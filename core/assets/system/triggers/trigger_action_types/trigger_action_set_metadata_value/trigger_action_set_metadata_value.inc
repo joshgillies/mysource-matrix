@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.3 2005/11/15 23:44:22 skim Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.4 2006/01/17 03:28:43 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -173,6 +173,14 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			$settings['fieldid'] = $fieldid;
 
 			$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
+
+			// Can we edit the destination field? If we can't then what's the point;
+			// we can't even change it through a trigger
+			if (!$metadata_field->attr('editable')) {
+				trigger_localised_error('CORE0246', E_USER_WARNING, $metadata_field->name, $metadata_field->id);
+				return FALSE;
+			}
+
 			$edit_fns = $metadata_field->getEditFns();
 
 			$result = '';
@@ -184,7 +192,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			$settings['value']		= $result;
 		}
 
-		return false;
+		return FALSE;
 
 	}//end processInterface()
 
