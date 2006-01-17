@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv.inc,v 1.10.2.1 2005/10/18 02:25:40 lwright Exp $
+* $Id: csv.inc,v 1.10.2.2 2006/01/17 00:23:50 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     A class used to create and parse CSV files
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10.2.1 $
+* @version $Revision: 1.10.2.2 $
 * @package Fudge
 * @subpackage CSV
 */
@@ -61,7 +61,7 @@ class CSV
 	var $_filename='';
 
 	/**
-	* The seperator that seperates data in the CSV file
+	* The seperator that separates data in the CSV file
 	* This is normally a comma or tab character
 	*
 	* @var string
