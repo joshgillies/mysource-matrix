@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.50 2006/01/11 22:54:15 rong Exp $
+* $Id: listing_engine_management.inc,v 1.51 2006/01/17 04:04:09 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -437,7 +437,7 @@ class Listing_Engine_Management extends Asset_Management
 		if (version_compare($current_version,'0.1','==')) {
 			$search_page_fields = Array('lineage_seperator');
 
-			bam('UPGRADING LISTING ENGINE - FROM VERSION '.$current_version);
+			pre_echo('UPGRADING LISTING ENGINE - FROM VERSION '.$current_version);
 
 			$attributes = Array();
 
@@ -460,7 +460,7 @@ class Listing_Engine_Management extends Asset_Management
 			}
 			$this->_restoreAttributes($attributes);
 
-			bam('LISTING ENGINE UPGRADE COMPLETE - FROM VERSION '.$current_version);
+			pre_echo('LISTING ENGINE UPGRADE COMPLETE - FROM VERSION '.$current_version);
 
 		}
 
@@ -469,7 +469,7 @@ class Listing_Engine_Management extends Asset_Management
 
 			$fields_to_delete = Array('sort_by_attr');
 
-			bam('UPGRADING LISTING ENGINE - FROM VERSION '.$current_version.' TO VERSION 0.3');
+			pre_echo('UPGRADING LISTING ENGINE - FROM VERSION '.$current_version.' TO VERSION 0.3');
 			// move reverse sort into sort_direction
 			// move sort by to sort by list
 			// move sort_by attr to sort by list
@@ -568,7 +568,7 @@ class Listing_Engine_Management extends Asset_Management
 		}//end if version 0.3
 
 		if (version_compare($current_version, '0.6', '<')) {
-			bam('UPGRADING LISTING ENGINE - FROM VERSION '.$current_version.' TO VERSION 0.6');
+			pre_echo('UPGRADING LISTING ENGINE - FROM VERSION '.$current_version.' TO VERSION 0.6');
 
 			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
 			foreach ($children as $assetid) {
@@ -602,7 +602,7 @@ class Listing_Engine_Management extends Asset_Management
 
 		// Version 0.7: Add 'Group Formats' Folder
 		if (version_compare($current_version, '0.7', '<')) {
-			bam('UPGRADING LISTING ENGINE - FROM VERSION '.$current_version.' TO VERSION 0.7');
+			pre_echo('UPGRADING LISTING ENGINE - FROM VERSION '.$current_version.' TO VERSION 0.7');
 
 			$upgraded_count = 0;
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
@@ -646,7 +646,7 @@ class Listing_Engine_Management extends Asset_Management
 
 			}//end foreach Listing Engine asset
 
-			bam('Upgraded '.$upgraded_count.' Listing Engine-based assets to version 0.7');
+			pre_echo('Upgraded '.$upgraded_count.' Listing Engine-based assets to version 0.7');
 
 		}//end if version < 0.7
 

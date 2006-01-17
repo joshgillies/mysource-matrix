@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.139 2006/01/17 02:57:41 lwright Exp $
+* $Id: listing_engine.inc,v 1.140 2006/01/17 04:04:09 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.139 $
+* @version $Revision: 1.140 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1749,7 +1749,9 @@ class Listing_Engine extends Page
 				// listing engine asset, usually)
 				if (preg_match('|%asset_contents%|is', $bodycopy->getRawBodycopyContent())) {
 					ob_start();
-						if ($asset->id != $this->id) $asset->printBodyWithPaintLayout();
+						if ($asset->id != $this->id) {
+							$asset->printBodyWithPaintLayout();
+						}
 						$keywords['asset_contents'] = ob_get_contents();
 					ob_end_clean();
 

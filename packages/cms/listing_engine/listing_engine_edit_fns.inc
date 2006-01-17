@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.52 2006/01/11 22:54:15 rong Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.53 2006/01/17 04:04:09 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -116,7 +116,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				<?php
 			}
 			return FALSE;
-		}
+		}//end else - if write access to content
 
 	}//end paintAssetTypes()
 
@@ -250,7 +250,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				asset_finder($prefix.'_new_asset_position_asset', '', Array('asset' => 'D'));
 				echo '</p>';
 			}
-		}
+		}//end else - if grouped
 
 		return $write_access;
 
@@ -1851,7 +1851,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					break;
 
 					case 'attribute':
-						// $commit_button |= $this->paintGroupByAttribute($asset, $o, $prefix.'['.$level.']', $group_by_option);
+						// implementation reserved
 					break;
 				}
 
