@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bridge_management.inc,v 1.2 2005/01/20 13:07:31 brobertson Exp $
+* $Id: bridge_management.inc,v 1.3 2006/01/17 21:36:43 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,12 +47,14 @@ class Bridge_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('name' => Array(
-											'added'     => '0.1',
-											'type'      => 'text',
-											'default'   => ''
-											),
-							);
+		$this->vars = Array(
+						'name'	=> Array(
+									'added'		=> '0.1',
+									'type'		=> 'text',
+									'default'	=> '',
+								   ),
+					  );
+
 	}//end constructor
 
 
