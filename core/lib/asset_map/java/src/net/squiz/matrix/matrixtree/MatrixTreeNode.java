@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTreeNode.java,v 1.2 2005/05/12 00:23:46 mmcintyre Exp $
+* $Id: MatrixTreeNode.java,v 1.2.2.1 2006/01/17 00:11:16 skim Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,13 +37,13 @@ import java.io.*;
  *
  * @author Marc McIntyre <mmcintyre@squiz.net>
  */
-public class MatrixTreeNode extends DefaultMutableTreeNode 
+public class MatrixTreeNode extends DefaultMutableTreeNode
 	implements Serializable {
 
-		
+
 	/* The linkid that this node represents */
 	private final String linkid;
-	
+
 	/**
 	 * The type of link to the parent
 	 * @see MatrixConstants
@@ -72,7 +72,7 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 	public String toString() {
 		return getAsset().getName() + " Linkid : " + linkid;
 	}
-	
+
 	/**
 	 * Returns the asset that represents this node
 	 *
@@ -85,11 +85,11 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 	public int getLinkType() {
 		return linkType;
 	}
-	
+
 	public void setLinkType(int linkType) {
 		this.linkType = linkType;
 	}
-	
+
 	/**
 	 * Returns the linkid to the parent asset of this node
 	 *
@@ -102,7 +102,7 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 	public boolean isShadowAsset() {
 		return (linkid.equals("0") && linkid.split(":").length > 1);
 	}
-	
+
 	/**
 	 * Returns TRUE if this node is a leaf
 	 *
@@ -169,12 +169,12 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 			node.propagateUrl(getURL());
 		}
 	}
-	
+
 	/**
-	 * Returns a comma seperated list of assetids from the root node where this
+	 * Returns a comma separated list of assetids from the root node where this
 	 * node is the last assetid in the list
 	 * @param node the node of the wanted asset path
-	 * @return the command seperated asset path
+	 * @return the command separated asset path
 	 * @see #getLinkPath()
 	 */
 	public String getAssetPath() {
@@ -185,9 +185,9 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 		}
 		return assetPath.toString();
 	}
-	
+
 	/**
-	 * Returns a comma seperated list of linkids from the root node where this
+	 * Returns a comma separated list of linkids from the root node where this
 	 * node is the last linkid in the list
 	 * @param node the tree node of the wanted link path
 	 * @return the link path for the specifed tree node

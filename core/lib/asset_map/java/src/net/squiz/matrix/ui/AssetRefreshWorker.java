@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: AssetRefreshWorker.java,v 1.3 2005/05/20 00:08:35 ndvries Exp $
+ * $Id: AssetRefreshWorker.java,v 1.3.2.1 2006/01/17 00:11:16 skim Exp $
  *
  */
 
@@ -32,7 +32,7 @@ import java.io.IOException;
 
 /**
  * The AssetRefreshWorker makes a request to the Matrix system for the specified
- * assets in a seperate thread, then refresh the assets in the EventDispachThread.
+ * assets in a separate thread, then refresh the assets in the EventDispachThread.
  * You should use this class over all other methods of refreshing as it correctly
  * obeys the swing thread laws.
  *

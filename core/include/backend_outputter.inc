@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.108.2.3 2005/09/05 00:57:13 dmckee Exp $
+* $Id: backend_outputter.inc,v 1.108.2.4 2006/01/17 00:11:16 skim Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.108.2.3 $
+* @version $Revision: 1.108.2.4 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -145,7 +145,7 @@ class Backend_Outputter
 	var $_current_field_note = '';
 
 	/**
-	* we need a seperate section counter for non-buffering
+	* we need a separate section counter for non-buffering
 	* @var integer
 	*/
 	var $_nb_section_count = 0;

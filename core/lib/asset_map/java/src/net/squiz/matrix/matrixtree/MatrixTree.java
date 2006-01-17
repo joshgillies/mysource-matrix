@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.7.2.3 2005/11/08 03:01:58 sdanis Exp $
+ * $Id: MatrixTree.java,v 1.7.2.4 2006/01/17 00:11:16 skim Exp $
  *
  */
 
@@ -895,7 +895,7 @@ public class MatrixTree extends CueTree
 
 	/**
 	 * Class that handles the menus through right clicking. If there is
-	 * a multiple selection and a right click occurs, a seperate method is
+	 * a multiple selection and a right click occurs, a separate method is
 	 * invokes to show a menu to the context of the selection nodes. If a
 	 * multiple selection is inplace, and a single node outside the selection is
 	 * selected, the multiple section is lost in place for the node right clicked on.
@@ -1084,7 +1084,7 @@ public class MatrixTree extends CueTree
 
 		/**
 		 * Returns the ancillery items that will be displayed below the
-		 * main menu items seperated by JMenu.Seperator
+		 * main menu items separated by JMenu.Seperator
 		 * @return the ancillery menu items
 		 */
 		protected JMenuItem[] getAncillaryMenuItems() {
