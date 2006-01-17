@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.34 2006/01/17 05:23:28 lwright Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.35 2006/01/17 22:30:19 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -501,20 +501,20 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			// (as apposed to inserted or deleted) so that the pop-ups can get the info once
 			// they have loaded themselves
 			var bodycopy_current_edit = new Object();
-			bodycopy_current_edit["data"] = NULL;
-			bodycopy_current_edit["bodycopy_name"] = NULL;
+			bodycopy_current_edit["data"] = null;
+			bodycopy_current_edit["bodycopy_name"] = null;
 
-			var bodycopy_initialised = FALSE;	// TRUE once init() has been run
-			var bodycopy_popup = NULL;			// pointer to the popup Layer_Handler Object
-			var bodycopy_popup_visible = FALSE;	// boolean indicating whether the popup is visisble ( not access directly )
-			var bodycopy_nested_doc = NULL;		// pointer to the Netscape Layer or the IE Iframe
+			var bodycopy_initialised = false;	// TRUE once init() has been run
+			var bodycopy_popup = null;			// pointer to the popup Layer_Handler Object
+			var bodycopy_popup_visible = false;	// boolean indicating whether the popup is visisble ( not access directly )
+			var bodycopy_nested_doc = null;		// pointer to the Netscape Layer or the IE Iframe
 
 			// initialise the popup
 			function bodycopy_init() {
 				bodycopy_popup   = new Layer_Handler("bodycopyPopupDiv", 0,<?php echo $init_layer_width?>,<?php echo $init_layer_height?>,0);
 				set_bodycopy_nested_doc();
 				bodycopy_hide_popup();
-				bodycopy_initialised = TRUE;
+				bodycopy_initialised = true;
 				bodycopy_otheronload();
 			}
 
@@ -560,8 +560,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 					return;
 				}
 
-				var w = (width  != NULL) ? width  : 500;
-				var h = (height != NULL) ? height : 400;
+				var w = (width  != null) ? width  : 500;
+				var h = (height != null) ? height : 400;
 				var border = 15;
 				var top_offset = 20;
 
@@ -576,8 +576,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 				bodycopy_popup.w = w;
 				bodycopy_popup.h = h;
-				bodycopy_popup.clip(NULL, w, h, NULL);
-				bodycopy_popup_visible = TRUE;
+				bodycopy_popup.clip(null, w, h, null);
+				bodycopy_popup_visible = true;
 
 				if (is_ie4up) {
 					// %!%#, frameElement is IE 5.5 only
@@ -598,21 +598,21 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 				// how far down the page we want to display this popup
 				var scroll_top  = ((is_ie4up) ? document.body.scrollTop  : self.pageYOffset);
-				bodycopy_popup.move(NULL, scroll_top + top_offset);
+				bodycopy_popup.move(null, scroll_top + top_offset);
 				bodycopy_popup.show();
 			}//end bodycopy_show_popup()
 
 			function bodycopy_hide_popup() {
 				if (!bodycopy_initialised) { return; }
 				bodycopy_show_popup("blank.php");
-				bodycopy_popup_visible = FALSE;
+				bodycopy_popup_visible = null;
 				bodycopy_popup.hide();
 			}//end bodycopy_hide_popup()
 
 			// get the available cell types
-			var BODYCOPY_AVAILABLE_CONTENT_TYPES = NULL;
+			var BODYCOPY_AVAILABLE_CONTENT_TYPES = null;
 			function get_bodycopy_available_content_types() {
-				if (BODYCOPY_AVAILABLE_CONTENT_TYPES == NULL) {
+				if (BODYCOPY_AVAILABLE_CONTENT_TYPES == null) {
 					BODYCOPY_AVAILABLE_CONTENT_TYPES = var_unserialise('<?php echo var_serialise($content_types, TRUE)?>');
 				}
 				return BODYCOPY_AVAILABLE_CONTENT_TYPES;
@@ -628,10 +628,10 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 						default :
 							str += '["' + args[i] + '"]';
 					}
-					eval('var exists = (' + str + ') ? TRUE : FALSE;');
-					if (!exists) return FALSE;
+					eval('var exists = (' + str + ') ? true : false;');
+					if (!exists) return false;
 				}
-				return TRUE;
+				return true;
 			}
 
 			function bodycopy_chgColor(id, colour) {

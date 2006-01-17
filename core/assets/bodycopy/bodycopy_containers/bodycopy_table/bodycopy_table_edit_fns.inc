@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.20 2006/01/17 06:08:12 lwright Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.21 2006/01/17 22:30:19 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -133,23 +133,23 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		<script language="JavaScript" type="text/javascript">
 		function serialise_table(bodycopy_name, bodycopy_data, tableid, rowid, cellid) {
 			var form = document.main_form;
-			if (!bodycopy_saved[bodycopy_name] && bodycopy_name != NULL) {
+			if (!bodycopy_saved[bodycopy_name] && bodycopy_name != null) {
 				bodycopy_saved[bodycopy_name] = new Object();
 			}
 
-			if (tableid != NULL) {
+			if (tableid != null) {
 				if (!bodycopy_saved[bodycopy_name][tableid]) {
 					bodycopy_saved[bodycopy_name][tableid] = new Object();
 				}
 
-				if (rowid != NULL) {
+				if (rowid != null) {
 					if (!bodycopy_saved[bodycopy_name][tableid]['rows']) {
 						bodycopy_saved[bodycopy_name][tableid]['rows'] = new Object();
 					}
-					if (!bodycopy_saved[bodycopy_name][tableid]['rows'][rowid] && rowid != NULL) {
+					if (!bodycopy_saved[bodycopy_name][tableid]['rows'][rowid] && rowid != null) {
 						bodycopy_saved[bodycopy_name][tableid]['rows'][rowid] = new Object();
 					}
-					if (cellid != NULL) {
+					if (cellid != null) {
 						if (!bodycopy_saved[bodycopy_name][tableid]['rows'][rowid]['cells']) {
 							bodycopy_saved[bodycopy_name][tableid]['rows'][rowid]['cells'] = new Object();
 						}
@@ -172,9 +172,9 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		// general fn that the generic include fns can use to get data to use
 		function get_bodycopy_current_table_data(bodycopy_name, tableid, rowid, cellid) {
-			if (tableid == NULL) tableid = -1;
-			if (rowid   == NULL) rowid   = -1;
-			if (cellid  == NULL) cellid  = -1;
+			if (tableid == null) tableid = -1;
+			if (rowid   == null) rowid   = -1;
+			if (cellid  == null) cellid  = -1;
 			return bodycopy_current_data[bodycopy_name].get_table_data(tableid, rowid, cellid);
 		}
 

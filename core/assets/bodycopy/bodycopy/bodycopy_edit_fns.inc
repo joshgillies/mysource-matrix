@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.35 2006/01/17 04:49:14 lwright Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.36 2006/01/17 22:30:19 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -237,7 +237,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 									?>
 									<td>
 										<?php
-											Bodycopy_Edit_Fns::printBodycopyIcon("document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_before_{$i}.value; bodycopy_insert_container('$prefix', $i, TRUE)", translate('insert_container'), translate('select_container_type'), 'create_container', '['.translate('insert').']');
+											Bodycopy_Edit_Fns::printBodycopyIcon("document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_before_{$i}.value; bodycopy_insert_container('$prefix', $i, true)", translate('insert_container'), translate('select_container_type'), 'create_container', '['.translate('insert').']');
 										?>
 									</td>
 									<td class="sq-backend-data" valign="top">
@@ -290,7 +290,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 								?>
 								<td>
 									<?php
-									Bodycopy_Edit_Fns::printBodycopyIcon("document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_after_{$i}.value; bodycopy_insert_container('$prefix', $i, FALSE)", translate('insert_container'), translate('select_container_type'), 'create_container', '['.translate('insert').']');
+									Bodycopy_Edit_Fns::printBodycopyIcon("document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_after_{$i}.value; bodycopy_insert_container('$prefix', $i, false)", translate('insert_container'), translate('select_container_type'), 'create_container', '['.translate('insert').']');
 									?>
 								</td>
 								<td class="sq-backend-data" valign="top">

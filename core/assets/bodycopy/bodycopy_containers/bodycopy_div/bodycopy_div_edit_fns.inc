@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.24 2006/01/17 06:08:12 lwright Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.25 2006/01/17 22:30:19 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -102,9 +102,9 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		<script language="JavaScript" type="text/javascript">
 		function serialise_div(bodycopy_name, bodycopy_data, divid) {
 			var form = document.main_form;
-			if (!bodycopy_saved[bodycopy_name] && bodycopy_name != NULL) bodycopy_saved[bodycopy_name] = new Object();
+			if (!bodycopy_saved[bodycopy_name] && bodycopy_name != null) bodycopy_saved[bodycopy_name] = new Object();
 
-			if (divid != NULL) {
+			if (divid != null) {
 				if (!bodycopy_saved[bodycopy_name][divid]) {
 					bodycopy_saved[bodycopy_name][divid] = new Object();
 				}
@@ -117,7 +117,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		// general fn that the generic include fns can use to get data to use
 		function get_bodycopy_current_div_data(bodycopy_name, divid) {
-			if (divid == NULL) divid = -1;
+			if (divid == null) divid = -1;
 			return bodycopy_current_data[bodycopy_name].get_div_data(divid);
 		}
 
@@ -288,7 +288,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			<tr>
 				<td align="left" background="" id="<?php echo $prefix.'_div_'.$asset->id;?>" width="4%" style="border: 1px dashed #C0C0C0;">
 				<?php
-				Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'FALSE' : 'TRUE').');', 'Edit '.$asset->attr('name').'\'s Properties', (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : ''), 'table_properties', '[Edit Properties]');
+				Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', 'Edit '.$asset->attr('name').'\'s Properties', (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : ''), 'table_properties', '[Edit Properties]');
 
 				if (!is_null($content_type)) {
 					$content_edit =& $content_type->getEditFns();
