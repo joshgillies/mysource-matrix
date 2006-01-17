@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type.inc,v 1.13 2005/09/21 01:41:49 mmcintyre Exp $
+* $Id: content_type.inc,v 1.14 2006/01/17 21:40:33 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,20 +62,20 @@ class Content_Type extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _preCreateCheck(&$link)
 	{
-		if (!parent::_preCreateCheck($link)) return false;
+		if (!parent::_preCreateCheck($link)) return FALSE;
 
 		$name = trim($this->attr('name'));
 		if ($name == '') {
 			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _preCreateCheck()
 
@@ -83,8 +83,9 @@ class Content_Type extends Asset
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -98,10 +99,11 @@ class Content_Type extends Asset
 	*
 	* @param boolean	$short_name	whether or not we are after the short name or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
@@ -109,7 +111,7 @@ class Content_Type extends Asset
 
 
 	/**
-	* Returns true if there is no content
+	* Returns TRUE if there is no content
 	*
 	* @return boolean
 	* @access public
@@ -138,7 +140,7 @@ class Content_Type extends Asset
 	/**
 	* Sets the editable content of this asset
 	*
-	* @param string $content
+	* @param string	$content	the content to set
 	*
 	* @return boolean
 	* @access public
@@ -148,7 +150,7 @@ class Content_Type extends Asset
 		$this->setAttrValue('html', $content);
 		$this->saveAttributes();
 
-		return true;
+		return TRUE;
 
 	}//end setContent()
 
@@ -156,21 +158,21 @@ class Content_Type extends Asset
 	/**
 	* Save attributes set with setAttrValue to the database
 	*
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
+	* @param boolean	$dont_run_updated	if TRUE this->_updated() won't be run
 	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
 	* @see setAttrValue()
 	*/
-	function saveAttributes($dont_run_updated=false)
+	function saveAttributes($dont_run_updated=FALSE)
 	{
 		$contents_changed = isset($this->_tmp['vars_set']['html']);
 
-		//Want to see if the content has been changed.
+		// Want to see if the content has been changed.
 		if ($contents_changed) {
-			//Yep, so we need to (re)generate our bodycopy container's content file
-			$bc_container_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', false, 'minor');
+			// Yep, so we need to (re)generate our bodycopy container's content file
+			$bc_container_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE, 'minor');
 			if (!empty($bc_container_link)) {
 				$container =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bc_container_link[0]['majorid']);
 				$edit_fns = $container->getEditFns();
@@ -181,7 +183,7 @@ class Content_Type extends Asset
 		$success = parent::saveAttributes($dont_run_updated);
 
 		if ($contents_changed && $success) {
-			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'ContentsUpdated');
 		}
 

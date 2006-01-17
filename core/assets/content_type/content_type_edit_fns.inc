@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_edit_fns.inc,v 1.6 2005/01/20 13:07:31 brobertson Exp $
+* $Id: content_type_edit_fns.inc,v 1.7 2006/01/17 21:40:33 lwright Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Content_Type_Edit_Fns extends Asset_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -61,15 +62,15 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints raw HTML to be printed on the frontend
 	*
-	* @param object Content_Type	&$asset		the content type we are painting
-	* @param string					$prefix		prefix for form elements
-	* @param boolean				$editing	are we printing an editing interface
-	* @param boolean				$generating	are we genenerating the cache file
+	* @param object		&$asset		the content type we are painting
+	* @param string		$prefix		prefix for form elements
+	* @param boolean	$editing	are we printing an editing interface
+	* @param boolean	$generating	are we genenerating the cache file
 	*
 	* @return void
 	* @access public
 	*/
-	function paint(&$asset, $prefix, $editing=false, $generating=false)
+	function paint(&$asset, $prefix, $editing=FALSE, $generating=FALSE)
 	{
 		echo $asset->attr('html');
 
@@ -79,8 +80,8 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints any icons the content type needs next to the cell properties
 	*
-	* @param object Content_Type	&$asset	the content type object
-	* @param string					$prefix	prefix for form elements
+	* @param object	&$asset	the content type object
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public

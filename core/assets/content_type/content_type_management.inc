@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_management.inc,v 1.3 2005/01/20 13:07:31 brobertson Exp $
+* $Id: content_type_management.inc,v 1.4 2006/01/17 21:40:33 lwright Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Content_Type_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -46,18 +47,21 @@ class Content_Type_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('name' => Array(
-											'added'     => '0.0.1',
-											'type'      => 'text',  'default'   => '',
-											'update_fn' => ''
-											),
-							'html' => Array(
-											'added'     => '0.0.1',
-											'type'      => 'text',  'default'   => '',
-											'update_fn' => ''
-											)
-							);
+		$this->vars = Array(
+						'name'	=> Array(
+									'added'		=> '0.0.1',
+									'type'		=> 'text',
+									'default'	=> '',
+								   ),
+						'html'	=> Array(
+									'added'		=> '0.0.1',
+									'type'		=> 'text',
+									'default'	=> '',
+								   ),
+					  );
+
 	}//end constructor
+
 
 }//end class
 ?>
