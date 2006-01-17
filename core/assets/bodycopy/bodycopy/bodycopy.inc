@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.30 2006/01/12 04:38:36 lwright Exp $
+* $Id: bodycopy.inc,v 1.31 2006/01/17 04:55:16 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,7 +61,7 @@ class Bodycopy extends Asset
 	/**
 	* Returns a list of lock types available for this asset type
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function lockTypes()
@@ -83,7 +83,7 @@ class Bodycopy extends Asset
 	*/
 	function saveSystemVersion()
 	{
-		if (!parent::saveSystemVersion()) return false;
+		if (!parent::saveSystemVersion()) return FALSE;
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		// save a version of the bodycopy as it appears now
@@ -120,16 +120,16 @@ class Bodycopy extends Asset
 		// save the contents of the bodycopy
 		if (!string_to_file($output, $this->data_path.'/.sq_system/.content_file.php')) {
 			trigger_localised_error('CORE0047', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		// save the links we currently use (./?a=xx)
 		if (!string_to_file(serialize($replace_assetids), $this->data_path.'/.sq_system/.notice_links')) {
 			trigger_localised_error('CORE0048', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end saveSystemVersion()
 
@@ -139,12 +139,12 @@ class Bodycopy extends Asset
 	*
 	* @param array	&$link		information used to create the initial link
 	* @param array	$bc_data	details for this bodycopy
-	*								['attributes']['identifier'] => id for the default div container
-	*								['content'] => html content for the default div container
+	*							['attributes']['identifier'] => id for the default div container
+	*							['content'] => html content for the default div container
 	*
-	* @see Asset::create()
-	* @return mixed int or false
+	* @return mixed int|boolean
 	* @access public
+	* @see Asset::create()
 	*/
 	function create(&$link, $bc_data=Array())
 	{
@@ -163,20 +163,20 @@ class Bodycopy extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _preCreateCheck(&$link)
 	{
-		if (!parent::_preCreateCheck($link)) return false;
+		if (!parent::_preCreateCheck($link)) return FALSE;
 
 		$name = trim($this->attr('name'));
 		if ($name == '') {
 			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _preCreateCheck()
 
@@ -186,10 +186,10 @@ class Bodycopy extends Asset
 	*
 	* Bodycopies create a DIV when they are created
 	*
-	* @param array	&$link		information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
@@ -197,7 +197,7 @@ class Bodycopy extends Asset
 		$bc_data = $this->_tmp['bodycopy_create_data'];
 		unset($this->_tmp['bodycopy_create_data']);
 
-		if (!parent::_createAdditional($link)) return false;
+		if (!parent::_createAdditional($link)) return FALSE;
 
 		// create a DIV
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy_div');
@@ -217,15 +217,15 @@ class Bodycopy extends Asset
 	* should be checked to work out what side of the link this asset is on. The return value should indicate
 	* if any of the link fields were changed.
 	*
-	* @param object Asset	$asset			the major or minor asset that we are linking to
-	* @param string			$side_of_link	the side of the link we are on (major or minor)
-	* @param string			$link_type		the type of link we are creating
-	* @param string			$value			the value that is to be associated with the link
-	* @param string			$sort_order		the position in the links list that this link should take,
-	* @param string			$dependant		'0' / '1' on whether the this asset is dependant on the
-	*										asset that will be linked by the new link
-	* @param string			$exclusive		'0' / '1' on whether the this asset is linked exclusivly
-	*										to the asset that will be linked by the new link
+	* @param object	&$asset			the major or minor asset that we are linking to
+	* @param string	$side_of_link	the side of the link we are on (major or minor)
+	* @param string	&$link_type		the type of link we are creating
+	* @param string	&$value			the value that is to be associated with the link
+	* @param string	&$sort_order	the position in the links list that this link should take,
+	* @param string	&$dependant		'0' / '1' on whether the this asset is dependant on the
+	*								asset that will be linked by the new link
+	* @param string	&$exclusive		'0' / '1' on whether the this asset is linked exclusivly
+	*								to the asset that will be linked by the new link
 	*
 	* @return boolean
 	* @access public
@@ -236,10 +236,10 @@ class Bodycopy extends Asset
 		if ($side_of_link == 'major' && is_a($asset, 'bodycopy_container') && $dependant != '1') {
 			$dependant = '1';
 			$link_type = SQ_LINK_TYPE_2;
-			return true;
+			return TRUE;
 		}
 
-		return false;
+		return FALSE;
 
 	}//end prepareLink()
 
@@ -254,7 +254,7 @@ class Bodycopy extends Asset
 	function _getAllowedLinks()
 	{
 
-		return Array(SQ_LINK_TYPE_2 => Array('bodycopy_container' => Array('card' => 'M', 'exclusive' => false)));
+		return Array(SQ_LINK_TYPE_2 => Array('bodycopy_container' => Array('card' => 'M', 'exclusive' => FALSE)));
 
 	}//end _getAllowedLinks()
 
@@ -262,8 +262,9 @@ class Bodycopy extends Asset
 	/**
 	* Prints out the backend interface for the asset
 	*
-	* @param object Backend_Outputter	&$o
+	* @param object	&$o	Backend_Outputter instance to use for painting
 	*
+	* @return void
 	* @access public
 	*/
 	function paintBackend(&$o)
@@ -340,7 +341,7 @@ class Bodycopy extends Asset
 			}
 		} else {
 			// get all the containers linked to this bodycopy
-			$containers = &$this->getContainers();
+			$containers =& $this->getContainers();
 
 			// paint each container
 			foreach ($containers as $container) {
@@ -348,7 +349,7 @@ class Bodycopy extends Asset
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end printBody()
 
@@ -356,13 +357,13 @@ class Bodycopy extends Asset
 	/**
 	* Get the name or short name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @return string
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
@@ -372,18 +373,20 @@ class Bodycopy extends Asset
 	/**
 	* To get all of the containers linked to this bodycopy
 	*
-	* @return Array(&object Container)
+	* Returns an array of Bodycopy_Container objects
+	*
+	* @return array
 	* @access public
 	*/
 	function &getContainers()
 	{
 		// get all the containers linked to this bodycopy
-		$container_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
+		$container_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
 		if (empty($container_links)) return Array();
 
 		$containers = Array();
 		foreach ($container_links as $container_data) {
-			$containers[] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+			$containers[] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
 		}
 
 		return $containers;
@@ -394,18 +397,18 @@ class Bodycopy extends Asset
 	/**
 	* Determine if there is no content in this bodycopy
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function isEmpty()
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
 		foreach ($containers as $container_data) {
-			$container = &$am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
-			if (!$container->isEmpty()) return false;
+			$container =& $am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+			if (!$container->isEmpty()) return FALSE;
 		}
-		return true;
+		return TRUE;
 
 	}//end isEmpty()
 
@@ -413,7 +416,7 @@ class Bodycopy extends Asset
 	/**
 	* To get the keywords that exist in the content of the bodycopy.
 	*
-	* @return Array(string)
+	* @return array
 	* @access public
 	*/
 	function getKeywords()
@@ -442,18 +445,18 @@ class Bodycopy extends Asset
 	/**
 	* Get the raw content of this bodycopy
 	*
-	* @return &string
+	* @return string
 	* @access public
 	*/
 	function getRawBodycopyContent()
 	{
-		$containers = &$this->getContainers();
+		$containers =& $this->getContainers();
 		$contents = '';
 
 		ob_start();
 			foreach ($containers as $container) {
-				$edit = &$container->getEditFns();
-				$edit->paint($container, false, true);
+				$edit =& $container->getEditFns();
+				$edit->paint($container, FALSE, TRUE);
 			}
 			$contents = ob_get_contents();
 		ob_end_clean();
@@ -466,18 +469,18 @@ class Bodycopy extends Asset
 	/**
 	* Sets the Array of keywords with their replacements
 	*
-	* @param Array $replacements an array with the keyword as the key and the replacement as the value
+	* @param array	$replacements	an array with the keyword as the key and the replacement as the value
 	*
 	* @return boolean
 	* @access public
 	*/
 	function setKeywordReplacements($replacements=Array())
 	{
-		if (!is_array($replacements)) return false;
-		if (empty($replacements)) return false;
+		if (!is_array($replacements)) return FALSE;
+		if (empty($replacements)) return FALSE;
 
 		$this->keyword_replacements = $replacements;
-		return true;
+		return TRUE;
 
 	}//end setKeywordReplacements()
 

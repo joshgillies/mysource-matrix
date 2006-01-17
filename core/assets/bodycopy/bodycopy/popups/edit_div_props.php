@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.18 2005/06/03 01:30:31 tbarrett Exp $
+* $Id: edit_div_props.php,v 1.19 2006/01/17 04:55:16 lwright Exp $
 *
 */
 
@@ -29,13 +29,13 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
 header('Pragma: no-cache');
-header('Expires: '. gmdate('D, d M Y H:i:s',time()-3600) . ' GMT');
+header('Expires: '.gmdate('D, d M Y H:i:s',time()-3600).' GMT');
 
 include(dirname(__FILE__).'/header.php');
 ?>

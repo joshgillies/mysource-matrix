@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: header.php,v 1.5 2005/01/20 13:07:31 brobertson Exp $
+* $Id: header.php,v 1.6 2006/01/17 04:55:16 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -105,7 +105,7 @@
 	</style>
 	<?php
 
-	if ($_GET['browser'] != "ns") {
+	if ($_GET['browser'] != 'ns') {
 		?><script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/detect.js';?>"></script><?php
 	}
 	?>
@@ -125,8 +125,13 @@
 </head>
 
 <?php
-	if ($_GET['page_width'])  $table_width  = 'width="'.$_GET['page_width'].'"';
-	if ($_GET['page_height']) $table_height = 'height="'.$_GET['page_height'].'"';
+	if ($_GET['page_width']) {
+		$table_width  = 'width="'.$_GET['page_width'].'"';
+	}
+
+	if ($_GET['page_height']) {
+		$table_height = 'height="'.$_GET['page_height'].'"';
+	}
 ?>
 
 <body topmargin="0" leftmargin="0" marginheight="0" marginwidth="0" onload="javascript: if(typeof popup_init == 'function') popup_init();" <?php echo $_GET['body_extra']?>>

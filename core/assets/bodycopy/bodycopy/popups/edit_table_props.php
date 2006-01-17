@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_props.php,v 1.9 2005/05/11 06:04:49 lwright Exp $
+* $Id: edit_table_props.php,v 1.10 2006/01/17 04:55:16 lwright Exp $
 *
 */
 
@@ -29,15 +29,15 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-header("Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0");
-header("Pragma: no-cache");
-header("Expires: ". gmdate("D, d M Y H:i:s",time()-3600) . " GMT");
+header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+header('Pragma: no-cache');
+header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
 
-include(dirname(__FILE__)."/header.php");
+include(dirname(__FILE__).'/header.php');
 ?>
 <script type="text/javascript" language="javascript" src="<?php echo sq_web_path('lib')?>/js/general.js"></script>
 <script language="JavaScript" type="text/javascript">
@@ -86,7 +86,7 @@ include(dirname(__FILE__)."/header.php");
 	Table Properties
 </div>
 <script language="JavaScript">
-if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementById('sq_edit_div_props_delete').innerHTML = '&nbsp;'; }
+if (owner.bodycopy_current_edit["can_delete"] == FALSE) { document.getElementById('sq_edit_div_props_delete').innerHTML = '&nbsp;'; }
 </script>
 
 <form name="main_form">
@@ -193,7 +193,7 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 				<table>
 					<tr>
 						<td class="label"><?php echo translate('background_colour'); ?>:</td>
-						<td><?php colour_box('bgcolor', '', true, '*',true, false, false);?></td>
+						<td><?php colour_box('bgcolor', '', TRUE, '*',TRUE, FALSE, FALSE);?></td>
 					</tr>
 					<!-- <tr>
 						<td class="label">Background Image:</td>
@@ -262,4 +262,4 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 </table>
 </form>
 
-<?php include(dirname(__FILE__)."/footer.php"); ?>
+<?php include(dirname(__FILE__).'/footer.php'); ?>

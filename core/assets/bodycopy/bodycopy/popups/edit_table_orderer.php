@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_orderer.php,v 1.6 2005/05/16 06:36:31 lwright Exp $
+* $Id: edit_table_orderer.php,v 1.7 2006/01/17 04:55:16 lwright Exp $
 *
 */
 
@@ -29,15 +29,15 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-header("Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0");
-header("Pragma: no-cache");
-header("Expires: ". gmdate("D, d M Y H:i:s",time()-3600) . " GMT");
+header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+header('Pragma: no-cache');
+header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
 
-include(dirname(__FILE__)."/header.php");
+include(dirname(__FILE__).'/header.php');
 ?>
 <script language="JavaScript" type="text/javascript">
 
@@ -111,10 +111,10 @@ include(dirname(__FILE__)."/header.php");
 						</select>
 					</td>
 					<td>
-						<a href="#" onClick="javascript: popup_move_type(true); return false;" onMouseOver="window.status='Move the Selection Up'; return true;" onMouseOut="javascript: window.status=''; return true;"><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/up_arrow.gif" width="15" height="15" border="0"></a><br>
+						<a href="#" onClick="javascript: popup_move_type(TRUE); return FALSE;" onMouseOver="window.status='Move the Selection Up'; return TRUE;" onMouseOut="javascript: window.status=''; return TRUE;"><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/up_arrow.gif" width="15" height="15" border="0"></a><br>
 						<br>
 						<br>
-						<a href="#" onClick="javascript: popup_move_type(false); return false;" onMouseOver="window.status='Move the Selection Down'; return true;" onMouseOut="javascript: window.status=''; return true;"><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/down_arrow.gif" width="15" height="15" border="0"></a>
+						<a href="#" onClick="javascript: popup_move_type(FALSE); return FALSE;" onMouseOver="window.status='Move the Selection Down'; return TRUE;" onMouseOut="javascript: window.status=''; return TRUE;"><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/down_arrow.gif" width="15" height="15" border="0"></a>
 					</td>
 				</tr>
 			</table>
@@ -133,4 +133,4 @@ include(dirname(__FILE__)."/header.php");
 	</tr>
 </form>
 </table>
-<?php include(dirname(__FILE__)."/footer.php"); ?>
+<?php include(dirname(__FILE__).'/footer.php'); ?>

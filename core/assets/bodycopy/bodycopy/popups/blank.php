@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: blank.php,v 1.4 2004/12/06 14:38:07 brobertson Exp $
+* $Id: blank.php,v 1.5 2006/01/17 04:55:16 lwright Exp $
 *
 */
 
@@ -29,17 +29,17 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 
 
-header("Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0");
-header("Pragma: no-cache");
-header("Expires: ". gmdate("D, d M Y H:i:s",time()-3600) . " GMT");
+header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+header('Pragma: no-cache');
+header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
 
-require(dirname(__FILE__)."/header.php");
+require(dirname(__FILE__).'/header.php');
 ?>
 <script language="JavaScript" type="text/javascript">
 	function popup_init() {
@@ -50,6 +50,6 @@ require(dirname(__FILE__)."/header.php");
 </script>
 <?php
 
-require(dirname(__FILE__)."/footer.php");
+require(dirname(__FILE__).'/footer.php');
 
 ?>

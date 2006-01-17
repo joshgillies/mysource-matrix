@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_cell_props.php,v 1.6 2005/05/11 06:04:49 lwright Exp $
+* $Id: edit_table_cell_props.php,v 1.7 2006/01/17 04:55:16 lwright Exp $
 *
 */
 
@@ -29,15 +29,15 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-header("Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0");
-header("Pragma: no-cache");
-header("Expires: ". gmdate("D, d M Y H:i:s",time()-3600) . " GMT");
+header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+header('Pragma: no-cache');
+header('Expires: '.gmdate('D, d M Y H:i:s',time()-3600).' GMT');
 
-include(dirname(__FILE__)."/header.php");
+include(dirname(__FILE__).'/header.php');
 ?>
 <script language="JavaScript" type="text/javascript">
 
@@ -156,7 +156,7 @@ include(dirname(__FILE__)."/header.php");
 			<table style="width:100%">
 				<tr>
 					<td class="label"><?php echo translate('background_colour'); ?>:</td>
-					<td><?php colour_box('bgcolor', '', true, '*',true, false, false);?></td>
+					<td><?php colour_box('bgcolor', '', TRUE, '*',TRUE, FALSE, FALSE);?></td>
 				</tr>
 				<tr>
 					<td class="label"><?php echo translate('no_text_wrap'); ?>:</td>
@@ -202,4 +202,4 @@ include(dirname(__FILE__)."/header.php");
 </table>
 </form>
 
-<?php include(dirname(__FILE__)."/footer.php"); ?>
+<?php include(dirname(__FILE__).'/footer.php'); ?>

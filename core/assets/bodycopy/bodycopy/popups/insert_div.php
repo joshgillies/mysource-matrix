@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_div.php,v 1.8 2005/05/11 06:04:49 lwright Exp $
+* $Id: insert_div.php,v 1.9 2006/01/17 04:55:16 lwright Exp $
 *
 */
 
@@ -29,15 +29,15 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-header("Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0");
-header("Pragma: no-cache");
-header("Expires: ". gmdate("D, d M Y H:i:s",time()-3600) . " GMT");
+header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+header('Pragma: no-cache');
+header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
 
-include(dirname(__FILE__)."/header.php");
+include(dirname(__FILE__).'/header.php');
 ?>
 <script type="text/javascript" language="javascript" src="<?php echo sq_web_path('lib')?>/js/general.js"></script>
 <script language="JavaScript" type="text/javascript">
@@ -106,4 +106,4 @@ include(dirname(__FILE__)."/header.php");
 </table>
 </form>
 
-<?php include(dirname(__FILE__)."/footer.php"); ?>
+<?php include(dirname(__FILE__).'/footer.php'); ?>
