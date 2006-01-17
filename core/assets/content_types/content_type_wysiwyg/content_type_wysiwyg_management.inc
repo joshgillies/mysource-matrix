@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_management.inc,v 1.5 2005/01/20 13:07:31 brobertson Exp $
+* $Id: content_type_wysiwyg_management.inc,v 1.6 2006/01/17 21:57:01 lwright Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Content_Type_WYSIWYG_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg.inc,v 1.8 2005/07/27 10:45:16 brobertson Exp $
+* $Id: content_type_wysiwyg.inc,v 1.9 2006/01/17 21:57:01 lwright Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *	Stores html content to be edited using the WYSIWYG editor
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Content_Type_WYSIWYG extends Content_Type
 {
+
 
 	/**
 	* Constructor
@@ -60,20 +61,19 @@ class Content_Type_WYSIWYG extends Content_Type
 	*
 	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
 	*
-	* @return bool
+	* @return boolean
 	* @access public
 	*/
 	function morph($new_type_code)
 	{
-		if (!parent::morph($new_type_code)) {
-			return false;
-		}
+		if (!parent::morph($new_type_code))	return FALSE;
+
 		if (str_replace(Array("\r","\n"), Array('',''), $this->attr('html')) == '<br>') {
 			// work around mozilla wysiwyg bug
 			$this->setAttrValue('html', '');
 			$this->saveAttributes();
 		}
-		return true;
+		return TRUE;
 
 	}//end morph()
 

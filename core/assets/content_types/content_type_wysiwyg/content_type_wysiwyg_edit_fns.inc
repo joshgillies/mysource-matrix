@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.21 2005/07/11 05:43:08 dmckee Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.22 2006/01/17 21:57:01 lwright Exp $
 *
 */
 
@@ -33,12 +33,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -52,12 +53,12 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 
 
 	/**
-	* Sets the various params for this WYSIWYG editor
+	* Sets the various params for this WYSIWYG editor, and returns a Fudge WYSIWYG object
 	*
-	* @param object Content_Type_WYSIWYG	&$asset	the wysiwyg content type object
-	* @param string							$prefix	prefix for form elements
+	* @param object	&$asset	the WYSIWYG Content Type object
+	* @param string	$prefix	prefix for form elements
 	*
-	* @return object WYSIWYG
+	* @return object
 	* @access private
 	*/
 	function &_createEditor(&$asset, $prefix)
@@ -71,12 +72,12 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 
 			$html = $asset->attr('html');
 
-			$wysiwyg = new wysiwyg($prefix, sq_web_path('fudge').'/wysiwyg/');
+			$wysiwyg =& new WYSIWYG($prefix, sq_web_path('fudge').'/wysiwyg/');
 
 			$wysiwyg_style = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_WYSIWYG_STYLE');
 			$wysiwyg->set_body_type($wysiwyg_style['body_type']);
-			$wysiwyg->set_init_onload(false);
-			$wysiwyg->set_show_status_bar(false);
+			$wysiwyg->set_init_onload(FALSE);
+			$wysiwyg->set_show_status_bar(FALSE);
 			$wysiwyg->set_width($wysiwyg_style['width']);
 			$wysiwyg->set_height($wysiwyg_style['height']);
 
@@ -91,7 +92,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$wysiwyg->add_absolute_url_check('\./\?(a=[0-9]+)', 'http://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?$1');
 
 			// get the keyword replacements
-			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$keywords = Array();
 			$keyword_vars = Array('keywords' => &$keywords);
 
@@ -99,57 +100,103 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 
 
 			$wysiwyg->open_group();
-				if ($iap || in_array('format_text', $ap)) $wysiwyg->add_plugin('format_text');
+				if ($iap || in_array('format_text', $ap)) {
+					$wysiwyg->add_plugin('format_text');
+				}
 				if ($iap || in_array('replace_text', $ap)) {
 					$wysiwyg->add_plugin('replace_text');
 				}
-				if ($iap || in_array('format_font', $ap)) $wysiwyg->add_plugin('format_font');
-				if ($iap || in_array('general', $ap))     $wysiwyg->add_plugin('general');
-				if ($iap || in_array('s_script', $ap))    $wysiwyg->add_plugin('s_script');
+				if ($iap || in_array('format_font', $ap)) {
+					$wysiwyg->add_plugin('format_font');
+				}
+				if ($iap || in_array('general', $ap)) {
+					$wysiwyg->add_plugin('general');
+				}
+				if ($iap || in_array('s_script', $ap)) {
+					$wysiwyg->add_plugin('s_script');
+				}
 			$wysiwyg->close_group();
 
 			$wysiwyg->open_group();
-				if ($iap || in_array('matrix_apply_style', $ap)) $wysiwyg->add_plugin('matrix_apply_style');
+				if ($iap || in_array('matrix_apply_style', $ap)) {
+					$wysiwyg->add_plugin('matrix_apply_style');
+				}
 			$wysiwyg->close_group();
 
-			if ($iap || in_array('justify_text', $ap)) $wysiwyg->add_plugin('justify_text');
+			if ($iap || in_array('justify_text', $ap)) {
+				$wysiwyg->add_plugin('justify_text');
+			}
 			if (($iap || in_array('keyword_replace', $ap)) && !empty($keywords)) {
 				$wysiwyg->add_plugin('keyword_replace');
-				$keyword_replace = &$wysiwyg->get_plugin('keyword_replace');
+				$keyword_replace =& $wysiwyg->get_plugin('keyword_replace');
 				$keyword_replace->keyword_tag = '%';
 				$keyword_replace->keywords = $keywords;
 			}
-			if ($iap || in_array('history', $ap))     $wysiwyg->add_plugin('history');
-			if ($iap || in_array('indenting', $ap))     $wysiwyg->add_plugin('indenting');
-			if ($iap || in_array('listing', $ap))       $wysiwyg->add_plugin('listing');
-			if ($iap || in_array('table_editing', $ap)) $wysiwyg->add_plugin('table_editing');
-			if ($iap || in_array('select_color', $ap))  $wysiwyg->add_plugin('select_color');
+			if ($iap || in_array('history', $ap)) {
+				$wysiwyg->add_plugin('history');
+			}
+			if ($iap || in_array('indenting', $ap)) {
+				$wysiwyg->add_plugin('indenting');
+			}
+			if ($iap || in_array('listing', $ap)) {
+				$wysiwyg->add_plugin('listing');
+			}
+			if ($iap || in_array('table_editing', $ap)) {
+				$wysiwyg->add_plugin('table_editing');
+			}
+			if ($iap || in_array('select_color', $ap)) {
+				$wysiwyg->add_plugin('select_color');
+			}
 
 			$wysiwyg->open_group();
-				if ($iap || in_array('matrix_insert_link', $ap) || in_array('insert_link', $ap))  $wysiwyg->add_plugin('matrix_insert_link');
-				if ($iap || in_array('matrix_insert_anchor', $ap) || in_array('insert_anchor', $ap))  $wysiwyg->add_plugin('matrix_insert_anchor');
-				if ($iap || in_array('matrix_insert_image', $ap) || in_array('insert_image', $ap)) $wysiwyg->add_plugin('matrix_insert_image');
-				if ($iap || in_array('matrix_embed_movie', $ap))  $wysiwyg->add_plugin('matrix_embed_movie');
+				if ($iap || in_array('matrix_insert_link', $ap) || in_array('insert_link', $ap)) {
+					$wysiwyg->add_plugin('matrix_insert_link');
+				}
+				if ($iap || in_array('matrix_insert_anchor', $ap) || in_array('insert_anchor', $ap)) {
+					$wysiwyg->add_plugin('matrix_insert_anchor');
+				}
+				if ($iap || in_array('matrix_insert_image', $ap) || in_array('insert_image', $ap)) {
+					$wysiwyg->add_plugin('matrix_insert_image');
+				}
+				if ($iap || in_array('matrix_embed_movie', $ap)) {
+					$wysiwyg->add_plugin('matrix_embed_movie');
+				}
 			$wysiwyg->close_group();
 
 			$wysiwyg->open_group();
-				if ($iap || in_array('matrix_accessibility', $ap))  $wysiwyg->add_plugin('matrix_accessibility');
+				if ($iap || in_array('matrix_accessibility', $ap)) {
+					$wysiwyg->add_plugin('matrix_accessibility');
+				}
 			$wysiwyg->close_group();
 
 			$wysiwyg->open_group();
-				if ($iap || in_array('spell_checker', $ap))  $wysiwyg->add_plugin('spell_checker');
-				if ($iap || in_array('text_indicator', $ap)) $wysiwyg->add_plugin('text_indicator');
-				if ($iap || in_array('view_source', $ap))    $wysiwyg->add_plugin('view_source');
-				if ($iap || in_array('help', $ap))           $wysiwyg->add_plugin('help');
+				if ($iap || in_array('spell_checker', $ap)) {
+					$wysiwyg->add_plugin('spell_checker');
+				}
+				if ($iap || in_array('text_indicator', $ap)) {
+					$wysiwyg->add_plugin('text_indicator');
+				}
+				if ($iap || in_array('view_source', $ap)) {
+					$wysiwyg->add_plugin('view_source');
+				}
+				if ($iap || in_array('help', $ap)) {
+					$wysiwyg->add_plugin('help');
+				}
 			$wysiwyg->close_group();
 
 			// html_tidy needs to be last so other plugins can set options
-			if ($iap || in_array('html_tidy', $ap)) $wysiwyg->add_plugin('html_tidy');
+			if ($iap || in_array('html_tidy', $ap)) {
+				$wysiwyg->add_plugin('html_tidy');
+			}
 
-			if ($iap || in_array('matrix_expand_keywords', $ap)) $wysiwyg->add_plugin('matrix_expand_keywords');
+			if ($iap || in_array('matrix_expand_keywords', $ap)) {
+				$wysiwyg->add_plugin('matrix_expand_keywords');
+			}
 
 			$wysiwyg->open_group();
-				if ($iap || in_array('special_chars', $ap))  $wysiwyg->add_plugin('special_chars');
+				if ($iap || in_array('special_chars', $ap)) {
+					$wysiwyg->add_plugin('special_chars');
+				}
 			$wysiwyg->close_group();
 
 			// contents must be set AFTER all plugins are loaded
@@ -157,7 +204,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 
 			$this->_tmp['wysiwg_object'] = $wysiwyg;
 
-		}
+		}//end if WYSIWYG object doesn't already exist
 
 		return $this->_tmp['wysiwg_object'];
 
@@ -167,8 +214,8 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Prints the backend interface for this WYSIWYG editor
 	*
-	* @param object Content_Type_WYSIWYG	&$asset	the wysiwyg content type object
-	* @param string							$prefix	prefix for form elements
+	* @param object	&$asset	the WYSIWYG Content Type object
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -176,13 +223,13 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	function paintBackend(&$asset, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
-			$wysiwyg = &$this->_createEditor($asset, $prefix);
+			$wysiwyg =& $this->_createEditor($asset, $prefix);
 			?>
 			<div style="display:none;" id="<?php echo $prefix?>_wysiwyg_div"><?php echo $wysiwyg->paint(); ?></div>
 			<div id="<?php echo $prefix?>_contents_div" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}"><?php echo $wysiwyg->contents ?></div>
 			<?php
 		}
-		return true;
+		return TRUE;
 
 	}//end paintBackend()
 
@@ -190,8 +237,8 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Prints any icons the content type needs next to the cell properties
 	*
-	* @param object Content_Type_WYSIWYG	&$asset	the wysiwyg content type object
-	* @param string							$prefix	prefix for form elements
+	* @param object	&$asset	the WYSIWYG Content Type object
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
@@ -206,15 +253,15 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Paints raw HTML
 	*
-	* @param object Content_Type_WYSIWYG	$asset		the wysiwyg object
-	* @param string							$prefix		prefix for form elements
-	* @param boolean						$editing	are we printing an editing interface
-	* @param boolean						$generating	are we genenerating the cache file
+	* @param object		&$asset		the WYSIWYG Content Type object
+	* @param string		$prefix		prefix for form elements
+	* @param boolean	$editing	are we printing an editing interface
+	* @param boolean	$generating	are we genenerating the cache file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paint(&$asset, $prefix, $editing=false, $generating=false)
+	function paint(&$asset, $prefix, $editing=FALSE, $generating=FALSE)
 	{
 		$html = $asset->attr('html');
 		$html = preg_replace('|(<htmlarea_special[^>]*?>)(.*?)(</htmlarea_special>)|si', '$2', $html);
@@ -226,9 +273,9 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Processes the backend interface for this WYSIWYG editor
 	*
-	* @param array(string)					$link	information used to create the initial link
-	* @param object Content_Type_WYSIWYG	&$asset	the wysiwyg content type object
-	* @param string							$prefix	prefix for form elements
+	* @param array	$link	information used to create the initial link
+	* @param object	&$asset	the WYSIWYG Content Type object
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -236,15 +283,15 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	function processBackend($link, &$asset, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
-			$wysiwyg = &$this->_createEditor($asset, $prefix);
+			$wysiwyg =& $this->_createEditor($asset, $prefix);
 			$html = $wysiwyg->process();
 
 			$current_html = $asset->attr('html');
 			if ($html != $current_html) {
-				if ($asset->setAttrValue('html', $html)) return true;
+				if ($asset->setAttrValue('html', $html)) return TRUE;
 			}
 		}
-		return false;
+		return FALSE;
 
 	}//end processBackend()
 
