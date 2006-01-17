@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.34 2005/11/23 02:44:30 gsherwood Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.35 2006/01/17 04:49:14 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,25 +62,25 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for creating containers in the bodycopy
 	*
-	* @param object Bodycopy			&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend_Outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function paintBodycopy(&$asset, &$o, $prefix)
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$write_access = $asset->writeAccess('content');
-		//variable to determine whether or not to allow commit
+		// variable to determine whether or not to allow commit
 		$print_commit_button = $write_access;
 
 		if (isset($GLOBALS['sq_preview_url']) && !empty($GLOBALS['sq_preview_url'])) {
 			$url = $GLOBALS['sq_preview_url'];
 			$url = preg_replace('|^http[s]?://|', '', $url);
 
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT value
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
 			$where = '    url = '.$db->quote($url).'
@@ -92,7 +92,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 			if ($designid) {
 
-				$design = &$am->getAsset($designid);
+				$design =& $am->getAsset($designid);
 				$stylesheets = $design->getStylesheets();
 
 				// save the ids of all the css files into a global var so the wysiwyg style
@@ -111,10 +111,10 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		// get all the containers linked to this bodycopy
-		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
+		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
 		if (!$write_access) {
 			foreach ($containers as $container_data) {
-				$container = &$am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+				$container =& $am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
 				if ($container->useSystemVersion()) {
 					$container->printBody();
 				} else {
@@ -122,7 +122,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 					$container_edit->paintContainer($container, $o, $prefix);
 				}
 			}
-			return false;
+			return FALSE;
 		}
 
 		// the initial width and height to have the layer display created at;
@@ -142,11 +142,11 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		<input type="hidden" name="bodycopy_data"   value="">
 
 		<script type="text/javascript">
-			//php vars
+			// php vars
 			var backendHref = "<?php echo $asset->getBackendHref('show_popup');?>";
 			var init_layer_width = <?php echo $init_layer_width?>;
 			var init_layer_height = <?php echo $init_layer_height?>;
-			var bodycopy_types = '<?php echo var_serialise($content_types, true)?>';
+			var bodycopy_types = '<?php echo var_serialise($content_types, TRUE)?>';
 			var _prefix = "<?php echo $prefix; ?>";
 			var asset_id = "<?php echo $asset->id; ?>";
 		</script>
@@ -166,8 +166,8 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$container_types = $am->getTypeDescendants('bodycopy_container');
 		foreach ($container_types as $type) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type);
-			$type_asset = new $type();
-			$edit_fns = $type_asset->getEditFns();
+			$type_asset =& new $type();
+			$edit_fns =& $type_asset->getEditFns();
 			$edit_fns->paintGenericBackend($asset, $o, $prefix);
 		}
 
@@ -218,7 +218,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		// for each container, print it's editing interface
 		$i = 0;
 		foreach ($containers as $container_data) {
-			$container = &$am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+			$container =& $am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
 			$container_edit = $container->getEditFns();
 
 			if ($write_access) {
@@ -237,13 +237,13 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 									?>
 									<td>
 										<?php
-											Bodycopy_Edit_Fns::printBodycopyIcon("document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_before_{$i}.value; bodycopy_insert_container('$prefix', $i, true)", translate('insert_container'), translate('select_container_type'), 'create_container', '['.translate('insert').']');
+											Bodycopy_Edit_Fns::printBodycopyIcon("document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_before_{$i}.value; bodycopy_insert_container('$prefix', $i, TRUE)", translate('insert_container'), translate('select_container_type'), 'create_container', '['.translate('insert').']');
 										?>
 									</td>
 									<td class="sq-backend-data" valign="top">
 										<?php
 										echo '&nbsp;&nbsp;'.translate('create_new').' ';
-										echo combo_box($prefix.'_insert_container_type_before_'.$i, $container_type_options, false, '');
+										echo combo_box($prefix.'_insert_container_type_before_'.$i, $container_type_options, FALSE, '');
 										?>
 									</td>
 								<?php
@@ -262,8 +262,8 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			?>
 			<tr>
 			<td><?php
-			if ($container_edit->paintContainer($container, $o, $prefix) == true) {
-				$print_commit_button = true;
+			if ($container_edit->paintContainer($container, $o, $prefix) == TRUE) {
+				$print_commit_button = TRUE;
 			}
 			?></td>
 			</tr>
@@ -290,13 +290,13 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 								?>
 								<td>
 									<?php
-									Bodycopy_Edit_Fns::printBodycopyIcon("document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_after_{$i}.value; bodycopy_insert_container('$prefix', $i, false)", translate('insert_container'), translate('select_container_type'), 'create_container', '['.translate('insert').']');
+									Bodycopy_Edit_Fns::printBodycopyIcon("document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_after_{$i}.value; bodycopy_insert_container('$prefix', $i, FALSE)", translate('insert_container'), translate('select_container_type'), 'create_container', '['.translate('insert').']');
 									?>
 								</td>
 								<td class="sq-backend-data" valign="top">
 									<?php
 									echo '&nbsp;&nbsp;'.translate('create_new').' ';
-									echo combo_box($prefix.'_insert_container_type_after_'.$i, $container_type_options, false, '');
+									echo combo_box($prefix.'_insert_container_type_after_'.$i, $container_type_options, FALSE, '');
 									?>
 								</td>
 							<?php
@@ -326,18 +326,18 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for creating containers in the bodycopy
 	*
-	* @param object Asset				$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the Backend_Outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processBodycopy(&$asset, &$o, $prefix)
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
-		$updated = false;
+		$updated = FALSE;
 
 		// do some thing for the first time we process a bodycopy on this page
 		if (empty($this->_tmp['update_initialised'])) {
@@ -347,7 +347,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			$bc_saved  = (empty($_POST['bodycopy_saved']))  ? Array() : $_POST['bodycopy_saved'];
 
 			if (empty($bc_data) && empty($bc_saved)) {
-				return false;
+				return FALSE;
 			}
 
 			// if there is some bodycopy data, deserialise it into the arrays
@@ -356,7 +356,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 			// unserialize the data for a bodycopy.
 			for (reset($bc_saved); NULL !== ($k = key($bc_saved)); next($bc_saved)) {
-				$containers = &$bc_saved[$k];
+				$containers =& $bc_saved[$k];
 				for (reset($containers); NULL !== ($containersid = key($containers)); next($containers)) {
 					$containers[$containersid] = var_unserialise($containers[$containersid]);
 				}
@@ -364,18 +364,18 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 			unset($containers);
 
-			$this->_tmp['update_initialised'] = true;
+			$this->_tmp['update_initialised'] = TRUE;
 		}
 
 		// get all the containers linked to this bodycopy
-		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
+		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
 
 		// process each of the containers
 		foreach ($containers as $container_data) {
-			$container = &$am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+			$container =& $am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
 			$container_edit = $container->getEditFns();
 			if ($container_edit->processContainer($container, $o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved)) {
-				if ($container->saveAttributes()) $updated = true;
+				if ($container->saveAttributes()) $updated = TRUE;
 			}
 		}
 
@@ -386,13 +386,13 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				switch ($bc_action) {
 					case 'insert_container' :
 						if ($this->insertContainer($asset, $bc_data['container_type'], $bc_data['containerid'], $bc_data)) {
-							$updated = true;
+							$updated = TRUE;
 						}
 					break;
 
 					case 'delete_container' :
 						if ($this->deleteContainer($asset, $bc_data['containerid'])) {
-							$updated = true;
+							$updated = TRUE;
 						}
 					break;
 				}//end switch
@@ -407,10 +407,10 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Insert a new container into this bodycopy
 	*
-	* @param object Asset	&$asset			the bodycopy
-	* @param string			$type			the type of the container (table, div etc)
-	* @param int			$containerid	the ID of the container to insert before/after
-	* @param array			$bc_data		the array of bodycopy data that got posted
+	* @param object	&$asset			the bodycopy
+	* @param string	$type			the type of the container (table, div etc)
+	* @param int	$containerid	the ID of the container to insert before/after
+	* @param array	$bc_data		the array of bodycopy data that got posted
 	*
 	* @return boolean
 	* @access public
@@ -418,7 +418,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	function insertContainer(&$asset, $type, $containerid, $bc_data)
 	{
 		// get all the containers linked to this bodycopy
-		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
+		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
 		$num_containers = count($containers);
 
 		$containerid = intval($containerid);
@@ -439,7 +439,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 		$asset_type = 'bodycopy_'.$type;
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($asset_type);
-		$new_container = new $asset_type();
+		$new_container =& new $asset_type();
 		$new_container->setAttrValue('name', 'New '.ucfirst($type));
 		$new_container->setAttrValue('attributes', $bc_data['attributes']);
 		$retval = (bool) $new_container->create($copy_link, $bc_data);
@@ -458,18 +458,18 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Unlink a container from this bodycopy (effectivly deleting it from this bodycopy)
 	*
-	* @param object Asset	&$asset			the bodycopy
-	* @param int			$containerid	the ID of the container to delete
+	* @param object	&$asset			the bodycopy
+	* @param int	$containerid	the ID of the container to delete
 	*
 	* @return boolean
 	* @access public
 	*/
 	function deleteContainer(&$asset, $containerid)
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		// get all the containers linked to this bodycopy
-		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
+		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
 		foreach ($containers as $container_data) {
 			if ($container_data['minorid'] == $containerid) {
 				// found the container to delete
@@ -477,7 +477,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		return false;
+		return FALSE;
 
 	}//end deleteContainer()
 
@@ -485,16 +485,17 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Print an icon for a bodycopy action
 	*
-	* @param string $onclick	JS to execute when the icon is clicked
-	* @param string $heading	The heading for the tooltip
-	* @param string $desc		The main body of the tooltip
-	* @param string $icon		The filename base of the icon to display (must be a PNG)
-	* @param string $extra		Any extra HTML you want to put in the IMG tag
-	* @param string $width		The width of the icon
-	* @param string $height		The height of the icon
+	* @param string	$onclick	JS to execute when the icon is clicked
+	* @param string	$heading	The heading for the tooltip
+	* @param string	$desc		The main body of the tooltip
+	* @param string	$icon		The filename base of the icon to display (must be a PNG)
+	* @param string	$alt		Alternate text for the icon
+	* @param string	$extra		Any extra HTML you want to put in the IMG tag
+	* @param string	$width		The width of the icon
+	* @param string	$height		The height of the icon
 	*
-	* @access  public
 	* @return void
+	* @access public
 	*/
 	function printBodycopyIcon($onclick, $heading, $desc, $icon, $alt='', $extra='', $width='16', $height='16')
 	{
