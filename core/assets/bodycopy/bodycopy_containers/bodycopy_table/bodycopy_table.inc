@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table.inc,v 1.14 2005/07/15 04:28:59 tbarrett Exp $
+* $Id: bodycopy_table.inc,v 1.15 2006/01/17 06:08:12 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once(dirname(__FILE__).'/bodycopy_table_cell.inc');
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,7 +48,7 @@ class Bodycopy_Table extends Bodycopy_Container
 	*/
 	function Bodycopy_Table($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Bodycopy_Container($assetid);
 
 	}//end constructor
@@ -61,8 +61,8 @@ class Bodycopy_Table extends Bodycopy_Container
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
@@ -70,7 +70,7 @@ class Bodycopy_Table extends Bodycopy_Container
 		$bc_data = $this->_tmp['bodycopy_create_data'];
 		unset($this->_tmp['bodycopy_create_data']);
 
-		if (!parent::_createAdditional($link)) return false;
+		if (!parent::_createAdditional($link)) return FALSE;
 
 		$num_rows = $bc_data['num_rows'];
 		$num_cols = $bc_data['num_cols'];
@@ -84,7 +84,7 @@ class Bodycopy_Table extends Bodycopy_Container
 				// short and long names are the same to begin with
 				$content_type = $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DEFAULT_CONTENT_TYPE');
 				if (!$rows[$i]['cells'][$x]->setContentType($this, $content_type, $i, $x)) {
-					return false;
+					return FALSE;
 				}
 			}
 		}
@@ -92,10 +92,10 @@ class Bodycopy_Table extends Bodycopy_Container
 		// set row information
 		$this->setAttrValue('rows', $rows);
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes') || !$this->saveAttributes()) {
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _createAdditional()
 
@@ -103,9 +103,9 @@ class Bodycopy_Table extends Bodycopy_Container
 	/**
 	* Remaps existing assetids used by this asset to new ones
 	*
-	* @param Array	&$map	a map of the form Array([old asset id] => [new asset id]);
+	* @param array	$map	a map of the form Array([old asset id] => [new asset id]);
 	*
-	* @return bool
+	* @return boolean
 	* @access public
 	*/
 	function remapAssetids($map)
@@ -113,19 +113,19 @@ class Bodycopy_Table extends Bodycopy_Container
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		if (!parent::remapAssetids($map)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		$old_assetid = array_search($this->id, $map);
 
-		//get our clone and make it update its tables array
+		// get our clone and make it update its tables array
 		if (isset($map[$this->id])) {
 			$child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($this->id, SQ_LINK_TYPE_2);
 			$new_clone =& $GLOBALS['SQ_SYSTEM']->am->getAsset($map[$this->id]);
 
 			if (!$new_clone->remapTableLinks($map, $child_links)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+				return FALSE;
 			}
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($new_clone);
@@ -133,15 +133,15 @@ class Bodycopy_Table extends Bodycopy_Container
 
 		if ($old_assetid === FALSE) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
+			return TRUE;
 		}
 
-		$old_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($old_assetid, $this->type());
-		$our_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, 'content_type', false);
+		$old_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($old_assetid, $this->type());
+		$our_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, 'content_type', FALSE);
 
 		if (is_null($old_asset) || empty($our_links)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
+			return TRUE;
 		}
 		$rows = $this->attr('rows');
 
@@ -168,10 +168,10 @@ class Bodycopy_Table extends Bodycopy_Container
 
 		if ($this->setAttrValue('rows', $rows)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
+			return TRUE;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 	}//end remapAssetids()
@@ -180,11 +180,11 @@ class Bodycopy_Table extends Bodycopy_Container
 	/**
 	* remaps the tables array so the links are correct
 	*
-	* @param Array	&$map	      a map of the form Array([old asset id] => [new asset id])
-	* @param Array  $child_links  All the link info from the asset we were cloned from we need
+	* @param array	&$map			a map of the form Array([old asset id] => [new asset id])
+	* @param array	&$child_links	All the link info from the asset we were cloned from we need
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function remapTableLinks(&$map, &$child_links)
 	{
@@ -219,7 +219,8 @@ class Bodycopy_Table extends Bodycopy_Container
 
 		$this->saveAttributes();
 
-		return true;
+		return TRUE;
+
 	}//end remapTableLinks()
 
 

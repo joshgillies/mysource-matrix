@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_management.inc,v 1.7 2005/01/20 13:07:31 brobertson Exp $
+* $Id: bodycopy_div_management.inc,v 1.8 2006/01/17 06:08:12 lwright Exp $
 *
 */
 
@@ -30,12 +30,14 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Bodycopy_Container_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Bodycopy_Div_Management extends Asset_Management
 {
+
+
 	/**
 	* Constructor
 	*
@@ -45,6 +47,7 @@ class Bodycopy_Div_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 	}//end constructor
+
 
 }//end class
 

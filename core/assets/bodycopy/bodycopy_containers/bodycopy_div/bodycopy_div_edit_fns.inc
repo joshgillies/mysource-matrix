@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.23 2005/05/12 06:24:17 tbarrett Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.24 2006/01/17 06:08:12 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,8 +53,8 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Prints the JavaScript needed by the backend functions for this div
 	*
-	* @param object Bodycopy_Div	&$asset	the div object being printed
-	* @param string					$prefix	prefix for form fields
+	* @param object	&$asset	the div object being printed
+	* @param string	$prefix	prefix for form fields
 	*
 	* @return void
 	* @access public
@@ -67,7 +67,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		?>
 					case <?php echo $asset->id?> :
 
-						retVal["attributes"] = '<?php echo var_serialise($div_attributes, true)?>';
+						retVal["attributes"] = '<?php echo var_serialise($div_attributes, TRUE)?>';
 
 					break;
 		<?php
@@ -78,9 +78,9 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Paint JS data that divs need to use to do their processing
 	*
-	* @param object Bodycopy			&$bodycopy	the bodycopy being printed
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form element
+	* @param object	&$bodycopy	the bodycopy being printed
+	* @param object	&$o			the Backend Outputter instance
+	* @param string	$prefix		prefix for the form element
 	*
 	* @return void
 	* @access public
@@ -93,7 +93,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		if (is_a($bodycopy, 'bodycopy_div')) {
 			$containers = Array(Array('minorid'=>$bodycopy->id, 'minor_type_code'=>'bodycopy_div'));
 		} else {
-			$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($bodycopy->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
+			$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($bodycopy->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
 		}
 
 		?>
@@ -102,9 +102,9 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		<script language="JavaScript" type="text/javascript">
 		function serialise_div(bodycopy_name, bodycopy_data, divid) {
 			var form = document.main_form;
-			if (!bodycopy_saved[bodycopy_name] && bodycopy_name != null) bodycopy_saved[bodycopy_name] = new Object();
+			if (!bodycopy_saved[bodycopy_name] && bodycopy_name != NULL) bodycopy_saved[bodycopy_name] = new Object();
 
-			if (divid != null) {
+			if (divid != NULL) {
 				if (!bodycopy_saved[bodycopy_name][divid]) {
 					bodycopy_saved[bodycopy_name][divid] = new Object();
 				}
@@ -117,7 +117,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		// general fn that the generic include fns can use to get data to use
 		function get_bodycopy_current_div_data(bodycopy_name, divid) {
-			if (divid == null) divid = -1;
+			if (divid == NULL) divid = -1;
 			return bodycopy_current_data[bodycopy_name].get_div_data(divid);
 		}
 
@@ -131,8 +131,11 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		$i = 0;
 		if (count($containers)) {
 			foreach ($containers as $container_data) {
-				if ($container_data['minor_type_code'] != 'bodycopy_div') continue;
-				$div = &$GLOBALS['SQ_SYSTEM']->am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+				if ($container_data['minor_type_code'] != 'bodycopy_div') {
+					continue;
+				}
+
+				$div =& $GLOBALS['SQ_SYSTEM']->am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
 				$div_edit = $div->getEditFns();
 				$div_edit->paintBackendJsData($div, $prefix, $i);
 				$i++;
@@ -169,17 +172,19 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Paints this div as HTML
 	*
-	* @param object Bodycopy_Div	&$asset		the div whose interface we are painting
-	* @param boolean				$editing	are we printing an editing interface
-	* @param booelan				$generating	are we generating the content file
+	* @param object		&$asset		the div whose interface we are painting
+	* @param boolean	$editing	are we printing an editing interface
+	* @param boolean	$generating	are we generating the content file
 	*
 	* @return void
 	* @access public
 	*/
-	function paint(&$asset, $editing=false, $generating=false)
+	function paint(&$asset, $editing=FALSE, $generating=FALSE)
 	{
 		$div_attributes = $asset->attr('attributes');
-		if (!isset($div_attributes['layout_type'])) $div_attributes['layout_type'] = 'div';
+		if (!isset($div_attributes['layout_type'])) {
+			$div_attributes['layout_type'] = 'div';
+		}
 
 		$attribute_list = '';
 
@@ -187,17 +192,17 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			$val = $div_attributes[$name];
 			if ($val == '') continue;
 
-			$skip_attribute = false;
+			$skip_attribute = FALSE;
 			switch ($name) {
 				case 'layout_type':
 				case 'content_type':
 				case 'identifier':
 				case 'disable_keywords':
-					$skip_attribute = true;
-					break;
+					$skip_attribute = TRUE;
+				break;
 				case 'css_class':
 					$name = 'class';
-					break;
+				break;
 			}
 
 			if ($skip_attribute) continue;
@@ -209,25 +214,29 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		$attribute_list .= ' '.'id="'.str_replace('"', '&quot;', $val).'"';
 
 		// print DIV or SPAN tag if we are not printing raw HTML
-		if ($div_attributes['layout_type'] != 'none') echo "\n<".strtolower($div_attributes['layout_type']).$attribute_list.">\n";
+		if ($div_attributes['layout_type'] != 'none') {
+			echo "\n<".strtolower($div_attributes['layout_type']).$attribute_list.">\n";
+		}
 
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'content_type', false, 'div_contents', 'major', true);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'content_type', FALSE, 'div_contents', 'major', TRUE);
 
 		if (!empty($link)) {
-			$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$content_type =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($content_type)) {
 				echo translate('content_type_not_found', $link['minorid']);
 			} else {
-				$content_edit = &$content_type->getEditFns();
+				$content_edit =& $content_type->getEditFns();
 				$content_prefix = $asset->getPrefix().'_'.get_class($content_type).'_'.$link['linkid'];
 				$content_edit->paint($content_type, $content_prefix, $editing, $generating);
 			}
 		}
 
 		// print end DIV or SPAN tag if we are not printing raw HTML
-		if ($div_attributes['layout_type'] != 'none') echo "\n</".strtolower($div_attributes['layout_type']).">\n";
+		if ($div_attributes['layout_type'] != 'none') {
+			echo "\n</".strtolower($div_attributes['layout_type']).">\n";
+		}
 
-		return true;
+		return TRUE;
 
 	}//end paint()
 
@@ -235,16 +244,18 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Paint the interface for editing this div
 	*
-	* @param object Bodycopy_Div		&$asset	the div whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the div whose interface we are painting
+	* @param object	&$o		the Backend Outputter instance
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function paintContainer(&$asset, &$o, $prefix)
 	{
-		if (!parent::paintContainer($asset, $o, $prefix)) return false;
+		if (!parent::paintContainer($asset, $o, $prefix)) {
+			return FALSE;
+		}
 
 		$div_attributes = $asset->attr('attributes');
 
@@ -260,12 +271,12 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			}
 		}
 
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'content_type', false, 'div_contents', 'major', true);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'content_type', FALSE, 'div_contents', 'major', TRUE);
 		if (!empty($link)) {
-			$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$content_type =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			$content_prefix = $prefix.'_'.get_class($content_type).'_'.$link['linkid'];
 		} else {
-			$content_type = null;
+			$content_type = NULL;
 			$content_prefix = '';
 		}
 
@@ -277,10 +288,10 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			<tr>
 				<td align="left" background="" id="<?php echo $prefix.'_div_'.$asset->id;?>" width="4%" style="border: 1px dashed #C0C0C0;">
 				<?php
-				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_edit_div_properties('$prefix', $asset->id, ".(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').");", 'Edit '.$asset->attr('name').'\'s Properties', (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : ''), 'table_properties', '[Edit Properties]');
+				Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'FALSE' : 'TRUE').');', 'Edit '.$asset->attr('name').'\'s Properties', (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : ''), 'table_properties', '[Edit Properties]');
 
 				if (!is_null($content_type)) {
-					$content_edit = &$content_type->getEditFns();
+					$content_edit =& $content_type->getEditFns();
 					$content_edit->paintBackendIcons($content_type, $content_prefix);
 				}
 				?>
@@ -290,7 +301,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				<td style="border-left: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;" id="<?php echo $content_prefix; ?>_cell">
 				<?php
 				if (!is_null($content_type)) {
-					$content_edit = &$content_type->getEditFns();
+					$content_edit =& $content_type->getEditFns();
 					$content_edit->paintBackend($content_type, $content_prefix);
 				}
 				?>
@@ -299,7 +310,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		</table>
 		<?php
 
-		return true;
+		return TRUE;
 
 	}//end paintContainer()
 
@@ -307,13 +318,13 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Process the interface for editing this div
 	*
-	* @param object BodyCopy_Div		&$asset		the div whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form element
-	* @param string						$bc_action	a global bodycopy action to perform (eg insert_table_row)
-	* @param string						$bc_name	the name of the bodycopy that submitted the action
-	* @param array						$bc_data	an array of data needed to perform the action
-	* @param array						$bc_saved	any saved changes that were performed without committing
+	* @param object	&$asset		the div whose interface we are painting
+	* @param object	&$o			the Backend Outputter instance
+	* @param string	$prefix		prefix for the form element
+	* @param string	$bc_action	a global bodycopy action to perform (eg insert_table_row)
+	* @param string	$bc_name	the name of the bodycopy that submitted the action
+	* @param array	$bc_data	an array of data needed to perform the action
+	* @param array	$bc_saved	any saved changes that were performed without committing
 	*
 	* @return boolean
 	* @access public
@@ -322,21 +333,23 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	{
 		$updated = parent::processContainer($asset, $o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved);
 
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'content_type', false, 'div_contents', 'major', true);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'content_type', FALSE, 'div_contents', 'major', TRUE);
 
 		if (!empty($link)) {
-			$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$content_type =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!is_null($content_type)) {
 				$content_prefix = $prefix.'_'.get_class($content_type).'_'.$link['linkid'];
-				$content_edit = &$content_type->getEditFns();
+				$content_edit =& $content_type->getEditFns();
 				if ($content_edit->processBackend(Array(), $content_type, $content_prefix)) {
-					if ($content_type->saveAttributes()) $updated = true;
+					if ($content_type->saveAttributes()) $updated = TRUE;
 				}
 			}
 		}
 
 		if (isset($bc_saved[$prefix][$asset->id]['attributes']['content_type'])) {
-			if ($this->_updateCellType($asset, $bc_saved[$prefix][$asset->id]['attributes']['content_type'])) $updated = true;
+			if ($this->_updateCellType($asset, $bc_saved[$prefix][$asset->id]['attributes']['content_type'])) {
+				$updated = TRUE;
+			}
 		}
 
 		if ($updated) $this->generateContentFile($asset);
@@ -349,35 +362,36 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Change the type of this DIV's editing interface to the passed content type
 	*
-	* @param object BodyCopy_DIV	&$asset		the DIV object
-	* @param string					$new_type	the name of the new content type
+	* @param object	&$asset		the DIV object
+	* @param string	$new_type	the name of the new content type
 	*
 	* @return boolean
 	* @access private
 	*/
 	function _updateCellType(&$asset, $new_type='')
 	{
-
 		// dont change anything if the new type id blank
 		$new_type = trim($new_type);
-		if (empty($new_type)) return false;
+		if (empty($new_type)) return FALSE;
 
 		// get the contentType
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'content_type', false, 'div_contents', 'major', true);
-		if (empty($link)) return false;
-		$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'content_type', FALSE, 'div_contents', 'major', TRUE);
+		if (empty($link)) return FALSE;
+		$content_type =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 
 		// if the new type is the same as the current, change nothing
 		$current_type = get_class($content_type);
-		if ($current_type == $new_type) return false;
+		if ($current_type == $new_type) return FALSE;
 
 		// morph the content type to the new type
 		// first up
-		if (!$content_type->morph('content_type')) return false;
+		if (!$content_type->morph('content_type')) {
+			return FALSE;
+		}
 		// then down
-		if (!$content_type->morph($new_type)) return false;
+		if (!$content_type->morph($new_type)) return FALSE;
 
-		return true;
+		return TRUE;
 
 	}//end _updateCellType()
 

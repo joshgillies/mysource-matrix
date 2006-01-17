@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_management.inc,v 1.5 2005/01/20 13:07:31 brobertson Exp $
+* $Id: bodycopy_table_management.inc,v 1.6 2006/01/17 06:08:12 lwright Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Bodycopy_Container_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Bodycopy_Table_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -46,13 +47,17 @@ class Bodycopy_Table_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('rows' => Array(
-												'added'     => '0.0.1',
-												'type'      => 'serialise',  'default'   => Array(),
-												'update_fn' => ''
-												),
-							);
+		$this->vars = Array(
+						'rows'	=> Array(
+									'added'		=> '0.0.1',
+									'type'		=> 'serialise',
+									'default'	=> Array(),
+									'update_fn'	=> '',
+								   ),
+					  );
+
 	}//end constructor
+
 
 }//end class
 

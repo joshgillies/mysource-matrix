@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div.inc,v 1.12 2005/07/15 04:28:59 tbarrett Exp $
+* $Id: bodycopy_div.inc,v 1.13 2006/01/17 06:08:12 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,7 +48,7 @@ class Bodycopy_Div extends Bodycopy_Container
 	*/
 	function Bodycopy_Div($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Bodycopy_Container($assetid);
 
 	}//end constructor
@@ -61,8 +61,8 @@ class Bodycopy_Div extends Bodycopy_Container
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
@@ -70,7 +70,7 @@ class Bodycopy_Div extends Bodycopy_Container
 		$bc_data = $this->_tmp['bodycopy_create_data'];
 		unset($this->_tmp['bodycopy_create_data']);
 
-		if (!parent::_createAdditional($link)) return false;
+		if (!parent::_createAdditional($link)) return FALSE;
 
 		// set the name to what they entered - if they entered anything, otherwise use a default unique name
 		if (isset($bc_data['attributes']['identifier']) && trim($bc_data['attributes']['identifier']) != '') {
@@ -88,24 +88,24 @@ class Bodycopy_Div extends Bodycopy_Container
 		if (isset($bc_data['content']) && (trim($bc_data['content'] != ''))) {
 			$wysiwyg->setAttrValue('html', $bc_data['content']);
 		}
-		if (!$wysiwyg->create($div_link)) return false;
+		if (!$wysiwyg->create($div_link)) return FALSE;
 
 		if (!($lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes'))) {
-			return false;
+			return FALSE;
 		}
 
 		$edit_fns = $this->getEditFns();
 		if (!$this->saveAttributes() || !$edit_fns->generateContentFile($this)) {
-			return false;
+			return FALSE;
 		}
 
 		if ($lock_status == 1) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'atttributes')) {
-				return false;
+				return FALSE;
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _createAdditional()
 
@@ -113,15 +113,26 @@ class Bodycopy_Div extends Bodycopy_Container
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
 	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_2 => Array('content_type' => Array('card' => '1', 'exclusive' => true)),
-					 SQ_LINK_NOTICE => Array('asset' => Array('card' => 'M', 'exclusive' => false))
-					 );
+		return Array(
+				SQ_LINK_TYPE_2	=> Array(
+									'content_type'	=> Array(
+														'card'		=> '1',
+														'exclusive'	=> TRUE,
+													   ),
+								   ),
+				SQ_LINK_NOTICE	=> Array(
+									'asset'	=> Array(
+												'card'		=> 'M',
+												'exclusive'	=> FALSE,
+											   ),
+								   ),
+			   );
 
 	}//end _getAllowedLinks()
 

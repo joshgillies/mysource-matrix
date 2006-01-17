@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.14 2005/05/12 06:24:17 tbarrett Exp $
+* $Id: bodycopy_table_cell.inc,v 1.15 2006/01/17 06:08:12 lwright Exp $
 *
 */
 
@@ -31,14 +31,19 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class BodyCopy_Table_Cell extends MySource_Object
 {
 
-	var $attributes = Array(); // an array of attributes for the TD tag
+	/**
+	* an array of attributes for the TD tag
+	* @var array
+	*/
+	var $attributes = Array();
+
 
 	/**
 	* Constructor
@@ -64,10 +69,12 @@ class BodyCopy_Table_Cell extends MySource_Object
 	function setAttribute($name, $value)
 	{
 		$name = strtolower($name);
-		if (!isset($this->attributes[$name])) $this->attributes[$name] = '';
-		if ($this->attributes[$name] == $value) return false;
+		if (!isset($this->attributes[$name])) {
+			$this->attributes[$name] = '';
+		}
+		if ($this->attributes[$name] == $value) return FALSE;
 		$this->attributes[$name] = $value;
-		return true;
+		return TRUE;
 
 	}//end setAttribute()
 
@@ -75,10 +82,10 @@ class BodyCopy_Table_Cell extends MySource_Object
 	/**
 	* Sets the type of the cells content for editing
 	*
-	* @param object BodyCopy_Table	&$table	the table object
-	* @param string					$type	the type of the cells content
-	* @param integer				$rowid	the row the cell is in
-	* @param integer				$cellid	the id of the cell
+	* @param object	&$table	the table object
+	* @param string	$type	the type of the cells content
+	* @param int	$rowid	the row the cell is in
+	* @param int	$cellid	the id of the cell
 	*
 	* @return boolean
 	* @access public
@@ -87,25 +94,26 @@ class BodyCopy_Table_Cell extends MySource_Object
 	{
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type);
 		$content_link = Array('asset' => &$table, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-		$content_type = new $type();
+		$content_type =& new $type();
 		$content_type->setAttrValue('name', 'Row '.($rowid+1).' Cell '.($cellid+1));
 		$this->attributes['linkid'] = $content_type->create($content_link);
-		if (!$this->attributes['linkid']) return false;
+		if (!$this->attributes['linkid']) return FALSE;
 		$this->attributes['content_type'] = $type;
-		return true;
+		return TRUE;
 
 	}//end setContentType()
 
 
 	/**
 	* Update the link between the cells contentType and the table
+	*
 	* From time to time it may be nescessary to add or remove rows or columns.
 	* We need to make sure when any change happens in the table that the
 	* name remains relevant to where the cell is in the table.
 	*
-	* @param object BodyCopy_Table	&$table	the table object
-	* @param integer				$new_rowid	the row the cell is going in
-	* @param integer				$new_cellid	the column the cell is going in
+	* @param object	&$table		the table object
+	* @param int	$new_rowid	the row the cell is going in
+	* @param int	$new_cellid	the column the cell is going in
 	*
 	* @return boolean
 	* @access public
@@ -113,10 +121,17 @@ class BodyCopy_Table_Cell extends MySource_Object
 	function updateContentType(&$table, $new_rowid, $new_cellid)
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
-		if (!$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'])) return false;
-		if (!$content_type->setAttrValue('name', 'Row '.($new_rowid+1).' Cell '.($new_cellid+1))) return false;
-		if (!$content_type->saveAttributes()) return false;
-		return true;
+		if (!$content_type =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'])) {
+			return FALSE;
+		}
+
+		if (!$content_type->setAttrValue('name', 'Row '.($new_rowid+1).' Cell '.($new_cellid+1))) {
+			return FALSE;
+		}
+
+		if (!$content_type->saveAttributes()) return FALSE;
+
+		return TRUE;
 
 	}//end updateContentType()
 
@@ -124,17 +139,19 @@ class BodyCopy_Table_Cell extends MySource_Object
 	/**
 	* Delete this bastard
 	*
-	* @param object BodyCopy_Table	&$table	the table object
+	* @param object	&$table	the table object
 	*
 	* @return boolean
 	* @access public
 	*/
 	function delete(&$table)
 	{
-		if (!$table->deleteLink($this->attributes['linkid'])) return false;
+		if (!$table->deleteLink($this->attributes['linkid'])) {
+			return FALSE;
+		}
 		unset($this->attributes);
-		$this = new BodyCopy_Table_Cell();
-		return true;
+		$this =& new BodyCopy_Table_Cell();
+		return TRUE;
 
 	}//end delete()
 
@@ -142,7 +159,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 	/**
 	* How many columns does this cell span ??
 	*
-	* @return integer
+	* @return int
 	* @access public
 	*/
 	function colspan()
@@ -156,7 +173,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 	/**
 	* How many rows does this cell span ??
 	*
-	* @return integer
+	* @return int
 	* @access public
 	*/
 	function rowspan()
@@ -170,23 +187,23 @@ class BodyCopy_Table_Cell extends MySource_Object
 	/**
 	* Prints the content of this cell complete with TD tag
 	*
-	* @param object BodyCopy_Table	&$table		the table object
-	* @param string					$prefix		prefix for form elements
-	* @param boolean				$editing	are we printing an editing interface
-	* @param boolean				$generating	are we generating the content file
+	* @param object		&$table		the table object
+	* @param string		$prefix		prefix for form elements
+	* @param boolean	$editing	are we printing an editing interface
+	* @param boolean	$generating	are we generating the content file
 	*
 	* @return void
 	* @access public
 	*/
-	function paint(&$table, $prefix='', $editing=false, $generating=false)
+	function paint(&$table, $prefix='', $editing=FALSE, $generating=FALSE)
 	{
 		if (!isset($this->attributes['linkid'])) return;
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
 		if (!empty($link)) {
-			$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$content_type =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		} else {
-			$content_type = null;
+			$content_type = NULL;
 		}
 		$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
 
@@ -197,7 +214,9 @@ class BodyCopy_Table_Cell extends MySource_Object
 			if ($name == 'content_type') continue;
 			// if we're in edit mode, we don't want to colspan anything at all; the colspan
 			// is handled by outer wrapping divs
-			if ($name == 'colspan' && $editing && $table->writeAccess('content')) continue;
+			if ($name == 'colspan' && $editing && $table->writeAccess('content')) {
+				continue;
+			}
 			if (strtolower($name) == 'nowrap') {
 				if ($val) echo ' nowrap';
 			} else {
@@ -212,7 +231,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 		if (is_null($content_type)) {
 			echo translate('content_type_not_found', $link['minorid']);
 		} else {
-			$content_edit = &$content_type->getEditFns();
+			$content_edit =& $content_type->getEditFns();
 			if (!empty($prefix)) {
 				$content_edit->paintBackend($content_type, $content_prefix);
 			} else {
@@ -235,11 +254,11 @@ class BodyCopy_Table_Cell extends MySource_Object
 	/**
 	* Prints the backend interface for this table cell
 	*
-	* @param object BodyCopy_Table	&$table	the table object
-	* @param string					$prefix		prefix for form elements
-	* @param int					$tableid	the id of the table this cell is in
-	* @param int					$rowid		the id of the row this cell is in
-	* @param int					$cellid		the id of this cell
+	* @param object	&$table		the table object
+	* @param string	$prefix		prefix for form elements
+	* @param int	$tableid	the id of the table this cell is in
+	* @param int	$rowid		the id of the row this cell is in
+	* @param int	$cellid		the id of this cell
 	*
 	* @return boolean
 	* @access public
@@ -266,18 +285,18 @@ class BodyCopy_Table_Cell extends MySource_Object
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
 		if (!empty($link)) {
-			$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$content_type =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		} else {
-			$content_type = null;
+			$content_type = NULL;
 		}
 
 		if (!is_null($content_type)) {
-			$content_edit = &$content_type->getEditFns();
+			$content_edit =& $content_type->getEditFns();
 			$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
 			$content_edit->paintBackendIcons($content_type, $content_prefix);
 		}
 
-		return true;
+		return TRUE;
 
 	}//end paintCell()
 
@@ -285,37 +304,43 @@ class BodyCopy_Table_Cell extends MySource_Object
 	/**
 	* Process the backend interface for this table cell
 	*
-	* @param object BodyCopy_Table	&$table		the table object
-	* @param string					$prefix		prefix for form elements
-	* @param integer				$tableid	the id of the table this cell is in
-	* @param integer				$rowid		the id of the row this cell is in
-	* @param integer				$cellid		the id of this cell
-	* @param array					$bc_saved	any saved changes that were performed without committing
+	* @param object	&$table		the table object
+	* @param string	$prefix		prefix for form elements
+	* @param int	$tableid	the id of the table this cell is in
+	* @param int	$rowid		the id of the row this cell is in
+	* @param int	$cellid		the id of this cell
+	* @param array	$bc_saved	any saved changes that were performed without committing
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processCell(&$table, $prefix, $tableid, $rowid, $cellid, $bc_saved)
 	{
-		$updated = false;
+		$updated = FALSE;
 
 		// update the contentType
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
-		if (empty($link)) return false;
-		$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		if (empty($link)) return FALSE;
+		$content_type =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		$content_edit = $content_type->getEditFns();
 		$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
-		if ($content_edit->processBackend(Array(), $content_type, $content_prefix)) $updated = true;
-		if (!$content_type->saveAttributes()) return false;
+		if ($content_edit->processBackend(Array(), $content_type, $content_prefix)) {
+			$updated = TRUE;
+		}
+		if (!$content_type->saveAttributes()) return FALSE;
 
 		if (isset($bc_saved[$prefix][$tableid]['rows'][$rowid]['cells'][$cellid]['attributes'])) {
 			foreach ($bc_saved[$prefix][$tableid]['rows'][$rowid]['cells'][$cellid]['attributes'] as $name => $value) {
 				if ($name == 'type') {
 					// changing the content type of this cell
-					if ($this->_updateCellType($table, $value)) $updated = true;
+					if ($this->_updateCellType($table, $value)) {
+						$updated = TRUE;
+					}
 					continue;
 				}
-				if ($this->setAttribute($name, $value)) $updated = true;
+				if ($this->setAttribute($name, $value)) {
+					$updated = TRUE;
+				}
 			}
 		}
 		return $updated;
@@ -326,8 +351,8 @@ class BodyCopy_Table_Cell extends MySource_Object
 	/**
 	* Change the type of this cell to the passed content type
 	*
-	* @param object BodyCopy_Table	&$table		the table object
-	* @param string					$new_type	the name of the new cell type
+	* @param object	&$table		the table object
+	* @param string	$new_type	the name of the new cell type
 	*
 	* @return boolean
 	* @access private
@@ -337,26 +362,28 @@ class BodyCopy_Table_Cell extends MySource_Object
 
 		// dont change anything if the new type id blank
 		$new_type = trim($new_type);
-		if (empty($new_type)) return false;
+		if (empty($new_type)) return FALSE;
 
 		// get the contentType
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
-		if (empty($link)) return false;
-		$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		if (empty($link)) return FALSE;
+		$content_type =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 
 		// if the new type is the same as the current, change nothing
 		$current_type = get_class($content_type);
-		if ($current_type == $new_type) return false;
+		if ($current_type == $new_type) return FALSE;
 
 		// morph the content type to the new type
 		// first up
-		if (!$content_type->morph('content_type')) return false;
+		if (!$content_type->morph('content_type')) {
+			return FALSE;
+		}
 		// then down
-		if (!$content_type->morph($new_type)) return false;
+		if (!$content_type->morph($new_type)) return FALSE;
 
 		$this->setAttribute('content_type', $new_type);
 
-		return true;
+		return TRUE;
 
 	}//end _updateCellType()
 
@@ -374,7 +401,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 		?>
 
 									case <?php echo $cellid?> :
-										retVal["attributes"] = '<?php echo var_serialise($this->attributes, true)?>';
+										retVal["attributes"] = '<?php echo var_serialise($this->attributes, TRUE)?>';
 									break;
 		<?php
 
