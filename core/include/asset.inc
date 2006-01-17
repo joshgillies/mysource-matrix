@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.489 2006/01/16 05:50:25 skim Exp $
+* $Id: asset.inc,v 1.490 2006/01/17 02:57:40 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.489 $
+* @version $Revision: 1.490 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3120,7 +3120,6 @@ class Asset extends MySource_Object
 		if (empty($keyword)) return '';
 
 		$replacement = "%$keyword%";
-
 		$tmp_keyword = strtr($keyword, '_', ' ');
 		$tmp_keyword = ucwords($tmp_keyword);
 		$tmp_keyword = preg_replace('/\s+/', '', $tmp_keyword);
@@ -3132,7 +3131,6 @@ class Asset extends MySource_Object
 		} else if (0 === strpos($keyword, 'asset_attribute_')) {
 			$attr_name = substr($keyword, strlen('asset_attribute_'));
 			preg_match('/(_([^_]*)){0,1}$/', $attr_name, $matches);
-
 			if (array_key_exists($attr_name, $this->vars)) {
 				$attr = &$this->getAttribute($attr_name);
 				if (!$attr->is_admin) {
@@ -3766,6 +3764,63 @@ class Asset extends MySource_Object
 	{
 
 	}//end printBody()
+
+
+	function printBodyWithPaintLayout()
+	{
+		$url = strip_url(current_url(false, true));
+
+		// Have they set a paint layout name that they want to view ??
+		if (!empty($_GET['SQ_PAINT_LAYOUT_NAME'])) {
+			$layout_name = 'paint_layout::user::'.$_GET['SQ_PAINT_LAYOUT_NAME'];
+		} else if (!empty($_SESSION['SQ_PAINT_LAYOUT_NAME'])) {
+			// is it in the session ?
+			$layout_name = 'paint_layout::user::'.$_SESSION['SQ_PAINT_LAYOUT_NAME'];
+		} else if (!empty($_GET['SQ_DESIGN_NAME'])) {
+			// Maybe they have a design name that we can use to match against
+			$layout_name = 'paint_layout::user::'.$_GET['SQ_DESIGN_NAME'];
+		} else if (!empty($_SESSION['SQ_DESIGN_NAME'])) {
+			$layout_name = 'paint_layout::user::'.$_SESSION['SQ_DESIGN_NAME'];
+
+		} else {
+			$layout_name = 'paint_layout::system::frontend';
+
+		}
+
+		$result = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($url, $layout_name);
+
+		// if no layout was found, try and get the default frontend
+		// layout if we were not already trying to get it
+		if (empty($result) && $layout_name != 'paint_layout::system::frontend') {
+			$result = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($url, 'paint_layout::system::frontend');
+		}
+
+		$global_def_layout_id = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('SQ_PAINT_LAYOUT_ID', 0);
+		if (!$result && $global_def_layout_id) {
+			$result = $global_def_layout_id;
+		}
+
+		if ($result) {
+			// we have found the design to use... we might need to fool the system
+			// into thinking we are printing the frontend of that asset
+			$switched_frontend = false;
+			if ($GLOBALS['SQ_SYSTEM']->frontend_asset->id !== $this->id) {
+				$current_frontend_asset =& $GLOBALS['SQ_SYSTEM']->frontend_asset;
+				$GLOBALS['SQ_SYSTEM']->frontend_asset =& $this;
+				$switched_frontend = true;
+			}
+			$layout = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result);
+			$layout->paint($this);
+
+			if ($switched_frontend) {
+				$GLOBALS['SQ_SYSTEM']->frontend_asset =& $current_frontend_asset;
+			}
+		} else {
+			// we can't find a layout, oh well let's just print out our body
+			$this->printBody();
+		}
+
+	}//end printBodyWithPaintLayout()
 
 
 	/**

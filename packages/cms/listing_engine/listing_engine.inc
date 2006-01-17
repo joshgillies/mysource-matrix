@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.138 2006/01/15 23:44:34 rong Exp $
+* $Id: listing_engine.inc,v 1.139 2006/01/17 02:57:41 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.138 $
+* @version $Revision: 1.139 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1744,10 +1744,23 @@ class Listing_Engine extends Page
 				foreach ($bc_keywords as $keyword) {
 					$keywords[$keyword] = $asset->getKeywordReplacement($keyword);
 				}
+
+				// Body with paint layout applied, if any (inherited from the
+				// listing engine asset, usually)
 				if (preg_match('|%asset_contents%|is', $bodycopy->getRawBodycopyContent())) {
 					ob_start();
-						if ($asset->id != $this->id) $asset->printBody();
+						if ($asset->id != $this->id) $asset->printBodyWithPaintLayout();
 						$keywords['asset_contents'] = ob_get_contents();
+					ob_end_clean();
+
+				}
+
+				// %asset_contents_raw% will print the asset's body WITHOUT a
+				// paint layout
+				if (preg_match('|%asset_contents_raw%|is', $bodycopy->getRawBodycopyContent())) {
+					ob_start();
+						if ($asset->id != $this->id) $asset->printBody();
+						$keywords['asset_contents_raw'] = ob_get_contents();
 					ob_end_clean();
 
 				}
@@ -2052,65 +2065,61 @@ class Listing_Engine extends Page
 	*/
 	function getRootNodes()
 	{
-		if (!isset($this->_tmp['root_asset_ids'])) {
-
-			$root_asset_ids = Array();
-			$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
-			foreach ($root_links as $root_link) {
-				if (strstr($root_link['minorid'], ':') !== FALSE) {
-					$root_asset_ids[] = $root_link['minorid'];
-				} else {
-					$root_asset_ids[] = (int)$root_link['minorid'];
-				}
+		// We can't cache this out right now - what if we need to print this
+		// asset more than once on the same page??
+		$root_asset_ids = Array();
+		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
+		foreach ($root_links as $root_link) {
+			if (strstr($root_link['minorid'], ':') !== FALSE) {
+				$root_asset_ids[] = $root_link['minorid'];
+			} else {
+				$root_asset_ids[] = (int)$root_link['minorid'];
 			}
-			$parameter_map =& $this->getAttribute('parameter_map');
-			$raw_dynamic_root_nodes = $parameter_map->getParameterValue('root_node');
+		}
+		$parameter_map =& $this->getAttribute('parameter_map');
+		$raw_dynamic_root_nodes = $parameter_map->getParameterValue('root_node');
 
-			// check if we have a dynamic parameter -- if so, let's do some security checks
-			if (!empty($raw_dynamic_root_nodes)) {
+		// check if we have a dynamic parameter -- if so, let's do some security checks
+		if (!empty($raw_dynamic_root_nodes)) {
 
-				$dynamic_root_nodes = Array();
-				// note that dynamic roots can be supplied as an array of asset ids or
-				// as a comma delimited string of asset ids
-				if (!is_array($raw_dynamic_root_nodes)) {
-					$raw_dynamic_root_nodes = explode(',', $raw_dynamic_root_nodes);
-				}
+			$dynamic_root_nodes = Array();
+			// note that dynamic roots can be supplied as an array of asset ids or
+			// as a comma delimited string of asset ids
+			if (!is_array($raw_dynamic_root_nodes)) {
+				$raw_dynamic_root_nodes = explode(',', $raw_dynamic_root_nodes);
+			}
 
-				foreach ($raw_dynamic_root_nodes as $dynamic_root) {
-					if (!strlen($dynamic_root)) continue;
+			foreach ($raw_dynamic_root_nodes as $dynamic_root) {
+				if (!strlen($dynamic_root)) continue;
 
-					$dynamic_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root);
+				$dynamic_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root);
 
-					// first, check to see if the dynamic parameter specified is already one of the root nodes
-					// if so, just use that single root node
-					if (in_array($dynamic_root, $root_asset_ids)) {
-						$dynamic_root_nodes[] = $dynamic_root;
+				// first, check to see if the dynamic parameter specified is already one of the root nodes
+				// if so, just use that single root node
+				if (in_array($dynamic_root, $root_asset_ids)) {
+					$dynamic_root_nodes[] = $dynamic_root;
+				} else {
+					// otherwise, check to see if the dynamic parameter specified is a child of one of the root
+					// nodes. If so, use the dynamic parameter as the root node; otherwise return an error.
+					$matching_root_ids = array_intersect(array_keys($dynamic_parents), $root_asset_ids);
+					if (empty($matching_root_ids)) {
+						trigger_localised_error('CMS0020', E_USER_WARNING, $dynamic_root);
 					} else {
-						// otherwise, check to see if the dynamic parameter specified is a child of one of the root
-						// nodes. If so, use the dynamic parameter as the root node; otherwise return an error.
-						$matching_root_ids = array_intersect(array_keys($dynamic_parents), $root_asset_ids);
-						if (empty($matching_root_ids)) {
-							trigger_localised_error('CMS0020', E_USER_WARNING, $dynamic_root);
-						} else {
-							$dynamic_root_nodes[] = $dynamic_root;
-						}
+						$dynamic_root_nodes[] = $dynamic_root;
 					}
 				}
-
-				if (!empty($dynamic_root_nodes)) {
-					$root_asset_ids = $dynamic_root_nodes;
-				}
-			}//end if
-
-			if (empty($root_asset_ids)) {
-				$root_asset_ids = Array($this->id);
 			}
 
-			$this->_tmp['root_asset_ids'] = $root_asset_ids;
-
+			if (!empty($dynamic_root_nodes)) {
+				$root_asset_ids = $dynamic_root_nodes;
+			}
 		}//end if
 
-		return $this->_tmp['root_asset_ids'];
+		if (empty($root_asset_ids)) {
+			$root_asset_ids = Array($this->id);
+		}
+
+		return $root_asset_ids;
 
 	}//end getRootNodes()
 
