@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report.inc,v 1.5 2005/03/21 02:51:54 arailean Exp $
+* $Id: report.inc,v 1.6 2006/01/18 02:58:01 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,12 +55,13 @@ class Report extends Page
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
@@ -70,7 +71,7 @@ class Report extends Page
 	/**
 	* Returns a list of lock types available for this asset type
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function lockTypes()
@@ -85,13 +86,14 @@ class Report extends Page
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => false);
+		$page_links[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => FALSE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -100,8 +102,8 @@ class Report extends Page
 	/**
 	* Outputs the report to the front end interface
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function printBody()
 	{

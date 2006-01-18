@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_edit_fns.inc,v 1.11 2005/11/03 23:57:27 lwright Exp $
+* $Id: report_edit_fns.inc,v 1.12 2006/01/18 02:58:01 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *	Base Edit Interface for all reports
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,9 +54,9 @@ class Report_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for regenerating the report
 	*
-	* @param object Report				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -73,9 +73,9 @@ class Report_Edit_Fns extends Page_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 			check_box($prefix.'_regenerate');
 			label(translate('core_generate_report'), $prefix.'_regenerate');
-			return true;
+			return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end paintRegenerate()
 
@@ -83,9 +83,9 @@ class Report_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the interface for regenerating the report
 	*
-	* @param object Report				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -93,20 +93,20 @@ class Report_Edit_Fns extends Page_Edit_Fns
 	function processRegenerate(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_regenerate']) || !$_POST[$prefix.'_regenerate']) {
-			return false;
+			return FALSE;
 		}
 
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assetid' => $asset->id);
 		$hh->queueHipo('hipo_job_generate_report', $vars);
 
-		if (!$asset->writeAccess('links')) return false;
+		if (!$asset->writeAccess('links')) return FALSE;
 
 		$user = $GLOBALS['SQ_SYSTEM']->user;
-		$asset->setAttrValue('generated_date', date("F j, Y, g:i a"));
+		$asset->setAttrValue('generated_date', date('F j, Y, g:i a'));
 		$asset->setAttrValue('generated_user', $user->name.' (#'.$user->id.')');
 
-		return true;
+		return TRUE;
 
 	}//end processRegenerate()
 
@@ -114,16 +114,16 @@ class Report_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paints the root node selection box
 	*
-	* @param object Report				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
 	function paintRootNode(&$asset, &$o, $prefix)
 	{
-		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'root');
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, 'root');
 		$write_access = $asset->writeAccess('links');
 
 		if (!$write_access) {
@@ -144,38 +144,42 @@ class Report_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the value input from root node selection box
 	*
-	* @param object Report				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return void
 	* @access public
 	*/
 	function processRootNode(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_rootid']['assetid'])) return false;
-		if (!$asset->writeAccess('links')) return false;
+		if (!isset($_POST[$prefix.'_rootid']['assetid'])) {
+			return FALSE;
+		}
+		if (!$asset->writeAccess('links')) return FALSE;
 
 		$new_root  = $_POST[$prefix.'_rootid']['assetid'];
 
 		// getting existing root link
-		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'root');
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, 'root');
 
 		// dont process anything if the root node has not changed
-		if (!empty($root_link) && $root_link['minorid'] == $new_root) return false;
+		if (!empty($root_link) && $root_link['minorid'] == $new_root) {
+			return FALSE;
+		}
 
-		$ok = true;
+		$ok = TRUE;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// deleting old root link if any found...
 		if (!empty($root_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
-			$ok = false;
+			$ok = FALSE;
 		} else if ($new_root) {
-			$root = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
+			$root =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, 'root')) {
-					$ok = false;
+					$ok = FALSE;
 					trigger_localised_error('CORE0029', E_USER_WARNING, $root->name);
 				}
 			}
@@ -183,10 +187,10 @@ class Report_Edit_Fns extends Page_Edit_Fns
 
 		if ($ok) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
+			return TRUE;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 	}//end processRootNode()
@@ -195,17 +199,16 @@ class Report_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Get the assetid of the root node
 	*
-	* @param object Report	$owner	the asset whose interface we are painting
+	* @param object	&$asset	the asset whose interface we are painting
 	*
 	* @return string
 	* @access public
 	*/
 	function getRootAssetid(&$asset)
 	{
-		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'root');
-		if (!empty($root_link)) {
-			return $root_link['minorid'];
-		}
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, 'root');
+		if (!empty($root_link)) return $root_link['minorid'];
+
 		// the whole system
 		return '1';
 
@@ -215,9 +218,9 @@ class Report_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for viewing a report
 	*
-	* @param object Report				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the backend outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -232,16 +235,16 @@ class Report_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the interface for viewing a report
 	*
-	* @param object Report				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the backend outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processReport(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processReport()
 
@@ -249,10 +252,10 @@ class Report_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Generate this report until complete
 	*
-	* @param object HIPO_Job	&$job		a reference to the array of information about
-	* @param array				&$step_data	a reference to the array of information about
-	*										the current step of the HIPO job that is running this report
-	* @param string				$prefix		prefix for form vars
+	* @param object	&$job		a reference to the HIPO job processing this report
+	* @param array	&$step_data	a reference to the array of information about
+	*							the current step of the HIPO job that is running this report
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
@@ -261,8 +264,8 @@ class Report_Edit_Fns extends Page_Edit_Fns
 	{
 		trigger_localised_error('CORE0079', E_USER_WARNING);
 		$step_data['percent_done'] = 100;
-		$step_data['complete'] = true;
-		return true;
+		$step_data['complete'] = TRUE;
+		return TRUE;
 
 	}//end generateReport()
 
