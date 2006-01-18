@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: folder.inc,v 1.38 2005/05/11 06:04:51 lwright Exp $
+* $Id: folder.inc,v 1.39 2006/01/18 01:04:57 lwright Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Folder extends Asset
 {
+
 
 	/**
 	* Constructor
@@ -59,20 +60,20 @@ class Folder extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _preCreateCheck(&$link)
 	{
-		if (!parent::_preCreateCheck($link)) return false;
+		if (!parent::_preCreateCheck($link)) return FALSE;
 
 		$name = trim($this->attr('name'));
 		if ($name == '') {
 			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _preCreateCheck()
 
@@ -84,12 +85,12 @@ class Folder extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!parent::_createAdditional($link)) return false;
+		if (!parent::_createAdditional($link)) return FALSE;
 
 		// set a web path if we are linking this folder somewhere
 		// NOTE: the main time we wont want to do this is if we are creating
@@ -99,10 +100,10 @@ class Folder extends Asset
 			$initial_path = strtolower($this->attr('name'));
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 			$valid_paths = make_valid_web_paths(Array($initial_path));
-			$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
-			if (!$this->saveWebPaths($good_paths)) return false;
+			$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, TRUE);
+			if (!$this->saveWebPaths($good_paths)) return FALSE;
 		}
-		return true;
+		return TRUE;
 
 	}//end _createAdditional()
 
@@ -110,12 +111,13 @@ class Folder extends Asset
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
@@ -125,17 +127,39 @@ class Folder extends Asset
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
 
-		return Array(SQ_LINK_TYPE_1 => Array('asset' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_2 => Array('asset' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_3 => Array('asset' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_NOTICE => Array('asset' => Array('card' => 'M', 'exclusive' => false))
-					);
+		return Array(
+				SQ_LINK_TYPE_1	=> Array(
+									'asset'	=> Array(
+												'card'		=> 'M',
+												'exclusive'	=> FALSE,
+											   ),
+								   ),
+				SQ_LINK_TYPE_2	=> Array(
+									'asset'	=> Array(
+												'card'		=> 'M',
+												'exclusive'	=> FALSE,
+											   ),
+								   ),
+				SQ_LINK_TYPE_3	=> Array(
+									'asset'	=> Array(
+												'card'		=> 'M',
+												'exclusive'	=> FALSE,
+											   ),
+								   ),
+				SQ_LINK_NOTICE	=> Array(
+									'asset'	=> Array(
+												'card'		=> 'M',
+												'exclusive'	=> FALSE,
+											   ),
+								   ),
+			   );
 
 	}//end _getAllowedLinks()
 
