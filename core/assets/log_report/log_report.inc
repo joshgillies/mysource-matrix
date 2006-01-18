@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_report.inc,v 1.1 2005/04/13 04:44:59 rhoward Exp $
+* $Id: log_report.inc,v 1.2 2006/01/18 01:22:50 lwright Exp $
 *
 */
 
@@ -32,18 +32,19 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Log_Report extends Report
 {
 
+
 	/**
 	* Name of Log this report relies on
 	* Other reports should overwrite this
 	*/
-	var $logname = null;
+	var $logname = NULL;
 
 
 	/**
@@ -51,12 +52,12 @@ class Log_Report extends Report
 	*
 	* Returns FALSE if regeneration failed, TRUE otherwise
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _regenerateReport()
 	{
-		return false;
+		return FALSE;
 
 	}//end _regenerateReport()
 
