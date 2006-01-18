@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.31 2005/08/02 01:17:42 gsherwood Exp $
+* $Id: package_manager_core.inc,v 1.32 2006/01/18 22:05:39 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -54,6 +54,7 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Returns the name of the package that this management class is working for
 	*
+	* @return string
 	* @access public
 	*/
 	function getPackageName()
@@ -67,17 +68,19 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Installs/Updates the passed package in the system
 	*
-	* @param Array $update_assets		An array of asset types to update
-	*									details for. If empty, will do all assets
+	* @param array	$update_assets	An array of asset types to update
+	*								details for. If empty, will do all assets
+	*
+	* @return boolean
 	* @access public
 	*/
 	function updatePackageDetails($update_assets=Array())
 	{
-		// If there were failures in core packages, return false as dependency
+		// If there were failures in core packages, return FALSE as dependency
 		// resolution won't work (if a core package relies on another package,
 		// what is the world coming to?)
-		if ($this->checkPackageDetails($update_assets) !== true) {
-			return false;
+		if ($this->checkPackageDetails($update_assets) !== TRUE) {
+			return FALSE;
 		}
 
 		// open the transaction
@@ -90,12 +93,12 @@ class Package_Manager_Core extends Package_Manager
 		// Now we can do the normal package update
 		if (!parent::updatePackageDetails($update_assets)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		// Commit the transaction if we got this far
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		return TRUE;
 
 	}//end updatePackageDetails()
 
@@ -107,7 +110,7 @@ class Package_Manager_Core extends Package_Manager
 	* Returns an array of all the asset types in the package that are to be treated as system assets
 	* NOTE: Assets will be installed in the order they appear in this list
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	* @static
 	*/
@@ -143,7 +146,7 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Create the root folder system asset
 	*
-	* @return object Root_Folder
+	* @return object
 	* @access public
 	*/
 	function &createRootFolder()
@@ -167,12 +170,12 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Create the trash folder system asset
 	*
-	* @return object Trash_Folder
+	* @return object
 	* @access public
 	*/
 	function &createTrashFolder()
 	{
-		$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+		$root_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('trash_folder');
 		$trash_link = Array(
@@ -196,12 +199,12 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Create the public access user system asset
 	*
-	* @return object Public_User
+	* @return object
 	* @access public
 	*/
 	function &createPublicUser()
 	{
-		$users_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('web_folder_users');
+		$users_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('web_folder_users');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('public_user');
 		$public_user =& new Public_User();
@@ -217,7 +220,7 @@ class Package_Manager_Core extends Package_Manager
 		// THIS IS AN UPGRADE AND SHOULD BE REMOVED
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'UPDATE
 					sq_ast_perm
@@ -239,12 +242,12 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Create the system management folder system asset
 	*
-	* @return object System_Management_Folder
+	* @return object
 	* @access public
 	*/
 	function &createSystemManagementFolder()
 	{
-		$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+		$root_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('system_management_folder');
 		$system_management_folder =& new System_Management_Folder();
@@ -263,12 +266,12 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Create the system user group system asset
 	*
-	* @return object System_User_Group
+	* @return object
 	* @access public
 	*/
 	function &createSystemUserGroup()
 	{
-		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('system_user_group');
 		$system_user_group =& new System_User_Group();
@@ -287,7 +290,7 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Create the root user system asset
 	*
-	* @return object Root_User
+	* @return object
 	* @access public
 	*/
 	function &createRootUser()
@@ -296,7 +299,7 @@ class Package_Manager_Core extends Package_Manager
 		$current_run_level = $GLOBALS['SQ_SYSTEM']->getRunLevel();
 		$GLOBALS['SQ_SYSTEM']->setRunLevel($current_run_level - SQ_SECURITY_PASSWORD_VALIDATION);
 
-		$system_user_group = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
+		$system_user_group =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_user');
 		$root_user =& new Root_User();
@@ -326,12 +329,12 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Create the cron manager system asset
 	*
-	* @return object Cron_Manager
+	* @return object
 	* @access public
 	*/
 	function &createCronManager()
 	{
-		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_manager');
 		$cron_manager =& new Cron_Manager();
@@ -350,12 +353,12 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Create the trigger manager system asset
 	*
-	* @return object Trigger_Manager
+	* @return object
 	* @access public
 	*/
 	function &createTriggerManager()
 	{
-		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('trigger_manager');
 		$trigger_manager =& new Trigger_Manager();
@@ -374,12 +377,12 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Create the log manager system asset
 	*
-	* @return object Log_Manager
+	* @return object
 	* @access public
 	*/
 	function &createLogManager()
 	{
-		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('log_manager');
 		$log_manager =& new Log_Manager();
@@ -398,12 +401,12 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Create the layout manager system asset
 	*
-	* @return object Layout_Manager
+	* @return object
 	* @access public
 	*/
 	function &createLayoutManager()
 	{
-		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('layout_manager');
 		$layout_manager =& new Layout_Manager();
@@ -422,12 +425,12 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Create the remap manager system asset
 	*
-	* @return object Remap_Manager
+	* @return object
 	* @access public
 	*/
 	function &createRemapManager()
 	{
-		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('remap_manager');
 		$remap_manager =& new Remap_Manager();
@@ -446,12 +449,12 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Create the cache manager system asset
 	*
-	* @return object Cache_Manager
+	* @return object
 	* @access public
 	*/
 	function &createCacheManager()
 	{
-		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cache_manager');
 		$cache_manager =& new Cache_Manager();
@@ -470,12 +473,12 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Create the designs folder system asset
 	*
-	* @return object Designs_Folder
+	* @return object
 	* @access public
 	*/
 	function &createDesignsFolder()
 	{
-		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('designs_folder');
 		$designs_folder =& new Designs_Folder();
@@ -494,12 +497,12 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Create the authentication folder system asset
 	*
-	* @return object Authentication_Folder
+	* @return object
 	* @access public
 	*/
 	function &createAuthenticationFolder()
 	{
-		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('authentication_folder');
 		$authentication_folder =& new Authentication_Folder();
@@ -518,12 +521,12 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Create the login design system asset
 	*
-	* @return object Login_Design
+	* @return object
 	* @access public
 	*/
 	function &createLoginDesign()
 	{
-		$designs_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('designs_folder');
+		$designs_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('designs_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('login_design');
 		$login_design =& new Login_Design();
@@ -540,40 +543,40 @@ class Package_Manager_Core extends Package_Manager
 	}//end createLoginDesign()
 
 
-        /**
-        * Create the password change design system asset
-        *
-        * @return object Password_Change_Design
-        * @access public
-        */
-        function &createPasswordChangeDesign()
-        {
-                $designs_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('designs_folder');
+	/**
+	* Create the password change design system asset
+	*
+	* @return object
+	* @access public
+	*/
+	function &createPasswordChangeDesign()
+	{
+		$designs_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('designs_folder');
 
-                $GLOBALS['SQ_SYSTEM']->am->includeAsset('password_change_design');
-                $password_change_design =& new Password_Change_Design();
-                $password_change_design_link = Array('asset' => &$designs_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
-                $password_change_design->setAttrValue('id_name', 'password_change_design');
-                if (!$password_change_design->create($password_change_design_link)) {
-                        trigger_localised_error('CORE0001', E_USER_ERROR, 'Password Change Design');
-                }
-                pre_echo('Password Change Design Asset Id : '.$password_change_design->id);
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('password_change_design');
+		$password_change_design =& new Password_Change_Design();
+		$password_change_design_link = Array('asset' => &$designs_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
+		$password_change_design->setAttrValue('id_name', 'password_change_design');
+		if (!$password_change_design->create($password_change_design_link)) {
+				trigger_localised_error('CORE0001', E_USER_ERROR, 'Password Change Design');
+		}
+		pre_echo('Password Change Design Asset Id : '.$password_change_design->id);
 
-                $GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('password_change_design', $password_change_design->id);
-                return $password_change_design;
+		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('password_change_design', $password_change_design->id);
+		return $password_change_design;
 
-        }//end createPasswordChangeDesign()
+	}//end createPasswordChangeDesign()
 
 
 	/**
 	* Create the web folder for storing site designs
 	*
-	* @return object Web_Folder_Designs
+	* @return object
 	* @access public
 	*/
 	function &createWebFolderDesigns()
 	{
-		$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+		$root_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('web_folder_designs');
 		$folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
@@ -593,12 +596,12 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Create the web folder for storing media (images/movies etc)
 	*
-	* @return object Web_Folder_Media
+	* @return object
 	* @access public
 	*/
 	function &createWebFolderMedia()
 	{
-		$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+		$root_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('web_folder_media');
 		$folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
@@ -618,12 +621,12 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Create the web folder for storing users
 	*
-	* @return object Web_Folder_Users
+	* @return object
 	* @access public
 	*/
 	function &createWebFolderUsers()
 	{
-		$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+		$root_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('web_folder_users');
 		$folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
@@ -643,7 +646,7 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Create the expired workflow cron job
 	*
-	* @return object Cron_Job_Expired_Workflow
+	* @return object
 	* @access public
 	*/
 	function &createCronJobExpiredWorkflow()
@@ -651,14 +654,14 @@ class Package_Manager_Core extends Package_Manager
 		$cron_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		if (is_null($cron_manager)) {
 			trigger_localised_error('CORE0022', E_USER_WARNING);
-			$null = null;
+			$null = NULL;
 			return $null;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_expired_workflow');
 
 		$cron_job =& new Cron_Job_Expired_WorkFlow();
-		$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+		$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Expired Workflow Cron Job');
 		}
@@ -674,7 +677,7 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Create the generate log report cron job
 	*
-	* @return object Cron_Job_Generate_Log_Report
+	* @return object
 	* @access public
 	*/
 	function &createCronJobGenerateLogReports()
@@ -682,14 +685,14 @@ class Package_Manager_Core extends Package_Manager
 		$cron_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		if (is_null($cron_manager)) {
 			trigger_error('Couldn\'t get cron manager, couldn\'t create generate log reports cron job', E_USER_WARNING);
-			$null = null;
+			$null = NULL;
 			return $null;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_generate_log_reports');
 
 		$cron_job =& new Cron_Job_Generate_Log_Reports();
-		$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+		$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_error('Generate Log Reports Cron Job NOT CREATED', E_USER_ERROR);
 		}
