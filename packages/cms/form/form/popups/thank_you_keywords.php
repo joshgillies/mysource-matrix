@@ -11,19 +11,19 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thank_you_keywords.php,v 1.6 2005/11/04 04:14:28 lwright Exp $
+* $Id: thank_you_keywords.php,v 1.7 2006/01/18 05:55:37 skim Exp $
 *
 */
 
 	require_once dirname(__FILE__).'/../../../../../core/include/init.inc';
 	require_once dirname(__FILE__).'/../../../../../core/lib/html_form/html_form.inc';
-	if (!isset($_GET['assetid'])) return false;
+	if (!isset($_GET['assetid'])) return FALSE;
 
 	assert_valid_assetid($_GET['assetid']);
-	$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['assetid']);
+	$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['assetid']);
 	if (!is_a($asset, 'form')) {
 		trigger_localised_error('CMS0002', E_USER_ERROR, $asset);
-		return false;
+		return FALSE	;
 	}
 ?>
 
@@ -55,7 +55,7 @@
 	<body>
 	<?php
 		require_once dirname(__FILE__).'/../../../../../core/include/backend_outputter.inc';
-		//$backend = new Backend();
+		// $backend = new Backend();
 		$o =& new Backend_Outputter();
 
 		$o->openSection('Keyword List for \''.$asset->attr('name').'\' (#'.$asset->id.')');
@@ -73,13 +73,15 @@
 				<?php
 					foreach ($questions as $q_id => $question) {
 						?>							<tr><td valign="top" width="200"><b>%response_<?php echo $asset->id.'_q'.$q_id; ?>%</b></td><td valign="top"><?php echo get_asset_tag_line($asset->id.':q'.$q_id); ?></td></tr><?php
-					}?>
+					}
+					?>
 			</table>
 		</fieldset>
 		</p>
 
-			<?php
-				foreach ($sections as $section) { ?>
+				<?php
+				foreach ($sections as $section) {
+				?>
 				<p>
 					<fieldset>
 					<legend><b><?php echo get_asset_tag_line($section->id); ?></b></legend>
@@ -90,11 +92,16 @@
 					$questions = $section->getQuestions();
 					foreach ($questions as $q_id => $question) {
 						?>
-						<tr><td valign="top" width="200"><b>%response_<?php echo $section->id.'_q'.$q_id; ?>%</b></td><td valign="top"><?php echo get_asset_tag_line($section->id.':q'.$q_id); ?></td></tr><?php } ?>
+						<tr><td valign="top" width="200"><b>%response_<?php echo $section->id.'_q'.$q_id; ?>%</b></td><td valign="top"><?php echo get_asset_tag_line($section->id.':q'.$q_id); ?></td></tr>
+					<?php
+					}
+					?>
 						</table>
 					</fieldset>
 				</p>
-				<?php } ?>
+				<?php
+				}
+				?>
 
 
 			</table>
