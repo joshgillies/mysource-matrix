@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.17 2005/11/17 03:51:22 mmcintyre Exp $
+* $Id: page_standard.inc,v 1.18 2006/01/18 02:47:17 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,7 +66,7 @@ class Page_Standard extends Page
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!parent::_createAdditional($link)) return false;
+		if (!parent::_createAdditional($link)) return FALSE;
 
 		// add a bodycopy to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
@@ -77,9 +77,9 @@ class Page_Standard extends Page
 		if ($bodycopy->create($copy_link)) {
 			$child_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy->id, SQ_LINK_TYPE_2, 'bodycopy_div');
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($child_bodycopy['minorid'], 'attributes');
-			return true;
+			return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end _createAdditional()
 
@@ -109,10 +109,10 @@ class Page_Standard extends Page
 		// if a bodycopy is linking to us then we need to make it a dependant link
 		if ($side_of_link == 'major' && is_a($asset, 'bodycopy') && $dependant != '1') {
 			$dependant = '1';
-			return true;
+			return TRUE;
 		}
 
-		return false;
+		return FALSE;
 
 	}//end prepareLink()
 
@@ -129,7 +129,7 @@ class Page_Standard extends Page
 	{
 		// the only reason why we would object to this link being
 		// deleted is if it is the bodycopy linked to us
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major', '', '1', '1');
 		if (!$GLOBALS['SQ_PURGING_TRASH'] && $bodycopy_link[0]['linkid'] == $linkid) {
 			return translate('core_error_bodycopy_link_cannot_delete');
 		}
@@ -149,7 +149,7 @@ class Page_Standard extends Page
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 1, 'exclusive' => true);
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 1, 'exclusive' => TRUE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -167,10 +167,10 @@ class Page_Standard extends Page
 	{
 		if (isset($_GET['sq_from_frontend'])) {
 
-			$bodycopy = &$this->getBodycopy();
+			$bodycopy =& $this->getBodycopy();
 			if (is_null($bodycopy)) {
 				trigger_localised_error('CORE0016', $this->name.'"', E_USER_ERROR);
-				return false;
+				return FALSE;
 			}
 			$o->addFormActionGetVar('assetid', $bodycopy->id);
 
@@ -201,13 +201,13 @@ class Page_Standard extends Page
 	*/
 	function printBody()
 	{
-		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$cached_contents = $cm->loadFromCache($this->id, $this->type(), 'default');
 
 
 		// if the cache is empty, go ahead and regenerate a new version
 		if (empty($cached_contents)) {
-			$bodycopy = &$this->getBodycopy();
+			$bodycopy =& $this->getBodycopy();
 			if (is_null($bodycopy)) return;
 			ob_start();
 				// set the keyword replacements
@@ -238,12 +238,12 @@ class Page_Standard extends Page
 	*/
 	function printLimbo()
 	{
-		$lm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
+		$lm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
 
 		if ($lm->hasLayout($this->type(), 'details')) {
 			parent::printLimbo();
 		} else {
-			$bodycopy = &$this->getBodycopy();
+			$bodycopy =& $this->getBodycopy();
 			if (!is_null($bodycopy)) {
 				$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('assetid', $bodycopy->id);
 				$GLOBALS['SQ_SYSTEM']->backend->out->addHiddenField('backend_assetid', $bodycopy->id);
@@ -262,7 +262,7 @@ class Page_Standard extends Page
 	*/
 	function getContent()
 	{
-		$bodycopy = &$this->getBodycopy();
+		$bodycopy =& $this->getBodycopy();
 		if (is_null($bodycopy)) return '';
 		$contents = $bodycopy->getRawBodycopyContent();
 
@@ -314,10 +314,10 @@ class Page_Standard extends Page
 	*/
 	function &getBodycopy()
 	{
-		$null = null;
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, '', 'major');
+		$null = NULL;
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, '', 'major');
 		if (empty($link)) return $null;
-		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		return $bodycopy;
 
 	}//end getBodycopy()
@@ -337,18 +337,18 @@ class Page_Standard extends Page
 		if (!is_array($keywords) || empty($keywords)) {
 			return Array();
 		}
-		$print_commit_button = false;
+		$print_commit_button = FALSE;
 
 		$replacements = Array();
 		foreach ($keywords as $keyword) {
 			switch ($keyword) {
 				case 'contents' :
-					$bodycopy = &$this->getBodycopy();
+					$bodycopy =& $this->getBodycopy();
 					if (is_null($bodycopy)) continue;
-					$edit = &$bodycopy->getEditFns();
+					$edit =& $bodycopy->getEditFns();
 					ob_start();
 						if ($edit->paintBodycopy($bodycopy, $GLOBALS['SQ_SYSTEM']->backend->out, $bodycopy->getPrefix())) {
-							$print_commit_button = true;
+							$print_commit_button = TRUE;
 						}
 						$replacements[$keyword] = ob_get_contents();
 					ob_end_clean();
@@ -383,15 +383,15 @@ class Page_Standard extends Page
 		foreach ($keywords as $keyword) {
 			switch ($keyword) {
 				case 'contents' :
-					$bodycopy = &$this->getBodycopy();
+					$bodycopy =& $this->getBodycopy();
 					if (is_null($bodycopy)) continue;
-					$edit = &$bodycopy->getEditFns();
+					$edit =& $bodycopy->getEditFns();
 					$edit->processBodycopy($bodycopy, $GLOBALS['SQ_SYSTEM']->backend->out, $bodycopy->getPrefix());
 				break;
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processCustomKeywords()
 

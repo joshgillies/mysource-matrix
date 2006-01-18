@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard_edit_fns.inc,v 1.6 2005/05/11 06:04:54 lwright Exp $
+* $Id: page_standard_edit_fns.inc,v 1.7 2006/01/18 02:47:17 lwright Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Page_Standard_Edit_Fns extends Page_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -53,9 +54,9 @@ class Page_Standard_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for creating tables in the bodycopy
 	*
-	* @param object Page_Standard		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -63,11 +64,11 @@ class Page_Standard_Edit_Fns extends Page_Edit_Fns
 	function redirectToBodycopy(&$asset, &$o, $prefix)
 	{
 		// get the bodycopy attached to us
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', null, '1', '1');
-		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major', NULL, '1', '1');
+		$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
 		if (is_null($bodycopy)) {
 			trigger_localised_error('CORE0016', E_USER_ERROR, $asset->name);
-			return false;
+			return FALSE;
 		}
 
 		// redirect to the bodycopy's edit contents screen
@@ -77,9 +78,10 @@ class Page_Standard_Edit_Fns extends Page_Edit_Fns
 		// page it doesnt take them to the edit contents screen and then redirect them again
 		$_SESSION['sq_nav_history'][(count($_SESSION['sq_nav_history']) - 1)]['screen'] = 'details';
 
-		return false;
+		return FALSE;
 
 	}//end redirectToBodycopy()
+
 
 }//end class
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard_management.inc,v 1.4 2005/07/21 00:41:07 mmcintyre Exp $
+* $Id: page_standard_management.inc,v 1.5 2006/01/18 02:47:17 lwright Exp $
 *
 */
 
@@ -30,12 +30,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Page_Standard_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -46,6 +47,7 @@ class Page_Standard_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 	}//end constructor
+
 
 }//end class
 
