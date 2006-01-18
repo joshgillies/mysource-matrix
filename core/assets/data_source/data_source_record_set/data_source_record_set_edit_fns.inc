@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_record_set_edit_fns.inc,v 1.2 2005/10/07 04:26:55 pgannavarapu Exp $
+* $Id: data_source_record_set_edit_fns.inc,v 1.3 2006/01/18 00:29:27 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -77,6 +77,7 @@ class Data_Source_Record_Set_Edit_Fns extends Asset_Edit_Fns
 			?>
 		</table>
 	<?php
+
 	}//end paintDetails()
 
 
@@ -92,7 +93,7 @@ class Data_Source_Record_Set_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processDetails(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processDetails()
 

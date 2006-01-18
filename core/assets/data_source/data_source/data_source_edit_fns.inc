@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_edit_fns.inc,v 1.2 2005/10/30 22:36:14 pgannavarapu Exp $
+* $Id: data_source_edit_fns.inc,v 1.3 2006/01/18 00:29:27 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,11 +66,11 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 		$name = $asset->attr('shadow_name');
 		$wa = $asset->writeAccess('attributes');
 		if ($wa) {
-			text_box('shadow_name', !empty($name)? $name: '', 80);
-			return true;
+			text_box('shadow_name', !empty($name) ? $name : '', 80);
+			return TRUE;
 		} else if (!empty($name)) {
 			echo $name;
-			return false;
+			return FALSE;
 		}
 
 	}//end paintShadow()
@@ -88,16 +88,16 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processShadow(&$asset, &$o, $prefix)
 	{
-		$new_name = null;
+		$new_name = NULL;
 		$name = $asset->attr('shadow_name');
 		if (!empty($_POST['shadow_name'])) {
 			$new_name = $_POST['shadow_name'];
 		}
 		if ($name != $new_name) {
 			$res = $asset->setAttrValue('shadow_name', $new_name);
-			return true;
+			return TRUE;
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end processShadow()
@@ -127,12 +127,12 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 			<?php
 			foreach ($keywords as $key => $desc) {
 				// all the keywords other than the shadow asset name are to be displayed for the user to choose the
-				//keywords or a combination of keywords and strings to set the shadow asset name
+				// keywords or a combination of keywords and strings to set the shadow asset name
 				if ($key == 'data_source_record_set_shadow_asset_name') {
 					unset($keywords[$key]);
 					continue;
 				} else {
-					if (strpos($key, 'data_source_record_set') === false) {
+					if (strpos($key, 'data_source_record_set') === FALSE) {
 						unset($keywords[$key]);
 						continue;
 					}
@@ -148,9 +148,9 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 		</table>
 		<?php
 		if ($wa) {
-			return true;
+			return TRUE;
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end paintKeywords()
@@ -168,7 +168,7 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processKeywords(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processKeywords()
 
@@ -186,9 +186,9 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 	{
 		$result = $asset->getResultSet();
 		if (empty($result)) {
-			return false;
+			return FALSE;
 		} else {
-			return true;
+			return TRUE;
 		}
 
 	}//end resultSetExists()

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_record_set.inc,v 1.5 2005/12/09 04:47:06 dheppell Exp $
+* $Id: data_source_record_set.inc,v 1.6 2006/01/18 00:29:27 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -48,14 +48,14 @@ class Data_Source_Record_Set extends Asset
 	*/
 	function Data_Source_Record_Set($data_sourceid=0, $data=Array())
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->_loadVars();
 
 		if (!$data_sourceid || empty($data)) {
 			return;
 		}
 
-		$data_source = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data_sourceid, 'data_source');
+		$data_source =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_sourceid, 'data_source');
 		if (is_null($data_source)) return;
 
 		$this->_data_sourceid = $data_sourceid;
@@ -71,7 +71,7 @@ class Data_Source_Record_Set extends Asset
 		foreach ($data as $key => $value) {
 			$this->vars[$key] = $value;
 		}
-		//if the name has keywords in it then we get the string with replacements
+		// if the name has keywords in it then we get the string with replacements
 		if (!empty($data['shadow_asset_name'])) {
 			$name = $data['shadow_asset_name'];
 			require_once SQ_FUDGE_PATH.'/general/text.inc';
@@ -117,7 +117,7 @@ class Data_Source_Record_Set extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $this->name;
 
@@ -155,7 +155,6 @@ class Data_Source_Record_Set extends Asset
 		foreach ($columns as $column) {
 			$keywords['data_source_record_set_'.$column] = translate('record_set_attribute').$column;
 		}
-		//return parent::getAvailableKeywords();
 		return $keywords;
 
 	}//end getAvailableKeywords()
@@ -171,15 +170,15 @@ class Data_Source_Record_Set extends Asset
 	*/
 	function getKeywordReplacement($keyword)
 	{
-		$replacement = null;
-		if (strpos($keyword, 'data_source_record_set_') !== false) {
+		$replacement = NULL;
+		if (strpos($keyword, 'data_source_record_set_') !== FALSE) {
 			$keyword = substr($keyword, strlen('data_source_record_set_'));
 			if (isset($this->vars[$keyword])) {
 				$replacement = $this->vars[$keyword];
 			} else {
 				$replacement = '';
 			}
-		} else if (strpos($keyword, 'asset_') !== false) {
+		} else if (strpos($keyword, 'asset_') !== FALSE) {
 			$key = substr($keyword, strlen('asset_'));
 			switch ($key) {
 				case 'name':
@@ -204,7 +203,7 @@ class Data_Source_Record_Set extends Asset
 
 
 	/**
-	* Returns true if at least one of the passed assetids has read access to this asset
+	* Returns TRUE if at least one of the passed assetids has read access to this asset
 	*
 	* @param array	$assetids	An array of user_group and/or user ids to check for read access
 	*							If the array is empty, the current user will be checked
@@ -214,20 +213,20 @@ class Data_Source_Record_Set extends Asset
 	*/
 	function readAccess($assetids=Array())
 	{
-		$parent = &$this->_getBridge();
+		$parent =& $this->_getBridge();
 		if (!is_null($parent)) {
 			$result = $parent->readAccess($assetids);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
 			return $result;
 		}
 
-		return false;
+		return FALSE;
 
 	}//end readAccess()
 
 
 	/**
-	* Returns true if at least one of the passed assetids has write access to this asset
+	* Returns TRUE if at least one of the passed assetids has write access to this asset
 	*
 	* The extra parameter, $only_workflow, is currently only be used in
 	* determining read access for an asset before it goes live.
@@ -237,23 +236,23 @@ class Data_Source_Record_Set extends Asset
 	*									on locking and status
 	* @param array		$assetids		An array of user_group and/or user ids to check for write access
 	*									If the array is empty, the current user will be checked
-	* @param boolean	$only_workflow	If true (default), users with write access normally will be denied write access
-	*									if outside the current step of the workflow. If false, both those in the workflow
+	* @param boolean	$only_workflow	If TRUE (default), users with write access normally will be denied write access
+	*									if outside the current step of the workflow. If FALSE, both those in the workflow
 	*									and those with normal write access will be granted write access.
 	*
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess($lock_type='', $assetids=Array(), $only_workflow=true)
+	function writeAccess($lock_type='', $assetids=Array(), $only_workflow=TRUE)
 	{
-		$parent = &$this->_getBridge();
+		$parent =& $this->_getBridge();
 		if (!is_null($parent)) {
 			$result = $parent->writeAccess($lock_type, $assetids, $only_workflow);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
 			return $result;
 		}
 
-		return false;
+		return FALSE;
 
 	}//end writeAccess()
 
@@ -261,13 +260,13 @@ class Data_Source_Record_Set extends Asset
 	/**
 	* returns the owning bridge asset of this shadow asset
 	*
-	* @return mixed object|null
+	* @return mixed object|NULL
 	* @access private
 	*/
 	function &_getBridge()
 	{
 		list($bridgeid, $childid) = explode(':', $this->id);
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
 		return $asset;
 
 	}//end _getBridge()
