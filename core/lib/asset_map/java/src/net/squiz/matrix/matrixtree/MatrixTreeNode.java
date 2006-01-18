@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTreeNode.java,v 1.8 2006/01/16 23:50:50 skim Exp $
+* $Id: MatrixTreeNode.java,v 1.9 2006/01/18 02:51:17 sdanis Exp $
 *
 */
 
@@ -123,6 +123,11 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 	 * @return TRUE if this node is a leaf
 	 */
 	public boolean isLeaf() {
+		// if the asset is not root and user has no access then make this asset a leaf node
+		if (!getAsset().getId().equals("1") && !getAsset().isAccessible()) {
+			return true;
+		}
+
 		return (getAsset().getNumKids() == 0);
 	}
 
