@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page.inc,v 1.10 2005/05/11 06:04:54 lwright Exp $
+* $Id: page.inc,v 1.11 2006/01/18 02:45:02 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,23 +60,25 @@ class Page extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _preCreateCheck(&$link)
 	{
-		if (!parent::_preCreateCheck($link)) return false;
+		if (!parent::_preCreateCheck($link)) return FALSE;
 
 		$name = trim($this->attr('name'));
 		if ($name == '') {
 			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-			return false;
+			return FALSE;
 		}
 
 		// if the short name hasn't been set then short and long names are the same to begin with
-		if (trim($this->attr('short_name')) == '') $this->setAttrValue('short_name', $name);
+		if (trim($this->attr('short_name')) == '') {
+			$this->setAttrValue('short_name', $name);
+		}
 
-		return true;
+		return TRUE;
 
 	}//end _preCreateCheck()
 
@@ -88,18 +90,18 @@ class Page extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!parent::_createAdditional($link)) return false;
+		if (!parent::_createAdditional($link)) return FALSE;
 
 		// set an initial web path
 		$initial_path = strtolower($this->attr('name'));
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_paths = make_valid_web_paths(Array($initial_path));
-		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, TRUE);
 		return $this->saveWebPaths($good_paths);
 
 	}//end _createAdditional()
@@ -108,21 +110,22 @@ class Page extends Asset
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
+	* @return array
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
 		$allowed = parent::_getAllowedLinks();
-		$allowed[SQ_LINK_TYPE_1]['page']   = Array('card' => 'M', 'exclusive' => false);
-		$allowed[SQ_LINK_TYPE_1]['file']   = Array('card' => 'M', 'exclusive' => false);
-		$allowed[SQ_LINK_TYPE_1]['folder'] = Array('card' => 'M', 'exclusive' => false);
+		$allowed[SQ_LINK_TYPE_1]['page']   = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_TYPE_1]['file']   = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_TYPE_1]['folder'] = Array('card' => 'M', 'exclusive' => FALSE);
 
-		$allowed[SQ_LINK_TYPE_2]['page']   = Array('card' => 'M', 'exclusive' => false);
-		$allowed[SQ_LINK_TYPE_2]['file']   = Array('card' => 'M', 'exclusive' => false);
-		$allowed[SQ_LINK_TYPE_2]['folder'] = Array('card' => 'M', 'exclusive' => false);
+		$allowed[SQ_LINK_TYPE_2]['page']   = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_TYPE_2]['file']   = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_TYPE_2]['folder'] = Array('card' => 'M', 'exclusive' => FALSE);
 
-		$allowed[SQ_LINK_TYPE_3]['page'] = Array('card' => 'M', 'exclusive' => false);
+		$allowed[SQ_LINK_TYPE_3]['page'] = Array('card' => 'M', 'exclusive' => FALSE);
 
 		return $allowed;
 
@@ -148,10 +151,11 @@ class Page extends Asset
 	*
 	* @param boolean	$short_name	whether or not we are after the short name or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return (($short_name) ? $this->attr('short_name') : $this->attr('name'));
 

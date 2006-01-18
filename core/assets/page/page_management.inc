@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_management.inc,v 1.7 2005/08/01 04:36:05 ndvries Exp $
+* $Id: page_management.inc,v 1.8 2006/01/18 02:45:02 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,7 +54,7 @@ class Page_Management extends Asset_Management
 											'default'		=> '',
 											'description'	=> 'The full name of the page',
 											'update_fn'		=> '',
-											'is_admin'		=> false,
+											'is_admin'		=> FALSE,
 										   ),
 						'short_name'	=> Array(
 											'added'			=> '0.0.1',
@@ -62,7 +62,7 @@ class Page_Management extends Asset_Management
 											'default'		=> '',
 											'description'	=> 'The short name of the page (often used in menus)',
 											'update_fn'		=> '',
-											'is_admin'		=> false,
+											'is_admin'		=> FALSE,
 										   ),
 					  );
 
