@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_edit_fns.inc,v 1.20 2005/11/03 23:57:28 lwright Exp $
+* $Id: workflow_step_condition_edit_fns.inc,v 1.21 2006/01/18 22:33:15 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,8 +57,8 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for creating and deleting step conditions
 	*
-	* @param object Workflow_Step_Condition	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter		&$o		the outputter class
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
 	*
 	* @return boolean
 	* @access public
@@ -67,7 +67,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$prefix = $asset->getPrefix();
-		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 		$cond_logic = $asset->attr('logic');
@@ -76,8 +76,8 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 
 		$userid = $asset->attr('userid');
 
-		$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array('user', 'user_group'), false);
-		if (empty($user_info)) return false;
+		$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array('user', 'user_group'), FALSE);
+		if (empty($user_info)) return FALSE;
 
 		?>
 		<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($userid); ?></td>
@@ -103,9 +103,9 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 		</td>
 		<td class="sq-backend-table-cell">
 			<?php
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 			if (!$write_access) {
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 				if (is_a($user, 'user')) {
 					echo '&nbsp;';
 				} else {
@@ -121,7 +121,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 					hidden_field($prefix.'_logic', '>=');
 					hidden_field($prefix.'_logic_num', '1');
 				} else {
-					combo_box($prefix.'_logic', $wfm->_valid_cond_logic, false, $cond_logic);
+					combo_box($prefix.'_logic', $wfm->_valid_cond_logic, FALSE, $cond_logic);
 					echo '&nbsp;';
 
 					ob_start();
@@ -135,7 +135,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 		</td>
 		<?php
 
-		return true;
+		return TRUE;
 
 	}//end paintStepCondition()
 
@@ -143,8 +143,8 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the interface for editing this step condition
 	*
-	* @param object Workflow_Step_Condition	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter		&$o		the outputter class
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
 	*
 	* @return boolean
 	* @access public
@@ -152,7 +152,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 	function processStepCondition(&$asset, &$o)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$prefix = $asset->getPrefix();
 
@@ -161,7 +161,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 		$cond_logic = array_get_index($_POST, $prefix.'_logic');
 		if (!$asset->setAttrValue('logic', $cond_logic)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		if (isset($_POST[$prefix.'_logic_num']) && $cond_logic != 'all') {
@@ -171,29 +171,29 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 		}
 		if (!$asset->setAttrValue('logic_num', $cond_logic_num)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
-		$notify = (bool) array_get_index($_POST, $prefix.'_notify', false);
+		$notify = (bool) array_get_index($_POST, $prefix.'_notify', FALSE);
 		if (!$asset->setAttrValue('notify', $notify)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
-		$require_comment = (bool) array_get_index($_POST, $prefix.'_require_comment', false);
+		$require_comment = (bool) array_get_index($_POST, $prefix.'_require_comment', FALSE);
 		if (!$asset->setAttrValue('require_comment', $require_comment)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		if (!$asset->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		return true;
+		return TRUE;
 
 	}//end processStepCondition()
 
@@ -204,10 +204,11 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 	* The generated array is a snap shot of the schema at a point in time that can get written
 	* to the database and used for publishing etc.
 	*
-	* @param object Asset	&$asset	the asset we are generating the array for
+	* @param object	$asset				the asset we are generating the array for
+	* @param array	&$workflow_array	the workflow array that we will modify
 	*
-	* @access public
 	* @return array
+	* @access public
 	*/
 	function generateWorkflowArray($asset, &$workflow_array)
 	{
@@ -222,7 +223,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 		// commenting
 		$workflow_array[$publisher]['require_comment'] = $asset->attr('require_comment');
 
-		return true;
+		return TRUE;
 
 	}//end generateWorkflowArray()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_management.inc,v 1.12 2005/09/13 07:39:54 rhoward Exp $
+* $Id: workflow_step_condition_management.inc,v 1.13 2006/01/18 22:33:15 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,17 +66,17 @@ class Workflow_Step_Condition_Management extends Asset_Management
 						'notify'			=> Array (
 												'added'			=> '0.2',
 												'type'			=> 'boolean',
-												'default'		=> false,
+												'default'		=> FALSE,
 												'parameters'	=> Array(
-																	'allow_empty'	=> false,
+																	'allow_empty'	=> FALSE,
 																   ),
 											   ),
 						'require_comment'	=> Array (
 												'added'			=> '0.3',
 												'type'			=> 'boolean',
-												'default'		=> false,
+												'default'		=> FALSE,
 												'parameters'	=> Array(
-																	'allow_empty'	=> false,
+																	'allow_empty'	=> FALSE,
 																   ),
 											   ),
 					  );

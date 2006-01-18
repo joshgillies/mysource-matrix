@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.27 2005/09/22 07:35:32 rhoward Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.28 2006/01/18 22:33:15 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,8 +57,8 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Paint the interface for creating and deleting step conditions
 	*
-	* @param object Workflow_Step		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
 	*
 	* @return boolean
 	* @access public
@@ -67,7 +67,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 	{
 		$write_access = ($asset->writeAccess('attributes') && $asset->writeAccess('links'));
 		$prefix = $asset->getPrefix();
-		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 		$o->openField(translate('step_logic'));
@@ -81,14 +81,14 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 					echo ' '.$step_logic_num.' condition'.(($step_logic_num > 1) ? 's' : '').' must be met</i>';
 				}
 			} else {
-				combo_box($prefix.'_logic', $wfm->_valid_step_logic, false, $step_logic);
+				combo_box($prefix.'_logic', $wfm->_valid_step_logic, FALSE, $step_logic);
 				echo '&nbsp;';
 				text_box($prefix.'_logic_num', $step_logic_num, 4);
 				echo ' '.translate('conditions_must_be_met_in_this_step');
 			}
 		$o->closeField();
 
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'workflow_step_condition', true, 'major', null, true, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'workflow_step_condition', TRUE, 'major', NULL, TRUE, TRUE);
 		if (!empty($current_links)) {
 			$o->openField('Conditions');
 				?>
@@ -106,12 +106,12 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 					</tr>
 				<?php
 				foreach ($current_links as $link_data) {
-					$condition = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+					$condition =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 					if (is_null($condition)) continue;
 					$edit_fns = $condition->getEditFns();
 					echo '<tr>';
 					if (!$edit_fns->paintStepCondition($condition, $o)) {
-						return false;
+						return FALSE;
 					}
 					if ($write_access) {
 						?><td align="center" class="sq-backend-table-cell"><?php
@@ -122,7 +122,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 				}
 				?></table><?php
 			$o->closeField();
-		}
+		}//end if
 
 		$o->openField(translate('require_comment_from_unlisted_users'));
 			$require_comment_attr =& $asset->getAttribute('require_comment_from_unlisted_users');
@@ -132,7 +132,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 
 		if ($write_access) {
 			$o->openField(translate('new_condition_question'));
-				asset_finder($prefix.'_new_condition', 0, Array('user' => 'D', 'user_group' => 'D'), 'sq_sidenav', false, 'null', Array('clear'));
+				asset_finder($prefix.'_new_condition', 0, Array('user' => 'D', 'user_group' => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'));
 			$o->closeField();
 		}
 		$o->openField(translate('expiry_time'));
@@ -149,8 +149,8 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Process the interface for creating and deleting step conditions
 	*
-	* @param object Workflow_Step		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
 	*
 	* @return boolean
 	* @access public
@@ -159,11 +159,11 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes') || !$asset->writeAccess('links')) {
-			return false;
+			return FALSE;
 		}
 
 		$prefix = $asset->getPrefix();
-		$updated = false;
+		$updated = FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -184,11 +184,11 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		}
 		if (!$asset->setAttrValue('logic', $step_logic)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 		if (!$asset->setAttrValue('logic_num', $step_logic_num)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		// require comment from unlisted users
@@ -196,7 +196,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		$require_comment_attr->process($prefix.'_require_comment_from_unlisted_users');
 		if ($require_comment_attr->processed) {
 			$asset->setAttrValue('require_comment_from_unlisted_users', $require_comment_attr->value);
-			$updated = true;
+			$updated = TRUE;
 		}
 
 		// update expiry date
@@ -204,23 +204,23 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		$expiry_time_attr->process($prefix.'_expiry_time');
 		if ($expiry_time_attr->processed) {
 			$asset->setAttrValue('expiry_time', $expiry_time_attr->value);
-			$updated = true;
+			$updated = TRUE;
 		}
 
 		if (!$asset->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		// process all our current conditions
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'workflow_step_condition', true, 'major', null, true, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'workflow_step_condition', TRUE, 'major', NULL, TRUE, TRUE);
 		if (!empty($current_links)) {
 			foreach ($current_links as $link_data) {
-				$condition = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+				$condition =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 				if (is_null($condition)) continue;
 				$edit_fns = $condition->getEditFns();
 				if ($edit_fns->processStepCondition($condition, $o)) {
-					$updated = true;
+					$updated = TRUE;
 				}
 			}
 		}
@@ -229,7 +229,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		if (isset($_POST[$prefix.'_delete_conditions'])) {
 			$delete_conds = $_POST[$prefix.'_delete_conditions'];
 			foreach ($delete_conds as $linkid => $on) {
-				if ($asset->deleteLink($linkid)) $updated = true;
+				if ($asset->deleteLink($linkid)) $updated = TRUE;
 			}
 		}
 
@@ -239,7 +239,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			$new_cond =& new Workflow_Step_Condition();
 			$step_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'is_dependant' => 1, 'is_exclusive' => 1);
 			$new_cond->setAttrValue('userid', $_POST[$prefix.'_new_condition']['assetid']);
-			if ($new_cond->create($step_link)) $updated = true;
+			if ($new_cond->create($step_link)) $updated = TRUE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -255,10 +255,11 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 	* The generated array is a snap shot of the schema at a point in time that can get written
 	* to the database and used for publishing etc.
 	*
-	* @param object Asset	&$asset	the asset we are generating the array for
+	* @param object	$asset				the asset we are generating the array for
+	* @param array	&$workflow_array	the workflow array that we will modify
 	*
-	* @access public
 	* @return array
+	* @access public
 	*/
 	function generateWorkflowArray($asset, &$workflow_array)
 	{
@@ -277,18 +278,18 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		$workflow_array['logic'] = $logic;
 
 		$i = 1;
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'workflow_step_condition', true, 'major', null, true, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'workflow_step_condition', TRUE, 'major', NULL, TRUE, TRUE);
 		foreach ($current_links as $link_data) {
-			$condition = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+			$condition =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($condition)) continue;
 			$edit_fns = $condition->getEditFns();
 			if (!$edit_fns->generateWorkflowArray($condition, $workflow_array['conditions'])) {
-				return false;
+				return FALSE;
 			}
 			$i++;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end generateWorkflowArray()
 
