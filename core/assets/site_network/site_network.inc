@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_network.inc,v 1.7 2005/08/19 06:21:43 lwright Exp $
+* $Id: site_network.inc,v 1.8 2006/01/18 03:16:54 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,12 +60,12 @@ class Site_Network extends Folder
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
-		return true;
+		return TRUE;
 
 	}//end _createAdditional()
 
@@ -73,16 +73,33 @@ class Site_Network extends Folder
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
 
-		return Array(SQ_LINK_TYPE_1 => Array('site' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_2 => Array('site' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_NOTICE => Array('site' => Array('card' => 'M', 'exclusive' => false)),
-					);
+		return Array(
+				SQ_LINK_TYPE_1	=> Array(
+									'site'	=> Array(
+												'card'		=> 'M',
+												'exclusive'	=> FALSE,
+											   ),
+								   ),
+				SQ_LINK_TYPE_2	=> Array(
+									'site'	=> Array(
+												'card'		=> 'M',
+												'exclusive'	=> FALSE,
+											   ),
+								   ),
+				SQ_LINK_NOTICE	=> Array(
+									'site'	=> Array(
+												'card'		=> 'M',
+												'exclusive'	=> FALSE,
+											   ),
+								   ),
+			   );
 
 	}//end _getAllowedLinks()
 
@@ -92,48 +109,50 @@ class Site_Network extends Folder
 	*
 	* Site Network enforce the rule that a site can only belong to a signle network
 	*
-	* @param object Asset	$minor		the minor asset that we are linking to
-	* @param string			$link_type	the type of link this is
-	* @param int			$exclusive	the exclusive status of the link (gets passed to canLinkToType)
+	* @param object	&$minor		the minor asset that we are linking to
+	* @param string	$link_type	the type of link this is
+	* @param int	$exclusive	the exclusive status of the link (gets passed to canLinkToType)
 	*
-	* @return mixed TRUE or error message string
+	* @return mixed boolean|string
 	* @access public
 	*/
 	function canCreateLink(&$minor, $link_type, $exclusive)
 	{
 		$result = parent::canCreateLink($minor, $link_type, $exclusive);
-		if ($result !== true) return $result;
+		if ($result !== TRUE) return $result;
 
 		if (is_a($minor, 'site') && ($link_type != SQ_LINK_NOTICE)) {
 			// site assets can only be in a single site network
-			$network_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'site_network', false, 'minor');
-			if (!empty($network_link)) return translate('core_one_network_for_site');
+			$network_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'site_network', FALSE, 'minor');
+			if (!empty($network_link)) {
+				return translate('core_one_network_for_site');
+			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end canCreateLink()
 
 
 	/**
-	 * Returns TRUE if the passed minor asset can be move-linked to this asset, or a string with the error msg
-	 *
-	 * Differs from canCreateLink() in that if we are being moved from a site network,
-	 * we have to allow one network link, being the asset we are being moved from
-	 *
-	 * @param object Asset   &$minor         the minor asset that we are linking to
-	 * @param object Asset   &$old_major     the major asset that we are being moved from
-	 * @param string                 $link_type      the type of link this is
-	 *
-	 * @return mixed TRUE or error message string
-	 * @access public
-	 */
-	 function canMoveLink(&$minor, &$old_major, $link_type)
-	 {
+	* Returns TRUE if the passed minor asset can be move-linked to this asset, or a string with the error msg
+	*
+	* Differs from canCreateLink() in that if we are being moved from a site network,
+	* we have to allow one network link, being the asset we are being moved from
+	*
+	* @param object	&$minor		the minor asset that we are linking to
+	* @param object	&$old_major	the major asset that we are being moved from
+	* @param string	$link_type	the type of link this is
+	*
+	* @return mixed boolean|string
+	* @access public
+	*/
+	function canMoveLink(&$minor, &$old_major, $link_type)
+	{
 		if (is_a($minor, 'site') && is_a($old_major, 'site_network') && ($link_type != SQ_LINK_NOTICE)) {
 			// if we are moving from a site network, we can tolerate one existing
 			// network link - the one being moved from
-			$network_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'site_network', false, 'minor');
+			$network_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'site_network', FALSE, 'minor');
 			if (count($network_link) > 1) {
 				return translate('core_one_network_for_site');
 			}
@@ -142,21 +161,21 @@ class Site_Network extends Folder
 			return parent::canMoveLink($minor, $old_major, $link_type);
 		}
 
-		return true;
+		return TRUE;
 
-	 }//end canMoveLink()
+	}//end canMoveLink()
 
 
 	/**
 	* Get the primary URL for this network
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function getPrimaryURL()
 	{
 		if (!isset($this->_tmp['primary_url'])) {
-			$site_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'site', false, 'primary_site');
+			$site_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'site', FALSE, 'primary_site');
 			if (empty($site_link)) return '';
 
 			$sql = 'SELECT url, http, https
@@ -172,8 +191,11 @@ class Site_Network extends Folder
 			if (empty($primary_url_data)) return '';
 			$primary_url = $primary_url_data['url'];
 
-			if ($primary_url['https'] == '1') $primary_url = 'https://'.$primary_url;
-			else $primary_url = 'http://'.$primary_url;
+			if ($primary_url['https'] == '1') {
+				$primary_url = 'https://'.$primary_url;
+			} else {
+				$primary_url = 'http://'.$primary_url;
+			}
 
 			$this->_tmp['primary_url'] = $primary_url;
 		}
@@ -229,12 +251,12 @@ class Site_Network extends Folder
 
 		if (!file_exists($session_file)) {
 			trigger_localised_error('CORE0072', E_USER_WARNING, $session_file);
-			return false;
+			return FALSE;
 		}
 
 		if (!is_array($session_contents)) {
 			trigger_localised_error('CORE0004', E_USER_WARNING, gettype($session_contents));
-			return false;
+			return FALSE;
 		}
 
 		$session_str = '';
@@ -244,9 +266,9 @@ class Site_Network extends Folder
 
 		if (!string_to_file($session_str, $session_file)) {
 			trigger_localised_error('CORE0021', E_USER_WARNING, $session_file);
-			return false;
+			return FALSE;
 		}
-		return true;
+		return TRUE;
 
 	}//end serialiseSessionFile()
 
@@ -270,13 +292,13 @@ class Site_Network extends Folder
 		if (!is_array($pri_sess)) {
 			// something is definately wrong
 			trigger_localised_error('CORE0071', E_USER_ERROR);
-			return false;
+			return FALSE;
 		}
 
 		$pri_timestamp = array_get_index($pri_sess, 'SQ_SESSION_TIMESTAMP', -1);
 		$sec_timestamp = array_get_index($_SESSION, 'SQ_SESSION_TIMESTAMP', -1);
-		$pri_login_key = array_get_index($pri_sess, 'SQ_LOGIN_KEY', null);
-		$sec_login_key = array_get_index($_SESSION, 'SQ_LOGIN_KEY', null);
+		$pri_login_key = array_get_index($pri_sess, 'SQ_LOGIN_KEY', NULL);
+		$sec_login_key = array_get_index($_SESSION, 'SQ_LOGIN_KEY', NULL);
 
 		// if primary is younger
 		if ($pri_timestamp > $sec_timestamp || $pri_timestamp == -1) {
@@ -292,8 +314,12 @@ class Site_Network extends Folder
 		$_SESSION['SQ_SESSION_TIMESTAMP'] = $now;
 
 		// preserve login keys
-		if (!is_null($pri_login_key)) $pri_sess['SQ_LOGIN_KEY'] = $pri_login_key;
-		if (!is_null($sec_login_key)) $_SESSION['SQ_LOGIN_KEY'] = $sec_login_key;
+		if (!is_null($pri_login_key)) {
+			$pri_sess['SQ_LOGIN_KEY'] = $pri_login_key;
+		}
+		if (!is_null($sec_login_key)) {
+			$_SESSION['SQ_LOGIN_KEY'] = $sec_login_key;
+		}
 
 		// save the sessionid of the primary so that we
 		// know that we have run this script before. We won't have to
@@ -303,9 +329,9 @@ class Site_Network extends Folder
 		// *** JEDI MIND TRICK *** you did not see us doing this... move along
 		if (!$this->serialiseSessionFile(SQ_CACHE_PATH.'/sess_'.$pri_sessionid, $pri_sess)) {
 			trigger_localised_error('CORE0020', E_USER_ERROR);
-			return false;
+			return FALSE;
 		}
-		return true;
+		return TRUE;
 
 	}//end syncSessionFile()
 
