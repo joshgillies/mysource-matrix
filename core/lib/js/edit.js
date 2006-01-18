@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.30 2006/01/13 03:25:45 dmckee Exp $
+* $Id: edit.js,v 1.31 2006/01/18 04:05:57 dmckee Exp $
 *
 */
 
@@ -65,7 +65,7 @@ function switchEditingMode(contentDivID, editDivID, editor) {
 		if (initialisedEditors[editor._uniqueID] == null) {
 			initialisedEditors[editor._uniqueID] = true;
 			editor.generate();
-			editor.updateToolbar(true);
+			//editor.updateToolbar(true);
 			setDesignMode = false;
 		} else if (editor._initialised != true) {
 			return;
