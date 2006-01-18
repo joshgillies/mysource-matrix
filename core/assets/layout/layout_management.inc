@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_management.inc,v 1.3 2005/01/20 13:07:34 brobertson Exp $
+* $Id: layout_management.inc,v 1.4 2006/01/18 01:10:32 lwright Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Layout_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -48,14 +49,15 @@ class Layout_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'name' => Array(
+						'name'	=> Array(
 									'added'		=> '0.0.1',
-									'type'		=>'text',
+									'type'		=> 'text',
 									'default'	=> '',
-						),
-					);
+								   ),
+					  );
 
 	}//end constructor
+
 
 }//end class
 ?>

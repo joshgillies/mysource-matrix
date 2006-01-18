@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout.inc,v 1.4 2004/12/06 14:38:09 brobertson Exp $
+* $Id: layout.inc,v 1.5 2006/01/18 01:10:32 lwright Exp $
 *
 */
 
@@ -33,12 +33,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Layout extends Bodycopy
 {
+
 
 	/**
 	* An array of keywords used in this layout
@@ -63,17 +64,39 @@ class Layout extends Bodycopy
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
 
-		return Array(SQ_LINK_TYPE_1 => Array('asset' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_2 => Array('asset' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_3 => Array('asset' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_NOTICE => Array('asset' => Array('card' => 'M', 'exclusive' => false))
-					);
+		return Array(
+				SQ_LINK_TYPE_1	=> Array(
+									'asset'	=> Array(
+												'card'		=> 'M',
+												'exclusive'	=> FALSE,
+											   ),
+								   ),
+				SQ_LINK_TYPE_2	=> Array(
+									'asset'	=> Array(
+												'card'		=> 'M',
+												'exclusive'	=> FALSE,
+											   ),
+								   ),
+				SQ_LINK_TYPE_3	=> Array(
+									'asset'	=> Array(
+												'card'		=> 'M',
+												'exclusive'	=> FALSE,
+											   ),
+								   ),
+				SQ_LINK_NOTICE	=> Array(
+									'asset'	=> Array(
+												'card'		=> 'M',
+												'exclusive'	=> FALSE,
+											   ),
+								   ),
+			   );
 
 	}//end _getAllowedLinks()
 
@@ -82,7 +105,6 @@ class Layout extends Bodycopy
 	* Returns an associative array of keywords to be replaced for the layout of an asset
 	*
 	* An example for of the array might be:
-	*
 	* <PRE>
 	*   Array(
 	*      'screens' => Array (
@@ -117,7 +139,7 @@ class Layout extends Bodycopy
 	*   );
 	* </PRE>
 	*
-	* @return array(string => array)
+	* @return array
 	* @access public
 	*/
 	function getLayoutKeywords()
@@ -135,7 +157,7 @@ class Layout extends Bodycopy
 
 			foreach ($keywords as $keyword) {
 
-				if (false !== (strpos($keyword, '-'))) {
+				if (FALSE !== (strpos($keyword, '-'))) {
 					list($screen, $tag) = explode('-', $keyword);
 					$screen = strtolower($screen);
 					$tag = strtolower($tag);
@@ -150,20 +172,28 @@ class Layout extends Bodycopy
 						// get the first letter of the type
 						$type = $tag{0};
 						// check to see if we have a field or a section
-						if (strtoupper($type) != 'S' && strtoupper($type) != 'F') continue;
+						if (strtoupper($type) != 'S' && strtoupper($type) != 'F') {
+							continue;
+						}
 						$tag = substr($tag, 2);
 
-						if (!isset($this->layout_keywords['screens'][$screen])) $this->layout_keywords['screens'][$screen] = Array();
+						if (!isset($this->layout_keywords['screens'][$screen])) {
+							$this->layout_keywords['screens'][$screen] = Array();
+						}
 
 						// its a field
 						if (strtoupper($type) == 'F') {
-							if (!isset($this->layout_keywords['screens'][$screen]['fields'])) $this->layout_keywords['screens'][$screen]['fields'] = Array();
+							if (!isset($this->layout_keywords['screens'][$screen]['fields'])) {
+								$this->layout_keywords['screens'][$screen]['fields'] = Array();
+							}
 							if (!in_array($tag, $this->layout_keywords['screens'][$screen]['fields'])) {
 								$this->layout_keywords['screens'][$screen]['fields'][$tag] = $keyword;
 							}
 						// its a section
 						} else {
-							if (!isset($this->layout_keywords['screens'][$screen]['sections'])) $this->layout_keywords['screens'][$screen]['sections'] = Array();
+							if (!isset($this->layout_keywords['screens'][$screen]['sections'])) {
+								$this->layout_keywords['screens'][$screen]['sections'] = Array();
+							}
 							if (!in_array($tag, $this->layout_keywords['screens'][$screen]['sections'])) {
 								$this->layout_keywords['screens'][$screen]['sections'][$tag] = $keyword;
 							}
