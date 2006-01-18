@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.49 2005/08/01 11:34:50 brobertson Exp $
+* $Id: site_edit_fns.inc,v 1.50 2006/01/18 03:05:15 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,9 +61,9 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Paint the interface for the asset urls
 	*
-	* @param object Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -79,14 +79,14 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		$urlids = Array();
 
-		for (reset($urls); null !== ($urlid = key($urls)); next($urls)) {
+		for (reset($urls); NULL !== ($urlid = key($urls)); next($urls)) {
 			$this->_paintURL($o, $prefix, $urlid, $urls[$urlid], $wa);
 			$urlids[] = $urlid;
 		}//end for
 
 		if ($wa) {
 			// paint a nice blank version
-			$this->_paintURL($o, $prefix, 0, Array('url' => '', 'protocols' => Array()), true);
+			$this->_paintURL($o, $prefix, 0, Array('url' => '', 'protocols' => Array()), TRUE);
 			$urlids[] = 0;
 
 			// let's be a bit nice about this, and when they submit confirm that they know what they are doing
@@ -150,11 +150,11 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Paint the interface for individual URLs
 	*
-	* @param object	Backend_Outputter	$o				the outputter class
-	* @param string						$prefix			prefix for the form element
-	* @param int						$i				the count for this URL
-	* @param Array						$url_info		the urls info
-	* @param boolean					$write_access	whether the user can edit this url
+	* @param object		&$o				the Backend Outputter object
+	* @param string		$prefix			prefix for the form element
+	* @param int		$i				the count for this URL
+	* @param array		$url_info		the urls info
+	* @param boolean	$write_access	whether the user can edit this url
 	*
 	* @return boolean
 	* @access public
@@ -201,21 +201,21 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Processes the URLs posted from the paintURLs fn above
 	*
-	* @param object Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processURLs(&$asset, &$o, $prefix)
 	{
-		if (empty($_POST[$prefix.'_urls'])) return false;
+		if (empty($_POST[$prefix.'_urls'])) return FALSE;
 
 		$post = $_POST[$prefix.'_urls'];
 
 		$urls = Array();
-		for (reset($post); null !== ($urlid = key($post)); next($post)) {
+		for (reset($post); NULL !== ($urlid = key($post)); next($post)) {
 
 			$url = trim($post[$urlid]['url']);
 			// if there is a url or some selected protocols, then let's save it
@@ -228,15 +228,15 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		}
 
-		if (!$asset->saveWebURLs($urls)) return false;
+		if (!$asset->saveWebURLs($urls)) return FALSE;
 
 		//// START HIPO PROCESSING ////
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assetids' => Array($asset->id));
 		$hh->queueHipo('hipo_job_update_lookups', $vars);
 		////  END HIPO PROCESSING  ////
 
-		return true;
+		return TRUE;
 
 	}//end processURLs()
 
@@ -244,9 +244,9 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Paint the interface for setting the index page for this site
 	*
-	* @param object Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -261,9 +261,9 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Processes the setting of the index page for this site
 	*
-	* @param object Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -278,9 +278,9 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Paint the interface for setting the forbidden page for this site
 	*
-	* @param object Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -295,9 +295,9 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Processes the setting of the forbidden page for this site
 	*
-	* @param object Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -312,9 +312,9 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Paint the interface for setting the not found page for this site
 	*
-	* @param object Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -329,9 +329,9 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Processes the setting of the not found page for this site
 	*
-	* @param object Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -341,6 +341,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		return $this->processNoticeLinkedAsset($asset, 'not_found');
 
 	}//end processNotFoundPage()
+
 
 }//end class
 
