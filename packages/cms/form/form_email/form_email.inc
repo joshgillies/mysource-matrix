@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.45 2005/10/19 06:25:27 sdanis Exp $
+* $Id: form_email.inc,v 1.46 2006/01/18 04:31:45 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -56,7 +56,7 @@ class Form_Email extends Form
 	* @return string
 	* @access private
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
@@ -66,8 +66,8 @@ class Form_Email extends Form
 	/**
 	* Prints the standard form i.e not a wizard
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function printStandard()
 	{
@@ -82,8 +82,8 @@ class Form_Email extends Form
 	/**
 	* Send all the emails when the form is completed
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function finishForm()
 	{
@@ -93,7 +93,7 @@ class Form_Email extends Form
 		$this->sendToFriends();
 		$this->runSelectiveEmails();
 
-		return true;
+		return TRUE;
 
 	}//end finishForm()
 
@@ -103,21 +103,21 @@ class Form_Email extends Form
 	*
 	* @param boolean	$html	return html formatted or not
 	*
+	* @return string
 	* @access public
-	* @return string $information
 	*/
-	function getFormInfo($html=false)
+	function getFormInfo($html=FALSE)
 	{
 		$info = parent::getFormInfo();
 		$title = 'Form Information';
 		$information  = ($html) ? '<b>'.$title.'</b><br />' : $title."\n\n";
-		$information .= ($html) ? "<table>" : '';
+		$information .= ($html) ? '<table>' : '';
 
 		foreach ($info as $name => $value) {
-			$information .= ($html) ? '<tr><td valign="top">'.ucwords(str_replace('_', ' ', $name)).'</td>' : ucwords(str_replace('_', ' ', $name))." : ";
+			$information .= ($html) ? '<tr><td valign="top">'.ucwords(str_replace('_', ' ', $name)).'</td>' : ucwords(str_replace('_', ' ', $name)).' : ';
 			$information .= ($html) ? '<td valign="top">'.$value.'</td></tr>' : $value."\n";
 		}
-		$information .= ($html) ? "</table>" : '';
+		$information .= ($html) ? '</table>' : '';
 		return $information;
 
 	}//end getFormInfo()
@@ -126,18 +126,18 @@ class Form_Email extends Form
 	/**
 	* Clones certain specified components of the asset
 	*
-	* @param object asset &$clone the clone asset shell
-	* @param array			$components	the wanted components to clone eg.
-	*                       Array(
+	* @param object	&$clone		the clone asset shell
+	* @param array	$components	the wanted components to clone eg.
+	*         		           	Array(
 	*                           'attributes',
 	*                           'metadata_shemas',
 	*                           'metadata',
 	*                           'workflow',
 	*                           'permissions',
 	*                           'data'
-	*                       );
-	*                       or alternately
-	*                       Array('all');
+	*                       	);
+	*                       	or alternately
+	*                       	Array('all');
 	*
 	* @return boolean
 	* @access public
@@ -149,7 +149,7 @@ class Form_Email extends Form
 
 		if (!parent::cloneComponents($clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		if (in_array('attributes', $components) || in_array('all', $components)) {
@@ -184,7 +184,7 @@ class Form_Email extends Form
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		return TRUE;
 
 	}//end cloneComponents()
 
@@ -192,10 +192,10 @@ class Form_Email extends Form
 	/**
 	* delete a question to this form
 	*
-	* @param Form_Question &$question the question object to delete
+	* @param object	&$question	the question object to delete
 	*
+	* @return boolean
 	* @access public
-	* @return boolean false if database problem or question already deleted, true if sucessful
 	*/
 	function deleteQuestion(&$question)
 	{
@@ -203,7 +203,7 @@ class Form_Email extends Form
 
 		if (!parent::deleteQuestion($question)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		if ($this->attr('staf_field') == $question->id) {
@@ -216,12 +216,12 @@ class Form_Email extends Form
 
 		if (!$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		return true;
+		return TRUE;
 
 	}//end deleteQuestion()
 
@@ -229,30 +229,30 @@ class Form_Email extends Form
 	/**
 	* Mail a receipt to the user if a receipt email field has been assigned in Email Options
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function mailReceipt()
 	{
 		$email_field_assetid = $this->attr('receipt_field');
-		if (empty($email_field_assetid)) return false;
+		if (empty($email_field_assetid)) return FALSE;
 
 		$email_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($email_field_assetid);
-		if (empty($email_field)) return false;
+		if (empty($email_field)) return FALSE;
 		$address = $email_field->getValue();
 
 		// get the form info (in both formats)
-		$info = $this->getFormInfo(true);
-		$info_text = $this->getFormInfo(false);
+		$info = $this->getFormInfo(TRUE);
+		$info_text = $this->getFormInfo(FALSE);
 
 		// get the form summary (both formats)
 		ob_start();
-			$this->printSummary(true);
+			$this->printSummary(TRUE);
 			$body = ob_get_contents();
 		ob_end_clean();
 
 		ob_start();
-			$this->printSummary(false);
+			$this->printSummary(FALSE);
 			$body_text = ob_get_contents();
 		ob_end_clean();
 
@@ -266,19 +266,19 @@ class Form_Email extends Form
 
 		// replacements of question responses
 		$questions = $this->getQuestions();
-		$sections = &$this->getSections();
+		$sections =& $this->getSections();
 
 		foreach ($questions as $q_id => $question) {
-			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
 			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary();
 		}
 
 		foreach ($sections as $section) {
 			$reps['section_title_'.$section->id] = $section->attr('name');
-			$questions = &$section->getQuestions();
+			$questions =& $section->getQuestions();
 			foreach ($questions as $q_id => $question) {
-				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
+				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 				$q_name = $section->attr('name').': '.$q_asset->attr('name');
 				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary();
 			}
@@ -302,7 +302,7 @@ class Form_Email extends Form
 
 		$email_format_attr->sendMail($reps);
 
-		return true;
+		return TRUE;
 
 	}//end mailReceipt()
 
@@ -310,8 +310,8 @@ class Form_Email extends Form
 	/**
 	* Send mail to recipients set in the backend
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function mailRecipients()
 	{
@@ -320,20 +320,20 @@ class Form_Email extends Form
 		$current_value = @unserialize($email_format_attr->value);
 
 		// return false if there is no-one to send to
-		if (empty($current_value['to'])) return false;
+		if (empty($current_value['to'])) return FALSE;
 
 		// get the form info (in both formats)
-		$info = $this->getFormInfo(true);
-		$info_text = $this->getFormInfo(false);
+		$info = $this->getFormInfo(TRUE);
+		$info_text = $this->getFormInfo(FALSE);
 
 		// get the form summary
 		ob_start();
-			$this->printSummary(true);
+			$this->printSummary(TRUE);
 			$body = ob_get_contents();
 		ob_end_clean();
 
 		ob_start();
-			$this->printSummary(false);
+			$this->printSummary(FALSE);
 			$body_text = ob_get_contents();
 		ob_end_clean();
 
@@ -346,19 +346,19 @@ class Form_Email extends Form
 
 		// replacements of question responses
 		$questions = $this->getQuestions();
-		$sections = &$this->getSections();
+		$sections =& $this->getSections();
 
 		foreach ($questions as $q_id => $question) {
-			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
 			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary();
 		}
 
 		foreach ($sections as $section) {
 			$reps['section_title_'.$section->id] = $section->attr('name');
-			$questions = &$section->getQuestions();
+			$questions =& $section->getQuestions();
 			foreach ($questions as $q_id => $question) {
-				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
+				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 				$q_name = $section->attr('name').': '.$q_asset->attr('name');
 				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary();
 			}
@@ -376,7 +376,7 @@ class Form_Email extends Form
 
 		$email_format_attr->sendMail($reps);
 
-		return true;
+		return TRUE;
 
 	}//end mailRecipients()
 
@@ -384,30 +384,30 @@ class Form_Email extends Form
 	/**
 	* Mail a receipt to friends if a STAF field has been assigned in Email Options
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function sendToFriends()
 	{
 		$email_field_assetid = $this->attr('staf_field');
-		if (empty($email_field_assetid)) return false;
+		if (empty($email_field_assetid)) return FALSE;
 
 		$email_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($email_field_assetid);
-		if (empty($email_field)) return false;
+		if (empty($email_field)) return FALSE;
 		$addresses = preg_split('/[\s;,]+/',$email_field->getValue());
 
 		// get the form info
-		$info = $this->getFormInfo(true);
-		$info_text = $this->getFormInfo(false);
+		$info = $this->getFormInfo(TRUE);
+		$info_text = $this->getFormInfo(FALSE);
 
 		// get the form summary
 		ob_start();
-			$this->printSummary(true);
+			$this->printSummary(TRUE);
 			$body = ob_get_contents();
 		ob_end_clean();
 
 		ob_start();
-			$this->printSummary(false);
+			$this->printSummary(FALSE);
 			$body_text = ob_get_contents();
 		ob_end_clean();
 
@@ -424,19 +424,19 @@ class Form_Email extends Form
 
 		// replacements of question responses
 		$questions = $this->getQuestions();
-		$sections = &$this->getSections();
+		$sections =& $this->getSections();
 
 		foreach ($questions as $q_id => $question) {
-			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
 			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary();
 		}
 
 		foreach ($sections as $section) {
 			$reps['section_title_'.$section->id] = $section->attr('name');
-			$questions = &$section->getQuestions();
+			$questions =& $section->getQuestions();
 			foreach ($questions as $q_id => $question) {
-				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
+				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 				$q_name = $section->attr('name').': '.$q_asset->attr('name');
 				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary();
 			}
@@ -460,7 +460,7 @@ class Form_Email extends Form
 
 		$email_format_attr->sendMail($reps);
 
-		return true;
+		return TRUE;
 
 	}//end sendToFriends()
 
@@ -468,8 +468,8 @@ class Form_Email extends Form
 	/**
 	* Run selective emails application
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function runSelectiveEmails()
 	{
@@ -482,15 +482,15 @@ class Form_Email extends Form
 		$receipts	= Array();
 		$stafs		= Array();
 
-		for (reset($selective_emails); null !== ($k = key($selective_emails)); next($selective_emails)) {
+		for (reset($selective_emails); NULL !== ($k = key($selective_emails)); next($selective_emails)) {
 			$sel_email =& $selective_emails[$k];
 
 			// check to see whether it is valid in the first place
-			$valid = true;
+			$valid = TRUE;
 
-			if (empty($sel_email['rules'])) $valid = false;				// no rule parts!
-			if (empty($sel_email['send'])) $valid = false;				// type of mail is empty
-			if (empty($sel_email['address'])) $valid = false;			// address to send to is empty
+			if (empty($sel_email['rules'])) $valid = FALSE;				// no rule parts!
+			if (empty($sel_email['send'])) $valid = FALSE;				// type of mail is empty
+			if (empty($sel_email['address'])) $valid = FALSE;			// address to send to is empty
 
 			if ($valid) {
 
@@ -503,32 +503,32 @@ class Form_Email extends Form
 				// find the rule parts
 				$rule_parts =& $sel_email['rules'];
 
-				for (reset($rule_parts); null !== ($rule_key = key($rule_parts)); next($rule_parts)) {
+				for (reset($rule_parts); NULL !== ($rule_key = key($rule_parts)); next($rule_parts)) {
 					$rule =& $rule_parts[$rule_key];
-					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($rule['assetid']);
+					$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($rule['assetid']);
 
 					// if this rule is broken due to a deleted question, the rule
 					// will automatically fail
 					if (!$q_asset) {
-						$passed = false;
+						$passed = FALSE;
 						break;
 					}
 
 					$answer = $q_asset->getValue();
 
-					$type_code = 'form_question_rule_type_' . $rule['name'];
+					$type_code = 'form_question_rule_type_'.$rule['name'];
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-					$rule_asset = new $type_code();
+					$rule_asset =& new $type_code();
 					$rule_passed = $rule_asset->evaluate($answer, $rule, $q_asset);
 
 					// Short Circuit evaluation, see note above this loop.
 					if ($require_all && !$rule_passed) {
 						// require ALL, rule part FAILED => fail whole rule
-						$passed = false;
+						$passed = FALSE;
 						break;
 					} else if (!$require_all && $rule_passed) {
 						// require ANY, rule part PASSED => pass whole rule
-						$passed = true;
+						$passed = TRUE;
 						break;
 					}
 
@@ -553,23 +553,23 @@ class Form_Email extends Form
 
 			}//end if valid
 
-		}//end selective email rules
+		}//end for selective email rules
 
 		// form info will be common amongst all emails so we might as well
 		// capture it up the top of this thing
 
 		// get the form info
-		$info = $this->getFormInfo(true);
-		$info_text = $this->getFormInfo(false);
+		$info = $this->getFormInfo(TRUE);
+		$info_text = $this->getFormInfo(FALSE);
 
 		// get the form summary
 		ob_start();
-			$this->printSummary(true);
+			$this->printSummary(TRUE);
 			$body = ob_get_contents();
 		ob_end_clean();
 
 		ob_start();
-			$this->printSummary(false);
+			$this->printSummary(FALSE);
 			$body_text = ob_get_contents();
 		ob_end_clean();
 
@@ -583,19 +583,19 @@ class Form_Email extends Form
 
 		// replacements of question responses
 		$questions = $this->getQuestions();
-		$sections = &$this->getSections();
+		$sections =& $this->getSections();
 
 		foreach ($questions as $q_id => $question) {
-			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
 			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary();
 		}
 
 		foreach ($sections as $section) {
 			$reps['section_title_'.$section->id] = $section->attr('name');
-			$questions = &$section->getQuestions();
+			$questions =& $section->getQuestions();
 			foreach ($questions as $q_id => $question) {
-				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
+				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 				$q_name = $section->attr('name').': '.$q_asset->attr('name');
 				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary();
 			}
@@ -679,7 +679,7 @@ class Form_Email extends Form
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end runSelectiveEmails()
 

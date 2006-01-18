@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.24 2005/05/20 05:27:37 tbarrett Exp $
+* $Id: form_submission.inc,v 1.25 2006/01/18 04:31:45 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -41,7 +41,7 @@ class Form_Submission extends Asset
 	*/
 	function Form_Submission($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		return $this->Asset($assetid);
 
 	}//end constructor
@@ -50,9 +50,9 @@ class Form_Submission extends Asset
 	/**
 	* returns the answer of an question
 	*
-	* @param int $id the id of the question
+	* @param int	$id	the id of the question
 	*
-	* @return mixed answer
+	* @return mixed boolean|string
 	* @access public
 	*/
 	function getAnswer($id)
@@ -61,7 +61,7 @@ class Form_Submission extends Asset
 		if (isset($a['answers'][$id]['answer'])) {
 			return $a['answers'][$id]['answer'];
 		}
-		return false;
+		return FALSE;
 
 	}//end getAnswer()
 
@@ -69,9 +69,9 @@ class Form_Submission extends Asset
 	/**
 	* returns the name of an question
 	*
-	* @param int $id the id of the question
+	* @param int	$id	the id of the question
 	*
-	* @return string name
+	* @return string
 	* @access public
 	*/
 	function getName($id)
@@ -80,7 +80,7 @@ class Form_Submission extends Asset
 		if (isset($a['answers'][$id]['name'])) {
 			return $a['answers'][$id]['name'];
 		}
-		return false;
+		return FALSE;
 
 	}//end getName()
 
@@ -88,9 +88,8 @@ class Form_Submission extends Asset
 	/**
 	* sets the answer of a question in this submission object
 	*
-	* @param integer	$id		the id of the question
-	* @param string		$name	the name of the question (useful for printing form summary)
-	* @param mixed		$value	the value of the question
+	* @param int	$id		the id of the question
+	* @param mixed	$value	the value of the question
 	*
 	* @return boolean
 	* @access public
@@ -103,10 +102,10 @@ class Form_Submission extends Asset
 		$a['answers'][$id]['answer'] = $value;
 
 		if (!$this->setAttrValue('attributes', $a)) {
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end setAnswer()
 
@@ -114,24 +113,24 @@ class Form_Submission extends Asset
 	/**
 	* set a form error into the error store
 	*
-	* @param string		$error	the error to set
+	* @param string	$error	the error to set
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function setError($error)
 	{
 		$a = $this->attr('attributes');
 		if (!isset($a['is_error']) || !$a['is_error']) {
-			$a['is_error'] = true;
+			$a['is_error'] = TRUE;
 		}
 		if (!isset($a['errors'])) $a['errors'] = Array();
 		$a['errors'][] = $error;
 
 		if (!$this->setAttrValue('attributes', $a)) {
-			return false;
+			return FALSE;
 		}
-		return true;
+		return TRUE;
 
 	}//end setError()
 
@@ -139,8 +138,8 @@ class Form_Submission extends Asset
 	/**
 	* get the form errors from the store
 	*
+	* @return array
 	* @access public
-	* @return Array(string)
 	*/
 	function getErrors()
 	{
@@ -153,20 +152,20 @@ class Form_Submission extends Asset
 	/**
 	* flush the errors in the store
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function flushErrors()
 	{
 		$a = $this->attr('attributes');
-		$a['is_error'] = false;
+		$a['is_error'] = FALSE;
 		$a['errors'] = Array();
 
 		if (!$this->setAttrValue('attributes', $a)) {
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end flushErrors()
 
@@ -174,13 +173,13 @@ class Form_Submission extends Asset
 	/**
 	* returns true if there is a form error
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function isError()
 	{
 		$a = $this->attr('attributes');
-		return (isset($a['is_error']) && ($a['is_error'])) ? true : false;
+		return (isset($a['is_error']) && ($a['is_error'])) ? TRUE : FALSE;
 
 	}//end isError()
 
@@ -188,8 +187,8 @@ class Form_Submission extends Asset
 	/**
 	* returns the answers for question in the form:
 	*
+	* @return array
 	* @access public
-	* @return Array()
 	*/
 	function getAnswers()
 	{
@@ -202,12 +201,12 @@ class Form_Submission extends Asset
 	/**
 	* sets a summary about a question used to print a complete summary of the answers of this form
 	*
-	* @param integer	$question_id	the id of the question
-	* @param string		$name			the name of the question
-	* @param string		$value			the value of the question
+	* @param int	$question_id	the id of the question
+	* @param string	$name			the name of the question
+	* @param string	$value			the value of the question
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function setSummary($question_id, $name, $value)
 	{
@@ -219,10 +218,10 @@ class Form_Submission extends Asset
 		$a['summary'][$question_id]['name']    = $name;
 
 		if (!$this->setAttrValue('attributes', $a)) {
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end setSummary()
 
@@ -230,13 +229,16 @@ class Form_Submission extends Asset
 	/**
 	* returns an Array with summary information
 	*
+	* @param int	$q_id	Question id
+	* @param string	$value	Value
+	*
+	* @return array
 	* @access public
-	* @return Array()
 	*/
-	function getSummary($q_id=null, $value='answer')
+	function getSummary($q_id=NULL, $value='answer')
 	{
 		$a = $this->attr('attributes');
-		if (!$a) return false;
+		if (!$a) return FALSE;
 
 		if (is_null($q_id)) {
 			return $a['summary'];
@@ -257,7 +259,7 @@ class Form_Submission extends Asset
 	* @access public
 	* @see asset::setAttrValue()
 	*/
-	function saveAttributes($dont_run_updated=false)
+	function saveAttributes($dont_run_updated=FALSE)
 	{
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		$val = parent::saveAttributes($dont_run_updated);
@@ -285,9 +287,9 @@ class Form_Submission extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function incrementVersion($number='micro', $update_parents=true)
+	function incrementVersion($number='micro', $update_parents=TRUE)
 	{
-		return parent::incrementVersion($number, false);
+		return parent::incrementVersion($number, FALSE);
 
 	}//end incrementVersion()
 

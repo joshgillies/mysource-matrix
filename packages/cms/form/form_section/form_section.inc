@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.47 2006/01/09 03:41:04 emcdonald Exp $
+* $Id: form_section.inc,v 1.48 2006/01/18 04:31:45 sdanis Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -91,13 +91,13 @@ class Form_Section extends Asset
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
-	* @return mixed object|null
+	* @return mixed object|NULL
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
 	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
 	{
-		$asset = null;
+		$asset = NULL;
 		$id_parts = explode(':', $shadowid);
 
 		if (isset($id_parts[1])) {
@@ -154,7 +154,7 @@ class Form_Section extends Asset
 	* @return array
 	* @access public
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=null)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL)
 	{
 		// there are no links away from the shadow asset (ie:questions)
 		$links = Array();

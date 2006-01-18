@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.13 2005/11/04 00:00:39 lwright Exp $
+* $Id: form_submission_edit_fns.inc,v 1.14 2006/01/18 04:31:45 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,12 +47,12 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint interface to edit form submission answers
 	*
-	* @param object	Asset				&$asset		asset being edited
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for html elements
+	* @param object	&$asset	asset being edited
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for html elements
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function paintSubmissionDetails(&$asset, &$o, $prefix)
 	{
@@ -77,7 +77,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 
 		$answers = $asset->attr('attributes');
 		reset($answers['answers']);
-		$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($answers['answers']), 'form', false));
+		$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($answers['answers']), 'form', FALSE));
 		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
 		$sections =& $form->getSections();
 		for (reset($sections); $section = current($sections); next($sections)) {
@@ -86,7 +86,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 		$section_questions[$form_id] = Array();
 		foreach ($answers['answers'] as $q_id => $details) {
 			$section_id = strtok($q_id, ':');
-			$details['printed'] = false;
+			$details['printed'] = FALSE;
 			$section_questions[$section_id][$q_id] = $details;
 		}
 		foreach ($form->attr('sort_order') as $q_id) {
@@ -97,7 +97,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 			$note = $q->isEditable() ? $q->getVal('note') : '<i>(Questions of this type cannot be edited)</i>';
 			$o->openField($q->getVal('title'), '', $note);
 			echo ($q->isEditable() && $wa) ? $q->getHtmlField() : $q->getSummary().'&nbsp;';
-			$section_questions[$form_id][$q_id]['printed'] = true;
+			$section_questions[$form_id][$q_id]['printed'] = TRUE;
 			$o->closeField();
 		}
 		foreach ($section_questions[$form_id] as $q_id => $q_details) {
@@ -121,7 +121,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 				$note = $q->isEditable() ? $q->getVal('note') : '<i>(Questions of this type cannot be edited)</i>';
 				$o->openField($q->getVal('title'), '', $note);
 				echo ($q->isEditable() && $wa) ? $q->getHtmlField() : $q->getSummary().'&nbsp;';
-				$section_questions[$section_id][$q_id]['printed'] = true;
+				$section_questions[$section_id][$q_id]['printed'] = TRUE;
 				$o->closeField();
 			}
 			foreach ($section_questions[$section_id] as $q_id => $q_details) {
@@ -141,17 +141,17 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process submitted submission details
 	*
-	* @param object	Asset				&$asset		asset being edited
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for html elements
+	* @param object	&$asset	asset being edited
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for html elements
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function processSubmissionDetails(&$asset, &$o, $prefix)
 	{
 		$attributes = $asset->attr('attributes');
-		$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($attributes['answers']), 'form', false));
+		$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($attributes['answers']), 'form', FALSE));
 		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
 		$this->_tmp['question_errors'] = Array();
 		$unanswered_questions =& $form->getAllQuestionAssets();
@@ -170,13 +170,13 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 				unset($unanswered_questions[$q_id]);
 			}
 			$section_id = strtok($q_id, ':');
-			$details['printed'] = false;
+			$details['printed'] = FALSE;
 			$section_questions[$section_id][$q_id] = $details;
 		}
 
 		for (reset($unanswered_questions); $q =& current($unanswered_questions); next($unanswered_questions)) {
 			if (!$q->isEditable()) continue;
-			$q->setAttrValue('is_required', false); // temporarily
+			$q->setAttrValue('is_required', FALSE); // temporarily
 			$q->populate();
 			if (!$q->hasValidValue()) {
 				$this->_tmp['question_errors'] = array_merge($this->_tmp['question_errors'], $q->failed_rules);
@@ -189,7 +189,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 		}
 		if (empty($this->_tmp['question_errors'])) {
 			$asset->setAttrValue('attributes', $attributes);
-			return true;
+			return TRUE;
 		}
 
 	}//end processSubmissionDetails()

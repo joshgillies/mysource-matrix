@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_management.inc,v 1.13 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: form_section_management.inc,v 1.14 2006/01/18 04:31:45 sdanis Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -77,6 +77,7 @@ class Form_Section_Management extends Asset_Management
 													'default'	=> 0,
 												   ),
 					  );
+
 		}//end constructor
 
 

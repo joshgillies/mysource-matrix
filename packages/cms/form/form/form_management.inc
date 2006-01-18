@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.39 2005/12/12 22:45:43 lwright Exp $
+* $Id: form_management.inc,v 1.40 2006/01/18 04:31:45 sdanis Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -52,17 +52,17 @@ class Form_Management extends Asset_Management
 						'log_submissions'			=> Array(
 														'added'			=> '0.0.1',
 														'type'			=> 'boolean',
-														'default'		=> true,
+														'default'		=> TRUE,
 														'parameters'	=> Array(
-																			'allow_empty'	=> false,
+																			'allow_empty'	=> FALSE,
 																		   ),
 													   ),
 						'show_results'				=> Array(
 														'added'			=> '0.0.1',
 														'type'			=> 'boolean',
-														'default'		=> true,
+														'default'		=> TRUE,
 														'parameters'	=> Array(
-																			'allow_empty'	=> false,
+																			'allow_empty'	=> FALSE,
 																		   ),
 													   ),
 						'submit_button'				=> Array(
@@ -103,25 +103,25 @@ class Form_Management extends Asset_Management
 						'use_bodycopy_main'			=> Array(
 														'added'			=> '0.0.1',
 														'type'			=> 'boolean',
-														'default'		=> false,
+														'default'		=> FALSE,
 														'parameters'	=> Array(
-																			'allow_empty'	=> false,
+																			'allow_empty'	=> FALSE,
 																		   ),
 													   ),
 						'use_bodycopy_thank_you'	=> Array(
 														'added'			=> '0.0.1',
 														'type'			=> 'boolean',
-														'default'		=> false,
+														'default'		=> FALSE,
 														'parameters'	=> Array(
-																			'allow_empty'	=> false,
+																			'allow_empty'	=> FALSE,
 																		   ),
 													   ),
 						'use_client_side'			=> Array(
 														'added'			=> '0.0.1',
 														'type'			=> 'boolean',
-														'default'		=> false,
+														'default'		=> FALSE,
 														'parameters'	=> Array(
-																			'allow_empty'	=> false,
+																			'allow_empty'	=> FALSE,
 																		   ),
 													   ),
 						'note_size'					=> Array(
@@ -151,17 +151,18 @@ class Form_Management extends Asset_Management
 				Array(
 					'event_name'					=> 'requestKeywords',
 					'broadcast_type_code'			=> 'content_type',
-					'broadcast_strict_type_code'	=> false,
+					'broadcast_strict_type_code'	=> FALSE,
 					'options'						=> Array(
 														'side_of_link'	=> 'major',
-														'indirect'		=> true,
-														'is_exclusive'	=> null,
+														'indirect'		=> TRUE,
+														'is_exclusive'	=> NULL,
 														'is_dependant'	=> 1,
 														'value'			=> '',
 														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
 													   ),
 				),
 			   );
+
 	}//end getEventList()
 
 
@@ -197,7 +198,7 @@ class Form_Management extends Asset_Management
 		if (version_compare($current_version, '0.6', '<')) {
 			bam('UPGRADING FORM TO v0.6');
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
-			$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('form', true);
+			$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('form', TRUE);
 			foreach ($descendants as $i => $desc) {
 				$descendants[$i] = $db->quote($desc);
 			}
@@ -264,10 +265,10 @@ class Form_Management extends Asset_Management
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			bam('DONE');
-		}
-
+		}//end if
 
 		return $res;
+
 	}//end _upgrade()
 
 

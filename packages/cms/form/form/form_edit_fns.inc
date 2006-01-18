@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.64 2005/11/25 01:45:21 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.65 2006/01/18 04:31:45 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -41,7 +41,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	function Form_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
 
@@ -62,18 +62,18 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		if (isset($asset->tmp['section_links'])) {
 			unset($asset->tmp['section_links']);
 		}
-		$sections = &$asset->getSections();
+		$sections =& $asset->getSections();
 
 		if (empty($sections)) {
 			echo translate('cms_form_no_sections');
-			return false;
+			return FALSE;
 		}
-		for (reset($sections); null !== ($k = key($sections)); next($sections)) {
+		for (reset($sections); NULL !== ($k = key($sections)); next($sections)) {
 			$s =& $sections[$k];
 			echo get_asset_tag_line($s->id, 'details').'<br />';
 		}
 
-		return true;
+		return TRUE;
 
 	}//end paintSectionLinks()
 
@@ -90,7 +90,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processSectionLinks(&$asset, &$o, $prefix)
 	{
-		return true;
+		return TRUE;
 
 	}//end processSectionLinks()
 
@@ -107,7 +107,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintQuestionLinks(&$asset, &$o, $prefix)
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$admin_access = $asset->writeAccess('attributes');
 		$prefix = $asset->getPrefix();
 
@@ -271,11 +271,11 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 						<?php
 						$i++;
 					}//end foreach data
-				}
+				}//end if
 				?>
 				</table>
 		<?php
-		return true;
+		return TRUE;
 
 	}//end paintQuestionLinks()
 
@@ -303,7 +303,6 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		// use array_merge() here so that the assets get re-ordered without
-		//
 		if (isset($_POST[$prefix.'_order']['reorder'])) {
 			$asset->setAttrValue('sort_order', array_merge($_POST[$prefix.'_order']['reorder']));
 			$asset->saveAttributes();
@@ -313,7 +312,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		// regen the content file
 		$asset->_updated();
 
-		return true;
+		return TRUE;
 
 	}//end processQuestionLinks()
 
@@ -350,13 +349,13 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			if ($num_bodycopies == 0) {
 				echo translate('cms_form_none_customised').'<br />';
 			}
-			return false;
+			return FALSE;
 		} else {
 			check_box('use_bodycopy_main', '1', $asset->attr('use_bodycopy_main'));
 			echo translate('cms_page_contents').'<br />';
 			check_box('use_bodycopy_thank_you', '1', $asset->attr('use_bodycopy_thank_you'));
 			echo translate('cms_form_thank_you').'<br />';
-			return true;
+			return TRUE;
 		}
 
 	}//end paintUseBodycopy()
@@ -389,7 +388,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		$asset->saveAttributes();
 		$asset->_updated();
 
-		return true;
+		return TRUE;
 
 	}//end processUseBodycopy()
 
@@ -408,9 +407,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintAddQuestions(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$question_types = $am->getTypeDescendants('form_question');
 		$questions = Array('' => '-- Choose Type --');
 
@@ -421,7 +420,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			$questions[$question] = $q;
 		}
 
-		combo_box('question_type', $questions, false, '');
+		combo_box('question_type', $questions, FALSE, '');
 		echo '&nbsp;';
 
 		// create a dropdown box with some numbers for the number of questions to add
@@ -429,8 +428,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		for ($i = 1; $i <= 10; $i++) {
 			$num[$i] = $i;
 		}
-		combo_box('num_questions', $num, false, '');
-		return true;
+		combo_box('num_questions', $num, FALSE, '');
+		return TRUE;
 
 	}//end paintAddQuestions()
 
@@ -454,7 +453,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		// so when we create the new ones,  we can give them an
 		// appropriate name
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$curr_question_count = $asset->getQuestionCount() + 1;
 
 		if ($type && $number) {
@@ -463,12 +462,12 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 
 			// create some questions
 			for ($i = 0; $i < $number; $i++) {
-				if (!$asset->attachQuestion($type)) return false;
+				if (!$asset->attachQuestion($type)) return FALSE;
 				$curr_question_count++;
 			}//end for
 		}//end if
 
-		return true;
+		return TRUE;
 
 	}//end processAddQuestions()
 
@@ -485,12 +484,12 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintAddSections(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('links')) return false;
+		if (!$asset->writeAccess('links')) return FALSE;
 
 		$option_list =& new Asset_Attribute_Option_List();
 		$option_list->paint($prefix.'_sections');
 
-		return true;
+		return TRUE;
 
 	}//end paintAddSections()
 
@@ -521,10 +520,10 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		if (empty($sections)) return false;
+		if (empty($sections)) return FALSE;
 
 		// now that we have the section names, display them in the order entered
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		for ($i = 0; $i < count($sections); $i++) {
@@ -540,7 +539,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 
 			if (!$section[$i]->create($copy_link)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+				return FALSE;
 			}
 
 			// regen the content file
@@ -550,7 +549,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		return true;
+		return TRUE;
 
 	}//end processAddSections()
 
@@ -565,7 +564,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintSubmissions(&$asset)
 	{
-		return true;
+		return TRUE;
 
 	}//end paintSubmissions()
 
@@ -580,7 +579,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processSubmissions(&$asset)
 	{
-		return true;
+		return TRUE;
 
 	}//end processSubmissions()
 
@@ -599,11 +598,11 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		// all the sections to print themselves
 		$output = '<'.'?php $form_asset=$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.'); ?'.'>'."\n";
 
-		$sections = &$asset->getSections();
+		$sections =& $asset->getSections();
 		$output .= $this->generateGenericSection($asset);
 		$i = 1; // used for indexing
 
-		for (reset($sections); null !== ($k = key($sections)); next($sections)) {
+		for (reset($sections); NULL !== ($k = key($sections)); next($sections)) {
 			$section =& $sections[$k];
 
 			// let the section know what its column widths are
@@ -616,7 +615,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			$output .= '<'.'?php $active_form =& $this; ?'.'>';
 
 			// get the section to regen
-			$section->fileRegeneration(false);
+			$section->fileRegeneration(FALSE);
 
 			// output an include BUT we want to make what's printed relative to SQ_DATA_PATH
 			$output .= '<'.'?php include_once('.str_replace(SQ_DATA_PATH, 'SQ_DATA_PATH."', $section->data_path).'/content_file.php'.'"); ?'.'>';
@@ -653,7 +652,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				// if there is no section for the keyword replacement,
 				// just strip out the keyword
 
-				if ($s = &$asset->getSectionByOrder($section)) {
+				if ($s =& $asset->getSectionByOrder($section)) {
 
 					// let the section know what its column widths are
 					$section->question_col_width = $asset->attr('question_col_width');
@@ -672,7 +671,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			}//end foreach
 			return $output;
 		}
-		return false;
+		return FALSE;
 
 	}//end processSectionReplacements()
 
@@ -701,7 +700,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				// is no replacement for it, then just strip out the tag
 				// for that keyword
 
-				if ($question = &$asset->getQuestionByOrder($asset, $s, $q)) {
+				if ($question =& $asset->getQuestionByOrder($asset, $s, $q)) {
 					if (!empty($this->current_answers)) {
 						$question->setValue($this->current_answers[$question->id]);
 					}
@@ -713,7 +712,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			}//end for
 			return $output;
 		}//end if
-		return false;
+		return FALSE;
 
 	}//end processQuestionReplacements()
 
@@ -776,7 +775,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		<p><?php echo translate('cms_form_simple_formatting_note') ?></p>
 
 		<?php
-		return true;
+		return TRUE;
 
 	}//end paintSimpleFormatting()
 
@@ -795,7 +794,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processSimpleFormatting(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processSimpleFormatting()
 
@@ -817,7 +816,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		<?php echo translate('cms_form_page_contents_popup_link', sq_web_path('data').'/asset_types/form/popups/page_contents_keywords.php?assetid='.$asset->id, 580, 520) ?><br/>
 		<?php echo translate('cms_form_thank_you_popup_link', sq_web_path('data').'/asset_types/form/popups/thank_you_keywords.php?assetid='.$asset->id, 580, 520) ?><br/>
 		<?php
-		return true;
+		return TRUE;
 
 	}//end paintComplexFormatting()
 
@@ -836,7 +835,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processComplexFormatting(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processComplexFormatting()
 

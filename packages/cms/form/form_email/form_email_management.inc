@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_management.inc,v 1.22 2005/04/29 05:40:28 gsherwood Exp $
+* $Id: form_email_management.inc,v 1.23 2006/01/18 04:31:45 sdanis Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -74,20 +74,21 @@ class Form_Email_Management extends Asset_Management
 						'log'						=> Array(
 														'added'			=> '0.0.1',
 														'type'			=> 'boolean',
-														'default'		=> false,
+														'default'		=> FALSE,
 														'parameters'	=> Array(
-																			'allow_empty'	=> false,
+																			'allow_empty'	=> FALSE,
 																		   ),
 													   ),
 					  );
+
 	}//end constructor
 
 
 	/**
 	* returns an array with information about the events that the form is listening for
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function getEventList()
 	{
@@ -95,17 +96,18 @@ class Form_Email_Management extends Asset_Management
 				Array(
 					'event_name'					=> 'requestKeywords',
 					'broadcast_type_code'			=> 'content_type',
-					'broadcast_strict_type_code'	=> false,
+					'broadcast_strict_type_code'	=> FALSE,
 					'options'						=> Array(
 														'side_of_link'	=> 'major',
-														'indirect'		=> true,
-														'is_exclusive'	=> null,
+														'indirect'		=> TRUE,
+														'is_exclusive'	=> NULL,
 														'is_dependant'	=> 1,
 														'value'			=> '',
 														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
 													   ),
 				),
 			   );
+
 	}//end getEventList()
 
 

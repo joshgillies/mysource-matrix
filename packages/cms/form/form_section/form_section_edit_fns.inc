@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.41 2005/12/12 04:50:23 lwright Exp $
+* $Id: form_section_edit_fns.inc,v 1.42 2006/01/18 04:31:45 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -40,7 +40,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	function Form_Section_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
 
@@ -48,17 +48,17 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the links to the questions in this section
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
-	* @return boolean false if no questions in this section, true otherwise
+	* @return boolean
 	* @access public
 	*/
 	function paintQuestionLinks(&$asset, &$o, $prefix)
 	{
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$admin_access = $asset->writeAccess('attributes');
 		$prefix = $asset->getPrefix();
 
@@ -222,11 +222,11 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 						<?php
 						$i++;
 					}//end foreach data
-				}
+				}//end if
 				?>
 				</table>
 		<?php
-		return true;
+		return TRUE;
 
 	}//end paintQuestionLinks()
 
@@ -234,9 +234,9 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the links to the questions in this section
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -245,16 +245,16 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	{
 		$prefix = $asset->getPrefix();
 
-		if (isset($_POST[$prefix . '_order']['delete'])) {
-			foreach (array_keys($_POST[$prefix . '_order']['delete']) as $sort_order) {
+		if (isset($_POST[$prefix.'_order']['delete'])) {
+			foreach (array_keys($_POST[$prefix.'_order']['delete']) as $sort_order) {
 				$question = $asset->getQuestionByOrder($sort_order);
 				$asset->deleteQuestion($question);
-				unset($_POST[$prefix . '_order']['reorder'][$sort_order]);
+				unset($_POST[$prefix.'_order']['reorder'][$sort_order]);
 			}
 		}
 
-		if (isset($_POST[$prefix . '_order']['reorder'])) {
-			$asset->setAttrValue('sort_order', $_POST[$prefix . '_order']['reorder']);
+		if (isset($_POST[$prefix.'_order']['reorder'])) {
+			$asset->setAttrValue('sort_order', $_POST[$prefix.'_order']['reorder']);
 			$asset->saveAttributes();
 		}
 
@@ -262,7 +262,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		// regen the content file
 		$asset->_updated();
 
-		return true;
+		return TRUE;
 
 	}//end processQuestionLinks()
 
@@ -270,18 +270,18 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the dropdowns to add questions to this section
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
-	* @return boolean false if no questions in this section, true otherwise
+	* @return boolean
 	* @access public
 	*/
 	function paintAddQuestions(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$question_types = $am->getTypeDescendants('form_question');
 		$questions = Array('' => '-- Choose Type --');
 
@@ -292,15 +292,15 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			$questions[$question] = $q;
 		}
 
-		combo_box('question_type', $questions, false, '');
+		combo_box('question_type', $questions, FALSE, '');
 		echo '&nbsp;';
 
 		$num = Array();
 		for ($i = 1; $i <= 10; $i++) {
 			$num[$i] = $i;
 		}
-		combo_box('num_questions', $num, false, '');
-		return true;
+		combo_box('num_questions', $num, FALSE, '');
+		return TRUE;
 
 	}//end paintAddQuestions()
 
@@ -308,9 +308,9 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the newly added questions
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -324,7 +324,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		// so when we create the new ones,  we can give them an
 		// appropriate name
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$curr_question_count = $asset->getQuestionCount() + 1;
 
 		if ($type && $number) {
@@ -333,15 +333,14 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 
 			// create some questions
 			for ($i = 0; $i < $number; $i++) {
-				if (!$asset->attachQuestion($type)) {
-					return false;
-				}
+				if (!$asset->attachQuestion($type)) return FALSE;
+
 				$curr_question_count++;
 			}//end for
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		}//end if
 
-		return true;
+		return TRUE;
 
 	}//end processAddQuestions()
 
@@ -357,10 +356,10 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* generates a php file for this form to be used on the frontend for a standard Form
 	*
-	* @param &object Form	$asset the form asset
+	* @param object	&$asset	the form asset
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function generateContentFile(&$asset)
 	{
@@ -382,10 +381,10 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* generates a generic section where there is no main or looping bodycopy
 	*
-	* @param &object $asset the section asset
+	* @param object	&$asset	the section asset
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function generateGenericSection(&$asset)
 	{
