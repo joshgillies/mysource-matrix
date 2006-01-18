@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.40 2006/01/18 04:31:45 sdanis Exp $
+* $Id: form_management.inc,v 1.41 2006/01/18 05:50:18 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -196,7 +196,7 @@ class Form_Management extends Asset_Management
 		$res = parent::_upgrade($current_version);
 
 		if (version_compare($current_version, '0.6', '<')) {
-			bam('UPGRADING FORM TO v0.6');
+			pre_echo('UPGRADING FORM TO v0.6');
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('form', TRUE);
 			foreach ($descendants as $i => $desc) {
@@ -213,12 +213,12 @@ class Form_Management extends Asset_Management
 				}
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($form);
 			}
-			bam('DONE');
+			pre_echo('DONE');
 		}
 
 
 		if (version_compare($current_version, '0.7', '<')) {
-			bam('UPGRADING FORM TO v0.7');
+			pre_echo('UPGRADING FORM TO v0.7');
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -264,7 +264,7 @@ class Form_Management extends Asset_Management
 			assert_valid_db_result($result);
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			bam('DONE');
+			pre_echo('DONE');
 		}//end if
 
 		return $res;
