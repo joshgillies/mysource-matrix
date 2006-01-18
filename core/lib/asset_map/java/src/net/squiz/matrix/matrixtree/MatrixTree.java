@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.19 2006/01/16 23:55:55 skim Exp $
+ * $Id: MatrixTree.java,v 1.20 2006/01/18 00:56:39 sdanis Exp $
  *
  */
 
@@ -331,7 +331,11 @@ public class MatrixTree extends CueTree
 	public void treeWillExpand(TreeExpansionEvent evt) {
 		TreePath path = evt.getPath();
 		MatrixTreeNode treeNode = (MatrixTreeNode) path.getLastPathComponent();
-		loadChildAssets(treeNode);
+
+		// if user does not have access to this asset then they cannot see its kids
+		if (treeNode.getAsset().isAccessible()) {
+			loadChildAssets(treeNode);
+		}
 	}
 
 	/**
