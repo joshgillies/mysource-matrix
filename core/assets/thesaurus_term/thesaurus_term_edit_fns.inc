@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term_edit_fns.inc,v 1.3 2005/12/15 06:20:01 arailean Exp $
+* $Id: thesaurus_term_edit_fns.inc,v 1.4 2006/01/18 22:15:32 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *	Container of a thesaurus term
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,7 +53,7 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 
 		// enable just the details
 		$this->static_screens['details']['name'] = translate('details');
-		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
 
@@ -89,9 +89,9 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 					<tr>
 						<td><?php echo get_asset_tag_line($parent_assetid); ?></td>
 						<td><?php
-							combo_box($prefix.'_new_relation[existing]', $relations, false, null);
+							combo_box($prefix.'_new_relation[existing]', $relations, FALSE, NULL);
 							echo translate('thesaurus_or_create_new');
-							echo text_box($prefix.'_new_relation[new]', null, $size='30', $max='255');
+							echo text_box($prefix.'_new_relation[new]', NULL, $size='30', $max='255');
 						?></td>
 					</tr>
 				</table>
@@ -120,9 +120,9 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 					echo '</td>';
 					echo '<td>';
 					if ($writeable) {
-						combo_box($prefix.'_relations['.$parent['linkid'].'][existing]', $relations, false, $parent['relation']);
+						combo_box($prefix.'_relations['.$parent['linkid'].'][existing]', $relations, FALSE, $parent['relation']);
 						echo translate('thesaurus_or_create_new');
-						text_box($prefix.'_relations['.$parent['linkid'].'][new]', null, $size='30', $max='255');
+						text_box($prefix.'_relations['.$parent['linkid'].'][new]', NULL, $size='30', $max='255');
 					} else {
 						echo array_get_index($parent, 'relation');
 					}
@@ -130,10 +130,10 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 				echo '</tr>';
 			}
 			echo '</table>';
-		}
+		}//end else
 
 		$o->closeRaw();
-		return true;
+		return TRUE;
 
 	}//end paintRelations()
 
@@ -178,7 +178,7 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processRelations()
 

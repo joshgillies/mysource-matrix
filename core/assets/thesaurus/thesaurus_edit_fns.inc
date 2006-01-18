@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.3 2005/12/21 04:17:21 arailean Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.4 2006/01/18 22:12:42 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,6 +65,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	function paintStatus(&$asset, &$o, $prefix)
 	{
 		echo translate('thesaurus_thesaurus_enabled');
+
 	}//end paintStatus()
 
 
@@ -105,20 +106,20 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	{
 		$info = get_file_upload_info($prefix);
 		$append = array_get_index($_REQUEST, $prefix.'_append');
-		if (empty($info)) return true;
+		if (empty($info)) return TRUE;
 
 		// copy over the new uploaded file
 		if (is_uploaded_file($info['tmp_name'])) {
 			// a normal uploaded file
 			if (!move_uploaded_file($info['tmp_name'], $asset->getXmlFilePath())) {
 				trigger_localised_error('CORE0235', E_USER_WARNING, $info['tmp_name'], $asset->getXmlFilePath());
-				return false;
+				return FALSE;
 			}
 		}
 
 		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$hh->queueHipo('hipo_job_import_thesaurus_xml', Array('thesaurus_id' => $asset->id, 'append' => $append));
-		return true;
+		return TRUE;
 
 	}//end processImportXML()
 
@@ -138,7 +139,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 		echo translate('thesaurus_example_xml_file', sq_web_path('data').'/asset_types/thesaurus/files/example.xml');
 
 		// don't ever need a commit button
-		return false;
+		return FALSE;
 
 	}//end paintExampleXMLFile()
 
@@ -167,7 +168,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 			echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_process_export.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_process_export.value = 0; return true;');
 
 		} else {
-			if ($asset->countChildTerms(null)==0) {
+			if ($asset->countChildTerms(NULL)==0) {
 				echo translate('thesaurus_thesaurus_disabled');
 			} else if ($write_access_allowed) {
 				echo hidden_field($prefix.'_process_export', '0');
@@ -272,7 +273,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 						}
 					}
 
-					combo_box($prefix.'_relation', $new_relations, false, array_get_index($relations,'0'));
+					combo_box($prefix.'_relation', $new_relations, FALSE, array_get_index($relations,'0'));
 			echo '	</td>
 				</tr>
 				<tr>
@@ -280,7 +281,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 					label(translate('thesaurus_new_relation'),$prefix.'_new_relation');
 			echo '	</td>
 				<td>';
-					text_box($prefix.'_new_relation', null, $size='30', $max='255');
+					text_box($prefix.'_new_relation', NULL, $size='30', $max='255');
 			echo '	</td>
 				</tr>
 			</table>';
@@ -302,7 +303,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processRenameRelation(&$asset, &$o, $prefix)
 	{
-		$success = false;
+		$success = FALSE;
 		$write_access_allowed = $asset->writeAccess('attributes');
 		if (!$write_access_allowed) {
 			return $write_access_allowed;
@@ -333,21 +334,19 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	function paintSynonymSupport(&$asset, &$o, $prefix)
 	{
 		$current_rel = $asset->attr('synonym_rel');
-		if (empty($current_rel)) {
-			$current_rel = null;
-		}
+		if (empty($current_rel)) $current_rel = NULL;
 		if (!$asset->writeAccess('attributes')) {
-			echo (is_null($current_rel)?'<em>NULL</em>':$current_rel);
+			echo (is_null($current_rel) ? '<em>NULL</em>' : $current_rel);
 		} else {
 			$relations = $asset->getActiveRelations();
 
 			if (!isset($relations[$current_rel]) && !is_null($current_rel)) {
 				$relations[$current_rel] = '-- '.$current_rel;
 			}
-			combo_box($prefix.'_synonym', $relations, false, $current_rel);
+			combo_box($prefix.'_synonym', $relations, FALSE, $current_rel);
 		}
 
-		return true;
+		return TRUE;
 
 	}//end paintSynonymSupport()
 
@@ -369,12 +368,12 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 			$selected_rel = array_get_index($_REQUEST, $prefix.'_synonym');
 			$selected_rel = trim($selected_rel);
-			if (empty($selected_rel)) $selected_rel = null;
+			if (empty($selected_rel)) $selected_rel = NULL;
 
 			$asset->setAttrValue('synonym_rel', $selected_rel);
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processSynonymSupport()
 
@@ -392,21 +391,19 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	function paintAbbreviationSupport(&$asset, &$o, $prefix)
 	{
 		$current_rel = $asset->attr('abbreviation_rel');
-		if (empty($current_rel)) {
-			$current_rel = null;
-		}
+		if (empty($current_rel)) $current_rel = NULL;
 		if (!$asset->writeAccess('attributes')) {
-			echo (is_null($current_rel)?'<em>NULL</em>':$current_rel);
+			echo (is_null($current_rel) ? '<em>NULL</em>' : $current_rel);
 		} else {
 			$relations = $asset->getActiveRelations();
 
 			if (!isset($relations[$current_rel]) && !is_null($current_rel)) {
 				$relations[$current_rel] = '-- '.$current_rel;
 			}
-			combo_box($prefix.'_abbrev', $relations, false, $current_rel);
+			combo_box($prefix.'_abbrev', $relations, FALSE, $current_rel);
 		}
 
-		return true;
+		return TRUE;
 
 	}//end paintAbbreviationSupport()
 
@@ -426,12 +423,12 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 			$selected_rel = array_get_index($_REQUEST, $prefix.'_abbrev');
 			$selected_rel = trim($selected_rel);
-			if (empty($selected_rel)) $selected_rel = null;
+			if (empty($selected_rel)) $selected_rel = NULL;
 
 			$asset->setAttrValue('abbreviation_rel', $selected_rel);
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processAbbreviationSupport()
 

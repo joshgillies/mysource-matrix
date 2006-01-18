@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term.inc,v 1.6 2005/12/15 06:17:05 arailean Exp $
+* $Id: thesaurus_term.inc,v 1.7 2006/01/18 22:15:32 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Thesaurus_Term extends Asset
 			$this->_loadVars();
 			return;
 		}
-		if (strpos($asset_id, ':') === false) return;
+		if (strpos($asset_id, ':') === FALSE) return;
 
 		list($thesaurus_id, $termid) = explode(':', $asset_id);
 
@@ -83,7 +83,7 @@ class Thesaurus_Term extends Asset
 	* Create a new asset
 	*
 	* @param array	&$link	information used to create the initial link<br/>
-	* <PRE>
+	* <pre>
 	* Array ('asset'         => [ref major asset to create link under],
 	*        'link_type'     => SQ_LINK_?,
 	*        'value'         => [link value],
@@ -91,7 +91,7 @@ class Thesaurus_Term extends Asset
 	*        'is_dependant'  => [0|1],
 	*        'is_exclusive'  => [0|1]
 	*        )
-	* </PRE>
+	* </pre>
 	*
 	* @return mixed string|boolean
 	* @access public
@@ -100,9 +100,9 @@ class Thesaurus_Term extends Asset
 	{
 
 		$this->name = $this->attr('name');
-		if (empty($this->name)) return false;
+		if (empty($this->name)) return FALSE;
 
-		$majorid = null;
+		$majorid = NULL;
 
 		if (is_a($link['asset'], 'thesaurus')) {
 			$this->_thesaurus =& $link['asset'];
@@ -111,17 +111,17 @@ class Thesaurus_Term extends Asset
 			$majorid = $link['asset']->_termid;
 		} else {
 			trigger_localised_error('CORE0236', E_USER_WARNING, $link['asset']->type());
-			return false;
+			return FALSE;
 		}
 
 		// see if a term with this name already exists under this parent with this particular relation
 		$term = $this->attr('name');
-		$relation = isset($this->_tmp['relation'])?$this->_tmp['relation']:$link['value'];
+		$relation = isset($this->_tmp['relation']) ? $this->_tmp['relation'] : $link['value'];
 
 		$relation = trim($relation);
-		if ($relation == '') $relation = null;
+		if ($relation == '') $relation = NULL;
 
-		$created = true;
+		$created = TRUE;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -132,9 +132,9 @@ class Thesaurus_Term extends Asset
 			if (is_null($termid)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				trigger_error('Unknown error. Cannot add.');
-				return false;
+				return FALSE;
 			}
-			$created = true;
+			$created = TRUE;
 		}
 
 
@@ -144,26 +144,26 @@ class Thesaurus_Term extends Asset
 		$existing_link = $this->_thesaurus->getTermLinkByTermids($termid, $majorid, $relation);
 		if (!empty($existing_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return null;
+			return NULL;
 		}
 
 		$linkid = $this->_thesaurus->_linkTerms($termid, $majorid, $relation, array_get_index($link,'sort_order'));
 		if (is_null($linkid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_localised_error('CORE0237', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 
 		$this->_thesaurus->markContentsChanged();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		if ($created) {
 			$em->broadcastEvent($this, 'AssetCreate', Array('name','assetid'));
 		}
 
-		return true;
+		return TRUE;
 
 	}//end create()
 
@@ -195,7 +195,7 @@ class Thesaurus_Term extends Asset
 	* Where:
 	*   link_type   = SQ_LINK_TYPE_1|SQ_LINK_TYPE_2|SQ_LINK_TYPE_3|SQ_LINK_NOTICE
 	*   cardinality = [max number of links]|'M'
-	*   exclusive   = true|false
+	*   exclusive   = TRUE|FALSE
 	*
 	* @return array
 	* @access private
@@ -207,7 +207,7 @@ class Thesaurus_Term extends Asset
 				SQ_LINK_TYPE_2	=> Array(
 									'thesaurus_term'	=> Array(
 															'card'		=> 'M',
-															'exclusive'	=> false,
+															'exclusive'	=> FALSE,
 														   ),
 								   ),
 				SQ_LINK_TYPE_3	=> Array(),
@@ -224,7 +224,7 @@ class Thesaurus_Term extends Asset
 	*/
 	function saveAttributes()
 	{
-		if (empty($this->_thesaurus)) return true;
+		if (empty($this->_thesaurus)) return TRUE;
 
 		$name = $this->attr('name');
 
@@ -233,7 +233,7 @@ class Thesaurus_Term extends Asset
 		if ($success) {
 			$this->_thesaurus->saveAttributes();
 
-			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'AssetUpdate', Array('name'));
 		}
 		return $success;
@@ -252,6 +252,7 @@ class Thesaurus_Term extends Asset
 	*/
 	function createAssetLink($major, $minor)
 	{
+
 	}//end createAssetLink()
 
 
@@ -293,7 +294,7 @@ class Thesaurus_Term extends Asset
 	*/
 	function canCreateLink(&$minor, $link_type, $exclusive)
 	{
-		return true;
+		return TRUE;
 
 	}//end canCreateLink()
 

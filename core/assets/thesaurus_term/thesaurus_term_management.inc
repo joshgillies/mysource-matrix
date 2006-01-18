@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term_management.inc,v 1.2 2005/11/24 05:02:44 arailean Exp $
+* $Id: thesaurus_term_management.inc,v 1.3 2006/01/18 22:15:32 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,7 +53,7 @@ class Thesaurus_Term_Management extends Asset_Management
 										'type'			=> 'text',
 										'default'		=> '',
 										'description'	=> 'Term name (the term itself)',
-										'is_admin'		=> false,
+										'is_admin'		=> FALSE,
 									   ),
 						'relation'	=> Array(
 										'added'			=> '0.1',
