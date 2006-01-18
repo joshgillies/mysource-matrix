@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_management.inc,v 1.16 2005/08/14 23:36:57 mmcintyre Exp $
+* $Id: file_management.inc,v 1.17 2006/01/18 00:59:32 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,9 +59,9 @@ class File_Management extends Asset_Management
 						'allow_unrestricted'	=> Array(
 													'added'			=> '0.2',
 													'type'			=> 'boolean',
-													'default'		=> true,
+													'default'		=> TRUE,
 													'description'	=> 'Allows the use of the __data URL if true',
-													'parameters'	=> Array('allow_empty' => false),
+													'parameters'	=> Array('allow_empty' => FALSE),
 													'update_fn'		=> '',
 												   ),
 						'title'					=> Array(
@@ -76,25 +76,34 @@ class File_Management extends Asset_Management
 	}//end constructor
 
 
+	/**
+	* Upgrade script
+	*
+	* @param string	$current_version	the version we are upgrading FROM
+	*
+	* @return boolean
+	* @access private
+	* @see Asset_Management::_upgrade()
+	*/
 	function _upgrade($current_version)
 	{
-		if (!parent::_upgrade($current_version)) return false;
+		if (!parent::_upgrade($current_version)) return FALSE;
 
 		if (version_compare($current_version, '0.4', '<')) {
-			bam('UPGRADING FILE ASSETS - FROM VERSION '.$current_version);
-			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			pre_echo('UPGRADING FILE ASSETS - FROM VERSION '.$current_version);
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
 			foreach ($children as $assetid) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$attr = $asset->attr('title');
 				if (empty($attr)) {
 					$asset->setAttrValue('title', $asset->attr('name'));
 					$asset->saveAttributes();
 				}
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset, true);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset, TRUE);
 			}
 		}//end if version 0.4
 
-		return true;
+		return TRUE;
 
 	}//end _upgrade()
 

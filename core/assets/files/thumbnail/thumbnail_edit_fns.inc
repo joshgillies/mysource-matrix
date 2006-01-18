@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thumbnail_edit_fns.inc,v 1.25 2005/05/11 06:04:51 lwright Exp $
+* $Id: thumbnail_edit_fns.inc,v 1.26 2006/01/18 00:59:32 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,9 +43,9 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 	/**
 	* Prints the interface for uploading a file
 	*
-	* @param object Thumbnail			&$asset	the file asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the thumbnail asset
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -57,7 +57,7 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 			$o->note(translate('core_only_upload_files_of_type', $this->_getExtensionString($asset->allowed_extensions)));
 		}
 
-		return true;
+		return TRUE;
 
 	}//end paintFileUpload()
 
@@ -65,7 +65,7 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 	/**
 	* Prints info about the current uploaded file
 	*
-	* @param object File	&$asset	the file asset
+	* @param object	&$asset	the file asset
 	*
 	* @return void
 	* @access public

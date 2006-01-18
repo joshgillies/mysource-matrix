@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_management.inc,v 1.15 2005/07/13 03:29:14 mmcintyre Exp $
+* $Id: image_management.inc,v 1.16 2006/01/18 00:59:32 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,47 +53,47 @@ class Image_Management extends Asset_Management
 											'type'			=> 'text',
 											'default'		=> '',
 											'description'	=> 'The text to be used in the Alt attribute of the IMG tag',
-											'is_admin'		=> false,
+											'is_admin'		=> FALSE,
 										   ),
 						'caption'		=> Array(
 											'added'			=> '0.2',
 											'type'			=> 'text',
 											'default'		=> '',
 											'description'	=> 'Some text to be associated with the image and can be accessed and printed out separately if required',
-											'is_admin'		=> false,
+											'is_admin'		=> FALSE,
 										   ),
 						'width'			=> Array(
 											'added'			=> '0.2',
 											'type'			=> 'int',
 											'default'		=> 0,
 											'description'	=> 'Width of the image (generated from the image file)',
-											'is_admin'		=> false,
+											'is_admin'		=> FALSE,
 										   ),
 						'height'		=> Array(
 											'added'			=> '0.2',
 											'type'			=> 'int',
 											'default'		=> 0,
 											'description'	=> 'Height of the image (generated from the image file)',
-											'is_admin'		=> false,
+											'is_admin'		=> FALSE,
 										   ),
 						'size'			=> Array(
 											'added'			=> '0.2',
 											'type'			=> 'int',
 											'default'		=> 0,
 											'description'	=> 'Size (in bytes) of the image (generated from the image file)',
-											'is_admin'		=> false,
+											'is_admin'		=> FALSE,
 										   ),
 						'varieties'		=> Array(
 											'added'		=> '0.3',
 											'type'		=> 'serialise',
 											'default'	=> Array(),
-											'is_admin'	=> true,
+											'is_admin'	=> TRUE,
 										   ),
 						'variety_count'	=> Array(
 											'added'		=> '0.3',
 											'type'		=> 'int',
 											'default'	=> 1,
-											'is_admin'	=> true,
+											'is_admin'	=> TRUE,
 										   ),
 					  );
 
@@ -111,17 +111,17 @@ class Image_Management extends Asset_Management
 	*/
 	function _upgrade($current_version)
 	{
-		if (!parent::_upgrade($current_version)) return false;
+		if (!parent::_upgrade($current_version)) return FALSE;
 
 		$asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
 
 		if (version_compare($current_version, '0.2', '<')) {
 			// version 0.1 -> 0.2
 			// Added the attributes of which alt, title, width, height, size need to be set
-			bam('STARTING '.$asset_name.' UPGRADE - FROM VERSION 0.1');
-			$images = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false, true);
+			pre_echo('STARTING '.$asset_name.' UPGRADE - FROM VERSION 0.1');
+			$images = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE, TRUE);
 			foreach ($images as $assetid => $type_code) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				if (is_null($asset)) continue;
 
 				if (!$asset->setAttrValue('alt',   $asset->name) || !$asset->setAttrValue('title', $asset->name)) {
@@ -145,11 +145,11 @@ class Image_Management extends Asset_Management
 				unset($asset);
 
 			}//end foreach
-			bam($asset_name.' UPGRADE COMPLETE - FROM VERSION 0.1');
+			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION 0.1');
 
-		}//end version 0.1 upgrade
+		}//end if - upgrade to version 0.2
 
-		return true;
+		return TRUE;
 
 	}//end _upgrade()
 

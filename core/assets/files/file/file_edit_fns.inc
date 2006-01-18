@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.68 2006/01/09 03:13:22 lwright Exp $
+* $Id: file_edit_fns.inc,v 1.69 2006/01/18 00:59:32 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,9 +61,9 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the interface for uploading a file
 	*
-	* @param object File				&$asset	the file asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the file asset
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -112,8 +112,9 @@ class File_Edit_Fns extends Asset_Edit_Fns
 				$max_size = min($ini_size, $post_size, $mem_limit_size);
 			}
 			?><br/><span style="font-size: 10px;"><?php echo translate('core_cannot_upload_file_larger_than', strtoupper(easy_filesize($max_size))); ?></span><?php
-		}
-		return true;
+		}//end if
+
+		return TRUE;
 
 	}//end paintFileUpload()
 
@@ -129,30 +130,30 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	*     tmp_name          => the location of the file on the file system
 	*     non_uploaded_file => must equal TRUE
 	*
-	* @param object File				&$asset				the file asset
-	* @param object	Backend_Outputter	$o					the outputter class
-	* @param string						$prefix				prefix for form elements
-	* @param array(string)				$info				info about the uploaded file
-	* @param boolean					$redirect_in_limbo	redirect when the file name changes in limbo
+	* @param object		&$asset				the file asset
+	* @param object		&$o					the Backend Outputter object
+	* @param string		$prefix				prefix for form elements
+	* @param array		$info				info about the uploaded file
+	* @param boolean	$redirect_in_limbo	redirect when the file name changes in limbo
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processFileUpload(&$asset, &$o, $prefix, $info=Array(), $redirect_in_limbo=true)
+	function processFileUpload(&$asset, &$o, $prefix, $info=Array(), $redirect_in_limbo=TRUE)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 		if (empty($info) && isset($_POST[$prefix.'_server_file']) && !empty($_POST[$prefix.'_server_file'])) {
-			return false;
+			return FALSE;
 		}
 
 		// assetid will not be set if we are creating
-		if (!$asset->id) return true;
+		if (!$asset->id) return TRUE;
 
 		if (empty($info)) {
 			$info = get_file_upload_info($prefix);
 			// return on failed or no upload
-			if ($info === false || empty($info)) {
-				return false;
+			if ($info === FALSE || empty($info)) {
+				return FALSE;
 			}
 		}
 
@@ -163,21 +164,21 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if (!isset($info['filename'])) {
 			$info['filename'] = array_get_index($info, 'name', '');
 		}
-		if (!$asset->validFile($info)) return false;
+		if (!$asset->validFile($info)) return FALSE;
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$name = current(make_valid_web_paths(Array(strtolower($info['name']))));
 
 		// make sure the new web path is not already is use
 		if ($asset->name != $name) {
-			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', null, 'minor');
+			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', NULL, 'minor');
 			for ($i = 0; $i < count($parents); $i++) {
-				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
+				$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
 				if (is_null($parent)) continue;
 				$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, Array($name), $asset->id);
 				if (!empty($bad_paths)) {
 					trigger_localised_error('CORE0055', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
 			}
 		}
@@ -188,7 +189,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 		//// FILE VERSIONING ////
 
-		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 		$existing = $asset->getExistingFile();
 
 		if ($asset->name != $name && !empty($existing)) {
@@ -198,7 +199,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			$result = $fv->remove($existing['path'], '');
 			if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
 				trigger_localised_error('CORE0042', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 		}
 
@@ -207,17 +208,17 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			// a normal uploaded file
 			if (!move_uploaded_file($info['tmp_name'], $asset->data_path.'/'.$name)) {
 				trigger_localised_error('CORE0037', E_USER_WARNING, $info['tmp_name'], $asset->data_path.'/'.$name);
-				return false;
+				return FALSE;
 			}
-		} else if (isset($info['non_uploaded_file']) && $info['non_uploaded_file'] === true) {
+		} else if (isset($info['non_uploaded_file']) && $info['non_uploaded_file'] === TRUE) {
 			// we have special permission to move a non-uploaded file
 			if (!copy($info['tmp_name'], $asset->data_path.'/'.$name)) {
 				trigger_localised_error('CORE0036', E_USER_WARNING, $info['tmp_name'], $asset->data_path.'/'.$name);
-				return false;
+				return FALSE;
 			}
 		} else {
 			trigger_localised_error('CORE0067', E_USER_ERROR);
-			return false;
+			return FALSE;
 		}
 
 		// if we are overwriting our current file with one that has the same name,
@@ -227,35 +228,35 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			if (FUDGE_FV_MODIFIED & $file_status) {
 				if (!$fv->commit($asset->data_path.'/'.$name, '')) {
 					trigger_localised_error('CORE0034', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
 			}
 		} else {
 			// attempt to add the file to the repository
 			if (!$fv->add($asset->data_path_suffix, $asset->data_path.'/'.$name, '')) {
 				trigger_localised_error('CORE0026', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 		}
 
 		// make sure we have the latest version of our file
 		if (!$fv->checkOut($asset->data_path_suffix.'/'.$name, $asset->data_path)) {
 			trigger_localised_error('CORE0032', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		// set the name of the file to the newly uploaded one
-		$asset->_tmp['uploading_file'] = true;
+		$asset->_tmp['uploading_file'] = TRUE;
 		$name_changed = $asset->setAttrValue('name', $name);
 		if (!$asset->saveAttributes()) {
 			trigger_localised_error('CORE0052', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
-		$asset->_tmp['uploading_file'] = false;
+		$asset->_tmp['uploading_file'] = FALSE;
 
 		if (!$asset->saveWebPaths(Array($name))) {
 			trigger_localised_error('CORE0054', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		if (SQ_IN_LIMBO && $name_changed && $redirect_in_limbo) {
@@ -264,7 +265,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			$o->setRedirect(strip_url($asset->getUrl()).'/'.SQ_CONF_LIMBO_SUFFIX);
 		}
 
-		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($asset, 'ContentsUpdated');
 
 		return $asset->_updated();
@@ -275,21 +276,21 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for selecting a pre-uploaded file to use in this asset
 	*
-	* @param object File				&$asset	the file asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the file asset
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for form elements
 	*
+	* @return boolean
 	* @access public
-	* @return boolean	true
 	*/
 	function paintFileChooser(&$asset, &$o, $prefix)
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$options = $this->getPreuploadOptions($asset);
-		combo_box($prefix.'_server_file', Array(''=>'')+$options, false, Array());
+		combo_box($prefix.'_server_file', Array(''=>'')+$options, FALSE, Array());
 		echo '&nbsp;&nbsp;';
 		normal_button($prefix.'_simple_upload_button', translate('core_upload_new_file_button'), 'this.parentNode.parentNode.style.display=\'none\';			 document.getElementById(\''.$prefix.'_choose_server_file_button\').parentNode.parentNode.style.display=\'\'; document.getElementById(\''.$prefix.'_server_file\').value = \'\'');
-		return true;
+		return TRUE;
 
 	}//end paintFileChooser()
 
@@ -297,41 +298,44 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the interface where you can choose a pre-uploaded file
 	*
-	* @param object File				&$asset	the file asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
-	* @param boolean					$create	True if this is being called from createAdditional and should run
-	*											even though the asset is not yet created
+	* Returns TRUE if a file was processed
+	*
+	* @param object		&$asset	the file asset
+	* @param object		&$o		the Backend Outputter object
+	* @param string		$prefix	prefix for form elements
+	* @param boolean	$create	TRUE if this is being called from createAdditional and should run
+	*							even though the asset is not yet created
+	*
+	* @return boolean
 	* @access public
-	* @return boolean	true if a file was processed
 	*/
-	function processFileChooser(&$asset, &$o, $prefix, $create=false)
+	function processFileChooser(&$asset, &$o, $prefix, $create=FALSE)
 	{
 		// Unless explicitly told otherwise, don't do anything if the asset is not yet completely created
 		if (!$create && (empty($asset->id) || array_get_index($asset->_tmp, '__creating__'))) {
-			return true;
+			return TRUE;
 		}
 
 		if ($asset->writeAccess('attributes') && isset($_POST[$prefix.'_server_file']) && (!empty($_POST[$prefix.'_server_file']))) {
 			$info = $this->getChosenFileInfo($prefix);
 			if ($this->processFileUpload($asset, $o, $prefix, $info)) {
 				unlink($info['tmp_name']);
-				return true;
+				return TRUE;
 			}
 		}
-		return false;
+		return FALSE;
 
 	}//end processFileChooser()
 
 
 	/**
-	* Find out if there are any pre-uploaded files we can use
+	* Find out if there are any pre-uploaded files we can use, returns TRUE if there is
 	*
-	* @param object Asset	&$asset		The asset that might use the files
-	* @param string			$prefix		the prefix for this asset
+	* @param object	&$asset	The asset that might use the files
+	* @param string	$prefix	the prefix for this asset
 	*
+	* @return boolean
 	* @access protected
-	* @return boolean	true if there are some files to use
 	*/
 	function havePreUploadedFiles(&$asset, $prefix)
 	{
@@ -348,11 +352,12 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	* Get a list of pre-uploaded files available for use
 	*
 	* Subclasses can override this to restrict file types
+	* Return value format: Array(value => value to be used with combo_box)
 	*
-	* @param	&$asset		The asset that might use the files
+	* @param object	&$asset	The asset that might use the files
 	*
+	* @return array
 	* @access protected
-	* @return array		value => value to be used with combo_box
 	*/
 	function getPreuploadOptions(&$asset)
 	{
@@ -369,10 +374,10 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Get the info on the pre-uploaded file chosen by the user
 	*
-	* @param string						$prefix	prefix for form elements
+	* @param string	$prefix	prefix for form elements
 	*
-	* @access protected
 	* @return array
+	* @access protected
 	*/
 	function getChosenFileInfo($prefix)
 	{
@@ -380,7 +385,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if (isset($_POST[$prefix.'_server_file']) && (!empty($_POST[$prefix.'_server_file']))) {
 			$info['name'] = $_POST[$prefix.'_server_file'];
 			$info['tmp_name'] = SQ_TEMP_PATH.'/'.$_POST[$prefix.'_server_file'];
-			$info['non_uploaded_file'] = true;
+			$info['non_uploaded_file'] = TRUE;
 		}
 		return $info;
 
@@ -390,7 +395,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints info about the current uploaded file
 	*
-	* @param object File	&$asset	the file asset
+	* @param object	&$asset	the file asset
 	*
 	* @return void
 	* @access public
@@ -402,7 +407,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 			?>
 			<div>
-				<b><a href="<?php echo current_url(true, true).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank"><?php echo translate('core_current_file'); ?></a></b><br/>
+				<b><a href="<?php echo current_url(TRUE, TRUE).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank"><?php echo translate('core_current_file'); ?></a></b><br/>
 				<b><?php echo translate('size'); ?>:</b> <?php echo easy_filesize($existing['size'])?><br/>
 				<b><?php echo translate('updated'); ?>:</b> <?php echo readable_datetime($existing['modified'])?>
 			</div>

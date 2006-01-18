@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.120 2006/01/10 01:14:23 emcdonald Exp $
+* $Id: file.inc,v 1.121 2006/01/18 00:59:32 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.120 $
+* @version $Revision: 1.121 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -451,7 +451,7 @@ class File extends Asset
 
 	/**
 	* Called when the any permission is updated for this asset
-	* Returns true if everything is OK
+	* Returns TRUE if everything is OK
 	*
 	* @return boolean
 	* @access public
@@ -649,7 +649,7 @@ class File extends Asset
 
 			}//end foreach
 
-		}//end foreach
+		}//end else - if SQ_CONF_STATIC_ROOT_URL is not empty
 
 		foreach ($save_urls as $url => $url_data) {
 
@@ -688,7 +688,7 @@ class File extends Asset
 
 
 	/**
-	* Processes a backend submission from this asset, returns true if all OK
+	* Processes a backend submission from this asset, returns TRUE if all OK
 	*
 	* @param object	&$o		Backend Outputter
 	* @param array	&$link	information used to create the initial link
@@ -721,7 +721,7 @@ class File extends Asset
 	/**
 	* Set the value of an attribute
 	*
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
+	* @param boolean	$dont_run_updated	if TRUE this->_updated() won't be run
 	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
@@ -745,7 +745,7 @@ class File extends Asset
 				$old_filename = $this->_tmp['vars_set']['name']['old_value'];
 				$new_filename = $this->attr('name');
 
-				// try and set the new filename - return false if it fails
+				// try and set the new filename - return FALSE if it fails
 				if (!parent::saveAttributes($dont_run_updated)) {
 					return FALSE;
 				}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_prefs.inc,v 1.7 2006/01/03 01:09:18 gsherwood Exp $
+* $Id: file_prefs.inc,v 1.8 2006/01/18 00:59:32 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 class File_Prefs extends Prefs
@@ -44,7 +44,7 @@ class File_Prefs extends Prefs
 												'name'			=> 'Max File Size',
 												'description'	=> 'This preference allows you to change the maximum size of files that can be uploaded',
 												'default'		=> 0,
-												'protected'		=> false,
+												'protected'		=> FALSE,
 											   ),
 					 );
 
@@ -63,14 +63,14 @@ class File_Prefs extends Prefs
 	/**
 	* Paints the backend interface to edit preferences
 	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
-	* @param boolean					$have_lock	do we have the lock to edit these preferences or not
-	* @param string						$pref		a particular preference to paint
+	* @param object		&$o			reference to the Backend Outputter object
+	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
+	* @param string		$pref		a particular preference to paint
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintBackend(&$o, $have_lock, $pref=null)
+	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
@@ -128,9 +128,10 @@ class File_Prefs extends Prefs
 				}
 			}
 			if (is_null($pref)) $o->closeField();
-		}
 
-		return true;
+		}//end if
+
+		return TRUE;
 
 	}//end paintBackend()
 
@@ -138,18 +139,18 @@ class File_Prefs extends Prefs
 	/**
 	* Processes the backend interface to edit preferences
 	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
-	* @param boolean					$have_lock	do we have the lock to edit these preferences or not
-	* @param string						$pref		a particular preference to process
+	* @param object		&$o			reference to the Backend Outputter object
+	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
+	* @param string		$pref		a particular preference to process
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend($o, $have_lock, $pref=null)
+	function processBackend(&$o, $have_lock, $pref=NULL)
 	{
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-		if (!$is_admin) return false;
+		if (!$is_admin) return FALSE;
 
 		if (is_null($pref) || $pref == 'SQ_FILE_MAX_SIZE') {
 			if (isset($_POST['prefs']['SQ_FILE_MAX_SIZE'])) {
@@ -164,7 +165,7 @@ class File_Prefs extends Prefs
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processBackend()
 
@@ -220,7 +221,8 @@ class File_Prefs extends Prefs
 				$merged_prefs[$var_name]['description'] = $prefs1[$var_name]['description'];
 				$merged_prefs[$var_name]['protected']   = ($prefs1[$var_name]['protected'] || $prefs2[$var_name]['protected']);
 			}
-		}
+
+		}//end foreach
 
 		return $merged_prefs;
 

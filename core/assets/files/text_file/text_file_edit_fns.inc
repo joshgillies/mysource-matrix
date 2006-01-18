@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text_file_edit_fns.inc,v 1.2 2005/06/02 04:42:06 ndvries Exp $
+* $Id: text_file_edit_fns.inc,v 1.3 2006/01/18 00:59:32 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 * Text_File_Edit_Fns
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,9 +40,9 @@ class Text_File_Edit_Fns extends File_Edit_Fns
 	/**
 	* Paint the interface for editing the parse file
 	*
-	* @param object Asset				$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -51,15 +51,15 @@ class Text_File_Edit_Fns extends File_Edit_Fns
 	{
 		if (SQ_ROLLBACK_VIEW) {
 			// get an older version of the parse file
-			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			$rep_file = $asset->data_path_suffix.'/'.$asset->name;
 			$then = iso8601_ts($_SESSION['sq_rollback_view']['rollback_time']);
-			$info = @$fv->_checkOutCheck($rep_file, null, $then);
+			$info = @$fv->_checkOutCheck($rep_file, NULL, $then);
 			$parse_file = $info['source_file'];
 			ob_start();
-			$success = $fv->output($rep_file, null, $then);
+			$success = $fv->output($rep_file, NULL, $then);
 			$str = ob_get_clean();
-			if (!$success) return false;
+			if (!$success) return FALSE;
 		} else {
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			$parse_file = $asset->data_path.'/'.$asset->name;
@@ -68,11 +68,11 @@ class Text_File_Edit_Fns extends File_Edit_Fns
 
 		if ($asset->writeAccess('attributes')) {
 			text_area($prefix.'_new_file', $str, 0, 0, 0, 'style="font-family: monospace; white-space: pre; width: 99%; height: 480px"');
-			return true;
+			return TRUE;
 		} else {
 			echo '<pre>', htmlspecialchars($str), '</pre>';
 		}
-		return false;
+		return FALSE;
 
 	}//end paintEditFile()
 
@@ -80,16 +80,16 @@ class Text_File_Edit_Fns extends File_Edit_Fns
 	/**
 	* Processes the interface for the editing the parse file
 	*
-	* @param object Asset				$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processEditFile(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 		if (isset($_POST[$prefix.'_new_file'])) {
 
 			// make them unix format ;)
@@ -102,11 +102,11 @@ class Text_File_Edit_Fns extends File_Edit_Fns
 			$file_info = Array(
 							'name'				=> $asset->name,
 							'tmp_name'			=> $asset->data_path.'/'.$asset->name.'.new',
-							'non_uploaded_file'	=> true,
+							'non_uploaded_file'	=> TRUE,
 						 );
 
 			 if (!string_to_file($str, $file_info['tmp_name'])) {
-				 return false;
+				 return FALSE;
 			 }
 
 			$ret_val = $this->processFileUpload($asset, $o, $prefix, $file_info);
@@ -115,7 +115,7 @@ class Text_File_Edit_Fns extends File_Edit_Fns
 
 		}//end if
 
-		return false;
+		return FALSE;
 
 	}//end processEditFile()
 

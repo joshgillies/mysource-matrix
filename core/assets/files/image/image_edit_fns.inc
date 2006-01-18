@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.44 2005/11/14 04:55:04 dmckee Exp $
+* $Id: image_edit_fns.inc,v 1.45 2006/01/18 00:59:32 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,7 +65,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 			echo '</p>';
 		}
 
-		return true;
+		return TRUE;
 
 	}//end paintFileUpload()
 
@@ -92,22 +92,22 @@ class Image_Edit_Fns extends File_Edit_Fns
 	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
 	{
 		if (!parent::processFileUpload($asset, $o, $prefix, $info)) {
-			return false;
+			return FALSE;
 		}
 
 		// assetid will not be set if we are creating
-		if (!$asset->id) return true;
+		if (!$asset->id) return TRUE;
 
 		$info = $asset->getExistingFile();
 		if (!empty($info)) {
 			if (!$asset->setAttrValue('width', $info['width'])) {
-				return false;
+				return FALSE;
 			}
 			if (!$asset->setAttrValue('height', $info['height'])) {
-				return false;
+				return FALSE;
 			}
 			if (!$asset->setAttrValue('size', $info['size'])) {
-				return false;
+				return FALSE;
 			}
 		}//end if
 
@@ -115,10 +115,10 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 		if (!$asset->saveAttributes()) {
 			trigger_localised_error('CORE0052', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processFileUpload()
 
@@ -141,7 +141,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 			echo '<br />';
 			$this->_paintApplet($asset, $o, $prefix);
 		}
-		return true;
+		return TRUE;
 
 	}//end paintCreateEditor()
 
@@ -162,14 +162,14 @@ class Image_Edit_Fns extends File_Edit_Fns
 			$_POST[$prefix.'_server_file'] = $_POST[$prefix.'_applet_temp_filename'];
 			// processFileChooser, called from File::create(), can now do the rest
 		}
-		return true;
+		return TRUE;
 
 	}//end processCreateEditor()
 
 
 	/**
 	* Print the "edit image" screen
-	* Returns true if edit interface printed
+	* Returns TRUE if edit interface printed
 	*
 	* @param object	&$asset	the file asset
 	* @param object	&$o		the backend outputter
@@ -182,12 +182,12 @@ class Image_Edit_Fns extends File_Edit_Fns
 	{
 		if ($asset->writeAccess('attributes')) {
 			$this->_paintApplet($asset, $o, $prefix);
-			return true;
+			return TRUE;
 		} else {
 			?>
 			<img src="<?php echo $GLOBALS['SQ_SYSTEM']->am->getRootURL().'?a='.$asset->id; ?>&t=<?php echo time(); ?>" />
 			<?php
-			return false;
+			return FALSE;
 		}
 
 	}//end paintEditor()
@@ -195,7 +195,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 	/**
 	* Process the "edit image" screen
-	* Returns true if edit interface printed
+	* Returns TRUE if edit interface printed
 	*
 	* @param object	&$asset	the file asset
 	* @param object	$o		the backend outputter
@@ -211,14 +211,14 @@ class Image_Edit_Fns extends File_Edit_Fns
 			// processServerFile can now do the rest
 			$this->processFileChooser($asset, $o, $prefix);
 		}
-		return true;
+		return TRUE;
 
 	}//end processEditor()
 
 
 	/**
 	* Find out is there are any varieties
-	* Returns true if edit interface to be printed
+	* Returns TRUE if edit interface to be printed
 	*
 	* @param object	&$asset	the file asset
 	* @param string	$prefix	the prefix for this asset
@@ -236,7 +236,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 	/**
 	* Paint the varieties editing section
-	* Returns true if edit interface printed
+	* Returns TRUE if edit interface printed
 	*
 	* @param object	&$asset	the file asset
 	* @param object	&$o		the backend outputter
@@ -252,7 +252,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		$varieties = $asset->attr('varieties');
 		if (!empty($varieties)) {
 			foreach ($varieties['data'] as $varid => $data) {
-				$variety = &$asset->getAsset($asset->id.':'.$varid);
+				$variety =& $asset->getAsset($asset->id.':'.$varid);
 				if (is_null($variety)) continue;
 				$edit_fns = $variety->getEditFns();
 
@@ -275,7 +275,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 	/**
 	* Process the varieties editing section
-	* Returns true if edit interface printed
+	* Returns TRUE if edit interface printed
 	*
 	* @param object	&$asset	the file asset
 	* @param object	$o		the backend outputter
@@ -286,15 +286,15 @@ class Image_Edit_Fns extends File_Edit_Fns
 	*/
 	function processCurrentVarieties(&$asset, $o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
-		$changes_made = false;
+		$changes_made = FALSE;
 
 		if (!empty($_POST[$prefix.'_delete']) && is_array($_POST[$prefix.'_delete'])) {
 			foreach ($_POST[$prefix.'_delete'] as $assetid) {
 				list(, $varid) = explode(':', $assetid, 2);
 				if ($asset->deleteVariety($assetid)) {
-					$changes_made = true;
+					$changes_made = TRUE;
 				}
 			}// end foreach
 		}// end if
@@ -302,11 +302,11 @@ class Image_Edit_Fns extends File_Edit_Fns
 		$varieties = $asset->attr('varieties');
 		if (!empty($varieties)) {
 			foreach ($varieties['data'] as $varid => $data) {
-				$variety = &$asset->getAsset($asset->id.':'.$varid);
+				$variety =& $asset->getAsset($asset->id.':'.$varid);
 				if (is_null($variety)) continue;
 				$edit_fns = $variety->getEditFns();
 				if ($edit_fns->processInlineInterface($variety, $o, $prefix.'_'.$variety->id)) {
-					$changes_made = true;
+					$changes_made = TRUE;
 				}
 			}// end foreach
 		}// end if
@@ -318,7 +318,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 	/**
 	* Print the new variety section
-	* Returns true if edit interface printed
+	* Returns TRUE if edit interface printed
 	*
 	* @param object	&$asset	the file asset
 	* @param object	&$o		the backend outputter
@@ -347,7 +347,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 	/**
 	* Process the "edit image" screen
-	* Returns true if edit interface printed
+	* Returns TRUE if edit interface printed
 	*
 	* @param object	&$asset	the file asset
 	* @param object	$o		the backend outputter
@@ -358,16 +358,16 @@ class Image_Edit_Fns extends File_Edit_Fns
 	*/
 	function processNewVariety(&$asset, $o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 		if (!isset($_POST[$prefix.'_new_name']) || trim($_POST[$prefix.'_new_name']) == '') {
-			return true;
+			return TRUE;
 		}
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
 		$variety =& new Image_Variety($asset->id.':v0');
 
 		$edit_fns = $variety->getEditFns();
 		if (!$edit_fns->processInlineInterface($variety, $o, $prefix.'_new')) {
-			return false;
+			return FALSE;
 		}
 
 		return (bool) $asset->saveVariety($variety);
@@ -484,7 +484,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 	*
 	* We add our onsubmit function ourselves rather than letting the Backend_Outputter do it,
 	* since the backend outputter will let us down in an asset builder
-	* Return true if the applet was printed OK
+	* Return TRUE if the applet was printed OK
 	*
 	* @param object	&$asset	the file asset
 	* @param object	&$o		the outputter class
@@ -496,13 +496,13 @@ class Image_Edit_Fns extends File_Edit_Fns
 	function _paintApplet(&$asset, &$o, $prefix)
 	{
 		if (!file_exists(SQ_FUDGE_PATH.'/image_editor/imagej.jar')) {
-			return false;
+			return FALSE;
 		}
 		$open_url = $asset->getURL();
 		if (empty($open_url)) {
-			$open_url = current_url(true, true).'?a='.$asset->id;
+			$open_url = current_url(TRUE, TRUE).'?a='.$asset->id;
 		}
-		$open_url .= ((strpos($open_url, '?') === false) ? '?' : '&').'t='.time();
+		$open_url .= ((strpos($open_url, '?') === FALSE) ? '?' : '&').'t='.time();
 		?>
 
 		<script type="text/javascript"><!--
@@ -548,7 +548,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		?>
 		</applet>
 		<?php
-		return true;
+		return TRUE;
 
 	}//end _paintApplet()
 
@@ -567,9 +567,9 @@ class Image_Edit_Fns extends File_Edit_Fns
 		$varieties = $asset->attr('varieties');
 		if (!empty($varieties)) {
 			foreach ($varieties['data'] as $varid => $data) {
-				$variety = &$asset->getAsset($asset->id.':'.$varid);
+				$variety =& $asset->getAsset($asset->id.':'.$varid);
 				if (is_null($variety)) continue;
-				$asset->saveVariety($variety, true, false);
+				$asset->saveVariety($variety, TRUE, FALSE);
 			}// end foreach
 		}// end if
 

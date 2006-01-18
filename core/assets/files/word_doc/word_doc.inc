@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc.inc,v 1.15 2005/07/13 03:33:55 mmcintyre Exp $
+* $Id: word_doc.inc,v 1.16 2006/01/18 00:59:32 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,16 +71,16 @@ class Word_Doc extends File
 	*/
 	function validFile($info)
 	{
-		if (!parent::validFile($info)) return false;
+		if (!parent::validFile($info)) return FALSE;
 
 		// check that the extension is allowed
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$ext = get_file_type($info['filename']);
 		if (!in_array($ext, $this->allowed_extensions)) {
 			trigger_localised_error('CORE0106', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
-		return true;
+		return TRUE;
 
 	}//end validFile()
 

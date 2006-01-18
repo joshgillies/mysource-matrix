@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc_edit_fns.inc,v 1.6 2005/07/13 03:34:25 mmcintyre Exp $
+* $Id: word_doc_edit_fns.inc,v 1.7 2006/01/18 00:59:32 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,8 +43,8 @@ class Word_Doc_Edit_Fns extends File_Edit_Fns
 	/**
 	* Get a formatted string of extensions (eg 1,2,3 and 4)
 	*
-	* @param array(string)	$extensions	array of extensions to format
-	* @param string			$glue		word used to join last extension to the string (and, or etc)
+	* @param array	$extensions	array of extensions to format
+	* @param string	$glue		word used to join last extension to the string (and, or etc)
 	*
 	* @return string
 	* @access public
@@ -77,9 +77,9 @@ class Word_Doc_Edit_Fns extends File_Edit_Fns
 	/**
 	* Prints the interface for uploading a file
 	*
-	* @param object Image				&$asset	the file asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the file asset
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -90,7 +90,7 @@ class Word_Doc_Edit_Fns extends File_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 			?><br/><span style="font-size: 10px">You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?></span><?php
 		}
-		return true;
+		return TRUE;
 
 	}//end paintFileUpload()
 
@@ -98,10 +98,10 @@ class Word_Doc_Edit_Fns extends File_Edit_Fns
 	/**
 	* Processes the interface for uploading a file
 	*
-	* @param object Image				&$asset	the file asset
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for form elements
-	* @param array(string)				$info	info about the uploaded file
+	* @param object	&$asset	the file asset
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for form elements
+	* @param array	$info	info about the uploaded file
 	*
 	* @return boolean
 	* @access public
@@ -109,9 +109,9 @@ class Word_Doc_Edit_Fns extends File_Edit_Fns
 	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
 	{
 		if (!parent::processFileUpload($asset, $o, $prefix, $info)) {
-			return false;
+			return FALSE;
 		}
-		return true;
+		return TRUE;
 
 	}//end processFileUpload()
 

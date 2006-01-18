@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.18 2005/12/20 04:07:02 rong Exp $
+* $Id: pdf_file.inc,v 1.19 2006/01/18 00:59:32 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,16 +71,16 @@ class PDF_File extends File
 	*/
 	function validFile($info)
 	{
-		if (!parent::validFile($info)) return false;
+		if (!parent::validFile($info)) return FALSE;
 
 		// check that the extension is allowed
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$ext = get_file_type($info['filename']);
 		if (!in_array($ext, $this->allowed_extensions)) {
 			trigger_localised_error('CORE0105', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
-		return true;
+		return TRUE;
 
 	}//end validFile()
 
@@ -105,7 +105,7 @@ class PDF_File extends File
 
 		if (SQ_TOOL_PDFTOHTML_ENABLED) {
 			$pwd = $this->attr('password');
-			$pwd = (empty($pwd))? '': $pwd = ' -opw '.$pwd.' ';
+			$pwd = (empty($pwd)) ? '' : $pwd = ' -opw '.$pwd.' ';
 
 			// Run a program that converts a PDF to HTML, set environment variable of bin_path
 			$cmd = SQ_TOOL_PDFTOHTML_PATH." -nomerge -noframes -stdout $pwd $file";

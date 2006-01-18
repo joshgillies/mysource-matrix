@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.24 2005/12/15 00:13:38 lwright Exp $
+* $Id: image_variety.inc,v 1.25 2006/01/18 00:59:32 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,7 +66,7 @@ class Image_Variety extends Asset
 		if (!$assetid) return;
 		list($this->_imageid, $this->_varietyid) = explode(':v', $assetid);
 
-		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		if (is_null($image)) return;
 
 		// set the data paths
@@ -110,7 +110,7 @@ class Image_Variety extends Asset
 			case 'name' :
 				if (trim($this->attr('name')) != '') {
 					trigger_localised_error('CORE0116', E_USER_WARNING);
-					return false;
+					return FALSE;
 				} else if (trim($value) == '') {
 					trigger_localised_error('CORE0120', E_USER_WARNING);
 				} else {
@@ -124,11 +124,11 @@ class Image_Variety extends Asset
 			case 'height' :
 				if ((int) $value < 0) {
 					trigger_localised_error('CORE0101', E_USER_WARNING, $name, $this->name, $this->id);
-					return false;
+					return FALSE;
 				}
 				if ((int) $value == 0 && ($this->attr('constrain') == 'none' || ($this->attr('constrain') == $name && $this->attr('variety_type') == 'resize'))) {
 					trigger_localised_error('CORE0102', E_USER_WARNING, $name, $this->name, $this->id);
-					return false;
+					return FALSE;
 				}
 			break;
 
@@ -147,31 +147,31 @@ class Image_Variety extends Asset
 	* Overriding the asset.inc here to make sure that they are saved to the asset_image_variety
 	* table instead of asset_attribute.
 	*
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
+	* @param boolean	$dont_run_updated	if TRUE this->_updated() won't be run
 	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
 	* @see setAttrValue()
 	*/
-	function saveAttributes($dont_run_updated=false)
+	function saveAttributes($dont_run_updated=FALSE)
 	{
-		if (!$this->id) return true;
-		if (empty($this->_tmp['vars_set'])) return true;
+		if (!$this->id) return TRUE;
+		if (empty($this->_tmp['vars_set'])) return TRUE;
 
 		if (!$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] && !$this->writeAccess('attributes')) {
 			trigger_localised_error('CORE0121', E_USER_WARNING, $this->name, $this->id);
-			return false;
+			return FALSE;
 		}
 
 		if ($this->attr('variety_type') == 'resize' && $this->attr('constrain') != 'none') {
 			if ((int) $this->attr($this->attr('constrain')) == 0) {
 				trigger_localised_error('CORE0096', E_USER_WARNING, $this->name, $this->id, $this->attr('constrain'));
-				return false;
+				return FALSE;
 			}
 		}
 
-		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		return (bool) $image->saveVariety($this);
 
 	}//end saveAttributes()
@@ -191,12 +191,12 @@ class Image_Variety extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _updated($update_parents=true)
+	function _updated($update_parents=TRUE)
 	{
 		$this->name = $this->_getName();
 		$this->short_name = $this->_getName('short_name');
 
-		return true;
+		return TRUE;
 
 	}//end _updated()
 
@@ -209,7 +209,7 @@ class Image_Variety extends Asset
 	*/
 	function canClone()
 	{
-		return false;
+		return FALSE;
 
 	}//end canClone()
 
@@ -222,7 +222,7 @@ class Image_Variety extends Asset
 	* @return string
 	* @access private
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
@@ -237,21 +237,21 @@ class Image_Variety extends Asset
 	*/
 	function updateImage()
 	{
-		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		if (is_null($image)) return false;
+		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		if (is_null($image)) return FALSE;
 
 		if ($this->attr('variety_type') == 'resize') {
 
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			require_once SQ_FUDGE_PATH.'/image/image_manip.inc';
-			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 			if (!is_dir($this->data_path) && !create_directory($this->data_path)) {
-				return false;
+				return FALSE;
 			}
 
 			$source_image_info = $image->getExistingFile();
-			if (empty($source_image_info)) return true;
+			if (empty($source_image_info)) return TRUE;
 
 			$ext = get_file_type($image->name);
 
@@ -270,7 +270,7 @@ class Image_Variety extends Asset
 				case 'width' :
 					if ($d_width <= 0) {
 						trigger_localised_error('CORE0007', E_USER_WARNING);
-						return false;
+						return FALSE;
 					}
 
 					$d_height = round((int) $source_image_info['height'] * ($d_width / (int) $source_image_info['width']));
@@ -279,7 +279,7 @@ class Image_Variety extends Asset
 				case 'height' :
 					if ($d_height <= 0) {
 						trigger_localised_error('CORE0006', E_USER_WARNING);
-						return false;
+						return FALSE;
 					}
 					$d_width  = round((int) $source_image_info['width']  * ($d_height / (int) $source_image_info['height']));
 				break;
@@ -300,7 +300,7 @@ class Image_Variety extends Asset
 
 			if ($d_width <= 0 || $d_height <= 0) {
 				trigger_localised_error('CORE0005', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 
 			// if the filename has changed then we need to remove the old file
@@ -313,14 +313,14 @@ class Image_Variety extends Asset
 				if ($up_to_date & FUDGE_FV_OLD_VERSION) {
 					if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
 						trigger_localised_error('COR0103', E_USER_WARNING);
-						return false;
+						return FALSE;
 					}
 				}
 
 			}// endif
 
 			if (!Image_Manip::resize($s_file, $d_new_file, $d_width, $d_height)) {
-				return false;
+				return FALSE;
 			}
 
 			$up_to_date = $fv->upToDate($d_new_file);
@@ -328,33 +328,33 @@ class Image_Variety extends Asset
 			// file not in repository
 			if ($up_to_date & FUDGE_FV_NOT_CHECKED_OUT) {
 				if (!$fv->add($this->data_path_suffix, $d_new_file, '')) {
-					return false;
+					return FALSE;
 				}
 
 				if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
 					trigger_localised_error('COR0103', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
 
 			} else if ($up_to_date & FUDGE_FV_MODIFIED) {
-				if (!$fv->commit($d_new_file, '', false)) return false;
+				if (!$fv->commit($d_new_file, '', FALSE)) return FALSE;
 
 			}
 
 			// if the filename has changed then we need to upadte the look ups
 			if ($d_old_filename != $d_new_filename) {
 				if (!$this->setAttrValue('filename', $d_new_filename)) {
-					return false;
+					return FALSE;
 				}
 			}
 
 		}//end if
 
 		if (!$this->updateLookups($image->usePublicPath())) {
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end updateImage()
 
@@ -369,37 +369,37 @@ class Image_Variety extends Asset
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
-		if (!is_dir($this->data_path)) return true;
+		if (!is_dir($this->data_path)) return TRUE;
 
 		$d_filename = $this->attr('filename');
 		$d_file     = $this->data_path.'/'.$d_filename;
 
-		if (empty($d_filename)) return true;
+		if (empty($d_filename)) return TRUE;
 
-		if (!$this->setAttrValue('filename', '')) return false;
+		if (!$this->setAttrValue('filename', '')) return FALSE;
 
 		// make sure we have the latest version checked out if we are modifying the file
-		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 		$up_to_date = $fv->upToDate($d_file);
 
-		$updated = $this->updateLookups(false);
-		if (!$updated) return false;
+		$updated = $this->updateLookups(FALSE);
+		if (!$updated) return FALSE;
 
 		// file not in repository, hmm, something must have gone wrong, let's see if there is a file there and remove it.
 		if (($up_to_date & FUDGE_FV_NOT_CHECKED_OUT)) {
 			if (file_exists($d_file)) {
-				if (!unlink($d_file)) return false;
+				if (!unlink($d_file)) return FALSE;
 			}
 
 		} else {
 			if (!($fv->remove($d_file, '') & FUDGE_FV_OK)) {
 				trigger_localised_error('CORE0041', E_USER_WARNING, $d_filename);
-				return false;
+				return FALSE;
 			}
 
 		}//end if
 
-		return true;
+		return TRUE;
 
 
 	}//end deleteImage()
@@ -417,10 +417,10 @@ class Image_Variety extends Asset
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
-		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 		$filename = $this->attr('filename');
-		if (!$filename) return true;
+		if (!$filename) return TRUE;
 		$unrestricted = $this->data_path_public.'/'.$filename;
 
 		// if we should be storing our file in the public
@@ -428,14 +428,14 @@ class Image_Variety extends Asset
 		if ($public) {
 			// make sure our data directory exists
 			if (!create_directory($this->data_path_public)) {
-				return false;
+				return FALSE;
 			}
 
 			// if there is no current file or if the current file is out of date, check out a fresh copy
 			if ($fv->upToDate($unrestricted) & (FUDGE_FV_NOT_CHECKED_OUT | FUDGE_FV_OLD_VERSION)) {
 				if (!$fv->checkOut($this->data_path_suffix.'/'.$filename, $this->data_path_public)) {
 					trigger_localised_error('COR0103', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
 			}
 		} else {
@@ -443,12 +443,12 @@ class Image_Variety extends Asset
 			if (is_file($unrestricted)) {
 				if (!$fv->clearOut($unrestricted) & FUDGE_FV_OK) {
 					trigger_localised_error('COR0104', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
 			}
 		}//end if
 
-		return true;
+		return TRUE;
 
 	}//end checkFileState()
 
@@ -462,12 +462,12 @@ class Image_Variety extends Asset
 	* @access public
 	* @see Asset::updateLookups(), Asset::saveWebPaths()
 	*/
-	function updateLookups($public=false)
+	function updateLookups($public=FALSE)
 	{
 		// if we aren't meant to be having the public paths, let our parent run as normal
 		if (!$public) return parent::updateLookups();
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		unset($this->_tmp['lookups']);
@@ -507,7 +507,7 @@ class Image_Variety extends Asset
 		// if there is no filename there is nothing more for us to do
 		if (!$filename) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
+			return TRUE;
 		}
 
 		$web_path = str_replace(sq_web_path('root_url').'/', '', $this->getWebDataPath()).'/'.$filename;
@@ -517,9 +517,9 @@ class Image_Variety extends Asset
 		$save_urls = Array();
 		$root_urls = explode("\n", trim(SQ_CONF_SYSTEM_ROOT_URLS));
 
-		$site_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', false);
+		$site_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', FALSE);
 		foreach ($site_parents as $assetid => $type_code) {
-			$site = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+			$site =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 			if (is_null($site)) continue;
 			$urls = $site->getSiteURLS();
 
@@ -582,7 +582,7 @@ class Image_Variety extends Asset
 		}//end foreach
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		return TRUE;
 
 	}//end updateLookups()
 
@@ -597,8 +597,8 @@ class Image_Variety extends Asset
 	*/
 	function getWebDataPath()
 	{
-		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		if (is_null($image)) return false;
+		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		if (is_null($image)) return FALSE;
 
 		return $image->getWebDataPath().'/varieties';
 
@@ -638,7 +638,7 @@ class Image_Variety extends Asset
 		}
 		switch ($_REQUEST['asset_ei_screen']) {
 			case 'image_info' :
-				$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+				$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 				if (is_null($image)) exit();
 
 				include_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
@@ -677,8 +677,8 @@ class Image_Variety extends Asset
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
 			return;
 		}
-		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		if (is_null($image)) return false;
+		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		if (is_null($image)) return FALSE;
 
 		$ext = get_file_type($image->name);
 		$filename = $this->name.'.'.$ext;
@@ -717,7 +717,7 @@ class Image_Variety extends Asset
 	* @return mixed string|void
 	* @access public
 	*/
-	function printImageTag($alt, $title, $return=false)
+	function printImageTag($alt, $title, $return=FALSE)
 	{
 		$filename = $this->attr('filename');
 		if (!$filename) return;
@@ -734,7 +734,7 @@ class Image_Variety extends Asset
 
 
 	/**
-	* Returns true if at least one of the passed assetids has read access to this asset
+	* Returns TRUE if at least one of the passed assetids has read access to this asset
 	*
 	* @param array	$assetids	An array of user_group and/or user ids to check for read access
 	*							If the array is empty, the current user will be checked
@@ -744,10 +744,10 @@ class Image_Variety extends Asset
 	*/
 	function readAccess($assetids=Array())
 	{
-		if (!$this->id) return true;
+		if (!$this->id) return TRUE;
 
-		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		if (is_null($image)) return false;
+		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		if (is_null($image)) return FALSE;
 
 		return $image->readAccess($assetids);
 
@@ -755,7 +755,7 @@ class Image_Variety extends Asset
 
 
 	/**
-	* Returns true if at least one of the passed assetids has write access to this asset
+	* Returns TRUE if at least one of the passed assetids has write access to this asset
 	*
 	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
 	*							permissions set for this asset, otherwise returns effective access based on locking
@@ -768,10 +768,10 @@ class Image_Variety extends Asset
 	*/
 	function writeAccess($lock_type='', $assetids=Array())
 	{
-		if (!$this->id) return true;
+		if (!$this->id) return TRUE;
 
-		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		if (is_null($image)) return false;
+		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		if (is_null($image)) return FALSE;
 
 		return $image->writeAccess($lock_type, $assetids);
 
@@ -779,7 +779,7 @@ class Image_Variety extends Asset
 
 
 	/**
-	* Returns true if at least one of the passed assetids has admin access to this asset
+	* Returns TRUE if at least one of the passed assetids has admin access to this asset
 	*
 	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
 	*							permissions set for this asset, otherwise returns effective access based on locking
@@ -792,10 +792,10 @@ class Image_Variety extends Asset
 	*/
 	function adminAccess($lock_type='', $assetids=Array())
 	{
-		if (!$this->id) return true;
+		if (!$this->id) return TRUE;
 
-		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		if (is_null($image)) return false;
+		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		if (is_null($image)) return FALSE;
 
 		return $image->adminAccess($lock_type, $assetids);
 
@@ -803,10 +803,10 @@ class Image_Variety extends Asset
 
 
 	/**
-	* Returns true if the current user can live edit this asset
+	* Returns TRUE if the current user can live edit this asset
 	* Live edit means the asset is currently SQ_STATUS_LIVE but this
 	* user can edit the asset without going through a safe edit
-	* NOTE: will return false if asset is not currently live
+	* NOTE: will return FALSE if asset is not currently live
 	*
 	* @param string	$lock_type	Type of lock to check
 	*
@@ -816,8 +816,8 @@ class Image_Variety extends Asset
 	*/
 	function liveEditAccess($lock_type)
 	{
-		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		if (is_null($image)) return false;
+		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		if (is_null($image)) return FALSE;
 
 		return $image->liveEditAccess($lock_type);
 
@@ -825,7 +825,7 @@ class Image_Variety extends Asset
 
 
 	/**
-	* Returns true if at least one of the passed assetids has the passed permission
+	* Returns TRUE if at least one of the passed assetids has the passed permission
 	* Can perform effective access check based on current status, lock, workflow, and metadata
 	* NOTE: Only for write and above access
 	*
@@ -841,8 +841,8 @@ class Image_Variety extends Asset
 	*/
 	function checkAccess($perm, $lock_type, $assetids=Array())
 	{
-		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		if (is_null($image)) return false;
+		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		if (is_null($image)) return FALSE;
 
 		return $image->checkAccess($perm, $lock_type, $assetids);
 
@@ -850,7 +850,7 @@ class Image_Variety extends Asset
 
 
 	/**
-	* Returns true if at least one of the passed assetids has the passed permission
+	* Returns TRUE if at least one of the passed assetids has the passed permission
 	* Does not check current status of lock
 	*
 	* @param int	$perm		the permission to check access for
@@ -862,8 +862,8 @@ class Image_Variety extends Asset
 	*/
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
-		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		if (is_null($image)) return false;
+		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		if (is_null($image)) return FALSE;
 
 		return $image->_checkPermissionAccess($perm, $assetids);
 

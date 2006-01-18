@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.49 2006/01/09 03:41:03 emcdonald Exp $
+* $Id: image.inc,v 1.50 2006/01/18 00:59:32 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -280,12 +280,12 @@ class Image extends File
 	* Creates/Updates a variety for this image
 	*
 	* If the variety has an ID then it must belong to this asset in order to be saved.
-	* Returns false on error, shadow assetid on success
+	* Returns FALSE on error, shadow assetid on success
 	*
 	* @param object		$variety		the variety to save
 	* @param boolean	$recreate_image	hether to generate the image file or not
 	* @param boolean	$save_attrs		whether to run saveAttributes() or not,
-	*									usually you only would set this to false if you are running
+	*									usually you only would set this to FALSE if you are running
 	*									this multiple times and only want to save once at the end
 	*
 	* @return mixed boolean|int
@@ -531,7 +531,7 @@ class Image extends File
 
 	/**
 	* Returns a reference to the asset represented by the passed assetid
-	* (Asset or null on error)
+	* (Asset or NULL on error)
 	*
 	* @param int		$assetid		the shadow part asset id to be loaded (i.e part after the ':')
 	* @param string		$type_code		if this exists then this object is used to
@@ -689,7 +689,7 @@ class Image extends File
 
 					}//endif
 
-				}//end if
+				}//end else - looking from shadow asset
 
 				if (!is_null($sort_by)) {
 					uasort($links, create_function('$a,$b', 'return $a["'.$sort_by.'"] < $b["'.$sort_by.'"];'));
@@ -940,8 +940,8 @@ class Image extends File
 	* Returns an array of assetid's + info in the order that they propogate out from THIS BRIDGE'S url
 	*
 	* @param string	$assetid	the id of the last asset in the lineage
-	* @param string	$protocol	the protocol to match -> null means it is ignored
-	* @param string	$url		the url to check for -> null defaults it to current url
+	* @param string	$protocol	the protocol to match -> NULL means it is ignored
+	* @param string	$url		the url to check for -> NULL defaults it to current url
 	*
 	* @return array
 	* @access public
@@ -1070,7 +1070,7 @@ class Image extends File
 	* @param string		$side_of_link		Which side of the link this (the current) asset
 	*										is on ('major' or 'minor')
 	* @param boolean	$exclusive			The exclusive status for the link must be
-	*										this (if not null)
+	*										this (if not NULL)
 	*
 	* @return array
 	* @access public
@@ -1141,9 +1141,9 @@ class Image extends File
 	* @param boolean	$force_array	force the results to return an array of links
 	*									even if there is only one link
 	* @param boolean	$dependant		The dependant status for all the links must be
-	*									this (if not null)
+	*									this (if not NULL)
 	* @param boolean	$exclusive		The exclusive status for all the links must be
-	*									this (if not null)
+	*									this (if not NULL)
 	*
 	* @return array
 	* @access public
@@ -1216,7 +1216,7 @@ class Image extends File
 	* @param string		$link_type	the type of link this is
 	* @param string		$value		the value that is to be associated with this link
 	* @param string		$sort_order	the position in the links list that this link should take,
-	*								if null or less than zero places at end of list
+	*								if NULL or less than zero places at end of list
 	* @param string		$dependant	'0' / '1' - whether the minor asset is dependant on the major
 	* @param string		$exclusive	'0' / '1' - whether the major asset is to be the minor's only parent
 	* @param boolean	$moving		whether or not this asset is being moved

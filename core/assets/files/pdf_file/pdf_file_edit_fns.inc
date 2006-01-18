@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file_edit_fns.inc,v 1.10 2005/08/30 07:31:35 ndvries Exp $
+* $Id: pdf_file_edit_fns.inc,v 1.11 2006/01/18 00:59:32 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,8 +43,8 @@ class PDF_File_Edit_Fns extends File_Edit_Fns
 	/**
 	* Get a formatted string of extensions (eg 1,2,3 and 4)
 	*
-	* @param array(string)	$extensions	array of extensions to format
-	* @param string			$glue		word used to join last extension to the string (and, or etc)
+	* @param array	$extensions	array of extensions to format
+	* @param string	$glue		word used to join last extension to the string (and, or etc)
 	*
 	* @return string
 	* @access public
@@ -77,9 +77,9 @@ class PDF_File_Edit_Fns extends File_Edit_Fns
 	/**
 	* Prints the interface for uploading a file
 	*
-	* @param object Image				&$asset	the file asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the file asset
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -91,7 +91,7 @@ class PDF_File_Edit_Fns extends File_Edit_Fns
 			echo '<br />';
 			$o->note(translate('core_only_upload_files_of_type', $this->_getExtensionString($asset->allowed_extensions)));
 		}
-		return true;
+		return TRUE;
 
 	}//end paintFileUpload()
 
