@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bridge.inc,v 1.6 2006/01/09 03:41:03 emcdonald Exp $
+* $Id: bridge.inc,v 1.7 2006/01/18 01:06:29 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 *    Provides an interface bridging between the MySource system some other external system
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,7 +40,7 @@ class Bridge
 	/**
 	* Returns a reference to the asset represented by the passed assetid
 	*
-	* Returns null on error
+	* Returns NULL on error
 	*
 	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
 	* @param string		$type_code		if this exists then this object is used to
@@ -49,7 +49,7 @@ class Bridge
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
-	* @return mixed object|null
+	* @return mixed object|NULL
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
@@ -80,7 +80,7 @@ class Bridge
 	* @access public
 	* @see Asset_Manager::getLinks()
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=null)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL)
 	{
 
 	}//end getLinks()
@@ -137,8 +137,8 @@ class Bridge
 	* Returns an array of assetid's + info in the order that they propogate out from THIS BRIDGE'S url
 	*
 	* @param string	$assetid	the id of the last asset in the lineage
-	* @param string	$protocol	the protocol to match -> null means it is ignored
-	* @param string	$url		the url to check for -> null defaults it to current url
+	* @param string	$protocol	the protocol to match -> NULL means it is ignored
+	* @param string	$url		the url to check for -> NULL defaults it to current url
 	*
 	* @return array
 	* @access public
