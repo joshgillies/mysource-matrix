@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.67 2006/01/12 01:22:51 skim Exp $
+* $Id: calendar_event_recurring.inc,v 1.68 2006/01/19 23:56:23 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -798,7 +798,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 						} else {
 							// we are showing a normal instance of this event
 							$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
-							switch ($keywords) {
+							switch ($keyword) {
 								case 'instance_start_datetime':
 									return $instance_dates['start'];
 								case 'instance_end_datetime':
@@ -842,7 +842,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		}
 		$search_id = is_null($id) ? $this->id : $id;
 		$child_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($search_id, SQ_SC_LINK_ALL, Array('calendar_event_cancellation', 'calendar_event_modification'), false, 'major', $date);
-		$res =& current($child_links);
+		$res = current($child_links);
 		if ($res['minor_type_code'] == 'calendar_event_cancellation') {
 			$replacement_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($res['minorid'], SQ_SC_LINK_ALL, 'calendar_event_single', false);
 			if (!empty($replacement_links)) {
