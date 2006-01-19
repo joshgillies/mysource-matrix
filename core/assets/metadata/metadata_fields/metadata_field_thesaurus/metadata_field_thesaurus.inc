@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus.inc,v 1.1 2005/11/23 00:53:35 arailean Exp $
+* $Id: metadata_field_thesaurus.inc,v 1.2 2006/01/19 03:09:50 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,7 +61,8 @@ class Metadata_Field_Thesaurus extends Metadata_Field
 	function &getThesaurusRef()
 	{
 		$th_id = $this->attr('thesaurus_assetid');
-		if ($th_id == -1) return false;
+		$false = FALSE;
+		if (empty($th_id)) return $false;
 
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($th_id);
 
