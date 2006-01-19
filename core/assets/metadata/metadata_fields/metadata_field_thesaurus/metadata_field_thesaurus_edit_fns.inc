@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.3 2005/12/19 05:04:07 arailean Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.4 2006/01/19 03:18:02 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,7 +52,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	function paintRootNode(&$asset, &$o, $prefix)
 	{
 		// get root links
-		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', false, 'major', 'root');
+		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
 		$root_asset_ids = Array();
 		foreach ($root_links as $root_link) {
 			$root_asset_ids[$root_link['minorid']] = $root_link['minor_type_code'];
@@ -84,7 +84,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 			</table>
 			<?php
 		}
-		return true;
+		return TRUE;
 
 	}//end paintRootNode()
 
@@ -105,10 +105,10 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
-		$is_default = false;
+		$is_default = FALSE;
 		$default = $asset->attr('default');
 		if (is_null($value_str)) {
-			$is_default = true;
+			$is_default = TRUE;
 			$value = $default;
 			$value_components = $asset->attr('value_components');
 		} else {
@@ -168,7 +168,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 			echo '<br />';
 			echo '<br />';
 
-			echo '<div id="'.$prefix.'_interface" style="display:'.($is_default?'none':'block').'">';
+			echo '<div id="'.$prefix.'_interface" style="display:'.($is_default ? 'none' : 'block').'">';
 			multiple_asset_finder($prefix.'_thes_term', $term_assetids, Array('thesaurus_term'=>'D'));
 
 			echo '<br />';
@@ -176,7 +176,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 			echo get_asset_tag_line($thesaurus->id, 'details');
 			echo '</div>';
 
-			echo '<div id="'.$prefix.'_defaults" style="display:'.($is_default?'block':'none').'">';
+			echo '<div id="'.$prefix.'_defaults" style="display:'.($is_default ? 'block' : 'none').'">';
 			echo $default;
 			echo '</div>';
 
@@ -212,7 +212,8 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 			$o->closeSection();
 		}
-		return true;
+		return TRUE;
+
 	}//end paintValueInterface()
 
 
@@ -232,7 +233,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		$value = Array();
 
 		if (isset($_REQUEST[$prefix.'_default'])) {
-			$new_value_str = null;
+			$new_value_str = NULL;
 
 		} else {
 
@@ -260,7 +261,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processInlineValueInterface()
 
@@ -282,7 +283,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		$default = $asset->attr('default');
 		if (!$write_access) {
 			echo $default;
-			return true;
+			return TRUE;
 		}
 
 		$thesaurus =& $asset->getThesaurusRef();
@@ -305,7 +306,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		multiple_asset_finder($prefix.'_default_term', $term_assetids, Array('thesaurus_term'=>'D'));
 
-		return true;
+		return TRUE;
 
 	}//end paintDefault()
 
@@ -322,7 +323,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	function processDefault(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$prefix = $asset->getPrefix();
 		$thesaurus =& $asset->getThesaurusRef();
@@ -353,7 +354,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		$asset->setAttrValue('default', $default);
 
 
-		return true;
+		return TRUE;
 
 	}//end processDefault()
 
