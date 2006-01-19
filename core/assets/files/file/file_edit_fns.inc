@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.69 2006/01/18 00:59:32 lwright Exp $
+* $Id: file_edit_fns.inc,v 1.70 2006/01/19 00:55:23 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -167,7 +167,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if (!$asset->validFile($info)) return FALSE;
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		$name = current(make_valid_web_paths(Array(strtolower($info['name']))));
+		$name = current(make_valid_web_paths(Array($info['name'])));
 
 		// make sure the new web path is not already is use
 		if ($asset->name != $name) {
