@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.27 2006/01/12 02:55:50 rong Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.28 2006/01/19 04:42:45 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -500,7 +500,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 				foreach ($threshold as $key => $rule) {
 					?><tr>
 						<td class="sq-backend-table-cell"><?php echo $rule['type']; ?></td>
-						<td class="sq-backend-table-cell"><?php echo ($rule['multiple']) ? translate('TRUE') : translate('FALSE'); ?></td>
+						<td class="sq-backend-table-cell"><?php echo ($rule['multiple']) ? translate('TRUE') : translate('false'); ?></td>
 					<?php
 						switch ($rule['type']) {
 							case translate('bulkmail_threshold_rule_excluded_time') :
