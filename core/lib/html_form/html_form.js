@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.40 2005/09/02 01:26:22 dheppell Exp $
+* $Id: html_form.js,v 1.41 2006/01/19 22:20:46 tbarrett Exp $
 *
 */
 
@@ -150,8 +150,10 @@ function validate_numeric_range(name, min, max)
 {
 	if (arguments.length < 3) return false;
 
-	if (arguments.length >= 4 && arguments[3] == true && name.value < min) {
-		name.value = min;
+	if (name.value < min) {
+		if ((arguments.length == 3) || (arguments.length >=4 && arguments[3])) {
+			name.value = min;
+		}
 	}
 
 	if (name.value > max) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.114 2006/01/16 23:50:50 skim Exp $
+* $Id: html_form.inc,v 1.115 2006/01/19 22:20:46 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.114 $
+* @version $Revision: 1.115 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -225,10 +225,12 @@ function int_text_box($name, $value, $allow_negative=TRUE, $size='', $range_min=
 
 	// ranges
 	if (!is_null($range_min) && !is_null($range_max)) {
-		if ($value >= $range_min) {
-			if ($value > $range_max) $value = $range_max;
-		} else {
-			$value = $range_min;
+		if (strlen($value) != 0) {
+			if ($value >= $range_min) {
+				if ($value > $range_max) $value = $range_max;
+			} else {
+				$value = $range_min;
+			}
 		}
 
 		$ranges = Array(
