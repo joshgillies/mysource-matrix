@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.30 2006/01/19 23:00:33 tbarrett Exp $
+* $Id: lang_errors.xml,v 1.31 2006/01/19 23:38:51 tbarrett Exp $
 *
 */
 
@@ -346,7 +346,7 @@
 	<error code="CRON0039">Unable to set the type of a future status cron job; it can only be a one off event</error>
 		<!-- core/assets/system/cron/jobs/cron_job_future_status/cron_job_future_status.inc:141: -->
 
-	<error code="CRON0040">Unable to have a %1$s %2$s without filling in the %3$s field</error>
+	<error code="CRON0040">Unable to create a %1$s %2$s with empty %3$s field</error>
 		<!-- core/assets/system/cron/cron_job/cron_job_edit_fns.inc:289: -->
 
 	<error code="CRON0041">Unable to move assets around in the %s</error>
