@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.8.2.4 2005/11/15 23:42:42 dmckee Exp $
+* $Id: preview.inc,v 1.8.2.5 2006/01/19 03:55:21 skim Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.8.2.4 $
+* @version $Revision: 1.8.2.5 $
 * @package MySource_Matrix
 */
 
@@ -138,7 +138,7 @@ function paintPreview(&$owner, &$o, &$ei)
 					var previewURL = document.getElementById('preview_url').value;
 					var queryStringStarted = false;
 					if (document.getElementById('use_cache').checked == false) {
-						previewURL += '/<?php echo SQ_CONF_NOCACHE_SUFFIX; ?>';
+						previewURL += '<?php echo (!$owner->effectiveUnrestricted()) ? '/'.SQ_CONF_NOCACHE_SUFFIX : ''; ?>';
 						queryStringStarted = true;
 					}
 					if (document.getElementById('preview_design').value != '') {
@@ -158,7 +158,7 @@ function paintPreview(&$owner, &$o, &$ei)
 				function set_new_window_href(elt)
 				{
 					var href = document.getElementById('sq_preview_new_window').href;
-					var nocache_suffix = '/<?php echo SQ_CONF_NOCACHE_SUFFIX; ?>';
+					var nocache_suffix = '<?php echo (!$owner->effectiveUnrestricted()) ? '/'.SQ_CONF_NOCACHE_SUFFIX : ''; ?>';
 
 					if (elt.checked == true) {
 						href = href.replace(nocache_suffix, '');
@@ -220,7 +220,7 @@ function paintPreview(&$owner, &$o, &$ei)
 				<p class="sq-backend-field">
 					<?php echo translate('currently_previewing', $owner->name, $replacements_link); ?>
 				</p>
-				<iframe id="sq_preview_frame" src="<?php echo $primary_url; ?>/<?php echo SQ_CONF_NOCACHE_SUFFIX; ?>" style="width: 100%; height: 400px; border: 1px solid #C3C3C3;"></iframe>
+				<iframe id="sq_preview_frame" src="<?php echo $primary_url; ?><?php echo (!$owner->effectiveUnrestricted()) ? '/'.SQ_CONF_NOCACHE_SUFFIX : ''; ?>" style="width: 100%; height: 400px; border: 1px solid #C3C3C3;"></iframe>
 				<?php
 			$o->closeRaw();
 		$o->closeSection();
