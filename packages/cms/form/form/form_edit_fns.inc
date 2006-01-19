@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.65 2006/01/18 04:31:45 sdanis Exp $
+* $Id: form_edit_fns.inc,v 1.66 2006/01/19 22:58:31 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -235,7 +235,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 						?>
 						<tr>
 							<td class="sq-backend-table-cell">
-								<span name="<?php echo $prefix.'_order_o'.$sort_id ?>" id="<?php echo 	$prefix.'_order_o'.$sort_id ?>"><?php echo get_asset_tag_line($assetid, 'details') ?><!-- <a href="<?php echo $href ?>"><?php	echo $q->attr('name')?></a></span> --><?php hidden_field($prefix.'_order[reorder]['.$sort_id.']', $assetid); ?>
+								<span name="<?php echo $prefix.'_order_o'.$sort_id ?>" id="<?php echo 	$prefix.'_order_o'.$sort_id ?>"><?php echo get_asset_tag_line($assetid, 'details') ?><a href="<?php echo $href ?>"><?php	echo $q->attr('name')?></a></span><?php hidden_field($prefix.'_order[reorder]['.$sort_id.']', $assetid); ?>
 							</td>
 							<td class="sq-backend-table-cell">
 								<span name="<?php echo $prefix.'_order_t'.$sort_id ?>" id="<?php echo 	$prefix.'_order_t'.$sort_id ?>"><?php
