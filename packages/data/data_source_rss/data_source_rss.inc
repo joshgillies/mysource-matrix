@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_rss.inc,v 1.4 2005/12/21 21:58:35 rong Exp $
+* $Id: data_source_rss.inc,v 1.5 2006/01/19 02:58:13 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -135,10 +135,6 @@ class Data_Source_RSS extends Data_Source
 				}
 			}
 		}
-		//minibam($result);
-		//bam('-----------------------------------------------------------------');
-		//minibam($new_result);
-
 		return $new_result;
 
 	}//end getItems()
