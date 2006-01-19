@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.20 2006/01/16 05:14:17 dmckee Exp $
+* $Id: email_format.inc,v 1.21 2006/01/19 04:47:04 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *    <email_format />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -476,7 +476,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		$from_addr = preg_replace('|.*\<(.*)\>|', '\\1', $from);
 
-		$mail =& Mail::factory('mail', "-f$from_addr");
+		$mail = Mail::factory('mail', "-f$from_addr");
 
 		$hdrs = Array('From' => $from, 'Subject' => $subject);
 
