@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.9 2006/01/09 03:41:03 emcdonald Exp $
+* $Id: data_source.inc,v 1.10 2006/01/19 02:54:05 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -235,7 +235,39 @@ class Data_Source extends Asset
 	*/
 	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=TRUE, $field='')
 	{
-		return Array();
+		$info = Array();
+		foreach ($assetids as $assetid) {
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$keywords = $asset->getAvailableKeywords();
+			// if a sort field is specified then return only that field value else return all of the fields
+			if (!empty($field)) {
+				if (isset($asset->{$field})) {
+					$info[$assetid] = $asset->{$field};
+				} else {
+					trigger_error('Invalid sort field for the asset type Data Source Record Ste', E_USER_ERROR);
+				}
+			} else {
+				$info[$assetid] = Array(
+									'type_code'				=> 'data_source_record_set',
+									'version'				=> $asset->version,
+									'name'					=> $asset->name,
+									'short_name'			=> $asset->short_name,
+									'status'				=> $asset->status,
+									'languages'				=> '',
+									'charset'				=> '',
+									'force_secure'			=> '0',
+									'created'				=> $asset->getKeywordReplacement('asset_created'),
+									'created_userid'		=> $asset->created_userid,
+									'updated'				=> $asset->getKeywordReplacement('asset_updated'),
+									'updated_userid'		=> $asset->updated_userid,
+									'published'				=> $asset->getKeywordReplacement('asset_published'),
+									'published_userid'		=> $asset->published_userid,
+									'status_changed'		=> $asset->getKeywordReplacement('asset_status_changed'),
+									'status_changed_userid'	=> $asset->status_changed_userid
+,								  );
+			}//end if field not empty
+		}//end foreach of assetids
+		return $info;
 
 	}//end getAssetInfo()
 
