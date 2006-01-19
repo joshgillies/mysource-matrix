@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_management.inc,v 1.6 2005/11/14 04:31:50 tbarrett Exp $
+* $Id: calendar_event_management.inc,v 1.7 2006/01/19 23:53:50 skim Exp $
 *
 */
 
@@ -24,12 +24,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
 class Calendar_Event_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -45,22 +46,22 @@ class Calendar_Event_Management extends Asset_Management
 											'type'			=> 'text',
 											'default'		=> '',
 											'description'	=> 'The name of the event',
-											'is_admin'		=> false,
+											'is_admin'		=> FALSE,
 										   ),
 						'description'	=> Array(
 											'added'			=> '0.0.1',
 											'type'			=> 'wysiwyg',
 											'default'		=> '',
 											'description'	=> 'Description of the event',
-											'is_admin'		=> false,
+											'is_admin'		=> FALSE,
 										   ),
 						'start_date'	=> Array(
 											'added'			=> '0.0.1',
 											'type'			=> 'datetime',
 											'default'		=> '---------- --:--:--',
 											'parameters'	=> Array(
-																'allow_null' => true,
-																'show'       => Array('d','m','y','h','i'),
+																'allow_null'	=> TRUE,
+																'show'			=> Array('d','m','y','h','i'),
 															   ),
 											'description'	=> 'The starting date and/or time of the event',
 											'update_fn'		=> '',
@@ -69,7 +70,7 @@ class Calendar_Event_Management extends Asset_Management
 											'added'			=> '0.0.1',
 											'type'			=> 'datetime',
 											'default'		=> '---------- --:--:--',
-											'parameters'	=> Array('allow_null' => true),
+											'parameters'	=> Array('allow_null' => TRUE),
 											'description'	=> 'The ending date and/or time of the event',
 											'update_fn'		=> '',
 										   ),
@@ -81,14 +82,14 @@ class Calendar_Event_Management extends Asset_Management
 	/**
 	* Gets a list of all metadata files that we want web accessable
 	*
+	* @return array
 	* @access private
-	* @return array(string)
 	*/
 	function _getFileList()
 	{
 		return Array(
-					 'js/date_chooser.js',
-					 );
+				'js/date_chooser.js',
+			   );
 
 	}//end _getFileList()
 

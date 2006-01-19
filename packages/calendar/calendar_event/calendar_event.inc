@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.58 2006/01/19 23:14:21 skim Exp $
+* $Id: calendar_event.inc,v 1.59 2006/01/19 23:53:50 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -58,20 +58,20 @@ class Calendar_Event extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _preCreateCheck(&$link)
 	{
-		if (!parent::_preCreateCheck($link)) return false;
+		if (!parent::_preCreateCheck($link)) return FALSE;
 
 		$name = $this->attr('name');
 		if ($name == '') {
 			trigger_localised_error('CAL0008', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _preCreateCheck()
 
@@ -83,18 +83,18 @@ class Calendar_Event extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!parent::_createAdditional($link)) return false;
-		$result = $this->cacheCalendarData(false);
+		if (!parent::_createAdditional($link)) return FALSE;
+		$result = $this->cacheCalendarData(FALSE);
 		// set an initial web path
 		$initial_path = strtolower($this->attr('name'));
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_paths = make_valid_web_paths(Array($initial_path));
-		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, TRUE);
 		$result_paths = $this->saveWebPaths($good_paths);
 		return ($result && $result_paths);
 
@@ -111,9 +111,9 @@ class Calendar_Event extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function delete($release_lock=true)
+	function delete($release_lock=TRUE)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'DELETE FROM
@@ -126,11 +126,11 @@ class Calendar_Event extends Asset
 
 		if (!parent::delete($release_lock)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		return TRUE;
 
 	}//end delete()
 
@@ -138,13 +138,13 @@ class Calendar_Event extends Asset
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
 	* @return string
 	* @access protected
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
@@ -164,12 +164,12 @@ class Calendar_Event extends Asset
 	* )
 	* </pre>
 	*
-	* @param boolean $descriptions if TRUE descriptions will be included in the array
+	* @param boolean	$descriptions	if TRUE descriptions will be included in the array
 	*
+	* @return array
 	* @access public
-	* @return Array(mixed)
 	*/
-	function getAssetKeywords($descriptions=false)
+	function getAssetKeywords($descriptions=FALSE)
 	{
 		$keywords = parent::getAssetKeywords($descriptions);
 
@@ -197,7 +197,7 @@ class Calendar_Event extends Asset
 		$keywords['event_datetime_summary'] = Array('value'=>$this->getFriendlyDatesAndTimes());
 
 		// give useful info if no duration (single point in time) - easy_time_total returns empty string
-		$total_time = easy_time_total($this->getDuration(), true);
+		$total_time = easy_time_total($this->getDuration(), TRUE);
 		if (empty($total_time)) $total_time = 'N/A';
 
 		$keywords['event_duration'] = Array('value'=>$total_time);
@@ -228,14 +228,14 @@ class Calendar_Event extends Asset
 
 
 	/**
-	* Get the link that users can click to delete this event
+	* Get the HTML link that users can click to delete this event
 	*
-	* @return string	The HTML link
+	* @return string
 	* @access private
 	*/
 	function _getDeleteLink()
 	{
-		if (true === ($msg = $GLOBALS['SQ_SYSTEM']->am->couldTrashAsset($this->id))) {
+		if (TRUE === ($msg = $GLOBALS['SQ_SYSTEM']->am->couldTrashAsset($this->id))) {
 			$res = '<a href="?SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=delete';
 			if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
 				$res .= '&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'];
@@ -252,14 +252,14 @@ class Calendar_Event extends Asset
 	/**
 	* Save attributes set with setAttrValue to the database
 	*
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
+	* @param boolean	$dont_run_updated	if TRUE this->_updated() won't be run
 	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
 	* @see Asset::setAttrValue()
 	*/
-	function saveAttributes($dont_run_updated=false)
+	function saveAttributes($dont_run_updated=FALSE)
 	{
 		$start_date = $this->attr('start_date');
 		$end_date   = $this->attr('end_date');
@@ -273,25 +273,25 @@ class Calendar_Event extends Asset
 		// All events must have a starting date at least!
 		if (!$start_has_date) {
 			trigger_localised_error('CAL0009', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		// cannot have End Date being like '---------- 11:00:00'
 		if (!$end_has_date && $end_has_time) {
 			trigger_localised_error('CAL0010', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		// Cannot have an end time if you have no start time
 		if ($end_has_time && (!$start_has_time)) {
 			trigger_localised_error('CAL0011', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		// Cannot have an end date and start time if you have no end time
 		if ($end_has_date && $start_has_time && (!$end_has_time)) {
 			trigger_localised_error('CAL0012', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		// If an End Date is specified (and we need date component so we can use that to check),
@@ -299,12 +299,12 @@ class Calendar_Event extends Asset
 		if ($end_has_date) {
 			if (iso8601_ts($end_date) < iso8601_ts($start_date)) {
 				trigger_localised_error('CAL0013', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-				return false;
+				return FALSE;
 			}
 		}
 
 		// oh no, we're not using this to display anything... just to use its units extraction :-)
-		$datetime = new Datetime_Field('', $value='', $params=Array());
+		$datetime =& new Datetime_Field('', $value='', $params=Array());
 
 		// check individual sections to make sure we can't commit part dates like '16th, 2005 48'
 		$start_components = $datetime->strToUnitsArray($start_date);
@@ -316,25 +316,25 @@ class Calendar_Event extends Asset
 		// For dates, this means all three parts of the date have a value
 		if ($end_has_date && (($end_components['d'] == -1) || ($end_components['m'] == -1) || ($end_components['y'] == -1))) {
 			trigger_localised_error('CAL0014', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		// For times, at least hour and minute must be specified. You can get away with not specifying
 		// seconds, it's optional.
 		if ($start_has_time && (($start_components['h'] == -1) || ($start_components['i'] == -1))) {
 			trigger_localised_error('CAL0015', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		if ($end_has_time && (($end_components['h'] == -1) || ($end_components['i'] == -1))) {
 			trigger_localised_error('CAL0016', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		// cache all the calendar data into another table so the queries for the calendar
 		// page go super-mega-hyperturbo (but only if already created)
 		if (!empty($this->id) && !$dont_run_updated) {
-			if (!$this->cacheCalendarData()) return false;
+			if (!$this->cacheCalendarData()) return FALSE;
 		}
 
 		// all sweet, so it seems
@@ -346,8 +346,9 @@ class Calendar_Event extends Asset
 	/**
 	* Takes a clone shell and clones the sources required components to the clone shell
 	*
-	* @param &object Asset	$clone		the clone shell
-	* @param array			$components	the wanted components to clone eg.
+	* @param object	&$clone		the clone shell
+	* @param array	$components	the wanted components to clone eg.
+	* <pre>
 	*                       Array(
 	*                           'attributes',
 	*                           'metadata_shemas',
@@ -358,6 +359,7 @@ class Calendar_Event extends Asset
 	*                       );
 	*                       or alternately
 	*                       Array('all');
+	* </pre>
 	*
 	* @return boolean
 	* @access public
@@ -368,33 +370,35 @@ class Calendar_Event extends Asset
 
 		if (!parent::cloneComponents($clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		if (in_array('all', $components) || in_array('attributes', $components)) {
-			if (!$clone->cacheCalendarData(false)) {
+			if (!$clone->cacheCalendarData(FALSE)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+				return FALSE;
 			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		return TRUE;
 
 	}//end cloneComponents()
 
 
 	/**
-	* Get the date component of the Start Date attribute
+	* Get the date component of the Start Date attribute.
 	*
-	* @return mixed (string|boolean) the date component of the start date (ISO8601 fmt,
-	* 				yyyy-mm-dd) or boolean FALSE if the date component is empty
+	* It returns the date component of the start date (ISO8601 fmt,
+	* yyyy-mm-dd) or boolean FALSE if the date component is empty
+	*
+	* @return mixed string|boolean
 	* @access public
 	*/
 	function getStartDate()
 	{
 		$res = substr($this->attr('start_date'), 0, 10);
-		return ($res == '----------') ? false : $res;
+		return ($res == '----------') ? FALSE : $res;
 
 	}//end getStartDate()
 
@@ -402,14 +406,16 @@ class Calendar_Event extends Asset
 	/**
 	* Get the date component of the End Date attribute
 	*
-	* @return mixed (string|boolean) the date component of the end date (ISO8601 fmt,
-	* 				yyyy-mm-dd) or boolean FALSE if the date component is empty
+	* It returns the date component of the end date (ISO8601 fmt,
+	* yyyy-mm-dd) or boolean FALSE if the date component is empty
+	*
+	* @return mixed string|boolean
 	* @access public
 	*/
 	function getEndDate()
 	{
 		$res = substr($this->attr('end_date'), 0, 10);
-		return ($res == '----------') ? false : $res;
+		return ($res == '----------') ? FALSE : $res;
 
 	}//end getEndDate()
 
@@ -417,14 +423,16 @@ class Calendar_Event extends Asset
 	/**
 	* Get the time component of the Start Date attribute
 	*
-	* @return mixed (string|boolean) the time component of the start date (hh:mm:ss)
-					or boolean FALSE if the time component is empty (--:--:--)
+	* It returns the time component of the start date (hh:mm:ss)
+	* or boolean FALSE if the time component is empty (--:--:--)
+	*
+	* @return mixed string|boolean
 	* @access public
 	*/
 	function getStartTime()
 	{
 		$res = substr($this->attr('start_date'), 11, 5);
-		return ($res == '--:--') ? false : $res;
+		return ($res == '--:--') ? FALSE : $res;
 
 	}//end getStartTime()
 
@@ -432,14 +440,16 @@ class Calendar_Event extends Asset
 	/**
 	* Get the time component of the End Date attribute
 	*
-	* @return mixed (string|boolean) the time component of the end date (hh:mm:ss)
-					or boolean FALSE if the time component is empty (--:--:--)
+	* It returns the time component of the end date (hh:mm:ss)
+	* or boolean FALSE if the time component is empty (--:--:--)
+	*
+	* @return mixed string|boolean
 	* @access public
 	*/
 	function getEndTime()
 	{
 		$res = substr($this->attr('end_date'), 11, 5);
-		return ($res == '--:--') ? false : $res;
+		return ($res == '--:--') ? FALSE : $res;
 
 	}//end getEndTime()
 
@@ -447,7 +457,7 @@ class Calendar_Event extends Asset
 	/**
 	* Returns the duration between the start and end dates, if they are set
 	*
-	* If end date/time is null => return 0 (single point in time)
+	* If end date/time is NULL => return 0 (single point in time)
 	* If start date and end date only specified	=> return calendar days covered by two dates
 	*                                              (ie. calendar days * 86400)
 	* If both fields specified in full => return the difference between the two times in seconds
@@ -468,7 +478,7 @@ class Calendar_Event extends Asset
 		$start_has_date = $this->getStartDate();
 		$end_has_date   = $this->getEndDate();
 
-		if (!$start_has_date) return null;
+		if (!$start_has_date) return NULL;
 
 		if (!$end_has_date) {
 			// single point in time, and so it has no duration
@@ -479,7 +489,7 @@ class Calendar_Event extends Asset
 		// ISO-to-timestamp conversion function already recognises that it's not a full datetime
 		// if that's the case
 
-		if (!$start_has_time && !$end_has_time)	{
+		if (!$start_has_time && !$end_has_time) {
 			// in a multiple day event without times it's assumed to be the start of the start date
 			// (ie. 00:00) to the end of the end date (ie. 00:00 the day after end date).
 			return iso8601_ts($end_date) - iso8601_ts($start_date) + $seconds_per_day;
@@ -496,12 +506,14 @@ class Calendar_Event extends Asset
 	/**
 	* Get the start date and time in friendly format
 	*
-	* @return string the start date and time if appropriate, in friendly format
+	* It returns the start date and time if appropriate, in friendly format
+	*
+	* @return string
 	* @access public
 	*/
 	function getFriendlyStart()
 	{
-		if ($this->getStartTime() !== false) {
+		if ($this->getStartTime() !== FALSE) {
 			return readable_datetime(iso8601_ts($this->attr('start_date')));
 		} else {
 			return date('jS M Y', iso8601_ts($this->attr('start_date')));
@@ -513,12 +525,14 @@ class Calendar_Event extends Asset
 	/**
 	* Get the end date and time in friendly format
 	*
-	* @return string the end date and time if appropriate, in friendly format
+	* It returns the end date and time if appropriate, in friendly format
+	*
+	* @return string
 	* @access public
 	*/
 	function getFriendlyEnd()
 	{
-		if ($this->getEndTime() !== false) {
+		if ($this->getEndTime() !== FALSE) {
 			return readable_datetime(iso8601_ts($this->attr('end_date')));
 		} else if (iso8601_ts($this->attr('end_date')) == -1) {
 			return '';
@@ -534,17 +548,18 @@ class Calendar_Event extends Asset
 	*
 	* If date components of Start Date and End Date attributes are the same, the date is not repeated,
 	* and the times are shown in abbreviated format (see example returns below).
-	*
-	* Example returns (assuming date and time components specified):<PRE>
+	* Example returns (assuming date and time components specified):
+	* <pre>
 	* if (start date != end date)		"23 Jul 2004 4:00pm - 25 Jul 2004 10:00am"
 	* if (start date == end date)		"23 Jul 2004 4:00pm-5:00pm"
 	* if (end date is empty)			"23 Jul 2004 4:00pm"
-	* </PRE>
-	* If only date components are specified:<PRE>
+	* </pre>
+	* <pre>
+	* If only date components are specified:
 	* if (start date != end date)		"23 Jul 2004 - 25 Jul 2004"
 	* if (start date == end date)		"23 Jul 2004 (all day)"
 	* if (end date is empty)			"23 Jul 2004"
-	* </PRE>
+	* </pre>
 	*
 	* @return string
 	* @access public
@@ -599,7 +614,7 @@ class Calendar_Event extends Asset
 				<td><b>Duration</b></td>
 				<td><?php
 						// give useful info if no duration - easy_time_total returns empty string
-						$total_time = easy_time_total($this->getDuration(), true);
+						$total_time = easy_time_total($this->getDuration(), TRUE);
 						echo (empty($total_time) ? 'N/A' : $total_time);
 					?></td>
 			</tr>
@@ -616,11 +631,12 @@ class Calendar_Event extends Asset
 	/**
 	* Process the specified action on this event, and return whatever html the action wants to show
 	*
-	* This should be overridden by child classes
+	* This should be overridden by child classes. It returns
+	* HTML to show as the result of this action
 	*
 	* @param string	$action_name	The action to perform, eg 'cancel'
 	*
-	* @return string	HTML to show as the result of this action
+	* @return string
 	* @access public
 	*/
 	function processEventAction($action_name)
@@ -628,7 +644,7 @@ class Calendar_Event extends Asset
 		switch ($action_name) {
 			case 'move':
 				if (isset($_REQUEST['SQ_CALENDAR_OLD_LOC']) && !empty($_REQUEST['SQ_CALENDAR_OLD_LOC'])) {
-					$old_link = &$GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($_REQUEST['SQ_CALENDAR_OLD_LOC'], $this->id);
+					$old_link =& $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($_REQUEST['SQ_CALENDAR_OLD_LOC'], $this->id);
 					if (empty($old_link)) {
 						trigger_localised_error('CAL0017', E_USER_WARNING, $_REQUEST['SQ_CALENDAR_OLD_LOC'], $this->id);
 						return '';
@@ -643,7 +659,9 @@ class Calendar_Event extends Asset
 					return '';
 				}
 				$duration = $this->getDuration();
-				if (!isset($_REQUEST['SQ_CALENDAR_TIME']) || empty($_REQUEST['SQ_CALENDAR_TIME'])) { $_REQUEST['SQ_CALENDAR_TIME'] = '--:--';}
+				if (!isset($_REQUEST['SQ_CALENDAR_TIME']) || empty($_REQUEST['SQ_CALENDAR_TIME'])) {
+					$_REQUEST['SQ_CALENDAR_TIME'] = '--:--';
+				}
 				$this->setAttrValue('start_date', $_REQUEST['SQ_CALENDAR_DATE'].' '.$_REQUEST['SQ_CALENDAR_TIME'].':--');
 				$current_end_date = $this->getEndDate();
 				if ($current_end_date) {
@@ -668,7 +686,7 @@ class Calendar_Event extends Asset
 				trigger_localised_error('CAL0021', E_USER_WARNING, $action_name);
 				return '';
 			break;
-		}
+		}//end switch
 
 	}//end processEventAction()
 
@@ -676,22 +694,24 @@ class Calendar_Event extends Asset
 	/**
 	* Cache the calendar data's stuff
 	*
-	* @param boolean	$updating	are we updating (TRUE) or inserting a new record
-	* 								(FALSE - set only in create() call)
+	* The return value indicates the success
 	*
-	* @return boolean	indicating success
+	* @param boolean	$updating	are we updating (TRUE) or inserting a new record
+	*								(FALSE - set only in create() call)
+	*
+	* @return boolean
 	* @access public
 	*/
-	function cacheCalendarData($updating=true)
+	function cacheCalendarData($updating=TRUE)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$date_values = Array();
 		foreach (Array('start_date', 'end_date') as $date_comp) {
 			$iso = $this->attr($date_comp);
 
-			if (iso8601_time_component($iso) === false) {
-				if (($date_comp == 'end_date') && (iso8601_date_component($iso) !== false)) {
+			if (iso8601_time_component($iso) === FALSE) {
+				if (($date_comp == 'end_date') && (iso8601_date_component($iso) !== FALSE)) {
 					$iso = substr($iso, 0, 10).' 24:00:00';
 				}
 			} else {
@@ -713,7 +733,7 @@ class Calendar_Event extends Asset
 			// set the asset ids
 			$date_values['assetid'] = $this->id;
 
-			for (reset($date_values); null !== ($key = key($date_values)); next($date_values)) {
+			for (reset($date_values); NULL !== ($key = key($date_values)); next($date_values)) {
 				$date_values[$key] = $db->quoteSmart($date_values[$key]);
 			}
 			$val_string = implode(',', $date_values);
@@ -751,7 +771,7 @@ class Calendar_Event extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		return true;
+		return TRUE;
 
 	}//end cacheCalendarData()
 
@@ -804,7 +824,7 @@ class Calendar_Event extends Asset
 				return $this->getFriendlyDatesAndTimes();
 			case 'event_duration':
 				// give useful info if no duration (single point in time) - easy_time_total returns empty string
-				$total_time = easy_time_total($this->getDuration(), true);
+				$total_time = easy_time_total($this->getDuration(), TRUE);
 				if (empty($total_time)) $total_time = 'N/A';
 				return $total_time;
 			case 'edit_link':
@@ -813,9 +833,10 @@ class Calendar_Event extends Asset
 				return $this->_getDeleteLink();
 			default:
 				return parent::getKeywordReplacement($keyword);
-		}
+		}//end switch
 
 	}//end getKeywordReplacement()
+
 
 }//end class
 
