@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.29 2006/01/17 03:28:43 lwright Exp $
+* $Id: lang_errors.xml,v 1.30 2006/01/19 23:00:33 tbarrett Exp $
 *
 */
 
@@ -1320,8 +1320,10 @@ Full Node Contents %3$s</error>
 	<error code="SYS0309">You do not have permission to change the status of "%1$s" (#%2$s)</error>
 
 	<error code="SYS0310">Maximum Number of calls to reserve a treeid exceeded</error>
-	<error code="SYS0311">Date has been altered to reflect entered values</error>
 
+	<error code="SYS0311">%1$s is not a valid date/time.  The field value has been adjusted to the closest valid value.</error>
+
+	<error code="SYS0312">%1$s is not a valid date.  The field value has been adjusted to the closest valid value.</error>
 
 	<!-- CORE ASSETS -->
 
