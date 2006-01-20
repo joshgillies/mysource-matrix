@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.24 2005/12/22 00:01:23 lwright Exp $
+* $Id: page_redirect.inc,v 1.25 2006/01/20 03:22:29 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -78,7 +78,7 @@ class Page_Redirect extends Page
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => false);
+		$page_links[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => FALSE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -87,14 +87,14 @@ class Page_Redirect extends Page
 	/**
 	* Returns the asset (if any) that we are redirecting to
 	*
-	* @return mixed object|null
+	* @return mixed object|NULL
 	* @access public
 	*/
 	function &getRedirectAsset()
 	{
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', true, 'redirect_asset');
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', TRUE, 'redirect_asset');
 		if (empty($link)) {
-			$null = null;
+			$null = NULL;
 			return $null;
 		}
 
@@ -113,38 +113,38 @@ class Page_Redirect extends Page
 	*/
 	function setRedirectAsset(&$asset)
 	{
-		$old_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', true, 'redirect_asset');
+		$old_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', TRUE, 'redirect_asset');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		if (empty($old_link)) {
 			// if there is not existing asset, and we aren't setting on, we are done here
 			if (is_null($asset)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-				return true;
+				return TRUE;
 			}
 
 		// else if there is a link, and we are about to set an asset, but it is the same as we already have
 		} else if (!is_null($asset) && $old_link['minorid'] == $asset->id) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
+			return TRUE;
 
 		// else something different, delete the old link
 		} else {
 			if (!$this->deleteLink($old_link['linkid'])) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+				return FALSE;
 			}
 		}
 
 		if (!is_null($asset)) {
 			if (!$this->createLink($asset, SQ_LINK_NOTICE, 'redirect_asset')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+				return FALSE;
 			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		return true;
+		return TRUE;
 
 	}//end setRedirectAsset()
 
@@ -175,12 +175,12 @@ class Page_Redirect extends Page
 
 		if ($this->attr('new_window')) {
 			$options = $this->attr('new_window_options');
-			$params  =	 'location='.((strpos($options, 'hide_location'  ) !== false) ? '0' : '1').','
-						.'menubar='.((strpos($options, 'hide_menubar'   ) !== false) ? '0' : '1').','
-						.'scrollbars='.((strpos($options, 'hide_scrollbars') !== false) ? '0' : '1').','
-						.'statusbar='.((strpos($options, 'hide_status'    ) !== false) ? '0' : '1').','
-						.'toolbar='.((strpos($options, 'hide_toolbar'   ) !== false) ? '0' : '1').','
-						.'resizable='.((strpos($options, 'not_resizable'  ) !== false) ? '0' : '1');
+			$params  =	 'location='.((strpos($options, 'hide_location'  ) !== FALSE) ? '0' : '1').','
+						.'menubar='.((strpos($options, 'hide_menubar'   ) !== FALSE) ? '0' : '1').','
+						.'scrollbars='.((strpos($options, 'hide_scrollbars') !== FALSE) ? '0' : '1').','
+						.'statusbar='.((strpos($options, 'hide_status'    ) !== FALSE) ? '0' : '1').','
+						.'toolbar='.((strpos($options, 'hide_toolbar'   ) !== FALSE) ? '0' : '1').','
+						.'resizable='.((strpos($options, 'not_resizable'  ) !== FALSE) ? '0' : '1');
 			if ($w = $this->attr('new_window_width')) {
 				$params .= ',width='.$w;
 			}
@@ -249,7 +249,7 @@ class Page_Redirect extends Page
 	function getKeywordReplacement($keyword)
 	{
 		if (preg_match('|^referring\_(.*)|', $keyword, $matches)) {
-			$referring_asset = &$this->getReferringAsset();
+			$referring_asset =& $this->getReferringAsset();
 			if ($referring_asset) {
 				return $referring_asset->getKeywordReplacement($matches[1]);
 			} else {
@@ -270,13 +270,13 @@ class Page_Redirect extends Page
 	*/
 	function &getReferringAsset()
 	{
-		$url = array_get_index($_SERVER, 'HTTP_REFERER', false);
+		$url = array_get_index($_SERVER, 'HTTP_REFERER', FALSE);
 
 		// strip protocol, strip query string
 		$url = preg_replace('|^.*://|', '', $url);
 		$url = preg_replace('|\?.*$|', '', $url);
 
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(null, $url, false, true);
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, $url, FALSE, TRUE);
 
 		return $asset;
 
@@ -313,7 +313,7 @@ class Page_Redirect extends Page
 
 		// if there is no url, see if we have an asset selected
 		} else if (($url = $this->attr('redirect_url')) == '') {
-			$redirect_asset = &$this->getRedirectAsset();
+			$redirect_asset =& $this->getRedirectAsset();
 			if (!is_null($redirect_asset)) {
 				if (($url = $redirect_asset->getURL()) == '') {
 					$url = current_url().'?a='.$redirect_asset->id;
@@ -330,7 +330,7 @@ class Page_Redirect extends Page
 
 		// See if we need to append the query string and there is a query string
 		if ($this->attr('append_querystring') && !empty($_SERVER['QUERY_STRING'])) {
-			$url .= ((strpos($url, '?') === false) ? '?' : '&').$_SERVER['QUERY_STRING'];
+			$url .= ((strpos($url, '?') === FALSE) ? '?' : '&').$_SERVER['QUERY_STRING'];
 		}
 
 		return $url;
@@ -346,10 +346,10 @@ class Page_Redirect extends Page
 	*/
 	function getJavascriptRedirectKeywordReplacement()
 	{
-		static $fn_called = false;
+		static $fn_called = FALSE;
 
 		if ($fn_called) return '';
-		$fn_called = true;
+		$fn_called = TRUE;
 
 		$timeout = $this->attr('timeout');
 		$url = $this->_getRedirectURL();

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect_edit_fns.inc,v 1.16 2005/11/28 05:44:13 lwright Exp $
+* $Id: page_redirect_edit_fns.inc,v 1.17 2006/01/20 03:22:29 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -64,7 +64,7 @@ class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintRedirectAssetid(&$asset, &$o, $prefix)
 	{
-		$redirect_asset = &$asset->getRedirectAsset();
+		$redirect_asset =& $asset->getRedirectAsset();
 		if ($asset->writeAccess('links')) {
 			asset_finder($prefix.'_redirect_assetid', (is_null($redirect_asset) ? 0 : $redirect_asset->id));
 		} else {
@@ -74,7 +74,7 @@ class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 				echo get_asset_tag_line($redirect_asset->id);
 			}
 		}
-		return true;
+		return TRUE;
 
 	}//end paintRedirectAssetid()
 
@@ -92,15 +92,15 @@ class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 	function processRedirectAssetid(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_redirect_assetid']['assetid'])) {
-			return true;
+			return TRUE;
 		}
 
 		$redirect_assetid = $_POST[$prefix.'_redirect_assetid']['assetid'];
 
 		if ($redirect_assetid) {
-			$redirect_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($redirect_assetid);
+			$redirect_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($redirect_assetid);
 		} else {
-			$redirect_asset = null;
+			$redirect_asset = NULL;
 		}
 
 		return $asset->setRedirectAsset($redirect_asset);
