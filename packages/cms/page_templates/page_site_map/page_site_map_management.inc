@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_management.inc,v 1.11 2005/08/18 02:38:52 dheppell Exp $
+* $Id: page_site_map_management.inc,v 1.12 2006/01/20 04:03:51 sdanis Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -49,17 +49,17 @@ class Page_Site_Map_Management extends Asset_Management
 						'stalks'		=> Array(
 											'added'			=> '0.0.1',
 											'type'			=> 'boolean',
-											'default'		=> true,
+											'default'		=> TRUE,
 											'parameters'	=> Array(
-																'allow_empty'	=> false,
+																'allow_empty'	=> FALSE,
 															   ),
 										   ),
 						'top_level'		=> Array(
 											'added'			=> '0.0.1',
 											'type'			=> 'boolean',
-											'default'		=> false,
+											'default'		=> FALSE,
 											'parameters'	=> Array(
-																'allow_empty'	=> false,
+																'allow_empty'	=> FALSE,
 															   ),
 										   ),
 						'columns'		=> Array(
@@ -80,17 +80,17 @@ class Page_Site_Map_Management extends Asset_Management
 						'icons'			=> Array(
 											'added'			=> '0.0.1',
 											'type'			=> 'boolean',
-											'default'		=> false,
+											'default'		=> FALSE,
 											'parameters'	=> Array(
-																'allow_empty'	=> false,
+																'allow_empty'	=> FALSE,
 															   ),
 										   ),
 						'show_type_2'	=> Array (
 											'added'			=> '0.0.1',
 											'type'			=> 'boolean',
-											'default'		=> false,
+											'default'		=> FALSE,
 											'parameters'	=> Array(
-																'allow_empty'	=> false,
+																'allow_empty'	=> FALSE,
 															   ),
 										   ),
 						'map_format'	=> Array (
@@ -102,8 +102,8 @@ class Page_Site_Map_Management extends Asset_Management
 																					'default'			=> 'Default Format',
 																					'unordered_list'	=> 'Unordered List',
 																				   ),
-																'multiple'		=> false,
-																'allow_empty'	=> false,
+																'multiple'		=> FALSE,
+																'allow_empty'	=> FALSE,
 															   ),
 											'description'	=> 'This will determine the format of the Site Map, such as an unordered list',
 										   ),

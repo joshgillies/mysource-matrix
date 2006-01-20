@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.26 2005/11/01 00:00:42 mmcintyre Exp $
+* $Id: page_site_map.inc,v 1.27 2006/01/20 04:03:51 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -41,7 +41,7 @@ class Page_Site_Map extends Page
 	*/
 	function Page_Site_Map($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Page($assetid);
 
 	}//end constructor
@@ -50,13 +50,14 @@ class Page_Site_Map extends Page
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => false);
+		$page_links[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => FALSE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -65,7 +66,7 @@ class Page_Site_Map extends Page
 	/**
 	* Returns a list of lock types available for this asset type
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function lockTypes()
@@ -104,27 +105,27 @@ class Page_Site_Map extends Page
 	* Called by the design to print the body of this asset
 	* it's up to the kids to override
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function printBody()
 	{
-		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$cached_contents = $cm->loadFromCache($this->id, $this->type(), 'site_map');
 
 		// if the cache is empty, go ahead and regenerate a new version
 		if (empty($cached_contents)) {
 
-			$root_asset = null;
-			$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', false, 'root');
+			$root_asset = NULL;
+			$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', FALSE, 'root');
 			if (!empty($root_link)) {
-				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
+				$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
 			}
 
 			if (is_null($root_asset)) {
 				// firstly, get the sites that this page belongs to
 				$site_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL();
-				if (empty($site_info)) return false;
+				if (empty($site_info)) return FALSE;
 				$siteid = $site_info['assetid'];
 			} else {
 				$siteid = $root_asset->id;
@@ -132,7 +133,7 @@ class Page_Site_Map extends Page
 				unset($root_asset);
 			}
 
-			$levels = ($this->attr('levels') != 0) ? $this->attr('levels') : null;
+			$levels = ($this->attr('levels') != 0) ? $this->attr('levels') : NULL;
 
 			$page_data = $GLOBALS['SQ_SYSTEM']->am->getAssetTree($siteid, $levels, array_keys($this->attr('exclude_list')), $this->attr('show_type_2') ? SQ_SC_LINK_BACKEND_NAV : SQ_SC_LINK_FRONTEND_NAV);
 
@@ -163,7 +164,7 @@ class Page_Site_Map extends Page
 
 				$num_chunks = ceil($num_pages / $num_columns);
 				// CHUNK chunk CHUNK chunk CHUNK it up!
-				$chunks = array_chunk($page_data[$siteid], $num_chunks, true);
+				$chunks = array_chunk($page_data[$siteid], $num_chunks, TRUE);
 				$root_data = $page_data[$siteid];
 				unset($page_data[$siteid]);
 
@@ -192,19 +193,18 @@ class Page_Site_Map extends Page
 	/**
 	* Begins to paint a site map in the default format
 	*
-	* @param Array $chunks      the level of depth with which to begin processing
-	* @param Array $page_data   data on assets
-	* @param int   $sideid      id of root asset
+	* @param array		$chunks		the level of depth with which to begin processing
+	* @param array		&$page_data	data on assets
+	* @param int		$level		Level
+	* @param boolean	$generating	Generating
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
-	function _paintUnorderedList($chunks, &$page_data, $level=1, $generating=false)
+	function _paintUnorderedList($chunks, &$page_data, $level=1, $generating=FALSE)
 	{
 		$top_level = $this->attr('top_level');
-		if ($top_level == 0) {
-			$level = -1;
-		}
+		if ($top_level == 0) $level = -1;
 
 		if (!$generating) global $SQ_SITE_MAP_ASSET_URLS;
 
@@ -238,12 +238,12 @@ class Page_Site_Map extends Page
 	/**
 	* Begins to paint a site map in the default format
 	*
-	* @param Array $chunks      chunks of assets to buuild the map with
-	* @param Array $page_data   data on assets
-	* @param int   $sideid      id of root asset
+	* @param array	$chunks		chunks of assets to buuild the map with
+	* @param array	$page_data	data on assets
+	* @param int	$siteid		id of root asset
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _paintDefault($chunks=Array(), $page_data, $siteid)
 	{
@@ -272,15 +272,15 @@ class Page_Site_Map extends Page
 	/**
 	* Recursively prints a tree of the passed in data
 	*
-	* @param array		&$page_data		the data to print in a tree structure
-	* @param int		$parent			the parent that we are currently at
-	* @param int		$parent			the level of the tree we are printing
-	* @param boolean	$generating		if TRUE content will be generated for a content file
+	* @param array		&$page_data	the data to print in a tree structure
+	* @param int		$parent		the parent that we are currently at
+	* @param int		$level		the level of the tree we are printing
+	* @param boolean	$generating	if TRUE content will be generated for a content file
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
-	function _defaultRecursePrintAssetList(&$page_data, $parent, $level, $generating=false)
+	function _defaultRecursePrintAssetList(&$page_data, $parent, $level, $generating=FALSE)
 	{
 		$top_level = $this->attr('top_level');
 		$stalks = $this->attr('stalks');
@@ -333,7 +333,7 @@ class Page_Site_Map extends Page
 		</table>
 		<?php
 
-		return true;
+		return TRUE;
 
 	}//end _defaultRecursePrintAssetList()
 
