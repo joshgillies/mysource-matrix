@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.28.2.1 2005/09/21 05:20:38 dheppell Exp $
+* $Id: page_account_manager.inc,v 1.28.2.2 2006/01/20 02:46:05 skim Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.28.2.1 $
+* @version $Revision: 1.28.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -517,7 +517,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$keywords = Array(
 						'login_invite'            => translate('cms_asset_builder_keyword_login_invite'),
 						'login_form'              => translate('cms_asset_builder_keyword_login_form'),
-						'create_error'            => translate('cms_asset_builder_keyword_login_error'),
+						'login_error'             => translate('cms_asset_builder_keyword_login_error'),
 						'create_invite'           => translate('cms_account_manager_keyword_create_invite'),
 						'create_form'             => translate('cms_account_manager_keyword_create_form'),
 						'create_error'            => translate('cms_account_manager_keyword_create_error'),

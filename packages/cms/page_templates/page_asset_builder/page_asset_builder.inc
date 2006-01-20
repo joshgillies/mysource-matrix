@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.63.2.5 2006/01/08 23:27:00 dmckee Exp $
+* $Id: page_asset_builder.inc,v 1.63.2.6 2006/01/20 02:46:05 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.63.2.5 $
+* @version $Revision: 1.63.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -751,6 +751,7 @@ class Page_Asset_Builder extends Page
 	function _loadLoginReplacements()
 	{
 		$this->_replacements['login_invite'] = $this->attr('login_invite');
+		$this->_replacements['login_error'] = $this->attr('login_error');
 
 		ob_start();
 			?>
@@ -1052,7 +1053,7 @@ class Page_Asset_Builder extends Page
 		$keywords = Array(
 						'login_invite'	=> translate('cms_asset_builder_keyword_login_invite'),
 						'login_form'	=> translate('cms_asset_builder_keyword_login_form'),
-						'create_error'	=> translate('cms_asset_builder_keyword_login_error'),
+						'login_error'	=> translate('cms_asset_builder_keyword_login_error'),
 						'create_invite'	=> translate('cms_asset_builder_keyword_create_invite'),
 						'create_form'	=> translate('cms_asset_builder_keyword_create_form'),
 						'create_error'	=> translate('cms_asset_builder_keyword_create_error'),
