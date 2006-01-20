@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.9 2006/01/20 03:05:14 sdanis Exp $
+* $Id: page_poll.inc,v 1.10 2006/01/20 03:46:59 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -220,11 +220,7 @@ class Page_Poll extends Page
 				$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($SQ_POLL_ID, '', TRUE);
 
 				// if the question doesn't have an ID, or isn't of type poll_question, or isn't a child of the poll
-				if (!$question->id ||
-					!$am->getAssetTypeInfo(Array($question->id), Array('poll_question'), TRUE) ||
-					$question->status < SQ_STATUS_LIVE ||
-					!$am->getLinkByAsset($this->id, $question->id, SQ_LINK_TYPE_2)
-					) {
+				if (!$question->id || !$am->getAssetTypeInfo(Array($question->id), Array('poll_question'), TRUE) || $question->status < SQ_STATUS_LIVE || !$am->getLinkByAsset($this->id, $question->id, SQ_LINK_TYPE_2)) {
 						// revert to the default (active_question)
 						$question = $active_question;
 				}
@@ -297,7 +293,7 @@ class Page_Poll extends Page
 						'poll_question_list'				=> $this->_componentQuestionList($active_question_id, FALSE, FALSE),
 						'poll_question_list_date'			=> $this->_componentQuestionList($active_question_id, TRUE, FALSE),
 						'poll_question_list_no_active'		=> $this->_componentQuestionList($active_question_id, FALSE, TRUE),
-						'poll_question_list_date_no_active'=> $this->_componentQuestionList($active_question_id, TRUE, TRUE),
+						'poll_question_list_date_no_active'	=> $this->_componentQuestionList($active_question_id, TRUE, TRUE),
 						'poll_active_question'				=> $this->_componentActiveQuestion($question, FALSE),
 						'poll_active_question_date'			=> $this->_componentActiveQuestion($question, TRUE),
 					);
