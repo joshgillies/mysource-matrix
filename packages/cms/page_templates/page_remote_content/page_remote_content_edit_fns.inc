@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content_edit_fns.inc,v 1.7 2005/12/09 05:49:24 bcaldwell Exp $
+* $Id: page_remote_content_edit_fns.inc,v 1.8 2006/01/20 03:41:29 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -59,7 +59,7 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$urls = $asset->attr('url_white_list');
 
-		$urls = (is_array($urls))? implode("\n", $urls):'';
+		$urls = (is_array($urls)) ? implode("\n", $urls) : '';
 
 		if ($write_access) {
 			text_area($prefix.'_url_white_list', $urls, 60, 10);
@@ -83,7 +83,7 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processWhiteList(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$urls = array_get_index($_REQUEST, $prefix.'_url_white_list');
 
@@ -98,7 +98,7 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 		}
 
 		$asset->setAttrValue('url_white_list', $new_urls);
-		return true;
+		return TRUE;
 
 	}//end processWhiteList()
 
@@ -136,7 +136,7 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 			?></table><?php
 		echo ob_get_clean();
 
-		return true;
+		return TRUE;
 
 	}//end paintPostVariableTable()
 
@@ -153,7 +153,7 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintNewPostVariableInput(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		ob_start();
 			text_box($prefix.'_name', '');
@@ -161,7 +161,7 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 			text_box($prefix.'_value', '', 50);
 		echo ob_get_clean();
 
-		return true;
+		return TRUE;
 
 	}//end paintNewPostVariableInput()
 
@@ -198,7 +198,7 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 		// Create any new variables, overwriting any existing ones.
 		foreach ($create_variables as $name => $value) {
 			// Checks to see if this particular post variable has been specified already.
-			if (strpos(print_r($post_variables, true), '[name] => '.$name."\n") === false) {
+			if (strpos(print_r($post_variables, TRUE), '[name] => '.$name."\n") === FALSE) {
 				// Yes, we use numerical index because post vars can have names like
 				// 'post_variable[name]', which would cause the delete checkboxes to break.
 				$post_variables[] = Array(

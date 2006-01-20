@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_related_asset_listing.inc,v 1.3 2005/12/20 03:06:25 emcdonald Exp $
+* $Id: page_related_asset_listing.inc,v 1.4 2006/01/20 03:39:09 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -73,17 +73,17 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 	function getAssetList()
 	{
 
-		//get all the assets that would be listed in a normal asset listing in this case
+		// get all the assets that would be listed in a normal asset listing in this case
 		$unfiltered_assets_to_list = parent::getAssetList();
 
-		//get all the assets related to any of the relators
+		// get all the assets related to any of the relators
 		$relator_ids = $this->getRelators();
-		$tag_manager = &$GLOBALS['SQ_SYSTEM']->getTagManager();
+		$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
 		$related_assets = $tag_manager->getRelatedAssets($relator_ids);
 		$related_ids = array_keys($related_assets);
 		$related_ids = array_diff($related_ids, $relator_ids);
 
-		//get all the elements of the unfiltered list that are on the related list
+		// get all the elements of the unfiltered list that are on the related list
 		$assets_to_list = Array();
 		foreach ($related_ids as $related_id) {
 			$asset_to_list = array_get_index($unfiltered_assets_to_list, $related_id);
@@ -93,6 +93,7 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 		}
 
 		return $assets_to_list;
+
 	}//end getAssetList()
 
 
@@ -106,16 +107,16 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 	{
 		if (!isset($this->_tmp['relator_asset_ids'])) {
 			$relator_ids = Array();
-			$relator_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', false, 'major', 'relator');
+			$relator_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'relator');
 			foreach ($relator_links as $relator_link) {
-				if (strstr($relator_link['minorid'], ':') !== false) {
+				if (strstr($relator_link['minorid'], ':') !== FALSE) {
 					// The link minor is a shadow asset
 					$relator_ids[] = $relator_link['minorid'];
 				} else {
 					$relator_ids[] = (int)$relator_link['minorid'];
 				}
 			}
-			$parameter_map = &$this->getAttribute('parameter_map');
+			$parameter_map =& $this->getAttribute('parameter_map');
 
 			$raw_dynamic_relators = $parameter_map->getParameterValue('relator_node');
 
@@ -154,15 +155,16 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 					$relator_ids = $dynamic_relators;
 				}
 
-			}
-			//if no relators have been set anywhere, use this asset as the default
+			}//end if
+
+			// if no relators have been set anywhere, use this asset as the default
 			if (empty($relator_ids)) {
 				$relator_ids = Array($this->id);
 			}
 
 			$this->_tmp['relator_ids'] = $relator_ids;
 
-		}
+		}//end if
 
 		return $this->_tmp['relator_ids'];
 
@@ -178,7 +180,7 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 	function getStaticRelators()
 	{
 		$relator_ids = Array();
-		$relator_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', false, 'major', 'relator');
+		$relator_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'relator');
 		foreach ($relator_links as $relator_link) {
 			$relator_ids[$relator_link['minorid']] =  $relator_link['minorid'];
 		}

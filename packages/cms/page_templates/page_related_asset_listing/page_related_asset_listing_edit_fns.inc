@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_related_asset_listing_edit_fns.inc,v 1.2 2005/12/20 03:06:25 emcdonald Exp $
+* $Id: page_related_asset_listing_edit_fns.inc,v 1.3 2006/01/20 03:39:09 sdanis Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -66,7 +66,7 @@ class Page_Related_Asset_Listing_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function paintRelator(&$asset, &$o, $prefix)
 	{
 		// get relator links
-		//we need them indexed numerically for getAssetInfo.
+		// we need them indexed numerically for getAssetInfo.
 		$relator_asset_ids = $asset->getStaticRelators();
 		sort($relator_asset_ids);
 
@@ -80,7 +80,7 @@ class Page_Related_Asset_Listing_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			}
 			?></ul><?php
 		}
-		return true;
+		return TRUE;
 
 	}//end paintRelator()
 
@@ -98,7 +98,7 @@ class Page_Related_Asset_Listing_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function processRelator(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_relator_nodes'])) {
-			return false;
+			return FALSE;
 		}
 		$new_relator_nodes = $_POST[$prefix.'_relator_nodes'];
 		foreach ($new_relator_nodes as $new_relator_node) {
@@ -116,7 +116,7 @@ class Page_Related_Asset_Listing_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($relator_asset_id, $asset->id, SQ_LINK_NOTICE, 'relator', $side_of_link='minor');
 				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid'])) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
+					return FALSE;
 				}
 			}
 		}
@@ -129,18 +129,18 @@ class Page_Related_Asset_Listing_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			}
 			// otherwise, create the appropriate notice link
 			if (!empty($node['assetid'])) {
-				$new_relator = &$GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
+				$new_relator =& $GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
 				if (!$asset->createLink($new_relator, SQ_LINK_NOTICE, 'relator')) {
 					trigger_localised_error('CMS0016', E_USER_WARNING, $new_relator->name, $new_relator->id);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
+					return FALSE;
 
 				}
 			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		return TRUE;
 
 	}//end processRelator()
 

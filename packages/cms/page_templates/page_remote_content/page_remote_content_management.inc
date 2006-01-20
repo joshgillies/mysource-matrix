@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content_management.inc,v 1.11 2005/12/09 05:49:24 bcaldwell Exp $
+* $Id: page_remote_content_management.inc,v 1.12 2006/01/20 03:41:29 sdanis Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,20 +48,20 @@ class Page_Remote_Content_Management extends Asset_Management
 						'load_links'		=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'boolean',
-												'default'		=> true,
-												'parameters'	=> Array('allow_empty'	=> false),
+												'default'		=> TRUE,
+												'parameters'	=> Array('allow_empty'	=> FALSE),
 											   ),
 						'only_local_links'	=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'boolean',
-												'default'		=> false,
-												'parameters'	=> Array('allow_empty'	=> false),
+												'default'		=> FALSE,
+												'parameters'	=> Array('allow_empty'	=> FALSE),
 											   ),
 						'allow_redirect'	=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'boolean',
-												'default'		=> true,
-												'parameters'	=> Array('allow_empty'	=> false),
+												'default'		=> TRUE,
+												'parameters'	=> Array('allow_empty'	=> FALSE),
 											   ),
 						'username'			=> Array(
 												'added'		=> '0.1',
@@ -76,8 +76,8 @@ class Page_Remote_Content_Management extends Asset_Management
 						'include_tags'		=> Array (
 												'added'			=> '0.1',
 												'type'			=> 'boolean',
-												'default'		=> true,
-												'parameters'	=> Array('allow_empty'	=> false),
+												'default'		=> TRUE,
+												'parameters'	=> Array('allow_empty'	=> FALSE),
 											   ),
 						'start_tag'			=> Array(
 												'added'		=> '0.1',
@@ -93,7 +93,7 @@ class Page_Remote_Content_Management extends Asset_Management
 												'added'			=> '0.1',
 												'type'			=> 'int',
 												'default'		=> '30',
-												'parameters'	=> Array('allow_negative' => false),
+												'parameters'	=> Array('allow_negative' => FALSE),
 											   ),
 						'error_message'		=> Array(
 												'added'		=> '0.1',
@@ -103,8 +103,8 @@ class Page_Remote_Content_Management extends Asset_Management
 						'display_error'		=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'boolean',
-												'default'		=> true,
-												'parameters'	=> Array('allow_empty'	=> false),
+												'default'		=> TRUE,
+												'parameters'	=> Array('allow_empty'	=> FALSE),
 											   ),
 						'binary_message'	=> Array(
 												'added'		=> '0.1',
@@ -118,26 +118,26 @@ class Page_Remote_Content_Management extends Asset_Management
 						'strip_images'		=> Array(
 												'added'			=> '1.4',
 												'type'			=> 'boolean',
-												'default'		=> false,
-												'parameters'	=> Array('allow_empty' => false),
+												'default'		=> FALSE,
+												'parameters'	=> Array('allow_empty' => FALSE),
 											   ),
 						'tunnel_images'		=> Array(
 												'added'			=> '1.4',
 												'type'			=> 'boolean',
-												'default'		=> false,
-												'parameters'	=> Array('allow_empty' => false),
+												'default'		=> FALSE,
+												'parameters'	=> Array('allow_empty' => FALSE),
 											   ),
 						'tunnel_media'		=> Array(
 												'added'			=> '1.4',
 												'type'			=> 'boolean',
-												'default'		=> false,
-												'parameters'	=> Array('allow_empty' => false),
+												'default'		=> FALSE,
+												'parameters'	=> Array('allow_empty' => FALSE),
 											   ),
 						'tunnel_scripts'	=> Array(
 												'added'			=> '1.4',
 												'type'			=> 'boolean',
-												'default'		=> false,
-												'parameters'	=> Array('allow_empty' => false),
+												'default'		=> FALSE,
+												'parameters'	=> Array('allow_empty' => FALSE),
 											   ),
 						'url_white_list'	=> Array(
 												'added'		=> '1.5',
