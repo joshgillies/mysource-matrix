@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_management.inc,v 1.14 2005/07/27 11:09:20 brobertson Exp $
+* $Id: page_whats_new_management.inc,v 1.15 2006/01/20 04:21:01 sdanis Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -51,15 +51,15 @@ class Page_Whats_New_Management extends Asset_Management
 																					'published'	=> 'Last Published Date',
 																				   ),
 																   ),
-												'multiple'		=> false,
-												'allow_empty'	=> false,
+												'multiple'		=> FALSE,
+												'allow_empty'	=> FALSE,
 											   ),
 						'date_range_from'	=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'datetime',
 												'default'		=> '---------- --:--:--',
 												'parameters'	=> Array(
-																	'allow_null'	=> true,
+																	'allow_null'	=> TRUE,
 																   ),
 											   ),
 						'date_range_to'		=> Array(
@@ -67,7 +67,7 @@ class Page_Whats_New_Management extends Asset_Management
 												'type'			=> 'datetime',
 												'default'		=> '---------- --:--:--',
 												'parameters'	=> Array(
-																	'allow_null'	=> true,
+																	'allow_null'	=> TRUE,
 																   ),
 											   ),
 						'date_ranges'		=> Array(
@@ -83,8 +83,8 @@ class Page_Whats_New_Management extends Asset_Management
 	/**
 	* Return an array with information about the events that the what new asset is listening for
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function getEventList()
 	{
@@ -92,11 +92,11 @@ class Page_Whats_New_Management extends Asset_Management
 				Array(
 					'event_name'					=> 'requestKeywords',
 					'broadcast_type_code'			=> 'content_type',
-					'broadcast_strict_type_code'	=> false,
+					'broadcast_strict_type_code'	=> FALSE,
 					'options'						=> Array(
 														'side_of_link'	=> 'major',
-														'indirect'		=> true,
-														'is_exclusive'	=> null,
+														'indirect'		=> TRUE,
+														'is_exclusive'	=> NULL,
 														'is_dependant'	=> 1,
 														'value'			=> '',
 														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,

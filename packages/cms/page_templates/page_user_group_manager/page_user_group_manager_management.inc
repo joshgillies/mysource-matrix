@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager_management.inc,v 1.3 2005/11/09 23:13:11 dmckee Exp $
+* $Id: page_user_group_manager_management.inc,v 1.4 2006/01/20 04:16:58 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -59,9 +59,9 @@ class Page_User_Group_Manager_Management extends Asset_Management
 		$this->vars['include_root_node']	= Array(
 												'added'			=> '0.1',
 												'type'			=> 'boolean',
-												'default'		=> false,
+												'default'		=> FALSE,
 												'description'	=> 'Whether to show the top level in the selector',
-												'parameters'	=> Array('allow_empty' => false),
+												'parameters'	=> Array('allow_empty' => FALSE),
 											  );
 
 		$this->vars['link_type']	= Array(
@@ -75,8 +75,8 @@ class Page_User_Group_Manager_Management extends Asset_Management
 																			SQ_LINK_NOTICE	=> 'Notice',
 																		   ),
 														   ),
-										'multiple'		=> false,
-										'allow_empty'	=> false,
+										'multiple'		=> FALSE,
+										'allow_empty'	=> FALSE,
 										'description'	=> 'Type of links to create for new selections',
 									  );
 
@@ -111,16 +111,16 @@ class Page_User_Group_Manager_Management extends Asset_Management
 		$this->vars['allow_multiple']	= Array(
 											'added'			=> '0.11',
 											'type'			=> 'boolean',
-											'default'		=> false,
+											'default'		=> FALSE,
 											'description'	=> 'Should the user be able to select multiple links at once',
-											'parameters'	=> Array('allow_empty' => false),
+											'parameters'	=> Array('allow_empty' => FALSE),
 										  );
 		$this->vars['structured_style']	= Array(
 											'added'			=> '0.12',
 											'type'			=> 'boolean',
-											'default'		=> false,
+											'default'		=> FALSE,
 											'description'	=> 'Show as standard or checkbox style',
-											'parameters'	=> Array('allow_empty' => false),
+											'parameters'	=> Array('allow_empty' => FALSE),
 										  );
 		$this->vars['submit-button'] = Array(
 										'added'			=> '0.12',
@@ -151,11 +151,11 @@ class Page_User_Group_Manager_Management extends Asset_Management
 				Array(
 					'event_name'					=> 'requestKeywords',
 					'broadcast_type_code'			=> 'content_type',
-					'broadcast_strict_type_code'	=> false,
+					'broadcast_strict_type_code'	=> FALSE,
 					'options'						=> Array(
 														'side_of_link'	=> 'major',
-														'indirect'		=> true,
-														'is_exclusive'	=> null,
+														'indirect'		=> TRUE,
+														'is_exclusive'	=> NULL,
 														'is_dependant'	=> 1,
 														'value'			=> '',
 														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,

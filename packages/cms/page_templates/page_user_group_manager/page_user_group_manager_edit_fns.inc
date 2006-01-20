@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager_edit_fns.inc,v 1.3 2005/11/04 00:00:40 lwright Exp $
+* $Id: page_user_group_manager_edit_fns.inc,v 1.4 2006/01/20 04:16:58 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,9 +55,9 @@ class Page_User_Group_Manager_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for changing the dropdown lists options
 	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -74,15 +74,16 @@ class Page_User_Group_Manager_Edit_Fns extends Page_Edit_Fns
 					echo translate('cms_no_root_selected');
 				}
 			}
+
 	}//end paintRootNode()
 
 
 	/**
 	* Process the interface for editing the dropdown lists options
 	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -90,7 +91,7 @@ class Page_User_Group_Manager_Edit_Fns extends Page_Edit_Fns
 	function processRootNode(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$root_node = $_REQUEST[$prefix.'_lm_root_node']['assetid'];
 		$asset->setAttrValue('root_node', $root_node);
@@ -101,12 +102,9 @@ class Page_User_Group_Manager_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for selecting searched statuses
 	*
-	* @param object Asset				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	* @param string						$category	the category we are painting for
-	*												(if blank we paint for the whole search page)
-	* @param boolean					$read_only	force read only view
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -127,7 +125,7 @@ class Page_User_Group_Manager_Edit_Fns extends Page_Edit_Fns
 				$options[$value] = get_status_description($value);
 			}
 
-			combo_box($prefix.'_statuses', $options, true, $current);
+			combo_box($prefix.'_statuses', $options, TRUE, $current);
 		} else {
 			if (empty($current)) {
 				echo translate('no_status_selected');
@@ -148,9 +146,9 @@ class Page_User_Group_Manager_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the interface for selecting searched statuses
 	*
-	* @param object Asset				&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -158,7 +156,7 @@ class Page_User_Group_Manager_Edit_Fns extends Page_Edit_Fns
 	function processStatus(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$statuses = Array();
 		if (isset($_POST[$prefix.'_statuses'])) {

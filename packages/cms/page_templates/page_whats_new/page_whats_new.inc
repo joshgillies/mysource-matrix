@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.30 2006/01/09 03:41:04 emcdonald Exp $
+* $Id: page_whats_new.inc,v 1.31 2006/01/20 04:21:01 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -167,7 +167,7 @@ class Page_Whats_New extends Listing_Engine
 			$links = Array();
 
 			foreach ($root_asset_ids as $root_asset_id) {
-				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), FALSE, 'major', null, null, null, $letter_sort_by, SQ_PERMISSION_READ);
+				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), FALSE, 'major', NULL, NULL, NULL, $letter_sort_by, SQ_PERMISSION_READ);
 				$query['where'] .= $where;
 
 				// special case for A-Z listings because they require another field selected from the database
@@ -232,7 +232,7 @@ class Page_Whats_New extends Listing_Engine
 				}
 			}
 
-		}//end if subs_only
+		}//end else subs_only
 
 		if ($group_by == 'number') {
 			$children = $this->sortAssetList($children, $sort_info);

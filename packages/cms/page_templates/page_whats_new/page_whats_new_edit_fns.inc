@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_edit_fns.inc,v 1.12 2005/11/25 06:07:17 lwright Exp $
+* $Id: page_whats_new_edit_fns.inc,v 1.13 2006/01/20 04:21:01 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,9 +48,9 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Paints the current ranges that have been added to this asset
 	*
-	* @param object Asset				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -69,10 +69,10 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 			$options[] = '-- '.translate('please_select').' --';
 			$options = array_reverse($options);
 
-			combo_box($prefix.'_range_id', $options, false, '', 0 , 'onchange="this.form.submit();"');
+			combo_box($prefix.'_range_id', $options, FALSE, '', 0 , 'onchange="this.form.submit();"');
 		}
 
-		return false;
+		return FALSE;
 
 	}//end paintCurrentRanges()
 
@@ -80,16 +80,16 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Proccess the current ranges that have been added to this asset
 	*
-	* @param object Asset				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processCurrentRanges(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processCurrentRanges()
 
@@ -97,19 +97,19 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Paints the checkbox to add a new range
 	*
-	* @param object Asset				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function paintAddRange(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 		check_box($prefix.'_new_range');
 
-		return true;
+		return TRUE;
 
 	}//end paintAddRange()
 
@@ -117,16 +117,16 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Processes the add range interface
 	*
-	* @param object Asset				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processAddRange(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processAddRange()
 
@@ -134,9 +134,9 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Paints the range options interface
 	*
-	* @param object Asset				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -154,7 +154,7 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 			$rangeid = $_POST[$prefix.'_range_id'] - 1;
 		} else {
 			echo translate('cms_whats_new_select_range');
-			return false;
+			return FALSE;
 		}
 
 		$range_name = isset($ranges[$rangeid]['name']) ? $ranges[$rangeid]['name'] : '';
@@ -176,8 +176,8 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 				$datetime =& new Asset_Attribute_DateTime();
 
 				// set some params for the datetime field so that it paints properly
-				$datetime->_edit_params['allow_period'] = true;
-				$datetime->_edit_params['use_picker'] = true;
+				$datetime->_edit_params['allow_period'] = TRUE;
+				$datetime->_edit_params['use_picker'] = TRUE;
 				$datetime->_edit_params['show'] = Array('y','m','d','h','i','s');
 
 				foreach ($datetime->_edit_params['show'] as $u) {
@@ -195,11 +195,11 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 		// only add an option to remove this range if it has a name (it has been saved)
 		if ($asset->writeAccess('attributes') && trim($range_name) != '') {
 			$o->openField(translate('remove_question'));
-				check_box($prefix.'_remove', false);
+				check_box($prefix.'_remove', FALSE);
 			$o->closeField();
 		}
 
-		return true;
+		return TRUE;
 
 	}//end paintRangeOptions()
 
@@ -207,9 +207,9 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Processes the range options interface
 	*
-	* @param object Asset				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -217,24 +217,24 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 	function processRangeOptions(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_curr_range_id']) || !isset($_POST[$prefix.'_range_name']) ) {
-			return false;
+			return FALSE;
 		}
 		require_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
 
 		$ranges     = $asset->attr('date_ranges');
 		$rangeid    = $_POST[$prefix.'_curr_range_id'];
 		$range_name = $_POST[$prefix.'_range_name'];
-		$save       = false;
+		$save       = FALSE;
 
 		if (isset($_POST[$prefix.'_remove'])) {
 			unset($ranges[$rangeid]);
-			$save = true;
+			$save = TRUE;
 		} else {
 
 			// if the rangeid is -1, then we are creating a new range
 			if ($rangeid == -1) {
 				// if there is no name set for this, just return
-				if (trim($range_name) == '') return false;
+				if (trim($range_name) == '') return FALSE;
 				$ranges[count($ranges)] = Array('name' => $range_name);
 				$current_range =& $ranges[count($ranges) - 1];
 
@@ -242,7 +242,7 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 				$current_range =& $ranges[$rangeid];
 				if (trim($range_name) != '' && $range_name != $current_range['name']) {
 					$current_range['name'] = $range_name;
-					$save = true;
+					$save = TRUE;
 				}
 			}
 
@@ -254,7 +254,7 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 					continue;
 				}
 				$current_range[$type] = $datetime->value;
-				$save = true;
+				$save = TRUE;
 			}
 		}//end if remove
 
@@ -295,7 +295,7 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 				}
 			}
 
-			combo_box($prefix.'_link_types', $link_types, true, $selected);
+			combo_box($prefix.'_link_types', $link_types, TRUE, $selected);
 		} else {
 			if ($current == 0) {
 				echo translate('cms_listing_no_link_types_selected');
@@ -328,7 +328,7 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 	function processLinkTypes(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$link_types = 0;
 		if (isset($_POST[$prefix.'_link_types'])) {

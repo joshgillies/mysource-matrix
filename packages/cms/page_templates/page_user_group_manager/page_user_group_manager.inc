@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager.inc,v 1.6 2006/01/16 23:51:59 skim Exp $
+* $Id: page_user_group_manager.inc,v 1.7 2006/01/20 04:16:58 sdanis Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Darren McKee <dmckee@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -72,7 +72,7 @@ class Page_User_Group_Manager extends Page
 	*/
 	function Page_User_Group_Manager($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Page($assetid);
 
 	}//end constructor
@@ -85,12 +85,12 @@ class Page_User_Group_Manager extends Page
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!parent::_createAdditional($link)) return false;
+		if (!parent::_createAdditional($link)) return FALSE;
 
 		// add a bodycopy for the Page contents, and the format of locations
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
@@ -106,9 +106,9 @@ class Page_User_Group_Manager extends Page
 
 			$bodycopy =& new Bodycopy();
 			$bodycopy->setAttrValue('name', $name);
-			if (!$bodycopy->create($copy_link)) return false;
+			if (!$bodycopy->create($copy_link)) return FALSE;
 		}
-		return true;
+		return TRUE;
 
 	}//end _createAdditional()
 
@@ -121,13 +121,13 @@ class Page_User_Group_Manager extends Page
 	*/
 	function printBody()
 	{
-		//Process any operations. Deleting, New links etc.
+		// Process any operations. Deleting, New links etc.
 		$this->processForm();
 		?>
 			<form id="<?php echo $this->getPrefix(); ?>" method="post">
 			<input type="hidden" name="submitted" value="1" />
 		<?php
-		//Print the form and details again
+		// Print the form and details again
 		echo $this->printBodycopyContents();
 		?></form><?php
 
@@ -145,8 +145,8 @@ class Page_User_Group_Manager extends Page
 		$user_groups = Array();
 		$link_type = $this->attr('link_type');
 
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($GLOBALS['SQ_SYSTEM']->currentUserId(), $link_type, '', false, 'minor');
-		$valid_nodes = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($this->attr('root_node'), 'user_group', false));
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($GLOBALS['SQ_SYSTEM']->currentUserId(), $link_type, '', FALSE, 'minor');
+		$valid_nodes = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($this->attr('root_node'), 'user_group', FALSE));
 		$current_groups = Array();
 		foreach ($current_links as $id => $link) {
 			if (in_array($link['majorid'], $valid_nodes)) {
@@ -158,8 +158,8 @@ class Page_User_Group_Manager extends Page
 			if (isset($_REQUEST[$this->getPrefix().'_location_selection'])) {
 				$user_groups = $_REQUEST[$this->getPrefix().'_location_selection'];
 			}
-			if ($this->attr('allow_multiple') == false) {
-				//Change the single entry into an array
+			if ($this->attr('allow_multiple') == FALSE) {
+				// Change the single entry into an array
 				$user_groups = Array($user_groups);
 			}
 
@@ -171,7 +171,7 @@ class Page_User_Group_Manager extends Page
 			$this->generateMessages($done);
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processForm()
 
@@ -179,10 +179,10 @@ class Page_User_Group_Manager extends Page
 	/**
 	* Handle linking this asset under multiple parents
 	*
-	* @param int	$minor_id		asset we are going to link
-	* @param Array	$old_links		The current assets we are linked to
-	* @param Array	$new_links		The new selections we wish to be linked to
-	* @param int	$link_type		type of link to use
+	* @param int	$minor_id	asset we are going to link
+	* @param array	$old_links	The current assets we are linked to
+	* @param array	$new_links	The new selections we wish to be linked to
+	* @param int	$link_type	type of link to use
 	*
 	* @return void
 	* @access public
@@ -193,13 +193,13 @@ class Page_User_Group_Manager extends Page
 		$cannot_delete = Array();
 		$to_delete = array_diff($old_links, $new_links);
 		$to_create = array_diff($new_links, $old_links);
-		$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($minor_id);
+		$minor =& $GLOBALS['SQ_SYSTEM']->am->getAsset($minor_id);
 
 		$done = Array();
 
 		// loop through and link our minor under all majors
 		foreach ($to_create as $majorid) {
-			$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($majorid);
+			$major =& $GLOBALS['SQ_SYSTEM']->am->getAsset($majorid);
 			if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($major, $minor, $link_type)) {
 				$done['add_fail'][] = $major->id;
 			} else {
@@ -233,7 +233,7 @@ class Page_User_Group_Manager extends Page
 	* Takes an associative array of assetids and writes relevant error/success
 	* messages to $this->[errors|messages] for later formatting
 	*
-	*@param	Array	$fail_success
+	* @param array	$fail_success	associative array of assetids
 	*
 	* @return void
 	* @access public
@@ -263,12 +263,14 @@ class Page_User_Group_Manager extends Page
 	/**
 	* Displays a list of available locations to link the current asset to
 	*
+	* @param string	$suffix	The suffix
+	*
 	* @return void
 	* @access public
 	*/
 	function printAvailableLocations($suffix='_location_selection')
 	{
-		//populate our list
+		// populate our list
 		$type_codes = Array('user_group' => '1');
 		$full_types = Array();
 		foreach ($type_codes as $type => $inherit) {
@@ -298,17 +300,19 @@ class Page_User_Group_Manager extends Page
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_2 => Array('bodycopy' => Array('card' => 'M', 'exclusive' => false)));
+		return Array(SQ_LINK_TYPE_2 => Array('bodycopy' => Array('card' => 'M', 'exclusive' => FALSE)));
 
 	}//end _getAllowedLinks()
 
 
 	/**
 	* Retrieves a bodycopy's contents by name
+	* Returns the bodycopy's contents, or empty string if the name does not match any bodycopies
 	*
-	* @param string		$name	the name of the bodycopy to retrieve
+	* @param string	$name			the name of the bodycopy to retrieve
+	* @param array	$replacements	Replacement texts
 	*
-	* @return [string|null] the bodycopy's contents, or empty string if the name does not match any bodycopies
+	* @return mixed string|NULL
 	* @access private
 	* @see Search_Page::bodycopies
 	* @see Search_Page::getBodycopy
@@ -332,22 +336,23 @@ class Page_User_Group_Manager extends Page
 
 	/**
 	* Retrieves a bodycopy by name
+	* Returns the bodycopy, or null if the name does not match any bodycopies.
 	*
-	* @param string		$name	the name of the bodycopy to retrieve
+	* @param string	$name	the name of the bodycopy to retrieve
 	*
-	* @return [object|null] The bodycopy, or null if the name does not match any bodycopies.
+	* @return mixed object|NULL
 	* @access private
 	* @see Search_Page::bodycopies
 	*/
 	function &getBodycopy($name)
 	{
 		if (array_key_exists($name, $this->bodycopies)) {
-			$am = &$GLOBALS['SQ_SYSTEM']->am;
-			$link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, $name, 'major', '1');
+			$am =& $GLOBALS['SQ_SYSTEM']->am;
+			$link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name, 'major', '1');
 			$bodycopy =& $am->getAsset($link['minorid'], $link['minor_type_code']);
 			return $bodycopy;
 		} else {
-			return null;
+			return NULL;
 		}
 
 	}//end getBodycopy()
@@ -356,8 +361,8 @@ class Page_User_Group_Manager extends Page
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
 	*								we add keywords to the $vars['keywords'] array
 	*
 	* @return boolean
@@ -367,8 +372,8 @@ class Page_User_Group_Manager extends Page
 	{
 		$vars['keywords'] = isset($vars['keywords']) ? $vars['keywords'] : Array();
 
-		//Get any bodycopy parents of the broadcaster
-		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
+		// Get any bodycopy parents of the broadcaster
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
 		$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy');
 		$chosen_bodycopy = '';
 		foreach ($bodycopy_links as $id => $link) {
@@ -390,8 +395,6 @@ class Page_User_Group_Manager extends Page
 
 	/**
 	* Returns the contents of the bodycopy with all replacements made
-	*
-	* @param string $name	Name of bodycopy to print
 	*
 	* @return string
 	* @access private
@@ -426,6 +429,8 @@ class Page_User_Group_Manager extends Page
 	/**
 	* Takes an array of assetids and returns the asset names as a comma
 	* seperated string
+	*
+	* @param array	$assetids	Array of assetids
 	*
 	* @return string
 	* @access private
@@ -562,6 +567,9 @@ class Page_User_Group_Manager extends Page
 
 	/**
 	* Print out an unordered list
+	*
+	* @param array	$messages	Array of messages
+	* @param string	$suffix		The suffix
 	*
 	* @return string
 	* @access private
