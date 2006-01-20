@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.142 2006/01/20 03:13:38 rhoward Exp $
+* $Id: listing_engine.inc,v 1.143 2006/01/20 04:22:04 rhoward Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.142 $
+* @version $Revision: 1.143 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2000,8 +2000,9 @@ class Listing_Engine extends Page
 					case 'radio':
 					default:
 						if ($selection_allow_multiple) {
-							$selection_name_field = str_replace(' ', '_', $selection_name.'['.$assetid.']');
-							$selection_id = make_valid_html_id(str_replace(' ', '_', $selection_name.'_'.$assetid), '_');
+							$selection_name_safe  = str_replace(' ', '_', $selection_name);
+							$selection_name_field = $selection_name_safe.'['.$assetid.']';
+							$selection_id         = make_valid_html_id($selection_name_safe.'_'.$assetid, '_');
 
 							if ($buffering) {
 								check_box($selection_name_field, '1', ($selection_value > 0 ? TRUE : FALSE), "sq_listing_check_state(this, '".$selection_name."')", 'id="'.$selection_id.'"');
@@ -2010,7 +2011,7 @@ class Listing_Engine extends Page
 								// present and not ticked, or not present at all
 								// only print this once, otherwise it ends up bloating the query string
 								if (empty($this->_tmp['asset_selection_checkbox_flag'][$selection_name])) {
-									hidden_field('selection_flag_'.$selection_name, '1');
+									hidden_field('selection_flag_'.$selection_name_safe, '1');
 									$this->_tmp['asset_selection_checkbox_flag'][$selection_name] = TRUE;
 								}
 							}
