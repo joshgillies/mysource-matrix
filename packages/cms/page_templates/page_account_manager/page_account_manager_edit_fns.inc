@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.16 2005/11/09 10:11:56 bcaldwell Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.17 2006/01/20 04:54:36 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -54,9 +54,9 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	/**
 	* Paint the interface for choosing the user type that is created
 	*
-	* @param object Page_Account_Manager	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter		&$o		the outputter class
-	* @param string							$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -75,7 +75,7 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 					$options[$type_code] = $info['name'];
 				}
 			}
-			combo_box($prefix.'_create_type', $options, false, array_keys($asset->attr('create_type')));
+			combo_box($prefix.'_create_type', $options, FALSE, array_keys($asset->attr('create_type')));
 		}
 
 	}//end paintAddCreateType()
@@ -87,9 +87,9 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	* This is overridden from Asset Builder because it makes sense for the account
 	* manager to still be only allowed to create one type of user from the frontend interface.
 	*
-	* @param object Form				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -98,22 +98,22 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	{
 		if (isset($_POST[$prefix.'_create_type'])) {
 			$type = trim($_POST[$prefix.'_create_type']);
-			if (empty($type)) return false;
-			$types = Array($type => true);
+			if (empty($type)) return FALSE;
+			$types = Array($type => TRUE);
 			$asset->setAttrValue('create_type', $types);
-			return true;
+			return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end processAddCreateType()
 
 
 	/**
+	* Paint post validation redirect
 	*
-	*
-	* @param object Form				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -126,11 +126,11 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 
 
 	/**
+	* Process post validation redirect
 	*
-	*
-	* @param object Form				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -145,8 +145,8 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	/**
 	* Returns true if the account manager uses email validation
 	*
-	* @param object Asset	&$asset		The asset that we are using for this interface
-	* @param string			$prefix		the prefix for this asset
+	* @param object	&$asset	The asset that we are using for this interface
+	* @param string	$prefix	the prefix for this asset
 	*
 	* @return boolean
 	* @access public
