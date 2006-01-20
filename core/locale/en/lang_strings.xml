@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.95 2006/01/17 21:37:29 sdanis Exp $
+* $Id: lang_strings.xml,v 1.96 2006/01/20 01:15:37 tbarrett Exp $
 *
 */
 
@@ -254,7 +254,7 @@
 	<string source="upload_patch">Upload Patch</string>
 	<string source="use_cache">Use Cache</string>
 	<string source="user_groups">User Groups</string>
-	<string source="user_not_found">User not found</string>
+	<string source="user_not_found">Invalid username or password entered</string>
 	<string source="value">Value</string>
 	<string source="key">Key</string>
 	<string source="variety_type">Variety Type</string>
