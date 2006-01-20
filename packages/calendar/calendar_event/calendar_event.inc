@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.49 2005/05/16 06:36:39 lwright Exp $
+* $Id: calendar_event.inc,v 1.49.2.1 2006/01/20 00:02:16 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.49.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -172,22 +172,22 @@ class Calendar_Event extends Asset
 		$keywords['event_name'] = $keywords['asset_attribute_name'];
 		unset($keywords['asset_attribute_name']);
 
-		$keywords['event_start_date'] = Array('value'=>date('jS M Y', iso8601_ts($this->attr('start_date'))));
-		$keywords['event_end_date'] = Array('value'=>date('jS M Y', iso8601_ts($this->attr('end_date'))));
+		$keywords['event_start_date'] = Array('value'=> date('jS M Y', iso8601_ts($this->attr('start_date'))));
+		$keywords['event_start_datetime'] = Array('value'=> $this->getFriendlyStart());
+		$keywords['event_start_time_12h'] = Array('value'=> date('h:i a', iso8601_ts($this->attr('start_date'))));
+		$keywords['event_start_time_24h'] = Array('value'=> date('H:i', iso8601_ts($this->attr('start_date'))));
+		$keywords['event_start_time_ical'] = Array('value'=> date('Ymd\THis', iso8601_ts($this->attr('start_date'))));
 
-		$keywords['event_start_datetime'] = Array('value'=>$this->getFriendlyStart());
-		$keywords['event_end_datetime'] = Array('value'=>$this->getFriendlyEnd());
-
-		$keywords['event_start_time_12h'] = Array('value'=>date('h:i a', iso8601_ts($this->attr('start_date'))));
-		$keywords['event_end_time_12h'] = Array('value'=>date('h:i a', iso8601_ts($this->attr('end_date'))));
-
-		$keywords['event_start_time_24h'] = Array('value'=>date('H:i', iso8601_ts($this->attr('start_date'))));
-		$keywords['event_end_time_24h'] = Array('value'=>date('H:i', iso8601_ts($this->attr('end_date'))));
-		
-		$keywords['event_start_time_ical'] = Array('value'=>date('Ymd\THis', iso8601_ts($this->attr('start_date'))));
-		$keywords['event_end_time_ical'] = Array('value'=>date('Ymd\THis', iso8601_ts($this->attr('end_date'))));
-
-		$keywords['event_datetime_summary'] = Array('value'=>$this->getFriendlyDatesAndTimes());
+		$end_date_not_set = FALSE;
+		if (strcmp($this->attr('end_date'), '---------- --:--:--') == 0 ) {
+			$end_date_not_set = TRUE;
+		}
+		$keywords['event_end_date'] = Array('value'=> $end_date_not_set ? '' : date('jS M Y', iso8601_ts($this->attr('end_date'))));
+		$keywords['event_end_datetime'] = Array('value'=> $end_date_not_set ? '' : $this->getFriendlyEnd());
+		$keywords['event_end_time_12h'] = Array('value'=> $end_date_not_set ? '' : date('h:i a', iso8601_ts($this->attr('end_date'))));
+		$keywords['event_end_time_24h'] = Array('value'=> $end_date_not_set ? '' : date('H:i', iso8601_ts($this->attr('end_date'))));
+		$keywords['event_end_time_ical'] = Array('value'=> $end_date_not_set ? '' : date('Ymd\THis', iso8601_ts($this->attr('end_date'))));
+		$keywords['event_datetime_summary'] = Array('value'=> $this->getFriendlyDatesAndTimes());
 
 		// give useful info if no duration (single point in time) - easy_time_total returns empty string
 		$total_time = easy_time_total($this->getDuration(), true);
@@ -206,7 +206,7 @@ class Calendar_Event extends Asset
 
 			$keywords['event_start_time_24h']['description'] = 'Start time (24 hour)';
 			$keywords['event_end_time_24h']['description'] = 'End time (24 hour)';
-			
+
 			$keywords['event_start_time_ical']['description'] = 'Start time (iCalendar)';
 			$keywords['event_end_time_ical']['description'] = 'End time (iCalendar)';
 
