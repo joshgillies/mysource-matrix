@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.141 2006/01/17 05:45:14 dmckee Exp $
+* $Id: listing_engine.inc,v 1.142 2006/01/20 03:13:38 rhoward Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.141 $
+* @version $Revision: 1.142 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2005,6 +2005,14 @@ class Listing_Engine extends Page
 
 							if ($buffering) {
 								check_box($selection_name_field, '1', ($selection_value > 0 ? TRUE : FALSE), "sq_listing_check_state(this, '".$selection_name."')", 'id="'.$selection_id.'"');
+
+								// the flag is used to determine whether a checkbox is
+								// present and not ticked, or not present at all
+								// only print this once, otherwise it ends up bloating the query string
+								if (empty($this->_tmp['asset_selection_checkbox_flag'][$selection_name])) {
+									hidden_field('selection_flag_'.$selection_name, '1');
+									$this->_tmp['asset_selection_checkbox_flag'][$selection_name] = TRUE;
+								}
 							}
 						} else {
 							$selection_name_field = str_replace(' ', '_', $selection_name);
