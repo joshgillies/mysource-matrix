@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.75.2.5 2006/01/12 22:29:14 rong Exp $
+* $Id: page_asset_listing.inc,v 1.75.2.6 2006/01/20 05:41:47 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.75.2.5 $
+* @version $Revision: 1.75.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -134,6 +134,7 @@ class Page_Asset_Listing extends Listing_Engine
 			$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
 		}
 
+		$group_by = $this->attr('group_by');
 		// if the cache is empty, go ahead and regenerate a new version
 		if (empty($cached_contents)) {
 
@@ -233,7 +234,7 @@ class Page_Asset_Listing extends Listing_Engine
 			$format_bodycopy->setKeywordReplacements($replacements);
 			ob_start();
 				$format_bodycopy->printBody();
-				if (!empty($cache_key)) {
+				if (!empty($cache_key) && (strcmp($group_by, 'random') != 0)) {
 					$cm->saveToCache($this->id, $this->type(), $cache_key, ob_get_contents());
 				}
 			ob_end_flush();
