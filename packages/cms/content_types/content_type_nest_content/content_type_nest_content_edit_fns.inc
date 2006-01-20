@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.33 2005/11/22 01:21:09 dmckee Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.34 2006/01/20 05:41:18 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,8 +47,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Prints the backend interface for this WYSIWYG editor
 	*
-	* @param object Content_Type_Nest_Content	&$asset	the nest content content type object
-	* @param string								$prefix	prefix for form elements
+	* @param object	&$asset	the nest content content type object
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -56,10 +56,10 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	function paintBackend(&$asset, $prefix)
 	{
 		if ($asset->writeAccess('links') && $asset->writeAccess('attributes')) {
-			$nested_asset = &$this->_getNestedAsset($asset);
+			$nested_asset =& $this->_getNestedAsset($asset);
 			$asset_link = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
 			if (empty($asset_link)) {
-				$asset_link = strip_url(current_url(false, true)).'/?a='.$nested_asset->id;
+				$asset_link = strip_url(current_url(FALSE, TRUE)).'/?a='.$nested_asset->id;
 			}
 
 			if (!is_null($nested_asset)) {
@@ -88,8 +88,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				</table>
 				<?php
 			}
-		}
-		return true;
+		}//end if
+		return TRUE;
 
 	}//end paintBackend()
 
@@ -98,24 +98,24 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	* Prints a link to the asset if it is being viewed from an edit interface, otherwise
 	* just calls printBody on the nested asset and lets it take care of things
 	*
-	* @param object Content_Type_Nest_Content	&$asset		the nest content content type object
-	* @param string								$prefix		prefix for form elements
-	* @param boolean							$editing	are we printing an editing interface
-	* @param boolean							$generating	are we genenerating the cache file
+	* @param object		&$asset		the nest content content type object
+	* @param string		$prefix		prefix for form elements
+	* @param boolean	$editing	are we printing an editing interface
+	* @param boolean	$generating	are we genenerating the cache file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paint(&$asset, $prefix, $editing=false, $generating=false)
+	function paint(&$asset, $prefix, $editing=FALSE, $generating=FALSE)
 	{
 		// get the asset - we cant pass the type in because it could be anything
 		// we also mute errors because we check later on
-		$nested_asset = &$this->_getNestedAsset($asset);
-		if (is_null($nested_asset)) return false;
+		$nested_asset =& $this->_getNestedAsset($asset);
+		if (is_null($nested_asset)) return FALSE;
 
 		if ($generating) {
 			$this->paintGenerated($asset, $nested_asset);
-			return true;
+			return TRUE;
 		}
 
 		// keep track of what we have printed
@@ -124,7 +124,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		if (isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id])) {
 			unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id]);
 			echo '<span class="sq-backend-warning"><b>[ ** '.translate('cms_ct_nest_content_recursion_warning').' ** ]<br/>'.translate('cms_ct_nest_content_recursion_body').'</b></span>';
-			return true;
+			return TRUE;
 		}
 
 		// record that we have printed this asset
@@ -138,7 +138,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			// get the first url off the list, use it as the list
 			$asset_link = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
 			if (empty($asset_link)) {
-				$asset_link = strip_url(current_url(false, true)).'/?a='.$nested_asset->id;
+				$asset_link = strip_url(current_url(FALSE, TRUE)).'/?a='.$nested_asset->id;
 			}
 			$asset_contents = '<strong>'.translate('cms_ct_nest_content_nested_content', $nested_asset->name, $nested_asset->id).'</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">'.translate('cms_ct_nest_content_click_to_preview').'</a>.';
 		} else {
@@ -153,7 +153,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 		unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id]);
 
-		return true;
+		return TRUE;
 
 	}//end paint()
 
@@ -161,8 +161,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Paints the content type as it should be cached
 	*
-	* @param object Bodycopy_Table	$asset			the table whose interface we are painting
-	* @param object Asset			&$nested_asset	the asset to nest
+	* @param object	&$asset			the table whose interface we are painting
+	* @param object	&$nested_asset	the asset to nest
 	*
 	* @return void
 	* @access public
@@ -191,16 +191,16 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Processes the backend interface for this WYSIWYG editor
 	*
-	* @param array(string)						$link	information used to create the initial link
-	* @param object Content_Type_Nest_Content	&$asset	the nest content content type object
-	* @param string								$prefix	prefix for form elements
+	* @param array	$link	information used to create the initial link
+	* @param object	&$asset	the nest content content type object
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processBackend($link, &$asset, $prefix)
 	{
-		$nested_asset = &$this->_getNestedAsset($asset);
+		$nested_asset =& $this->_getNestedAsset($asset);
 		$current_assetid = (!is_null($nested_asset)) ? $nested_asset->id : 0;
 		$assetid = (isset($_POST[$prefix.'_nested_assetid']['assetid'])) ? (int)$_POST[$prefix.'_nested_assetid']['assetid'] : 0;
 
@@ -211,25 +211,25 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 				if ($current_assetid) {
-					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', true, 'nested_asset');
+					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', TRUE, 'nested_asset');
 					if (!$asset->deleteLink($link['linkid'])) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
+						return FALSE;
 					}
 				}
 
 				// create a 'hidden' link for delete notification
-				$nested_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$nested_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (!$asset->createLink($nested_asset, SQ_LINK_NOTICE, 'nested_asset')) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
+					return FALSE;
 				}
 
 				// get the html contents of the nested asset so
 				// we change the type of the cell later - other content
 				// types can use the html
 
-				//if we dont have the frontend asset set just buffer nothing
+				// if we dont have the frontend asset set just buffer nothing
 				if (!isset($GLOBALS['SQ_SYSTEM']->frontend_asset)) {
 					$html = '';
 				} else {
@@ -242,15 +242,15 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				$asset->setAttrValue('html', $html);
 
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-				return true;
+				return TRUE;
 
-			}
+			}//end if
 
 		} else if ($current_assetid) {
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', true, 'nested_asset');
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', TRUE, 'nested_asset');
 			return $asset->deleteLink($link['linkid']);
 		}
-		return false;
+		return FALSE;
 
 	}//end processBackend()
 
@@ -258,18 +258,18 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Get a reference to the asset the content type is nesting
 	*
-	* @param object Content_Type_Nest_Content	&$asset	the nest content content type object
+	* @param object	&$asset	the nest content content type object
 	*
-	* @return object Asset | NULL
+	* @return mixed object|NULL
 	* @access private
 	*/
 	function &_getNestedAsset(&$asset)
 	{
-		$nested_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', true, 'nested_asset');
+		$nested_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', TRUE, 'nested_asset');
 		if (!empty($nested_link)) {
-			return $GLOBALS['SQ_SYSTEM']->am->getAsset($nested_link['minorid'], $nested_link['minor_type_code'], true);
+			return $GLOBALS['SQ_SYSTEM']->am->getAsset($nested_link['minorid'], $nested_link['minor_type_code'], TRUE);
 		} else {
-			$null_asset = null;
+			$null_asset = NULL;
 			return $null_asset;
 		}
 

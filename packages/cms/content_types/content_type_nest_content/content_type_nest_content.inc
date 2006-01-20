@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content.inc,v 1.22 2005/07/05 05:02:54 arailean Exp $
+* $Id: content_type_nest_content.inc,v 1.23 2006/01/20 05:41:18 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -49,8 +49,9 @@ class Content_Type_Nest_Content extends Content_Type
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return void
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -58,7 +59,7 @@ class Content_Type_Nest_Content extends Content_Type
 				SQ_LINK_NOTICE	=> Array(
 									'asset'	=> Array(
 												'card'		=> 1,
-												'exclusive'	=> false,
+												'exclusive'	=> FALSE,
 											   ),
 								   ),
 			   );
@@ -74,7 +75,7 @@ class Content_Type_Nest_Content extends Content_Type
 	*/
 	function isEmpty()
 	{
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', true, 'nested_asset');
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', TRUE, 'nested_asset');
 		return empty($link);
 
 	}//end isEmpty()
@@ -101,7 +102,7 @@ class Content_Type_Nest_Content extends Content_Type
 	/**
 	* Returns the editable content of this asset
 	*
-	* @return String
+	* @return string
 	* @access public
 	*/
 	function getContent()
@@ -114,14 +115,12 @@ class Content_Type_Nest_Content extends Content_Type
 	/**
 	* Sets the editable content of this asset
 	*
-	* @param String
-	*
 	* @return boolean
 	* @access public
 	*/
 	function setContent()
 	{
-		return false;
+		return FALSE;
 
 	}//end setContent()
 

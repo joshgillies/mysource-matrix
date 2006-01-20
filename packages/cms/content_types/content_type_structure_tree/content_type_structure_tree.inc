@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_structure_tree.inc,v 1.2 2005/12/20 05:22:27 dmckee Exp $
+* $Id: content_type_structure_tree.inc,v 1.3 2006/01/20 05:41:19 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -41,7 +41,7 @@ class Content_Type_Structure_Tree extends Content_Type
 	*/
 	function Content_Type_Structure_Tree($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Content_Type($assetid);
 
 	}//end constructor
@@ -55,7 +55,7 @@ class Content_Type_Structure_Tree extends Content_Type
 	* @return string
 	* @access public
 	*/
-	function drawTree($show_trailers=false)
+	function drawTree($show_trailers=FALSE)
 	{
 		$tree_string = '';
 		$classes = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_STRUCTURE_TREE_NODE_CLASSES');
@@ -123,7 +123,7 @@ class Content_Type_Structure_Tree extends Content_Type
 						}
 					}
 				}
-		}
+		}//end for
 			$tree_string = ob_get_contents();
 		ob_end_clean();
 

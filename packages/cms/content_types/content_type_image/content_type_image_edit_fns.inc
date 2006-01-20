@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_edit_fns.inc,v 1.2 2005/12/21 23:42:31 dmckee Exp $
+* $Id: content_type_image_edit_fns.inc,v 1.3 2006/01/20 05:41:18 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -57,7 +57,7 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 	{
 		if ($asset->writeAccess('attributes')) {
 			$am = $GLOBALS['SQ_SYSTEM']->am;
-			$current_link = $am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'image_link');
+			$current_link = $am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, 'image_link');
 			if (empty($current_link)) {
 				$current_link['minorid'] == '';
 			}
@@ -203,7 +203,7 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 				<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
 					if ($asset->writeAccess('links')) {
-						asset_finder($prefix.'_image_selection', $current_link['minorid'], Array('image' => 'D', 'image_variety' => 'D'), 'sq_sidenav', false, $prefix.'_id_changed');
+						asset_finder($prefix.'_image_selection', $current_link['minorid'], Array('image' => 'D', 'image_variety' => 'D'), 'sq_sidenav', FALSE, $prefix.'_id_changed');
 					}
 					?>
 				</td>
@@ -214,7 +214,7 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 					<?php radio_button($prefix.'_caption_options_original', '1', !$current_settings['use_caption_attr'], $prefix.'_change_caption(\'original\');'); ?>
 					<?php hidden_field($prefix.'_caption_hidden', $current_settings['caption']); ?>
 					<?php $disabled_val = $current_settings['use_caption_attr'] ? ' disabled="disabled"' : ''; ?>
-					<?php text_box($prefix.'_caption', $current_settings['caption'], '50', '0', false, 'onchange="document.getElementById(\''.$prefix.'_caption_hidden\').value = document.getElementById(\''.$prefix.'_caption\').value;" '.$disabled_val); ?>
+					<?php text_box($prefix.'_caption', $current_settings['caption'], '50', '0', FALSE, 'onchange="document.getElementById(\''.$prefix.'_caption_hidden\').value = document.getElementById(\''.$prefix.'_caption\').value;" '.$disabled_val); ?>
 					<?php radio_button($prefix.'_caption_options_alt', '1', $current_settings['use_caption_attr'], $prefix.'_change_caption(\'alt\');'); ?>
 					<?php label('Use Image Caption Attribute', $prefix.'_caption[\'alt\']'); ?>
 				</td>
@@ -231,8 +231,8 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 			<tr <?php echo (!$display_fields['dimension_options']) ? 'style="display:none;"' : ''; ?>>
 				<td class="sq-backend-table-header" style="width: 100px;">Dimensions</td>
 				<td class="sq-backend-table-cell">
-					Width: <?php text_box($prefix.'_width', $current_settings['width'], '4', '0', false, 'onchange="'.$prefix.'_dimension_changed(true);"'); ?>px
-					&nbsp;&nbsp;Height: <?php text_box($prefix.'_height', $current_settings['height'], '4', '0', false, 'onchange="'.$prefix.'_dimension_changed(false);"'); ?>px
+					Width: <?php text_box($prefix.'_width', $current_settings['width'], '4', '0', FALSE, 'onchange="'.$prefix.'_dimension_changed(true);"'); ?>px
+					&nbsp;&nbsp;Height: <?php text_box($prefix.'_height', $current_settings['height'], '4', '0', FALSE, 'onchange="'.$prefix.'_dimension_changed(false);"'); ?>px
 					&nbsp;&nbsp;<?php check_box($prefix.'_proportions', '1', $current_settings['constrain_proportions'], $prefix.'_prop_changed(this);'); ?>
 					<?php label('Constrain Proportions', $prefix.'_prop'); ?>
 					&nbsp;&nbsp;<?php check_box($prefix.'_fit', '1', $current_settings['fit_dimensions'], $prefix.'_fit_changed();'); ?>
@@ -255,8 +255,8 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 				<?php echo $prefix; ?>_id_changed();
 			</script>
 			<?php
-		}
-		return true;
+		}//end if
+		return TRUE;
 
 	}//end paintBackend()
 
@@ -276,9 +276,9 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 	{
 		if ($asset->writeAccess('attributes')) {
 			$am = $GLOBALS['SQ_SYSTEM']->am;
-			$current_link = $am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'image_link');
+			$current_link = $am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, 'image_link');
 
-			//Process Image Link
+			// Process Image Link
 			if (isset($_POST[$prefix.'_image_selection']['assetid'])) {
 				if (!empty($current_link) && $_POST[$prefix.'_image_selection']['assetid'] != $current_link['minorid']) {
 					$am->deleteAssetLink($current_link['linkid']);
@@ -293,7 +293,7 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 				}
 			}
 
-			//Process the attributes
+			// Process the attributes
 			$current_settings = $asset->attr('display_settings');
 			$current_settings['width'] = $_POST[$prefix.'_width'];
 			$current_settings['height'] = $_POST[$prefix.'_height'];
@@ -311,18 +311,18 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 			$onclick->process($prefix);
 
 			$on_click_option = $onclick->value;
-			$image_linked = false;
+			$image_linked = FALSE;
 			if ($on_click_option == 'new_window' || $on_click_option == 'current_window') {
-				$image_linked = true;
+				$image_linked = TRUE;
 			}
 
 			$asset->setAttrValue('display_settings', $current_settings);
 			$asset->setAttrValue('on_click', $onclick->value);
 
-			if ($current_link == null) return true;
+			if ($current_link == NULL) return TRUE;
 			$current_image =& $am->getAsset($current_link['minorid']);
-			$image_width = ($current_settings['fit_dimensions'] == true) ? 'width: '.$current_settings['width'].'px;' : '';
-			$image_height = ($current_settings['fit_dimensions'] == true) ? 'height: '.$current_settings['height'].'px;' : '';
+			$image_width = ($current_settings['fit_dimensions'] == TRUE) ? 'width: '.$current_settings['width'].'px;' : '';
+			$image_height = ($current_settings['fit_dimensions'] == TRUE) ? 'height: '.$current_settings['height'].'px;' : '';
 			$image_alt = $current_image->name;
 			if (is_a($current_image, 'image')) {
 				// Its an image, no problems here
@@ -333,11 +333,11 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 				$image_alt = $real_image->attr('alt');
 			}
 			$classes = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_CONTENT_TYPE_IMAGE_CLASSES');
-			$caption = ($current_settings['use_caption_attr'] == true) ? $current_image->attr('caption') : $current_settings['caption'];
+			$caption = ($current_settings['use_caption_attr'] == TRUE) ? $current_image->attr('caption') : $current_settings['caption'];
 			$preview_classes = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_CONTENT_TYPE_IMAGE_PREVIEW');
 			ob_start();
 				if ($on_click_option == 'inline') {
-					//Print out js for showing the popup preview
+					// Print out js for showing the popup preview
 					?>
 					<div class="<?php echo $preview_classes['surrounding_container']; ?>" id="<?php echo $prefix; ?>_roll_preview" style="visibility: hidden; z-index: 5; position: absolute; left">
 						<table class="<?php echo $preview_classes['preview_image_table']; ?>">
@@ -408,7 +408,7 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 
 					</script>
 				<?php
-				}
+				}//end if
 				?>
 				<table class="<?php echo $classes['surrounding_container']; ?>">
 					<?php
@@ -462,9 +462,9 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 				$html = ob_get_contents();
 			ob_end_clean();
 			$asset->setAttrValue('html', $html);
-		}
+		}//end if
 
-		return true;
+		return TRUE;
 
 	}//end processBackend()
 

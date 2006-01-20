@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_management.inc,v 1.1 2005/12/21 06:02:23 dmckee Exp $
+* $Id: content_type_image_management.inc,v 1.2 2006/01/20 05:41:18 sdanis Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -51,8 +51,8 @@ class Content_Type_Image_Management extends Asset_Management
 												'type'			=> 'selection',
 												'default'		=> 'none',
 												'parameters'	=> Array(
-																	'multiple'		=> false,
-																	'allow_empty'	=> false,
+																	'multiple'		=> FALSE,
+																	'allow_empty'	=> FALSE,
 																	'options'		=> Array(
 																						'none'				=> 'No Action',
 																						'new_window'		=> 'Open Image in New Window',

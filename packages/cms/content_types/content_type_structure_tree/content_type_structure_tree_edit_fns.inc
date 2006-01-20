@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_structure_tree_edit_fns.inc,v 1.3 2005/12/22 01:15:46 dmckee Exp $
+* $Id: content_type_structure_tree_edit_fns.inc,v 1.4 2006/01/20 05:41:19 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz
 */
@@ -346,8 +346,8 @@ class Content_Type_Structure_Tree_Edit_Fns extends Content_Type_Edit_Fns
 				check_box($prefix.'_show_trailers', '1', $asset->attr('trailers'));
 				label('Show Connections between non-adjacent nodes on the frontend', $prefix.'_show_trailers');
 			}
-		}
-		return true;
+		}//end if
+		return TRUE;
 
 	}//end paintBackend()
 
@@ -368,12 +368,12 @@ class Content_Type_Structure_Tree_Edit_Fns extends Content_Type_Edit_Fns
 			$serialised = array_get_index($_POST, $prefix.'_structure_value', '');
 			$full_data = var_unserialise($serialised);
 			$asset->setAttrValue('structure', $full_data);
-			$trailers = isset($_POST[$prefix.'_show_trailers']) ? true : false;
+			$trailers = isset($_POST[$prefix.'_show_trailers']) ? TRUE : FALSE;
 			$asset->setAttrValue('trailers', $trailers);
-			//Generate the HTML
+			// Generate the HTML
 			$asset->setAttrValue('html', $asset->drawTree($trailers));
 		}
-		return true;
+		return TRUE;
 
 	}//end processBackend()
 

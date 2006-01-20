@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code_prefs.inc,v 1.3 2006/01/05 04:52:23 dmckee Exp $
+* $Id: content_type_code_prefs.inc,v 1.4 2006/01/20 05:41:18 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Raw HTML preferences
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class Content_Type_Code_Prefs extends Prefs
@@ -117,7 +117,7 @@ class Content_Type_Code_Prefs extends Prefs
 	* @return boolean
 	* @access public
 	*/
-	function paintBackend(&$o, $have_lock, $pref=null)
+	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
@@ -341,7 +341,7 @@ class Content_Type_Code_Prefs extends Prefs
 	* @return boolean
 	* @access public
 	*/
-	function processBackend($o, $have_lock, $pref=null)
+	function processBackend($o, $have_lock, $pref=NULL)
 	{
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());

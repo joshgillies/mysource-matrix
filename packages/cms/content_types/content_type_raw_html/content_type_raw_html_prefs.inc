@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_prefs.inc,v 1.8 2005/08/16 07:01:57 dmckee Exp $
+* $Id: content_type_raw_html_prefs.inc,v 1.9 2006/01/20 05:41:19 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Raw HTML preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 class Content_Type_Raw_HTML_Prefs extends Prefs
@@ -38,7 +38,7 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 												'name'			=> 'Raw HTML Size',
 												'description'	=> 'This preference allows you to change the size of the Raw HTML editor',
 												'default'		=> Array('width' => '100', 'height' => '20'),
-												'protected'		=> false,
+												'protected'		=> FALSE,
 											   ),
 					 );
 	var $css_dimension_width;
@@ -61,14 +61,14 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 	/**
 	* Paints the backend interface to edit preferences
 	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
-	* @param boolean					$have_lock	do we have the lock to edit these preferences or not
-	* @param string						$pref		a particular preference to paint
+	* @param object		&$o			reference to the backend outputter
+	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
+	* @param string		$pref		a particular preference to paint
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintBackend(&$o, $have_lock, $pref=null)
+	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
@@ -106,9 +106,9 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 				</table>
 				<?php
 			if (is_null($pref)) $o->closeField();
-		}
+		}//end if
 
-		return true;
+		return TRUE;
 
 	}//end paintBackend()
 
@@ -116,23 +116,23 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 	/**
 	* Processes the backend interface to edit preferences
 	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
-	* @param boolean					$have_lock	do we have the lock to edit these preferences or not
-	* @param string						$pref		a particular preference to process
+	* @param object		$o			reference to the backend outputter
+	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
+	* @param string		$pref		a particular preference to process
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend($o, $have_lock, $pref=null)
+	function processBackend($o, $have_lock, $pref=NULL)
 	{
 		if (isset($_POST['width']) && isset($_POST['height'])) {
 			$this->css_dimension_width->process('width');
 			$this->css_dimension_height->process('height');
 			$this->pref_vars['SQ_RAW_HTML_SIZE']['default']['width'] = $this->css_dimension_width->getContent();
 			$this->pref_vars['SQ_RAW_HTML_SIZE']['default']['height'] = $this->css_dimension_height->getContent();
-			return true;
+			return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end processBackend()
 

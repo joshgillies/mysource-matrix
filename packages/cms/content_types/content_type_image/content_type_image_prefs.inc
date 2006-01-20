@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_prefs.inc,v 1.1 2005/12/21 06:02:23 dmckee Exp $
+* $Id: content_type_image_prefs.inc,v 1.2 2006/01/20 05:41:18 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Image Content Type Preferences
 *
 * @author  Darren McKee <dmckee@squiz.net
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Content_Type_Image_Prefs extends Prefs
@@ -40,25 +40,25 @@ class Content_Type_Image_Prefs extends Prefs
 																'default'		=> Array(
 																					'caption'				=> 'Caption',
 																					'caption_position'		=> 'bottom',
-																					'use_caption_attr'		=> false,
+																					'use_caption_attr'		=> FALSE,
 																					'width'					=> '400',
 																					'height'				=> '400',
-																					'fit_dimensions'		=> true,
-																					'constrain_proportions'	=> true,
+																					'fit_dimensions'		=> TRUE,
+																					'constrain_proportions'	=> TRUE,
 																					'on_click'				=> 'none',
 																				   ),
-																'protected'		=> false,
+																'protected'		=> FALSE,
 															   ),
 						'SQ_CONTENT_TYPE_IMAGE_FIELDS'		=> Array(
 																'name'			=> 'Image Content Options',
 																'description'	=> 'This preference allows you to specify which fields are displayed',
 																'default'		=> Array(
-																					'caption_options'	=> true,
-																					'caption_position'	=> true,
-																					'dimension_options'	=> true,
-																					'on_click'			=> true,
+																					'caption_options'	=> TRUE,
+																					'caption_position'	=> TRUE,
+																					'dimension_options'	=> TRUE,
+																					'on_click'			=> TRUE,
 																				   ),
-																'protected'		=> false,
+																'protected'		=> FALSE,
 															   ),
 						'SQ_CONTENT_TYPE_IMAGE_CLASSES'		=> Array(
 																'name'			=> 'Image Content Classes',
@@ -69,7 +69,7 @@ class Content_Type_Image_Prefs extends Prefs
 																					'caption_table_cell'	=> 'caption_table_cell',
 																					'image_tag'				=> 'inline_image',
 																				   ),
-																'protected'		=> false,
+																'protected'		=> FALSE,
 															   ),
 						'SQ_CONTENT_TYPE_IMAGE_PREVIEW'		=> Array(
 																'name'			=> 'Image Content Classes',
@@ -81,7 +81,7 @@ class Content_Type_Image_Prefs extends Prefs
 																					'image_tag'				=> 'preview_image',
 																					'close_preview_cell'	=> 'close_cell',
 																				   ),
-																'protected'		=> false,
+																'protected'		=> FALSE,
 															   ),
 					 );
 
@@ -107,7 +107,7 @@ class Content_Type_Image_Prefs extends Prefs
 	* @return boolean
 	* @access public
 	*/
-	function paintBackend(&$o, $have_lock, $pref=null)
+	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
@@ -138,7 +138,7 @@ class Content_Type_Image_Prefs extends Prefs
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
 								if ($have_lock && $is_admin) {
-									combo_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[caption_position]', Array('bottom' => 'Bottom', 'top' => 'Top'), false, $value_defaults['caption_position']);
+									combo_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[caption_position]', Array('bottom' => 'Bottom', 'top' => 'Top'), FALSE, $value_defaults['caption_position']);
 									} else {
 										echo ucwords($value_defaults['caption_position']);
 									}
@@ -152,7 +152,7 @@ class Content_Type_Image_Prefs extends Prefs
 								if ($have_lock && $is_admin) {
 									check_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[use_caption_attr]', '1', $value_defaults['use_caption_attr']);
 								} else {
-									echo ($value_defaults['use_caption_attr'] == true) ? $tick : $cross;
+									echo ($value_defaults['use_caption_attr'] == TRUE) ? $tick : $cross;
 								}
 							?>
 						</td>
@@ -188,7 +188,7 @@ class Content_Type_Image_Prefs extends Prefs
 								if ($have_lock && $is_admin) {
 									check_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[constrain_proportions]', '1', $value_defaults['constrain_proportions']);
 								} else {
-									echo ($value_defaults['constrain_proportions'] == true) ? $tick : $cross;
+									echo ($value_defaults['constrain_proportions'] == TRUE) ? $tick : $cross;
 								}
 							?>
 						</td>
@@ -200,7 +200,7 @@ class Content_Type_Image_Prefs extends Prefs
 								if ($have_lock && $is_admin) {
 									check_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[fit_dimensions]', '1', $value_defaults['fit_dimensions']);
 								} else {
-									echo ($value_defaults['fit_dimensions'] == true) ? $tick : $cross;
+									echo ($value_defaults['fit_dimensions'] == TRUE) ? $tick : $cross;
 								}
 							?>
 						</td>
@@ -223,7 +223,7 @@ class Content_Type_Image_Prefs extends Prefs
 				</table>
 				<?php
 			if (is_null($pref)) $o->closeField();
-		}
+		}//end if
 		if (is_null($pref) || $pref == 'SQ_CONTENT_TYPE_IMAGE_FIELDS') {
 			if (is_null($pref)) {
 				$o->openField(translate('image_fields_title'));
@@ -241,7 +241,7 @@ class Content_Type_Image_Prefs extends Prefs
 									check_box('SQ_CONTENT_TYPE_IMAGE_FIELDS['.$field_name.']', '1', $value, '', 'id="image_content_'.$field_name.'"');
 									label(ucwords(str_replace('_', ' ', $field_name)), 'image_content_'.$field_name);
 								} else {
-									echo ($value == true) ? $tick : $cross;
+									echo ($value == TRUE) ? $tick : $cross;
 									?>
 									&nbsp;&nbsp;&nbsp;
 									<?php
@@ -255,7 +255,7 @@ class Content_Type_Image_Prefs extends Prefs
 			?>
 			</table>
 			<?php
-		}
+		}//end if
 		if (is_null($pref)) $o->closeField();
 		if (is_null($pref) || $pref == 'SQ_CONTENT_TYPE_IMAGE_CLASSES') {
 			if (is_null($pref)) {
@@ -284,7 +284,7 @@ class Content_Type_Image_Prefs extends Prefs
 				?>
 			</table>
 			<?php
-		}
+		}//end if
 		if (is_null($pref)) $o->closeField();
 
 		if (is_null($pref) || $pref == 'SQ_CONTENT_TYPE_IMAGE_PREVIEW') {
@@ -314,11 +314,11 @@ class Content_Type_Image_Prefs extends Prefs
 				?>
 			</table>
 			<?php
-		}
+		}//end if
 		if (is_null($pref)) $o->closeField();
 
 
-		return true;
+		return TRUE;
 
 	}//end paintBackend()
 
@@ -333,18 +333,18 @@ class Content_Type_Image_Prefs extends Prefs
 	* @return boolean
 	* @access public
 	*/
-	function processBackend(&$o, $have_lock, $pref=null)
+	function processBackend(&$o, $have_lock, $pref=NULL)
 	{
 		if (is_null($pref) || $pref == 'SQ_CONTENT_TYPE_IMAGE_DEFAULTS') {
 			$posted_values = $_POST['SQ_CONTENT_TYPE_IMAGE_DEFAULTS'];
 			if (!isset($posted_values['use_caption_attr'])) {
-				$posted_values['use_caption_attr'] = false;
+				$posted_values['use_caption_attr'] = FALSE;
 			}
 			if (!isset($posted_values['fit_dimensions'])) {
-				$posted_values['fit_dimensions'] = false;
+				$posted_values['fit_dimensions'] = FALSE;
 			}
 			if (!isset($posted_values['constrain_proportions'])) {
-				$posted_values['constrain_proportions'] = false;
+				$posted_values['constrain_proportions'] = FALSE;
 			}
 			$dummy_asset =& new Content_Type_Image();
 			$onclick =& $dummy_asset->getAttribute('on_click');
@@ -363,7 +363,7 @@ class Content_Type_Image_Prefs extends Prefs
 		if (is_null($pref) || $pref == 'SQ_CONTENT_TYPE_IMAGE_PREVIEW') {
 			$this->pref_vars['SQ_CONTENT_TYPE_IMAGE_PREVIEW']['default'] = $_POST['SQ_CONTENT_TYPE_IMAGE_PREVIEW'];
 		}
-		return true;
+		return TRUE;
 
 	}//end processBackend()
 

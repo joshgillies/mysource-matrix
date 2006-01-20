@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_structure_tree_prefs.inc,v 1.3 2005/12/20 05:22:27 dmckee Exp $
+* $Id: content_type_structure_tree_prefs.inc,v 1.4 2006/01/20 05:41:19 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Structure Tree
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class Content_Type_Structure_Tree_Prefs extends Prefs
@@ -38,14 +38,14 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 																'name'			=> 'Structure Tree Format Options',
 																'description'	=> 'This preference allows you to change the text options that are displayed',
 																'default'		=> Array(
-																					'bold'			=> true,
-																					'underline'		=> true,
-																					'italic'		=> true,
-																					'delete'		=> true,
-																					'insert'		=> true,
-																					'connections'	=> true,
+																					'bold'			=> TRUE,
+																					'underline'		=> TRUE,
+																					'italic'		=> TRUE,
+																					'delete'		=> TRUE,
+																					'insert'		=> TRUE,
+																					'connections'	=> TRUE,
 																				   ),
-																'protected'		=> false,
+																'protected'		=> FALSE,
 															   ),
 						'SQ_STRUCTURE_TREE_NODE_CLASSES'	=> Array(
 																'name'			=> 'Structure Tree CSS Class',
@@ -54,7 +54,7 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 																					'node_text'		=> 'tree_node_text',
 																					'node_branches'	=> 'tree_node_branches',
 																				   ),
-																'protected'		=> false,
+																'protected'		=> FALSE,
 															   ),
 					 );
 
@@ -80,7 +80,7 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 	* @return boolean
 	* @access public
 	*/
-	function paintBackend(&$o, $have_lock, $pref=null)
+	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
@@ -119,7 +119,7 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 									</td>
 									<td>
 										<?php
-										echo ($format_options['bold'] == true) ? $tick : $cross;
+										echo ($format_options['bold'] == TRUE) ? $tick : $cross;
 										?>
 									</td>
 								</tr>
@@ -129,7 +129,7 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 									</td>
 									<td>
 										<?php
-										echo ($format_options['underline'] == true) ? $tick : $cross;
+										echo ($format_options['underline'] == TRUE) ? $tick : $cross;
 										?>
 									</td>
 								</tr>
@@ -139,7 +139,7 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 									</td>
 									<td>
 										<?php
-										echo ($format_options['italic'] == true) ? $tick : $cross;
+										echo ($format_options['italic'] == TRUE) ? $tick : $cross;
 										?>
 									</td>
 								</tr>
@@ -149,7 +149,7 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 									</td>
 									<td>
 										<?php
-										echo ($format_options['delete'] == true) ? $tick : $cross;
+										echo ($format_options['delete'] == TRUE) ? $tick : $cross;
 										?>
 									</td>
 								</tr>
@@ -159,7 +159,7 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 									</td>
 									<td>
 										<?php
-										echo ($format_options['insert'] == true) ? $tick : $cross;
+										echo ($format_options['insert'] == TRUE) ? $tick : $cross;
 										?>
 									</td>
 								</tr>
@@ -169,20 +169,20 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 									</td>
 									<td>
 										<?php
-										echo ($format_options['connections'] == true) ? $tick : $cross;
+										echo ($format_options['connections'] == TRUE) ? $tick : $cross;
 										?>
 									</td>
 								</tr>
 							</table>
 							<?php
-						}
+						}//end else
 						?>
 						</td>
 					</tr>
 				</table>
 				<?php
 			if (is_null($pref)) $o->closeField();
-		}
+		}//end if
 		if (is_null($pref) || $pref == 'SQ_STRUCTURE_TREE_NODE_CLASSES') {
 			if (is_null($pref)) {
 				$o->openField(translate('tree_class_title'));
@@ -211,9 +211,9 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 				</table>
 				<?php
 			if (is_null($pref)) $o->closeField();
-		}
+		}//end if
 
-		return true;
+		return TRUE;
 
 	}//end paintBackend()
 
@@ -228,7 +228,7 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 	* @return boolean
 	* @access public
 	*/
-	function processBackend(&$o, $have_lock, $pref=null)
+	function processBackend(&$o, $have_lock, $pref=NULL)
 	{
 		if (is_null($pref) || $pref == 'SQ_STRUCTURE_TREE_FORMATTING') {
 			$this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['default']['bold'] = isset($_POST['SQ_STRUCTURE_SHOW_BOLD']);
@@ -241,7 +241,8 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 		if (is_null($pref) || $pref == 'SQ_STRUCTURE_TREE_NODE_CLASSES') {
 			$this->pref_vars['SQ_STRUCTURE_TREE_NODE_CLASSES']['default'] = $_POST['SQ_STRUCTURE_TREE_NODE_CLASSES'];
 		}
-		return true;
+		return TRUE;
+
 	}//end processBackend()
 
 

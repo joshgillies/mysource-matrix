@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_management.inc,v 1.5 2005/08/12 06:30:32 pgannavarapu Exp $
+* $Id: content_type_raw_html_management.inc,v 1.6 2006/01/20 05:41:19 sdanis Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -46,8 +46,8 @@ class Content_Type_Raw_HTML_Management extends Asset_Management
 	/**
 	* Gets a list of all metadata files that we want web accessable
 	*
+	* @return array
 	* @access private
-	* @return array(string)
 	*/
 	function _getFileList()
 	{
@@ -59,10 +59,12 @@ class Content_Type_Raw_HTML_Management extends Asset_Management
 
 
 	/**
-	*Checks the preferences for Global and User Groups and updates them
+	* Checks the preferences for Global and User Groups and updates them
 	*
+	* @param string	$current_version	Current version of the asset
+	*
+	* @return array
 	* @access private
-	* @return array(string)
 	*/
 	function _upgrade($current_version)
 	{
@@ -80,14 +82,17 @@ class Content_Type_Raw_HTML_Management extends Asset_Management
 			}
 		}
 		return parent::_upgrade($current_version);
+
 	}//end _upgrade()
 
 
 	/**
 	* Converts the preferences to the 'ex'es and writes them into the preferences files.
 	*
+	* @param string	$file_name	Name of the file
+	*
+	* @return array
 	* @access private
-	* @return array(string)
 	*/
 	function _updatePreferences($file_name)
 	{

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_edit_fns.inc,v 1.10 2005/08/12 06:30:31 pgannavarapu Exp $
+* $Id: content_type_raw_html_edit_fns.inc,v 1.11 2006/01/20 05:41:19 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,8 +47,8 @@ class Content_Type_Raw_HTML_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Prints the backend interface for this WYSIWYG editor
 	*
-	* @param object Content_Type_Raw_HTML	&$asset	the raw html content type object
-	* @param string							$prefix	prefix for form elements
+	* @param object	&$asset	the raw html content type object
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -62,7 +62,7 @@ class Content_Type_Raw_HTML_Edit_Fns extends Content_Type_Edit_Fns
 			$this->_paintKeywordInserter($asset, $prefix);
 			text_area($prefix.'_html', $html, '', '', 0, 'style="width: '.$size['width'].'; height: '.$size['height'].'; font-family: monospace; display: block"');
 		}
-		return true;
+		return TRUE;
 
 	}//end paintBackend()
 
@@ -70,12 +70,15 @@ class Content_Type_Raw_HTML_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Paint the keyword-insert dropdown box
 	*
-	* @access private
+	* @param object	&$asset	the raw html content type object
+	* @param string	$prefix	prefix for form elements
+	*
 	* @return void
+	* @access private
 	*/
 	function _paintKeywordInserter(&$asset, $prefix)
 	{
-		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$keywords = Array();
 		$keyword_vars = Array('keywords' => &$keywords);
 		$em->broadcastEvent($asset, 'requestKeywords', $keyword_vars);
@@ -100,9 +103,9 @@ class Content_Type_Raw_HTML_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Processes the backend interface for this Raw HTML editor
 	*
-	* @param array(string)					$link	information used to create the initial link
-	* @param object Content_Type_Raw_HTML	&$asset	the wysiwyg content type object
-	* @param string							$prefix	prefix for form elements
+	* @param array	$link	information used to create the initial link
+	* @param object	&$asset	the wysiwyg content type object
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -118,11 +121,11 @@ class Content_Type_Raw_HTML_Edit_Fns extends Content_Type_Edit_Fns
 
 				$current_html = $asset->attr('html');
 				if ($html != $current_html) {
-					if ($asset->setAttrValue('html', $html)) return true;
+					if ($asset->setAttrValue('html', $html)) return TRUE;
 				}
 			}
 		}
-		return false;
+		return FALSE;
 
 	}//end processBackend()
 
