@@ -18,9 +18,18 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.5 2005/01/20 13:07:31 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.1 2006/01/20 04:45:10 tbarrett Exp $
 *
 */
 -->
 
-<screens />
+<contents>
+	<section name="Details" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function   name="paintExcludedTypes" />
+				<process_function name="processExcludedTypes" />
+			</function_call>
+		</field>
+	</section>
+</contents>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage.inc,v 1.11 2005/11/22 22:36:54 lwright Exp $
+* $Id: design_area_asset_lineage.inc,v 1.12 2006/01/20 04:45:10 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,7 +64,7 @@ class Design_Area_Asset_Lineage extends Design_Area
 
 			case 'asset_short_name' :
 			case 'asset_name' :
-				echo '<', '?php echo ', $this->_escapeVar($value_prefix.'htmlspecialchars($ASSET_LINEAGE[$'.$this->attr('id_name').'_i]['.var_export((string) substr($var, 6), true).'])'.$value_suffix, $args), '; ?', '>';
+				echo '<', '?php echo ', $this->_escapeVar($value_prefix.'htmlspecialchars($ASSET_LINEAGE[$'.$this->attr('id_name').'_i]['.var_export((string) substr($var, 6), TRUE).'])'.$value_suffix, $args), '; ?', '>';
 			break;
 
 			default :
@@ -148,6 +148,13 @@ class Design_Area_Asset_Lineage extends Design_Area
 					';
 				}
 
+				$unwanted_types = $this->attr('unwanted_asset_types');
+				if (!empty($unwanted_types)) {
+					$unwanted_types_literal_array = 'Array("'.implode('", "', $unwanted_types).'")';
+					echo 'if (in_array($ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'type_code\'], '.$unwanted_types_literal_array.')) continue;
+					';
+				}
+
 				if ($asset_contents = $this->attr('asset_contents')) {
 					echo '?','>';
 					foreach ($asset_contents as $item) {
@@ -186,7 +193,7 @@ class Design_Area_Asset_Lineage extends Design_Area
 				}//end for
 				?','>';
 
-				return true;
+				return TRUE;
 
 			default :
 				return parent::_printContentItemCode($element);
@@ -212,6 +219,32 @@ class Design_Area_Asset_Lineage extends Design_Area
 		return $res;
 
 	}//end getProtectedAttrs()
+
+
+	/**
+	* Queue the setting of the value of an attribute
+	*
+	* This function sets the value of the attribute locally, but does not database updating.
+	* The change is queued awaiting the call of saveAttributes()
+	*
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
+	*
+	* @return boolean
+	* @access public
+	* @see saveAttributes()
+	*/
+	function setAttrValue($name, $value)
+	{
+		if (($name == 'unwanted_asset_types') && is_scalar($value)) {
+			$value = explode(',', $value);
+			foreach ($value as $i => $v) {
+				$value[$i] = trim($v);
+			}
+		}
+		return parent::setAttrValue($name, $value);
+
+	}//end setAttrValue()
 
 
 }//end class

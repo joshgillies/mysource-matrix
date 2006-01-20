@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage_management.inc,v 1.8 2005/11/22 22:36:54 lwright Exp $
+* $Id: design_area_asset_lineage_management.inc,v 1.9 2006/01/20 04:45:10 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -114,6 +114,12 @@ class Design_Area_Asset_Lineage_Management extends Asset_Management
 								'type'			=> 'boolean',
 								'default'		=> false,
 								'description'	=> 'If true, reverse how the lineage is printed (ie. nearest asset first)'
+							),
+							'unwanted_asset_types' => Array(
+								'added'			=> '0.3',
+								'type'			=> 'serialise',
+								'default'		=> Array(),
+								'description'	=> 'List of asset types to exclude from the lineage'
 							),
 						);
 

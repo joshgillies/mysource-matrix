@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage_edit_fns.inc,v 1.14 2005/10/11 02:05:14 tbarrett Exp $
+* $Id: design_area_asset_lineage_edit_fns.inc,v 1.15 2006/01/20 04:45:10 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,7 +52,7 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 	function _processContents(&$asset, &$contents)
 	{
 		if (!$this->_setVariables($asset, $contents)) {
-			return false;
+			return FALSE;
 		}
 
 		$asset_index	= -1;
@@ -83,13 +83,13 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 			}
 
 			if (!$asset->setAttrValue('asset_contents', $contents[$asset_index]['contents'])) {
-				return false;
+				return FALSE;
 			}
 
 			// Now what we do is morph it so that this element doesn't contain all the un-necessary contents stuff
 			$contents[$asset_index] = Array(
 										'_type'				=> 'TAG',
-										'attributes'		=> Array (),
+										'attributes'		=> Array(),
 										'operation'			=> 'asset',
 										'self_terminating'	=> 1,
 									  );
@@ -100,7 +100,7 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 		if ($divider_index >= 0) {
 
 			if (!$asset->setAttrValue('divider_contents', $contents[$divider_index]['contents'])) {
-				return false;
+				return FALSE;
 			}
 
 			// Now we want to remove the divider section
@@ -109,16 +109,71 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 		} else {
 			//we dont have a tag, so lets use the default value instead
 			if (!$asset->setAttrValue('divider_contents', $this->_getDefaultContents($asset, 'divider'))) {
-				return false;
+				return FALSE;
 			}
 		}
 
-
-
-		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
+		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = TRUE;
 		return $asset->setAttrValue('contents', $contents);
 
 	}//end _processContents()
+
+
+	/**
+	* Paint the interface for choosing asset types to exclude from the lineage
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintExcludedTypes(&$asset, &$o, $prefix)
+	{
+		$excluded_types = $asset->attr('unwanted_asset_types');
+		if ($asset->writeAccess('attributes')) {
+			asset_type_chooser($prefix.'_excluded_types', TRUE, $excluded_types);
+		} else {
+			if (empty($excluded_types)) {
+				echo 'No types are excluded';
+			} else {
+				?>
+				<ul>
+				<?php
+				foreach ($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($excluded_types, 'name') as $type_name) {
+					?>
+					<li><?php echo $type_name; ?></li>
+					<?php
+				}
+				?>
+				</ul>
+				<?php
+			}
+		}
+
+	}//end paintExcludedTypes()
+
+
+	/**
+	* Paint the interface for choosing asset types to exclude from the lineage
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processExcludedTypes(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			return $asset->setAttrValue('unwanted_asset_types', $_POST[$prefix.'_excluded_types']);
+		} else {
+			return FALSE;
+		}
+
+	}//end processExcludedTypes()
 
 
 }//end class
