@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.98 2006/01/10 05:01:24 rong Exp $
+* $Id: page_asset_listing.inc,v 1.99 2006/01/20 02:48:38 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.99 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -193,7 +193,7 @@ class Page_Asset_Listing extends Listing_Engine
 				break;
 			}//end switch
 
-		}//end if subs_only
+		}//end else subs_only
 
 		if (empty($assets_to_list)) return Array();
 

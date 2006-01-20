@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_management.inc,v 1.10 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: page_custom_form_management.inc,v 1.11 2006/01/20 02:48:04 sdanis Exp $
 *
 */
 
@@ -23,12 +23,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Custom_Form_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -38,14 +39,16 @@ class Page_Custom_Form_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('name' => Array (
-												'added'		=> '0.0.1',
-												'type'		=> 'text',
-												'default'	=> '',
-										), // end name
+		$this->vars = Array(
+						'name'	=> Array (
+									'added'		=> '0.0.1',
+									'type'		=> 'text',
+									'default'	=> '',
+								   ),
+					  );
 
-						);
 	}//end constructor
+
 
 }//end class
 ?>

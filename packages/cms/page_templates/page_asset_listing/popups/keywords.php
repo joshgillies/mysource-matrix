@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: keywords.php,v 1.4 2005/07/21 07:41:50 lwright Exp $
+* $Id: keywords.php,v 1.5 2006/01/20 02:48:39 sdanis Exp $
 *
 */
 -->
 <?php
 	require_once dirname(__FILE__).'/../../../../../core/include/init.inc';
-	if (!isset($_GET['type_code'])) return false;
+	if (!isset($_GET['type_code'])) return FALSE;
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset($_GET['type_code']);
 	$asset =& new $_GET['type_code']();
@@ -67,7 +67,7 @@
 			foreach ($keywords as $keyword => $description) {
 				?>
 				<tr><td valign="top" width="200"><b>%<?php echo $keyword?>%</b></td><td valign="top"><?php echo isset($description) ? $description : '' ?></td></tr>
-				<?php 
+				<?php
 			}
 			?>
 			</table>

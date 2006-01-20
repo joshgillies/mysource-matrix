@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.27 2005/11/02 05:40:47 lwright Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.28 2006/01/20 02:48:38 sdanis Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -81,7 +81,7 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 				}
 			}
 
-			combo_box($prefix.'_link_types', $link_types, true, $selected);
+			combo_box($prefix.'_link_types', $link_types, TRUE, $selected);
 		} else {
 			if ($current == 0) {
 				echo translate('cms_listing_no_link_types_selected');
@@ -114,7 +114,7 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 	function processLinkTypes(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$link_types = 0;
 		if (isset($_POST[$prefix.'_link_types'])) {
