@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.155 2006/01/09 05:43:08 arailean Exp $
+* $Id: search_page.inc,v 1.156 2006/01/20 00:57:35 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.155 $
+* @version $Revision: 1.156 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1674,11 +1674,11 @@ class Search_Page extends Listing_Engine
 
 					} else if (ereg('(.+)_query_(.+)$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
-						$replacement = htmlspecialchars($this->getFieldReplacement($matches[1], $matches[2]));
+						$replacement = $this->getFieldReplacement($matches[1], $matches[2]);
 
 					} else if (ereg('(.+)_query$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
-						$replacement = htmlspecialchars($this->getFieldReplacement($matches[1]));
+						$replacement = $this->getFieldReplacement($matches[1]);
 
 					} else if (substr($keyword, -7) == '_linked') {
 
