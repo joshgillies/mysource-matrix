@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.83 2006/01/08 23:18:40 dmckee Exp $
+* $Id: page_asset_builder.inc,v 1.84 2006/01/20 02:45:24 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -71,7 +71,7 @@ class Page_Asset_Builder extends Page
 	*/
 	function Page_Asset_Builder($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Page($assetid);
 
 	}//end constructor
@@ -89,7 +89,7 @@ class Page_Asset_Builder extends Page
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!parent::_createAdditional($link)) return false;
+		if (!parent::_createAdditional($link)) return FALSE;
 
 		// add a bodycopy to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
@@ -99,9 +99,9 @@ class Page_Asset_Builder extends Page
 			$bodycopy =& new Bodycopy();
 			$bodycopy->setAttrValue('name', $name);
 			$copy_link['value'] = $value;
-			if (!$bodycopy->create($copy_link)) return false;
+			if (!$bodycopy->create($copy_link)) return FALSE;
 		}
-		return true;
+		return TRUE;
 
 	}//end _createAdditional()
 
@@ -113,15 +113,15 @@ class Page_Asset_Builder extends Page
 	* should be checked to work out what side of the link this asset is on. The return value should indicate
 	* if any of the link fields were changed.
 	*
-	* @param object Asset	$asset			the major or minor asset that we are linking to
-	* @param string			$side_of_link	the side of the link we are on (major or minor)
-	* @param string			$link_type		the type of link we are creating
-	* @param string			$value			the value that is to be associated with the link
-	* @param string			$sort_order		the position in the links list that this link should take,
-	* @param string			$dependant		'0' / '1' on whether the this asset is dependant on the
-	*										asset that will be linked by the new link
-	* @param string			$exclusive		'0' / '1' on whether the this asset is linked exclusivly
-	*										to the asset that will be linked by the new link
+	* @param object	&$asset			the major or minor asset that we are linking to
+	* @param string	$side_of_link	the side of the link we are on (major or minor)
+	* @param string	&$link_type		the type of link we are creating
+	* @param string	&$value			the value that is to be associated with the link
+	* @param string	&$sort_order	the position in the links list that this link should take,
+	* @param string	&$dependant		'0' / '1' on whether the this asset is dependant on the
+	*								asset that will be linked by the new link
+	* @param string	&$exclusive		'0' / '1' on whether the this asset is linked exclusivly
+	*								to the asset that will be linked by the new link
 	*
 	* @return boolean
 	* @access public
@@ -131,10 +131,10 @@ class Page_Asset_Builder extends Page
 		// if this is a bodycopy then we need to make it a dependant link
 		if ($side_of_link == 'major' && is_a($asset, 'bodycopy') && $dependant != '1') {
 			$dependant = '1';
-			return true;
+			return TRUE;
 		}
 
-		return false;
+		return FALSE;
 
 	}//end prepareLink()
 
@@ -150,7 +150,7 @@ class Page_Asset_Builder extends Page
 	function isDeletableLink($linkid)
 	{
 		// the only reason why we would object to this link being deleted is if it is a bodycopy linked to us
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', null, '1', '1');
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major', NULL, '1', '1');
 
 		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
 			return translate('cms_cannot_delete_link', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
@@ -171,7 +171,7 @@ class Page_Asset_Builder extends Page
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => count($this->_getBodycopies()), 'exclusive' => true);
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => count($this->_getBodycopies()), 'exclusive' => TRUE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -186,7 +186,7 @@ class Page_Asset_Builder extends Page
 	function printBody()
 	{
 		$this->_current_state = '';
-		$current_user = &$GLOBALS['SQ_SYSTEM']->user;
+		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
 		set_error_handler(Array(&$this, '_errorHandler'));
 			$success = $this->_processGlobalActions();
 		restore_error_handler();
@@ -242,8 +242,8 @@ class Page_Asset_Builder extends Page
 		<form id="<?php echo $this->getPrefix() ?>" method="post" action="<?php echo replace_query_string_vars(Array()); ?>" enctype="multipart/form-data">
 			<?php
 			hidden_field('ASSET_BUILDER_ACTION', $this->_default_state);
-			$parameter_map = &$this->getAttribute('parameter_map');
-			if (($additional_locs = $parameter_map->getParameterValue('additional_locations')) != null) {
+			$parameter_map =& $this->getAttribute('parameter_map');
+			if (($additional_locs = $parameter_map->getParameterValue('additional_locations')) != NULL) {
 				hidden_field('ASSET_BUILDER_ADDITIONAL_LOCATIONS', $additional_locs);
 			} else if (isset($_POST['ASSET_BUILDER_ADDITIONAL_LOCATIONS'])) {
 				hidden_field('ASSET_BUILDER_ADDITIONAL_LOCATIONS', $_POST['ASSET_BUILDER_ADDITIONAL_LOCATIONS']);
@@ -266,13 +266,13 @@ class Page_Asset_Builder extends Page
 	*/
 	function _processGlobalActions()
 	{
-		$success = true;
+		$success = TRUE;
 
 		// process some global asset builder actions
 		if (isset($_POST['ASSET_BUILDER_ACTION'])) {
 
 			// okay, we are doing something - so success is not guaranteed
-			$success = false;
+			$success = FALSE;
 
 			switch (strtolower($_POST['ASSET_BUILDER_ACTION'])) {
 
@@ -296,12 +296,12 @@ class Page_Asset_Builder extends Page
 					 //  REQUIRED FIELDS  //
 					///////////////////////
 
-					$required_error = false;
+					$required_error = FALSE;
 					$required_fields = $this->attr('required_fields');
 					if (!empty($required_fields[$new_asset->type()])) {
 
 						foreach ($required_fields[$new_asset->type()] as $attr => $error_text) {
-							$real_attribute = &$new_asset->getAttribute($attr, true);
+							$real_attribute =& $new_asset->getAttribute($attr, TRUE);
 							if (is_null($real_attribute)) continue;
 							// take a copy of the attribute so we don't muck anything up for the processBackend() below
 							$attribute = $real_attribute;
@@ -311,13 +311,13 @@ class Page_Asset_Builder extends Page
 									$error_text = translate('cms_asset_builder_invalid_attr_value', $attribute->name);
 								}
 								trigger_error($error_text, E_USER_NOTICE);
-								$required_error = true;
+								$required_error = TRUE;
 							} else if (empty($attribute->value)) {
 								if (empty($error_text)) {
 									$error_text = translate('cms_asset_builder_missing_attr', $attribute->name);
 								}
 								trigger_error($error_text, E_USER_NOTICE);
-								$required_error = true;
+								$required_error = TRUE;
 							}
 
 						}//end foreach
@@ -334,7 +334,7 @@ class Page_Asset_Builder extends Page
 					////////////////////////
 
 					if (($create_locations = $this->getCreateLocations($create_type)) === FALSE) {
-						return false;
+						return FALSE;
 					}
 
 					// if we dont have any create locations, there is no point in continuing with this charade
@@ -355,7 +355,7 @@ class Page_Asset_Builder extends Page
 					$o =& new Limbo_Outputter();
 					$create_parentid = array_shift(array_keys($create_locations));
 					$link_type = array_shift(array_values($create_locations));
-					$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($create_parentid);
+					$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($create_parentid);
 					if (is_null($parent)) {
 						$this->_replacements['create_error'] = $this->getKeywordReplacement('create_error');
 						break;
@@ -393,7 +393,7 @@ class Page_Asset_Builder extends Page
 								// skip the orginal parent we linked the new asset to
 								if ($link_parentid == $parent->id) continue;
 
-								$link_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_parentid, '', true);
+								$link_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_parentid, '', TRUE);
 								if (is_null($link_parent)) {
 									trigger_localised_error('CMS0034', E_USER_WARNING, $link_parentid);
 									continue;
@@ -405,7 +405,7 @@ class Page_Asset_Builder extends Page
 							}
 							// we need to update lookups to make sure the URLs for the
 							// new create locations are set correctly
-							$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+							$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 							$vars = Array('assetids' => Array($new_asset->id));
 							$lookup_errors = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
 							$this->_errors = array_merge($this->_errors, $lookup_errors);
@@ -414,12 +414,12 @@ class Page_Asset_Builder extends Page
 						if (empty($this->_errors)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 							$this->_current_state = 'created';
-							$success = true;
+							$success = TRUE;
 							$this->_setCreateStatus($new_asset);
 							$this->_tmp['created_asset'] = $new_asset;
 						}
 
-					}//end if processBackend
+					}//end else
 
 					if ($this->attr('allow_public_user')) {
 						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
@@ -430,7 +430,7 @@ class Page_Asset_Builder extends Page
 				default :
 
 					// there was an action, but we didnt do anything
-					$success = true;
+					$success = TRUE;
 
 				break;
 
@@ -445,9 +445,6 @@ class Page_Asset_Builder extends Page
 
 	/**
 	* Get the selectable create locations that the user has actually selected for the new asset
-	*
-	* @param string		$create_type	The type of the asset being created
-	* @param array		$attributes		The attributes of the new asset.  (If blank, attributes read from POST)
 	*
 	* @return array
 	* @access protected
@@ -478,7 +475,7 @@ class Page_Asset_Builder extends Page
 				}
 			} else if (!$details['allow_empty']) {
 				trigger_localised_error('CMS0036', E_USER_WARNING, $set_name);
-				return false;
+				return FALSE;
 			}
 		}
 		return $all_selected_locations;
@@ -517,9 +514,6 @@ class Page_Asset_Builder extends Page
 	*
 	* Just included for completeness & consistency
 	*
-	* @param string		$create_type	The type of the asset being created
-	* @param array		$attributes		The attributes of the new asset.  (If blank, attributes read from POST)
-	*
 	* @return array
 	* @access protected
 	*/
@@ -555,7 +549,7 @@ class Page_Asset_Builder extends Page
 		$attributeids = ($GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type, Array('name', 'attrid')));
 		if (!empty($location_rules[$create_type])) {
 			foreach ($location_rules[$create_type] as $i => $rule) {
-				$pass = true;
+				$pass = TRUE;
 				$j = 0;
 				while ($j < count($rule['attributes'])) {
 					if (empty($attributes)) {
@@ -566,37 +560,37 @@ class Page_Asset_Builder extends Page
 
 					switch ($rule['comparators'][$j]) {
 						case 'equals':
-							if ($attr_value != $rule['values'][$j]) $pass = false;
+							if ($attr_value != $rule['values'][$j]) $pass = FALSE;
 						break;
 
 						case 'starts_with':
 							if (!preg_match('|^'.$rule['values'][$j].'.*$|', $attr_value)) {
-								$pass = false;
+								$pass = FALSE;
 							}
 						break;
 
 						case 'ends_with':
 							if (!preg_match('|^.*'.$rule['values'][$j].'$|', $attr_value)) {
-								$pass = false;
+								$pass = FALSE;
 							}
 						break;
 
 						case 'contains':
-							if (strpos($attr_value, $rule['values'][$j]) === false) {
-								$pass = false;
+							if (strpos($attr_value, $rule['values'][$j]) === FALSE) {
+								$pass = FALSE;
 							}
 						break;
 					}
 					$j++;
-				}
+				}//end while
 
 				if ($pass) {
 					foreach ($rule['locations'] as $index => $assetid) {
 						$all_rule_match_locations[$assetid] = $rule['link_types'][$index];
 					}
 				}
-			}
-		}
+			}//end foreach
+		}//end if
 		return $all_rule_match_locations;
 
 	}//end getRuleMatchCreateLocations()
@@ -620,7 +614,7 @@ class Page_Asset_Builder extends Page
 				+ $this->getDynamicCreateLocations();
 		} else {
 			// failed to select some compulsory selectable locations
-			return false;
+			return FALSE;
 		}
 
 	}//end getCreateLocations()
@@ -641,7 +635,7 @@ class Page_Asset_Builder extends Page
 		if (isset($_REQUEST['ASSET_BUILDER_ADDITIONAL_LOCATIONS']) && !empty($_REQUEST['ASSET_BUILDER_ADDITIONAL_LOCATIONS'])) {
 			// set the assetids and link types from the query
 			foreach (explode(';', $_REQUEST['ASSET_BUILDER_ADDITIONAL_LOCATIONS']) as $loc_code) {
-				if (false === strpos($loc_code, '-')) {
+				if (FALSE === strpos($loc_code, '-')) {
 					$link_type = SQ_LINK_TYPE_1;
 					$loc_id = $loc_code;
 				} else {
@@ -670,7 +664,7 @@ class Page_Asset_Builder extends Page
 					if (empty($matches)) unset($res[$assetid]);
 				}
 			}
-		}
+		}//end if
 		return $res;
 
 	}//end getAdditionalCreateLocations()
@@ -711,7 +705,7 @@ class Page_Asset_Builder extends Page
 	/**
 	* Takes the default link that was created and allows for adjustments if necessary
 	*
-	* @param Array $link	the current link array
+	* @param array	&$link	the current link array
 	*
 	* @return void
 	* @access private
@@ -726,7 +720,7 @@ class Page_Asset_Builder extends Page
 	/**
 	* Set the status of the newly created asset
 	*
-	* @param object Asset	&$new_asset		the newly created asset
+	* @param object	&$new_asset	the newly created asset
 	*
 	* @return boolean
 	* @access private
@@ -735,13 +729,13 @@ class Page_Asset_Builder extends Page
 	{
 		$create_status = $this->attr('create_status');
 		if ($new_asset->status != $create_status) {
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('assetid' => $new_asset->id, 'new_status' => $create_status);
 			$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
 			$this->_errors = array_merge($this->_errors, $status_errors);
 			return empty($this->_errors);
 		}
-		return true;
+		return TRUE;
 
 	}//end _setCreateStatus()
 
@@ -807,7 +801,7 @@ class Page_Asset_Builder extends Page
 							foreach ($data['locations'] as $id => $name) {
 								check_box($code_name."[$i]", $id, $checked);
 								echo '&nbsp;'.$name.'<br />';
-								$checked = false;
+								$checked = FALSE;
 								$i++;
 							}
 						} else {
@@ -815,7 +809,7 @@ class Page_Asset_Builder extends Page
 							foreach ($data['locations'] as $id => $name) {
 								radio_button($code_name, $id, $checked);
 								echo '&nbsp;'.$name.'<br />';
-								$checked = false;
+								$checked = FALSE;
 							}
 						}
 					break;
@@ -823,7 +817,7 @@ class Page_Asset_Builder extends Page
 					default:
 						echo '('.translate('cms_asset_builder_undefined_input_style', $data['input_style']).')';
 					break;
-				}
+				}//end switch
 				$this->_replacements[$code_name.'_field'] = ob_get_contents();
 			ob_end_clean();
 		}//end foreach selectable create location
@@ -842,7 +836,7 @@ class Page_Asset_Builder extends Page
 							if (empty($new_types['type_code'][$ii])) continue;
 							if ($new_types['inherit'][$ii] == '1') {
 								// get all descendants, add them to the types array
-								$descendant_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($new_types['type_code'][$ii], true);
+								$descendant_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($new_types['type_code'][$ii], TRUE);
 								foreach ($descendant_types as $type_code) {
 									if (!isset($types[$type_code])) {
 										$types[$type_code] = '';
@@ -858,10 +852,10 @@ class Page_Asset_Builder extends Page
 			}
 			$types = array_keys($types);
 			ob_start();
-				structured_drop_down($code_name, $data['root'], $types, Array(), 0, $data['allow_multiple'] ? 5 : 1, $data['depth'], $data['allow_multiple'], '-', false, '', $data['input_style'] == 'radio', Array(), $data['display_structured'], array_keys($data['filter_link_type']), $data['allow_empty']);
+				structured_drop_down($code_name, $data['root'], $types, Array(), 0, $data['allow_multiple'] ? 5 : 1, $data['depth'], $data['allow_multiple'], '-', FALSE, '', $data['input_style'] == 'radio', Array(), $data['display_structured'], array_keys($data['filter_link_type']), $data['allow_empty']);
 				$this->_replacements[$code_name.'_field'] = ob_get_contents();
 			ob_end_clean();
-		}
+		}//end foreach
 
 	}//end _loadCreateReplacements()
 
@@ -875,9 +869,9 @@ class Page_Asset_Builder extends Page
 	function _printContents()
 	{
 		// get the bodycopy attached to us
-		$bodycopy_data = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, $this->_current_state, 'major', '1');
+		$bodycopy_data = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $this->_current_state, 'major', '1');
 		if (empty($bodycopy_data)) return;
-		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
+		$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
 		if (is_null($bodycopy)) return;
 
 		$bodycopy->setKeywordReplacements($this->_replacements);
@@ -909,7 +903,7 @@ class Page_Asset_Builder extends Page
 			$bt = debug_backtrace();
 			if (count($bt) > 1) {
 				$real_bt_index = 0;
-				while (($real_bt_index < count($bt)-1) && ((false !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (false !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) || ($bt[$real_bt_index]['function'] == '_errorhandler'))) {
+				while (($real_bt_index < count($bt)-1) && ((FALSE !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (FALSE !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) || ($bt[$real_bt_index]['function'] == '_errorhandler'))) {
 					$real_bt_index++;
 				}
 				$err_file = hide_system_root($bt[$real_bt_index]['file']);
@@ -956,8 +950,8 @@ class Page_Asset_Builder extends Page
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param array			$vars	the vars that get submitted by the broadcaster
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
 	*								we add keywords to the $vars['keywords'] array
 	*
 	* @return boolean
@@ -968,7 +962,7 @@ class Page_Asset_Builder extends Page
 		if (!isset($vars['keywords'])) return;
 
 		// which type-code?
-		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
 		$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy');
 		foreach ($type_links as $link_info) {
 			if (isset($parents[$link_info['minorid']])) {
@@ -1006,9 +1000,10 @@ class Page_Asset_Builder extends Page
 
 		$keywords['login_invite'] 	= translate('cms_asset_builder_keyword_login_invite');
 		$keywords['login_form'] 	= translate('cms_asset_builder_keyword_login_form');
-		$keywords['create_invite']		 		= translate('cms_asset_builder_keyword_create_invite');
-		$keywords['create_form'] 				= translate('cms_asset_builder_keyword_create_form');
-		$keywords['create_error'] 				= translate('cms_asset_builder_keyword_create_error');
+		$keywords['login_error'] 	= translate('cms_asset_builder_keyword_login_error');
+		$keywords['create_invite']	= translate('cms_asset_builder_keyword_create_invite');
+		$keywords['create_form'] 	= translate('cms_asset_builder_keyword_create_form');
+		$keywords['create_error'] 	= translate('cms_asset_builder_keyword_create_error');
 
 		return $keywords;
 
@@ -1024,9 +1019,9 @@ class Page_Asset_Builder extends Page
 	function _getLoggedInKeywords()
 	{
 		$keywords = Array();
-		$keywords['create_invite']		 		= translate('cms_asset_builder_keyword_create_invite');
-		$keywords['create_form'] 				= translate('cms_asset_builder_keyword_create_form');
-		$keywords['create_error'] 				= translate('cms_asset_builder_keyword_create_error');
+		$keywords['create_invite']	= translate('cms_asset_builder_keyword_create_invite');
+		$keywords['create_form'] 	= translate('cms_asset_builder_keyword_create_form');
+		$keywords['create_error'] 	= translate('cms_asset_builder_keyword_create_error');
 
 		return $keywords;
 
@@ -1108,6 +1103,19 @@ class Page_Asset_Builder extends Page
 
 
 	/**
+	* Get login_invite keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getLoginErrorKeywordReplacement()
+	{
+		return $this->attr('login_error');
+
+	}//end getLoginErrorKeywordReplacement()
+
+
+	/**
 	* Get login_form keyword replacement
 	*
 	* @return string
@@ -1123,7 +1131,7 @@ class Page_Asset_Builder extends Page
 			<table border="0">
 				<tr>
 					<td valign="top"><?php echo translate('username'); ?></td>
-					<td valign="top"><?php echo text_box('SQ_LOGIN_USERNAME', (isset($_POST['SQ_LOGIN_USERNAME'])) ? $_POST['SQ_LOGIN_USERNAME'] : 'Enter your username here', 25, 0, (isset($_POST['SQ_LOGIN_USERNAME'])) ? false : true, 'title="Username"'); ?></td>
+					<td valign="top"><?php echo text_box('SQ_LOGIN_USERNAME', (isset($_POST['SQ_LOGIN_USERNAME'])) ? $_POST['SQ_LOGIN_USERNAME'] : 'Enter your username here', 25, 0, (isset($_POST['SQ_LOGIN_USERNAME'])) ? FALSE : TRUE, 'title="Username"'); ?></td>
 				</tr>
 				<tr>
 					<td valign="top"><?php echo translate('password'); ?></td>
@@ -1273,7 +1281,7 @@ class Page_Asset_Builder extends Page
 				$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
 				echo '<div class="sq-asset-builder-tab-content" id="'.$prefix.'" style="display: '.$display.'">';
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
-				$asset =  null;
+				$asset =  NULL;
 				if (isset($this->_tmp['new_asset_created_'.$create_type])) {
 					$asset =&$this->_tmp['new_asset_created_'.$create_type];
 				} else {
@@ -1334,7 +1342,7 @@ class Page_Asset_Builder extends Page
 					</ul>
 				</div>
 				<?php
-			}
+			}//end if
 			$create_form = ob_get_contents().$create_form;
 		ob_end_clean();
 
