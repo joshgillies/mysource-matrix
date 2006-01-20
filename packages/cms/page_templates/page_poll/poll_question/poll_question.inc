@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: poll_question.inc,v 1.3 2005/11/01 02:39:53 sdanis Exp $
+* $Id: poll_question.inc,v 1.4 2006/01/20 03:05:14 sdanis Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -41,7 +41,7 @@ class Poll_Question extends Asset
 	*/
 	function Poll_Question($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Asset($assetid);
 
 	}//end constructor
@@ -56,7 +56,7 @@ class Poll_Question extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
@@ -74,7 +74,7 @@ class Poll_Question extends Asset
 	function updateOptions(&$poll_options)
 	{
 		$this->setAttrValue('options', $poll_options);
-		return true;
+		return TRUE;
 
 	}//end updateOptions()
 

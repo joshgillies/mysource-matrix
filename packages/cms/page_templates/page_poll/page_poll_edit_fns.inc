@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll_edit_fns.inc,v 1.4 2005/11/01 02:39:53 sdanis Exp $
+* $Id: page_poll_edit_fns.inc,v 1.5 2006/01/20 03:05:14 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -42,7 +42,7 @@ class Page_Poll_Edit_Fns extends Page_Edit_Fns
 	function Page_Poll_Edit_Fns()
 	{
 		$this->Page_Edit_Fns();
-		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
 
@@ -85,12 +85,12 @@ class Page_Poll_Edit_Fns extends Page_Edit_Fns
 	function processNewPollQuestion(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('menu')) return false;
+		if (!$asset->writeAccess('menu')) return FALSE;
 
 		$poll_name = array_get_index($_POST, $prefix.'_poll_name', '');
 		$poll_name = trim($poll_name);
 
-		if ($poll_name == '') return false;
+		if ($poll_name == '') return FALSE;
 
 		// create a question
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('poll_question');
@@ -102,7 +102,7 @@ class Page_Poll_Edit_Fns extends Page_Edit_Fns
 			trigger_localised_error('CMS0021', E_USER_WARNING);
 		}
 
-		return false;
+		return FALSE;
 
 	}//end processNewPollQuestion()
 

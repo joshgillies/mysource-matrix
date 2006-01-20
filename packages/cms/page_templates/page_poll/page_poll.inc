@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.8 2005/12/01 01:01:20 lwright Exp $
+* $Id: page_poll.inc,v 1.9 2006/01/20 03:05:14 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -46,7 +46,7 @@ class Page_Poll extends Page
 	*/
 	function Page_Poll($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Page($assetid);
 
 	}//end constructor
@@ -64,7 +64,7 @@ class Page_Poll extends Page
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!parent::_createAdditional($link)) return false;
+		if (!parent::_createAdditional($link)) return FALSE;
 
 		// add a bodycopy to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
@@ -79,7 +79,7 @@ class Page_Poll extends Page
 			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 			$asset->setAttrValue('name', ucwords(str_replace('_',' ', $name)));
-			if (!$asset->create($copy_link)) return false;
+			if (!$asset->create($copy_link)) return FALSE;
 
 			$formats[$name] = $asset;
 
@@ -100,10 +100,10 @@ class Page_Poll extends Page
 			$asset =& new Bodycopy();
 			$copy_link = Array('asset' => &$formats[$folder_asset], 'value' => $value ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 			$asset->setAttrValue('name', ucwords(str_replace('_',' ',$value)));
-			if (!$asset->create($copy_link)) return false;
+			if (!$asset->create($copy_link)) return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _createAdditional()
 
@@ -115,32 +115,32 @@ class Page_Poll extends Page
 	* should be checked to work out what side of the link this asset is on. The return value should indicate
 	* if any of the link fields were changed.
 	*
-	* @param object 	$asset			the major or minor asset that we are linking to
-	* @param string		$side_of_link		the side of the link we are on (major or minor)
-	* @param string		$link_type		the type of link we are creating
-	* @param string		$value			the value that is to be associated with the link
-	* @param string		$sort_order		the position in the links list that this link should take,
-	* @param string		$dependant		'0' / '1' on whether the this asset is dependant on the
-	*									asset that will be linked by the new link
-	* @param string		$exclusive		'0' / '1' on whether the this asset is linked exclusivly
-	*									to the asset that will be linked by the new link
+	* @param object	&$asset			the major or minor asset that we are linking to
+	* @param string	$side_of_link	the side of the link we are on (major or minor)
+	* @param string	&$link_type		the type of link we are creating
+	* @param string	&$value			the value that is to be associated with the link
+	* @param string	&$sort_order	the position in the links list that this link should take,
+	* @param string	&$dependant		'0' / '1' on whether the this asset is dependant on the
+	*								asset that will be linked by the new link
+	* @param string	&$exclusive		'0' / '1' on whether the this asset is linked exclusivly
+	*								to the asset that will be linked by the new link
 	*
 	* @return boolean
 	* @access public
 	*/
 	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
-		$return_value = false;
+		$return_value = FALSE;
 
 		// if this is a poll_question then we need to make it a dependant link and of SQ_LINK_TYPE_2
 		if ($side_of_link == 'major' && is_a($asset, 'poll_question')) {
 			if ($dependant != '1') {
 				$dependant = '1';
-				$return_value = true;
+				$return_value = TRUE;
 			}
 			if ($link_type != SQ_LINK_TYPE_2) {
 				$link_type = SQ_LINK_TYPE_2;
-				$return_value = true;
+				$return_value = TRUE;
 			}
 		}
 
@@ -159,11 +159,11 @@ class Page_Poll extends Page
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['folder']   = Array('card' => 'M', 'exclusive' => false);
-		$page_links[SQ_LINK_TYPE_2]['poll_question']   = Array('card' => 'M', 'exclusive' => false);
+		$page_links[SQ_LINK_TYPE_2]['folder']   = Array('card' => 'M', 'exclusive' => FALSE);
+		$page_links[SQ_LINK_TYPE_2]['poll_question']   = Array('card' => 'M', 'exclusive' => FALSE);
 
-		$page_links[SQ_LINK_NOTICE]['asset']    = Array('card' => 'M', 'exclusive' => false);
-		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 3,   'exclusive' => false);
+		$page_links[SQ_LINK_NOTICE]['asset']    = Array('card' => 'M', 'exclusive' => FALSE);
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 3,   'exclusive' => FALSE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -180,27 +180,26 @@ class Page_Poll extends Page
 	*/
 	function printBody()
 	{
-		error_log(var_export($_REQUEST,true));
 
 		// declaration
 		$active_question_id	= $this->attr('active_question');
 		$format_type 		= 'question_format';
 		$prefix 			= $this->getPrefix();
-		$can_vote 			= false;
+		$can_vote 			= FALSE;
 		$am					= $GLOBALS['SQ_SYSTEM']->am;
 
 		// validation
-		$valid = true;
+		$valid = TRUE;
 		if ($active_question_id) {
-			$active_question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($active_question_id, '', true);
+			$active_question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($active_question_id, '', TRUE);
 
 			// alias question to active_question
-			$question = &$active_question;
+			$question =& $active_question;
 			if (is_null($question) || $question->status < SQ_STATUS_LIVE) {
-				$valid = false;
+				$valid = FALSE;
 			}
 		} else {
-			$valid = false;
+			$valid = FALSE;
 		}
 
 		if (!$valid) {
@@ -218,11 +217,11 @@ class Page_Poll extends Page
 			if (is_integer($SQ_POLL_ID) && $SQ_POLL_ID > 0 && $SQ_ACTION == $prefix.'_results') {
 
 				// grab the question by the poll id
-				$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($SQ_POLL_ID, '', true);
+				$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($SQ_POLL_ID, '', TRUE);
 
 				// if the question doesn't have an ID, or isn't of type poll_question, or isn't a child of the poll
 				if (!$question->id ||
-					!$am->getAssetTypeInfo(Array($question->id), Array('poll_question'), true) ||
+					!$am->getAssetTypeInfo(Array($question->id), Array('poll_question'), TRUE) ||
 					$question->status < SQ_STATUS_LIVE ||
 					!$am->getLinkByAsset($this->id, $question->id, SQ_LINK_TYPE_2)
 					) {
@@ -247,15 +246,15 @@ class Page_Poll extends Page
 					if (isset($_POST['option_id'])) {
 						$GLOBALS['SQ_SYSTEM']->am->createShadowAssetLink($question, $GLOBALS['SQ_SYSTEM']->user, SQ_LINK_NOTICE);
 					}
-					$can_vote = true;
+					$can_vote = TRUE;
 				}
 			} else {
-				if (array_get_index($_SESSION, $prefix.'_VOTED') == false) {
-					$can_vote = true;
+				if (array_get_index($_SESSION, $prefix.'_VOTED') == FALSE) {
+					$can_vote = TRUE;
 				}
 			}
 		} else {
-			$can_vote = true;
+			$can_vote = TRUE;
 		}
 
 		// if the poll was just voted on...
@@ -287,25 +286,25 @@ class Page_Poll extends Page
 						'poll_date'							=> $this->_componentDate($question),
 						'poll_option_list'					=> $this->_componentOptionList($question),
 						'poll_vote_button'					=> $this->_componentVoteButton(),
-						'poll_vote_button_new_window'		=> $this->_componentVoteButton(true),
+						'poll_vote_button_new_window'		=> $this->_componentVoteButton(TRUE),
 						'poll_vote_button_js'				=> $this->_componentVoteButtonJavascript(),
-						'poll_vote_button_js_new_window'	=> $this->_componentVoteButtonJavascript(true),
+						'poll_vote_button_js_new_window'	=> $this->_componentVoteButtonJavascript(TRUE),
 						'poll_view_results'					=> $this->_componentViewResults(),
 						'poll_view_results_url'				=> $this->_componentViewResultsURL(),
 						'poll_view_past_questions'			=> $this->_componentViewPastQuestions(),
 						'poll_view_past_questions_url'		=> $this->_componentViewPastQuestionsURL(),
 						'poll_results_list'					=> $this->_componentGraph($question),
-						'poll_question_list'				=> $this->_componentQuestionList($active_question_id, false, false),
-						'poll_question_list_date'			=> $this->_componentQuestionList($active_question_id, true, false),
-						'poll_question_list_no_active'		=> $this->_componentQuestionList($active_question_id, false, true),
-						'poll_question_list_date_no_active'=> $this->_componentQuestionList($active_question_id, true, true),
-						'poll_active_question'				=> $this->_componentActiveQuestion($question, false),
-						'poll_active_question_date'			=> $this->_componentActiveQuestion($question, true),
+						'poll_question_list'				=> $this->_componentQuestionList($active_question_id, FALSE, FALSE),
+						'poll_question_list_date'			=> $this->_componentQuestionList($active_question_id, TRUE, FALSE),
+						'poll_question_list_no_active'		=> $this->_componentQuestionList($active_question_id, FALSE, TRUE),
+						'poll_question_list_date_no_active'=> $this->_componentQuestionList($active_question_id, TRUE, TRUE),
+						'poll_active_question'				=> $this->_componentActiveQuestion($question, FALSE),
+						'poll_active_question_date'			=> $this->_componentActiveQuestion($question, TRUE),
 					);
 
 
 		$format_bodycopy = $this->getFormatAsset($format_type);
-		if (is_null($format_bodycopy)) return false;
+		if (is_null($format_bodycopy)) return FALSE;
 
 		$format_bodycopy->setKeywordReplacements($keywords);
 		$format_bodycopy->printBody();
@@ -366,26 +365,26 @@ class Page_Poll extends Page
 	/**
 	* Return a reference to a format linked to this asset
 	*
-	* @param string	$type	the value on the link for this folder
+	* @param string	$format	the value on the link for this folder
 	*
 	* @return object
 	* @access public
 	*/
 	function &getFormatAsset($format='question_format')
 	{
-		$null = null;
+		$null = NULL;
 		$folders = $this->attr('format_bodycopies');
 
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, $folders[$format]);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, $folders[$format]);
 		if (empty($link)) return $null;
 
-		$folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		$folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		if (is_null($folder)) return $null;
 
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $format);
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $format);
 		if (empty($bodycopy_link)) return $null;
 
-		$format_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+		$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 
 		return $format_bodycopy;
 
@@ -411,7 +410,7 @@ class Page_Poll extends Page
 		error_log(implode('; ', $option_ids));
 
 		$options = $question->attr('options');
-		$save = false;
+		$save = FALSE;
 		foreach ($option_ids as $option_id) {
 			// if a valid option was voted for...
 			if (isset($options[$option_id])) {
@@ -419,7 +418,7 @@ class Page_Poll extends Page
 				// increase votes, and queue the result for saving
 				$options[$option_id]['votes']++;
 				$question->setAttrValue('options', $options);
-				$save = true;
+				$save = TRUE;
 			}
 		}
 
@@ -429,7 +428,7 @@ class Page_Poll extends Page
 			$question->saveAttributes();
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-			$_SESSION[$this->getPrefix().'_VOTED'] = true;
+			$_SESSION[$this->getPrefix().'_VOTED'] = TRUE;
 		}
 
 	}//end _processVote()
@@ -479,7 +478,7 @@ class Page_Poll extends Page
 	function _componentOptionList(&$question)
 	{
 		$format_bodycopy = $this->getFormatAsset('option_list_format');
-		if (is_null($format_bodycopy)) return false;
+		if (is_null($format_bodycopy)) return FALSE;
 		$keywords = Array();
 
 		// grab the option list
@@ -532,7 +531,7 @@ class Page_Poll extends Page
 	* @return string
 	* @access private
 	*/
-	function _componentVoteButton($new_window=false)
+	function _componentVoteButton($new_window=FALSE)
 	{
 		ob_start();
 		$xtras = '';
@@ -550,10 +549,12 @@ class Page_Poll extends Page
 	* Returns the onClick javascript that submits the vote selected from _componentOptionList()
 	* eg. &lt;img src="Foo.jpg onClick="%vote_button_javascript%" /&gt;
 	*
+	* @param boolean	$new_window	Open poll results in a new window
+	*
 	* @return string
 	* @access private
 	*/
-	function _componentVoteButtonJavascript($new_window=false)
+	function _componentVoteButtonJavascript($new_window=FALSE)
 	{
 		$xtras = '';
 
@@ -576,12 +577,12 @@ class Page_Poll extends Page
 		$height = $this->attr('new_window_height');
 		$options = $this->attr('new_window_options');
 
-		$params  =	'location='.((strpos($options, 'hide_location'  ) !== false) ? '0' : '1').','
-					.'menubar='.((strpos($options, 'hide_menubar'   ) !== false) ? '0' : '1').','
-					.'scrollbars='.((strpos($options, 'hide_scrollbars') !== false) ? '0' : '1').','
-					.'statusbar='.((strpos($options, 'hide_status'    ) !== false) ? '0' : '1').','
-					.'toolbar='.((strpos($options, 'hide_toolbar'   ) !== false) ? '0' : '1').','
-					.'resizable='.((strpos($options, 'not_resizable'  ) !== false) ? '0' : '1');
+		$params  =	'location='.((strpos($options, 'hide_location'  ) !== FALSE) ? '0' : '1').','
+					.'menubar='.((strpos($options, 'hide_menubar'   ) !== FALSE) ? '0' : '1').','
+					.'scrollbars='.((strpos($options, 'hide_scrollbars') !== FALSE) ? '0' : '1').','
+					.'statusbar='.((strpos($options, 'hide_status'    ) !== FALSE) ? '0' : '1').','
+					.'toolbar='.((strpos($options, 'hide_toolbar'   ) !== FALSE) ? '0' : '1').','
+					.'resizable='.((strpos($options, 'not_resizable'  ) !== FALSE) ? '0' : '1');
 
 		$xtras = ' window.open(\'\', \'results\', \'width='.$width.',height='.$height.','.$params.'\'); document.getElementById("'.$this->getPrefix().'_poll").target=\'results\';';
 		return $xtras;
@@ -728,7 +729,7 @@ class Page_Poll extends Page
 		if ($poll_total == 0) $poll_total++;
 
 		$format_bodycopy = $this->getFormatAsset('results_list_format');
-		if (is_null($format_bodycopy)) return false;
+		if (is_null($format_bodycopy)) return FALSE;
 		$keywords = Array();
 
 		$output .= ob_get_clean();
@@ -776,12 +777,12 @@ class Page_Poll extends Page
 	* @return string
 	* @access private
 	*/
-	function _componentQuestionList($active_question_id, $date=false, $no_active=false)
+	function _componentQuestionList($active_question_id, $date=FALSE, $no_active=FALSE)
 	{
 		$output = '';
 
 		$format_bodycopy = $this->getFormatAsset('past_questions_list_format');
-		if (is_null($format_bodycopy)) return false;
+		if (is_null($format_bodycopy)) return FALSE;
 		$keywords = Array();
 
 		ob_start();
@@ -789,13 +790,13 @@ class Page_Poll extends Page
 		// grab all the children of the $this that are poll_questions, and order them by date (oldest -> newest)
 		$poll_children = $GLOBALS['SQ_SYSTEM']->am->getLinks(	$this->id, SQ_LINK_TYPE_2,
 																'poll_question',
-																false,
+																FALSE,
 																'major',
-																null,
-																null,
-																null,
+																NULL,
+																NULL,
+																NULL,
 																'created',
-																null
+																NULL
 															);
 
 		// format the array to pass to...
@@ -846,7 +847,7 @@ class Page_Poll extends Page
 				$format_bodycopy->setKeywordReplacements($keywords);
 				$format_bodycopy->printBody();
 			$output .= ob_get_clean();
-		}// end foreach ($info as ...)
+		}//end foreach ($info as ...)
 
 		ob_start();
 
@@ -859,8 +860,8 @@ class Page_Poll extends Page
 	/**
 	* Returns the name of the active question
 	*
-	* @param int		&$active_question_id	The active question
-	* @param boolean	$date					If true, print the date next to the item
+	* @param int		&$active_question	The active question
+	* @param boolean	$date				If true, print the date next to the item
 	*
 	* @return string
 	* @access private

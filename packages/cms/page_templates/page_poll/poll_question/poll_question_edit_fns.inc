@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: poll_question_edit_fns.inc,v 1.6 2005/12/01 01:01:21 lwright Exp $
+* $Id: poll_question_edit_fns.inc,v 1.7 2006/01/20 03:05:14 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -41,7 +41,7 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 	function Poll_Question_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
 
@@ -59,7 +59,7 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 	function paintPollOptions(&$asset, &$o, $prefix)
 	{
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$admin_access = $asset->writeAccess('attributes');
 		$prefix = $asset->getPrefix();
 
@@ -163,7 +163,7 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 				// Grab array of options
 				$poll_options = $asset->attr('options');
 
-				if (is_null($poll_options)) return false;
+				if (is_null($poll_options)) return FALSE;
 
 				$ii = 0;
 				foreach ($poll_options as $sort_id => $sort_data) {
@@ -219,7 +219,7 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 				?>
 				</table>
 		<?php
-		return true;
+		return TRUE;
 
 	}//end paintPollOptions()
 
@@ -239,7 +239,7 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 
 		$prefix = $asset->getPrefix();
 		$options = $asset->attr('options');
-		$option_updated = false;
+		$option_updated = FALSE;
 
 		// Re-order and re-name the list
 		if (isset($_POST[$prefix.'_order']['reorder'])) {
@@ -248,7 +248,7 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 			foreach ($reorder_array as $reorder_index => $reorder_data) {
 				$options[$reorder_data]['option_text'] = $_POST[$prefix.'_option_text'.$reorder_index];
 				array_push($newArray, $options[$reorder_data]);
-				$option_updated = true;
+				$option_updated = TRUE;
 			}
 			$options = $newArray;
 		}
@@ -258,17 +258,17 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 			foreach (array_keys($options) as $option_index ) {
 				if (isset($_POST[$prefix.'_order']['delete'][$option_index])) {
 					if ($_POST[$prefix.'_order']['delete'][$option_index] == '1') {
-						$options[$option_index] = null;
+						$options[$option_index] = NULL;
 						unset($options[$option_index]);
 						$options = array_values($options);
 					}
 				}
-				$option_updated = true;
+				$option_updated = TRUE;
 			}
 		}
 
 		if ($option_updated) $asset->updateOptions($options);
-		return true;
+		return TRUE;
 
 
 	}//end processPollOptions()
@@ -286,11 +286,11 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintAddPollOptions(&$asset, &$o, $prefix)
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$admin_access = $asset->writeAccess('attributes');
 		$prefix = $asset->getPrefix();
 		if ($admin_access) {
-			combo_box($prefix.'_no_options', Array( '','1','2','3','4','5','6','7','8','9','10' ), false, '');
+			combo_box($prefix.'_no_options', Array( '','1','2','3','4','5','6','7','8','9','10' ), FALSE, '');
 		}
 
 	}//end paintAddPollOptions()
@@ -318,7 +318,7 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 			}
 			$asset->setAttrValue('options', $options);
 		}
-		return true;
+		return TRUE;
 
 	}//end processAddPollOptions()
 
@@ -335,13 +335,13 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintDeleteUsers(&$asset, &$o, $prefix)
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$admin_access = $asset->writeAccess('attributes');
 		$prefix = $asset->getPrefix();
 		$users_array = Array('','all' => 'Delete All Users' );
 
 		// construct delete options array
-		$voters = $GLOBALS['SQ_SYSTEM']->am->getShadowLinkByAsset($asset->id, null, SQ_LINK_NOTICE, null, 'major', true);
+		$voters = $GLOBALS['SQ_SYSTEM']->am->getShadowLinkByAsset($asset->id, NULL, SQ_LINK_NOTICE, NULL, 'major', TRUE);
 
 		if ($admin_access) {
 			if (empty($voters)) {
@@ -352,7 +352,7 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 					$users_array[$voter['minorid']] = $voter_info[$voter['minorid']]['name'];
 				}
 
-				combo_box($prefix.'options', $users_array, false, '');
+				combo_box($prefix.'options', $users_array, FALSE, '');
 			}
 		} else {
 			?><em><?php echo translate('cms_poll_question_admin_access_to_delete_user'); ?></em><?php
@@ -377,19 +377,19 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 		$voters = $asset->attr('voters');
 
 		if (isset($_POST[$prefix.'options']) == 'all') {
-			$voter_links = $GLOBALS['SQ_SYSTEM']->am->getShadowLinkByAsset($asset->id, null, SQ_LINK_NOTICE, null, 'major', true);
+			$voter_links = $GLOBALS['SQ_SYSTEM']->am->getShadowLinkByAsset($asset->id, NULL, SQ_LINK_NOTICE, NULL, 'major', TRUE);
 
 			foreach ($voter_links as $voter_link) {
 				$GLOBALS['SQ_SYSTEM']->am->deleteShadowAssetLink($voter_link['linkid']);
 			}
 		} else {
-			$voter_link = $GLOBALS['SQ_SYSTEM']->am->getShadowLinkByAsset($asset->id, $_POST[$prefix.'options'], SQ_LINK_NOTICE, null, 'major', true);
+			$voter_link = $GLOBALS['SQ_SYSTEM']->am->getShadowLinkByAsset($asset->id, $_POST[$prefix.'options'], SQ_LINK_NOTICE, NULL, 'major', TRUE);
 
 			if (!is_null($voter_link)) {
 				$GLOBALS['SQ_SYSTEM']->am->deleteShadowAssetLink($voter_link['linkid']);
 			}
 
-			$voters[$_POST[$prefix.'options']] == null;
+			$voters[$_POST[$prefix.'options']] == NULL;
 		}
 
 		$asset->setAttrValue('voters', $voters);

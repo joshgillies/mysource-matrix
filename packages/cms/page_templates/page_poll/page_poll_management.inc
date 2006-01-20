@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll_management.inc,v 1.4 2005/11/01 02:39:53 sdanis Exp $
+* $Id: page_poll_management.inc,v 1.5 2006/01/20 03:05:14 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -55,7 +55,7 @@ class Page_Poll_Management extends Asset_Management
 						'allow_multiple_votes'		=> Array(
 														'added'		=> '0.2',
 														'type'		=> 'boolean',
-														'default'	=> false,
+														'default'	=> FALSE,
 													   ),
 						'previous_questions_text'	=> Array(
 														'added'		=> '0.2',
@@ -81,18 +81,18 @@ class Page_Poll_Management extends Asset_Management
 						'new_window'				=> Array(
 														'added'			=> '0.2',
 														'type'			=> 'boolean',
-														'default'		=> false,
+														'default'		=> FALSE,
 														'parameters'	=> Array(
-																			'allow_empty'	=> false,
+																			'allow_empty'	=> FALSE,
 																		   ),
 													   ),
 						'new_window_options'		=> Array(
 														'added'			=> '0.2',
 														'type'			=> 'selection',
-														'default'		=> false,
+														'default'		=> FALSE,
 														'parameters'	=> Array(
-																			'multiple'		=> true,
-																			'allow_empty'	=> true,
+																			'multiple'		=> TRUE,
+																			'allow_empty'	=> TRUE,
 																			'options'		=> Array(
 																								'hide_location'		=> 'Hide Location Bar',
 																								'hide_menubar'		=> 'Hide Menubar',
@@ -158,11 +158,11 @@ class Page_Poll_Management extends Asset_Management
 				Array(
 					'event_name'					=> 'requestKeywords',
 					'broadcast_type_code'			=> 'content_type',
-					'broadcast_strict_type_code'	=> false,
+					'broadcast_strict_type_code'	=> FALSE,
 					'options'						=> Array(
 														'side_of_link'	=> 'major',
-														'indirect'		=> true,
-														'is_exclusive'	=> null,
+														'indirect'		=> TRUE,
+														'is_exclusive'	=> NULL,
 														'is_dependant'	=> 1,
 														'value'			=> '',
 														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
