@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: run.php,v 1.11 2005/04/15 00:37:27 lwright Exp $
+* $Id: run.php,v 1.12 2006/01/20 06:07:22 rong Exp $
 *
 */
 
@@ -28,10 +28,10 @@
 * The one file through which everything runs
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
-ini_set('memory_limit', '8M');
+ini_set('memory_limit', '16M');
 ini_set('error_log', dirname(dirname(dirname(__FILE__))).'/cache/error.log');
 require_once dirname(dirname(__FILE__)).'/include/init.inc';
 
