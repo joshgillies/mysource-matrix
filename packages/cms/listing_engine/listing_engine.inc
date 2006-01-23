@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.144 2006/01/20 05:39:49 skim Exp $
+* $Id: listing_engine.inc,v 1.145 2006/01/23 00:05:41 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.144 $
+* @version $Revision: 1.145 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -336,9 +336,9 @@ class Listing_Engine extends Page
 			$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
 		}
 
-		$group_by = $this->attr('group_by');
 		// if the cache is empty, go ahead and regenerate a new version
 		if (empty($cached_contents)) {
+
 			// get the contents of this page
 			// we do this because when contents are prepared the query vars that are used by the form elements
 			// need to be unset for us to use them in the form action string
@@ -404,8 +404,7 @@ class Listing_Engine extends Page
 				echo $contents;
 			}
 
-			// When the listing format is random, never save the cache
-			if (!empty($cache_key) && (strcmp($group_by, 'random') != 0)) {
+			if (!empty($cache_key)) {
 				$cm->saveToCache($this->id, $this->type(), $cache_key, ob_get_contents());
 			}
 			ob_end_flush();
@@ -1322,6 +1321,7 @@ class Listing_Engine extends Page
 		// do this for compatibility - deprecated. not sure if any clients
 		// are using this, since 'current_page' is not one of the advertised keywords
 		$replacements['current_page'] = $replacements['page_number'];
+
 		return $todo;
 
 	}//end getChunk()
@@ -1416,9 +1416,7 @@ class Listing_Engine extends Page
 		if ($this->attr('group_by') == 'grouped') {
 			$this->_printGroups($todo, $this->attr('asset_grouping'));
 		} else {
-			if ($this->attr('group_by') != 'random') {
-				$todo = $this->sortAssetList($todo, $this->getSortInfo());
-			}
+			$todo = $this->sortAssetList($todo, $this->getSortInfo());
 			$this->_printAssetList($todo);
 		}
 
@@ -2002,20 +2000,11 @@ class Listing_Engine extends Page
 					case 'radio':
 					default:
 						if ($selection_allow_multiple) {
-							$selection_name_safe  = str_replace(' ', '_', $selection_name);
-							$selection_name_field = $selection_name_safe.'['.$assetid.']';
-							$selection_id         = make_valid_html_id($selection_name_safe.'_'.$assetid, '_');
+							$selection_name_field = str_replace(' ', '_', $selection_name.'['.$assetid.']');
+							$selection_id = make_valid_html_id(str_replace(' ', '_', $selection_name.'_'.$assetid), '_');
 
 							if ($buffering) {
 								check_box($selection_name_field, '1', ($selection_value > 0 ? TRUE : FALSE), "sq_listing_check_state(this, '".$selection_name."')", 'id="'.$selection_id.'"');
-
-								// the flag is used to determine whether a checkbox is
-								// present and not ticked, or not present at all
-								// only print this once, otherwise it ends up bloating the query string
-								if (empty($this->_tmp['asset_selection_checkbox_flag'][$selection_name])) {
-									hidden_field('selection_flag_'.$selection_name_safe, '1');
-									$this->_tmp['asset_selection_checkbox_flag'][$selection_name] = TRUE;
-								}
 							}
 						} else {
 							$selection_name_field = str_replace(' ', '_', $selection_name);
@@ -2571,8 +2560,9 @@ class Listing_Engine extends Page
 			break;
 
 			case 'metadata':
-				// metadata groups are sorted just on the key's value, because
-				// the key IS the value
+			case 'standard_asset':
+				// metadata and standard asset field groups are sorted just on
+				// the key's value, because the key IS the value
 				if (array_get_index($group_type, 'sort_order', 'asc') == 'asc') {
 					ksort($results);
 				} else {
@@ -2580,18 +2570,6 @@ class Listing_Engine extends Page
 				}
 			break;
 
-			case 'standard_asset':
-				// standard asset groups are sorted just on the value
-				if (array_get_index($group_type, 'sort_order', 'asc') == 'asc') {
-					asort($results);
-				} else {
-					arsort($results);
-				}
-			break;
-
-			case 'attribute':
-				// implementation reserved
-			break;
 		}//end switch
 
 		// if their are group levels remaining, we want to call
