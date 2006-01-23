@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.145 2006/01/23 00:05:41 lwright Exp $
+* $Id: listing_engine.inc,v 1.146 2006/01/23 22:27:08 skim Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.145 $
+* @version $Revision: 1.146 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -336,6 +336,7 @@ class Listing_Engine extends Page
 			$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
 		}
 
+		$group_by = $this->attr('group_by');
 		// if the cache is empty, go ahead and regenerate a new version
 		if (empty($cached_contents)) {
 
@@ -404,7 +405,7 @@ class Listing_Engine extends Page
 				echo $contents;
 			}
 
-			if (!empty($cache_key)) {
+			if (!empty($cache_key) && (strcmp($group_by, 'random') != 0)) {
 				$cm->saveToCache($this->id, $this->type(), $cache_key, ob_get_contents());
 			}
 			ob_end_flush();
@@ -1416,7 +1417,9 @@ class Listing_Engine extends Page
 		if ($this->attr('group_by') == 'grouped') {
 			$this->_printGroups($todo, $this->attr('asset_grouping'));
 		} else {
-			$todo = $this->sortAssetList($todo, $this->getSortInfo());
+			if ($this->attr('group_by') != 'random') {
+				$todo = $this->sortAssetList($todo, $this->getSortInfo());
+			}
 			$this->_printAssetList($todo);
 		}
 
