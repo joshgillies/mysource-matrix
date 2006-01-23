@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.208 2006/01/17 21:36:12 sdanis Exp $
+* $Id: asset_map.inc,v 1.209 2006/01/23 03:43:05 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.208 $
+* @version $Revision: 1.209 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -662,7 +662,7 @@ class Asset_Map
 			if ($res_count >= $start) {
 				$result[$db_assetid] = $db_data[0];
 				$result[$db_assetid]['assetid'] = $db_assetid;
-				if (($limit > 0) && ($added >= $limit)) {
+				if (($limit > 0) && ($added >= $limit-1)) {
 					break;
 				}
 				$added++;
@@ -671,6 +671,7 @@ class Asset_Map
 			}
 		}
 		unset($db_result);
+
 
 		$sql = 'SELECT majorid, COUNT(*)
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor';
@@ -1306,7 +1307,7 @@ class Asset_Map
 			if (!$GLOBALS['SQ_SYSTEM']->am->moveLinkPos($link_info['linkid'], $new_parent_pos)) {
 				return;
 			}
-			if ($new_parent_pos < $link_info['sort_order']) {
+			if ($new_parent_pos <= $link_info['sort_order']) {
 				$new_parent_pos++;
 			}
 			$successTree =& new XML_Tree();

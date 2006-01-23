@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTreeComm.java,v 1.8 2005/12/13 22:18:48 sdanis Exp $
+ * $Id: MatrixTreeComm.java,v 1.9 2006/01/23 03:43:06 sdanis Exp $
  *
  */
 
@@ -157,12 +157,11 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 					int newIndex = index;
 					if (!parent.getAsset().getId().equals("1")) {
 						int limit = AssetManager.getLimit();
-
 						// we need to change the index since we are not on the first set
 						if (index >= limit) {
 							// move the asset to the next set
-							newIndex = parent.getAsset().getTotalKidsLoaded() + limit + children.length - 1;
-						} else if (index <= 0) {
+							newIndex = parent.getAsset().getTotalKidsLoaded() + limit + children.length;
+						} else if ((index <= 0) && (parent.getAsset().getTotalKidsLoaded() > 0)) {
 							// move the asset to previous set
 							newIndex = parent.getAsset().getTotalKidsLoaded() - children.length;
 						} else {

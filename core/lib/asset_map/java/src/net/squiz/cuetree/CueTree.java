@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.13 2005/12/13 22:18:48 sdanis Exp $
+* $Id: CueTree.java,v 1.14 2006/01/23 03:43:06 sdanis Exp $
 *
 */
 
@@ -1069,7 +1069,7 @@ public class CueTree extends JTree {
 			int newIndex = 0;
 
 
-			if (!lastPathWasParent) {
+		if (!lastPathWasParent) {
 				// if the last path wasn't the new parent and the current path
 				// was expanded, then the new position is the first child of
 				// current path
@@ -1079,6 +1079,7 @@ public class CueTree extends JTree {
 				} else {
 					// if we are on the same branch...
 					if (currentPath.getParentPath() == sourcePath.getParentPath()) {
+
 						newIndex = getModel().getIndexOfChild(
 							currentPath.getParentPath().getLastPathComponent(),
 							currentPath.getLastPathComponent()
@@ -1097,31 +1098,37 @@ public class CueTree extends JTree {
 							return;
 						}
 
-						index = newIndex;
+						// if the new position is higher up in the tree
 						if (newIndex < oldIndex) {
-							index ++;
+							indexModifier++;
 						}
-					} else {
+					}
 
-						index = 1;
-						if (sourcePath.getParentPath() != null) {
-							oldIndex = getModel().getIndexOfChild(
-								sourcePath.getParentPath().getLastPathComponent(),
-								sourcePath.getLastPathComponent()
-							);
-						}
-						index += getModel().getIndexOfChild(
+					index = getModel().getIndexOfChild(
 							currentPath.getParentPath().getLastPathComponent(),
 							currentPath.getLastPathComponent()
-							);
+					);
+
+					if (sourcePath.getParentPath() == null) {
+						indexModifier++;
+					} else {
+						oldIndex = getModel().getIndexOfChild(
+							sourcePath.getParentPath().getLastPathComponent(),
+							sourcePath.getLastPathComponent()
+						);
 					}
+
+					if (indexModifier==0 && (index < oldIndex)) {
+						indexModifier++;
+					}
+
 					parentPath = currentPath.getParentPath();
 				}
 			} else {
 				parentPath = currentPath;
 			}
 
-
+			index += indexModifier;
 
 			// if the path was above the top path in the tree then the index
 			// is 0
