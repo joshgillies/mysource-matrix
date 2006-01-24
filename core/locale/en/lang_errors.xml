@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.31 2006/01/19 23:38:51 tbarrett Exp $
+* $Id: lang_errors.xml,v 1.32 2006/01/24 04:11:24 sdanis Exp $
 *
 */
 
@@ -358,6 +358,9 @@
 
 	<error code="CRON0043">one_off type cron jobs MUST have their "when" attributes set to a "OO=" prefixed value</error>
 		<!-- core/assets/system/cron/cron_job/cron_job.inc:191: -->
+
+	<error code="CRON0044">You have specified both absolute and relative times for the future status change. Only the relative time has been saved</error>
+		<!-- core/assets/system/cron/cron_job/cron_job_edit_fns.inc:272 -->
 
 	<!-- MAPS - MYSOURCE AUTOMATED PATCHING SYSTEM -->
 

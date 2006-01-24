@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.29 2006/01/24 03:24:04 sdanis Exp $
+* $Id: cron_job_edit_fns.inc,v 1.30 2006/01/24 04:09:53 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -265,6 +265,14 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 		if (isset($_POST[$prefix.'_duration']) && $_POST[$prefix.'_duration'] <> '-') {
 			// user chose a duration instead of a fixed date, so lets return that
 			$when = $type_prefix.'!'.$fields['period'].$fields['duration'];
+
+			// display notice if user chose a specific date/time as well
+			foreach (Array('year', 'month', 'day', 'hour', 'minute') as $field) {
+				if ($fields[$field] != '--') {
+					trigger_localised_error('CRON0044', E_USER_NOTICE);
+					break;
+				}
+			}
 		} else {
 			// usr chose a specific date/time, so return that
 			foreach (Array('year', 'month', 'day', 'hour', 'minute') as $field) {
@@ -318,7 +326,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 
 			$when = $type_prefix.'='.$when_str;
 
-		}//end if
+		}//end else
 
 		return $when;
 
