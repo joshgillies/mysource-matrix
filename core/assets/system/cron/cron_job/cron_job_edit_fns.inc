@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.28 2006/01/19 23:19:09 tbarrett Exp $
+* $Id: cron_job_edit_fns.inc,v 1.29 2006/01/24 03:24:04 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -294,7 +294,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 					}//end switch
 
 				} else if ($type_prefix) {
-					trigger_localised_error('CRON0040', E_USER_WARNING, Cron_Job::whenTypeName($type_prefix), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'), $field);
+					trigger_localised_error('CRON0040', E_USER_NOTICE, Cron_Job::whenTypeName($type_prefix), $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'), $field);
 					return FALSE;
 				}//end if
 
