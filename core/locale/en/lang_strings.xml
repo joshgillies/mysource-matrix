@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.96 2006/01/20 01:15:37 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.97 2006/01/24 00:03:11 lwright Exp $
 *
 */
 
@@ -1190,7 +1190,12 @@
 	<string source="refresh_now">Refresh Now</string>
 
 	<string source="expression_must_be">Expression must be %s</string>
+	<string source="must_login_to_access_backend">You need to login before you can access the backend</string>
 	<string source="must_be_backend_user">You need to be a backend user in order to access the backend</string>
+	<string source="must_change_password_to_access_backend">You need to change your password before you can access the backend</string>
+	<string source="must_change_password_to_access_asset">You need to change your password before you can access &lt;%s&gt;</string>
+	<string source="must_change_password_to_access_this_page">You need to change your password before you can access this page</string>
+	<string source="change_password">Change Password</string>
 	<string source="unknown_or_deleted_user">Unknown or deleted user</string>
 	<string source="deleted_user_or_usergroup">Deleted user or user group</string>
 	<string source="no_access_permissions_set">No %s access permissions have been set</string>
