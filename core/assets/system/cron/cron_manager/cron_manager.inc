@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.60 2006/01/25 00:14:55 rong Exp $
+* $Id: cron_manager.inc,v 1.61 2006/01/25 04:46:21 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,21 +63,21 @@ class Cron_Manager extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @see Asset::create()
-	* @return mixed int or false
+	* @return mixed int|boolean
 	* @access public
+	* @see Asset::create()
 	*/
 	function create(&$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
-			return false;
+			return FALSE;
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
 			if (!system_asset_fns_create_cleanup($this)) {
-				$linkid = false;
+				$linkid = FALSE;
 			}
 		}
 
@@ -95,12 +95,13 @@ class Cron_Manager extends Asset
 	/**
 	* Return a name to use to describe this instance of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 
@@ -110,16 +111,16 @@ class Cron_Manager extends Asset
 	/**
 	* Return an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
 	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
 		return Array(
-				SQ_LINK_TYPE_1	=> Array('cron_job' => Array('card' => 'M', 'exclusive' => true)),
-				SQ_LINK_TYPE_2	=> Array('cron_job' => Array('card' => 'M', 'exclusive' => true)),
-				SQ_LINK_TYPE_3	=> Array('cron_job' => Array('card' => 'M', 'exclusive' => true)),
+				SQ_LINK_TYPE_1	=> Array('cron_job' => Array('card' => 'M', 'exclusive' => TRUE)),
+				SQ_LINK_TYPE_2	=> Array('cron_job' => Array('card' => 'M', 'exclusive' => TRUE)),
+				SQ_LINK_TYPE_3	=> Array('cron_job' => Array('card' => 'M', 'exclusive' => TRUE)),
 				SQ_LINK_NOTICE	=> Array(),
 			   );
 
@@ -129,7 +130,7 @@ class Cron_Manager extends Asset
 	/**
 	* Return a list of lock types available for this asset type
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function lockTypes()
@@ -149,7 +150,7 @@ class Cron_Manager extends Asset
 	*/
 	function canClone()
 	{
-		return false;
+		return FALSE;
 
 	}//end canClone()
 
@@ -160,14 +161,14 @@ class Cron_Manager extends Asset
 	*
 	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
 	*
-	* @return bool
+	* @return boolean
 	* @access public
 	* @see Asset::morph()
 	*/
 	function morph($new_type_code)
 	{
 		trigger_localised_error('CRON0024', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-		return false;
+		return FALSE;
 
 	}//end morph()
 
@@ -179,15 +180,14 @@ class Cron_Manager extends Asset
 	* @param string	$sort_order	the position in the links list that this link should take,
 	*							if less than zero places at end of list
 	*
-	* @see Asset::moveLinkPos()
-	*
 	* @return boolean
 	* @access public
+	* @see Asset::moveLinkPos()
 	*/
 	function moveLinkPos($linkid, $sort_order=-1)
 	{
 		trigger_localised_error('CRON0041', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-		return false;
+		return FALSE;
 
 	}//end moveLinkPos()
 
@@ -195,8 +195,8 @@ class Cron_Manager extends Asset
 	/**
 	* Set the value for the passed variable to the passed value
 	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -205,7 +205,7 @@ class Cron_Manager extends Asset
 	{
 		if (!$GLOBALS['SQ_SYSTEM']->userRoot()) {
 			trigger_localised_error('CRON0025', E_USER_WARNING, $name, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-			return false;
+			return FALSE;
 		}
 
 		// the refresh time has some restrictions on it, because otherwise painting the when box would be a pain
@@ -219,19 +219,19 @@ class Cron_Manager extends Asset
 				// if we are over a day we must be a multiple of one day
 				if ($value % $one_day) {
 					trigger_localised_error('CRON0035', E_USER_WARNING, $one_day);
-					return false;
+					return FALSE;
 				}
 			} else if ($value >= $one_hour) {
 				// if we are over an hour we must be a multiple of one hour
 				if ($value % $one_hour || $one_day % $value) {
 					trigger_localised_error('CRON0036', E_USER_WARNING, $one_hour);
-					return false;
+					return FALSE;
 				}
 			} else {
 				// if we less than an hour we must divide evenly into an hour
 				if ($one_hour % $value) {
 					trigger_localised_error('CRON0037', E_USER_WARNING, $one_hour);
-					return false;
+					return FALSE;
 				}
 			}
 		}//end if setting refresh_time
@@ -250,19 +250,19 @@ class Cron_Manager extends Asset
 	/**
 	* Adds a job to the cron manager
 	*
-	* @param object Cron_Job	$job		a reference to the cron job to add to the system
-	* @param object User		$user		a reference to the user that this job will run as
-	* @param string 			$link_type	type of the link between the cron manager and the job
-	* @param boolean			$read_only	if true, the cron job can only be removed by the system
+	* @param object		&$job		a reference to the cron job to add to the system
+	* @param object		&$user		a reference to the user that this job will run as
+	* @param string		$link_type	type of the link between the cron manager and the job
+	* @param boolean	$read_only	if TRUE, the cron job can only be removed by the system
 	*
 	* @return boolean
 	* @access public
 	*/
-	function addJob(&$job, &$user, $link_type=SQ_LINK_TYPE_3, $read_only=false)
+	function addJob(&$job, &$user, $link_type=SQ_LINK_TYPE_3, $read_only=FALSE)
 	{
 		if (!is_a($job, 'cron_job')) {
 			trigger_localised_error('CRON0001', E_USER_WARNING, $job->type());
-			return false;
+			return FALSE;
 		}
 
 		$job->setAttrValue('running_as', $user->id);
@@ -282,7 +282,7 @@ class Cron_Manager extends Asset
 	/**
 	* Removes a job form the cron manager
 	*
-	* @param object Cron_Job	$job	a reference to the cron job to add to add to the system
+	* @param object	&$job	a reference to the cron job to add to add to the system
 	*
 	* @return boolean
 	* @access public
@@ -291,11 +291,11 @@ class Cron_Manager extends Asset
 	{
 		if (!is_a($job, 'cron_job')) {
 			trigger_localised_error('CRON0001', E_USER_WARNING, $job->type());
-			return false;
+			return FALSE;
 		}
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->id, $job->id);
-		if (empty($link)) return false;
+		if (empty($link)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		$job->removeJob();
@@ -314,21 +314,21 @@ class Cron_Manager extends Asset
 	*
 	* @param string|array	$type_code			the type of cron job, if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
 	* @return array
-	* @see Asset::getLinks()
 	* @access public
+	* @see Asset::getLinks()
 	*/
-	function getJobs($type_code='cron_job', $strict_type_code=true)
+	function getJobs($type_code='cron_job', $strict_type_code=TRUE)
 	{
-		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'major', null, null, true);
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'major', NULL, NULL, TRUE);
 		$jobs = Array();
 		foreach ($links as $link) {
-			$job = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$job =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($job)) continue;
-			$jobs[] = &$job;
+			$jobs[] =& $job;
 		}
 
 		return $jobs;
@@ -339,7 +339,7 @@ class Cron_Manager extends Asset
 	/**
 	* Returns the time of the next run of the cron manager
 	*
-	* @return int timestamp
+	* @return int
 	* @access public
 	*/
 	function timeOfNextRun()
@@ -404,10 +404,10 @@ class Cron_Manager extends Asset
 			// looping over
 			if ((int) $this->attr('run_check') >= (int) $this->attr('warn_after_num_run_checks')) {
 
-				$root_user  = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-				$sys_admins = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
+				$root_user  =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+				$sys_admins =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
 
-				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$msg = $ms->newMessage();
 				$msg_reps = Array(
 								'system_name'		=> SQ_CONF_SYSTEM_NAME,
@@ -428,7 +428,7 @@ class Cron_Manager extends Asset
 
 
 			// now update this last run time, so that we know for next time
-			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes', 0, true)) {
+			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes', 0, TRUE)) {
 				$this->setAttrValue('run_check', (int) $this->attr('run_check') + 1);
 				$this->saveAttributes();
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
@@ -464,12 +464,12 @@ class Cron_Manager extends Asset
 			}
 
 			// now get the lock, set the running flag and reset the run_check
-			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes', 0, true) && $this->setAttrValue('running', true) && $this->setAttrValue('run_check', 0) && $this->saveAttributes()) {
+			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes', 0, TRUE) && $this->setAttrValue('running', TRUE) && $this->setAttrValue('run_check', 0) && $this->saveAttributes()) {
 
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 
-				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$am = &$GLOBALS['SQ_SYSTEM']->am;
+				$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 				// first get some times
 				$last_run = (int) $this->attr('last_run');
@@ -491,7 +491,7 @@ class Cron_Manager extends Asset
 					$remove_jobs = Array();
 					foreach ($jobs as $job_info) {
 
-						$cron_job = &$am->getAsset($job_info['assetid'], $job_info['type_code']);
+						$cron_job =& $am->getAsset($job_info['assetid'], $job_info['type_code']);
 						if (is_null($cron_job)) continue;
 
 						$result = $cron_job->run();
@@ -519,9 +519,9 @@ class Cron_Manager extends Asset
 									$remove_jobs[] = $job_info['linkid'];
 									$ignore_jobs[] = $cron_job->id;
 
-									$user       = &$cron_job->getRunningUser();
-									$root_user  = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-									$sys_admins = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
+									$user       =& $cron_job->getRunningUser();
+									$root_user  =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+									$sys_admins =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
 
 									$msg = $ms->newMessage();
 									$msg_reps = Array(
@@ -556,7 +556,7 @@ class Cron_Manager extends Asset
 					// give it three seconds to get the lock
 					$lock_count = 0;
 					while (1) {
-						if ($acquired = $GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attr_links', 0, true)) {
+						if ($acquired = $GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attr_links', 0, TRUE)) {
 							break;
 						} else if ($lock_count < 3) {
 							$lock_count++;
@@ -596,8 +596,8 @@ class Cron_Manager extends Asset
 				}//end while
 
 				// now update this last run time, so that we know for next time
-				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes', 0, true)) {
-					if ($this->setAttrValue('last_run', $this_run) && $this->setAttrValue('running', false) && $this->saveAttributes()) {
+				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes', 0, TRUE)) {
+					if ($this->setAttrValue('last_run', $this_run) && $this->setAttrValue('running', FALSE) && $this->saveAttributes()) {
 						$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 					} else {
 						trigger_localised_error('CRON0032', E_USER_WARNING, $this->name);
@@ -612,7 +612,7 @@ class Cron_Manager extends Asset
 
 			}//end if aquire lock
 
-		}//end if already running
+		}//end else already running
 
 		ini_set('log_errors', $old_log_errors);
 		ini_set('error_log',  $old_error_log);
@@ -623,40 +623,40 @@ class Cron_Manager extends Asset
 
 	/**
 	* Converts a CLOB expression to a varchar for comarisons with other varchar fields
+	* Returns the sql to convert to a varchar or the expression if no conversion is needed
 	*
 	* @param string	$expression	the expression to convert to a varchar
 	*
-	* @return string	the sql to convert to a varchar
-	*					or the expression if no conversion is needed
+	* @return string
 	* @access private
 	*/
 	function _clob2Str($expression)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		if ($db->phptype == 'oci8') {
 			return 'DBMS_LOB.SUBSTR('.$expression.', DBMS_LOB.GETLENGTH('.$expression.'), 1)';
 		} else {
 			return $expression;
 		}
 
-	}//end _clob2str()
+	}//end _clob2Str()
 
 
 	/**
 	* Get the jobs that need to be run for the passed time period
 	*
-	* @param int		$start_ts		the starting timestamp of the time period
-	* @param int		$end_ts			the ending timestamp of the time period
-	* @param array(int)	$ignore_jobs	a list of assetids to ignore
+	* @param int	$start_ts		the starting timestamp of the time period
+	* @param int	$end_ts			the ending timestamp of the time period
+	* @param array	$ignore_jobs	a list of assetids to ignore
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function getJobsToRun($start_ts, $end_ts, $ignore_jobs=Array())
 	{
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		if ($end_ts < $start_ts) {
 			trigger_localised_error('CRON0014', E_USER_WARNING);
@@ -837,7 +837,7 @@ class Cron_Manager extends Asset
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'av');
 
 		$result = $db->getAll($sql.$where);
-		if (!assert_valid_db_result($result, '', false, false)) {
+		if (!assert_valid_db_result($result, '', FALSE, FALSE)) {
 			return Array();
 		}
 
@@ -856,7 +856,7 @@ class Cron_Manager extends Asset
 	* @param string	$err_file	The file the error occured in
 	* @param string	$err_line	The line the error occured on
 	*
-	* @returns void
+	* @return void
 	* @access private
 	* @see run()
 	*/
@@ -906,16 +906,16 @@ class Cron_Manager extends Asset
 			}
 			$this->_tmp['running_errors'] .= $str;
 
-		}//end error_reporting
+		}//end if error_reporting
 
 		// if this is an irrercoverable error, send a distress email, delete ourselves and die
 		if ($terminate && empty($this->_tmp['terminate_error'])) {
-			$this->_tmp['terminate_error'] = true; // stop possible recursion
+			$this->_tmp['terminate_error'] = TRUE; // stop possible recursion
 
-			$root_user  = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-			$sys_admins = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
+			$root_user  =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+			$sys_admins =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
 
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$msg = $ms->newMessage();
 			$msg_reps = Array(
 							'system_name'		=> SQ_CONF_SYSTEM_NAME,

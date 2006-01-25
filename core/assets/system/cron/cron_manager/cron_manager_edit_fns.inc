@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.31 2006/01/25 00:14:55 rong Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.32 2006/01/25 04:46:21 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,15 +51,15 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		$this->static_screens = Array(
 									'details'		=> Array(
 														'name'			=> translate('view_jobs'),
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 													   ),
 									'permissions'	=> Array(
 														'name'			=> translate('permissions'),
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 													   ),
 									'logs'			=> Array(
 														'name'			=> translate('logs'),
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 													   ),
 								);
 
@@ -69,10 +69,10 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the jobs interface
 	*
-	* @param object Cron_Manager		&$cron_mgr	the owning asset
-	* @param string						$one_off	whether we are after one_off options or repeating
+	* @param object	&$cron_mgr	the owning asset
+	* @param string	$one_off	whether we are after one_off options or repeating
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function getWhenBoxHoursMins(&$cron_mgr, $one_off)
@@ -94,9 +94,9 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		$epoch_date    = getdate($cron_mgr->attr('epoch'));
 
 		// how often in an hour do we refresh
-		if ($refresh_mins == 0){
+		if ($refresh_mins == 0) {
 			$num_refreshes = 60;
-		} else if ($refresh_mins >= 60){
+		} else if ($refresh_mins >= 60) {
 			$num_refreshes = 1;
 		} else {
 			$num_refreshes = floor(60 / $refresh_mins);
@@ -148,9 +148,9 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the jobs interface
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the owning asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -158,7 +158,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	function paintJobs(&$asset, &$o, $prefix)
 	{
 
-		$jobs = $asset->getJobs('cron_job', false);
+		$jobs = $asset->getJobs('cron_job', FALSE);
 		if (empty($jobs)) {
 			$o->openField('');
 				$o->note(translate('cron_no_jobs_registered'));
@@ -207,7 +207,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 				?>
 					<tr>
 						<td class="sq-backend-table-cell">
-							<?php echo $jobs[$i]->readableWhen(false); ?>
+							<?php echo $jobs[$i]->readableWhen(FALSE); ?>
 						</td>
 						<td class="sq-backend-table-cell">
 							<table border="0" cellspacing="0" cellpadding="0">
@@ -225,7 +225,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 									</td>
 									<td class="sq-backend-table-cell" style="border-bottom: none">
 										<?php
-											$user = &$jobs[$i]->getRunningUser();
+											$user =& $jobs[$i]->getRunningUser();
 											if ($user) {
 												echo get_asset_tag_line($user->id);
 											} else {
@@ -260,9 +260,9 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 			</table>
 			<?php
 
-		}//end if
+		}//end else
 
-		return true;
+		return TRUE;
 
 	}//end paintJobs()
 
@@ -270,9 +270,9 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the jobs interface
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the owning asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -280,12 +280,12 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	function processJobs(&$asset, &$o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_remove_jobs'])) {
-			return false;
+			return FALSE;
 		}
-		if (!$asset->writeAccess('links')) return false;
+		if (!$asset->writeAccess('links')) return FALSE;
 
-		$jobs = $asset->getJobs('cron_job', false);
-		if (empty($jobs)) return false;
+		$jobs = $asset->getJobs('cron_job', FALSE);
+		if (empty($jobs)) return FALSE;
 
 		for ($i = 0, $total = count($jobs); $i < $total; $i++) {
 			if (in_array($jobs[$i]->id, $_POST[$prefix.'_remove_jobs'])) {
@@ -293,7 +293,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processJobs()
 
@@ -302,10 +302,10 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	* Yes getting the date time field requires it's own function because it is so
 	* fucking hard to set-up
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the owning asset
+	* @param string	$prefix	prefix for form elements
 	*
-	* @return object DateTime_Field
+	* @return object
 	* @access private
 	*/
 	function _getEpochDateTimeField(&$asset, $prefix)
@@ -340,7 +340,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					  );
 
 		$value = '';
-		$field = new DateTime_Field($prefix.'_epoch', $value, $parameters);
+		$field =& new DateTime_Field($prefix.'_epoch', $value, $parameters);
 		$value = $field->unitsArrayToStr($value_arr);
 		$field->setValue($value);
 
@@ -352,9 +352,9 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the interface for editing the cron manager's Epoch
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the owning asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -370,7 +370,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 			echo $field->format();
 		}//end if
 
-		$attr = &$asset->getAttribute('epoch');
+		$attr =& $asset->getAttribute('epoch');
 		echo '<br />&nbsp;';
 		$o->note($attr->description);
 
@@ -380,9 +380,9 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for editing the cron manager's Epoch
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the owning asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -401,7 +401,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 			}//end if
 		}//end if
 
-		return false;
+		return FALSE;
 
 	}//end processEpoch()
 
@@ -409,9 +409,9 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the interface for showing when the cron manager last ran
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the owning asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -419,15 +419,16 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	function paintLastRun(&$asset, &$o, $prefix)
 	{
 		echo $GLOBALS['SQ_SYSTEM']->datetime((int) $asset->attr('last_run'));
+
 	}//end paintLastRun()
 
 
 	/**
 	* Prints the interface for showing whether the cron manager is currently running or not
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the owning asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -465,7 +466,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 						</tr>
 						<tr>
 							<td valign="top" class="sq-backend-data">
-								<?php security_key(25, 30, 2, true); ?>
+								<?php security_key(25, 30, 2, TRUE); ?>
 							</td>
 						</tr>
 					</table>
@@ -483,7 +484,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		}//end if run_check
 
-		return true;
+		return TRUE;
 
 	}//end paintDeadLockStatus()
 
@@ -491,9 +492,9 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for showing whether the cron manager is currently running or not
 	*
-	* @param object Asset				$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -501,16 +502,16 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	function processDeadLockStatus(&$asset, &$o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_force_remove_lock'])) {
-			return false;
+			return FALSE;
 		}
 
 		if ($asset->attr('running') && (int) $asset->attr('run_check') >= (int) $asset->attr('warn_after_num_run_checks')) {
 			// if we have a suspicion of being in DeadLock, then allow them to override
 			if ($GLOBALS['SQ_SYSTEM']->userRoot() && $asset->writeAccess('all')) {
 				if (validate_security_key()) {
-					$asset->setAttrValue('running', false);
+					$asset->setAttrValue('running', FALSE);
 					$asset->setAttrValue('run_check', 0);
-					return true;
+					return TRUE;
 
 				} else {
 					trigger_localised_error('CRON0013', E_USER_NOTICE);
@@ -518,7 +519,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 			}//end if
 		}//endif
 
-		return false;
+		return FALSE;
 
 	}//end processDeadLockStatus()
 
