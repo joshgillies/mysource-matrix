@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.40 2006/01/25 00:14:01 rong Exp $
+* $Id: cron_job.inc,v 1.41 2006/01/25 04:27:05 rong Exp $
 *
 */
 
@@ -40,7 +40,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,19 +68,19 @@ class Cron_Job extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _preCreateCheck(&$link)
 	{
-		if (!parent::_preCreateCheck($link)) return false;
+		if (!parent::_preCreateCheck($link)) return FALSE;
 
 		if (!$this->attr('type') || !$this->attr('when')) {
 			trigger_localised_error('CRON0002', E_USER_ERROR);
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _preCreateCheck()
 
@@ -88,8 +88,9 @@ class Cron_Job extends Asset
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -111,7 +112,7 @@ class Cron_Job extends Asset
 	*/
 	function canClone()
 	{
-		return false;
+		return FALSE;
 
 	}//end canClone()
 
@@ -122,14 +123,14 @@ class Cron_Job extends Asset
 	*
 	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
 	*
-	* @return bool
+	* @return boolean
 	* @access public
 	* @see Asset::morph()
 	*/
 	function morph($new_type_code)
 	{
 		trigger_localised_error('CRON0024', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-		return false;
+		return FALSE;
 
 	}//end morph()
 
@@ -141,15 +142,14 @@ class Cron_Job extends Asset
 	* @param string	$sort_order	the position in the links list that this link should take,
 	*							if less than zero places at end of list
 	*
-	* @see Asset::moveLinkPos()
-	*
 	* @return boolean
 	* @access public
+	* @see Asset::moveLinkPos()
 	*/
 	function moveLinkPos($linkid, $sort_order=-1)
 	{
 		trigger_localised_error('CRON0041', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-		return false;
+		return FALSE;
 
 	}//end moveLinkPos()
 
@@ -157,14 +157,15 @@ class Cron_Job extends Asset
 	/**
 	* Can the current user forceably acquire the current lock on this asset?
 	*
-	* @param string		$lock_type		any valid lock type for this asset's type,
-	*									plus 'all' which will attempt to acquire all locks that this asset has
+	* @param string	$lock_type	any valid lock type for this asset's type,
+	*							plus 'all' which will attempt to acquire all locks that this asset has
+	*
 	* @return boolean
 	* @access public
 	*/
 	function canForceablyAcquireLock($lock_type)
 	{
-		return false;
+		return FALSE;
 
 	}//end canForceablyAcquireLock()
 
@@ -172,8 +173,8 @@ class Cron_Job extends Asset
 	/**
 	* Set the value for the passed variable to the passed value
 	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -185,11 +186,11 @@ class Cron_Job extends Asset
 			$value = (string) $value;
 			if ($this->attr('type') != 'one_off' && substr($value, 0, 2) == 'OO') {
 				trigger_localised_error('CRON0009', E_USER_NOTICE);
-				return false;
+				return FALSE;
 			}//end if
 			if ($this->attr('type') == 'one_off' && substr($value, 0, 2) != 'OO') {
 				trigger_localised_error('CRON0043', E_USER_NOTICE);
-				return false;
+				return FALSE;
 			}// end if
 
 			// time interval can only be set in a repeating cron job
@@ -197,7 +198,7 @@ class Cron_Job extends Asset
 			// time in seconds between each run = time interval * time interval unit
 			if ($this->attr('type') != 'repeating' && substr($value, 0, 2) == 'TI') {
 				trigger_localised_error('CRON0045', E_USER_NOTICE);
-				return false;
+				return FALSE;
 			}//end if
 
 			// if this is a one off job
@@ -207,8 +208,8 @@ class Cron_Job extends Asset
 
 				$when_str = $value;
 
-				$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-				if (is_null($cron_mgr)) return false;
+				$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+				if (is_null($cron_mgr)) return FALSE;
 
 				// is there a duration set? if so, recalculate the when time
 				if (strpos($when_str, '!')) {
@@ -276,7 +277,7 @@ class Cron_Job extends Asset
 				if ($when_ts < $cron_mgr->timeOfNextRun()) {
 					require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 					trigger_localised_error('CRON0042', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), easy_datetime($cron_mgr->timeOfNextRun()));
-					return false;
+					return FALSE;
 				}//end if
 
 				$value = $when_str;
@@ -301,26 +302,24 @@ class Cron_Job extends Asset
 	function canDelete()
 	{
 		// read-only?
-		if ($this->attr('read_only')) {
-			return false;
-		}
+		if ($this->attr('read_only')) return FALSE;
 
-		$user = &$this->getRunningUser();
+		$user =& $this->getRunningUser();
 		if (!is_null($user) && $GLOBALS['SQ_SYSTEM']->currentUser($user)) {
-			return true;
+			return TRUE;
 		}
 
 		// if this is to be run as the root user, it can only be deleted by the root user
 		if (!is_null($user) && $GLOBALS['SQ_SYSTEM']->userRoot($user) && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
-			return false;
+			return FALSE;
 		}
 
 		// else root user or sys admins can delete
 		if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-			return true;
+			return TRUE;
 		}
 
-		return false;
+		return FALSE;
 
 	}//end canDelete()
 
@@ -328,15 +327,15 @@ class Cron_Job extends Asset
 	/**
 	* Gets the user that this cron job is to run as while executing
 	*
-	* @return mixed object User or NULL on error
+	* @return mixed object|NULL
 	* @access public
 	*/
 	function &getRunningUser()
 	{
-		$null = null; // because we need to return by ref
+		$null = NULL; // because we need to return by ref
 		$userid = $this->attr('running_as');
 		if (!$userid) return $null;
-		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid, '', true);
+		$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($userid, '', TRUE);
 		if (is_null($user)) return $null;
 		return $user;
 
@@ -367,6 +366,7 @@ class Cron_Job extends Asset
 				trigger_localised_error('CRON0005', $type, E_USER_NOTICE);
 			return '';
 		}
+
 	}//end whenTypeName()
 
 
@@ -405,7 +405,7 @@ class Cron_Job extends Asset
 	* @return string
 	* @access public
 	*/
-	function readableWhen($inc_type=true)
+	function readableWhen($inc_type=TRUE)
 	{
 		$when_arr = Cron_Job::getWhenArr($this->attr('when'));
 		$ret_val = ($inc_type) ? Cron_Job::whenTypeName($when_arr['type']).' '.strtolower(translate('at')).' ' : '';
@@ -418,7 +418,7 @@ class Cron_Job extends Asset
 		$when_arr['hour'] = str_replace(':', '', $when_arr['hour']);
 		switch ($when_arr['type']) {
 			case 'OO' :
-				$ret_val .= translate('cron_run_other', $when_arr['hour'].':'.$when_arr['minute'], ltrim($when_arr['day'], "0").' '.date('M', mktime(0, 0, 0, (int) $when_arr['month'], 1, 2000)).', '.$when_arr['year']);
+				$ret_val .= translate('cron_run_other', $when_arr['hour'].':'.$when_arr['minute'], ltrim($when_arr['day'], '0').' '.date('M', mktime(0, 0, 0, (int) $when_arr['month'], 1, 2000)).', '.$when_arr['year']);
 			break;
 
 			case 'YR' :
@@ -466,9 +466,11 @@ class Cron_Job extends Asset
 
 
 	/**
-	* Returns the When String attribute split up into the different types
+	* Returns the 'when' string attribute split up into the different types
 	*
-	* @return array()
+	* @param string	$when_str	the encoded 'when' str
+	*
+	* @return array
 	* @access public
 	* @static
 	*/
@@ -500,7 +502,7 @@ class Cron_Job extends Asset
 						// store the next run time and interval info of this repeating job
 						$when_arr['duration'] = $next_run;
 						$when_arr[$time_unit[$interval_unit]] = $interval;
-						break;
+					break;
 					case 'OO' :
 						$when_arr['year'] = substr($when_str, $offset, 4);
 						$offset += 5;
@@ -535,11 +537,11 @@ class Cron_Job extends Asset
 						// deliberately fall through
 					case 'DU' :
 						$when_arr['duration'] = substr($when_str, $offset);
-						break;
+					break;
 
 				}//end switch
 
-			}//end if
+			}//end else
 
 		}//end if
 
@@ -549,12 +551,12 @@ class Cron_Job extends Asset
 
 
 	/**
-	* Runs this job
+	* Runs this job and returns bitmask of the constants to tell cron manager what to do
+	* eg:	SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY means an error occured, but can I please be re-tried,
+	*		SQ_CRON_JOB_COMPLETED means everything is done correctly, but I can't be removed,
+	*		SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE means everything is done correctly and I can be removed
 	*
-	* @return int	bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
-	*				eg: SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY means an error occured, but can I please be re-tried,
-	*					SQ_CRON_JOB_COMPLETED means everything is done correctly, but I can't be removed,
-	*					SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE means everything is done correctly and I can be removed
+	* @return int
 	* @access public
 	*/
 	function run()
@@ -566,7 +568,7 @@ class Cron_Job extends Asset
 		$exec_msg = '';
 
 		// First let's see if we can find someone to run as
-		$user = &$this->getRunningUser();
+		$user =& $this->getRunningUser();
 		if (!is_null($user)) {
 
 			// Now let's get the total lock
@@ -614,7 +616,7 @@ class Cron_Job extends Asset
 
 		restore_error_handler();
 
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->openQueue();
 		$msg = $ms->newMessage();
 
@@ -628,8 +630,8 @@ class Cron_Job extends Asset
 
 		// if no user was found resort to sys admins
 		if (is_null($user)) {
-			$root_user  = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-			$sys_admins = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
+			$root_user  =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+			$sys_admins =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
 			$msg->to = Array($root_user->id, $sys_admins->id);
 		} else {
 			$msg->to = Array($user->id);
@@ -656,9 +658,7 @@ class Cron_Job extends Asset
 			if ($this->attr('type') == 'repeating') {
 				$when_str = $this->attr('when');
 				$type = substr($when_str, 0, 2);
-				if ($type == 'TI') {
-					$this->setNextRun();
-				}
+				if ($type == 'TI') $this->setNextRun();
 			}
 
 		// Exec successful and but still more to do
@@ -669,11 +669,11 @@ class Cron_Job extends Asset
 		} else {
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 			$msg_reps['result']      = $exec_result;
-			$msg_reps['result_bits'] = implode(', ', get_bit_names('SQ_CRON_JOB_', $exec_result, true));
+			$msg_reps['result_bits'] = implode(', ', get_bit_names('SQ_CRON_JOB_', $exec_result, TRUE));
 			$msg->type 	             = 'cron.job.error';
 
-			$root_user  = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-			$sys_admins = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
+			$root_user  =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+			$sys_admins =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
 			$msg->to[] = 0; // default and tech email
 			$msg->to[] = $root_user->id;
 			$msg->to[] = $sys_admins->id;
@@ -705,7 +705,7 @@ class Cron_Job extends Asset
 	* @param string	$err_file	The file the error occured in
 	* @param string	$err_line	The line the error occured on
 	*
-	* @returns void
+	* @return void
 	* @access private
 	* @see run()
 	*/
@@ -727,7 +727,7 @@ class Cron_Job extends Asset
 
 			// send a report to the system error log
 			if (ini_get('log_errors')) {
-				$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+				$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 				log_error($err_msg, $err_no, $err_file, $err_line, $cron_mgr->error_log_file_name);
 			}
 
@@ -756,20 +756,20 @@ class Cron_Job extends Asset
 			}
 			$this->_tmp['running_errors'] .= $str;
 
-		}//end error_reporting
+		}//end if error_reporting
 
 		// if this is an irrercoverable error, send a distress email, delete ourselves and die
 		if ($terminate && empty($this->_tmp['terminate_error'])) {
-			$this->_tmp['terminate_error'] = true; // stop possible recursion
+			$this->_tmp['terminate_error'] = TRUE; // stop possible recursion
 
-			$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+			$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 			$cm->removeJob($this);
 
-			$user       = &$this->getRunningUser();
-			$root_user  = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-			$sys_admins = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
+			$user       =& $this->getRunningUser();
+			$root_user  =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+			$sys_admins =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
 
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$msg = $ms->newMessage();
 
 			$msg_reps = Array(
@@ -796,15 +796,16 @@ class Cron_Job extends Asset
 
 	/**
 	* Actually executes the functionality for this job, called by run()
-	*
-	* @param string	$msg	accepted by reference, used to return any messages about completion etc from _exec
-	*
-	* @return int	bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
+	* Returns bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
 	*				eg: SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY means an error occured, but can I please be re-tried,
 	*					SQ_CRON_JOB_COMPLETED means everything is done correctly, but I can't be removed,
 	*					SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE means everything is done correctly and I can be removed
-	* @see run()
+	*
+	* @param string	&$msg	accepted by reference, used to return any messages about completion etc from _exec
+	*
+	* @return int
 	* @access private
+	* @see run()
 	*/
 	function _exec(&$msg)
 	{
@@ -819,11 +820,14 @@ class Cron_Job extends Asset
 	* When given a when string value and a start time returns the timestamp for the first time after the
 	* start time that this when string represents
 	*
-	* @return int	timestamp of when the next run will occur for this when string
+	* @param string	$when_str	the encoded 'when' str
+	* @param int	$start_ts	the starting timestamp
+	*
+	* @return int
 	* @access public
 	* @static
 	*/
-	function getNextRun($when_str, $start_ts=null)
+	function getNextRun($when_str, $start_ts=NULL)
 	{
 		$when = Cron_Job::getWhenArr($when_str);
 
@@ -979,26 +983,27 @@ class Cron_Job extends Asset
 			}
 		}
 
-	}//end  setNextRun
+	}//end setNextRun()
 
 
 	/**
 	* Called when a link to this job is removed. If that was it's last significant
 	* link, the job should be moved to the trash.
 	*
-	* @return bool		Returns true on success.
+	* @return boolean
 	* @access public
 	* @static
 	*/
 	function removeJob()
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$cron_manager_links = $am->getLinks($this->id, SQ_LINK_TYPE_2, 'cron_manager', true, 'minor');
+		$cron_manager_links = $am->getLinks($this->id, SQ_LINK_TYPE_2, 'cron_manager', TRUE, 'minor');
 		if (empty($cron_manager_links)) {
-			$trash = $am->getAsset($am->getSystemAssetid('trash_folder'));
+			$trash =& $am->getAsset($am->getSystemAssetid('trash_folder'));
 			$trash->createLink($this, SQ_LINK_TYPE_2);
 		}
-	}//end  removeJob
+
+	}//end removeJob()
 
 
 }//end class

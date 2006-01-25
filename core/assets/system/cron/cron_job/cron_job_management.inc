@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_management.inc,v 1.10 2005/10/14 00:46:27 rhoward Exp $
+* $Id: cron_job_management.inc,v 1.11 2006/01/25 04:27:05 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,8 +57,8 @@ class Cron_Job_Management extends Asset_Management
 																					'one_off'	=> 'One Off',
 																					'repeating'	=> 'Repeating',
 																				   ),
-																'multiple'		=> false,
-																'allow_empty'	=> false,
+																'multiple'		=> FALSE,
+																'allow_empty'	=> FALSE,
 															   ),
 										   ),
 						'when'			=> Array(

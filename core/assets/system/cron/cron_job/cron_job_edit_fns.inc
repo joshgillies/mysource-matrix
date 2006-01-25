@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.31 2006/01/25 00:14:01 rong Exp $
+* $Id: cron_job_edit_fns.inc,v 1.32 2006/01/25 04:27:05 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -165,7 +165,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 			</script>
 			<?php
 
-		} else if ($one_off){
+		} else if ($one_off) {
 
 			// day (1 - 31)
 			$days = Array('--' => '--');
@@ -290,7 +290,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 				combo_box($prefix.'_period', $periods, FALSE, ($when_arr['period'] <> '' ? $when_arr['period'] : '-'), NULL, $form_extra_elements);
 			}//end if $write_access
 
-		}// end if one off job
+		}//end if one off job
 
 	}//end _paintWhenBox()
 
@@ -338,9 +338,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 			$valid = (($valid_min) || ($valid_hour) || ($valid_day));
 		}
 
-		if (!$valid) {
-			return FALSE;
-		}
+		if (!$valid) return FALSE;
 
 		$when_str = '';
 		$when = '';
@@ -412,7 +410,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 				}
 
 				$when = $type_prefix.'='.$when_str;
-			}
+			}//end else
 
 		} else if ($repeating) {
 
@@ -435,7 +433,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 				// new next run = next run + (interval * interval unit)
 				$when = "TI=$next_run,$interval,$interval_unit";
 			}
-		}
+		}//end else if
 
 		return $when;
 
