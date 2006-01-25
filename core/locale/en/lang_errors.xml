@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.32 2006/01/24 04:11:24 sdanis Exp $
+* $Id: lang_errors.xml,v 1.33 2006/01/25 00:15:25 rong Exp $
 *
 */
 
@@ -360,7 +360,8 @@
 		<!-- core/assets/system/cron/cron_job/cron_job.inc:191: -->
 
 	<error code="CRON0044">You have specified both absolute and relative times for the future status change. Only the relative time has been saved</error>
-		<!-- core/assets/system/cron/cron_job/cron_job_edit_fns.inc:272 -->
+
+	<error code="CRON0045">Only repeating type cron jobs can have their "when" attributes set to a "TI=" prefixed value</error>
 
 	<!-- MAPS - MYSOURCE AUTOMATED PATCHING SYSTEM -->
 

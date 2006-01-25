@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.97 2006/01/24 00:03:11 lwright Exp $
+* $Id: lang_strings.xml,v 1.98 2006/01/25 00:15:25 rong Exp $
 *
 */
 
@@ -296,6 +296,7 @@
 	<string source="cron_run_month">%1$s on the %2$s</string>
 	<string source="cron_run_hourly">%s minutes past the hour</string>
 	<string source="cron_run_always">Every time the cron manager runs</string>
+	<string source="cron_run_repeat">Next run %1$s. Repeating every %2$s %3$s</string>
 	<string source="cron_no_jobs_registered">No Jobs Registered</string>
 	<string source="cron_deadlock_warning_list_item_1">An existing cron manager instance is currently running an extremely long running job.</string>
 	<string source="cron_deadlock_warning_list_item_2">Some thing has caused the cron manager to exit uncleanly when it was running and the lock wasn't able to be removed.</string>
@@ -1094,6 +1095,7 @@
 	<string source="sunday">Sunday</string>
 
 	<string source="every_time">Every Time</string>
+	<string source="repeating">Repeating</string>
 	<string source="one_off">One Off</string>
 	<string source="hourly">Hourly</string>
 	<string source="daily">Daily</string>
