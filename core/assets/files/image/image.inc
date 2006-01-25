@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.50 2006/01/18 00:59:32 lwright Exp $
+* $Id: image.inc,v 1.51 2006/01/25 05:07:01 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -924,6 +924,7 @@ class Image extends File
 	{
 		if (0 === strpos($keyword, 'image_v_')) {
 			$varieties = $this->attr('varieties');
+			if (empty($varieties)) return '';
 			$variety_name = substr($keyword, 8);
 			$variety_id = array_get_index($varieties['lookups'], $variety_name);
 			if (!empty($variety_id)) {
