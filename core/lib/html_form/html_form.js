@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.41 2006/01/19 22:20:46 tbarrett Exp $
+* $Id: html_form.js,v 1.42 2006/01/25 04:58:22 tbarrett Exp $
 *
 */
 
@@ -106,11 +106,11 @@ function validate_numeric_text_field(name, allow_negative)
 	if (arguments.length < 2) return false;
 
 	// if the string is not a number, or if negatives aren't allowed and the first character is a '-'.
-	if (name.value * 1 != name.value || (name.value.length > 0 && allow_negative == false && name.value.charAt(0) == "-" ) ) {
+	if (parseInt(name.value) != name.value || (name.value.length > 0 && allow_negative == false && name.value.charAt(0) == "-" ) ) {
 		var outstr = "";
 		for (ii = 0; ii < name.value.length ; ii++) {
 			// if a number, or if negatives are allowed, a '-' at the beginning of the string
-			if ((name.value.charAt(ii) * 1 == name.value.charAt(ii)) ||
+			if ((parseInt(name.value.charAt(ii)) == name.value.charAt(ii)) ||
 			(allow_negative == true && ii == 0 && name.value.charAt(ii) == "-") ){
 				outstr += name.value.charAt(ii);
 			}
