@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.39 2005/10/14 00:46:27 rhoward Exp $
+* $Id: cron_job.inc,v 1.40 2006/01/25 00:14:01 rong Exp $
 *
 */
 
@@ -40,7 +40,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -192,6 +192,13 @@ class Cron_Job extends Asset
 				return false;
 			}// end if
 
+			// time interval can only be set in a repeating cron job
+			// when str format: "TI=nextrun timestamp,time interval,time interval unit
+			// time in seconds between each run = time interval * time interval unit
+			if ($this->attr('type') != 'repeating' && substr($value, 0, 2) == 'TI') {
+				trigger_localised_error('CRON0045', E_USER_NOTICE);
+				return false;
+			}//end if
 
 			// if this is a one off job
 			// then we need to make sure that it is happening on or before the
@@ -260,7 +267,11 @@ class Cron_Job extends Asset
 
 				$when = Cron_Job::getWhenArr($when_str);
 
+				// the next run time is stored in the encoded when str, for a repeating time interval cron job (TI)
 				$when_ts = mktime($when['hour'], $when['minute'], 0, $when['month'], $when['day'], $when['year']);
+				if ($this->attr('type') != 'repeating' && substr($value, 0, 2) == 'TI') {
+					$when_ts = $when['duration'];
+				}
 
 				if ($when_ts < $cron_mgr->timeOfNextRun()) {
 					require_once SQ_FUDGE_PATH.'/general/datetime.inc';
@@ -351,6 +362,7 @@ class Cron_Job extends Asset
 			case 'WK' : return translate('weekly');
 			case 'MT' : return translate('monthly');
 			case 'YR' : return translate('yearly');
+			case 'TI' : return translate('repeating');
 			default :
 				trigger_localised_error('CRON0005', $type, E_USER_NOTICE);
 			return '';
@@ -397,7 +409,12 @@ class Cron_Job extends Asset
 	{
 		$when_arr = Cron_Job::getWhenArr($this->attr('when'));
 		$ret_val = ($inc_type) ? Cron_Job::whenTypeName($when_arr['type']).' '.strtolower(translate('at')).' ' : '';
-		if (intval($when_arr['minute']) < 10 && strlen($when_arr['minute']) == 1) $when_arr['minute'] = '0'.$when_arr['minute'];
+		if ($when_arr['type'] != 'TI') {
+			// do not do padding for repeating time interval cron job  (TI)
+			if (intval($when_arr['minute']) < 10 && strlen($when_arr['minute']) == 1) {
+				$when_arr['minute'] = '0'.$when_arr['minute'];
+			}
+		}
 		$when_arr['hour'] = str_replace(':', '', $when_arr['hour']);
 		switch ($when_arr['type']) {
 			case 'OO' :
@@ -428,6 +445,19 @@ class Cron_Job extends Asset
 				$ret_val = translate('cron_run_always');
 			break;
 
+			case 'TI' :
+				if ($when_arr['minute'] != '') {
+					$interval_unit = 'minute';
+				} else if ($when_arr['hour'] != '') {
+					$interval_unit = 'hour';
+				} else if ($when_arr['day'] != '') {
+					$interval_unit = 'day';
+				}
+				// format date, eg. 02:00 on 21 Jan, 2006
+				$next_run = date('H:i \o\n j M, Y',$when_arr['duration']);
+				$ret_val = translate('cron_run_repeat',$next_run, $when_arr[$interval_unit], translate($interval_unit.'s'));
+			break;
+
 		}//end switch
 
 		return $ret_val;
@@ -455,6 +485,22 @@ class Cron_Job extends Asset
 				$when_arr['type'] = substr($when_str, 0, 2);
 				$offset = 3;
 				switch ($when_arr['type']) {
+					case 'TI' :
+						$time_unit = Array(
+										60		=> 'minute',
+										3600	=> 'hour',
+										86400	=> 'day',
+									 );
+
+						$when = substr($when_str, $offset);
+						$val = explode(',', $when);
+						$next_run = $val[0];
+						$interval = $val[1];
+						$interval_unit = $val[2];
+						// store the next run time and interval info of this repeating job
+						$when_arr['duration'] = $next_run;
+						$when_arr[$time_unit[$interval_unit]] = $interval;
+						break;
 					case 'OO' :
 						$when_arr['year'] = substr($when_str, $offset, 4);
 						$offset += 5;
@@ -528,7 +574,15 @@ class Cron_Job extends Asset
 
 				if ($GLOBALS['SQ_SYSTEM']->setCurrentUser($user)) {
 
-					$exec_result = $this->_exec($exec_msg);
+					// check if we should run the repeating cron job (TI) this time
+					$when_str = $this->attr('when');
+					$start_time_ok =  time() > $this->getNextRun($when_str);
+					if (($this->attr('type') == 'repeating' && substr($when_str, 0, 2) == 'TI') && !$start_time_ok) {
+						// not running yet, skip this run
+						$exec_result = SQ_CRON_JOB_NOT_COMPLETE;
+					} else {
+						$exec_result = $this->_exec($exec_msg);
+					}
 
 					// reset the system user to who it was originally
 					$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
@@ -596,6 +650,15 @@ class Cron_Job extends Asset
 					$exec_result &= ~SQ_CRON_JOB_RETRY;
 				}
 				$exec_result |= SQ_CRON_JOB_REMOVE;
+			}
+
+			// If this is a repeating cron job with a time interval, update the next run time
+			if ($this->attr('type') == 'repeating') {
+				$when_str = $this->attr('when');
+				$type = substr($when_str, 0, 2);
+				if ($type == 'TI') {
+					$this->setNextRun();
+				}
 			}
 
 		// Exec successful and but still more to do
@@ -775,6 +838,9 @@ class Cron_Job extends Asset
 		// EveryTime is even simpler
 		if ($when['type'] == 'ET') return $start_ts + 1;
 
+		// Repeating Job with time interval
+		if ($when['type'] == 'TI') return $when['duration'];
+
 		$add = Array('minutes' => 0, 'hours' => 0, 'days' => 0);
 
 		$hour_loops  = ($when['minute'] < $start['minutes']);
@@ -881,6 +947,42 @@ class Cron_Job extends Asset
 
 
 	/**
+	* Set the next run time in the encoded 'when' str
+	*
+	* Only for a repeating cron job with time interval (TI)
+	*
+	* @return void
+	* @access public
+	* @static
+	*/
+	function setNextRun()
+	{
+		if ($this->attr('type') == 'repeating') {
+			$when_str = $this->attr('when');
+			$type = substr($when_str, 0, 2);
+			if ($type == 'TI') {
+				$when = substr($when_str, 3);
+				$val = explode(',', $when);
+				$old_run = $val[0];
+				$interval = $val[1];
+				$interval_unit = $val[2];
+				$next_run = $old_run + ($interval * $interval_unit);
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED + SQ_SECURITY_LINK_INTEGRITY);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'links')) {
+						$this->setAttrValue('when', "TI=$next_run,$interval,$interval_unit");
+						$this->saveAttributes();
+						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+						$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'links');
+					}
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			}
+		}
+
+	}//end  setNextRun
+
+
+	/**
 	* Called when a link to this job is removed. If that was it's last significant
 	* link, the job should be moved to the trash.
 	*
@@ -896,7 +998,7 @@ class Cron_Job extends Asset
 			$trash = $am->getAsset($am->getSystemAssetid('trash_folder'));
 			$trash->createLink($this, SQ_LINK_TYPE_2);
 		}
-	}
+	}//end  removeJob
 
 
 }//end class
