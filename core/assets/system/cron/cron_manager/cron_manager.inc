@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.59 2005/11/29 23:30:23 rhoward Exp $
+* $Id: cron_manager.inc,v 1.60 2006/01/25 00:14:55 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -801,6 +801,9 @@ class Cron_Manager extends Asset
 
 		$every_time = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') = '.$db->quote('ET=');
 
+		// repeating cron job with time interval option added to the query str
+		$repeating_time_interval = 'av.custom_val ilike '.$db->quote('%TI=%');
+
 		$sql   = 'SELECT l.linkid, a.assetid, a.type_code
 				  FROM ('.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid)
@@ -820,6 +823,7 @@ class Cron_Manager extends Asset
 					OR '.$yearly.'
 					OR '.$one_off.'
 					OR '.$every_time.'
+					OR '.$repeating_time_interval.'
 					)';
 
 		if (!empty($ignore_jobs)) {

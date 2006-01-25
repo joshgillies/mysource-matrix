@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.30 2005/12/01 00:28:35 lwright Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.31 2006/01/25 00:14:55 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -102,12 +102,19 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 			$num_refreshes = floor(60 / $refresh_mins);
 		}
 
-		for ($i = $epoch_date['minutes']; $i < $epoch_date['minutes'] + 60; $i+= (60 / $num_refreshes)) {
-			$num = ($i >= 60) ? $i - 60 : $i;
-			$options['mins'][] = str_pad($num, 2, '0', STR_PAD_LEFT);
+		if ($one_off) {
+			for ($i = $epoch_date['minutes']; $i < $epoch_date['minutes'] + 60; $i+= (60 / $num_refreshes)) {
+				$num = ($i >= 60) ? $i - 60 : $i;
+				$options['mins'][] = str_pad($num, 2, '0', STR_PAD_LEFT);
+			}
+		} else if ($repeating) {
+			// handle the minute option differently for a repeating (TI) job
+			// showing minute options in the selection box as multiple of refresh time
+			for ($i = 0; $i < 60; $i += (60 / $num_refreshes)) {
+				$options['mins'][] = $i;
+			}
 		}
 		sort($options['mins']);
-
 
 		// how often in an day do we refresh
 		if ($refresh_hours == 0) {
@@ -118,9 +125,17 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 			$num_refreshes = floor(24 / $refresh_hours);
 		}
 
-		for ($i = $epoch_date['hours']; $i < $epoch_date['hours'] + 24; $i+= (24 / $num_refreshes)) {
-			$num = ($i >= 24) ? $i - 24 : $i;
-			$options['hours'][] = str_pad($num, 2, '0', STR_PAD_LEFT);
+		if ($one_off) {
+			for ($i = $epoch_date['hours']; $i < $epoch_date['hours'] + 24; $i+= (24 / $num_refreshes)) {
+				$num = ($i >= 24) ? $i - 24 : $i;
+				$options['hours'][] = str_pad($num, 2, '0', STR_PAD_LEFT);
+			}
+		} else if ($repeating) {
+			// handle the hour option differently for a repeating (TI) job
+			// showing hour options in the selection box as multiple of refresh time
+			for ($i = 0; $i < 24; $i += (24 / $num_refreshes)) {
+				$options['hours'][] = $i;
+			}
 		}
 
 		sort($options['hours']);
