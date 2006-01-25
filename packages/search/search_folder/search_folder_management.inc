@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_management.inc,v 1.13 2005/09/14 05:57:05 ndvries Exp $
+* $Id: search_folder_management.inc,v 1.14 2006/01/25 04:58:34 sdanis Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -52,6 +52,7 @@ class Search_Folder_Management extends Asset_Management
 										'default'	=> Array(),
 									   ),
 					  );
+
 	}//end constructor
 
 
@@ -65,15 +66,15 @@ class Search_Folder_Management extends Asset_Management
 	*/
 	function _upgrade($current_version)
 	{
-		if (!parent::_upgrade($current_version)) return false;
+		if (!parent::_upgrade($current_version)) return FALSE;
 
 		if (version_compare($current_version, '0.2', '<=')) {
 			// version 0.2->0.3 upgrade - sees $this->attr('settings')['types']
 			// being stored differently - as Array(typecode => inherits) instead
 			// of Array(typecode) - due to search manager upgrades
-			bam('STARTING SEARCH FOLDER UPGRADE - VERSION 0.2 => 0.3');
+			pre_echo('STARTING SEARCH FOLDER UPGRADE - VERSION 0.2 => 0.3');
 
-			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
 			foreach ($children as $assetid) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$settings = $asset->attr('settings');
@@ -93,7 +94,7 @@ class Search_Folder_Management extends Asset_Management
 				// to inherit types (as this was what Search Manager used to do)
 				$types = array_flip($types);
 				foreach ($types as $type_code => $value) {
-					$types[$type_code] = true;
+					$types[$type_code] = TRUE;
 				}
 
 				$settings['types'] = $types;
@@ -101,23 +102,23 @@ class Search_Folder_Management extends Asset_Management
 
 				if (!$asset->saveAttributes()) {
 					trigger_localised_error('SCH0009', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-			}
+			}//end foreach
 
-			bam('SEARCH FOLDER UPGRADE COMPLETE - VERSION 0.2 => 0.3');
+			pre_echo('SEARCH FOLDER UPGRADE COMPLETE - VERSION 0.2 => 0.3');
 
-		}
+		}//end if
 
 		if (version_compare($current_version, '0.3', '<=')) {
 			// version 0.3->0.4 upgrade - changes to accept multiple root nodes.
 			// The variable $settings['root'] is now stored as an array of
 			// assetids, rather than a single value.
-			bam('STARTING SEARCH FOLDER UPGRADE - VERSION 0.3 => 0.4');
+			pre_echo('STARTING SEARCH FOLDER UPGRADE - VERSION 0.3 => 0.4');
 
-			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
 			foreach ($children as $assetid) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$settings = $asset->attr('settings');
@@ -129,19 +130,19 @@ class Search_Folder_Management extends Asset_Management
 
 					if (!$asset->saveAttributes()) {
 						trigger_localised_error('SCH0009', E_USER_WARNING);
-						return false;
+						return FALSE;
 					}
 				}
 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-				$asset = null;
+				$asset = NULL;
 			}
 
-			bam('SEARCH FOLDER UPGRADE COMPLETE - VERSION 0.3 => 0.4');
+			pre_echo('SEARCH FOLDER UPGRADE COMPLETE - VERSION 0.3 => 0.4');
 
-		}
+		}//end if
 
-		return true;
+		return TRUE;
 
 	}//end _upgrade()
 

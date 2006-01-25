@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.25 2006/01/16 01:00:46 dheppell Exp $
+* $Id: search_folder.inc,v 1.26 2006/01/25 04:58:34 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -74,7 +74,7 @@ class Search_Folder extends Asset
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
-	* @return mixed object|null
+	* @return mixed object|NULL
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/

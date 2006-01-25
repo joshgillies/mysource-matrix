@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_edit_fns.inc,v 1.20 2005/11/28 03:53:21 ndvries Exp $
+* $Id: search_folder_edit_fns.inc,v 1.21 2006/01/25 04:58:34 sdanis Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -43,22 +43,22 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 		$this->static_screens = Array(
 									'details'		=> Array(
 														'name'			=> 'Details',
-														'force_unlock'	=> false,
+														'force_unlock'	=> FALSE,
 														'lock_type'		=> 'attributes',
 													   ),
 									'permissions'	=> Array(
 														'name'			=> 'Permissions',
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'permissions',
 													   ),
 									'linking'		=> Array(
 														'name'			=> 'Linking',
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'links',
 													   ),
 									'history'		=> Array(
 														'name'			=> 'History',
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'none',
 													   ),
 								);
@@ -69,9 +69,9 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the root node selection box
 	*
-	* @param object Search_Folder		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -105,9 +105,9 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the value input from root node selection box
 	*
-	* @param object Search_Folder		&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return void
 	* @access public
@@ -115,7 +115,7 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 	function processRoot(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$settings = $asset->attr('settings');
 		$settings['root'] = Array();
@@ -136,9 +136,9 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for entering a search phrase
 	*
-	* @param object Search_Folder		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -168,9 +168,9 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for entering a search phrase
 	*
-	* @param object Search_Folder		&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -178,7 +178,7 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 	function processPhrase(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$settings = $asset->attr('settings');
 
@@ -196,9 +196,9 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for selecting search logic
 	*
-	* @param object Search_Folder		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -211,7 +211,7 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 		$current = (isset($settings['logic'])) ? $settings['logic'] : 'all';
 
 		if ($write_access) {
-			combo_box($prefix.'_logic', Array('and' => translate('sch_folder_logic_and'), 'or' => translate('sch_folder_logic_or')), false, $current);
+			combo_box($prefix.'_logic', Array('and' => translate('sch_folder_logic_and'), 'or' => translate('sch_folder_logic_or')), FALSE, $current);
 		} else {
 			echo translate('sch_folder_logic_'.$current);
 		}
@@ -224,9 +224,9 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for selecting search logic
 	*
-	* @param object Search_Folder		&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -234,7 +234,7 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 	function processLogic(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$settings = $asset->attr('settings');
 
@@ -252,9 +252,9 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for selecting searched statuses
 	*
-	* @param object Search_Folder		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -276,7 +276,7 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 				$options[$value] = get_status_description($value);
 			}
 
-			combo_box($prefix.'_statuses', $options, true, $current);
+			combo_box($prefix.'_statuses', $options, TRUE, $current);
 		} else {
 			if (empty($current)) {
 				echo translate('no_status_selected');
@@ -300,9 +300,9 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for selecting searched statuses
 	*
-	* @param object Search_Folder		&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -310,7 +310,7 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 	function processStatus(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$settings = $asset->attr('settings');
 
@@ -332,9 +332,9 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the current asset types that have been added
 	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -350,8 +350,8 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 				$display_values['type_code'][] = $type;
 				$display_values['inherit'][] = $inherit;
 			}
-			asset_type_chooser($prefix.'_types', true, $display_values, null, false, true);
-			return true;
+			asset_type_chooser($prefix.'_types', TRUE, $display_values, NULL, FALSE, TRUE);
+			return TRUE;
 		} else {
 			// print the read-only version
 			if (empty($types)) {
@@ -380,7 +380,7 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 					</table>
 				<?php
 			}
-			return false;
+			return FALSE;
 		}
 
 	}//end paintAssetTypes()
@@ -389,9 +389,9 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the current asset types that have been added
 	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
