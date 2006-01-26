@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.14 2006/01/26 22:34:07 lwright Exp $
+* $Id: thesaurus.inc,v 1.15 2006/01/26 23:13:57 arailean Exp $
 *
 */
 
@@ -36,7 +36,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -2614,9 +2614,11 @@ class Thesaurus extends Asset
 			}
 		}//end if there are candidates to delete
 
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 
 		$sql = '
 			DELETE FROM
@@ -2690,6 +2692,10 @@ class Thesaurus extends Asset
 			WHERE
 				termid IN
 				(
+					--
+					-- When implementing event notifications, take the following SELECT out and broadcast
+					-- Most likely it will need to be moved to the section BEFORE the transaction begins
+					--
 					SELECT
 						finished.minor
 					FROM
