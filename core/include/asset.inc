@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.494 2006/01/26 22:43:32 lwright Exp $
+* $Id: asset.inc,v 1.495 2006/01/26 23:37:36 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.494 $
+* @version $Revision: 1.495 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4371,7 +4371,6 @@ class Asset extends MySource_Object
 				$parent_url = substr($url, 0, strrpos($url, '/'));
 				$web_path = substr($url, strrpos($url, '/') + 1);
 
-				//$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, $parent_url));
 				$tmp_old_urls[] = Array(
 									'url'			=> $url,
 									'parent_url'	=> $parent_url,
@@ -4524,10 +4523,6 @@ class Asset extends MySource_Object
 								}
 							}
 						}
-						//if (!isset($tmp_old_urls[$new_url_assetids][$j])) $tmp_old_urls[$new_url_assetids][$j] = '';
-
-						//$lookup_values = (isset($our_lookup_values[$tmp_old_urls[$new_url_assetids][$j]])) ? $our_lookup_values[$tmp_old_urls[$new_url_assetids][$j]] : Array();
-
 						// all designs go to all urls (at the moment anyway), so merge them all in
 						foreach ($our_designs as $name => $data) {
 							$lookup_values[$name] = $data;
@@ -4636,9 +4631,6 @@ class Asset extends MySource_Object
 
 		}//end if count paths
 
-		//exit();
-		//flush();
-		//sleep(1);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_lookups_updated', $this);
