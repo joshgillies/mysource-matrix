@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_ip.inc,v 1.4 2005/10/13 02:07:38 tbarrett Exp $
+* $Id: condition_user_ip.inc,v 1.5 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,7 +66,7 @@ class Condition_User_IP extends Condition
 	*/
 	function evaluate(&$asset, $condition_data)
 	{
-		if (!isset($condition_data['user_ip'])) return false;
+		if (!isset($condition_data['user_ip'])) return FALSE;
 
 		// replace '*' with 'match between 1 and 3 digits'
 		$condition_data['user_ip'] = preg_replace(Array('/\*/', '/\./'), Array('\d{1,3}', '\\\.'), $condition_data['user_ip']);

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager.inc,v 1.13 2005/10/18 05:51:29 mmcintyre Exp $
+* $Id: layout_manager.inc,v 1.14 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,7 +48,7 @@ class Layout_Manager extends Asset
 	*/
 	function Layout_Manager($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Asset($assetid);
 
 	}//end constructor
@@ -57,27 +57,36 @@ class Layout_Manager extends Asset
 	/**
 	* Create this asset
 	*
+	* Returns either the linkid or FALSE on failure
+	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @return mixed int or false
+	* @return mixed int|boolean
 	* @access public
 	* @see Asset::create()
 	*/
 	function create(&$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
-		if (!system_asset_fns_create_pre_check($this)) return false;
+		if (!system_asset_fns_create_pre_check($this)) {
+			return FALSE;
+		}
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
 			if (!system_asset_fns_create_cleanup($this)) {
-				$linkid = false;
+				$linkid = FALSE;
 			}
 		}
 
-		if ($linkid) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		if ($linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end create()
@@ -86,12 +95,12 @@ class Layout_Manager extends Asset
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @return string
 	* @access private
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 
@@ -106,7 +115,7 @@ class Layout_Manager extends Asset
 	*/
 	function canDelete()
 	{
-		return false;
+		return FALSE;
 
 	}//end canDelete()
 
@@ -119,32 +128,31 @@ class Layout_Manager extends Asset
 	*/
 	function canClone()
 	{
-		return false;
+		return FALSE;
 
 	}//end canClone()
 
 
 	/**
-	* Returns a Layout Asset for a type_code and its screen
+	* Returns a Layout Asset for a type_code and its screen (or NULL on error)
 	*
-	* If no screen is specified, an array of layouts for all the defined screens for the type_code in the form:
-	*
-	* <PRE>
+	* OR, if no screen is specified, an array of layouts for all the defined screens for the type_code in the form:
+	* <pre>
 	*  Array(
 	*     'screen_name1' => &$layout_asset1,
 	*     'screen_name2' => &$layout_asset2,
 	*  );
-	* </PRE>
+	* </pre>
 	*
-	* @param string 	$type_code	the type_code for which the layout is wanted
-	* @param string 	$screen		the name of the screen for which the layout is defined
+	* @param string	$type_code	the type_code for which the layout is wanted
+	* @param string	$screen		the name of the screen for which the layout is defined
 	*
-	* @return &object Layout $layout (or an array of layouts if no screen is specified). NULL on error
+	* @return object
 	* @access public
 	*/
 	function &getLayout($type_code, $screen='')
 	{
-		$null = null; // for returning a reference
+		$null = NULL; // for returning a reference
 
 		// layouts should only be used on the frontend
 		if (!SQ_IN_LIMBO) return $null;
@@ -155,7 +163,9 @@ class Layout_Manager extends Asset
 		// if there are no layouts directly applied for this type code will
 		// will check the type ancestors to look for one
 		if (!isset($layouts[$type_code]) || (!empty($screen) && !isset($layouts[$type_code][$screen]))) {
-			if (null === ($type_code = $this->getAncestorLayoutTypeCode($type_code, $screen))) return $null;
+			if (NULL === ($type_code = $this->getAncestorLayoutTypeCode($type_code, $screen))) {
+				return $NULL;
+			}
 		}
 
 		// no layouts defined for this type_code's screens
@@ -165,14 +175,16 @@ class Layout_Manager extends Asset
 		if ($screen == '') {
 			$layout = Array();
 			foreach ($layouts[$type_code] as $screen => $assetid) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, 'layout');
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, 'layout');
 				if (is_null($asset)) continue;
-				$layout[$screen] = &$asset;
+				$layout[$screen] =& $asset;
 			}
 			if (empty($layout)) return $null;
 		} else {
-			if (!isset($layouts[$type_code][$screen])) return $null;
-			$layout = &$GLOBALS['SQ_SYSTEM']->am->getAsset($layouts[$type_code][$screen], 'layout');
+			if (!isset($layouts[$type_code][$screen])) {
+				return $null;
+			}
+			$layout =& $GLOBALS['SQ_SYSTEM']->am->getAsset($layouts[$type_code][$screen], 'layout');
 			if (is_null($layout)) return $null;
 		}
 		return $layout;
@@ -181,12 +193,12 @@ class Layout_Manager extends Asset
 
 
 	/**
-	* Returns the layout type code of ancestor for a given type code, or null if none exits
+	* Returns the layout type code of ancestor for a given type code, or NULL if none exits
 	*
-	* @param string		$type_code	the type_code to find an ancestor type code for
-	* @param string		$screen		the name of the screen for which the layout is defined
+	* @param string	$type_code	the type_code to find an ancestor type code for
+	* @param string	$screen		the name of the screen for which the layout is defined
 	*
-	* @return string the type_code of the ancestor, or NULL if there is not one
+	* @return string
 	* @access public
 	*/
 	function getAncestorLayoutTypeCode($type_code, $screen='')
@@ -194,15 +206,17 @@ class Layout_Manager extends Asset
 		$layouts = $this->attr('layouts');
 		$ancestor_type_code = '';
 
-		$ancestors = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, false);
+		$ancestors = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, FALSE);
 		foreach ($ancestors as $type) {
 			if (isset($layouts[$type])) {
-				if (!empty($screen) && !isset($layouts[$type][$screen])) continue;
+				if (!empty($screen) && !isset($layouts[$type][$screen])) {
+					continue;
+				}
 				$ancestor_type_code = $type;
 				break;
 			}
 		}
-		return (!empty($ancestor_type_code)) ? $ancestor_type_code : null;
+		return (!empty($ancestor_type_code)) ? $ancestor_type_code : NULL;
 
 	}//end getAncestorLayoutTypeCode()
 
@@ -210,8 +224,8 @@ class Layout_Manager extends Asset
 	/**
 	* Returns TRUE if a layout is defined for a particualt type_code and screen
 	*
-	* @param string $type_code the type_code to check
-	* @param string $screen the screen of the type_code to check
+	* @param string	$type_code	the type_code to check
+	* @param string	$screen		the screen of the type_code to check
 	*
 	* @return boolean
 	* @access public
@@ -222,10 +236,14 @@ class Layout_Manager extends Asset
 		if (!isset($layouts[$type_code][$screen])) {
 			// if there is no screen defined for this type_code, check to see if there is
 			// a layout defined for its ancestor
-			if (null === ($type_code = $this->getAncestorLayoutTypeCode($type_code))) return false;
-			if (!isset($layouts[$type_code][$screen])) return false;
+			if (NULL === ($type_code = $this->getAncestorLayoutTypeCode($type_code))) {
+				return FALSE;
+			}
+			if (!isset($layouts[$type_code][$screen])) {
+				return FALSE;
+			}
 		}
-		return true;
+		return TRUE;
 
 	}//end hasLayout()
 

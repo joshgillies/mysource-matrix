@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.20 2005/11/30 05:10:06 bcaldwell Exp $
+* $Id: cron_job_future_lineage.inc,v 1.21 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,7 +48,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	*/
 	function Cron_Job_Future_Lineage($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Cron_Job($assetid);
 
 	}//end constructor
@@ -59,30 +59,30 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!parent::_createAdditional($link)) return false;
+		if (!parent::_createAdditional($link)) return FALSE;
 
 		if (!empty($this->_tmp['asset_in_link'])) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'links')) {
 				trigger_localised_error('CRON0018', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 
 			foreach ($this->_tmp['asset_in_link'] as $side_of_link => $link) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($asset) || !$this->setAssetInLink($asset, $side_of_link)) {
 					trigger_localised_error('CRON0017', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
 			}
 			unset($this->_tmp['asset_in_link']);
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'links');
 		}
-		return true;
+		return TRUE;
 
 	}//end _createAdditional()
 
@@ -90,14 +90,15 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
-		$minor = &$this->getAssetInLink('minor');
+		$minor =& $this->getAssetInLink('minor');
 		if (is_null($minor)) {
 			return translate('cron_job_asset-less_future_linking');
 		} else if ($short_name) {
@@ -112,8 +113,9 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -139,11 +141,11 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	*/
 	function canDelete()
 	{
-		if (parent::canDelete()) return true;
+		if (parent::canDelete()) return TRUE;
 
-		$minor = &$this->getAssetInLink('minor');
+		$minor =& $this->getAssetInLink('minor');
 		if (!is_null($minor)) return $minor->adminAccess('');
-		return false;
+		return FALSE;
 
 	}//end canDelete()
 
@@ -151,8 +153,8 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	/**
 	* Set the value for the passed variable to the passed value
 	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -162,20 +164,20 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		switch ($name) {
 			case 'type':
 				trigger_localised_error('CRON0039', E_USER_NOTICE);
-				return false;
+				return FALSE;
 			break;
 			case 'delete_linkid':
 				if ($value > 0) {
-					$this->setAttrValue('delete_link_all', false);
+					$this->setAttrValue('delete_link_all', FALSE);
 				}
 			break;
 			case 'delete_link_all':
-				if ($value == true) {
+				if ($value == TRUE) {
 					$this->setAttrValue('delete_linkid', 0);
 				}
 			break;
 		}
-		
+
 		return parent::setAttrValue($name, $value);
 
 	}//end setAttrValue()
@@ -184,8 +186,8 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	/**
 	* Sets the asset that this cron job will be altering the status on
 	*
-	* @param object Asset	$asset			a reference to the asset
-	* @param string			$side_of_link	the side of the link that this asset is to be - [major|minor]
+	* @param object	&$asset			a reference to the asset
+	* @param string	$side_of_link	the side of the link that this asset is to be - [major|minor]
 	*
 	* @return boolean
 	* @access public
@@ -194,12 +196,12 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	{
 		if ($side_of_link != 'major' && $side_of_link != 'minor') {
 			trigger_localised_error('CRON0033', E_USER_WARNING, $side_of_link);
-			return false;
+			return FALSE;
 		}
 
 		if (!is_a($asset, 'asset')) {
 			trigger_localised_error('CRON0030', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		if ($this->id) {
@@ -209,7 +211,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 				$this->_tmp['asset_in_link'] = Array();
 			}
 			$this->_tmp['asset_in_link'][$side_of_link] = Array('minorid' => $asset->id, 'minor_type_code' => $asset->type());
-			return true;
+			return TRUE;
 		}
 
 	}//end setAssetInLink()
@@ -220,19 +222,19 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	*
 	* @param string	$side_of_link	the side of the link that this asset is to be - [major|minor]
 	*
-	* @return mixed object Asset or NULL on error
+	* @return mixed object|NULL
 	* @access public
 	*/
 	function &getAssetInLink($side_of_link)
 	{
-		$null = null; // because we need to return by ref
+		$null = NULL; // because we need to return by ref
 		if ($side_of_link != 'major' && $side_of_link != 'minor') {
 			trigger_localised_error('CRON0033', E_USER_WARNING, $side_of_link);
 			return $null;
 		}
 
 		if ($this->id) {
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', false, $side_of_link.'_asset');
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', FALSE, $side_of_link.'_asset');
 		} else {
 			$link = (isset($this->_tmp['asset_in_link'][$side_of_link])) ? $this->_tmp['asset_in_link'][$side_of_link] : Array();
 		}
@@ -251,8 +253,10 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	*/
 	function readableDescription()
 	{
-		$minor = &$this->getAssetInLink('minor');
-		if (is_null($minor)) return translate('no_minor_asset_found');
+		$minor =& $this->getAssetInLink('minor');
+		if (is_null($minor)) {
+			return translate('no_minor_asset_found');
+		}
 
 		$str = '';
 
@@ -261,14 +265,14 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attr('delete_linkid'));
 
 			if (!empty($link)) {
-				$old_major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+				$old_major =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 				if (!is_null($old_major)) {
 					$str = ' - '.translate('asset_from_under_asset', translate('asset_format', $minor->name, $minor->id), translate('asset_format', $old_major->name, $old_major->id));
 				}
 			}
 		}
 
-		$new_major = &$this->getAssetInLink('major');
+		$new_major =& $this->getAssetInLink('major');
 
 		if ($this->attr('delete_linkid') && !is_null($new_major)) {
 			$str .= "\n";
@@ -286,11 +290,13 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	/**
 	* Actually executes the functionality for this job, called by run()
 	*
-	* @param string	$msg	accepted by reference, used to return any messages about completion etc from _exec
+	* Returns a bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
 	*
-	* @return int	bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
-	* @see Cron_Job::_exec(), Cron_Job::run()
+	* @param string	&$msg	used to return any messages about completion etc from _exec
+	*
+	* @return int
 	* @access private
+	* @see Cron_Job::_exec(), Cron_Job::run()
 	*/
 	function _exec(&$msg)
 	{
@@ -300,33 +306,32 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		// need to get this here because we are could be deleting the link below
 		$desc = $this->readableDescription();
 
-		$minor = &$this->getAssetInLink('minor');
+		$minor =& $this->getAssetInLink('minor');
 		if (is_null($minor)) {
 			trigger_localised_error('CRON0019', E_USER_WARNING);
 			return $failed_ret_val;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
-		$delete_link_success = true;
-		if ($this->attr('delete_link_all') == true) {
-			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'minor');
+
+		$delete_link_success = TRUE;
+		if ($this->attr('delete_link_all') == TRUE) {
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'minor');
 			foreach ($links as $link) {
-				if (!$delete_link_success = $this->_exec_delete_link($link['linkid'])) {
+				if (!$delete_link_success = $this->_execDeleteLink($link['linkid'])) {
 					break;
 				}//end if
 			}
 		} else if ($this->attr('delete_linkid') > 0) {
-			if (!$delete_link_success = $this->_exec_delete_link($this->attr('delete_linkid'))) {
-				break;	
+			if (!$delete_link_success = $this->_execDeleteLink($this->attr('delete_linkid'))) {
+				break;
 			}
 		}//end if
-		
-		if (!$delete_link_success) {
-			return $failed_ret_val;
-		}
 
-		$new_major = &$this->getAssetInLink('major');
+		if (!$delete_link_success) return $failed_ret_val;
+
+		$new_major =& $this->getAssetInLink('major');
 		if (!is_null($new_major)) {
 
 			$link_info = $this->attr('link_info');
@@ -334,7 +339,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 				$link_info['value'] = '';
 			}
 			if (!isset($link_info['sort_order'])) {
-				$link_info['sort_order'] = null;
+				$link_info['sort_order'] = NULL;
 			}
 			if (!isset($link_info['is_dependant'])) {
 				$link_info['is_dependant'] = '0';
@@ -356,84 +361,88 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			if (!$create_ok) {
 				trigger_localised_error('CRON0004', E_USER_WARNING, $new_major->name, $new_major->id);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return $failed_ret_val;
 			}
 
 		}//end if
 
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assetids' => Array($minor->id));
 		$lookup_errors = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
 		if (!empty($lookup_errors)) {
 			trigger_localised_error('CRON0008', E_USER_WARNING, $minor->name, $minor->id);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $failed_ret_val;
 		}
 
 		$msg = "Successful in \n".$desc;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		// all OK, and we can be removed because we have done our one off task
 		return SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE;
 
 	}//end _exec()
-	
-	
+
+
 	/**
 	* Given the ID of a link, attempts to delete it.
-	* 
+	*
 	* @param int	$linkid	The ID of the link to delete
-	* 
+	*
 	* @return boolean
 	* @access private
 	*/
-	function _exec_delete_link($linkid)
+	function _execDeleteLink($linkid)
 	{
-		$delete_ok = false;
-		
+		$delete_ok = FALSE;
+
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		if (!empty($link)) {
-			$old_major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+			$old_major =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 			if (!is_null($old_major) && $GLOBALS['SQ_SYSTEM']->am->acquireLock($old_major->id, 'links')) {
-				$delete_ok = $old_major->deleteLink($linkid, true);
+				$delete_ok = $old_major->deleteLink($linkid, TRUE);
 			}
 		}
 
 		if (!$delete_ok) {
 			trigger_localised_error('CRON0007', E_USER_WARNING, $linkid);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
 		}
-		return true;
-		
-	}//end _exec_delete_link
+		return TRUE;
+
+	}//end _execDeleteLink()
 
 
 	/**
 	* Returns an array of active future lineage jobs that are to be run on the passed asset
 	* returned in chronological order
 	*
-	* @param object Asset	$asset	the asset to get the future status jobs for
+	* @param object	&$asset	the asset to get the future status jobs for
 	*
-	* @return Array() returns an array of references to the Future Lineage jobs
+	* @return array
 	* @access public
 	* @static
 	*/
 	function &getActiveJobs(&$asset)
 	{
-		$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		if (is_null($cron_mgr)) {
 			$blank = Array();
 			return $blank;
 		}
 
 		// get all active future lineage jobs
-		$all_jobs = $cron_mgr->getJobs(__CLASS__, false);
+		$all_jobs = $cron_mgr->getJobs(__CLASS__, FALSE);
 
 		$dates = Array();
 		for ($i = 0, $total = count($all_jobs); $i < $total; $i++) {
 
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($all_jobs[$i]->id, SQ_LINK_NOTICE, 'asset', false, 'minor_asset');
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($all_jobs[$i]->id, SQ_LINK_NOTICE, 'asset', FALSE, 'minor_asset');
 			if (!empty($link) && $link['minorid'] == $asset->id) {
 				$dates[$i] = $all_jobs[$i]->attr('when');
 			}
@@ -444,7 +453,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		$assets_jobs = Array();
 
 		foreach ($dates as $i => $date) {
-			$assets_jobs[] = &$all_jobs[$i];
+			$assets_jobs[] =& $all_jobs[$i];
 		}//end for
 
 		return $assets_jobs;

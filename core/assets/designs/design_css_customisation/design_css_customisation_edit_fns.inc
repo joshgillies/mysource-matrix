@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_customisation_edit_fns.inc,v 1.12 2005/11/03 23:57:26 lwright Exp $
+* $Id: design_css_customisation_edit_fns.inc,v 1.13 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_css/design_css_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -95,6 +95,7 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 
 		$data = Array();
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		foreach ($_POST[$prefix.'_remove_customisation'] as $id_name) {
@@ -106,10 +107,12 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 
 		if ($data && !$this->_updateDesignAreaLink($asset, $data)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}// end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return true;
 
 	}//end processCustomisedDesignAreas()
@@ -153,6 +156,7 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 
 		$data = Array();
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$map  = Array();
@@ -181,6 +185,7 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 
 			if (is_null($clone)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}
 
@@ -190,10 +195,12 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 
 		if ($data && !$this->_updateDesignAreaLink($asset, $data)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}// end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return true;
 
 	}//end processUnCustomisedDesignAreas()

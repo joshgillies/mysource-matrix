@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.16 2005/12/16 05:43:27 lwright Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.17 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,11 +68,11 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		$prefix = $asset->getPrefix();
 
-		$is_default = false;
+		$is_default = FALSE;
 
 		if (is_null($value_str)) {
 			$value_str = $asset->getDefaultValue();
-			$is_default = true;
+			$is_default = TRUE;
 		}
 
 		$value = '';
@@ -87,7 +87,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 				if ($asset->attr('multi_line')) {
 					text_area($prefix.'_value', $value, 45, 7, 0, 'onkeydown="document.getElementById(\''.$prefix.'_default\').checked = false;"');
 				} else {
-					text_box($prefix.'_value', $value, 30, '', false, 'onkeydown="document.getElementById(\''.$prefix.'_default\').checked = false;"');
+					text_box($prefix.'_value', $value, 30, '', FALSE, 'onkeydown="document.getElementById(\''.$prefix.'_default\').checked = false;"');
 				}
 				echo ' '.strtolower(translate('or')).' ';
 				check_box($prefix.'_default', '1', $is_default);
@@ -138,8 +138,9 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 				</table>
 				<?php
 			}//end if
-		}
-		return true;
+		}//end if
+
+		return TRUE;
 
 	}//end paintValueInterface()
 
@@ -162,11 +163,11 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
-		$is_default = false;
+		$is_default = FALSE;
 
 		if (is_null($value_str)) {
 			$value_str = $asset->getDefaultValue();
-			$is_default = true;
+			$is_default = TRUE;
 		}
 
 		$value = '';
@@ -188,12 +189,11 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 					if ($asset->attr('multi_line')) {
 						text_area($prefix.'_value', $value, 45, 7, 0, ($is_default ? 'disabled="disabled" ' : '').'onkeydown="document.getElementById(\''.$prefix.'_default\').checked = false;"');
 					} else {
-						text_box($prefix.'_value', $value, 30, '', false, ($is_default ? 'disabled="disabled" ' : '').'onkeydown="document.getElementById(\''.$prefix.'_default\').checked = false;"');
+						text_box($prefix.'_value', $value, 30, '', FALSE, ($is_default ? 'disabled="disabled" ' : '').'onkeydown="document.getElementById(\''.$prefix.'_default\').checked = false;"');
 					}
 					echo ' &nbsp; &nbsp; &nbsp; ';
 					check_box($prefix.'_default', '1', $is_default, 'with(this.form.elements[\''.$prefix.'_value\']) { disabled = this.checked; if (this.checked) { value = \''.addslashes($asset->getDefaultValue()).'\'; } }');
 					echo ' '.translate('use_default');
-					//echo ' <em style="color: #666">('.$asset->attr('default').')</em>';
 				} else {
 					echo $value;
 					if ($is_default) {
@@ -266,7 +266,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 			}//endif
 		$o->closeField();
 
-		return true;
+		return TRUE;
 
 	}//end paintInlineValueInterface()
 
@@ -283,7 +283,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	function processInlineValueInterface(&$asset, &$new_value_str)
 	{
 		// nothing for us to do
-		if (!$asset->attr('editable')) return true;
+		if (!$asset->attr('editable')) return TRUE;
 
 		$prefix = $asset->getPrefix();
 
@@ -292,9 +292,9 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 		$use_default = array_get_index($_POST, $prefix.'_default', '');
 
 		if ($use_default) {
-			$new_value_str = null;
+			$new_value_str = NULL;
 		} else {
-			for (reset($value_components); null !== ($vc_name = key($value_components)); next($value_components)) {
+			for (reset($value_components); NULL !== ($vc_name = key($value_components)); next($value_components)) {
 				if (isset($_POST[$prefix.'_vc_value'][$vc_name])) {
 					$value_components[$vc_name] = str_replace(Array('\n', '\r'), Array(' ', ''), trim($_POST[$prefix.'_vc_value'][$vc_name]));
 				}
@@ -303,7 +303,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 			$new_value_str = Metadata_Field::encodeValueString(trim($value), $value_components);
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processInlineValueInterface()
 

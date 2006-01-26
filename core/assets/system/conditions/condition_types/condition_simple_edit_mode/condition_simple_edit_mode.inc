@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_simple_edit_mode.inc,v 1.6 2005/10/13 02:07:38 tbarrett Exp $
+* $Id: condition_simple_edit_mode.inc,v 1.7 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,11 +51,11 @@ class Condition_Simple_Edit_Mode extends Condition
 
 	}//end constructor
 
-	
+
 	/**
 	* Evaluate this condition
 	*
-	* @param object &$asset			the asset to evaluate against
+	* @param object	&$asset			the asset to evaluate against
 	* @param array	$condition_data	the condition details to use when evaluating
 	*
 	* @return boolean

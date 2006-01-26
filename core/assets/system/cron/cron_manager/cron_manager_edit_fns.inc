@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.32 2006/01/25 04:46:21 rong Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.33 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -148,8 +148,8 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the jobs interface
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the backend outputter
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the backend outputter object
 	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
@@ -270,8 +270,8 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the jobs interface
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the backend outputter
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the backend outputter object
 	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
@@ -299,10 +299,10 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Yes getting the date time field requires it's own function because it is so
-	* fucking hard to set-up
+	* Yes getting the date time field requires it's own function because it is
+	* such a pain to set-up
 	*
-	* @param object	&$asset	the owning asset
+	* @param object	&$asset	the asset to which we belong
 	* @param string	$prefix	prefix for form elements
 	*
 	* @return object
@@ -352,8 +352,8 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the interface for editing the cron manager's Epoch
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the backend outputter
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the backend outputter object
 	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
@@ -380,8 +380,8 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for editing the cron manager's Epoch
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the backend outputter
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the backend outputter object
 	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
@@ -409,8 +409,8 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the interface for showing when the cron manager last ran
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the backend outputter
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the backend outputter object
 	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
@@ -426,8 +426,8 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the interface for showing whether the cron manager is currently running or not
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the backend outputter
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the backend outputter object
 	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
@@ -493,8 +493,8 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	* Processes the interface for showing whether the cron manager is currently running or not
 	*
 	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public

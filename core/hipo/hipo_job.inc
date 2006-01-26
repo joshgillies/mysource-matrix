@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.76 2005/11/30 23:32:09 mmcintyre Exp $
+* $Id: hipo_job.inc,v 1.77 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -73,16 +73,16 @@ class HIPO_Job extends MySource_Object
 	* Flag to see if we are prepared or not
 	* @var boolean
 	*/
-	var $is_prepared = false;
+	var $is_prepared = FALSE;
 
 	/**
 	* Flag which determines whether HIPO Herder wraps the whole job in a transaction
 	*
-	* If this is turned OFF (false), we rely on this job to manage its own transactions!
+	* If this is turned OFF (FALSE), we rely on this job to manage its own transactions!
 	*
 	* @var boolean
 	*/
-	var $uses_trans = true;
+	var $uses_trans = TRUE;
 
 	/**
 	* Array that stores some variables that the HIPO steps use
@@ -94,7 +94,7 @@ class HIPO_Job extends MySource_Object
 						'initialise_mode'	=> '',      // the mode that this job was initialised() in,
 															// used to decide what to do when we are completed
 						'running_mode'		=> '',      // the mode that is currently doing the processing
-						'aborted'			=> false,   // whether we have been aborted or not
+						'aborted'			=> FALSE,   // whether we have been aborted or not
 						'server_taskid'		=> '',      // id the HIPO server gave the task when it went
 															// into running_mode='server'
 						'message'			=> '',
@@ -108,7 +108,7 @@ class HIPO_Job extends MySource_Object
 	*/
 	var $_options = Array(
 						'on_complete_url'	=> '',
-						'auto_complete'		=> true,
+						'auto_complete'		=> TRUE,
 					);
 
 	/**
@@ -148,11 +148,11 @@ class HIPO_Job extends MySource_Object
 	*								),
 	*		]
 	*			'running_mode'	=> [web|server],
-	*			'auto_step'		=> [true|false],
-	*			'skip_step'		=> [true|false],
-	*			'allow_cancel'	=> [true|false],
+	*			'auto_step'		=> [TRUE|FALSE],
+	*			'skip_step'		=> [TRUE|FALSE],
+	*			'allow_cancel'	=> [TRUE|FALSE],
 	*			'percent_done'	=> 0,
-	*			'complete'		=> false,
+	*			'complete'		=> FALSE,
 	*			'message'		=> '',
 	*		),
 	*		...
@@ -373,7 +373,7 @@ class HIPO_Job extends MySource_Object
 	* @return void
 	* @access protected
 	*/
-	function _addError($error, $warning=false)
+	function _addError($error, $warning=FALSE)
 	{
 		$error = trim($error);
 		if (!empty($error)) {
@@ -409,8 +409,8 @@ class HIPO_Job extends MySource_Object
 	*/
 	function prepare()
 	{
-		$this->is_prepared = true;
-		return true;
+		$this->is_prepared = TRUE;
+		return TRUE;
 
 	}//end prepare()
 
@@ -430,7 +430,7 @@ class HIPO_Job extends MySource_Object
 	function initialise($source_code_name=null)
 	{
 		if (!$this->is_prepared) {
-			if (!$this->prepare()) return false;
+			if (!$this->prepare()) return FALSE;
 		}
 
 		$this->_hipo_vars['initialise_mode'] = $this->_current_mode;
@@ -439,8 +439,8 @@ class HIPO_Job extends MySource_Object
 		if (empty($source_code_name)) {
 			$source_initialise_mode = $this->_current_mode;
 		} else {
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$source_job = &$hh->getJob($source_code_name);
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$source_job =& $hh->getJob($source_code_name);
 			if (is_null($source_job) || ($source_job->source_code_name != $source_job->code_name)) {
 				return '';
 			}
@@ -463,7 +463,7 @@ class HIPO_Job extends MySource_Object
 
 			} else if ($init_steps[$i]['running_mode'] == 'server' && empty($init_steps[$i]['auto_step'])) {
 				trigger_localised_error('HIPO0042', E_USER_WARNING);
-				$init_steps[$i]['auto_step'] = true;
+				$init_steps[$i]['auto_step'] = TRUE;
 
 			}// end if
 		}// end for
@@ -482,9 +482,9 @@ class HIPO_Job extends MySource_Object
 			$source_code_name = $code_name;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db  = &$GLOBALS['SQ_SYSTEM']->db;
+		$db  =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT
 					userid, last_updated
@@ -497,8 +497,10 @@ class HIPO_Job extends MySource_Object
 		assert_valid_db_result($existing);
 
 		if (!empty($existing)) {
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($existing['userid']);
+			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing['userid']);
 			trigger_localised_error('HIPO0041', E_USER_WARNING, $user->name, $user->id, $GLOBALS['SQ_SYSTEM']->datetime(iso8601_ts($existing['last_updated'])));
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return '';
 		}
 
@@ -588,7 +590,7 @@ class HIPO_Job extends MySource_Object
 	* Config vars should be in the format:
 	* <PRE>
 	* Array(
-	*    'SQ_DEFINE_1'   => Array('editable' => 0, 'default' => false),
+	*    'SQ_DEFINE_1'   => Array('editable' => 0, 'default' => FALSE),
 	*    'SQ_DEFINE_2'   => Array('editable' => 1, 'default' => ''),
 	* );
 	* </PRE>
@@ -616,7 +618,7 @@ class HIPO_Job extends MySource_Object
 		$config_vars = $this->getConfigVars();
 		if (empty($config_vars)) return 1;
 		foreach ($config_vars as $name => $value) {
-			if (strpos($name, 'THRESHOLD') !== false) {
+			if (strpos($name, 'THRESHOLD') !== FALSE) {
 				return constant($name);
 			}
 		}
@@ -646,7 +648,7 @@ class HIPO_Job extends MySource_Object
 	*/
 	function freestyle()
 	{
-		return true;
+		return TRUE;
 
 	}//end freestyle()
 
@@ -661,8 +663,8 @@ class HIPO_Job extends MySource_Object
 	*/
 	function load($code_name)
 	{
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db  = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
+		$db  =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT job_type, userid, running, source_code_name, hipo_vars, options, steps, running_vars, last_updated
 				FROM sq_hipo_job
 				WHERE code_name = '.$db->quote($code_name);
@@ -671,11 +673,11 @@ class HIPO_Job extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		assert_valid_db_result($result);
 
-		if (empty($result)) return false;
+		if (empty($result)) return FALSE;
 
 		if ($result['job_type'] != get_class($this)) {
 			trigger_localised_error('HIPO0040', E_USER_WARNING, $result['job_type'], get_class($this));
-			return false;
+			return FALSE;
 		}
 
 		$this->code_name        = $code_name;
@@ -687,7 +689,7 @@ class HIPO_Job extends MySource_Object
 		$this->_running_vars    = unserialize($result['running_vars']);
 		$this->last_updated     = iso8601_ts($result['last_updated']);
 
-		return true;
+		return TRUE;
 
 	}//end load()
 
@@ -701,16 +703,16 @@ class HIPO_Job extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function save($ignore_running_mode=false)
+	function save($ignore_running_mode=FALSE)
 	{
 		if ($this->userid != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
 			trigger_localised_error('HIPO0039', E_USER_WARNING, $this->code_name);
-			return false;
+			return FALSE;
 		}
 
 		// if we have called save and we aren't the running version, bugger off
 		if (!$ignore_running_mode && $this->_current_mode != $this->_hipo_vars['running_mode']) {
-			return false;
+			return FALSE;
 		}
 
 		// First let's make sure that everything is in order with the hipo vars and our complete status
@@ -733,15 +735,15 @@ class HIPO_Job extends MySource_Object
 		}
 
 		// Second let's decide, depening on the circumstances, whether to delete or update
-		$delete = false;
+		$delete = FALSE;
 		// if we have aborted, delete right now
 		if ($this->_hipo_vars['aborted']) {
-			$delete = true;
+			$delete = TRUE;
 		} else if ($this->complete()) {
 			// if we are running from the web, we can delete the DB entry
 			// because we are now done with it
 			if ($this->_current_mode == 'web') {
-				$delete = true;
+				$delete = TRUE;
 
 			// running from the server/cmdline
 			} else {
@@ -749,7 +751,7 @@ class HIPO_Job extends MySource_Object
 				// The idea here is that if we are the top hipo job AND we were initialised in a web script
 				// then we need to leave the DB entry so that the refreshing we script can get the data one last time
 				if ($this->code_name != $this->source_code_name || $this->_hipo_vars['initialise_mode'] != 'web') {
-					$delete = true;
+					$delete = TRUE;
 				}
 
 			}// endif
@@ -758,10 +760,10 @@ class HIPO_Job extends MySource_Object
 
 		$now = time();
 
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		// now we just do what we are told
 		if ($delete) {
 			$sql = 'DELETE FROM
@@ -804,7 +806,7 @@ class HIPO_Job extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$this->last_updated = $now;
 
-		return true;
+		return TRUE;
 
 	}//end save()
 
@@ -821,7 +823,7 @@ class HIPO_Job extends MySource_Object
 		$step = $this->_hipo_vars['current_step'];
 		if (isset($this->_steps[$step])) {
 			if (!empty($this->_steps[$step]['hipo_job']) && !empty($this->_steps[$step]['hipo_job']['code_name']) && !empty($this->_steps[$step]['hipo_job']['job_type'])) {
-				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				return $hh->getJob($this->_steps[$step]['hipo_job']['code_name']);
 			}// end if
 		}// endif
@@ -857,20 +859,20 @@ class HIPO_Job extends MySource_Object
 	function setRunningMode($mode, $server_taskid='')
 	{
 		if ($mode != 'web' && $mode != 'server') {
-			return false;
+			return FALSE;
 		}
 
-		$sub_job = &$this->_getSubJob();
+		$sub_job =& $this->_getSubJob();
 		if (!is_null($sub_job)) {
-			if (!$sub_job->setRunningMode($mode)) return false;
+			if (!$sub_job->setRunningMode($mode)) return FALSE;
 		}// end if
 
 		$this->_hipo_vars['running_mode']  = $mode;
 		$this->_hipo_vars['server_taskid'] = $server_taskid;
-		if ($this->save(true)) {
-			return true;
+		if ($this->save(TRUE)) {
+			return TRUE;
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end setRunningMode()
@@ -901,7 +903,7 @@ class HIPO_Job extends MySource_Object
 		if ($this->complete()) {
 			// if we are complete, but there are errors, we need to pause for them to be seen
 			if (!empty($this->_hipo_vars['errors'])) {
-				return false;
+				return FALSE;
 			} else {
 				return $this->_options['auto_complete'];
 			}
@@ -911,7 +913,7 @@ class HIPO_Job extends MySource_Object
 
 		} else if (!empty($this->_steps[$step]['hipo_job'])) {
 
-			$sub_job = &$this->_getSubJob();
+			$sub_job =& $this->_getSubJob();
 			// if we are processing a sub job, it's it's decision whether to auto step or not
 			if (!is_null($sub_job)) {
 				return $sub_job->autoStep();
@@ -924,7 +926,7 @@ class HIPO_Job extends MySource_Object
 
 		}// end if
 
-		return false;
+		return FALSE;
 
 	}//end autoStep()
 
@@ -940,7 +942,7 @@ class HIPO_Job extends MySource_Object
 		$this->_hipo_vars['current_step']++;
 		for ($i = $this->_hipo_vars['current_step']; $i < count($this->_steps); $i++) {
 			if (isset($this->_steps[$i]['skip_step']) && $this->_steps[$i]['skip_step']) {
-				$this->_steps[$i]['complete'] = true;
+				$this->_steps[$i]['complete'] = TRUE;
 				$this->_steps[$i]['percent_done'] = 100;
 				$this->_hipo_vars['current_step']++;
 
@@ -965,10 +967,10 @@ class HIPO_Job extends MySource_Object
 	*/
 	function skipStep($stepid=0)
 	{
-		if (!isset($this->_steps[$stepid])) return false;
-		$this->_steps[$stepid]['skip_step'] = true;
+		if (!isset($this->_steps[$stepid])) return FALSE;
+		$this->_steps[$stepid]['skip_step'] = TRUE;
 
-		return true;
+		return TRUE;
 
 	}//end skipStep()
 
@@ -982,7 +984,7 @@ class HIPO_Job extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function paint(&$o, $nested=false)
+	function paint(&$o, $nested=FALSE)
 	{
 		if ($this->_current_mode != 'web') {
 			trigger_localised_error('HIPO0038', E_USER_WARNING);
@@ -1012,7 +1014,7 @@ class HIPO_Job extends MySource_Object
 		// print the error report if there are errors
 		if ($this->complete() && !empty($this->_hipo_vars['errors'])) {
 			echo '<p>';
-			$this->_paintErrorReport(true);
+			$this->_paintErrorReport(TRUE);
 			echo '</p>';
 			return;
 		}
@@ -1023,10 +1025,10 @@ class HIPO_Job extends MySource_Object
 				$prefix = $this->code_name.'step'.$step;
 				$this->$fn($this->_steps[$step], $o, $prefix);
 			} else if (!empty($step_data['hipo_job'])) {
-				$sub_job = &$this->_getSubJob();
+				$sub_job =& $this->_getSubJob();
 				if (!is_null($sub_job)) {
 					$o->closeRaw();
-						$sub_job->paint($o, true);
+						$sub_job->paint($o, TRUE);
 					$o->openRaw();
 				}
 			} else {
@@ -1053,13 +1055,13 @@ class HIPO_Job extends MySource_Object
 	{
 		if ($this->userid != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
 			trigger_localised_error('HIPO0036', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		// if we are is a display mode different from the running mode, we should not be
-		// doing any processing or saving - so just return true here
+		// doing any processing or saving - so just return TRUE here
 		if ($this->_current_mode != $this->_hipo_vars['running_mode']) {
-			return true;
+			return TRUE;
 		}
 
 		// if we are complete, then just save (which will clear the DB if needed)
@@ -1074,7 +1076,7 @@ class HIPO_Job extends MySource_Object
 				set_error_handler(Array(&$this, '_errorHandler'));
 				$max_assets_to_process = max($this->getThreshold(), 1);
 				$i = 0;
-				$ret_val = true;
+				$ret_val = TRUE;
 				while (($i < $max_assets_to_process) && (!$this->_steps[$step]['complete'])) {
 					$prefix = $this->code_name.'step'.$step;
 					$ret_val = $ret_val && $this->processWeb($this->_steps[$step], $prefix);
@@ -1108,7 +1110,7 @@ class HIPO_Job extends MySource_Object
 								'source_code_name'	=> $this->source_code_name,
 							);
 
-					$ret_val = false;
+					$ret_val = FALSE;
 					$client = new Squiz_Server_Client_MySource3();
 					if ($client->connect()) {
 						if ($client->write('HIPO_Job', $data)) {
@@ -1116,7 +1118,7 @@ class HIPO_Job extends MySource_Object
 							if (!is_null($ack)) {
 								switch ($ack['result']) {
 									case 'ack' :
-										$ret_val = true;
+										$ret_val = TRUE;
 									break;
 
 									case 'error' :
@@ -1124,7 +1126,7 @@ class HIPO_Job extends MySource_Object
 									break;
 
 									default :
-										trigger_localised_error('HIPO0053', E_USER_WARNING, print_r($ack, true));
+										trigger_localised_error('HIPO0053', E_USER_WARNING, print_r($ack, TRUE));
 
 								}// end switch
 							}// end if
@@ -1151,7 +1153,7 @@ class HIPO_Job extends MySource_Object
 				default :
 					trigger_localised_error('HIPO0052', E_USER_WARNING, $this->_steps[$step]['running_mode']);
 					$this->abort();
-					return false;
+					return FALSE;
 
 			}//end switch
 
@@ -1177,7 +1179,7 @@ class HIPO_Job extends MySource_Object
 	*/
 	function processWeb(&$step_data, $prefix)
 	{
-		$process_ok = false;
+		$process_ok = FALSE;
 		if (!empty($step_data['function_call'])) {
 			$fn = $step_data['function_call']['process_function'];
 			$process_ok = $this->$fn($step_data, $prefix);
@@ -1190,7 +1192,7 @@ class HIPO_Job extends MySource_Object
 
 				// so they have decided to ignore this step ? that's cool
 				if (empty($job_type)) {
-					$process_ok = true;
+					$process_ok = TRUE;
 
 				} else {
 					if (empty($hipo_vars)) {
@@ -1214,19 +1216,19 @@ class HIPO_Job extends MySource_Object
 					if ($code_name) {
 						$step_data['hipo_job']['code_name'] = $code_name;
 						$step_data['hipo_job']['job_type']  = $job_type;
-						$process_ok = true;
+						$process_ok = TRUE;
 					}
 
 				}// end if
 
 			} else {
-				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				$hipo = &$hh->getJob($step_data['hipo_job']['code_name']);
+				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hipo =& $hh->getJob($step_data['hipo_job']['code_name']);
 				if (!is_null($hipo) && $hipo->process()) {
 					$step_data['running_mode'] = $hipo->getRunningMode();
 					$step_data['percent_done'] = $hipo->percentDone();
 					$step_data['complete']     = $hipo->complete();
-					$process_ok = true;
+					$process_ok = TRUE;
 				}
 
 			}// end if
@@ -1260,10 +1262,10 @@ class HIPO_Job extends MySource_Object
 		if (!empty($step_data['function_call'])) {
 			$fn = $step_data['function_call']['process_function'];
 			while (!$step_data['complete']){
-				if (!$this->$fn($step_data, $prefix)) return false;
+				if (!$this->$fn($step_data, $prefix)) return FALSE;
 				$this->save();
 			}
-			return true;
+			return TRUE;
 
 		} else if (!empty($step_data['hipo_job'])) {
 
@@ -1271,7 +1273,7 @@ class HIPO_Job extends MySource_Object
 
 			// First let's get the info needed to create this
 			$this->$fn($job_type='', $running_vars=Array(), $options=Array(), $hipo_vars=Array());
-			if (empty($job_type)) return false;
+			if (empty($job_type)) return FALSE;
 
 			if (empty($hipo_vars)) {
 				require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$job_type.'.inc';
@@ -1288,30 +1290,30 @@ class HIPO_Job extends MySource_Object
 			}
 
 			$code_name = $init_hipo->initialise($this->source_code_name);
-			if (!$code_name) return false;
+			if (!$code_name) return FALSE;
 			unset($init_hipo);
 
 			$step_data['hipo_job']['code_name'] = $code_name;
 			$step_data['hipo_job']['job_type']  = $job_type;
 			$this->save();
 
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$hipo = &$hh->getJob($code_name, $job_type);
-			if (is_null($hipo)) return false;
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hipo =& $hh->getJob($code_name, $job_type);
+			if (is_null($hipo)) return FALSE;
 
 			while (!$step_data['complete'] && $step_data['running_mode'] == 'server') {
-				if (!$hipo->process()) return false;
+				if (!$hipo->process()) return FALSE;
 				$step_data['running_mode'] = $hipo->getRunningMode();
 				$step_data['percent_done'] = $hipo->percentDone();
 				$step_data['complete']     = $hipo->complete();
 				$this->save();
 			}
 
-			return true;
+			return TRUE;
 
 		} else {
 			trigger_localised_error('HIPO0050', E_USER_WARNING, $this->_hipo_vars['current_step']);
-			return false;
+			return FALSE;
 
 		}// end if
 
@@ -1327,10 +1329,10 @@ class HIPO_Job extends MySource_Object
 	function abort()
 	{
 		if ($this->source_code_name != $this->code_name) {
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$source_job = &$hh->getJob($this->source_code_name);
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$source_job =& $hh->getJob($this->source_code_name);
 			if (is_null($source_job) || ($source_job->source_code_name != $source_job->code_name)) {
-				return false;
+				return FALSE;
 			}
 			$source_job->abort();
 		}
@@ -1341,7 +1343,7 @@ class HIPO_Job extends MySource_Object
 			// if there is no system taskid then there is nothing we can do
 			if (empty($this->_hipo_vars['server_taskid'])) {
 				trigger_localised_error('HIPO0049', E_USER_NOTICE);
-				return false;
+				return FALSE;
 			}
 
 			require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_client_mysource3.inc';
@@ -1353,7 +1355,7 @@ class HIPO_Job extends MySource_Object
 						'taskid'			=> $this->_hipo_vars['server_taskid'],
 					);
 
-			$ret_val = false;
+			$ret_val = FALSE;
 			$client = new Squiz_Server_Client_MySource3();
 			if ($client->connect()) {
 				if ($client->write('HIPO_Job', $data)) {
@@ -1361,7 +1363,7 @@ class HIPO_Job extends MySource_Object
 					if (!is_null($ack)) {
 						switch ($ack['result']) {
 							case 'ack' :
-								$ret_val = true;
+								$ret_val = TRUE;
 							break;
 
 							case 'error' :
@@ -1369,7 +1371,7 @@ class HIPO_Job extends MySource_Object
 							break;
 
 							default :
-								trigger_localised_error('HIPO0047', E_USER_WARNING, print_r($ack, true));
+								trigger_localised_error('HIPO0047', E_USER_WARNING, print_r($ack, TRUE));
 
 						}// end switch
 
@@ -1379,7 +1381,7 @@ class HIPO_Job extends MySource_Object
 				$client->disconnect();
 			}// endif
 
-			if ($ret_val) return true;
+			if ($ret_val) return TRUE;
 
 			trigger_localised_error('HIPO0046', E_USER_WARNING);
 			// fall through and delete this bugger, set the running mode to allow the saving
@@ -1389,10 +1391,10 @@ class HIPO_Job extends MySource_Object
 
 		$this->jobAborted();
 
-		$sub_job = &$this->_getSubJob();
+		$sub_job =& $this->_getSubJob();
 		if (!is_null($sub_job)) $sub_job->jobAborted();
 
-		return true;
+		return TRUE;
 
 	}//end abort()
 
@@ -1405,8 +1407,8 @@ class HIPO_Job extends MySource_Object
 	*/
 	function jobAborted()
 	{
-		$this->setOption('auto_complete', true);
-		$this->_hipo_vars['aborted'] = true;
+		$this->setOption('auto_complete', TRUE);
+		$this->_hipo_vars['aborted'] = TRUE;
 		return $this->save();
 
 	}//end jobAborted()

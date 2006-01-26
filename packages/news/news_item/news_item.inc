@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item.inc,v 1.14 2005/11/28 04:59:17 dmckee Exp $
+* $Id: news_item.inc,v 1.15 2006/01/26 22:35:29 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * Purpose
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -108,23 +108,27 @@ class News_Item extends Page
 	function setLinkAsset(&$asset)
 	{
 		$old_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', true, 'link_asset');
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		if (empty($old_link)) {
 			// if there is not existing asset, and we aren't setting on, we are done here
 			if (is_null($asset)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return true;
 			}
 
 		// else if there is a link, and we are about to set an asset, but it is the same as we already have
 		} else if (!is_null($asset) && $old_link['minorid'] == $asset->id) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return true;
 
 		// else something different, delete the old link
 		} else {
 			if (!$this->deleteLink($old_link['linkid'])) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}
 		}
@@ -132,11 +136,13 @@ class News_Item extends Page
 		if (!is_null($asset)) {
 			if (!$this->createLink($asset, SQ_LINK_NOTICE, 'link_asset')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 

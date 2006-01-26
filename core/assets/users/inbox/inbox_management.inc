@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_management.inc,v 1.10 2005/04/15 00:37:27 lwright Exp $
+* $Id: inbox_management.inc,v 1.11 2006/01/26 22:34:07 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,7 +53,7 @@ class Inbox_Management extends Asset_Management
 	/**
 	* Returns all files this asset wants installed/updated into the data directory
 	*
-	* @return Array(string)
+	* @return array
 	* @access private
 	*/
 	function _getFileList()

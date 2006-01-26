@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: login_design.inc,v 1.14 2005/08/30 07:31:36 ndvries Exp $
+* $Id: login_design.inc,v 1.15 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,28 +56,37 @@ class Login_Design extends Design
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* Returns the linkid or FALSE on error
 	*
-	* @see Asset::create()
-	* @return mixed int or false
+	* @param array	&$link	information used to create the initial link
+	*
+	* @return mixed int|boolean
 	* @access public
+	* @see Asset::create()
 	*/
 	function create(&$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
-		if (!system_asset_fns_create_pre_check($this)) return false;
+		if (!system_asset_fns_create_pre_check($this)) {
+			return FALSE;
+		}
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
 			// NOTE: need to restore first so that dependant assets are created, and the cleanup can catch them to
 			if (!$this->restoreLoginDesign() || !system_asset_fns_create_cleanup($this)) {
-				$linkid = false;
+				$linkid = FALSE;
 			}
 		}
 
-		if ($linkid) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		if ($linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end create()
@@ -91,17 +100,20 @@ class Login_Design extends Design
 	*/
 	function restoreLoginDesign()
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		if (!create_directory($this->data_path)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
 		}
 
 		if (!create_directory($this->data_path_public)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
 		}
 
 		$source_dir = dirname(__FILE__).'/design_files';
@@ -109,8 +121,9 @@ class Login_Design extends Design
 		$file_contents = file_to_string($source_dir.'/index.html');
 		if ($file_contents == '') {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			trigger_localised_error('CORE0094', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		$ef = $this->getEditFns();
@@ -123,8 +136,9 @@ class Login_Design extends Design
 		$file_contents = str_replace(Array('<MySource', '</MySource'), Array('<'.$ef->tag_name, '</'.$ef->tag_name), $file_contents);
 		if (!string_to_file($file_contents, $parse_file)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			trigger_localised_error('CORE0095', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		  /////////////////////
@@ -133,14 +147,15 @@ class Login_Design extends Design
 
 		// add the parse.txt file to the repository
 
-		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 		if (!$file_exists) {
 			// attempt to add the file to the repository
 			if (!$fv->add($this->data_path_suffix, $parse_file, '')) {
 				trigger_localised_error('CORE0025', E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				return FALSE;
 			}
 		} else {
 			// updating existing file
@@ -149,7 +164,8 @@ class Login_Design extends Design
 				if (!$fv->commit($parse_file, '')) {
 					trigger_localised_error('CORE0033', E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return FALSE;
 				}
 			}
 		}
@@ -158,18 +174,22 @@ class Login_Design extends Design
 		if (!$fv->checkOut($this->data_path_suffix.'/parse.txt', $this->data_path)) {
 			trigger_localised_error('CORE0031', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
 		}
 
 		// attach the files that we need for the login design
 		if ($handle = opendir($source_dir.'/files')) {
-			while (false !== ($file = readdir($handle))) {
+			while (FALSE !== ($file = readdir($handle))) {
 				// skip some "files" that we dont want to attach
-				if ($file == '.' || $file == '..' || strtoupper($file) == 'CVS') continue;
+				if ($file == '.' || $file == '..' || strtoupper($file) == 'CVS') {
+					continue;
+				}
+
 				$info = Array();
 				$info['name'] = $file;
 				$info['tmp_name'] = $source_dir.'/files/'.$file;
-				$info['non_uploaded_file'] = true;
+				$info['non_uploaded_file'] = TRUE;
 				if (!$ef->_processUploadedFile($this, $info)) {
 					trigger_localised_error('CORE0030', E_USER_WARNING, $file);
 				}
@@ -179,17 +199,19 @@ class Login_Design extends Design
 
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'all')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
 		}
 
 		// First process the design
 		if (!$ef->parseAndProcessFile($this)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
 		}
 
 		// Now use it to generate the design file
-		$this->generateDesignFile(false);
+		$this->generateDesignFile(FALSE);
 
 		// make ourselves LIVE
 		if (!$this->processStatusChange(SQ_STATUS_LIVE)) {
@@ -207,10 +229,11 @@ class Login_Design extends Design
 
 		$dependants = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($this->id);
 		foreach ($dependants as $dependantid => $dependant_type_code) {
-			$dep_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dependantid, $dependant_type_code);
+			$dep_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($dependantid, $dependant_type_code);
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($dep_asset->id, 'permissions')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				return FALSE;
 			}
 			if (!$dep_asset->processStatusChange(SQ_STATUS_LIVE)) {
 				trigger_localised_error('CORE0061', E_USER_WARNING, $dep_asset->name, $dep_asset->id);
@@ -223,7 +246,8 @@ class Login_Design extends Design
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return TRUE;
 
 	}//end restoreLoginDesign()
 
@@ -231,8 +255,9 @@ class Login_Design extends Design
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{

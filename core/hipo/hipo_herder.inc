@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.72 2005/09/06 23:56:02 rong Exp $
+* $Id: hipo_herder.inc,v 1.73 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -103,8 +103,8 @@ class HIPO_Herder extends MySource_Object
 
 			// we need to get the hipo_dir from the db so we know
 			// where to look for the include file
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT job_type, hipo_vars
 					FROM sq_hipo_job
 					WHERE code_name = '.$db->quote($code_name);
@@ -161,7 +161,7 @@ class HIPO_Herder extends MySource_Object
 	*/
 	function getProcessURL($code_name)
 	{
-		$hipo = &$this->getJob($code_name);
+		$hipo =& $this->getJob($code_name);
 		if (is_null($hipo)) return '';
 
 		if ($hipo->complete()) {
@@ -184,18 +184,18 @@ class HIPO_Herder extends MySource_Object
 	{
 		if (empty($_GET['hipo_source_code_name'])) {
 			trigger_localised_error('HIPO0058', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
-		$source_job = &$this->getJob($_GET['hipo_source_code_name']);
+		$source_job =& $this->getJob($_GET['hipo_source_code_name']);
 		if (is_null($source_job)) {
 			// if we aren't actually waiting for an aborted hipo to remove itself then, display an error
 			if (empty($_POST['aborting_hipo'])) {
 				trigger_localised_error('HIPO0057', E_USER_WARNING, $_GET['hipo_source_code_name']);
-				return false;
+				return FALSE;
 			// else the server has finally killed the job so we are now done
 			} else {
-				return true;
+				return TRUE;
 			}
 		}
 
@@ -205,10 +205,10 @@ class HIPO_Herder extends MySource_Object
 				$_POST['aborting_hipo'] = $source_job->code_name;
 				$_POST['aborting_hipo_url'] = $source_job->getOption('on_complete_url');
 			}
-			return true;
+			return TRUE;
 		}
 
-		$o = &$this->getBackendOutputter();
+		$o =& $this->getBackendOutputter();
 
 		if (!$source_job->process()) {
 			$error_details = '';
@@ -220,10 +220,10 @@ class HIPO_Herder extends MySource_Object
 
 			$source_job->abort();
 
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processWeb()
 
@@ -240,19 +240,19 @@ class HIPO_Herder extends MySource_Object
 
 		if (empty($_GET['hipo_source_code_name'])) {
 			trigger_localised_error('HIPO0058', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
-		$source_job = &$this->getJob($_GET['hipo_source_code_name']);
+		$source_job =& $this->getJob($_GET['hipo_source_code_name']);
 		if (is_null($source_job) && empty($_POST['aborting_hipo'])) {
 			trigger_localised_error('HIPO0057', E_USER_WARNING, $_GET['hipo_source_code_name']);
-			return false;
+			return FALSE;
 		}
 
 		// if this job is completed but has errors, just paint the job to print the error
 		// report because we dont need the additonal content
 		if (!is_null($source_job) && $source_job->complete() && !empty($source_job->_hipo_vars['errors'])) {
-			$o = &$this->getBackendOutputter();
+			$o =& $this->getBackendOutputter();
 			$o->setFormData('main_form', '');
 			$o->openRaw();
 			$source_job->paint($o);
@@ -262,8 +262,8 @@ class HIPO_Herder extends MySource_Object
 		}
 
 		$onload = '';
-		$delay  = false;
-		$auto_step = false;
+		$delay  = FALSE;
+		$auto_step = FALSE;
 		$form_name = 'main_form';
 
 		// if the source job is null it means that an abort finally finished
@@ -271,7 +271,7 @@ class HIPO_Herder extends MySource_Object
 		if (is_null($source_job)) {
 			$url = $_POST['aborting_hipo_url'];
 			$onload = 'self.location = "'.$url.'";';
-			$auto_step = true;
+			$auto_step = TRUE;
 			$percent_done = 100;
 			$status_msg = 'HIPO Aborted';
 		} else {
@@ -288,7 +288,7 @@ class HIPO_Herder extends MySource_Object
 			$status_msg = $source_job->complete() ? translate('hipo_complete', $source_job->getHipoName()) : translate('hipo_progress', $source_job->getHipoName());
 		}
 
-		$o = &$this->getBackendOutputter();
+		$o =& $this->getBackendOutputter();
 		$o->setFormData($form_name, $url);
 
 		$o->openRaw();
@@ -450,33 +450,33 @@ class HIPO_Herder extends MySource_Object
 		if (empty($input_data['userid'])) {
 			$output_data['result'] = 'error';
 			$output_data['msg']    = 'userid not supplied on Input Data';
-			return false;
+			return FALSE;
 		}
 
-		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input_data['userid']);
+		$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input_data['userid']);
 		if (is_null($user) || !$GLOBALS['SQ_SYSTEM']->setCurrentUser($user)) {
 			$output_data['result'] = 'error';
 			$output_data['msg']    = 'Unable to find User #'.$input_data['userid'].' to run as or unable to set them to the current user';
-			return false;
+			return FALSE;
 		}
 
 		if (empty($input_data['source_code_name'])) {
 			$output_data['result'] = 'error';
 			$output_data['msg']    = 'source_code_name not supplied on Input Data';
-			return false;
+			return FALSE;
 		}
 
-		$source_job = &$this->getJob($input_data['source_code_name']);
+		$source_job =& $this->getJob($input_data['source_code_name']);
 		if (is_null($source_job)) {
 			$output_data['result'] = 'error';
 			$output_data['msg']    = 'Unable to find a source job with the codename "'.$input_data['source_code_name'].'"';
-			return false;
+			return FALSE;
 		}
 
 		if (!$source_job->setRunningMode('server', $taskid)) {
 			$output_data['result'] = 'error';
 			$output_data['msg']    = 'Unable to set the running mode to server for "'.$source_job->code_name.'"';
-			return false;
+			return FALSE;
 		}
 
 		$this->_tmp['prepared_server']['source_code_name'] = $source_job->code_name;
@@ -485,7 +485,7 @@ class HIPO_Herder extends MySource_Object
 		pcntl_signal(SIGINT,  Array(&$this, 'serverSigHandler'));
 
 		$output_data['result'] = 'ack';
-		return true;
+		return TRUE;
 
 	}//end prepareProcessServer()
 
@@ -504,25 +504,26 @@ class HIPO_Herder extends MySource_Object
 	function processServer()
 	{
 		if (empty($this->_tmp['prepared_server'])) {
-			return false;
+			return FALSE;
 		}
 
-		$source_job = &$this->getJob($this->_tmp['prepared_server']['source_code_name']);
+		$source_job =& $this->getJob($this->_tmp['prepared_server']['source_code_name']);
 		if (is_null($source_job)) {
 			trigger_localised_error('HIPO0057', E_USER_WARNING, $this->_tmp['prepared_server']['source_code_name']);
-			return false;
+			return FALSE;
 		}
 
 		if ($source_job->uses_trans) {	// only encase in a transaction if source job wants it
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		}
 
-		$this->_tmp['processing_server'] = true;
+		$this->_tmp['processing_server'] = TRUE;
 
-		$ret_val = true;
+		$ret_val = TRUE;
 		while (!$source_job->complete() && $source_job->getRunningMode() == 'server') {
 			if (!$source_job->process()) {
-				$ret_val = false;
+				$ret_val = FALSE;
 				break;
 			}
 		}// end while
@@ -536,6 +537,7 @@ class HIPO_Herder extends MySource_Object
 			} else {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			}
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		}
 
 		return $ret_val;
@@ -562,7 +564,7 @@ class HIPO_Herder extends MySource_Object
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				}
 				if (!empty($this->_tmp['prepared_server'])) {
-					$source_job = &$this->getJob($this->_tmp['prepared_server']['source_code_name']);
+					$source_job =& $this->getJob($this->_tmp['prepared_server']['source_code_name']);
 					if (!is_null($source_job)) $source_job->abort();
 				}// end if
 				exit();
@@ -603,7 +605,7 @@ class HIPO_Herder extends MySource_Object
 		$init_hipo->setRunningVars($vars);
 
 		// prepare() check the integrity of the the running vars
-		if (!$init_hipo->prepare()) return false;
+		if (!$init_hipo->prepare()) return FALSE;
 		$init_hipo->_hipo_vars['job_dir'] = $job_dir;
 		$job_threshold = $init_hipo->getThresholdPercentageRequired();
 
@@ -627,14 +629,14 @@ class HIPO_Herder extends MySource_Object
 		$hipo_code = $init_hipo->getCodeName();
 		if (isset($this->_queued_jobs[$GLOBALS['SQ_SYSTEM']->currentUserId()])) {
 			if (in_array($hipo_code, $this->_queued_jobs[$GLOBALS['SQ_SYSTEM']->currentUserId()])) {
-				return true;
+				return TRUE;
 			}
 		}
 
-		if (!$init_hipo->initialise()) return false;
+		if (!$init_hipo->initialise()) return FALSE;
 
 		$this->_queued_jobs[$GLOBALS['SQ_SYSTEM']->currentUserId()][] = $hipo_code;
-		return true;
+		return TRUE;
 
 	}//end queueHipo()
 
@@ -653,8 +655,9 @@ class HIPO_Herder extends MySource_Object
 	{
 		// note that we do not check rollback tables here because the
 		// hipo job table doesn't need one and doesn't want one!!
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT code_name, job_type
 				FROM sq_hipo_job
 				WHERE userid = '.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserId()).'
@@ -665,6 +668,7 @@ class HIPO_Herder extends MySource_Object
 
 		if (empty($queued_jobs)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return '';
 		}
 
@@ -672,7 +676,7 @@ class HIPO_Herder extends MySource_Object
 
 		for ($i = 0; $i < count($queued_jobs); $i++) {
 			$job_data = $queued_jobs[$i];
-			$job = &$this->getJob($job_data['code_name']);
+			$job =& $this->getJob($job_data['code_name']);
 			$job_codes[] = $db->quote($job_data['code_name']);
 
 			if (isset($queued_jobs[($i+1)])) {
@@ -681,6 +685,7 @@ class HIPO_Herder extends MySource_Object
 				if (!$job->save()) {
 					trigger_localised_error('HIPO0055', E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return '';
 				}
 			} else if (!empty($on_complete_url)) {
@@ -688,6 +693,7 @@ class HIPO_Herder extends MySource_Object
 				if (!$job->save()) {
 					trigger_localised_error('HIPO0055', E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return '';
 				}
 			}
@@ -701,6 +707,7 @@ class HIPO_Herder extends MySource_Object
 		if (!assert_valid_db_result($result)) return '';
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $this->getProcessURL($queued_jobs[0]['code_name']);
 
 	}//end runQueuedJobs()
@@ -729,7 +736,7 @@ class HIPO_Herder extends MySource_Object
 		$init_hipo->_steps = $init_hipo->getInitialStepData();
 
 		// prepare() check the integrity of the the running vars
-		if (!$init_hipo->prepare()) return false;
+		if (!$init_hipo->prepare()) return FALSE;
 		set_error_handler(Array(&$init_hipo, '_errorHandler'));
 			$init_hipo->freestyle();
 		restore_error_handler();
@@ -756,7 +763,7 @@ class HIPO_Herder extends MySource_Object
 		// If this is not in the core/hipo/jobs it has to be under one of the packages
 		// Because the hipo jobs are not assets the locale strings will be part of
 		// the packages locales
-		if (strpos($job_dir, str_replace('\\', '/', SQ_CORE_PACKAGE_PATH)) !== false) {
+		if (strpos($job_dir, str_replace('\\', '/', SQ_CORE_PACKAGE_PATH)) !== FALSE) {
 			$GLOBALS['SQ_SYSTEM']->lm->includePackageStrings('__core__');
 		} else {
 			$stripped_dir = str_replace(str_replace('\\', '/', SQ_PACKAGES_PATH).'/', '', $job_dir);
@@ -784,20 +791,20 @@ class HIPO_Herder extends MySource_Object
 		$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class($this));
 		$have_lock = (!empty($lock) && ($current_user_id == $lock['userid']));
 
-		$o = &$backend->out;
+		$o =& $backend->out;
 
 		if (!empty($_POST['herder_posted'])) {
 
 			if ($have_lock && !empty($_POST['process_form']) && !empty($_POST['force_kill'])) {
 				$message_body = '';
 				foreach ($_POST['force_kill'] as $source_code_name) {
-					$source_job = &$this->getJob($source_code_name);
+					$source_job =& $this->getJob($source_code_name);
 					if (is_null($source_job)) continue;
 
 					if ($hipo_admin) {
 						// if the user is admin, temporarily pretend that
 						// the current user is the owner of the job
-						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($source_job->userid);
+						$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($source_job->userid);
 						if (is_null($user)) continue;
 						$GLOBALS['SQ_SYSTEM']->setCurrentUser($user);
 						$source_job->abort();
@@ -812,7 +819,7 @@ class HIPO_Herder extends MySource_Object
 
 				}
 
-				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$msg_reps = Array(
 								'hipo_code_name'	=> $source_code_name,
 							);
@@ -856,11 +863,11 @@ class HIPO_Herder extends MySource_Object
 					if (!empty($lock)) {
 						// this asset is currently locked
 						// so display message to the user
-						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+						$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
 
 						$now = time();
 
-						$expires_in = easy_time_total(($lock['expires'] - $now), true);
+						$expires_in = easy_time_total(($lock['expires'] - $now), TRUE);
 						if (!$expires_in) $expires_in = '1 second';
 						$expires_in = 'The lock is due to expire in '.$expires_in;
 
@@ -902,8 +909,8 @@ class HIPO_Herder extends MySource_Object
 
 			$source_jobs = Array();
 
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT source_code_name, code_name, job_type
 					FROM sq_hipo_job';
 
@@ -946,7 +953,7 @@ class HIPO_Herder extends MySource_Object
 				<?php
 				$now = time();
 				foreach ($source_jobs[''] as $source_code_name => $source_job_type) {
-					$source_job = &$this->getJob($source_code_name);
+					$source_job =& $this->getJob($source_code_name);
 					if (is_null($source_job)) continue;
 				?>
 					<tr>
@@ -958,13 +965,13 @@ class HIPO_Herder extends MySource_Object
 						</td>
 						<td class="sq-backend-table-cell">
 						<?php
-							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($source_job->userid);
+							$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($source_job->userid);
 							echo $user->name.'<br>(Id #'.$user->id.')';
 						?>
 						</td>
 						<td class="sq-backend-table-cell">
 							<?php echo $GLOBALS['SQ_SYSTEM']->datetime($source_job->last_updated); ?><br>
-							<?php echo easy_time_total($source_job->last_updated - $now, true); ?>
+							<?php echo easy_time_total($source_job->last_updated - $now, TRUE); ?>
 
 						</td>
 						<td class="sq-backend-table-cell" style="text-align: center;">
@@ -984,7 +991,7 @@ class HIPO_Herder extends MySource_Object
 
 					if (!empty($source_jobs[$source_code_name])) {
 						foreach ($source_jobs[$source_code_name] as $code_name => $job_type) {
-							$job = &$this->getJob($code_name);
+							$job =& $this->getJob($code_name);
 							if (is_null($job)) continue;
 						?>
 							<tr>
@@ -999,7 +1006,7 @@ class HIPO_Herder extends MySource_Object
 								</td>
 								<td class="sq-backend-table-cell">
 									<?php echo $GLOBALS['SQ_SYSTEM']->datetime($job->last_updated); ?><br>
-									<?php echo easy_time_total($source_job->last_updated - $now, true); ?>
+									<?php echo easy_time_total($source_job->last_updated - $now, TRUE); ?>
 								</td>
 								<td class="sq-backend-table-cell" style="text-align: center;">
 									<?php echo $job->percentDone(); ?>%
@@ -1022,7 +1029,7 @@ class HIPO_Herder extends MySource_Object
 
 		$o->closeSection();
 
-		if ($have_lock) $o->commitButton('', true);
+		if ($have_lock) $o->commitButton('', TRUE);
 
 	}//end paintBackend()
 

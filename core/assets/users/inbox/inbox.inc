@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox.inc,v 1.28 2005/08/16 06:14:29 dmckee Exp $
+* $Id: inbox.inc,v 1.29 2006/01/26 22:34:07 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Inbox extends Asset
 	/**
 	* Returns a list of lock types available for this asset type
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function lockTypes()
@@ -71,13 +71,13 @@ class Inbox extends Asset
 	/**
 	* Gets the user that this inbox is attached to
 	*
-	* @return object User
+	* @return object
 	* @access private
 	*/
 	function &_getUser()
 	{
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user', false, '', 'minor', '1');
-		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user', FALSE, '', 'minor', '1');
+		$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 		return $user;
 
 	}//end _getUser()
@@ -91,13 +91,13 @@ class Inbox extends Asset
 	*/
 	function canDelete()
 	{
-		return false;
+		return FALSE;
 
 	}//end canDelete()
 
 
 	/**
-	* Returns true if at least one of the passed assetids has the passed permission
+	* Returns TRUE if at least one of the passed assetids has the passed permission
 	* Does not check current status of lock
 	*
 	* @param int	$perm		the permission to check access for
@@ -109,7 +109,7 @@ class Inbox extends Asset
 	*/
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
-		$user = &$this->_getUser();
+		$user =& $this->_getUser();
 		if (is_null($user)) {
 			return parent::_checkPermissionAccess($perm, $assetids);
 		}
@@ -142,17 +142,18 @@ class Inbox extends Asset
 	* Prints out the backend interface for the asset
 	* it's up to the kids to override
 	*
-	* @param object Backend_Outputter $o
+	* @param object	&$o	the Backend Outputter object
 	*
+	* @return void
 	* @access public
 	*/
 	function paintBackend(&$o)
 	{
 		if (isset($_REQUEST['gettrash'])) {
-			$user = &$this->_getUser();
+			$user =& $this->_getUser();
 
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$messages = $ms->getMessages($user->id, null, Array(SQ_MSG_DELETED), Array(), null, null, 'name');
+			$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$messages = $ms->getMessages($user->id, NULL, Array(SQ_MSG_DELETED), Array(), NULL, NULL, 'name');
 			echo '<root>';
 			foreach ($messages as $key => $message) {
 				echo '<message from="'.$message['from_name'].'" id="'.$message['msgid'].'" date="'.$GLOBALS['SQ_SYSTEM']->datetime($message['sent']).'"';
@@ -170,6 +171,7 @@ class Inbox extends Asset
 	/**
 	* Called by the design to print the body of this asset
 	*
+	* @return void
 	* @access public
 	*/
 	function printBody()
@@ -209,10 +211,11 @@ class Inbox extends Asset
 	*
 	* @param boolean	$short_name	whether or not we are after the short name or the full name
 	*
+	* @return string
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return 'Inbox';
 

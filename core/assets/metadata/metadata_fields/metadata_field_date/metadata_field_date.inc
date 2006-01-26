@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date.inc,v 1.11 2005/09/08 04:56:31 lwright Exp $
+* $Id: metadata_field_date.inc,v 1.12 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,7 +65,7 @@ class Metadata_Field_Date extends Metadata_Field
 	*/
 	function getMetadataValue(&$asset, $value_str)
 	{
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		if (is_null($value_str)) {
 			$value = $this->attr('default');
@@ -92,7 +92,7 @@ class Metadata_Field_Date extends Metadata_Field
 				$keyword .= '_'.$offset;
 			}
 
-			$metadata_values = $mm->generateKeywordReplacements($asset, Array($keyword), false);
+			$metadata_values = $mm->generateKeywordReplacements($asset, Array($keyword), FALSE);
 			$value = $metadata_values[$keyword];
 
 		} else {
@@ -114,7 +114,7 @@ class Metadata_Field_Date extends Metadata_Field
 	* @return object
 	* @access private
 	*/
-	function _getDateTimeField($prefix, $value=null)
+	function _getDateTimeField($prefix, $value=NULL)
 	{
 		// parameters
 		$parameters = $this->attr('setup_params');

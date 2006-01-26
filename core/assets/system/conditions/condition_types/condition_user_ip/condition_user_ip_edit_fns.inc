@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_ip_edit_fns.inc,v 1.5 2005/10/13 02:07:38 tbarrett Exp $
+* $Id: condition_user_ip_edit_fns.inc,v 1.6 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -91,8 +91,8 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Process the backend editing interface for this condition
 	*
-	* @param object		&$o		Backend outputter to use
-	* @param string		$prefix	Prefix for form elements
+	* @param object	&$o		Backend outputter to use
+	* @param string	$prefix	Prefix for form elements
 	*
 	* @return array
 	* @access public

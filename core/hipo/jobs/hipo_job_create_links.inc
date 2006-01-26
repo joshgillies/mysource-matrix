@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.28 2006/01/05 02:56:34 emcdonald Exp $
+* $Id: hipo_job_create_links.inc,v 1.29 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -485,6 +485,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	*/
 	function processCreateLinks(&$step_data, $prefix)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!isset($this->_running_vars['process_create_links'])) {
@@ -503,6 +504,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			if (is_null($new_parent)) {
 				trigger_localised_error('HIPO0023', E_USER_WARNING, $this->_running_vars['to_parent_assetid']);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 
@@ -511,6 +513,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			if (is_null($asset)) {
 				trigger_localised_error('HIPO0022', E_USER_WARNING, $assetid);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 
@@ -520,11 +523,13 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			if (!$linkid) {
 				trigger_localised_error('HIPO0021', E_USER_WARNING, $asset->name, $new_parent->name);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 
 			$this->_running_vars['to_parent_pos']++;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($new_parent);
 			unset($new_parent);
 
@@ -567,6 +572,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($value['linkid'], FALSE)) {
 						trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;
 					}
 
@@ -577,6 +583,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					if (!$bridge->deleteAssetLink($value['linkid'])) {
 						trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;
 					}
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bridge);
@@ -588,6 +595,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				if (!$linkid) {
 					trigger_localised_error('HIPO0020', E_USER_WARNING, $assetid, $this->_running_vars['to_parent_assetid']);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
 
@@ -597,6 +605,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				if (is_null($asset)) {
 					trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
 				$new_parent_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($this->_running_vars['to_parent_assetid']));
@@ -607,6 +616,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			}//end if moving to trash
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		}//end if create
 

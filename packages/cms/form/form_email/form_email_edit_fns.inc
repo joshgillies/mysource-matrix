@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.67 2006/01/18 04:31:45 sdanis Exp $
+* $Id: form_email_edit_fns.inc,v 1.68 2006/01/26 22:35:20 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -423,11 +423,13 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$delete_list = isset($_POST[$prefix.'_delete']) ? $_POST[$prefix.'_delete'] : Array();
 		if (empty($delete_list)) return FALSE;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// acquire the links lock on the form
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'links')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -435,22 +437,26 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			// is the assetid a valid one?
 			if (!assert_valid_assetid($delete_assetid, '', FALSE, FALSE)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 
 			// acquire the links lock on the submission to delete
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($delete_assetid, 'links')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 
 			$submission_link =& $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $delete_assetid, SQ_LINK_TYPE_3);
 			if (!$submission_link) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			} else {
 				if (!$asset->deleteLink($submission_link['linkid'])) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
 			}
@@ -458,6 +464,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			// release the links lock
 			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($delete_assetid, 'links')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 		}
@@ -465,10 +472,12 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		// now release the links lock on the form itself
 		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'links')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 

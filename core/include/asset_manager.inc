@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.427 2006/01/17 05:42:35 rong Exp $
+* $Id: asset_manager.inc,v 1.428 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.427 $
+* @version $Revision: 1.428 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -211,6 +211,8 @@ class Asset_Manager extends MySource_Object
 
 		$type_code_level = (int) $this->getTypeInfo($type_code, 'lvl');
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		foreach ($inserts as $inherited_type_code) {
@@ -244,6 +246,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}//end refreshAssetType()
 
@@ -1470,6 +1473,7 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -1518,6 +1522,7 @@ class Asset_Manager extends MySource_Object
 		$clone =& $this->getAsset($assetid, $source->type());
 		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $null;
 		}
 
@@ -1525,6 +1530,7 @@ class Asset_Manager extends MySource_Object
 			// lock the new clone in the same chain as we are locked
 			if (!$this->acquireLock($clone->id, 'all', $source->id)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return $null;
 			}
 		}
@@ -1551,12 +1557,14 @@ class Asset_Manager extends MySource_Object
 					if (!empty($parent_lock)) {
 						if (!$this->releaseLock($link['asset']->id, 'links')) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							return $null;
 						}
 					}
 
 					if (!$this->acquireLock($link['asset']->id, 'links', $lock['links']['source_assetid'])) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return $null;
 					}
 				}
@@ -1565,6 +1573,7 @@ class Asset_Manager extends MySource_Object
 			$linkid = $link['asset']->createLink($clone, $link['link_type'], $link['value'], $link['sort_order'], $link['is_dependant'], $link['is_exclusive']);
 			if (empty($linkid)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return $null;
 			}
 
@@ -1574,6 +1583,7 @@ class Asset_Manager extends MySource_Object
 		// so add to the map and return the clone
 		$clone_map[$source->id] = $clone->id;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $clone;
 
@@ -1636,17 +1646,20 @@ class Asset_Manager extends MySource_Object
 			return $null;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$clone =& $this->_cloneAsset($source, $link, $clone_map);
 		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $null;
 		}
 
 		// we may need permissions from here on down, so lets do this now
 		if (!$source->cloneComponents($clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $null;
 		}
 
@@ -1659,6 +1672,7 @@ class Asset_Manager extends MySource_Object
 
 			if (!$linkid) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return $null;
 			}
 
@@ -1688,12 +1702,14 @@ class Asset_Manager extends MySource_Object
 						$cloned_child =& $this->getAsset($clone_map[$data['minorid']], $data['minor_type_code']);
 						if (is_null($cloned_child)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							return $null;
 						}
 
 						$linkid = $clone->createLink($cloned_child, $data['link_type'], $data['value'], $data['sort_order'], '1', $data['is_exclusive']);
 						if (!$linkid) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							return $null;
 						}
 
@@ -1715,6 +1731,7 @@ class Asset_Manager extends MySource_Object
 
 						if (is_null($cloned_child)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							return $null;
 						}
 					}//end if
@@ -1723,6 +1740,7 @@ class Asset_Manager extends MySource_Object
 		}//end if clone dependants
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $clone;
 
@@ -1766,7 +1784,7 @@ class Asset_Manager extends MySource_Object
 
 		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, TRUE);
 
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$success = TRUE;
@@ -1928,7 +1946,7 @@ class Asset_Manager extends MySource_Object
 	{
 		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, TRUE);
 
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$success = TRUE;
@@ -3146,7 +3164,7 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Return TRUE if the passed assetid is in the trash, false otherwise
+	* Return TRUE if the passed assetid is in the trash, FALSE otherwise
 	*
 	* Note that if the passed assetid is the id of the trash folder, FALSE will be returned
 	*
@@ -3409,8 +3427,8 @@ class Asset_Manager extends MySource_Object
 		// if this link is a significant link,
 		// then that we aren't moving under ourselves
 		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
-
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			// no transaction, switch to db3
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 			// reassign $db after changing the database connection because PHP doesn't handle the reference properly
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -3444,7 +3462,10 @@ class Asset_Manager extends MySource_Object
 			}
 
 		} else {
+			// we are going into a transaction anyway so switch to db2
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 		}
 
 		// make sure the sort order is in a valid range
@@ -3545,10 +3566,7 @@ class Asset_Manager extends MySource_Object
 			if ((string) $existing_treeid == '-' && get_class($major) != 'root_folder') {
 				trigger_localised_error('SYS0240', E_USER_WARNING, $major->name, $major->id);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-
-				if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
-					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				}
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 				return 0;
 			}
@@ -3885,28 +3903,28 @@ class Asset_Manager extends MySource_Object
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
 			}//end if
 
 		}//end if significant link
 
-		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		} else {
+		if (!($link_type & SQ_SC_LINK_SIGNIFICANT)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		}
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		// only call the linksUpdated() method on the parent if this link is dependent
 		if ($dependant) {
 			// tell, the asset it has updated
 			if (!$major->linksUpdated()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return 0;
 			}
 		}
 
 		if (!$minor->linksUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return 0;
 		}
 
@@ -3915,6 +3933,7 @@ class Asset_Manager extends MySource_Object
 			if (!$parent_was_locked) {
 				if (!$this->releaseLock($major->id, 'links')) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return 0;
 				}
 			}
@@ -3972,6 +3991,7 @@ class Asset_Manager extends MySource_Object
 		// we are linking a shadow asset under a normal asset
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		// use the sq_ast_lnk sequence so that when we query any link view later
@@ -4005,6 +4025,7 @@ class Asset_Manager extends MySource_Object
 
 		$this->forgetAsset($major);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $linkid;
 
@@ -4252,6 +4273,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$success = TRUE;
 
@@ -4271,6 +4293,7 @@ class Asset_Manager extends MySource_Object
 			$new_linkid = 0;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		$this->forgetAsset($old_parent);
 		$this->forgetAsset($new_parent);
@@ -4432,7 +4455,9 @@ class Asset_Manager extends MySource_Object
 				return TRUE;
 			}
 
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			$set_clauses['updated_userid']	= $db->quoteSmart($GLOBALS['SQ_SYSTEM']->currentUserId());
 			$set_clauses['updated']			= db_extras_todate($db, ts_iso8601(time()));
@@ -4496,7 +4521,9 @@ class Asset_Manager extends MySource_Object
 				return TRUE;
 			}
 
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			$set_clauses['updated_userid']	= $db->quoteSmart($GLOBALS['SQ_SYSTEM']->currentUserId());
 			$set_clauses['updated']			= db_extras_todate($db, ts_iso8601(time()));
@@ -4563,6 +4590,7 @@ class Asset_Manager extends MySource_Object
 			if (($link_type & SQ_SC_LINK_WEB_PATHS) || ((int) $link['link_type'] & SQ_SC_LINK_WEB_PATHS)) {
 				if (!$minor->updateLookups()) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					$ms->abortLog();
 					return FALSE;
 				}
@@ -4574,17 +4602,20 @@ class Asset_Manager extends MySource_Object
 		// tell, the asset it has updated
 		if (!$major->linksUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			$ms->abortLog();
 			return FALSE;
 		}
 		if (!$minor->linksUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			$ms->abortLog();
 			return FALSE;
 		}
 
 		$ms->closeLog();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end updateLink()
@@ -4660,6 +4691,7 @@ class Asset_Manager extends MySource_Object
 			// if the minor is a shadow asset and the major is a normal asset
 			// then we want to delete the link between these two assets
 			if (!implements_interface($major, 'bridge')) {
+				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 				$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -4672,6 +4704,7 @@ class Asset_Manager extends MySource_Object
 				assert_valid_db_result($result);
 
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 				return TRUE;
 			}
@@ -4683,7 +4716,7 @@ class Asset_Manager extends MySource_Object
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 			// reassign $db after changing the database connection because PHP doesn't handle the reference properly
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 		}
@@ -4702,7 +4735,7 @@ class Asset_Manager extends MySource_Object
 		// if this is a significant link
 		if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
 
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 			// reassign $db after changing the database connection because PHP doesn't handle the reference properly
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -4815,17 +4848,21 @@ class Asset_Manager extends MySource_Object
 			// finished dealing with sq_ast_lnk_tree, restore the database connection and reassign $db
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		} else {
 			// if not significant link
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			$minor =& $this->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($minor)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 
@@ -4856,10 +4893,12 @@ class Asset_Manager extends MySource_Object
 		// tell the assets that they have been updated
 		if (!$major->linksUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 		if (!$minor->linksUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -4868,6 +4907,7 @@ class Asset_Manager extends MySource_Object
 			if (!$parent_was_locked) {
 				if (!$this->releaseLock($major->id, 'links')) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
 			}
@@ -4886,6 +4926,7 @@ class Asset_Manager extends MySource_Object
 		$message->send();
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($major, 'DeleteLink', Array('linkid' => $linkid));
@@ -4905,6 +4946,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function deleteShadowAssetLink($linkid)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$sql = 'DELETE FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk
 					WHERE linkid = '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart($linkid);
@@ -4913,6 +4955,7 @@ class Asset_Manager extends MySource_Object
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
@@ -5196,6 +5239,7 @@ class Asset_Manager extends MySource_Object
 			return FALSE;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -5221,10 +5265,12 @@ class Asset_Manager extends MySource_Object
 
 		if (!$asset->permissionsUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		// clear the permission cache
 		if (isset($this->_tmp['permission_cache'][$assetid])) {
@@ -5304,6 +5350,7 @@ class Asset_Manager extends MySource_Object
 			$user_name = 'General Public';
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -5321,10 +5368,12 @@ class Asset_Manager extends MySource_Object
 
 		if (!$asset->permissionsUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		// clear the permission cache
 		if (isset($this->_tmp['permission_cache'][$assetid])) {

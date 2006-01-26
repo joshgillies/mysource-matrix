@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.38 2005/09/08 00:35:41 rong Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.39 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,7 +49,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	function Metadata_Field_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
 
@@ -90,7 +90,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processKeywordInstructions(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processKeywordInstructions()
 
@@ -162,9 +162,9 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 				</tr>
 			</table>
 			<?php
-		}
+		}//end if
 
-		return true;
+		return TRUE;
 
 	}//end paintValueComponents()
 
@@ -182,20 +182,20 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	function processValueComponents(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$current_vc = $asset->attr('value_components');
-		$updated = false;
+		$updated = FALSE;
 
 		// edit the existing value components first
 		foreach ($current_vc as $vc_name => $vc_value) {
 			if (isset($_POST[$prefix.'_vc_delete'][$vc_name]) && $_POST[$prefix.'_vc_delete'][$vc_name]) {
 				unset($current_vc[$vc_name]);
-				$updated = true;
+				$updated = TRUE;
 				continue;
 			}
 
-			if (isset($_POST[$prefix.'_vc_name'][$vc_name]))  {
+			if (isset($_POST[$prefix.'_vc_name'][$vc_name])) {
 				$new_vc_name  = trim($_POST[$prefix.'_vc_name'][$vc_name]);
 			}
 			if (isset($_POST[$prefix.'_vc_value'][$vc_name])) {
@@ -206,14 +206,14 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 			// change the default value of a value component
 			if ($vc_value != $new_vc_value) {
 				$current_vc[$vc_name] = $new_vc_value;
-				$updated = true;
+				$updated = TRUE;
 			}
 
 			// change the name of a value component
 			if ($vc_name != $new_vc_name) {
 				$current_vc[$new_vc_name] = $current_vc[$vc_name];
 				unset($current_vc[$vc_name]);
-				$updated = true;
+				$updated = TRUE;
 			}
 		}//end foreach
 
@@ -228,16 +228,16 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 				trigger_localised_error('CORE0207', E_USER_WARNING);
 			} else {
 				$current_vc[$new_vc] = '';
-				$updated = true;
+				$updated = TRUE;
 			}
 		}//end if
 
 		if ($updated) {
 			$asset->setAttrValue('value_components', $current_vc);
-			return true;
+			return TRUE;
 		}
 
-		return false;
+		return FALSE;
 
 	}//end processValueComponents()
 
@@ -289,7 +289,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintValueInterface(&$asset, &$o, $value_str, $write_access)
 	{
-		return false;
+		return FALSE;
 
 	}//end paintValueInterface()
 
@@ -305,7 +305,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processInlineValueInterface(&$asset, &$new_value_str)
 	{
-		return false;
+		return FALSE;
 
 	}//end processInlineValueInterface()
 
@@ -323,7 +323,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	function requiredFieldsComplete(&$asset, $value_str)
 	{
 		// if this is not a required field then of course it doesnt break the rule
-		if (!$asset->attr('required')) return true;
+		if (!$asset->attr('required')) return TRUE;
 
 		if (is_null($value_str)) {
 			$value = $asset->attr('default');
@@ -334,14 +334,14 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 			Metadata_Field::decodeValueString($value_str, $value, $value_components);
 		}
 
-		if (trim($value) != '') return true;
+		if (trim($value) != '') return TRUE;
 
 		// now check value components to see if they are complete
 		foreach ($value_components as $vc_name => $vc_value) {
-			if (trim($vc_value) != '') return true;
+			if (trim($vc_value) != '') return TRUE;
 		}
 
-		return false;
+		return FALSE;
 
 	}//end requiredFieldsComplete()
 
@@ -364,7 +364,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 		$frontend_option = $asset->attr('frontend');
 		// if we aren't printing this on the frontend then don't print anything
-		if ($frontend_option == 'hide') return true;
+		if ($frontend_option == 'hide') return TRUE;
 
 		if (is_null($value_str)) {
 			$value = $asset->attr('default');
@@ -379,16 +379,16 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 		$keywords = array_merge($keywords, retrieve_keywords_replacements($value_str, '.'));
 
-		$empty_vc = true;
+		$empty_vc = TRUE;
 
 		foreach ($value_components as $vc_name => $vc_value) {
 			// if any value component is not empty then the whole thing is not empty
-			if ($vc_value != '') $empty_vc = false;
+			if ($vc_value != '') $empty_vc = FALSE;
 		}
 
 		// if we are empty and it must be filled to be printed, then don't print anything
 		if (($frontend_option == 'fill') && $value == '' && $empty_vc) {
-			return true;
+			return TRUE;
 		}
 
 		echo '<meta name="'.$asset->name.'"';
@@ -403,7 +403,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 		$tag_value = $value_str;
 
-		return true;
+		return TRUE;
 
 	}//end generateMetadata()
 

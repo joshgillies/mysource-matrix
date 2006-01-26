@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_related_asset_listing_edit_fns.inc,v 1.3 2006/01/20 03:39:09 sdanis Exp $
+* $Id: page_related_asset_listing_edit_fns.inc,v 1.4 2006/01/26 22:35:20 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -108,6 +108,7 @@ class Page_Related_Asset_Listing_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		// get existing relator links
 		$relator_asset_ids = $asset->getStaticRelators();
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// lets delete the relator nodes that have been removed
@@ -116,6 +117,7 @@ class Page_Related_Asset_Listing_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($relator_asset_id, $asset->id, SQ_LINK_NOTICE, 'relator', $side_of_link='minor');
 				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid'])) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
 			}
@@ -133,6 +135,7 @@ class Page_Related_Asset_Listing_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				if (!$asset->createLink($new_relator, SQ_LINK_NOTICE, 'relator')) {
 					trigger_localised_error('CMS0016', E_USER_WARNING, $new_relator->name, $new_relator->id);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 
 				}
@@ -140,6 +143,7 @@ class Page_Related_Asset_Listing_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end processRelator()

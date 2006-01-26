@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.47 2005/11/10 23:02:25 ndvries Exp $
+* $Id: messaging_service.inc,v 1.48 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -292,14 +292,17 @@ class Messaging_Service extends MySource_Object
 		// add them to the level above or the main queue
 		if (empty($this->_levels['logs'])) {
 			// this is the last queue
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			foreach ($msgs as $msg) {
 				if (!$msg->send()) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return false;
 				}
 			}
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return true;
 
 		} else {
@@ -404,6 +407,7 @@ class Messaging_Service extends MySource_Object
 		// lets try and work out if any of the messages to be
 		// sent can actually be amalgamated based on who the message is being
 		// sent to, who it is from, the message type, and the subject line of the message
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$this->sending_queue = true;
 
@@ -415,6 +419,7 @@ class Messaging_Service extends MySource_Object
 		$this->sendQueuedEmails();
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}//end send()
 

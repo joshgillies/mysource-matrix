@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section.inc,v 1.15 2005/09/08 00:39:12 rong Exp $
+* $Id: metadata_section.inc,v 1.16 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,7 +63,7 @@ class Metadata_Section extends Folder
 	{
 		return Array(
 				SQ_LINK_TYPE_1	=> Array(),
-				SQ_LINK_TYPE_2	=> Array('metadata_field'	=> Array('card'	=> 'M', 'exclusive'	=> true)),
+				SQ_LINK_TYPE_2	=> Array('metadata_field'	=> Array('card'	=> 'M', 'exclusive'	=> TRUE)),
 				SQ_LINK_TYPE_3	=> Array(),
 				SQ_LINK_NOTICE	=> Array(),
 			   );
@@ -97,10 +97,10 @@ class Metadata_Section extends Folder
 		if ($side_of_link == 'major' && is_a($asset, 'metadata_field') && ($dependant != '1' || $exclusive != '1')) {
 			$dependant = '1';
 			$exclusive = '1';
-			return true;
+			return TRUE;
 		}
 
-		return false;
+		return FALSE;
 
 	}//end prepareLink()
 

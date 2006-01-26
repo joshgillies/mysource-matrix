@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_iterator.inc,v 1.3 2005/04/13 04:32:59 rhoward Exp $
+* $Id: log_iterator.inc,v 1.4 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class Log_Iterator
@@ -46,10 +46,11 @@ class Log_Iterator
 	/**
 	* Constructor
 	*
-	* @param string		$logname			the log to act on
-	* @param int		$rotation_index		the rotation index of the log to act on, null to act on the current log
+	* @param string	$logname		the log to act on
+	* @param int	$rotation_index	the rotation index of the log to act on, NULL to act on the current log
+	*
 	*/
-	function Log_Iterator($logname, $rotation_index=null)
+	function Log_Iterator($logname, $rotation_index=NULL)
 	{
 		$this->offset     = 0;
 		$this->logname    = $logname;
@@ -62,23 +63,25 @@ class Log_Iterator
 	/**
 	* Gets the next entry from log manager
 	*
+	* Returns the next line as an array or FALSE on failure
+	*
+	* @return mixed boolean|array
 	* @access public
-	* @return false|Array(mixed)
 	*/
 	function getNextEntry()
 	{
 		if ($this->offset < $this->total_size) {
-			$line = &$GLOBALS['SQ_SYSTEM']->log_manager->getLogLine($this->logname, $this->rotation_index, $this->offset);
-			$line_offset = array_get_index($line, 'offset', false);
+			$line =& $GLOBALS['SQ_SYSTEM']->log_manager->getLogLine($this->logname, $this->rotation_index, $this->offset);
+			$line_offset = array_get_index($line, 'offset', FALSE);
 
-			if ($line_offset != false && $line_offset >= 0) {
+			if ($line_offset != FALSE && $line_offset >= 0) {
 				$this->offset = $line_offset;
 			}
 
-			return array_get_index($line, 'line', false);
+			return array_get_index($line, 'line', FALSE);
 
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end getNextEntry()
@@ -95,8 +98,8 @@ class Log_Iterator
 	*       )
 	* </pre>
 	*
+	* @return array
 	* @access private
-	* @return Array(mixed)
 	*/
 	function getCurrentProgress()
 	{

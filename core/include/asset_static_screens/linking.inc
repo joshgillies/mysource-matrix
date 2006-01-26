@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.19 2005/11/07 01:33:21 sdanis Exp $
+* $Id: linking.inc,v 1.20 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 
@@ -334,6 +334,7 @@ function processLinking(&$owner, &$o, &$ei)
 		$fl =& new Cron_Job_Future_Lineage();
 		$edit_fns = $fl->getEditFns();
 		if ($fl->setAssetInLink($owner, 'minor') && $edit_fns->processInLineBackend($fl, $o, $prefix.'_new_fl')) {
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			if ($cron_mgr->addJob($fl, $GLOBALS['SQ_SYSTEM']->user)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -341,6 +342,7 @@ function processLinking(&$owner, &$o, &$ei)
 			} else {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			}
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		}
 
 	}// end if

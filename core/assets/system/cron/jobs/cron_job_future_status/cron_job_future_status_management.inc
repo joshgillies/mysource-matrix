@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status_management.inc,v 1.8 2005/12/19 00:18:33 bcaldwell Exp $
+* $Id: cron_job_future_status_management.inc,v 1.9 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,9 +60,9 @@ class Cron_Job_Future_Status_Management extends Asset_Management
 						'dependants_only'	=> Array(
 												'added'			=> '0.2',
 												'type'			=> 'boolean',
-												'default'		=> false,
+												'default'		=> FALSE,
 												'parameters'	=> Array(
-																	'allow_empty'	=> false,
+																	'allow_empty'	=> FALSE,
 																   ),
 												'description'	=> 'If the status change should cascade to all children',
 											   ),

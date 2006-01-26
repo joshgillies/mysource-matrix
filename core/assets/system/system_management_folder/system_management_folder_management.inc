@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_management_folder_management.inc,v 1.4 2005/01/20 13:07:38 brobertson Exp $
+* $Id: system_management_folder_management.inc,v 1.5 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class System_Management_Folder_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -45,13 +46,14 @@ class System_Management_Folder_Management extends Asset_Management
 	function System_Management_Folder_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
-		$this->vars =	Array(
-							'name' => Array(
-								'default' => 'System Management',
-							),
-						);
+		$this->vars = Array(
+						'name'	=> Array(
+									'default'	=> 'System Management',
+								   ),
+					  );
 
 	}//end constructor
+
 
 }//end class
 ?>

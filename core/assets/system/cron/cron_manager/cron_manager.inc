@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.61 2006/01/25 04:46:21 rong Exp $
+* $Id: cron_manager.inc,v 1.62 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,6 +61,8 @@ class Cron_Manager extends Asset
 	/**
 	* Create this asset
 	*
+	* Return either the linkid or FALSE on failure
+	*
 	* @param array	&$link	information used to create the initial link
 	*
 	* @return mixed int|boolean
@@ -73,6 +75,7 @@ class Cron_Manager extends Asset
 		if (!system_asset_fns_create_pre_check($this)) {
 			return FALSE;
 		}
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
@@ -87,6 +90,7 @@ class Cron_Manager extends Asset
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end create()
@@ -478,11 +482,11 @@ class Cron_Manager extends Asset
 				$jobs = $this->getJobsToRun($last_run, $this_run);
 
 				// holds the number of times that a job has failed
-				// Array([assetid] => [number of failed runs]);
+				// in the form: Array([assetid] => [number of failed runs]);
 				$failed_runs = Array();
 
 				// holds the assetids for jobs to ignore - because they have failed to many times
-				// Array([assetid]);
+				// in the form: Array([assetid]);
 				$ignore_jobs = Array();
 
 				while (!empty($jobs)) {
@@ -610,7 +614,7 @@ class Cron_Manager extends Asset
 				// aquire or set running failed
 				trigger_localised_error('CRON0015', E_USER_WARNING, $this->name);
 
-			}//end if aquire lock
+			}//end else - if acquire lock
 
 		}//end else already running
 
@@ -623,7 +627,8 @@ class Cron_Manager extends Asset
 
 	/**
 	* Converts a CLOB expression to a varchar for comarisons with other varchar fields
-	* Returns the sql to convert to a varchar or the expression if no conversion is needed
+	*
+	* Returns the sql to convert to a varchar, or the expression unchanged if no conversion is needed
 	*
 	* @param string	$expression	the expression to convert to a varchar
 	*

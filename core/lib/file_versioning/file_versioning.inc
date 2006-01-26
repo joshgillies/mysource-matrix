@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.19 2005/09/14 00:18:09 dheppell Exp $
+* $Id: file_versioning.inc,v 1.20 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -94,6 +94,8 @@ class File_Versioning
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		require_once SQ_LIB_PATH.'/db_install/db_install.inc';
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$dir = SQ_DATA_PATH.'/file_repository';
@@ -263,21 +265,24 @@ class File_Versioning
 	*/
 	function _lockFile($fileid)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db = $GLOBALS['SQ_SYSTEM']->db;
+
 		$select = 'SELECT COUNT(*)
 					FROM sq_file_vers_lock
 					WHERE fileid = '.$this->_db->quote($fileid);
-		$insert = 'INSERT INTO sq_file_vers_lock (fileid) VALUES ('.$this->_db->quote($fileid).')';
+		$insert = 'INSERT INTO sq_file_vers_lock (fileid) VALUES ('.$db->quote($fileid).')';
 		// we will attempt a maxmimum of 4 times
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		for ($i = 0; $i < $this->num_lock_attempts; $i++) {
 
-			$result = $this->_db->getOne($select);
+			$result = $db->getOne($select);
 			assert_valid_db_result($result);
 
 			if (empty($result)) {
 
-				$result = $this->_db->query($insert);
+				$result = $db->query($insert);
 				// insert didn't fail ? means no duplicate key
 				if (!DB::isError($result)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -308,11 +313,13 @@ class File_Versioning
 	*/
 	function _releaseFile($fileid)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'DELETE FROM sq_file_vers_lock
-				WHERE fileid = '.$this->_db->quote($fileid);
-		$result = $this->_db->query($sql);
+				WHERE fileid = '.$db->quote($fileid);
+		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -397,19 +404,21 @@ class File_Versioning
 
 		}//end if
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		// if there is no current file we need to insert the new DB record
 		if (empty($current_info)) {
-			$fileid = $this->_db->nextId('sq_file_vers_file');
+			$fileid = $db->nextId('sq_file_vers_file');
 			assert_valid_db_result($fileid);
 
 			$fileid = (int) $fileid;
 
 			$sql = 'INSERT INTO sq_file_vers_file (fileid, path, filename)
-					VALUES ('.$this->_db->quoteSmart($fileid).',
-					'.$this->_db->quote($rep_path).', '.$this->_db->quote($filename).')';
-			$result = $this->_db->query($sql);
+					VALUES ('.$db->quoteSmart($fileid).',
+					'.$db->quote($rep_path).', '.$db->quote($filename).')';
+			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
 		// otherwise use the old file's id
@@ -456,25 +465,27 @@ class File_Versioning
 	*/
 	function _updateFile($fileid, $rep_path, $real_file, $extra_info='')
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT COALESCE(MAX(version), 0) + 1
 				FROM sq_file_vers_history
-				WHERE fileid = '.$this->_db->quote($fileid);
-		$version = $this->_db->getOne($sql);
+				WHERE fileid = '.$db->quote($fileid);
+		$version = $db->getOne($sql);
 		assert_valid_db_result($version);
 
 		$now = time();
-		$date = $this->_db->quote($this->_tsIso8601($now));
-		if ($this->_db->phptype == 'oci8') {
-			$date = 'TO_DATE('.$date.', '.$this->_db->quote('YYYY-MM-DD HH24:MI:SS').')';
+		$date = $db->quote($this->_tsIso8601($now));
+		if ($db->phptype == 'oci8') {
+			$date = 'TO_DATE('.$date.', '.$db->quote('YYYY-MM-DD HH24:MI:SS').')';
 		}
 
 		$sql = 'UPDATE sq_file_vers_history
 				SET to_date = '.$date.'
-				WHERE fileid = '.$this->_db->quote($fileid).'
+				WHERE fileid = '.$db->quote($fileid).'
 				  AND to_date IS NULL';
-		$result = $this->_db->query($sql);
+		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
 		$version   = (int) $version;
@@ -493,12 +504,12 @@ class File_Versioning
 		$sql = 'INSERT INTO sq_file_vers_history
 				(fileid, version, from_date, to_date, file_size, md5, sha1, removal, extra_info)
 				VALUES
-				('.$this->_db->quote($fileid).', '.$this->_db->quote($version).',
+				('.$db->quote($fileid).', '.$db->quote($version).',
 				'.$date.', NULL,
-				'.$this->_db->quote($file_size).', '.$this->_db->quote($md5).',
-				'.$this->_db->quote($sha1).', '.$this->_db->quote($removal).',
-				'.$this->_db->quote($extra_info).')';
-		$result = $this->_db->query($sql);
+				'.$db->quote($file_size).', '.$db->quote($md5).',
+				'.$db->quote($sha1).', '.$db->quote($removal).',
+				'.$db->quote($extra_info).')';
+		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
 		// if we aren't removing, copy the file into the repository
@@ -780,17 +791,18 @@ class File_Versioning
 		$md5      = md5_file($real_file);
 		$sha1     = sha1_file($real_file);
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$sql = 'UPDATE 
+			$sql = 'UPDATE
 						sq_file_vers_history
-					SET 
+					SET
 						md5= '.$db->quote($md5).',
-						sha1='.$db->quote($sha1).', 
+						sha1='.$db->quote($sha1).',
 						file_size='.$db->quote($filesize).'
-					WHERE 
-						fileid='.$db->quote($fileid).' 
+					WHERE
+						fileid='.$db->quote($fileid).'
 						AND version='.$db->quote($version);
 
 			$result = $db->query($sql);
@@ -971,6 +983,7 @@ class File_Versioning
 			return $info;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!$this->_lockFile($info['fileid'])) {
@@ -1055,6 +1068,7 @@ class File_Versioning
 			return $info;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!$this->_lockFile($info['fileid'])) {
@@ -1164,6 +1178,7 @@ class File_Versioning
 	*/
 	function changeFvTypeCode($real_file, $new_type_code)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';

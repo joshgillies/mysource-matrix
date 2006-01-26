@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_edit_fns.inc,v 1.3 2005/11/04 03:05:13 lwright Exp $
+* $Id: ecommerce_checkout_edit_fns.inc,v 1.4 2006/01/26 22:35:23 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -104,6 +104,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		// get existing delivery method links
 		$delivery_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', false, 'major', 'delivery_method');
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$ok = true;
 
@@ -137,11 +138,12 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 
 		if ($ok) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return $ok;
 
 	}//end processDeliveryMethod()
 

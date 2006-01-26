@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager_management.inc,v 1.2 2005/04/13 04:32:59 rhoward Exp $
+* $Id: log_manager_management.inc,v 1.3 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author	Andrei Railean <arailean@squiz.net>
 * @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,9 +51,9 @@ class Log_Manager_Management extends Asset_Management
 						'enabled'	=> Array(
 										'added'			=> '0.1',
 										'type'			=> 'boolean',
-										'default'		=> true,
+										'default'		=> TRUE,
 										'parameters'	=> Array(
-															'allow_empty'	=> false,
+															'allow_empty'	=> FALSE,
 														   ),
 										'description'	=> 'A flag which enables or disables logging',
 									   ),

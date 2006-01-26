@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.25 2006/01/18 00:59:32 lwright Exp $
+* $Id: image_variety.inc,v 1.26 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -467,6 +467,7 @@ class Image_Variety extends Asset
 		// if we aren't meant to be having the public paths, let our parent run as normal
 		if (!$public) return parent::updateLookups();
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -507,6 +508,7 @@ class Image_Variety extends Asset
 		// if there is no filename there is nothing more for us to do
 		if (!$filename) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return TRUE;
 		}
 
@@ -582,6 +584,7 @@ class Image_Variety extends Asset
 		}//end foreach
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end updateLookups()
@@ -674,7 +677,7 @@ class Image_Variety extends Asset
 		if (SQ_IN_LIMBO) return parent::printFrontend();
 
 		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
 			return;
 		}
 		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);

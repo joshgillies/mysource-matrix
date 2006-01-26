@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder.inc,v 1.58 2005/05/11 06:05:01 lwright Exp $
+* $Id: trash_folder.inc,v 1.59 2006/01/26 22:34:07 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,27 +56,36 @@ class Trash_Folder extends Folder
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* Return either the linkid or FALSE on failure
 	*
-	* @see Asset::create()
-	* @return mixed int or false
+	* @param array	&$link	information used to create the initial link
+	*
+	* @return mixed int|boolean
 	* @access public
+	* @see Asset::create()
 	*/
 	function create(&$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
-		if (!system_asset_fns_create_pre_check($this)) return false;
+		if (!system_asset_fns_create_pre_check($this)) {
+			return FALSE;
+		}
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
 			if (!system_asset_fns_create_cleanup($this)) {
-				$linkid = false;
+				$linkid = FALSE;
 			}
 		}
 
-		if ($linkid) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		if ($linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end create()
@@ -89,18 +98,18 @@ class Trash_Folder extends Folder
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!parent::_createAdditional($link)) return false;
+		if (!parent::_createAdditional($link)) return FALSE;
 
 		// set public read access in the DB so it comes up in the asset map
 		// but we have to do this the hard way, because the system assets list won't
 		// have been saved yet
 		$public_userids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('public_user');
-		return $GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $public_userids[0], SQ_PERMISSION_READ, true);
+		return $GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $public_userids[0], SQ_PERMISSION_READ, TRUE);
 
 	}//end _createAdditional()
 
@@ -109,8 +118,9 @@ class Trash_Folder extends Folder
 	* Prints out the backend interface for the asset
 	* it's up to the kids to override
 	*
-	* @param object Backend_Outputter $o
+	* @param object	&$o	the Backend Outputter object
 	*
+	* @return void
 	* @access public
 	*/
 	function paintBackend(&$o)
@@ -135,7 +145,7 @@ class Trash_Folder extends Folder
 	*/
 	function canClone()
 	{
-		return false;
+		return FALSE;
 
 	}//end canClone()
 
@@ -146,14 +156,14 @@ class Trash_Folder extends Folder
 	*
 	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
 	*
-	* @return bool
+	* @return boolean
 	* @access public
 	* @see Asset::morph()
 	*/
 	function morph($new_type_code)
 	{
 		trigger_localised_error('CORE0091', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-		return false;
+		return FALSE;
 
 	}//end morph()
 
@@ -161,8 +171,8 @@ class Trash_Folder extends Folder
 	/**
 	* Set the value for the passed variable to the passed value
 	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -171,7 +181,7 @@ class Trash_Folder extends Folder
 	{
 		if ($name == 'name') {
 			trigger_localised_error('CORE0111', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-			return false;
+			return FALSE;
 		}
 
 		return parent::setAttrValue($name, $value);
@@ -186,15 +196,14 @@ class Trash_Folder extends Folder
 	* @param string	$sort_order	the position in the links list that this link should take,
 	*							if less than zero places at end of list
 	*
-	* @see Asset::moveLinkPos()
-	*
 	* @return boolean
 	* @access public
+	* @see Asset::moveLinkPos()
 	*/
 	function moveLinkPos($linkid, $sort_order=-1)
 	{
 		trigger_localised_error('CORE0019', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-		return false;
+		return FALSE;
 
 	}//end moveLinkPos()
 
@@ -202,45 +211,47 @@ class Trash_Folder extends Folder
 	/**
 	* Returns TRUE if the passed minor asset can be linked to this asset, or a string with the error msg
 	*
-	* @param object Asset	$minor		the minor asset that we are linking to
-	* @param string			$link_type	the type of link this is
-	* @param int			$exclusive	the exclusive status of the link (gets passed to canLinkToType)
+	* @param object	&$minor		the minor asset that we are linking to
+	* @param string	$link_type	the type of link this is
+	* @param int	$exclusive	the exclusive status of the link (gets passed to canLinkToType)
 	*
-	* @return mixed TRUE or error message string
+	* @return mixed boolean|string
 	* @access public
 	*/
 	function canCreateLink(&$minor, $link_type, $exclusive)
 	{
-		if (!$this->id) return false;
-		if (!is_a($minor, 'Asset')) return translate('minor_not_asset');
-		return true;
+		if (!$this->id) return FALSE;
+		if (!is_a($minor, 'Asset')) {
+			return translate('minor_not_asset');
+		}
+		return TRUE;
 
 	}//end canCreateLink()
 
 
 	/**
-	* Returns true if the passed assetid has read access to this asset
+	* Returns TRUE if the passed assetid has read access to this asset
 	*
-	* @param array $assetids An array of user_group and/or user ids to check for read access
-	*						 If the array is empty, the current user will be checked
+	* @param array	$assetids	An array of user_group and/or user ids to check for read access
+	*							If the array is empty, the current user will be checked
 	*
 	* @return boolean
 	* @access public
 	*/
 	function readAccess($assetids=Array())
 	{
-		return true;
+		return TRUE;
 
 	}//end readAccess()
 
 
 	/**
-	* Returns true if the passed assetid has write access to this asset
+	* Returns TRUE if the passed assetid has write access to this asset
 	*
 	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
 	*							permissions set for this asset, otherwise returns effective access based on locking
 	*							and status
-	* @param Array	$assetids	An array of user_group and/or user ids to check for write access
+	* @param array	$assetids	An array of user_group and/or user ids to check for write access
 	*							If the array is empty, the current user will be checked
 	*
 	* @return boolean
@@ -248,22 +259,24 @@ class Trash_Folder extends Folder
 	*/
 	function writeAccess($lock_type='', $assetids=Array())
 	{
-		return true;
+		return TRUE;
 
 	}//end writeAccess()
 
 
 	/**
-	* Returns true if the current user can purge the trash
+	* Returns TRUE if the current user can purge the trash
 	*
 	* @return boolean
 	* @access public
 	*/
 	function purgeAccess()
 	{
-		if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
-		if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
-		return false;
+		if ($GLOBALS['SQ_SYSTEM']->userRoot()) return TRUE;
+		if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+			return TRUE;
+		}
+		return FALSE;
 
 	}//end purgeAccess()
 

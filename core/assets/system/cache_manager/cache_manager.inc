@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.31 2006/01/12 03:37:31 rong Exp $
+* $Id: cache_manager.inc,v 1.32 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,6 +69,7 @@ class Cache_Manager extends Asset
 		if (!system_asset_fns_create_pre_check($this)) {
 			return FALSE;
 		}
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
@@ -83,6 +84,7 @@ class Cache_Manager extends Asset
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end create()
@@ -230,7 +232,6 @@ class Cache_Manager extends Asset
 		$group = $this->getAssetHash($cache_key).$this->getAssetHash($perm_key);
 		$file_name = md5($cache_key.':'.$perm_key.':'.$url);
 		$file_path = $group.'/'.$file_name;
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$expiry = time() + $this->getExpiry($asset_type);
 		$expiry_sql = db_extras_todate($db, ts_iso8601($expiry));
 
@@ -259,6 +260,8 @@ class Cache_Manager extends Asset
 		}
 		umask($old_umask);
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 
@@ -285,6 +288,7 @@ class Cache_Manager extends Asset
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
@@ -302,6 +306,7 @@ class Cache_Manager extends Asset
 	function clearCache($assetids)
 	{
 		if (!empty($assetids)) {
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -313,6 +318,7 @@ class Cache_Manager extends Asset
 			assert_valid_db_result($result);
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		}
 
 	}//end clearCache()
@@ -409,7 +415,7 @@ class Cache_Manager extends Asset
 					$perm_key = implode('|', $groups);
 				}
 			}
-		}//end if logged in
+		}//end else - if logged in
 
 		return $perm_key;
 
@@ -498,7 +504,7 @@ class Cache_Manager extends Asset
 	* @param string	$perm_key	the permission key for this entry
 	* @param string	$url		the url identifier
 	*
-	* @return mixed array|null
+	* @return mixed array|NULL
 	* @access private
 	*/
 	function _getCache($cache_key, $perm_key, $url)
@@ -532,6 +538,7 @@ class Cache_Manager extends Asset
 	*/
 	function _deleteCache($cache_key, $perm_key, $url)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -545,6 +552,7 @@ class Cache_Manager extends Asset
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}//end _deleteCache()
 
@@ -565,6 +573,7 @@ class Cache_Manager extends Asset
 	function _updateCache($cache_key, $perm_key, $url, $expiry_sql, $file_path='', $updated_content='')
 	{
 		// update the expiry time
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'UPDATE
@@ -578,6 +587,7 @@ class Cache_Manager extends Asset
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		// update the content file
 		if ($file_path) {

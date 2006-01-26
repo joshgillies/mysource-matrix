@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy_management.inc,v 1.5 2005/08/29 06:56:01 ndvries Exp $
+* $Id: paint_layout_bodycopy_management.inc,v 1.6 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -80,7 +80,7 @@ class Paint_Layout_Bodycopy_Management extends Asset_Management
 	*/
 	function _upgrade($current_version)
 	{
-		if (!parent::_upgrade($current_version)) return false;
+		if (!parent::_upgrade($current_version)) return FALSE;
 
 		$asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
 
@@ -88,10 +88,10 @@ class Paint_Layout_Bodycopy_Management extends Asset_Management
 			// version 0.1 -> 0.2
 			// Changed Paint layouts to use their content files to read/write data that
 			// can be reused. This upgrade simply prints those files for the first time
-			bam('STARTING '.$asset_name.' UPGRADE - FROM VERSION 0.1');
-			$pl_bodycopies = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false, true);
+			pre_echo('STARTING '.$asset_name.' UPGRADE - FROM VERSION 0.1');
+			$pl_bodycopies = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE, TRUE);
 			foreach ($pl_bodycopies as $assetid => $type_code) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				if (is_null($asset)) continue;
 
 				// We need to output our content files, otherwise old paint layouts will print blank
@@ -101,11 +101,11 @@ class Paint_Layout_Bodycopy_Management extends Asset_Management
 				unset($asset);
 
 			}//end foreach
-			bam($asset_name.' UPGRADE COMPLETE - FROM VERSION 0.1 to 0.2');
+			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION 0.1 to 0.2');
 
 		}//end version 0.1 upgrade
 
-		return true;
+		return TRUE;
 
 	}//end _upgrade()
 

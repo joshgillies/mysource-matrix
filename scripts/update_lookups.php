@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: update_lookups.php,v 1.1 2005/08/18 04:49:27 mmcintyre Exp $
+* $Id: update_lookups.php,v 1.2 2006/01/26 22:34:09 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 * quicker
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -53,6 +53,7 @@ if (!$root_user->comparePassword($root_password)) {
 
 echo "\n";
 
+$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 $db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -135,7 +136,7 @@ foreach (Array('sq_ast_lookup_value', 'sq_ast_lookup') as $tablename) {
 bam('LOOKUPS CHANGED FROM '.$from_url.' TO '.$to_url);
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
+$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 /**
 * Prints the specified prompt message and returns the line from stdin

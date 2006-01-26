@@ -1,4 +1,4 @@
-<?php
+f<?php
 /**
 * +--------------------------------------------------------------------+
 * | Squiz.net Commercial Module Licence                                |
@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.34 2006/01/20 05:41:18 sdanis Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.35 2006/01/26 22:35:16 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -208,12 +208,14 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 			if ($assetid != $current_assetid) {
 
+				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 				if ($current_assetid) {
 					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', TRUE, 'nested_asset');
 					if (!$asset->deleteLink($link['linkid'])) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;
 					}
 				}
@@ -222,6 +224,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				$nested_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (!$asset->createLink($nested_asset, SQ_LINK_NOTICE, 'nested_asset')) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
 
@@ -242,6 +245,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				$asset->setAttrValue('html', $html);
 
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return TRUE;
 
 			}//end if

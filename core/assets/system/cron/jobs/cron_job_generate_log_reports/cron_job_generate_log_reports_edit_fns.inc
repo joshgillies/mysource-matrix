@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_generate_log_reports_edit_fns.inc,v 1.1 2005/04/13 04:43:15 rhoward Exp $
+* $Id: cron_job_generate_log_reports_edit_fns.inc,v 1.2 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 * Purpose
 *
 *
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,16 +50,28 @@ class Cron_Job_Generate_Log_Reports_Edit_Fns extends Cron_Job_Edit_Fns
 	}//end constructor
 
 
+	/**
+	* Paint nothing...
+	*
+	* @return boolean
+	* @access public
+	*/
 	function paintNull()
 	{
-		return true;
+		return TRUE;
 
 	}//end paintNull()
 
 
+	/**
+	* Process nothing...
+	*
+	* @return boolean
+	* @access public
+	*/
 	function processNull()
 	{
-		return true;
+		return TRUE;
 
 	}//end processNull()
 

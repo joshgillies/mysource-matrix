@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication.inc,v 1.8 2005/12/02 00:52:50 bcaldwell Exp $
+* $Id: authentication.inc,v 1.9 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,13 +61,13 @@ class Authentication extends Asset
 	*
 	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
 	*
-	* @return bool
+	* @return boolean
 	* @access public
 	*/
 	function morph($new_type_code)
 	{
 		trigger_localised_error('CORE0091', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-		return false;
+		return FALSE;
 
 	}//end morph()
 
@@ -80,7 +80,7 @@ class Authentication extends Asset
 	*/
 	function canDelete()
 	{
-		return false;
+		return FALSE;
 
 	}//end canDelete()
 
@@ -93,7 +93,7 @@ class Authentication extends Asset
 	*/
 	function canClone()
 	{
-		return false;
+		return FALSE;
 
 	}//end canClone()
 
@@ -101,33 +101,34 @@ class Authentication extends Asset
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
 	}//end _getName()
 
-	
+
 	/**
 	* Given a username, attempts to locate and return a user object.
 	*
 	* @param string	$username	The username of the user to locate
 	*
-	* @return &object
+	* @return object
 	* @access public
 	*/
 	function &locateUser($username)
 	{
-		$null = null;
+		$null = NULL;
 		return $null;
-		
+
 	}//end locateUser()
-	
+
 
 	/**
 	* Attempts to find a user that matches the passed username and password
@@ -138,12 +139,12 @@ class Authentication extends Asset
 	* @param string	$username	the user name to search for
 	* @param string	$password	the password to match
 	*
-	* @return object User | NULL
+	* @return mixed object|NULL
 	* @access public
 	*/
 	function &authenticateUser($username, $password)
 	{
-		$null = null;
+		$null = NULL;
 		return $null;
 
 	}//end authenticateUser()
@@ -152,12 +153,12 @@ class Authentication extends Asset
 	/**
 	* If this authentication has a user matching the username in $_SERVER['REMOTE_USER'], return that user
 	*
+	* @return mixed object|NULL
 	* @access public
-	* @return Object | Null
 	*/
 	function &authenticateHttpUser()
 	{
-		$null = null;
+		$null = NULL;
 		return $null;
 
 	}//end authenticateHttpUser()

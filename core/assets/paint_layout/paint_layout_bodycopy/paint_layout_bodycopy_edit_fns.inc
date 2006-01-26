@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.7 2005/08/29 06:56:39 ndvries Exp $
+* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.8 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,8 +55,12 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 	/**
 	* Paints adding a new user condition
 	*
-	* @access public
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for the form element
+	*
 	* @return void
+	* @access public
 	*/
 	function paintConditionalKeywords(&$asset, &$o, $prefix)
 	{
@@ -74,8 +78,12 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 	/**
 	* Processses adding a new user condition
 	*
-	* @access public
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for the form element
+	*
 	* @return void
+	* @access public
 	*/
 	function processConditionalKeywords(&$asset, &$o, $prefix)
 	{
@@ -93,9 +101,9 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 	/**
 	* Processes the interface for creating containers in the bodycopy
 	*
-	* @param object Asset				$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -103,12 +111,12 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 	function processBodycopy(&$asset, &$o, $prefix)
 	{
 		if (!parent::processBodycopy($asset, $o, $prefix)) {
-			return false;
+			return FALSE;
 		}
 
-		if (!$asset->saveSystemVersion()) return false;
+		if (!$asset->saveSystemVersion()) return FALSE;
 
-		return true;
+		return TRUE;
 
 	}//end processBodycopy()
 

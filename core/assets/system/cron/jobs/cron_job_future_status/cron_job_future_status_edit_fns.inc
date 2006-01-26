@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status_edit_fns.inc,v 1.14 2006/01/19 23:41:54 tbarrett Exp $
+* $Id: cron_job_future_status_edit_fns.inc,v 1.15 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,10 +54,11 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	/**
 	* Prints the tasks interface in a one line format
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$when    prepared when string
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset					the owning asset
+	* @param object	&$o						the Backend Outputter object
+	* @param string	$prefix					prefix for form elements
+	* @param string	$when					prepared when string
+	* @param string	$form_extra_elements	extra form elements
 	*
 	* @return boolean
 	* @access public
@@ -68,19 +69,19 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 
 		$descs = $asset->_getAllStatiiDescs();
 		if ($asset->writeAccess('attributes')) {
-			combo_box($prefix.'_status', $descs, false, $asset->attr('status'), null, $form_extra_elements);
+			combo_box($prefix.'_status', $descs, FALSE, $asset->attr('status'), NULL, $form_extra_elements);
 		} else {
 			echo $descs[$asset->attr('status')];
 		}
-		
+
 		echo ' '.strtolower(translate('at')).' ';
 		$this->_paintWhenBox($asset, $o, $prefix, $when, $form_extra_elements);
-		
+
 		echo '&nbsp;';
 		check_box($prefix.'_change_status_all_children');
 		echo translate('cascade_status_change');
-		
-		return true;
+
+		return TRUE;
 
 	}//end paintInLineBackend()
 
@@ -88,9 +89,9 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	/**
 	* Process the tasks interface
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the owning asset
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -103,8 +104,8 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 				return ($asset->setAttrValue('when', $when) && $asset->setAttrValue('dependants_only', $dependants_only));
 			}
 		}
-		
-		return false;
+
+		return FALSE;
 
 	}//end processInLineBackend()
 

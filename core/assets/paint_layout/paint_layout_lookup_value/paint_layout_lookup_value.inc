@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_lookup_value.inc,v 1.4 2005/08/01 04:31:03 ndvries Exp $
+* $Id: paint_layout_lookup_value.inc,v 1.5 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/lookup_value/lookup_value.inc';
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,8 +42,8 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 	/**
 	* Return the lookup name to use in the interface
 	*
-	* @access public
 	* @return string
+	* @access public
 	* @static
 	*/
 	function lookupValueName()
@@ -56,8 +56,8 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 	/**
 	* Return the prefix that these values use in their name (minus the '::')
 	*
-	* @access public
 	* @return string
+	* @access public
 	* @static
 	*/
 	function namePrefix()
@@ -70,22 +70,22 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 	/**
 	* Paint the HTML editing interface for this lookup value.
 	*
-	* @param object	Asset				&$owner			the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o				the outputter class
-	* @param Array 						$lookups		array of available lookups
-	* @param Array 						$lookup_values	array of current values
-	*													<pre>
-	*													"[url]" => array (
-	*														"[name]" => array (
-	*															"value" => "[value]",
-	*															"inhd" => "[inherited]",
-	*														),
-	*													),
-	*													</pre>
-	* @param string 					$prefix			unique prefix to use for the form elements
+	* @param object	&$owner			the asset whose interface we are painting
+	* @param object	&$o				the backend outputter object
+	* @param array	$lookups		array of available lookups
+	* @param array	$lookup_values	array of the values that we want to save
+	*								<pre>
+	*									"[url]" => array (
+	*										"[name]" => array (
+	*											"value" => "[value]",
+	*											"inhd" => "[inherited]",
+	*										),
+	*									),
+	*								</pre>
+	* @param string	$prefix			unique prefix to use for the form elements
 	*
+	* @return boolean
 	* @access public
-	* @return boolean		indicating if any editing fields were printed
 	* @static
 	*/
 	function paintInterface(&$owner, &$o, $lookups, $lookup_values, $prefix)
@@ -111,7 +111,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 
 			$o->openSection($url);
 			$o->openField(translate('lineage'));
-			$lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(null, $url);
+			$lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $url);
 			foreach ($lineage as $i => $asset) {
 				if ($i > 0) echo '&nbsp;&gt;&nbsp;';
 				$o->note(translate('asset_format', $asset['short_name'], $asset['assetid']));
@@ -170,7 +170,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 						if ($data['value'] == '') {
 							echo translate('none');
 						} else {
-							$layout = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data['value'], '', true);
+							$layout =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data['value'], '', TRUE);
 							if (!is_null($layout)) {
 								echo $layout->name.' (Id : #'.$layout->id.')';
 								if ($data['inhd']) {
@@ -187,17 +187,17 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 						$o->openField(($layoutid) ? translate('change_question') : translate('new_question'));
 							$buttons = Array('clear');
 							if (!$new_user_layout) $buttons[] = 'reset';
-							asset_finder($prefix.'['.$url.']['.$layout_name.'][value]', $layoutid, Array('paint_layout_page' => 'D'), 'sq_sidenav', false, 'null', $buttons);
+							asset_finder($prefix.'['.$url.']['.$layout_name.'][value]', $layoutid, Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', $buttons);
 						$o->closeField();
 					}
 
 				$o->closeSection();
 
-			}// end foreach
+			}//end foreach
 
 			$o->closeSection();
 
-		}// end foreach
+		}//end foreach
 
 		return $wa;
 
@@ -207,28 +207,28 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 	/**
 	* Process the editing interface for this lookup value
 	*
-	* @param object	Asset				&$owner			the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o				the outputter class
-	* @param Array 						$lookups		array of available lookups
-	* @param Array 						$lookup_values	array of the values that we want to save
-	*													<pre>
-	*													"[url]" => array (
-	*														"[name]" => array (
-	*															"value" => "[value]",
-	*															"inhd" => "[inherited]",
-	*														),
-	*													),
-	*													</pre>
-	* @param string 					$prefix			unique prefix to use for the form elements
+	* @param object	&$owner			the asset whose interface we are painting
+	* @param object	&$o				the backend outputter object
+	* @param array	$lookups		array of available lookups
+	* @param array	&$lookup_values	array of the values that we want to save
+	*								<pre>
+	*									"[url]" => array (
+	*										"[name]" => array (
+	*											"value" => "[value]",
+	*											"inhd" => "[inherited]",
+	*										),
+	*									),
+	*								</pre>
+	* @param string	$prefix			unique prefix to use for the form elements
 	*
+	* @return boolean
 	* @access public
-	* @return boolean		indicating success or abort
 	* @static
 	*/
 	function processInterface(&$owner, &$o, $lookups, &$lookup_values, $prefix)
 	{
 		if (!isset($_POST[$prefix]) || !is_array($_POST[$prefix])) {
-			return false;
+			return FALSE;
 		}
 
 		$lookup_values = Array();
@@ -254,7 +254,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processInterface()
 

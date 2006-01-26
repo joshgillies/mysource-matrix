@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.60 2005/11/07 05:24:09 mmcintyre Exp $
+* $Id: step_02.php,v 1.61 2006/01/26 22:34:09 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -72,12 +72,12 @@ require_once 'XML/Tree.php';
 
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
-$db = &$GLOBALS['SQ_SYSTEM']->db;
+$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 // Re-generate the Config to make sure that we get any new defines that may have been issued
 
 $cfg =& new System_Config();
-$cfg->save(Array(), false);
+$cfg->save(Array(), FALSE);
 
 $cached_table_columns = Array();
 

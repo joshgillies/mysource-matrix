@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.13 2005/08/31 03:29:50 mmcintyre Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.14 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,9 +62,11 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	/**
 	* Create this asset
 	*
+	* Return either the linkid or FALSE on failure
+	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @return mixed int or false
+	* @return mixed int|boolean
 	* @access public
 	* @see Asset::create()
 	*/
@@ -72,13 +74,14 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
-			return false;
+			return FALSE;
 		}
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
 			if (!system_asset_fns_create_cleanup($this)) {
-				$linkid = false;
+				$linkid = FALSE;
 			}
 		}
 
@@ -88,6 +91,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end create()
@@ -96,13 +100,13 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	/**
 	* Return name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
 	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return translate('cron_job_expired_workflow');
 
@@ -110,14 +114,14 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 
 
 	/**
-	* returns FALSE always because we don't want to be able to clone a design folder
+	* returns FALSE always because we don't want to be able to clone this cron job
 	*
 	* @return boolean
 	* @access public
 	*/
 	function canClone()
 	{
-		return false;
+		return FALSE;
 
 	}//end canClone()
 
@@ -129,14 +133,14 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	*
 	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
 	*
-	* @return bool
+	* @return boolean
 	* @access public
 	* @see Asset::morph()
 	*/
 	function morph($new_type_code)
 	{
 		trigger_localised_error('CRON0024', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-		return false;
+		return FALSE;
 
 	}//end morph()
 
@@ -151,7 +155,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	*/
 	function canDelete()
 	{
-		return false;
+		return FALSE;
 
 	}//end canDelete()
 
@@ -161,16 +165,17 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	*
 	* Looks at all the currently-running workflows and processes any whose current step has
 	* expired since the last run of the cron manager
+	* Returns a bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
 	*
-	* @param string	$msg	accepted by reference, used to return any messages about completion etc from _exec
+	* @param string	&$msg	used to return any messages about completion etc from _exec
 	*
-	* @return int	bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
-	* @see Cron_Job::_exec(), Cron_Job::run()
+	* @return int
 	* @access private
+	* @see Cron_Job::_exec(), Cron_Job::run()
 	*/
 	function _exec(&$msg)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT w.*, a.name
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_wflow w
 					INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a
@@ -180,7 +185,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		$rows = $db->getAll($sql);
 		assert_valid_db_result($rows);
 		$now = time();
-		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		$last_run = $cm->attr('last_run');
 		foreach ($rows as $row) {
 			$workflow = unserialize($row['wflow']);
@@ -208,22 +213,27 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	* To do this we find the administrators of the asset and send them a message
 	* explaining the situation.
 	*
-	* @access private
+	* @param string	$assetid		ID of the asset whose workflow has expired
+	* @param string	$asset_name		Name of that asset
+	* @param string	$schema_name	Name of the workflow schema
+	* @param array	$step_data		Workflow step data
+	*
 	* @return void
+	* @access private
 	*/
 	function _processExpiredWorkflowStep($assetid, $asset_name, $schema_name, $step_data)
 	{
 		if (Workflow_Manager::silentWorkflowParty($assetid)) {
 			return;
 		}
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$subject = 'Stale Workflow Step';
 		$hrefs = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($assetid => 'workflow'));
 		$href = str_replace('./', '', current($hrefs));
 		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 		$url = 'http://'.current($root_urls).'/'.$href;
 		$type = 'asset.workflow.stale';
-		$admins = $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, SQ_PERMISSION_ADMIN, true, false, true);
+		$admins = $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, SQ_PERMISSION_ADMIN, TRUE, FALSE, TRUE);
 		$msg_reps = Array(
 						'asset_name'	=> $asset_name,
 						'assetid'		=> $assetid,
@@ -244,8 +254,9 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	*
 	* This method is overridden because we want to make sure the cron manager never deletes the
 	* expired_workflow cron job
+	* Returns a bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
 	*
-	* @return int	bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
+	* @return int
 	* @access public
 	*/
 	function run()

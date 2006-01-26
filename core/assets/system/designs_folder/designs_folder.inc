@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: designs_folder.inc,v 1.24 2005/04/15 00:37:26 lwright Exp $
+* $Id: designs_folder.inc,v 1.25 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,27 +56,36 @@ class Designs_Folder extends Folder
 	/**
 	* Create this asset
 	*
+	* Returns the linkid or FALSE on error
+	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @return mixed int or false
+	* @return mixed int|boolean
 	* @access public
 	* @see Asset::create()
 	*/
 	function create(&$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
-		if (!system_asset_fns_create_pre_check($this)) return false;
+		if (!system_asset_fns_create_pre_check($this)) {
+			return FALSE;
+		}
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
 			if (!system_asset_fns_create_cleanup($this)) {
-				$linkid = false;
+				$linkid = FALSE;
 			}
 		}
 
-		if ($linkid) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		if ($linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end create()
@@ -90,7 +99,7 @@ class Designs_Folder extends Folder
 	*/
 	function canClone()
 	{
-		return false;
+		return FALSE;
 
 	}//end canClone()
 
@@ -101,14 +110,14 @@ class Designs_Folder extends Folder
 	*
 	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
 	*
-	* @return bool
+	* @return boolean
 	* @access public
 	* @see Asset::morph()
 	*/
 	function morph($new_type_code)
 	{
-		trigger_localised_error("CORE0091", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-		return false;
+		trigger_localised_error('CORE0091', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		return FALSE;
 
 	}//end morph()
 
@@ -116,8 +125,8 @@ class Designs_Folder extends Folder
 	/**
 	* Set the value for the passed variable to the passed value
 	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -125,8 +134,8 @@ class Designs_Folder extends Folder
 	function setAttrValue($name, $value)
 	{
 		if ($name == 'name') {
-			trigger_localised_error("CORE111", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-			return false;
+			trigger_localised_error('CORE0111', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			return FALSE;
 		}
 
 		return parent::setAttrValue($name, $value);
@@ -135,25 +144,25 @@ class Designs_Folder extends Folder
 
 
 	/**
-	* Creates a link between this asset and the passed asset, of a certain type
+	* Creates a link between this asset and the passed asset, of a certain type, returns linkid
 	*
-	* @param object Asset	$minor		the minor asset that we are linking to
-	* @param string			$link_type	the type of link this is
-	* @param string			$value		the value that is to be associated with this link
-	* @param string			$sort_order	the position in the links list that this link should take,
-	*									if null or less than zero places at end of list
-	* @param string			$dependant	'0' / '1' on whether the this asset is dependant on the
-	*									asset that will be linked by this new link
-	* @param string			$exclusive	'0' / '1' on whether the this asset is linked exclusivly
-	*									to the asset that will be linked by this new link
+	* @param object	&$minor		the minor asset that we are linking to
+	* @param string	$link_type	the type of link this is
+	* @param string	$value		the value that is to be associated with this link
+	* @param string	$sort_order	the position in the links list that this link should take,
+	*							if NULL or less than zero places at end of list
+	* @param string	$dependant	'0' / '1' on whether the this asset is dependant on the
+	*							asset that will be linked by this new link
+	* @param string	$exclusive	'0' / '1' on whether the this asset is linked exclusivly
+	*							to the asset that will be linked by this new link
 	*
-	* @return int the linkid of the created link
+	* @return int
 	* @access public
 	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
+	function createLink(&$minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0')
 	{
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
-			trigger_localised_error("CORE0117", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CORE0117', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 			return 0;
 
 		} else {
@@ -173,8 +182,8 @@ class Designs_Folder extends Folder
 	*/
 	function deleteLink($linkid)
 	{
-		trigger_localised_error("CORE0118", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-		return false;
+		trigger_localised_error('CORE0118', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		return FALSE;
 
 	}//end deleteLink()
 
@@ -187,12 +196,12 @@ class Designs_Folder extends Folder
 	*/
 	function canDelete()
 	{
-		return false;
+		return FALSE;
 
 	}//end canDelete()
 
 
-	/*
+	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
 	* @return array
@@ -201,13 +210,13 @@ class Designs_Folder extends Folder
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array('design' => Array('card' => 'M', 'exclusive' => true)));
+		return Array(SQ_LINK_TYPE_1 => Array('design' => Array('card' => 'M', 'exclusive' => TRUE)));
 
 	}//end _getAllowedLinks()
 
 
 	/**
-	* Returns true if the passed assetid has write access to this asset
+	* Returns TRUE if the passed assetid has write access to this asset
 	*
 	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
 	*							permissions set for this asset, otherwise returns effective access based on locking
@@ -227,12 +236,12 @@ class Designs_Folder extends Folder
 				return parent::writeAccess($lock_type, $assetids);
 			}
 		} else {
-			$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+			$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 			if (in_array($root_user->id, $assetids)) {
 				return parent::writeAccess($lock_type, $assetids);
 			}
 		}
-		return false;
+		return FALSE;
 
 	}//end writeAccess()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.82 2006/01/08 23:29:06 lwright Exp $
+* $Id: workflow_manager.inc,v 1.83 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -175,6 +175,7 @@ class Workflow_Manager extends MySource_Object
 			}
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -209,6 +210,7 @@ class Workflow_Manager extends MySource_Object
 
 		unset($this->_tmp['schemas'][(int)$assetid]);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return true;
 
 	}//end setSchema()
@@ -246,6 +248,7 @@ class Workflow_Manager extends MySource_Object
 			return false;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -260,6 +263,7 @@ class Workflow_Manager extends MySource_Object
 
 		unset($this->_tmp['schemas'][(int)$assetid]);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return true;
 
 	}//end deleteSchema()
@@ -362,6 +366,7 @@ class Workflow_Manager extends MySource_Object
 		$schemas = $this->getSchemas($asset->id, true);
 		if (empty($schemas)) return false;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -381,12 +386,14 @@ class Workflow_Manager extends MySource_Object
 			if (is_null($schema)) {
 				trigger_localised_error('SYS0174', E_USER_WARNING, $schemaid);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}
 
 			if (!is_a($schema, 'workflow_schema')) {
 				trigger_localised_error('SYS0176', E_USER_WARNING, $schema->name, $schemaid);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}
 
@@ -405,6 +412,7 @@ class Workflow_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return true;
 
 	}//end setWorkflow()
@@ -795,6 +803,7 @@ class Workflow_Manager extends MySource_Object
 			$publishers_before = $this->whoCanPublish($asset->id);
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -895,6 +904,7 @@ class Workflow_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return true;
 
 	}//end recordPublish()
@@ -1088,6 +1098,8 @@ class Workflow_Manager extends MySource_Object
 
 		if (empty($schemas)) return false;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'UPDATE
@@ -1116,6 +1128,7 @@ class Workflow_Manager extends MySource_Object
 			assert_valid_db_result($result);
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		$this->_tmp = Array();
 
@@ -1319,6 +1332,7 @@ class Workflow_Manager extends MySource_Object
 	*/
 	function _clearWorkflow($assetid)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -1341,6 +1355,7 @@ class Workflow_Manager extends MySource_Object
 		unset($this->_tmp['schema_workflows'][$assetid]);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 
@@ -1357,6 +1372,7 @@ class Workflow_Manager extends MySource_Object
 	*/
 	function purgeWorkflow($assetid)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -1369,6 +1385,7 @@ class Workflow_Manager extends MySource_Object
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 

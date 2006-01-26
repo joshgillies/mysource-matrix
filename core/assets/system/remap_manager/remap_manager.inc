@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.23 2005/08/11 04:51:55 mmcintyre Exp $
+* $Id: remap_manager.inc,v 1.24 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,27 +55,36 @@ class Remap_Manager extends Asset
 	/**
 	* Create this asset
 	*
+	* Returns either the linkid or FALSE on failure
+	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @return mixed int or false
+	* @return mixed int|boolean
 	* @access public
 	* @see Asset::create()
 	*/
 	function create(&$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
-		if (!system_asset_fns_create_pre_check($this)) return false;
+		if (!system_asset_fns_create_pre_check($this)) {
+			return FALSE;
+		}
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
 			if (!system_asset_fns_create_cleanup($this)) {
-				$linkid = false;
+				$linkid = FALSE;
 			}
 		}
 
-		if ($linkid) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		if ($linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end create()
@@ -84,12 +93,13 @@ class Remap_Manager extends Asset
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 
@@ -99,14 +109,15 @@ class Remap_Manager extends Asset
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
 		// added for root node
-		$page_links[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => false);
+		$page_links[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => FALSE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -120,7 +131,7 @@ class Remap_Manager extends Asset
 	*/
 	function canDelete()
 	{
-		return false;
+		return FALSE;
 
 	}//end canDelete()
 
@@ -133,7 +144,7 @@ class Remap_Manager extends Asset
 	*/
 	function canClone()
 	{
-		return false;
+		return FALSE;
 
 	}//end canClone()
 
@@ -164,18 +175,20 @@ class Remap_Manager extends Asset
 	/**
 	* Add a URL remap to the system
 	*
+	* Returns 0 on failed insert, 1 on success, -1 if URL already exists
+	*
 	* @param string	$old_url	the broken URL
 	* @param string	$new_url	the URL to redirect to
 	* @param int	$expires	timestamp for when remap expires (NULL for no expiry)
 	*
-	* @return int 0 on failed insert, 1 on success, -1 if URL already exists
+	* @return int
 	* @access public
 	*/
-	function addRemapURL($old_url, $new_url, $expires=null)
+	function addRemapURL($old_url, $new_url, $expires=NULL)
 	{
 		// old url and new url must be strings, makes not sense otherwise
 		if (!is_string($old_url) || !is_string($new_url)) {
-			trigger_localised_error("CORE0093", E_USER_WARNING);
+			trigger_localised_error('CORE0093', E_USER_WARNING);
 			return 0;
 		}
 
@@ -192,15 +205,15 @@ class Remap_Manager extends Asset
 		$remap_urls = $db->getCol($sql.$where);
 		assert_valid_db_result($remap_urls);
 
-		if (in_array($new_url, $remap_urls)) {
-			return 1;
-		}
+		if (in_array($new_url, $remap_urls)) return 1;
 
 		if (count($remap_urls) > 0) {
 			trigger_localised_error('CORE0024', E_USER_WARNING, $old_url);
 			return -1;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// check if the new URL is already remapping to something else, and delete it
@@ -230,6 +243,7 @@ class Remap_Manager extends Asset
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return 1;
 
@@ -246,8 +260,9 @@ class Remap_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function remapAllURLs($assetid, $new_url, $expires=null)
+	function remapAllURLs($assetid, $new_url, $expires=NULL)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT url, http, https
@@ -266,7 +281,8 @@ class Remap_Manager extends Asset
 				if ($retval === 0) {
 					trigger_localised_error('CORE0039', E_USER_WARNING, $assetid, $new_url);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return FALSE;
 				}
 			}
 			if ($url_data['https']) {
@@ -274,36 +290,40 @@ class Remap_Manager extends Asset
 				if ($retval === 0) {
 					trigger_localised_error('CORE0039', E_USER_WARNING, $assetid, $new_url);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return FALSE;
 				}
 			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return TRUE;
 
 	}//end remapAllURLs()
 
 
 	/**
 	* Attempts to redirect a url to its remapped url
-	* If the remap manager is unsuccessful in doing so, it will return false
+	* If the remap manager is unsuccessful in doing so, it will return FALSE
 	*
-	* @param string		$protocol	the protocol that the url is using
-	* @param string		$url		the url to remap from
+	* @param string	$protocol	the protocol that the url is using
+	* @param string	$url		the url to remap from
 	*
 	* @return boolean
 	* @access public
 	*/
-	function loadRemapFromURL($protocol=null, $url=null)
+	function loadRemapFromURL($protocol=NULL, $url=NULL)
 	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		if (is_null($protocol)) $protocol = current_protocol();
-		if (is_null($url)) $url = strip_url(current_url(false, true));
+		if (is_null($url)) {
+			$url = strip_url(current_url(FALSE, TRUE));
+		}
 
 		$url = $protocol.'://'.$url;
-		$db  = &$GLOBALS['SQ_SYSTEM']->db;
+		$db  =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT
 					remap_url
@@ -329,10 +349,10 @@ class Remap_Manager extends Asset
 			</html>
 			<?php
 
-			return true;
+			return TRUE;
 		}
 
-		return false;
+		return FALSE;
 
 	}//end loadRemapFromURL()
 
@@ -341,18 +361,18 @@ class Remap_Manager extends Asset
 	* Returns the asset that has been chosen to
 	* delegate 404 Not found requests
 	*
-	* @return &object asset or null
+	* @return mixed object|NULL
 	* @access public
 	*/
 	function &getPageNotFoundAsset()
 	{
 		// searching for the root asset
-		$link_to_404 = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, '404');
+		$link_to_404 = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', FALSE, '404');
 
 		if (empty($link_to_404)) {
-			$asset = null;
+			$asset = NULL;
 		} else {
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_to_404['minorid']);
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_to_404['minorid']);
 		}
 
 		return $asset;
@@ -372,34 +392,34 @@ class Remap_Manager extends Asset
 	*/
 	function paintPageNotFoundRemap()
 	{
-		$asset = &$this->getPageNotFoundAsset();
-		if (is_null($asset)) return false;
+		$asset =& $this->getPageNotFoundAsset();
+		if (is_null($asset)) return FALSE;
 
 		// send a 404 header
-		header("HTTP/1.0 404 Not Found");
+		header('HTTP/1.0 404 Not Found');
 
-		$url = strip_url($this->getURL(), true);
-		$asset_url = strip_url($asset->getURL(null, true), true);
+		$url = strip_url($this->getURL(), TRUE);
+		$asset_url = strip_url($asset->getURL(NULL, TRUE), TRUE);
 
 		global $ASSET_LINEAGE;
-		$ASSET_LINEAGE = $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(null, $asset_url);
+		$ASSET_LINEAGE = $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(NULL, $asset_url);
 
-		$design = &$this->getDesign($asset, $url);
+		$design =& $this->getDesign($asset, $url);
 		if (!is_null($design)) {
 			$design->paint($asset);
-			return true;
+			return TRUE;
 		}
 		// get the first design for this asset
-		$design = &$this->getDesign($asset);
+		$design =& $this->getDesign($asset);
 		if (!is_null($design)) {
 			$design->paint($asset);
-			return true;
+			return TRUE;
 		}
 		// give up, and just paint the asset
 		// without a design
 		$asset->printFrontend();
 
-		return true;
+		return TRUE;
 
 	}//end paintPageNotFoundRemap()
 
@@ -407,21 +427,21 @@ class Remap_Manager extends Asset
 	/**
 	* Returns the design that this asset currently has applied to it.
 	*
-	* Pass in null as $url to return the first design asset associated
+	* Pass in NULL as $url to return the first design asset associated
 	* with the asset's id
 	*
-	* @param object &Asset $asset 	the asset to get the design for
-	* @param $url 					the url of the asset
+	* @param object	&$asset	the asset to get the design for
+	* @param string	$url	the url of the asset
 	*
-	* @return &object Asset
+	* @return object
 	* @access public
 	*/
-	function &getDesign(&$asset, $url=null)
+	function &getDesign(&$asset, $url=NULL)
 	{
-		$null = null;
+		$null = NULL;
 		if (is_null($asset)) return $null;
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT lv.value as designid, a.type_code
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url
@@ -429,7 +449,9 @@ class Remap_Manager extends Asset
 				';
 		$where = 'l.assetid  = '.$db->quote($asset->id).'
 					AND lv.name = '.$db->quote('design::system::frontend');
-		if (!is_null($url)) $where .= ' AND lv.url  LIKE '.$db->quote($url.'%');
+		if (!is_null($url)) {
+			$where .= ' AND lv.url  LIKE '.$db->quote($url.'%');
+		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');

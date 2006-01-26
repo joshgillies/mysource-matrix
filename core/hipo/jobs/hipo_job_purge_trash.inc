@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.37 2005/08/14 23:40:49 mmcintyre Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.38 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -311,6 +311,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $this->_running_vars['to_delete'][$assetid]);
 				unset($this->_running_vars['to_delete'][$assetid]);
 
+				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 				// we have an asset ready to delete, but we need to check with
@@ -318,12 +319,14 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 				if (!$GLOBALS['SQ_SYSTEM']->am->canPurgeAsset($asset)) {
 					trigger_localised_error('HIPO0004', E_USER_WARNING, $asset->name, $asset->id);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return false;
 				}
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->_running_vars['trash_id'], 'all') || !$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'all', $this->_running_vars['trash_id'])) {
 					trigger_localised_error('HIPO0005', E_USER_WARNING, $asset->name, $asset->id);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return false;
 				}
 
@@ -341,6 +344,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 					trigger_localised_error('HIPO0004', E_USER_WARNING, $asset->name, $asset->id);
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'all');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return false;
 				}
 
@@ -350,6 +354,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			}
 		}
 

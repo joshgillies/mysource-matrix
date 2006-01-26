@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.34 2006/01/04 03:13:31 lwright Exp $
+* $Id: settings.inc,v 1.35 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 */
 
@@ -706,6 +706,7 @@ function processSettings(&$owner, &$o, &$ei)
 	///// FRONTEND AND LOGIN DESIGN CHANGES ////
 	if (!empty($_POST[$prefix.'_designs']) && $owner->writeAccess('links')) {
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$designs_ok = true;
 		$designs_changed = false;
@@ -797,6 +798,7 @@ function processSettings(&$owner, &$o, &$ei)
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}// end if
 

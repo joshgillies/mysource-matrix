@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.108 2006/01/16 05:50:25 skim Exp $
+* $Id: metadata_manager.inc,v 1.109 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.108 $
+* @version $Revision: 1.109 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -198,6 +198,7 @@ class Metadata_Manager extends MySource_Object
 			}
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -226,6 +227,7 @@ class Metadata_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end setSchema()
@@ -253,6 +255,7 @@ class Metadata_Manager extends MySource_Object
 			return FALSE;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -270,6 +273,7 @@ class Metadata_Manager extends MySource_Object
 		$this->generateContentFile($assetid, FALSE);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end deleteSchema()
@@ -586,6 +590,8 @@ class Metadata_Manager extends MySource_Object
 			return FALSE;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// find all the fields...for two reasons.
@@ -694,6 +700,7 @@ class Metadata_Manager extends MySource_Object
 		}//end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		$asset->_updated();
@@ -1157,8 +1164,8 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function purgeMetadata($assetid)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$where_cond = 'assetid = '.$db->quote($assetid);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'DELETE FROM
@@ -1178,6 +1185,7 @@ class Metadata_Manager extends MySource_Object
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
@@ -1345,6 +1353,8 @@ class Metadata_Manager extends MySource_Object
 		$row = $db->getRow($sql.$where);
 		assert_valid_db_result($row);
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// does the default value exist yet, then?
@@ -1373,6 +1383,7 @@ class Metadata_Manager extends MySource_Object
 		assert_valid_db_result($value);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 

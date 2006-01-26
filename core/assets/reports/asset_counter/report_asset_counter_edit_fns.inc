@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_counter_edit_fns.inc,v 1.8 2005/05/11 06:04:55 lwright Exp $
+* $Id: report_asset_counter_edit_fns.inc,v 1.9 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,10 +49,10 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Generate this report until complete
 	*
-	* @param object HIPO_Job	&$job		a reference to the array of information about
-	* @param array				&$step_data	a reference to the array of information about
-	*										the current step of the HIPO job that is running this report
-	* @param string				$prefix		prefix for form vars
+	* @param object	&$job		the HIPO job running this report
+	* @param array	&$step_data	a reference to the array of information about
+	*							the current step of the HIPO job that is running this report
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
@@ -60,11 +60,11 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 	function generateReport(&$job, &$step_data, $prefix)
 	{
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
-		$owner = &$am->getAsset($job->_running_vars['assetid'], 'report_asset_counter');
+		$owner =& $am->getAsset($job->_running_vars['assetid'], 'report_asset_counter');
 
-		$job_vars = & $job->_running_vars;
+		$job_vars =&  $job->_running_vars;
 
 		$report_contents = '';
 
@@ -93,9 +93,9 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 			// check if there is anything to do
 			if (empty($children)) {
 				$step_data['percent_done'] = 100;
-				$step_data['complete']     = true;
-				$job->_addError(translate('report_not_generated'),true);
-				return false;
+				$step_data['complete']     = TRUE;
+				$job->_addError(translate('report_not_generated'),TRUE);
+				return FALSE;
 			}
 
 			$job_vars['type_counts']     = array_count_values($children);
@@ -104,12 +104,12 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 			if (!is_dir($report_dir)) {
 				if (!create_directory($report_dir)) {
 					trigger_localised_error('CORE0011', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
 			}
 
 			$step_data['percent_done'] = 50;
-			$step_data['complete']     = false;
+			$step_data['complete']     = FALSE;
 
 		} else {
 			// provide human descriptions for each type of Asset
@@ -118,35 +118,35 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 			$step_data['message'] = translate('core_get_readable_asset_descriptions');
 
 			// generate the report
-			$report_contents .= "<asset_types>";
+			$report_contents .= '<asset_types>';
 
 			foreach ($job_vars['unique_types'] as $asset_id => $type_code) {
 				$name = $am->getTypeInfo($type_code, 'name');
 				$count = $job_vars['type_counts'][$type_code];
 
 				$report_contents .= '<asset_type code="'.$type_code.'">';
-				$report_contents .= "<name>$name</name>";
-				$report_contents .= "<count>$count</count>";
+				$report_contents .= '<name>'.$name.'</name>';
+				$report_contents .= '<count>'.$count.'</count>';
 				$report_contents .= '</asset_type>';
 			}
 
-			$report_contents .= "</asset_types>";
+			$report_contents .= '</asset_types>';
 
 			// file manipulation section
 			$file_handler = fopen($xml_file_name, 'w');
-			if ($file_handler === false) {
+			if ($file_handler === FALSE) {
 				trigger_localised_error('CORE0017', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 			fwrite($file_handler, $report_contents);
 			fclose($file_handler);
 
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
+			$step_data['complete']     = TRUE;
 
-		}
+		}//end else
 
-		return true;
+		return TRUE;
 
 	}//end generateReport()
 
@@ -154,9 +154,9 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Paint the interface for viewing a report
 	*
-	* @param object Report				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -175,8 +175,8 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 			return;
 		}
 
-		$input = new XML_Tree($report_path);
-		$root  = &$input->getTreeFromFile();
+		$input =& new XML_Tree($report_path);
+		$root  =& $input->getTreeFromFile();
 		if (PEAR::isError($root)) {
 			trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
 			return;
@@ -203,7 +203,7 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 					return;
 				}
 
-				$sort_by_attr = &$asset->getAttribute('sort_by');
+				$sort_by_attr =& $asset->getAttribute('sort_by');
 				$sort_by = $sort_by_attr->value;
 
 				$row_format =
@@ -287,9 +287,9 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Paint the current asset types that have been added
 	*
-	* @param object Form				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -301,7 +301,7 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 		$types = $asset->attr('types');
 		if (empty($types)) {
 			echo translate('core_no_types_defined');
-			return false;
+			return FALSE;
 		}
 
 		?>
@@ -340,7 +340,7 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 						?>
 						<td class="sq-backend-table-cell">
 							<?php
-							check_box($prefix."_remove[$type]", $type, false);
+							check_box($prefix."_remove[$type]", $type, FALSE);
 							?>
 						</td>
 						<?php
@@ -359,9 +359,9 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Process the current asset types that have been added
 	*
-	* @param object Form				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -374,20 +374,18 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 		if (isset($_POST[$prefix.'_remove'])) {
 
 			foreach ($_POST[$prefix.'_remove'] as $type) {
-				if (isset($types[$type])) {
-					unset($types[$type]);
-				}
+				if (isset($types[$type])) unset($types[$type]);
 			}
 		}
 
 		$inherit_types = array_get_index($_POST, $prefix.'_inherit_types', Array());
 		foreach ($types as $key => $val) {
-			$types[$key] = isset($inherit_types[$key]) ? true : false;
+			$types[$key] = isset($inherit_types[$key]) ? TRUE : FALSE;
 		}
 
 		$asset->setAttrValue('types', $types);
 
-		return true;
+		return TRUE;
 
 	}//end processCurrentAssetTypes()
 
@@ -395,16 +393,16 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Paint section to add an asset type
 	*
-	* @param object Form				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
 	function paintAddAssetType(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('content')) return false;
+		if (!$asset->writeAccess('content')) return FALSE;
 
 		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
 		$types = array_diff($types, $asset->attr('types'));
@@ -414,7 +412,7 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 		foreach ($types as $type) {
 			$uc_types[$type] = ucwords(str_replace('_',' ', $type));
 		}
-		combo_box($prefix.'_new_type', $uc_types, false, '');
+		combo_box($prefix.'_new_type', $uc_types, FALSE, '');
 
 	}//end paintAddAssetType()
 
@@ -422,9 +420,9 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Process the section to add a new format for an asset
 	*
-	* @param object Form				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -434,19 +432,17 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 		if (isset($_POST[$prefix.'_new_type'])) {
 			$type = trim($_POST[$prefix.'_new_type']);
 
-			if (empty($type)) {
-				return false;
-			}
+			if (empty($type)) return FALSE;
 
 			$types = $asset->attr('types');
 
 			if (!isset($types[$type])) {
-				$types[$type] = true;
+				$types[$type] = TRUE;
 				$asset->setAttrValue('types', $types);
-				return true;
+				return TRUE;
 			}
 		}
-		return false;
+		return FALSE;
 
 	}//end processAddAssetType()
 

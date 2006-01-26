@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_01.php,v 1.38 2005/10/25 02:02:24 mmcintyre Exp $
+* $Id: step_01.php,v 1.39 2006/01/26 22:34:09 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -74,8 +74,8 @@ define('SQ_CONF_PEAR_PATH', SQ_SYSTEM_ROOT.'/php_includes');
 define('SQ_CONF_DEFAULT_EMAIL', 'matrix-team@squiz.net');
 define('SQ_CONF_TECH_EMAIL',    'matrix-team@squiz.net');
 
-$cfg = new System_Config();
-$cfg->save(Array(), true);
+$cfg =& new System_Config();
+$cfg->save(Array(), TRUE);
 
 // reminder for chmod
 echo 'Remember to give your system\'s Apache user write access to'."\n";

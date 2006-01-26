@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_in_user_group_edit_fns.inc,v 1.4 2005/11/03 23:57:27 lwright Exp $
+* $Id: condition_in_user_group_edit_fns.inc,v 1.5 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,7 +78,7 @@ class Condition_In_User_Group_Edit_Fns extends Condition_Edit_Fns
 							if (empty($condition_data['groupids'])) {
 								echo translate('no_user_groups_selected');
 							} else {
-								$names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($condition_data['groupids'], 'user_group', false, 'name');
+								$names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($condition_data['groupids'], 'user_group', FALSE, 'name');
 								?>
 								<ul>
 								<?php
@@ -104,8 +104,8 @@ class Condition_In_User_Group_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Process the backend editing interface for this condition
 	*
-	* @param object		&$o		Backend outputter to use
-	* @param string		$prefix	Prefix for form elements
+	* @param object	&$o		Backend outputter to use
+	* @param string	$prefix	Prefix for form elements
 	*
 	* @return array
 	* @access public

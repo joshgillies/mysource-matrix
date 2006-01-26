@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_management.inc,v 1.11 2006/01/25 04:27:05 rong Exp $
+* $Id: cron_job_management.inc,v 1.12 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,7 +76,7 @@ class Cron_Job_Management extends Asset_Management
 						'read_only'		=> Array(
 											'added'			=> '0.3',
 											'type'			=> 'boolean',
-											'default'		=> 'false',
+											'default'		=> FALSE,
 											'description'	=> 'If true, only the system can delete this cron job',
 										   ),
 					  );

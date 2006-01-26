@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_install_patch.inc,v 1.16 2005/08/14 23:44:40 mmcintyre Exp $
+* $Id: hipo_job_install_patch.inc,v 1.17 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -840,6 +840,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 	{
 		$patch_info = $this->_getPatchDetails($this->_running_vars['patchid']);
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		foreach ($patch_info['queries'] as $query) {
@@ -852,6 +853,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		$step_data['percent_done'] = 100;
 		$step_data['complete']     = true;
@@ -905,6 +907,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 	*/
 	function processCleanUp(&$step_data, $prefix)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$patch_info = $this->_getPatchDetails($this->_running_vars['patchid']);
@@ -924,6 +927,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 		$step_data['complete']     = true;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 

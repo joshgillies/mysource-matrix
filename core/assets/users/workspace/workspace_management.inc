@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace_management.inc,v 1.13 2005/03/01 16:14:43 brobertson Exp $
+* $Id: workspace_management.inc,v 1.14 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -30,12 +30,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Workspace_Management extends Asset_Management
 {
+
 
 }//end class
 ?>

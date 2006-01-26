@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder_edit_fns.inc,v 1.35 2005/05/16 06:36:31 lwright Exp $
+* $Id: trash_folder_edit_fns.inc,v 1.36 2006/01/26 22:34:07 lwright Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -64,9 +65,9 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Prints the interface for purging the trash
 	*
-	* @param object File				&$asset	the trash asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the trash asset
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -77,14 +78,14 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 			$num_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id);
 			if (!$num_links) {
 				echo translate('trash_is_empty');
-				return false;
+				return FALSE;
 			} else {
-				combo_box($prefix.'_purge_trash', Array(0 => 'No', 1 => 'Yes'), false, 0, 0, "onChange=\"Javascript: if (this.value == 1) { if(!confirm(js_translate('confirm_purge_trash'))) { this.value = 0; } } \"");
+				combo_box($prefix.'_purge_trash', Array(0 => translate('no'), 1 => translate('yes')), FALSE, 0, 0, "onChange=\"Javascript: if (this.value == 1) { if(!confirm(js_translate('confirm_purge_trash'))) { this.value = 0; } } \"");
 				$o->note(translate('trash_purge_warning'));
-				return true;
+				return TRUE;
 			}
 		}
-		return false;
+		return FALSE;
 
 	}//end paintPurgeTrash()
 
@@ -93,36 +94,36 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 	* Process function for paintPurgeTrash, but doesnt actually do anything
 	* All the real work is done in paintBackend for the trash
 	*
-	* @param object Trash				&$asset	the trash asset
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the trash asset
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for form elements
 	*
-	* @see Trash_Folder::paintBackend()
 	* @return boolean
 	* @access public
+	* @see Trash_Folder::paintBackend()
 	*/
 	function processPurgeTrash(&$asset, &$o, $prefix)
 	{
-		if (!$asset->purgeAccess()) return false;
+		if (!$asset->purgeAccess()) return FALSE;
 
 		if (isset($_POST[$prefix.'_purge_trash']) && $_POST[$prefix.'_purge_trash']) {
 			//// START HIPO PROCESSING ////
 			$on_complete = $_SERVER['REQUEST_URI'].'&'.$prefix.'_purge_complete=1';
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$hh->queueHipo('hipo_job_purge_trash', Array(), $on_complete);
 			////  END HIPO PROCESSING  ////
-			return true;
+			return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end processPurgeTrash()
 
 
 	/**
-	* Returns true if the current user can purge the trash
+	* Returns TRUE if the current user can purge the trash
 	*
-	* @param object Asset	&$asset		The asset that we are using for this interface
-	* @param string			$prefix		the prefix for this asset
+	* @param object	&$asset	the trash asset
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -132,6 +133,7 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 		return $asset->purgeAccess();
 
 	}//end purgeAccess()
+
 
 }//end class
 

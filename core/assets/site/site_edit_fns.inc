@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.50 2006/01/18 03:05:15 lwright Exp $
+* $Id: site_edit_fns.inc,v 1.51 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -228,12 +228,84 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		}
 
+		$old_urls = $asset->getSiteURLs();
+
 		if (!$asset->saveWebURLs($urls)) return FALSE;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		foreach ($urls as $urlid => $url_data) {
+			if ($urlid == 0) continue;
+
+			// update the root url in the asset url table to the new url
+			$sql = 'UPDATE
+						sq_ast_url
+					SET
+							url = '.$db->quoteSmart($urls[$urlid]['url']).'
+					WHERE
+							urlid = '.$db->quoteSmart($urlid);
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
+			// update any urls that use this url in the lookup and lookup value tables
+			foreach (Array('sq_ast_lookup_value', 'sq_ast_lookup') as $tablename) {
+
+				$sql = 'UPDATE
+							'.$tablename.'
+						SET
+							url = '.$db->quoteSmart($urls[$urlid]['url']).' || SUBSTR(url, '.strlen($old_urls[$urlid]['url']).' + 1)
+						WHERE
+							url LIKE '.$db->quoteSmart($old_urls[$urlid]['url'].'%');
+
+						if ($tablename == 'sq_ast_lookup') {
+							$sql .= ' AND root_urlid = '.$db->quoteSmart($urlid);
+						} else if ($tablename == 'sq_ast_lookup_value') {
+							$sql .= 'AND url IN (
+										SELECT
+											l.url
+										FROM
+											sq_ast_lookup l
+										INNER JOIN
+											sq_ast_lookup_value v ON l.url = v.url
+										WHERE
+											l.root_urlid = '.$db->quoteSmart($urlid).'
+									)';
+						}
+
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
+			}
+		}//end foreach
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		flush();
+
+		$run_hipo = TRUE;
+/*
+		// check the old URLs (if we've deleted one then we need to update the lookups)
+		foreach ($old_urls as $old_urlid => $old_url_data) {
+			if (!isset($urls[$old_urlid])) {
+				$run_hipo = TRUE;
+				break;
+			}
+		}
+
+		// If we are adding a new URL, we need lookups added also
+		if (isset($urls[0])) {
+			$run_hipo = TRUE;
+		}*/
+
 		//// START HIPO PROCESSING ////
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$vars = Array('assetids' => Array($asset->id));
-		$hh->queueHipo('hipo_job_update_lookups', $vars);
+		if ($run_hipo) {
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$vars = Array('assetids' => Array($asset->id));
+			$hh->queueHipo('hipo_job_update_lookups', $vars);
+		}
 		////  END HIPO PROCESSING  ////
 
 		return TRUE;

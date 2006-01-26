@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.84 2006/01/18 03:05:15 lwright Exp $
+* $Id: site.inc,v 1.85 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -130,19 +130,23 @@ class Site extends Folder
 	function delete($release_lock=TRUE)
 	{
 		$this->_tmp['deleting_site'] = TRUE;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!$this->saveWebURLs(Array())) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		if (!parent::delete($release_lock)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$this->_tmp['deleting_site'] = FALSE;
 
 		return TRUE;
@@ -188,6 +192,7 @@ class Site extends Folder
 	function saveWebURLs($save_urls)
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -219,6 +224,7 @@ class Site extends Folder
 					}
 
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
 			}
@@ -236,6 +242,7 @@ class Site extends Folder
 			if (!$found_root_url) {
 				trigger_localised_error('CORE0082', E_USER_WARNING, $save_urls[$save_urlid]['url']);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 
@@ -332,6 +339,7 @@ class Site extends Folder
 		unset($this->_tmp['urls_info']);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end saveWebURLs()
@@ -366,6 +374,7 @@ class Site extends Folder
 	*/
 	function updateLookups()
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -473,6 +482,7 @@ class Site extends Folder
 		}//end for urls
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end updateLookups()

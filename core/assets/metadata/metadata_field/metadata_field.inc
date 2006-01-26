@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.24 2005/11/16 05:10:39 skim Exp $
+* $Id: metadata_field.inc,v 1.25 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,7 +48,7 @@ class Metadata_Field extends Asset
 	*/
 	function Metadata_Field($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Asset($assetid);
 
 	}//end constructor
@@ -66,15 +66,15 @@ class Metadata_Field extends Asset
 	*/
 	function _preCreateCheck(&$link)
 	{
-		if (!parent::_preCreateCheck($link)) return false;
+		if (!parent::_preCreateCheck($link)) return FALSE;
 
 		$name = trim($this->attr('name'));
 		if ($name == '') {
 			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _preCreateCheck()
 
@@ -88,7 +88,7 @@ class Metadata_Field extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
@@ -141,7 +141,7 @@ class Metadata_Field extends Asset
 	function getMetadataValue(&$asset, $value_str)
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		// if there are no components that we know about and we are not being displayed on the frontend,
 		// then just unescape the value string and return that
@@ -157,7 +157,7 @@ class Metadata_Field extends Asset
 
 		$used_keywords = retrieve_keywords_replacements($value_str, '.');
 
-		$used_keywords = $mm->generateKeywordReplacements($asset, $used_keywords, false);
+		$used_keywords = $mm->generateKeywordReplacements($asset, $used_keywords, FALSE);
 
 		return replace_keywords($value_str, $used_keywords);
 
@@ -282,15 +282,16 @@ class Metadata_Field extends Asset
 	*
 	* Overridden in Metadata fields so that the default value can be saved
 	*
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
+	* @param boolean	$dont_run_updated	if TRUE this->_updated() won't be run
 	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
 	* @see setAttrValue()
 	*/
-	function saveAttributes($dont_run_updated=false)
+	function saveAttributes($dont_run_updated=FALSE)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$default_val = $this->encodeValueString($this->attr('default'), $this->attr('value_components'));
@@ -299,17 +300,20 @@ class Metadata_Field extends Asset
 
 		if (!$mm->setMetadataFieldDefaultValue($this->id, $default_val)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
 		}
 
 		if (!parent::saveAttributes($dont_run_updated)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		return true;
+		return TRUE;
 
 	}//end saveAttributes()
 
@@ -325,9 +329,10 @@ class Metadata_Field extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function delete($release_lock=true)
+	function delete($release_lock=TRUE)
 	{
 		if (parent::delete($release_lock)) {
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$db = $GLOBALS['SQ_SYSTEM']->db;
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -347,10 +352,11 @@ class Metadata_Field extends Asset
 			assert_valid_db_result($result);
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-			return true;
+			return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end delete()
 

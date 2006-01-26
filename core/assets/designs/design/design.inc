@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.102 2006/01/09 03:21:25 dheppell Exp $
+* $Id: design.inc,v 1.103 2006/01/26 22:34:03 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.103 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -217,11 +217,13 @@ class Design extends Design_Area
 	*/
 	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$linkid = parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
 		if (!$linkid) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -255,6 +257,7 @@ class Design extends Design_Area
 						trigger_localised_error('CORE0162', E_USER_WARNING);
 						$am->forgetAsset($customisation);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;
 					}
 				}
@@ -266,6 +269,7 @@ class Design extends Design_Area
 		}//end if is_a file
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end createLink()
@@ -291,6 +295,7 @@ class Design extends Design_Area
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$minor =& $am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// special processing if we are deleting a TYPE_2 linked file (a file overridding a design file)
@@ -311,6 +316,7 @@ class Design extends Design_Area
 							trigger_localised_error('CORE1065', E_USER_WARNING);
 							$am->forgetAsset($customisation);
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							return FALSE;
 						}
 					}
@@ -323,10 +329,12 @@ class Design extends Design_Area
 
 		if (!parent::deleteLink($linkid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end deleteLink()

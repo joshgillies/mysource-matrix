@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: conditions_list.inc,v 1.8 2005/12/07 05:04:04 lwright Exp $
+* $Id: conditions_list.inc,v 1.9 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('SQ_KEYWORD_CONDITION_ELSE', 'else');
 * parameters in a single attribute (of type Array).
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 class Conditions_List
@@ -47,8 +47,10 @@ class Conditions_List
 	/**
 	 * Reference to the host asset
 	 * The one which has an attribute with all the conditions
+	 *
+	 * @var object
 	 */
-	var $host_asset = null;
+	var $host_asset = NULL;
 
 	/**
 	 * Attribute name (in the host asset) which holds the condition list
@@ -65,16 +67,16 @@ class Conditions_List
 	 * `	)
 	 * )
 	 *
+	 * @var array
 	 */
 	var $conditions_attribute_name = '';
 
 
 	/**
-	 * Constructor
-	 *
-	 * see setHost
-	 * @access public
-	 */
+	* Constructor
+	*
+	* @see setHost()
+	*/
 	function Conditions_List(&$host_asset, $conditions_attribute_name='')
 	{
 		$this->setHost($host_asset, $conditions_attribute_name);
@@ -83,14 +85,17 @@ class Conditions_List
 
 
 	/**
-	 * Initialises the condition list with a host
-	 *
-	 * @return boolean
-	 * @access public
-	 */
+	* Initialises the condition list with a host
+	*
+	* @param object	&$host_asset				the host asset for this condition list
+	* @param string	$conditions_attribute_name	attribute containing the conditions
+	*
+	* @return boolean
+	* @access public
+	*/
 	function setHost(&$host_asset, $conditions_attribute_name)
 	{
-		$this->host_asset = &$host_asset;
+		$this->host_asset =& $host_asset;
 		$this->conditions_attribute_name = $conditions_attribute_name;
 
 		return $this->isValid();
@@ -99,18 +104,17 @@ class Conditions_List
 
 
 	/**
-	 * Evaluates multiple conditions
-	 *
-	 * @param Array(string) 			$condition_names	conditions to
-	 * evaluate
-	 * @param Array(keyword => value) 	$logical_keywords	logical keywords and
-	 * their values
-	 * @param Array						$boolean_values		values to assign to
-	 * the returned array for true or false (0 and 1 by default)
-	 *
-	 * @return Array(condition_name => condition_value)
-	 * @access public
-	 */
+	* Evaluates multiple conditions
+	*
+	* Returns an array of (condition_name => condition_value)
+	*
+	* @param array	$condition_names	conditions to evaluate
+	* @param array	&$logical_keywords	logical keywords and their values (keyword => value)
+	* @param array	$boolean_values		values to assign to the returned array for TRUE or FALSE (0 and 1 by default)
+	*
+	* @return array
+	* @access public
+	*/
 	function evaluate($condition_names, &$logical_keywords, $boolean_values=Array(0, 1))
 	{
 		$ret = Array();
@@ -123,7 +127,7 @@ class Conditions_List
 			$condition_names = array_intersect($condition_names, array_keys($conditions_info));
 
 			if (!empty($condition_names)) {
-				$current_user = &$this->_getCurrentUser();
+				$current_user =& $this->_getCurrentUser();
 
 				foreach ($condition_names as $condition_name) {
 
@@ -141,20 +145,19 @@ class Conditions_List
 
 
 	/**
-	 * Set the values of the conditional keywords in the condition parameters
-	 *
-	 * The call_user_func_array() is messy but we need it to be able to statically
-	 * call the same function in a variable type code (which is not as easy with
-	 * static calls as it is creating objects of a variable type code). Could not
-	 * use plain call_user_func() either because of the need to pass by reference
-	 *
-	 * @param Array(keyword => value) 	&$logical_keywords	logical keywords
-	 * @param Array() 					&$condition_parameters	condition
-	 * parameters
-	 *
-	 * @return void
-	 * @access private
-	 */
+	* Set the values of the conditional keywords in the condition parameters
+	*
+	* The call_user_func_array() is messy but we need it to be able to statically
+	* call the same function in a variable type code (which is not as easy with
+	* static calls as it is creating objects of a variable type code). Could not
+	* use plain call_user_func() either because of the need to pass by reference
+	*
+	* @param array	&$logical_keywords		logical keywords (keyword => value)
+	* @param array	&$condition_parameters	condition parameters
+	*
+	* @return void
+	* @access private
+	*/
 	function _updateKeywordsInRestriction(&$logical_keywords, &$condition_parameters)
 	{
 		$type_code = $condition_parameters['type_code'];
@@ -166,11 +169,11 @@ class Conditions_List
 
 
 	/**
-	 * Returns an array of condition names
-	 *
-	 * @return Array(condition_name)
-	 * @access public
-	 */
+	* Returns an array of condition names
+	*
+	* @return array
+	* @access public
+	*/
 	function getConditionsNames()
 	{
 		$conditions_info = $this->_getAllConditions();
@@ -181,17 +184,17 @@ class Conditions_List
 
 
 	/**
-	 * Returns the list of keywords required by a condition
-	 *
-	 * The call_user_func() is messy but we need it to be able to statically
-	 * call the same function in a variable type code (which is not as easy with
-	 * static calls as it is creating objects of a variable type code).
-	 *
-	 * @param $string condition_name	condition name
-	 *
-	 * @return Array()
-	 * @access public
-	 */
+	* Returns the list of keywords required by a condition
+	*
+	* The call_user_func() is messy but we need it to be able to statically
+	* call the same function in a variable type code (which is not as easy with
+	* static calls as it is creating objects of a variable type code).
+	*
+	* @param string	$condition_name	condition name
+	*
+	* @return array
+	* @access public
+	*/
 	function getRequiredKeywords($condition_name)
 	{
 		$ret = Array();
@@ -210,13 +213,13 @@ class Conditions_List
 
 
 	/**
-	 * Returns the condition data Array for a particular condition
-	 *
-	 * @param string	$condition_name		a condition name
-	 *
-	 * @return Array()	represent a restriction
-	 * @access private
-	 */
+	* Returns the condition data array for a particular condition
+	*
+	* @param string	$condition_name	a condition name
+	*
+	* @return array
+	* @access private
+	*/
 	function _getConditionRestriction($condition_name)
 	{
 		return $this->_getConditionParameter($condition_name, 'restriction', Array());
@@ -225,45 +228,42 @@ class Conditions_List
 
 
 	/**
-	 * Returns a reference to a child Condition Asset
-	 *
-	 * @param string	$condition_type		a condition type code
-	 * @param boolean 	$edit_fns			if true returns an instance of
-	 * 										the edit_fns class
-	 *
-	 * @access private
-	 * @return Condition|Condition_Edit_Fns
-	 */
-	function &_getConditionAsset($condition_type, $edit_fns=false)
+	* Returns a reference to a child Condition Asset, or its edit functions
+	*
+	* @param string		$condition_type	a condition type code
+	* @param boolean	$edit_fns		if TRUE returns an instance of the edit_fns class
+	*
+	* @return object
+	* @access private
+	*/
+	function &_getConditionAsset($condition_type, $edit_fns=FALSE)
 	{
-		//$GLOBALS['SQ_SYSTEM']->am->includeAsset($condition_type);
-
-		// AM includeAsset() can't include edit_fns file. Must find a better solution for this
+		// TODO: AM includeAsset() can't include edit_fns file. Must find a better solution for this
 		$included_file = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->_asset_types[$condition_type]['dir'].'/';
 		if ($edit_fns) $condition_type .= '_edit_fns';
 		$included_file .= $condition_type.'.inc';
 		require_once $included_file;
 
-		$new_condition = new $condition_type();
+		$new_condition =& new $condition_type();
 		return $new_condition;
 
 	}//end _getConditionAsset()
 
 
 	/**
-	 * Returns parameters of a  condition.
-	 * If a key is given, it will return the corresponding element in the
-	 * parameters.
-	 *
-	 * If the desired value doesn't exists the default value is returned
-	 *
-	 * @param $condition_name	condition name
-	 * @param $key 				optional element in the parameters
-	 * @param $default			default value to return if the result is empty
-	 *
-	 * @return Array|Mixed
-	 * @access private
-	 */
+	* Returns parameters of a condition.
+	*
+	* If a key is given, it will return the corresponding element in the
+	* parameters, otherwise the whole array is returned.
+	* If the desired value doesn't exists the default value is returned.
+	*
+	* @param string	$condition_name	condition name
+	* @param string	$key			optional element in the parameters
+	* @param mixed	$default		default value to return if the result is empty
+	*
+	* @return mixed array|string
+	* @access private
+	*/
 	function _getConditionParameter($condition_name, $key='', $default=Array())
 	{
 		$ret = Array();
@@ -283,16 +283,16 @@ class Conditions_List
 
 
 	/**
-	 * Returns all the conditions parameters in one array.
-	 *
-	 * @return Array()
-	 * @access private
-	 */
+	* Returns all the conditions parameters in one array
+	*
+	* @return array
+	* @access private
+	*/
 	function _getAllConditions()
 	{
 		$ret = Array();
 
-		$host_asset = &$this->_getHostAsset();
+		$host_asset =& $this->_getHostAsset();
 		$ret = $host_asset->attr($this->conditions_attribute_name);
 
 		return ($ret);
@@ -301,24 +301,24 @@ class Conditions_List
 
 
 	/**
-	 * Returns a reference to the host asset
-	 *
-	 * @access private
-	 */
+	* Returns a reference to the host asset
+	*
+	* @return object
+	* @access private
+	*/
 	function &_getHostAsset()
 	{
-		//return $GLOBALS['SQ_SYSTEM']->am->getAsset($this->host_assetid);
 		return $this->host_asset;
 
 	}//end _getHostAsset()
 
 
 	/**
-	 * Get a reference to the current user asset.
-	 *
-	 * @return Asset-User
-	 * @access private
-	 */
+	* Get a reference to the current user asset.
+	*
+	* @return object
+	* @access private
+	*/
 	function &_getCurrentUser()
 	{
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
@@ -328,11 +328,12 @@ class Conditions_List
 
 
 	/**
-	 * Returns true if this object has a proper host asset and a attribute name
-	 * for the condition parameters
-	 *
-	 * @access public
-	 */
+	* Returns TRUE if this object has a proper host asset and a attribute name
+	* for the condition parameters
+	*
+	* @return boolean
+	* @access public
+	*/
 	function isValid()
 	{
 		return (!empty($this->host_asset) && !empty($this->conditions_attribute_name));
@@ -345,6 +346,12 @@ class Conditions_List
 
 	/**
 	* Paint the backend editing interface for the conditions list
+	*
+	* @param object		&$asset				the asset we are painting for
+	* @param object		&$o					the backend outputter class
+	* @param string		$prefix				prefix for form elements
+	* @param boolean	$write_access		do we have write access to this?
+	* @param array		$allowed_keywords	allowed keywords
 	*
 	* @return boolean
 	* @access public
@@ -369,22 +376,22 @@ class Conditions_List
 				}
 				$o->closeField();
 
-				// paint true/false bit
+				// paint TRUE/FALSE bit
 				$o->openField('Keyword is true if: ');
 				$match_options = Array(
 									'1'	=> translate($parameters['type_code'].'_true'),
 									'0'	=> translate($parameters['type_code'].'_false'),
 								 );
 				if ($write_access) {
-					combo_box($condition_prefix.'_match', $match_options, false, $parameters['restriction']['match']);
+					combo_box($condition_prefix.'_match', $match_options, FALSE, $parameters['restriction']['match']);
 				} else {
 					echo $match_options[$parameters['restriction']['match']];
 				}
 
 				// let the condition paint itself
 				$condition_type = $parameters['type_code'];
-				$condition = &$this->_getConditionAsset($condition_type);
-				$condition_edit_fns = &$this->_getConditionAsset($condition_type, true);
+				$condition =& $this->_getConditionAsset($condition_type);
+				$condition_edit_fns =& $this->_getConditionAsset($condition_type, TRUE);
 
 				if (isset($parameters['restriction']) && empty($parameters['restriction']['condition_data'])) {
 					$parameters['restriction']['condition_data'] = Array();
@@ -403,7 +410,7 @@ class Conditions_List
 
 				if ($write_access) {
 					$o->openField(translate('delete'));
-					check_box($condition_prefix.'_delete', $value='1', $checked=false);
+					check_box($condition_prefix.'_delete', $value='1', $checked=FALSE);
 					$o->closeField();
 				}
 
@@ -411,14 +418,14 @@ class Conditions_List
 				unset($condition);
 
 				$o->closeSection();
-			}
+			}//end foreach
 
 			// 2. show "add condition" box
 			if ($write_access) {
 				// get the list of all condition types
 				$options = Array('' => '- '.translate('select_condition_type').' -');
 
-				$conditions_type_code = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('condition', false);
+				$conditions_type_code = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('condition', FALSE);
 				foreach ($conditions_type_code as $type_code) {
 					$options[$type_code] = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name');
 				}
@@ -426,15 +433,15 @@ class Conditions_List
 				$o->openSection(translate('new_conditions'));
 
 				$o->openField(translate('condition_type').':');
-				combo_box($prefix.'_new_condition_type', $options, false, '');
+				combo_box($prefix.'_new_condition_type', $options, FALSE, '');
 				$o->closeField();
 
 				$o->closeSection();
 
 			}
-		}
+		}//end if is valid
 
-		return true;
+		return TRUE;
 
 	}//end paintConditionsList()
 
@@ -442,12 +449,18 @@ class Conditions_List
 	/**
 	* Process the backend editing interface for the conditions list
 	*
+	* @param object		&$asset				the asset we are painting for
+	* @param object		&$o					the backend outputter class
+	* @param string		$prefix				prefix for form elements
+	* @param boolean	$write_access		do we have write access to this?
+	* @param array		$allowed_keywords	allowed keywords
+	*
 	* @return boolean
 	* @access public
 	*/
 	function processConditionsList(&$asset, &$o, $prefix, $write_access, $allowed_keywords)
 	{
-		$ret = true;
+		$ret = TRUE;
 
 		if ($this->isValid()) {
 			$conditions_parameters = $this->_getAllConditions();
@@ -468,11 +481,11 @@ class Conditions_List
 
 					// let the condition process itself
 					$condition_type = $parameters['type_code'];
-					$condition = &$this->_getConditionAsset($condition_type);
-					$condition_edit_fns = &$this->_getConditionAsset($condition_type, true);
+					$condition =& $this->_getConditionAsset($condition_type);
+					$condition_edit_fns =& $this->_getConditionAsset($condition_type, TRUE);
 					$conditions_parameters_new[$new_name]['restriction']['condition_data'] = $condition_edit_fns->processEditInterface($o, $condition_prefix, $allowed_keywords);
 					$conditions_parameters_new[$new_name]['type_code'] = $condition_type;
-					$conditions_parameters_new[$new_name]['restriction']['match'] = array_get_index($_POST, $condition_prefix.'_match', true);
+					$conditions_parameters_new[$new_name]['restriction']['match'] = array_get_index($_POST, $condition_prefix.'_match', TRUE);
 				}
 			}
 
@@ -489,7 +502,7 @@ class Conditions_List
 				$asset->saveAttributes();
 			}
 
-		}
+		}//end if is valid
 
 		return $ret;
 
@@ -497,14 +510,14 @@ class Conditions_List
 
 
 	/**
-	 * Returns a unique name based on a desired name and not part of an array of
-	 * a existing names
-	 *
-	 * @param string 		$desired_name		desired new name
-	 * @param Array(string)	$reserved_names		array of reserved name
-	 *
-	 * @return string
-	 * @access public
+	* Returns a unique name based on a desired name and not part of an array of
+	* a existing names
+	*
+	* @param string	$desired_name		desired new name
+	* @param array	&$reserved_names	array of reserved name
+	*
+	* @return string
+	* @access public
 	 */
 	function _generateUniqueName($desired_name, &$reserved_names)
 	{

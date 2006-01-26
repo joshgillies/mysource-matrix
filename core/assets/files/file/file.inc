@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.121 2006/01/18 00:59:32 lwright Exp $
+* $Id: file.inc,v 1.122 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.121 $
+* @version $Revision: 1.122 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -245,6 +245,7 @@ class File extends Asset
 		if (!parent::updateLookups()) {
 			trigger_localised_error('CORE0053', E_USER_WARNING, $this->name);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -381,10 +382,12 @@ class File extends Asset
 		$this->_tmp['IGNORE_UPDATE'] = TRUE;
 		$old_status = $this->status;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!parent::processStatusChange($new_status)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -394,10 +397,12 @@ class File extends Asset
 		unset($this->_tmp['IGNORE_UPDATE']);
 		if (!$this->_updated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end processStatusChange()
@@ -557,6 +562,7 @@ class File extends Asset
 			return parent::updateLookups();
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -597,6 +603,7 @@ class File extends Asset
 		if (!isset($existing['filename'])) {
 			// there is no filename, so commit the removal of the current web paths and return
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return TRUE;
 		}
 
@@ -682,6 +689,7 @@ class File extends Asset
 		}//end foreach
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end updateLookups()
@@ -934,7 +942,7 @@ class File extends Asset
 		if (SQ_IN_LIMBO) return parent::printFrontend();
 
 		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
 			return;
 		}
 
@@ -1132,14 +1140,17 @@ class File extends Asset
 	function delete($release_lock=TRUE)
 	{
 		$this->_tmp['deleting_file'] = TRUE;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!parent::delete($release_lock)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$this->_tmp['deleting_file'] = FALSE;
 
 		return TRUE;

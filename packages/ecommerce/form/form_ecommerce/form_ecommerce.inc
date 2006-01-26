@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.19 2005/07/06 05:15:52 arailean Exp $
+* $Id: form_ecommerce.inc,v 1.20 2006/01/26 22:35:23 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -446,6 +446,7 @@ class Form_Ecommerce extends Form_Email
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// create the Order asset
@@ -459,9 +460,11 @@ class Form_Ecommerce extends Form_Email
 		// attempt to create the link to this asset
 		if (!$success) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $order;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.5 2005/10/30 23:20:42 lwright Exp $
+* $Id: form_question.inc,v 1.6 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -180,6 +180,7 @@ class Form_Question extends Asset
 		unset($saved_vars['question_type_code']);
 
 		// open the transaction
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// find any previous entries
@@ -211,12 +212,14 @@ class Form_Question extends Asset
 
 		if (!$form->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
 		// tell, the asset it has updated
 		if (!$dont_run_updated && !$this->_updated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
@@ -224,6 +227,7 @@ class Form_Question extends Asset
 
 		// If we get this far, then it's all OK
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		$GLOBALS['SQ_SYSTEM']->am->updateLock($this->_formid, 'attributes');
 

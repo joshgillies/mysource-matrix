@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_counter.inc,v 1.3 2005/01/20 13:07:36 brobertson Exp $
+* $Id: report_asset_counter.inc,v 1.4 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Report_Asset_Counter extends Report
 {
+
 
 	/**
 	* Constructor
@@ -47,10 +48,11 @@ class Report_Asset_Counter extends Report
 	*/
 	function Report_Asset_Counter ($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Report($assetid);
 
 	}//end constructor
+
 
 }//end class
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_logical.inc,v 1.4 2005/12/07 05:06:46 lwright Exp $
+* $Id: condition_logical.inc,v 1.5 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 * of logical keywords.
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,11 +56,10 @@ class Condition_Logical extends Condition
 	* Returns the list of logical keywords contianed in a condition_data
 	* structure
 	*
-	* @param Array $condition_data 	a condition logical condition_data
-	* structure
+	* @param array	&$condition_data	a condition logical condition_data structure
 	*
 	* @return array
-	* @acces public
+	* @access public
 	*/
 	function getLogicalKeywords(&$condition_data)
 	{
@@ -72,11 +71,11 @@ class Condition_Logical extends Condition
 	/**
 	* Sets the logical keywords in a condition_data structure
 	*
-	* @param Array $condition_data		a condition logical condition_data structure
-	* @param Array $logical_keywords	an array of logical keywords
+	* @param array	&$condition_data	a condition logical condition_data structure
+	* @param array	$logical_keywords	an array of logical keywords
 	*
 	* @return void
-	* @acces public
+	* @access public
 	*/
 	function setLogicalKeywords(&$condition_data, $logical_keywords)
 	{
@@ -88,36 +87,37 @@ class Condition_Logical extends Condition
 	/**
 	* Evaluate this condition
 	*
-	* @param object Asset	&$asset			the asset to evaluate against
-	* @param array			$condition_data	the condition details to use when evaluating
+	* @param object	&$asset			the asset to evaluate against
+	* @param array	$condition_data	the condition details to use when evaluating
 	*
 	* @return boolean
 	* @access public
 	*/
 	function evaluate(&$asset, $condition_data)
 	{
-		$ret = false;
+		$ret = FALSE;
 
 		if (!empty($condition_data['operator']) && !empty($condition_data['logical_keywords'])) {
 			switch ($condition_data['operator']) {
 				case 'ALL':
-					$ret = true;
+					$ret = TRUE;
 					foreach ($condition_data['logical_keywords'] as $logical_value) {
 						if (!$logical_value) {
-							$ret = false;
+							$ret = FALSE;
 							break;
 						}
 					}
-					break;
+				break;
+
 				case 'ANY':
-					$ret = false;
+					$ret = FALSE;
 					foreach ($condition_data['logical_keywords'] as $logical_value) {
 						if ($logical_value) {
-							$ret = true;
+							$ret = TRUE;
 							break;
 						}
 					}
-					break;
+				break;
 			}
 		}
 

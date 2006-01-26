@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder_management.inc,v 1.12 2005/01/20 13:07:39 brobertson Exp $
+* $Id: trash_folder_management.inc,v 1.13 2006/01/26 22:34:07 lwright Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trash_Folder_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -45,13 +46,14 @@ class Trash_Folder_Management extends Asset_Management
 	function Trash_Folder_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
-		$this->vars =	Array(
-							'name' => Array(
-								'default' => 'Trash',
-							),
-						);
+		$this->vars = Array(
+						'name'	=> Array(
+									'default'	=> 'Trash',
+								   ),
+					  );
 
 	}//end constructor
+
 
 }//end class
 ?>

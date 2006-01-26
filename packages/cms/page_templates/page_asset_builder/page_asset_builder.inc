@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.84 2006/01/20 02:45:24 skim Exp $
+* $Id: page_asset_builder.inc,v 1.85 2006/01/26 22:35:20 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -371,6 +371,7 @@ class Page_Asset_Builder extends Page
 
 					$this->_modifyCreateLink($link);
 
+					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 					// set the install run level because we are creating an asset without being
@@ -382,6 +383,7 @@ class Page_Asset_Builder extends Page
 					if (!$new_asset->processBackend($o, $link)) {
 						$this->_tmp['new_asset_created_'.$create_type] =& $new_asset;
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 					} else {
 						// if we have multiple locations to create this asset under, create
@@ -413,6 +415,7 @@ class Page_Asset_Builder extends Page
 
 						if (empty($this->_errors)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							$this->_current_state = 'created';
 							$success = TRUE;
 							$this->_setCreateStatus($new_asset);

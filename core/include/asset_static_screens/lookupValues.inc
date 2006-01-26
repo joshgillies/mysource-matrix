@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookupValues.inc,v 1.8 2005/06/29 07:21:24 ndvries Exp $
+* $Id: lookupValues.inc,v 1.9 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 
@@ -123,6 +123,7 @@ function processLookupValues(&$owner, &$o, &$ei)
 
 	$lookup_value_types = $am->getTypeDescendants('lookup_value');
 
+	$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 	foreach ($lookup_value_types as $type_code) {
@@ -132,6 +133,7 @@ function processLookupValues(&$owner, &$o, &$ei)
 
 		if (!$success) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
@@ -155,9 +157,11 @@ function processLookupValues(&$owner, &$o, &$ei)
 
 	if (!$owner->setLookupValues($lookup_values)) {
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return false;
 	}
 	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 	$vars = Array('assetids' => Array($owner->id));

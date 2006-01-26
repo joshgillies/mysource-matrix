@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_management.inc,v 1.5 2005/04/13 01:58:37 ndvries Exp $
+* $Id: metadata_field_text_management.inc,v 1.6 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,10 +52,11 @@ class Metadata_Field_Text_Management extends Asset_Management
 						'multi_line'	=> Array(
 											'added'			=> '0.1',
 											'type'			=> 'boolean',
-											'default'		=> false,
-											'parameters'	=> Array('allow_empty' => false),
+											'default'		=> FALSE,
+											'parameters'	=> Array('allow_empty' => FALSE),
 										   ),
 					  );
+
 	}//end constructor
 
 

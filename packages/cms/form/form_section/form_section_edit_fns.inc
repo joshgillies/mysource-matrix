@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.42 2006/01/18 04:31:45 sdanis Exp $
+* $Id: form_section_edit_fns.inc,v 1.43 2006/01/26 22:35:20 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -328,7 +328,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		$curr_question_count = $asset->getQuestionCount() + 1;
 
 		if ($type && $number) {
-
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			// create some questions
@@ -338,6 +338,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 				$curr_question_count++;
 			}//end for
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		}//end if
 
 		return TRUE;

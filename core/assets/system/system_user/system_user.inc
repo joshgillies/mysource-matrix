@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_user.inc,v 1.8 2004/12/06 14:38:10 brobertson Exp $
+* $Id: system_user.inc,v 1.9 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -33,12 +33,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class System_User extends Backend_User
 {
+
 
 	/**
 	* Constructor
@@ -51,6 +52,7 @@ class System_User extends Backend_User
 		$this->Backend_User($assetid);
 
 	}//end constructor
+
 
 }//end class
 ?>

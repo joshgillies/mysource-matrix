@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.16 2005/05/17 05:56:11 arailean Exp $
+* $Id: log_manager.inc,v 1.17 2006/01/26 22:34:06 lwright Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,10 +43,13 @@ class Log_Manager extends Asset
 	var $min_tail_lines = 10;
 
 
-	// Constructor
+	/**
+	* Constructor
+	*
+	*/
 	function Log_Manager($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Asset($assetid);
 
 	}//end constructor
@@ -55,24 +58,27 @@ class Log_Manager extends Asset
 	/**
 	* Create this asset
 	*
+	* Returns either the linkid or FALSE on error
+	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @see Asset::create()
-	* @return int|false
+	* @return mixed int|boolean
 	* @access public
+	* @see Asset::create()
 	*/
 	function create(&$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
-			return false;
+			return FALSE;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
 			if (!system_asset_fns_create_cleanup($this)) {
-				$linkid = false;
+				$linkid = FALSE;
 			}
 		}
 
@@ -82,6 +88,7 @@ class Log_Manager extends Asset
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end create()
@@ -90,9 +97,9 @@ class Log_Manager extends Asset
 	/**
 	* Return an array of all the permitted link types, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
 	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -114,7 +121,7 @@ class Log_Manager extends Asset
 	*/
 	function canClone()
 	{
-		return false;
+		return FALSE;
 
 	}//end canClone()
 
@@ -122,12 +129,13 @@ class Log_Manager extends Asset
 	/**
 	* Return a name to use to describe this instance of the asset
 	*
-	* @param bool	$short_name		whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 
@@ -157,8 +165,8 @@ class Log_Manager extends Asset
 	*       )
 	* </pre>
 	*
+	* @return array
 	* @access public
-	* @return Array(mixed)
 	*/
 	function getLogs()
 	{
@@ -180,10 +188,12 @@ class Log_Manager extends Asset
 	/**
 	* Determines the prefix of a log by the filename
 	*
-	* @param string		$file	The filename to get the prefix from
+	* Returns FALSE if it can't work it out
 	*
+	* @param string	$file	The filename to get the prefix from
+	*
+	* @return mixed boolean|string
 	* @access private
-	* @return false|string
 	*/
 	function _getLogPrefixFromFileName($file)
 	{
@@ -191,17 +201,19 @@ class Log_Manager extends Asset
 		if (isset($matches[1]) && !empty($matches[1])) {
 			return $matches[1];
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end _getLogPrefixFromFileName()
 
 
 	/**
-	* Returns the settings for one log
+	* Returns the settings for one log (or FALSE if it doesn't exist)
 	*
+	* @param string	$logname	the name of the log
+	*
+	* @return mixed boolean|array
 	* @access public
-	* @return false|Array(mixed)
 	*/
 	function getLogSettings($logname)
 	{
@@ -209,7 +221,7 @@ class Log_Manager extends Asset
 		if (isset($logs[$logname]) && !empty($logs[$logname])) {
 			return $logs[$logname];
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end getLogSettings()
@@ -221,24 +233,24 @@ class Log_Manager extends Asset
 	/**
 	* Returns a line from a specified logfile
 	*
-	* @param string		$logname			the logfile prefix
-	* @param int		$rotation_index		optional, the rotation index of the past log to access
-	* @param boolean	$restart_read		if true, then the file will be read from the start, instead of using the stored offset
+	* @param string	$logname		the logfile prefix
+	* @param int	$rotation_index	optional, the rotation index of the past log to access
+	* @param int	$offset			start from this offset
 	*
+	* @return mixed boolean|array
 	* @access public
-	* @return false|array
 	*/
-	function getLogLine($logname, $rotation_index=null, $offset=0)
+	function getLogLine($logname, $rotation_index=NULL, $offset=0)
 	{
 		$rotation_suffix = (!is_null($rotation_index) && is_numeric($rotation_index)) ? '.'.$rotation_index : '';
 
 		$read_data = $this->_readLineFromFile(SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION.$rotation_suffix, $offset);
 
 		if (!empty($read_data)) {
-			$read_data['line'] = $this->_decodeLine(array_get_index($read_data, 'line', false));
+			$read_data['line'] = $this->_decodeLine(array_get_index($read_data, 'line', FALSE));
 			return $read_data;
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end getLogLine()
@@ -247,13 +259,13 @@ class Log_Manager extends Asset
 	/**
 	* Returns the size of the log in bytes
 	*
-	* @param string		$logname			the name of the log to get the size of
-	* @param null|int	$rotation_index		the index of the log rotation
+	* @param string		$logname		the name of the log to get the size of
+	* @param NULL|int	$rotation_index	the index of the log rotation
 	*
+	* @return int
 	* @access private
-	* @return integer
 	*/
-	function getLogSize($logname, $rotation_index=null)
+	function getLogSize($logname, $rotation_index=NULL)
 	{
 		$rotation_suffix = (!is_null($rotation_index) && is_numeric($rotation_index)) ? '.'.$rotation_index : '';
 		return $this->_getFileSize(SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION.$rotation_suffix);
@@ -264,17 +276,17 @@ class Log_Manager extends Asset
 	/**
 	* Returns a reference to a new Log_Iterator that acts as a bridge between a log_report and the log_manager
 	*
-	* @param string		$logname			the name of the log
-	* @param null|int	$rotation_index		the index of the log rotation
+	* @param string		$logname		the name of the log
+	* @param NULL|int	$rotation_index	the index of the log rotation
 	*
+	* @return object
 	* @access private
-	* @return object Log_Iterator
 	*/
-	function &getLogIterator($logname, $rotation_index=null)
+	function &getLogIterator($logname, $rotation_index=NULL)
 	{
 		include_once 'log_iterator.inc';
 		// start up the generate report HIPO
-		$iterator = new Log_Iterator($logname, $rotation_index);
+		$iterator =& new Log_Iterator($logname, $rotation_index);
 		return $iterator;
 
 	}//end getLogIterator()
@@ -284,10 +296,10 @@ class Log_Manager extends Asset
 	* Sets the default settings for 'logs', if they are not already set
 	* Returns the updated settings
 	*
-	* @param Array(mixed)	$log	The array containing the settings for a particular log type, ie. $_vars['logs']['logname']
+	* @param array	$log	The array containing the settings for a particular log type, ie. $_vars['logs']['logname']
 	*
+	* @return array
 	* @access private
-	* @return Array(mixed)
 	*/
 	function _setLogDefaults($log=Array())
 	{
@@ -296,7 +308,7 @@ class Log_Manager extends Asset
 		$log['rotation']['interval']       = array_get_index($rotation, 'interval', 86400);
 		$log['rotation']['min_index']      = array_get_index($rotation, 'min_index', 1);
 		$log['rotation']['max_index']      = array_get_index($rotation, 'max_index', 10);
-		$log['rotation']['last_index']     = array_get_index($rotation, 'last_index', null);
+		$log['rotation']['last_index']     = array_get_index($rotation, 'last_index', NULL);
 		$log['rotation']['last_timestamp'] = array_get_index($rotation, 'last_timestamp', 0);
 
 		return $log;
@@ -317,15 +329,16 @@ class Log_Manager extends Asset
 	*       'data'     => string|array,
 	*       );
 	* </pre>
+	* or FALSE if the metadata can't be decoded or the line is empty
 	*
-	* @param string		$line	The line of raw data to decode
+	* @param string	$line	The line of raw data to decode
 	*
+	* @return mixed boolean|array
 	* @access private
-	* @return false|string
 	*/
 	function _decodeLine($line)
 	{
-		if (empty($line)) return false;
+		if (empty($line)) return FALSE;
 
 		// matches the first three brackets containing metadata, then splits off the rest of the line containing the log data
 		// the string contain data in the format:
@@ -333,7 +346,7 @@ class Log_Manager extends Asset
 		// NOTE: only flags ' ' and 'S' are read - raw ('R') log entries are ignored
 		preg_match('/\[([^[\]]*)\]\[([^[\]]*):([^[\]]*)\]\[(\d+):([^[\]]*)\]\[(.)\] (.*)/', $line, $matches);
 
-		if (empty($matches)) return false;
+		if (empty($matches)) return FALSE;
 
 		// unmangle the user name
 		$user = $matches[3];
@@ -376,15 +389,15 @@ class Log_Manager extends Asset
 	*       }
 	* </pre>
 	*
-	* @param string		$file		the logfile to read
-	* @param int		$offset		the offset from which the read will start, defaults to 0
+	* @param string	$file	the logfile to read
+	* @param int	$offset	the offset from which the read will start, defaults to 0
 	*
+	* @return mixed boolean|array
 	* @access private
-	* @return mixed false|array
 	*/
 	function _readLineFromFile($file, $offset=0)
 	{
-		if (empty($file)) return false;
+		if (empty($file)) return FALSE;
 
 		$file_contents = Array();
 
@@ -398,12 +411,12 @@ class Log_Manager extends Asset
 							'offset'	=> $offset,
 						  );
 			} else {
-				$result = false;
+				$result = FALSE;
 			}
 			fclose($handle);
 		} else {
 			trigger_localised_error('CORE0018', E_USER_ERROR, $file);
-			$result = false;
+			$result = FALSE;
 		}
 
 		return $result;
@@ -414,16 +427,16 @@ class Log_Manager extends Asset
 	/**
 	* Returns the size (in bytes) of a particular file
 	*
-	* @param string		$file	the file to read
+	* @param string	$file	the file to read
 	*
-	* @access private
 	* @return int
+	* @access private
 	*/
 	function _getFileSize($file)
 	{
-		if (empty($file)) return false;
+		if (empty($file)) return FALSE;
 
-		$filesize = false;
+		$filesize = FALSE;
 		if (file_exists($file)) {
 			$filesize = sprintf('%u', filesize($file));
 		}
@@ -440,13 +453,13 @@ class Log_Manager extends Asset
 	* Rotates all the logs in the system
 	* Returns a list of logs that were rotated
 	*
+	* @return array
 	* @access public
-	* @return Array(string)
 	*/
 	function rotateLogs()
 	{
 		$logs = $this->getLogs();
-		$status = false;
+		$status = FALSE;
 		$rotated_logs = Array();
 
 		foreach ($logs as $logname => $log_data) {
@@ -476,11 +489,11 @@ class Log_Manager extends Asset
 	/**
 	* Rotates the specified log, modifies and returns the settings it was passed
 	*
-	* @param string		$logname	the log to rotate
-	* @param string     $log_data   the settings associated with the log
+	* @param string	$logname	the log to rotate
+	* @param string	&$log_data	the settings associated with the log
 	*
+	* @return mixed boolean|array
 	* @access public
-	* @return false|Array(mixed)
 	*/
 	function rotateLog($logname, &$log_data)
 	{
@@ -493,7 +506,7 @@ class Log_Manager extends Asset
 
 		// check to see if we have the settings we need, otherwise, fail
 		if (empty($rotation) || empty($interval) || !is_numeric($min_index) || empty($max_index) || $min_index > $max_index) {
-			$status = false;
+			$status = FALSE;
 		} else {
 
 			// if we can't increment the rotation index any higher, start at the beginning again
@@ -507,7 +520,7 @@ class Log_Manager extends Asset
 				$log_data['rotation']['last_index']     = $next_rotation;
 				$log_data['rotation']['last_timestamp'] = time();
 			} else {
-				$status = false;
+				$status = FALSE;
 			}
 
 		}
@@ -519,11 +532,11 @@ class Log_Manager extends Asset
 	/**
 	* Rotate out a logfile to a file with the specified rotation index appended, eg. "$file.$rotation_index"
 	*
-	* @param string		$file				the logfile to rotate
-	* @param string		$rotation_index		the rotation index the rotation will use
+	* @param string	$file			the logfile to rotate
+	* @param string	$rotation_index	the rotation index the rotation will use
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _rotateLogFiles($file, $rotation_index)
 	{
@@ -531,7 +544,7 @@ class Log_Manager extends Asset
 		if (file_exists($file)) {
 			return move_file($file, $file.'.'.$rotation_index);
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end _rotateLogFiles()
@@ -543,8 +556,8 @@ class Log_Manager extends Asset
 	* Returns a backend URL of this asset that can service direct connections
 	* (ignoring backend frames)
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function getCommunicatorUrl()
 	{
@@ -556,16 +569,16 @@ class Log_Manager extends Asset
 	/**
 	* Backend Painter
 	*
-	* @param $o object    bakcend outputter
+	* @param object	&$o	the Backend Outputter class
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function paintBackend(&$o)
 	{
 		$prefix = $this->getPrefix();
 
-		$direct = array_get_index($_REQUEST, $prefix.'_direct_connection', false);
+		$direct = array_get_index($_REQUEST, $prefix.'_direct_connection', FALSE);
 
 		// if a direct connection is requested, pass the control
 		// to the direct Communicator, otherwise take normal course of action
@@ -584,8 +597,8 @@ class Log_Manager extends Asset
 	*
 	* Performs the direct communication bypassing matrix interface
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function _directCommunicator()
 	{
@@ -602,15 +615,15 @@ class Log_Manager extends Asset
 
 		if (empty($action)) {
 			echo translate('no_action_supplied');
-			return true;
+			return TRUE;
 
 		} else if ($action == 'monitor' && !empty($logname)) {
-			$num_lines = empty($value)?$this->min_tail_lines:(int)$value;
+			$num_lines = empty($value) ? $this->min_tail_lines : (int)$value;
 			$filename = SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION;
 
 			if (!is_readable($filename)) {
 				echo translate('file_not_readable');
-				return true;
+				return TRUE;
 			}
 
 			if (empty($offset)) {
@@ -657,10 +670,10 @@ class Log_Manager extends Asset
 				foreach ($lines as $line) {
 					if (empty($line)) continue;
 					$d_line = $this->_decodeLine($line);
-					if ($d_line !== false) {
+					if ($d_line !== FALSE) {
 						$message = $d_line['data'];
-						if (is_array($message)){
-							$message = '<pre>'.print_r($message, true).'</pre>';
+						if (is_array($message)) {
+							$message = '<pre>'.print_r($message, TRUE).'</pre>';
 						}
 						$error_type_name   = get_error_name($d_line['level']);
 						$error_type_colour = get_error_colour($d_line['level']);
@@ -685,14 +698,14 @@ class Log_Manager extends Asset
 						</tr>';
 					}
 
-				}
-			}
+				}//end foreach
+			}//end else
 
 			$content .= '</table>';
 
 		} else {
 			trigger_localised_error('CORE0125', E_USER_WARNING);
-			return true;
+			return TRUE;
 		}
 
 		?>
@@ -745,7 +758,7 @@ class Log_Manager extends Asset
 		</html>
 
 		<?php
-		return true;
+		return TRUE;
 
 	}//end _directCommunicator()
 

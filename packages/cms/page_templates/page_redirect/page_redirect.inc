@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.25 2006/01/20 03:22:29 sdanis Exp $
+* $Id: page_redirect.inc,v 1.26 2006/01/26 22:35:20 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -114,23 +114,27 @@ class Page_Redirect extends Page
 	function setRedirectAsset(&$asset)
 	{
 		$old_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', TRUE, 'redirect_asset');
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		if (empty($old_link)) {
 			// if there is not existing asset, and we aren't setting on, we are done here
 			if (is_null($asset)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return TRUE;
 			}
 
 		// else if there is a link, and we are about to set an asset, but it is the same as we already have
 		} else if (!is_null($asset) && $old_link['minorid'] == $asset->id) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return TRUE;
 
 		// else something different, delete the old link
 		} else {
 			if (!$this->deleteLink($old_link['linkid'])) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 		}
@@ -138,11 +142,13 @@ class Page_Redirect extends Page
 		if (!is_null($asset)) {
 			if (!$this->createLink($asset, SQ_LINK_NOTICE, 'redirect_asset')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 

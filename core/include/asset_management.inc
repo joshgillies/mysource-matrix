@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.74 2005/08/11 04:54:16 mmcintyre Exp $
+* $Id: asset_management.inc,v 1.75 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -243,6 +243,7 @@ class Asset_Management extends MySource_Object
 	{
 		$type_code = $this->getAssetType();
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// get how deep we are in the heirarchy
@@ -271,6 +272,7 @@ class Asset_Management extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 
@@ -287,6 +289,7 @@ class Asset_Management extends MySource_Object
 	*/
 	function _upgrade($current_version)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// get how deep we are in the heirarchy
@@ -332,6 +335,7 @@ class Asset_Management extends MySource_Object
 		}//end for
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 
@@ -403,6 +407,7 @@ class Asset_Management extends MySource_Object
 
 		$attr_info = Array();
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// See if any other our parents have an attribute with this name
@@ -582,10 +587,12 @@ class Asset_Management extends MySource_Object
 		$result = $this->_db->query($sql);
 		if (!assert_valid_db_result($result, '', false, false)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 
@@ -607,6 +614,7 @@ class Asset_Management extends MySource_Object
 	{
 		$type_code = $this->getAssetType();
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// find the attributeid
@@ -635,6 +643,7 @@ class Asset_Management extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 
@@ -654,6 +663,7 @@ class Asset_Management extends MySource_Object
 	{
 		$type_code = $this->getAssetType();
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// if they have defined an update fn for this, then we don't need to do anything
@@ -799,6 +809,7 @@ class Asset_Management extends MySource_Object
 		}//end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 
@@ -816,6 +827,7 @@ class Asset_Management extends MySource_Object
 	*/
 	function _updateOwnedAttribute($name, $curr_attr)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$type_code = $this->getAssetType();
@@ -872,6 +884,7 @@ class Asset_Management extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 
@@ -890,6 +903,7 @@ class Asset_Management extends MySource_Object
 	*/
 	function _updateCustomAttribute($attributeid, $name, $field, $old_type_code, $new_type_code, $new_value)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// OK, the reason that we are setting the default type code for the attributes
@@ -914,6 +928,7 @@ class Asset_Management extends MySource_Object
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 

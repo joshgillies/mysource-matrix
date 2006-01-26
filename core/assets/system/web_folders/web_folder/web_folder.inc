@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: web_folder.inc,v 1.2 2005/03/31 03:41:43 ndvries Exp $
+* $Id: web_folder.inc,v 1.3 2006/01/26 22:34:07 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/site/site.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,27 +53,36 @@ class Web_Folder extends Site
 	/**
 	* Create this asset
 	*
+	* Returns either the linkid or FALSE on failure
+	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @return mixed int or false
+	* @return mixed int|boolean
 	* @access public
 	* @see Asset::create()
 	*/
 	function create(&$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
-		if (!system_asset_fns_create_pre_check($this)) return false;
+		if (!system_asset_fns_create_pre_check($this)) {
+			return FALSE;
+		}
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
 			if (!system_asset_fns_create_cleanup($this)) {
-				$linkid = false;
+				$linkid = FALSE;
 			}
 		}
 
-		if ($linkid) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		if ($linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end create()
@@ -85,7 +94,7 @@ class Web_Folder extends Site
 	* Web Folders add a default URL when created
 	*
 	* @param array	&$link	information used to create the initial link<br/>
-	* <PRE>
+	* <pre>
 	* Array ('asset'         => [ref major asset to create link under],
 	*        'link_type'     => SQ_LINK_?,
 	*        'value'         => [link value],
@@ -93,10 +102,10 @@ class Web_Folder extends Site
 	*        'is_dependant'  => [0|1],
 	*        'is_exclusive'  => [0|1]
 	*        )
-	* </PRE>
+	* </pre>
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
@@ -104,12 +113,13 @@ class Web_Folder extends Site
 		$url_suffix = '_'.substr($this->type(), 11);
 
 		$urls = Array();
-		$urls[] = Array('url' => $root_urls[0].'/'.$url_suffix,
-						'http'  => 1,
-						'https' => 0,
-						);
+		$urls[] = Array(
+					'url'	=> $root_urls[0].'/'.$url_suffix,
+					'http'	=> 1,
+					'https'	=> 0,
+				  );
 
-		if (!$this->saveWebUrls($urls)) return false;
+		if (!$this->saveWebUrls($urls)) return FALSE;
 		return $this->updateLookups();
 
 	}//end _createAdditional()
@@ -118,12 +128,12 @@ class Web_Folder extends Site
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @return string
 	* @access private
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 
@@ -138,7 +148,7 @@ class Web_Folder extends Site
 	*/
 	function canDelete()
 	{
-		return false;
+		return FALSE;
 
 	}//end canDelete()
 
@@ -151,7 +161,7 @@ class Web_Folder extends Site
 	*/
 	function canClone()
 	{
-		return false;
+		return FALSE;
 
 	}//end canClone()
 
@@ -159,16 +169,33 @@ class Web_Folder extends Site
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
 
-		return Array(SQ_LINK_TYPE_1 => Array('folder' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_2 => Array('folder' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_NOTICE => Array('design' => Array('card' => 'M', 'exclusive' => false)),
-					);
+		return Array(
+				SQ_LINK_TYPE_1	=> Array(
+									'folder'	=> Array(
+													'card'		=> 'M',
+													'exclusive'	=> FALSE,
+												   ),
+								   ),
+				SQ_LINK_TYPE_2	=> Array(
+									'folder'	=> Array(
+													'card'		=> 'M',
+													'exclusive'	=> FALSE,
+												   ),
+								   ),
+				SQ_LINK_NOTICE	=> Array(
+									'design'	=> Array(
+													'card'		=> 'M',
+													'exclusive'	=> FALSE,
+												   ),
+								   ),
+			   );
 
 	}//end _getAllowedLinks()
 

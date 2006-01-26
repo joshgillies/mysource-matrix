@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.93 2006/01/16 23:52:17 skim Exp $
+* $Id: search_manager.inc,v 1.94 2006/01/26 22:35:32 lwright Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -75,6 +75,7 @@ class Search_Manager extends Asset
 		if (!system_asset_fns_create_pre_check($this)) {
 			return FALSE;
 		}
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
@@ -89,6 +90,7 @@ class Search_Manager extends Asset
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end create()
@@ -600,7 +602,6 @@ class Search_Manager extends Asset
 		if (!$this->attr('indexing')) return FALSE;
 		if (!is_array($index_content)) return FALSE;
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$param_data = Array();
 
 		$keys = array_keys($index_content);
@@ -648,6 +649,12 @@ class Search_Manager extends Asset
 		}//end foreach
 
 		if (empty($param_data)) return FALSE;
+
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
 		$insert_st = $db->prepare(
 					'INSERT INTO
 						sq_sch_idx
@@ -676,6 +683,9 @@ class Search_Manager extends Asset
 
 		$db->freePrepared($insert_st);
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
 		return TRUE;
 
 	}//end addIndexableContent()
@@ -694,6 +704,7 @@ class Search_Manager extends Asset
 	{
 		// don't run if indexing turned OFF
 		if (!$this->attr('indexing')) return;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -712,6 +723,7 @@ class Search_Manager extends Asset
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}//end flushIndexableContent()
 

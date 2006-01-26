@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.46 2006/01/18 04:31:45 sdanis Exp $
+* $Id: form_email.inc,v 1.47 2006/01/26 22:35:20 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -145,10 +145,12 @@ class Form_Email extends Form
 	*/
 	function cloneComponents(&$clone, $components)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!parent::cloneComponents($clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -184,6 +186,7 @@ class Form_Email extends Form
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end cloneComponents()
@@ -199,10 +202,12 @@ class Form_Email extends Form
 	*/
 	function deleteQuestion(&$question)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!parent::deleteQuestion($question)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -216,10 +221,12 @@ class Form_Email extends Form
 
 		if (!$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 

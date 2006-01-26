@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_customisation.inc,v 1.8 2005/05/18 04:05:45 dmckee Exp $
+* $Id: design_css_customisation.inc,v 1.9 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_css/design_css.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -87,10 +87,13 @@ class Design_Css_Customisation extends Design_Css
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$minor = &$am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!$this->deleteExistingLink($linkid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
@@ -115,6 +118,7 @@ class Design_Css_Customisation extends Design_Css
 						$am->forgetAsset($design);
 						$am->forgetAsset($new_minor);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return false;
 					}
 					$am->forgetAsset($new_minor);
@@ -125,6 +129,7 @@ class Design_Css_Customisation extends Design_Css
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return true;
 
 	}//end deleteLink()
@@ -154,14 +159,17 @@ class Design_Css_Customisation extends Design_Css
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$minor = &$am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!parent::deleteLink($linkid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 

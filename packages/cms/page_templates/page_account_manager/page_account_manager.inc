@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.37 2006/01/20 04:54:36 sdanis Exp $
+* $Id: page_account_manager.inc,v 1.38 2006/01/26 22:35:20 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -60,6 +60,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	*/
 	function saveAttributes($dont_run_updated=FALSE)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// if we are using email validation - ensure that the username and email attributes are required fields
@@ -83,6 +84,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 			if ($save) {
 				if (!$this->setAttrValue('required_fields', $required_fields)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}// end if
 			}// en dif
@@ -91,6 +93,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 		if (!parent::saveAttributes($dont_run_updated)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -103,6 +106,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end saveAttributes()
@@ -291,6 +295,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 				// logged in - so any write access checks will fail
 				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
+					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 					// link the user asset into the locations it is supposed to go
@@ -299,6 +304,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 						if (is_null($link_parent)) continue;
 						if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($link_parent, $user, $link_type)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 							return FALSE;
 						}
@@ -313,12 +319,14 @@ class Page_Account_Manager extends Page_Asset_Builder
 					// set the status of the asset
 					if (!parent::_setCreateStatus($user)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 						return FALSE;
 					}
 
 					// all done
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
@@ -437,6 +445,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$group->setAttrValue('name', 'Pending Accounts');
 		if (!$group->create($group_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -497,6 +506,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		if (!empty($this->_tmp['pending_link'])) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($this->_tmp['pending_link']['linkid'])) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 		}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.41 2006/01/25 04:27:05 rong Exp $
+* $Id: cron_job.inc,v 1.42 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -796,12 +796,13 @@ class Cron_Job extends Asset
 
 	/**
 	* Actually executes the functionality for this job, called by run()
-	* Returns bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
+	*
+	* Returns a bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
 	*				eg: SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY means an error occured, but can I please be re-tried,
 	*					SQ_CRON_JOB_COMPLETED means everything is done correctly, but I can't be removed,
 	*					SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE means everything is done correctly and I can be removed
 	*
-	* @param string	&$msg	accepted by reference, used to return any messages about completion etc from _exec
+	* @param string	&$msg	used to return any messages about completion etc from _exec
 	*
 	* @return int
 	* @access private

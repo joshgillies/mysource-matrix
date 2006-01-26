@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.66 2006/01/19 22:58:31 sdanis Exp $
+* $Id: form_edit_fns.inc,v 1.67 2006/01/26 22:35:20 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -524,6 +524,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 
 		// now that we have the section names, display them in the order entered
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		for ($i = 0; $i < count($sections); $i++) {
@@ -539,6 +541,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 
 			if (!$section[$i]->create($copy_link)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 
@@ -548,6 +551,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		if (count($sections) > 0) $asset->_updated();
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 

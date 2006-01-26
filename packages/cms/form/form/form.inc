@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.128 2006/01/18 04:31:45 sdanis Exp $
+* $Id: form.inc,v 1.129 2006/01/26 22:35:19 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.128 $
+* @version $Revision: 1.129 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -667,6 +667,7 @@ class Form extends Asset
 	*/
 	function attachQuestion($type_code)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -700,6 +701,7 @@ class Form extends Asset
 
 		if (!$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -708,6 +710,7 @@ class Form extends Asset
 		$GLOBALS['SQ_SYSTEM']->am->updateLock($this->id, 'all');
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
@@ -729,6 +732,7 @@ class Form extends Asset
 	{
 		if ($question->_questionid == 0) return FALSE;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$questions = $this->getQuestions();
 
@@ -749,9 +753,11 @@ class Form extends Asset
 
 		if (!$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
@@ -918,10 +924,12 @@ class Form extends Asset
 	*/
 	function cloneComponents(&$clone, $components)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!parent::cloneComponents($clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -936,6 +944,7 @@ class Form extends Asset
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end cloneComponents()
@@ -1142,6 +1151,7 @@ class Form extends Asset
 	*/
 	function createBodycopy($name)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -1159,6 +1169,7 @@ class Form extends Asset
 
 			if (!$folder->create($folder_link)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 		} else {
@@ -1186,10 +1197,12 @@ class Form extends Asset
 
 		if (!$bodycopy->create($copy_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
@@ -1206,17 +1219,19 @@ class Form extends Asset
 	*/
 	function &getBodycopy($name='')
 	{
-		if (!$name) return NULL;
+		$null = NULL;
+
+		if (!$name) return $null;
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies_folder');
-		if (empty($folder_link)) return NULL;
+		if (empty($folder_link)) return $null;
 
 		$folder =& $am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
-		if (is_null($folder)) return NULL;
+		if (is_null($folder)) return $null;
 
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name);
-		if (empty($bodycopy_link)) return NULL;
+		if (empty($bodycopy_link)) return $null;
 
 		$bodycopy =& $am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 
@@ -1601,6 +1616,7 @@ class Form extends Asset
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('form_submission');
 
@@ -1611,10 +1627,12 @@ class Form extends Asset
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		if (!$submission->create($copy_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $submission;
 

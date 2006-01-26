@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_logged_in_edit_fns.inc,v 1.6 2005/10/13 02:07:37 tbarrett Exp $
+* $Id: condition_logged_in_edit_fns.inc,v 1.7 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,8 +73,8 @@ class Condition_Logged_In_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Process the backend editing interface for this condition
 	*
-	* @param object	&$o					Backend outputter to use
-	* @param string	$prefix				Prefix for form elements
+	* @param object	&$o		Backend outputter to use
+	* @param string	$prefix	Prefix for form elements
 	*
 	* @return array
 	* @access public

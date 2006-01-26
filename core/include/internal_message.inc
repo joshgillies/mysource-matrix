@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.68 2006/01/10 01:22:52 tbarrett Exp $
+* $Id: internal_message.inc,v 1.69 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -193,7 +193,9 @@ class Internal_Message extends MySource_Object
 		}
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// generic prepared statement for inserting
@@ -278,7 +280,6 @@ class Internal_Message extends MySource_Object
 		 // LOG MESSAGES TO DATABASE //
 		//////////////////////////////
 		if ($log_to_db) {
-
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			// log a message for the system so it is not deleted
@@ -337,7 +338,7 @@ class Internal_Message extends MySource_Object
 					$to_email = '';
 
 					$user_locale = SQ_CONF_DEFAULT_BACKEND_LOCALE;
-					
+
 					$subject = $this->subject;
 					if (empty($subject)) {
 						$subject = $lm->getInternalMessageSubject($this->type, $this->replacements, $user_locale);
@@ -436,6 +437,8 @@ class Internal_Message extends MySource_Object
 
 		$free_res = $db->freePrepared($prepared);
 		assert_valid_db_result($free_res);
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 
@@ -630,6 +633,7 @@ class Internal_Message extends MySource_Object
 	*/
 	function delete()
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -638,6 +642,7 @@ class Internal_Message extends MySource_Object
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 
@@ -656,6 +661,7 @@ class Internal_Message extends MySource_Object
 	{
 		if (!$this->id) return false;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -664,6 +670,7 @@ class Internal_Message extends MySource_Object
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 

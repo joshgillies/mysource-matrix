@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.28 2005/11/17 00:59:21 emcdonald Exp $
+* $Id: trigger_manager.inc,v 1.29 2006/01/26 22:34:07 lwright Exp $
 *
 */
 
@@ -48,7 +48,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -91,6 +91,7 @@ class Trigger_Manager extends Asset
 			return false;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
@@ -105,6 +106,7 @@ class Trigger_Manager extends Asset
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end create()
@@ -717,6 +719,7 @@ class Trigger_Manager extends Asset
 		if (empty($trigger)) return false;
 
 		// start transaction
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -830,9 +833,11 @@ class Trigger_Manager extends Asset
 		// now try to save the trigger itself
 		if ($status) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $trigger['id'];
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
@@ -855,6 +860,7 @@ class Trigger_Manager extends Asset
 
 		if (empty($hash_combinations)) return false;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -883,12 +889,14 @@ class Trigger_Manager extends Asset
 			// check result
 			if (!assert_valid_db_result($result, null, false, false)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}
 
 		}//end foreach
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 
@@ -946,6 +954,7 @@ class Trigger_Manager extends Asset
 	*/
 	function _deleteTrigger($trigger_id)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -960,6 +969,7 @@ class Trigger_Manager extends Asset
 		$success = $this->_deleteTriggerHash($trigger_id);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $success;
 
@@ -976,6 +986,7 @@ class Trigger_Manager extends Asset
 	*/
 	function _deleteTriggerHash($trigger_id)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -988,6 +999,7 @@ class Trigger_Manager extends Asset
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 

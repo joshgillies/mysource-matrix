@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.27 2005/12/16 05:44:02 lwright Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.28 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,11 +69,11 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
-		$is_default = false;
+		$is_default = FALSE;
 
 		if (is_null($value_str)) {
 			$value_str = $asset->getDefaultValue();
-			$is_default = true;
+			$is_default = TRUE;
 		}
 
 		$value = '';
@@ -103,7 +103,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 					$value = explode('; ', $value);
 				}
 			}
-			//If we're OK to edit, get our selection attribute, and paint it
+			// If we're OK to edit, get our selection attribute, and paint it
 			if ($write_access && $asset->attr('editable')) {
 				$selection = $asset->getSelectionAttribute();
 				$selection->value = $value;
@@ -151,7 +151,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 				}
 			}
 
-		return true;
+		return TRUE;
 
 	}//end paintValueInterface()
 
@@ -168,25 +168,25 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	function processInlineValueInterface(&$asset, &$new_value_str)
 	{
 		// nothing for us to do
-		if (!$asset->attr('editable')) return true;
+		if (!$asset->attr('editable')) return TRUE;
 		$prefix = $asset->getPrefix();
 
 		$use_default = array_get_index($_POST, $prefix.'_default', '');
 
 		if ($use_default) {
-			$new_value_str = null;
-			return true;
+			$new_value_str = NULL;
+			return TRUE;
 		}
 
-		//Default is not checked, so process ur select attribute
+		// Default is not checked, so process ur select attribute
 		$selection = $asset->getSelectionAttribute();
 		$selection->process($prefix);
-		bam($selection->value);
-		//Get the string into proper form for the metadata field function
+
+		// Get the string into proper form for the metadata field function
 		$value = str_replace('|', '; ', $selection->value);
 		$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
 
-		return true;
+		return TRUE;
 
 	}//end processInlineValueInterface()
 
@@ -280,7 +280,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			$o->closeField();
 		}
 
-		return true;
+		return TRUE;
 
 	}//end paintSelection()
 
@@ -298,7 +298,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	function processSelection(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$select_options = Array();
 		if (isset($_POST[$prefix.'_options'])) {
@@ -334,7 +334,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 		$asset->setAttrValue('default', $new_default);
 
-		return true;
+		return TRUE;
 
 	}//end processSelection()
 
@@ -369,7 +369,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	function processEditParams(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$selection = $asset->getSelectionAttribute();
 		$edit_params = $selection->processEditParams($prefix.'_style');

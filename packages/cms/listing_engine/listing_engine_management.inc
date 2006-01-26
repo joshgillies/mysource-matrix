@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.51 2006/01/17 04:04:09 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.52 2006/01/26 22:35:20 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -386,6 +386,7 @@ class Listing_Engine_Management extends Asset_Management
 	*/
 	function _install()
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$search_page_fields = Array('lineage_seperator');
@@ -410,11 +411,13 @@ class Listing_Engine_Management extends Asset_Management
 		if (!parent::_install()) {
 			trigger_localised_error('CMS0038', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		$this->_restoreAttributes($attributes);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
@@ -693,6 +696,7 @@ class Listing_Engine_Management extends Asset_Management
 	function _removeAttributes($attrs)
 	{
 		if (empty($attrs)) return TRUE;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -707,6 +711,7 @@ class Listing_Engine_Management extends Asset_Management
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
@@ -725,6 +730,7 @@ class Listing_Engine_Management extends Asset_Management
 	{
 		if (empty($attrs)) return TRUE;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -766,6 +772,7 @@ class Listing_Engine_Management extends Asset_Management
 
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end _restoreAttributes()

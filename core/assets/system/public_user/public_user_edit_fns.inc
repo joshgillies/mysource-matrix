@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: public_user_edit_fns.inc,v 1.1 2005/01/25 00:26:17 lwright Exp $
+* $Id: public_user_edit_fns.inc,v 1.2 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user/user_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Public_User_Edit_Fns extends User_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -48,6 +49,7 @@ class Public_User_Edit_Fns extends User_Edit_Fns
 		$this->User_Edit_Fns();
 
 	}//end constructor
+
 
 }//end class
 ?>

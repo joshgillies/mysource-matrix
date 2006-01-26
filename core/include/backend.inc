@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.136 2005/12/07 02:49:37 lwright Exp $
+* $Id: backend.inc,v 1.137 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.136 $
+* @version $Revision: 1.137 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -119,7 +119,7 @@ class Backend extends MySource_Object
 			// we are not looking at any asset in particular - probably just trying to get into the
 			// backend to do some editing - so gota be a backend user
 			if (!is_a($GLOBALS['SQ_SYSTEM']->user, 'backend_user')) {
-				$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You need to be a backend user in order to access the backend');
+				$GLOBALS['SQ_SYSTEM']->paintLogin('Login', translate('must_be_backend_user'));
 				return;
 			}
 		}

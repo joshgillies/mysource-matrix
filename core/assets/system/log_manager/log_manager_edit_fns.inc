@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager_edit_fns.inc,v 1.8 2005/05/18 02:19:14 dheppell Exp $
+* $Id: log_manager_edit_fns.inc,v 1.9 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,7 +54,7 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		// enable just the details
 		$this->static_screens['details']['name']         =translate('details');
-		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['force_unlock'] = FALSE;
 		$this->static_screens['details']['lock_type']    = 'none';
 
 	}//end constructor
@@ -63,10 +63,11 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint Log List
 	*
-	* @param object Log_Manager			&$lm	log manager
-	* @param object Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$lm	log manager
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form elements
 	*
+	* @return boolean
 	* @access public
 	*/
 	function paintLogList(&$lm, &$o, $prefix)
@@ -294,7 +295,7 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 			$last_modified = date('G:i:s - M d', filemtime($filepath));
 
 			$last_rotated = array_get_index($rotation, 'last_timestamp');
-			if (empty($last_rotated)){
+			if (empty($last_rotated)) {
 				$last_rotated = translate('never');
 			} else {
 				$last_rotated = date('G:i:s - M d', $last_rotated);
@@ -359,7 +360,7 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 			$o->closeRaw();
 		$o->closeSection();
 
-		return false;
+		return FALSE;
 
 	}//end paintLogList()
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.41 2006/01/18 05:50:18 skim Exp $
+* $Id: form_management.inc,v 1.42 2006/01/26 22:35:20 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -219,6 +219,7 @@ class Form_Management extends Asset_Management
 
 		if (version_compare($current_version, '0.7', '<')) {
 			pre_echo('UPGRADING FORM TO v0.7');
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -264,6 +265,7 @@ class Form_Management extends Asset_Management
 			assert_valid_db_result($result);
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			pre_echo('DONE');
 		}//end if
 

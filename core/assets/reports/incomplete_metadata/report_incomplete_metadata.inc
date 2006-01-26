@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata.inc,v 1.8 2006/01/09 03:41:03 emcdonald Exp $
+* $Id: report_incomplete_metadata.inc,v 1.9 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -131,14 +131,14 @@ class Report_Incomplete_Metadata extends Report
 	*											is on ('major' or 'minor')
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
-	* @param boolean		$dependant			Whether we want dependant links, non-dependent or (null) don't care
-	* @param boolean		$exclusive			Whether we want exclusive links, non-exclusive or (null) don't care
+	* @param boolean		$dependant			Whether we want dependant links, non-dependent or (NULL) don't care
+	* @param boolean		$exclusive			Whether we want exclusive links, non-exclusive or (NULL) don't care
 	*
 	* @return array
 	* @access public
 	* @see Asset_Manager::getLinks()
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=null, $dependant=null, $exclusive=null)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL, $dependant=NULL, $exclusive=NULL)
 	{
 		assert_equals($assetid, $this->id, 'The Asset Statuses Report can only get its own links');
 		if ($dependant || $exclusive) {
@@ -246,8 +246,8 @@ class Report_Incomplete_Metadata extends Report
 	* Returns an array of assetid's + info in the order that they propogate out from THIS BRIDGE'S url
 	*
 	* @param string	$assetid	the id of the last asset in the lineage
-	* @param string	$protocol	the protocol to match -> null means it is ignored
-	* @param string	$url		the url to check for -> null defaults it to current url
+	* @param string	$protocol	the protocol to match -> NULL means it is ignored
+	* @param string	$url		the url to check for -> NULL defaults it to current url
 	*
 	* @return array
 	* @access public

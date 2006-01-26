@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.161 2006/01/15 23:05:26 rong Exp $
+* $Id: mysource.inc,v 1.162 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -36,12 +36,11 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.161 $
+* @version $Revision: 1.162 $
 * @package MySource_Matrix
 */
 class MySource
 {
-
 	/**
 	* The current DB object
 	*
@@ -64,6 +63,7 @@ class MySource
 	* @see changeDatabaseConnection(), restoreDatabaseConnection()
 	*/
 	var $_db_stack = Array();
+
 
 	/**
 	* The stack for run levels
@@ -333,7 +333,7 @@ class MySource
 		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
 
 			if ($require_password_change) {
-				$this->paintPasswordChange('Change Password', 'You need to change your password before you can access the backend');
+				$this->paintPasswordChange(translate('change_password'), translate('must_change_password_to_access_backend'));
 				exit();
 			}
 
@@ -343,7 +343,7 @@ class MySource
 				$this->backend =& $backend;
 				$backend->paint();
 			} else {
-				$this->paintLogin('Login', 'You need to login before you can access the backend');
+				$this->paintLogin(translate('login'), translate('must_login_to_access_backend'));
 			}
 
 		} else {
@@ -357,8 +357,9 @@ class MySource
 			}
 
 			if (!is_null($asset) && !$asset->effectiveUnrestricted() && $require_password_change) {
+				// FIXME: How can the true condition be possible if the parent IF statement prohibits it?
 				$page_name = is_null($asset) ? 'this page' : '"'.$asset->name.'"';
-				$this->paintPasswordChange('Change Password', 'You need to change your password before you can access '.$page_name);
+				$this->paintPasswordChange(translate('change_password'), translate('must_change_password_to_access_asset', $page_name));
 				exit();
 			}
 
@@ -1796,6 +1797,10 @@ class MySource
 				$dsn = SQ_CONF_DB2_DSN;
 			break;
 
+			case 'db3':
+				$dsn = SQ_CONF_DB3_DSN;
+			break;
+
 			default:
 				trigger_localised_error('SYS0129', E_USER_WARNING, $conn);
 				return;
@@ -1837,7 +1842,7 @@ class MySource
 	*/
 	function restoreDatabaseConnection()
 	{
-		array_pop($this->_db_stack);
+		$old_conn = array_pop($this->_db_stack);
 
 		if (empty($this->_db_stack)) {
 			unset($this->db);
@@ -2046,7 +2051,7 @@ class MySource
 			$expires = 'TO_DATE('.$expires.', '.$this->db->quote('YYYY-MM-DD HH24:MI:SS').')';
 		}
 
-		$this->changeDatabaseConnection('db2');
+		$this->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'INSERT INTO sq_lock
@@ -2056,6 +2061,7 @@ class MySource
 		$result = $this->db->query($sql);
 		if (!assert_valid_db_result($result, '', TRUE, FALSE)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return 'Database Error';
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -2078,7 +2084,7 @@ class MySource
 		$current_lock = $this->getLockInfo($lockid, FALSE, FALSE);
 		if (empty($current_lock)) return TRUE;
 
-		$this->changeDatabaseConnection('db2');
+		$this->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'DELETE FROM sq_lock
@@ -2087,6 +2093,7 @@ class MySource
 		$result = $this->db->query($sql);
 		if (!assert_valid_db_result($result, '', TRUE, FALSE)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return 'Database Error';
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -2123,7 +2130,7 @@ class MySource
 			$expires = ts_iso8601($expires);
 		}
 
-		$this->changeDatabaseConnection('db2');
+		$this->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'UPDATE sq_lock
@@ -2133,6 +2140,7 @@ class MySource
 		$result = $this->db->query($sql);
 		if (!assert_valid_db_result($result, '', TRUE, FALSE)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return 'Database Error';
 		}
 
@@ -2155,7 +2163,7 @@ class MySource
 	*/
 	function getLockInfo($lockid, $full_chain=FALSE, $check_expires=TRUE)
 	{
-		$this->changeDatabaseConnection('db2');
+		$this->changeDatabaseConnection('db3');
 		$sql = 'SELECT lockid, source_lockid, userid, expires
 				FROM sq_lock
 				WHERE lockid = '.$this->db->quote($lockid);

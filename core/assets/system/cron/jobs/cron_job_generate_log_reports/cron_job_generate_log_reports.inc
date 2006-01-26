@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_generate_log_reports.inc,v 1.3 2005/11/17 00:06:39 rong Exp $
+* $Id: cron_job_generate_log_reports.inc,v 1.4 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *   Note that this is a singleton asset - when the asset type is installed it creates a single
 *   instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,9 +61,11 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	/**
 	* Create this asset
 	*
+	* Return either the linkid or FALSE on failure
+	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @return mixed int or false
+	* @return mixed int|boolean
 	* @access public
 	* @see Asset::create()
 	*/
@@ -71,13 +73,14 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
-			return false;
+			return FALSE;
 		}
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
 			if (!system_asset_fns_create_cleanup($this)) {
-				$linkid = false;
+				$linkid = FALSE;
 			}
 		}
 
@@ -87,6 +90,7 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end create()
@@ -95,13 +99,13 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	/**
 	* Return name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
 	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return translate('cron_job_generate_log_reports');
 
@@ -116,7 +120,7 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	*/
 	function canClone()
 	{
-		return false;
+		return FALSE;
 
 	}//end canClone()
 
@@ -127,14 +131,14 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	*
 	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
 	*
-	* @return bool
+	* @return boolean
 	* @access public
 	* @see Asset::morph()
 	*/
 	function morph($new_type_code)
 	{
 		trigger_localised_error('CORE0091', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-		return false;
+		return FALSE;
 
 	}//end morph()
 
@@ -149,7 +153,7 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	*/
 	function canDelete()
 	{
-		return false;
+		return FALSE;
 
 	}//end canDelete()
 
@@ -158,19 +162,20 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	* Run this cron job
 	*
 	* Loops through all the logs, rotates them, then tells all the reports to generate a new report from the most recently rotated logs
+	* Returns a bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
 	*
-	* @param string	$msg	accepted by reference, used to return any messages about completion etc from _exec
+	* @param string	&$msg	used to return any messages about completion etc from _exec
 	*
-	* @return int	bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
-	* @see Cron_Job::_exec(), Cron_Job::run()
+	* @return int
 	* @access private
+	* @see Cron_Job::_exec(), Cron_Job::run()
 	*/
 	function _exec(&$msg)
 	{
 		// set the UMASK to u=rw,g=rw,o=r (0002), so that the system can write to the the logfiles the cronjob creates
 		if (substr(PHP_OS, 0, 3) != 'WIN') umask(0113);
 
-		$lm = &$GLOBALS['SQ_SYSTEM']->getLogManager();
+		$lm =& $GLOBALS['SQ_SYSTEM']->getLogManager();
 
 		$rotated_logs = $lm->rotateLogs();
 
@@ -188,58 +193,59 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	/**
 	* Tells a group of Log Reports in the system to generate new reports
 	*
-	* @param Array(string)	$target_logs	the logs to generate
+	* @param array	$target_logs	the logs to generate
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function generateReports($target_logs)
 	{
-		if (empty($target_logs)) return false;
+		if (empty($target_logs)) return FALSE;
 
 		if (!$GLOBALS['SQ_SYSTEM']->am->installed('log_report')) {
-			return false;
+			return FALSE;
 		}
 
-		$log_reports  = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('log_report', false, true);
+		$log_reports  = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('log_report', FALSE, TRUE);
 
 		// a list of all the logs in the system
-		$lm = &$GLOBALS['SQ_SYSTEM']->getLogManager();
+		$lm =& $GLOBALS['SQ_SYSTEM']->getLogManager();
 		$logs = $lm->getLogs();
 		foreach ($target_logs as $logname) {
 			if (isset($logs[$logname])) {
 				if (isset($logs[$logname]['rotation']['last_index'])) {
 					$last_index = $logs[$logname]['rotation']['last_index'];
 				} else {
-					$last_index = null;
+					$last_index = NULL;
 				}
 				$this->generateReportFromLog($logname, $log_reports, $last_index);
 			}
 		}
 
-		return true;
+		return TRUE;
+
 	}//end generateReports()
 
 
 	/**
 	* Tells a group of Log Reports that need a particular log type to generate new reports
 	*
-	* @param string					$logname			the log to generate from
-	* @param Array(assetid=>type)	&$log_reports		the log reports to generate
-	* @param int					$rotation_index		the index of the log to generate from
+	* @param string	$logname		the log to generate from
+	* @param array	&$log_reports	the log reports to generate (assetid=>type)
+	* @param int	$rotation_index	the index of the log to generate from
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function generateReportFromLog($logname, &$log_reports, $rotation_index=null)
+	function generateReportFromLog($logname, &$log_reports, $rotation_index=NULL)
 	{
-		if (empty($log_reports)) return false;
+		if (empty($log_reports)) return FALSE;
 
 		// start up a hipo for each report
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
 		foreach ($log_reports as $reportid => $report_type) {
-			$report = &$GLOBALS['SQ_SYSTEM']->am->getAsset($reportid, $report_type);
+			$report =& $GLOBALS['SQ_SYSTEM']->am->getAsset($reportid, $report_type);
 			if ($report->logname == $logname) {
 				$vars   = Array(
 							'assetid'			=> $reportid,
@@ -250,7 +256,7 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end generateReportFromLog()
 
@@ -260,8 +266,9 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	*
 	* This method is overridden because we want to make sure the cron manager never deletes the
 	* generate_log_reports cron job
+	* Returns a bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
 	*
-	* @return int	bitmask of the SQ_CRON_JOB_*	constants to tell the cron manager what to do
+	* @return int
 	* @access public
 	*/
 	function run()

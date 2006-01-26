@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.21 2005/12/16 05:12:52 lwright Exp $
+* $Id: maps.inc,v 1.22 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MAPS_INSTALLED'  , 'I');
 *    Looks aftet the automated patching of the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -661,12 +661,15 @@ class Maps extends MySource_Object
 			// Just because it wasn't found, doesn't mean you shouldn't continue to delete the rest of it
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'DELETE FROM sq_patches WHERE patchid = '.$db->quote($patchid);
 		$result = $db->query($sql);
 		if (!assert_valid_db_result($result, '', false, false)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+
 		}
 		// dont actually die because we cant exactly abort at this point
 		// we'll sort it out later another way
@@ -680,6 +683,7 @@ class Maps extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $this->_deletePatch($patchid);
 	}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_folder_management.inc,v 1.2 2005/01/20 13:07:36 brobertson Exp $
+* $Id: authentication_folder_management.inc,v 1.3 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,11 +46,11 @@ class Authentication_Folder_Management extends Asset_Management
 	function Authentication_Folder_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
-		$this->vars =	Array(
-							'name' => Array(
-								'default' => 'Authentication Systems',
-							),
-						);
+		$this->vars = Array(
+						'name'	=> Array(
+									'default'	=> 'Authentication Systems',
+								   ),
+					  );
 
 	}//end constructor
 

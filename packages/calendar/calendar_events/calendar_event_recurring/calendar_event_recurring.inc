@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.68 2006/01/19 23:56:23 skim Exp $
+* $Id: calendar_event_recurring.inc,v 1.69 2006/01/26 22:34:15 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1102,6 +1102,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*/
 	function cacheCalendarData($updating=true)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$date_values = Array();
@@ -1165,6 +1166,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return true;
 
 	}//end cacheCalendarData()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace.inc,v 1.29 2005/08/16 06:14:29 dmckee Exp $
+* $Id: workspace.inc,v 1.30 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,15 +55,15 @@ class Workspace extends Folder
 	/**
 	* Gets the user that this workspace is attached to
 	*
-	* @return object User
+	* @return object
 	* @access private
 	*/
 	function &_getUser()
 	{
-		$user = null;
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user', false, '', 'minor', '1');
+		$user = NULL;
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user', FALSE, '', 'minor', '1');
 		if (empty($link)) return $user;
-		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+		$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 		return $user;
 
 	}//end _getUser()
@@ -77,13 +77,13 @@ class Workspace extends Folder
 	*/
 	function canDelete()
 	{
-		return false;
+		return FALSE;
 
 	}//end canDelete()
 
 
 	/**
-	* Returns true if at least one of the passed assetids has the passed permission
+	* Returns TRUE if at least one of the passed assetids has the passed permission
 	* Does not check current status of lock
 	*
 	* @param int	$perm		the permission to check access for
@@ -95,7 +95,7 @@ class Workspace extends Folder
 	*/
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
-		$user = &$this->_getUser();
+		$user =& $this->_getUser();
 
 		if (is_null($user)) {
 			return parent::_checkPermissionAccess($perm, $assetids);

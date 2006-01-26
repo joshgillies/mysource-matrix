@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.95 2005/08/16 05:11:34 dmckee Exp $
+* $Id: user.inc,v 1.96 2006/01/26 22:34:07 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,7 +53,7 @@ class User extends Asset
 	**/
 	function User($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Asset($assetid);
 
 	}//end constructor
@@ -66,22 +66,22 @@ class User extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _preCreateCheck(&$link)
 	{
-		if (!parent::_preCreateCheck($link)) return false;
+		if (!parent::_preCreateCheck($link)) return FALSE;
 
 		$username = trim($this->attr('username'));
 		$password = $this->attr('password');
 
 		if (!$this->_catchBlankUserNamePass($username, $password)) {
 			trigger_localised_error('CORE0084', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _preCreateCheck()
 
@@ -93,37 +93,37 @@ class User extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!parent::_createAdditional($link)) return false;
+		if (!parent::_createAdditional($link)) return FALSE;
 
 		// set an initial web path
 		$initial_path = strtolower($this->attr('username'));
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_paths = make_valid_web_paths(Array($initial_path));
-		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, TRUE);
 		if (!$this->saveWebPaths($good_paths)) {
 			trigger_localised_error('CORE0019', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) {
 			trigger_localised_error('CORE0014', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		// give the user admin access to him/herself
-		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $this->id, SQ_PERMISSION_ADMIN, true)) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $this->id, SQ_PERMISSION_ADMIN, TRUE)) {
 			trigger_localised_error('CORE0015', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'permissions')) {
 			trigger_localised_error('CORE0013', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		$user_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
@@ -131,15 +131,15 @@ class User extends Asset
 		// create an inbox
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('inbox');
 		$inbox =& new Inbox();
-		if (!$inbox->create($user_link)) return false;
+		if (!$inbox->create($user_link)) return FALSE;
 
 		// create a workspace
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('workspace');
 		$workspace =& new Workspace();
 		$workspace->setAttrValue('name', 'Workspace');
-		if (!$workspace->create($user_link)) return false;
+		if (!$workspace->create($user_link)) return FALSE;
 
-		return true;
+		return TRUE;
 
 	}//end _createAdditional()
 
@@ -147,14 +147,15 @@ class User extends Asset
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
 		$allowed = parent::_getAllowedLinks();
-		$allowed[SQ_LINK_TYPE_2]['inbox']     = Array('card' => 1, 'exclusive' => true);
-		$allowed[SQ_LINK_TYPE_2]['workspace'] = Array('card' => 1, 'exclusive' => true);
+		$allowed[SQ_LINK_TYPE_2]['inbox']     = Array('card' => 1, 'exclusive' => TRUE);
+		$allowed[SQ_LINK_TYPE_2]['workspace'] = Array('card' => 1, 'exclusive' => TRUE);
 		return $allowed;
 
 	}//end _getAllowedLinks()
@@ -162,11 +163,12 @@ class User extends Asset
 
 	/**
 	* Set the value for the passed variable to the passed value
+	*
 	* Overwritten here to check inputs (username and password) and to
 	* encrypt password before setting value
 	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -178,24 +180,24 @@ class User extends Asset
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PASSWORD_VALIDATION)) {
 				$config =& new Password_Rules_Config();
 				require_once $config->config_file;
-				if (!$this->validatePassword($value)) return false;
+				if (!$this->validatePassword($value)) return FALSE;
 			}
 			$value = crypt($value); // let salt be generated
 		} else if ($name == 'username') {
 			if (!$this->_catchBlankSetUserName(trim($value))) {
 				trigger_localised_error('CORE0110', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 		}
 
-		if (!parent::setAttrValue($name, $value)) return false;
+		if (!parent::setAttrValue($name, $value)) return FALSE;
 
 		// tell the workspace (or anyone else listening) that the username has been updated
 		if ($name == 'username') {
-			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'usernameUpdated', Array('username' => $value));
 		}
-		return true;
+		return TRUE;
 
 	}//end setAttrValue()
 
@@ -203,13 +205,16 @@ class User extends Asset
 	/**
 	* Returns whether the passed password matches this users' password
 	*
+	* @param string	$entered_password	the password sent to us
+	*
+	* @return boolean
 	* @access public
 	*/
 	function comparePassword($entered_password)
 	{
 		$password = $this->attr('password');
 
-		if (!trim($password)) return false;
+		if (!trim($password)) return FALSE;
 
 		return (crypt($entered_password,$password) == $password);
 
@@ -219,14 +224,14 @@ class User extends Asset
 	/**
 	* Validates the passed password against a list of rules
 	*
-	* @param string			$passwd		the password to validate
+	* @param string	$passwd	the password to validate
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function validatePassword($passwd)
 	{
-		$status = true;
+		$status = TRUE;
 
 		// errors for when a character type does not occur in the password
 		$not_occurring_error_map = Array(
@@ -248,19 +253,19 @@ class User extends Asset
 
 		if (defined('SQ_PASSWD_RULE_LENGTH') && SQ_PASSWD_RULE_LENGTH > -1) {
 			if (strlen($passwd) < SQ_PASSWD_RULE_LENGTH) {
-				$status = false;
+				$status = FALSE;
 				trigger_localised_error('CORE0220', E_USER_WARNING, strlen($passwd), SQ_PASSWD_RULE_LENGTH);
 			}
 		}
 
 		if (defined('SQ_PASSWD_RULE_DISALLOW_USER_INFO') && SQ_PASSWD_RULE_DISALLOW_USER_INFO == 0) {
 			$components = Array('username', 'first_name', 'last_name', 'email');
-			$user_info_status = true;
+			$user_info_status = TRUE;
 			foreach ($components as $component) {
 				$attr = $this->attr($component);
 				if (!empty($attr) && preg_match('/.*'.$this->attr($component).'.*/i', $passwd)) {
-					$user_info_status = false;
-					$status = false;
+					$user_info_status = FALSE;
+					$status = FALSE;
 				}
 			}
 			if (!$user_info_status) {
@@ -305,21 +310,21 @@ class User extends Asset
 								eval('$'.$rule.'_counter += $occurances;');
 							}
 						break;
-					}
-				}
-			}
-		}
+					}//end switch on rule
+				}//end foreach character
+			}//end if password rule enabled
+		}//end foreach rule
 
 		foreach ($num_rules as $rule => $value) {
 			if ($value != SQ_PASSWD_RULE_DISABLED) {
 				eval('$tmp_counter = $'.$rule.'_counter;');
 				if ($value == SQ_PASSWD_RULE_DISALLOWED && $tmp_counter > 0) {
-					$status = false;
+					$status = FALSE;
 					if (isset($occurring_error_map[$rule])) {
 						trigger_localised_error($occurring_error_map[$rule], E_USER_WARNING);
 					}
 				} else if ($tmp_counter < $value) {
-					$status = false;
+					$status = FALSE;
 					if (isset($not_occurring_error_map[$rule])) {
 						trigger_localised_error($not_occurring_error_map[$rule], E_USER_WARNING, $tmp_counter, $value);
 					}
@@ -335,12 +340,13 @@ class User extends Asset
 	/**
 	* Returns name of the user
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return ($this->attr('first_name') || $this->attr('last_name')) ? $this->attr('first_name').' '.$this->attr('last_name') : $this->attr('username');
 
@@ -348,7 +354,7 @@ class User extends Asset
 
 
 	/**
-	* Returns true if at least one of the passed assetids has the passed permission
+	* Returns TRUE if at least one of the passed assetids has the passed permission
 	* Does not check current status of lock
 	*
 	* @param int	$perm		the permission to check access for
@@ -362,34 +368,34 @@ class User extends Asset
 	{
 		if (empty($assetids)) {
 			// root can do anything
-			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
+			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return TRUE;
 
 			if ($GLOBALS['SQ_SYSTEM']->userRoot($this)) {
 				// we have to be root to view root's details
-				return false;
+				return FALSE;
 			} else if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($this)) {
 				// this is a sysadmin so they need to
 				// be root or the sysadmin themselves
 				if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-					return false;
+					return FALSE;
 				}
 				if ($this->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-					return true;
+					return TRUE;
 				}
-				return false;
+				return FALSE;
 			} else {
 				// any other user's details
 				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-					return true;
+					return TRUE;
 				}
 				if ($this->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-					return true;
+					return TRUE;
 				}
 			}
 
 		} else {
 			// a user always has full access to themselves
-			if (in_array($this->id, $assetids)) return true;
+			if (in_array($this->id, $assetids)) return TRUE;
 
 		}
 
@@ -403,12 +409,12 @@ class User extends Asset
 	*
 	* @param int	$linkid	the link id of the link to remove
 	*
-	* @return mixed TRUE or error msg string
+	* @return mixed boolean|string
 	* @access public
 	*/
 	function isDeletableLink($linkid)
 	{
-		if ($GLOBALS['SQ_PURGING_TRASH']) return true;
+		if ($GLOBALS['SQ_PURGING_TRASH']) return TRUE;
 
 		// we dont want our inbox or workspace deleted
 		$inbox_link = $this->getInboxLink();
@@ -437,15 +443,15 @@ class User extends Asset
 	{
 		// check that this user is live
 		if ($this->status & SQ_SC_STATUS_NOT_LIVE) {
-			return false;
+			return FALSE;
 		}
 
 		// check that this user is not only in the trash
-		if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, true)) {
-			return false;
+		if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, TRUE)) {
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end canLogin()
 
@@ -466,9 +472,10 @@ class User extends Asset
 	/**
 	* Get all the groups that this user is in, regardless of group security restrictions
 	*
+	* Returns a list of assetids of the matching groups
 	* The result is stored in the session for faster access
 	*
-	* @return array(int) assetids of matching groups
+	* @return array
 	* @access public
 	*/
 	function getGroups()
@@ -476,7 +483,7 @@ class User extends Asset
 		if (!isset($_SESSION['sq_user_groups'][$this->id])) {
 			// we store userid as key in this array to make sure we have the right user,
 			// but to avoid invalidity we clear any other userids out
-			$_SESSION['sq_user_groups'] = Array($this->id => $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), Array('user', 'user_group'), false));
+			$_SESSION['sq_user_groups'] = Array($this->id => $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), Array('user', 'user_group'), FALSE));
 		}
 		return $_SESSION['sq_user_groups'][$this->id];
 
@@ -486,13 +493,15 @@ class User extends Asset
 	/**
 	* Gets all the groups that this user is in and for which this user satisfies the security restrictions
 	*
-	* @return array(int) assetids of matching groups
+	* Returns a list of assetids of the matching groups.
+	*
+	* @return array
 	* @access public
 	*/
 	function getUserGroups()
 	{
 		$groups = Array();
-		$groupids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'user_group', false);
+		$groupids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'user_group', FALSE);
 
 		foreach ($groupids as $key => $value) {
 			// if we pass the conditions, let us belong to this group
@@ -507,14 +516,15 @@ class User extends Asset
 
 
 	/**
-	* Verify if a user belongs to a given group
+	* Verify if a user belongs to a given group, return TRUE if we are
 	*
 	* Here is where we call the user conditions and certify the result.
 	* When a new user condition is added, please add the specifics for calling it here.
 	*
-	* @param string $group_assetid  assetid of the group in question
+	* @param string	$group_assetid	assetid of the group in question
+	*
+	* @return boolean
 	* @access private
-	* @return boolean true if were allowed to belong to this gorup
 	*/
 	function _belongsToGroup($group_assetid)
 	{
@@ -523,7 +533,7 @@ class User extends Asset
 		// if this group isnt in the restrictions array
 		// then we just belong to it and so return
 		if (!in_array($group_assetid, array_keys($restrictions))) {
-			return true;
+			return TRUE;
 		}
 
 		// for each restriction associated to this group
@@ -537,12 +547,12 @@ class User extends Asset
 			$match = $condition->evaluate($this, $restriction['condition_data']);
 
 			// they don't match up, then get the hell out of mah group!!
-			if ($match != $restriction['match']) return false;
+			if ($match != $restriction['match']) return FALSE;
 
 		}
 
 		// if we got this far, we've passed all restrictions
-		return true;
+		return TRUE;
 
 	}//end _belongsToGroup()
 
@@ -576,12 +586,12 @@ class User extends Asset
 	/**
 	* Returns this user's Workspace
 	*
-	* @return &object Asset the user's workspace
+	* @return object
 	* @access public
 	*/
 	function &getWorkspace()
 	{
-		$null = null;
+		$null = NULL;
 		$link = $this->getWorkspaceLink();
 
 		if (empty($link)) {
@@ -589,7 +599,7 @@ class User extends Asset
 			return $null;
 		}
 
-		$workspace = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+		$workspace =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
 		if (is_null($workspace)) {
 			trigger_localised_error('CORE0109', E_USER_WARNING,$this->name);
 			return $null;
@@ -602,6 +612,7 @@ class User extends Asset
 	/**
 	* Called by the design to print the body of this asset
 	*
+	* @return void
 	* @access public
 	*/
 	function printBody()
@@ -633,12 +644,12 @@ class User extends Asset
 	/**
 	* Catches blank username/password combination made during create()
 	*
-	* Override this and return true if a specific subclass wants to skip this check
+	* Override this and return TRUE if a specific subclass wants to skip this check
 	*
 	* @param string	$username	the passed user name
-	* @param string $password	the passed pass
+	* @param string	$password	the passed pass
 	*
-	* @return boolean	overridden so always returns true
+	* @return boolean
 	* @access public
 	*/
 	function _catchBlankUserNamePass($username, $password)
@@ -651,11 +662,11 @@ class User extends Asset
 	/**
 	* Catches blank username being set during setAttrValue()
 	*
-	* Override this and return true if a specific subclass wants to skip this check
+	* Override this and return TRUE if a specific subclass wants to skip this check
 	*
 	* @param string	$username	the passed user name
 	*
-	* @return boolean	overridden so always returns true
+	* @return boolean
 	* @access public
 	*/
 	function _catchBlankSetUserName($username)

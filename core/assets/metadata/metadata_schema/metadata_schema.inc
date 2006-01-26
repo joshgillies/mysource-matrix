@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema.inc,v 1.19 2005/09/08 00:39:12 rong Exp $
+* $Id: metadata_schema.inc,v 1.20 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,7 +78,7 @@ class Metadata_Schema extends Folder
 	{
 		return Array(
 				SQ_LINK_TYPE_1	=> Array(),
-				SQ_LINK_TYPE_2	=> Array('metadata_section'	=> Array('card'	=> 'M', 'exclusive'	=> false)),
+				SQ_LINK_TYPE_2	=> Array('metadata_section'	=> Array('card'	=> 'M', 'exclusive'	=> FALSE)),
 				SQ_LINK_TYPE_3	=> Array(),
 				SQ_LINK_NOTICE	=> Array(),
 			   );
@@ -111,10 +111,10 @@ class Metadata_Schema extends Folder
 		// if this is a metadata section then we need to make it a dependant link
 		if ($side_of_link == 'major' && is_a($asset, 'metadata_section') && $dependant != '1') {
 			$dependant = '1';
-			return true;
+			return TRUE;
 		}
 
-		return false;
+		return FALSE;
 
 	}//end prepareLink()
 
@@ -129,9 +129,10 @@ class Metadata_Schema extends Folder
 	* @return boolean
 	* @access public
 	*/
-	function delete($release_lock=true)
+	function delete($release_lock=TRUE)
 	{
 		if (parent::delete($release_lock)) {
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$db = $GLOBALS['SQ_SYSTEM']->db;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -143,10 +144,11 @@ class Metadata_Schema extends Folder
 			assert_valid_db_result($result);
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-			return true;
+			return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end delete()
 

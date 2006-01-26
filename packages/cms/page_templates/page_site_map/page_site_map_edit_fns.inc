@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_edit_fns.inc,v 1.17 2006/01/20 04:03:51 sdanis Exp $
+* $Id: page_site_map_edit_fns.inc,v 1.18 2006/01/26 22:35:20 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -104,6 +104,7 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 
 		$ok = TRUE;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// deleting old root link if any found...
@@ -121,11 +122,12 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 
 		if ($ok) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return TRUE;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return FALSE;
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return $ok;
 
 	}//end processRootNode()
 

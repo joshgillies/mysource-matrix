@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table.inc,v 1.15 2006/01/17 06:08:12 lwright Exp $
+* $Id: bodycopy_table.inc,v 1.16 2006/01/26 22:34:03 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once(dirname(__FILE__).'/bodycopy_table_cell.inc');
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -110,9 +110,11 @@ class Bodycopy_Table extends Bodycopy_Container
 	*/
 	function remapAssetids($map)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		if (!parent::remapAssetids($map)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -125,6 +127,7 @@ class Bodycopy_Table extends Bodycopy_Container
 
 			if (!$new_clone->remapTableLinks($map, $child_links)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 
@@ -133,6 +136,7 @@ class Bodycopy_Table extends Bodycopy_Container
 
 		if ($old_assetid === FALSE) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return TRUE;
 		}
 
@@ -141,6 +145,7 @@ class Bodycopy_Table extends Bodycopy_Container
 
 		if (is_null($old_asset) || empty($our_links)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return TRUE;
 		}
 		$rows = $this->attr('rows');
@@ -168,9 +173,11 @@ class Bodycopy_Table extends Bodycopy_Container
 
 		if ($this->setAttrValue('rows', $rows)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return TRUE;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.173 2005/12/19 02:51:27 dheppell Exp $
+* $Id: page_calendar.inc,v 1.174 2006/01/26 22:34:16 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.173 $
+* @version $Revision: 1.174 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -87,14 +87,17 @@ class Page_Calendar extends Page
 	*/
 	function create(&$link)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$linkid = Page::create($link);
 		if (!$linkid) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			$this->id = 0;
 			return false;
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end create()
@@ -966,10 +969,12 @@ class Page_Calendar extends Page
 
 		// Process the form if appropriate
 		if (isset($_POST['asset_action'])) {
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			if ($event->processBackend($o, $link)) {
 				// The form has been committed and there are no probs, so go to event view
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($event_id, 'attributes');
 				$_REQUEST['SQ_CALENDAR_VIEW'] = 'event';
 				$_REQUEST['SQ_CALENDAR_EVENT_ID'] = $event_id;
@@ -977,6 +982,7 @@ class Page_Calendar extends Page
 			} else {
 				// There was a problem, so roll back transaction and continue printing the form
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			}
 		}
 
@@ -2199,6 +2205,8 @@ class Page_Calendar extends Page
 		// combine tree sql with the common SQL for recurring events and get result from DB
 		$sql = build_recurring_event_query_base($trees, 'day', $date).' AND '.$tree_sql;
 		$sql .= $this->_getPersonalisedSQL();
+
+		bam($sql);
 
 		$recur_result = $db->getAssoc($sql);
 		assert_valid_db_result($recur_result);

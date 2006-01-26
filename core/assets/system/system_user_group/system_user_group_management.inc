@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_user_group_management.inc,v 1.8 2005/01/20 13:07:38 brobertson Exp $
+* $Id: system_user_group_management.inc,v 1.9 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class System_User_Group_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -45,13 +46,14 @@ class System_User_Group_Management extends Asset_Management
 	function System_User_Group_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
-		$this->vars =	Array(
-							'name' => Array(
-								'default' => 'System Administrators',
-							),
-						);
+		$this->vars = Array(
+						'name'	=> Array(
+									'default'	=> 'System Administrators',
+								   ),
+					  );
 
 	}//end constructor
+
 
 }//end class
 ?>

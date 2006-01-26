@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.17 2005/11/03 23:57:28 lwright Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.18 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -34,12 +34,13 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -50,7 +51,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$this->Asset_Edit_Fns();
 
-		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['force_unlock'] = FALSE;
 		$this->static_screens['details']['lock_type'] = 'all';
 
 		unset($this->static_screens['workflow']);
@@ -66,9 +67,9 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface to add new type_codes to define layouts for
 	*
-	* @param &object Remap_Manager		$asset		the remap manager
-	* @param &object Backend_Outputter	$o			the backend outputter
-	* @param string						$prefix		a unique prefix for variables
+	* @param object	&$asset	the remap manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
@@ -86,7 +87,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		if (empty($remap_urls)) {
 			echo translate('no_url_remappings');
-			return false;
+			return FALSE;
 		}
 
 		?>
@@ -100,7 +101,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 						?>
 						<td class="sq-backend-table-header">
 							<?php
-							check_box($prefix.'_select_all', '1', false, "check_all(document.main_form, '{$prefix}_delete_remap', this.checked);");
+							check_box($prefix.'_select_all', '1', FALSE, "check_all(document.main_form, '{$prefix}_delete_remap', this.checked);");
 							label(translate('delete_question'), $prefix.'_select_all');
 							?>
 						</td>
@@ -121,9 +122,9 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 					// check to see if the URL is actually being used by a real asset within the system
 					// because if it is, this remap will never be used
-					if (strpos($url_info['url'], '://') !== false) {
+					if (strpos($url_info['url'], '://') !== FALSE) {
 						list($protocol, $url) = explode('://', $url_info['url']);
-						$url_asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($protocol, $url, true, true);
+						$url_asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($protocol, $url, TRUE, TRUE);
 						if (!is_null($url_asset)) {
 							$warning .= translate('url_currently_in_use', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($url_asset->type(), 'name'), translate('asset_format', $url_asset->name, $url_asset->id));
 						}
@@ -146,7 +147,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 					?>
 				</tr>
 				<?php
-				}
+				}//end foreach
 			?>
 		</table>
 		<?php
@@ -159,18 +160,19 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Accepts requests to add a type_code to define layouts for
 	*
-	* @param &object Remap_Manager		$asset		the remap manager
-	* @param &object Backend_Outputter	$o			the backend outputter
-	* @param string						$prefix		a unique prefix for variables
+	* @param object	&$asset	the remap manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processEditRemapURLs(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('all')) return false;
+		if (!$asset->writeAccess('all')) return FALSE;
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 
@@ -193,8 +195,9 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		return true;
+		return TRUE;
 
 	}//end processEditRemapURLs()
 
@@ -202,9 +205,9 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface to add new type_codes to define layouts for
 	*
-	* @param &object Remap_Manager		$asset		the remap manager
-	* @param &object Backend_Outputter	$o			the backend outputter
-	* @param string						$prefix		a unique prefix for variables
+	* @param object	&$asset	the remap manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
@@ -230,7 +233,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->openField(translate('csv_upload'));
 			file_upload($prefix.'_add_remap_csv');
 
-			//csv upload instructions
+			// csv upload instructions
 			$o->note(translate('csv_upload_instructions'));
 			$o->note(translate('csv_upload_instructions_example_1').'<br />'.translate('csv_upload_instructions_example_2'));
 		$o->closeField();
@@ -241,33 +244,35 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Accepts requests to add a type_code to define layouts for
 	*
-	* @param &object Remap_Manager		$asset		the remap manager
-	* @param &object Backend_Outputter	$o			the backend outputter
-	* @param string						$prefix		a unique prefix for variables
+	* @param object	&$asset	the remap manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processAddRemapURLs(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('all')) return false;
+		if (!$asset->writeAccess('all')) return FALSE;
 
 		// do the CSV upload first
 		$file_info = get_file_upload_info($prefix.'_add_remap_csv');
 		if (!empty($file_info)) {
 			require_once SQ_FUDGE_PATH.'/csv/csv.inc';
-			$csv = new CSV($file_info['tmp_name']);
+			$csv =& new CSV($file_info['tmp_name']);
 			$csv->import();
 
 			foreach ($csv->values as $line_value) {
 				$old_url     = trim($line_value[0]);
 				$new_url     = trim($line_value[1]);
-				if (empty($old_url) || empty($new_url)) return false;
+				if (empty($old_url) || empty($new_url)) {
+					return FALSE;
+				}
 
 				$expires = array_key_exists(2, $line_value) ? trim($line_value[2]) : '';
 
 				if (empty($expires)) {
-					$int_expires = null;
+					$int_expires = NULL;
 				} else {
 					$int_expires = iso8601_ts($expires);
 				}
@@ -278,21 +283,27 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 		// now add a manually set remap if we have on to set
-		if (!isset($_POST[$prefix.'_add_remap_old_url']) || !isset($_POST[$prefix.'_add_remap_new_url'])) return false;
+		if (!isset($_POST[$prefix.'_add_remap_old_url']) || !isset($_POST[$prefix.'_add_remap_new_url'])) {
+			return FALSE;
+		}
 		$old_url = trim($_POST[$prefix.'_add_remap_old_url']);
 		$new_url = trim($_POST[$prefix.'_add_remap_new_url']);
-		$expires = null;
+		$expires = NULL;
 
-		if (empty($old_url) || empty($new_url)) return false;
+		if (empty($old_url) || empty($new_url)) {
+			return FALSE;
+		}
 
 		if (isset($_POST[$prefix.'_add_remap_expires_days'])) {
 			$expires_days = (int)$_POST[$prefix.'_add_remap_expires_days'];
-			if ($expires_days > 0) $expires = strtotime('+ '.$expires_days.' days');
+			if ($expires_days > 0) {
+				$expires = strtotime('+ '.$expires_days.' days');
+			}
 		}
 
 		$asset->addRemapURL($old_url, $new_url, $expires);
 
-		return true;
+		return TRUE;
 
 	}//end processAddRemapURLs()
 
@@ -300,16 +311,16 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the root node selection box
 	*
-	* @param object	Asset				&$rootid	asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for the html doc element name
+	* @param object	&$asset	the remap manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
 	*/
 	function paintAddPageNotFoundRemap(&$asset, &$o, $prefix)
 	{
-		$link_to_404 = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', false, '404');
+		$link_to_404 = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', FALSE, '404');
 		$write_access = $asset->writeAccess('links');
 
 		if (!$write_access) {
@@ -330,48 +341,54 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the value input from root node selection box
 	*
-	* @param object	Asset				&$rootid	asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for the html doc element name
+	* @param object	&$asset	the remap manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
 	*
 	* @return void
 	* @access public
 	*/
 	function processAddPageNotFoundRemap(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_404asset']['assetid'])) return false;
+		if (!isset($_POST[$prefix.'_404asset']['assetid'])) {
+			return FALSE;
+		}
 		$new_404_asset  = $_POST[$prefix.'_404asset']['assetid'];
 
 		// getting existing root link
-		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, '404');
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, '404');
 
 		// dont process anything if the root node has not changed
-		if (!empty($root_link) && $root_link['minorid'] == $new_404_asset) return false;
+		if (!empty($root_link) && $root_link['minorid'] == $new_404_asset) {
+			return FALSE;
+		}
 
-		$ok = true;
+		$ok = TRUE;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// deleting old root link if any found...
 		if (!empty($root_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
-			$ok = false;
+			$ok = FALSE;
 		} else if ($new_404_asset) {
-			$root = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_404_asset);
+			$root =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_404_asset);
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, '404')) {
-					$ok = false;
-					trigger_localised_error("CORE0027", E_USER_WARNING, $root->name, $root->id);
+					$ok = FALSE;
+					trigger_localised_error('CORE0027', E_USER_WARNING, $root->name, $root->id);
 				}
 			}
 		}
 
 		if ($ok) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return $ok;
 
 	}//end processAddPageNotFoundRemap()
 

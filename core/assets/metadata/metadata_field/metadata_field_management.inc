@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_management.inc,v 1.16 2005/09/08 00:35:41 rong Exp $
+* $Id: metadata_field_management.inc,v 1.17 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -79,14 +79,14 @@ class Metadata_Field_Management extends Asset_Management
 						'editable'			=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'boolean',
-												'default'		=> true,
-												'parameters'	=> Array('allow_empty'	=> false),
+												'default'		=> TRUE,
+												'parameters'	=> Array('allow_empty'	=> FALSE),
 											   ),
 						'required'			=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'boolean',
-												'default'		=> false,
-												'parameters'	=> Array('allow_empty' => false),
+												'default'		=> FALSE,
+												'parameters'	=> Array('allow_empty' => FALSE),
 												'description'	=> 'If this field is Required, then either the value or any one of the value components must be set for an asset to be approved',
 											   ),
 						'frontend'			=> Array(
@@ -99,11 +99,12 @@ class Metadata_Field_Management extends Asset_Management
 																						'fill'	=> 'Only If Filled',
 																						'hide'	=> 'Never',
 																					   ),
-																	'multiple'		=> false,
-																	'allow_empty'	=> false,
+																	'multiple'		=> FALSE,
+																	'allow_empty'	=> FALSE,
 																   ),
 											   ),
 					  );
+
 	}//end constructor
 
 

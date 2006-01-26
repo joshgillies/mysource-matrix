@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition.inc,v 1.8 2005/12/07 05:05:55 lwright Exp $
+* $Id: condition.inc,v 1.9 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,17 +56,18 @@ class Condition extends Asset
 	* Static function to evaluates a particular condition.
 	*
 	* Like evaluate() but takes the whole restriction into account.
-	*
 	* This helps making the condition restrictions totally transparant for the
 	* client class (i.e. they don't need to understand or manipulate its
 	* content).
 	*
 	* @param object	&$asset					a user asset (or child of User class)
 	* @param array	&$restriction			a restriction array as returned by processEditInterface()
-	* 										Array(
-	* 											'match' => 1|0,
-	* 											'condition_data'=> Array()
-	* 										)
+	*										<pre>
+	*										Array(
+	*											'match' => 1|0,
+	*											'condition_data'=> Array()
+	*										)
+	*										</pre>
 	* @param string	$condition_type_code	condition type code to evaluate
 	*
 	* @return boolean
@@ -100,7 +101,7 @@ class Condition extends Asset
 	*/
 	function evaluate(&$asset, $condition_data)
 	{
-		return false;
+		return FALSE;
 
 	}//end evaluate()
 

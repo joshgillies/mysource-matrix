@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: public_user.inc,v 1.4 2005/05/11 06:05:00 lwright Exp $
+* $Id: public_user.inc,v 1.5 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user/user.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,15 +57,20 @@ class Public_User extends User
 	/**
 	* Create this asset
 	*
+	* Return linkid or FALSE on failure
+	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @return mixed (int|boolean) the new link id if successful or false on fail
+	* @return mixed int|boolean
 	* @access public
 	*/
 	function create(&$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
-		if (!system_asset_fns_create_pre_check($this)) return false;
+		if (!system_asset_fns_create_pre_check($this)) {
+			return FALSE;
+		}
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		parent::setAttrValue('username', '');
@@ -74,13 +79,17 @@ class Public_User extends User
 
 		if ($linkid = parent::create($link)) {
 			if (!system_asset_fns_create_cleanup($this)) {
-				$linkid = false;
+				$linkid = FALSE;
 			}
 		}
 
-		if ($linkid) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		if ($linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end create()
@@ -99,7 +108,7 @@ class Public_User extends User
 	{
 		// trying to morph an unprivileged public user... why would you bother?
 		trigger_localised_error('CORE0091', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-		return false;
+		return FALSE;
 
 	}//end morph()
 
@@ -112,7 +121,7 @@ class Public_User extends User
 	*/
 	function canDelete()
 	{
-		return false;
+		return FALSE;
 
 	}//end canDelete()
 
@@ -125,13 +134,13 @@ class Public_User extends User
 	*/
 	function canClone()
 	{
-		return false;
+		return FALSE;
 
 	}//end canClone()
 
 
 	/**
-	* Returns true if this user can log in
+	* Returns TRUE if this user can log in
 	* Note that this is not for backend logins only, it applys to all logins
 	*
 	* @return boolean
@@ -139,7 +148,7 @@ class Public_User extends User
 	*/
 	function canLogin()
 	{
-		return false;
+		return FALSE;
 
 	}//end canLogin()
 
@@ -155,7 +164,7 @@ class Public_User extends User
 	*/
 	function canSetAsCurrentUser()
 	{
-		return true;
+		return TRUE;
 
 	}//end canSetAsCurrentUser()
 
@@ -163,8 +172,8 @@ class Public_User extends User
 	/**
 	* Set the value for the passed variable to the passed value
 	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -173,7 +182,7 @@ class Public_User extends User
 	{
 		if ($name == 'username') {
 			trigger_localised_error('CORE0113', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-			return false;
+			return FALSE;
 		}
 
 		return parent::setAttrValue($name, $value);
@@ -185,17 +194,17 @@ class Public_User extends User
 	* Catches blank username/password combination made during User::create()
 	*
 	* As it makes no sense for a public access user to have a user name or
-	* password, we will skip this check
+	* password, we will skip this check and always return TRUE
 	*
 	* @param string	$username	the passed user name
-	* @param string $password	the passed pass
+	* @param string	$password	the passed pass
 	*
-	* @return boolean	overridden so always returns true
+	* @return boolean
 	* @access public
 	*/
 	function _catchBlankUserNamePass($username, $password)
 	{
-		return true;
+		return TRUE;
 
 	}//end _catchBlankUserNamePass()
 
@@ -204,16 +213,16 @@ class Public_User extends User
 	* Catches blank username being set during User::setAttrValue()
 	*
 	* As it makes no sense for a public access user to have a user name, we will
-	* skip this check
+	* skip this check and always return TRUE
 	*
 	* @param string	$username	the passed user name
 	*
-	* @return boolean	overridden so always returns true
+	* @return boolean
 	* @access public
 	*/
 	function _catchBlankSetUserName($username)
 	{
-		return true;
+		return TRUE;
 
 	}//end _catchBlankSetUserName()
 

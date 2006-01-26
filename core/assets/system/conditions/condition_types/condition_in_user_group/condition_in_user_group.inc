@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_in_user_group.inc,v 1.3 2005/10/13 02:07:37 tbarrett Exp $
+* $Id: condition_in_user_group.inc,v 1.4 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,26 +55,26 @@ class Condition_In_User_Group extends Condition
 	/**
 	* Evaluate this condition
 	*
-	* @param object		&$asset			the asset to evaluate against
-	* @param array		$condition_data	the condition details to use when evaluating
+	* @param object	&$asset			the asset to evaluate against
+	* @param array	$condition_data	the condition details to use when evaluating
 	*
 	* @return boolean
 	* @access public
 	*/
 	function evaluate(&$asset, $condition_data)
 	{
-		if ($GLOBALS['SQ_SYSTEM']->userPublic()) return false;
-		if (empty($condition_data['groupids'])) return false;
+		if ($GLOBALS['SQ_SYSTEM']->userPublic()) return FALSE;
+		if (empty($condition_data['groupids'])) return FALSE;
 
 		// because a user can theoretically use conditions to be part of groups
 		// we need to make sure that we aren't going to recurse infinetly
-		static $evaluate_called = false;
-		if ($evaluate_called) return false;
-		$evaluate_called = true;
+		static $evaluate_called = FALSE;
+		if ($evaluate_called) return FALSE;
+		$evaluate_called = TRUE;
 
 		$ret_val = array_intersect($condition_data['groupids'], $GLOBALS['SQ_SYSTEM']->user->getUserGroups());
 
-		$evaluate_called = false;
+		$evaluate_called = FALSE;
 
 		return !empty($ret_val);
 

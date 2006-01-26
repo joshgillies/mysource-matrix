@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.7 2005/12/21 21:58:35 rong Exp $
+* $Id: data_source_graph.inc,v 1.8 2006/01/26 22:35:21 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -642,7 +642,7 @@ class Data_Source_Graph extends Image
 		if (SQ_IN_LIMBO) return parent::printFrontend();
 
 		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
 			return;
 		}
 
@@ -821,7 +821,6 @@ class Data_Source_Graph extends Image
 		// update our lookup tables to not use __data
 		if (!parent::updateLookups()) {
 			trigger_localised_error('CORE0053', E_USER_WARNING, $this->name);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 

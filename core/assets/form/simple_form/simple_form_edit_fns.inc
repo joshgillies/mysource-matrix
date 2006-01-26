@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form_edit_fns.inc,v 1.4 2005/11/03 23:57:27 lwright Exp $
+* $Id: simple_form_edit_fns.inc,v 1.5 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -288,15 +288,18 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 			if (empty($type)) continue;
 
 			$am->includeAsset($type);
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			// create some questions
 			if (!$asset->createQuestion($type, $names[$i])) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}//end if
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		}//end foreach
 
@@ -353,14 +356,17 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 		if (!$asset->writeAccess('links')) return false;
 		$enabled = $_POST[$prefix.'_use_bodycopy'];
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!$asset->setUseFormatBodycopy($enabled)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 

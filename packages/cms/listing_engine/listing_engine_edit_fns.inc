@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.53 2006/01/17 04:04:09 lwright Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.54 2006/01/26 22:35:20 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -787,6 +787,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $new_type);
 			if (empty($current_link)) {
 				// create a new format bodycopy for this type
+				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 
@@ -797,9 +798,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 				if (!$bodycopy->create($copy_link)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			} else {
 				trigger_localised_error('CMS0046', E_USER_WARNING, $new_type);
 			}
@@ -928,6 +931,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			if (empty($current_link)) {
 
 				// create a new format bodycopy for this list position
+				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 
@@ -938,9 +942,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 				if (!$bodycopy->create($copy_link)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			} else {
 				trigger_localised_error('CMS0050', E_USER_POSITION, $new_position);
 			}
@@ -1751,6 +1757,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		// get existing root links
 		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$ok = TRUE;
 
@@ -1784,11 +1791,12 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		if ($ok) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return TRUE;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return FALSE;
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return $ok;
 
 	}//end processRootNode()
 
@@ -2325,6 +2333,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					$new_position -= $pos_adjust;
 
 					// create a new group format bodycopy
+					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 					$folder =& $asset->getFolder('group_formats');
@@ -2338,6 +2347,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 					if (!$bodycopy->create($copy_link, $group_listing_data)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;
 					}
 
@@ -2355,11 +2365,13 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					$asset->reindexGroupFormats();
 					if (!$asset->saveAttributes()) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;
 					}
 
 
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return TRUE;
 				}//end if
 
@@ -3238,14 +3250,17 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		if (!$asset->writeAccess('links')) return FALSE;
 		$enabled = $_POST[$prefix.'_use_bodycopy'];
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!$asset->setUseNoResultsBodycopy($enabled)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 

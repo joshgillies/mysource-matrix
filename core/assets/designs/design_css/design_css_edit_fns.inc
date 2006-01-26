@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_edit_fns.inc,v 1.13 2005/11/11 02:26:51 ndvries Exp $
+* $Id: design_css_edit_fns.inc,v 1.14 2006/01/26 22:34:03 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -141,6 +141,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 			return false;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// First let's duplicate ourselves, ignoring dependants and the directory with the files
@@ -150,6 +151,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions'), false);
 		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
@@ -158,22 +160,26 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		// Acquire a lock on the new object
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($clone->id, 'all')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
 		// Now let's morph the dupe into a design customisation
 		if (!$clone->morph('design_css_customisation')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
 		// and link it back to ourselves
 		if (!$asset->createLink($clone, SQ_LINK_TYPE_2, 'customisation', null, '1')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 		if (!($clone->setAttrValue('id_name', $new_name) && $clone->saveAttributes())) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
@@ -186,6 +192,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 			if (is_null($da)) continue;
 			if (!$clone->createLink($da, SQ_LINK_TYPE_3, $link['value'], null, '1')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}
 		}// end foreach
@@ -197,6 +204,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($asset, $valid_paths, $clone->id, true);
 		if (!$clone->saveWebPaths($good_paths)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
@@ -209,6 +217,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 				trigger_localised_error('CORE0162', E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}
 		}
@@ -217,10 +226,12 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		// release the lock on the new object
 		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($clone->id, 'all')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 

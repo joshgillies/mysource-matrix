@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.24 2005/12/22 23:04:50 dmckee Exp $
+* $Id: user_edit_fns.inc,v 1.25 2006/01/26 22:34:07 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,14 +56,16 @@ class User_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Returns a list of groups that the user is linked to
+	* Returns a list of groups that the user is linked to (in getAssetInfo() format)
 	*
-	* @return array the list of groups in getAssetInfo() format
+	* @param object	&$asset	the user asset
+	*
+	* @return array
 	* @access private
 	*/
 	function _getLinkedGroups(&$asset)
 	{
-		$group_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, 1,'user_group', true, 'minor');
+		$group_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, 1,'user_group', TRUE, 'minor');
 
 		$group_assetids = Array();
 		foreach ($group_links as $group_link) {
@@ -80,8 +82,12 @@ class User_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints interface for managing user restrictions
 	*
-	* @access public
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for form elements
+	*
 	* @return void
+	* @access public
 	*/
 	function paintUserConditions(&$asset, &$o, $prefix)
 	{
@@ -92,7 +98,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 			$o->openField('');
 				echo translate('user_cannot_be_restricted');
 			$o->closeField();
-			return false;
+			return FALSE;
 		}
 
 		$admin_access = $asset->adminAccess('attributes');
@@ -107,8 +113,8 @@ class User_Edit_Fns extends Asset_Edit_Fns
 			$o->openSection($group['name'].' (#'.$group_assetid.')');
 			$o->openField('');
 
-			//if user has restrictions related to this group
-			if (!array_get_index($restrictions, $group_assetid, false)) {
+			// if user has restrictions related to this group
+			if (!array_get_index($restrictions, $group_assetid, FALSE)) {
 				echo translate('no_membership_conditions', $group['name']);
 			} else {
 				?>
@@ -138,13 +144,13 @@ class User_Edit_Fns extends Asset_Edit_Fns
 													'1'	=> translate($restriction['name'].'_true'),
 													'0'	=> translate($restriction['name'].'_false'),
 												 );
-								combo_box($condition_prefix.'_match', $match_options, false, $restriction['match']);
+								combo_box($condition_prefix.'_match', $match_options, FALSE, $restriction['match']);
 							} else {
 								echo translate($restriction['name'].'_'.($restriction['match'] ? 'true' : 'false'));
 							}
 							echo '<br />';
 							$edit_fns_classname = $restriction['name'].'_edit_fns';
-							$GLOBALS['SQ_SYSTEM']->am->includeAsset($restriction['name'], true);
+							$GLOBALS['SQ_SYSTEM']->am->includeAsset($restriction['name'], TRUE);
 							call_user_func(Array($edit_fns_classname, 'paintEditInterface'), $restriction['condition_data'], $o, $condition_prefix, $admin_access);
 							?>
 						</td>
@@ -157,15 +163,15 @@ class User_Edit_Fns extends Asset_Edit_Fns
 					?>
 					</tr>
 					<?php
-				}
+				}//end foreach restriction
 				?>
 				</table>
 				<?php
-			}
+			}//end else - membership conditions
 
 			if ($admin_access) {
 				?>
-				<p>Add new condition: <?php combo_box($prefix.'_'.$group_assetid.'_new_condition', $conditions, false, ''); ?></p>
+				<p>Add new condition: <?php combo_box($prefix.'_'.$group_assetid.'_new_condition', $conditions, FALSE, ''); ?></p>
 				<?php
 			}
 
@@ -176,7 +182,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 
 		// field closed by asset_edit_functions
 
-		return true;
+		return TRUE;
 
 	}//end paintUserConditions()
 
@@ -184,8 +190,12 @@ class User_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processses user restrictions
 	*
-	* @access public
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for form elements
+	*
 	* @return void
+	* @access public
 	*/
 	function processUserConditions(&$asset, &$o, $prefix)
 	{
@@ -198,7 +208,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 		foreach ($groups as $group_assetid => $group) {
 
 			// if user has restrictions related to this group
-			if (array_get_index($restrictions, $group_assetid, null)) {
+			if (array_get_index($restrictions, $group_assetid, NULL)) {
 
 				// get array of restrictions for this group
 				foreach ($restrictions[$group_assetid] as $key => $restriction) {
@@ -231,9 +241,9 @@ class User_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Interface painting function for locale settings
 	*
-	* @param object User				&$asset	the user asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -249,7 +259,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 			$standards_lists_locales = array_reverse($standards_lists_locales);
 			$standards_lists_locales[''] = '** Use System Default **';
 			$standards_lists_locales = array_reverse($standards_lists_locales);
-			combo_box($prefix.'_locale', $standards_lists_locales, false, $current_locale);
+			combo_box($prefix.'_locale', $standards_lists_locales, FALSE, $current_locale);
 		} else {
 			if (isset($standards_lists_locales[$current_locale])) {
 				echo $standards_lists_locales[$current_locale];
@@ -269,16 +279,16 @@ class User_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for locale settings
 	*
-	* @param object User				&$asset	the user asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processLocale(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 		$asset->setAttrValue('locale', $_POST[$prefix.'_locale']);
 		return $asset->saveAttributes();
 

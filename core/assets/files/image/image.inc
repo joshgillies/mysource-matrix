@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.51 2006/01/25 05:07:01 tbarrett Exp $
+* $Id: image.inc,v 1.52 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -365,12 +365,14 @@ class Image extends File
 		if (is_null($variety)) return FALSE;
 
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// create the actual scaled image if necessary and add any lookups
 		if ($recreate_image) {
 			if (!$variety->updateImage()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 
 			}
@@ -386,10 +388,12 @@ class Image extends File
 
 		if ($save_attrs && !$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $varietyid;
 
 	}//end saveVariety()
@@ -421,11 +425,13 @@ class Image extends File
 		$variety =& $this->getAsset($this->id.':'.$varietyid);
 		if (is_null($variety)) return FALSE;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// delete the actual scaled image files
 		if (!$variety->deleteImage()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -434,6 +440,7 @@ class Image extends File
 		if (!isset($varieties['data'][$varietyid])) {
 			trigger_localised_error('CORE87', $varietyid, E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -445,15 +452,18 @@ class Image extends File
 
 		if (!$this->setAttrValue('varieties', $varieties) || !$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		if (!$this->updateLookups()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end deleteVariety()
@@ -496,11 +506,12 @@ class Image extends File
 	*/
 	function updateLookups()
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!parent::updateLookups()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -514,6 +525,7 @@ class Image extends File
 
 				if (!$variety->updateLookups($use_public_path)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
 
@@ -521,6 +533,7 @@ class Image extends File
 		}// end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end updateLookups()

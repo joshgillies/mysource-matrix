@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content_edit_fns.inc,v 1.12 2005/11/03 23:57:26 lwright Exp $
+* $Id: design_area_nest_content_edit_fns.inc,v 1.13 2006/01/26 22:34:03 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -91,12 +91,14 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 		$assetid = (int) $_POST[$prefix.'_assetid']['assetid'];
 
 		// open the transaction
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// remove the old link first
 		if ($old_linkid = $asset->_getNestAssetInfo('linkid')) {
 			if (!$asset->deleteLink($old_linkid)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}
 		}
@@ -106,16 +108,19 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 			$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($link_asset)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}
 			if (!$asset->createLink($link_asset, SQ_LINK_NOTICE, 'nest_content_asset')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}
 		}
 
 		// If we get this far, then it's all OK
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 

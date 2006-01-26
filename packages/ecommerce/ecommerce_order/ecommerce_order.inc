@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order.inc,v 1.10 2005/09/08 04:30:04 skim Exp $
+* $Id: ecommerce_order.inc,v 1.11 2006/01/26 22:35:23 lwright Exp $
 *
 */
 
@@ -129,9 +129,11 @@ class Ecommerce_Order extends Asset
 	{
 		switch ($name) {
 			case 'products':
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$this->_linkProducts($value);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			break;
 		}
 		return parent::setAttrValue($name, $value);
@@ -221,6 +223,7 @@ class Ecommerce_Order extends Asset
 
 			$success = true;
 
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			// set runlevel
@@ -247,12 +250,13 @@ class Ecommerce_Order extends Asset
 			// restore runlevel
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-			if (!$success) {
+			if ($success) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			} else {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
 			}
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $success;
 
 		} else {

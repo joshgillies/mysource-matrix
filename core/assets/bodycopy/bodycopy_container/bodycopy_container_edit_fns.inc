@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.35 2006/01/17 22:30:19 lwright Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.36 2006/01/26 22:34:03 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -320,12 +320,14 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			$replace_assetids = array_unique($replace_assetids);
 
 			// delete existing notice links that are no longer being used
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			foreach ($notice_links as $link_data) {
 				if ($link_data['value'] != 'thumbnail') {
 					if (!in_array($link_data['minorid'], $replace_assetids)) {
 						if (!$asset->deleteLink($link_data['linkid'])) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							return FALSE;
 						}
 					}
@@ -359,10 +361,12 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 			if (!$asset->setAttrValue('shadow_links', $shadow_links) || !$asset->saveAttributes()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 
 		}//end if replace_assetids or notice_links

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.32 2006/01/18 22:05:39 lwright Exp $
+* $Id: package_manager_core.inc,v 1.33 2006/01/26 22:33:59 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -84,20 +84,19 @@ class Package_Manager_Core extends Package_Manager
 		}
 
 		// open the transaction
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		//// Before we update any of the asset types we are going to make sure that
-		//// the default search components are in place
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// Now we can do the normal package update
 		if (!parent::updatePackageDetails($update_assets)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		// Commit the transaction if we got this far
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end updatePackageDetails()
@@ -218,6 +217,7 @@ class Package_Manager_Core extends Package_Manager
 
 		// we will also turn all 'zero' permissions into the public user's while we're at it
 		// THIS IS AN UPGRADE AND SHOULD BE REMOVED
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -233,6 +233,7 @@ class Package_Manager_Core extends Package_Manager
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $public_user;
 

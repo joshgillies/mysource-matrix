@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.101 2006/01/06 00:31:30 dmckee Exp $
+* $Id: design_edit_fns.inc,v 1.102 2006/01/26 22:34:03 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -525,6 +525,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			return FALSE;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// First let's duplicate ourselves, ignoring dependants and the directory with the files
@@ -534,28 +535,33 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$clone =& $GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions'), FALSE);
 		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		// Acquire a lock on the new object
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($clone->id, 'all')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		// Now let's morph the dupe into a design customisation
 		if (!$clone->morph('design_customisation')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		// and link it back to ourselves
 		if (!$asset->createLink($clone, SQ_LINK_TYPE_2, 'customisation', null, '1')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 		if (!($clone->setAttrValue('id_name', $new_name) && $clone->saveAttributes())) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -568,6 +574,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			if (is_null($da)) continue;
 			if (!$clone->createLink($da, SQ_LINK_TYPE_3, $link['value'], null, '1')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 		}//end foreach
@@ -579,6 +586,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($asset, $valid_paths, $clone->id, TRUE);
 		if (!$clone->saveWebPaths($good_paths)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -591,6 +599,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				trigger_localised_error('CORE0162', E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 		}
@@ -605,6 +614,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				trigger_localised_error('CORE0161', E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 		}
@@ -613,10 +623,12 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// release the lock on the new object
 		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($clone->id, 'all')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
@@ -755,6 +767,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		}//end foreach
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (isset($GLOBALS['SQ_PROCESSED_DESIGN_AREAS'])) {
@@ -771,6 +784,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			foreach ($removed_id_names as $id_name) {
 				if (!$asset->deleteLink($existing_id_names[$id_name])) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
 			}//end foreach
@@ -793,6 +807,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$link = $asset->getDesignAreaLink($id_name, FALSE);
 				if (!$asset->deleteLink($link['linkid'])) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
 				unset($da); // unset so we don't set the value or all ref's to null
@@ -807,10 +822,12 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$da->setAttrValue('id_name', $id_name);
 				if (!$da->create($da_link)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($da->id, 'parsing')) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
 			}
@@ -829,6 +846,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$edit_fns = $design_areas[$element['attributes']['id_name']]->getEditFns();
 			if (!$edit_fns->_processContents($design_areas[$element['attributes']['id_name']], $element['contents'])) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 
@@ -839,6 +857,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			if (!$design_areas[$element['attributes']['id_name']]->saveAttributes()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 
@@ -860,9 +879,11 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// now just set the contents and we are away...
 		if ($asset->setAttrValue('contents', $contents)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return TRUE;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 

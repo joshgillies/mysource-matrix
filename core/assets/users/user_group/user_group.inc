@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group.inc,v 1.20 2005/08/26 03:27:48 dheppell Exp $
+* $Id: user_group.inc,v 1.21 2006/01/26 22:34:07 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class User_Group extends Folder
 	/**
 	* Returns a list of lock types available for this asset type
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function lockTypes()
@@ -71,16 +71,17 @@ class User_Group extends Folder
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
 		$allowed = parent::_getAllowedLinks();
-		$allowed[SQ_LINK_TYPE_1]['user_group'] = Array('card' => 'M', 'exclusive' => false);
-		$allowed[SQ_LINK_TYPE_1]['user']       = Array('card' => 'M', 'exclusive' => false);
-		$allowed[SQ_LINK_TYPE_2]['user_group'] = Array('card' => 'M', 'exclusive' => false);
-		$allowed[SQ_LINK_TYPE_2]['user']       = Array('card' => 'M', 'exclusive' => false);
+		$allowed[SQ_LINK_TYPE_1]['user_group'] = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_TYPE_1]['user']       = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_TYPE_2]['user_group'] = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_TYPE_2]['user']       = Array('card' => 'M', 'exclusive' => FALSE);
 		return $allowed;
 
 	}//end _getAllowedLinks()
@@ -89,6 +90,7 @@ class User_Group extends Folder
 	/**
 	* Called by the design to print extra material in the head of the HTML document for this asset
 	*
+	* @return void
 	* @access public
 	*/
 	function printHead()
@@ -138,14 +140,14 @@ class User_Group extends Folder
 	*/
 	function printBody()
 	{
-		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$cached_contents = $cm->loadFromCache($this->id, $this->type(), 'default');
 
 		// if the cache is empty, go ahead and regenerate a new version
 		if (empty($cached_contents)) {
 			ob_start();
 				$this->printUserList($this->id);
-				$groups = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'user_group', false);
+				$groups = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'user_group', FALSE);
 				foreach ($groups as $groupid => $type_code) {
 					$this->printUserList($groupid);
 				}
@@ -162,14 +164,14 @@ class User_Group extends Folder
 	/**
 	* Prints a list of users for the passed group
 	*
-	* @param	$groupid	string	the ID of the group that we are printing the user list for
+	* @param string	$groupid	the ID of the group that we are printing the user list for
 	*
 	* @return void
 	* @access public
 	*/
 	function printUserList($groupid)
 	{
-		$group = &$GLOBALS['SQ_SYSTEM']->am->getAsset($groupid);
+		$group =& $GLOBALS['SQ_SYSTEM']->am->getAsset($groupid);
 
 		?>
 		<table class="sq_user_group">
@@ -184,7 +186,7 @@ class User_Group extends Folder
 				</td>
 			</tr>
 			<?php
-			$users = $GLOBALS['SQ_SYSTEM']->am->getLinks($groupid, SQ_LINK_TYPE_1, 'user', false);
+			$users = $GLOBALS['SQ_SYSTEM']->am->getLinks($groupid, SQ_LINK_TYPE_1, 'user', FALSE);
 			if (!empty($users)) {
 				?>
 				<tr>
@@ -194,7 +196,7 @@ class User_Group extends Folder
 				</tr>
 				<?php
 				foreach ($users as $link_data) {
-					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
+					$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
 					?>
 					<tr>
 						<td class="sq_user_group_user_name"><?php echo $user->name; ?></td>

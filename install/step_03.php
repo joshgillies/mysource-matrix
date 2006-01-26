@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.63 2005/08/02 03:36:56 gsherwood Exp $
+* $Id: step_03.php,v 1.64 2006/01/26 22:34:09 lwright Exp $
 *
 */
 
@@ -43,7 +43,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -51,7 +51,7 @@ ini_set('memory_limit', -1);
 error_reporting(E_ALL);
 $SYSTEM_ROOT = '';
 
-$cli = true;
+$cli = TRUE;
 
 // from cmd line
 if ((php_sapi_name() == 'cli')) {
@@ -61,7 +61,7 @@ if ((php_sapi_name() == 'cli')) {
 	$err_msg = "You need to supply the path to the System Root as the first argument\n";
 
 } else {
-	$cli = false;
+	$cli = FALSE;
 	if (isset($_GET['SYSTEM_ROOT'])) {
 		$SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
 	}
@@ -84,7 +84,7 @@ if ($cli) {
 	$shortopt = '';
 	$longopt = Array('package=');
 
-	$con  = new Console_Getopt;
+	$con =& new Console_Getopt;
 	$args = $con->readPHPArgv();
 	array_shift($args);
 	$options = $con->getopt($args, $shortopt, $longopt);

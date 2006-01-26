@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.17 2005/10/11 02:07:48 tbarrett Exp $
+* $Id: design_css.inc,v 1.18 2006/01/26 22:34:03 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -150,11 +150,13 @@ class Design_Css extends Design
 	*/
 	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$linkid = parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
 		if (!$linkid) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
@@ -188,6 +190,7 @@ class Design_Css extends Design
 						trigger_localised_error('CORE0162', E_USER_WARNING);
 						$am->forgetAsset($customisation);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return false;
 					}
 				}
@@ -199,6 +202,7 @@ class Design_Css extends Design
 		}//end if is_a file
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end createLink()
@@ -224,6 +228,7 @@ class Design_Css extends Design
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$minor = &$am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// special processing if we are deleting a TYPE_2 linked file (a file overridding a design file)
@@ -244,6 +249,7 @@ class Design_Css extends Design
 							trigger_localised_error('CORE0165', E_USER_WARNING);
 							$am->forgetAsset($customisation);
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							return false;
 						}
 					}
@@ -256,10 +262,12 @@ class Design_Css extends Design
 
 		if (!parent::deleteLink($linkid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return true;
 
 	}//end deleteLink()
@@ -289,14 +297,17 @@ class Design_Css extends Design
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$minor = &$am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!parent::deleteLink($linkid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 
@@ -364,7 +375,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 
 
 	/**
-	* 
+	*
 	*
 	* @access public
 	* @return void

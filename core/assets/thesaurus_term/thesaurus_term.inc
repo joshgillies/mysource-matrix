@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term.inc,v 1.7 2006/01/18 22:15:32 lwright Exp $
+* $Id: thesaurus_term.inc,v 1.8 2006/01/26 22:34:07 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -123,6 +123,7 @@ class Thesaurus_Term extends Asset
 
 		$created = TRUE;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// check if this term already exists, if it does, then we just link
@@ -131,6 +132,7 @@ class Thesaurus_Term extends Asset
 			$termid = $this->_thesaurus->_addTerm($term);
 			if (is_null($termid)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				trigger_error('Unknown error. Cannot add.');
 				return FALSE;
 			}
@@ -144,12 +146,14 @@ class Thesaurus_Term extends Asset
 		$existing_link = $this->_thesaurus->getTermLinkByTermids($termid, $majorid, $relation);
 		if (!empty($existing_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return NULL;
 		}
 
 		$linkid = $this->_thesaurus->_linkTerms($termid, $majorid, $relation, array_get_index($link,'sort_order'));
 		if (is_null($linkid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			trigger_localised_error('CORE0237', E_USER_WARNING);
 			return FALSE;
 		}
@@ -157,6 +161,7 @@ class Thesaurus_Term extends Asset
 
 		$this->_thesaurus->markContentsChanged();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		if ($created) {

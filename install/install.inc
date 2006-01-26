@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.56 2005/12/09 05:29:31 arailean Exp $
+* $Id: install.inc,v 1.57 2006/01/26 22:34:09 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -37,7 +37,9 @@
 /**
 * Regenerate all the configs used by Matrix
 *
-* @return boolean	indicating success or not of all configs saved
+* Returns TRUE if all configs were successfully saved
+*
+* @return boolean
 * @access public
 */
 function regenerate_configs()
@@ -45,36 +47,36 @@ function regenerate_configs()
 	// Re-generate the System Config to make sure that we get any new defines that may have been issued
 	require_once SQ_INCLUDE_PATH.'/system_config.inc';
 	$cfg =& new System_Config();
-	if (!$cfg->save(Array(), false)) return false;
+	if (!$cfg->save(Array(), FALSE)) return FALSE;
 
 	// Re-generate the External Tools Config to make sure that we get any new defines that may have been issued
 	require_once SQ_INCLUDE_PATH.'/external_tools_config.inc';
 	$cfg =& new External_Tools_Config();
-	if (!$cfg->save(Array(), false)) return false;
+	if (!$cfg->save(Array(), FALSE)) return FALSE;
 
 	// Re-generate the Server Config to make sure that we get any new defines that may have been issued
 	require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_config.inc';
 	$squiz_server_cfg =& new Squiz_Server_Config();
-	if (!$squiz_server_cfg->save(Array(), false)) {
-		return false;
+	if (!$squiz_server_cfg->save(Array(), FALSE)) {
+		return FALSE;
 	}
 
 	// Re-generate the HIPO Config to make sure that we get any new defines that may have been issued
 	require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_config.inc';
 	$hipo_cfg =& new HIPO_Config();
-	if (!$hipo_cfg->save(Array(), false)) return false;
+	if (!$hipo_cfg->save(Array(), FALSE)) return FALSE;
 
 	// Re-generate the Messaging Service Config to make sure that we get any new defines that may have been issued
 	require_once SQ_SYSTEM_ROOT.'/core/include/messaging_service_config.inc';
 	$ms_cfg =& new Messaging_Service_Config();
-	if (!$ms_cfg->save(Array(), false)) return false;
+	if (!$ms_cfg->save(Array(), FALSE)) return FALSE;
 
 	// Re-generate the Password Rules Config to make sure that we get any new defines that may have been issued
 	require_once SQ_SYSTEM_ROOT.'/core/include/password_rules_config.inc';
 	$ms_cfg =& new Password_Rules_Config();
-	if (!$ms_cfg->save(Array(), false)) return false;
+	if (!$ms_cfg->save(Array(), FALSE)) return FALSE;
 
-	return true;
+	return TRUE;
 
 }//end regenerate_configs()
 
@@ -87,7 +89,7 @@ function regenerate_configs()
 */
 function uninstall_asset_types()
 {
-	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 	// always contains the full list of asset type_codes currently registered in the database
 	$all_asset_types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
@@ -131,7 +133,7 @@ function uninstall_asset_types()
 	// Asset types are deleted when no package manager thinks they have the asset type.
 	// They think they have the asset type when the asset.xml says so
 	if (!empty($asset_types)) {
-		$errors = false;
+		$errors = FALSE;
 
 		// check those asset types that are still going to be there after uninstall
 		// to see whether it depended on something that is being deleted... if it is then
@@ -143,7 +145,7 @@ function uninstall_asset_types()
 			// are our parents going to be binned?
 			if (count($deleted_parents) > 0) {
 				trigger_error('One or more of the parents for the asset type \''.$asset_type.'\' no longer exists in the system. The system may be broken until you restore the necessary files of the parent asset type to their proper location.'."\n".'\''.$asset_type.'\' depends on: '.implode(', ', $deleted_parents), E_USER_WARNING);
-				$errors = true;
+				$errors = TRUE;
 			}
 		}
 
@@ -182,7 +184,7 @@ function uninstall_asset_types()
 
 		// report if we did uninstall some asset types
 		if (!empty($asset_types)) {
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$msg_reps = Array(
 							'type_code_list'	=> implode("\n", $asset_types),
 						);
@@ -195,7 +197,7 @@ function uninstall_asset_types()
 	// clear the type cache
 	@unlink(SQ_DATA_PATH.'/private/db/asset_types.inc');
 
-	return true;
+	return TRUE;
 
 }//end uninstall_asset_types()
 
@@ -208,7 +210,7 @@ function uninstall_asset_types()
 */
 function uninstall_packages()
 {
-	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 	// If the package manager doesn't exist for a package, it does not exist.
 	// Assumption: packages live in the packages directory (Core never gets uninstalled).
@@ -244,7 +246,7 @@ function uninstall_packages()
 					trigger_error('Package file does not exist, it must have been deleted before', E_USER_NOTICE);
 				}
 
-				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$message_body = 'Uninstalled '.$package;
 				$msg_reps = Array(
 								'package'	=> $package,
@@ -260,7 +262,7 @@ function uninstall_packages()
 
 	}//end if installed packages not empty
 
-	return true;
+	return TRUE;
 
 }//end uninstall_packages()
 
@@ -268,8 +270,9 @@ function uninstall_packages()
 /**
 * Install core assets
 *
-* @param Array $packageList 		Lists what packages are going to be installed
-*									and what assets in those packages.
+* @param array	$package_list	Lists what packages are going to be installed
+*								and what assets in those packages.
+*
 * @return boolean
 * @access public
 */
@@ -282,7 +285,7 @@ function install_core($package_list=Array())
 
 	if (count($package_list) > 0) {
 		if (!isset($package_list['core'])) {
-			return true;
+			return TRUE;
 		} else {
 			$assets = $package_list['core'];
 			// If it wasn't an array at the core index, just make it empty
@@ -293,7 +296,7 @@ function install_core($package_list=Array())
 	$pm =& new Package_Manager_Core();
 	$result = $pm->updatePackageDetails($assets);
 
-	$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+	$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 	$msg_reps = Array(
 					'package'	=> 'Core',
 				);
@@ -306,7 +309,7 @@ function install_core($package_list=Array())
 
 	// 0 (zero) indicates success, but no system assets were created - suppress in this case
 	if ($result != 0) {
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$msg_reps = Array(
 						'package'		=> 'Core',
 						'num_assets'	=> $result,
@@ -319,10 +322,10 @@ function install_core($package_list=Array())
 
 	// set the current user object to the root user so we can finish
 	// the install process without permission denied errors
-	$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+	$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 	$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
 
-	return true;
+	return TRUE;
 
 }//end install_core()
 
@@ -330,7 +333,7 @@ function install_core($package_list=Array())
 /**
 * Returns the entire list of packages that exist in the package directory
 *
-* @return array() the packages
+* @return array
 * @access public
 */
 function get_package_list()
@@ -338,7 +341,7 @@ function get_package_list()
 	$packages = Array();
 	$d = dir(SQ_PACKAGES_PATH);
 
-	while (false !== ($entry = $d->read())) {
+	while (FALSE !== ($entry = $d->read())) {
 		if ($entry == '.' || $entry == '..') {
 			continue;
 		}
@@ -360,10 +363,11 @@ function get_package_list()
 * then it checks to see if the list of assets is defined for that package. If
 * not, will install ALL assets.
 *
-* @param Array $package_assets	An array of assets inside packages to install.
+* @param array	$package_assets	An array of assets inside packages to install.
 *								Requires that the package name be defined in
 *								the $packages array.
-								Array('package_name' => Array('assetname'),)
+*								Array('package_name' => Array('assetname'),)
+*
 * @return boolean
 * @access public
 */
@@ -396,7 +400,7 @@ function install_packages($package_assets=Array())
 		}
 	}
 
-	return count($deferred_packages) ? $deferred_packages : true;
+	return count($deferred_packages) ? $deferred_packages : TRUE;
 
 }//end install_packages()
 
@@ -404,10 +408,13 @@ function install_packages($package_assets=Array())
 /**
 * Installs a single package into the system.
 *
-* @param Array $package_assets	An array of asset types to install for this
-*								package.
-* @return mixed					void on success, otherwise an array of type_codes
-* 								of assets that couldn't be installed yet.
+* Returns boolean TRUE on success, otherwise an array of type_codes
+* of assets that couldn't be installed yet.
+*
+* @param string	$package		The package to install
+* @param array	$package_assets	An array of asset types to install for this package.
+*
+* @return mixed array|boolean
 * @access public
 */
 function install_package($package, $package_assets=Array())
@@ -418,7 +425,7 @@ function install_package($package, $package_assets=Array())
 	$pm =& new $class();
 	$result = $pm->updatePackageDetails($package_assets);
 
-	$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+	$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 	if (is_array($result)) {
 		$msg_reps = Array(
@@ -451,7 +458,7 @@ function install_package($package, $package_assets=Array())
 	if ($result == -1) exit(1);
 	unset($pm);
 
-	return true;
+	return TRUE;
 
 }//end install_package()
 
@@ -459,15 +466,18 @@ function install_package($package, $package_assets=Array())
 /**
 * Try to install a list of deferred packages recursively until the list is the same as the start
 *
-* @param array $packages 	the array of packages to attempt to install
-* @return mixed 			an array of any failed installed packages, or true if it all worked okay
+* Returns an array of any failed installed packages, or TRUE if it all worked okay
+*
+* @param array	$packages	the array of packages to attempt to install
+*
+* @return mixed array|boolean
 * @access public
 */
 function install_deferred($packages)
 {
 	$deferred = install_packages($packages);
 
-	if ($deferred === true) return true;
+	if ($deferred === TRUE) return TRUE;
 
 	// if the arrays are identical, return the array
 	if ($deferred == $packages) return $deferred;
@@ -490,8 +500,8 @@ function install_authentication_types()
 	$auth_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('authentication');
 
 	// get installed authentication systems
-	$auth_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
-	$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($auth_folder->id, SQ_LINK_TYPE_1, 'authentication', false);
+	$auth_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
+	$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($auth_folder->id, SQ_LINK_TYPE_1, 'authentication', FALSE);
 	$installed_auth_types = Array();
 	foreach ($links as $link_data) {
 		$installed_auth_types[] = $link_data['minor_type_code'];
@@ -513,7 +523,7 @@ function install_authentication_types()
 		if (!$auth->create($folder_link)) {
 			trigger_error('AUTHENTICATION TYPE "'.strtoupper($type_code).'" NOT CREATED', E_USER_WARNING);
 		} else {
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$msg_reps = Array(
 							'auth_type_name'	=> strtoupper($type_code),
 							'assetid'			=> $auth->id,
@@ -524,7 +534,7 @@ function install_authentication_types()
 		}
 	}
 
-	return true;
+	return TRUE;
 
 }//end install_authentication_types()
 
@@ -559,16 +569,16 @@ function generate_global_preferences()
 		$pm->installUserPreferences($preferences);
 		unset($pm);
 	}
-	$str = '<'.'?php $preferences = '.var_export($preferences, true).'; ?'.'>';
+	$str = '<'.'?php $preferences = '.var_export($preferences, TRUE).'; ?'.'>';
 	if (!string_to_file($str, SQ_DATA_PATH.'/private/conf/preferences.inc')) {
-		return false;
+		return FALSE;
 	}
 
-	$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+	$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 	$message = $ms->newMessage(Array(), 'install.prefs', Array());
 	$message->send();
 
-	return true;
+	return TRUE;
 
 }//end generate_global_preferences()
 
@@ -576,15 +586,15 @@ function generate_global_preferences()
 /**
 * Creates a cached file of the asset types and their information
 *
-* @access public
 * @return void
+* @access public
 */
 function cache_asset_types()
 {
 	$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes();
 
 	$output = '<'.'?php'."\n".' $asset_types = ';
-	$output .= var_export($asset_types, true);
+	$output .= var_export($asset_types, TRUE);
 	$output .= "\n?".'>';
 
 	if (!string_to_file($output, SQ_DATA_PATH.'/private/db/asset_types.inc')) {
@@ -607,14 +617,14 @@ function install_event_listeners()
 	// we need to install any event listeners here, now that we have installed all the asset types
 	$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
 
-	$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+	$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 	$em->writeStaticEventsCacheFile();
 
-	$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+	$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 	$message = $ms->newMessage(Array(), 'install.event_listeners', Array());
 	$message->send();
 
-	return true;
+	return TRUE;
 
 }//end install_event_listeners()
 
@@ -622,7 +632,7 @@ function install_event_listeners()
 /**
 * Format an array of packages => Array(type_codes) for display
 *
-* @param array $array the array of deferred types to format
+* @param array	$packages	the array of deferred types to format
 *
 * @return string
 * @access public
@@ -642,6 +652,15 @@ function format_deferred_packages($packages)
 }//end format_deferred_packages()
 
 
+/**
+* Find directories of an asset and its parents, for the purposes of finding
+* localised resources within them
+*
+* @param string	$asset_type	the asset type to search for
+*
+* @return array
+* @access public
+*/
 function find_asset_type_dirs($asset_type)
 {
 	if ($asset_type != 'asset') {
@@ -665,6 +684,7 @@ function find_asset_type_dirs($asset_type)
 * Takes the requested filename and searches back up the directories to find the matching file
 * closest to the type of the asset that we are creating or editing
 *
+* @param string	$asset_type	the type of asset to look for
 * @param string	$file_name	the file to find
 *
 * @return string
@@ -686,7 +706,7 @@ function find_edit_interface_file($asset_type, $file_name)
 
 	if (!$file) {
 		trigger_error($file_name.' not found for Asset Type "'.$asset_type.'"', E_USER_WARNING);
-		return false;
+		return FALSE;
 	}
 
 	return $file;
@@ -699,10 +719,13 @@ function find_edit_interface_file($asset_type, $file_name)
 * directories for the closest match in the current language, then running
 * through fallbacks (ie. the system's default backend locale)
 *
-* @param string	$file_name	the file to find
+* Returns an array of file names to potentially parse, most relevant first
 *
-* @return Array	an array of file names to potentially parse, most relevant
-*				first
+* @param string	$asset_type	the type code to look for
+* @param string	$file_name	the file to find
+* @param string	$locale		the locale we are finding
+*
+* @return array
 * @access public
 */
 function find_edit_interface_language_files($asset_type, $file_name, $locale)
@@ -738,25 +761,25 @@ function find_edit_interface_language_files($asset_type, $file_name, $locale)
 
 
 /**
-* Builds an XML tree for a screen/locale combination that can be cached
+* Builds an XML tree for a screen/locale combination that can be cached, returns root node (XML_Tree_Node object)
 *
-* @param string	$screen	the screen being built for this asset type
-* @param string	$locale	the locale we are generating this screen for
+* @param string	$asset_type	the type code to look for
+* @param string	$screen		the screen being built for this asset type
+* @param string	$locale		the locale we are generating this screen for
 *
-* @return object XML_Tree_Node
+* @return object
+* @access public
 */
 function build_localised_screen($asset_type, $screen, $locale)
 {
-	//print '  - Building '.$screen.'.'.$locale."\n";
-
 	$ei_file = find_edit_interface_file($asset_type, $screen);
 
 	// get the XML for the edit interface file
 	$ei_input =& new XML_Tree($ei_file);
-	$to_cache  = &$ei_input->getTreeFromFile();
+	$to_cache  =& $ei_input->getTreeFromFile();
 	if (PEAR::isError($to_cache)) {
 		trigger_error('Unable to Read File : '.$ei_file."\n".$to_cache->getMessage()."\n".$to_cache->getUserInfo(), E_USER_WARNING);
-		return null;
+		return NULL;
 	}
 
 	if (empty($to_cache->children)) {
@@ -769,7 +792,7 @@ function build_localised_screen($asset_type, $screen, $locale)
 
 		// get the XML for the edit interface file
 		$lang_input =& new XML_Tree($lang_file);
-		$lang_root  = &$lang_input->getTreeFromFile();
+		$lang_root  =& $lang_input->getTreeFromFile();
 		if (PEAR::isError($lang_root)) {
 			trigger_error('Unable to Read File : '.$lang_file."\n".$lang_root->getMessage()."\n".$lang_root->getUserInfo(), E_USER_WARNING);
 			continue;
@@ -806,7 +829,7 @@ function build_localised_screen($asset_type, $screen, $locale)
 					case 'note':
 						// is a section note already set?
 						if (!isset($this_section->attributes['note'])) {
-							$this_section->insertChild(null, count($this_section->children), $xml_field->name, $xml_field->content);
+							$this_section->insertChild(NULL, count($this_section->children), $xml_field->name, $xml_field->content);
 						}
 					break;
 
@@ -841,28 +864,28 @@ function build_localised_screen($asset_type, $screen, $locale)
 							// check to see whether we already have a display
 							// name or note, because we don't want to double
 							// them up
-							$has_display_name = false;
-							$has_note = false;
+							$has_display_name = FALSE;
+							$has_note = FALSE;
 
 							for ($sub_field_index = 0; $sub_field_index < count($this_field->children); $sub_field_index++) {
 								$sub_name = $this_field->children[$sub_field_index]->name;
 								if ($sub_name == 'display_name') {
-									$has_display_name = true;
+									$has_display_name = TRUE;
 								}
 
-								if ($sub_name == 'note') $has_note = true;
+								if ($sub_name == 'note') $has_note = TRUE;
 							}
 
 							for ($sub_index = 0; $sub_index < count($xml_field->children); $sub_index++) {
 								$xml_sub_field = $xml_field->children[$sub_index];
 								switch ($xml_sub_field->name) {
 									case 'display_name':
-										$this_field->insertChild(null, 0, $xml_sub_field->name, $xml_sub_field->content);
+										$this_field->insertChild(NULL, 0, $xml_sub_field->name, $xml_sub_field->content);
 									break;
 
 									case 'note':
 										// want to insert this as second-to-last
-										$this_field->insertChild(null, count($this_field->children) - 1, $xml_sub_field->name, $xml_sub_field->content);
+										$this_field->insertChild(NULL, count($this_field->children) - 1, $xml_sub_field->name, $xml_sub_field->content);
 									break;
 
 								}
@@ -885,16 +908,16 @@ function build_localised_screen($asset_type, $screen, $locale)
 							// check to see whether we already have a display
 							// name or note, because we don't want to double
 							// them up
-							$has_display_name = false;
-							$has_note = false;
+							$has_display_name = FALSE;
+							$has_note = FALSE;
 
 							for ($sub_field_index = 0; $sub_field_index < count($this_field->children); $sub_field_index++) {
 								$sub_name = $this_field->children[$sub_field_index]->name;
 								if ($sub_name == 'display_name') {
-									$has_display_name = true;
+									$has_display_name = TRUE;
 								}
 
-								if ($sub_name == 'note') $has_note = true;
+								if ($sub_name == 'note') $has_note = TRUE;
 							}
 
 							for ($sub_index = 0; $sub_index < count($xml_field->children); $sub_index++) {
@@ -902,31 +925,31 @@ function build_localised_screen($asset_type, $screen, $locale)
 								switch ($xml_sub_field->name) {
 									case 'display_name':
 										if (!$has_display_name) {
-											$this_field->insertChild(null, 0, $xml_sub_field->name, $xml_sub_field->content);
+											$this_field->insertChild(NULL, 0, $xml_sub_field->name, $xml_sub_field->content);
 										}
 									break;
 
 									case 'note':
 										// want to insert this as second-to-last
 										if (!$has_note) {
-											$this_field->insertChild(null, count($this_field->children) - 1, $xml_sub_field->name, $xml_sub_field->content);
+											$this_field->insertChild(NULL, count($this_field->children) - 1, $xml_sub_field->name, $xml_sub_field->content);
 										}
 									break;
 
 								}
 							}
 
-						}
+						}//end else
 
 					break;
 
 				}//end switch
 
-			}
+			}//end for
 
-		}
+		}//end for
 
-	}
+	}//end foreach
 
 	return $to_cache;
 
@@ -934,32 +957,28 @@ function build_localised_screen($asset_type, $screen, $locale)
 
 
 /**
-* Builds an XML tree for a screen/locale combination that can be cached
+* Builds an XML tree for a screen/locale combination that can be cached, returns root node (XML_Tree_Node object)
 *
-* @param string	$screen	the screen being built for this asset type
-* @param string	$locale	the locale we are generating this screen for
+* @param string	$asset_type	the type code to look for
+* @param string	$screen		the screen being built for this asset type
+* @param string	$locale		the locale we are generating this screen for
 *
-* @return object XML_Tree_Node
+* @return object
+* @access public
 */
 function build_localised_static_screen($asset_type, $screen, $locale)
 {
-	//print '  - Building '.$screen.'.'.$locale."\n";
-
 	$ei_file = find_edit_interface_file($asset_type, $screen);
 	// get the XML for the edit interface file
 	$ei_input =& new XML_Tree($ei_file);
-	$to_cache  = &$ei_input->getTreeFromFile();
+	$to_cache  =& $ei_input->getTreeFromFile();
 	if (PEAR::isError($to_cache)) {
 		trigger_error('Unable to Read File : '.$ei_file."\n".$to_cache->getMessage()."\n".$to_cache->getUserInfo(), E_USER_WARNING);
-		return null;
+		return NULL;
 	}
 
 	if (empty($to_cache->children)) {
 		return serialize($to_cache);
-	}
-
-	if ($asset_type == 'system_management_folder') {
-		bam($to_cache);
 	}
 
 	$lang_files = find_edit_interface_language_files($asset_type, $screen, $locale);
@@ -968,14 +987,10 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 
 		// get the XML for the edit interface file
 		$lang_input =& new XML_Tree($lang_file);
-		$lang_root  = &$lang_input->getTreeFromFile();
+		$lang_root  =& $lang_input->getTreeFromFile();
 		if (PEAR::isError($lang_root)) {
 			trigger_error('Unable to Read File : '.$lang_file."\n".$lang_root->getMessage()."\n".$lang_root->getUserInfo(), E_USER_WARNING);
 			continue;
-		}
-
-		if ($asset_type == 'system_management_folder') {
-			bam($lang_root);
 		}
 
 		// work through all the sections
@@ -1009,7 +1024,7 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 					case 'note':
 						// is a section note already set?
 						if (!isset($this_section->attributes['note'])) {
-							$this_section->insertChild(null, count($this_section->children), $xml_field->name, $xml_field->content);
+							$this_section->insertChild(NULL, count($this_section->children), $xml_field->name, $xml_field->content);
 						}
 					break;
 
@@ -1038,16 +1053,16 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 							// check to see whether we already have a display
 							// name or note, because we don't want to double
 							// them up
-							$has_display_name = false;
-							$has_note = false;
+							$has_display_name = FALSE;
+							$has_note = FALSE;
 
 							for ($sub_field_index = 0; $sub_field_index < count($this_field->children); $sub_field_index++) {
 								$sub_name = $this_field->children[$sub_field_index]->name;
 								if ($sub_name == 'display_name') {
-									$has_display_name = true;
+									$has_display_name = TRUE;
 								}
 
-								if ($sub_name == 'note') $has_note = true;
+								if ($sub_name == 'note') $has_note = TRUE;
 							}
 
 							for ($sub_index = 0; $sub_index < count($xml_field->children); $sub_index++) {
@@ -1055,37 +1070,48 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 								switch ($xml_sub_field->name) {
 									case 'display_name':
 										if (!$has_display_name) {
-											$this_field->insertChild(null, 0, $xml_sub_field->name, $xml_sub_field->content);
+											$this_field->insertChild(NULL, 0, $xml_sub_field->name, $xml_sub_field->content);
 										}
 									break;
 
 									case 'note':
 										// want to insert this as last
 										if (!$has_note) {
-											$this_field->insertChild(null, count($this_field->children), $xml_sub_field->name, $xml_sub_field->content);
+											$this_field->insertChild(NULL, count($this_field->children), $xml_sub_field->name, $xml_sub_field->content);
 										}
 									break;
 
 								}
 							}
 
-						}
+						}//end else
 
 					break;
 
 				}//end switch
 
-			}
+			}//end for
 
-		}
+		}//end for
 
-	}
+	}//end foreach
 
 	return $to_cache;
 
 }//end build_localised_static_screen()
 
 
+/**
+* Returns a list of localised files that match
+*
+* @param array	$asset_dirs	the directories to look in (subdirectories are NOT searched)
+* @param string	$locale		The locale to look for (parent locale types are included)
+* @param string	$file		The file to look for (eg. 'strings' looks for
+*							lang_strings.xml)
+*
+* @return array
+* @access public
+*/
 function find_string_language_files($asset_dirs, $locale, $file='strings')
 {
 	$file_name = 'lang_'.$file.'.xml';
@@ -1262,7 +1288,8 @@ function build_locale_string_file($locale)
 /**
 * Builds the locale error file for a certain locale
 *
-* Error files are expected to include one for each package, one for the
+* Error files are expected to include one for each package, and one combined
+* for the core package, asset map, and other system-wide errors
 *
 * @param string	$locale	the locale to be compiled
 *
@@ -1396,14 +1423,22 @@ function build_locale_internal_messages_file($locale)
 
 
 /**
- *
- */
+* Extracts the child nodes from the XML file
+*
+* @param string	$file			the file to open
+* @param string	$root_element	the root element to look for
+* @param string	$child_element	the child element that each node is contained
+* @param string	$key_attribute	the unique key attribute
+*
+* @return array
+* @access public
+*/
 function &extract_child_nodes_from_xml($file, $root_element, $child_element, $key_attribute)
 {
 	$extracted_strings = Array();
 
 	$input =& new XML_Tree($file);
-	$root  = &$input->getTreeFromFile();
+	$root  =& $input->getTreeFromFile();
 	if (PEAR::isError($root)) {
 		trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
 		return Array();
@@ -1436,8 +1471,20 @@ function &extract_child_nodes_from_xml($file, $root_element, $child_element, $ke
 
 
 /**
- *
- */
+* Extracts localised strings from the XML file
+*
+* Calls the above child node extraction function, then checks to see whether localised
+* strings are already defined, and checks for multiple unpositioned "%s" references
+*
+* @param string	$file			the file to open
+* @param string	$root_element	the root element to look for
+* @param string	$child_element	the child element that each node is contained
+* @param string	$key_attribute	the unique key attribute
+*
+* @return array
+* @access public
+* @see extract_child_nodes_from_xml()
+*/
 function extract_strings_from_xml($file, $root_element, $child_element, $key_attribute)
 {
 	$extracted_strings = Array();
@@ -1488,8 +1535,20 @@ function extract_strings_from_xml($file, $root_element, $child_element, $key_att
 
 
 /**
- *
- */
+* Extracts localised errors from the XML file
+*
+* Calls the above child node extraction function, then checks to see whether localised
+* errors are already defined, and checks for multiple unpositioned "%s" references
+*
+* @param string	$file			the file to open
+* @param string	$root_element	the root element to look for
+* @param string	$child_element	the child element that each node is contained
+* @param string	$key_attribute	the unique key attribute
+*
+* @return array
+* @access public
+* @see extract_child_nodes_from_xml()
+*/
 function extract_errors_from_xml($file, $root_element, $child_element, $key_attribute)
 {
 	$extracted_strings = Array();
@@ -1530,8 +1589,18 @@ function extract_errors_from_xml($file, $root_element, $child_element, $key_attr
 
 
 /**
- *
- */
+* Extracts localised internal messages from the XML file
+*
+* Calls the above child node extraction function, strips out subject and body,
+* then checks both to see whether localised message types are already defined,
+* and checks for multiple unpositioned "%s" references
+*
+* @param string	$file	the file to open
+*
+* @return array
+* @access public
+* @see extract_child_nodes_from_xml()
+*/
 function extract_internal_messages($file)
 {
 	$root_element = 'messages';

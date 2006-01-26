@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.25 2005/12/19 00:50:16 bcaldwell Exp $
+* $Id: details.inc,v 1.26 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 */
 
@@ -434,6 +434,7 @@ function processDetails(&$owner, &$o, &$ei)
 			$fs =& new Cron_Job_Future_Status();
 			$edit_fns = $fs->getEditFns();
 			if ($edit_fns->processInLineBackend($fs, $o, $prefix.'_new_fs')) {
+				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				if ($cron_mgr->addJob($fs, $GLOBALS['SQ_SYSTEM']->user)) {
 					if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($fs->id, 'links')) {
@@ -450,6 +451,7 @@ function processDetails(&$owner, &$o, &$ei)
 				} else {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				}
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			}// end if
 
 		}// end if

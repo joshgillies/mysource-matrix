@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.28 2006/01/18 22:33:15 lwright Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.29 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -165,6 +165,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		$prefix = $asset->getPrefix();
 		$updated = FALSE;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// set the step logic
@@ -184,10 +185,12 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		}
 		if (!$asset->setAttrValue('logic', $step_logic)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 		if (!$asset->setAttrValue('logic_num', $step_logic_num)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -209,6 +212,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 
 		if (!$asset->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -243,6 +247,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $updated;
 

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_logical_edit_fns.inc,v 1.4 2005/10/13 02:07:37 tbarrett Exp $
+* $Id: condition_logical_edit_fns.inc,v 1.5 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -33,12 +33,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Condition_Edit_Fns
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -59,6 +60,7 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 	* @param object		&$o					Backend outputter to use
 	* @param string		$prefix				Prefix for form elements
 	* @param boolean	$write_access		Whether we have access to edit the field values
+	* @param array		$allowed_keywords	Allowed keywords to use
 	*
 	* @return void
 	* @access public
@@ -85,23 +87,23 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 					$special_option = Array();
 					if ($i == (count($selected_keywords) - 1)) {
 						$special_option = Array('none' => '-- '.strtolower(translate('none')).' --');
-					} elseif ($i > 0) {
+					} else if ($i > 0) {
 						$special_option = Array('none' => '-- '.strtolower(translate('remove')).' --');
 					}
 
 					$keyword_info = $this->_getKeywordInfo($keyword, $allowed_keywords);
 					?>
 					<tr>
-						<td><strong><?php echo translate('logical_keyword').' ' . $i; ?></strong>&nbsp;</td>
+						<td><strong><?php echo translate('logical_keyword').' '.$i; ?></strong>&nbsp;</td>
 						<td>
 							<?php
 							if ($write_access) {
-								combo_box($prefix.'[keyword' . $i . ']', array_merge($special_option, $keyword_options), false, $keyword_info['constant_part']);
+								combo_box($prefix.'[keyword'.$i.']', array_merge($special_option, $keyword_options), FALSE, $keyword_info['constant_part']);
 								// This is a special case for generic/variable keywords (like asset_metadata_)
 								// which name must be completed.
 								// For those keywords, we show an additional box to type the rest of the name
 								if ($keyword_info['is_variable']) {
-									text_box($prefix.'[name_extension_' . $i . ']', $keyword_info['variable_part'], 30);
+									text_box($prefix.'[name_extension_'.$i.']', $keyword_info['variable_part'], 30);
 								}
 							} else {
 								echo ($keyword_info['constant_part']).array_get_index($keyword_info, 'variable_part', '');
@@ -121,7 +123,7 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 				<td>
 					<?php
 					if ($write_access) {
-						combo_box($prefix.'[operator]', Array('ALL' => 'AND', 'ANY' => 'OR'), false, $condition_data['operator']);
+						combo_box($prefix.'[operator]', Array('ALL' => 'AND', 'ANY' => 'OR'), FALSE, $condition_data['operator']);
 					} else {
 						echo $condition_data['operator'];
 					}
@@ -138,8 +140,9 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Process the backend editing interface for this condition
 	*
-	* @param object		&$o					Backend outputter to use
-	* @param string		$prefix				Prefix for form elements
+	* @param object	&$o					Backend outputter to use
+	* @param string	$prefix				Prefix for form elements
+	* @param array	$allowed_keywords	Allowed keywords to use
 	*
 	* @return array
 	* @access public
@@ -149,14 +152,16 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 		$logical_keywords = Array();
 
 		for ($i = 0; $i < 100; $i++) {
-			if (isset($_POST[$prefix]['keyword' . $i])) {
-				$keyword_name = $_POST[$prefix]['keyword' . $i];
+			if (isset($_POST[$prefix]['keyword'.$i])) {
+				$keyword_name = $_POST[$prefix]['keyword'.$i];
 				if ($keyword_name != 'none') {
 					$keyword_info = $this->_getKeywordInfo($keyword_name, $allowed_keywords);
 					if ($keyword_info['is_variable']) {
-						if (!empty($_POST[$prefix]['name_extension_' . $i])) {
-							$name_extension = trim($_POST[$prefix]['name_extension_' . $i]);
-							if (!empty($name_extension)) $keyword_name = $keyword_info['constant_part'] . $name_extension;
+						if (!empty($_POST[$prefix]['name_extension_'.$i])) {
+							$name_extension = trim($_POST[$prefix]['name_extension_'.$i]);
+							if (!empty($name_extension)) {
+								$keyword_name = $keyword_info['constant_part'].$name_extension;
+							}
 						}
 					}
 					$logical_keywords[$keyword_name] = '';
@@ -164,12 +169,14 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 			}
 		}
 
-		if (empty($logical_keywords)) $logical_keywords = Array('logical_keyword_1' => '');
+		if (empty($logical_keywords)) {
+			$logical_keywords = Array('logical_keyword_1' => '');
+		}
 
 		$results = Array(
-			'logical_keywords' => $logical_keywords,
-			'operator' => $_POST[$prefix]['operator'],
-		);
+					'logical_keywords'	=> $logical_keywords,
+					'operator'			=> $_POST[$prefix]['operator'],
+				   );
 
 		return $results;
 
@@ -178,43 +185,43 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 
 	/**
 	* Returns an array containing information about a keyword name
+	*
 	* We consider a keyword variable if it contains a part that is defined by
-	* the user. Example: asset_metadata_XXX.
-	*
-	* constant part= asset_metadata_
-	* variable part= XXX
-	*
+	* the user.
+	* Example: asset_metadata_XXX -
+	*	constant part= asset_metadata_
+	*	variable part= XXX
 	* Array(
 	* 		'is_variable' => boolean,
 	* 		'constant_part' => string,
 	* 		'variable_part' => string,
 	* 		)
 	*
-	* @param string			$keyword_name		the keyword to analyse
-	* @param Array(string)	$allowed_keywords	allowed keywords, this is the
-	* list of keywords as returned by getAssetKeywords().
+	* @param string	$keyword_name		the keyword to analyse
+	* @param array	&$allowed_keywords	allowed keywords, this is the list of
+	*									keywords as returned by getAssetKeywords().
 	*
-	* @return Array
+	* @return array
 	* @access private
 	*/
 	function _getKeywordInfo($keyword_name, &$allowed_keywords)
 	{
-		$ret = Array('is_variable' => false, 'constant_part' => $keyword_name, 'variable_part' => '');
+		$ret = Array('is_variable' => FALSE, 'constant_part' => $keyword_name, 'variable_part' => '');
 
 		$keyword_parts = Array();
 		foreach ($allowed_keywords as $allowed_keyword) {
 			if (preg_match('/_$/', $allowed_keyword)) {
 				// $allowed_keyword is a variable keyword
-				if (preg_match('/^' . $allowed_keyword . '(.*)$/', $keyword_name, $keyword_parts)) {
+				if (preg_match('/^'.$allowed_keyword.'(.*)$/', $keyword_name, $keyword_parts)) {
 					// $keyword_name is a variable keyword
-					$ret = Array('is_variable' => true, 'constant_part' => $allowed_keyword, 'variable_part' => $keyword_parts[1]);
+					$ret = Array('is_variable' => TRUE, 'constant_part' => $allowed_keyword, 'variable_part' => $keyword_parts[1]);
 				}
 			}
 		}
 
 		return $ret;
 
-	}
+	}//end _getKeywordInfo()
 
 
 }//end class

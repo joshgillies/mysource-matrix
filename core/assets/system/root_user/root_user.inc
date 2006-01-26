@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_user.inc,v 1.36 2005/05/11 06:05:01 lwright Exp $
+* $Id: root_user.inc,v 1.37 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/system_user/system_user.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,27 +57,35 @@ class Root_User extends System_User
 	/**
 	* Create this asset
 	*
+	* Return linkid or FALSE on failure
+	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @return boolean
+	* @return mixed int|boolean
 	* @access public
 	*/
 	function create(&$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
-		if (!system_asset_fns_create_pre_check($this)) return false;
+		if (!system_asset_fns_create_pre_check($this)) {
+			return FALSE;
+		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		parent::setAttrValue('username', 'root');
 		if ($linkid = parent::create($link)) {
-			if (!system_asset_fns_create_cleanup($this))  {
-				$linkid = false;
+			if (!system_asset_fns_create_cleanup($this)) {
+				$linkid = FALSE;
 			}
 		}
 
-		if ($linkid) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		if ($linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end create()
@@ -89,14 +97,14 @@ class Root_User extends System_User
 	*
 	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
 	*
-	* @return bool
+	* @return boolean
 	* @access public
 	*/
 	function morph($new_type_code)
 	{
 		// you cant morph a bloody root user... GEZZZ get serious
 		trigger_localised_error('CORE0091', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-		return false;
+		return FALSE;
 
 	}//end morph()
 
@@ -109,7 +117,7 @@ class Root_User extends System_User
 	*/
 	function canDelete()
 	{
-		return false;
+		return FALSE;
 
 	}//end canDelete()
 
@@ -122,13 +130,13 @@ class Root_User extends System_User
 	*/
 	function canClone()
 	{
-		return false;
+		return FALSE;
 
 	}//end canClone()
 
 
 	/**
-	* Returns true if this user can log in
+	* Returns TRUE if this user can log in
 	* Note that this is not for backend logins only, it applys to all logins
 	*
 	* @return boolean
@@ -136,7 +144,7 @@ class Root_User extends System_User
 	*/
 	function canLogin()
 	{
-		return true;
+		return TRUE;
 
 	}//end canLogin()
 
@@ -144,8 +152,8 @@ class Root_User extends System_User
 	/**
 	* Set the value for the passed variable to the passed value
 	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -154,12 +162,13 @@ class Root_User extends System_User
 	{
 		if ($name == 'username') {
 			trigger_localised_error('CORE0113', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-			return false;
+			return FALSE;
 		}
 
 		return parent::setAttrValue($name, $value);
 
 	}//end setAttrValue()
+
 
 }//end class
 ?>

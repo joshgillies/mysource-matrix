@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.47 2005/08/11 04:58:22 mmcintyre Exp $
+* $Id: search_page_management.inc,v 1.48 2006/01/26 22:35:32 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -276,6 +276,8 @@ class Search_Page_Management extends Asset_Management
 								'value'		=> $db->quote('default_format'),
 							   );
 
+					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+					$db = $GLOBALS['SQ_SYSTEM']->db;
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 					$sql = 'UPDATE
@@ -290,6 +292,8 @@ class Search_Page_Management extends Asset_Management
 					assert_valid_db_result($result);
 
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					$db = $GLOBALS['SQ_SYSTEM']->db;
 
 				}
 

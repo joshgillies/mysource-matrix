@@ -18,18 +18,16 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: keyword_extraction.php,v 1.3 2005/05/11 06:04:52 lwright Exp $
+* $Id: keyword_extraction.php,v 1.4 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
 	require_once dirname(__FILE__).'/../../../../../core/include/init.inc';
 	require_once dirname(__FILE__).'/../../../../../core/lib/html_form/html_form.inc';
-	if (!isset($_GET['assetid'])) return false;
-
-
+	if (!isset($_GET['assetid'])) return FALSE;
 
 	assert_valid_assetid($_GET['assetid']);
-	$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['assetid']);
+	$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['assetid']);
 ?>
 
 <html>
@@ -60,7 +58,6 @@
 	<body>
 	<?php
 		require_once dirname(__FILE__).'/../../../../../core/include/backend_outputter.inc';
-		//$backend = new Backend();
 		$o =& new Backend_Outputter();
 
 		$o->openSection(translate('keyword_extraction_for', translate('asset_format', $asset->attr('name'), $asset->id)));

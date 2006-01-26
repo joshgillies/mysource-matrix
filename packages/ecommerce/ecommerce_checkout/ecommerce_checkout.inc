@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.44 2005/11/17 06:33:23 mmcintyre Exp $
+* $Id: ecommerce_checkout.inc,v 1.45 2006/01/26 22:35:23 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -519,6 +519,7 @@ class Ecommerce_Checkout extends Page
 		if (empty($order_folder_link)) return null;
 		$order_folder_id = $order_folder_link['minorid'];
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// set runlevel
@@ -570,9 +571,11 @@ class Ecommerce_Checkout extends Page
 
 		if (!$success) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return null;
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $ecommerce_order;
 

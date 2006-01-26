@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.54 2005/12/05 22:12:12 emcdonald Exp $
+* $Id: asset_edit_fns.inc,v 1.55 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -300,6 +300,7 @@ class Asset_Edit_Fns extends MySource_Object
 			return false;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$success = true;
 
@@ -316,6 +317,7 @@ class Asset_Edit_Fns extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction($success ? 'COMMIT' : 'ROLLBACK');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $success;
 
 	}//end processNoticeLinkedAsset()

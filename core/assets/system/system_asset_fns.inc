@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_fns.inc,v 1.9 2005/05/11 06:04:55 lwright Exp $
+* $Id: system_asset_fns.inc,v 1.10 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * but this is not to be
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -37,14 +37,14 @@
 /**
 * Called before a create to ensure that there is only one version of this type of asset
 *
-* @param object Asset	&$asset	the system asset that we are attempting to create
+* @param object	&$asset	the system asset that we are attempting to create
 *
 * @return boolean
 * @access public
 */
 function system_asset_fns_create_pre_check(&$asset)
 {
-	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 	$sql = 'SELECT COUNT(*)
 			FROM '.SQ_TABLE_RUNNING_PREFIX.'ast
@@ -56,10 +56,10 @@ function system_asset_fns_create_pre_check(&$asset)
 
 	if ($exists) {
 		trigger_localised_error('CORE0085', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'));
-		return false;
+		return FALSE;
 	}
 
-	return true;
+	return TRUE;
 
 }//end system_asset_fns_create_pre_check()
 
@@ -67,7 +67,7 @@ function system_asset_fns_create_pre_check(&$asset)
 /**
 * Called at the end of a create to remove any general asset stuff that we don't want as "System Assets"
 *
-* @param object Asset	&$asset	the system asset that we are attempting to create
+* @param object	&$asset	the system asset that we are attempting to create
 *
 * @return boolean
 * @access public
@@ -78,17 +78,18 @@ function system_asset_fns_create_cleanup(&$asset)
 	$assetids = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id);
 	foreach ($assetids as $assetid) {
 		foreach (Array(SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-			$unset_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, $perm, null, false, false, true);
+			$unset_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, $perm, NULL, FALSE, FALSE, TRUE);
 			foreach ($unset_perms as $userid => $access) {
-				if (!$GLOBALS['SQ_SYSTEM']->am->deletePermission($assetid, $userid, $perm)) return false;
+				if (!$GLOBALS['SQ_SYSTEM']->am->deletePermission($assetid, $userid, $perm)) {
+					return FALSE;
+				}
 			}
 		}
 	}
 
-	return true;
+	return TRUE;
 
 }//end system_asset_fns_create_cleanup()
-
 
 
 ?>

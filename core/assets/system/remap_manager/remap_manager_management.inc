@@ -20,7 +20,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_management.inc,v 1.6 2004/12/06 14:38:10 brobertson Exp $
+* $Id: remap_manager_management.inc,v 1.7 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -33,12 +33,14 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Remap_Manager_Management extends Asset_Management
 {
+
+
 	/**
 	* Constructor
 	*/
@@ -47,12 +49,12 @@ class Remap_Manager_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-					'404_asset'	=> Array(
-						'added'		=> '0.0.1',
-						'type'		=> 'assetid',
-						'default'	=> '0',
-					),
-		);
+						'404_asset'	=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'assetid',
+										'default'	=> '0',
+									   ),
+					  );
 
 	}//end constructor
 
@@ -67,17 +69,17 @@ class Remap_Manager_Management extends Asset_Management
 	*/
 	function _upgrade($current_version)
 	{
-		if (!parent::_upgrade($current_version)) return false;
+		if (!parent::_upgrade($current_version)) return FALSE;
 
 		if ($current_version == '0.1') {
 			// version 0.1->0.2
 			// changed the 404 assetid from storing an assetid to storing a NOTICE link
 			// to the 404 assetid - that way if the 404 asset is purged it automatically deletes
 			// the association
-			bam('STARTING REMAP MANAGER UPGRADE - FROM VERSION 0.1');
-			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren(1, $this->getAssetType(), false);
+			pre_echo('STARTING REMAP MANAGER UPGRADE - FROM VERSION 0.1');
+			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren(1, $this->getAssetType(), FALSE);
 			foreach ($children as $assetid => $type) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($asset)) continue;
 
 				// get the current root asset id and make sure it exists
@@ -88,17 +90,17 @@ class Remap_Manager_Management extends Asset_Management
 				if (!empty($root_asset_info)) {
 					$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_root_assetid);
 					if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $root_asset, SQ_LINK_NOTICE, '404')) {
-						bam('REMAP MANAGER UPGRADE FAILED');
-						return false;
+						pre_echo('REMAP MANAGER UPGRADE FAILED');
+						return FALSE;
 					}
 				}
 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
-			bam('REMAP MANAGER UPGRADE COMPLETE - FROM VERSION 0.1');
+			pre_echo('REMAP MANAGER UPGRADE COMPLETE - FROM VERSION 0.1');
 		}//end version 0.1 upgrade
 
-		return true;
+		return TRUE;
 
 	}//end _upgrade()
 

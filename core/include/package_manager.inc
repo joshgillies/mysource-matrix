@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.75 2005/09/13 07:00:20 lwright Exp $
+* $Id: package_manager.inc,v 1.76 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -228,6 +228,7 @@ class Package_Manager extends MySource_Object
 			}
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// Make sure deferred is an array.
@@ -289,6 +290,7 @@ class Package_Manager extends MySource_Object
 					$management =& new $class($this);
 					if (!$management->update()) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return false;
 					} else {
 						// generate the temporary list of event listeners
@@ -306,6 +308,7 @@ class Package_Manager extends MySource_Object
 				} else {
 					trigger_localised_error('SYS0083', E_USER_WARNING, $type_code, $file);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return false;
 				}
 
@@ -325,12 +328,14 @@ class Package_Manager extends MySource_Object
 		if (!$this->_createAssetMapScreensXML($deferred)) {
 			trigger_localised_error('SYS0242', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
 		$this->_postInstall();
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return count($deferred) ? $deferred : true;
 

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_frequency_edit_fns.inc,v 1.4 2005/10/18 01:45:16 tbarrett Exp $
+* $Id: condition_user_frequency_edit_fns.inc,v 1.5 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -92,7 +92,7 @@ class Condition_User_Frequency_Edit_Fns extends Condition_Edit_Fns
 			<td>
 				<?php
 				if ($write_access) {
-					combo_box($prefix.'[units]', $options, 0, $condition_data['units']); 
+					combo_box($prefix.'[units]', $options, 0, $condition_data['units']);
 				} else {
 					echo $options[$condition_data['units']];
 				}

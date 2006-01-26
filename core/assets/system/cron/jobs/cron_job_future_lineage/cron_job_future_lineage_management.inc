@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage_management.inc,v 1.7 2005/11/30 05:10:06 bcaldwell Exp $
+* $Id: cron_job_future_lineage_management.inc,v 1.8 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,8 +60,8 @@ class Cron_Job_Future_Lineage_Management extends Asset_Management
 						'delete_link_all'	=> Array(
 												'added'			=> '0.3',
 												'type'			=> 'boolean',
-												'default'		=> false,
-												'description'	=> 'If we need to delete all existing links in this process'
+												'default'		=> FALSE,
+												'description'	=> 'If we need to delete all existing links in this process',
 											   ),
 						'link_info'			=> Array(
 												'added'			=> '0.1',

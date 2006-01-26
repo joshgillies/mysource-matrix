@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: web_folder_edit_fns.inc,v 1.1 2005/02/07 05:02:50 gsherwood Exp $
+* $Id: web_folder_edit_fns.inc,v 1.2 2006/01/26 22:34:07 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/site/site_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,7 +39,7 @@ class Web_Folder_Edit_Fns extends Site_Edit_Fns
 
 	/**
 	* Constructor
-	* 
+	*
 	*/
 	function Web_Folder_Edit_Fns()
 	{

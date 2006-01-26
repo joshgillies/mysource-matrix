@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.46 2005/08/11 04:57:14 mmcintyre Exp $
+* $Id: page_calendar_management.inc,v 1.47 2006/01/26 22:34:16 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -374,6 +374,7 @@ class Page_Calendar_Management extends Asset_Management
 				foreach ($customised_assetids as $assetid => $attrid) {
 					$value_keys[] = $attrid.'_'.$assetid;
 				}
+				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$sql = 'DELETE FROM
 							sq_ast_attr_val
@@ -382,6 +383,7 @@ class Page_Calendar_Management extends Asset_Management
 				$result = $this->_db->query($sql);
 				assert_valid_db_result($result);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 				return true;
 			} else {
@@ -396,6 +398,7 @@ class Page_Calendar_Management extends Asset_Management
 			static $already_run = Array();
 			if (isset($already_run[$name])) return true;
 			$already_run[$name] = 1;
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			// in v0.3 these attributes changed from exes to pixels, so we need to adjust their values
 			// we make the assumption that there are 8 pixels in an ex.
@@ -403,6 +406,7 @@ class Page_Calendar_Management extends Asset_Management
 			$res = $this->_db->query($sql);
 			if (!assert_valid_db_result($res)) return false;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return true;
 		} else {
 			return parent::_updateOwnedAttribute($name, $curr_attr);

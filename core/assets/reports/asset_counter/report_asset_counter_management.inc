@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_counter_management.inc,v 1.3 2005/01/20 13:07:36 brobertson Exp $
+* $Id: report_asset_counter_management.inc,v 1.4 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,37 +47,35 @@ class Report_Asset_Counter_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars['types']        = Array(
-			'added'   => '1.1',
-			'type'    => 'serialise',
-			'default' => Array(),
-		);
+		$this->vars['types']		= Array(
+										'added'		=> '1.1',
+										'type'		=> 'serialise',
+										'default'	=> Array(),
+									  );
 
 		$this->vars['sort_by']		= Array(
-			'added'	=> '0.0.1',
-			'type'	=> 'selection',
-			'parameters' => Array(
-				'options' => Array(
-					'count'		=> 'Count',
-					'name'		=> 'Name',
-					'type'	    => 'Code',
-				),
-
-				'multiple' => false,
-				'allow_empty' => false,
-
-			),
-			'default' => 'type'
-		);
+										'added'			=> '0.0.1',
+										'type'			=> 'selection',
+										'parameters'	=> Array(
+															'options'		=> Array(
+																				'count'	=> 'Count',
+																				'name'	=> 'Name',
+																				'type'	=> 'Code',
+																			   ),
+															'multiple'		=> FALSE,
+															'allow_empty'	=> FALSE,
+														   ),
+										'default'		=> 'type',
+									  );
 
 		$this->vars['reverse_sort']	= Array(
-			'added'     => '0.1',
-			'type'      => 'boolean',
-			'default'   => false,
-			'parameters' => Array(
-				'allow_empty' => false
-			),
-		);
+										'added'			=> '0.1',
+										'type'			=> 'boolean',
+										'default'		=> FALSE,
+										'parameters'	=> Array(
+															'allow_empty'	=> FALSE,
+														   ),
+									  );
 
 	}//end constructor
 

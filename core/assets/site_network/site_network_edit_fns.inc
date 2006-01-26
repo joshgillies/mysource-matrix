@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_network_edit_fns.inc,v 1.6 2006/01/18 03:16:54 lwright Exp $
+* $Id: site_network_edit_fns.inc,v 1.7 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -120,6 +120,7 @@ class Site_Network_Edit_Fns extends Folder_Edit_Fns
 		}
 
 		$ok = TRUE;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// deleting old primary site if any found...
@@ -142,6 +143,7 @@ class Site_Network_Edit_Fns extends Folder_Edit_Fns
 		}
 
 		// return FALSE because we dont need our attributes saved
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return FALSE;
 
 	}//end processPrimaryURL()

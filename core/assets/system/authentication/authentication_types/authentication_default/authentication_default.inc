@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default.inc,v 1.12 2005/12/02 00:52:50 bcaldwell Exp $
+* $Id: authentication_default.inc,v 1.13 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authent
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,12 +59,12 @@ class Authentication_Default extends Authentication
 	*
 	* @param string	$username	The username of the user to locate
 	*
-	* @return &object
+	* @return object
 	* @access public
 	*/
 	function &locateUser($username)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql   = 'SELECT a.assetid, a.type_code
 				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a, sq_ast_attr at, '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_uniq_val auv';
@@ -85,7 +85,7 @@ class Authentication_Default extends Authentication
 		assert_valid_db_result($result);
 
 		if ($result['assetid']) {
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['assetid']);
+			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($result['assetid']);
 
 			if (is_null($user)) {
 				// no user was found with that username
@@ -94,7 +94,7 @@ class Authentication_Default extends Authentication
 			}
 		}
 
-		$null = null;
+		$null = NULL;
 		return $null;
 
 	}//end locateUser()
@@ -105,7 +105,7 @@ class Authentication_Default extends Authentication
 	*
 	* If the wrong password is supllied, the user account will be locked after
 	* a system defined number of incorrect login attempts
-	* returns user or null
+	* returns user or NULL
 	*
 	* @param string	$username	the user name to search for
 	* @param string	$password	the password to match
@@ -115,7 +115,7 @@ class Authentication_Default extends Authentication
 	*/
 	function &authenticateUser($username, $password)
 	{
-		$user = &$this->locateUser($username);
+		$user =& $this->locateUser($username);
 		if (is_null($user)) {
 			// no user was found with that username
 		} else if (!$user->comparePassword($password)) {
@@ -128,7 +128,7 @@ class Authentication_Default extends Authentication
 		}
 
 		// need this because of return by reference
-		$null = null;
+		$null = NULL;
 		return $null;
 
 	}//end authenticateUser()
@@ -162,21 +162,21 @@ class Authentication_Default extends Authentication
 
 			if (!is_null($user) && $user->canLogin()) {
 				// pretend to be the root user so we can lock the account
-				$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+				$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 				if ($GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-					$success          = false;
-					$changed_runlevel = false;
+					$success          = FALSE;
+					$changed_runlevel = FALSE;
 
 					// turn off status integrity checking
 					if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_STATUS_INTEGRITY)) {
 						// FIXME: TESTME
-						$changed_runlevel = true;
+						$changed_runlevel = TRUE;
 						$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() - SQ_SECURITY_STATUS_INTEGRITY);
 					}
 
 					// lock the user
 					if ($user->processStatusChange(SQ_STATUS_UNDER_CONSTRUCTION)) {
-						$success = true;
+						$success = TRUE;
 					}
 					$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
 
@@ -189,8 +189,8 @@ class Authentication_Default extends Authentication
 					// we need to do this here because before we restore the current user
 					// we are actually logged in as ROOT
 					if ($success) {
-						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-						$name = $user->name." (Id: #".$user->id.")";
+						$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+						$name = $user->name.' (Id: #'.$user->id.')';
 						$msg_reps = Array(
 										'user_name'		=> $name,
 										'num_attempts'	=> (int)SQ_CONF_MAX_LOGIN_ATTEMPTS,
@@ -200,9 +200,9 @@ class Authentication_Default extends Authentication
 						$log->parameters['sessionid'] = session_id();
 						$log->send();
 					}
-				}
-			}
-		}
+				}//end if - set current user to root
+			}//end if - user exists and can login
+		}//end if - too many attempts
 
 	}//end _registerInvalidLogin()
 
@@ -217,7 +217,7 @@ class Authentication_Default extends Authentication
 	{
 		if (!isset($_SERVER['REMOTE_USER'])) return;
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql   = 'SELECT a.assetid, a.type_code
 				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a, sq_ast_attr at, '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_uniq_val auv';
 		$where = 'a.type_code IN (
@@ -235,9 +235,9 @@ class Authentication_Default extends Authentication
 		$result = $db->getRow($sql.$where);
 		assert_valid_db_result($result);
 
-		$user = null;
+		$user = NULL;
 		if ($result['assetid']) {
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['assetid']);
+			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($result['assetid']);
 		}
 		return $user;
 

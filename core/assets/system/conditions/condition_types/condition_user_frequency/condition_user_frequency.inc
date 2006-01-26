@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_frequency.inc,v 1.8 2005/12/14 22:42:59 tbarrett Exp $
+* $Id: condition_user_frequency.inc,v 1.9 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -28,12 +28,12 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 * User Frequency Condition
 *
 * Purpose
-*    This condition returns true or false depending on the comparison between
+*    This condition returns TRUE or FALSE depending on the comparison between
 *    its parameters and the number of times the condition has been evaluated by
 *    the current user.  (It sets a cookie to keep track of this).
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,7 +60,7 @@ class Condition_User_Frequency extends Condition
 	* Takes "units" and "value" data with units being one of "hits", "session"
 	* "days", "hours" or "minutes" and a value for whichever unit is selected
 	* Hits and Sessions take value as a number of times this condition
-	* is resolved before returning true (Session limits to 1 per day)
+	* is resolved before returning TRUE (Session limits to 1 per day)
 	* For the rest value represents a unit of time
 	*
 	* @param object	&$asset			Reference to any asset we need to work with
@@ -71,10 +71,10 @@ class Condition_User_Frequency extends Condition
 	*/
 	function evaluate(&$asset, $condition_data)
 	{
-		$result = false;
+		$result = FALSE;
 
 		// Retrieve the cookie or initialise it
-		if (isset($_COOKIE['user_frequency_cond_'.$condition_data['id_name']]) && (false !== strpos($_COOKIE['user_frequency_cond_'.$condition_data['id_name']], '__'))) {
+		if (isset($_COOKIE['user_frequency_cond_'.$condition_data['id_name']]) && (FALSE !== strpos($_COOKIE['user_frequency_cond_'.$condition_data['id_name']], '__'))) {
 			$data = Array();
 			list($data['value'], $data['last_date']) = explode('__', $_COOKIE['user_frequency_cond_'.$condition_data['id_name']]);
 		} else {
@@ -83,21 +83,21 @@ class Condition_User_Frequency extends Condition
 						'last_date'	=> time(),
 					);
 		}
-		
+
 		// time difference between now and last update in days
 		$difference = (time() - $data['last_date']) / 86400;
 
 		// EVERY X HITS
-		// Condition evaluates to true every x hits, for example when
-		// x is 20, it will return true on hit 20, 40, 60... etc
+		// Condition evaluates to TRUE every x hits, for example when
+		// x is 20, it will return TRUE on hit 20, 40, 60... etc
 		if ($condition_data['units'] == 'hits') {
 			$hits = (int) $condition_data['value'];
 
-			// if the current counter divides evenly into condition return true
+			// if the current counter divides evenly into condition return TRUE
 			if (($hits != 0) && (($data['value'] % $hits) == 0)) {
-				$result = true;
+				$result = TRUE;
 			} else {
-				$result = false;
+				$result = FALSE;
 			}
 			$data['value']++;
 		}
@@ -107,11 +107,11 @@ class Condition_User_Frequency extends Condition
 		if ($condition_data['units'] == 'session') {
 			$hits = (int) $condition_data['value'];
 
-			// if the current counter divides evenly into condition return true
+			// if the current counter divides evenly into condition return TRUE
 			if (($data['value'] % $hits) == 0) {
-				$result = true;
+				$result = TRUE;
 			} else {
-				$result = false;
+				$result = FALSE;
 			}
 
 			// we only increment the count if a day has passed
@@ -119,8 +119,8 @@ class Condition_User_Frequency extends Condition
 		}
 
 		// EVERY X TIME PERIOD UNITS
-		// Condition evaluates true every x period of time
-		// for example when x is 3 days, condition will be true
+		// Condition evaluates TRUE every x period of time
+		// for example when x is 3 days, condition will be TRUE
 		// if more than 3 days have passed since last check
 		if ($condition_data['units'] == 'days' || $condition_data['units'] == 'hours' || $condition_data['units'] == 'minutes') {
 			if ($condition_data['units'] == 'hours') {
@@ -133,9 +133,9 @@ class Condition_User_Frequency extends Condition
 
 			// if more units have passed than the required difference
 			if (((int) $difference) > $condition_data['value']) {
-				$result = true;
+				$result = TRUE;
 			} else {
-				$result = false;
+				$result = FALSE;
 			}
 		}
 		// update the time, and set the cookie
@@ -143,7 +143,7 @@ class Condition_User_Frequency extends Condition
 		$root_url = str_replace(Array('http://', 'https://'), '', sq_web_path('root_url'));
 		$domain = $root_url;
 		$path = '';
-		if (false !== ($slashpos = strpos($root_url, '/'))) {
+		if (FALSE !== ($slashpos = strpos($root_url, '/'))) {
 			$domain = substr($root_url, 0, $slashpos);
 			$path = substr($root_url, $slashpos);
 		}

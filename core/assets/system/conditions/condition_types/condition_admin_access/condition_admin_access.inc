@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_admin_access.inc,v 1.8 2005/10/13 02:07:37 tbarrett Exp $
+* $Id: condition_admin_access.inc,v 1.9 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,8 +55,8 @@ class Condition_Admin_Access extends Condition
 	/**
 	* Evaluate this condition
 	*
-	* @param object Asset	&$asset			the asset to evaluate against
-	* @param array			$condition_data	the condition details to use when evaluating
+	* @param object	&$asset			the asset to evaluate against
+	* @param array	$condition_data	the condition details to use when evaluating
 	*
 	* @return boolean
 	* @access public
@@ -64,13 +64,13 @@ class Condition_Admin_Access extends Condition
 	function evaluate(&$asset, $condition_data)
 	{
 		// first, check if someone's logged in
-		if ($GLOBALS['SQ_SYSTEM']->userPublic()) return false;
+		if ($GLOBALS['SQ_SYSTEM']->userPublic()) return FALSE;
 
 		// next, check to see if the currently logged in user
 		// has write access
-		if (!$asset->adminAccess('')) return false;
+		if (!$asset->adminAccess('')) return FALSE;
 
-		return true;
+		return TRUE;
 
 	}//end evaluate()
 

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager_edit_fns.inc,v 1.8 2005/11/03 23:57:27 lwright Exp $
+* $Id: layout_manager_edit_fns.inc,v 1.9 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -34,12 +34,13 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -48,7 +49,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function Layout_Manager_Edit_Fns()
 	{
-		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['force_unlock'] = FALSE;
 		$this->Asset_Edit_Fns();
 
 	}//end constructor
@@ -57,21 +58,21 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface to add new type_codes to define layouts for
 	*
-	* @param &object Asset				$asset		the asset of the layout manager
-	* @param &object Backend_Outputter	$o			the backend outputter
-	* @param string						$prefix		a unique prefix for variables
+	* @param object	&$asset	the asset of the layout manager
+	* @param object	&$o		the Backend Outputter class
+	* @param string	$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
 	*/
 	function paintAddLayout(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
-		asset_type_chooser($prefix.'_layouts', true, Array());
+		asset_type_chooser($prefix.'_layouts', TRUE, Array());
 
-		return true;
+		return TRUE;
 
 	}//end paintAddLayout()
 
@@ -79,9 +80,9 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Accepts requests to add a type_code to define layouts for
 	*
-	* @param &object Asset				$asset		the asset of the layout manager
-	* @param &object Backend_Outputter	$o			the backend outputter
-	* @param string						$prefix		a unique prefix for variables
+	* @param object	&$asset	the asset of the layout manager
+	* @param object	&$o		the Backend Outputter class
+	* @param string	$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
@@ -92,13 +93,15 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 			$layouts = $asset->attr('layouts');
 			foreach ($_POST[$prefix.'_layouts'] as $type_code) {
 				// this should never happen
-				if (in_array($type_code, $asset->attr('layouts'))) return false;
+				if (in_array($type_code, $asset->attr('layouts'))) {
+					return FALSE;
+				}
 				if (!empty($type_code)) $layouts[$type_code] = Array();
 			}
 			$asset->setAttrValue('layouts', $layouts);
 			$asset->saveAttributes();
 		}
-		return true;
+		return TRUE;
 
 	}//end processAddLayout()
 
@@ -106,9 +109,9 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface to add new screens to type_codes and layouts to screens
 	*
-	* @param &object Asset				$asset		the asset of the layout manager
-	* @param &object Backend_Outputter	$o			the backend outputter
-	* @param string						$prefix		a unique prefix for variables
+	* @param object	&$asset	the asset of the layout manager
+	* @param object	&$o		the Backend Outputter class
+	* @param string	$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
@@ -120,7 +123,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 		$layouts = $asset->attr('layouts');
 		if (empty($layouts)) {
 			$o->note(translate('no_layouts_defined'));
-			return false;
+			return FALSE;
 		}
 
 		// print the current type_codes that we have defined in the manager
@@ -148,9 +151,11 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 						<tr>
 							<td class="sq-backend-table-header" width="33%"><?php echo translate('screen_name'); ?></td>
 							<td class="sq-backend-table-header" width="33%"><?php echo translate('layout'); ?></td>
-							<?php if ($write_access) { ?>
+							<?php if ($write_access) {
+								?>
 								<td align="center" class="sq-backend-table-header" width="33%"><?php echo translate('remove'); ?></td>
-							<?php } ?>
+							<?php }
+							?>
 						</tr>
 
 					<?php
@@ -175,11 +180,13 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 										}
 									?>
 								</td>
-								<?php if ($write_access) { ?>
+								<?php if ($write_access) {
+									?>
 									<td align="center" class="sq-backend-table-cell">
 								 		<?php check_box($prefix.'_remove_screen['.$type_code.'@'.$screen.']'); ?>
 									</td>
-								<?php } ?>
+								<?php }
+								?>
 							</tr>
 							<?php
 						}//end foreach screen
@@ -187,21 +194,25 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 						?>
 					</table>
 				<?php
-				}//end if
+				}//end else
 
 				if ($write_access) {
 					?>
 					<br /><?php echo translate('add_layout'); ?>:
 					<?php
-					$ei = new Asset_Edit_Interface($type_code);
+					$ei =& new Asset_Edit_Interface($type_code);
 
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 					$as =& new $type_code();
-					$ef = &$as->getEditFns();
+					$ef =& $as->getEditFns();
 
 					$screens = Array('', 'create'); // first option is blank
-					foreach (array_keys($ef->static_screens) as $screen) $screens[] = $screen;
-					foreach (array_keys($ei->getScreens()) as $screen) $screens[] = $screen;
+					foreach (array_keys($ef->static_screens) as $screen) {
+						$screens[] = $screen;
+					}
+					foreach (array_keys($ei->getScreens()) as $screen) {
+						$screens[] = $screen;
+					}
 
 					// remove any screens that have already been defined
 					$screens = array_unique(array_diff($screens, array_keys($layouts[$type_code])));
@@ -211,7 +222,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 						$uc_screens[$screen] = ucfirst($screen);
 					}
 					// print a box to add more screens
-					combo_box($prefix.'_screens['.$type_code.']', $uc_screens, false, Array());
+					combo_box($prefix.'_screens['.$type_code.']', $uc_screens, FALSE, Array());
 				}
 
 				$o->closeField();
@@ -227,34 +238,38 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Accepts requests to add new screens to type_codes, and layouts to screens
 	*
-	* @param &object Asset				$asset		the asset of the layout manager
-	* @param &object Backend_Outputter	$o			the backend outputter
-	* @param string						$prefix		a unique prefix for variables
+	* @param object	&$asset	the asset of the layout manager
+	* @param object	&$o		the Backend Outputter class
+	* @param string	$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processEditLayouts(&$asset, &$o, $prefix)
 	{
-		$save = false;
+		$save = FALSE;
 
 		// get any new screens added to a type code
 		if (isset($_POST[$prefix.'_screens'])) {
 			$layouts = $asset->attr('layouts');
 			foreach ($_POST[$prefix.'_screens'] as $type_code => $screen) {
 				if (!$screen) continue;
-				if (!isset($layouts[$type_code])) $layouts[$type_code] = Array();
+				if (!isset($layouts[$type_code])) {
+					$layouts[$type_code] = Array();
+				}
 				$layouts[$type_code][$screen] = 0; // set assetid to 0
-				$save = true;
+				$save = TRUE;
 			}
 		}
 		// get any layouts that have been allocated to a screen
 		if (isset($_POST[$prefix.'_find'])) {
 			foreach ($_POST[$prefix.'_find']  as $info => $assetid) {
-				if (!isset($assetid['assetid']) || !$assetid['assetid']) continue;
+				if (!isset($assetid['assetid']) || !$assetid['assetid']) {
+					continue;
+				}
 				list($type_code, $screen) = explode('@', $info);
 				$layouts[$type_code][$screen] = $assetid['assetid'];
-				$save = true;
+				$save = TRUE;
 			}
 		}
 		// check to see if any screens have been flagged for removal
@@ -263,7 +278,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 			foreach (array_keys($_POST[$prefix.'_remove_screen']) as $info) {
 				list($type_code, $screen) = explode('@', $info);
 				unset($layouts[$type_code][$screen]);
-				$save = true;
+				$save = TRUE;
 			}
 		}
 		// remove all customisations
@@ -271,7 +286,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 		if (isset($_POST[$prefix.'_remove_type_code'])) {
 			foreach (array_keys($_POST[$prefix.'_remove_type_code']) as $type_code) {
 				unset($layouts[$type_code]);
-				$save = true;
+				$save = TRUE;
 			}
 		}
 		// save only if we need to
@@ -280,7 +295,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 			$asset->saveAttributes();
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processEditLayouts()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_edit_fns.inc,v 1.21 2006/01/18 22:33:15 lwright Exp $
+* $Id: workflow_step_condition_edit_fns.inc,v 1.22 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -156,11 +156,13 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 
 		$prefix = $asset->getPrefix();
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$cond_logic = array_get_index($_POST, $prefix.'_logic');
 		if (!$asset->setAttrValue('logic', $cond_logic)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -171,27 +173,32 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 		}
 		if (!$asset->setAttrValue('logic_num', $cond_logic_num)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		$notify = (bool) array_get_index($_POST, $prefix.'_notify', FALSE);
 		if (!$asset->setAttrValue('notify', $notify)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		$require_comment = (bool) array_get_index($_POST, $prefix.'_require_comment', FALSE);
 		if (!$asset->setAttrValue('require_comment', $require_comment)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		if (!$asset->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 

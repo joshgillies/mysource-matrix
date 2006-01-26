@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_user_group.inc,v 1.28 2005/05/11 06:05:01 lwright Exp $
+* $Id: system_user_group.inc,v 1.29 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,27 +56,35 @@ class System_User_Group extends User_Group
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* Returns either the linkid or FALSE on failure
 	*
-	* @see Asset::create()
-	* @return mixed int or false
+	* @param array	&$link	information used to create the initial link
+	*
+	* @return mixed int|boolean
 	* @access public
+	* @see Asset::create()
 	*/
 	function create(&$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
-		if (!system_asset_fns_create_pre_check($this)) return false;
+		if (!system_asset_fns_create_pre_check($this)) {
+			return FALSE;
+		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
 			if (!system_asset_fns_create_cleanup($this)) {
-				$linkid = false;
+				$linkid = FALSE;
 			}
 		}
 
-		if ($linkid) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		if ($linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end create()
@@ -90,7 +98,7 @@ class System_User_Group extends User_Group
 	*/
 	function canClone()
 	{
-		return false;
+		return FALSE;
 
 	}//end canClone()
 
@@ -101,14 +109,14 @@ class System_User_Group extends User_Group
 	*
 	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
 	*
-	* @return bool
+	* @return boolean
 	* @access public
 	* @see Asset::morph()
 	*/
 	function morph($new_type_code)
 	{
 		trigger_localised_error('CORE0091', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-		return false;
+		return FALSE;
 
 	}//end morph()
 
@@ -116,8 +124,8 @@ class System_User_Group extends User_Group
 	/**
 	* Set the value for the passed variable to the passed value
 	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -127,7 +135,7 @@ class System_User_Group extends User_Group
 
 		if ($name == 'name') {
 			trigger_localised_error('CORE0111', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-			return false;
+			return FALSE;
 		}
 
 		return parent::setAttrValue($name, $value);
@@ -143,13 +151,13 @@ class System_User_Group extends User_Group
 	*/
 	function canDelete()
 	{
-		return false;
+		return FALSE;
 
 	}//end canDelete()
 
 
 	/**
-	* Returns true if at least one of the passed assetids has the passed permission
+	* Returns TRUE if at least one of the passed assetids has the passed permission
 	* Does not check current status of lock
 	*
 	* @param int	$perm		the permission to check access for
@@ -162,10 +170,12 @@ class System_User_Group extends User_Group
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
 		// we have to be root to do anything in here
-		if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
+		if ($GLOBALS['SQ_SYSTEM']->userRoot()) return TRUE;
 		// if we are just reading then, we need to be a system admin
-		if (($perm & SQ_PERMISSION_READ) && $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
-		return false;
+		if (($perm & SQ_PERMISSION_READ) && $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+			return TRUE;
+		}
+		return FALSE;
 
 	}//end _checkPermissionAccess()
 
@@ -173,16 +183,28 @@ class System_User_Group extends User_Group
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array('system_user' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_2 => Array('system_user' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_3 => Array(),
-					 SQ_LINK_NOTICE => Array()
-					);
+		return Array(
+				SQ_LINK_TYPE_1	=> Array(
+									'system_user'	=> Array(
+														'card'		=> 'M',
+														'exclusive'	=> FALSE,
+													   ),
+								   ),
+				SQ_LINK_TYPE_2	=> Array(
+									'system_user'	=> Array(
+														'card'		=> 'M',
+														'exclusive'	=> FALSE,
+													   ),
+								   ),
+				SQ_LINK_TYPE_3	=> Array(),
+				SQ_LINK_NOTICE	=> Array(),
+			   );
 
 	}//end _getAllowedLinks()
 

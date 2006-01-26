@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.68 2005/11/30 22:00:11 tbarrett Exp $
+* $Id: search_page_edit_fns.inc,v 1.69 2006/01/26 22:35:32 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -118,6 +118,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		$ok = true;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// deleting old root link if any found...
@@ -135,11 +136,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		if ($ok) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return $ok;
 
 	}//end processRootAsset()
 
@@ -1077,6 +1079,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				if (empty($root_link) || ($old_link_value != $new_link_value) || $root_link['minorid'] != $new_root) {
 					// the root or required link value has changed, so update the link
 					$ok = true;
+					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					// delete old root link if any found...
 					if (!empty($root_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
@@ -1095,6 +1098,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					} else {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					}
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				}
 			}
 			$new_options[$new_code_name] = $new_option;
@@ -1111,6 +1115,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			$new_code_name = strtolower($new_code_name);
 			$link_value = 'root_'.$set_name.'_'.$new_code_name;
 			if (empty($_POST[$prefix.'__new__root_default']) && !empty($_POST[$prefix.'__new__root']['assetid'])) {
+				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$new_root = $_POST[$prefix.'__new__root']['assetid'];
 				if (!is_null($root =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_root))) {
@@ -1122,6 +1127,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						$new_option['root_assetid'] = '';
 					}
 				}
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			}
 			$new_options[$new_code_name] = $new_option;
 		}
@@ -1266,6 +1272,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				if (is_null($format_folder)) {
 					// create the folder if it does not exist
 
+					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 					$format_folder =& new Folder();
@@ -1275,10 +1282,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 					if (!$format_folder->create($copy_link)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						trigger_localised_error('SCH0013', E_USER_WARNING);
 						return false;
 					}
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				}
 
 				$bodycopy = &$asset->getFormatBodycopy($value);
@@ -1286,6 +1295,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				if (is_null($bodycopy)) {
 
 					// if there is no bodycopy here, then we want to create it
+					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 					$bodycopy =& new Bodycopy();
@@ -1295,10 +1305,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 					if (!$bodycopy->create($copy_link)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						trigger_localised_error('SCH0014', E_USER_WARNING, $form_name);
 						return false;
 					}
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				} else {
 					$bodycopy_link = $asset->getFormatBodycopyLink($value);
 					if ($bodycopy_link['link_type'] != SQ_LINK_TYPE_2) {
@@ -1402,6 +1414,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		$ok = true;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// deleting old root link if any found...
@@ -1420,11 +1433,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		if ($ok) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return $ok;
 
 	}//end processThesaurusAsset()
 

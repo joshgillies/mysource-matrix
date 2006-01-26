@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_prefs.inc,v 1.2 2005/08/12 05:05:56 dheppell Exp $
+* $Id: user_prefs.inc,v 1.3 2006/01/26 22:34:07 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/duration/duration.inc';
 *    Looks after the session expiry prefences for user groups
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class User_Prefs extends Prefs
@@ -38,7 +38,7 @@ class User_Prefs extends Prefs
 													'name'			=> 'Session Expiry Rules',
 													'description'	=> 'This preference allows you to change the session settings for this user group',
 													'default'		=> Array('persist' => '0', 'timeout' => '0', 'max_length' => '0'),
-													'protected'		=> false,
+													'protected'		=> FALSE,
 												   ),
 					 );
 
@@ -57,14 +57,14 @@ class User_Prefs extends Prefs
 	/**
 	* Paints the backend interface to edit session preferences
 	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
-	* @param boolean					$have_lock	do we have the lock to edit these preferences or not
-	* @param string						$pref		a particular preference to paint
+	* @param object		&$o			reference to the backend outputter
+	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
+	* @param string		$pref		a particular preference to paint
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintBackend(&$o, $have_lock, $pref=null)
+	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
@@ -120,7 +120,7 @@ class User_Prefs extends Prefs
 						?>
 					</li>
 					<li id="max_length">
-						<?php 
+						<?php
 						$dur =& new Asset_Attribute_Duration(0, $session_settings['max_length']);
 						if ($have_lock && $is_admin) {
 							check_box('prefs[SQ_USER_SESSION_PREFS][max_length_enabled]', '1', ($session_settings['max_length'] != 0), 'toggleInputs(this.parentNode)', 'id="prefs_SQ_USER_SESSION_PREFS_max_length_enabled"');
@@ -161,8 +161,9 @@ class User_Prefs extends Prefs
 				<?php
 			}
 			if (is_null($pref)) $o->closeField();
-		}
-		return true;
+		}//end if
+
+		return TRUE;
 
 	}//end paintBackend()
 
@@ -170,17 +171,17 @@ class User_Prefs extends Prefs
 	/**
 	* Processes the backend interface to edit session preferences
 	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
-	* @param boolean					$have_lock	do we have the lock to edit these preferences or not
-	* @param string						$pref		a particular preference to process
+	* @param object		&$o			reference to the backend outputter
+	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
+	* @param string		$pref		a particular preference to process
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend($o, $have_lock, $pref=null)
+	function processBackend(&$o, $have_lock, $pref=NULL)
 	{
 		if (!($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin())) {
-			return false;
+			return FALSE;
 		}
 		$new_prefs = Array('persist' => 0, 'timeout' => 0, 'max_length' => 0);
 		if (is_null($pref) || $pref == 'SQ_USER_SESSION_PREFS') {
@@ -204,13 +205,13 @@ class User_Prefs extends Prefs
 			$system_conf =& new System_Config();
 			if (!$system_conf->canAcquireLock()) {
 				trigger_localised_error('CORE0233', E_USER_NOTICE);
-				return false;
+				return FALSE;
 			}
 			$system_conf->acquireLock();
-			$system_conf->save(Array('SQ_CONF_SESSION_GC_MAXLIFETIME' => $gc_min + 86400), false, false);
+			$system_conf->save(Array('SQ_CONF_SESSION_GC_MAXLIFETIME' => $gc_min + 86400), FALSE, FALSE);
 			$system_conf->releaseLock();
 		}
-		return true;
+		return TRUE;
 
 	}//end processBackend()
 
@@ -221,11 +222,12 @@ class User_Prefs extends Prefs
 	* Note that this function is only called if there is a conflict between two groups' preferences.
 	* If there is a conflict between a group's prefs and the global prefs, the group automatically wins and
 	* this function is not called.
+	* Array returned is of the format (prefs_var => prefs_details)
 	*
 	* @param array	$prefs1	array of preferences to merge
 	* @param array	$prefs2	array of preferences to merge
 	*
-	* @return array	Prefs for this asset type, prefs_var => prefs_details
+	* @return array
 	* @access public
 	*/
 	function mergePrefs($prefs1, $prefs2)

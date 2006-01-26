@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_edit_fns.inc,v 1.12 2006/01/18 02:58:01 lwright Exp $
+* $Id: report_edit_fns.inc,v 1.13 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *	Base Edit Interface for all reports
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -170,6 +170,7 @@ class Report_Edit_Fns extends Page_Edit_Fns
 
 		$ok = TRUE;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// deleting old root link if any found...
@@ -187,11 +188,12 @@ class Report_Edit_Fns extends Page_Edit_Fns
 
 		if ($ok) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return TRUE;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return FALSE;
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return $ok;
 
 	}//end processRootNode()
 

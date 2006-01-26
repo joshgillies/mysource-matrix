@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_management_folder_edit_fns.inc,v 1.4 2004/12/06 14:38:10 brobertson Exp $
+* $Id: system_management_folder_edit_fns.inc,v 1.5 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -32,12 +32,14 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class System_Management_Folder_Edit_Fns extends Folder_Edit_Fns
 {
+
+
 	/**
 	* Constructor
 	*

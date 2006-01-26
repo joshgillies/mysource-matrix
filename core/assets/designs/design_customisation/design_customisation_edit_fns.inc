@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.38 2006/01/06 01:07:28 dmckee Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.39 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -95,6 +95,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 
 		$data = Array();
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		foreach ($_POST[$prefix.'_remove_customisation'] as $id_name) {
@@ -106,6 +107,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 
 		if ($data && !$this->_updateDesignAreaLink($asset, $data)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}// end if
 
@@ -113,10 +115,12 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		// doesn't do it automatically any more
 		if (!$asset->updateFromParent($parent_design)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}// end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end processCustomisedDesignAreas()
@@ -160,6 +164,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 
 		$data = Array();
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$map  = Array();
 		foreach ($_POST[$prefix.'_customise'] as $id_name) {
@@ -184,6 +189,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($clone->id, 'all');
 			if (is_null($clone)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 
@@ -193,10 +199,12 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 
 		if ($data && !$this->_updateDesignAreaLink($asset, $data)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}// end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		// Acquire lock on 'links', in case of file uploading, it demands lock on 'links'
 		$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'links');

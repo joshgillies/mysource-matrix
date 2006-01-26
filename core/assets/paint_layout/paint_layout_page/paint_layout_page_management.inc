@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page_management.inc,v 1.3 2005/08/01 04:31:05 ndvries Exp $
+* $Id: paint_layout_page_management.inc,v 1.4 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,8 +58,8 @@ class Paint_Layout_Page_Management extends Asset_Management
 	/**
 	* returns an array with information about the events that the asset is listening for
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function getEventList()
 	{
@@ -67,13 +67,13 @@ class Paint_Layout_Page_Management extends Asset_Management
 				Array(
 					'event_name'					=> 'requestKeywords',
 					'broadcast_type_code'			=> 'content_type',
-					'broadcast_strict_type_code'	=> false,
+					'broadcast_strict_type_code'	=> FALSE,
 					'options'						=> Array(
 														'side_of_link'	=> 'major',
-														'indirect'		=> true,
-														'exclusive'		=> null,
+														'indirect'		=> TRUE,
+														'exclusive'		=> NULL,
 														'dependant'		=> 1,
-														'is_exclusive'	=> null,
+														'is_exclusive'	=> NULL,
 														'is_dependant'	=> 1,
 														'value'			=> '',
 														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,

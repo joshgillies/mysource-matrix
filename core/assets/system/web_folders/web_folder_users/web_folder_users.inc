@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: web_folder_users.inc,v 1.1 2005/02/07 05:02:51 gsherwood Exp $
+* $Id: web_folder_users.inc,v 1.2 2006/01/26 22:34:07 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/web_folders/web_folder/web_folder.inc
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,14 +53,15 @@ class Web_Folder_Users extends Web_Folder
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @see Web_Folder::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Web_Folder::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
 		$allowed_links = parent::_getAllowedLinks();
-		$allowed_links[SQ_LINK_TYPE_1]['user'] = Array('card' => 'M', 'exclusive' => false);
-		$allowed_links[SQ_LINK_TYPE_2]['user'] = Array('card' => 'M', 'exclusive' => false);
+		$allowed_links[SQ_LINK_TYPE_1]['user'] = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed_links[SQ_LINK_TYPE_2]['user'] = Array('card' => 'M', 'exclusive' => FALSE);
 		return $allowed_links;
 
 	}//end _getAllowedLinks()

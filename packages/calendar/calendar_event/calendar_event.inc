@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.59 2006/01/19 23:53:50 skim Exp $
+* $Id: calendar_event.inc,v 1.60 2006/01/26 22:34:15 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -113,6 +113,7 @@ class Calendar_Event extends Asset
 	*/
 	function delete($release_lock=TRUE)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -126,10 +127,12 @@ class Calendar_Event extends Asset
 
 		if (!parent::delete($release_lock)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end delete()
@@ -366,21 +369,25 @@ class Calendar_Event extends Asset
 	*/
 	function cloneComponents(&$clone, $components)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!parent::cloneComponents($clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		if (in_array('all', $components) || in_array('attributes', $components)) {
 			if (!$clone->cacheCalendarData(FALSE)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end cloneComponents()
@@ -704,6 +711,7 @@ class Calendar_Event extends Asset
 	*/
 	function cacheCalendarData($updating=TRUE)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$date_values = Array();
@@ -770,6 +778,7 @@ class Calendar_Event extends Asset
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 

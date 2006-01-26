@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_management.inc,v 1.9 2005/04/13 01:58:37 ndvries Exp $
+* $Id: metadata_section_management.inc,v 1.10 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,10 +56,11 @@ class Metadata_Section_Management extends Asset_Management
 						'frontend'	=> Array(
 										'added'			=> '0.1',
 										'type'			=> 'boolean',
-										'default'		=> true,
-										'parameters'	=> Array('allow_empty'	=> false),
+										'default'		=> TRUE,
+										'parameters'	=> Array('allow_empty'	=> FALSE),
 									   ),
 					  );
+
 	}//end constructor
 
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_folder.inc,v 1.48 2005/11/30 23:31:41 mmcintyre Exp $
+* $Id: root_folder.inc,v 1.49 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,41 +56,47 @@ class Root_Folder extends Folder
 	/**
 	* Create this asset
 	*
+	* Return linkid (which should always be link *1* as this is the root folder)
+	* or FALSE on failure
+	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @see Asset::create()
-	* @return mixed int or false
+	* @return mixed int|boolean
 	* @access public
+	* @see Asset::create()
 	*/
 	function create(&$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
-		$this->_tmp[__CLASS__.'_in_create'] = true;
+		$this->_tmp[__CLASS__.'_in_create'] = TRUE;
 
-		if (!system_asset_fns_create_pre_check($this)) return false;
+		if (!system_asset_fns_create_pre_check($this)) {
+			return FALSE;
+		}
 
 		$ret_val = parent::create($link);
 		if ($ret_val) {
 			if ($this->id != 1) {
 				trigger_localised_error('CORE0077', E_USER_ERROR);
-				return false;
+				return FALSE;
 			}
 
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			$linkid = $db->nextId('sq_ast_lnk');
 			assert_valid_db_result($linkid);
 
 			if ($linkid != 1) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				trigger_localised_error('CORE0078', E_USER_ERROR);
-				return false;
+				return FALSE;
 			}
 
 			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			// right, we need to do some manipulation for the link table to put in some initial values
@@ -147,10 +153,10 @@ class Root_Folder extends Folder
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-			if (!system_asset_fns_create_cleanup($this))  {
-				return false;
+			if (!system_asset_fns_create_cleanup($this)) {
+				return FALSE;
 			}
-		}
+		}//end if
 
 		unset($this->_tmp[__CLASS__.'_in_create']);
 		return $ret_val;
@@ -161,12 +167,13 @@ class Root_Folder extends Folder
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return ($short_name) ? '/' : translate('root_folder');
 
@@ -181,7 +188,7 @@ class Root_Folder extends Folder
 	*/
 	function canDelete()
 	{
-		return false;
+		return FALSE;
 
 	}//end canDelete()
 
@@ -194,29 +201,29 @@ class Root_Folder extends Folder
 	*/
 	function canClone()
 	{
-		return false;
+		return FALSE;
 
 	}//end canClone()
 
 
 	/**
-	* Returns true if at least one of the passed assetids has read access to this asset
+	* Returns TRUE if at least one of the passed assetids has read access to this asset
 	*
-	* @param array $assetids An array of user_group and/or user ids to check for read access
-	*						 If the array is empty, the current user will be checked
+	* @param array	$assetids	An array of user_group and/or user ids to check for read access
+	*							If the array is empty, the current user will be checked
 	*
 	* @return boolean
 	* @access public
 	*/
 	function readAccess($assetids=Array())
 	{
-		return true;
+		return TRUE;
 
 	}//end readAccess()
 
 
 	/**
-	* Returns true if at least one of the passed assetids has the passed permission
+	* Returns TRUE if at least one of the passed assetids has the passed permission
 	* Does not check current status of lock
 	* Only root or a system admin have write/admin access to the root folder
 	*
@@ -230,9 +237,11 @@ class Root_Folder extends Folder
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
 		if (empty($assetids)) {
-			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
-			if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
-			return false;
+			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return TRUE;
+			if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+				return TRUE;
+			}
+			return FALSE;
 		} else {
 			return parent::_checkPermissionAccess($perm, $assetids);
 		}
@@ -243,8 +252,8 @@ class Root_Folder extends Folder
 	/**
 	* Set the value for the passed variable to the passed value
 	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -253,12 +262,13 @@ class Root_Folder extends Folder
 	{
 		if ($name == 'name' && empty($this->_tmp[__CLASS__.'_in_create'])) {
 			trigger_localised_error('CORE0112', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		return parent::setAttrValue($name, $value);
 
 	}//end setAttrValue()
+
 
 }//end class
 

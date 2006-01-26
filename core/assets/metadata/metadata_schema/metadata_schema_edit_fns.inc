@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.39 2005/10/25 23:28:31 arailean Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.40 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,7 +46,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	function Metadata_Schema_Edit_Fns()
 	{
 		$this->Folder_Edit_Fns();
-		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['force_unlock'] = FALSE;
 		$this->static_screens['details']['lock_type'] = 'content';
 
 	}//end constructor
@@ -67,7 +67,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		echo '<b>Section Name</b> ';
 		text_box($prefix.'_new_section', '', 20);
-		return true;
+		return TRUE;
 
 	}//end paintNewSection()
 
@@ -85,7 +85,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	function processNewSection(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('links')) return false;
+		if (!$asset->writeAccess('links')) return FALSE;
 
 		if (isset($_POST[$prefix.'_new_section']) && trim($_POST[$prefix.'_new_section'])) {
 			$new_section_name = trim($_POST[$prefix.'_new_section']);
@@ -93,10 +93,10 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$new_section =& new Metadata_Section();
 			$schema_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'is_dependant' => 1);
 			$new_section->setAttrValue('name', $new_section_name);
-			if (!$new_section->create($schema_link)) return false;
+			if (!$new_section->create($schema_link)) return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processNewSection()
 
@@ -122,7 +122,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$o->note(translate('metadata_cannot_regenerate'));
 		}
 
-		return true;
+		return TRUE;
 
 	}//end paintRegenerate()
 
@@ -140,15 +140,15 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	function processRegenerate(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('')) return false;
+		if (!$asset->writeAccess('')) return FALSE;
 
 		if (isset($_POST[$prefix.'_regenerate']) && $_POST[$prefix.'_regenerate']) {
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('schemaids' => Array($asset->id,));
 			$hh->queueHipo('hipo_job_regenerate_metadata', $vars);
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processRegenerate()
 
@@ -168,9 +168,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$write_access = $asset->writeAccess('links');
 
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', false, 'major', null, true, false);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'major', NULL, TRUE, FALSE);
 		foreach ($current_links as $link_data) {
-			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+			$section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($section)) continue;
 
 			$o->openSection($section->name);
@@ -182,12 +182,12 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 				}
 				$edit_fns = $section->getEditFns();
 				if (!$edit_fns->paintInlineOptionInterface($section, $o)) {
-					return false;
+					return FALSE;
 				}
 			$o->closeSection();
 		}
 
-		return true;
+		return TRUE;
 
 	}//end paintSections()
 
@@ -205,17 +205,17 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	function processSections(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('links')) return false;
-		$updated = false;
+		if (!$asset->writeAccess('links')) return FALSE;
+		$updated = FALSE;
 
 		// process current steps
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', false, 'major', null, true, false);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'major', NULL, TRUE, FALSE);
 		foreach ($current_links as $link_data) {
-			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+			$section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
 			if ($edit_fns->processInlineOptionInterface($section, $o)) {
-				$updated = true;
+				$updated = TRUE;
 			}
 		}
 
@@ -223,7 +223,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		if (isset($_POST[$prefix.'_delete_sections'])) {
 			$delete_sections = $_POST[$prefix.'_delete_sections'];
 			foreach ($delete_sections as $linkid => $on) {
-				if ($asset->deleteLink($linkid)) $updated = true;
+				if ($asset->deleteLink($linkid)) $updated = TRUE;
 			}
 		}
 
@@ -248,18 +248,18 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	function paintInlineValueInterface(&$asset, &$o, $values, $write_access)
 	{
 		$o->openSection($asset->name);
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', false, 'major', null, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'major', NULL, TRUE);
 		foreach ($current_links as $link) {
-			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
 			if (!$edit_fns->paintInlineValueInterface($section, $o, $values, $write_access)) {
-				return false;
+				return FALSE;
 			}
 		}
 		$o->closeSection();
 
-		return true;
+		return TRUE;
 
 	}//end paintInlineValueInterface()
 
@@ -275,17 +275,17 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processInlineValueInterface(&$asset, &$new_values)
 	{
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', false, 'major', null, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'major', NULL, TRUE);
 		foreach ($current_links as $link) {
-			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
 			if (!$edit_fns->processInlineValueInterface($section, $new_values)) {
-				return false;
+				return FALSE;
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processInlineValueInterface()
 
@@ -301,17 +301,17 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function requiredFieldsComplete(&$asset, $values)
 	{
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', false, 'major', null, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'major', NULL, TRUE);
 		foreach ($current_links as $link) {
-			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
 			if (!$edit_fns->requiredFieldsComplete($section, $values)) {
-				return false;
+				return FALSE;
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end requiredFieldsComplete()
 
@@ -331,24 +331,24 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	{
 		$frontend_option = $asset->attr('frontend');
 		// if we aren't printing this on the frontend then don't print anything
-		if (!$frontend_option) return true;
+		if (!$frontend_option) return TRUE;
 
 		echo "<!-- $asset->name //-->\n\n";
 
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', TRUE, 'major', NULL, TRUE);
 		$valid_sections = Array();
 		foreach ($current_links as $link) {
-			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$valid_sections[] = $section->name;
 
 			$edit_fns = $section->getEditFns();
 			if (!$edit_fns->generateMetadata($section, $values, $tag_values, $keywords)) {
-				return false;
+				return FALSE;
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end generateMetadata()
 
@@ -376,7 +376,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$o->note(translate('cannot_change_property'));
 
 		}
-		return true;
+		return TRUE;
 
 	}//end paintDefaultXMLns()
 
@@ -394,7 +394,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	function processDefaultXMLns(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('')) return false;
+		if (!$asset->writeAccess('')) return FALSE;
 
 		if (isset($_POST[$prefix.'_default_ns']) && $_POST[$prefix.'_default_ns']) {
 
@@ -413,7 +413,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processDefaultXMLns()
 
@@ -444,7 +444,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		} else {
 			$o->note(translate('cannot_change_namespace'));
 		}
-		return true;
+		return TRUE;
 
 	}//end paintNamespace()
 
@@ -462,9 +462,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processNamespace(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('')) return false;
+		if (!$asset->writeAccess('')) return FALSE;
 		if (isset($_POST[$prefix.'_default_ns']) && $_POST[$prefix.'_default_ns']) {
-			return false;
+			return FALSE;
 		}
 
 		if (isset($_POST[$prefix.'_namespace'])) {
@@ -500,7 +500,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		} else {
 			$o->note(translate('cannot_change_namespace_uri'));
 		}
-		return true;
+		return TRUE;
 
 	}//end paintNsURL()
 
@@ -518,9 +518,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processNsURL(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('')) return false;
+		if (!$asset->writeAccess('')) return FALSE;
 		if (isset($_POST[$prefix.'_default_ns']) && $_POST[$prefix.'_default_ns']) {
-			return false;
+			return FALSE;
 		}
 
 		if (isset($_POST[$prefix.'_nsurl'])) {

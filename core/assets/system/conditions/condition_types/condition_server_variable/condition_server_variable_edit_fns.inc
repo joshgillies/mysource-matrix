@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_server_variable_edit_fns.inc,v 1.2 2005/10/13 02:07:38 tbarrett Exp $
+* $Id: condition_server_variable_edit_fns.inc,v 1.3 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_ATTRIBUTES_PATH.'/selection/selection.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -103,8 +103,8 @@ class condition_server_variable_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Process the backend editing interface for this condition
 	*
-	* @param object		&$o		Backend outputter to use
-	* @param string		$prefix	Prefix for form elements
+	* @param object	&$o		Backend outputter to use
+	* @param string	$prefix	Prefix for form elements
 	*
 	* @return array
 	* @access public

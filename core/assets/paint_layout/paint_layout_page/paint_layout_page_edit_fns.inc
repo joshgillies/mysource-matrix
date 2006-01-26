@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page_edit_fns.inc,v 1.5 2005/08/01 04:31:04 ndvries Exp $
+* $Id: paint_layout_page_edit_fns.inc,v 1.6 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/paint_layout/paint_layout_page/paint_layout_
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,9 +55,9 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 	/**
 	* Paint the current asset types that have been added
 	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -65,12 +65,12 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 	function paintCurrentAssetTypes(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('content');
-		$folder = &$asset->getFolder('type_formats');
+		$folder =& $asset->getFolder('type_formats');
 
 		$types = $asset->attr('types');
 		if (empty($types) || !is_array($types)) {
 			echo 'There are no types defined';
-			return false;
+			return FALSE;
 		}
 		$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
 		?>
@@ -109,7 +109,7 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 						?>
 						<td class="sq-backend-table-cell">
 							<?php
-							check_box($prefix.'_remove[]', $type, false);
+							check_box($prefix.'_remove[]', $type, FALSE);
 							?>
 						</td>
 						<?php
@@ -121,7 +121,7 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 			?>
 		</table>
 		<?php
-		return true;
+		return TRUE;
 
 	}//end paintCurrentAssetTypes()
 
@@ -129,9 +129,9 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 	/**
 	* Process the current asset types that have been added
 	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -139,7 +139,7 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 	function processCurrentAssetTypes(&$asset, &$o, $prefix)
 	{
 		$types = $asset->attr('types');
-		$folder = &$asset->getFolder('type_formats');
+		$folder =& $asset->getFolder('type_formats');
 		$formats = $asset->getFormats('type_formats');
 
 		// Remove type format bodycopies
@@ -150,7 +150,7 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 
 				if (in_array($type, $formats)) {
 					// we also want to send the bodycopy to the trash
-					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE, true, $type);
+					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE, TRUE, $type);
 					if (empty($link)) {
 						trigger_localised_error('CORE0216', E_USER_WARNING);
 					} else {
@@ -166,12 +166,12 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 			$_POST[$prefix.'_inherit_types'] = Array();
 		}
 
-		for (reset($types); null !== ($k = key($types)); next($types)) {
-			$types[$k] = (in_array($k, $_POST[$prefix.'_inherit_types'])) ? true : false;
+		for (reset($types); NULL !== ($k = key($types)); next($types)) {
+			$types[$k] = (in_array($k, $_POST[$prefix.'_inherit_types'])) ? TRUE : FALSE;
 		}
 		$asset->setAttrValue('types', $types);
 
-		return true;
+		return TRUE;
 
 	}//end processCurrentAssetTypes()
 
@@ -179,16 +179,16 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 	/**
 	* Paint section to add an asset type
 	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
 	function paintAddAssetType(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('content')) return false;
+		if (!$asset->writeAccess('content')) return FALSE;
 
 		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
 		$types = array_diff($types, $asset->attr('types'));
@@ -196,7 +196,7 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 		$type_options = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($types, 'name');
 		asort($type_options);
 		$type_options = Array('' => '- Select asset type -') + $type_options;
-		combo_box($prefix.'_new_type', $type_options, false, '');
+		combo_box($prefix.'_new_type', $type_options, FALSE, '');
 
 	}//end paintAddAssetType()
 
@@ -204,16 +204,16 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 	/**
 	* Process the section to add a new format for an asset
 	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processAddAssetType(&$asset, &$o, $prefix)
 	{
-		$ret = false;
+		$ret = FALSE;
 
 		if (isset($_POST[$prefix.'_new_type'])) {
 
@@ -223,9 +223,9 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 				// add new type in the types list
 				$types = $asset->attr('types');
 				if (!isset($types[$type])) {
-					$types[$type] = true;
+					$types[$type] = TRUE;
 					$asset->setAttrValue('types', $types);
-					$ret = true;
+					$ret = TRUE;
 
 					$ret = ($asset->createTypeFormatBodycopy($type));
 				}

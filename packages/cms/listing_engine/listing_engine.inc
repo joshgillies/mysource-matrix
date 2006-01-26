@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.147 2006/01/26 22:21:07 gsherwood Exp $
+* $Id: listing_engine.inc,v 1.148 2006/01/26 22:35:20 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.147 $
+* @version $Revision: 1.148 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2603,6 +2603,7 @@ class Listing_Engine extends Page
 
 		// set forced run level because we want to change the names of these
 		// formats whether we have permission or not
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
@@ -2620,6 +2621,7 @@ class Listing_Engine extends Page
 
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end reindexGroupFormats()

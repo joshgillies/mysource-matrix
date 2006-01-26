@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.20 2006/01/17 03:02:03 sdanis Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.21 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -47,10 +47,10 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *		. %end_KEYWORD%
 *		(where KEYWORD is a substitution keyword)
 *
-* If an attribute is not recognised, the condition will be evaluated as false.
+* If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -189,7 +189,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 		$ret = '';
 
-		$this->asset_to_paint = &$asset;
+		$this->asset_to_paint =& $asset;
 
 		// Retrieve any assets referenced in this bodycopy, and get their urls for lookup
 		if (file_exists($this->data_path.'/.sq_system/.notice_links')) {
@@ -249,8 +249,8 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 
 	/**
-	* Returns true if the value of the keyword is not blank.
-	* 0 will be evaluated as true.
+	* Returns TRUE if the value of the keyword is not blank.
+	* 0 will be evaluated as TRUE.
 	*
 	* @param mixed	$keyword_name	a keyword name
 	*

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: login_design_management.inc,v 1.4 2005/01/20 13:07:37 brobertson Exp $
+* $Id: login_design_management.inc,v 1.5 2006/01/26 22:34:06 lwright Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Login_Design_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -47,10 +48,10 @@ class Login_Design_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'id_name'   => Array(
-								'default'   => 'System Login Design',
-							),
-						);
+						'id_name'	=> Array(
+										'default'	=> 'System Login Design',
+									   ),
+					  );
 
 	}//end constructor
 

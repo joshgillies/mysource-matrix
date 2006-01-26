@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: index.php,v 1.23 2005/08/02 03:36:13 gsherwood Exp $
+* $Id: index.php,v 1.24 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -28,11 +28,11 @@
 * The one file through which everything runs
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 
-ini_set('memory_limit', '16M');
+ini_set('memory_limit', '32M');
 define('SQ_SYSTEM_ROOT', dirname(dirname(dirname($_SERVER['SCRIPT_FILENAME']))));
 require_once dirname(dirname(__FILE__)).'/include/init.inc';
 $GLOBALS['SQ_SYSTEM']->start();

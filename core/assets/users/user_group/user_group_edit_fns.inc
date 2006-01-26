@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.27 2005/12/01 01:29:42 ndvries Exp $
+* $Id: user_group_edit_fns.inc,v 1.28 2006/01/26 22:34:07 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,21 +54,21 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Get an array of the current security restrictions for the user group
 	*
-	* @param object User_Group	&$asset	the user group asset
+	* @param object	&$asset	the user group asset
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function getCurrentRestrictions(&$asset)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT type_code, screen, section
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_edit_access ';
 		$where = 'userid = '.$db->quote($asset->id);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-		$result = $db->getAssoc($sql.$where, false, Array(), DB_FETCHMODE_ASSOC, true);
+		$result = $db->getAssoc($sql.$where, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
 		assert_valid_db_result($result);
 
 		return $result;
@@ -82,8 +82,8 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	* This function will only return FALSE if access has been granted for all screens
 	* on all asset types (the global unrestricted flag)
 	*
-	* @param object User_Group	&$asset	the user group asset
-	* @param string				$prefix	the prefix for this asset
+	* @param object	&$asset	the user group asset
+	* @param string	$prefix	the prefix for this asset
 	*
 	* @return boolean
 	* @access public
@@ -99,9 +99,9 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Prints the interface for editing type restrictions
 	*
-	* @param object User_Group			&$asset	the user group asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the user group asset
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -111,7 +111,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		$current = $this->getCurrentRestrictions($asset);
 		$admin_access = $asset->adminAccess('security');
 
-		if(empty($current) && !$admin_access) {
+		if (empty($current) && !$admin_access) {
 			$o->openField('');
 				$o->note(translate('user_group_unrestricted_access_granted'));
 			$o->closeField();
@@ -162,7 +162,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 							$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 							$asset =& new $type_code();
-							$ef = &$asset->getEditFns();
+							$ef =& $asset->getEditFns();
 
 							$screens = Array(' ' => ''); // first option is blank
 							$screens['0'] = '-- '.translate('all_screens').' --'; // second option is 'All Screens'
@@ -176,7 +176,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 							}
 
 							echo '<br />'.translate('grant_screen_access').' ';
-							combo_box($prefix.'_add_type_screen['.$type_code.']', $screens, false, Array());
+							combo_box($prefix.'_add_type_screen['.$type_code.']', $screens, FALSE, Array());
 						} else {
 							echo '<br />'.translate('granted_unrestricted_access_explanation');
 							if (count($current[$type_code]) == 1) {
@@ -187,7 +187,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 				$o->closeField();
 			$o->closeSection();
-		}
+		}//end foreach type code
 
 		// allow them to restrict access to asset types
 		if ($admin_access) {
@@ -201,7 +201,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 			$o->openSection(translate('restrict_screen_access_to_new_type'));
 				$o->openField('');
-					combo_box($prefix.'_restrict_types', $uc_types, true, '', 6);
+					combo_box($prefix.'_restrict_types', $uc_types, TRUE, '', 6);
 				$o->closeField();
 			$o->closeSection();
 		}
@@ -214,16 +214,17 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Processes the interface for editing type restrictions
 	*
-	* @param object User_Group			&$asset	the user group asset
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the user group asset
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processTypeRestrictions(&$asset, &$o, $prefix)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$current = $this->getCurrentRestrictions($asset);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -307,8 +308,8 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 					$result = $db->query($sql);
 					assert_valid_db_result($result);
-				}
-			}
+				}//end foreach doomed screen
+			}//end foreach type code
 		}//end if
 
 
@@ -344,8 +345,9 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		}//end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		return true;
+		return TRUE;
 
 	}//end processTypeRestrictions()
 
@@ -353,9 +355,9 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Prints the interface for customising prefenences
 	*
-	* @param object User_Group			&$asset	the user group asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the user group asset
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -413,16 +415,16 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Processes the interface for customising preferences
 	*
-	* @param object User_Group			&$asset	the user group asset
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the user group asset
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processPreferences(&$asset, &$o, $prefix)
 	{
-		if (!$asset->adminAccess('preferences')) return false;
+		if (!$asset->adminAccess('preferences')) return FALSE;
 
 		$new_preferences = Array();
 
@@ -448,7 +450,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 				$prefs =& new $pref_name();
 				foreach ($pref_vars as $var_name => $var_data) {
 					if (!isset($_POST[$prefix.'_revert'][$type_code][$var_name])) {
-						if ($prefs->processBackend($o, true, $var_name)) {
+						if ($prefs->processBackend($o, TRUE, $var_name)) {
 							$new_preferences[$type_code][$var_name] = $prefs->pref_vars[$var_name];
 						}
 					}
@@ -457,15 +459,15 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		}
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$str = '<'.'?php $preferences = '.var_export($new_preferences, true).'; ?'.'>';
+		$str = '<'.'?php $preferences = '.var_export($new_preferences, TRUE).'; ?'.'>';
 		if (!is_dir($asset->data_path) && !create_directory($asset->data_path)) {
-			return false;
+			return FALSE;
 		}
 		if (!string_to_file($str, $asset->data_path.'/.preferences.inc')) {
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processPreferences()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.20 2005/11/29 05:53:24 rhoward Exp $
+* $Id: transaction_manager.inc,v 1.21 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Also to handle nested transaction calls
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 */
 class Transaction_Manager extends MySource_Object
@@ -135,6 +135,7 @@ class Transaction_Manager extends MySource_Object
 			return false;
 		}
 		$this->_levels[$db_name]--;
+
 		if ($this->_levels[$db_name] == 0) {
 			// this is the last commit
 			$result = $db->commit();

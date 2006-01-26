@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_keyword_regexp.inc,v 1.1 2005/12/07 05:11:02 lwright Exp $
+* $Id: condition_keyword_regexp.inc,v 1.2 2006/01/26 22:34:05 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,8 +56,8 @@ class Condition_Keyword_Regexp extends Condition
 	/**
 	* Evaluate this condition
 	*
-	* @param object Asset	&$asset			the asset to evaluate against
-	* @param array			$condition_data	the condition details to use when evaluating
+	* @param object	&$asset			the asset to evaluate against
+	* @param array	$condition_data	the condition details to use when evaluating
 	*
 	* @return boolean
 	* @access public
@@ -65,7 +65,7 @@ class Condition_Keyword_Regexp extends Condition
 	function evaluate(&$asset, $condition_data)
 	{
 		if (!isset($condition_data['keyword_value']) || !isset($condition_data['keyword_match'])) {
-			return false;
+			return FALSE;
 		}
 		$keyword_replacement = $condition_data['keyword_value'];
 		$keyword_match = $condition_data['keyword_match'];

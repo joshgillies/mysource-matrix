@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.492 2006/01/17 05:42:35 rong Exp $
+* $Id: asset.inc,v 1.493 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.492 $
+* @version $Revision: 1.493 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -230,8 +230,9 @@ class Asset extends MySource_Object
 	*/
 	function create(&$link)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_DATA_VALIDATION)) {
 			// perform any validation before starting the create process
@@ -500,6 +501,7 @@ class Asset extends MySource_Object
 		unset($this->_tmp['__creating__']);
 		if (!$this->_updated()) return $this->_abortCreate();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		// because we are inheriting statuses, perhaps we are in safe edit now?
 		if ($this->status == SQ_STATUS_EDITING) {
@@ -611,6 +613,7 @@ class Asset extends MySource_Object
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->abortLog();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
 		unset($this->_tmp['__creating__']);
 		$this->id = 0;
@@ -807,6 +810,7 @@ class Asset extends MySource_Object
 			return false;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -819,6 +823,7 @@ class Asset extends MySource_Object
 			} else {
 				trigger_localised_error('SYS0128', E_USER_WARNING, $link['majorid']);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}
 		}
@@ -829,6 +834,7 @@ class Asset extends MySource_Object
 			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'all')) {
 				trigger_localised_error('SYS0131', E_USER_WARNING, $this->name);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}
 		}
@@ -837,6 +843,7 @@ class Asset extends MySource_Object
 		if (!$this->saveWebPaths(Array())) {
 			trigger_localised_error('SYS0133', E_USER_WARNING, $this->name);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
@@ -845,6 +852,7 @@ class Asset extends MySource_Object
 		if (!$this->updateLookups()) {
 			trigger_localised_error('SYS0132', E_USER_WARNING, $this->name);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
@@ -887,6 +895,7 @@ class Asset extends MySource_Object
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		if (!$mm->purgeMetadata($this->id)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
@@ -894,6 +903,7 @@ class Asset extends MySource_Object
 		$wm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		if (!$wm->purgeWorkflow($this->id)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
@@ -903,6 +913,7 @@ class Asset extends MySource_Object
 			if (!delete_directory($this->data_path)) {
 				trigger_localised_error('SYS0151', E_USER_WARNING, $this->name);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}
 		}
@@ -911,11 +922,13 @@ class Asset extends MySource_Object
 			if (!delete_directory($this->data_path_public)) {
 				trigger_localised_error('SYS0151', E_USER_WARNING, $this->name);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'assetDeleted', Array());
@@ -1163,6 +1176,7 @@ class Asset extends MySource_Object
 		// if we have an ID hit the DB
 		if ($this->id) {
 
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -1218,10 +1232,12 @@ class Asset extends MySource_Object
 			if (!$this->incrementVersion('micro', $update_parents)) {
 				trigger_localised_error('SYS0183', E_USER_WARNING, $this->name);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		}//end if $this->id
 
@@ -1326,6 +1342,7 @@ class Asset extends MySource_Object
 
 		$new_version = implode('.', $version_parts);
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -1348,6 +1365,7 @@ class Asset extends MySource_Object
 				if (!is_null($dep_parent)) {
 					if (!$dep_parent->_updated(false)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($dep_parent);
 						trigger_localised_error('SYS0158', E_USER_WARNING, $this->name, $this->id, $dep_parent->name, $dep_parent->id);
 						return false;
@@ -1365,6 +1383,7 @@ class Asset extends MySource_Object
 		);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		$this->version = $new_version;
 		return true;
@@ -1495,6 +1514,7 @@ class Asset extends MySource_Object
 	*/
 	function remapAssetids($map)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		// try and acquire locks on our dependants
 		$dependant_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
@@ -1504,12 +1524,14 @@ class Asset extends MySource_Object
 				$asset = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (!$asset->remapAssetids($map)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return false;
 				}
 			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return true;
 
 	}//end remapAssetids()
@@ -1541,6 +1563,7 @@ class Asset extends MySource_Object
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		// open the transaction
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// is this new type one of our decendents or ancestors?
@@ -1553,6 +1576,7 @@ class Asset extends MySource_Object
 		if ($count == 0) {
 			trigger_localised_error('SYS0234', E_USER_WARNING, $this->name, $new_type_code, $this->type());
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
@@ -1570,6 +1594,7 @@ class Asset extends MySource_Object
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 					trigger_localised_error('SYS0236', E_USER_WARNING, $this->name, $new_type_code, $link['minor_type_code'], link_type_name($link['link_type']), $new_type_code);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return false;
 				}
 			}// end foreach
@@ -1588,6 +1613,7 @@ class Asset extends MySource_Object
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 					trigger_localised_error('SYS0235', E_USER_WARNING, $this->name, $new_type_code, $parent->name, $parent->id, $err_msg);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return false;
 				}
 			}// end foreach
@@ -1681,6 +1707,7 @@ class Asset extends MySource_Object
 		if ($all_ok) {
 			$this = $tmp;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'AssetTypeUpdate', Array(
@@ -1694,6 +1721,7 @@ class Asset extends MySource_Object
 		} else {
 			// bugger something went wrong190
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 
 		}// end if
@@ -1785,6 +1813,7 @@ class Asset extends MySource_Object
 		}
 		if (is_null($clone)) return false;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 
@@ -1803,6 +1832,7 @@ class Asset extends MySource_Object
 				foreach ($set_perms as $userid => $granted) {
 					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($clone->id, $userid, $perm, $granted)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 						return false;
@@ -1824,6 +1854,7 @@ class Asset extends MySource_Object
 			foreach ($this->vars as $name => $data) {
 				if (!$clone->setAttrValue($name, $data['value'])) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return false;
 				}
 			}
@@ -1846,6 +1877,7 @@ class Asset extends MySource_Object
 				}
 				if (!$mm->setSchema($clone->id, $schemaid, $granted)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return false;
 				}
 			}//end foreach
@@ -1856,6 +1888,7 @@ class Asset extends MySource_Object
 				if (!empty($metadata)) {
 					if (!$mm->setMetadata($clone->id, $metadata)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return false;
 					}
 				}
@@ -1875,6 +1908,7 @@ class Asset extends MySource_Object
 			foreach ($schemas as $schemaid => $granted) {
 				if (!$wfm->setSchema($clone->id, $schemaid, $granted)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return false;
 				}
 			}//end foreach
@@ -1891,6 +1925,7 @@ class Asset extends MySource_Object
 				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 				if (!copy_directory($this->data_path, $clone->data_path)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return false;
 				}
 			}
@@ -1911,6 +1946,7 @@ class Asset extends MySource_Object
 		}//end if content tags
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return true;
 
 	}//end cloneComponents()
@@ -2012,6 +2048,7 @@ class Asset extends MySource_Object
 			return false;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
@@ -2064,6 +2101,7 @@ class Asset extends MySource_Object
 				if (!$this->incrementVersion('minor', false)) {
 					trigger_localised_error('SYS0271', E_USER_WARNING, $this->name);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return false;
 				}
 			}
@@ -2076,6 +2114,7 @@ class Asset extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 
@@ -2101,8 +2140,6 @@ class Asset extends MySource_Object
 			trigger_localised_error('SYS0198', E_USER_WARNING);
 			return false;
 		}
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		if (is_null($userid)) {
 			$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
@@ -2149,7 +2186,9 @@ class Asset extends MySource_Object
 		if ($old_date_string == $new_date_string) return true;
 
 		// begin a transaction
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'UPDATE
 					sq_ast
@@ -2163,6 +2202,7 @@ class Asset extends MySource_Object
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$msg_reps = Array(
@@ -2619,7 +2659,9 @@ class Asset extends MySource_Object
 		}
 
 		// open the transaction
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// find any previous entries
 		$atrr_id_cond = 'IN ('.implode(', ', $attr_ids).')';
@@ -2697,6 +2739,7 @@ class Asset extends MySource_Object
 		// tell, the asset it has updated
 		if (!$dont_run_updated && !$this->_updated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			$ms->abortLog();
 			return false;
 		}
@@ -2705,6 +2748,7 @@ class Asset extends MySource_Object
 
 		// if we get this far, then it's all OK
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$ms->closeLog();
 
 		// notify anyone interested that attributes changed
@@ -4062,8 +4106,6 @@ class Asset extends MySource_Object
 	*/
 	function saveWebPaths($paths)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
 		$current_paths = $this->getWebPaths();
 		$save_paths = Array();
 
@@ -4095,7 +4137,10 @@ class Asset extends MySource_Object
 			}
 		}// end if inserts
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'DELETE FROM
 					sq_ast_path
@@ -4130,9 +4175,11 @@ class Asset extends MySource_Object
 
 		if ($this->updateLookups()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return true;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
@@ -4292,9 +4339,9 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->am->clearLookupsCache($this->id);
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// Remove all the old URLs
 		$sql = 'SELECT url, http, https
@@ -4303,12 +4350,13 @@ class Asset extends MySource_Object
 
 		$old_urls = $db->getAll($sql);
 		assert_valid_db_result($old_urls);
-
 		// get all the lookup information that we have set, ignoring designs as they are set on every url
 		$our_lookup_values = $this->getLookupValues(false, $prefix='design::', false);
+
 		$tmp_old_urls = Array();
 
 		$current_urls = Array();
+		$old_web_paths = Array();
 		foreach ($old_urls as $url_data) {
 			$url = $url_data['url'];
 			$current_urls[] = $db->quoteSmart($url);
@@ -4319,11 +4367,36 @@ class Asset extends MySource_Object
 				foreach($url_lineage as $url_lineage_item) {
 					$url_assetids[] = $url_lineage_item['assetid'];
 				}
-				$url_assetids = implode(' ', $url_assetids);
 
-				$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, substr($url, 0, strrpos($url, '/')));
-				$tmp_old_urls[$url_assetids][] = $url;
-				unset($parent_asset);
+				$parent_url = substr($url, 0, strrpos($url, '/'));
+				$web_path = substr($url, strrpos($url, '/') + 1);
+
+				//$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, $parent_url));
+				$tmp_old_urls[] = Array(
+									'url'			=> $url,
+									'parent_url'	=> $parent_url,
+									'web_path'		=> $web_path,
+									'lineage'		=> $url_assetids,
+								  );
+				$old_web_paths[] = $web_path;
+			}
+		}
+		$old_web_paths = array_unique($old_web_paths);
+
+		// find the differences between the two - from both directions -
+		// and reindex them to they both start from zero
+		$old_to_new = array_values(array_diff($old_web_paths, $paths));
+		$new_to_old = array_values(array_diff($paths, $old_web_paths));
+
+		$web_path_changes = Array();
+
+		if ((count($old_to_new) == 1) && (count($new_to_old) == 1)) {
+			$web_path_changes[$old_to_new[0]] = $new_to_old[0];
+		} else if ((count($old_to_new) > 1) && (count($new_to_old) > 1)) {
+			// If more than one web path has changed...
+			// If the number of web paths changing are the same, we should
+			for ($i = 0; $i < min(count($old_to_new), count($new_to_old)); $i++) {
+				$web_path_changes[$old_to_new[$i]] = $new_to_old[$i];
 			}
 		}
 
@@ -4391,6 +4464,7 @@ class Asset extends MySource_Object
 				$parent_lookup_values = $parent->getLookupValues();
 
 				$parent_urls    = $parent->getLookups();
+
 				for ($j = 0, $num_parent_urls = count($parent_urls); $j < $num_parent_urls; $j++) {
 					for ($k = 0; $k < $num_paths; $k++) {
 						$new_url = $parent_urls[$j]['url'].'/'.$paths[$k];
@@ -4426,16 +4500,33 @@ class Asset extends MySource_Object
 						assert_valid_db_result($result);
 
 						// get the asset lineage and use that as the index
-						$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $new_url);
+						$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $parent_urls[$j]['url']);
 						$new_url_assetids = Array();
 						foreach($url_lineage as $url_lineage_item) {
 							$new_url_assetids[] = $url_lineage_item['assetid'];
 						}
-						$new_url_assetids = implode(' ', $new_url_assetids);
+						$new_url_assetids[] = $this->id;
 
-						if (!isset($tmp_old_urls[$new_url_assetids][$j])) $tmp_old_urls[$new_url_assetids][$j] = '';
+						foreach($tmp_old_urls as $tmp_old_url) {
+							if ($tmp_old_url['url'] == $new_url) {
+								// exact same URL as before
+								$lookup_values = isset($our_lookup_values[$tmp_old_url['url']]) ? $our_lookup_values[$tmp_old_url['url']] : Array();
+								break;
+							} else if (($tmp_old_url['parent_url'] == $parent_urls[$j]['url']) && ($tmp_old_url['web_path'] == $paths[$k])) {
+								// the same parent URL and the same path
+								$lookup_values = isset($our_lookup_values[$tmp_old_url['url']]) ? $our_lookup_values[$tmp_old_url['url']] : Array();
+								break;
+							} else if ($tmp_old_url['parent_url'] == $parent_urls[$j]['url']) {
+								// If the same parent URL, not the same path, but it's in our change list
+								if (isset($web_path_changes[$tmp_old_url['web_path']]) && $web_path_changes[$tmp_old_url['web_path']] == $paths[$k]) {
+									$lookup_values = isset($our_lookup_values[$tmp_old_url['url']]) ? $our_lookup_values[$tmp_old_url['url']] : Array();
+									break;
+								}
+							}
+						}
+						//if (!isset($tmp_old_urls[$new_url_assetids][$j])) $tmp_old_urls[$new_url_assetids][$j] = '';
 
-						$lookup_values = (isset($our_lookup_values[$tmp_old_urls[$new_url_assetids][$j]])) ? $our_lookup_values[$tmp_old_urls[$new_url_assetids][$j]] : Array();
+						//$lookup_values = (isset($our_lookup_values[$tmp_old_urls[$new_url_assetids][$j]])) ? $our_lookup_values[$tmp_old_urls[$new_url_assetids][$j]] : Array();
 
 						// all designs go to all urls (at the moment anyway), so merge them all in
 						foreach ($our_designs as $name => $data) {
@@ -4545,7 +4636,11 @@ class Asset extends MySource_Object
 
 		}//end if count paths
 
+		//exit();
+		//flush();
+		//sleep(1);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_lookups_updated', $this);
 
 		return true;
@@ -4581,6 +4676,7 @@ class Asset extends MySource_Object
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'DELETE FROM
@@ -4628,6 +4724,7 @@ class Asset extends MySource_Object
 		}//end foreach
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return true;
 
 	}//end setLookupValues()

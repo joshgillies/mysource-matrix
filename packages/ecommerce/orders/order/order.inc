@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: order.inc,v 1.4 2005/07/27 11:09:45 brobertson Exp $
+* $Id: order.inc,v 1.5 2006/01/26 22:35:23 lwright Exp $
 *
 */
 
@@ -26,14 +26,14 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order_line/order_line.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
 class Order extends Form_Submission
 {
 
-	
+
 	/**
 	* Constructor
 	*
@@ -46,7 +46,7 @@ class Order extends Form_Submission
 	{
 		$this->_ser_attrs = true;
 		$this->Asset($assetid);
-		
+
 	}//end constructor
 
 
@@ -116,7 +116,7 @@ class Order extends Form_Submission
 	*/
 	function lineCount()
 	{
-		$lines = $this->getLines();		
+		$lines = $this->getLines();
 		return count($lines);
 
 	}//end lineCount()
@@ -169,16 +169,20 @@ class Order extends Form_Submission
 		$link = array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'is_dependant' => 1, 'is_exclusive' =>  1);
 
 		// attempt to link orderline to order
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		$success = $new_order_line->create($link);
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-		if (!$success) {
+		if ($success) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
 		}
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return $success;
 
 	}//end createLine()
 

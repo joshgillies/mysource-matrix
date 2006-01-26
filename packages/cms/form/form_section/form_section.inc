@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.48 2006/01/18 04:31:45 sdanis Exp $
+* $Id: form_section.inc,v 1.49 2006/01/26 22:35:20 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -511,6 +511,7 @@ class Form_Section extends Asset
 	*/
 	function attachQuestion($type_code)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -546,9 +547,11 @@ class Form_Section extends Asset
 
 		if (!$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
@@ -569,6 +572,7 @@ class Form_Section extends Asset
 	{
 		if ($question->_questionid == 0) return FALSE;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$questions = $this->getQuestions();
 
@@ -589,9 +593,11 @@ class Form_Section extends Asset
 
 		if (!$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
@@ -695,10 +701,12 @@ class Form_Section extends Asset
 	*/
 	function cloneComponents(&$clone, $components)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!parent::cloneComponents($clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -750,6 +758,7 @@ class Form_Section extends Asset
 		}//end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end cloneComponents()

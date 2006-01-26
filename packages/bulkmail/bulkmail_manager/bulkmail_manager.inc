@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.33 2006/01/12 02:55:50 rong Exp $
+* $Id: bulkmail_manager.inc,v 1.34 2006/01/26 22:34:14 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -81,6 +81,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		if (!system_asset_fns_create_pre_check($this)) {
 			return FALSE;
 		}
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
@@ -95,6 +96,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end create()
@@ -276,6 +278,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	function addJob($job, $post_office=NULL)
 	{
 		// open the transaction
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// if no post office is supplied, work out which one to use
@@ -334,6 +337,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
@@ -352,6 +356,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	*/
 	function deleteJob($job_id)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'DELETE FROM
@@ -361,6 +366,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		// purge the data dir if it is an ad-hoc job
 		$job_id_parts = explode(':', $job_id);
@@ -386,6 +392,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	*/
 	function updateJob($job_id, $state)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// set last_updated to zero to skip timeout checking when we resume the job
@@ -409,6 +416,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 

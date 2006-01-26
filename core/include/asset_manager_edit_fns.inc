@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.91 2005/08/02 23:19:53 dmckee Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.92 2006/01/26 22:34:08 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -122,6 +122,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 								'sort_order'	=> $_REQUEST['pos'],
 							);
 
+					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$success = $asset->processBackend($this->backend->out, $link);
 
@@ -133,6 +134,8 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 						// the asset was not created fully or linking failed
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					}
+
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				}
 
 				$asset->paintBackend($this->backend->out);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.13 2006/01/18 22:12:42 lwright Exp $
+* $Id: thesaurus.inc,v 1.14 2006/01/26 22:34:07 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -506,6 +506,7 @@ class Thesaurus extends Asset
 			return NULL;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$termid = $db->nextId('sq_thes_term');
@@ -530,6 +531,7 @@ class Thesaurus extends Asset
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $termid;
 
@@ -556,6 +558,7 @@ class Thesaurus extends Asset
 
 		if (is_null($sort_order)) $sort_order = -1;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$linkid = $db->nextId('sq_thes_lnk');
@@ -725,6 +728,7 @@ class Thesaurus extends Asset
 				// no max, we must be the first
 				if (($free_childid = asset_link_treeid_convert(0, TRUE)) === FALSE) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return 0;
 				}
 			} else {
@@ -735,10 +739,12 @@ class Thesaurus extends Asset
 
 				if (($child_num = asset_link_treeid_convert($free_childid, FALSE)) === FALSE) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return 0;
 				}
 				if (($free_childid = asset_link_treeid_convert($child_num + 1, TRUE)) === FALSE) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return 0;
 				}
 			}//end if
@@ -968,6 +974,7 @@ class Thesaurus extends Asset
 		}//end foreach $new_treeids
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end _linkTerms()
@@ -1007,6 +1014,7 @@ class Thesaurus extends Asset
 			if (is_null($parentid)) return NULL;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// determine what to use for a linkid
@@ -1187,6 +1195,7 @@ class Thesaurus extends Asset
 				// no max, we must be the first
 				if (($free_childid = asset_link_treeid_convert(0, TRUE)) === FALSE) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return 0;
 				}
 			} else {
@@ -1197,10 +1206,12 @@ class Thesaurus extends Asset
 
 				if (($child_num = asset_link_treeid_convert($free_childid, FALSE)) === FALSE) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return 0;
 				}
 				if (($free_childid = asset_link_treeid_convert($child_num + 1, TRUE)) === FALSE) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return 0;
 				}
 			}//end if
@@ -1430,6 +1441,7 @@ class Thesaurus extends Asset
 		}//end foreach $new_treeids
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $linkid;
 
 	}//end addTerm()
@@ -1454,7 +1466,7 @@ class Thesaurus extends Asset
 		// if nothing has changed, no need to do any work
 		if ($term['term'] == $name) return TRUE;
 
-
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 
@@ -1485,6 +1497,7 @@ class Thesaurus extends Asset
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end updateTerm()
@@ -1863,16 +1876,18 @@ class Thesaurus extends Asset
 	*/
 	function erase()
 	{
-
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$this->setAttrValue('relations', Array());
 
 		if ($this->_deleteStoredContents() && $this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return TRUE;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -2598,6 +2613,9 @@ class Thesaurus extends Asset
 				$links_to_delete[$id] = $db->quoteSmart($id);
 			}
 		}//end if there are candidates to delete
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = '
@@ -2728,6 +2746,7 @@ class Thesaurus extends Asset
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
@@ -2768,9 +2787,6 @@ class Thesaurus extends Asset
 	*/
 	function updateLink($linkid, $link_type=NULL, $value=NULL, $new_sort_order=NULL)
 	{
-
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
 		$linkid_parts = explode(':', $linkid);
 		if (!isset($linkid_parts[1]) || ($linkid_parts[0] != $this->id)) {
 			return FALSE;
@@ -2792,6 +2808,9 @@ class Thesaurus extends Asset
 		if (($new_sort_order > $max_sort_order) || ($new_sort_order < 0)) {
 			$new_sort_order = $max_sort_order;
 		}
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		if ($new_sort_order > $current_sort_order) {
 			$shift_sql = '
@@ -2843,6 +2862,7 @@ class Thesaurus extends Asset
 			$result = $db->query($update_sql);
 			assert_valid_db_result($result);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.42 2006/01/06 00:48:48 dmckee Exp $
+* $Id: design_customisation.inc,v 1.43 2006/01/26 22:34:04 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,10 +90,13 @@ class Design_Customisation extends Design
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$minor =& $am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!$this->deleteExistingLink($linkid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -120,6 +123,7 @@ class Design_Customisation extends Design
 						$am->forgetAsset($design);
 						$am->forgetAsset($new_minor);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;
 					}
 					$am->forgetAsset($new_minor);
@@ -152,6 +156,7 @@ class Design_Customisation extends Design
 						$am->forgetAsset($design);
 						$am->forgetAsset($new_minor);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;
 					}
 					$am->forgetAsset($new_minor);
@@ -162,6 +167,7 @@ class Design_Customisation extends Design
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end deleteLink()
@@ -191,14 +197,17 @@ class Design_Customisation extends Design
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$minor =& $am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!parent::deleteLink($linkid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
