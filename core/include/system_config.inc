@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.72 2006/01/05 03:14:50 rong Exp $
+* $Id: system_config.inc,v 1.73 2006/01/26 22:12:45 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -46,6 +46,7 @@ class System_Config extends Config
 	var $config_vars = Array(
 						'SQ_CONF_DB_DSN'					=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_DB2_DSN'					=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_DB3_DSN'					=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_PEAR_PATH'					=> Array('editable' => 0, 'default' => ''),
 						'SQ_CONF_BACKEND_SUFFIX'			=> Array('editable' => 1, 'default' => '_admin'),
 						'SQ_CONF_LIMBO_SUFFIX'				=> Array('editable' => 1, 'default' => '_edit'),
