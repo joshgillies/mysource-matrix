@@ -1,4 +1,4 @@
-f<?php
+<?php
 /**
 * +--------------------------------------------------------------------+
 * | Squiz.net Commercial Module Licence                                |
@@ -11,7 +11,7 @@ f<?php
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.35 2006/01/26 22:35:16 lwright Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.36 2006/01/27 01:14:32 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
