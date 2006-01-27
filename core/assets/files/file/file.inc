@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.122 2006/01/26 22:34:04 lwright Exp $
+* $Id: file.inc,v 1.123 2006/01/27 00:00:58 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.122 $
+* @version $Revision: 1.123 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -421,7 +421,7 @@ class File extends Asset
 				SQ_LINK_TYPE_1	=> Array(),
 				SQ_LINK_TYPE_2	=> Array(),
 				SQ_LINK_TYPE_3	=> Array(),
-				SQ_LINK_NOTICE	=> Array('thumbnail' => Array('card' => 1, 'exclusive' => FALSE)),
+				SQ_LINK_NOTICE	=> Array('image' => Array('card' => 1, 'exclusive' => FALSE)),
 			   );
 
 	}//end _getAllowedLinks()
