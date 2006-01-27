@@ -1,3 +1,5 @@
+<?xml version="1.0" ?>
+
 <!--
 /**
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
@@ -18,7 +20,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2005/11/04 00:00:40 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.4 2006/01/27 03:24:29 dmckee Exp $
 *
 */
 -->
@@ -90,3 +92,4 @@
 		</field>
 	</section>
 </contents>
+
