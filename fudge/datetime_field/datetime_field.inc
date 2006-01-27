@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.37 2006/01/20 03:48:43 tbarrett Exp $
+* $Id: datetime_field.inc,v 1.38 2006/01/27 01:41:45 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -680,13 +680,13 @@ class DateTime_Field
 
 			$old_value = $value;
 
-			if (empty($this->parameters['null'])) {
+			if ((strlen($old_value) == 19) && false === strpos($old_value, '--')) {
 				// compare the whole lot
 				$value = date('Y-m-d H:i:s', $timestamp);
 				if (strcmp($value, $old_value) != 0) {
 					trigger_localised_error('SYS0311', E_USER_NOTICE, $old_value);
 				}
-			} else if (!(isset($this->parameters['null']['d']) || isset($this->parameters['null']['m']) || isset($this->parameters['null']['y']))) {
+			} else if (false === strpos($old_value, '----------')) {
 				// only compare the date bit
 				$value = date('Y-m-d ', $timestamp).substr($old_value, 11);
 				if (strcmp(substr($value, 0, 10), substr($old_value, 0, 10)) != 0) {
