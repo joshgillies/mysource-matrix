@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_user.inc,v 1.37 2006/01/26 22:34:06 lwright Exp $
+* $Id: root_user.inc,v 1.38 2006/01/27 03:46:38 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/system_user/system_user.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,6 +70,8 @@ class Root_User extends System_User
 		if (!system_asset_fns_create_pre_check($this)) {
 			return FALSE;
 		}
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		parent::setAttrValue('username', 'root');
