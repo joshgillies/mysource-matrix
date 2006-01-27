@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.496 2006/01/27 01:04:28 lwright Exp $
+* $Id: asset.inc,v 1.497 2006/01/27 01:42:29 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.496 $
+* @version $Revision: 1.497 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1559,12 +1559,12 @@ class Asset extends MySource_Object
 			return false;
 		}
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// is this new type one of our decendents or ancestors?
 		$sql = 'SELECT COUNT(*)
