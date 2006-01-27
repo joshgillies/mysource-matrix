@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.31 2006/01/05 22:52:10 mmcintyre Exp $
+* $Id: db_install.inc,v 1.32 2006/01/27 03:48:03 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -530,7 +530,7 @@ function db_install($xml_file, $verbose=true)
 
 
 /**
-* Grants permisson on the tables created for the secondary user.
+* Grants permisson on the tables created for the secondary (db2) and tertiary (db3) user.
 *
 * This function should be called after the creation of all the tables in the system
 *
@@ -545,6 +545,7 @@ function grant_secondary_user_perms($verbose=true)
 	if ($db->phptype == 'pgsql') {
 		$primary_dsn   = DB::parseDSN(SQ_CONF_DB_DSN);
 		$secondary_dsn = DB::parseDSN(SQ_CONF_DB2_DSN);
+		$tertiary_dsn = DB::parseDSN(SQ_CONF_DB3_DSN);
 
 		if ($primary_dsn['username'] != $secondary_dsn['username']) {
 			$grant_sql = 'SELECT sq_grant_access('.$db->quote($secondary_dsn['username']).')';
@@ -552,8 +553,14 @@ function grant_secondary_user_perms($verbose=true)
 			assert_valid_db_result($result);
 		}
 
+		if (($primary_dsn['username'] != $tertiary_dsn['username']) && ($secondary_dsn['username'] != $tertiary_dsn['username'])) {
+			$grant_sql = 'SELECT sq_grant_access('.$db->quote($tertiary_dsn['username']).')';
+			$result = $db->query($grant_sql);
+			assert_valid_db_result($result);
+		}
+
 		if ($verbose) {
-			pre_echo('PGSQL SECONDARY USER PERMISSIONS FIXED');
+			pre_echo('PGSQL SECONDARY AND TERTIARY USER PERMISSIONS FIXED');
 		}
 	}
 
