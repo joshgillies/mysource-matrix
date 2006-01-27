@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.497 2006/01/27 01:42:29 lwright Exp $
+* $Id: asset.inc,v 1.498 2006/01/27 04:50:17 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.497 $
+* @version $Revision: 1.498 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4521,10 +4521,11 @@ class Asset extends MySource_Object
 									$lookup_values = isset($our_lookup_values[$tmp_old_url['url']]) ? $our_lookup_values[$tmp_old_url['url']] : Array();
 									break;
 								}
-							} else {
-								$lookup_values = Array();
 							}
 						}
+
+						if (!isset($lookup_values)) $lookup_values = Array();
+
 						// all designs go to all urls (at the moment anyway), so merge them all in
 						foreach ($our_designs as $name => $data) {
 							$lookup_values[$name] = $data;
