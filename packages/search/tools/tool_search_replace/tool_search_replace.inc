@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.16 2005/10/13 23:50:53 sdanis Exp $
+* $Id: tool_search_replace.inc,v 1.17 2006/01/27 00:48:04 dmckee Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -52,8 +52,10 @@ class Tool_Search_Replace extends Tool
 	/**
 	* Gather required HIPO data
 	*
-	* @param Object &$o reference to the outputter object
-	* @param String $type_code type code of this asset
+	* @param object	&$o			reference to the outputter object
+	* @param string	$type_code	type code of this asset
+	*
+	* @return array
 	* @access public
 	*/
 	function paintTool(&$o, $type_code)
@@ -62,7 +64,7 @@ class Tool_Search_Replace extends Tool
 
 		ob_start();
 
-		//user input of search and replace strings
+		// user input of search and replace strings
 		$o->openSection(translate('sch_search_terms'));
 			$o->openField(translate('sch_search_string'));
 				text_box($type_code.'_search_string', '', 40);
@@ -77,10 +79,10 @@ class Tool_Search_Replace extends Tool
 			$o->closeField();
 		$o->closeSection();
 
-		//allow restrictions based on asset type and asset status
+		// allow restrictions based on asset type and asset status
 		$o->openSection(translate('sch_search_restrictions'));
 			$o->openField(translate('asset_types'));
-				asset_type_chooser($type_code.'_search_types', true, Array());
+				asset_type_chooser($type_code.'_search_types', TRUE, Array());
 			$o->closeField();
 
 			$o->openField(translate('asset_status'));
@@ -89,11 +91,11 @@ class Tool_Search_Replace extends Tool
 				foreach ($statuses as $constant => $value) {
 					$options[$value] = get_status_description($value);
 				}
-				combo_box($type_code.'_statuses', $options, true, '', 10);
+				combo_box($type_code.'_statuses', $options, TRUE, '', 10);
 			$o->closeField();
 		$o->closeSection();
 
-		//limit the search to certain parts (or all) of the system
+		// limit the search to certain parts (or all) of the system
 		$o->openSection(translate('sch_search_location'));
 			$o->openField(translate('root_node'));
 				asset_finder($type_code.'_root_assetid', '');
@@ -124,13 +126,15 @@ class Tool_Search_Replace extends Tool
 	* Processes the information input by the user and runs the search. Launches
 	* a HIPO to perform the replacements with the formatted search information.
 	*
-	* @param Object &$o reference to the outputter object
-	* @param String $type_code type code of this asset
+	* @param object	&$o			reference to the outputter object
+	* @param string	$type_code	type code of this asset
+	*
+	* @return void
 	* @access public
 	*/
 	function processTool(&$o, $type_code)
 	{
-		//ensure we have a search string
+		// ensure we have a search string
 		if ($_REQUEST[$type_code.'_search_string'] == '') {
 			trigger_localised_error('SCH0002', E_USER_NOTICE);
 			Tool_Search_Replace::paintTool($o, $type_code);
@@ -155,7 +159,7 @@ class Tool_Search_Replace extends Tool
 			return;
 		}
 
-		$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 		if (strlen($_REQUEST[$type_code.'_search_string']) < $sm->attr('min_word_length')) {
 			trigger_localised_error('SCH0026', E_USER_NOTICE, $_REQUEST[$type_code.'_search_string'], $sm->attr('min_word_length'));
@@ -163,13 +167,13 @@ class Tool_Search_Replace extends Tool
 			return;
 		}
 
-		//create search types array
+		// create search types array
 		$search_types = Array();
 		foreach ($_REQUEST[$type_code.'_search_types'] as $type) {
 			if (!empty($type)) $search_types[$type] = 1;
 		}
 
-		//work out our root node position
+		// work out our root node position
 		if (isset($_REQUEST[$type_code.'_root_folder'])) {
 			$root_assetid = Array();
 		} else {
@@ -195,9 +199,9 @@ class Tool_Search_Replace extends Tool
 							'field_logic'	=> 'AND',
 						  );
 
-		$search_results = $sm->processSearch($search_details, true);
+		$search_results = $sm->processSearch($search_details, TRUE);
 
-		//no matches were found, trigger error and paint getInterface
+		// no matches were found, trigger error and paint getInterface
 		if (!$search_results) {
 			trigger_localised_error('SCH0006', E_USER_NOTICE, $_REQUEST[$type_code.'_search_string']);
 			Tool_Search_Replace::paintTool($o, $type_code);
@@ -206,7 +210,7 @@ class Tool_Search_Replace extends Tool
 
 		$formatted_results = Tool_Search_Replace::getFormattedResults($search_results, $_REQUEST[$type_code.'_search_string']);
 
-		//after formatting the results, there were no real replaceable matches
+		// after formatting the results, there were no real replaceable matches
 		if (empty($formatted_results)) {
 			trigger_localised_error('SCH0006', E_USER_NOTICE, $_REQUEST[$type_code.'_search_string']);
 			Tool_Search_Replace::paintTool($o, $type_code);
@@ -222,10 +226,10 @@ class Tool_Search_Replace extends Tool
 				);
 
 
-		//redirect data to the HIPO
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		// redirect data to the HIPO
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$hh->queueHipo('hipo_job_tool_search_replace', $vars, '', SQ_PACKAGES_PATH.'/search/hipo_jobs');
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$url = $hh->runQueuedJobs();
 		if (!empty($url)) $o->setRedirect($url);
 
@@ -238,30 +242,34 @@ class Tool_Search_Replace extends Tool
 	* Results array is in the format returned by search manager
 	* when a detailed searched is made
 	*
+	* @param array	$results		Search Results
+	* @param string	$search_string	String searched for
+	*
+	* @return array
 	* @access public
 	*/
 	function getFormattedResults($results, $search_string)
 	{
 		$search_string = preg_replace('/([\.\\\!\+\*\?\[\]\^\$\(\)\=\!\<\>\|\:]+)/i', '\\\${1}',$search_string);
 
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		$formatted_results = Array();
 
-		//transform the array into a better working format
+		// transform the array into a better working format
 		foreach ($results as $result) {
 			$searched_results[$result['assetid']][] = $result['source'];
 		}
 
-		//populate the results array as required
-		//note we dont include fields that dont have matches
+		// populate the results array as required
+		// note we dont include fields that dont have matches
 		foreach ($searched_results as $assetid => $content) {
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			foreach ($content as $content_type) {
 				switch ($content_type['source']) {
 
-					//asset contents containing search string
+					// asset contents containing search string
 					case preg_match('/contents/', $content_type) > 0:
 						$asset_contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
 
@@ -272,8 +280,8 @@ class Tool_Search_Replace extends Tool
 						}
 					break;
 
-					//attributes containing search string
-					//attributes come in 2 formats, __attribute__ and attr:attrname$
+					// attributes containing search string
+					// attributes come in 2 formats, __attribute__ and attr:attrname$
 					case preg_match('/__(.+)__/', $content_type, $matches) > 0:
 					case preg_match('/attr:(.+)$/', $content_type, $matches) > 0:
 						if (isset($asset->vars[$matches[1]])) {
@@ -285,9 +293,9 @@ class Tool_Search_Replace extends Tool
 						}
 					break;
 
-					//metadata containing search string
+					// metadata containing search string
 					case preg_match('/metadata/', $content_type) > 0:
-						//we've already set metadata for this asset
+						// we've already set metadata for this asset
 						if (isset($formatted_results[$assetid]['metadata'])) {
 							break;
 						}
@@ -300,12 +308,12 @@ class Tool_Search_Replace extends Tool
 							}
 						}
 
-						//if no metadata was set, then we were looking for the schema
+						// if no metadata was set, then we were looking for the schema
 						if (!isset($formatted_results[$assetid]['metadata'])) {
-							$schemas = $mm->getSchemas($assetid, true);
+							$schemas = $mm->getSchemas($assetid, TRUE);
 
 							foreach ($schemas as  $schemaid) {
-								$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+								$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 								$schema_data = $mm->getSchemaDefaultValues($schema->id);
 
 								foreach ($schema_data as $fieldid => $data) {

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace_management.inc,v 1.3 2005/05/11 02:36:52 dmckee Exp $
+* $Id: tool_search_replace_management.inc,v 1.4 2006/01/27 00:48:04 dmckee Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -47,7 +47,7 @@ class Tool_Search_Replace_Management extends Asset_Management
 	/**
 	* Returns all files this asset wants installed/updated into the data directory
 	*
-	* @return Array(string)
+	* @return array
 	* @access private
 	*/
 	function _getFileList()
