@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_asset.inc,v 1.4 2005/06/02 05:03:25 rhoward Exp $
+* $Id: trigger_action_create_asset.inc,v 1.5 2006/01/27 00:19:35 pgannavarapu Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,6 +71,9 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 		if (empty($settings['parentid'])) return false;
 		if (empty($settings['link_type'])) return false;
 
+		if ($settings['parentid'] == 'current_asset') {
+			$settings['parentid'] = $state['assetid'];
+		}
 		$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($settings['parentid']);
 		if (is_null($parent)) return false;
 
@@ -132,8 +135,14 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 		$is_exclusive = array_get_index($settings, 'is_exclusive', 0);
 
 		// check if the parent asset is valid
-		if ($parentid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($parentid)) {
+		$parent_broadcasted = FALSE;
+		if ($parentid == 'current_asset') {
+			$parent_broadcasted = TRUE;
 			$parentid = 0;
+		} else {
+			if ($parentid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($parentid)) {
+				$parentid = 0;
+			}
 		}
 
 			// begin buffering basic options
@@ -151,6 +160,8 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 			ob_start();
 				if ($write_access) {
 					asset_finder($prefix.'[parentid]', $parentid, Array('asset' => 'D'));
+					echo '<br /><b>'.translate('trigger_create_under_broadcaster').'</b>';
+					check_box($prefix.'[parentid]', 'current_asset', $parent_broadcasted);
 				} else {
 					$parent = null;
 					if ($parentid > 0) {
@@ -248,7 +259,7 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 	function processInterface(&$settings, $request_data)
 	{
 		// make sure the parentid isn't blank
-		if (empty($request_data['parentid']['assetid'])) {
+		if (($request_data['parentid'] != 'current_asset') && empty($request_data['parentid']['assetid'])) {
 			return translate('parent_to_create_under_is_missing');
 		}
 
@@ -257,7 +268,11 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 			return translate('link_type_missing');
 		}
 
-		$settings['parentid']  = $request_data['parentid']['assetid'];
+		if (is_array($request_data['parentid'])) {
+			$settings['parentid']  = $request_data['parentid']['assetid'];
+		} else {
+			$settings['parentid']  = $request_data['parentid'];
+		}
 		$settings['link_type'] = $request_data['link_type'];
 
 		$type_code = array_get_index($request_data, 'type_code', false);

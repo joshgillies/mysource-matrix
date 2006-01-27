@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.98 2006/01/25 00:15:25 rong Exp $
+* $Id: lang_strings.xml,v 1.99 2006/01/27 00:20:35 pgannavarapu Exp $
 *
 */
 
@@ -923,6 +923,8 @@
 	<string source="trigger_create_link_remove_others">Unlink this asset from all its existing parents</string>
 	<string source="dependantly">Dependantly</string>
 	<string source="non_dependantly">Non-dependantly</string>
+	<string source="trigger_create_under_broadcaster">Create under the broadcasting asset</string>
+
 	<string source="exclusively">Exclusively</string>
 	<string source="non_exclusively">Non-exclusively</string>
 
