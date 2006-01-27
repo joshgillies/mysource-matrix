@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager.inc,v 1.5.2.1 2005/11/10 00:20:01 dmckee Exp $
+* $Id: page_user_group_manager.inc,v 1.5.2.2 2006/01/27 03:42:49 dmckee Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Darren McKee <dmckee@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.5.2.1 $
+* @version $Revision: 1.5.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -283,7 +283,7 @@ class Page_User_Group_Manager extends Page
 		ob_start();
 			$root_node = $this->attr('root_node');
 			$default = array_get_index($this->_tmp, 'selected', Array());
-			structured_drop_down($this->getPrefix().$suffix, $root_node, $full_types, $default, $this->attr('structured_width'), $this->attr('structured_height'), $this->attr('max_depth'), $this->attr('allow_multiple'), $this->attr('seperator'), $this->attr('include_root_node'), '', $this->attr('structured_style'), $this->attr('statuses'));
+			structured_drop_down($this->getPrefix().$suffix, $root_node, $full_types, $default, $this->attr('structured_width'), $this->attr('structured_height'), $this->attr('max_depth'), $this->attr('allow_multiple'), $this->attr('seperator'), $this->attr('include_root_node'), '', $this->attr('structured_style'), $this->attr('statuses'), TRUE, Array(), FALSE, SQ_PERMISSION_READ);
 			$selector = ob_get_contents();
 		ob_end_clean();
 		return $selector;
