@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.495 2006/01/26 23:37:36 lwright Exp $
+* $Id: asset.inc,v 1.496 2006/01/27 01:04:28 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.495 $
+* @version $Revision: 1.496 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4521,6 +4521,8 @@ class Asset extends MySource_Object
 									$lookup_values = isset($our_lookup_values[$tmp_old_url['url']]) ? $our_lookup_values[$tmp_old_url['url']] : Array();
 									break;
 								}
+							} else {
+								$lookup_values = Array();
 							}
 						}
 						// all designs go to all urls (at the moment anyway), so merge them all in
