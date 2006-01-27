@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_reindex.inc,v 1.4 2005/07/13 05:07:30 mmcintyre Exp $
+* $Id: tool_reindex.inc,v 1.5 2006/01/27 00:50:28 dmckee Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -52,10 +52,10 @@ class Tool_Reindex extends Tool
 	/**
 	* Paints the tool interface.
 	*
-	* @param  &$o        reference to the backend outputter of the object painting the tool
-	* @param  $type_code the type code of the tool being painted
+	* @param object	&$o			reference to the backend outputter of the object painting the tool
+	* @param string	$type_code	the type code of the tool being painted
 	*
-	* @return String
+	* @return string
 	* @access public
 	*/
 	function paintTool(&$o, $type_code)
@@ -90,9 +90,10 @@ class Tool_Reindex extends Tool
 	/**
 	* Processes the user input and performs the function of the tool.
 	*
-	* @param  &$o        reference to the backend outputter of the object painting the tool
-	* @param  $type_code the type code of the tool being painted
+	* @param object	&$o			reference to the backend outputter of the object painting the tool
+	* @param string	$type_code	the type code of the tool being painted
 	*
+	* @return void
 	* @access public
 	*/
 	function processTool(&$o, $type_code)
@@ -110,9 +111,9 @@ class Tool_Reindex extends Tool
 			$vars = Array('root_assetid' => $root_assetid);
 		}
 
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh &= $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$hh->queueHipo('hipo_job_reindex', $vars, '', SQ_PACKAGES_PATH.'/search/hipo_jobs');
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh &= $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$url = $hh->runQueuedJobs();
 		if (!empty($url)) $o->setRedirect($url);
 
