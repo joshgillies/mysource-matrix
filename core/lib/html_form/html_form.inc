@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.88.2.7 2006/01/09 01:07:49 dmckee Exp $
+* $Id: html_form.inc,v 1.88.2.8 2006/01/27 03:41:48 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.88.2.7 $
+* @version $Revision: 1.88.2.8 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -906,7 +906,7 @@ function var_to_hidden_field($var, $name='')
 {
 	if (is_array($var) || is_object($var)) {
 		foreach ($var as $k => $v) {
-			var_to_hidden_field($v, (($name) ? $name.'['.$k.']': $k));
+			var_to_hidden_field($v, (($name) ? $name.'['.$k.']' : $k));
 		}
 	} else {
 		if ($name) hidden_field($name, $var);
@@ -932,7 +932,7 @@ function var_to_hidden_field($var, $name='')
 * @return void
 * @access public
 */
-function asset_type_chooser($name, $multiple=FALSE, $defaults=Array(), $instantiable=null, $system_accessible=FALSE, $show_inherit_checkbox=FALSE, $specified_types=Array())
+function asset_type_chooser($name, $multiple=FALSE, $defaults=Array(), $instantiable=NULL, $system_accessible=FALSE, $show_inherit_checkbox=FALSE, $specified_types=Array())
 {
 	// if we specified types for the listing, build a list with these
 	if (!empty($specified_types)) {
@@ -1020,11 +1020,12 @@ function asset_type_chooser($name, $multiple=FALSE, $defaults=Array(), $instanti
 * @param boolean	$structured		Whether to show levels, or display as a flat list
 * @param array		$link_types		Allowed link types(Empty for all types)
 * @param array		$allow_empty	Add an empty entry at the start
+* @param int		$permission		Minimum required permission on an asset in order for it to be displayed
 *
 * @return array
 * @access protected
 */
-function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $width=0, $height=0, $max_depth=0, $allow_multiple=FALSE, $seperator='-', $include_root=FALSE, $root_text='', $check_boxes=FALSE, $statuses=Array(), $structured=TRUE, $link_types=Array(), $allow_empty=FALSE)
+function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $width=0, $height=0, $max_depth=0, $allow_multiple=FALSE, $seperator='-', $include_root=FALSE, $root_text='', $check_boxes=FALSE, $statuses=Array(), $structured=TRUE, $link_types=Array(), $allow_empty=FALSE, $permission=NULL)
 {
 	$all_child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($root_id);
 	$child_links = $all_child_links;
@@ -1067,6 +1068,16 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 	if (!empty($statuses) && count($statuses) < 9) {
 		foreach ($child_links as $treeid => $data) {
 			if (!in_array($asset_info[$data['assetid']]['status'], $statuses)) {
+				unset($child_links[$treeid]);
+			}
+		}
+	}
+
+	if (!is_null($permission)) {
+		$public_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
+		foreach ($child_links as $treeid => $data) {
+			$perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($data['assetid'], $permission, NULL, TRUE, TRUE);
+			if (!in_array($GLOBALS['SQ_SYSTEM']->user->id, $perms) && !in_array($public_user->id, $perms)) {
 				unset($child_links[$treeid]);
 			}
 		}
