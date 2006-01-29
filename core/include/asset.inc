@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.498 2006/01/27 04:50:17 lwright Exp $
+* $Id: asset.inc,v 1.499 2006/01/29 22:41:26 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.498 $
+* @version $Revision: 1.499 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -232,7 +232,7 @@ class Asset extends MySource_Object
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_DATA_VALIDATION)) {
 			// perform any validation before starting the create process
