@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMap.java,v 1.19 2006/01/17 21:36:13 sdanis Exp $
+* $Id: AssetMap.java,v 1.20 2006/01/29 23:43:22 sdanis Exp $
 *
 */
 
@@ -138,14 +138,9 @@ public class AssetMap extends JApplet implements InitialisationListener, KeyList
 		String version = System.getProperty("java.version");
 		String[] supVersions = (Matrix.getProperty("parameter.java.supportedversion")).split("\\,");
 
-		// check only the first three version numbers e.g. 1.4.2
-		if (version.indexOf('_') > 0) {
-			version = version.substring(0, version.indexOf('_'));
-		}
-
 		// compare versions
 		for (int i=0; i< supVersions.length; i++) {
-			if (supVersions[i].equals(version)) {
+			if (version.startsWith(supVersions[i])) {
 				supportedVersion = true;
 				break;
 			}
