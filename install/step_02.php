@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.62 2006/01/29 22:28:49 lwright Exp $
+* $Id: step_02.php,v 1.63 2006/01/29 22:42:05 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -81,11 +81,11 @@ $cached_table_columns = Array();
 
 // we need to do this before starting the transaction because the
 // set_timestamp for postgres is required to start a transaction
-install_stored_relations('functions');
-
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 $db =& $GLOBALS['SQ_SYSTEM']->db;
+
+install_stored_relations('functions');
 
 if (file_exists(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 	unlink(SQ_DATA_PATH.'/private/db/table_columns.inc');
