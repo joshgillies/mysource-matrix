@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.61 2006/01/26 22:34:09 lwright Exp $
+* $Id: step_02.php,v 1.62 2006/01/29 22:28:49 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -72,8 +72,6 @@ require_once 'XML/Tree.php';
 
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
-$db =& $GLOBALS['SQ_SYSTEM']->db;
-
 // Re-generate the Config to make sure that we get any new defines that may have been issued
 
 $cfg =& new System_Config();
@@ -85,7 +83,9 @@ $cached_table_columns = Array();
 // set_timestamp for postgres is required to start a transaction
 install_stored_relations('functions');
 
+$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 if (file_exists(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 	unlink(SQ_DATA_PATH.'/private/db/table_columns.inc');
@@ -119,6 +119,7 @@ if (!File_Versioning::initRepository($db)) {
 }
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 ?>

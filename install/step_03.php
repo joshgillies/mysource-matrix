@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.64 2006/01/26 22:34:09 lwright Exp $
+* $Id: step_03.php,v 1.65 2006/01/29 22:28:49 lwright Exp $
 *
 */
 
@@ -43,7 +43,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -100,6 +100,7 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 // get the list of functions used during install
 require_once $SYSTEM_ROOT.'/install/install.inc';
 
+$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 // firstly let's check that we are OK for the version
@@ -142,6 +143,7 @@ cache_asset_types();
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 
 /**

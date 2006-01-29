@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.57 2006/01/26 22:34:09 lwright Exp $
+* $Id: install.inc,v 1.58 2006/01/29 22:28:49 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -89,8 +89,6 @@ function regenerate_configs()
 */
 function uninstall_asset_types()
 {
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
-
 	// always contains the full list of asset type_codes currently registered in the database
 	$all_asset_types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
 
@@ -155,7 +153,9 @@ function uninstall_asset_types()
 			exit(1);
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// now actually delete the types
 		foreach ($asset_types as $asset_type) {
@@ -181,6 +181,7 @@ function uninstall_asset_types()
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		// report if we did uninstall some asset types
 		if (!empty($asset_types)) {
@@ -210,14 +211,14 @@ function uninstall_asset_types()
 */
 function uninstall_packages()
 {
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
-
 	// If the package manager doesn't exist for a package, it does not exist.
 	// Assumption: packages live in the packages directory (Core never gets uninstalled).
 	$packages_installed = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
 
 	if (!empty($packages_installed)) {
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		foreach ($packages_installed as $package_array) {
 			$package = $package_array['code_name'];
@@ -259,6 +260,7 @@ function uninstall_packages()
 		}//end foreach installed package
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}//end if installed packages not empty
 
