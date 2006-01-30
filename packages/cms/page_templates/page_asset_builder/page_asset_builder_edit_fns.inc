@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.37 2005/11/04 00:00:39 lwright Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.38 2006/01/30 04:54:49 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -50,7 +50,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	function Page_Asset_Builder_Edit_Fns()
 	{
 		$this->Page_Edit_Fns();
-		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
 
@@ -61,9 +61,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the current asset types that have been added
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -75,9 +75,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			echo '<p class="sq-backend-warning">'.translate('cms_asset_builder_no_types_defined').'</p>';
 		}
 		if ($asset->writeAccess('attributes')) {
-			asset_type_chooser($prefix.'_create_types', true, array_keys($types));
+			asset_type_chooser($prefix.'_create_types', TRUE, array_keys($types));
 		} else {
-			$type_infos = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes(null, true);
+			$type_infos = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes(NULL, TRUE);
 			foreach ($types as $type => $value) {
 				echo $type_infos[$type]['name'].'<br />';
 			}
@@ -89,9 +89,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the current asset types that have been added
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -104,9 +104,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				if (!empty($type)) $types[$type] = 1;
 			}
 			$asset->setAttrValue('create_type', $types);
-			return true;
+			return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end processAssetTypes()
 
@@ -114,9 +114,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for choosing the status of newly created assets
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -132,7 +132,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 								SQ_STATUS_UNDER_CONSTRUCTION	=> translate('under_construction'),
 								SQ_STATUS_LIVE					=> translate('live'),
 							  );
-			combo_box($prefix.'_create_status', $status_options, false, $asset->attr('create_status'));
+			combo_box($prefix.'_create_status', $status_options, FALSE, $asset->attr('create_status'));
 		}
 
 	}//end paintCreateStatus()
@@ -141,9 +141,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the interface for choosing the status of newly created assets
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -151,7 +151,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	function processCreateStatus(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_create_status'])) {
-			return false;
+			return FALSE;
 		}
 		$create_status = (int)$_POST[$prefix.'_create_status'];
 		return $asset->setAttrValue('create_status', $create_status);
@@ -165,9 +165,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for choosing the locations to which all new assets will be linked
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -177,10 +177,10 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 		$link_type_names = Array(
-								SQ_LINK_TYPE_1	=> '',
-								SQ_LINK_TYPE_2	=> '',
-								SQ_LINK_TYPE_3	=> '',
-								SQ_LINK_NOTICE	=> '',
+							SQ_LINK_TYPE_1	=> '',
+							SQ_LINK_TYPE_2	=> '',
+							SQ_LINK_TYPE_3	=> '',
+							SQ_LINK_NOTICE	=> '',
 						   );
 		foreach ($link_type_names as $link_type => $null) {
 			$link_type_names[$link_type] = link_type_name($link_type);
@@ -206,7 +206,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				<?php
 
 				foreach ($locations as $locationid => $link_type) {
-					$location = &$GLOBALS['SQ_SYSTEM']->am->getAsset($locationid);
+					$location =& $GLOBALS['SQ_SYSTEM']->am->getAsset($locationid);
 					if (is_null($location)) continue;
 					?>
 					<tr>
@@ -225,13 +225,13 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				?>
 			</table>
 			<?php
-		}
+		}//end else
 
 		if ($write_access) {
 			echo '<p><b>'.translate('cms_add_location').':</b>&nbsp;&nbsp;&nbsp; ';
 			asset_finder($prefix.'_new_create_location', 0, $this->location_types);
 			echo '&nbsp;&nbsp;&nbsp;'.translate('link_type').': ';
-			combo_box($prefix.'_new_link_type', $link_type_names, false, '');
+			combo_box($prefix.'_new_link_type', $link_type_names, FALSE, '');
 			echo '</p>';
 		}
 
@@ -243,9 +243,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the interface for choosing the locations to which all new assets will be linked
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -280,7 +280,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		if ($old_locations != $new_locations) {
 			return $asset->setAttrValue('create_location', $new_locations);
 		}
-		return false;
+		return FALSE;
 
 	}//end processFixedCreateLocations()
 
@@ -288,11 +288,11 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for a single set of selectable create locations
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	* @param string						$name	the name of the selectable locations set
-	* @param array						&$data	details of the selectable locations set
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	* @param string	$name	the name of the selectable locations set
+	* @param array	&$data	details of the selectable locations set
 	*
 	* @return void
 	* @access public
@@ -337,7 +337,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 						$link_type_names[$link_type] = link_type_name($link_type);
 					}
 					if ($write_access) {
-						combo_box($prefix.'_'.$code_name.'_link_type', $link_type_names, false, $data['link_type']);
+						combo_box($prefix.'_'.$code_name.'_link_type', $link_type_names, FALSE, $data['link_type']);
 					} else {
 						echo $link_type_names[$data['link_type']];
 					}
@@ -351,7 +351,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				</td>
 
 				<td class="sq-backend-table-cell">
-				<?php if ($write_access) {	?>
+				<?php
+					if ($write_access) {
+				?>
 					<select name="<?php echo $prefix.'_'.$code_name.'_input_style'; ?>">
 						<option value="dropdown" <?php echo $data['input_style']=='dropdown' ? 'selected="selected"' : ''; ?>>Dropdown</option>
 						<option value="radio" <?php echo $data['input_style']=='radio' ? 'selected="selected"' : ''; ?>>Radio Buttons</option>
@@ -372,27 +374,43 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					<table border="0" cellpadding="0" cellspacing="0" style="width: 100%">
 						<tr>
 							<td style="width: 48%">
-								<?php if ($write_access) { ?>
+								<?php
+									if ($write_access) {
+								?>
 									<input type="checkbox" name="<?php echo $prefix.'_'.$code_name.'_allow_empty'; ?>" id="<?php echo $prefix.'_'.$code_name.'_allow_empty'; ?>" value="1"  class="sq-form-field"  <?php echo $data['allow_empty'] ? 'checked="checked"' : ''; ?> />
-								<?php } else { ?>
+								<?php
+									} else {
+								?>
 									<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $data['allow_empty'] ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
-								<?php } ?>
+								<?php
+									}
+								?>
 								<?php echo translate('cms_allow_no_selection'); ?> &nbsp;&nbsp;&nbsp;&nbsp;
 							</td>
 
 							<td style="width: 48%;">
-								<?php if ($write_access) { ?>
+								<?php
+									if ($write_access) {
+								?>
 									<input type="checkbox" name="<?php echo $prefix.'_'.$code_name.'_allow_multiple'; ?>" id="<?php echo $prefix.'_'.$code_name.'_allow_multiple'; ?>" value="1"  class="sq-form-field"  <?php echo $data['allow_multiple'] ? 'checked="checked"' : ''; ?> />
-								<?php } else { ?>
+								<?php
+									} else {
+								?>
 									<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $data['allow_multiple'] ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
-								<?php } ?>
+								<?php
+									}
+								?>
 								<?php echo translate('cms_allow_multiple_selections'); ?> &nbsp;&nbsp;&nbsp;&nbsp;
 							</td>
 
 							<td style="width: 4%; text-align: right">
-							<?php if ($write_access) { ?>
+							<?php
+								if ($write_access) {
+							?>
 								<input type="hidden" name="<?php echo $prefix.'_'.$code_name.'_delete' ?>" id="<?php echo $prefix.'_'.$code_name.'_delete' ?>" value="0"  class="sq-form-field" /><input type="button" value="Delete Set" onclick="if (confirm(js_translate('confirm_delete_selectable_locations'))) { document.getElementById('<?php echo $prefix.'_'.$code_name.'_delete' ?>').value=1; form.submit(); }" />
-							<?php } ?>
+							<?php
+								}
+							?>
 							</td>
 						</tr>
 					</table>
@@ -408,9 +426,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for choosing sets of create locations for the frontend user to choose from
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -440,9 +458,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the interface for choosing sets of create locations for the frontend user to choose from
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -461,7 +479,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				$asset->setAttrValue('create_location_optional', $sets);
 				$asset->saveAttributes();
 
-				return true; // when deleting a set, nothing else should be done.
+				return TRUE; // when deleting a set, nothing else should be done.
 			}
 		}
 
@@ -511,7 +529,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		$asset->saveAttributes();
 		$asset->_updated();
 
-		return true;
+		return TRUE;
 
 	}//end processSelectableLocationSets()
 
@@ -519,9 +537,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for setting up rules that determine create locations
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -531,7 +549,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		$current_assets = $asset->attr('create_type');
 		if (empty($current_assets)) {
 			echo translate('cms_asset_builder_rules_no_asset_type');
-			return false;
+			return FALSE;
 		}
 
 		$write_access = $asset->writeAccess('attributes');
@@ -578,9 +596,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					for ($j = 0; $j < count($rule['attributes']); $j++) {
 						if ($write_access) {
 							echo '<li>';
-							combo_box($prefix.'_rules['.$create_type.']['.$i.'][attributes]['.$j.']', $attributes, false, $rule['attributes'][$j]);
+							combo_box($prefix.'_rules['.$create_type.']['.$i.'][attributes]['.$j.']', $attributes, FALSE, $rule['attributes'][$j]);
 							echo '&nbsp;';
-							combo_box($prefix.'_rules['.$create_type.']['.$i.'][comparators]['.$j.']', $comparators, false, $rule['comparators'][$j]);
+							combo_box($prefix.'_rules['.$create_type.']['.$i.'][comparators]['.$j.']', $comparators, FALSE, $rule['comparators'][$j]);
 							echo '&nbsp;';
 							text_box($prefix.'_rules['.$create_type.']['.$i.'][values]['.$j.']', $rule['values'][$j]);
 							echo '</li>';
@@ -591,9 +609,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					if ($write_access) {
 						// allow them to add a new condition
 						echo '<li>';
-						combo_box($prefix.'_rules['.$create_type.']['.$i.'][attributes]['.$j.']', $attributes, false, '');
+						combo_box($prefix.'_rules['.$create_type.']['.$i.'][attributes]['.$j.']', $attributes, FALSE, '');
 						echo '&nbsp;';
-						combo_box($prefix.'_rules['.$create_type.']['.$i.'][comparators]['.$j.']', $comparators, false, '');
+						combo_box($prefix.'_rules['.$create_type.']['.$i.'][comparators]['.$j.']', $comparators, FALSE, '');
 						echo '&nbsp;';
 						text_box($prefix.'_rules['.$create_type.']['.$i.'][values]['.$j.']', '');
 						echo '</li>';
@@ -610,7 +628,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 							echo '<li>';
 							asset_finder($prefix.'_rules['.$create_type.']['.$i.'][locations]['.$j.']', $rule['locations'][$j], $this->location_types);
 							echo ' '.translate('link_type').': ';
-							combo_box($prefix.'_rules['.$create_type.']['.$i.'][link_types]['.$j.']', $link_type_names, false, $rule['link_types'][$j]);
+							combo_box($prefix.'_rules['.$create_type.']['.$i.'][link_types]['.$j.']', $link_type_names, FALSE, $rule['link_types'][$j]);
 							echo '</li>';
 						} else {
 							$assetid        = $rule['locations'][$j];
@@ -624,21 +642,25 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 						echo '<li>';
 						asset_finder($prefix.'_rules['.$create_type.']['.$i.'][locations]['.$j.']', 0, $this->location_types);
 						echo ' '.translate('link_type').': ';
-						combo_box($prefix.'_rules['.$create_type.']['.$i.'][link_types]['.$j.']', $link_type_names, false, '');
+						combo_box($prefix.'_rules['.$create_type.']['.$i.'][link_types]['.$j.']', $link_type_names, FALSE, '');
 						echo '</li>';
 					}
 					?>
 					</ul>
-					<?php if ($write_access) { ?>
+					<?php
+						if ($write_access) {
+					?>
 						<input type="hidden" name="<?php echo $prefix.'_rules['.$create_type.']['.$i.'][delete]'; ?>" id="<?php echo $prefix.'_rules_'.$create_type.'_'.$i.'_delete'; ?>" value="0" />
 						<input style="display: inline; float: right; clear: none; margin: 0px; " type="button" onclick="if (confirm(js_translate('confirm_delete_rule'))) { document.getElementById('<?php echo $prefix.'_rules_'.$create_type.'_'.$i.'_delete'; ?>').value=1; form.submit(); }" value="<?php echo translate('delete_rule'); ?>" />
-					<?php } ?>
+					<?php
+						}
+					?>
 					</td></tr>
 					</table>
 
 					<?php
 					$i++;
-				}
+				}//end foreach
 			} else {
 				?><span style="margin-left: 2em; "><?php echo translate('cms_asset_builder_no_rules_defined') ?><br /></span><?php
 			}
@@ -658,9 +680,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				<?php
 				for ($j = 0; $j < 3; $j++) {
 					echo '<li>';
-					combo_box($prefix.'_rules['.$create_type.']['.$i.'][attributes]['.$j.']', $attributes, false, '');
+					combo_box($prefix.'_rules['.$create_type.']['.$i.'][attributes]['.$j.']', $attributes, FALSE, '');
 					echo '&nbsp;';
-					combo_box($prefix.'_rules['.$create_type.']['.$i.'][comparators]['.$j.']', $comparators, false, '');
+					combo_box($prefix.'_rules['.$create_type.']['.$i.'][comparators]['.$j.']', $comparators, FALSE, '');
 					echo '&nbsp;';
 					text_box($prefix.'_rules['.$create_type.']['.$i.'][values]['.$j.']', '');
 				}
@@ -672,7 +694,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 								<li>
 				<?php
 					asset_finder($prefix.'_rules['.$create_type.']['.$i.'][locations][0]', 0, $this->location_types); echo ' Link Type: ';
-					combo_box($prefix.'_rules['.$create_type.']['.$i.'][link_types][0]', $link_type_names, false, '');
+					combo_box($prefix.'_rules['.$create_type.']['.$i.'][link_types][0]', $link_type_names, FALSE, '');
 				?>
 								</li>
 							</ul>
@@ -680,11 +702,11 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					</tr>
 				</table>
 				<?php
-			}
+			}//end if
 
-		}
+		}//end foreach
 
-		return true;
+		return TRUE;
 
 	}//end paintConditionalCreateLocations()
 
@@ -692,16 +714,16 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the interface for setting up create location rules
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processConditionalCreateLocations(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_rules'])) return false;
+		if (!isset($_POST[$prefix.'_rules'])) return FALSE;
 		$rules = $_POST[$prefix.'_rules'];
 
 		// remove empty elements from our array
@@ -743,9 +765,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paints the interface for saying where additional create locations can come from
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -762,7 +784,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			}
 			echo '</ul>';
 		}
-		return true;
+		return TRUE;
 
 	}//end paintAdditionalLocationParents()
 
@@ -770,9 +792,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the interface for saying where additional create locations can come from
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -795,9 +817,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paints the interface for saying what types of asset additional locations can be
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -811,9 +833,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			}
 			echo '</ul>';
 		} else {
-			asset_type_chooser($prefix.'_additional_location_types', true, $asset->attr('additional_location_types'));
+			asset_type_chooser($prefix.'_additional_location_types', TRUE, $asset->attr('additional_location_types'));
 		}
-		return true;
+		return TRUE;
 
 	}//end paintAdditionalLocationTypes()
 
@@ -821,9 +843,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the interface for saying what types of asset additional locations can be
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -845,9 +867,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for choosing sets of dynamic create locations for the frontend user to choose from
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -877,14 +899,14 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Handles the painting of a Dynamic Create Locations set box
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
-	* @param string						$name	the name of the selectable locations set
-	* @param array						&$data	details of the selectable locations set
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	* @param string	$name	the name of the selectable locations set
+	* @param array	&$data	details of the selectable locations set
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _paintDynamicCreateLocationSet(&$asset, &$o, $prefix, $name, &$data)
 	{
@@ -925,7 +947,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				<td class="sq-backend-table-cell">
 					<?php
 						if ($write_access) {
-							int_text_box($prefix.'_'.$code_name.'_depth', array_get_index($data, 'depth', 0), false, 3);
+							int_text_box($prefix.'_'.$code_name.'_depth', array_get_index($data, 'depth', 0), FALSE, 3);
 							echo ' '.translate('cms_asset_builder_levels_text');
 						} else {
 							$levels = array_get_index($data, 'depth', 0);
@@ -951,7 +973,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 						}
 
 						if ($write_access) {
-							asset_type_chooser($prefix.'_'.$code_name.'_types', true, $selected_asset_types, null, false, true);
+							asset_type_chooser($prefix.'_'.$code_name.'_types', TRUE, $selected_asset_types, NULL, FALSE, TRUE);
 						} else {
 							foreach ($selected_asset_types['type_code'] as $index => $type) {
 								if (empty($type)) {
@@ -979,9 +1001,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					if ($write_access) {
 						foreach ($link_types as $link_type => $link_name) {
 							if (isset($data['filter_link_type'][$link_type])) {
-								$selected = true;
+								$selected = TRUE;
 							} else {
-								$selected = false;
+								$selected = FALSE;
 							}
 							check_box($prefix.'_'.$code_name.'_filter_link_type['.$link_type.']', '1', $selected);
 							?>&nbsp;<?php echo $link_name; ?><br />
@@ -1012,7 +1034,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					$link_type_names = get_link_type_names();
 					$selected_link_type = array_get_index($data, 'link_type', SQ_LINK_TYPE_1);
 					if ($write_access) {
-						combo_box($prefix.'_'.$code_name.'_link_type', $link_type_names, false, $selected_link_type);
+						combo_box($prefix.'_'.$code_name.'_link_type', $link_type_names, FALSE, $selected_link_type);
 					} else {
 						echo $link_type_names[$data['link_type']];
 					}
@@ -1041,7 +1063,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					?></select>&nbsp;<?php
 
 					// display structured?
-					check_box($prefix.'_'.$code_name.'_display_structured', '1', ($display_structured == 1 ? true : false));
+					check_box($prefix.'_'.$code_name.'_display_structured', '1', ($display_structured == 1 ? TRUE : FALSE));
 					echo '&nbsp;'.translate('cms_asset_builder_display_as_tree')."\n";
 
 				} else {
@@ -1059,7 +1081,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 						<tr>
 							<td style="width: 48%">
 								<?php
-								$selected_allow_empty = array_get_index($data, 'allow_empty', false);
+								$selected_allow_empty = array_get_index($data, 'allow_empty', FALSE);
 								if ($write_access) {
 									?>
 									<input type="checkbox" name="<?php echo $prefix.'_'.$code_name.'_allow_empty'; ?>" id="<?php echo $prefix.'_'.$code_name.'_allow_empty'; ?>" value="1"  class="sq-form-field"  <?php echo $selected_allow_empty ? 'checked="checked"' : ''; ?> />
@@ -1074,7 +1096,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 							<td style="width: 48%;">
 								<?php
-								$selected_allow_multiple = array_get_index($data, 'allow_multiple', false);
+								$selected_allow_multiple = array_get_index($data, 'allow_multiple', FALSE);
 								if ($write_access) {
 									?>
 									<input type="checkbox" name="<?php echo $prefix.'_'.$code_name.'_allow_multiple'; ?>" id="<?php echo $prefix.'_'.$code_name.'_allow_multiple'; ?>" value="1"  class="sq-form-field"  <?php echo $selected_allow_multiple ? 'checked="checked"' : ''; ?> />
@@ -1088,9 +1110,13 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 							</td>
 
 							<td style="width: 4%; text-align: right">
-							<?php if ($write_access) { ?>
+							<?php
+								if ($write_access) {
+							?>
 								<input type="hidden" name="<?php echo $prefix.'_'.$code_name.'_delete' ?>" id="<?php echo $prefix.'_'.$code_name.'_delete' ?>" value="0"  class="sq-form-field" /><input type="button" value="Delete Set" onclick="if (confirm(js_translate('Are you sure you want to delete this set of dynamic create locations?'))) { document.getElementById('<?php echo $prefix.'_'.$code_name.'_delete' ?>').value=1; form.submit(); }" />
-							<?php } ?>
+							<?php
+								}
+							?>
 							</td>
 						</tr>
 					</table>
@@ -1106,9 +1132,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the interface for choosing sets of dynamic create locations for the frontend user to choose from
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -1142,7 +1168,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				$asset->saveAttributes();
 
 				// when deleting a set, nothing else should be done.
-				return true;
+				return TRUE;
 			}
 		}
 
@@ -1195,7 +1221,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			// update the other options
 			$sets[$name]['allow_empty']    = (int) isset($_POST[$prefix.'_'.$code_name.'_allow_empty']);
 			$sets[$name]['allow_multiple'] = (int) isset($_POST[$prefix.'_'.$code_name.'_allow_multiple']);
-		}
+		}//end foreach
 
 
 		// see if there is a new set to create
@@ -1223,7 +1249,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		$asset->saveAttributes();
 		$asset->_updated();
 
-		return true;
+		return TRUE;
 
 	}//end processDynamicCreateLocations()
 
@@ -1234,9 +1260,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for choosing the status of newly created assets
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -1307,7 +1333,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					?>
 				</table>
 				<?php
-			}
+			}//end else
 
 			if ($write_access) {
 
@@ -1318,13 +1344,13 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				}
 
 				echo '<br/><b>'.translate('cms_asset_builder_new_req_attr_question').' </b>';
-				combo_box($type_prefix.'_new_required', $new_required, false, '');
+				combo_box($type_prefix.'_new_required', $new_required, FALSE, '');
 			}
 
 			$o->closeRaw();
 			$o->closeSection();
 
-		}//end for
+		}//end foreach
 
 		return $write_access;
 
@@ -1334,9 +1360,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the interface for choosing the status of newly created assets
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -1380,7 +1406,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Returns true if the asset builder allows the user to select multiple create locations
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
+	* @param object	&$asset	the asset to which we belong
 	*
 	* @return boolean
 	* @access public
@@ -1395,7 +1421,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Returns true if the asset builder allows the user to create more than one asset type
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
+	* @param object	&$asset	the asset to which we belong
 	*
 	* @return boolean
 	* @access public

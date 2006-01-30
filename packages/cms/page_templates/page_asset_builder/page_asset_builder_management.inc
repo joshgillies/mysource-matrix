@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.26 2005/07/04 23:33:20 pgannavarapu Exp $
+* $Id: page_asset_builder_management.inc,v 1.27 2006/01/30 04:54:49 sdanis Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -188,9 +188,9 @@ class Page_Asset_Builder_Management extends Asset_Management
 		$this->vars['allow_public_user'] = Array(
 											'added'			=> '0.1',
 											'type'			=> 'boolean',
-											'default'		=> true,
+											'default'		=> TRUE,
 											'parameters'	=> Array(
-																'allow_empty'	=> false,
+																'allow_empty'	=> FALSE,
 															   ),
 										   );
 
@@ -200,8 +200,8 @@ class Page_Asset_Builder_Management extends Asset_Management
 	/**
 	* Return an array with information about the events that the account manager is listening for
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function getEventList()
 	{
@@ -209,11 +209,11 @@ class Page_Asset_Builder_Management extends Asset_Management
 				Array(
 					'event_name'					=> 'requestKeywords',
 					'broadcast_type_code'			=> 'content_type',
-					'broadcast_strict_type_code'	=> false,
+					'broadcast_strict_type_code'	=> FALSE,
 					'options'						=> Array(
 														'side_of_link'	=> 'major',
-														'indirect'		=> true,
-														'is_exclusive'	=> null,
+														'indirect'		=> TRUE,
+														'is_exclusive'	=> NULL,
 														'is_dependant'	=> 1,
 														'value'			=> '',
 														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
@@ -237,25 +237,25 @@ class Page_Asset_Builder_Management extends Asset_Management
 		// important upgrades that must be taken care of before create type becomes
 		// a serialise in 0.3
 		if (version_compare($current_version, '0.2', '<=')) {
-			$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
-			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), false);
+			$root_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);
 			foreach ($children as $assetid => $type) {
 
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
 				if (is_null($asset)) continue;
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
 					trigger_localised_error('CMS0025', E_USER_WARNING, '0.2', $asset->name, $asset->id);
-					return false;
+					return FALSE;
 				}
 
 				$old_create_type = $asset->attr('create_type');
-				$create_type = Array($old_create_type => true);
+				$create_type = Array($old_create_type => TRUE);
 				$asset->setAttrValue('create_type', serialize($create_type));
 
 				if (!$asset->saveAttributes()) {
 					trigger_localised_error('CMS0026', E_USER_WARNING, '0.2');
-					return false;
+					return FALSE;
 				}
 
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
@@ -264,21 +264,21 @@ class Page_Asset_Builder_Management extends Asset_Management
 		}
 
 
-		if (!parent::_upgrade($current_version)) return false;
+		if (!parent::_upgrade($current_version)) return FALSE;
 
 		if ($current_version == '0.1') {
 			// this upgrade changed the attribute 'create_locations' to include additional
 			// rules that meant the create locations has to be stored in a different format
 
-			$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
-			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), false);
+			$root_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);
 			foreach ($children as $assetid => $type) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
 				if (is_null($asset)) continue;
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
 					trigger_localised_error('CMS0025', E_USER_WARNING, '0.1', $asset->name, $asset->id);
-					return false;
+					return FALSE;
 				}
 
 				// 0.1->0.2 upgrades
@@ -306,29 +306,29 @@ class Page_Asset_Builder_Management extends Asset_Management
 
 				if (!$asset->saveAttributes()) {
 					trigger_localised_error('CMS0026', E_USER_WARNING, '0.1');
-					return false;
+					return FALSE;
 				}
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-			}
+			}//end foreach
 
-			bam('ASSET BUILDER UPGRADE COMPLETE - VERSION 0.1');
-		}//end version 0.1 upgrade
+			pre_echo('ASSET BUILDER UPGRADE COMPLETE - VERSION 0.1');
+		}//end if version 0.1 upgrade
 
 		if ($current_version == '0.2') {
 			// this update changed the way create types are stored, to allow for the creation
 			// of multiple asset types
-			bam('STARTING ASSET BUILDER UPGRADE - VERSION 0.2');
+			pre_echo('STARTING ASSET BUILDER UPGRADE - VERSION 0.2');
 
-			$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
-			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), false);
+			$root_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);
 			foreach ($children as $assetid => $type) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
 				if (is_null($asset)) continue;
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
 					trigger_localised_error('CMS0025', E_USER_WARNING, '0.2', $asset->name, $asset->id);
-					return false;
+					return FALSE;
 				}
 
 				$create_locs = $asset->attr('create_location_rules');
@@ -342,40 +342,46 @@ class Page_Asset_Builder_Management extends Asset_Management
 				$asset->setAttrValue('required_fields', $required_fields);
 				if (!$asset->saveAttributes()) {
 					trigger_localised_error('CMS0026', E_USER_WARNING, '0.2');
-					return false;
+					return FALSE;
 				}
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
 			$this->_upgrade03To04();
-			bam('ASSET BUILDER UPGRADE COMPLETE - VERSION 0.2');
-		}//end version 0.2 upgrade
+			pre_echo('ASSET BUILDER UPGRADE COMPLETE - VERSION 0.2');
+		}//end if version 0.2 upgrade
 
 		if ($current_version == '0.3') {
-			bam('STARTING ASSET BUILDER UPGRADE - VERSION 0.3');
+			pre_echo('STARTING ASSET BUILDER UPGRADE - VERSION 0.3');
 			$this->_upgrade03To04();
-			bam('ASSET BUILDER UPGRADE COMPLETE - VERSION 0.3');
+			pre_echo('ASSET BUILDER UPGRADE COMPLETE - VERSION 0.3');
 		}
-		return true;
+		return TRUE;
 
 	}//end _upgrade()
 
 
+	/**
+	* Upgrade from version 03 to 04
+	*
+	* @return boolean
+	* @access public
+	*/
 	function _upgrade03To04()
 	{
 			// The create locations regime was radically overhauled between versions 0.3 and 0.4
 			// to add more functions and more flexibility
 
-			$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
-			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), false);
+			$root_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);
 			foreach ($children as $assetid => $type) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
 				if (is_null($asset)) continue;
 
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
 					trigger_localised_error('CMS0025', E_USER_WARNING, '0.3', $asset->name, $asset->id);
-					return false;
+					return FALSE;
 				}
 
 				$old_link_type = $asset->attr('create_link_type');
@@ -449,16 +455,16 @@ class Page_Asset_Builder_Management extends Asset_Management
 
 				if (!$asset->saveAttributes()) {
 					trigger_localised_error('CMS0027', E_USER_WARNING, '0.3');
-					return false;
+					return FALSE;
 				}
 
 				// change the %create_location% keyword in bodycopies to the keyword for our new set
 				$content_assetids = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'content_type_wysiwyg');
 				foreach (array_keys($content_assetids) as $assetid) {
-					$content_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					$content_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($content_asset->id, 'attributes')) {
 						trigger_localised_error('CMS0025', E_USER_WARNING, '0.3', $content_asset->name, $content_asset->id);
-						return false;
+						return FALSE;
 					}
 					$html = $content_asset->attr('html');
 					$html = str_replace('%create_location%', '%first_selectable_location_field%', $html);
@@ -470,12 +476,12 @@ class Page_Asset_Builder_Management extends Asset_Management
 				}
 
 				// regenerate the content files of the bodycopy containers so that they notice
-				$container_assetids = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'bodycopy_container', false);
+				$container_assetids = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'bodycopy_container', FALSE);
 				foreach (array_keys($container_assetids) as $assetid) {
-					$container_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					$container_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($container_asset->id, 'attributes')) {
 						trigger_localised_error('CMS0025', E_USER_WARNING, '0.3', $container_asset->name, $container_asset->id);
-						return false;
+						return FALSE;
 					}
 					$container_asset->saveSystemVersion();
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($container_asset->id, 'attributes');
@@ -487,11 +493,11 @@ class Page_Asset_Builder_Management extends Asset_Management
 
 				if (!$asset->saveAttributes()) {
 					trigger_localised_error('CMS0027', E_USER_WARNING, '0.3');
-					return false;
+					return FALSE;
 				}
 
 				$asset->_updated();
-			}
+			}//end foreach
 
 			// get rid of the old attributes
 			$this->_deleteAttribute('create_location_multiple');
