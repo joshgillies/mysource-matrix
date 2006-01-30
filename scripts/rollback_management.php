@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.11 2005/10/07 04:26:01 mmcintyre Exp $
+* $Id: rollback_management.php,v 1.12 2006/01/30 00:31:08 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -168,8 +168,9 @@ $tables = get_rollback_table_names();
 // MUST be greater than 1
 $LIMIT_ROWS = 500;
 
-$db = &$GLOBALS['SQ_SYSTEM']->db;
+$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 if ($PURGE_FV_DATE) {
 	purge_file_versioning($PURGE_FV_DATE);
@@ -193,6 +194,8 @@ if ($PURGE_FV_DATE) {
 }
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
 
 
 /**
@@ -302,7 +305,7 @@ function delete_rollback_entries($table_name, $date)
 {
 	global $db, $QUIET;
 
-	$sql = 'DELETE FROM sq_rb_'.$table_name.' 
+	$sql = 'DELETE FROM sq_rb_'.$table_name.'
 		WHERE sq_eff_to <= '.$db->quote($date);
 	$result = $db->query($sql);
 	assert_valid_db_result($result);

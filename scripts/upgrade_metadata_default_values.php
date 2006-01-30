@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_metadata_default_values.php,v 1.3 2005/08/02 03:29:47 gsherwood Exp $
+* $Id: upgrade_metadata_default_values.php,v 1.4 2006/01/30 00:31:08 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 * metadata value table
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @since   MySource 3.5.0
 */
@@ -82,6 +82,7 @@ foreach ($metadata_fields as $assetid => $type_code) {
 	printName($asset->name.' (Id: #'.$asset->id.')');
 
 	// if the default looks like a timestamp, let's update it
+	$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 	$sql = 'INSERT INTO
@@ -101,6 +102,7 @@ foreach ($metadata_fields as $assetid => $type_code) {
 	$am->releaseLock($asset->id, 'attributes');
 
 	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 	printUpdateStatus('OK');
 
 }//end foreach

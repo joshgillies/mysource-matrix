@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_rollback_triggers.php,v 1.1 2005/04/13 02:13:14 mmcintyre Exp $
+* $Id: recreate_rollback_triggers.php,v 1.2 2006/01/30 00:31:08 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Recreate the Rollback Trigger functions
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -41,10 +41,12 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once $SYSTEM_ROOT.'/core/lib/db_install/db_install.inc';
 require      $SYSTEM_ROOT.'/data/private/db/table_columns.inc';
 
+$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 install_rollback_triggers($tables, true, true);
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 ?>

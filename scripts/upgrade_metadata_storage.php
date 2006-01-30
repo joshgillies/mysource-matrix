@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_metadata_storage.php,v 1.3 2005/08/02 03:29:47 gsherwood Exp $
+* $Id: upgrade_metadata_storage.php,v 1.4 2006/01/30 00:31:08 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Upgrade the wayt that the metadata storage is done.
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -85,6 +85,7 @@ foreach ($date_fields as $assetid => $type_code) {
 
 		$default = ts_iso8601($default);
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!$am->acquireLock($asset->id, 'attributes', $asset->id, true, NULL)) {
@@ -108,6 +109,7 @@ foreach ($date_fields as $assetid => $type_code) {
 		$am->releaseLock($asset->id, 'attributes');
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		printUpdateStatus('OK');
 
 	}//end if

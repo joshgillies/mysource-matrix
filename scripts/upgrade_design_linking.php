@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_design_linking.php,v 1.3 2005/02/23 05:49:03 gsherwood Exp $
+* $Id: upgrade_design_linking.php,v 1.4 2006/01/30 00:31:08 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Convert TYPE_3 linked designs to NOTICE
 *
 * @author  Greg Sherwood <greg@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -54,10 +54,11 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
 }
 
+$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 $am = &$GLOBALS['SQ_SYSTEM']->am;
-
-$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 // first update the sq_ast_lnk table
 printName('Converting asset links');
@@ -128,6 +129,7 @@ foreach ($treeids as $treeid) {
 printUpdateStatus('OK');
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 exit();
 

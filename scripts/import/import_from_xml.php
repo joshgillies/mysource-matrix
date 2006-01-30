@@ -7,7 +7,7 @@
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
@@ -41,6 +41,7 @@ require_once SQ_LIB_PATH.'/import_export/import.inc';
 
 $import_actions = get_import_actions($import_file);
 
+$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_OPEN);
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -56,5 +57,6 @@ foreach ($import_actions['actions'][0]['action'] as $action) {
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 ?>

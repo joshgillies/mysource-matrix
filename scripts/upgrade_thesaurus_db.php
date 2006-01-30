@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_thesaurus_db.php,v 1.2 2005/12/09 05:32:16 arailean Exp $
+* $Id: upgrade_thesaurus_db.php,v 1.3 2006/01/30 00:31:08 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Upgrades thesaurus contents from 0.1 to 0.2
 *
 * @author  Elden McDonald
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,13 +59,13 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
 }
 
-$db = &$GLOBALS['SQ_SYSTEM']->db;
-$am = &$GLOBALS['SQ_SYSTEM']->am;
-
 $GLOBALS['SQ_SYSTEM']->am->includeAsset('thesaurus_term');
 
-
+$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+$db = &$GLOBALS['SQ_SYSTEM']->db;
+$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 
  //Add a column to the old table to mark a record as deleted.
@@ -402,6 +402,7 @@ $result = $db->query($sql);
 assert_valid_db_result($result);
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 exit();
   ////////////////////////

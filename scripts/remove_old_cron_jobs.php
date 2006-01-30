@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_old_cron_jobs.php,v 1.1 2006/01/12 22:37:19 tbarrett Exp $
+* $Id: remove_old_cron_jobs.php,v 1.2 2006/01/30 00:31:08 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 * the minor) underneath a specified asset id, preferably a folder
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -58,13 +58,15 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 	trigger_error("Failed login in as root user\n", E_USER_ERROR);
 }
 
-$db =& $GLOBALS['SQ_SYSTEM']->db;
+$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+$db =& $GLOBALS['SQ_SYSTEM']->db;
+
 $old_date = date('Y-m-d', strtotime('-1 week'));
-$sql = "SELECT assetid 
-		FROM sq_ast_attr_val 
+$sql = "SELECT assetid
+		FROM sq_ast_attr_val
 		WHERE
-			attrid IN 
+			attrid IN
 				(select attrid from sq_ast_attr where (type_code = 'cron_job' or owning_type_code = 'cron_job') and name='when')
 			AND custom_val < 'OO=$old_date'";
 $assetids = $db->getCol($sql);
@@ -83,4 +85,5 @@ assert_valid_db_result($res);
 $res = $db->query('DELETE FROM sq_ast_attr_val WHERE assetid IN '.$assetids_list);
 assert_valid_db_result($res);
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 echo "Done\n";

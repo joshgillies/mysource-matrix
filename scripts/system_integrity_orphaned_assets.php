@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_orphaned_assets.php,v 1.9 2005/09/15 06:01:13 ndvries Exp $
+* $Id: system_integrity_orphaned_assets.php,v 1.10 2006/01/30 00:31:08 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 * the minor) underneath a specified asset id, preferably a folder
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -114,6 +114,7 @@ foreach ($assets as $assetid => $type_code) {
 			// basically we need to do the whole rubbish regarding deleting asset links in here
 			// because deleteAssetLink() checks to see if the asset is alive... which it isn't >_>;;;
 
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			// open the transaction
@@ -206,10 +207,12 @@ foreach ($assets as $assetid => $type_code) {
 			// tell, the asset it has updated
 			if (!$asset->linksUpdated()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				$errors = true; break 2;
 			}
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			unset($links[$linkid]);
 		}
 	}

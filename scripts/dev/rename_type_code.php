@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rename_type_code.php,v 1.1 2005/04/08 03:47:24 ndvries Exp $
+* $Id: rename_type_code.php,v 1.2 2006/01/30 00:31:08 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * assets that have associated files.
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -87,6 +87,7 @@ $db_chng = Array(
 								   ),
 		  );
 
+$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 
 $sql = '';
@@ -122,6 +123,8 @@ if (assert_valid_db_result($result)) {
 } else {
 	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 }
+
+$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 $dir_chng = Array(
 				'data/public/asset_types',
