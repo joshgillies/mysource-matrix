@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.26 2006/01/06 06:15:12 lwright Exp $
+* $Id: design_area_searchbox.inc,v 1.27 2006/01/30 04:27:07 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -50,8 +50,6 @@ class Design_Area_Searchbox extends Design_Area
 	/**
 	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
 	*
-	* @param object Design	$design the design for which we are currently printing
-	*
 	* @return boolean
 	* @access public
 	* @see Design_Area::printArea()
@@ -68,10 +66,11 @@ class Design_Area_Searchbox extends Design_Area
 	* Outputs the var either as straight HTML or PHP code, depending on the type
 	*
 	* @param string	$var			the name of the var to print out
-	* @param Array	$args			array of any extra arguments that existed in the print command
+	* @param array	$args			array of any extra arguments that existed in the print command
 	* @param string	$value_prefix	PHP code to wrap put before the value before outputting it
 	* @param string	$value_suffix	PHP code to wrap put after  the value before outputting it
 	*
+	* @return void
 	* @access public
 	*/
 	function printVar($var, $args, $value_prefix='', $value_suffix='')
@@ -126,7 +125,7 @@ class Design_Area_Searchbox extends Design_Area
 						<?php
 							$asset = &$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');
 							$categories = $asset->attr("categories");
-							echo $asset->getCategoryChooserReplacement("'.$category_set.'", $categories["'.$category_set.'"], "'.$default.'", '.var_export($show_empty, true).');
+							echo $asset->getCategoryChooserReplacement("'.$category_set.'", $categories["'.$category_set.'"], "'.$default.'", '.var_export($show_empty, TRUE).');
 						?>';
 				}
 

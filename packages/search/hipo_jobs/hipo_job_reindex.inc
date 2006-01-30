@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.22 2006/01/26 22:35:31 lwright Exp $
+* $Id: hipo_job_reindex.inc,v 1.23 2006/01/30 04:28:08 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -40,7 +40,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	*/
 	function HIPO_Job_ReIndex($code_name='')
 	{
-		$this->uses_trans = false;
+		$this->uses_trans = FALSE;
 		$this->HIPO_Job($code_name);
 		$GLOBALS['SQ_SYSTEM']->lm->includePackageStrings('search');
 
@@ -92,11 +92,11 @@ class HIPO_Job_ReIndex extends HIPO_Job
 										'process_function'	=> 'processReIndex',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
+					'auto_step'		=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
-					'allow_cancel'	=> true,
+					'allow_cancel'	=> TRUE,
 				),
 			   );
 
@@ -113,10 +113,10 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	{
 		while (!empty($this->_running_vars['todo_assetids'])) {
 			if (!$this->processReIndex($this->_steps[0], get_class($this))) {
-				return false;
+				return FALSE;
 			}
 		}
-		return true;
+		return TRUE;
 
 	}//end freestyle()
 
@@ -140,10 +140,10 @@ class HIPO_Job_ReIndex extends HIPO_Job
 
 		foreach ($this->_running_vars['root_assetid'] as $assetid) {
 			// so we have an assetid to start at, but make sure it is a valid assetid
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($asset)) {
 				trigger_localised_error('SCH0022', E_USER_WARNING, $assetid);
-				return false;
+				return FALSE;
 			}
 
 			$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
@@ -160,8 +160,8 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	/**
 	* Re-index asset keydata for a single asset in the todo list
 	*
-	* @param array()	&$step_data	a reference to the array of information about the current step
-	* @param string		$prefix		prefix for form vars
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
@@ -169,15 +169,15 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	function processReIndex(&$step_data, $prefix)
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
-			$am = &$GLOBALS['SQ_SYSTEM']->am;
+			$am =& $GLOBALS['SQ_SYSTEM']->am;
 			$sm =& $am->getSystemAsset('search_manager');
-			if (is_null($sm)) return false;
+			if (is_null($sm)) return FALSE;
 
 			// get next asset to reindex
 			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
 			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
 			unset($this->_running_vars['todo_assetids'][$assetid]);
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if ($asset) {
 				$step_data['message'] = translate('sch_reindexing_asset', $asset->name);
@@ -197,14 +197,14 @@ class HIPO_Job_ReIndex extends HIPO_Job
 
 		if (empty($this->_running_vars['todo_assetids'])) {
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
+			$step_data['complete']     = TRUE;
 		} else {
 			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
-			$step_data['complete']     = false;
+			$step_data['complete']     = FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processReIndex()
 

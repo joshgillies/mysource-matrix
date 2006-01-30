@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_edit_fns.inc,v 1.22 2006/01/06 06:15:12 lwright Exp $
+* $Id: design_area_searchbox_edit_fns.inc,v 1.23 2006/01/30 04:27:07 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 * @see Design_Area_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -47,18 +47,18 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint the field interface for selecting the search page to delegate to
 	*
-	* @param object		&$asset		the searchbox design area asset
-	* @param object		&$o			the backend outputter
-	* @param string		$prefix		the prefix for this field
+	* @param object	&$asset	the searchbox design area asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for this field
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function paintBackendSearchPage(&$asset, &$o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
 			asset_finder($prefix.'_search_page', $asset->attr('search_page_assetid'), Array('search_page' => 'D'));
-			return true;
+			return TRUE;
 		} else {
 			$search_pageid = $asset->attr('search_page_assetid');
 			if ($search_pageid > 0) {
@@ -66,7 +66,7 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 			} else {
 				echo translate('sch_no_search_page_specified');
 			}
-			return false;
+			return FALSE;
 		}
 
 	}//end paintBackendSearchPage()
@@ -75,12 +75,12 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Process the field interface for selecting the search page to delegate to
 	*
-	* @param object		&$asset		the searchbox design area asset
-	* @param object		&$o			the backend outputter
-	* @param string		prefix		the prefix for this field
+	* @param object	&$asset	the searchbox design area asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for this field
 	*
+	* @return boolean
 	* @access public
-	* @returns boolean
 	*/
 	function processBackendSearchPage(&$asset, &$o, $prefix)
 	{
@@ -91,7 +91,7 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 				$asset->setAttrValue('search_page_assetid', 0);
 			}
 		}
-		return true;
+		return TRUE;
 
 	}//end processBackendSearchPage()
 
@@ -99,18 +99,18 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint the field interface for specifying whether the submit button should be a button or an image.
 	*
-	* @param object		&$asset		the searchbox design area asset
-	* @param object		&$o			the backend outputter
-	* @param string		$prefix		the prefix for this field
+	* @param object	&$asset	the searchbox design area asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for this field
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function paintBackendSubmitImage(&$asset, &$o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
 			asset_finder($prefix.'_submit_image', $asset->attr('submit_image_assetid'), Array('file' => 'D'));
-			return true;
+			return TRUE;
 		} else {
 			$submit_imageid = $asset->attr('submit_image_assetid');
 			if ($submit_imageid > 0) {
@@ -118,7 +118,7 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 			} else {
 				echo translate('sch_box_no_submit_image_specified');
 			}
-			return false;
+			return FALSE;
 		}
 
 	}//end paintBackendSubmitImage()
@@ -127,17 +127,17 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Process the field interface for specifying whether the submit button should be a button or an image
 	*
-	* @param object		&$asset		the searchbox design area asset
-	* @param object		&$o			the backend outputter
-	* @param string		$prefix		the prefix for this field
+	* @param object	&$asset	the searchbox design area asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for this field
 	*
+	* @return boolean
 	* @access public
-	* @returns boolean	Returns whether any changes have been made.
 	*/
 	function processBackendSubmitImage(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_submit_image']['assetid'])) {
-			return false;
+			return FALSE;
 		}
 
 		if ($_POST[$prefix.'_submit_image']['assetid'] > 0) {
@@ -149,63 +149,87 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 	}//end processBackendSubmitImage()
 
 
+	/**
+	* Paints the search category set
+	*
+	* @param object	&$asset	the searchbox design area asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for this field
+	*
+	* @return boolean
+	* @access public
+	*/
 	function paintSearchCategorySet(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) {
 			echo $asset->attr('category_set');
-			return false;
+			return FALSE;
 		}
 
 		$search_assetid = $asset->attr('search_page_assetid');
-		if (empty($search_assetid)) {
-			return false;
-		}
+		if (empty($search_assetid)) return FALSE;
 
-		$search_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($search_assetid);
+		$search_page =& $GLOBALS['SQ_SYSTEM']->am->getAsset($search_assetid);
 
 		$categories[''] = '-- Please Select --';
-		foreach(array_keys($search_page->attr('categories')) as $category_id) {
+		foreach (array_keys($search_page->attr('categories')) as $category_id) {
 			$categories[$category_id] = $category_id;
 		}
 
-		combo_box($prefix.'_category_set', $categories, false, $asset->attr('category_set'));
-		return true;
+		combo_box($prefix.'_category_set', $categories, FALSE, $asset->attr('category_set'));
+		return TRUE;
 
 	}//end paintSearchCategorySet()
 
 
+	/**
+	* Processes search category set
+	*
+	* @param object	&$asset	the searchbox design area asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for this field
+	*
+	* @return boolean
+	* @access public
+	*/
 	function processSearchCategorySet(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) {
-			return false;
-		}
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		if (!isset($_POST[$prefix.'_category_set'])) {
-			return false;
+			return FALSE;
 		}
 
 		$new_category_set = $_POST[$prefix.'_category_set'];
 
 		// If we are changing the category then clear other category settings
 		if ($new_category_set != $asset->attr('category_set')) {
-			$asset->setAttrValue('category_show_empty', true);
+			$asset->setAttrValue('category_show_empty', TRUE);
 			$asset->setAttrValue('category_default', '');
 		}
 		$asset->setAttrValue('category_set', $new_category_set);
 
-		return true;
+		return TRUE;
 
 	}//end processSearchCategorySet()
 
 
+	/**
+	* Paints the default search category
+	*
+	* @param object	&$asset	the searchbox design area asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for this field
+	*
+	* @return boolean
+	* @access public
+	*/
 	function paintSearchCategoryDefault(&$asset, &$o, $prefix)
 	{
 		$search_assetid = $asset->attr('search_page_assetid');
-		if (empty($search_assetid)) {
-			return false;
-		}
+		if (empty($search_assetid)) return FALSE;
 
-		$search_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($search_assetid);
+		$search_page =& $GLOBALS['SQ_SYSTEM']->am->getAsset($search_assetid);
 
 		$categories = Array();
 		$category_sets = $search_page->attr('categories');
@@ -215,33 +239,41 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 			$categories[''] = $category_set['unselected_text'];
 		}
 
-		foreach($category_set['options'] as $category_id => $category_data) {
+		foreach ($category_set['options'] as $category_id => $category_data) {
 			$categories[$category_id] = $category_data['full_name'];
 		}
 
 		if (!$asset->writeAccess('attributes')) {
 			echo $categories[$asset->attr('category_default')];
-			return false;
+			return FALSE;
 		} else {
-			combo_box($prefix.'_category_default', $categories, false, $asset->attr('category_default'));
+			combo_box($prefix.'_category_default', $categories, FALSE, $asset->attr('category_default'));
 		}
-		return true;
+		return TRUE;
 
 	}//end paintSearchCategoryDefault()
 
 
+	/**
+	* Process the default search category
+	*
+	* @param object	&$asset	the searchbox design area asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for this field
+	*
+	* @return boolean
+	* @access public
+	*/
 	function processSearchCategoryDefault(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) {
-			return false;
-		}
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		if (!isset($_POST[$prefix.'_category_default'])) {
-			return false;
+			return FALSE;
 		}
 
 		$asset->setAttrValue('category_default', $_POST[$prefix.'_category_default']);
-		return true;
+		return TRUE;
 
 	}//end processSearchCategoryDefault()
 
@@ -249,19 +281,19 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint the field interface for specifying the search field to which this search query corresponds to on the search page
 	*
-	* @param object		&$asset		the searchbox design area asset
-	* @param object		&$o			the backend outputter
-	* @param string		$prefix		the prefix for this field
+	* @param object	&$asset	the searchbox design area asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for this field
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function paintSearchFieldName(&$asset, &$o, $prefix)
 	{
-		//TODO: This needs to be updated to better handle the multiple sources,
+		// TODO: This needs to be updated to better handle the multiple sources,
 		//      it'd likely show yellow errors and 'unknown' for all of them
 		if ($asset->writeAccess('attributes')) {
-			$search_page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->attr('search_page_assetid'));
+			$search_page =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->attr('search_page_assetid'));
 			$fields = $search_page->attr('fields');
 			if (is_scalar($fields)) {
 				$fields = unserialize($fields);
@@ -271,34 +303,17 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 			foreach ($fields as $field_name => $field) {
 				$field_description = $fields[$field_name];
 				$field_description = $field_name.' ';
-				/* switch ($field['type']) {
-					case 'include_all':
-						$field_description .= '(include all)';
-					break;
-					case 'asset_attrib':
-						$field_description .= '(asset attribute)';
-					break;
-					case 'exclude':
-						$field_description .= '(exclude)';
-					break;
-					case 'exclude':
-						$field_description .= '(exclude all)';
-					break;
-					default:
-						$field_description .= '(unknown)';
-					break;
-				} */
 				$options[$field_name] = $field_description;
 			}
 
 			if ($asset->attr('field_name') != array_keys($fields)) {
 				$options = array_merge(Array('' => 'None'), $options);
 			}
-			combo_box($prefix.'_field_name', $options, false, $asset->attr('field_name'));
-			return true;
+			combo_box($prefix.'_field_name', $options, FALSE, $asset->attr('field_name'));
+			return TRUE;
 		} else {
 			echo $asset->attr('field_name');
-			return false;
+			return FALSE;
 		}
 
 	}//end paintSearchFieldName()
@@ -307,17 +322,17 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Process the field interface for specifying the search field to which this search query corresponds to on the search page
 	*
-	* @param object		&$asset		the searchbox design area asset
-	* @param object		&$o			the backend outputter
-	* @param string		$prefix		the prefix for this field
+	* @param object	&$asset	the searchbox design area asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for this field
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processSearchFieldName(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_field_name'])) {
-			return false;
+			return FALSE;
 		}
 
 		return $asset->setAttrValue('field_name', $_POST[$prefix.'_field_name']);
@@ -330,18 +345,18 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 	*
 	* Used to test if appropriate fields should be shown
 	*
-	* @param object		&$owner		the searchbox design area asset
-	* @param string		$prefix		the prefix for this asset
+	* @param object	&$owner	the searchbox design area asset
+	* @param string	$prefix	the prefix for this asset
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function hasValidSearchPage(&$owner, $prefix)
 	{
 		$assetid = $owner->attr('search_page_assetid');
-		if (!$assetid) return false;
+		if (!$assetid) return FALSE;
 		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-		if (!$asset->id) return false;
+		if (!$asset->id) return FALSE;
 		return $asset->type() == 'search_page';
 
 	}//end hasValidSearchPage()
@@ -352,21 +367,21 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 	*
 	* Used to test if appropriate fields should be shown
 	*
-	* @param object		&$owner		the searchbox design area asset
-	* @param string		$prefix		the prefix for this asset
+	* @param object	&$owner	the searchbox design area asset
+	* @param string	$prefix	the prefix for this asset
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function hasValidCategorySet(&$owner, $prefix)
 	{
 		if (!$this->hasValidSearchPage($owner, $prefix)) {
-			return false;
+			return FALSE;
 		}
 
 		return $owner->attr('category_set') != '';
 
-	}//end hasValidSearchPage()
+	}//end hasValidCategorySet()
 
 
 	/**
@@ -374,11 +389,11 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 	*
 	* Used to test if appropriate fields should be shown
 	*
-	* @param object		&$owner		the searchbox design area asset
-	* @param string		$prefix		the prefix for this asset
+	* @param object	&$owner	the searchbox design area asset
+	* @param string	$prefix	the prefix for this asset
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function isSubmitButton(&$owner, $prefix)
 	{

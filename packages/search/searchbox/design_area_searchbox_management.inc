@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_management.inc,v 1.13 2006/01/06 06:15:12 lwright Exp $
+* $Id: design_area_searchbox_management.inc,v 1.14 2006/01/30 04:27:07 sdanis Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -50,9 +50,9 @@ class Design_Area_SearchBox_Management extends Asset_Management
 		$this->vars['submit_button'] = Array(
 										'added'			=> '0.1',
 										'type'			=> 'boolean',
-										'default'		=> true,
+										'default'		=> TRUE,
 										'description'	=> 'Whether the search button is a button or an image.',
-										'parameters'	=> Array('allow_empty' => false, ),
+										'parameters'	=> Array('allow_empty' => FALSE, ),
 									   );
 
 		$this->vars['submit_button_text'] = Array(
@@ -90,26 +90,27 @@ class Design_Area_SearchBox_Management extends Asset_Management
 									  );
 
 		$this->vars['category_set'] = Array(
-											'added'			=> '0.3',
-											'type'			=> 'text',
-											'default'		=> '',
-											'description'	=> 'The category set to be used for the search box.',
-										  );
+										'added'			=> '0.3',
+										'type'			=> 'text',
+										'default'		=> '',
+										'description'	=> 'The category set to be used for the search box.',
+									  );
 		$this->vars['category_show_empty'] = Array(
-											'added'			=> '0.3',
-											'type'			=> 'boolean',
-											'default'		=> false,
-											'description'	=> 'Should an "empty" category be listed?',
-											'parameters'	=> Array(
-																	'allow_empty' => false,
-															   ),
-										  );
+												'added'			=> '0.3',
+												'type'			=> 'boolean',
+												'default'		=> FALSE,
+												'description'	=> 'Should an "empty" category be listed?',
+												'parameters'	=> Array(
+																	'allow_empty'	=> FALSE,
+																   ),
+											 );
 		$this->vars['category_default'] = Array(
 											'added'			=> '0.3',
 											'type'			=> 'text',
 											'default'		=> '',
 											'description'	=> 'Default category value',
 										  );
+
 	}//end constructor
 
 

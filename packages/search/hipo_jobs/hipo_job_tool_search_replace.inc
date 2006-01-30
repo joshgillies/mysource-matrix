@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.4 2005/11/21 22:41:44 gsherwood Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.5 2006/01/30 04:28:08 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -90,11 +90,11 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 										'process_function'	=> 'processConfirmation',
 									   ),
 					'running_mode'	=> 'web',
-					'skip_step'		=> false,
-					'auto_step'		=> false,
-					'allow_cancel'	=> true,
+					'skip_step'		=> FALSE,
+					'auto_step'		=> FALSE,
+					'allow_cancel'	=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -103,10 +103,10 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 										'init_details_function'	=> 'getLockAssetDetails',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> false,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -115,11 +115,11 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 										'process_function'	=> 'processAttributes',
 									   ),
 					'running_mode'	=> 'server',
-					'skip_step'		=> false,
-					'auto_step'		=> true,
-					'allow_cancel'	=> true,
+					'skip_step'		=> FALSE,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -128,11 +128,11 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 										'process_function'	=> 'processContent',
 									   ),
 					'running_mode'	=> 'server',
-					'skip_step'		=> false,
-					'auto_step'		=> true,
-					'allow_cancel'	=> true,
+					'skip_step'		=> FALSE,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -141,11 +141,11 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 										'process_function'	=> 'processMetadata',
 									   ),
 					'running_mode'	=> 'server',
-					'skip_step'		=> false,
-					'auto_step'		=> true,
-					'allow_cancel'	=> true,
+					'skip_step'		=> FALSE,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -154,11 +154,11 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 										'process_function'	=> 'processSchemas',
 									   ),
 					'running_mode'	=> 'server',
-					'skip_step'		=> false,
-					'auto_step'		=> true,
-					'allow_cancel'	=> true,
+					'skip_step'		=> FALSE,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -167,11 +167,11 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 										'process_function'	=> 'releaseLocks',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'skip_step'		=> false,
-					'allow_cancel'	=> false,
+					'auto_step'		=> TRUE,
+					'skip_step'		=> FALSE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -180,10 +180,10 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 										'init_details_function'	=> 'getRegenerateMetadataDetails',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> false,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -192,10 +192,10 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 										'init_details_function'	=> 'getReindexAssetDetails',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> false,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 			   );
@@ -219,9 +219,9 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	/**
 	* This function is used to set-up the details for locking the assets by the nested HIPO_Job
 	*
-	* @param string		&$job_type
-	* @param array		&$running_vars
-	* @param array		&$options
+	* @param string	&$job_type		Job type
+	* @param array	&$running_vars	Job vars
+	* @param array	&$options		Options
 	*
 	* @return void
 	* @access public
@@ -230,13 +230,13 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	{
 		$job_type = 'hipo_job_acquire_locks';
 
-		$options['auto_complete'] = true;
+		$options['auto_complete'] = TRUE;
 
 		$running_vars = Array(
 							'assetids'			=> array_keys($this->_running_vars['search_data']),
 							'lock_type'			=> Array('all'),
-							'forceably_acquire'	=> false,
-							'dependants_only'	=> true,
+							'forceably_acquire'	=> FALSE,
+							'dependants_only'	=> TRUE,
 						);
 
 	}//end getLockAssetDetails()
@@ -245,9 +245,9 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	/**
 	* This function is used to set-up the details for the regenerate metadata nested HIPO_Job
 	*
-	* @param string		&$job_type
-	* @param array		&$running_vars
-	* @param array		&$options
+	* @param string	&$job_type		Job type
+	* @param array	&$running_vars	Job vars
+	* @param array	&$options		Options
 	*
 	* @return void
 	* @access public
@@ -256,7 +256,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	{
 		$job_type = 'hipo_job_regenerate_metadata';
 
-		$options['auto_complete'] = true;
+		$options['auto_complete'] = TRUE;
 
 		$running_vars = Array(
 							'schemaids'	=> $this->_running_vars['schemaids'],
@@ -268,9 +268,10 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	/**
 	* This function is used to set-up the details for the reindex assets nested HIPO_Job
 	*
-	* @param string		&$job_type
-	* @param array		&$running_vars
-	* @param array		&$options
+	* @param string	&$job_type		Type of job
+	* @param array	&$running_vars	Job vars
+	* @param array	&$options		Options
+	* @param array	&$hipo_vars		Hipo vars
 	*
 	* @return void
 	* @access public
@@ -279,7 +280,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	{
 		$job_type = 'hipo_job_reindex';
 
-		$options['auto_complete'] = true;
+		$options['auto_complete'] = TRUE;
 
 		$running_vars = Array(
 							'root_assetid'	=> $this->_running_vars['root_assetid'],
@@ -295,8 +296,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	/**
 	* Release the locks that were acquired while cloning assets
 	*
-	* @param array()	&$step_data	a reference to the array of information about the current step
-	* @param string		$prefix		prefix for form vars
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
@@ -327,21 +328,22 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		if (empty($this->_running_vars['re_lock_assets'])) {
 			unset($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
+			$step_data['complete']     = TRUE;
 		} else {
 			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / count(array_keys($this->_running_vars['search_data']))) * 100;
-			$step_data['complete']     = false;
+			$step_data['complete']     = FALSE;
 		}
 
-		return true;
+		return TRUE;
+
 	}//end releaseLocks()
 
 
 	/**
+	* Get the search count
 	*
-	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function _getSearchCounts()
 	{
@@ -387,9 +389,9 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	* Paints some option for the user to specify what replacements are to be made
 	* as a result of the search
 	*
-	* @param &array							$step_data	a reference to the step data for this step
-	* @param &object Hipo_Backend_Outputter	$o			the hipo backend outputter object
-	* @param string							$prefix		a string for prefixing form variables
+	* @param array	&$step_data	a reference to the step data for this step
+	* @param object	&$o			the hipo backend outputter object
+	* @param string	$prefix		a string for prefixing form variables
 	*
 	* @return boolean
 	* @access public
@@ -422,7 +424,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		<div id="confirmations-container">
 		<?php
 
-		$names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($this->_running_vars['search_data']), '', false, 'name');
+		$names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($this->_running_vars['search_data']), '', FALSE, 'name');
 		foreach ($this->_running_vars['search_data'] as $assetid => $value) {
 			?>
 			<table class="sq-backend-table expandable" style="margin-bottom: 10px">
@@ -433,7 +435,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 							- <?php echo translate('sch_tool_global_sr_file_match(es)', $search_count[$assetid]); ?>
 						</th>
 						<th class="all-asset-checkbox">
-							<?php check_box($prefix.'_asset_'.$assetid.'_all', 1, false, 'toggleTBodyCheckboxes(this)'); ?>
+							<?php check_box($prefix.'_asset_'.$assetid.'_all', 1, FALSE, 'toggleTBodyCheckboxes(this)'); ?>
 						</th>
 					</tr>
 				</thead>
@@ -442,7 +444,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 						<td colspan="2">
 						<?php
 						// ATTRIBUTES
-						if (!empty($value['attributes'])){
+						if (!empty($value['attributes'])) {
 							$this->_printAttributeMatches($assetid, $prefix, $value['attributes']);
 						}
 
@@ -481,7 +483,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$o->closeField();
 		$o->closeSection();
 
-		return true;
+		return TRUE;
 
 	}//end paintConfirmation()
 
@@ -489,8 +491,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	/**
 	* Processes the confirmation/match selection step of the HIPO
 	*
-	* @param array		&$step_data	a reference to the step data for this step
-	* @param String		$prefix		a string for prefixing form variables
+	* @param array	&$step_data	a reference to the step data for this step
+	* @param string	$prefix		a string for prefixing form variables
 	*
 	* @return boolean
 	* @access public
@@ -499,7 +501,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	{
 		if (!isset($_REQUEST['form_submitted'])) {
 			// No submission yet, need to print form;
-			return true;
+			return TRUE;
 		}
 		// Form has been submitted, now we can process it
 		$this->_updateSearchData($prefix);
@@ -552,10 +554,10 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 				$this->skipStep(7);
 			}
 			$step_data['percent_done'] = 100;
-			$step_data['complete'] = true;
-		}
+			$step_data['complete'] = TRUE;
+		}//end else
 
-		return true;
+		return TRUE;
 
 	}//end processConfirmation()
 
@@ -563,10 +565,12 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	/**
 	* Print matches from an asset's attributes
 	*
-	* @param array	$matches	The matches to print
+	* @param string	$assetid		The assets id
+	* @param string	$prefix			Prefix for the fields
+	* @param array	&$attr_matches	Matches
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _printAttributeMatches($assetid, $prefix, &$attr_matches)
 	{
@@ -578,7 +582,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 						<?php echo translate('asset_attributes'); ?>
 					</th>
 					<th style="text-align: right" class="match-checkbox">
-						<?php check_box($prefix.'_asset_'.$assetid.'_attr_all', 1, false, 'toggleTBodyCheckboxes(this); updateParentCheckboxes(this);', 'class="component-checkbox"'); ?>
+						<?php check_box($prefix.'_asset_'.$assetid.'_attr_all', 1, FALSE, 'toggleTBodyCheckboxes(this); updateParentCheckboxes(this);', 'class="component-checkbox"'); ?>
 					</th>
 
 				</tr>
@@ -597,7 +601,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 					<tr>
 						<td><?php echo $attr_name; ?></th>
 						<td><label for="<?php echo $html_id; ?>"><?php $this->_printHighlightedMatch($this->_running_vars['search_string'], $attr_details['value'], $offset); ?></label></td>
-						<td class="match-checkbox"><?php check_box($html_id, 1, false, 'updateParentCheckboxes(this)'); ?></td>
+						<td class="match-checkbox"><?php check_box($html_id, 1, FALSE, 'updateParentCheckboxes(this)'); ?></td>
 					</tr>
 					<?php
 				}
@@ -613,10 +617,12 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	/**
 	* Print matches in an asset's metadata
 	*
-	* @param array	$matches	The matches to print
+	* @param string	$assetid		The assets id
+	* @param string	$prefix			Prefix for the fields
+	* @param array	&$meta_matches	Matches
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _printMetadataMatches($assetid, $prefix, &$meta_matches)
 	{
@@ -628,7 +634,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 						<?php echo translate('asset_metadata'); ?>
 					</th>
 					<th class="match-checkbox" style="text-align: right">
-						<?php check_box($prefix.'_asset_'.$assetid.'_attr_all', 1, false, 'toggleTBodyCheckboxes(this); updateParentCheckboxes(this);', 'class="component-checkbox"'); ?>
+						<?php check_box($prefix.'_asset_'.$assetid.'_attr_all', 1, FALSE, 'toggleTBodyCheckboxes(this); updateParentCheckboxes(this);', 'class="component-checkbox"'); ?>
 					</th>
 				</tr>
 			</thead>
@@ -647,7 +653,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 						<td><?php echo get_asset_tag_line($field_id); ?></th>
 						<td><?php echo $field_details['name']; ?></td>
 						<td><label for="<?php echo $html_id; ?>"><?php $this->_printHighlightedMatch($this->_running_vars['search_string'], $field_details['value'], $offset); ?></label></td>
-						<td class="match-checkbox"><?php check_box($html_id, 1, false, 'updateParentCheckboxes(this)'); ?></td>
+						<td class="match-checkbox"><?php check_box($html_id, 1, FALSE, 'updateParentCheckboxes(this)'); ?></td>
 					</tr>
 					<?php
 				}
@@ -663,10 +669,12 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	/**
 	* Print matches in a metadata schema
 	*
-	* @param array	$matches	The matches to print
+	* @param string	$assetid			The assets id
+	* @param string	$prefix				Prefix for the fields
+	* @param array	&$schema_matches	Matches
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _printSchemaMatches($assetid, $prefix, &$schema_matches)
 	{
@@ -678,7 +686,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 						<?php echo translate('metadata_schema'); ?>
 					</th>
 					<th class="match-checkbox" style="text-align: right">
-						<?php check_box($prefix.'_asset_'.$assetid.'_attr_all', 1, false, 'toggleTBodyCheckboxes(this); updateParentCheckboxes(this);', 'class="component-checkbox"'); ?>
+						<?php check_box($prefix.'_asset_'.$assetid.'_attr_all', 1, FALSE, 'toggleTBodyCheckboxes(this); updateParentCheckboxes(this);', 'class="component-checkbox"'); ?>
 					</th>
 				</tr>
 			</thead>
@@ -696,7 +704,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 					<tr>
 						<td><?php echo get_asset_tag_line($field_id); ?></th>
 						<td><label for="<?php echo $html_id; ?>"><?php $this->_printHighlightedMatch($this->_running_vars['search_string'], $schema_details['value'], $offset); ?></label></td>
-						<td class="match-checkbox"><?php check_box($html_id, 1, false, 'updateParentCheckboxes(this)'); ?></td>
+						<td class="match-checkbox"><?php check_box($html_id, 1, FALSE, 'updateParentCheckboxes(this)'); ?></td>
 					</tr>
 					<?php
 				}
@@ -712,10 +720,12 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	/**
 	* Print matches from an asset's content
 	*
-	* @param array	$matches	The matches to print
+	* @param string	$assetid		The assets id
+	* @param string	$prefix			Prefix for the fields
+	* @param array	&$div_matches	Matches
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _printContentMatches($assetid, $prefix, &$div_matches)
 	{
@@ -727,7 +737,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 						<?php echo translate('asset_contents'); ?>
 					</th>
 					<th class="match-checkbox" style="text-align: right">
-						<?php check_box($prefix.'_asset_'.$assetid.'_content_all', 1, false, 'toggleTBodyCheckboxes(this); updateParentCheckboxes(this);', 'class="component-checkbox"'); ?>
+						<?php check_box($prefix.'_asset_'.$assetid.'_content_all', 1, FALSE, 'toggleTBodyCheckboxes(this); updateParentCheckboxes(this);', 'class="component-checkbox"'); ?>
 					</th>
 				</tr>
 			</thead>
@@ -745,7 +755,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 					<tr>
 						<td><?php echo $div_id; ?></th>
 						<td><label for="<?php echo $html_id; ?>"><?php $this->_printHighlightedMatch($this->_running_vars['search_string'], $div_details['value'], $offset); ?></label></td>
-						<td class="match-checkbox"><?php check_box($html_id, 1, false, 'updateParentCheckboxes(this)'); ?></td>
+						<td class="match-checkbox"><?php check_box($html_id, 1, FALSE, 'updateParentCheckboxes(this)'); ?></td>
 					</tr>
 					<?php
 				}
@@ -761,15 +771,15 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	/**
 	* Process replacements in asset contents
 	*
-	* @param array		&$step_data	a reference to the step data for this step
-	* @param String		$prefix		a string for prefixing form variables
+	* @param array	&$step_data	a reference to the step data for this step
+	* @param string	$prefix		a string for prefixing form variables
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processContent(&$step_data, $prefix)
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$search_string = $this->_running_vars['search_string'];
 		$replace_string = $this->_running_vars['replace_string'];
 		$assetid = key($this->_running_vars['content_replacements']);
@@ -793,13 +803,13 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		if (empty($this->_running_vars['content_replacements'])) {
 			unset($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
+			$step_data['complete']     = TRUE;
 		} else {
 			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / $this->_running_vars['content_replacements_total']) * 100;
-			$step_data['complete']     = false;
+			$step_data['complete']     = FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processContent()
 
@@ -807,15 +817,15 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	/**
 	* Process replacements in schema
 	*
-	* @param array		&$step_data	a reference to the step data for this step
-	* @param String		$prefix		a string for prefixing form variables
+	* @param array	&$step_data	a reference to the step data for this step
+	* @param string	$prefix		a string for prefixing form variables
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processSchemas(&$step_data, $prefix)
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		$search_string = $this->_running_vars['search_string'];
 		$replace_string = $this->_running_vars['replace_string'];
@@ -827,7 +837,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 		foreach ($this->_running_vars['schema_replacements'][$assetid] as $fieldid => $data) {
 			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $data['value'], $data['matches'], $match_case);
-			$field = &$am->getAsset($fieldid);
+			$field =& $am->getAsset($fieldid);
 			$value_component = Array();
 			$field->decodeValueString($new_data, $default_data, $value_component);
 			$field->setAttrValue('default', $default_data);
@@ -842,13 +852,13 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		if (empty($this->_running_vars['schema_replacements'])) {
 			unset($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
+			$step_data['complete']     = TRUE;
 		} else {
 			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / $this->_running_vars['schema_replacements_total']) * 100;
-			$step_data['complete']     = false;
+			$step_data['complete']     = FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processSchemas()
 
@@ -856,8 +866,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	/**
 	* Proccess replacements in Attribute fields
 	*
-	* @param array		&$step_data	a reference to the step data for this step
-	* @param String		$prefix		a string for prefixing form variables
+	* @param array	&$step_data	a reference to the step data for this step
+	* @param string	$prefix		a string for prefixing form variables
 	*
 	* @return boolean
 	* @access public
@@ -865,14 +875,14 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	function processAttributes(&$step_data, $prefix)
 	{
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		$search_string = $this->_running_vars['search_string'];
 		$replace_string = $this->_running_vars['replace_string'];
 		$match_case = $this->_running_vars['match_case'];
 		$assetid = key($this->_running_vars['attribute_replacements']);
 
-		$asset = &$am->getAsset($assetid);
+		$asset =& $am->getAsset($assetid);
 
 		$step_data['message'] = translate('sch_tool_global_sr_replacing_with_in', $search_string, $replace_string, $asset->name);
 
@@ -890,29 +900,30 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		if (empty($this->_running_vars['attribute_replacements'])) {
 			unset($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
+			$step_data['complete']     = TRUE;
 		} else {
 			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / $this->_running_vars['attribute_replacements_total']) * 100;
-			$step_data['complete']     = false;
+			$step_data['complete']     = FALSE;
 		}
 
-		return true;
+		return TRUE;
+
 	}//end processAttributes()
 
 
 	/**
 	* Process replacements in Metadata fields
 	*
-	* @param array		&$step_data	a reference to the step data for this step
-	* @param String		$prefix		a string for prefixing form variables
+	* @param array	&$step_data	a reference to the step data for this step
+	* @param string	$prefix		a string for prefixing form variables
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processMetadata(&$step_data, $prefix)
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		$search_string = $this->_running_vars['search_string'];
 		$replace_string = $this->_running_vars['replace_string'];
@@ -938,13 +949,13 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		if (empty($this->_running_vars['metadata_replacements'])) {
 			unset($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
+			$step_data['complete']     = TRUE;
 		} else {
 			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / $this->_running_vars['metadata_replacements_total']) * 100;
-			$step_data['complete']     = false;
+			$step_data['complete']     = FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processMetadata()
 
@@ -952,11 +963,11 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	/**
 	* Get the indices at which needle occurs in haystack
 	*
-	* @param string	$needle			The string being looked for
-	* @param string	$haystack		The string being looked through
+	* @param string	$needle		The string being looked for
+	* @param string	$haystack	The string being looked through
 	*
+	* @return array
 	* @access public
-	* @return array(int)
 	*/
 	function _getOccurrences($needle, $haystack)
 	{
@@ -965,7 +976,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$needle = strtolower($needle);
 		$haystack = strtolower($haystack);
 		$result = strpos($haystack, $needle);
-		while (false !== $result) {
+		while (FALSE !== $result) {
 			$occurrences[] = $result;
 			$offset = $result + strlen($needle);
 			$result = strpos($haystack, $needle, $offset);
@@ -981,13 +992,13 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	* @param string		$needle		The string being looked for
 	* @param string		$new_needle	The string to insert
 	* @param string		$haystack	The string being looked through
-	* @param Array(int)	$offsets	Indices of instances you wish to replace
-	* @param bool		$case_match	Whether to match capitilisation of the needle in replace
+	* @param array		$offsets	Indices of instances you wish to replace
+	* @param boolean	$case_match	Whether to match capitilisation of the needle in replace
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
-	function _replaceOccurrences($needle, $new_needle, $haystack, $offsets, $case_match=false)
+	function _replaceOccurrences($needle, $new_needle, $haystack, $offsets, $case_match=FALSE)
 	{
 		if (empty($offsets)) return $haystack;
 		$search_len = strlen($needle);
@@ -1003,6 +1014,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		}
 		$result_str .=  substr($haystack, $last_offset);
 		return $result_str;
+
 	}//end _replaceOccurrences()
 
 
@@ -1012,8 +1024,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	* @param string	$teacher	The string to match
 	* @param string	$student	The string to capitalise
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function _matchCapitals($teacher, $student)
 	{
@@ -1026,16 +1038,18 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			$ret_str[0] = strtolower($ret_str[0]);
 		}
 		return $ret_str;
+
 	}//end _matchCapitals()
 
 
-	/** Fill a table with highlighted search terms.
+	/**
+	* Fill a table with highlighted search terms.
 	*
 	* @param string	$needle		The string to match
 	* @param string	$haystack	The string to look in
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function _printRows($needle, $haystack)
 	{
@@ -1045,17 +1059,19 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			$this->_printHighlightedMatch($needle, $haystack, $offset);
 			echo '</td></tr>';
 		}
+
 	}//end _printRows()
 
 
-	/** Prints an example of $needle, in $haystack with highlighting
+	/**
+	* Prints an example of $needle, in $haystack with highlighting
 	*
 	* @param string	$needle		The string to highlight for
 	* @param string	$haystack	The string to look in
 	* @param int	$offset		Where to find $needle
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function _printHighlightedMatch($needle, $haystack, $offset)
 	{
@@ -1064,17 +1080,19 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		echo htmlentities(ltrim(substr($haystack, $back_limit, $offset - $back_limit), '\n\r'));
 		echo '<span style="background:yellow">'.substr($haystack, $offset, strlen($needle)).'</span>';
 		echo htmlentities(rtrim(substr($haystack, $offset + strlen($needle), $forward_limit - ($offset + strlen($needle)))));
+
 	}//end _printHighlightedMatch()
 
 
-	/** Find a point in the string behind the current point to cutoff display at
+	/**
+	* Find a point in the string behind the current point to cutoff display at
 	*
 	* @param string	$haystack	The string to check
 	* @param int	$offset		Where to start
-	* @param int 	$limit		maximum number of characters
+	* @param int	$limit		maximum number of characters
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function _findBackBreak($haystack, $offset, $limit=20)
 	{
@@ -1082,7 +1100,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		while ($ret > $offset - 200 && $ret > 0) {
 			if ($haystack[$ret] == '>') {
 				break;
-			} else if ($haystack[$ret] == '<'){
+			} else if ($haystack[$ret] == '<') {
 				return $ret;
 			}
 			$ret--;
@@ -1104,19 +1122,21 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 			}
 			$ret--;
-	}
-	return $oldspace;
+		}
+		return $oldspace;
+
 	}//end _findBackBreak()
 
 
-	/** Find a point in the string to cutoff display at
+	/**
+	* Find a point in the string to cutoff display at
 	*
 	* @param string	$haystack	The string to check
 	* @param int	$offset		Where to start
-	* @param int 	$limit		maximum number of characters
+	* @param int	$limit		maximum number of characters
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function _findForwardBreak($haystack, $offset, $limit=55)
 	{
@@ -1124,7 +1144,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		while (($end_tag < $offset + 200) && ($end_tag < strlen($haystack))) {
 			if ($haystack[$end_tag] == '<') {
 				break;
-			} else if ($haystack[$end_tag] == '>'){
+			} else if ($haystack[$end_tag] == '>') {
 				$end_tag++;
 				break;
 			}
@@ -1152,13 +1172,15 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		}
 		if ($end_tag > $oldspace) return $end_tag;
 		return $oldspace;
+
 	}//end _findForwardBreak()
 
 
-	/** insert search matches into _running_vars
+	/**
+	* Insert search matches into _running_vars
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function _setupMatches()
 	{
@@ -1186,13 +1208,17 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 				}
 			}
 		}
+
 	}//end _setupMatches()
 
 
-	/** unset any search matches that are unneeded
+	/**
+	* Unset any search matches that are unneeded
 	*
-	* @access public
+	* @param string	$prefix	Prefix for the fields
+	*
 	* @return void
+	* @access public
 	*/
 	function _updateSearchData($prefix)
 	{
@@ -1274,11 +1300,12 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 						}
 					}
 				}
-			}
+			}//end if
 			if (empty($this->_running_vars['search_data'][$assetid])) {
 				unset($this->_running_vars['search_data'][$assetid]);
 			}
-		}
+		}//end foreach
+
 	}//end _updateSearchData()
 
 
