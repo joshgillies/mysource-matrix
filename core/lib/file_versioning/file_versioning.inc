@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.21 2006/01/27 02:22:05 lwright Exp $
+* $Id: file_versioning.inc,v 1.22 2006/01/30 23:06:57 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -287,6 +287,7 @@ class File_Versioning
 				// insert didn't fail ? means no duplicate key
 				if (!DB::isError($result)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					// All went well ? return true
 					return true;
 				}
@@ -298,6 +299,7 @@ class File_Versioning
 		}//end for
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return false;
 
@@ -324,6 +326,7 @@ class File_Versioning
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 
@@ -446,6 +449,7 @@ class File_Versioning
 		$this->_releaseFile($fileid);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return true;
 
@@ -529,6 +533,7 @@ class File_Versioning
 		}//endif
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $version;
 
@@ -811,9 +816,11 @@ class File_Versioning
 		// close transaction accordingly
 		if (assert_valid_db_result($result)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return true;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 	}//end _updateFileVersion()
@@ -990,6 +997,7 @@ class File_Versioning
 		if (!$this->_lockFile($info['fileid'])) {
 			trigger_localised_error('FVER0018', E_USER_NOTICE);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FUDGE_FV_ERROR;
 		}
 
@@ -999,6 +1007,7 @@ class File_Versioning
 			trigger_localised_error('FVER0011', E_USER_NOTICE, $info['path'], $info['filename']);
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FUDGE_FV_ERROR;
 		}
 
@@ -1008,6 +1017,7 @@ class File_Versioning
 			trigger_localised_error('FVER0010', E_USER_NOTICE, $info['version'], $info['path'], $info['filename']);
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FUDGE_FV_ERROR;
 		}
 
@@ -1017,12 +1027,14 @@ class File_Versioning
 			trigger_localised_error('FVER0019', E_USER_NOTICE, $info['path'], $info['filename'], $file_ver_info['version']);
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FUDGE_FV_ERROR;
 		}
 
 		if (!$this->_fileModified($curr_ver_info, $real_file)) {
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FUDGE_FV_NOT_MODIFIED;
 		}
 
@@ -1031,6 +1043,7 @@ class File_Versioning
 		if (empty($version)) {
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FUDGE_FV_ERROR;
 		}
 
@@ -1038,12 +1051,14 @@ class File_Versioning
 		if (!$this->_createFFVFile($real_file, $info['fileid'], $version)) {
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FUDGE_FV_ERROR;
 		}//end if
 
 		$this->_releaseFile($info['fileid']);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return FUDGE_FV_OK;
 
@@ -1075,6 +1090,7 @@ class File_Versioning
 		if (!$this->_lockFile($info['fileid'])) {
 			trigger_localised_error('FVER0018', E_USER_NOTICE);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FUDGE_FV_ERROR;
 		}
 
@@ -1084,6 +1100,7 @@ class File_Versioning
 			trigger_localised_error('FVER0012', E_USER_NOTICE, $info['path'], $info['filename']);
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FUDGE_FV_ERROR;
 		}
 
@@ -1093,6 +1110,7 @@ class File_Versioning
 			trigger_localised_error('FVER0010', E_USER_NOTICE, $info['version'], $info['path'], $info['filename']);
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FUDGE_FV_ERROR;
 		}
 
@@ -1102,6 +1120,7 @@ class File_Versioning
 			trigger_localised_error('FVER0023', E_USER_NOTICE, $info['path'], $info['filename'], $curr_ver_info['version']);
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FUDGE_FV_ERROR;
 		}
 
@@ -1109,6 +1128,7 @@ class File_Versioning
 		if ($this->clearOut($real_file) == FUDGE_FV_ERROR) {
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FUDGE_FV_ERROR;
 		}
 
@@ -1119,6 +1139,7 @@ class File_Versioning
 		if (empty($version)) {
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FUDGE_FV_ERROR;
 		}
 
@@ -1126,12 +1147,14 @@ class File_Versioning
 		if (!$this->_createFFVFile($real_file, $info['fileid'], $version)) {
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FUDGE_FV_ERROR;
 		}//end if
 
 		$this->_releaseFile($info['fileid']);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return FUDGE_FV_OK;
 
@@ -1207,6 +1230,7 @@ class File_Versioning
 		if (!is_dir($new_dir)) create_directory($new_dir);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return rename($this->_dir.'/'.$old_path, $this->_dir.'/'.$new_path);
 
