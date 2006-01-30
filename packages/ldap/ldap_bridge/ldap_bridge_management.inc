@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_management.inc,v 1.8 2005/08/16 23:58:08 dheppell Exp $
+* $Id: ldap_bridge_management.inc,v 1.9 2006/01/30 05:10:35 dmckee Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -81,8 +81,8 @@ class LDAP_Bridge_Management extends Asset_Management
 																						'openldap3'			=> 'OpenLDAP (protocol v3)',
 																						'activedirectory'	=> 'Active Directory',
 																					   ),
-																	'multiple'		=> false,
-																	'allow_empty'	=> false,
+																	'multiple'		=> FALSE,
+																	'allow_empty'	=> FALSE,
 																   ),
 											   ),
 						'attributes'		=> Array(
@@ -96,6 +96,7 @@ class LDAP_Bridge_Management extends Asset_Management
 												'default'	=> Array(),
 											   ),
 					  );
+
 	}//end constructor
 
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.19 2005/12/14 03:11:35 lwright Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.20 2006/01/30 05:10:35 dmckee Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -43,37 +43,37 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		$this->static_screens = Array(
 									'details'		=> Array(
 														'name'			=> 'Details',
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'attributes',
 													   ),
 									'permissions'	=> Array(
 														'name'			=> 'Permissions',
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'permissions',
 													   ),
 									'dependants'	=> Array(
 														'name'			=> 'Directory Tree',
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'none',
 													   ),
 									'linking'		=> Array(
 														'name'			=> 'Linking',
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'links',
 													   ),
 									'settings'		=> Array(
 														'name'			=> 'Settings',
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'all',
 													   ),
 									'history'		=> Array(
 														'name'			=> 'History',
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'none',
 													   ),
 									'logs'			=> Array(
 														'name'			=> 'Logs',
-														'force_unlock'	=> true,
+														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'none',
 													   ),
 								);
@@ -84,9 +84,9 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint a test connection to the LDAP bridge
 	*
-	* @param object LDAP_Bridge			&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -102,7 +102,7 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		}
 
 
-		return false;
+		return FALSE;
 
 	}//end paintConnectionTest()
 
@@ -110,16 +110,16 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for editing the test connection
 	*
-	* @param object LDAP_Bridge			&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processConnectionTest(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processConnectionTest()
 
@@ -127,9 +127,9 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for editing schema attributes
 	*
-	* @param object LDAP_Bridge			&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -172,9 +172,9 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for editing schema attributes
 	*
-	* @param object LDAP_Bridge			&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -191,7 +191,7 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 			return $asset->setAttrValue('attributes', $new_attributes);
 		}
 
-		return false;
+		return FALSE;
 
 	}//end processAttributes()
 
@@ -199,9 +199,9 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for editing schema attributes
 	*
-	* @param object LDAP_Bridge			&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -215,7 +215,7 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 
 		// connect through the bridge and find out what type of information
 		// we get back for the users
-		$user = &$asset->getAsset($asset->id.':'.$asset->attr('bind_dn'));
+		$user =& $asset->getAsset($asset->id.':'.$asset->attr('bind_dn'));
 		if (is_null($user)) {
 			trigger_localised_error('LDAP0001', E_USER_WARNING);
 			return;
@@ -233,10 +233,10 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 
 		foreach ($user->vars as $field_name => $field_data) {
 			if (isset($current['show'][$field_name])) {
-				$show = true;
+				$show = TRUE;
 				$display_name = $current['show'][$field_name];
 			} else {
-				$show = false;
+				$show = FALSE;
 				$display_name = (isset($current['hide'][$field_name])) ? $current['hide'][$field_name] : $field_name;
 			}
 
@@ -272,7 +272,7 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 				</td>
 			</tr>
 			<?php
-		}//end for
+		}//end foreach $user fields
 
 		?></table><?php
 
@@ -284,9 +284,9 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for editing schema attributes
 	*
-	* @param object LDAP_Bridge			&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -294,7 +294,7 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 	function processUserSetup(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_user_attribute_fields'])) {
-			return false;
+			return FALSE;
 		}
 
 		$user_attributes = Array('show' => Array(), 'hide' => Array());
