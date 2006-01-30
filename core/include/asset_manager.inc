@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.428 2006/01/26 22:34:08 lwright Exp $
+* $Id: asset_manager.inc,v 1.429 2006/01/30 04:12:10 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.428 $
+* @version $Revision: 1.429 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2602,12 +2602,13 @@ class Asset_Manager extends MySource_Object
 	* Also returns basic information about the last link (linkid and link type)
 	* linkid => Array ('linkid' => linkid, 'link_type' => link_type, 'lineage' => Array(...))
 	*
-	* @param object	$assetid	the asset whose links lineages we are getting
+	* @param object	$assetid		the asset whose links lineages we are getting
+	* @param int	$result_limit	limits the number of results returned
 	*
 	* @return array
 	* @access public
 	*/
-	function getLinkLineages($assetid)
+	function getLinkLineages($assetid, $result_limit=0)
 	{
 		assert_valid_assetid($assetid);
 
@@ -2648,6 +2649,13 @@ class Asset_Manager extends MySource_Object
 					$lineages[$key]['lineage'][$assetid] = $name;
 				}
 				$link_lineages = array_merge($link_lineages, $lineages);
+				if ($result_limit != 0 && count($link_lineages) >= $result_limit) {
+					break;
+				}
+			}
+
+			if ($result_limit != 0 && count($link_lineages) > $result_limit) {
+				$link_lineages = array_slice($link_lineages, 0, $result_limit);
 			}
 
 			return $link_lineages;
@@ -2687,8 +2695,8 @@ class Asset_Manager extends MySource_Object
 
 			$sql .= $where.'
 					ORDER BY cl.linkid, ct.treeid, pt.treeid';
-
 			$result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
+
 			assert_valid_db_result($result);
 		}
 
@@ -2697,8 +2705,8 @@ class Asset_Manager extends MySource_Object
 			$link_info[$link_data['majorid']][] = $link_data;
 		}
 
+		$result_count = 0;
 		foreach (array_values($result) as $link_tree) {
-
 			// work out some values we are going to need
 			$parent_data = $link_tree[count($link_tree) -1];
 			$majorid = $parent_data['assetid'];
@@ -2721,6 +2729,10 @@ class Asset_Manager extends MySource_Object
 								   );
 			}
 
+			if ($result_limit != 0 && $result_count == $result_limit) {
+				break;
+			}
+			$result_count++;
 		}//end foreach result
 
 		return $link_lineages;

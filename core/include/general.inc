@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.119 2005/12/19 05:25:47 bcaldwell Exp $
+* $Id: general.inc,v 1.120 2006/01/30 04:12:10 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.119 $
+* @version $Revision: 1.120 $
 * @package MySource_Matrix
 */
 
@@ -1106,7 +1106,7 @@ function get_asset_tag_line($assetid, $screen='')
 
 		<?php
 		// LINEAGES BOX
-		$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid);
+		$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid, 5);
 
 		// start an inner buffer for the lineages popup
 		ob_start();
