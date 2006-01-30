@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.95 2006/01/27 01:12:36 tbarrett Exp $
+* $Id: search_manager.inc,v 1.96 2006/01/30 05:51:46 sdanis Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -64,10 +64,10 @@ class Search_Manager extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @see Asset::create()
 	*
 	* @return mixed int|boolean
 	* @access public
+	* @see Asset::create()
 	*/
 	function create(&$link)
 	{
@@ -101,10 +101,10 @@ class Search_Manager extends Asset
 	*
 	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
 	*
 	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
 	function _getName($short_name=FALSE)
 	{
@@ -1419,7 +1419,7 @@ class Search_Manager extends Asset
 					if ($closest_parentid != 0) {
 						return $asset_tree_weightings[$closest_parentid]['type_weights'][$type_code];
 					}
-				}//end if strict_assetid
+				}//end else strict_assetid
 			} else {
 				return $asset_tree_weightings;
 			}//end if !is_null(assetid)
@@ -1868,8 +1868,8 @@ class Search_Manager extends Asset
 	*
 	* @param array	$field_details	One entry from the 'fields' array in processSearch()'s search_info parameter
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _prepareSearchField(&$field_details)
 	{
@@ -2059,7 +2059,7 @@ class Search_Manager extends Asset
 					}
 				break;
 
-			}
+			}//end switch
 
 			$sql = implode_sql($base_query);
 			if (count($base_query['select']) > 2) {
@@ -2324,7 +2324,7 @@ class Search_Manager extends Asset
 				}
 			}
 			return $res_results;
-		}
+		}//end else
 
 	}//end _combineResults()
 
@@ -2395,7 +2395,7 @@ class Search_Manager extends Asset
 	* of the pSpell instance, we will proceed as if no suggestions are available.
 	*
 	* @param string	$word		the word to be checked
-	* @param string $language	the language to be used to spell-check
+	* @param string	$language	the language to be used to spell-check
 	*
 	* @return array
 	* @access public

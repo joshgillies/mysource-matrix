@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.13 2005/07/13 04:43:12 mmcintyre Exp $
+* $Id: search_manager_edit_fns.inc,v 1.14 2006/01/30 05:51:46 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $ - 1.0
+* @version $Revision: 1.14 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -48,9 +48,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface for customising the assets to be indexed
 	*
-	* @param object Search_Mananger		&$asset		the search manager asset
-	* @param object Backend_Outputter	&$o			the backend outputter
-	* @param string						$prefix		the prefix for fields
+	* @param object	&$asset	the search manager asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for fields
 	*
 	* @return boolean
 	* @access public
@@ -66,9 +66,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for customising the assets to be indexed
 	*
-	* @param object Search_Mananger		&$asset		the search manager asset
-	* @param object Backend_Outputter	&$o			the backend outputter
-	* @param string						$prefix		the prefix for fields
+	* @param object	&$asset	the search manager asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for fields
 	*
 	* @return boolean
 	* @access public
@@ -83,9 +83,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface for customising the asset trees to be indexed
 	*
-	* @param object Search_Mananger		&$asset		the search manager asset
-	* @param object Backend_Outputter	&$o			the backend outputter
-	* @param string						$prefix		the prefix for fields
+	* @param object	&$asset	the search manager asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for fields
 	*
 	* @return boolean
 	* @access public
@@ -117,9 +117,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for customising the asset trees to be indexed
 	*
-	* @param object Search_Mananger		&$asset		the search manager asset
-	* @param object Backend_Outputter	&$o			the backend outputter
-	* @param string						$prefix		the prefix for fields
+	* @param object	&$asset	the search manager asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for fields
 	*
 	* @return boolean
 	* @access public
@@ -134,9 +134,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface for customising the assets to be indexed
 	*
-	* @param object Search_Mananger		&$asset		the search manager asset
-	* @param object Backend_Outputter	&$o			the backend outputter
-	* @param string						$prefix		the prefix for fields
+	* @param object	&$asset	the search manager asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for fields
 	*
 	* @return boolean
 	* @access public
@@ -152,9 +152,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for customising the assets to be indexed
 	*
-	* @param object Search_Mananger		&$asset		the search manager asset
-	* @param object Backend_Outputter	&$o			the backend outputter
-	* @param string						$prefix		the prefix for fields
+	* @param object	&$asset	the search manager asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for fields
 	*
 	* @return boolean
 	* @access public
@@ -165,7 +165,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		$this->_processMetadataWeights($prefix, $weights);
 		$asset->saveMetadataWeightings($weights);
 
-		return false;
+		return FALSE;
 
 	}//end processMetadataWeights()
 
@@ -173,9 +173,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface for customising the global weightings
 	*
-	* @param object Search_Mananger		&$asset		the search manager asset
-	* @param object Backend_Outputter	&$o			the backend outputter
-	* @param string						$prefix		the prefix for fields
+	* @param object	&$asset	the search manager asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for fields
 	*
 	* @return boolean
 	* @access public
@@ -187,7 +187,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		$global_customised = $asset->getAssetTreeWeightings($root_folder_assetid);
 		$customised = (isset($global_customised['type_weights'])) ? array_keys($global_customised['type_weights']) : Array();
 		$this->_paintCurrentCustomisations($asset, $o, $prefix, $customised, 'asset_type');
-		return $this->_paintTreeWeightInterface($asset, $o, $prefix, $root_folder_assetid, false);
+		return $this->_paintTreeWeightInterface($asset, $o, $prefix, $root_folder_assetid, FALSE);
 
 	}//end paintGlobalWeights()
 
@@ -195,9 +195,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for customising the global weightings
 	*
-	* @param object Search_Mananger		&$asset		the search manager asset
-	* @param object Backend_Outputter	&$o			the backend outputter
-	* @param string						$prefix		the prefix for fields
+	* @param object	&$asset	the search manager asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for fields
 	*
 	* @return boolean
 	* @access public
@@ -212,15 +212,16 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface for customising tree weightings for the specified asset
 	*
-	* @param object Search_Mananger		&$asset		the search manager asset
-	* @param object Backend_Outputter	&$o			the backend outputter
-	* @param string						$prefix		the prefix for fields
-	* @param string						$assetid	the assetid of the tree root
+	* @param object		&$asset				the search manager asset
+	* @param object		&$o					the backend outputter
+	* @param string		$prefix				the prefix for fields
+	* @param string		$assetid			the assetid of the tree root
+	* @param boolean	$paint_customised	Paint customsised
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _paintTreeWeightInterface(&$asset, &$o, $prefix, $assetid, $paint_customised=true)
+	function _paintTreeWeightInterface(&$asset, &$o, $prefix, $assetid, $paint_customised=TRUE)
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$tree_type = array_get_index($_POST, $prefix.'_selected_tree_type', '');
@@ -234,13 +235,13 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		$weights   = $asset->getAssetTreeWeightings($assetid);
 		$tree_type = array_get_index($_POST, $prefix.'_selected_tree_type', '');
 
-		//section opened by xml
+		// section opened by xml
 			$o->openField(translate('sch_customise').'?');
 				$types = Array(
 							'asset_type'	=> translate('asset_types'),
 							'metadata'		=> translate('metadata'),
 						 );
-				combo_box($prefix.'_selected_tree_type', $types, false, $tree_type);
+				combo_box($prefix.'_selected_tree_type', $types, FALSE, $tree_type);
 				echo '&nbsp;';
 				submit_button($prefix.'_selected_tree_type_go', translate('go'), 'main_form.submit()');
 			$o->closeField();
@@ -275,10 +276,10 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the interface used to specify the weights for asset components
 	*
-	* @param &object search_manager		$asset			the search_manager asset
-	* @param &object backend_outputer	$o				the backend_outputer
-	* @param string 					$prefix			the prefix for fields
-	* @param Array						$asset_weights	the asset weight values
+	* @param object	&$asset		the search_manager asset
+	* @param object	&$o			the backend_outputer
+	* @param string	$prefix		the prefix for fields
+	* @param array	$weights	the asset weight values
 	*
 	* @return boolean
 	* @access private
@@ -342,11 +343,11 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the interface used to specify the weights for attributes
 	*
-	* @param &object search_manager		$asset			the search_manager asset
-	* @param &object backend_outputer	$o				the backend_outputer
-	* @param string 					$prefix			the prefix for fields
-	* @param Array						$weights		the attribute weight values
-	* @param string						$type_code		the type code that the attributes belong to
+	* @param object	&$asset		the search_manager asset
+	* @param object	&$o			the backend_outputer
+	* @param string	$prefix		the prefix for fields
+	* @param array	$weights	the attribute weight values
+	* @param string	$type_code	the type code that the attributes belong to
 	*
 	* @return boolean
 	* @access private
@@ -410,7 +411,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 					<?php
 				$o->closeField();
 			$o->closeSection();
-		}//end !empty(attrs)
+		}//end if !empty(attrs)
 
 		return $write_access;
 
@@ -420,10 +421,10 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the interface used to customise metadata weightings
 	*
-	* @param &object search_manager		$asset			the search_manager asset
-	* @param &object backend_outputer	$o				the backend_outputer
-	* @param string 					$prefix			the prefix for fields
-	* @param Array						$weights		the attribute weight values
+	* @param object	&$asset		the search_manager asset
+	* @param object	&$o			the backend_outputer
+	* @param string	$prefix		the prefix for fields
+	* @param array	$weights	the attribute weight values
 	*
 	* @return boolean
 	* @access private
@@ -481,7 +482,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 							foreach ($weights as $assetid => $info) {
 
 								$type_name  = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($info['type_code'], 'name');
-								$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), true, 'name');
+								$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'name');
 								$indexed    = (isset($weights[$assetid]['indexed'])) ? $weights[$assetid]['indexed'] : 1;
 								$asset_name = $asset_info[$assetid];
 
@@ -517,7 +518,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 										<?php
 											if ($write_access) {
 												echo '<td class="sq-backend-table-cell">';
-												echo check_box($prefix.'_metadata_assets['.$assetid.'][remove]', 1, false);
+												echo check_box($prefix.'_metadata_assets['.$assetid.'][remove]', 1, FALSE);
 												echo '</td>';
 											}
 										?>
@@ -543,15 +544,15 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	*
 	* Only non-system assets and instantiable assets and their ancestors are printed
 	*
-	* @param string	$field_name				the name to use for the combo box
-	* @param string	$selected_type_code		the type_code that should be currently selected
+	* @param string	$field_name			the name to use for the combo box
+	* @param string	$selected_type_code	the type_code that should be currently selected
 	*
 	* @return void
 	* @access private
 	*/
 	function _paintAssetTypeChooser($field_name, $selected_type_code)
 	{
-		$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes(true, true);
+		$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes(TRUE, TRUE);
 
 		foreach ($asset_types as $type_code => $info) {
 			$all_types[$type_code] = $info['name'];
@@ -571,7 +572,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		$all_types[''] = '';
 		$all_types = array_reverse($all_types);
 
-		combo_box($field_name, $all_types, false, $selected_type_code);
+		combo_box($field_name, $all_types, FALSE, $selected_type_code);
 		echo '&nbsp;';
 		submit_button($field_name.'_go', translate('go'), 'main_form.submit()');
 
@@ -581,11 +582,11 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface for choosing a source to customise
 	*
-	* @param &object search_manager		$asset			the search_manager asset
-	* @param &object backend_outputer	$o				the backend_outputer
-	* @param string 					$prefix			the prefix for fields
-	* @param string						$screen			the screen being processed
-	* @param string						$field_suffix	the suffix to append to the field name
+	* @param object	&$asset			the search_manager asset
+	* @param object	&$o				the backend_outputer
+	* @param string	$prefix			the prefix for fields
+	* @param string	$screen			the screen being processed
+	* @param string	$field_suffix	the suffix to append to the field name
 	*
 	* @return void
 	* @access private
@@ -623,11 +624,11 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints an interface with the current cusomisations for the specified weights and screen
 	*
-	* @param &object search_manager		$asset			the search_manager asset
-	* @param &object backend_outputer	$o				the backend_outputer
-	* @param string 					$prefix			the prefix for fields
-	* @param Array						$weights		the weights
-	* @param string						$screen			the current screen
+	* @param object	&$asset		the search_manager asset
+	* @param object	&$o			the backend_outputer
+	* @param string	$prefix		the prefix for fields
+	* @param array	$weights	the weights
+	* @param string	$screen		the current screen
 	*
 	* @return void
 	* @access private
@@ -695,14 +696,14 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 												if ($write_access) {
 													?>
 														<td class="<?php echo $css_class; ?>">
-															<?php echo check_box($field.'_remove['.$key.']', 1, false); ?>
+															<?php echo check_box($field.'_remove['.$key.']', 1, FALSE); ?>
 														</td>
 													<?php
 												}
 											?>
 									</tr>
 									<?php
-								}
+								}//end foreach
 							?>
 						</table>
 					<?php
@@ -716,8 +717,8 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Returns the displayable name for the specified key and screen
 	*
-	* @param string		$key		the key - which is either an assetid or type code
-	* @param string		$screen		the current screen being painted
+	* @param string	$key	the key - which is either an assetid or type code
+	* @param string	$screen	the current screen being painted
 	*
 	* @return string
 	* @access private
@@ -727,7 +728,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		if (empty($key)) return '';
 
 		if ($screen != 'asset_type') {
-			$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($key), Array(), true);
+			$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($key), Array(), TRUE);
 			$type_name = $info[$key]['name'];
 		} else {
 			// if the key is 'asset' then we are processing all asset types
@@ -745,8 +746,8 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Returns the key of the current source being customised
 	*
-	* @param string		$prefix		the field prefix
-	* @param string 	$screen		the screen currently being processed
+	* @param string	$prefix	the field prefix
+	* @param string	$screen	the screen currently being processed
 	*
 	* @return string
 	* @access private
@@ -778,7 +779,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Returns the field identifier for the specified screen
 	*
-	* @param string 	$screen	the screen of the wanted identifier
+	* @param string	$screen	the screen of the wanted identifier
 	*
 	* @return string
 	* @access private
@@ -799,16 +800,18 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the weighting interface for all screens
 	*
-	* @param &object search_manager		$asset			the search_manager asset
-	* @param &object backend_outputer	$o				the backend_outputer
-	* @param string 					$prefix			the prefix for fields
-	* @param string						$screen			the screen that we are painting
-	* @param Array						$weights		the weighting information to display, if null
-	*													the weights will be obtained based on the screen type
+	* @param object	&$asset		the search_manager asset
+	* @param object	&$o			the backend_outputer
+	* @param string	$prefix		the prefix for fields
+	* @param string	$screen		the screen that we are painting
+	* @param array	$customised	Customisation
+	* @param array	$weights	the weighting information to display, if null
+	*							the weights will be obtained based on the screen type
+	*
 	* @return boolean
 	* @access private
 	*/
-	function _paintWeightInterface(&$asset, &$o, $prefix, $screen, $customised=Array(), $weights=null)
+	function _paintWeightInterface(&$asset, &$o, $prefix, $screen, $customised=Array(), $weights=NULL)
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$post_field   = $this->_getPostField($screen);
@@ -835,12 +838,12 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 					if ($post_field == 'type_code') {
 						$type_code = $key;
 					} else {
-						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($key), Array(), true);
+						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($key), Array(), TRUE);
 						$type_code  = $asset_info[$key]['type_code'];
 					}
 
 					$o->openField(translate('sch_indexing_enabled'));
-						if (isset($weights[$key]['indexed'])){
+						if (isset($weights[$key]['indexed'])) {
 							$indexed = $weights[$key]['indexed'];
 						} else {
 							$indexed = 1;
@@ -850,7 +853,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 									0	=> translate('no'),
 								   );
 						if ($write_access) {
-							combo_box($prefix.'_indexed', $options, false, $indexed);
+							combo_box($prefix.'_indexed', $options, FALSE, $indexed);
 						} else {
 							echo $options[$indexed];
 						}
@@ -867,7 +870,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 					if (!$this->_customisationsRemoved($prefix, $screen)) {
 						$o->addHiddenField($prefix.'_current_'.$post_field, $key);
 					}
-				}//end !empty(assetid)
+				}//end if !empty(assetid)
 			$o->closeField();
 		// section closed by xml
 
@@ -879,22 +882,22 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the weightings for all weightings screen
 	*
-	* @param &object search_manager		$asset			the search_manager asset
-	* @param &object backend_outputer	$o				the backend_outputer
-	* @param string 					$prefix			the prefix for fields
-	* @param string						$screen			the screen to process
+	* @param object	&$asset	the search_manager asset
+	* @param object	&$o		the backend_outputer
+	* @param string	$prefix	the prefix for fields
+	* @param string	$screen	the screen to process
 	*
 	* @return boolean
 	* @access private
 	*/
 	function _processWeights(&$asset, &$o, $prefix, $screen)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 		$post_field = $this->_getPostField($screen);
 
 		// if they have clicked on a current customisation, dont process
 		if (isset($_POST[$prefix.'_customise_'.$post_field]) && !empty($_POST[$prefix.'_customise_'.$post_field])) {
-			return false;
+			return FALSE;
 		}
 
 		$function_suffix = str_replace('_', '', $screen).'Weightings';
@@ -935,7 +938,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 						$tree_weights[$key] = $weights;
 						$this->_removeUnwantedCustomisations($prefix, $screen, $tree_weights);
 						$asset->$save_function($tree_weights);
-						return false;
+						return FALSE;
 					}
 				} else {
 					// we are setting metadata weights for assets underneath 'key', which
@@ -948,7 +951,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 					$asset->$save_function($tree_weights);
 
 					// no more work to do so just return
-					return false;
+					return FALSE;
 				}
 			}//end if asset_tree
 
@@ -975,7 +978,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 				$tree_weights[$tree_assetid]['type_weights'] = $weights;
 				$weights = $tree_weights;
 			}
-		}
+		}//end if
 
 		if (!empty($weights)) {
 			// remove any unwanted customisations
@@ -984,7 +987,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		// we never save attributes
-		return false;
+		return FALSE;
 
 	}//end _processWeights()
 
@@ -992,8 +995,8 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the weightings for asset component weights
 	*
-	* @param string		$prefix			the prefix for fields
-	* @param &Array		$weights		the weights to process
+	* @param string	$prefix		the prefix for fields
+	* @param array	&$weights	the weights to process
 	*
 	* @return void
 	* @access private
@@ -1023,8 +1026,8 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the weightings for attribute weights
 	*
-	* @param string		$prefix			the prefix for fields
-	* @param &Array		$weights		the weights to process
+	* @param string	$prefix		the prefix for fields
+	* @param array	&$weights	the weights to process
 	*
 	* @return void
 	* @access private
@@ -1053,8 +1056,8 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the weightings for metadata weights
 	*
-	* @param string		$prefix			the prefix for fields
-	* @param &Array		$weights		the weights to process
+	* @param string	$prefix		the prefix for fields
+	* @param array	&$weights	the weights to process
 	*
 	* @return void
 	* @access private
@@ -1069,23 +1072,23 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 			if (isset($info['remove']) && $info['remove']) {
 				unset($weights[$assetid]);
 			} else {
-				$weight = ((int) $info['weight'] > 0) ? $info['weight'] : null;
+				$weight = ((int) $info['weight'] > 0) ? $info['weight'] : NULL;
 				if (!is_null($weight)) {
 					$weights[$assetid]['weight'] = $weight;
 				}
-				$weights[$assetid]['indexed'] = array_get_index($info, 'indexed', false);
+				$weights[$assetid]['indexed'] = array_get_index($info, 'indexed', FALSE);
 			}
 		}
 
 		// the information posted by the asset finder
-		$metadata_asset = array_get_index($_POST, $prefix.'_metadata_asset', null);
+		$metadata_asset = array_get_index($_POST, $prefix.'_metadata_asset', NULL);
 
 		if (!is_null($metadata_asset) && $metadata_asset['assetid'] != 0) {
 			$weight = array_get_index($_POST, $prefix.'_metadata_weight', 1);
 			if ($weight < 0) $weight = 1;
 
 			$assetid   = $metadata_asset['assetid'];
-			$type_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), true, 'type_code');
+			$type_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'type_code');
 			$type_code = $type_info[$assetid];
 
 			// save any values from a metadata asset that was selected using the asset finder
@@ -1104,7 +1107,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	*
 	* @param string	$prefix		the field prefix
 	* @param string	$screen		the screen being processed
-	* @param &Array	$weights	the weights being processed
+	* @param array	&$weights	the weights being processed
 	*
 	* @return void
 	* @access private
@@ -1124,8 +1127,8 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Returns true if customisations were removed in the last save action
 	*
-	* @param string	$prefix		the field prefix
-	* @param string $screen		the screen being processed
+	* @param string	$prefix	the field prefix
+	* @param string	$screen	the screen being processed
 	*
 	* @return boolean
 	* @access private
@@ -1143,9 +1146,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for queuing a HIPO to reindex the system
 	*
-	* @param object Search_Manager		&$asset		the search manager asset
-	* @param object	Backend_Outputter	&$o			the backend outputter object
-	* @param string						$prefix		the prefix for field
+	* @param object	&$asset	the search manager asset
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	the prefix for field
 	*
 	* @return boolean
 	* @access public
@@ -1159,9 +1162,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 			$o->openField(translate('sch_system_wide'));
 			check_box($prefix.'_reindexing_root_folder');
 			echo translate('sch_reindex_all_assets');
-			return true;
+			return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end paintReindexing()
 
@@ -1169,9 +1172,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the interface for queuing a HIPO to reindex the system
 	*
-	* @param object Search_Manager		&$asset		the search manager asset
-	* @param object	Backend_Outputter	&$o			the backend outputter object
-	* @param string						$prefix		the prefix for field
+	* @param object	&$asset	the search manager asset
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	the prefix for field
 	*
 	* @return boolean
 	* @access public
@@ -1183,15 +1186,15 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 			if ($root_assetid > 0) {
 				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$hh->queueHipo('hipo_job_reindex', Array('root_assetid' => $root_assetid), '', SQ_PACKAGES_PATH.'/search/hipo_jobs');
-				return true;
+				return TRUE;
 			}
 		}
 		if (isset($_POST[$prefix.'_reindexing_root_folder'])) {
 			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$hh->queueHipo('hipo_job_reindex', Array('root_assetid' => '1'), '', SQ_PACKAGES_PATH.'/search/hipo_jobs');
-			return true;
+			return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end processReindexing()
 
@@ -1199,9 +1202,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for Noise Words
 	*
-	* @param object Search_Manager		&$asset		the search manager asset
-	* @param object	Backend_Outputter	&$o			the backend outputter object
-	* @param string						$prefix		the prefix for field
+	* @param object	&$asset	the search manager asset
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	the prefix for field
 	*
 	* @return boolean
 	* @access public
@@ -1211,7 +1214,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 
 		$noise_words = $asset->attr('noise_word_list');
-		$noise_words = (is_array($noise_words))? implode(' ', $noise_words):'';
+		$noise_words = (is_array($noise_words)) ? implode(' ', $noise_words) : '';
 
 		if ($write_access) {
 			text_area($prefix.'_noise_words', $noise_words, 60, 5);
@@ -1226,9 +1229,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the interface for adding noise words
 	*
-	* @param object Search_Manager		&$asset		the search manager asset
-	* @param object	Backend_Outputter	&$o			the backend outputter object
-	* @param string						$prefix		the prefix for field
+	* @param object	&$asset	the search manager asset
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	the prefix for field
 	*
 	* @return boolean
 	* @access public
@@ -1236,13 +1239,13 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	function processNoiseWords(&$asset, &$o, $prefix)
 	{
 
-		$words = array_get_index($_POST, $prefix.'_noise_words', false);
+		$words = array_get_index($_POST, $prefix.'_noise_words', FALSE);
 
 		$matches	= Array();
 		$new_words	= Array();
 
 		if (preg_match_all('/\w+/i', $words, $matches, PREG_SET_ORDER)) {
-			foreach ($matches as $match){
+			foreach ($matches as $match) {
 				$word = array_pop($match);
 				$new_words[$word] = $word;
 			}
@@ -1250,7 +1253,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$asset->setAttrValue('noise_word_list', $new_words);
 
-		return true;
+		return TRUE;
 
 	}//end processNoiseWords()
 
@@ -1258,9 +1261,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for White Words
 	*
-	* @param object Search_Manager		&$asset		the search manager asset
-	* @param object	Backend_Outputter	&$o			the backend outputter object
-	* @param string						$prefix		the prefix for field
+	* @param object	&$asset	the search manager asset
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	the prefix for field
 	*
 	* @return boolean
 	* @access public
@@ -1270,7 +1273,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 
 		$words = $asset->attr('white_word_list');
-		$words = (is_array($words))? implode(' ', $words):'';
+		$words = (is_array($words)) ? implode(' ', $words) : '';
 
 		if ($write_access) {
 			text_area($prefix.'_white_words', $words, 60, 5);
@@ -1285,22 +1288,22 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the interface for adding white words
 	*
-	* @param object Search_Manager		&$asset		the search manager asset
-	* @param object	Backend_Outputter	&$o			the backend outputter object
-	* @param string						$prefix		the prefix for field
+	* @param object	&$asset	the search manager asset
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	the prefix for field
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processWhiteWords(&$asset, &$o, $prefix)
 	{
-		$words = array_get_index($_POST, $prefix.'_white_words', false);
+		$words = array_get_index($_POST, $prefix.'_white_words', FALSE);
 
 		$matches	= Array();
 		$new_words	= Array();
 
 		if (preg_match_all('/\w+/i', $words, $matches, PREG_SET_ORDER)) {
-			foreach ($matches as $match){
+			foreach ($matches as $match) {
 				$word = array_pop($match);
 				$new_words[$word] = $word;
 			}
@@ -1308,7 +1311,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$asset->setAttrValue('white_word_list', $new_words);
 
-		return true;
+		return TRUE;
 
 	}//end processWhiteWords()
 

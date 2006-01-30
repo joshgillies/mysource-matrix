@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.48 2006/01/26 22:35:32 lwright Exp $
+* $Id: search_page_management.inc,v 1.49 2006/01/30 05:54:48 sdanis Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -92,9 +92,9 @@ class Search_Page_Management extends Asset_Management
 		$this->vars['use_picker'] = Array(
 										'added'			=> '0.6',
 										'type'			=> 'boolean',
-										'default'		=> false,
+										'default'		=> FALSE,
 										'description'	=> 'Use the JS date picker or not',
-										'parameters'	=> Array('allow_empty' => false),
+										'parameters'	=> Array('allow_empty' => FALSE),
 									);
 
 		$this->vars['logic'] = Array(
@@ -103,8 +103,8 @@ class Search_Page_Management extends Asset_Management
 								'default'		=> 'AND',
 								'description'	=> 'Whether to include all or any fields.',
 								'parameters'	=> Array(
-													'multiple'		=> false,
-													'allow_empty'	=> false,
+													'multiple'		=> FALSE,
+													'allow_empty'	=> FALSE,
 													'options'		=> Array(
 																		'AND'	=> 'Match on ALL fields',
 																		'OR'	=> 'Match on at least ONE field',
@@ -115,9 +115,9 @@ class Search_Page_Management extends Asset_Management
 		$this->vars['allow_empty_search'] = Array(
 												'added'			=> '0.12',
 												'type'			=> 'boolean',
-												'default'		=> false,
+												'default'		=> FALSE,
 												'description'	=> 'If true, empty search query will search for everything',
-												'parameters'	=> Array('allow_empty' => false),
+												'parameters'	=> Array('allow_empty' => FALSE),
 											);
 
 	}//end constructor
@@ -133,7 +133,7 @@ class Search_Page_Management extends Asset_Management
 	*/
 	function _upgrade($current_version)
 	{
-		if (!parent::_upgrade($current_version)) return false;
+		if (!parent::_upgrade($current_version)) return FALSE;
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -142,10 +142,10 @@ class Search_Page_Management extends Asset_Management
 			// changed the root assetid from storing an assetid to storing a NOTICE link
 			// to the root assetid - that way if the root asset is purged it automatically deletes
 			// the association
-			bam('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.1');
-			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren(1, $this->getAssetType(), false);
+			pre_echo('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.1');
+			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren(1, $this->getAssetType(), FALSE);
 			foreach ($children as $assetid => $type) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($asset)) continue;
 
 				// get the current root asset id and make sure it exists
@@ -157,23 +157,23 @@ class Search_Page_Management extends Asset_Management
 				if (!empty($root_asset_info)) {
 					$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_root_assetid);
 					if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $root_asset, SQ_LINK_NOTICE, 'root')) {
-						bam('SEARCH PAGE UPGRADE FAILED');
-						return false;
+						pre_echo('SEARCH PAGE UPGRADE FAILED');
+						return FALSE;
 					}
 				}
 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
-			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.1');
+			pre_echo('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.1');
 		}//end version 0.1 upgrade
 
 		if (version_compare($current_version, '0.5', '<=')) {
 			// version 0.5->0.6
 			// changed the format of the fields array
-			bam('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.5');
-			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren(1, $this->getAssetType(), false);
+			pre_echo('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.5');
+			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren(1, $this->getAssetType(), FALSE);
 			foreach ($children as $assetid => $type) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($asset)) continue;
 
 				$fields = $asset->attr('fields');
@@ -206,20 +206,20 @@ class Search_Page_Management extends Asset_Management
 				$asset->setAttrValue('fields', $new_fields);
 				if (!$asset->saveAttributes()) {
 					trigger_localised_error('SCH0018', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-			}
-			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.5');
-		}//end version 0.5 upgrade
+			}//end foreach
+			pre_echo('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.5');
+		}//end if version 0.5 upgrade
 
 
 		if (version_compare($current_version, '0.7', '<=')) {
 			// version 0.7->0.8
 			// changed the format of the fields array
-			bam('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.7');
-			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			pre_echo('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.7');
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
 			foreach ($children as $assetid) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
@@ -235,9 +235,9 @@ class Search_Page_Management extends Asset_Management
 								'position_formats'	=> 'folder',
 							 );
 
-				$type_formats = null;
+				$type_formats = NULL;
 				foreach ($sub_assets as $name => $type) {
-					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, $type, true, $name);
+					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, $type, TRUE, $name);
 					if (!is_null($link)) {
 						trigger_localised_error('SCH0019', E_USER_WARNING, ucwords(str_replace('_', ' ', $name.' '.$type)));
 						continue;
@@ -247,7 +247,7 @@ class Search_Page_Management extends Asset_Management
 					$copy_link = Array('asset' => &$asset, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 					$sub_asset->setAttrValue('name', ucwords(str_replace('_',' ', $name)));
-					if (!$sub_asset->create($copy_link)) return false;
+					if (!$sub_asset->create($copy_link)) return FALSE;
 
 					if ($name == 'type_formats') {
 						$type_formats = $sub_asset;
@@ -259,14 +259,14 @@ class Search_Page_Management extends Asset_Management
 
 				// NOW, convert the 'result list' formats stuff into the default
 				// type format
-				$ri_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'result_element');
+				$ri_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', FALSE, 'result_element');
 
 				if (is_null($ri_link)) {
 					trigger_localised_error('SCH0020', E_USER_WARNING);
 					continue;
 				} else {
 
-					$ri_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($ri_link['minorid']);
+					$ri_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($ri_link['minorid']);
 
 					$ri_asset->setAttrValue('name', 'Default Format');
 					$ri_asset->saveAttributes();
@@ -309,7 +309,7 @@ class Search_Page_Management extends Asset_Management
 					// to inherit types (as this was what Search Manager used to do)
 					$types = array_flip($types);
 					foreach ($types as $type_code => $value) {
-						$types[$type_code] = true;
+						$types[$type_code] = TRUE;
 					}
 
 					$asset->setAttrValue('types', $types);
@@ -319,22 +319,22 @@ class Search_Page_Management extends Asset_Management
 
 				if (!$asset->saveAttributes()) {
 					trigger_localised_error('SCH0021', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-			}
+			}//end foreach
 
-			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.7');
+			pre_echo('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.7');
 
-		}//end version 0.7 upgrade
+		}//end if version 0.7 upgrade
 
 
 		if (version_compare($current_version, '0.9', '<=')) {
 			// version 0.9->0.10
 			// create a new No Results bodycopy for each search_page
-			bam('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.9');
-			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			pre_echo('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.9');
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
 			foreach ($children as $assetid) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				// TODO: FIXME: cvs -D, test upgrade
@@ -350,17 +350,17 @@ class Search_Page_Management extends Asset_Management
 				$bodycopy->setAttrValue('name', 'No Results Page Layout');
 				if (!$bodycopy->create($copy_link)) {
 					trigger_localised_error('SCH0023', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
-			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.9');
-		}//end version 0.9 upgrade
+			pre_echo('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.9');
+		}//end if version 0.9 upgrade
 
 		if (version_compare($current_version, '0.13', '<')) {
-			bam('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.12');
-			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			pre_echo('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.12');
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
 			foreach ($children as $assetid) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$should_release_lock = (1 == $GLOBALS['SQ_SYSTEM']->am->acquireLock($assetid, 'attributes'));
@@ -371,14 +371,14 @@ class Search_Page_Management extends Asset_Management
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'attributes');
 				}
 			}
-			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.12');
+			pre_echo('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.12');
 		}//end version 0.13 upgrade
 
 		if (version_compare($current_version, '0.14', '<')) {
-			bam('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.13');
+			pre_echo('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.13');
 			// version 0.13->0.14
-			//changing the default value of attr 'group_by')
-			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			// changing the default value of attr 'group_by')
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
 			foreach ($children as $assetid) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$asset->setAttrValue('group_by', 'grouped');
@@ -387,14 +387,14 @@ class Search_Page_Management extends Asset_Management
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
 
-			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.13');
+			pre_echo('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.13');
 		}//end version 0.12 upgrade
 
 		if (version_compare($current_version, '0.15', '<')) {
-			bam('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.14');
+			pre_echo('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.14');
 			// version 0.14 -> 0.15
 			// changed the format of the attr categories
-			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
 			foreach ($children as $assetid) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$old_cats = $asset->attr('categories');
@@ -419,15 +419,15 @@ class Search_Page_Management extends Asset_Management
 				$asset->saveAttributes();
 
 				// change the values on the root node links
-				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_NOTICE, '', true);
+				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_NOTICE, '', TRUE);
 				foreach ($links as $link) {
 					if (!empty($link['value']) && (0 === strpos($link['value'], 'root_'))) {
-						$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], null, 'root_search_'.substr($link['value'], 5));
+						$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], NULL, 'root_search_'.substr($link['value'], 5));
 					}
 				}
 
 				// now replace the category_list keyword with search_category_chooser in all html content underneath
-				$content_types = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'content_type', false);
+				$content_types = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'content_type', FALSE);
 				foreach ($content_types as $id => $type) {
 					$ct =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id, $type);
 					$html = $ct->attr('html');
@@ -435,15 +435,15 @@ class Search_Page_Management extends Asset_Management
 					$ct->setAttrValue('html', $html);
 					$ct->saveAttributes();
 				}
-			}
-		}
+			}//end foreach
+		}//end if
 
 		if (version_compare($current_version, '0.16', '<')) {
-			bam('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.15');
+			pre_echo('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.15');
 			// fields format changed in v0.16
-			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
 			foreach ($children as $assetid) {
-				bam("Upgrading Search Page #$assetid");
+				pre_echo("Upgrading Search Page #$assetid");
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$new_fields = Array();
 				foreach ($asset->attr('fields') as $field_name => $field_data) {
@@ -468,10 +468,10 @@ class Search_Page_Management extends Asset_Management
 				$asset->saveAttributes();
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
-			bam('FINISHED SEARCH PAGE UPGRADE FROM VERSION 0.15');
-		}
+			pre_echo('FINISHED SEARCH PAGE UPGRADE FROM VERSION 0.15');
+		}//end if
 
-		return true;
+		return TRUE;
 
 	}//end _upgrade()
 
@@ -479,8 +479,8 @@ class Search_Page_Management extends Asset_Management
 	/**
 	* Return an array with information about the events that this page is listening for
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function getEventList()
 	{
@@ -488,11 +488,11 @@ class Search_Page_Management extends Asset_Management
 				Array(
 					'event_name'					=> 'requestKeywords',
 					'broadcast_type_code'			=> 'content_type',
-					'broadcast_strict_type_code'	=> false,
+					'broadcast_strict_type_code'	=> FALSE,
 					'options'						=> Array(
 														'side_of_link'	=> 'major',
-														'indirect'		=> true,
-														'is_exclusive'	=> null,
+														'indirect'		=> TRUE,
+														'is_exclusive'	=> NULL,
 														'is_dependant'	=> 1,
 														'value'			=> '',
 														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_search.inc,v 1.14 2005/08/10 04:12:24 tbarrett Exp $
+* $Id: package_manager_search.inc,v 1.15 2006/01/30 05:57:21 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -49,7 +49,7 @@ class Package_Manager_Search extends Package_Manager
 	* Returns an array of all the asset types in the package that are to be treated as system assets
 	* NOTE: Assets will be installed in the order they appear in this list
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	* @static
 	*/
@@ -63,12 +63,12 @@ class Package_Manager_Search extends Package_Manager
 	/**
 	* Create the search manager system asset
 	*
-	* @return object Search_Manager
+	* @return object
 	* @access public
 	*/
 	function &createSearchManager()
 	{
-		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('search_manager');
 		$search_manager =& new Search_Manager();

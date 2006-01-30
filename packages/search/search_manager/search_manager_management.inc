@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_management.inc,v 1.15 2005/09/21 01:49:52 mmcintyre Exp $
+* $Id: search_manager_management.inc,v 1.16 2006/01/30 05:51:46 sdanis Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.15 $ - 0.1
+* @version $Revision: 1.16 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -42,10 +42,10 @@ class Search_Manager_Management extends Asset_Management
 						'indexing'			=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'boolean',
-												'default'		=> false,
+												'default'		=> FALSE,
 												'description'	=> 'Turns indexing on or off',
 												'parameters'	=> Array(
-																	'allow_empty'	=> false,
+																	'allow_empty'	=> FALSE,
 																   ),
 											   ),
 						'min_word_length'	=> Array(
@@ -53,7 +53,7 @@ class Search_Manager_Management extends Asset_Management
 												'type'			=> 'int',
 												'default'		=> '4',
 												'parameters'	=> Array(
-																	'allow_negative'	=> false,
+																	'allow_negative'	=> FALSE,
 																   ),
 											   ),
 						'noise_word_list'	=> Array(
@@ -79,8 +79,8 @@ class Search_Manager_Management extends Asset_Management
 	/**
 	* returns an array with information about the events that the form is listening for
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function getEventList()
 	{
@@ -88,65 +88,65 @@ class Search_Manager_Management extends Asset_Management
 				Array(
 					'event_name'					=> 'assetDeleted',
 					'broadcast_type_code'			=> 'global',
-					'broadcast_strict_type_code'	=> true,
+					'broadcast_strict_type_code'	=> TRUE,
 					'options'						=> Array(
-														'global'	=> true,
+														'global'	=> TRUE,
 													   ),
 				),
 				Array(
 					'event_name'					=> 'AssetUpdate',
 					'broadcast_type_code'			=> 'global',
-					'broadcast_strict_type_code'	=> true,
+					'broadcast_strict_type_code'	=> TRUE,
 					'options'						=> Array(
-														'global'	=> true,
+														'global'	=> TRUE,
 													   ),
 				),
 				Array(
 					'event_name'					=> 'AssetCreate',
 					'broadcast_type_code'			=> 'global',
-					'broadcast_strict_type_code'	=> true,
+					'broadcast_strict_type_code'	=> TRUE,
 					'options'						=> Array(
-														'global'	=> true,
+														'global'	=> TRUE,
 													   ),
 				),
 				Array(
 					'event_name'					=> 'ContentsUpdated',
 					'broadcast_type_code'			=> 'global',
-					'broadcast_strict_type_code'	=> true,
+					'broadcast_strict_type_code'	=> TRUE,
 					'options'						=> Array(
-														'global'	=> true,
+														'global'	=> TRUE,
 													   ),
 				),
 				Array(
 					'event_name'					=> 'AssetStatusUpdate',
 					'broadcast_type_code'			=> 'global',
-					'broadcast_strict_type_code'	=> true,
+					'broadcast_strict_type_code'	=> TRUE,
 					'options'						=> Array(
-														'global'	=> true,
+														'global'	=> TRUE,
 													   ),
 				),
 				Array(
 					'event_name'					=> 'attributeChange',
 					'broadcast_type_code'			=> 'global',
-					'broadcast_strict_type_code'	=> true,
+					'broadcast_strict_type_code'	=> TRUE,
 					'options'						=> Array(
-														'global'	=> true,
+														'global'	=> TRUE,
 													   ),
 				),
 				Array(
 					'event_name'					=> 'MetadataUpdate',
 					'broadcast_type_code'			=> 'global',
-					'broadcast_strict_type_code'	=> true,
+					'broadcast_strict_type_code'	=> TRUE,
 					'options'						=> Array(
-														'global'	=> true,
+														'global'	=> TRUE,
 													   ),
 				),
 				Array(
 					'event_name'					=> 'MetadataDeleted',
 					'broadcast_type_code'			=> 'global',
-					'broadcast_strict_type_code'	=> true,
+					'broadcast_strict_type_code'	=> TRUE,
 					'options'						=> Array(
-														'global'	=> true,
+														'global'	=> TRUE,
 													   ),
 				),
 			   );

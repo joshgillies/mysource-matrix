@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.156 2006/01/20 00:57:35 sdanis Exp $
+* $Id: search_page.inc,v 1.157 2006/01/30 05:54:48 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.156 $
+* @version $Revision: 1.157 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -475,7 +475,7 @@ class Search_Page extends Listing_Engine
 	*
 	* @param string	$name	the name of the bodycopy to retrieve
 	*
-	* @return mixed object|null
+	* @return mixed object|NULL
 	* @access private
 	* @see Search_Page::bodycopies
 	*/
@@ -500,7 +500,7 @@ class Search_Page extends Listing_Engine
 	* @param string	$name			the name of the bodycopy to retrieve
 	* @param array	$replacements	replacements
 	*
-	* @return mixed string|null
+	* @return mixed string|NULL
 	* @access private
 	* @see Search_Page::bodycopies
 	* @see Search_Page::getBodycopy
@@ -951,7 +951,6 @@ class Search_Page extends Listing_Engine
 							$this->_printDateRange('queries_'.$query_var, $current_value);
 
 						} else if (($attribute->type() == 'int' || $attribute->type() == 'float')) {
-							// $current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
 							$this->_printNumericRange($query_var, $query, $data_source['params'], $sub_field);
 
 						} else {
@@ -1134,7 +1133,7 @@ class Search_Page extends Listing_Engine
 							}//end switch
 
 							$attribute->paint('queries_'.$query_var, $read_only);
-						}
+						}//end else
 					break;
 
 					case 'asset_date' :
