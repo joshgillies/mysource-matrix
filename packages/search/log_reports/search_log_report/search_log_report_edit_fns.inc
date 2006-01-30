@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_log_report_edit_fns.inc,v 1.6 2005/06/08 04:42:42 rhoward Exp $
+* $Id: search_log_report_edit_fns.inc,v 1.7 2006/01/30 04:34:33 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	A report that lists searches by month, week, or day, and by assetid
 *
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -37,25 +37,25 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 	/**
 	* Generate this report until complete
 	*
-	* @param object HIPO_Job	&$job		a reference to the array of information about
-	* @param array				&$step_data	a reference to the array of information about the current step of the HIPO job that is running this report
-	* @param string				$prefix		prefix for form vars
+	* @param object	&$job		a reference to the array of information about
+	* @param array	&$step_data	a reference to the array of information about the current step of the HIPO job that is running this report
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
 	*/
 	function generateReport(&$job, &$step_data, $prefix)
 	{
-		$job_vars = &$job->_running_vars;
+		$job_vars =& $job->_running_vars;
 
 		// set metadata that doesn't require the line data
-		$meta['report'] = &$job_vars['report'];
+		$meta['report'] =& $job_vars['report'];
 
 		// check job_vars, and set defaults if required
 		if (isset($job_vars['iterator'])) {
-			$iterator = &$job_vars['iterator'];
+			$iterator =& $job_vars['iterator'];
 		} else {
-			$iterator = &$GLOBALS['SQ_SYSTEM']->log_manager->getLogIterator($meta['report']->logname, array_get_index($job_vars, 'rotation_index', null));
+			$iterator =& $GLOBALS['SQ_SYSTEM']->log_manager->getLogIterator($meta['report']->logname, array_get_index($job_vars, 'rotation_index', NULL));
 		}
 
 		// default to updating the terms
@@ -87,20 +87,20 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 				$meta['search_assetid'] = array_get_index($data, 'assetid', 0);
 
 				// determine whether we need to rollover to the next day/week/month before processing the line
-				$rollover = false;
-				if (!is_null(array_get_index($job_vars, 'previous_date', null))) {
+				$rollover = FALSE;
+				if (!is_null(array_get_index($job_vars, 'previous_date', NULL))) {
 					switch ($job_vars['report']->attr('rollover_period')) {
 						case 'daily':
 							// if the date of current line is greater than the date of the previous line, rollover
 							if (date('Ymd', $meta['date']) > date('Ymd', $job_vars['previous_date'])) {
-								$rollover = true;
+								$rollover = TRUE;
 							}
 						break;
 
 						case 'monthly':
 							// if the month of the current line is greater than the month of previous line, rollover
 							if (date('Ym', $meta['date']) > date('Ym', $job_vars['previous_date'])) {
-								$rollover = true;
+								$rollover = TRUE;
 							}
 						break;
 
@@ -109,7 +109,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 							// get unix time for the start of next week, do as above
 							$next_week_start_time = $job_vars['previous_date'] + ((7 - date('w', $job_vars['previous_date'])) * 86400);
 							if (date('Ymd', $meta['date']) >= date('Ymd', $next_week_start_time)) {
-								$rollover = true;
+								$rollover = TRUE;
 							}
 						break;
 					}
@@ -119,7 +119,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 						$job_vars['carryover'] = $line;
 						$job_vars['mode'] = 'indices';
 					}
-				}
+				}//end if
 
 				// set the previous date in the running vars to handle rollover
 				$job_vars['previous_date'] = $line['date'];
@@ -136,10 +136,10 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 
 				}
 
-			} //end if (!empty($line))
+			}//end if (!empty($line))
 
 			// update the progress bar
-			$progress = &$iterator->getCurrentProgress();
+			$progress =& $iterator->getCurrentProgress();
 			$total   = array_get_index($progress, 'total', 0);
 			$current = array_get_index($progress, 'current', $total);
 			if ($total == 0) {
@@ -151,7 +151,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 			// finished with updating the terms, switch to calculating the indices
 			if ($current >= $total) $job_vars['mode'] = 'indices';
 
-		}//end if($job_vars['mode'] == 'terms')
+		}//end if ($job_vars['mode'] == 'terms')
 
 
 		// indices - loads all the terms stored in the term cache, ranks them
@@ -232,7 +232,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 			// set the progress bar
 			$step_data['percent_done'] = (($job_vars['term_index_count'] * 100 / $job_vars['term_index_total']) / 2) + 50;
 
-		}//end if($job_vars['mode'] == 'indices')
+		}//end if ($job_vars['mode'] == 'indices')
 
 
 		// generate - generate the report cache
@@ -240,14 +240,14 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 
 			$result = $this->_generateReportCache($meta, $job_vars['indices']);
 
-			$progress = &$iterator->getCurrentProgress();
+			$progress =& $iterator->getCurrentProgress();
 			$total   = array_get_index($progress, 'total', 0);
 			$current = array_get_index($progress, 'current', $total);
 
 			if ($current >= $total) {
 				// we're done
 				$step_data['percent_done'] = 100;
-				$step_data['complete']     = true;
+				$step_data['complete']     = TRUE;
 			} else {
 				// the only time we'd be here is if we haven't yet finished reading
 				// the file and need to rollover
@@ -261,12 +261,12 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 			$this->_performRollover($meta['report'], $job_vars['previous_date']);
 			$job_vars['indices'] = Array();
 
-			$progress = &$iterator->getCurrentProgress();
+			$progress =& $iterator->getCurrentProgress();
 			$total   = array_get_index($progress, 'total', 0);
 			$current = array_get_index($progress, 'current', $total);
 			if ($current >= $total && !isset($job_vars['carryover'])) {
 				$step_data['percent_done'] = 100;
-				$step_data['complete']     = true;
+				$step_data['complete']     = TRUE;
 			} else {
 				// More terms to process, switch back to 'terms'
 				$job_vars['mode'] = 'terms';
@@ -277,7 +277,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 		$job_vars['iterator']      = &$iterator;
 		$job_vars['complete']      = $step_data['complete'];
 
-		return true;
+		return TRUE;
 
 	}//end generateReport()
 
@@ -298,17 +298,17 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 	* );
 	*</pre>
 	*
-	* @param string					$term		the term to update
-	* @param integer				$result		the numbers of results for this term
-	* @param Array(string=>mixed)	$meta		the metadata array
+	* @param string	$term	the term to update
+	* @param int	$result	the numbers of results for this term
+	* @param array	&$meta	the metadata array
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _updateTerm($term, $result, &$meta)
 	{
 		if (empty($term) || empty($meta)) {
-			return false;
+			return FALSE;
 		}
 
 		$search_assetid = array_get_index($meta, 'search_assetid', '0');
@@ -342,7 +342,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 			$this->_writeTerm($term, $term_dir_path, $data_collection[$id]);
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _updateTerm()
 
@@ -350,16 +350,16 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 	/**
 	* Updates the values for a term
 	*
-	* @param string			$term		the term to update
-	* @param integer		$result		the result for the term
-	* @param Array(mixed)	&$data		the array containing data about the searches
+	* @param string	$term	the term to update
+	* @param int	$result	the result for the term
+	* @param array	&$data	the array containing data about the searches
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _updateTermValues($term, $result, &$data)
 	{
-		if (empty($term)) return false;
+		if (empty($term)) return FALSE;
 
 		// update the stats, or create new ones if not already present
 		$total_searches = array_get_index($data, 'total_searches', 0) + 1;
@@ -376,13 +376,13 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 			$average_result = $result;
 		}
 
-		if (is_null(array_get_index($data, 'max_result', null))) {
+		if (is_null(array_get_index($data, 'max_result', NULL))) {
 			$max_result = $result;
 		} else {
 			$max_result = ($result > $data['max_result'] ? $result : $data['max_result']);
 		}
 
-		if (is_null(array_get_index($data, 'min_result', null))) {
+		if (is_null(array_get_index($data, 'min_result', NULL))) {
 			$min_result = $result;
 		} else {
 			$min_result = ($result < $data['min_result'] ? $result : $data['min_result']);
@@ -396,7 +396,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 					'min_result'		=> $min_result,
 				);
 
-		return true;
+		return TRUE;
 
 	}//end _updateTermValues()
 
@@ -404,11 +404,11 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 	/**
 	* Reads and returns the lines taken from a cache of term results
 	*
-	* @param string		$term			the term to read
-	* @param string		$term_dir_path	the path to the term
+	* @param string	$term			the term to read
+	* @param string	$term_dir_path	the path to the term
 	*
+	* @return array
 	* @access private
-	* @return Array(mixed)
 	*/
 	function &_readTerm($term, $term_dir_path)
 	{
@@ -438,22 +438,22 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 	/**
 	* Writes the updated results to the term's cache file
 	*
-	* @param string					$term			the term to write
-	* @param string					$term_dir_path	the path to the term
-	* @param Array(string=>mixed)	$data			the data to write
+	* @param string	$term			the term to write
+	* @param string	$term_dir_path	the path to the term
+	* @param array	&$data			the data to write
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _writeTerm($term, $term_dir_path, &$data)
 	{
 		if (empty($term) || empty($term_dir_path) || empty($data)) {
-			return false;
+			return FALSE;
 		}
 
 		// create the directories as we need them
 		if (!is_dir($term_dir_path) && !create_directory($term_dir_path)) {
-			return false;
+			return FALSE;
 		}
 		$term_path = $term_dir_path.'/'.$term.'.term';
 
@@ -462,10 +462,10 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 		if ($fp) {
 			fwrite($fp, serialize($data));
 			fclose($fp);
-			return true;
+			return TRUE;
 		}
 
-		return false;
+		return FALSE;
 
 	}//end _writeTerm()
 
@@ -474,18 +474,18 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 	* Updates a specified index in a passed array, but only keeps the top $limit results.
 	* NOTE: Assumes that $array is already sorted in DESCENDING order
 	*
-	* @param Array(string=>int)		&$array	the array containing the values to update
-	* @param string					$index	the index to update
-	* @param integer				$value	the value to set the index to
-	* @param integer				$limit	the number of elements to limit the array to
+	* @param array	&$array	the array containing the values to update
+	* @param string	$index	the index to update
+	* @param int	$value	the value to set the index to
+	* @param int	$limit	the number of elements to limit the array to
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _updateIndex(&$array, $index, $value, $limit)
 	{
 		if (empty($index) || $value <= 0 || $limit < 1) {
-			return false;
+			return FALSE;
 		}
 
 		// if the element already exists, or the array isn't big enough, add the element
@@ -506,7 +506,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 
 		// re-sort
 		arsort($array);
-		return true;
+		return TRUE;
 
 	}//end _updateIndex()
 
@@ -514,22 +514,22 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 	/**
 	* Generates the report cache from the search-term cache
 	*
-	* @param Array(string=>mixed)	&$meta		the metadata array
-	* @param Array(mixed)			&$indices	the indices array
+	* @param array	&$meta		the metadata array
+	* @param array	&$indices	the indices array
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _generateReportCache(&$meta, &$indices)
 	{
-		if (empty($meta)) return false;
+		if (empty($meta)) return FALSE;
 
 		$logname            = $meta['report']->logname;
 		$data_path          = $meta['report']->data_path;
 		$term_dir_path      = $data_path.'/terms';
 		$generated_dir_path = $data_path.'/generated';
 
-		if (empty($data_path)) return false;
+		if (empty($data_path)) return FALSE;
 
 		// get all the assetids in the terms
 		$assetids = $this->_getSearchAssetids($term_dir_path);
@@ -588,7 +588,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 				$output_heading = '<b>'.translate('sch_log_report_all_search_pages').'</b>';
 			} else {
 				if ($GLOBALS['SQ_SYSTEM']->am->assetExists($id)) {
-					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($id), Array(), false, 'name');
+					$asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($id), Array(), FALSE, 'name');
 					$asset = $asset[$id];
 				}
 
@@ -622,11 +622,11 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 			// make sure we have somewhere to write to
 			if (!file_exists($generated_dir_path)) {
 				if (!create_directory($generated_dir_path)) {
-					return false;
+					return FALSE;
 				}
 			}
 
-		}
+		}//end foreach
 
 		// make sure we always print the total first
 		$report_output  = '
@@ -653,16 +653,16 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 	/**
 	* Moves the generated report and updates the generated_reports attribute
 	*
-	* @param object Log_Report		&$report	the report to use when determining the destination path, and saving settings
-	* @param int					$date		the date that refers to the report and cache
+	* @param object	&$report	the report to use when determining the destination path, and saving settings
+	* @param int	$date		the date that refers to the report and cache
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _performRollover(&$report, $date)
 	{
 		if (empty($report) || empty($date)) {
-			return false;
+			return FALSE;
 		}
 
 		$formatted_date     = date('Y-m-d', $date);
@@ -674,7 +674,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 		// remove term cache
 		if (!delete_directory($term_dir_path)) {
 			trigger_localised_error('SCH0025', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		// move report to archives
@@ -682,7 +682,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 		$to   = $generated_dir_path.'/'.$logname.'.'.$formatted_date.'.html';
 		if (!rename($from, $to)) {
 			trigger_localised_error('SCH0024', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		// update settings
@@ -695,7 +695,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 		$report->saveAttributes();
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-		return true;
+		return TRUE;
 
 	}//end _performRollover()
 
@@ -703,19 +703,19 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 	/**
 	* Returns a list of the search_page assets that have logged search results
 	*
-	* @param string		$term_dir_path	the path to the terms
+	* @param string	$term_dir_path	the path to the terms
 	*
+	* @return array
 	* @access private
-	* @return Array(string)
 	*/
 	function _getSearchAssetids($term_dir_path)
 	{
-		if (empty($term_dir_path)) return false;
+		if (empty($term_dir_path)) return FALSE;
 
 		$dirs = Array();
 		if (is_dir($term_dir_path)) {
 			if ($dir_handle = opendir($term_dir_path)) {
-				while (($file = readdir($dir_handle)) !== false) {
+				while (($file = readdir($dir_handle)) !== FALSE) {
 					if ($file != '.' && $file != '..' && is_dir($term_dir_path.'/'.$file)) {
 						$dirs[] = $file;
 					}
@@ -731,14 +731,14 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 	* Hashes a term into the format '/12/34', where the numbers are the ascii
 	* values for the first two characters of the term
 	*
-	* @param string		$term	the term to hash
+	* @param string	$term	the term to hash
 	*
+	* @return mixed boolean|string
 	* @access private
-	* @return false|string
 	*/
 	function _getTermHash($term)
 	{
-		if (trim($term) == '') return false;
+		if (trim($term) == '') return FALSE;
 
 		// how many directory levels to hash to (eg. 2 = '/12/34')
 		$depth = 2;
@@ -762,9 +762,9 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 	/**
 	* Paint the interface for viewing a report
 	*
-	* @param object Report				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -798,7 +798,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 		echo '<h3>'.translate('sch_log_report_search_report').'</h3>';
 
 		// print the report selector
-		combo_box($prefix.'[generated_reports]', $generated_reports, false, $selected);
+		combo_box($prefix.'[generated_reports]', $generated_reports, FALSE, $selected);
 		echo '&nbsp;';
 		submit_button($prefix.'[select_report]', translate('select_report'));
 		echo '<br /><br />';
@@ -811,9 +811,9 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 	/**
 	* Paint the interface for regenerating the report
 	*
-	* @param object Report				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -832,7 +832,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 			echo '</p>';
 		}
 
-		return false;
+		return FALSE;
 
 	}//end paintRegenerate()
 

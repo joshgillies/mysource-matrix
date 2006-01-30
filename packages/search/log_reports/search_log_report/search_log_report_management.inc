@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_log_report_management.inc,v 1.2 2005/04/29 05:38:40 gsherwood Exp $
+* $Id: search_log_report_management.inc,v 1.3 2006/01/30 04:34:33 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author Robert Howard <rhoward@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -50,8 +50,8 @@ class Search_Log_Report_Management extends Asset_Management
 																					'weekly'	=> 'Weekly',
 																					'daily'		=> 'Daily',
 																				   ),
-																'multiple'		=> false,
-																'allow_empty'	=> false,
+																'multiple'		=> FALSE,
+																'allow_empty'	=> FALSE,
 															   ),
 											'default'		=> 'weekly',
 											'description'	=> 'The rollover period, determines how often the report pages are archived - weekly, monthly, or daily',

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list.inc,v 1.12 2005/10/27 00:51:29 lwright Exp $
+* $Id: search_list.inc,v 1.13 2006/01/30 04:37:42 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -83,10 +83,10 @@ class Search_List extends Listing_Engine
 	*/
 	function getAssetList()
 	{
-		$search_page = null;
-		$search_page_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'search_page');
+		$search_page = NULL;
+		$search_page_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', FALSE, 'search_page');
 		if (!empty($search_page_link)) {
-			$search_page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($search_page_link['minorid']);
+			$search_page =& $GLOBALS['SQ_SYSTEM']->am->getAsset($search_page_link['minorid']);
 		}
 		if (is_null($search_page)) return Array();
 
@@ -95,8 +95,8 @@ class Search_List extends Listing_Engine
 		$search_field_name = $this->attr('search_field');
 		$search_field = $search_page_fields[$search_field_name];
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 		$search_info = $search_page->populateBaseSearchInfo();
 		$query_comps = $sm->constructBaseSearchQuery($search_info);
 
@@ -108,7 +108,7 @@ class Search_List extends Listing_Engine
 
 		$data_source_comps = Array();
 
-		foreach($search_field['data_sources'] as $data_source) {
+		foreach ($search_field['data_sources'] as $data_source) {
 			switch ($data_source['type']) {
 				case 'asset_attrib' :
 					$type_code = $data_source['params']['asset_type'];
@@ -139,7 +139,7 @@ class Search_List extends Listing_Engine
 		$query_comps['group_by'][] = 'ai.assetid';
 		$sql = implode_sql($query_comps);
 
-		$results = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
+		$results = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_DEFAULT, TRUE);
 		assert_valid_db_result($results);
 
 		$children = Array();
@@ -147,7 +147,7 @@ class Search_List extends Listing_Engine
 			$children[$word]['num_values'] = count($word_data);
 			$base_data = array_pop($word_data);
 			$children[$word]['first_letter'] = $base_data['first_letter'];
-			$children[$word]['type_code'] = null;
+			$children[$word]['type_code'] = NULL;
 		}
 
 		$this->_tmp['search_terms'] = $children;
@@ -176,7 +176,7 @@ class Search_List extends Listing_Engine
 	/**
 	* Print the list of assets that we are listing
 	*
-	* @param array	&$todo	an array of assets to list in the same format as the return
+	* @param array	$todo	an array of assets to list in the same format as the return
 	*						value of getAssetList()
 	*
 	* @return void
@@ -188,10 +188,10 @@ class Search_List extends Listing_Engine
 		$search_field_name = $this->attr('search_field');
 		if (empty($search_field_name)) return;
 
-		$search_page = null;
-		$search_page_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'search_page');
+		$search_page = NULL;
+		$search_page_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', FALSE, 'search_page');
 		if (!empty($search_page_link)) {
-			$search_page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($search_page_link['minorid']);
+			$search_page =& $GLOBALS['SQ_SYSTEM']->am->getAsset($search_page_link['minorid']);
 		}
 		if (is_null($search_page)) return;
 
@@ -206,7 +206,6 @@ class Search_List extends Listing_Engine
 	* Print a single word from the list
 	*
 	* @param string	$word			the search term being printed
-	* @param string	$type_code		the type code of the asset we are printing
 	* @param int	$list_position	the position of this asset in the list
 	*
 	* @return void
