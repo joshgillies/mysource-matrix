@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.54 2006/01/26 22:35:20 lwright Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.55 2006/01/30 04:12:59 dmckee Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1264,6 +1264,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$posted_list = array_get_index($_POST, $prefix.'_fields', Array());
 
 		$save_list = Array();
+
 		foreach ($posted_list as $id => $info) {
 			// skip ones that we are removing
 			if (in_array($id, array_keys($remove))) {
@@ -1352,6 +1353,15 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				}
 			}//end if not invalid name
 		}//end if
+
+		$empty_sort = Array (
+						'params'	=> Array (
+										'field'	=> '',
+									   ),
+						'type'		=> '',
+						'name'		=> 'No Sorting',
+					  );
+		$save_list[] = $empty_sort;
 
 		// re-order the list so that the indexes are aligned
 		ksort($save_list);
