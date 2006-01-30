@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.36.2.2 2005/12/13 01:51:33 lwright Exp $
+* $Id: design_customisation.inc,v 1.36.2.3 2006/01/30 03:41:16 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36.2.2 $
+* @version $Revision: 1.36.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -100,31 +100,35 @@ class Design_Customisation extends Design
 
 			$design =& $this->getParentDesign();
 
-			// go through all the links of the design we are customisaing and find a file
-			// linked to it with the same name as the one we just deleted so it can take its place
-			$file_link_ids = Array();
-			$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($design->id, SQ_LINK_TYPE_2, 'file', false);
-			foreach ($file_links as $link) {
-				$file_link_ids[$link['minorid']] = $link['linkid'];
-			}
-			$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($file_link_ids));
-
-			foreach ($file_link_info as $info) {
-				if ($info['name'] == $minor->name) {
-					// found the link to create
-					$new_minor = &$am->getAsset($info['assetid']);
-					if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', null, '1')) {
-						trigger_localised_error('CORE0162', E_USER_WARNING);
-						$am->forgetAsset($design);
-						$am->forgetAsset($new_minor);
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
-					}
-					$am->forgetAsset($new_minor);
+			// if we have not been orphaned from a design...
+			if ($design) {
+				// go through all the links of the design we are customising and find a file
+				// linked to it with the same name as the one we just deleted so it can take its place
+				$file_link_ids = Array();
+				$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($design->id, SQ_LINK_TYPE_2, 'file', false);
+				foreach ($file_links as $link) {
+					$file_link_ids[$link['minorid']] = $link['linkid'];
 				}
-			}//end foreach $file_links
+				$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($file_link_ids));
 
-			$am->forgetAsset($design);
+				foreach ($file_link_info as $assetid => $info) {
+					if ($info['name'] == $minor->name) {
+						// found the link to create
+						$new_minor = &$am->getAsset($assetid);
+						if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', null, '1')) {
+							trigger_localised_error('CORE0162', E_USER_WARNING);
+							$am->forgetAsset($design);
+							$am->forgetAsset($new_minor);
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return false;
+						}
+						$am->forgetAsset($new_minor);
+					}
+				}//end foreach $file_links
+
+				$am->forgetAsset($design);
+			}
+
 		}
 
 		// special processing if we are deleting a TYPE_2 linked CSS file (a CSS file overridding a design file)
