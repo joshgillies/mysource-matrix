@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user.inc,v 1.14 2005/12/14 03:54:34 lwright Exp $
+* $Id: ldap_user.inc,v 1.15 2006/01/30 04:54:02 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -49,14 +49,14 @@ class Ldap_User extends Backend_User
 	*/
 	function Ldap_User($ldapid=0, $data=Array())
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->_loadVars();
 
 		if (!$ldapid || empty($data)) {
 			return;
 		}
 
-		$ldap = &$GLOBALS['SQ_SYSTEM']->am->getAsset($ldapid, 'ldap_bridge');
+		$ldap =& $GLOBALS['SQ_SYSTEM']->am->getAsset($ldapid, 'ldap_bridge');
 		if (is_null($ldap)) return;
 
 		$this->_ldapid = $ldapid;
@@ -86,10 +86,9 @@ class Ldap_User extends Backend_User
 			if (!is_array($value)) continue;
 			if (isset($value['count'])) unset($value['count']);
 			$this->vars[$key] = Array(
-									'value' => $value,
-									'type'  => is_array($value) ? 'serialise' : 'text',
+									'value'	=> $value,
+									'type'	=> is_array($value) ? 'serialise' : 'text',
 								);
-			//$this->vars[$key] = $value;
 		}
 
 		// set the data paths
@@ -151,13 +150,13 @@ class Ldap_User extends Backend_User
 	/**
 	* Returns name of the user
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @return string
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return 'LDAP User';
 
@@ -174,7 +173,7 @@ class Ldap_User extends Backend_User
 	*/
 	function canLogin()
 	{
-		return true;
+		return TRUE;
 
 	}//end canLogin()
 
@@ -191,7 +190,7 @@ class Ldap_User extends Backend_User
 		if (empty($info)) return;
 
 		if (!$this->_ldapid) return Array();
-		$ldap_bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_ldapid, 'ldap_bridge');
+		$ldap_bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_ldapid, 'ldap_bridge');
 		if (is_null($ldap_bridge)) return Array();
 
 		$show = $ldap_bridge->attr('user_attributes');
@@ -230,14 +229,14 @@ class Ldap_User extends Backend_User
 
 
 	/**
-	* Returns null as LDAP users do not have a workspace
+	* Returns NULL as LDAP users do not have a workspace
 	*
-	* @return &object
+	* @return object
 	* @access public
 	*/
 	function &getWorkspace()
 	{
-		$null = null;
+		$null = NULL;
 		return $null;
 
 	}//end getWorkspace()

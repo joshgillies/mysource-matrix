@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_group.inc,v 1.10 2005/08/16 23:58:08 dheppell Exp $
+* $Id: ldap_user_group.inc,v 1.11 2006/01/30 04:58:35 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -53,7 +53,7 @@ class Ldap_User_Group extends User_Group
 			return;
 		}
 
-		$ldap = &$GLOBALS['SQ_SYSTEM']->am->getAsset($ldapid, 'ldap_bridge');
+		$ldap =& $GLOBALS['SQ_SYSTEM']->am->getAsset($ldapid, 'ldap_bridge');
 		if (is_null($ldap)) return;
 		$this->_ldapid = $ldapid;
 
@@ -104,7 +104,7 @@ class Ldap_User_Group extends User_Group
 	/**
 	* Prints a list of users for the passed group
 	*
-	* @param	$groupid	string	the ID of the group that we are printing the user list for
+	* @param string	$groupid	the ID of the group that we are printing the user list for
 	*
 	* @return void
 	* @access public
@@ -113,10 +113,10 @@ class Ldap_User_Group extends User_Group
 	{
 		if (!$this->_ldapid) return;
 
-		$ldap_bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_ldapid, 'ldap_bridge');
+		$ldap_bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_ldapid, 'ldap_bridge');
 		if (is_null($ldap_bridge)) return;
 
-		$group = &$GLOBALS['SQ_SYSTEM']->am->getAsset($groupid);
+		$group =& $GLOBALS['SQ_SYSTEM']->am->getAsset($groupid);
 
 		$show = $ldap_bridge->attr('user_attributes');
 		if (!isset($show['show'])) {
@@ -152,7 +152,7 @@ class Ldap_User_Group extends User_Group
 				</tr>
 				<?php
 				foreach ($users as $link_data) {
-					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
+					$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
 
 					$info = $user->vars;
 					if (empty($info)) continue;

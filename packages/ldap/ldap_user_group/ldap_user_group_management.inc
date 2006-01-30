@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_group_management.inc,v 1.4 2005/05/27 05:25:03 tbarrett Exp $
+* $Id: ldap_user_group_management.inc,v 1.5 2006/01/30 04:58:35 dmckee Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Serwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -57,7 +57,7 @@ class Ldap_User_Group_Management extends Asset_Management
 		$res = parent::_upgrade($current_version);
 
 		if (version_compare($current_version, '0.2', '<')) {
-			bam('UPGRADING LDAP USER GROUP TO v0.2');
+			echo 'UPGRADING LDAP USER GROUP TO v0.2';
 			// move the data path data
 			$bridge_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('ldap_bridge');
 			foreach ($bridge_ids as $bridge_id) {
