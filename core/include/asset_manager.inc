@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.429 2006/01/30 04:12:10 sdanis Exp $
+* $Id: asset_manager.inc,v 1.430 2006/01/31 03:44:04 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.429 $
+* @version $Revision: 1.430 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3611,7 +3611,7 @@ class Asset_Manager extends MySource_Object
 			$requires_update = FALSE;
 
 			// Yes, this is a do-while loop. Live with it. The following code is to stop
-			// constraint violations which may occur is two processes are trying to
+			// constraint violations which may occur if two processes are trying to
 			// create a link under the same branch, simultaneously
 			do {
 				// try to find the last added treeid on the branch that existing_treeid is the parent of
@@ -3637,7 +3637,7 @@ class Asset_Manager extends MySource_Object
 
 				$treeid = ($existing_treeid == '-') ? '' : $existing_treeid;
 
-				// if we couldn't find and treeids on this branch, then we can just
+				// if we couldn't find any treeids on this branch, then we can just
 				// do a straight inert and break the loop as we are done
 
 				if (empty($last_treeid)) {
@@ -3677,9 +3677,9 @@ class Asset_Manager extends MySource_Object
 				$sql = 'asset_link_treeid_convert('.$db->quoteSmart((string) ($child_num + 1)).', '.$db->quoteSmart('1').', '.SQ_CONF_ASSET_TREE_BASE.', '.SQ_CONF_ASSET_TREE_SIZE.')';
 				$free_treeid = db_get_function_result($db, $sql);
 
-				// we want into try and reserve a treeid for us that we have just converted
+				// we want to try and reserve a treeid for us that we have just converted
 				// from the last treeid on the branch. So what we are doing here is inserting
-				// and entry into the tree table with our linkid appended to the end.
+				// an entry into the tree table with our linkid appended to the end.
 				// We need to do this because someone might have already inserted into the
 				// tree table between the time that we selected the last treeid on the branch
 				// and this point here
