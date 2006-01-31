@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.31 2006/01/13 05:50:17 arailean Exp $
+* $Id: page_remote_content.inc,v 1.32 2006/01/31 23:33:13 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define ('SQ_REMOTE_SOURCE', 'sq_content_src');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -361,7 +361,7 @@ class Page_Remote_Content extends Page
 			if (!empty($raw_post)) $addon_array[] = $raw_post;
 
 			foreach ($post_variables as $index => $variable) {
-				$addon_array[] = urlencode($variable['name']).'='.urlencode($variable['value']);
+				$addon_array[] = urlencode($variable['name']).'='.urlencode(replace_global_keywords($variable['value']));
 			}
 			$raw_post = implode('&', $addon_array);
 		}
