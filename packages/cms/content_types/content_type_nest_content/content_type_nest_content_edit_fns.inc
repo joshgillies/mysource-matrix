@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.36 2006/01/27 01:14:32 lwright Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.37 2006/01/31 00:24:08 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -269,13 +269,14 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function &_getNestedAsset(&$asset)
 	{
+		$asset = NULL;
+
 		$nested_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', TRUE, 'nested_asset');
 		if (!empty($nested_link)) {
-			return $GLOBALS['SQ_SYSTEM']->am->getAsset($nested_link['minorid'], $nested_link['minor_type_code'], TRUE);
-		} else {
-			$null_asset = NULL;
-			return $null_asset;
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($nested_link['minorid'], $nested_link['minor_type_code'], TRUE);
 		}
+
+		return $asset;
 
 	}//end _getNestedAsset()
 
