@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.163 2006/01/26 23:35:42 lwright Exp $
+* $Id: mysource.inc,v 1.164 2006/01/31 00:35:36 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.163 $
+* @version $Revision: 1.164 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1544,9 +1544,7 @@ class MySource
 	{
 		if (!isset($this->fv) || get_class($this->fv) != 'file_versioning') {
 			require_once SQ_LIB_PATH.'/file_versioning/file_versioning.inc';
-			$this->changeDatabaseConnection('db'); // just to make sure
-			$this->fv =& new File_Versioning(SQ_DATA_PATH.'/file_repository', $this->db);
-			$this->restoreDatabaseConnection();
+			$this->fv =& new File_Versioning(SQ_DATA_PATH.'/file_repository');
 		}
 		return $this->fv;
 
