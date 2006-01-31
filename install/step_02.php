@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.63 2006/01/29 22:42:05 lwright Exp $
+* $Id: step_02.php,v 1.64 2006/01/31 00:35:57 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -114,7 +114,7 @@ install_stored_relations('views');
 // grant permissions to the tables for the secondary user
 grant_secondary_user_perms();
 
-if (!File_Versioning::initRepository($db)) {
+if (!File_Versioning::initRepository()) {
 	trigger_error('Unable to initialise File Versioning Repository', E_USER_ERROR);
 }
 
