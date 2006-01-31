@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_prefs.inc,v 1.9 2006/01/20 05:41:19 sdanis Exp $
+* $Id: content_type_raw_html_prefs.inc,v 1.10 2006/01/31 21:56:29 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Raw HTML preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 class Content_Type_Raw_HTML_Prefs extends Prefs
@@ -37,7 +37,7 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 						'SQ_RAW_HTML_SIZE'	=> Array(
 												'name'			=> 'Raw HTML Size',
 												'description'	=> 'This preference allows you to change the size of the Raw HTML editor',
-												'default'		=> Array('width' => '100', 'height' => '20'),
+												'default'		=> Array('width' => '70em', 'height' => '20em'),
 												'protected'		=> FALSE,
 											   ),
 					 );
