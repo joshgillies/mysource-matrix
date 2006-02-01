@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.23 2006/01/31 00:26:34 lwright Exp $
+* $Id: file_versioning.inc,v 1.24 2006/02/01 03:04:55 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -1028,7 +1028,7 @@ class File_Versioning
 		// if the version that this file is checked out as is not the current version then
 		// they are not allowed to commit this file
 		if ($curr_ver_info['version'] != $file_ver_info['version']) {
-			trigger_localised_error('FVER0019', E_USER_NOTICE, $info['path'], $info['filename'], $file_ver_info['version']);
+			trigger_localised_error('FVER0019', E_USER_NOTICE, $info['path'], $info['filename'], $file_ver_info['version'], $curr_ver_info['version']);
 			$this->_releaseFile($info['fileid']);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();

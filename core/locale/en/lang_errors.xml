@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.33 2006/01/25 00:15:25 rong Exp $
+* $Id: lang_errors.xml,v 1.34 2006/02/01 03:05:05 lwright Exp $
 *
 */
 
@@ -646,7 +646,7 @@
 	<error code="FVER0018">Unable to acquire lock</error>
 		<!-- core/lib/file_versioning/file_versioning.inc:435, 616, 787, 862, 980: -->
 
-	<error code="FVER0019">Unable to commit "%1$s", it is checked out as version #%2$s, and needs to be updated to the latest version (#%3$s), before committing can occur</error>
+	<error code="FVER0019">Unable to commit "%1$s/%2$s", it is checked out as version #%3$s, and needs to be updated to the latest version (#%4$s), before committing can occur</error>
 		<!-- core/lib/file_versioning/file_versioning.inc:897: -->
 
 	<error code="FVER0020">Unable to create directory "%s"</error>
