@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.8 2005/08/17 06:12:30 tbarrett Exp $
+* $Id: parameter_map.inc,v 1.9 2006/02/01 05:23:01 pgannavarapu Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once dirname(dirname(__FILE__)).'/serialise/serialise.inc';
 *   When requesting the runtime value for a parameter you give its code.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -83,7 +83,11 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 					var selectElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[attribute]');
 					selectElts[0].style.display = 'none';
 					var inputElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[index]');
-					inputElts[0].style.display = 'inline';
+					if (dataSource.options[dataSource.selectedIndex].value != 'USER') {
+						inputElts[0].style.display = 'inline';
+					} else {
+						inputElts[0].style.display = 'none';
+					}
 				  } else {
 					var selectElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[attribute]');
 					selectElts[0].style.display = 'inline';
@@ -156,7 +160,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	{
 		combo_box($prefix.'[source]', $this->_getSourceTypes(), false, Array($source_type), 0, 'onchange="updateFieldChooser(this)" onkeyup="updateFieldChooser(this)"');
 		echo '&nbsp;';
-		text_box($prefix.'[index]', (($source_type == 'ASSET') ? '' : $component), '', '', false, 'style="width: 25ex; '.(($source_type == 'ASSET') ? 'display: none' : '').'"');
+		text_box($prefix.'[index]', (($source_type == 'ASSET') || ($source_type == 'USER') ? '' : $component), '', '', false, 'style="width: 25ex; '.(($source_type == 'ASSET') || ($source_type == 'USER') ? 'display: none' : '').'"');
 		combo_box($prefix.'[attribute]', $this->_getAssetAttributeOptions(), false, Array($component), 0, 'style="width: 25ex; '.(($source_type != 'ASSET') ? 'display: none' : '').'"');
 		if ($source_type != null) {
 			check_box($prefix.'[delete]');
@@ -268,6 +272,9 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 						break;
 					}
 				break;
+
+				case 'USER':
+					return $GLOBALS['SQ_SYSTEM']->currentUserId();
 			}
 		}
 		return null;
@@ -286,7 +293,8 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 		return Array(
 				'GET'	=> 'GET',
 				'POST'	=> 'POST',
-				'ASSET'	=> translate('current_asset')
+				'ASSET'	=> translate('current_asset'),
+				'USER'	=> 'Current User',
 			   );
 
 	}//end _getSourceTypes()
