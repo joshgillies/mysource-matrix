@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.129 2006/01/26 22:35:19 lwright Exp $
+* $Id: form.inc,v 1.130 2006/02/01 21:51:15 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.129 $
+* @version $Revision: 1.130 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1077,9 +1077,21 @@ class Form extends Asset
 				}
 			}
 
+			$replacements['form_contents'] = &$cf_output;
+			$replacements['form_errors']   = &$err_output;
+			$replacements['submit_button'] = &$submit_button;
+			$replacements['reset_button']  = &$reset_button;
+
+			// add global keywords
+			$keywords = $bodycopy->getKeywords();
+			foreach ($keywords as $word) {
+				if (!isset($replacements[$word])) {
+					$replacements[$word] = $this->getKeywordReplacement($word);
+				}
+			}
 
 			ob_start();
-				$bodycopy->setKeywordReplacements($replacements + Array('form_contents' => &$cf_output, 'form_errors' => &$err_output, 'submit_button' => &$submit_button, 'reset_button' => &$reset_button));
+				$bodycopy->setKeywordReplacements($replacements);
 				$bodycopy->printBody();
 				$output = ob_get_contents();
 			ob_end_clean();
@@ -1370,8 +1382,17 @@ class Form extends Asset
 						$replacements['response_'.str_replace(':', '_', $q_asset->id)] = $q_asset->getSummary();
 					}
 				}
+				$replacements['form_summary'] = &$summary_info;
 
-				$tyb->setKeywordReplacements($replacements + Array('form_summary' => &$summary_info));
+				// add global keywords
+				$keywords = $tyb->getKeywords();
+				foreach ($keywords as $word) {
+					if (!isset($replacements[$word])) {
+						$replacements[$word] = $this->getKeywordReplacement($word);
+					}
+				}
+
+				$tyb->setKeywordReplacements($replacements);
 			}
 
 			$tyb->printBody();
