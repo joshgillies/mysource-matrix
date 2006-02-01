@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.74 2005/12/02 00:47:18 tbarrett Exp $
+* $Id: design_area_menu_type.inc,v 1.75 2006/02/01 06:01:31 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,7 +52,7 @@ class Design_Area_Menu_Type extends Design_Area
 				SQ_LINK_TYPE_1	=> Array(),
 				SQ_LINK_TYPE_2	=> Array(),
 				SQ_LINK_TYPE_3	=> Array(),
-				SQ_LINK_NOTICE	=> Array('design_area_menu_type' => Array('card' => 'M', 'exclusive' => false)),
+				SQ_LINK_NOTICE	=> Array('design_area_menu_type' => Array('card' => 'M', 'exclusive' => FALSE)),
 			   );
 
 	}//end _getAllowedLinks()
@@ -76,7 +76,7 @@ class Design_Area_Menu_Type extends Design_Area
 			$split = explode('.', $name);
 			if (count($split) != 3) {
 				trigger_localised_error('CORE0173', E_USER_WARNING, $name);
-				return false;
+				return FALSE;
 			}
 			switch ($split[2]) {
 				case 'normal'    :
@@ -94,7 +94,7 @@ class Design_Area_Menu_Type extends Design_Area
 
 				default :
 					trigger_localised_error('CORE0174', E_USER_WARNING, $split[2]);
-					return false;
+					return FALSE;
 			}// end switch
 
 		// if they are trying to set a level, so some validation
@@ -163,7 +163,7 @@ class Design_Area_Menu_Type extends Design_Area
 		$sub_menu = &$this->getSubMenu();
 		if (!is_null($sub_menu)) {
 			$sub_var_refs = $sub_menu->getVarReferences();
-			for (reset($sub_var_refs); null !== ($id_name = key($sub_var_refs)); next($sub_var_refs)) {
+			for (reset($sub_var_refs); NULL !== ($id_name = key($sub_var_refs)); next($sub_var_refs)) {
 				if (!isset($var_refs[$id_name])) {
 					$var_refs[$id_name] = Array();
 				}
@@ -189,7 +189,7 @@ class Design_Area_Menu_Type extends Design_Area
 	function setVarReferenceValues($var_ref_values)
 	{
 		$settings = $this->attr('settings');
-		$settings_changed = false;
+		$settings_changed = FALSE;
 		foreach ($this->vars['var_references']['value'] as $var_name => $info) {
 			// if this is a setting and it is available in the var_ref_values
 			if (substr($var_name, 0, 9) == 'settings.' && isset($var_ref_values[$info['id_name']][$info['var']])) {
@@ -200,7 +200,7 @@ class Design_Area_Menu_Type extends Design_Area
 						$settings[$split[1]] = Array();
 					}
 					$settings[$split[1]][$split[2]] = $var_ref_values[$info['id_name']][$info['var']];
-					$settings_changed = true;
+					$settings_changed = TRUE;
 				}// end if
 			}// end if
 		}// end foreach
@@ -229,7 +229,7 @@ class Design_Area_Menu_Type extends Design_Area
 	function getSubMenuLink()
 	{
 		if (!isset($this->_tmp['sub_menu_link'])) {
-			$this->_tmp['sub_menu_link'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'design_area_menu_type', false, 'sub_menu');
+			$this->_tmp['sub_menu_link'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'design_area_menu_type', FALSE, 'sub_menu');
 		}
 		return $this->_tmp['sub_menu_link'];
 
@@ -239,17 +239,17 @@ class Design_Area_Menu_Type extends Design_Area
 	/**
 	* Returns the sub menu for this menu (if any)
 	*
-	* @return mixed Design_Area_Menu_Type or null
+	* @return mixed Design_Area_Menu_Type or NULL
 	* @access public
 	*/
 	function &getSubMenu()
 	{
 		$link = $this->getSubMenuLink();
 		if (empty($link)) {
-			$null = null;
+			$null = NULL;
 			return $null;
 		} else {
-			return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'], true);
+			return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'], TRUE);
 		}
 
 	}//end getSubMenu()
@@ -258,19 +258,19 @@ class Design_Area_Menu_Type extends Design_Area
 	/**
 	* Returns the parent menu for this menu (assuming it is a sub menu)
 	*
-	* @return mixed Design_Area_Menu_Type or null
+	* @return mixed Design_Area_Menu_Type or NULL
 	* @access public
 	*/
 	function &getParentMenu()
 	{
 		if (!isset($this->_tmp['parent_menu_link'])) {
-			$this->_tmp['parent_menu_link'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'design_area_menu_type', false, 'sub_menu', 'minor');
+			$this->_tmp['parent_menu_link'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'design_area_menu_type', FALSE, 'sub_menu', 'minor');
 		}
 		if (empty($this->_tmp['parent_menu_link'])) {
-			$null = null;
+			$null = NULL;
 			return $null;
 		} else {
-			return $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_tmp['parent_menu_link']['majorid'], $this->_tmp['parent_menu_link']['major_type_code'], true);
+			return $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_tmp['parent_menu_link']['majorid'], $this->_tmp['parent_menu_link']['major_type_code'], TRUE);
 		}
 
 	}//end getParentMenu()
@@ -286,10 +286,10 @@ class Design_Area_Menu_Type extends Design_Area
 	*/
 	function linksUpdated()
 	{
-		if (!parent::linksUpdated()) return false;
+		if (!parent::linksUpdated()) return FALSE;
 		unset($this->_tmp['sub_menu_link']);
 		unset($this->_tmp['parent_menu_link']);
-		return true;
+		return TRUE;
 
 	}//end linksUpdated()
 
@@ -357,7 +357,7 @@ class Design_Area_Menu_Type extends Design_Area
 		}// end if
 
 		echo '
-			$'.$this->attr('id_name').'_settings = '.var_export($this->_getSettingsArray(), true).';
+			$'.$this->attr('id_name').'_settings = '.var_export($this->_getSettingsArray(), TRUE).';
 		';
 
 		// if we aren't a sub menu
@@ -370,7 +370,7 @@ class Design_Area_Menu_Type extends Design_Area
 		echo '
 		?', '>';
 
-		return true;
+		return TRUE;
 
 	}//end _printInitCode()
 
@@ -390,7 +390,7 @@ class Design_Area_Menu_Type extends Design_Area
 	{
 		echo '
 			<?php
-			if (!empty($GLOBALS[\'MENU_DATA\']['.$this->_tmp['parent_assetid_name'].'])) {
+			if (isset('.$this->_tmp['parent_assetid_name'].') && !empty($GLOBALS[\'MENU_DATA\']['.$this->_tmp['parent_assetid_name'].'])) {
 				?', '>
 		';
 
@@ -440,7 +440,7 @@ class Design_Area_Menu_Type extends Design_Area
 
 				if (empty($majorids_str)) return $assetids;
 
-				static $USERIDS_COND = null;
+				static $USERIDS_COND = NULL;
 
 				$db = &$GLOBALS[\'SQ_SYSTEM\']->db;
 
@@ -449,10 +449,10 @@ class Design_Area_Menu_Type extends Design_Area
 					if ($GLOBALS[\'SQ_SYSTEM\']->userRoot() || $GLOBALS[\'SQ_SYSTEM\']->userSystemAdmin()) {
 						$USERIDS_COND = \'\';
 					} else {
-						$userids = array_keys($GLOBALS[\'SQ_SYSTEM\']->am->getParents($GLOBALS[\'SQ_SYSTEM\']->user->id, \'user_group\', false));
+						$userids = array_keys($GLOBALS[\'SQ_SYSTEM\']->am->getParents($GLOBALS[\'SQ_SYSTEM\']->user->id, \'user_group\', FALSE));
 						$userids[] = $GLOBALS["SQ_SYSTEM"]->am->getSystemAssetid("public_user");
 						$userids[] = $GLOBALS["SQ_SYSTEM"]->user->id;
-						for (reset($userids); null !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
+						for (reset($userids); NULL !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
 						$USERIDS_COND = \'AND p.userid  IN (\'.implode(\',\', $userids).\')\';
 					}
 
@@ -516,7 +516,7 @@ class Design_Area_Menu_Type extends Design_Area
 			}// end menu_get_assets()
 
 			';
-			$GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$GLOBALS['DESIGN_BEING_GENERATED']->id] = true;
+			$GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$GLOBALS['DESIGN_BEING_GENERATED']->id] = TRUE;
 		}
 
 		$sub_menu = &$this->getSubMenu();
@@ -542,7 +542,7 @@ class Design_Area_Menu_Type extends Design_Area
 			if ($level == 0) {
 				// we dont have a specific level to print (or they want to print the top level - thats wierd)
 				// so dynamically get the level to print based on our parent's level at runtime
-				$level = null;
+				$level = NULL;
 				echo '
 				$'.$this->attr('id_name').'_level = $'.$parent_menu->attr('id_name').'_level + 1;';
 			}
@@ -695,10 +695,10 @@ class Design_Area_Menu_Type extends Design_Area
 				case 'asset_thumbnail' :
 					if ($id_name) {
 						echo '<', '?php ';
-						echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($'.$id_name.'_row[\'assetid\'], SQ_LINK_NOTICE, \'image\', false, \'thumbnail\');'."\n";
+						echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($'.$id_name.'_row[\'assetid\'], SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
 						echo 'if (!empty($link)) {'."\n";
 						echo '$thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
-						echo 'echo $thumbnail->printImageTag($'.$id_name.'_row[\'name\'], \'\', true);'."\n";
+						echo 'echo $thumbnail->printImageTag($'.$id_name.'_row[\'name\'], \'\', TRUE);'."\n";
 						echo '}'."\n";
 						echo '?', '>';
 					}
@@ -707,7 +707,7 @@ class Design_Area_Menu_Type extends Design_Area
 				case 'asset_thumbnail_url' :
 					if ($id_name) {
 						echo '<', '?php ';
-						echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($'.$id_name.'_row[\'assetid\'], SQ_LINK_NOTICE, \'image\', false, \'thumbnail\');'."\n";
+						echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($'.$id_name.'_row[\'assetid\'], SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
 						echo 'if (!empty($link)) {'."\n";
 						echo '$thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
 						echo 'echo $thumbnail->getURL($'.$id_name.'_row[\'name\']);'."\n";
@@ -734,10 +734,10 @@ class Design_Area_Menu_Type extends Design_Area
 	{
 		$settings = $this->attr('settings');
 		// OK we need out find out if any of the values for this setting have PHP code that needs to be
-		$has_php_code = false;
+		$has_php_code = FALSE;
 		foreach ($settings[$setting_name] as $case => $value) {
 			// we know that this will be the long format because only our design areas have put this in
-			if (strpos($value, '<'.'?php') !== false) return true;
+			if (strpos($value, '<'.'?php') !== FALSE) return TRUE;
 		}
 
 	}//end _settingHasPHPCode()
@@ -856,7 +856,7 @@ class Design_Area_Menu_Type extends Design_Area
 					$'.$this->attr('id_name').'_current_setting = ($'.$this->attr('id_name').'_lineage_assetid == $'.$this->attr('id_name').'_row[\'assetid\']) ? $'.$this->attr('id_name').'_lineage_setting : \'normal\';
 				?', '>';
 				if ($this_contents = $this->attr('asset_contents')) {
-					$this->_tmp['outputting_asset_section'] = true;
+					$this->_tmp['outputting_asset_section'] = TRUE;
 					foreach ($this_contents as $item) {
 						$this->_printContentItemCode($item);
 					}
@@ -890,11 +890,11 @@ class Design_Area_Menu_Type extends Design_Area
 				}// end foreach '.$this->attr('id_name').' data
 				?', '>';
 
-				return true;
+				return TRUE;
 
 			case 'sub' :
 				$sub = &$this->getSubMenu();
-				if (is_null($sub)) return true;
+				if (is_null($sub)) return TRUE;
 				return $sub->printAreaCode();
 
 			default :
