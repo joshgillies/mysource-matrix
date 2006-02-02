@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.39 2006/01/26 22:34:16 lwright Exp $
+* $Id: calendar_common.inc,v 1.40 2006/02/02 04:10:57 sdanis Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -36,10 +36,10 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @param array	&$trees	(int => string) an array of tree ids indexed by root node
 *
-* @return string	the common part of the SQL query
+* @return string
 * @access public
 */
-function build_single_event_query_base(&$trees, $group_by_root_node=false, $event_type_code='calendar_event_single', $include_exceptions=true)
+function build_single_event_query_base(&$trees, $group_by_root_node=FALSE, $event_type_code='calendar_event_single', $include_exceptions=TRUE)
 {
 	$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -63,7 +63,7 @@ function build_single_event_query_base(&$trees, $group_by_root_node=false, $even
 
 	if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
 		if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
-			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
+			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 			array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 				$userids[$i] = $db->quoteSmart($userids[$i]);
@@ -83,6 +83,12 @@ function build_single_event_query_base(&$trees, $group_by_root_node=false, $even
 }//end build_single_event_query_base()
 
 
+/**
+* Build SQL join statements
+*
+* @return string
+* @access public
+*/
 function build_join_statements()
 {
 	$base = ($GLOBALS['SQ_SYSTEM']->userSystemAdmin() || $GLOBALS['SQ_SYSTEM']->userRoot()) ? SQ_TABLE_RUNNING_PREFIX.'ast a' : '('.SQ_TABLE_RUNNING_PREFIX.'ast a JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON a.assetid = p.assetid)';
@@ -98,8 +104,8 @@ function build_join_statements()
 * @param string	$m	Expression for the month component of the date
 * @param string	$d	Expression for the day component of the date
 *
-* @access public
 * @return void
+* @access public
 */
 function make_timestamp_sql($y, $m, $d)
 {
@@ -117,15 +123,17 @@ function make_timestamp_sql($y, $m, $d)
 * - the YYYY-MM (only, no day) of the month involved in month view
 * - the YYYY (only) of the year involved in the year view
 *
-* @param array	&$trees	(int => string) an array of tree ids indexed by root node
-* @param string	$view	the type of view we are requesting (day|week|month|year|period)
-* @param string	$iso	ISO 8601 date as passed to the calling function
-* @param int	$length	Optional: the number of days ahead from the start date to look when in period view
+* @param array		&$trees				(int => string) an array of tree ids indexed by root node
+* @param string		$view				the type of view we are requesting (day|week|month|year|period)
+* @param string		$iso				ISO 8601 date as passed to the calling function
+* @param int		$length				Optional: the number of days ahead from the start date to look when in period view
+* @param boolean	$group_by_root_node	Group by root node
+* @param string		$event_type			Event type
 *
 * @return string
 * @access public
 */
-function build_recurring_event_query_base(&$trees, $view, $iso, $length=null, $group_by_root_node=false, $event_type='calendar_event_recurring')
+function build_recurring_event_query_base(&$trees, $view, $iso, $length=NULL, $group_by_root_node=FALSE, $event_type='calendar_event_recurring')
 {
 	list($year,$month,$day) = sscanf(substr($iso,0,10), '%4d-%2d-%2d');
 	if (!$month) $month = 12;
@@ -137,7 +145,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null, $g
 	$now = get_date_components(sprintf('%04d-%02d-%02d', $year, $month, $day));
 	$wdom_list = weekday_dates_in_month($now['wday'], $month, $year);
 
-	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 	$type_codes = quoted_descendants($event_type);
 
@@ -149,11 +157,11 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null, $g
 	if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
 		$sql .= ', p.granted as access';
 	}
-	$sql .= "\nFROM ". build_join_statements()." \nWHERE (a.type_code IN (".implode(',', $type_codes).")) \n\tAND (a.status >= ".$db->quoteSmart(SQ_STATUS_LIVE).")\n";
+	$sql .= "\nFROM ".build_join_statements()." \nWHERE (a.type_code IN (".implode(',', $type_codes).")) \n\tAND (a.status >= ".$db->quoteSmart(SQ_STATUS_LIVE).")\n";
 
 	if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
 		if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
-			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
+			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 			array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 				$userids[$i] = $db->quoteSmart($userids[$i]);
@@ -262,7 +270,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null, $g
 			$sql_freqs_m = Array();
 
 			// every X months on xth of the month
-			$sql_freqs_m[] = '(frequency = '.$db->quoteSmart('MFN').' AND start_date_mday BETWEEN '.$db->quoteSmart(intval($day)).' AND '. $db->quoteSmart(min($day+6, $days_in_month)) .')';
+			$sql_freqs_m[] = '(frequency = '.$db->quoteSmart('MFN').' AND start_date_mday BETWEEN '.$db->quoteSmart(intval($day)).' AND '.$db->quoteSmart(min($day+6, $days_in_month)).')';
 
 			// every X months on xth weekday of the month
 			$sql_freqs_m[] = '(frequency = '.$db->quoteSmart('MFW').' AND start_date_wdom IN ( '.$db->quoteSmart($now['wdom']).($req_next_week ? ','.$db->quoteSmart($now['wdom']+1) : '').'))';
@@ -292,7 +300,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null, $g
 				// wipe the table clean
 				$sql_freqs_m = Array();
 
-				$sql_freqs_m[] = '(frequency = '.$db->quoteSmart('MFN').' AND start_date_mday BETWEEN '.$db->quoteSmart(1).' AND '. $db->quoteSmart($day+6-$days_in_month).')';
+				$sql_freqs_m[] = '(frequency = '.$db->quoteSmart('MFN').' AND start_date_mday BETWEEN '.$db->quoteSmart(1).' AND '.$db->quoteSmart($day+6-$days_in_month).')';
 
 				// every X months on xth weekday of the month - it's always going to
 				// be the first week of a new month
@@ -338,7 +346,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null, $g
 			$sql_freqs[] = 'frequency = '.$db->quoteSmart('DWD');
 			$sql_freqs[] = 'frequency = '.$db->quoteSmart('DWE');
 
-			$sql_freqs[] = '(frequency = '.$db->quoteSmart('DED').' AND (FLOOR(('.$db->quoteSmart($now['ds']-1). ' - start_date_ds)/period) < FLOOR(('.$db->quoteSmart($last_day).' - start_date_ds)/period)))';
+			$sql_freqs[] = '(frequency = '.$db->quoteSmart('DED').' AND (FLOOR(('.$db->quoteSmart($now['ds']-1).' - start_date_ds)/period) < FLOOR(('.$db->quoteSmart($last_day).' - start_date_ds)/period)))';
 
 			$sql_freqs[] = '(frequency = '.$db->quoteSmart('WEW').' AND period = 1)';
 
@@ -405,10 +413,10 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null, $g
 					if ($last_date_components['wdom'] - $now['wdom'] != 1) {
 						// we have intervening weeks
 						// we want to know if any event started or ended in the intervening weeks
-						$mfw_conditions[] = '((frequency = '.$db->quoteSmart('MFW').') AND ((start_date_wdom BETWEEN '.($now['wdom'] + 1).' AND '.($last_date_components['wdom'] - 1).') OR (end_date_wdom BETWEEN ' .($now['wdom'] + 1).' AND '.($last_date_components['wdom'] - 1).')))';
+						$mfw_conditions[] = '((frequency = '.$db->quoteSmart('MFW').') AND ((start_date_wdom BETWEEN '.($now['wdom'] + 1).' AND '.($last_date_components['wdom'] - 1).') OR (end_date_wdom BETWEEN '.($now['wdom'] + 1).' AND '.($last_date_components['wdom'] - 1).')))';
 					}
 				}
-				$monthly_conditions[] = '((frequency = '.$db->quoteSmart('MFW').") AND (".implode(" OR ", $mfw_conditions)."\n\n     ))";
+				$monthly_conditions[] = '((frequency = '.$db->quoteSmart('MFW').') AND ('.implode(' OR ', $mfw_conditions)."\n\n     ))";
 
 				// get MRW events
 				$mrw_conditions = Array();
@@ -436,10 +444,10 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null, $g
 					if ($last_date_components['rwdom'] - $now['rwdom'] != 1) {
 						// we have intervening weeks
 						// we want to know if any event started or ended in the intervening weeks
-						$mrw_conditions[] = '((start_date_rwdom BETWEEN '.($now['rwdom'] - 1).' AND '.($last_date_components['rwdom'] + 1).') OR (end_date_rwdom BETWEEN ' .($now['rwdom'] - 1).' AND '.($last_date_components['rwdom'] + 1).'))';
+						$mrw_conditions[] = '((start_date_rwdom BETWEEN '.($now['rwdom'] - 1).' AND '.($last_date_components['rwdom'] + 1).') OR (end_date_rwdom BETWEEN '.($now['rwdom'] - 1).' AND '.($last_date_components['rwdom'] + 1).'))';
 					}
 				}
-				$monthly_conditions[] = '((frequency = '.$db->quoteSmart('MRW').") AND (".implode(" OR ", $mrw_conditions).'))';
+				$monthly_conditions[] = '((frequency = '.$db->quoteSmart('MRW').') AND ('.implode(' OR ', $mrw_conditions).'))';
 
 				// get month events that cover the whole of our month
 				$sql_freqs[] = '(
@@ -496,7 +504,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null, $g
 					// we have intervening months, so we want to see if the event starts or ends in one of them
 					$sql_freqs[] = '((frequency LIKE '.$db->quoteSmart('M').') AND ((MOD('.$last_date_components['ms'].' - start_date_ms, period) BETWEEN 1 AND '.($last_date_components['ms'] - $now['ms'] - 1).') OR (MOD('.$last_date_components['ms'].' - end_date_ms, period) BETWEEN 1 AND '.($last_date_components['ms'] - $now['ms'] - 1).')))';
 				}
-			}
+			}//end else
 
 		break;
 
@@ -514,9 +522,9 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null, $g
 
 /**
 * Returns an SQL fragment to restrict results to have treeids in the given range
-* @param array	&$treeids		array of treeids
+* @param array	$treeids	array of treeids
 *
-* @return string	the SQL clause
+* @return string
 * @access public
 */
 function build_tree_clause($treeids)
@@ -536,7 +544,7 @@ function build_tree_clause($treeids)
 *
 * @param array	&$root_nodes	array of asset ids which represent root nodes
 *
-* @return array(int => string) a list of tree branch ids indexed by root assetid
+* @return array
 * @access public
 */
 function &get_treeids(&$root_nodes)
@@ -545,7 +553,7 @@ function &get_treeids(&$root_nodes)
 
 	$db =& $GLOBALS['SQ_SYSTEM']->db;
 	$quoted_root_nodes = array_keys($root_nodes);
-	$sql = "SELECT a.assetid, t.treeid \n FROM ".SQ_TABLE_RUNNING_PREFIX."ast a JOIN (".SQ_TABLE_RUNNING_PREFIX."ast_lnk l JOIN ".SQ_TABLE_RUNNING_PREFIX."ast_lnk_tree t ON l.linkid = t.linkid) ON l.minorid = a.assetid \n WHERE a.assetid IN (";
+	$sql = "SELECT a.assetid, t.treeid \n FROM ".SQ_TABLE_RUNNING_PREFIX.'ast a JOIN ('.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l JOIN '.SQ_TABLE_RUNNING_PREFIX."ast_lnk_tree t ON l.linkid = t.linkid) ON l.minorid = a.assetid \n WHERE a.assetid IN (";
 
 	// quote the root nodes manually before we implode the thing
 	foreach ($quoted_root_nodes as $k => $root_node) {
@@ -591,6 +599,7 @@ function build_case_statement($col_name, &$trees)
 * 'assetid:instance' where instance is a 0-based index of how many times an instance
 * the event has occurred previously.
 *
+* @param array	&$events		Array of Events
 * @param string	$first_day		The first day we want to display (YYYY-MM-DD)
 * @param string	$last_day		The last day we want to display (YYYY-MM-DD)
 * @param string	$day_start_time	Earliest time of day we will display (HH:mm)
@@ -661,7 +670,7 @@ function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last
 			if (($first_day <= $event_start_date) && ($event_start_dts < $day_end_dts)) {
 				// insert first day
 				$result_list[$assetid.':'.$i] = Array();
-				for (reset($event); null !== ($k = key($event)); next($event)) {
+				for (reset($event); NULL !== ($k = key($event)); next($event)) {
 					$result_list[$assetid.':'.$i][$k] = $event[$k];
 				}
 				$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $start_time);
@@ -671,10 +680,11 @@ function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last
 				$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $start_time);
 				$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $start_time);
 				$result_list[$assetid.':'.$i] = array_merge($event, Array(
-					'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time),
-					'start_date_mday' => date('j', $start_time),
-					'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
-					'end_date_mday' => date('j', $start_time)));
+																		'start_date_year'	=> date('Y', $start_time), 'start_date_mon' => date('n', $start_time),
+																		'start_date_mday'	=> date('j', $start_time),
+																		'end_date_year'		=> date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
+																		'end_date_mday'		=> date('j', $start_time),
+																	));
 					if (!is_null($result_list[$assetid.':'.$i]['start_date_hours'])) {
 						$result_list[$assetid.':'.$i]['end_date_hours'] = $day_end_hours;
 						$result_list[$assetid.':'.$i]['end_date_minutes'] = $day_end_minutes;
@@ -688,7 +698,7 @@ function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last
 			while ($inter_date <= $last_inter_date) {
 				$inter_time = iso8601_ts($inter_date.' 12:00:00');
 				$result_list[$assetid.':'.$i] = Array();
-				for (reset($event); null !== ($k = key($event)); next($event)) {
+				for (reset($event); NULL !== ($k = key($event)); next($event)) {
 					$result_list[$assetid.':'.$i][$k] = $event[$k];
 				}
 				$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $inter_time);
@@ -711,7 +721,7 @@ function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last
 			if (($event_end_date <= $last_day) && ($event_end_dts > $day_start_dts)) {
 				// insert the last day
 				$result_list[$assetid.':'.$i] = Array();
-				for (reset($event); null !== ($k = key($event)); next($event)) {
+				for (reset($event); NULL !== ($k = key($event)); next($event)) {
 					$result_list[$assetid.':'.$i][$k] = $event[$k];
 				}
 
@@ -736,7 +746,7 @@ function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last
 			}
 			$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
 			$result_list[$assetid.':'.$i] = Array();
-			for (reset($event); null !== ($k = key($event)); next($event)) {
+			for (reset($event); NULL !== ($k = key($event)); next($event)) {
 				$result_list[$assetid.':'.$i][$k] = $event[$k];
 			}
 
@@ -760,7 +770,7 @@ function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last
 		}
 		$start_time = mktime(12, 0, 0,  $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
 		$result_list[$assetid.':'.$i] = Array();
-		for (reset($event); null !== ($k = key($event)); next($event)) {
+		for (reset($event); NULL !== ($k = key($event)); next($event)) {
 			$result_list[$assetid.':'.$i][$k] = $event[$k];
 		}
 
@@ -810,9 +820,9 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 	$day_end_dts = ($day_end_bits[0] * 60) + $day_end_bits[1];
 
 	$event_start_date = sprintf('%04d-%02d-%02d', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday']);
-	$event_end_date = is_null($event['end_date_ds']) ? null : sprintf('%04d-%02d-%02d', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday']);
-	$event_start_dts = is_null($event['start_date_hours']) ? null : (($event['start_date_hours'] * 60) + $event['start_date_minutes']);
-	$event_end_dts = is_null($event['end_date_hours']) ? null : (($event['end_date_hours'] * 60) + $event['end_date_minutes']);
+	$event_end_date = is_null($event['end_date_ds']) ? NULL : sprintf('%04d-%02d-%02d', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday']);
+	$event_start_dts = is_null($event['start_date_hours']) ? NULL : (($event['start_date_hours'] * 60) + $event['start_date_minutes']);
+	$event_end_dts = is_null($event['end_date_hours']) ? NULL : (($event['end_date_hours'] * 60) + $event['end_date_minutes']);
 
 	// dispose of one case immediately
 	if (is_null($event['end_date_ds']) && !is_null($event['start_date_hours'])) {
@@ -856,7 +866,7 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 
 	// process instances until we get to the end of the period
 	$i = 0;
-	while (($next_occur !== false) && ($next_occur <= $last_day)) {
+	while (($next_occur !== FALSE) && ($next_occur <= $last_day)) {
 
 		$next_occur_ds = get_ds($next_occur);
 		// days between occurrences
@@ -876,7 +886,7 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 				if (($start_date >= $first_day) && ($start_date <= $last_day) && (is_null($event_start_dts) || ($event_start_dts <= $day_end_dts))) {
 					// add the first day
 					$result_list[$assetid.':'.$i] = Array();
-					for (reset($event); null !== ($k = key($event)); next($event)) {
+					for (reset($event); NULL !== ($k = key($event)); next($event)) {
 						$result_list[$assetid.':'.$i][$k] = $event[$k];
 					}
 
@@ -901,7 +911,7 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 					if (($inter_date >= $first_day) && ($inter_date <= $last_day)) {
 
 						$result_list[$assetid.':'.$i] = Array();
-						for (reset($event); null !== ($k = key($event)); next($event)) {
+						for (reset($event); NULL !== ($k = key($event)); next($event)) {
 							$result_list[$assetid.':'.$i][$k] = $event[$k];
 						}
 
@@ -928,7 +938,7 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 				if (($end_date >= $first_day) && ($end_date <= $last_day) && (is_null($event_end_dts) || ($event_end_dts > $day_start_dts))) {
 					// add the last day
 					$result_list[$assetid.':'.$i] = Array();
-					for (reset($event); null !== ($k = key($event)); next($event)) {
+					for (reset($event); NULL !== ($k = key($event)); next($event)) {
 						$result_list[$assetid.':'.$i][$k] = $event[$k];
 					}
 
@@ -960,7 +970,7 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 						)
 					) {
 					$result_list[$assetid.':'.$i] = Array();
-					for (reset($event); null !== ($k = key($event)); next($event)) {
+					for (reset($event); NULL !== ($k = key($event)); next($event)) {
 						$result_list[$assetid.':'.$i][$k] = $event[$k];
 					}
 
@@ -981,7 +991,7 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 					}
 					$i++;
 				}
-			}
+			}//end else
 		} else {
 			// end date not specified, so it's either just a date or a point in time
 			$start_time = mktime(12, 0, 0,  $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
@@ -989,7 +999,7 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 
 			if (($start_date >= $first_day) && ($start_date <= $last_day)) {
 				$result_list[$assetid.':'.$i] = Array();
-				for (reset($event); null !== ($k = key($event)); next($event)) {
+				for (reset($event); NULL !== ($k = key($event)); next($event)) {
 					$result_list[$assetid.':'.$i][$k] = $event[$k];
 				}
 
@@ -1027,7 +1037,7 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 * When a cancellation or modification event is found in the set, its parent recurring event
 * is removed from the set, and for cancellation events they themselves are removed too
 *
-* @param array	$res					a ($id => array(...)) array of events
+* @param array	&$res	a ($id => array(...)) array of events
 *
 * @return void
 * @access public
@@ -1040,19 +1050,20 @@ function process_exceptions(&$res)
 			$id_bits = explode(':', $id);
 			$real_id = $id_bits[0];
 			$exception_ids[] = $GLOBALS['SQ_SYSTEM']->db->quote($real_id);
-			if ($details['type_code'] == 'calendar_event_cancellation') unset($res[$id]);
+			if ($details['type_code'] == 'calendar_event_cancellation') {
+				unset($res[$id]);
+			}
 		}
 	}
-	if (empty($exception_ids)) return false;
+	if (empty($exception_ids)) return FALSE;
 	$exception_links = $GLOBALS['SQ_SYSTEM']->db->getAssoc('SELECT majorid, minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk WHERE minorid IN ('.implode(', ',	$exception_ids).')');
 	assert_valid_db_result($exception_links);
 	foreach ($res as $key => $details) {
 		$id = explode(':', $key);
 		$id = $id[0];
-		if (isset($exception_links[$id])) {
-			unset($res[$key]);
-		}
+		if (isset($exception_links[$id])) unset($res[$key]);
 	}
+
 }//end process_exceptions()
 
 
@@ -1104,24 +1115,26 @@ function get_date_components($iso, $prefix='')
 
 		// any dashed out sections should be nulled out instead
 		foreach (array_keys($this_date) as $iso_part) {
-			if ($this_date[$iso_part] == str_repeat('-', ($iso_part == 'year' ? 4 : 2))) $this_date[$iso_part] = null;
+			if ($this_date[$iso_part] == str_repeat('-', ($iso_part == 'year' ? 4 : 2))) {
+				$this_date[$iso_part] = NULL;
+			}
 		}
 
 		$date_only_ts = strtotime(substr($iso,0,10));
 
 		// forward day-of-year and weekday can only work with valid date
 		if (is_null($this_date['mday']) || is_null($this_date['mon']) || is_null($this_date['year']) || ($date_only_ts == 1)) {
-			$this_date['wday'] = null;
-			$this_date['yday'] = null;
-			$this_date['ts'] = null;
-			$this_date['ds'] = null;
+			$this_date['wday'] = NULL;
+			$this_date['yday'] = NULL;
+			$this_date['ts'] = NULL;
+			$this_date['ds'] = NULL;
 		} else {
 			if (is_null($this_date['hours']) && (!is_null($this_date['minutes']) || !is_null($this_date['seconds']))) {
 				// hours null in the middle of the time - no valid time
-				$this_date['ts'] = null;
-			} else if (is_null($this_date['minutes']) && !is_null($this_date['seconds']))  {
+				$this_date['ts'] = NULL;
+			} else if (is_null($this_date['minutes']) && !is_null($this_date['seconds'])) {
 				// minutes null in the middle of the time - no valid time
-				$this_date['ts'] = null;
+				$this_date['ts'] = NULL;
 			} else {
 				// make a best guess on timestamp, setting all blanks to 0
 				$this_date['ts'] = strtotime(substr($iso,0,10).' '.str_replace('-','0',substr($iso,11)));
@@ -1133,21 +1146,21 @@ function get_date_components($iso, $prefix='')
 			$this_date['yday'] = date('z', $date_only_ts) + 1;
 		}
 
-	}
+	}//end else
 
 	// add 'month-stamp' column which can be used to easily check
 	// 'x monthly' stuff which can't be done easily with T/S alone
 	if (is_null($this_date['mon']) || is_null($this_date['year'])) {
-		$this_date['ms'] = null;
+		$this_date['ms'] = NULL;
 	} else {
 		$this_date['ms'] = get_ms($iso);
 	}
 
 	if (is_null($this_date['mday']) || is_null($this_date['mon']) || is_null($this_date['year'])) {
-		$this_date['ryday'] = null;
-		$this_date['rmday'] = null;
-		$this_date['wdom']  = null;
-		$this_date['rwdom'] = null;
+		$this_date['ryday'] = NULL;
+		$this_date['rmday'] = NULL;
+		$this_date['wdom']  = NULL;
+		$this_date['rwdom'] = NULL;
 	} else {
 		// reverse day-of-year and reverse day-of-month [1-based]
 		$this_date['ryday'] = 365 + (is_leap_year($this_date['year']) ? 1 : 0) - $this_date['yday'] + 1;
@@ -1163,7 +1176,7 @@ function get_date_components($iso, $prefix='')
 	// now dump them into the array we were passed in the first place
 	$res = Array();
 	foreach (array_keys($this_date) as $iso_part) {
-		$res[$prefix.$iso_part] = is_null($this_date[$iso_part]) ? null : intval($this_date[$iso_part]);
+		$res[$prefix.$iso_part] = is_null($this_date[$iso_part]) ? NULL : intval($this_date[$iso_part]);
 	}
 	return $res;
 
@@ -1175,7 +1188,7 @@ function get_date_components($iso, $prefix='')
 *
 * @param int|string	$value	The date to convert, either a timestamp or ISO-format date
 *
-* @return int	The day-stamp
+* @return int
 * @access public
 */
 function get_ds($value)
@@ -1197,7 +1210,7 @@ function get_ds($value)
 *
 * @param int|string	$value	The date to convert, either a timestamp or ISO-format date
 *
-* @return int	The monthstamp
+* @return int
 * @access public
 */
 function get_ms($value)
@@ -1215,11 +1228,11 @@ function get_ms($value)
 /**
 * Returns a QUOTED array of a type's descendants
 *
-* @param string $type_code
+* @param string	$type_code Type code
 *
-* @see    Asset_Manager::getTypeDescendants()
-* @return Array
+* @return array
 * @access public
+* @see    Asset_Manager::getTypeDescendants()
 */
 function quoted_descendants($type_code)
 {
@@ -1241,12 +1254,15 @@ function quoted_descendants($type_code)
 /**
 * Return true if $a starts before $b
 *
-* @access public
+* @param int	$a	Start date timestamp
+* @param int	$b	Start date timestamp
+*
 * @return void
+* @access public
 */
 function compare_start_dates($a, $b)
 {
-	return ($a['start_date_ts'] < $b['start_date_ts'])? -1 : 1;
+	return ($a['start_date_ts'] < $b['start_date_ts']) ? -1 : 1;
 
 }//end compare_start_dates()
 
@@ -1254,8 +1270,8 @@ function compare_start_dates($a, $b)
 /**
 * Returns array of events sorted by occurrence
 *
-* @param $date
-* @param $events	Events to be sorted
+* @param string	$date	Date
+* @param array	$events	Events to be sorted
 *
 * @return array
 * @access public

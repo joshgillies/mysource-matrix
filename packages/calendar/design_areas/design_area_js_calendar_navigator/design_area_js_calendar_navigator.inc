@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_js_calendar_navigator.inc,v 1.10 2005/11/08 04:15:04 tbarrett Exp $
+* $Id: design_area_js_calendar_navigator.inc,v 1.11 2006/02/02 04:10:57 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -35,7 +35,6 @@ class Design_Area_JS_Calendar_Navigator extends Design_Area
 
 	/**
 	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
-	*
 	* @param object Design	$design the design for which we are currently printing
 	*
 	* @return boolean
@@ -95,7 +94,7 @@ class Design_Area_JS_Calendar_Navigator extends Design_Area
 			$calendar->changeSetting("onYearClick",	"onYearClick");
 			$calendar->changeSetting("height",		"100%");
 			$calendar->changeSetting("width",		"100%");
-			if (isset($_GET["SQ_CALENDAR_DATE"])) { 
+			if (isset($_GET["SQ_CALENDAR_DATE"])) {
 				$calendar->changeSetting("currentDate",	$_GET["SQ_CALENDAR_DATE"]);
 			}
 
@@ -112,9 +111,9 @@ class Design_Area_JS_Calendar_Navigator extends Design_Area
 		';
 
 		echo $php_code;
-		return true;
+		return TRUE;
 
-	}//end printArea()
+	}//end printPaintingCode()
 
 
 }//end class
