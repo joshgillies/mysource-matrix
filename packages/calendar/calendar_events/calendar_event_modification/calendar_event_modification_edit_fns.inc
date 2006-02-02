@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification_edit_fns.inc,v 1.12 2005/11/04 03:43:09 lwright Exp $
+* $Id: calendar_event_modification_edit_fns.inc,v 1.13 2006/02/02 03:38:32 sdanis Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -48,17 +48,20 @@ class Calendar_Event_Modification_Edit_Fns extends Calendar_Event_Edit_Fns
 	* event, ie the start date and time for the recurring event instance that it
 	* modifies.
 	*
-	* @param object Calendar_Event_Modification	&$asset			the event to print the form for
-	* @param object Backend_Outputter			&$o				the outputter class (not used here)
-	* @param string								$prefix			the prefix to use for form field names
+	* @param object	&$asset	the event to print the form for
+	* @param object	&$o		the outputter class (not used here)
+	* @param string	$prefix	the prefix to use for form field names
 	*
+	* @return void
 	* @access public
 	*/
 	function paintDateTimeChooser(&$asset, &$o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
-			$start_date_attr = $asset->getAttribute('start_date');
-			if (($ts = $start_date_attr->getTimestamp()) == -1) $ts = 0;
+			$start_date_attr =& $asset->getAttribute('start_date');
+			if (($ts = $start_date_attr->getTimestamp()) == -1) {
+				$ts = 0;
+			}
 			$this->printDateChooser($prefix.'_start', $ts);
 		} else {
 			echo $asset->getFriendlyDatesAndTimes();
@@ -70,11 +73,11 @@ class Calendar_Event_Modification_Edit_Fns extends Calendar_Event_Edit_Fns
 	/**
 	* Process the start date/time value entered
 	*
-	* @param object Calendar_Event_Recurring	&$asset			the event to process the form for
-	* @param object Backend_Outputter			&$o				the outputter class (not used here)
-	* @param string								$prefix			the prefix to use for form field names
+	* @param object	&$asset	the event to process the form for
+	* @param object	&$o		the outputter class (not used here)
+	* @param string	$prefix	the prefix to use for form field names
 	*
-	* @return boolean	Whether the update was successful
+	* @return boolean
 	* @access public
 	*/
 	function processDateTimeChooser(&$asset, &$o, $prefix)
@@ -87,19 +90,20 @@ class Calendar_Event_Modification_Edit_Fns extends Calendar_Event_Edit_Fns
 	/**
 	* Paint the interface for choosing the recurring event whose instance is being modified
 	*
-	* @param object Calendar_Event_Recurring	&$asset			the event to process the form for
-	* @param object Backend_Outputter			&$o				the outputter class (not used here)
-	* @param string								$prefix			the prefix to use for form field names
+	* @param object	&$asset	the event to process the form for
+	* @param object	&$o		the outputter class (not used here)
+	* @param string	$prefix	the prefix to use for form field names
 	*
+	* @return void
 	* @access public
 	*/
 	function paintRecurringEventChooser(&$asset, &$o, $prefix)
 	{
-		$modified_event_asset = null;
+		$modified_event_asset = NULL;
 		if ($asset->id) {
-			$recurring_event_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id, 'calendar_event_recurring', false));
+			$recurring_event_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id, 'calendar_event_recurring', FALSE));
 			if (!empty($recurring_event_ids)) {
-				$modified_event_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_event_ids[0]);
+				$modified_event_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_event_ids[0]);
 			}
 		}
 		if (!is_null($modified_event_asset)) {
@@ -114,18 +118,18 @@ class Calendar_Event_Modification_Edit_Fns extends Calendar_Event_Edit_Fns
 	/**
 	* Process the supplied recurring event value
 	*
-	* @param object Calendar_Event_Recurring	&$asset			the event to process the form for
-	* @param object Backend_Outputter			&$o				the outputter class (not used here)
-	* @param string								$prefix			the prefix to use for form field names
+	* @param object	&$asset	the event to process the form for
+	* @param object	&$o		the outputter class (not used here)
+	* @param string	$prefix	the prefix to use for form field names
 	*
-	* @return boolean	Whether the update was successful
+	* @return boolean
 	* @access public
 	*/
 	function processRecurringEventChooser(&$asset, &$o, $prefix)
 	{
 		// not doing anything here; the field is processed in saveAttributes() because
 		// we need an ID first
-		return true;
+		return TRUE;
 
 	}//end processRecurringEventChooser()
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.69 2006/01/26 22:34:15 lwright Exp $
+* $Id: calendar_event_recurring.inc,v 1.70 2006/02/02 03:38:32 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -54,7 +54,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*
 	* @param int	$timestamp	the date to test
 	*
-	* @return int	number of seconds since midnight
+	* @return int
 	* @access private
 	*/
 	function _secondsToday($timestamp)
@@ -73,6 +73,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	* If $after falls ON the date of one of the event's instances, that instance will be
 	* returned. If $after falls after the first day of an instance, the next instance will be
 	* returned.
+	* Returns the date (YYYY-MM-DD) of the next occurrence
 	*
 	* @param string	$after		the earliest date (YYYY-MM-DD) we are interested in
 	* @param string	$start		The date (YYYY-MM-DD) on which the event's first instance started
@@ -80,11 +81,11 @@ class Calendar_Event_Recurring extends Calendar_Event
 	* @param int	$interval	The frequency interval
 	* @param string	$stop		The date on which the event stops recurring
 	*
-	* @static
-	* @return int	the date (YYYY-MM-DD) of the next occurrence
+	* @return int
 	* @access public
+	* @static
 	*/
-	function getFirstOccurrenceAfter($after=null, $start=null, $freq_type=null, $interval=null, $stop=null)
+	function getFirstOccurrenceAfter($after=NULL, $start=NULL, $freq_type=NULL, $interval=NULL, $stop=NULL)
 	{
 		if (is_null($after)) $after = date('Y-m-d');
 
@@ -101,7 +102,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$start = substr($this->attr('start_date'),0,10);
 			$stop = $this->attr('stop_date');
 			// null stop date attribute?
-			if ($stop == '---------- --:--:--') $stop = null;
+			if ($stop == '---------- --:--:--') $stop = NULL;
 		}
 
 		$seconds_per_day = 60 * 60 * 24;
@@ -219,7 +220,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 					increment_month($res_month, $res_year, $interval);
 				} else if ((int)((days_in_month($after_month, $after_year) - $after_day) / 7) == $target_weeks_from_end) {
 					// we're in the right week so start from 'now', not the begining of the week,
-					//$min_day = $start_day;
+					// $min_day = $start_day;
 				}
 				$min_day = $after_day;
 
@@ -227,7 +228,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
 
 				while (date('w', iso8601_ts($result)) != $target_day_of_week) {
-					//if ($res_month - $start_month > 2) die;
+					// if ($res_month - $start_month > 2) die;
 					$res_day -= (7 + date('w', iso8601_ts($result)) - $target_day_of_week)  % 7;
 
 					if (($res_day < $min_day) || ($result < $after)) {
@@ -241,10 +242,10 @@ class Calendar_Event_Recurring extends Calendar_Event
 					$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
 				}
 			break;
-		}
+		}//end switch
 
 		if (!empty($stop) && ($result > $stop)) {
-			return false;
+			return FALSE;
 		} else {
 			return $result;
 		}
@@ -267,11 +268,11 @@ class Calendar_Event_Recurring extends Calendar_Event
 	* @param int	$interval	The frequency interval
 	* @param string	$stop		The date after which recurrences should stop
 	*
-	* @static
-	* @return boolean	true if this event occurs on the specified date
+	* @return boolean
 	* @access public
+	* @static
 	*/
-	function hasOccurrenceOnDate($date=null, $start=null, $freq_type=null, $interval=null, $stop=null)
+	function hasOccurrenceOnDate($date=NULL, $start=NULL, $freq_type=NULL, $interval=NULL, $stop=NULL)
 	{
 		// if we are calling statically make sure that we have all our arguments
 		if (is_null($this) && (func_num_args() < 5)) {
@@ -287,14 +288,14 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$stop = $this->attr('stop_date');
 		}
 		if (is_null($date)) $date = date('Y-m-d');
-		if (strpos($stop, '----------') !== false) {
-			$stop = null;
+		if (strpos($stop, '----------') !== FALSE) {
+			$stop = NULL;
 		}
 
 		// dispose of trivial cases
-		if ($start > $date) return false;
+		if ($start > $date) return FALSE;
 		if ((!is_null($stop)) && ($stop < $date)) {
-			return false;
+			return FALSE;
 		}
 
 		// get components and get into it
@@ -307,7 +308,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		switch ($freq_type) {
 			case 'DED':
 				// definitely occurs
-				return true;
+				return TRUE;
 			break;
 
 			case 'DEDx':
@@ -392,15 +393,14 @@ class Calendar_Event_Recurring extends Calendar_Event
 					&& ($date_components['rwdom'] == $start_components['rwdom'])
 					&& ((($date_components['ms'] - $start_components['ms']) % $interval) == 0);
 			break;
-		}
-		return false;
+		}//end switch
+		return FALSE;
 
 	}//end hasOccurrenceOnDate()
 
 
 	/**
 	* Returns the start and end dates/times of the instance containing a specified ISO date
-	*
 	* If the $date falls within the range of a certain event, it will return that date
 	* range. If $date does NOT fall within a recurrence it will return the dates of the NEXT
 	* instance that starts after $date.
@@ -461,7 +461,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		$interval = substr($this->attr('frequency'), 3);
 		$rule = '';
 		switch ($freq_type) {
-			//every day (or x days)
+			// every day (or x days)
 			case 'DED':
 				if ($interval) {
 					$rule .= 'FREQ=DAILY;INTERVAL='.$interval;
@@ -552,7 +552,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				}
 			break;
 
-		}// end switch
+		}//end switch
 
 		// recurs until
 		$stop_date_attr =& $this->getAttribute('stop_date');
@@ -656,7 +656,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			// unknown frequency
 			default:
 				$res = translate('cal_event_unknown_frequency', $this->attr('frequency'));
-		}
+		}//end switch
 
 		$stop_date_attr =& $this->getAttribute('stop_date');
 		if (($stop_timestamp = $stop_date_attr->getTimestamp()) == -1) {
@@ -671,17 +671,19 @@ class Calendar_Event_Recurring extends Calendar_Event
 	/**
 	* Checks for cancellations and creates the iCalendar exception string for each one
 	*
+	* @param int	$id	Id
+	*
 	* @return string
 	* @access public
 	*/
-	function getiCalExceptions($id=null)
+	function getiCalExceptions($id=NULL)
 	{
 		$exception_string = '';
 		if ($this->id <> 0) {
-			$cancellations = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, Array('calendar_event_cancellation'), false, 'major');
+			$cancellations = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, Array('calendar_event_cancellation'), FALSE, 'major');
 
 			foreach ($cancellations as $cancelled_event) {
-				$event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($cancelled_event['minorid'], $cancelled_event['minor_type_code']);
+				$event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cancelled_event['minorid'], $cancelled_event['minor_type_code']);
 				if ($event->readAccess()) {
 					$exception_string .= date('Ymd\THis', iso8601_ts($event->attr('start_date'))).',';
 				}
@@ -721,7 +723,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				<td><b><?php echo translate('cal_event_instance_duration'); ?></b></td>
 				<td><?php
 						// give useful info if no duration - easy_time_total returns empty string
-						$total_time = easy_time_total($this->getDuration(), true);
+						$total_time = easy_time_total($this->getDuration(), TRUE);
 						echo (empty($total_time) ? 'N/A' : $total_time);
 					?></td>
 			</tr>
@@ -742,14 +744,14 @@ class Calendar_Event_Recurring extends Calendar_Event
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @return Array()
+	* @return array
 	* @access private
 	*/
 	function _getAllowedLinks()
 	{
 		$links = parent::_getAllowedLinks();
-		$links[SQ_LINK_TYPE_2]['calendar_event_modification'] = Array('card' => 'M', 'exclusive' => false);
-		$links[SQ_LINK_TYPE_2]['calendar_event_cancellation'] = Array('card' => 'M', 'exclusive' => false);
+		$links[SQ_LINK_TYPE_2]['calendar_event_modification'] = Array('card' => 'M', 'exclusive' => FALSE);
+		$links[SQ_LINK_TYPE_2]['calendar_event_cancellation'] = Array('card' => 'M', 'exclusive' => FALSE);
 		return $links;
 
 	}//end _getAllowedLinks()
@@ -817,9 +819,9 @@ class Calendar_Event_Recurring extends Calendar_Event
 				} else {
 					return parent::getKeywordReplacement($keyword);
 				}
-		}
+		}//end switch
 
-	}//end getAssetKeywords()
+	}//end getKeywordReplacement()
 
 
 	/**
@@ -832,19 +834,20 @@ class Calendar_Event_Recurring extends Calendar_Event
 	* @param int	$date	YYYY-MM-DD date to consider
 	* @param int	$id		The ID of the recurring event to test, or NULL to use the current object
 	*
+	* @return mixed array|boolean
+	* @access public
 	* @static (optionally)
-	* @return Array|boolean		Array (assetid => type_code) of the event, or false if none exist
 	*/
-	function getExceptionLink($date, $id=null)
+	function getExceptionLink($date, $id=NULL)
 	{
 		if (is_null($id) && isset($this->_tmp['exception_link'])) {
 			return $this->_tmp['exception_link'];
 		}
 		$search_id = is_null($id) ? $this->id : $id;
-		$child_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($search_id, SQ_SC_LINK_ALL, Array('calendar_event_cancellation', 'calendar_event_modification'), false, 'major', $date);
+		$child_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($search_id, SQ_SC_LINK_ALL, Array('calendar_event_cancellation', 'calendar_event_modification'), FALSE, 'major', $date);
 		$res = current($child_links);
 		if ($res['minor_type_code'] == 'calendar_event_cancellation') {
-			$replacement_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($res['minorid'], SQ_SC_LINK_ALL, 'calendar_event_single', false);
+			$replacement_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($res['minorid'], SQ_SC_LINK_ALL, 'calendar_event_single', FALSE);
 			if (!empty($replacement_links)) {
 				$res = current($replacement_links);
 			}
@@ -896,7 +899,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*
 	* @param string	$action_name	The action to perform, eg 'cancel'
 	*
-	* @return string	HTML to show as the result of this action
+	* @return string
 	* @access public
 	*/
 	function processEventAction($action_name)
@@ -983,9 +986,11 @@ class Calendar_Event_Recurring extends Calendar_Event
 					$replacement =& $cancellation_event->addReplacement($new_details['start'], $new_details['end'] ,  $_REQUEST['event_description']);
 
 					$res = '<p>Event rescheduled</p>';
-					$new_query_string_vars = Array('SQ_CALENDAR_EVENT_ID'     => $replacement->id,
-											       'SQ_CALENDAR_DATE'         => $replacement->getStartDate(),
-												   'SQ_CALENDAR_EVENT_ACTION' => null);
+					$new_query_string_vars = Array(
+												'SQ_CALENDAR_EVENT_ID'		=> $replacement->id,
+												'SQ_CALENDAR_DATE'			=> $replacement->getStartDate(),
+												'SQ_CALENDAR_EVENT_ACTION'	=> NULL,
+											 );
 					$res .= '<p><a href="'.replace_query_string_vars($new_query_string_vars).'">'.translate('cal_event_view_replacement_event').'</a></p>';
 				}
 			break;
@@ -993,7 +998,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			default:
 				$res = parent::processEventAction($action_name);
 			break;
-		}
+		}//end switch
 		return $res;
 
 	}//end processEventAction()
@@ -1002,30 +1007,30 @@ class Calendar_Event_Recurring extends Calendar_Event
 	/**
 	* Add a cancellation event linked under this recurring event
 	*
-	* @param string		$date	the date of the occurrence to cancel (YYYY-MM-DD)
-	* @param string		$reason	text to put in the description field of the cancellation event
+	* @param string	$date	the date of the occurrence to cancel (YYYY-MM-DD)
+	* @param string	$reason	text to put in the description field of the cancellation event
 	*
-	* @return mixed	(object Calendar_Event_Cancellation|boolean)
-	*				the Cancellation asset, or false on failure
+	* @return mixed object|boolean
+	* @access public
 	*/
 	function &addCancellation($date, $reason)
 	{
 		if (!$this->writeAccess('')) {
 			trigger_localised_error('CAL0035', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_cancellation');
 		if ($existing_link = $this->getExceptionLink($date)) {
 			if ($existing_link['minor_type_code'] == 'calendar_event_cancellation') {
-				$cancellation_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($existing_link['minorid']);
+				$cancellation_event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_link['minorid']);
 			} else {
 				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($existing_link['linkid']);
-				$cancellation_event = new Calendar_Event_Cancellation();
+				$cancellation_event =& new Calendar_Event_Cancellation();
 			}
 		} else {
-			$cancellation_event = new Calendar_Event_Cancellation();
+			$cancellation_event =& new Calendar_Event_Cancellation();
 		}
-		$cancellation_event->setAttrValue('start_date', $date.' '.($this->getStartTime()? $this->getStartTime().':00' : '--:--:--'));
+		$cancellation_event->setAttrValue('start_date', $date.' '.($this->getStartTime() ? $this->getStartTime().':00' : '--:--:--'));
 		$end_date = add_days_to_iso($date, $this->getDuration() / 86400);
 		$cancellation_event->setAttrValue('end_date', $end_date.' '.($this->getEndTime() ? $this->getEndTime().':00' : '--:--:--'));
 		$cancellation_event->setAttrValue('description', $reason);
@@ -1049,29 +1054,29 @@ class Calendar_Event_Recurring extends Calendar_Event
 	/**
 	* Add a modification event linked under this recurring event
 	*
-	* @param string		$date	the date of the occurrence to cancel (YYYY-MM-DD)
-	* @param string		$reason	text to put in the description field of the cancellation event
+	* @param string	$date			the date of the occurrence to cancel (YYYY-MM-DD)
+	* @param string	$description	text to put in the description field of the cancellation event
 	*
-	* @return mixed	(object Calendar_Event_Modification|boolean)
-	*				the Modification asset, or false on failure
+	* @return mixed object|boolean
+	* @access public
 	*/
 	function &addModification($date, $description)
 	{
 		if (!$this->writeAccess('')) {
 			trigger_localised_error('CAL0037', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_modification');
 
 		if ($existing_link = $this->getExceptionLink($date)) {
 			if ($existing_link['minor_type_code'] == 'calendar_event_modification') {
-				$modification_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($existing_link['minorid']);
+				$modification_event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_link['minorid']);
 			} else {
 				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($existing_link['linkid']);
-				$modification_event = new Calendar_Event_Modification();
+				$modification_event =& new Calendar_Event_Modification();
 			}
 		} else {
-			$modification_event = new Calendar_Event_Modification();
+			$modification_event =& new Calendar_Event_Modification();
 		}
 		$modification_event->setAttrValue('start_date', $date.' --:--:--');
 		$modification_event->setAttrValue('description', $description);
@@ -1091,16 +1096,16 @@ class Calendar_Event_Recurring extends Calendar_Event
 	}//end addModification()
 
 
-	/*
+	/**
 	* Cache the calendar data's stuff
 	*
 	* @param boolean	$updating	are we updating (TRUE) or inserting a new record
 	* 								(FALSE - set only in create() call)
 	*
-	* @return boolean	indicating success
+	* @return boolean
 	* @access private
 	*/
-	function cacheCalendarData($updating=true)
+	function cacheCalendarData($updating=TRUE)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = $GLOBALS['SQ_SYSTEM']->db;
@@ -1129,7 +1134,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			// set the asset ids
 			$date_values['assetid'] = $this->id;
 
-			for (reset($date_values); null !== ($key = key($date_values)); next($date_values)) {
+			for (reset($date_values); NULL !== ($key = key($date_values)); next($date_values)) {
 				$date_values[$key] = $db->quoteSmart($date_values[$key]);
 			}
 			$val_string = implode(',', $date_values);
@@ -1167,7 +1172,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		return true;
+		return TRUE;
 
 	}//end cacheCalendarData()
 

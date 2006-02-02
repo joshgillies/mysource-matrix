@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_single_edit_fns.inc,v 1.10 2005/04/29 05:39:19 gsherwood Exp $
+* $Id: calendar_event_single_edit_fns.inc,v 1.11 2006/02/02 03:38:32 sdanis Exp $
 *
 */
 
@@ -24,12 +24,13 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
 class Calendar_Event_Single_Edit_Fns extends Calendar_Event_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -38,7 +39,7 @@ class Calendar_Event_Single_Edit_Fns extends Calendar_Event_Edit_Fns
 	function Calendar_Event_Single_Edit_Fns()
 	{
 		$this->Calendar_Event_Edit_Fns();
-		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
 
@@ -51,12 +52,12 @@ class Calendar_Event_Single_Edit_Fns extends Calendar_Event_Edit_Fns
 	* something invalid (obviously server-side validation
 	* is done too)
 	*
-	* @param object Calendar_Event		&$asset			the event to print the form for
-	* @param object Backend_Outputter	&$o				the outputter class (not used here)
-	* @param string						$prefix			the prefix to use for form field names
+	* @param object	&$asset	the event to print the form for
+	* @param object	&$o		the outputter class (not used here)
+	* @param string	$prefix	the prefix to use for form field names
 	*
+	* @return boolean
 	* @access public
-	* @return boolean	Whether a submitable interface has been printed
 	*/
 	function paintSingleStartEndChooser(&$asset, &$o, $prefix)
 	{
@@ -64,7 +65,7 @@ class Calendar_Event_Single_Edit_Fns extends Calendar_Event_Edit_Fns
 			return $this->paintStartEndChooser($asset, $prefix, Array());
 		} else {
 			echo $asset->getFriendlyDatesAndTimes();
-			return false;
+			return FALSE;
 		}
 
 	}//end paintSingleStartEndChooser()
@@ -73,11 +74,11 @@ class Calendar_Event_Single_Edit_Fns extends Calendar_Event_Edit_Fns
 	/**
 	* Process the start/end date/time entry form fields for a single event
 	*
-	* @param object Calendar_Event		&$asset			the event to process the form for
-	* @param object Backend_Outputter	&$o				the outputter class (not used here)
-	* @param string						$prefix			the prefix to use for form field names
+	* @param object	&$asset	the event to process the form for
+	* @param object	&$o		the outputter class (not used here)
+	* @param string	$prefix	the prefix to use for form field names
 	*
-	* @return boolean	Whether the update was successful
+	* @return boolean
 	* @access public
 	*/
 	function processSingleStartEndChooser(&$asset, &$o, $prefix)

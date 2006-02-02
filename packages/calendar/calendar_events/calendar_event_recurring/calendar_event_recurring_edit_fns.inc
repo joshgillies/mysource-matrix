@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.25 2005/07/12 22:35:07 tbarrett Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.26 2006/02/02 03:38:32 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -40,7 +40,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 	function Calendar_Event_Recurring_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
 
@@ -48,9 +48,9 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 	/**
 	* Prints the recurrence frequency field of the recurring event
 	*
-	* @param object Calendar_Asset_Recurring	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter			&$o		the outputter class
-	* @param string								$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -59,8 +59,10 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 	{
 		$freq = $asset->attr('frequency');
 		if (!$freq) $freq = '   ';
-		$stop_date_attr = $asset->getAttribute('stop_date');
-		if (($stopdate = $stop_date_attr->getTimestamp()) == -1) $stopdate = FALSE;
+		$stop_date_attr =& $asset->getAttribute('stop_date');
+		if (($stopdate = $stop_date_attr->getTimestamp()) == -1) {
+			$stopdate = FALSE;
+		}
 
 		if ($asset->writeAccess('attributes')) {
 			?>
@@ -72,7 +74,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 					<!-- Overall Frequency Types -->
 					<td style="width: 12ex; vertical-align: top">
 
-						<input type="radio" <?php echo ((($freq{0} == 'D') || !$freq)? 'checked="checked" ' : '') ?> name="<?php echo $prefix; ?>_frequency" id="<?php echo $prefix; ?>_frequency_daily" value="daily" onkeypress="this.click();" onclick="showFreqOptions('<?php echo $prefix; ?>', 'Daily'); checkBox('<?php echo $prefix?>_frequency_type_DED');" />
+						<input type="radio" <?php echo ((($freq{0} == 'D') || !$freq) ? 'checked="checked" ' : '') ?> name="<?php echo $prefix; ?>_frequency" id="<?php echo $prefix; ?>_frequency_daily" value="daily" onkeypress="this.click();" onclick="showFreqOptions('<?php echo $prefix; ?>', 'Daily'); checkBox('<?php echo $prefix?>_frequency_type_DED');" />
 						<label for="<?php echo $prefix; ?>_frequency_daily">Daily</label>
 						<br />
 
@@ -135,7 +137,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 								ob_start(); ?>
 									<input type="text" size="2" value="<?php echo substr($freq, 3); ?>" name="<?php echo $prefix ?>_num_months" onkeypress="this.click();" onclick="checkBox('<?php echo $prefix?>_frequency_type_Mx');" />
 									<?php $x_months_tb = ob_get_contents();
-								ob_end_clean(); 
+								ob_end_clean();
 								?>
 								<input type="radio" <?php echo ((($freq{0}=='M') && (strlen($freq) == 3)) ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_M" value="M"><?php echo translate('cal_event_every_month'); ?>
 								<br /><input type="radio" <?php echo ((($freq{0}=='M') && (strlen($freq) != 3)) ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_Mx" value="Mx"><?php echo translate('cal_event_every_x_months', $x_months_tb); ?>
@@ -205,7 +207,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 				</tr>
 
 			</table>
-			
+
 			<script type="text/javascript"><!--
 			//<![CDATA[
 				updateValues('<?php echo $prefix; ?>');
@@ -217,7 +219,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 			echo $asset->getFriendlyFrequency();
 		}
 
-		return true;
+		return TRUE;
 
 	}//end paintFrequencyField()
 
@@ -225,31 +227,31 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 	/**
 	* Processes the recurrence frequency field of the recurring event
 	*
-	* @param object Calendar_Asset_Recurring	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter			&$o		the outputter class
-	* @param string								$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processFrequencyField(&$asset, &$o, $prefix)
 	{
-		$res = true;
+		$res = TRUE;
 		if (isset($_REQUEST[$prefix.'_stop_date_selected']) && ($_REQUEST[$prefix.'_stop_date_selected'])) {
 			$_REQUEST[$prefix.'_stop_year'] = (int)$_REQUEST[$prefix.'_stop_year'];
 			if (($_REQUEST[$prefix.'_stop_year'] < 1900) || ($_REQUEST[$prefix.'_stop_year'] > 2100)) {
 				trigger_localised_error('CAL0039', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 			$_REQUEST[$prefix.'_stop_month'] = (int)$_REQUEST[$prefix.'_stop_month'];
 			if (($_REQUEST[$prefix.'_stop_month'] < 1) || ($_REQUEST[$prefix.'_stop_month'] > 12)) {
 				trigger_localised_error('CAL0040', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 			$_REQUEST[$prefix.'_stop_day'] = (int)$_REQUEST[$prefix.'_stop_day'];
 			if (($_REQUEST[$prefix.'_stop_day'] < 1) || ($_REQUEST[$prefix.'_stop_day'] > 31)) {
 				trigger_localised_error('CAL0041', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 			$res &= $asset->setAttrValue('stop_date', sprintf('%04d-%02d-%02d', $_REQUEST[$prefix.'_stop_year'],  $_REQUEST[$prefix.'_stop_month'], $_REQUEST[$prefix.'_stop_day']).' --:--:--');
 		} else {
@@ -258,7 +260,9 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 		$interval = '';
 
 		// do this so it doesn't give undefined index errors in the switch if nothing is set
-		if (empty($_REQUEST[$prefix.'_frequency_type'])) $_REQUEST[$prefix.'_frequency_type'] = '';
+		if (empty($_REQUEST[$prefix.'_frequency_type'])) {
+			$_REQUEST[$prefix.'_frequency_type'] = '';
+		}
 
 		switch ($_REQUEST[$prefix.'_frequency_type']) {
 			case 'DED':
@@ -273,7 +277,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 					$frequency = 'DED'.$interval;
 				} else {
 					trigger_localised_error('CAL0042', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
 			break;
 
@@ -282,7 +286,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 					$frequency = 'WEW'.$interval;
 				} else {
 					trigger_localised_error('CAL0043', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
 			break;
 
@@ -291,7 +295,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 					$frequency = $_REQUEST[$prefix.'_monthly_type'];
 				} else {
 					trigger_localised_error('CAL0044', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
 			break;
 
@@ -301,24 +305,24 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 						$frequency = $_REQUEST[$prefix.'_monthly_type'].$interval;
 					} else {
 						trigger_localised_error('CAL0045', E_USER_WARNING);
-						return false;
+						return FALSE;
 					}
 				} else {
 					trigger_localised_error('CAL0046', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
 			break;
 
 			case '':
 				trigger_localised_error('CAL0047', E_USER_WARNING);
-				return false;
+				return FALSE;
 			break;
 
 			default:
 				trigger_localised_error('CAL0048', E_USER_WARNING);
-				return false;
+				return FALSE;
 			break;
-		}
+		}//end switch
 		$res &= $asset->setAttrValue('frequency', $frequency);
 		return $res;
 
@@ -328,9 +332,9 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 	/**
 	* Paints the field to enter the start/end dates/times for the first instance
 	*
-	* @param object Calendar_Asset_Recurring	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter			&$o		the outputter class
-	* @param string								$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -342,7 +346,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 		} else {
 			echo $asset->getFriendlyDatesAndTimes();
 		}
-		return true;
+		return TRUE;
 
 	}//end paintRecurringStartEndChooser()
 
@@ -350,9 +354,9 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 	/**
 	* Processes the field containing the start/end dates/times for the first instance
 	*
-	* @param object Calendar_Asset_Recurring	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter			&$o		the outputter class
-	* @param string								$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public

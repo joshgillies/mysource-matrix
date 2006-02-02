@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_single.inc,v 1.14 2005/06/14 02:36:07 tbarrett Exp $
+* $Id: calendar_event_single.inc,v 1.15 2006/02/02 03:38:32 sdanis Exp $
 *
 */
 
@@ -26,12 +26,13 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
 class Calendar_Event_Single extends Calendar_Event
 {
+
 
 	/**
 	* Constructor
@@ -53,13 +54,13 @@ class Calendar_Event_Single extends Calendar_Event
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _preCreateCheck(&$link)
 	{
 		if (is_a($link['asset'], 'calendar_event_cancellation')) {
-			$replacee_link = $GLOBALS['SQ_SYSTEM']->am->getLink($link['asset']->id, null, '', true, null, 'minor');
+			$replacee_link = $GLOBALS['SQ_SYSTEM']->am->getLink($link['asset']->id, NULL, '', TRUE, NULL, 'minor');
 			$replacee =& $GLOBALS['SQ_SYSTEM']->am->getAsset($replacee_link['majorid']);
 			if (substr($this->attr('start_date'), 0, 10) == substr($link['asset']->attr('start_date'), 0, 10)) {
 				$this->setAttrValue('name', 'Modified: '.$replacee->name);
@@ -89,7 +90,7 @@ class Calendar_Event_Single extends Calendar_Event
 				<td><?php echo $this->attr('name'); ?></td>
 			</tr>
 			<?php
-				if ($recurring_events = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false)) {
+				if ($recurring_events = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', FALSE)) {
 					$root_url = array_values($GLOBALS['SQ_SYSTEM']->am->getRootURL());
 					if (is_array($root_url)) $root_url = $root_url[0];
 				?>
@@ -98,9 +99,9 @@ class Calendar_Event_Single extends Calendar_Event
 				<td><?php
 					// get the parent recurring event asset
 					$recurring_events = array_keys($recurring_events);
-					$recurring_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_events[0]);
+					$recurring_event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_events[0]);
 					if (isset($_REQUEST['SQ_CALENDAR_EVENT_ID'])) {
-						$cancellation_href = replace_query_string_vars(Array('SQ_CALENDAR_EVENT_ID' => $recurring_events[0], 'SQ_CALENDAR_EVENT_ACTION' => null));
+						$cancellation_href = replace_query_string_vars(Array('SQ_CALENDAR_EVENT_ID' => $recurring_events[0], 'SQ_CALENDAR_EVENT_ACTION' => NULL));
 					} else {
 						$cancellation_href = $root_url.'?a='.$recurring_events[0];
 					}
@@ -122,7 +123,7 @@ class Calendar_Event_Single extends Calendar_Event
 				<td><b><?php echo translate('duration') ?></b></td>
 				<td><?php
 						// give useful info if no duration - easy_time_total returns empty string
-						$total_time = easy_time_total($this->getDuration(), true);
+						$total_time = easy_time_total($this->getDuration(), TRUE);
 						echo (empty($total_time) ? 'N/A' : $total_time);
 					?></td>
 			</tr>

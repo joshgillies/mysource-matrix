@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.24 2006/01/12 01:22:52 skim Exp $
+* $Id: calendar_event_cancellation.inc,v 1.25 2006/02/02 03:38:32 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -54,29 +54,29 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _preCreateCheck(&$link)
 	{
-		$parent = &$link['asset'];
+		$parent =& $link['asset'];
 		if (!is_a($parent, 'calendar_event_recurring')) {
 			trigger_localised_error('CAL0054', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		if (!$this->synchronizeWithParent($parent)) {
-			return false;
+			return FALSE;
 		}
 
-		if (!parent::_preCreateCheck($link)) return false;
+		if (!parent::_preCreateCheck($link)) return FALSE;
 
 		if (!($link['value'] = $this->getStartDate())) {
 			trigger_localised_error('CAL0053', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _preCreateCheck()
 
@@ -84,13 +84,13 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
 	* @return string
 	* @access protected
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $short_name ? translate('cal_event_cancelled_date', date('d M Y', iso8601_ts($this->attr('start_date')))) : $this->attr('name');
 
@@ -100,13 +100,13 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @return Array()
+	* @return array
 	* @access private
 	*/
 	function _getAllowedLinks()
 	{
 		$links = parent::_getAllowedLinks();
-		$links[SQ_LINK_TYPE_2]['calendar_event_single'] = Array('card' => 1, 'exclusive' => false);
+		$links[SQ_LINK_TYPE_2]['calendar_event_single'] = Array('card' => 1, 'exclusive' => FALSE);
 		return $links;
 
 	}//end _getAllowedLinks()
@@ -115,9 +115,9 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	/**
 	* Check the parent has an instance on the specified date and set our end time, end date, end time and name based on the parent
 	*
-	* @param Object calendar_event_recurring	&$parent	The recurring event that we belong to
+	* @param object	&$parent	The recurring event that we belong to
 	*
-	* @return boolean	Whether or not the synchronisation was successful
+	* @return boolean
 	* @access public
 	* @see Calendar_Event_Cancellation::create(), Calendar_Event_Cancellation::saveAttributes()
 	*/
@@ -126,7 +126,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		// check that it has an occurrence on the date specified
 		if (!$parent->hasOccurrenceOnDate($this->getStartDate())) {
 			trigger_localised_error('CAL0055', E_USER_ERROR, $this->getStartDate());
-			return false;
+			return FALSE;
 		}
 
 		// update our start time, end date and end time to correspond with the parent
@@ -141,7 +141,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		// set our name based on the parent
 		$this->setAttrValue('name', translate('cal_event_cancelled_date', date('d M Y', iso8601_ts($this->attr('start_date')))).': '.$parent->attr('name'));
 
-		return true;
+		return TRUE;
 
 	}//end synchronizeWithParent()
 
@@ -149,28 +149,28 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	/**
 	* Add a replacement single event linked under this cancellation event
 	*
-	* @param string		$start_date		The start date attr value of the replacement event
-	* @param string		$end_date		The end date attr value of the replacement event
-	* @param string		$description	Description for the replacement event
+	* @param string	$start_date		The start date attr value of the replacement event
+	* @param string	$end_date		The end date attr value of the replacement event
+	* @param string	$description	Description for the replacement event
 	*
-	* @return object	The replacement event
+	* @return object
 	* @access public
 	*/
 	function addReplacement($start_date, $end_date, $description)
 	{
 		if (!$this->writeAccess('')) {
 			trigger_localised_error('CAL0056', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 		if ($existing_link = $this->getReplacementLink()) {
-			$replacement_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($existing_link['minorid']);
+			$replacement_event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_link['minorid']);
 		} else {
 			// create a replacement event
-			$parent_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, null, '', true, null, 'minor');
+			$parent_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, NULL, '', TRUE, NULL, 'minor');
 			$parent_info = reset($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($parent_link['majorid'])));
 			$new_type_code = str_replace('recurring', 'single', $parent_info['type_code']);
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($new_type_code);
-			$replacement_event = new $new_type_code();
+			$replacement_event =& new $new_type_code();
 		}
 		$replacement_event->setAttrValue('start_date', $start_date);
 		$replacement_event->setAttrValue('end_date', $end_date);
@@ -190,7 +190,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 			$replacement_event->processStatusChange($this->status);
 			return $replacement_event;
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end addReplacement()
@@ -203,15 +203,16 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	* This function can be called statically (with both parameters) or on an object (with just
 	* the first parameter)
 	*
-	* @param int	$id		The ID of the recurring event to test, or NULL to use the current object
+	* @param int	$id	The ID of the recurring event to test, or NULL to use the current object
 	*
+	* @return mixed array|boolean
+	* @access public
 	* @static (optionally)
-	* @return Array|boolean		Array (assetid => type_code) of the event, or false if none exist
 	*/
-	function getReplacementLink($id=null)
+	function getReplacementLink($id=NULL)
 	{
 		if (is_null($id)) $id = $this->id;
-		$child_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($id, SQ_SC_LINK_ALL, 'calendar_event_single', false, 'major');
+		$child_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($id, SQ_SC_LINK_ALL, 'calendar_event_single', FALSE, 'major');
 		return current($child_links);
 
 	}//end getReplacementLink()
@@ -222,7 +223,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	*
 	* @param string	$action_name	The action to perform, eg 'cancel'
 	*
-	* @return string	HTML to show as the result of this action
+	* @return string
 	* @access public
 	*/
 	function processEventAction($action_name)
@@ -231,7 +232,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		switch ($action_name) {
 			case 'addreplacement':
 				$parent_assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring'));
-				$parent_object = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetids[0]);
+				$parent_object =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetids[0]);
 
 				$res = '<form method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=addreplacement2&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'"><table cellpadding="4" border="0">';
 				$res .= '<tr><td style="vertical-align: top">'.translate('cal_event_start_and_end').'</td><td>';
@@ -253,13 +254,17 @@ class Calendar_Event_Cancellation extends Calendar_Event
 					$_REQUEST['event_start_hours'] = '--';
 					$_REQUEST['event_start_minutes'] = '--';
 				} else {
-					if ($_REQUEST['event_start_is_pm'] && ($_REQUEST['event_start_hours'] != 12)) $_REQUEST['event_start_hours'] += 12;
+					if ($_REQUEST['event_start_is_pm'] && ($_REQUEST['event_start_hours'] != 12)) {
+						$_REQUEST['event_start_hours'] += 12;
+					}
 				}
 				if (!isset($_REQUEST['event_end_time_enabled'])) {
 					$_REQUEST['event_end_hours'] = '--';
 					$_REQUEST['event_end_minutes'] = '--';
 				} else {
-					if ($_REQUEST['event_end_is_pm'] && ($_REQUEST['event_end_hours'] != 12)) $_REQUEST['event_end_hours'] += 12;
+					if ($_REQUEST['event_end_is_pm'] && ($_REQUEST['event_end_hours'] != 12)) {
+						$_REQUEST['event_end_hours'] += 12;
+					}
 				}
 				if (!isset($_REQUEST['event_end_date_enabled'])) {
 					$_REQUEST['event_end_year'] = '----';
@@ -276,7 +281,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 			default:
 				$res = parent::processEventAction($action_name);
 			break;
-		}
+		}//end switch
 		return $res;
 
 	}//end processEventAction()
@@ -292,21 +297,23 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	* @access public
 	* @see Asset::setAttrValue()
 	*/
-	function saveAttributes($dont_run_updated=false)
+	function saveAttributes($dont_run_updated=FALSE)
 	{
 		if ($this->id) {
 
 			if (!$dont_run_updated) {
 
 				// get the parent recurring event asset
-				$recurring_event_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false));
+				$recurring_event_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', FALSE));
 				if (empty($recurring_event_ids)) {
 					trigger_localised_error('CAL0054', E_USER_ERROR);
-					return false;
+					return FALSE;
 				}
-				$recurring_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_event_ids[0]);
+				$recurring_event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_event_ids[0]);
 
-				if (!$this->synchronizeWithParent($recurring_event)) return false;
+				if (!$this->synchronizeWithParent($recurring_event)) {
+					return FALSE;
+				}
 			}
 		}
 		return parent::saveAttributes($dont_run_updated);
@@ -336,11 +343,13 @@ class Calendar_Event_Cancellation extends Calendar_Event
 				<td><b><?php echo translate('cancels') ?></b></td>
 				<td><?php
 				// get the parent recurring event asset
-				if ($recurring_events = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false)) {
+				if ($recurring_events = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', FALSE)) {
 					$recurring_events = array_keys($recurring_events);
-					$recurring_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_events[0]);
+					$recurring_event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_events[0]);
 					echo '<a href="'.$root_url.'?a='.$recurring_events[0].'">'.$recurring_event->attr('name').'</a>';
-				}?></td>
+				}
+				?>
+				</td>
 			</tr>
 			<tr>
 				<td><b><?php echo translate('cal_event_cancelled_start_date'); ?></b></td>

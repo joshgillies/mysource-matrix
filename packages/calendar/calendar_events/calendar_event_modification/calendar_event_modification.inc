@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.19 2005/05/18 05:12:37 tbarrett Exp $
+* $Id: calendar_event_modification.inc,v 1.20 2006/02/02 03:38:32 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -53,29 +53,29 @@ class Calendar_Event_Modification extends Calendar_Event
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _preCreateCheck(&$link)
 	{
-		if (!parent::_preCreateCheck($link)) return false;
+		if (!parent::_preCreateCheck($link)) return FALSE;
 
 		if (!($link['value'] = $this->getStartDate())) {
 			trigger_localised_error('CAL0049', E_USER_ERROR);
-			return false;
+			return FALSE;
 		}
 
-		$parent = &$link['asset'];
+		$parent =& $link['asset'];
 		if ($parent->type() != 'calendar_event_recurring') {
 			trigger_localised_error('CAL0050', E_USER_ERROR);
-			return false;
+			return FALSE;
 		}
 
 		if (!$this->synchronizeWithParent($parent)) {
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _preCreateCheck()
 
@@ -83,13 +83,13 @@ class Calendar_Event_Modification extends Calendar_Event
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
 	* @return string
 	* @access protected
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $short_name ? 'Modified '.date('d M Y', iso8601_ts($this->attr('start_date'))) : $this->attr('name');
 
@@ -99,9 +99,10 @@ class Calendar_Event_Modification extends Calendar_Event
 	/**
 	* Check the parent has an instance on the specified date and set our end time, end date, end time and name based on the parent
 	*
-	* @param Object calendar_event_recurring	&$parent	The recurring event that we belong to
+	* @param object	&$parent	The recurring event that we belong to
 	*
-	* @return boolean	Whether or not the synchronisation was successful
+	* @return boolean
+	* @access public
 	* @see Calendar_Event_Modification::create(), Calendar_Event_Modification::saveAttributes()
 	*/
 	function synchronizeWithParent(&$parent)
@@ -109,7 +110,7 @@ class Calendar_Event_Modification extends Calendar_Event
 		// check that it has an occurrence on the date specified
 		if (!$parent->hasOccurrenceOnDate($this->getStartDate())) {
 			trigger_localised_error('CAL0051', E_USER_WARNING, $this->getStartDate());
-			return false;
+			return FALSE;
 		}
 
 		// update our start time, end date and end time to correspond with the parent
@@ -127,7 +128,7 @@ class Calendar_Event_Modification extends Calendar_Event
 			$this->setAttrValue('name', $parent->attr('name').' - Modified '.date('d M Y', iso8601_ts($this->attr('start_date'))));
 		}
 
-		return true;
+		return TRUE;
 
 	}//end synchronizeWithParent()
 
@@ -142,21 +143,23 @@ class Calendar_Event_Modification extends Calendar_Event
 	* @access public
 	* @see Asset::setAttrValue()
 	*/
-	function saveAttributes($dont_run_updated=false)
+	function saveAttributes($dont_run_updated=FALSE)
 	{
 		if ($this->id) {
 
 			if (!$dont_run_updated) {
 
 				// get the parent recurring event asset
-				$recurring_event_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false));
+				$recurring_event_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', FALSE));
 				if (empty($recurring_event_ids)) {
 					trigger_localised_error('CAL0052', E_USER_ERROR);
-					return false;
+					return FALSE;
 				}
-				$recurring_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_event_ids[0]);
+				$recurring_event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_event_ids[0]);
 
-				if (!$this->synchronizeWithParent($recurring_event)) return false;
+				if (!$this->synchronizeWithParent($recurring_event)) {
+					return FALSE;
+				}
 			}
 		}
 		return parent::saveAttributes($dont_run_updated);
@@ -181,11 +184,12 @@ class Calendar_Event_Modification extends Calendar_Event
 				<td><b><?php echo translate('cal_event_modification_of'); ?></b></td>
 				<td><?php
 				// get the parent recurring event asset
-				if ($recurring_events = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false)) {
+				if ($recurring_events = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', FALSE)) {
 					$recurring_events = array_keys($recurring_events);
-					$recurring_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_events[0]);
+					$recurring_event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_events[0]);
 					echo '<a href="'.$root_url.'?a='.$recurring_events[0].'">'.$recurring_event->attr('name').'</a>';
-				}?></td>
+				}
+				?></td>
 			</tr>
 			<tr>
 				<td><b><?php echo translate('cal_event_modified_start_date'); ?></b></td>
@@ -207,6 +211,7 @@ class Calendar_Event_Modification extends Calendar_Event
 		<?php
 
 	}//end printBody()
+
 
 }//end class
 
