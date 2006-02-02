@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.31 2005/11/04 03:43:09 lwright Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.32 2006/02/02 03:55:37 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -49,9 +49,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for setting the root nodes from which this calendar page draws events
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -107,7 +107,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 		}
 		?></table>
 		<?php
-		return true;
+		return TRUE;
 
 	}//end paintRootNodes()
 
@@ -115,9 +115,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the interface for setting the root nodes from which this calendar page draws events
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -133,7 +133,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 			}
 			return $asset->setAttrValue('root_nodes', $locations);
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end processRootNodes()
@@ -142,9 +142,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for choosing which calendar views are available on the frontend
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -154,8 +154,8 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$current_views = $asset->attr('enabled_views');
 		$listing_entry_options = Array(
-										'title'		=> translate('cal_page_show_title_only'),
-										'bodycopy'	=> translate('cal_page_use_type_format_bodycopy'),
+									'title'		=> translate('cal_page_show_title_only'),
+									'bodycopy'	=> translate('cal_page_use_type_format_bodycopy'),
 								 );
 
 		$current_list_entry_types = $asset->attr('list_entry_types');
@@ -172,7 +172,8 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 						combo_box($prefix.'_enabled_views['.$category.']', $options, 0,  $current_views[$category], 0, 'style="width: 25ex"');
 					} else {
 						echo $view_options[$category][$current_views[$category]];
-					}?>
+					}
+					?>
 				</td>
 				<td class="sq-backend-table-cell"><?php
 					if ($write_access && (strpos($current_views[$category], 'list') !== FALSE)) {
@@ -186,12 +187,14 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 						echo translate('cal_page_list_entry_unlocked', $listing_entry_options[$current_list_entry_types[$category]]);
 					} else {
 						echo '&nbsp;';
-					}?>
+					}
+					?>
 				</td>
 			</tr><?php
-		}?>
+		}
+		?>
 		</table><?php
-		return true;
+		return TRUE;
 
 	}//end paintViewsChooser()
 
@@ -199,9 +202,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the interface for choosing which calendar views are available on the frontend
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -228,9 +231,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 			}
 			$asset->setAttrValue('list_entry_types', $list_entry_types);
 
-			return true;
+			return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end processViewsChooser()
 
@@ -238,9 +241,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for choosing which view the frontend user sees first
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -264,7 +267,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 		} else {
 			echo $selected_view;
 		}
-		return true;
+		return TRUE;
 
 	}//end paintInitialView()
 
@@ -272,9 +275,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the interface for choosing which view the frontend user sees first
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -298,7 +301,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint an interface where you can choose a point in time with 5-minute precision
 	*
-	* @param string		$prefix	prefix for the form elements
+	* @param string		$prefix	prefix	for the form elements
 	* @param int		$default_hour	the default value for the hour field
 	* @param int		$default_min	the default value for the minutes field
 	* @param boolean	$default_is_pm	whether the default time is pm
@@ -306,7 +309,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paint5MinTimeField($prefix, $default_hour=9, $default_min=0, $default_is_pm=false)
+	function _paint5MinTimeField($prefix, $default_hour=9, $default_min=0, $default_is_pm=FALSE)
 	{
 		$hour_options = Array(12=>12, 1=>1, 2=>2, 3=>3, 4=>4, 5=>5, 6=>6, 7=>7, 8=>8, 9=>9, 10=>10, 11=>11, 12=>12);
 		$min_options = Array();
@@ -314,31 +317,32 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 			$min_options[sprintf('%02d', $i)] = sprintf('%02d', $i);
 		}
 		$is_pm_options = Array(0=>'am', 1=>'pm');
-		combo_box($prefix.'[hours]', $hour_options, false, $default_hour, 0);
+		combo_box($prefix.'[hours]', $hour_options, FALSE, $default_hour, 0);
 		echo ' : ';
-		combo_box($prefix.'[minutes]', $min_options, false, sprintf('%02d', $default_min), 0);
+		combo_box($prefix.'[minutes]', $min_options, FALSE, sprintf('%02d', $default_min), 0);
 		echo '&nbsp;';
-		combo_box($prefix.'[is_pm]', $is_pm_options, false, (int)$default_is_pm, 0);
+		combo_box($prefix.'[is_pm]', $is_pm_options, FALSE, (int)$default_is_pm, 0);
 
 	}//end _paint5MinTimeField()
 
 
 	/**
 	* Process a 5-minute-precision time-choosing field
+	* Returns: HH:MM value of the element, in 24 hour format
 	*
-	* @param string		$prefix	prefix for the form elements
+	* @param string	$prefix	prefix for the form elements
 	*
-	* @return string	HH:MM value of the element, in 24 hour format
+	* @return string
 	* @access public
 	*/
 	function _process5MinTimeField($prefix)
 	{
-		if (!isset($_POST[$prefix])) return false;
+		if (!isset($_POST[$prefix])) return FALSE;
 		if ($_POST[$prefix]['hours'] != (int)$_POST[$prefix]['hours']) {
-			return false;
+			return FALSE;
 		}
 		if ($_POST[$prefix]['minutes'] != (int)$_POST[$prefix]['minutes']) {
-			return false;
+			return FALSE;
 		}
 		if ($_POST[$prefix]['is_pm'] && ($_POST[$prefix]['hours'] != 12)) {
 			$_POST[$prefix]['hours'] += 12;
@@ -346,7 +350,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 		if (!$_POST[$prefix]['is_pm'] && ($_POST[$prefix]['hours'] == 12)) {
 			$_POST[$prefix]['hours'] = 0;
 		}
-		return sprintf('%02d', $_POST[$prefix]['hours']) . ':' . $_POST[$prefix]['minutes'];
+		return sprintf('%02d', $_POST[$prefix]['hours']).':'.$_POST[$prefix]['minutes'];
 
 	}//end _process5MinTimeField()
 
@@ -354,9 +358,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for choosing the earliest time to be displayed in a day
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -365,9 +369,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	{
 		if ($asset->writeAccess('attributes')) {
 			list($hour,$minute) = sscanf($asset->attr('day_starts_at'),'%02d:%02d');
-			$is_pm = false;
+			$is_pm = FALSE;
 			if ($hour >= 12) {
-				$is_pm = true;
+				$is_pm = TRUE;
 				$hour -= 12;
 			}
 			if ($hour == 0) $hour = 12;
@@ -376,7 +380,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 		} else {
 			echo $asset->attr('day_starts_at');
 		}
-		return true;
+		return TRUE;
 
 	}//end paintDayStart()
 
@@ -384,9 +388,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the interface for choosing the earliest time to be displayed in a day
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -395,9 +399,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	{
 		if ($value = $this->_process5MinTimeField($prefix.'_day_start_time')) {
 			$asset->setAttrValue('day_starts_at', $value);
-			return true;
+			return TRUE;
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end processDayStart()
@@ -406,9 +410,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for choosing the latest time to be displayed in a day
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -417,9 +421,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	{
 		if ($asset->writeAccess('attributes')) {
 			list($hour,$minute) = sscanf($asset->attr('day_ends_at'),'%02d:%02d');
-			$is_pm = false;
+			$is_pm = FALSE;
 			if ($hour >= 12) {
-				$is_pm = true;
+				$is_pm = TRUE;
 				$hour -= 12;
 			}
 			if ($hour == 0) $hour = 12;
@@ -435,9 +439,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the interface for choosing the latest time to be displayed in a day
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -447,9 +451,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 		if ($value = $this->_process5MinTimeField($prefix.'_day_end_time')) {
 			if ($value == '00:00') $value = '24:00';
 			$asset->setAttrValue('day_ends_at', $value);
-			return true;
+			return TRUE;
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end processDayEnd()
@@ -458,9 +462,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for choosing the days to include in the week view
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -480,7 +484,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 			}
 			echo $day_name;
 		}
-		return true;
+		return TRUE;
 
 	}//end paintWeekDays()
 
@@ -488,9 +492,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the interface for choosing the days to include in the week view
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -504,9 +508,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 				}
 			}
 			$asset->setAttrValue('week_view_show_days', $_POST[$prefix.'_show_days']);
-			return true;
+			return TRUE;
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end processWeekDays()
@@ -515,9 +519,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the explanation of the CSS implementation and link to the CSS
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -538,16 +542,16 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Does nothing
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processLookAndFeel(&$asset, &$o, $prefix)
 	{
-		return true;
+		return TRUE;
 
 	}//end processLookAndFeel()
 
@@ -555,9 +559,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface that lets you specify the date format for the day view's title
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -572,9 +576,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the interface that lets you specify the date format for the day view's title
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -589,9 +593,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface that lets you specify the date format for the week view's title
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -606,9 +610,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the interface that lets you specify the date format for the week view's title
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -623,9 +627,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface that lets you specify the date format for the month view's title
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -640,9 +644,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the interface that lets you specify the date format for the month view's title
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -657,9 +661,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface that lets you specify the date format for the year view's title
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -674,9 +678,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the interface that lets you specify the date format for the year view's title
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -691,10 +695,10 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Generic function to paint the interface for specifying a view's title format
 	*
-	* @param string						$view	the view this is the interface for
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param string	$view	the view this is the interface for
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access private
@@ -708,7 +712,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 		} else {
 			echo $title_formats[$view].'  ("'.date($title_formats[$view], ((($view == 'week') && (date('D') != 'Mon')) ? strtotime('last Monday') : time())).'")';
 		}
-		return true;
+		return TRUE;
 
 	}//end _paintTitleFormat()
 
@@ -716,10 +720,10 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Generic function to process the interface for specifying a view's title format
 	*
-	* @param string						$view	the view this is the interface for
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param string	$view	the view this is the interface for
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access private
@@ -730,19 +734,20 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 			$title_formats = $asset->attr('view_title_formats');
 			$title_formats[$view] = $_POST[$prefix.'_title_format_'.$view];
 			$asset->setAttrValue('view_title_formats', $title_formats);
-			return true;
+			return TRUE;
 		} else {
-			return false;
+			return FALSE;
 		}
+
 	}//end _processTitleFormat()
 
 
 	/**
 	* Paint the interface that lets you choose which root nodes to columnise by in day view
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -798,9 +803,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the interface that lets you choose which root nodes to columnise by in day view
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -808,7 +813,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	function processColumnNodes(&$asset, &$o, $prefix)
 	{
 		$val = Array();
-		if (isset($_REQUEST[$prefix.'_root_nodes_columnised']) && is_array($_REQUEST[$prefix.'_root_nodes_columnised']))  {
+		if (isset($_REQUEST[$prefix.'_root_nodes_columnised']) && is_array($_REQUEST[$prefix.'_root_nodes_columnised'])) {
 			if ((isset($_REQUEST[$prefix.'_root_nodes_columnised']['other']) && $_REQUEST[$prefix.'_root_nodes_columnised']['other'])) {
 				$val = Array('*');
 				unset($_REQUEST[$prefix.'_root_nodes_columnised']['other']);

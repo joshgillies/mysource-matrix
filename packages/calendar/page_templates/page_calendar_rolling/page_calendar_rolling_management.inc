@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling_management.inc,v 1.1 2005/06/23 23:51:53 tbarrett Exp $
+* $Id: page_calendar_rolling_management.inc,v 1.2 2006/02/02 03:55:37 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -51,12 +51,12 @@ class Page_Calendar_Rolling_Management extends Asset_Management
 						'days_past'				=> Array(
 													'type'			=> 'int',
 													'default'		=> 0,
-													'parameters'	=> Array('allow_negative' => false),
+													'parameters'	=> Array('allow_negative' => FALSE),
 												   ),
 						'days_future'			=> Array(
 													'type'			=> 'int',
 													'default'		=> 6,
-													'parameters'	=> Array('allow_negative' => false),
+													'parameters'	=> Array('allow_negative' => FALSE),
 												   ),
 						'day_heading_tag'		=> Array(
 													'type'			=> 'selection',
@@ -68,7 +68,7 @@ class Page_Calendar_Rolling_Management extends Asset_Management
 																							'h4'	=> 'h4',
 																							'h5'	=> 'h5',
 																						   ),
-																		'allow_empty'	=> false,
+																		'allow_empty'	=> FALSE,
 																	   ),
 												   ),
 						'day_heading_format'	=> Array(
@@ -94,8 +94,8 @@ class Page_Calendar_Rolling_Management extends Asset_Management
 	/**
 	* Return an array with information about the events that this page is listening for
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function getEventList()
 	{
@@ -103,11 +103,11 @@ class Page_Calendar_Rolling_Management extends Asset_Management
 				Array(
 					'event_name'					=> 'requestKeywords',
 					'broadcast_type_code'			=> 'content_type',
-					'broadcast_strict_type_code'	=> false,
+					'broadcast_strict_type_code'	=> FALSE,
 					'options'						=> Array(
 														'side_of_link'	=> 'major',
-														'indirect'		=> true,
-														'is_exclusive'	=> null,
+														'indirect'		=> TRUE,
+														'is_exclusive'	=> NULL,
 														'is_dependant'	=> 1,
 														'value'			=> '',
 														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,

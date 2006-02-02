@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_restricted_edit_fns.inc,v 1.2 2005/11/04 03:43:09 lwright Exp $
+* $Id: page_calendar_restricted_edit_fns.inc,v 1.3 2006/02/02 03:55:37 sdanis Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/page_templates/page_calendar_rolling/pa
 *	Functions to help print and process the backend interface of rolling calendar page assets
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -57,9 +57,9 @@ class Page_Calendar_Restricted_Edit_Fns extends Page_Calendar_Rolling_Edit_Fns
 	/**
 	* Paint the interface for setting the root nodes from which this calendar page draws events
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -68,15 +68,15 @@ class Page_Calendar_Restricted_Edit_Fns extends Page_Calendar_Rolling_Edit_Fns
 	{
 		if ($asset->writeAccess('attributes')) {
 			multiple_asset_finder($prefix.'_event_sources', array_keys($asset->attr('root_nodes')));
-			return true;
+			return TRUE;
 		} else {
-			$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($asset->attr('root_nodes')), '', true, 'name');
+			$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($asset->attr('root_nodes')), '', TRUE, 'name');
 			?><ul style="margin: 1px 15px;"><?php
 			foreach ($infos as $id => $name) {
 				echo '<li>'.get_asset_tag_line($id).'</li>';
 			}
 			?></ul><?php
-			return false;
+			return FALSE;
 		}
 
 	}//end paintEventSources()
@@ -85,9 +85,9 @@ class Page_Calendar_Restricted_Edit_Fns extends Page_Calendar_Rolling_Edit_Fns
 	/**
 	* Process the interface for setting the root nodes from which this calendar page draws events
 	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -103,7 +103,7 @@ class Page_Calendar_Restricted_Edit_Fns extends Page_Calendar_Rolling_Edit_Fns
 			}
 			return $asset->setAttrValue('root_nodes', $root_nodes);
 		}
-		return false;
+		return FALSE;
 
 	}//end processEventSources()
 

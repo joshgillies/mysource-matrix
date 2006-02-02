@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.47 2006/01/26 22:34:16 lwright Exp $
+* $Id: page_calendar_management.inc,v 1.48 2006/02/02 03:55:37 sdanis Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -67,7 +67,7 @@ class Page_Calendar_Management extends Asset_Management
 																			'week'	=> 'Week',
 																			'day'	=> 'Day',
 																		   ),
-															'multiple'	=> false,
+															'multiple'	=> FALSE,
 														   ),
 									  );
 
@@ -83,7 +83,7 @@ class Page_Calendar_Management extends Asset_Management
 										'added'			=> '0.5',
 										'type'			=> 'boolean',
 										'default'		=> '0',
-										'parameters'	=> Array('allow_empty' => false),
+										'parameters'	=> Array('allow_empty' => FALSE),
 									  );
 
 		// Which of	the	root nodes should get their	own	column in day view
@@ -128,7 +128,7 @@ class Page_Calendar_Management extends Asset_Management
 																						'30m'	=> '30 mins',
 																						'60m'	=> '1 hour',
 																					   ),
-																	'allow_empty'	=> false,
+																	'allow_empty'	=> FALSE,
 																   ),
 											);
 
@@ -172,7 +172,7 @@ class Page_Calendar_Management extends Asset_Management
 																					5	=> 'Friday',
 																					6	=> 'Saturday',
 																				   ),
-																'allow_empty'	=> false,
+																'allow_empty'	=> FALSE,
 															   ),
 										);
 
@@ -218,7 +218,7 @@ class Page_Calendar_Management extends Asset_Management
 												'added'			=> '0.1',
 												'type'			=> 'boolean',
 												'default'		=> 'true',
-												'parameters'	=> Array('allow_empty' => false),
+												'parameters'	=> Array('allow_empty' => FALSE),
 											 );
 
 		// Text	for	the	link that takes	you	to the broader view
@@ -268,7 +268,7 @@ class Page_Calendar_Management extends Asset_Management
 												'added'			=> '0.1',
 												'type'			=> 'boolean',
 												'default'		=> 'false',
-												'parameters'	=> Array('allow_empty' => false),
+												'parameters'	=> Array('allow_empty' => FALSE),
 											   );
 
 		// Whether you want	to show	a popup	with the event description onmouseover
@@ -276,7 +276,7 @@ class Page_Calendar_Management extends Asset_Management
 													'added'			=> '0.1',
 													'type'			=> 'boolean',
 													'default'		=> 'false',
-													'parameters'	=> Array('allow_empty' => false),
+													'parameters'	=> Array('allow_empty' => FALSE),
 												   );
 
 		// If this is nonzero, event DIVs will be sized	so that	there is always
@@ -294,8 +294,8 @@ class Page_Calendar_Management extends Asset_Management
 	/**
 	* Gets a list of all files that we want web accessable
 	*
+	* @return array
 	* @access private
-	* @return array(string)
 	*/
 	function _getFileList()
 	{
@@ -311,8 +311,8 @@ class Page_Calendar_Management extends Asset_Management
 	/**
 	* Return an array with information about the events that this page is listening for
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function getEventList()
 	{
@@ -320,11 +320,11 @@ class Page_Calendar_Management extends Asset_Management
 				Array(
 					'event_name'					=> 'requestKeywords',
 					'broadcast_type_code'			=> 'content_type',
-					'broadcast_strict_type_code'	=> false,
+					'broadcast_strict_type_code'	=> FALSE,
 					'options'						=> Array(
 														'side_of_link'	=> 'major',
-														'indirect'		=> true,
-														'is_exclusive'	=> null,
+														'indirect'		=> TRUE,
+														'is_exclusive'	=> NULL,
 														'is_dependant'	=> 1,
 														'value'			=> '',
 														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
@@ -338,7 +338,7 @@ class Page_Calendar_Management extends Asset_Management
 	/**
 	* Updates an attribute that this asset owns (ie the first time it is defined is by this asset)
 	*
-	* @param string	$name	the name of the attribute to update
+	* @param string	$name		the name of the attribute to update
 	* @param string	$curr_attr	the info for the attribute as it stands at the moment
 	*
 	* @return boolean
@@ -356,12 +356,12 @@ class Page_Calendar_Management extends Asset_Management
 				// find out which assets currently have a customised value for this attribute
 				$sql = 'SELECT v.assetid, v.attrid FROM sq_ast_attr_val v JOIN sq_ast_attr at ON v.attrid=at.attrid WHERE at.name='.$this->_db->quote($name).' AND at.owning_type_code='.$this->_db->quote($this->getAssetType());
 				$customised_assetids = $this->_db->getAssoc($sql);
-				$all_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_calendar', false);
+				$all_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_calendar', FALSE);
 
 				parent::_updateOwnedAttribute($name, $curr_attr);
 				// create customised values for those assets that used to have the default value
 				foreach (array_diff($all_assetids, array_keys($customised_assetids)) as $id) {
-					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+					$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
 					$GLOBALS['SQ_SYSTEM']->am->acquireLock($id, 'attributes');
 					$asset->setAttrValue('columnise_day_view_by_root_node', array_keys($asset->attr('root_nodes')));
 					$asset->saveAttributes();
@@ -385,18 +385,18 @@ class Page_Calendar_Management extends Asset_Management
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-				return true;
+				return TRUE;
 			} else {
 				return parent::_updateOwnedAttribute($name, $curr_attr);
 			}
-		} else if (in_array($name, Array('day_partition_height', 'table_column_width', 'month_column_width', 'month_row_height')) && ($curr_attr['type'] != 'int'))  {
+		} else if (in_array($name, Array('day_partition_height', 'table_column_width', 'month_column_width', 'month_row_height')) && ($curr_attr['type'] != 'int')) {
 			if (!parent::_updateOwnedAttribute($name, $curr_attr)) {
-				return false;
+				return FALSE;
 			}
 
 			// stop it from being run twice
 			static $already_run = Array();
-			if (isset($already_run[$name])) return true;
+			if (isset($already_run[$name])) return TRUE;
 			$already_run[$name] = 1;
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -404,10 +404,10 @@ class Page_Calendar_Management extends Asset_Management
 			// we make the assumption that there are 8 pixels in an ex.
 			$sql = 'UPDATE sq_ast_attr_val SET custom_val = CAST((CAST (custom_val AS INTEGER) * 8) AS INTEGER) WHERE attrid='.$this->_db->quote($curr_attr['attrid']);
 			$res = $this->_db->query($sql);
-			if (!assert_valid_db_result($res)) return false;
+			if (!assert_valid_db_result($res)) return FALSE;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return true;
+			return TRUE;
 		} else {
 			return parent::_updateOwnedAttribute($name, $curr_attr);
 		}
@@ -415,21 +415,29 @@ class Page_Calendar_Management extends Asset_Management
 	}//end _updateOwnedAttribute()
 
 
+	/**
+	* Upgrade asset
+	*
+	* @param string	$current_version	Current version of the asset
+	*
+	* @return boolean
+	* @access private
+	*/
 	function _upgrade($current_version)
 	{
 		// first do things as normal
 		$res = parent::_upgrade($current_version);
 
-		static $upgrade_already_run = false;
+		static $upgrade_already_run = FALSE;
 		if ($upgrade_already_run) return $res;
-		$upgrade_already_run = true;
+		$upgrade_already_run = TRUE;
 
 		if ($current_version < 0.3) {
 			// set values for our new attribute, the day column width, according to the old col width
 			// that was shared between day and week
-			$all_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_calendar', false);
+			$all_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_calendar', FALSE);
 			foreach ($all_assetids as $assetid) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$asset->setAttrValue('day_column_width', $asset->attr('table_column_width'));
 				$asset->saveAttributes();
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($assetid);

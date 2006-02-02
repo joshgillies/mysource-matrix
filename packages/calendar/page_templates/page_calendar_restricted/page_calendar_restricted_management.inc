@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_restricted_management.inc,v 1.2 2005/06/27 02:54:49 tbarrett Exp $
+* $Id: page_calendar_restricted_management.inc,v 1.3 2006/02/02 03:55:37 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -53,7 +53,7 @@ class Page_Calendar_Restricted_Management extends Asset_Management
 											'type'			=> 'datetime',
 											'default'		=> '---------- --:--:--',
 											'parameters'	=> Array(
-																'allow_null'	=> false,
+																'allow_null'	=> FALSE,
 															   ),
 											'description'	=> 'The starting date and/or time of the event',
 											'update_fn'		=> '',
@@ -62,14 +62,14 @@ class Page_Calendar_Restricted_Management extends Asset_Management
 											'added'			=> '0.0.1',
 											'type'			=> 'datetime',
 											'default'		=> '---------- --:--:--',
-											'parameters'	=> Array('allow_null' => false),
+											'parameters'	=> Array('allow_null' => FALSE),
 											'description'	=> 'The ending date and/or time of the event',
 											'update_fn'		=> '',
 										   ),
 						'days_per_page'	=> Array(
 											'type'			=> 'int',
 											'default'		=> 1,
-											'parameters'	=> Array('allow_negative' => false),
+											'parameters'	=> Array('allow_negative' => FALSE),
 										   ),
 						'next_text'		=> Array(
 											'type'		=> 'text',
@@ -94,8 +94,8 @@ class Page_Calendar_Restricted_Management extends Asset_Management
 	/**
 	* Return an array with information about the events that this page is listening for
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function getEventList()
 	{
@@ -103,11 +103,11 @@ class Page_Calendar_Restricted_Management extends Asset_Management
 				Array(
 					'event_name'					=> 'requestKeywords',
 					'broadcast_type_code'			=> 'content_type',
-					'broadcast_strict_type_code'	=> false,
+					'broadcast_strict_type_code'	=> FALSE,
 					'options'						=> Array(
 														'side_of_link'	=> 'major',
-														'indirect'		=> true,
-														'is_exclusive'	=> null,
+														'indirect'		=> TRUE,
+														'is_exclusive'	=> NULL,
 														'is_dependant'	=> 1,
 														'value'			=> '',
 														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,

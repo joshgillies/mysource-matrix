@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.5 2005/11/15 04:05:26 tbarrett Exp $
+* $Id: page_calendar_rolling.inc,v 1.6 2006/02/02 03:55:37 sdanis Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -50,7 +50,7 @@ class Page_Calendar_Rolling extends Page
 	*/
 	function Page_Calendar_Rolling($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Page($assetid);
 
 	}//end constructor
@@ -63,39 +63,39 @@ class Page_Calendar_Rolling extends Page
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!parent::_createAdditional($link)) return false;
+		if (!parent::_createAdditional($link)) return FALSE;
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 		// create a page contents bodycopy
 		$am->includeAsset('bodycopy');
-		$page_contents_bc = new Bodycopy();
+		$page_contents_bc =& new Bodycopy();
 		$page_contents_bc->setAttrValue('name', 'Page Contents');
-		if (!$page_contents_bc->create($link)) return false;
+		if (!$page_contents_bc->create($link)) return FALSE;
 
 		// create a type formats folder
 		$am->includeAsset('folder');
-		$type_formats_folder = new Folder();
+		$type_formats_folder =& new Folder();
 		$type_formats_folder->setAttrValue('name', 'Type Formats');
-		if (!$type_formats_folder->create($link)) return false;
+		if (!$type_formats_folder->create($link)) return FALSE;
 
 		// create type format bodycopies
 		$tf_link = Array('asset' => &$type_formats_folder, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 0);
 		foreach (Array('calendar_event_single', 'calendar_event_recurring') as $event_type) {
 			$tf_link['value'] = $event_type;
-			$format_bc = new Bodycopy();
+			$format_bc =& new Bodycopy();
 			$format_bc->setAttrValue('name', $am->getTypeInfo($event_type, 'name').' Format');
-			if (!$format_bc->create($tf_link)) return false;
-			$format_bc = null;
+			if (!$format_bc->create($tf_link)) return FALSE;
+			$format_bc = NULL;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _createAdditional()
 
@@ -103,13 +103,14 @@ class Page_Calendar_Rolling extends Page
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 1, 'exclusive' => true);
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 1, 'exclusive' => TRUE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -118,8 +119,8 @@ class Page_Calendar_Rolling extends Page
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
 	*								we add keywords to the $vars['keywords'] array
 	*
 	* @return boolean
@@ -130,11 +131,11 @@ class Page_Calendar_Rolling extends Page
 		if (!isset($vars['keywords'])) {
 			$vars['keywords'] = Array();
 		}
-		$tf_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, '', 'major', true);
+		$tf_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, '', 'major', TRUE);
 		$tf_folder_id = $tf_folder_link['minorid'];
 		$broadcaster_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id);
 		if (isset($broadcaster_parents[$tf_folder_id])) {
-			$tf_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($tf_folder_id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major');
+			$tf_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($tf_folder_id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major');
 			$tf_bcs = Array();
 			foreach ($tf_links as $link) {
 				$tf_bcs[$link['minorid']] = $link['value'];
@@ -142,19 +143,19 @@ class Page_Calendar_Rolling extends Page
 			$bc_id = reset(array_intersect(array_keys($tf_bcs), array_keys($broadcaster_parents)));
 			if ($bc_id) {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($tf_bcs[$bc_id]);
-				$dummy_asset = new $tf_bcs[$bc_id];
+				$dummy_asset =& new $tf_bcs[$bc_id];
 				$asset_keywords = $dummy_asset->getAvailableKeywords();
 				foreach ($asset_keywords as $kw => $desc) {
 					$vars['keywords'][$kw] = $desc;
 				}
-				return true;
+				return TRUE;
 			}
 		} else if (isset($broadcaster_parents[$this->id])) {
 			// it's the contents BC
 			$vars['keywords']['event_list'] = 'List of Events';
-			return true;
+			return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end onRequestKeywords()
 
@@ -168,10 +169,10 @@ class Page_Calendar_Rolling extends Page
 	function printBody()
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$mm = null;
-		$page_links = $am->getLinks($this->id, SQ_LINK_TYPE_2, Array('folder', 'bodycopy'), true, 'major', null, true);
-		$tf_folder_id = null;
-		$pb_bodycopy_id = null;
+		$mm = NULL;
+		$page_links = $am->getLinks($this->id, SQ_LINK_TYPE_2, Array('folder', 'bodycopy'), TRUE, 'major', NULL, TRUE);
+		$tf_folder_id = NULL;
+		$pb_bodycopy_id = NULL;
 		foreach ($page_links as $link) {
 			switch ($link['minor_type_code']) {
 				case 'folder':
@@ -201,16 +202,16 @@ class Page_Calendar_Rolling extends Page
 	/**
 	* Get the keyword replacements to use in the page contents bodycopy
 	*
+	* @return array
 	* @access protected
-	* @return array		keyword => replacement
 	*/
 	function _getPageContentsReplacements()
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$type_format_links = $am->getLinks($this->_tmp['tf_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, 'major', null, true);
+		$type_format_links = $am->getLinks($this->_tmp['tf_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major', NULL, TRUE);
 		$type_formats = Array();
 		$needs_asset = Array();
-		$somebody_doesnt_need_asset = false;
+		$somebody_doesnt_need_asset = FALSE;
 		$metadata_keywords = Array();
 		$asset_info_fields =  Array(
 								'assetid',
@@ -231,17 +232,17 @@ class Page_Calendar_Rolling extends Page
 							  );
 		foreach ($type_format_links as $link) {
 			if (!empty($link['value'])) {
-				$needs_asset[$link['value']] = false;
+				$needs_asset[$link['value']] = FALSE;
 				$metadata_keywords[$link['value']] = Array();
 				$bc =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
 				$type_formats[$link['value']] = $bc->getRawBodycopyContent();
 				foreach ($bc->getKeywords() as $keyword) {
 					if (strpos($keyword, 'asset_') !== 0) {
-						$needs_asset[$link['value']] = true;
+						$needs_asset[$link['value']] = TRUE;
 					} else {
 						// the keyword starts with 'asset_' but it might still require the asset
 						if ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields))) {
-							$needs_asset[$link['value']] = true;
+							$needs_asset[$link['value']] = TRUE;
 						}
 					}
 					if (strpos($keyword, 'asset_metadata_') === 0) {
@@ -249,7 +250,7 @@ class Page_Calendar_Rolling extends Page
 					}
 				}
 				if (!$needs_asset[$link['value']]) {
-					$somebody_doesnt_need_asset = true;
+					$somebody_doesnt_need_asset = TRUE;
 				}
 			}
 		}
@@ -267,7 +268,7 @@ class Page_Calendar_Rolling extends Page
 		}
 
 		$event_list = '';
-		$recurring_event_descendants = $am->getTypeDescendants('calendar_event_recurring', true);
+		$recurring_event_descendants = $am->getTypeDescendants('calendar_event_recurring', TRUE);
 		foreach ($all_events as $date => $events) {
 			$event_list .= "\n\n<".$heading_tag.'>'.date($heading_format, strtotime($date)).'</'.$heading_tag.">\n";
 			foreach ($events as $id => $event) {
@@ -292,7 +293,7 @@ class Page_Calendar_Rolling extends Page
 				if (!empty($metadata_keywords[$event['type_code']])) {
 					if (!empty($metadata_keywords)) {
 						if (is_null($mm)) {
-							$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+							$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						}
 						// get all the metadata keywords for this asset
 						$metadata_values = $mm->getMetadataFieldValues($assetid, $metadata_keywords);
@@ -305,9 +306,9 @@ class Page_Calendar_Rolling extends Page
 
 				$event_list .= replace_keywords($type_formats[$format_type], $replacements);
 
-			}//end for events in day
+			}//end foreach events in day
 
-		}//end for all events
+		}//end foreach events
 
 		return Array('event_list' => $event_list);
 
@@ -316,11 +317,15 @@ class Page_Calendar_Rolling extends Page
 
 	/**
 	* Get the events that should be displayed in this calendar page
+	* Returns: (date => array (assetid => array ( details )))
 	*
+	* @param string	$start_date	Start date
+	* @param string	$end_date	End date
+	*
+	* @return array
 	* @access protected
-	* @return array (date => array (assetid => array ( details )))
 	*/
-	function _getEvents($start_date=null, $end_date=null)
+	function _getEvents($start_date=NULL, $end_date=NULL)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		if (is_null($start_date)) {

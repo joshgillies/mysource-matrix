@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_restricted.inc,v 1.2 2005/06/27 02:54:49 tbarrett Exp $
+* $Id: page_calendar_restricted.inc,v 1.3 2006/02/02 03:55:37 sdanis Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/page_templates/page_calendar_rolling/pa
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -51,7 +51,6 @@ class Page_Calendar_Restricted extends Page_Calendar_Rolling
 	*/
 	function Page_Calendar_Restricted($assetid=0)
 	{
-		//$this->_ser_attrs = true;
 		$this->Page_Calendar_Rolling($assetid);
 
 	}//end constructor
@@ -60,8 +59,8 @@ class Page_Calendar_Restricted extends Page_Calendar_Rolling
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
 	*								we add keywords to the $vars['keywords'] array
 	*
 	* @return boolean
@@ -72,7 +71,7 @@ class Page_Calendar_Restricted extends Page_Calendar_Rolling
 		if (!isset($vars['keywords'])) {
 			$vars['keywords'] = Array();
 		}
-		$tf_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, '', 'major', true);
+		$tf_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, '', 'major', TRUE);
 		$tf_folder_id = $tf_folder_link['minorid'];
 		$broadcaster_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id);
 		if (isset($broadcaster_parents[$this->id]) && !isset($broadcaster_parents[$tf_folder_id])) {
@@ -80,7 +79,7 @@ class Page_Calendar_Restricted extends Page_Calendar_Rolling
 			$vars['keywords']['event_list'] = 'List of Events';
 			$vars['keywords']['next_link'] = 'Link to the next page of events';
 			$vars['keywords']['prev_link'] = 'Link to the previous page of events';
-			return true;
+			return TRUE;
 		}
 		return parent::onRequestKeywords($broadcaster, $vars);
 
@@ -90,8 +89,8 @@ class Page_Calendar_Restricted extends Page_Calendar_Rolling
 	/**
 	* Get the keyword replacements to use in the page contents bodycopy
 	*
+	* @return array
 	* @access protected
-	* @return array		keyword => replacement
 	*/
 	function _getPageContentsReplacements()
 	{
@@ -133,9 +132,10 @@ class Page_Calendar_Restricted extends Page_Calendar_Rolling
 
 	/**
 	* Get the events that should be displayed in this calendar page
+	* Returns: (date => array (assetid => array ( details )))
 	*
+	* @return array
 	* @access public
-	* @return array (date => array (assetid => array ( details )))
 	*/
 	function _getEvents()
 	{
@@ -147,9 +147,10 @@ class Page_Calendar_Restricted extends Page_Calendar_Rolling
 
 	/**
 	* Get the first and last dates to display on this page in its current state
+	* Returns: (first_date, last_date)
 	*
+	* @return array
 	* @access private
-	* @return array		(first_date, last_date)
 	*/
 	function _getDisplayDates()
 	{

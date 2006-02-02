@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.174 2006/01/26 22:34:16 lwright Exp $
+* $Id: page_calendar.inc,v 1.175 2006/02/02 03:55:37 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.174 $
+* @version $Revision: 1.175 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -70,7 +70,7 @@ class Page_Calendar extends Page
 	*/
 	function Page_Calendar($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Page($assetid);
 
 	}//end constructor
@@ -94,7 +94,7 @@ class Page_Calendar extends Page
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			$this->id = 0;
-			return false;
+			return FALSE;
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -109,7 +109,7 @@ class Page_Calendar extends Page
 	* For example, creating other child assets should be performed in this function
 	*
 	* @param array	&$link	information used to create the initial link<br/>
-	* <PRE>
+	* <pre>
 	* Array ('asset'         => [ref major asset to create link under],
 	*        'link_type'     => SQ_LINK_?,
 	*        'value'         => [link value],
@@ -117,14 +117,14 @@ class Page_Calendar extends Page
 	*        'is_dependant'  => [0|1],
 	*        'is_exclusive'  => [0|1]
 	*        )
-	* </PRE>
+	* </pre>
 	*
 	* @return boolean
 	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!Page::_createAdditional($link)) return false;
+		if (!Page::_createAdditional($link)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
@@ -136,7 +136,7 @@ class Page_Calendar extends Page
 		$asset->setAttrValue('name', 'Page Contents');
 		if (!$asset->create($copy_link, $page_contents_data)) {
 			$this->id = 0;
-			return false;
+			return FALSE;
 		}
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 		unset($asset);
@@ -147,7 +147,7 @@ class Page_Calendar extends Page
 		$type_formats->setAttrValue('name', 'Type Formats');
 		if (!$type_formats->create($copy_link)) {
 			$this->id = 0;
-			return false;
+			return FALSE;
 		}
 
 		// create the event format bodycopies
@@ -160,7 +160,7 @@ class Page_Calendar extends Page
 			$asset->setAttrValue('name', ucfirst($event_type).' Event Format');
 			if (!$asset->create($copy_link, $event_bodycopy_data)) {
 				$this->id = 0;
-				return false;
+				return FALSE;
 			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			unset($asset);
@@ -169,7 +169,7 @@ class Page_Calendar extends Page
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($type_formats);
 		unset($type_formats);
 
-		return true;
+		return TRUE;
 
 	}//end _createAdditional()
 
@@ -184,9 +184,9 @@ class Page_Calendar extends Page
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['folder']   = Array('card' => 'M', 'exclusive' => false);
-		$page_links[SQ_LINK_NOTICE]['asset']    = Array('card' => 'M', 'exclusive' => false);
-		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 1,   'exclusive' => true);
+		$page_links[SQ_LINK_TYPE_2]['folder']   = Array('card' => 'M', 'exclusive' => FALSE);
+		$page_links[SQ_LINK_NOTICE]['asset']    = Array('card' => 'M', 'exclusive' => FALSE);
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 1,   'exclusive' => TRUE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -216,20 +216,20 @@ class Page_Calendar extends Page
 	function printBody()
 	{
 		$res = '';
-		$action = array_get_index($_REQUEST,'SQ_CALENDAR_EVENT_ACTION',false);
+		$action = array_get_index($_REQUEST,'SQ_CALENDAR_EVENT_ACTION',FALSE);
 		if ($action) {
-			$event_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset((int)$_REQUEST['SQ_CALENDAR_EVENT_ID']);
+			$event_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset((int)$_REQUEST['SQ_CALENDAR_EVENT_ID']);
 			$res = $event_asset->processEventAction($action);
 			echo $res;
 		}
 		if (!$res) {
-			if (!$this->_validateRequest()) return false;
+			if (!$this->_validateRequest()) return FALSE;
 
 			// Try to get from cache
 			$cache_key = $this->_getCacheKey();
 			$cached_contents = '';
 			if (!empty($cache_key)) {
-				$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+				$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 				$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
 			}
 			if (!empty($cached_contents)) {
@@ -237,11 +237,11 @@ class Page_Calendar extends Page
 			} else {
 				// have to generate from scratch
 
-				$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
-				if (empty($bodycopy_link)) return false;
+				$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
+				if (empty($bodycopy_link)) return FALSE;
 
-				$format_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
-				if (is_null($format_bodycopy)) return false;
+				$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+				if (is_null($format_bodycopy)) return FALSE;
 
 				// Get replacements.  Contents is first because it may change the view if,
 				// for example, we have just finished editing an event
@@ -265,7 +265,7 @@ class Page_Calendar extends Page
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($format_bodycopy);
 
 			}
-		}
+		}//end if
 
 	}//end printBody()
 
@@ -285,7 +285,7 @@ class Page_Calendar extends Page
 		// otherwise use the initial view attribute.
 		$enabled_views = $this->attr('enabled_views');
 		$enabled_views['edit'] = 1;
-		$cal_view = array_get_index($_REQUEST, 'SQ_CALENDAR_VIEW', false);
+		$cal_view = array_get_index($_REQUEST, 'SQ_CALENDAR_VIEW', FALSE);
 		if (!$cal_view || empty($enabled_views[$cal_view])) {
 			$cal_view = $this->attr('initial_view');
 		}
@@ -322,21 +322,21 @@ class Page_Calendar extends Page
 		}
 
 		// If the view is 'event' or 'edit' we need the eventid too
-		$event_id = false;
+		$event_id = FALSE;
 		if (($cal_view == 'event') || ($cal_view == 'edit')) {
 			if (!isset($_REQUEST['SQ_CALENDAR_EVENT_ID'])) {
 				trigger_localised_error('CAL0023', E_USER_WARNING, ucfirst($_cal_view));
-				return false;
+				return FALSE;
 			}
 			if (!assert_valid_assetid($_REQUEST['SQ_CALENDAR_EVENT_ID'])) {
-				return false;
+				return FALSE;
 			}
 		}
 
 		// Store validated values in globals for future reference
 		$_REQUEST['SQ_CALENDAR_VIEW'] = $cal_view;
 		$_REQUEST['SQ_CALENDAR_DATE'] = $cal_date;
-		return true;
+		return TRUE;
 
 	}//end _validateRequest()
 
@@ -379,7 +379,7 @@ class Page_Calendar extends Page
 		$replacements = Array();
 		$cal_view = $_REQUEST['SQ_CALENDAR_VIEW'];
 		$cal_date = $_REQUEST['SQ_CALENDAR_DATE'];
-		$event_id = array_get_index($_REQUEST, 'SQ_CALENDAR_EVENT_ID', false);
+		$event_id = array_get_index($_REQUEST, 'SQ_CALENDAR_EVENT_ID', FALSE);
 
 		// the link to the prev/next/current month always points to
 		// the first date of the month.
@@ -481,12 +481,12 @@ class Page_Calendar extends Page
 		$formats = $this->attr('enabled_views');
 		$format = array_get_index($formats, $cal_view, '');
 		$res = $this->_getGeneralScript();
-		if (strpos($format, 'list') === false) {
+		if (strpos($format, 'list') === FALSE) {
 			$res .= '<div id="calendarTable">';
 		}
 		$func = 'get'.ucfirst($cal_view).'View';
 		$res .= (($cal_view == 'event') || ($cal_view == 'edit')) ? $this->$func($_REQUEST['SQ_CALENDAR_EVENT_ID']) : $this->$func($_REQUEST['SQ_CALENDAR_DATE'], $format);
-		if (strpos($format, 'list') === false) {
+		if (strpos($format, 'list') === FALSE) {
 			$res .= '</div>';
 		}
 		return $res;
@@ -613,11 +613,11 @@ class Page_Calendar extends Page
 				?>
 				</tr>
 			<?php
-			}
+			}//end for
 			?>
 			</table>
 			<?php
-		}
+		}//end else
 		$res = ob_get_contents();
 		ob_end_clean();
 		return $res;
@@ -806,7 +806,7 @@ class Page_Calendar extends Page
 				echo '</tr>';
 			}
 			echo '</table>';
-		}
+		}//end else
 
 		$res = ob_get_contents();
 		ob_end_clean();
@@ -898,7 +898,7 @@ class Page_Calendar extends Page
 			$column_ids = $this->attr('columnise_day_view_by_root_node');
 			if (array_values($column_ids) != Array('*')) {
 				$root_nodes = array_keys($this->attr('root_nodes'));
-				$column_names_raw = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($column_ids, Array(), true, 'name');
+				$column_names_raw = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($column_ids, Array(), TRUE, 'name');
 				foreach ($column_ids as $column_id) {
 					if (in_array($column_id, $root_nodes)) {
 						$column_names[$column_id] = $column_names_raw[$column_id];
@@ -964,7 +964,7 @@ class Page_Calendar extends Page
 		$o =& new Limbo_Outputter();
 		if (!$event->id) {
 			trigger_localised_error('CAL0024', E_USER_WARNING, $event_id);
-			return false;
+			return FALSE;
 		}
 
 		// Process the form if appropriate
@@ -997,7 +997,7 @@ class Page_Calendar extends Page
 		$o->addHiddenField('asset_action', 'limbo');
 		$o->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
 		$o->openRaw();
-		$ei = &$event->getEI();
+		$ei =& $event->getEI();
 		$ei->printEditInterface('screen_details', $event, $o);
 		$o->closeRaw();
 		$o->commitButton(translate('cal_page_update_event'));
@@ -1023,7 +1023,7 @@ class Page_Calendar extends Page
 	* @return string
 	* @access private
 	*/
-	function _getTitleList($events, $show_links=true)
+	function _getTitleList($events, $show_links=TRUE)
 	{
 		$res = '<ul>';
 		foreach ($events as $id => $data) {
@@ -1055,7 +1055,7 @@ class Page_Calendar extends Page
 	* @return void
 	* @access private
 	*/
-	function _printTimedTable($table_id, $column_names, $column_links, $events, $show_event_links=false)
+	function _printTimedTable($table_id, $column_names, $column_links, $events, $show_event_links=FALSE)
 	{
 		$partition_time = intval($this->attr('day_partition_time'));
 		$partition_height = $this->attr('day_partition_height');
@@ -1178,7 +1178,7 @@ class Page_Calendar extends Page
 					echo '</div>';
 				}
 				echo '</td>';
-			}
+			}//end foreach
 			?>
 			</tr>
 		<?php
@@ -1218,7 +1218,7 @@ class Page_Calendar extends Page
 
 		// print all the javascript last so it doesn't screw up spacing in mozilla
 		if ($dragging_enabled) {
-			$this->_printEventDraggingScript($table_id, ($table_id == 'day') ? $column_names : null);
+			$this->_printEventDraggingScript($table_id, ($table_id == 'day') ? $column_names : NULL);
 		}
 		if ($popups_enabled) $this->_printPopupsScript();
 		if ($click_to_add_ab) {
@@ -1263,11 +1263,11 @@ class Page_Calendar extends Page
 
 			// get horizontal position of div and update the layout map
 			$k = reset($layout_map);
-			while ((key($layout_map) != $time_label) && (false !== $k)) {
+			while ((key($layout_map) != $time_label) && (FALSE !== $k)) {
 				next($layout_map);
 			}
 			$horizontal_index = 0;
-			if (false !== $k) {
+			if (FALSE !== $k) {
 				while (isset($layout_map[$time_label][$horizontal_index])) {
 					$horizontal_index++;
 				}
@@ -1337,7 +1337,7 @@ class Page_Calendar extends Page
 
 			$res .= '</div></div>';
 
-		}
+		}//end foreach
 		return $res;
 
 	}//end _getTimedTableCellContents()
@@ -1473,7 +1473,7 @@ class Page_Calendar extends Page
 	* @return void
 	* @access private
 	*/
-	function _printEventDraggingScript($table_id, $columns=null)
+	function _printEventDraggingScript($table_id, $columns=NULL)
 	{
 		?>
 
@@ -1610,7 +1610,7 @@ class Page_Calendar extends Page
 	* @return int
 	* @access private
 	*/
-	function _countOverlappingEvents(&$events, $start, $end, $spacing, $root_node=null)
+	function _countOverlappingEvents(&$events, $start, $end, $spacing, $root_node=NULL)
 	{
 		if (empty($events) || !is_array($events)) {
 			return 1;
@@ -2206,8 +2206,6 @@ class Page_Calendar extends Page
 		$sql = build_recurring_event_query_base($trees, 'day', $date).' AND '.$tree_sql;
 		$sql .= $this->_getPersonalisedSQL();
 
-		bam($sql);
-
 		$recur_result = $db->getAssoc($sql);
 		assert_valid_db_result($recur_result);
 
@@ -2343,7 +2341,7 @@ class Page_Calendar extends Page
 		}
 		$partitions['all_day'] = Array();
 
-		$events = &$this->getDayEvents($date);
+		$events =& $this->getDayEvents($date);
 		process_exceptions($events);
 		$res = Array();
 
@@ -2361,7 +2359,7 @@ class Page_Calendar extends Page
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
 
 			// get class to use for root node
-			$col = (isset($res['*']) ? '*' : false);
+			$col = (isset($res['*']) ? '*' : FALSE);
 
 			foreach ($root_node_treeids as $root_node_assetid => $root_node_treeid) {
 				if (substr($details['treeid'], 0, strlen($root_node_treeid)) === $root_node_treeid) {
@@ -2451,22 +2449,22 @@ class Page_Calendar extends Page
 		$asset_info_fields = $tables['ast']['columns'];
 		unset($tables);
 		$type_format_bodycopies = Array();
-		$folder_link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'type_formats');
-		$links = $am->getLinks($folder_link['minorid'], SQ_LINK_TYPE_2, 'bodycopy', true);
-		$get_asset_info = false;
+		$folder_link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'type_formats');
+		$links = $am->getLinks($folder_link['minorid'], SQ_LINK_TYPE_2, 'bodycopy', TRUE);
+		$get_asset_info = FALSE;
 		foreach ($links as $bodycopy) {
 			$bodycopy_type_code = $bodycopy['value'];
 			$type_format_bodycopies[$bodycopy_type_code] = Array();
 			$type_format_bodycopies[$bodycopy_type_code]['obj'] =& $am->getAsset($bodycopy['minorid'], 'bodycopy');
 			$type_format_bodycopies[$bodycopy_type_code]['keywords'] = $type_format_bodycopies[$bodycopy_type_code]['obj']->getKeywords();
-			$type_format_bodycopies[$bodycopy_type_code]['needs_asset'] = false;
+			$type_format_bodycopies[$bodycopy_type_code]['needs_asset'] = FALSE;
 			foreach ($type_format_bodycopies[$bodycopy_type_code]['keywords'] as $keyword) {
 				if ((strpos($keyword, 'asset_') !== 0) || (!in_array(substr($keyword, 6), $asset_info_fields))) {
-					$type_format_bodycopies[$bodycopy_type_code]['needs_asset'] = true;
+					$type_format_bodycopies[$bodycopy_type_code]['needs_asset'] = TRUE;
 				}
 			}
-			if ($type_format_bodycopies[$bodycopy_type_code]['needs_asset'] == false) {
-				$get_asset_info = true;
+			if ($type_format_bodycopies[$bodycopy_type_code]['needs_asset'] == FALSE) {
+				$get_asset_info = TRUE;
 			}
 		}
 
@@ -2492,21 +2490,21 @@ class Page_Calendar extends Page
 				$bodycopy =& $type_format_bodycopies[$type_code];
 			} else if ($type_code == 'calendar_event_modification' ) {
 				// Modification Event
-				$link = $am->getLink($assetid, SQ_LINK_TYPE_2, 'calendar_event_recurring', true, null, 'minor');
+				$link = $am->getLink($assetid, SQ_LINK_TYPE_2, 'calendar_event_recurring', TRUE, NULL, 'minor');
 				$bodycopy =& $type_format_bodycopies[$link['major_type_code']];
 			} else if ($type_code == 'calendar_event_cancellation' ) {
 				continue;
 			} else {
 				// check parent type
 				$type_ancestors = $am->getTypeAncestors($type_code);
-				$parent_cancellation = false;
+				$parent_cancellation = FALSE;
 				foreach ($type_ancestors as $parent_type) {
 					if (isset($this->_tmp['allowed_type_formats'][$parent_type])) {
 						$type_format_bodycopies[$type_code] = $type_format_bodycopies[$parent_type];
 						$bodycopy =& $type_format_bodycopies[$parent_type];
 						break;
 					} else if ($type_code == 'calendar_event_cancellation' ) {
-						$parent_cancellation = true;
+						$parent_cancellation = TRUE;
 						break;
 					}
 				}
