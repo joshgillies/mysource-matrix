@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.9 2006/02/01 05:23:01 pgannavarapu Exp $
+* $Id: parameter_map.inc,v 1.10 2006/02/02 06:40:41 rhoward Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once dirname(dirname(__FILE__)).'/serialise/serialise.inc';
 *   When requesting the runtime value for a parameter you give its code.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -280,6 +280,19 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 		return null;
 
 	}//end getParameterValue()
+
+
+	/**
+	* Returns the list of parameters available
+	*
+	* @access public
+	* @return array
+	*/
+	function getParameters()
+	{
+		return array_keys(unserialize($this->value));
+
+	}//end getParameters()
 
 
 	/**
