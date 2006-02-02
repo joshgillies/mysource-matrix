@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.25 2005/11/03 23:57:28 lwright Exp $
+* $Id: permissions.inc,v 1.26 2006/02/02 02:29:33 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 */
 
@@ -36,19 +36,19 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 /**
 * Paint the the access for permissions on a particular asset (used in popups etx)
 *
-* @param object	Asset					$owner	the asset whose interface we are painting
-* @param object	Backend_Outputter		$o		the outputter class
-* @param object	Asset_Edit_Interface	&$ei		the edit interface
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
 *
-* @access public
 * @return boolean
+* @access public
 */
 function paintInlinePermissions(&$owner, &$o, &$ei)
 {
 	$prefix = $owner->getPrefix();
 	$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
 
-	if (empty($perms)) return false;
+	if (empty($perms)) return FALSE;
 
 	$o->openSection(translate('permissions'));
 		$o->openField('&nbsp;');
@@ -69,7 +69,7 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 
 	foreach ($perms as $title => $perm) {
 
-		$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
+		$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, NULL, FALSE, FALSE, TRUE, TRUE);
 
 		$direct = Array();
 		foreach ($permissions as $userid => $granted) {
@@ -85,10 +85,8 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 			foreach ($direct as $granted => $userids) {
 				foreach ($userids as $userid) {
 					if ($userid) {
-						$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array('user', 'user_group'), false);
-						if (empty($user_info)) {
-							continue;
-						}
+						$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array('user', 'user_group'), FALSE);
+						if (empty($user_info)) continue;
 					}
 					?>
 					<tr>
@@ -105,17 +103,18 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 						</td>
 					</tr>
 				<?php
-				}// end foreach data
-			}//end foreach inherited
+				}// end foreach
+			}//end foreach
 		}// end if
-	}// end foreach $perms
+	}//end foreach
+
 	?>
 	</table>
 	<?php
 		$o->closeField();
 	$o->closeSection();
 
-	return true;
+	return TRUE;
 
 }//end paintInlinePermissions()
 
@@ -123,12 +122,12 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 /**
 * Paint the interface for managing permissions
 *
-* @param object	Asset					$owner		the asset whose interface we are painting
-* @param object	Backend_Outputter		$o			the outputter class
-* @param object	Asset_Edit_Interface	&$ei		the edit interface
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
 *
-* @access public
 * @return boolean
+* @access public
 */
 function paintPermissions(&$owner, &$o, &$ei)
 {
@@ -140,7 +139,7 @@ function paintPermissions(&$owner, &$o, &$ei)
 	foreach ($perms as $title => $perm) {
 		$o->openSection(translate('permission_section', translate($title)));
 
-		$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
+		$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, NULL, FALSE, FALSE, TRUE, TRUE);
 
 		$direct = Array();
 		foreach ($permissions as $userid => $granted) {
@@ -170,10 +169,8 @@ function paintPermissions(&$owner, &$o, &$ei)
 
 				foreach ($userids as $userid) {
 					if ($userid) {
-						$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array('user', 'user_group'), false);
-						if (empty($user_info)) {
-							continue;
-						}
+						$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array('user', 'user_group'), FALSE);
+						if (empty($user_info)) continue;
 					}
 					?>
 					<tr>
@@ -208,11 +205,11 @@ function paintPermissions(&$owner, &$o, &$ei)
 			$o->openField('New ?', 'new_line');
 				// if Public Access isn't set
 				if (!isset($direct['0'])) {
-					combo_box($prefix.'_permissions['.$perm.'][public_access][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), false, '');
+					combo_box($prefix.'_permissions['.$perm.'][public_access][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
 					echo ' '.translate('public_permission').'<br/>';
 				}
 
-				combo_box($prefix.'_permissions['.$perm.'][new][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), false, '');
+				combo_box($prefix.'_permissions['.$perm.'][new][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
 				echo ' '.translate('specific_permission').' ';
 				asset_finder($prefix.'_permissions['.$perm.'][new][userid]', 0, Array('user' => 'D', 'user_group' => 'D'));
 			$o->closeField();
@@ -229,7 +226,7 @@ function paintPermissions(&$owner, &$o, &$ei)
 					$o->note(translate('cascade_permissions_note', $owner->name, count($kiddies)));
 				$o->closeField();
 				$o->openField('&nbsp;');
-					check_box($prefix.'_permissions[cascade_changes]', '1', true);
+					check_box($prefix.'_permissions[cascade_changes]', '1', TRUE);
 					label(translate('cascade_permissions'), $prefix.'_permissions[cascade_changes]');
 				$o->closeField();
 			$o->closeSection();
@@ -254,12 +251,12 @@ function paintPermissions(&$owner, &$o, &$ei)
 /**
 * Process the interface for managing permissions
 *
-* @param object	Asset					$owner	the asset whose interface we are painting
-* @param object	Backend_Outputter		$o		the outputter class
-* @param object	Asset_Edit_Interface	&$ei	the edit interface
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
 *
+* @return boolean
 * @access public
-* @return boolean TRUE is there is a change, false on error or no change
 */
 function processPermissions(&$owner, &$o, &$ei)
 {
@@ -270,12 +267,12 @@ function processPermissions(&$owner, &$o, &$ei)
 	}
 
 	// if we dont have the permissions lock, dont process anything
-	if (!$owner->adminAccess('permissions')) return false;
+	if (!$owner->adminAccess('permissions')) return FALSE;
 
 	$permission_vars = Array();
 	$prefix = $owner->getPrefix();
 	if (!isset($_POST[$prefix.'_permissions'])) {
-		return false;
+		return FALSE;
 	}
 
 	$cascade_changes = !empty($_POST[$prefix.'_permissions']['cascade_changes']);
@@ -296,7 +293,7 @@ function processPermissions(&$owner, &$o, &$ei)
 			$permission_vars[$perm][] = Array(
 											'granted'			=> (int)$post_data['public_access']['granted'],
 											'userid'			=> $public_userid,
-											'previous_access'	=> null,
+											'previous_access'	=> NULL,
 										);
 		}
 
@@ -308,7 +305,7 @@ function processPermissions(&$owner, &$o, &$ei)
 					$permission_vars[$perm][] = Array(
 													'granted'			=> (int)$post_data['new']['granted'],
 													'userid'			=> $post_data['new']['userid']['assetid'],
-													'previous_access'	=> null,
+													'previous_access'	=> NULL,
 												);
 			}
 		}
@@ -317,7 +314,7 @@ function processPermissions(&$owner, &$o, &$ei)
 		if (!empty($post_data['delete'])) {
 			foreach ($post_data['delete'] as $userid => $on) {
 				$userid = rawurldecode($userid);
-				$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
+				$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, NULL, FALSE, FALSE, TRUE, TRUE);
 				$current_access = $current[$userid];
 				$permission_vars[$perm][] = Array(
 												'granted'			=> -1,
@@ -328,12 +325,12 @@ function processPermissions(&$owner, &$o, &$ei)
 		}
 
 		if (!empty($_POST[$prefix.'_permissions']['manual_cascade'])) {
-			$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
+			$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, NULL, FALSE, FALSE, TRUE, TRUE);
 			foreach ($current as $userid => $granted) {
 				$permission_vars[$perm][] = Array(
 												'granted'			=> $granted,
 												'userid'			=> $userid,
-												'previous_access'	=> null,
+												'previous_access'	=> NULL,
 											);
 			}
 		}
@@ -341,7 +338,7 @@ function processPermissions(&$owner, &$o, &$ei)
 	}//end foreach perms
 
 	if (!empty($permission_vars)) {
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
 					'assets'				=> Array($owner->id => Array('type_code' => $owner->type())),
 					'permission_changes'	=> $permission_vars,
@@ -350,7 +347,7 @@ function processPermissions(&$owner, &$o, &$ei)
 		$hh->queueHipo('hipo_job_edit_permissions', $vars);
 	}
 
-	return true;
+	return TRUE;
 
 }//end processPermissions()
 

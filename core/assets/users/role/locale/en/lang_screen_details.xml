@@ -18,13 +18,16 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.11 2006/02/02 02:29:33 ndvries Exp $
+* $Id: lang_screen_details.xml,v 1.1 2006/02/02 02:29:33 ndvries Exp $
 *
 */
 -->
 
-<screens>
-	<screen code_name="role_assignments" display_name="Role Assignments" icon="edit" lock_type="roles" force_unlock="0" />
-	<screen code_name="restrictions" display_name="Restrictions" icon="web" force_unlock="0" />
-	<screen code_name="paths" display_name="Web Paths" icon="web" />
-</screens>
+<contents>
+	<section name="Details" read_access="write:" write_access="write:attributes">
+		<field attribute="name">
+			<display_name>Role Name</display_name>
+			<note />
+		</field>
+	</section>
+</contents>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.20 2005/12/14 00:24:07 lwright Exp $
+* $Id: metadata.inc,v 1.21 2006/02/02 02:29:33 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 */
 
@@ -36,27 +36,28 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 /**
 * Paint the interface for managing metadata values
 *
-* @param object	Asset					$owner		the asset whose interface we are painting
-* @param object	Backend_Outputter		$o			the outputter class
-* @param object	Asset_Edit_Interface	&$ei		the edit interface
+* @param object		&$owner		the asset whose interface we are painting
+* @param object		&$o			the outputter class
+* @param object		&$ei		the edit interface
+* @param boolean	$keywords	the keywords to replace
 *
-* @access public
 * @return boolean
+* @access public
 */
-function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
+function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 {
-	$root = &$ei->findScreen('static_screen_metadata');
-	if (is_null($root)) return false;
+	$root =& $ei->findScreen('static_screen_metadata');
+	if (is_null($root)) return FALSE;
 
 	$prefix = $owner->getPrefix();
-	$print_commit_button = false;
+	$print_commit_button = FALSE;
 
-	$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-	$schemas = $mm->getSchemas($owner->id, true);
+	$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+	$schemas = $mm->getSchemas($owner->id, TRUE);
 
 	for ($i = 0; $i < count($root->children); $i++) {
 
-		$section = &$root->children[$i];
+		$section =& $root->children[$i];
 
 		// only do this if we are not painting a layout
 		if (is_null($keywords)) {
@@ -82,7 +83,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 		}
 
 		for ($j = 0; $j < $num_fields; $j++) {
-			$field = &$section->children[$j];
+			$field =& $section->children[$j];
 
 			$field_access = $ei->_getAccess($owner, $field, $prefix);
 			if (!($field_access & SQ_EI_READ)) {
@@ -130,16 +131,16 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 							ob_start();
 						}
 
-						//construct example keywords link
+						// construct example keywords link
 						ob_start();
-							?><a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data'); ?>/asset_types/metadata_field/popups/keywords.html', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;"><?php echo translate('click_here'); ?></a><?php
+							?><a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data'); ?>/asset_types/metadata_field/popups/keywords.php?assetid=<?php echo $owner->id; ?>&all=0', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;"><?php echo translate('click_here'); ?></a><?php
 							$replacements_link = ob_get_contents();
 						ob_end_clean();
 
-						//$replacements_link = '<a href="#" onClick="Javascript: var win = window.open(\''.sq_web_path('data').'/asset_types/metadata_field/popups/keywords.html\', \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520\'); return false;">'.translate('click_here').'</a>';
+						// $replacements_link = '<a href="#" onClick="Javascript: var win = window.open(\''.sq_web_path('data').'/asset_types/metadata_field/popups/keywords.html\', \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520\'); return false;">'.translate('click_here').'</a>';
 						$instructions[] = translate('metadata_keyword_replacements_usage', $replacements_link);
 
-						$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager', true);
+						$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager', TRUE);
 						if (!empty($sm)) {
 						?>
 							<?php
@@ -147,7 +148,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 								?><a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data'); ?>/asset_types/metadata_field/popups/keyword_extraction.php?assetid=<?php echo $owner->id; ?>', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320'); return false;"><?php echo translate('keyword_extraction'); ?></a><?php
 								$replacements_link = ob_get_contents();
 							ob_end_clean();
-							//$replacements_link = '<a href="#" onClick="Javascript: var win = window.open(\''.sq_web_path('data').'/asset_types/metadata_field/popups/keyword_extraction.php?assetid='.$owner->id.'\', \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320\'); return false;">'.translate('keyword_extraction').'</a>';
+							// $replacements_link = '<a href="#" onClick="Javascript: var win = window.open(\''.sq_web_path('data').'/asset_types/metadata_field/popups/keyword_extraction.php?assetid='.$owner->id.'\', \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320\'); return false;">'.translate('keyword_extraction').'</a>';
 							$instructions[] = translate('metadata_indexed_keywords', $replacements_link);
 
 						}
@@ -204,7 +205,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 
 						$values = $mm->getMetadata($owner->id);
 						foreach ($schemas as $schemaid) {
-							$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+							$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 							if (is_null($schema)) continue;
 							$edit_fns = $schema->getEditFns();
 							$edit_fns->paintInlineValueInterface($schema, $o, $values, $write_access);
@@ -244,35 +245,35 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 /**
 * Process the interface for managing metadata values
 *
-* @param object	Asset					$owner	the asset whose interface we are painting
-* @param object	Backend_Outputter		$o		the outputter class
-* @param object	Asset_Edit_Interface	&$ei	the edit interface
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	$ei		the edit interface
 *
+* @return boolean
 * @access public
-* @return boolean TRUE is there is a change, false on error or no change
 */
 function processMetadata(&$owner, &$o, $ei)
 {
 	// if we dont have write access, dont process anything
-	if (!$owner->writeAccess('metadata')) return false;
+	if (!$owner->writeAccess('metadata')) return FALSE;
 
-	$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+	$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
-	$schemas = $mm->getSchemas($owner->id, true);
+	$schemas = $mm->getSchemas($owner->id, TRUE);
 
 	if (!empty($schemas)) {
 		$new_values = Array();
 		foreach ($schemas as $schemaid) {
-			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+			$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			$edit_fns = $schema->getEditFns();
 			$edit_fns->processInlineValueInterface($schema, $new_values);
 		}
 		if (!$mm->setMetadata($owner->id, $new_values)) {
-			return false;
+			return FALSE;
 		}
 	}
 	$mm->generateContentFile($owner->id);
-	return false; // no need to call saveAttributes
+	return FALSE; // no need to call saveAttributes
 
 }//end processMetadata()
 

@@ -18,13 +18,23 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.11 2006/02/02 02:29:33 ndvries Exp $
+* $Id: lang_static_screen_settings.xml,v 1.1 2006/02/02 02:29:33 ndvries Exp $
 *
 */
 -->
 
-<screens>
-	<screen code_name="role_assignments" display_name="Role Assignments" icon="edit" lock_type="roles" force_unlock="0" />
-	<screen code_name="restrictions" display_name="Restrictions" icon="web" force_unlock="0" />
-	<screen code_name="paths" display_name="Web Paths" icon="web" />
-</screens>
+<contents>
+	<section name="Versioning">
+		<field code="version_current_version">
+			<display_name>Current Version</display_name>
+			<note />
+		</field>
+		<field code="version_update_version">
+			<display_name>Update Major Version ?</display_name>
+			<note>Check the box to increment the major version number of this asset</note>
+		</field>
+	</section>
+	<section name="Designs">
+		<field code="designs" />
+	</section>
+</contents>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.55 2006/01/26 22:34:08 lwright Exp $
+* $Id: asset_edit_fns.inc,v 1.56 2006/02/02 02:29:33 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -44,67 +44,72 @@ class Asset_Edit_Fns extends MySource_Object
 	var $static_screens = Array(
 							'details'			=> Array(
 													'name'			=> 'Details',
-													'force_unlock'	=> true,
+													'force_unlock'	=> TRUE,
 													'lock_type'		=> 'menu',
 												   ),
 							'permissions'		=> Array(
 													'name'			=> 'Permissions',
-													'force_unlock'	=> false,
+													'force_unlock'	=> FALSE,
 													'lock_type'		=> 'permissions',
 												   ),
 							'workflow'			=> Array(
 													'name'			=> 'Workflow',
-													'force_unlock'	=> true,
+													'force_unlock'	=> TRUE,
 													'lock_type'		=> 'workflow',
+												   ),
+							'roles'				=> Array(
+													'name'			=> 'Roles',
+													'force_unlock'	=> TRUE,
+													'lock_type'		=> 'roles',
 												   ),
 							'metadataSchemas'	=> Array(
 													'name'			=> 'Metadata Schemas',
-													'force_unlock'	=> true,
+													'force_unlock'	=> TRUE,
 													'lock_type'		=> 'metadata',
 												   ),
 							'metadata'			=> Array(
 													'name'			=> 'Metadata',
-													'force_unlock'	=> true,
+													'force_unlock'	=> TRUE,
 													'lock_type'		=> 'metadata',
 												   ),
 							'dependants'		=> Array(
 													'name'			=> 'Dependants',
-													'force_unlock'	=> true,
+													'force_unlock'	=> TRUE,
 													'lock_type'		=> 'none',
 												   ),
 							'linking'			=> Array(
 													'name'			=> 'Linking',
-													'force_unlock'	=> true,
+													'force_unlock'	=> TRUE,
 													'lock_type'		=> 'links',
 												   ),
 							'settings'			=> Array(
 													'name'			=> 'Settings',
-													'force_unlock'	=> true,
+													'force_unlock'	=> TRUE,
 													'lock_type'		=> 'all',
 												   ),
 							'history'			=> Array(
 													'name'			=> 'History',
-													'force_unlock'	=> true,
+													'force_unlock'	=> TRUE,
 													'lock_type'		=> 'none',
 												   ),
 							'logs'				=> Array(
 													'name'			=> 'Logs',
-													'force_unlock'	=> true,
+													'force_unlock'	=> TRUE,
 													'lock_type'		=> 'none',
 												   ),
 							'preview'			=> Array(
 													'name'			=> 'Preview',
-													'force_unlock'	=> true,
+													'force_unlock'	=> TRUE,
 													'lock_type'		=> 'none',
 												   ),
 							'lookupValues'		=> Array(
 													'name'			=> 'Lookup Settings',
-													'force_unlock'	=> false,
+													'force_unlock'	=> FALSE,
 													'lock_type'		=> 'all',
 												   ),
 							'tagging'			=> Array(
 													'name'			=> 'Tagging',
-													'force_unlock'	=> true,
+													'force_unlock'	=> TRUE,
 													'lock_type'		=> 'all',
 												   ),
 						  );
@@ -166,16 +171,16 @@ class Asset_Edit_Fns extends MySource_Object
 	*/
 	function processPaths(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_paths'])) return false;
+		if (!isset($_POST[$prefix.'_paths'])) return FALSE;
 		if (!$asset->saveWebPaths(array_values($_POST[$prefix.'_paths']))) {
-			return false;
+			return FALSE;
 		}
 
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assetids' => Array($asset->id));
 		$hh->queueHipo('hipo_job_update_lookups', $vars);
 
-		return true;
+		return TRUE;
 
 	}//end processPaths()
 
@@ -245,7 +250,7 @@ class Asset_Edit_Fns extends MySource_Object
 	*/
 	function paintNoticeLinkedAsset(&$asset, $link_value, $type_codes=Array(), $field_name='')
 	{
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, $link_value);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, $link_value);
 		$selected = (empty($link)) ? 0 : $link['minorid'];
 
 		if (empty($field_name)) {
@@ -257,21 +262,20 @@ class Asset_Edit_Fns extends MySource_Object
 			if (!$selected) {
 				echo 'None';
 			} else {
-				//$linked_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($selected, '', true);
 				echo get_asset_tag_line($selected);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($linked_asset);
 			}
 			echo '</i>';
-			return false;
+			return FALSE;
 		}
 
 		if (SQ_IN_LIMBO) {
-			asset_finder($field_name, $selected, $type_codes, '', false);
+			asset_finder($field_name, $selected, $type_codes, '', FALSE);
 		} else {
 			asset_finder($field_name, $selected, $type_codes);
 		}
 
-		return true;
+		return TRUE;
 
 	}//end paintNoticeLinkedAsset()
 
@@ -291,18 +295,18 @@ class Asset_Edit_Fns extends MySource_Object
 		if (empty($field_name)) {
 			$field_name = $asset->getPrefix().'_'.str_replace(' ', '_', strtolower($link_value));
 		}
-		if (!isset($_POST[$field_name])) return false;
+		if (!isset($_POST[$field_name])) return FALSE;
 
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, $link_value);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, $link_value);
 
 		// if there has been no change, then there is nothing to do
 		if (!empty($link) && $link['minorid'] == $_POST[$field_name]['assetid']) {
-			return false;
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$success = true;
+		$success = TRUE;
 
 		// if there is a current link, we need to delete it
 		if (!empty($link)) {
@@ -310,7 +314,7 @@ class Asset_Edit_Fns extends MySource_Object
 		}
 
 		if ($success && !empty($_POST[$field_name]['assetid'])) {
-			$selected_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$field_name]['assetid']);
+			$selected_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$field_name]['assetid']);
 			if (!is_null($selected_asset)) {
 				$success = (bool) $asset->createLink($selected_asset, SQ_LINK_NOTICE, $link_value);
 			}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.28 2006/01/26 22:34:07 lwright Exp $
+* $Id: user_group_edit_fns.inc,v 1.29 2006/02/02 02:29:33 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -470,6 +470,193 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		return TRUE;
 
 	}//end processPreferences()
+
+
+	/**
+	* Paints a table with a list of roles
+	*
+	* @param string		$prefix			Prefix of the calling edit function
+	* @param array		$roles			Roles to be printed
+	* @param boolean	$write_access	True to show checkboxes for re-assigning
+	* @param boolean	$include_userid	True to include an "Assigned To" column
+	*
+	* @return NULL
+	* @access private
+	*/
+	function _printRoleTable($prefix, $roles, $write_access=FALSE, $include_userid=FALSE)
+	{
+		if (empty($roles)) return;
+
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<th class="sq-backend-table-header"><?php echo translate('roles'); ?></td>
+				<th class="sq-backend-table-header"><?php echo translate('asset'); ?></td>
+				<?php
+					if ($include_userid) {
+						?><th class="sq-backend-table-header"><?php echo translate('role_assigned_to'); ?></td><?php
+					}
+				?>
+				<?php
+					if ($write_access) {
+						?><th class="sq-backend-table-header"><?php echo translate('role_reassign'); ?></td><?php
+					}
+				?>
+			</tr>
+		<?php
+
+		foreach ($roles as $roleid => $userids) {
+			foreach ($userids as $userid => $assetids) {
+				// We need to filter out dependant children of each asset with a role applied,
+				// or else we'll have a bucketload of entries
+				$new_assetids = $assetids;
+				foreach ($assetids as $assetid) {
+					$dep_children = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid, '', FALSE);
+					$new_assetids = array_diff($new_assetids, array_keys($dep_children));
+				}
+
+				$taglines = '';
+				foreach ($new_assetids as $assetid) {
+				?>
+					<tr>
+						<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($roleid); ?></td>
+						<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($assetid); ?></td>
+						<?php
+							if ($include_userid) {
+								?><td class="sq-backend-table-cell"><?php echo get_asset_tag_line($userid); ?></td><?php
+							}
+						?>
+						<?php
+							if ($write_access) {
+								?><td class="sq-backend-table-cell"><?php echo check_box($prefix.'_reassign[]', $assetid); ?></td><?php
+							}
+						?>
+					</tr>
+				<?php
+				}
+			}//end foreach
+		}//end foreach
+
+		?>
+		</table>
+		<?php
+
+	}//end _printRoleTable()
+
+
+	/**
+	* Paints the interface re-assigning roles to a user group
+	*
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintRoles(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->adminAccess('roles');
+		$o->openField(translate('role_directly_assigned_section'), '', translate('role_dependant_child_warning'));
+			$roles = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, NULL, $asset->id, TRUE);
+			$this->_printRoleTable($prefix, $roles, $write_access);
+		$o->closeField();
+
+		$group_descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('user_group', TRUE);
+		$group_descendants = array_diff($group_descendants, Array('role'));
+		$o->openField(translate('role_indirectly_assigned_section'), '', translate('role_indirectly_assigned'));
+			$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($asset->id);
+
+			$roles = Array();
+			$parent_groups = Array();
+			foreach ($parents as $assetid => $type_code) {
+				if (in_array($type_code, $group_descendants)) {
+					$roles += $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, NULL, $assetid, TRUE);
+					$normal_role = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, NULL, $assetid, TRUE);
+					foreach ($normal_role as $roleid => $userids) {
+						foreach ($userids as $userid => $assetids) {
+							foreach ($assetids as $assetid) {
+								$roles[$roleid][$userid][] = $assetid;
+							}
+						}
+					}
+				} else {
+					$global_role = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, $assetid, 0, TRUE);
+					foreach ($global_role as $roleid => $userids) {
+						foreach ($userids[0] as $assetid) {
+							$roles[$roleid][$roleid][] = $assetid;
+						}
+					}
+				}
+			}
+
+			if (!empty($roles)) {
+				$this->_printRoleTable($prefix, $roles, FALSE, TRUE);
+			}
+
+		$o->closeField();
+
+		if ($write_access) {
+			$o->openField(translate('role_new_user'), '', translate('role_new_assignee'));
+				echo asset_finder($prefix.'_reassignee', 0, Array('user' => 'D', 'user_group' => 'D'));
+			$o->closeField();
+		}
+
+		return $write_access;
+
+	}//end paintRoles()
+
+
+	/**
+	* Processes the interface re-assigning roles to a user group
+	*
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processRoles(&$asset, &$o, $prefix)
+	{
+		$reassignee = 0;
+		if (isset($_REQUEST[$prefix.'_reassignee'])) {
+			$reassignee = array_get_index($_REQUEST[$prefix.'_reassignee'], 'assetid', 0);
+		}
+
+		if (!$reassignee) return;
+
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+		$roles = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, NULL, $asset->id, TRUE);
+		$reassign_assetids = array_get_index($_REQUEST, $prefix.'_reassign', Array());
+
+		$role_vars = Array();
+		foreach ($roles as $roleid => $userids) {
+			foreach ($userids as $userid => $assetids) {
+					$changes = array_intersect($reassign_assetids, $assetids);
+					if (!empty($changes)) {
+							$role_vars['add'][$roleid][] = $reassignee;
+							$role_vars['delete'][$roleid][] = $userid;
+					}
+			}
+		}
+
+		if (!empty($reassign_assetids)) {
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+
+			$vars = Array(
+						'assets'			=> $am->getAssetInfo($reassign_assetids, Array(), FALSE, 'type_code'),
+						'role_changes'		=> $role_vars,
+						'dependants_only'	=> TRUE,
+					);
+
+			$hh->queueHipo('hipo_job_edit_roles', $vars);
+		}
+
+		return TRUE;
+
+	}//end processRoles()
 
 
 }//end class

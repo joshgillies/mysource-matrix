@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.209 2006/01/23 03:43:05 sdanis Exp $
+* $Id: asset_map.inc,v 1.210 2006/02/02 02:29:33 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.209 $
+* @version $Revision: 1.210 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -485,7 +485,7 @@ class Asset_Map
 								p.permission >= '.$db->quote(SQ_PERMISSION_READ).$userid_cond.'
 							)';
 				$p_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($p_where, 'p', 'ON');
-				$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p '.$p_where;
+				$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p '.$p_where;
 			}
 
 			$sql .= ','.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l';
@@ -623,7 +623,7 @@ class Asset_Map
 							p.permission >= '.$db->quote(SQ_PERMISSION_READ).$userid_cond.'
 						)';
 			$p_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($p_where, 'p', 'ON');
-			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p '.$p_where;
+			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p '.$p_where;
 		}
 
 		$u_where = 'l.assetid = u.assetid';

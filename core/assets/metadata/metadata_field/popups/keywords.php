@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
 * +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
@@ -18,10 +18,16 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: keywords.html,v 1.10 2006/01/16 23:50:50 skim Exp $
+* $Id: keywords.php,v 1.1 2006/02/02 02:29:32 ndvries Exp $
 *
 */
--->
+
+	require_once dirname(__FILE__).'/../../../../../core/include/init.inc';
+	require_once dirname(__FILE__).'/../../../../../core/lib/html_form/html_form.inc';
+	if (!isset($_GET['assetid'])) return FALSE;
+	$all = array_get_index($_REQUEST, 'all', FALSE);
+	assert_valid_assetid($_GET['assetid']);
+?>
 
 <html>
 	<head>
@@ -113,11 +119,66 @@
 		<fieldset>
 			<legend><b>Permissions</b></legend>
 			<table border="0" width="100%">
-			<tr><td valign="top" width="200"><b>%asset_read_permission%</b></td><td valign="top">Comma separated list of the full names of users with read access</td></tr>
-			<tr><td valign="top" width="200"><b>%asset_write_permission%</b></td><td valign="top">Comma separated list of the full names of users with write access</td></tr>
-			<tr><td valign="top" width="200"><b>%asset_admin_permission%</b></td><td valign="top">Comma separated list of the full names of users with administrator access</td></tr>
+			<tr><td valign="top" width="200"><b>%asset_read_permission%</b></td><td valign="top">Comma seperated list of the full names for users with read access</td></tr>
+			<tr><td valign="top" width="200"><b>%asset_write_permission%</b></td><td valign="top">Comma seperated list of the full names for users with write access</td></tr>
+			<tr><td valign="top" width="200"><b>%asset_admin_permission%</b></td><td valign="top">Comma seperated list of the full names for users with administrator access</td></tr>
+			<tr><td valign="top" width="200"><b>%asset_read_permission_email%</b></td><td valign="top">Comma seperated list of email addresses for users with read access</td></tr>
+			<tr><td valign="top" width="200"><b>%asset_write_permission_email%</b></td><td valign="top">Comma seperated list of email addresses for users with write access</td></tr>
+			<tr><td valign="top" width="200"><b>%asset_admin_permission_email%</b></td><td valign="top">Comma seperated list of email addresses for users with administrator access</td></tr>
+			<tr><td valign="top" width="200"><b>%asset_read_permission_email_linked%</b></td><td valign="top">Comma seperated list of linked email addresses for users with read access</td></tr>
+			<tr><td valign="top" width="200"><b>%asset_write_permission_email_linked%</b></td><td valign="top">Comma seperated list of linked email addresses for users with write access</td></tr>
+			<tr><td valign="top" width="200"><b>%asset_admin_permission_email_linked%</b></td><td valign="top">Comma seperated list of linked email addresses for users with administrator access</td></tr>
 			</table>
 		</fieldset>
 		</p>
+
+		<?php
+			$roles = Array();
+			if ($all) {
+				$roles_temp = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('role');
+				$users = Array();
+				foreach ($roles_temp as $roleid) {
+					$role =& $GLOBALS['SQ_SYSTEM']->am->getAsset($roleid);
+					if ($role->readAccess(Array())) $roles[] = $roleid;
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($role);
+				}
+			} else {
+				$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($_GET['assetid']);
+				$roles = array_keys($roles);
+			}
+
+			if (!empty($roles)) {
+				?>
+				<p>
+					<fieldset>
+						<legend><b>Roles</b></legend>
+						<table border="0" width="100%">
+						<?php
+						$roleinfo = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($roles, Array(), FALSE, 'name');
+						foreach ($roleinfo as $roleid => $name) {
+							?>
+							<tr>
+								<td valign="top" width="200" colspan="2"><b><?php echo $name; ?></b></td>
+							</tr>
+							<tr>
+								<td valign="top" width="200"><b>%asset_role_<?php echo $roleid; ?>%</b></td>
+								<td valign="top">Comma seperated list of the full names for users/groups who can perform the "<?php echo $name; ?>" role</td>
+							</tr>
+							<tr>
+								<td valign="top" width="200"><b>%asset_role_<?php echo $roleid; ?>_email%</b></td>
+								<td valign="top">Comma seperated list of email addresses for users/groups who can perform the "<?php echo $name; ?>" role</td>
+							</tr>
+							<tr>
+								<td valign="top" width="200"><b>%asset_role_<?php echo $roleid; ?>_email_linked%</b></td>
+								<td valign="top">Comma seperated list of linked email addresses for users/groups who can perform the "<?php echo $name; ?>" role</td>
+							</tr>
+							<?php
+						}
+						?>
+					</fieldset>
+				</p>
+				<?php
+			}//end if
+		?>
 	</body>
 </html>

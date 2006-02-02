@@ -18,13 +18,20 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.11 2006/02/02 02:29:33 ndvries Exp $
+* $Id: edit_interface_screen_preferences.xml,v 1.1 2006/02/02 02:29:33 ndvries Exp $
 *
 */
 -->
 
-<screens>
-	<screen code_name="role_assignments" display_name="Role Assignments" icon="edit" lock_type="roles" force_unlock="0" />
-	<screen code_name="restrictions" display_name="Restrictions" icon="web" force_unlock="0" />
-	<screen code_name="paths" display_name="Web Paths" icon="web" />
-</screens>
+<contents>
+	<section name="Customised Preferences" read_access="admin:" write_access="admin:preferences">
+		<field>
+			<display_name />
+			<note />
+			<function_call>
+				<paint_function   name="paintPreferences"   />
+				<process_function name="processPreferences" />
+			</function_call>
+		</field>
+	</section>
+</contents>

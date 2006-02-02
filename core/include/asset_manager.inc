@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.430 2006/01/31 03:44:04 arailean Exp $
+* $Id: asset_manager.inc,v 1.431 2006/02/02 02:29:33 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.430 $
+* @version $Revision: 1.431 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -366,7 +366,7 @@ class Asset_Manager extends MySource_Object
 					return $this->_asset_types[$type_code][$field];
 				}
 			}
-		}//end if asset_types.inc exists
+		}//end else
 
 	}//end getTypeInfo()
 
@@ -610,6 +610,40 @@ class Asset_Manager extends MySource_Object
 		return $result;
 
 	}//end getTypeDescendants()
+
+
+	/**
+	* Returns whether or not a type code is a decendant of another
+	*
+	* @param string	$type_code1	potential child type code
+	* @param string	$type_code2	potential parent type code
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isTypeDecendant($type_code1, $type_code2)
+	{
+		$decendants = $this->getTypeDescendants($type_code2, TRUE);
+		return in_array($type_code1, $decendants);
+
+	}//end isTypeDecendant()
+
+
+	/**
+	* Returns whether or not a type code is an ancestor of another
+	*
+	* @param string	$type_code1	potential parent type code
+	* @param string	$type_code2	potential child type code
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isTypeAncestor($type_code1, $type_code2)
+	{
+		$ancestors = $this->getTypeAncestors($type_code2, TRUE);
+		return in_array($type_code1, $ancestors);
+
+	}//end isTypeAncestor()
 
 
 	/**
@@ -3083,7 +3117,7 @@ class Asset_Manager extends MySource_Object
 					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path pt ON a.assetid = pt.assetid ';
 		if (!empty($USERIDS_COND)) {
 		$sql   .= '
-				INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON a.assetid = p.assetid ';
+				INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p ON a.assetid = p.assetid ';
 		}
 		$where  = 'l.majorid IN ('.substr($majorids_str, 0, -1).')
 					 AND '.db_extras_bitand($db, 'l.link_type', $link_type).' > 0';
@@ -3856,7 +3890,7 @@ class Asset_Manager extends MySource_Object
 				assert_valid_db_result($result);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-			}//end if under root folder
+			}//end else
 
 			$sql = 'UPDATE
 						sq_ast_lnk_tree
@@ -4592,8 +4626,8 @@ class Asset_Manager extends MySource_Object
 					assert_valid_db_result($result);
 				}
 
-			}//end if sort order changed
-		}
+			}//end if
+		}//end else
 
 
 		if ($link_type_changed) {
@@ -4723,24 +4757,6 @@ class Asset_Manager extends MySource_Object
 		}//end if shadow asset
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
-/*
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
-		if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
-			// reassign $db after changing the database connection because PHP doesn't handle the reference properly
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$minor =& $this->getAsset($link['minorid'], $link['minor_type_code']);
-		if (is_null($minor)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return FALSE;
-		}
-*/
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -5078,11 +5094,12 @@ class Asset_Manager extends MySource_Object
 	*									Array(userid => granted)
 	*									(NOTE: TRUE is only valid if $and_greater and
 	*									$expand_groups are FALSE)
+	* @param boolean	$include_roles	When TRUE, query the permissions view which includes role expansions
 	*
 	* @return array
 	* @access public
 	*/
-	function getPermission($assetid, $permission, $granted=NULL, $and_greater=TRUE, $expand_groups=FALSE, $all_info=FALSE)
+	function getPermission($assetid, $permission, $granted=NULL, $and_greater=TRUE, $expand_groups=FALSE, $all_info=FALSE, $include_roles=TRUE)
 	{
 		$permission = (int) $permission;
 		if (!is_null($granted)) $granted = (bool) $granted;
@@ -5122,8 +5139,9 @@ class Asset_Manager extends MySource_Object
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
+			$table = ($include_roles) ? 'ast_perm' : 'vw_ast_perm';
 			$sql = '  SELECT DISTINCT assetid, userid, granted
-					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_perm ';
+					  FROM '.SQ_TABLE_RUNNING_PREFIX.$table.' ';
 			$where = 'assetid = '.$db->quote($assetid).'
 					  AND permission '.(($and_greater) ? '>= ' : '= ').$db->quote($permission);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -5410,6 +5428,152 @@ class Asset_Manager extends MySource_Object
 	}//end deletePermission()
 
 
+//--        ROLES        --//
+
+
+	/**
+	* Returns an array of roles and the users/groups which can perform it
+	*
+	* @param int		$assetid			the assetid of the asset the role is applied to
+	* @param int		$roleid				the assetid the role is applied to
+	* @param int		$userid				the assetid of the user performing the role
+	* @param boolean	$include_assetid	whether to include the assetid in the returned array
+	* @param boolean	$include_globals	whether to query the role view which includes
+	*										expanded global roles as individual users
+	*
+	* @return array
+	* @access public
+	*/
+	function getRole($assetid=NULL, $roleid=NULL, $userid=NULL, $include_assetid=FALSE, $include_globals=FALSE)
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$where = Array();
+		if (!is_null($assetid)) {
+			$where[] = 'assetid = '.$db->quoteSmart($assetid);
+		}
+
+		if (!is_null($roleid)) {
+			$where[] = 'roleid = '.$db->quoteSmart($roleid);
+		}
+
+		if (!is_null($userid)) {
+			$where[] = 'userid = '.$db->quoteSmart($userid);
+		}
+
+		$where_clause = '';
+		if (!empty($where)) {
+			$where_clause = 'WHERE '.implode(' AND ', $where);
+		}
+
+		$table = ($include_globals) ? 'sq_vw_ast_role' : 'sq_ast_role';
+		$additional = $include_assetid ? ', assetid' : '';
+		$sql = 'SELECT roleid, userid'.$additional.'
+				FROM '.$table.' '.$where_clause;
+
+		$result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
+		assert_valid_db_result($result);
+
+		if ($include_assetid) {
+			$roles = Array();
+			foreach ($result as $roleid => $userid_assetids) {
+				foreach ($userid_assetids as $index => $userid_assetid) {
+					$assetid = $userid_assetid['assetid'];
+					$userid =$userid_assetid['userid'];
+					$roles[$roleid][$userid][] = $assetid;
+				}
+			}
+			$result = $roles;
+		}
+
+		return $result;
+
+	}//end getRole()
+
+
+	/**
+	* Apply a role to an asset and specify a user to perform the role
+	*
+	* @param int	$assetid	the assetid of the asset
+	* @param int	$roleid		the assetid the role
+	* @param int	$userid		the assetid of the user performing the role
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setRole($assetid, $roleid, $userid)
+	{
+		// check if this role is already set
+		$current = $this->getRole($assetid, $roleid, $userid);
+		if (in_array($userid, array_get_index($current, $roleid, Array()))) {
+			return TRUE;
+		}
+
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$sql = 'INSERT INTO sq_ast_role
+				(
+					assetid,
+					roleid,
+					userid
+				)
+				VALUES
+				(
+					'.$db->quoteSmart($assetid).',
+					'.$db->quoteSmart($roleid).',
+					'.$db->quoteSmart($userid).'
+				)';
+
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return TRUE;
+
+	}//end setRole()
+
+
+	/**
+	* Remove a role from an asset
+	*
+	* @param int	$assetid	the assetid of the asset
+	* @param int	$roleid		the assetid the role
+	* @param int	$userid		the assetid of the user performing the role
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteRole($assetid, $roleid=NULL, $userid=NULL)
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$where_and = '';
+		if (!is_null($roleid)) {
+			$where_and .= ' AND roleid = '.$db->quoteSmart($roleid);
+		}
+
+		if (!is_null($userid)) {
+			$where_and .= ' AND userid = '.$db->quoteSmart($userid);
+		}
+
+		$sql = 'DELETE FROM sq_ast_role
+				WHERE assetid = '.$db->quoteSmart($assetid).$where_and;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return TRUE;
+
+	}//end deleteRole()
+
+
 //--        URL's & HREF's        --//
 
 
@@ -5530,6 +5694,8 @@ class Asset_Manager extends MySource_Object
 
 	/**
 	* Returns an array of URLs of an asset, including the protocol information
+	*
+	* @param int	$assetid	the assetid of the asset
 	*
 	* @return array
 	* @access public
@@ -6310,7 +6476,7 @@ class Asset_Manager extends MySource_Object
 
 		$group_by = '';
 		if (!is_null($access)) {
-			$from .= ', '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p';
+			$from .= ', '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p';
 			$where .= ' AND p.assetid = l.minorid';
 			$userid_cond = '';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
@@ -6467,7 +6633,8 @@ class Asset_Manager extends MySource_Object
 				$where .= ' AND ';
 			}
 
-		}//end if is root folder
+		}//end else
+
 		if (!is_null($dependant)) {
 			$where .= ' l.is_dependant = '.$db->quote(($dependant) ? '1' : '0');
 			if (!empty($type_code) || !is_null($access)) {
@@ -6477,7 +6644,7 @@ class Asset_Manager extends MySource_Object
 
 		$group_by = '';
 		if (!is_null($access)) {
-			$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON a.assetid = p.assetid';
+			$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p ON a.assetid = p.assetid';
 			$where .= 'p.assetid = a.assetid';
 			$userid_cond = '';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
@@ -6684,7 +6851,7 @@ class Asset_Manager extends MySource_Object
 
 		$group_by = '';
 		if (!is_null($access)) {
-			$from .= ','.SQ_TABLE_RUNNING_PREFIX.'ast_perm p';
+			$from .= ','.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p';
 			$where .= ' AND a.assetid = p.assetid';
 			$userid_cond = '';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {

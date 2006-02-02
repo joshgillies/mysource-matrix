@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.25 2006/01/26 22:34:07 lwright Exp $
+* $Id: user_edit_fns.inc,v 1.26 2006/02/02 02:29:33 ndvries Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -293,6 +293,48 @@ class User_Edit_Fns extends Asset_Edit_Fns
 		return $asset->saveAttributes();
 
 	}//end processLocale()
+
+
+	/**
+	* Paints the interface re-assigning roles to a user
+	*
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintRoles(&$asset, &$o, $prefix)
+	{
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('user_group');
+		$user_group =& new User_Group();
+		$user_group_edit_fns = $user_group->getEditFns();
+
+		return $user_group_edit_fns->paintRoles($asset, $o, $prefix);
+
+	}//end paintRoles()
+
+
+	/**
+	* Processes the interface re-assigning roles to a user
+	*
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processRoles(&$asset, &$o, $prefix)
+	{
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('user_group');
+		$user_group =& new User_Group();
+		$user_group_edit_fns = $user_group->getEditFns();
+
+		return $user_group_edit_fns->processRoles($asset, $o, $prefix);
+
+	}//end processRoles()
 
 
 }//end class

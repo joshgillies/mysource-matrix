@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_management.inc,v 1.17 2006/01/26 22:34:04 lwright Exp $
+* $Id: metadata_field_management.inc,v 1.18 2006/02/02 02:29:32 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -117,7 +117,7 @@ class Metadata_Field_Management extends Asset_Management
 	function _getFileList()
 	{
 		return Array(
-				'popups/keywords.html',
+				'popups/keywords.php',
 				'popups/keyword_extraction.php',
 			   );
 

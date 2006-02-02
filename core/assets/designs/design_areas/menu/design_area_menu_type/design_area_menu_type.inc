@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.75 2006/02/01 06:01:31 arailean Exp $
+* $Id: design_area_menu_type.inc,v 1.76 2006/02/02 02:29:32 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -469,7 +469,7 @@ class Design_Area_Menu_Type extends Design_Area
 							 INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_path pt ON a.assetid = pt.assetid \';
 				if (!empty($USERIDS_COND)) {
 				$sql   .= \'
-							 INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_perm p ON a.assetid = p.assetid \';
+							 INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'vw_ast_perm p ON a.assetid = p.assetid \';
 				}
 				$where  = \'l.majorid IN (\'.substr($majorids_str, 0, -1).\')
 							 AND \'.db_extras_bitand($db, \'l.link_type\', SQ_SC_LINK_FRONTEND_NAV).\' > 0 \';

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.96 2006/01/30 05:51:46 sdanis Exp $
+* $Id: search_manager.inc,v 1.97 2006/02/02 02:29:37 ndvries Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -64,7 +64,6 @@ class Search_Manager extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	*
 	* @return mixed int|boolean
 	* @access public
 	* @see Asset::create()
@@ -100,7 +99,6 @@ class Search_Manager extends Asset
 	* Returns name of the asset
 	*
 	* @param boolean	$short_name	whether or not we are after the shortname or the full name
-	*
 	*
 	* @return string
 	* @access private
@@ -1572,14 +1570,12 @@ class Search_Manager extends Asset
 	/**
 	* Extracts keywords from the indexing table and ranks them in order of descending importance
 	*
-	* @param object Asset	&$asset	The asset whose keywords are to be extracted
+	* @param object		&$asset				The asset whose keywords are to be extracted
 	* @param boolean	$include_metadata	If false, metadata components are excluded
-	* @param boolean	$include_scores	Determines whether scores are returned (true) or just
-	*									the keywords (false). Affects return value.
+	* @param boolean	$include_scores		Determines whether scores are returned (true) or just
+	*										the keywords (false). Affects return value.
 	*
-	* @return array	depends on $include_scores:
-	*				false: Array(string) containing keywords ordered in decreasing total score
-	*				true: Array(string => int) score array indexed by keyword, ordered same way
+	* @return array
 	* @access public
 	*/
 	function extractKeywords(&$asset, $include_metadata=FALSE, $include_scores=FALSE)
@@ -1668,8 +1664,8 @@ class Search_Manager extends Asset
 	* </PRE>
 	* This array will be in the 'data' section of the log entry (to be accessed via the log manager)
 	*
-	* @param array	$search_info	an array of search settings in the form
-	* <PRE>
+	* @param array		$search_info	an array of search settings in the form
+	* <pre>
 	* 'requester'	=> ID of asset that requested the search
 	* 'asset_types'	=> Array of type code => whether to inherit
 	* 'statuses'	=> Array of asset statuses, or empty array for default of live+
@@ -1690,11 +1686,10 @@ class Search_Manager extends Asset
 	*				   ),
 	* 'field_logic'	=> 'AND'|'OR', depending on whether we want results that match all fields or any field
 	* 'exclude'		=> Array of words to exclude from results
-	* </PRE>
-	* @param bool	$include_context	Whether to include the context in which the match was found
+	* </pre>
+	* @param boolean	$include_context	Whether to include the context in which the match was found
 	*
-	* @return array	(i => Array('assetid'=>x, 'search_score'=>y, 'source'=>z)) if include_context = true
-	*				(assetid => total score) otherwise
+	* @return array
 	* @access public
 	*/
 	function processSearch($search_info, $include_context=FALSE)
@@ -1749,7 +1744,7 @@ class Search_Manager extends Asset
 					$shadow_results = $this->_combineResults($shadow_results, $shadow_asset->processSearch($search_info, $include_context), array_get_index($search_info, 'root_logic', 'OR'));
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($shadow_asset);
 					unset($search_info['roots'][$i]);
-					$shadow_processed = true;
+					$shadow_processed = TRUE;
 				}
 			}
 			if (empty($search_info['roots'])) {
@@ -1862,11 +1857,9 @@ class Search_Manager extends Asset
 	*
 	* If all datasources are of type datetime, makes sure the 'words' array is appropriately set up as a
 	* date range.  Otherwise gets the words from the search string, makes them into an array and removes
-	* unindexable words
+	* unindexable words. Data sources that are not properly initialised are removed
 	*
-	* Data sources that are not properly initialised are removed
-	*
-	* @param array	$field_details	One entry from the 'fields' array in processSearch()'s search_info parameter
+	* @param array	&$field_details	One entry from the 'fields' array in processSearch()'s search_info parameter
 	*
 	* @return void
 	* @access private
@@ -1985,8 +1978,8 @@ class Search_Manager extends Asset
 	* @param array	$data_source	Details of the data source to search in
 	* @param array	$base_query		The base of the sql query to use
 	*
+	* @return array
 	* @access public
-	* @return array (assetid => count), or (i => array('assetid'=>x, 'search_score'=>y, 'source'=>z)
 	*/
 	function _processWordSearch($search_term, $data_source, $base_query)
 	{
@@ -2263,9 +2256,8 @@ class Search_Manager extends Asset
 	* If $results_so_far is null, $new_results are always returned.  Otherwise if logic is 'AND'
 	* the return value contains only the results that are in both the first two params, with
 	* search scores added.  If logic is 'OR' then the return value contains all results that are
-	* in either of the first two params, with search scores added for common results.
-	*
-	* This function can handle results with or without context (ie getAll or getAssoc return format)
+	* in either of the first two params, with search scores added for common results. This function
+	* can handle results with or without context (ie getAll or getAssoc return format)
 	*
 	* @param array	$results_so_far	Results so far.  Null if no results so far
 	* @param array	$new_results	New results
@@ -2521,7 +2513,7 @@ class Search_Manager extends Asset
 		// ACCESS RESTRICTIONS
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if ($user_restrictions) {
-			$query['from'][] = 'sq_ast_perm ap';
+			$query['from'][] = 'sq_vw_ast_perm ap';
 			$query['where'][] = 'a.assetid = ap.assetid';
 			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 			array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);

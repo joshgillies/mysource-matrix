@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.109 2006/01/26 22:34:08 lwright Exp $
+* $Id: metadata_manager.inc,v 1.110 2006/02/02 02:29:33 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.109 $
+* @version $Revision: 1.110 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -117,7 +117,7 @@ class Metadata_Manager extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getSchemas($assetid, $granted=null)
+	function getSchemas($assetid, $granted=NULL)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -288,7 +288,7 @@ class Metadata_Manager extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getSchemaAssets($schemaid, $granted=null)
+	function getSchemaAssets($schemaid, $granted=NULL)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -507,7 +507,6 @@ class Metadata_Manager extends MySource_Object
 
 		// get the values without any replacements or special processing
 		$values = $this->getMetadata($asset->id);
-
 		foreach ($schemas as $schemaid) {
 			$schema =& $am->getAsset($schemaid);
 			if (is_null($schema)) {
@@ -543,7 +542,7 @@ class Metadata_Manager extends MySource_Object
 					continue;
 				}
 
-				$value_str = $field->getMetadataValue($asset, (isset($values[$field->id]) ? $values[$field->id]['value'] : null));
+				$value_str = $field->getMetadataValue($asset, (isset($values[$field->id]) ? $values[$field->id]['value'] : NULL));
 				require_once SQ_CORE_PACKAGE_PATH.'/metadata/metadata_field/metadata_field.inc';
 				Metadata_Field::decodeValueString($value_str, $value='', $components=Array());
 				$field_values[$field->name] = $value;
@@ -776,6 +775,8 @@ class Metadata_Manager extends MySource_Object
 			echo '<'.'?php'."\n";
 			if (!empty($keywords)) {
 				require_once SQ_FUDGE_PATH.'/general/text.inc';
+				echo '$am =& $GLOBALS[\'SQ_SYSTEM\']->am;'."\n";
+				echo '$metadata_asset = &$am->getAsset('.$asset->id.');'."\n\n";
 				echo '$metadata_asset =& $GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$asset->id.');'."\n\n";
 				echo '/* 1 */', "\n";
 				$replacements = $this->generateKeywordReplacements($asset, $keywords);
@@ -882,6 +883,7 @@ class Metadata_Manager extends MySource_Object
 				$metadata_replacements[$keyword] = '$metadata_replacements['.var_export($keyword, 1).']';
 			} else {
 				ob_start();
+				echo '$am =& $GLOBALS[\'SQ_SYSTEM\']->am;'."\n";
 			}
 
 			// Date/Time keywords are processed first.
@@ -985,7 +987,7 @@ class Metadata_Manager extends MySource_Object
 								echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->attr(\'caption\');'."\n";
 							break;
 						}
-							break;
+					break;
 
 					case 'asset_created_by_name' :
 					case 'asset_updated_by_name' :
@@ -1049,19 +1051,32 @@ class Metadata_Manager extends MySource_Object
 					case 'asset_read_permission'  :
 					case 'asset_write_permission' :
 					case 'asset_admin_permission' :
-						$perm_type = str_replace('_permission', '', $keyword);
-						$perm_type = substr($perm_type,6);
-						echo '$metadata_'.$perm_type.'_perms = $GLOBALS[\'SQ_SYSTEM\']->am->getPermission($metadata_asset->id, SQ_PERMISSION_'.strtoupper($perm_type).', TRUE, FALSE, TRUE);'."\n";
-						echo '$metadata_'.$perm_type.'_perm_names = \'\';'."\n";
+					case 'asset_read_permission_email'  :
+					case 'asset_write_permission_email' :
+					case 'asset_admin_permission_email' :
+					case 'asset_read_permission_email_linked'  :
+					case 'asset_write_permission_email_linked' :
+					case 'asset_admin_permission_email_linked' :
+						$perm_type = preg_match('/asset_([^_]*)_.*$/', $keyword, $matches);
+						$perm_type = $matches[1];
+						echo '$metadata_'.$perm_type.'_perms = $am->getPermission($metadata_asset->id, SQ_PERMISSION_'.strtoupper($perm_type).', TRUE, FALSE, TRUE);'."\n";
+						echo '$metadata_'.$perm_type.'_perm_info = Array();'."\n";
 						echo 'foreach ($metadata_'.$perm_type.'_perms as $userid) {'."\n";
-						echo '	$user =& $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($userid);'."\n";
-						echo '	if (is_null($user)) continue;'."\n";
-						echo '	$metadata_'.$perm_type.'_perm_names .= $user->name.\', \';'."\n";
+						echo '	$user = &$am->getAsset($userid);'."\n";
+						echo '	if (is_null($user) || !$am->isTypeDecendant($user->type(), \'user\')) {'."\n";
+						echo '		continue;'."\n";
+						echo '	}'."\n";
+						if (preg_match('/.*_email$/', $keyword)) {
+							echo '$metadata_'.$perm_type.'_perm_info[] = $user->attr(\'email\');'."\n";
+						} else if (preg_match('/.*_email_linked/', $keyword)) {
+							echo '$email = $user->attr(\'email\');'."\n";
+							echo '$metadata_'.$perm_type.'_perm_info[] = \'<a href="mailto:\'.$email.\'">\'.$email.\'</a>\';'."\n";
+						} else {
+							echo '$metadata_'.$perm_type.'_perm_info[] = $user->name;'."\n";
+						}
 						echo '}'."\n";
-						echo '$metadata_'.$perm_type.'_perm_names = trim($metadata_'.$perm_type.'_perm_names, \', \');'."\n";
-						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.$perm_type.'_perm_names;'."\n";
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = implode(\', \', $metadata_'.$perm_type.'_perm_info);'."\n";
 					break;
-
 					case 'system_name'   :
 					case 'system_owner'  :
 					case 'default_email' :
@@ -1070,10 +1085,33 @@ class Metadata_Manager extends MySource_Object
 					break;
 
 					default :
+						if (substr($keyword, 0, 11) == 'asset_role_') {
+							echo '$metadata_roles_info = Array();'."\n";
+							if (preg_match('/asset_role_([^_]*)(.*)$/', $keyword, $matches)) {
+								$role_assetid = $matches[1];
+								echo '$metadata_roles = $am->getRole($metadata_asset->id, '.$role_assetid.', NULL, FALSE, TRUE);'."\n";
+								echo 'if (!empty($metadata_roles)) {'."\n";
+								echo '	foreach ($metadata_roles['.$role_assetid.'] as $role_userid) {'."\n";
+								echo '		$user = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($role_userid);'."\n";
+								echo '		if (is_null($user) || !$am->isTypeDecendant($user->type(), \'user\')) {'."\n";
+								echo '			continue;'."\n";
+								echo '		}'."\n";
+								echo '		$email = $user->attr(\'email\');'."\n";
+								if (!empty($matches[2]) && $matches[2] == '_email') {
+								echo '		$metadata_roles_info[] = $email;'."\n";
+								} else if (!empty($matches[2]) && $matches[2] == '_email_linked') {
+								echo '		$metadata_roles_info[] = \'<a href="mailto:\'.$email.\'">\'.$email.\'</a>\';'."\n";
+								} else {
+								echo '		$metadata_roles_info[] = $user->name;'."\n";
+								}
+								echo '		$am->forgetAsset($user);'."\n";
+								echo '	}'."\n";
+								echo '}'."\n";
+							}
+							echo '		$metadata_replacements['.var_export($keyword, 1).'] = implode(\', \', $metadata_roles_info);'."\n";
 
-						// searching for keywords that replace the content of another field
-						if (substr($keyword, 0, 15) == 'metadata_field_') {
-
+							// searching for keywords that replace the content of another field
+						} else if (substr($keyword, 0, 15) == 'metadata_field_') {
 							$field_name = substr($keyword, 15);
 							$metadata_replacements[$keyword] = '$metadata_values[\''.$field_name.'\']';
 
@@ -1093,7 +1131,6 @@ class Metadata_Manager extends MySource_Object
 							echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->getKeywordReplacement(\'image_v_'.$variety_name.'\');';
 
 						} else {
-
 							// searching for special date format keywords
 							$original = $keyword;
 							$keyword = substr($keyword, 6);
@@ -1120,11 +1157,8 @@ class Metadata_Manager extends MySource_Object
 									echo '$metadata_replacements[\''.$original.'\'] = date(\''.$format.'\', '.$date.');'."\n";
 								break;
 							}
-
 						}//end if
-
 					break;
-
 				}//end switch
 			}//end if
 
@@ -1226,7 +1260,7 @@ class Metadata_Manager extends MySource_Object
 				// SYS0307: Asset #<assetid> does not have the schema for field #<field assetid> applied
 				trigger_localised_error('SYS0307', E_USER_WARNING, $assetid, $field_assetid);
 			}
-			return null;
+			return NULL;
 		}
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;

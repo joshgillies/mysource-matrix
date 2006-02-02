@@ -18,13 +18,20 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.11 2006/02/02 02:29:33 ndvries Exp $
+* $Id: lang_static_screen_roles.xml,v 1.1 2006/02/02 02:29:33 ndvries Exp $
 *
 */
 -->
 
-<screens>
-	<screen code_name="role_assignments" display_name="Role Assignments" icon="edit" lock_type="roles" force_unlock="0" />
-	<screen code_name="restrictions" display_name="Restrictions" icon="web" force_unlock="0" />
-	<screen code_name="paths" display_name="Web Paths" icon="web" />
-</screens>
+<contents>
+	<section name="Roles">
+		<field code="roles_current">
+			<display_name>Current</display_name>
+			<note>This table describes which roles are applied to this asset, and which users have been selected to do those roles. Any role marked as "Global" may be performed by any user linked underneath the role.</note>
+		</field>
+		<field code="roles_add">
+			<display_name>Add New</display_name>
+			<note />
+		</field>
+	</section>
+</contents>

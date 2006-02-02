@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.40 2006/01/12 03:44:36 rong Exp $
+* $Id: tables.xml,v 1.41 2006/02/02 02:29:19 ndvries Exp $
 *
 */
 -->
@@ -1710,6 +1710,36 @@
 					<column name="thesid" />
 				</index>
 			</indexes>
+		</table>
+		<table name="ast_role" require_rollback="0">
+			<columns>
+				<column name="assetid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="roleid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description />
+				</column>
+				<column name="userid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="roleid" />
+					<column name="assetid" />
+					<column name="userid" />
+				</primary_key>
+			</keys>
+			<indexes />
 		</table>
 		<table name="cache" require_rollback="0">
 			<columns>

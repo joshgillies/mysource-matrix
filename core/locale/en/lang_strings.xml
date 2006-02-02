@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.99 2006/01/27 00:20:35 pgannavarapu Exp $
+* $Id: lang_strings.xml,v 1.100 2006/02/02 02:29:34 ndvries Exp $
 *
 */
 
@@ -599,6 +599,7 @@
 	<string source="hipo_editing_metadata_schema">Editing Metadata Schemas for "%s"</string>
 	<string source="hipo_skipping_metadata_schema">Skipping "%s" as it does not require metadata</string>
 	<string source="hipo_skipping_permission">Could not edit permissions for asset #%s, asset does not exist</string>
+	<string source="hipo_skipping_role">Could not edit roles for asset #%s, asset does not exist</string>
 	<string source="hipo_cannot_edit_schema">Could not edit schemas for asset #%s, asset does not exist</string>
 	<string source="hipo_edit_status">Editing status of "%s"</string>
 	<string source="hipo_cannot_edit_status">Could not Edit Status for asset #%s, asset does not exist</string>
@@ -616,6 +617,7 @@
 	<string source="hipo_updating_lookups_for">Updating Lookups for "%s"</string>
 	<string source="hipo_cannot_update_lookups">Could not update lookups for asset #%s, asset does not exist</string>
 	<string source="hipo_edit_permission">Editing Permissions for "%s"</string>
+	<string source="hipo_edit_role">Editing Roles for "%s"</string>
 	<string source="hipo_aborting">Aborting...</string>
 	<string source="hipo_abort_complete">Abort Complete</string>
 	<string source="hipo_cannot_edit_tags">Could not edit tags for asset #%s, asset does not exist</string>
@@ -1214,6 +1216,28 @@
 	<string source="specific_permission">Specific Permission</string>
 	<string source="public_permission">Public Permission</string>
 
+	<string source="cascade_roles">Cascade Role Changes?</string>
+	<string source="cascade_roles_option">Yes, cascade role changes</string>
+	<string source="cascade_roles_note">Note goes here</string>
+	<string source="manually_cascade_roles">Manually Cascade Role Changes?</string>
+	<string source="manually_cascade_roles_option">Yes, manually cascade role changes</string>
+	<string source="manually_cascade_roles_note">Note goes here</string>
+	<string source="no_roles_set">No roles have been applied</string>
+	<string source="select_a_role">Select a role to apply to this asset:</string>
+	<string source="select_users_for_role">Select the users who will perform the role:</string>
+	<string source="roles">Roles</string>
+	<string source="users">Users</string>
+	<string source="role_assigned_to">Assigned to</string>
+	<string source="role_reassign">Reassign?</string>
+	<string source="role_dependant_child_warning">Please note that dependant assets are not included in this list, but they will be affected if roles are re-assigned.</string>
+	<string source="role_indirectly_assigned">These roles are applied to a parent asset and indirectly affect this asset.</string>
+	<string source="role_new_assignee">The user you would like the selected roles re-assigned to.</string>
+	<string source="global_role_assignment">Globally assigned</string>
+	<string source="allow_global_assignment">Allow globally assigned users to perform this role?</string>
+	<string source="global">Global?</string>
+	<string source="role_directly_assigned_section">Directly Assigned</string>
+	<string source="role_indirectly_assigned_section">Indirectly Assigned</string>
+	<string source="role_new_user">New User</string>
 
 	<string source="item">item</string>
 	<string source="items">items</string>
@@ -1518,6 +1542,7 @@ Items to delete: %s</string>
 	<string source="hipo_acquiring_metadata_locks">Acquiring Metadata Locks</string>
 	<string source="hipo_acquiring_permission_locks">Acquiring Permission Locks</string>
 	<string source="hipo_acquiring_workflow_locks">Acquiring Workflow Locks</string>
+	<string source="hipo_acquiring_role_locks">Acquiring Role Locks</string>
 	<string source="hipo_backing_up_modified_files">Backing Up Modified Files</string>
 	<string source="hipo_cascading_metadata">Cascading Metadata</string>
 	<string source="hipo_cascading_options">Cascading Options</string>
@@ -1553,6 +1578,7 @@ Items to delete: %s</string>
 	<string source="hipo_name_uninstall_patch">Uninstall Patch</string>
 	<string source="hipo_name_update_lookups">Update Lookups</string>
 	<string source="hipo_name_edit_tags">Edit Tags</string>
+	<string source="hipo_name_edit_roles">Edit Roles</string>
 	<string source="hipo_processing_assets">Processing Assets</string>
 
 	<string source="hipo_purging_trash_determining">Determining which assets to delete</string>
@@ -1564,6 +1590,7 @@ Items to delete: %s</string>
 	<string source="hipo_releasing_metadata_locks">Releasing Metadata Locks</string>
 	<string source="hipo_releasing_permission_locks">Releasing Permission Locks</string>
 	<string source="hipo_releasing_workflow_locks">Releasing Workflow Locks</string>
+	<string source="hipo_releasing_role_locks">Releasing Role Locks</string>
 	<string source="hipo_remapping_assets">Remapping Assets</string>
 	<string source="hipo_reversing_file_updates">Reversing File Updates</string>
 	<string source="hipo_running_installation_script">Running Installation Script</string>
@@ -1573,6 +1600,7 @@ Items to delete: %s</string>
 	<string source="hipo_updating_permissions">Updating Permissions</string>
 	<string source="hipo_updating_workflow_schemas">Updating Workflow Schemas</string>
 	<string source="hipo_updating_tags">Updating Tags</string>
+	<string source="hipo_updating_roles">Updating Roles</string>
 
 	<!-- JAVA STRINGS -->
 	<string source="tree_one" java="1">Tree One</string>

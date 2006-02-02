@@ -1,10 +1,10 @@
-<!--
+<?php
 /**
-* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
-* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* +--------------------------------------------------------------------+
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
-* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* +--------------------------------------------------------------------+
 * | This source file may be used subject to, and only in accordance    |
 * | with, the Squiz Open Source Licence Agreement found at             |
 * | http://www.squiz.net/licence.                                      |
@@ -16,15 +16,39 @@
 * | intellectual property rights in the modification, adaptation and   |
 * | enhancement to Squiz Pty Ltd for use and distribution under that   |
 * | licence.                                                           |
-* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* +--------------------------------------------------------------------+
 *
-* $Id: edit_interface_screens.xml,v 1.11 2006/02/02 02:29:33 ndvries Exp $
+* $Id: role_management.inc,v 1.1 2006/02/02 02:29:33 ndvries Exp $
 *
 */
--->
 
-<screens>
-	<screen code_name="role_assignments" display_name="Role Assignments" icon="edit" lock_type="roles" force_unlock="0" />
-	<screen code_name="restrictions" display_name="Restrictions" icon="web" force_unlock="0" />
-	<screen code_name="paths" display_name="Web Paths" icon="web" />
-</screens>
+
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
+
+/**
+* Role_Management
+*
+* @see Asset_Management
+*
+* @author  Nathan de Vries <ndvries@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Role_Management extends Asset_Management
+{
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function Role_Management(&$pm)
+	{
+		$this->Asset_Management($pm);
+
+	}//end constructor
+
+
+}//end class
+?>

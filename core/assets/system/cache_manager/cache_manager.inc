@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.33 2006/01/30 05:50:18 lwright Exp $
+* $Id: cache_manager.inc,v 1.34 2006/02/02 02:29:33 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -387,7 +387,7 @@ class Cache_Manager extends Asset
 
 					// note that we dont use the cache in rollback view mode so we dont have
 					// to run this query through the rollback functions
-					$sql = 'SELECT MAX(permission) FROM sq_ast_perm
+					$sql = 'SELECT MAX(permission) FROM sq_vw_ast_perm
 							WHERE assetid = '.$db->quote($assetid).'
 							  AND userid IN ('.implode(',', $userids).')
 							  AND granted = 1';
