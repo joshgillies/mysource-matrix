@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.148 2006/01/26 22:35:20 lwright Exp $
+* $Id: listing_engine.inc,v 1.149 2006/02/02 06:46:23 rhoward Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.148 $
+* @version $Revision: 1.149 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -389,15 +389,34 @@ class Listing_Engine extends Page
 				}
 
 				if ($this->requires_form || !empty($used_fields)) {
-				?>
-				<form id="<?php echo $this->getPrefix() ?>" method="<?php echo $this->_getFormSubmitMethod() ?>" action="<?php echo $form_url; ?>">
-				<?php
+					?>
+					<form id="<?php echo $this->getPrefix() ?>" method="<?php echo $this->_getFormSubmitMethod() ?>" action="<?php echo $form_url; ?>">
+					<?php
+
+					// if the method is GET, the query vars won't be passed when the submit button is clicked
+					// the upshot of this is that dynamic query variables don't "stick" - we need to put them
+					// explicitly in hidden fields
+					if (preg_match('/get/i', $this->_getFormSubmitMethod())) {
+						// get the dynamic parameters, check if any are currently set (and hence need to be printed in hidden fields)
+						$parameter_map =& $this->getAttribute('parameter_map');
+						$parameters = $parameter_map->getParameters();
+						foreach ($parameters as $param_id) {
+							$param_value = $parameter_map->getParameterValue($param_id);
+							if (!empty($param_value)) {
+								if (is_array($param_value)) {
+									$param_value = implode(',', $param_value);
+								}
+								hidden_field($param_id, $param_value);
+							}
+						}
+					}
+
 				}
 				echo $contents;
 				if ($this->requires_form || !empty($used_fields)) {
-				?>
-				</form>
-				<?php
+					?>
+					</form>
+					<?php
 				}
 			} else {
 				// no form at all - remove the JS code relations stuff
@@ -1110,7 +1129,7 @@ class Listing_Engine extends Page
 
 		switch ($group_by) {
 			case 'number' :
-				// do it CHUNK Noris style
+				// do it CHUNK Norris style
 				if ($num_per_page > 0) {
 					$chunks = array_chunk($children, $num_per_page, TRUE);
 				} else {
@@ -2003,11 +2022,20 @@ class Listing_Engine extends Page
 					case 'radio':
 					default:
 						if ($selection_allow_multiple) {
-							$selection_name_field = str_replace(' ', '_', $selection_name.'['.$assetid.']');
-							$selection_id = make_valid_html_id(str_replace(' ', '_', $selection_name.'_'.$assetid), '_');
+							$selection_name_safe  = str_replace(' ', '_', $selection_name);
+							$selection_name_field = $selection_name_safe.'['.$assetid.']';
+							$selection_id         = make_valid_html_id($selection_name_safe.'_'.$assetid, '_');
 
 							if ($buffering) {
 								check_box($selection_name_field, '1', ($selection_value > 0 ? TRUE : FALSE), "sq_listing_check_state(this, '".$selection_name."')", 'id="'.$selection_id.'"');
+
+								// the flag is used to determine whether a checkbox is
+								// present and not ticked, or not present at all
+								// only print this once, otherwise it ends up bloating the query string
+								if (empty($this->_tmp['asset_selection_checkbox_flag'][$selection_name])) {
+										hidden_field('selection_flag_'.$selection_name_safe, '1');
+										$this->_tmp['asset_selection_checkbox_flag'][$selection_name] = TRUE;
+								}
 							}
 						} else {
 							$selection_name_field = str_replace(' ', '_', $selection_name);
