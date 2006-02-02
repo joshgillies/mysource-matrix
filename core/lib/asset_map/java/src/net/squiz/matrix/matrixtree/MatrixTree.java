@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.20 2006/01/18 00:56:39 sdanis Exp $
+ * $Id: MatrixTree.java,v 1.21 2006/02/02 23:07:51 sdanis Exp $
  *
  */
 
@@ -491,17 +491,26 @@ public class MatrixTree extends CueTree
 							sort_order = Integer.parseInt(sort_orders[level]);
 
 							if (!sort_orders[level].equals("-1")) {
-								// load another set of assets
-								removeChildNodes(parent);
 								int modifier = (int)(sort_order/AssetManager.getLimit());
+								int loc = 0;
+								if (parent.getChildCount() == 0 || (AssetManager.getLimit()*modifier != totalKids)) {
+									// load another set of assets
+									removeChildNodes(parent);
+									AssetManager.refreshAsset(parent, "", AssetManager.getLimit()*modifier, -1);
+									loadedNodes += parent.getChildCount();
 
-								AssetManager.refreshAsset(parent, "", AssetManager.getLimit()*modifier, -1);
-								loadedNodes += parent.getChildCount();
+									if (parent.getAsset().getTotalKidsLoaded() > 0) {
+										// there is a previous node
+										loc--;
+									}
+								}
+
 								if (parent.getChildCount() > 0) {
-									int loc = (sort_order%AssetManager.getLimit());
+									loc += (sort_order%AssetManager.getLimit());
 									if (loc >= parent.getChildCount()) {
 										loc = parent.getChildCount()-1;
 									}
+
 									parent = (MatrixTreeNode)parent.getChildAt(loc);
 									if (parent.getAsset().getId().equals(assetids[level])) {
 										found = true;
@@ -542,7 +551,7 @@ public class MatrixTree extends CueTree
 						return;
 					}
 
-				} catch (IOException ioe) {
+				} catch (Exception ioe) {
 					MatrixStatusBar.setStatusAndClear(Matrix.translate("asset_map_status_bar_requesting"), 1000);
 					Object[] transArgs = {
 						ioe.getMessage()
@@ -980,9 +989,27 @@ public class MatrixTree extends CueTree
 		return paths;
 	}
 
-	private void expandPaths(java.util.List paths) {
+	private int[] getRowsForPaths(java.util.List paths) {
+		int rows[] = new int[paths.size()];
+		for (int i = 0; i < paths.size(); i++) {
+			int row = getRowForPath((TreePath)paths.get(i));
+			rows[i] = row;
+		}
+		return rows;
+	}
+
+	private void expandRows(int rows[]) {
+		for (int i=0; i< rows.length; i++) {
+			expandRow(rows[i]);
+		}
+	}
+
+	private void expandPaths(java.util.List paths, boolean scrollPathToVisible) {
 		for (int i=0; i< paths.size(); i++) {
 			expandPath((TreePath)paths.get(i));
+			if (scrollPathToVisible) {
+				scrollPathToVisible((TreePath)paths.get(i));
+			}
 		}
 	}
 
@@ -1014,7 +1041,7 @@ public class MatrixTree extends CueTree
 				setFontSize(currentFontSize+1);
 				java.util.List expandedChildren = getExpandedChildren((TreeNode)getModel().getRoot());
 				((DefaultTreeModel) getModel()).reload();
-				expandPaths(expandedChildren);
+				expandPaths(expandedChildren, false);
 
 			}
 		};
@@ -1024,7 +1051,7 @@ public class MatrixTree extends CueTree
 				setFontSize(currentFontSize-1);
 				java.util.List expandedChildren = getExpandedChildren((TreeNode)getModel().getRoot());
 				((DefaultTreeModel) getModel()).reload();
-				expandPaths(expandedChildren);
+				expandPaths(expandedChildren, false);
 			}
 		};
 
@@ -1033,7 +1060,7 @@ public class MatrixTree extends CueTree
 				setFontSize(initialFontSize);
 				java.util.List expandedChildren = getExpandedChildren((TreeNode)getModel().getRoot());
 				((DefaultTreeModel) getModel()).reload();
-				expandPaths(expandedChildren);
+				expandPaths(expandedChildren, false);
 			}
 		};
 

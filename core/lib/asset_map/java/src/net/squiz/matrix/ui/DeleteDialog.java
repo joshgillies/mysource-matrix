@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: DeleteDialog.java,v 1.8 2005/12/14 23:07:24 sdanis Exp $
+* $Id: DeleteDialog.java,v 1.9 2006/02/02 23:07:51 sdanis Exp $
 *
 */
 
@@ -145,7 +145,7 @@ public class DeleteDialog 	extends 	MatrixDialog
 	}
 
 	public void keyPressed(KeyEvent evt) {
-		if(evt.getKeyCode() == evt.VK_ENTER) {
+		if(evt.getKeyCode() == evt.VK_ENTER || evt.getKeyCode() == evt.VK_SPACE) {
 			delete();
 			dispose();
 		} else if(evt.getKeyCode() == evt.VK_ESCAPE) {
@@ -191,29 +191,5 @@ public class DeleteDialog 	extends 	MatrixDialog
 
 		return deleteDialog;
 	}
-
-	/*class ButtonActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent evt) {
-			Object source = evt.getSource();
-
-			if (source == deleteBtn) {
-				// there can only be on trash folder in the system.
-				String[] assetids = AssetManager.getAssetsOfType("trash_folder");
-				Asset trash = AssetManager.getAsset(assetids[0]);
-				Iterator nodes = trash.getTreeNodes();
-				MatrixTreeNode trashNode = null;
-				while (nodes.hasNext()) {
-					trashNode = (MatrixTreeNode) nodes.next();
-				}
-				MatrixTreeComm.createLink(NewLinkEvent.LINK_TYPE_MOVE, DeleteDialog.this.nodes, trashNode, 0, 0);
-
-			}
-
-			//TODO: (MM): need to call super.dispose(), maybe rename dispose() to disposeDialog()
-			// in MatrixDialog and invoke it so it's clear that we are doing something different from dispose
-			dispose();
-		}
-	}//end class ButtonActionListener
-	*/
 
 }//end class DeleteDialog
