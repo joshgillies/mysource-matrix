@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.35 2006/02/02 02:29:34 ndvries Exp $
+* $Id: lang_errors.xml,v 1.36 2006/02/02 06:41:25 rhoward Exp $
 *
 */
 
@@ -1067,7 +1067,7 @@ As specified by %5$s and will be deferred</error><!-- core/include/package_manag
 
 	<error code="SYS0190">Invalid system asset name</error><!-- core/include/asset_manager.inc: -->
 
-	<error code="SYS0191">Ivalid message format for error log</error><!-- core/include/general.inc: -->
+	<error code="SYS0191">Invalid message format for error log</error><!-- core/include/general.inc: -->
 
 	<error code="SYS0192">Link Already Exists</error><!-- core/include/asset_manager.inc: -->
 
