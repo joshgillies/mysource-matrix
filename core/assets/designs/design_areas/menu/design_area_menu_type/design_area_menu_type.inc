@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.66.2.5 2005/10/05 05:36:31 dmckee Exp $
+* $Id: design_area_menu_type.inc,v 1.66.2.6 2006/02/02 00:08:46 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.66.2.5 $
+* @version $Revision: 1.66.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -456,10 +456,12 @@ class Design_Area_Menu_Type extends Design_Area
 						$userids = array_keys($GLOBALS[\'SQ_SYSTEM\']->am->getParents($GLOBALS[\'SQ_SYSTEM\']->user->id, \'user_group\', false));
 						array_push($userids, 0, $GLOBALS[\'SQ_SYSTEM\']->user->id);
 
-						for (reset($userids); null !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
-						//Need to include public user in permissions to check for
+						// need to include public user in permissions to check for
 						$public_userid = $GLOBALS[\'SQ_SYSTEM\']->am->getSystemAssetid(\'public_user\');
 						$userids[] = $public_userid;
+						for (reset($userids); null !== ($i = key($userids)); next($userids)) {
+							$userids[$i] = $db->quote($userids[$i]);
+						}
 						$USERIDS_COND = \'AND p.userid  IN (\'.implode(\',\', $userids).\')\';
 					}
 
