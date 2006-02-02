@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.35 2005/09/14 05:18:23 lwright Exp $
+* $Id: general.inc,v 1.36 2006/02/02 06:42:27 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package Fudge
 * @subpackage General
 */
@@ -214,6 +214,57 @@ function _array_merge_multi_recursive($array1, $array2)
 	return $array1;
 
 }//end _array_merge_multi_recursive()
+
+
+/**
+* Returns a flattened version of a passed in array
+*
+* For example, the following array:
+* <pre>
+* Array(
+*	'10'	=> Array(
+*				'11'	=> 'Value',
+*			   ),
+*	'12'	=> 'Value',
+* )
+* </pre>
+*
+* ... Is returned in the following format:
+* <pre>
+* Array(
+*	'10'	=> Array(),
+*	'11'	=> 'Value',
+*	'12'	=> 'Value',
+* )
+* </pre>
+*
+* If $array isn't an array, an empty array is returned.
+*
+* @param array	$array	the array to flatten
+*
+* @return array
+* @access public
+*/
+function array_flatten($array)
+{
+	if (!is_array($array) || empty($array)) {
+		return Array();
+	}
+
+	$flattened_array = Array();
+
+	foreach ($array as $key => $value) {
+		if (is_array($value)) {
+			$flattened_array[$key] = Array();
+			$flattened_array += array_flatten($value);
+		} else {
+			$flattened_array[$key] = $value;
+		}
+	}
+
+	return $flattened_array;
+
+}//end array_flatten
 
 
 /**
