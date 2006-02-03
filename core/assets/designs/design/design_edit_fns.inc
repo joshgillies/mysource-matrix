@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.104 2006/02/03 00:41:16 dmckee Exp $
+* $Id: design_edit_fns.inc,v 1.105 2006/02/03 00:43:25 dmckee Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.105 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -944,6 +944,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				if (!$new_file->create($import_link, $temp_info)) {
 					trigger_error('Failed to import File '.$filename, E_USER_WARNING);
 				}
+				delete_directory($import_dir);
 			}
 		}
 
@@ -952,8 +953,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$file =& $GLOBALS['SQ_SYSTEM']->am->getAsset($selected_asset);
 			$asset->createLink($file, SQ_LINK_TYPE_1, 'export_file');
 		}
-
-		delete_directory($import_dir);
 
 		return TRUE;
 
