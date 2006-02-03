@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.29 2006/02/02 02:29:33 ndvries Exp $
+* $Id: user_group_edit_fns.inc,v 1.30 2006/02/03 00:27:57 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -490,13 +490,13 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th class="sq-backend-table-header"><?php echo translate('roles'); ?></td>
-				<th class="sq-backend-table-header"><?php echo translate('asset'); ?></td>
 				<?php
 					if ($include_userid) {
 						?><th class="sq-backend-table-header"><?php echo translate('role_assigned_to'); ?></td><?php
 					}
 				?>
+				<th class="sq-backend-table-header"><?php echo translate('role'); ?></td>
+				<th class="sq-backend-table-header"><?php echo translate('asset'); ?></td>
 				<?php
 					if ($write_access) {
 						?><th class="sq-backend-table-header"><?php echo translate('role_reassign'); ?></td><?php
@@ -519,13 +519,13 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 				foreach ($new_assetids as $assetid) {
 				?>
 					<tr>
-						<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($roleid); ?></td>
-						<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($assetid); ?></td>
 						<?php
 							if ($include_userid) {
 								?><td class="sq-backend-table-cell"><?php echo get_asset_tag_line($userid); ?></td><?php
 							}
 						?>
+						<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($roleid); ?></td>
+						<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($assetid); ?></td>
 						<?php
 							if ($write_access) {
 								?><td class="sq-backend-table-cell"><?php echo check_box($prefix.'_reassign[]', $assetid); ?></td><?php
@@ -557,49 +557,58 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	function paintRoles(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->adminAccess('roles');
-		$o->openField(translate('role_directly_assigned_section'), '', translate('role_dependant_child_warning'));
+
+		$o->openField('');
 			$roles = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, NULL, $asset->id, TRUE);
+			if (empty($roles)) {
+				echo translate('no_roles_set');
+			}
 			$this->_printRoleTable($prefix, $roles, $write_access);
+			if ($write_access) {
+				echo '<strong>'.translate('role_new_user').': </strong>';
+				echo asset_finder($prefix.'_reassignee', 0, Array('user' => 'D', 'user_group' => 'D'));
+			}
 		$o->closeField();
 
 		$group_descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('user_group', TRUE);
 		$group_descendants = array_diff($group_descendants, Array('role'));
-		$o->openField(translate('role_indirectly_assigned_section'), '', translate('role_indirectly_assigned'));
-			$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($asset->id);
+		$o->closeSection();
 
-			$roles = Array();
-			$parent_groups = Array();
-			foreach ($parents as $assetid => $type_code) {
-				if (in_array($type_code, $group_descendants)) {
-					$roles += $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, NULL, $assetid, TRUE);
-					$normal_role = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, NULL, $assetid, TRUE);
-					foreach ($normal_role as $roleid => $userids) {
-						foreach ($userids as $userid => $assetids) {
-							foreach ($assetids as $assetid) {
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($asset->id);
+
+		$roles = Array();
+		$parent_groups = Array();
+		foreach ($parents as $assetid => $type_code) {
+			if (in_array($type_code, $group_descendants)) {
+				$roles += $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, NULL, $assetid, TRUE);
+				$normal_role = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, NULL, $assetid, TRUE);
+				foreach ($normal_role as $roleid => $userids) {
+					foreach ($userids as $userid => $assetids) {
+						foreach ($assetids as $assetid) {
+							if (!in_array($assetid, $roles[$roleid][$userid])) {
 								$roles[$roleid][$userid][] = $assetid;
 							}
 						}
 					}
-				} else {
-					$global_role = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, $assetid, 0, TRUE);
-					foreach ($global_role as $roleid => $userids) {
-						foreach ($userids[0] as $assetid) {
+				}
+			} else {
+				$global_role = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, $assetid, 0, TRUE);
+				foreach ($global_role as $roleid => $userids) {
+					foreach ($userids[0] as $assetid) {
+						if (!in_array($assetid, $roles[$roleid][$roleid])) {
 							$roles[$roleid][$roleid][] = $assetid;
 						}
 					}
 				}
 			}
+		}
 
-			if (!empty($roles)) {
-				$this->_printRoleTable($prefix, $roles, FALSE, TRUE);
-			}
-
-		$o->closeField();
-
-		if ($write_access) {
-			$o->openField(translate('role_new_user'), '', translate('role_new_assignee'));
-				echo asset_finder($prefix.'_reassignee', 0, Array('user' => 'D', 'user_group' => 'D'));
-			$o->closeField();
+		if (!empty($roles)) {
+			$o->openSection('Indirectly Assigned Roles');
+				$o->openField('');
+					$this->_printRoleTable($prefix, $roles, FALSE, TRUE);
+				$o->closeField();
+			$o->closeSection();
 		}
 
 		return $write_access;

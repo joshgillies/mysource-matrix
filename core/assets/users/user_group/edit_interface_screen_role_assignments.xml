@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_role_assignments.xml,v 1.1 2006/02/02 02:29:33 ndvries Exp $
+* $Id: edit_interface_screen_role_assignments.xml,v 1.2 2006/02/03 00:27:57 ndvries Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Assigned Roles" write_access="admin:roles">
+	<section name="Directly Assigned Roles" write_access="admin:roles">
 		<field>
 			<function_call>
 				<paint_function name="paintRoles" />
