@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.105 2006/02/03 00:43:25 dmckee Exp $
+* $Id: design_edit_fns.inc,v 1.106 2006/02/03 05:30:43 dmckee Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1248,7 +1248,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 					}
 				}
 
+				$assoc_tar = '';
 				if (in_array('associated_files.tar.gz', $extract_list)) {
+					$assoc_tar = 'associated_files.tar.gz';
+				}
+				if (in_array('associated-files.tar.gz', $extract_list)) {
+					$assoc_tar = 'associated-files.tar.gz';
+				}
+				if ($assoc_tar != '') {
 					// Got associated files, now get them linked up
 					create_directory($files_dir.'/extracted/');
 					require_once 'Archive/Tar.php';
