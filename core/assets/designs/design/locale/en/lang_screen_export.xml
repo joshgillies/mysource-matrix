@@ -1,0 +1,57 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_export.xml,v 1.1 2006/02/03 05:43:16 dmckee Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Import" write_access="write:attributes" read_access="write:">
+		<field>
+			<display_name>Import</display_name>
+			<note>Select a .tar file to import as this design</note>
+			<function_call>
+				<paint_function   name="paintImport"   />
+				<process_function name="processImport" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Export" write_access="write:attributes" read_access="write:">
+		<field>
+			<display_name>Export</display_name>
+			<note>Select a .tar file to export as this design</note>
+			<function_call>
+				<paint_function   name="paintExport"   />
+				<process_function name="processExport" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Current Files" write_access="write:parsing" read_access="write:">
+		<field>
+			<display_name>Current Files</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintCurrentFiles"   />
+				<process_function name="processCurrentFiles" />
+			</function_call>
+		</field>
+	</section>
+</contents>
