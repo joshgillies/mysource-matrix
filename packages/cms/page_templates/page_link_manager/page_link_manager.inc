@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_link_manager.inc,v 1.1 2006/02/02 06:49:02 rhoward Exp $
+* $Id: page_link_manager.inc,v 1.2 2006/02/03 00:50:57 rhoward Exp $
 *
 */
 
@@ -35,7 +35,7 @@ define('SQ_PAGE_LINK_MGR_PRESET_LINKED', 'Linked');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -572,7 +572,10 @@ class Page_Link_Manager extends Page_Asset_Listing
 			$names[] = $asset->name;
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 		}
-		$string .= implode(', ', $names);
+		if (!empty($names)) {
+			// split out the names into something that looks like: "Foo", "Bar"
+			$string .= '"'.implode('", "', $names).'"';
+		}
 
 		return $string;
 
