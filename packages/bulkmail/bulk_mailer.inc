@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.50 2006/01/12 02:55:50 rong Exp $
+* $Id: bulk_mailer.inc,v 1.51 2006/02/03 05:31:41 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -242,7 +242,6 @@ class Bulk_Mailer
 		$GLOBALS['chunk_start'] = get_microtime();
 		// read chunks from cache and process them
 		while (file_exists($recipient_path.'/recipient_'.$progress_info['current_chunk'])) {
-			// echo $progress_info['current_chunk'].' ';
 
 			// check if job state is paused/cancelled at the beginning of each chunk
 			if (!isset($info[$job_id])) {
@@ -290,7 +289,6 @@ class Bulk_Mailer
 							$problematic = (empty($content)) ? TRUE : FALSE;
 							if (!$problematic) {
 								$mime->setHtmlBody($content);
-								// $mime->setTXTBody($content);
 								$body = @$mime->get();
 								// pass in custom_id as extra header details, for queue file naming
 								$header_details['custom_id'] = $user_id;
@@ -858,6 +856,7 @@ class Bulk_Mailer
 	*/
 	function isExcludedTime($thresholds)
 	{
+
 		$days_array = Array(
 						0	=> 'Sun',
 						1	=> 'Mon',
@@ -877,8 +876,16 @@ class Bulk_Mailer
 				$now_time = date('G', time()); // 24-hour format of an hour without leading zeros, eg. 8, 15
 				if (in_array($now_day, $excluded_days)) {
 					// range: [from, to)
-					if ($now_time >= $threshold['params']['from'] && $now_time < $threshold['params']['to']) {
+					if ($now_time >= $threshold['params']['from'] && (($threshold['params']['to'] < $threshold['params']['from']) || ($now_time < $threshold['params']['to']))) {
 						return FALSE;
+					}
+				} else if ($threshold['params']['from'] > $threshold['params']['to']) {
+					// exclude from previous day X hour to today Y hour
+					$yesterday_day = date('D', time()-86400);
+					if (in_array($yesterday_day, $excluded_days)) {
+						if ($now_time < $threshold['params']['to']) {
+							return FALSE;
+						}
 					}
 				}
 			}

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.23 2006/01/12 00:01:12 rong Exp $
+* $Id: lang_strings.xml,v 1.24 2006/02/03 05:31:41 sdanis Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -88,6 +88,7 @@ Please click on the following link if you would like to proceed:
 	<string source="bulkmail_threshold_rule_excluded_time">Excluded Time</string>
 	<string source="bulkmail_threshold_rule_excluded_time_hour">Do not process jobs between %1$s:00 and %2$s:00</string>
 	<string source="bulkmail_threshold_rule_excluded_time_days"> on %s</string>
+	<string source="bulkmail_threshold_rule_excluded_time_every_day"> on every day</string>
 	<string source="bulkmail_threshold_rule_send_rate">Send Rate</string>
 	<string source="bulkmail_threshold_rule_send_rate_detail">Send %1$s emails every %2$s</string>
 	<string source="bulkmail_threshold_none">There are no threshold rules set.</string>

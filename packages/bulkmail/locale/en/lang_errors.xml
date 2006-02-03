@@ -13,4 +13,6 @@
 	<error code="BML0012">User group not selected.</error>
 
 	<error code="BML0013">Invalid email address '%s'.</error>
+	<error code="BML0014">Exclude FROM and TO times cannot be equal.</error>
+	<error code="BML0015">No days were selected.</error>
 </errors>

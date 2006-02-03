@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.28 2006/01/19 04:42:45 rong Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.29 2006/02/03 05:31:41 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -42,6 +42,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	function Bulkmail_Post_Office_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
+		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
 
@@ -192,7 +193,6 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		$o->openField(translate('username'), '', '', $smtp, $name.'_field');
 			$value = array_get_index($server_details, 'username', '');
 			if ($write_access) {
-				// text_box($name, $value, '', '', FALSE, 'disabled='.$disabled);
 				text_box($name, $value, '', '', FALSE, $disabled);
 			} else {
 				echo $value;
@@ -500,7 +500,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 				foreach ($threshold as $key => $rule) {
 					?><tr>
 						<td class="sq-backend-table-cell"><?php echo $rule['type']; ?></td>
-						<td class="sq-backend-table-cell"><?php echo ($rule['multiple']) ? translate('TRUE') : translate('false'); ?></td>
+						<td class="sq-backend-table-cell"><?php echo ($rule['multiple']) ? translate('yes') : translate('no'); ?></td>
 					<?php
 						switch ($rule['type']) {
 							case translate('bulkmail_threshold_rule_excluded_time') :
@@ -730,7 +730,11 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 			?><td class="sq-backend-table-cell" colspan="2"><?php
 				echo translate('bulkmail_threshold_rule_excluded_time_hour', $from, $to);
 				if (!empty($days)) {
-					echo translate('bulkmail_threshold_rule_excluded_time_days', $days);
+					if (count($selected_days) == 7) {
+						echo translate('bulkmail_threshold_rule_excluded_time_every_day');
+					} else {
+						echo translate('bulkmail_threshold_rule_excluded_time_days', $days);
+					}
 				}
 			?></td><?php
 		}
@@ -751,20 +755,35 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	function _processExcludedTimeRule($prefix, $threshold, $key)
 	{
 		// make changes to threshold attribute accordingly and pass it back to the process function
+		$remove = FALSE;
 		if (isset($_POST[$prefix.'_from'])) {
 			$params['from'] = $_POST[$prefix.'_from'];
+			$params['to']   = $_POST[$prefix.'_to'];
 			// check for valid range
-			if ($_POST[$prefix.'_to'] < $_POST[$prefix.'_from']) {
-				// 'to' time must be greater than 'from' time
-				$params['to'] = $_POST[$prefix.'_from'];
-			} else {
-				$params['to'] = $_POST[$prefix.'_to'];
+			if ($_POST[$prefix.'_to'] == $params['from']) {
+				trigger_localised_error('BML0014', E_USER_NOTICE);
+
+				if ($threshold[$key]['params']['to'] == $_POST[$prefix.'_to'] && $threshold[$key]['params']['from'] == $_POST[$prefix.'_from']) {
+					$remove = TRUE;
+				} else {
+					$params['from'] = $threshold[$key]['params']['from'];
+					$params['to']   = $threshold[$key]['params']['to'];
+				}
 			}
-			$params['days'] = (isset($_POST[$prefix.'_days'])) ? $_POST[$prefix.'_days'] : Array();
+
+			if (!isset($_POST[$prefix.'_days']) && !isset($threshold[$key]['params']['days'])) {
+				trigger_localised_error('BML0015', E_USER_NOTICE);
+				$remove = TRUE;
+			} else if (!isset($_POST[$prefix.'_days']) && isset($threshold[$key]['params']['days'])) {
+				trigger_localised_error('BML0015', E_USER_NOTICE);
+				$params['days'] = $threshold[$key]['params']['days'];
+			} else {
+				$params['days'] = (isset($_POST[$prefix.'_days'])) ? $_POST[$prefix.'_days'] : Array();
+			}
 		}
 		$threshold[$key]['params'] = $params;
 		// delete box is checked
-		if (isset($_POST[$prefix.'_delete'])) {
+		if (isset($_POST[$prefix.'_delete']) || $remove) {
 			unset($threshold[$key]);
 		}
 

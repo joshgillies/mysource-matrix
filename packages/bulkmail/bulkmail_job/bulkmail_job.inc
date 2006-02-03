@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.25 2006/01/12 02:55:50 rong Exp $
+* $Id: bulkmail_job.inc,v 1.26 2006/02/03 05:31:41 sdanis Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -147,7 +147,6 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		}
 
 		$mime =& new Mail_mime();
-		// $mime->setTxtBody($textMessage);
 		$mime->setHtmlBody($content);
 		$body = @$mime->get();
 		$headers = @$mime->headers($header_details);

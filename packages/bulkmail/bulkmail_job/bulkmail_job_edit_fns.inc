@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.25 2006/01/12 02:55:50 rong Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.26 2006/02/03 05:31:41 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -46,6 +46,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	{
 		$this->Asset_Edit_Fns();
 		unset($this->static_screens['preview']);
+		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
 
