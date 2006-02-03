@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.103 2006/02/03 00:33:46 dmckee Exp $
+* $Id: design_edit_fns.inc,v 1.104 2006/02/03 00:41:16 dmckee Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -210,7 +210,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			$rep_file = $asset->data_path_suffix.'/parse.txt';
 			$then = iso8601_ts($_SESSION['sq_rollback_view']['rollback_time']);
-			$info = @$fv->_checkOutCheck($rep_file, null, $then);
+			$info = @$fv->_checkOutCheck($rep_file, NULL, $then);
 			$parse_file = $info['source_file'];
 		} else {
 			$parse_file = $asset->data_path.'/parse.txt';
@@ -555,7 +555,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}
 
 		// and link it back to ourselves
-		if (!$asset->createLink($clone, SQ_LINK_TYPE_2, 'customisation', null, '1')) {
+		if (!$asset->createLink($clone, SQ_LINK_TYPE_2, 'customisation', NULL, '1')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
@@ -573,7 +573,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		foreach ($da_links as $link) {
 			$da =& $am->getAsset($link['minorid'], $link['minor_type_code'], TRUE);
 			if (is_null($da)) continue;
-			if (!$clone->createLink($da, SQ_LINK_TYPE_3, $link['value'], null, '1')) {
+			if (!$clone->createLink($da, SQ_LINK_TYPE_3, $link['value'], NULL, '1')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
@@ -596,7 +596,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', FALSE);
 		foreach ($file_links as $link) {
 			$minor =& $am->getAsset($link['minorid'], $link['minor_type_code']);
-			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
+			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
 				trigger_localised_error('CORE0162', E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -611,7 +611,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'design_css', FALSE);
 		foreach ($css_links as $link) {
 			$minor =& $am->getAsset($link['minorid'], $link['minor_type_code']);
-			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
+			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
 				trigger_localised_error('CORE0161', E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -811,8 +811,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
-				unset($da); // unset so we don't set the value or all ref's to null
-				$da = null; // do this so a new version will be created
+				unset($da); // unset so we don't set the value or all ref's to NULL
+				$da = NULL; // do this so a new version will be created
 			}
 
 			// if it doesn't exist, create it, and acquire the lock
@@ -862,19 +862,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				return FALSE;
 			}
 
-			// if they want this design area to be printed then what we need to do is alter the contents
-			// array to become a _PRINT operation
-
-			// Now what we do is morph it so that this element is now a print tag
-/*
-			$contents[$index] = Array(
-									'_type'				=> 'TAG',
-									'attributes'		=> Array ('id_name' => $element['attributes']['id_name']),
-									'operation'			=> 'print',
-									'self_terminating'	=> 1,
-									'cache'				=> (isset($element['attributes']['cache']) && in_array($element['attributes']['cache'], Array('yes', '1', 'TRUE'))) ? 1 : 0,
-								);
-*/
 		}//end foreach
 
 		// now just set the contents and we are away...

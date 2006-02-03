@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.103 2006/01/26 22:34:03 lwright Exp $
+* $Id: design.inc,v 1.104 2006/02/03 00:41:16 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -206,7 +206,7 @@ class Design extends Design_Area
 	* @param string	$link_type	the type of link this is
 	* @param string	$value		the value that is to be associated with this link
 	* @param string	$sort_order	the position in the links list that this link should take,
-	*							if null or less than zero places at end of list
+	*							if NULL or less than zero places at end of list
 	* @param string	$dependant	'0' / '1' on whether the this asset is dependant on the
 	*							asset that will be linked by this new link
 	* @param string	$exclusive	'0' / '1' on whether the this asset is linked exclusivly
@@ -215,7 +215,7 @@ class Design extends Design_Area
 	* @return int
 	* @access public
 	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
+	function createLink(&$minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0')
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -253,7 +253,7 @@ class Design extends Design_Area
 				}
 
 				if ($insert_link) {
-					if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
+					if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
 						trigger_localised_error('CORE0162', E_USER_WARNING);
 						$am->forgetAsset($customisation);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -345,7 +345,7 @@ class Design extends Design_Area
 	*
 	* @param string	$filename	the name of the file to look for
 	*
-	* @return mixed object|null
+	* @return mixed object|NULL
 	* @access public
 	*/
 	function &getAssociatedFile($filename)
@@ -363,7 +363,7 @@ class Design extends Design_Area
 			}
 		}
 
-		$null = null; // return by ref
+		$null = NULL; // return by ref
 		return $null;
 
 	}//end getAssociatedFile()
@@ -404,7 +404,7 @@ class Design extends Design_Area
 	* @param string	$id_name	the id of the design area to get
 	*							if blank returns links for all design areas
 	*
-	* @return mixed array|null
+	* @return mixed array|NULL
 	* @access public
 	*/
 	function getDesignAreaLink($id_name='')
@@ -431,7 +431,7 @@ class Design extends Design_Area
 	*
 	* @param string	$id_name	the id of the design area to get
 	*
-	* @return mixed object|null
+	* @return mixed object|NULL
 	* @access public
 	*/
 	function &getDesignArea($id_name)
@@ -443,7 +443,7 @@ class Design extends Design_Area
 			$link = $this->getDesignAreaLink($id_name);
 
 			if (empty($link)) {
-				$this->_tmp['design_areas'][$id_name] = null;
+				$this->_tmp['design_areas'][$id_name] = NULL;
 			} else {
 				$this->_tmp['design_areas'][$id_name] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			}
@@ -456,7 +456,7 @@ class Design extends Design_Area
 	/**
 	* Returns the parent design/design_customisation that this customisation is customising
 	*
-	* @return mixed object|null
+	* @return mixed object|NULL
 	* @access public
 	*/
 	function &getParentDesign()
@@ -807,12 +807,12 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			$rep_file = $this->data_path_suffix.'/design_file.php';
 			$then = iso8601_ts($_SESSION['sq_rollback_view']['rollback_time']);
-			$info = $fv->_checkOutCheck($rep_file, null, $then);
+			$info = $fv->_checkOutCheck($rep_file, NULL, $then);
 			$file_path = $info['source_file'];
 		} else {
 			$file_path = $this->data_path.'/design_file.php';
 			if (!file_exists($file_path)) {
-				$arr = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, null, 'design', TRUE, null,'minor', FALSE);
+				$arr = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, NULL, 'design', TRUE, NULL,'minor', FALSE);
 				$file_path = dirname(dirname($this->data_path)).'/design/'.$arr['majorid'].'/design_file.php';
 			 }
 		}
@@ -922,7 +922,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 
 		global $SQ_SITE_NETWORK, $SQ_PRIMARY_URL;
 		$SQ_PRIMARY_URL = \'\';
-		$SQ_SITE_NETWORK = null;
+		$SQ_SITE_NETWORK = NULL;
 
 		if (isset($ASSET_LINEAGE[0])) {
 			$site =& $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($ASSET_LINEAGE[0][\'assetid\'], $ASSET_LINEAGE[0][\'type_code\']);
@@ -1008,7 +1008,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			if (is_null($da)) continue;
 
 			$da_var_refs = $da->getVarReferences();
-			for (reset($da_var_refs); null !== ($id_name = key($da_var_refs)); next($da_var_refs)) {
+			for (reset($da_var_refs); NULL !== ($id_name = key($da_var_refs)); next($da_var_refs)) {
 				$var_da =& $this->getDesignArea($id_name);
 				if (is_null($var_da)) continue;
 				if (!isset($var_ref_values[$id_name])) {
