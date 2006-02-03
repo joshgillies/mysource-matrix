@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.15 2005/01/20 13:07:31 brobertson Exp $
+* $Id: edit_interface_screens.xml,v 1.16 2006/02/03 00:33:46 dmckee Exp $
 *
 */
 -->
@@ -26,4 +26,5 @@
 <screens>
 	<screen code_name="parse_file"      display_name="Edit Parse File" icon="create" force_unlock="0" lock_type="parsing" />
 	<screen code_name="customisations"  display_name="Customisations"  icon="page"   lock_type="all" />
+	<screen code_name="export"          display_name="Import\Export"  icon="page"    lock_type="all" />
 </screens>

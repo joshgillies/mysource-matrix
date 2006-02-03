@@ -18,12 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.102 2006/01/26 22:34:03 lwright Exp $
+* $Id: design_edit_fns.inc,v 1.103 2006/02/03 00:33:46 dmckee Exp $
 *
 */
 
 
 require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 /**
 * Design_Edit_Fns
@@ -32,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.103 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -888,6 +889,405 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}
 
 	}//end _processContents()
+
+
+	/**
+	* Paints the facility to upload and import files into the design
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintImport(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('parsing');
+		$o->openField(translate('core_design_import_file'));
+			if ($write_access) {
+				file_upload($prefix.'_import_file');
+			}
+			$o->note(translate('core_design_import_note'));
+		$o->closeField();
+		$o->openField(translate('core_design_existing_asset'));
+			if ($write_access) {
+				asset_finder($prefix.'_import_asset', 0, Array('file' => 'I'));
+			}
+			$o->note(translate('core_design_existing_asset_note'));
+		$o->closeField();
+
+		return TRUE;
+
+	}//end paintImport()
+
+
+	/**
+	* Processes uploaded files, and creates required assets and links to generate this design
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processImport(&$asset, &$o, $prefix)
+	{
+		$tar_upload = get_file_upload_info($prefix.'_import_file');
+		if ($tar_upload === FALSE) {
+			trigger_error('Error Uploading Word Document', E_USER_WARNING);
+		} else {
+			if (!empty($tar_upload)) {
+				$import_dir = $asset->data_path.'/temp/';
+				if (!is_dir($import_dir)) {
+					create_directory($import_dir);
+				}
+				commit_file_upload($prefix.'_import_file', $import_dir, TRUE, 0, TRUE, Array('gz', 'tar', 'tgz'));
+
+				$filename = $tar_upload['name'];
+				$import_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'export_file');
+				$temp_info = Array('name' => $filename, 'tmp_name' => $import_dir.'/'.$filename, 'non_uploaded_file' => TRUE);
+
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
+				$new_file =& new File();
+				$new_file->_tmp['uploading_file'] = TRUE;
+				$new_file->setAttrValue('name', $filename);
+
+				if (!$new_file->create($import_link, $temp_info)) {
+					trigger_error('Failed to import File '.$filename, E_USER_WARNING);
+				}
+			}
+		}
+
+		$selected_asset = $_POST[$prefix.'_import_asset']['assetid'];
+		if ($selected_asset != '0') {
+			$file =& $GLOBALS['SQ_SYSTEM']->am->getAsset($selected_asset);
+			$asset->createLink($file, SQ_LINK_TYPE_1, 'export_file');
+		}
+
+		delete_directory($import_dir);
+
+		return TRUE;
+
+	}//end processImport()
+
+
+	/**
+	* Paints the interface for exporting this design
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintExport(&$asset, &$o, $prefix)
+	{
+		$o->sectionNote(translate('core_design_export_warning'));
+		$write_access = $asset->writeAccess('parsing');
+		$o->openField(translate('core_design_export_filename'));
+			if ($write_access) {
+				text_box($prefix.'_export_filename', '');
+			}
+			$o->note(translate('core_design_export_note'));
+		$o->closeField();
+
+		return TRUE;
+
+	}//end paintExport()
+
+
+	/**
+	* Processes the options and exports the assets required to recreate this design
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processExport(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('parsing');
+
+		if ($write_access) {
+			if ($_POST[$prefix.'_export_filename'] != '') {
+				$new_file_name = $_POST[$prefix.'_export_filename'];
+				if (strpos($new_file_name, '.tar.gz') === FALSE) {
+					$new_file_name .= '.tar.gz';
+				}
+
+				$files_dir = $asset->data_path.'/.temp_files';
+				if (!create_directory($files_dir)) return FALSE;
+				if (!clear_directory($files_dir)) return FALSE;
+
+				// Get the current links
+				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', FALSE);
+
+				$files_to_copy = Array();
+				foreach ($links as $link_data) {
+					if ($link_data['value'] == 'export_file') continue;
+					$child_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+					$current_file_info = $child_asset->getExistingFile();
+					$files_to_copy[$current_file_info['filename']] = $current_file_info['path'];
+				}
+				$archive_files = Array();
+				foreach ($files_to_copy as $filename => $path) {
+					copy($path, $files_dir.'/'.$filename);
+					$archive_files[] = $files_dir.'/'.$filename;
+				}
+
+				require_once 'Archive/Tar.php';
+
+				$tar_object =& new Archive_Tar($files_dir.'/associated_files.tar.gz', TRUE);
+				$tar_object->createModify($archive_files, '', $files_dir);
+
+				foreach ($archive_files as $remove) {
+					unlink($remove);
+				}
+
+				$archive_files = Array();
+
+				// Should have only the associated files tar in the directory, now we just need to add the parse file
+				if (!file_exists($asset->data_path.'/parse.txt')) {
+					trigger_error('No Parse File to Export', E_USER_WARNING);
+					return FALSE;
+				}
+
+				copy($asset->data_path.'/parse.txt', $files_dir.'/parse.html');
+
+				$archive_files[] = $files_dir.'/parse.html';
+				$archive_files[] = $files_dir.'/associated_files.tar.gz';
+
+				$tar_object =& new Archive_Tar($files_dir.'/'.$new_file_name, TRUE);
+				$tar_object->createModify($archive_files, '', $files_dir);
+
+				$temp_path = $files_dir.'/'.$new_file_name;
+				$temp_info = Array('name' => $new_file_name, 'tmp_name' => $temp_path);
+				$temp_info['non_uploaded_file'] = TRUE;
+
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
+
+				$new_file =& new File();
+				$new_file->_tmp['uploading_file'] = TRUE;
+				$new_file->setAttrValue('name', $new_file_name);
+				$design_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'export_file', 'sort_order' => 1, 'is_dependant' => 1);
+
+				$new_file->create($design_link, $temp_info);
+
+				delete_directory($files_dir);
+			}//end if not empty filename
+		}//end if write_access
+
+		return $write_access;
+
+	}//end processExport()
+
+
+	/**
+	* Paints files that are currently underneath this file
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCurrentFiles(&$asset, &$o, $prefix)
+	{
+		$o->sectionNote(translate('core_design_apply_warning'));
+		$write_access = $asset->writeAccess('parsing');
+		?>
+			<table class="sq-backend-table" style="width: 350px;">
+				<tr>
+					<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('core_design_export_file_name'); ?></td>
+					<?php
+					if ($write_access) {
+						?>
+						<td class="sq-backend-table-header" style="width: 75px;"><?php echo translate('download'); ?></td>
+						<td class="sq-backend-table-header" style="width: 75px;"><?php echo translate('apply'); ?></td>
+						<?php
+					}
+					?>
+				</tr>
+				<?php
+					$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'file', TRUE, 'major', 'export_file');
+					$file_ids = Array();
+					foreach ($file_links as $data) {
+						$file_ids[] = $data['minorid'];
+					}
+					$file_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($file_ids);
+					foreach ($file_info as $id => $data) {
+						$file_name = $data['name'];
+						?>
+						<tr>
+							<td><?php echo $file_name; ?></td>
+							<?php
+								if ($write_access) {
+								?>
+									<td><a href="./?a=<?php echo $id; ?>"><?php echo translate('download'); ?></a></td>
+									<td>
+										<?php radio_button($prefix.'_apply', $id);?>
+									</td>
+									<?php
+								}
+								?>
+						</tr>
+						<?php
+					}
+				?>
+				<?php
+					if ($write_access) {
+						?>
+						<tr><td colspan="2"><?php echo translate('core_design_export_no_change'); ?></td><td><?php radio_button($prefix.'_apply', '', TRUE);?></td></tr>
+						<?php
+					}
+				?>
+			</table>
+		<?php
+		return TRUE;
+
+	}//end paintCurrentFiles()
+
+
+	/**
+	* Processes the deletion etc of current files
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCurrentFiles(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('parsing');
+		if (!$write_access) return FALSE;
+
+		$file_to_apply = $_POST[$prefix.'_apply'];
+		if ($file_to_apply == '') return TRUE;
+		$file =& $GLOBALS['SQ_SYSTEM']->am->getAsset($file_to_apply);
+		$file_info = $file->getExistingFile();
+
+		require_once 'Archive/Tar.php';
+		$tar_ball =& new Archive_Tar($file_info['path']);
+
+		if (($contents = $tar_ball->listContent()) != 0) {
+			// Tar ball is fine.
+			$extract_list = Array();
+			foreach ($contents as $data) {
+				$extract_list[] = $data['filename'];
+			}
+
+			$valid_parse_names = Array(
+									'parse.txt',
+									'parse.html',
+									'parse.htm',
+									'index.htm',
+									'index.html',
+								 );
+
+			$parse_file_found = FALSE;
+			$parse_file = '';
+			foreach ($valid_parse_names as $name) {
+				if (in_array($name, $extract_list)) {
+					$parse_file = $name;
+					$parse_file_found = TRUE;
+					break;
+				}
+			}
+
+			if (!$parse_file_found) {
+				trigger_error(translate('core_design_export_no_parsefile'), E_USER_WARNING);
+				return FALSE;
+			}
+
+			$files_dir = $asset->data_path.'/.temp_files';
+			if (!create_directory($files_dir)) return FALSE;
+			if (!clear_directory($files_dir)) return FALSE;
+
+			$result = $tar_ball->extractList($extract_list, $files_dir);
+
+			// Add and link up the parse file
+			$current_parse_file  = $asset->data_path.'/parse.txt';
+			$changes     = FALSE;
+			$new_version = FALSE;
+
+			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+
+			// delete existing parse file if it exists
+			if (is_file($current_parse_file)) {
+				$new_version = TRUE;
+				if (!unlink($current_parse_file)) {
+					trigger_localised_error('CORE0164', E_USER_WARNING);
+					return FALSE;
+				}
+			}
+
+			if (copy($files_dir.'/'.$parse_file, $current_parse_file)) {
+
+				$asset->_tmp['update_customisations'] = TRUE;
+				$asset->_tmp['generate_design'] = TRUE;
+				$changes = $this->parseAndProcessFile($asset);
+
+				// if we are overwriting our current parse file, we need to add a new version to the repository
+				if ($new_version) {
+					$file_status = $fv->upToDate($parse_file);
+					if (FUDGE_FV_MODIFIED & $file_status) {
+						if (!$fv->commit($current_parse_file, '')) {
+							trigger_localised_error('CORE0160', E_USER_WARNING);
+						}
+					}
+				} else {
+					// attempt to add the parse file to the repository
+					if (!$fv->add($asset->data_path_suffix, $current_parse_file, '')) {
+						trigger_localised_error('CORE1057', E_USER_WARNING);
+					}
+				}
+
+				// Remove Current Links
+				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, '');
+				$trash_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+				foreach ($links as $data) {
+					if ($data['value'] != 'export_file') {
+						// Move it to trash
+						$trashed =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data['minorid']);
+						$trashed->saveWebPaths(Array());
+						$GLOBALS['SQ_SYSTEM']->am->trashAsset($trashed->id);
+					}
+				}
+
+				if (in_array('associated_files.tar.gz', $extract_list)) {
+					// Got associated files, now get them linked up
+					create_directory($files_dir.'/extracted/');
+					require_once 'Archive/Tar.php';
+					$nested_tar_ball =& new Archive_Tar($files_dir.'/associated_files.tar.gz');
+
+					$nested_tar_ball->extract($files_dir.'/extracted/');
+					$assoc_files = list_files($files_dir.'/extracted/', TRUE);
+
+					foreach ($assoc_files as $full_path) {
+						$info = Array('name' => basename($full_path), 'tmp_name' => $full_path);
+						$info['non_uploaded_file'] = TRUE;
+						if (!$this->_processUploadedFile($asset, $info)) {
+							trigger_error(translate('core_design_export_associated_file_problem', basename($full_path)), E_USER_WARNING);
+						}
+					}
+				}
+
+				delete_directory($files_dir);
+			}//end if copy successful
+		} else {
+			trigger_error(translate('core_design_export_opening_problem', $file_info['name']), E_USER_WARNING);
+		}
+		return $write_access;
+
+	}//end processCurrentFiles()
 
 
 }//end class
