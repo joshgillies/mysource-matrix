@@ -19,12 +19,12 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.2.2.3 2005/08/12 00:57:22 mmcintyre Exp $
+* $Id: pgsql_functions.xml,v 1.2.2.4 2006/02/05 21:52:48 mmcintyre Exp $
 *
 */
 -->
 <sql>
-	<sql_element display_name="sq_grant_acces Function">
+	<sql_element display_name="sq_grant_access Function">
 		<![CDATA[
 			-- creates a function that grants access to the secondary user.
 			-- This function should be called after all the tables in the system
@@ -52,25 +52,43 @@
 			-- rollback entries are updated, they are aligned
 			CREATE OR REPLACE FUNCTION sq_set_rollback_timestamp(TIMESTAMP) RETURNS void AS '
 			DECLARE
-				tn varchar;
 				ts TIMESTAMP;
+				rec RECORD;
 			BEGIN
-				SELECT tablename INTO tn FROM pg_tables where tablename = ''sq_rollback_timestamp'';
+
+				-- create a temp table so that we can determine what out temporary namespace is
+				CREATE TEMP TABLE _temp_foo(f1 int);
+				DROP TABLE _temp_foo;
+
+				-- try to find a temporary table with the name of sq_rollback_timestamp where
+				-- it exists in our temporary schema name
+
+				PERFORM *
+					FROM pg_tables
+					WHERE
+						tablename = ''sq_rollback_timestamp'' AND schemaname = (current_schemas(true))[1];
+
 				IF NOT FOUND THEN
-					CREATE TEMP TABLE sq_rollback_timestamp(
+					EXECUTE ''CREATE TEMP TABLE sq_rollback_timestamp(
 						rb_timestamp TIMESTAMP not null
-					);
+					)'';
 				ELSE
 					RETURN;
 				END IF;
-				SELECT rb_timestamp INTO ts FROM sq_rollback_timestamp;
+
+
+
+				FOR rec in EXECUTE ''SELECT rb_timestamp FROM sq_rollback_timestamp'' LOOP
+					ts := rec.rb_timestamp;
+				END LOOP;
+
 				IF NOT FOUND THEN
-					INSERT INTO sq_rollback_timestamp VALUES(now()::timestamp);
+					EXECUTE ''INSERT INTO sq_rollback_timestamp VALUES(now()::timestamp)'';
 				END IF;
 
 				RETURN;
 			END;
-			' language plpgsql;
+			' language plpgsql VOLATILE;
 		]]>
 	</sql_element>
 	<sql_element display_name="sq_set_rollback_timestamp Function">
@@ -83,7 +101,7 @@
 				PERFORM sq_set_rollback_timestamp(now()::TIMESTAMP);
 				RETURN;
 			END;
-			' language plpgsql;
+			' language plpgsql VOLATILE;
 		]]>
 	</sql_element>
 	<sql_element display_name="sq_get_rollback_timestamp Function">
@@ -92,11 +110,16 @@
 			CREATE OR REPLACE FUNCTION sq_get_rollback_timestamp() RETURNS TIMESTAMP AS '
 			DECLARE
 				ts timestamp;
+				rec RECORD;
 			BEGIN
-				SELECT TO_CHAR(rb_timestamp, ''YYYY-MM-DD HH24:MI:SS'') INTO ts from sq_rollback_timestamp LIMIT 1;
+				PERFORM sq_set_rollback_timestamp();
+
+				FOR rec IN EXECUTE ''SELECT TO_CHAR(rb_timestamp, ''''YYYY-MM-DD HH24:MI:SS'''') as sts from sq_rollback_timestamp LIMIT 1'' LOOP
+					ts := rec.sts;
+				END LOOP;
 				RETURN ts;
 			END;
-			' language plpgsql;
+			' language plpgsql VOLATILE;
 		]]>
 	</sql_element>
 	<sql_element display_name="sq_get_lineage_from_url Function">
