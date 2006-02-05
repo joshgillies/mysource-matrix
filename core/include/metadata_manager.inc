@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.83.2.9 2006/01/06 05:28:51 skim Exp $
+* $Id: metadata_manager.inc,v 1.83.2.10 2006/02/05 22:34:46 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.83.2.9 $
+* @version $Revision: 1.83.2.10 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -567,7 +567,7 @@ class Metadata_Manager extends MySource_Object
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error('SYS0043', E_USER_WARNING.$assetid);
+			trigger_localised_error('SYS0043', E_USER_WARNING, $assetid);
 			return false;
 		}
 
