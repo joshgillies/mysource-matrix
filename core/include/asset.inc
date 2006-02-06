@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.502 2006/02/06 04:38:38 lwright Exp $
+* $Id: asset.inc,v 1.503 2006/02/06 05:35:06 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.502 $
+* @version $Revision: 1.503 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1113,9 +1113,6 @@ class Asset extends MySource_Object
 
 		// update all the vars
 		foreach ($old_version->vars as $var_name => $var_data) {
-			if ($var_data['type'] == 'serialise') {
-				$var_data['value'] = serialize($var_data['value']);
-			}
 			if (!$this->setAttrValue($var_name, $var_data['value'], true)) {
 				trigger_localised_error('SYS0165', E_USER_WARNING, $this->name, $var_name);
 				$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
