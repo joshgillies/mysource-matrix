@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.39 2006/01/26 22:34:04 lwright Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.40 2006/02/06 04:12:26 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -177,7 +177,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 							'asset'			=> &$asset,
 							'link_type'		=> SQ_LINK_TYPE_3,
 							'value'			=> $link['value'],
-							'sort_order'	=> null,
+							'sort_order'	=> NULL,
 							'is_dependant'	=> 1,
 							'is_exclusive'	=> 0,
 						   );
@@ -282,7 +282,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 				// now create the new link
 				$da =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data[$id_name][0], $data[$id_name][1]);
 				if (is_null($da)) return FALSE;
-				if (!$asset->createLink($da, SQ_LINK_TYPE_3, $id_name, null, '1')) {
+				if (!$asset->createLink($da, SQ_LINK_TYPE_3, $id_name, NULL, '1')) {
 					return FALSE;
 				}
 			}

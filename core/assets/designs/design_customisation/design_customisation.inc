@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.44 2006/01/30 04:22:42 lwright Exp $
+* $Id: design_customisation.inc,v 1.45 2006/02/06 04:12:26 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -120,7 +120,7 @@ class Design_Customisation extends Design
 					if ($info['name'] == $minor->name) {
 						// found the link to create
 						$new_minor =& $am->getAsset($assetid);
-						if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', null, '1')) {
+						if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', NULL, '1')) {
 							trigger_localised_error('CORE0162', E_USER_WARNING);
 							$am->forgetAsset($design);
 							$am->forgetAsset($new_minor);
@@ -135,7 +135,7 @@ class Design_Customisation extends Design
 				$am->forgetAsset($design);
 			}
 
-		}
+		}//end if is_a file
 
 		// special processing if we are deleting a TYPE_2 linked CSS file (a CSS file overridding a design file)
 		if ($delete_link['link_type'] == SQ_LINK_TYPE_2 && is_a($minor, 'design_css')) {
@@ -155,7 +155,7 @@ class Design_Customisation extends Design
 				if ($info['name'] == $minor->name) {
 					// found the link to create
 					$new_minor =& $am->getAsset($info['assetid']);
-					if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', null, '1')) {
+					if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', NULL, '1')) {
 						trigger_localised_error('CORE0161', E_USER_WARNING);
 						$am->forgetAsset($design);
 						$am->forgetAsset($new_minor);
@@ -248,7 +248,7 @@ class Design_Customisation extends Design
 		if (empty($this->_tmp['parent_design'])) {
 			$parent_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'design', FALSE, 'customisation', 'minor');
 			if (!$parent_link) {
-				$null_asset = null;
+				$null_asset = NULL;
 				return $null_asset;
 			} else {
 				$this->_tmp['parent_design'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid'], $parent_link['major_type_code']);
@@ -370,7 +370,7 @@ class Design_Customisation extends Design
 		foreach ($added_id_names as $id_name) {
 			$da =& $am->getAsset($parent_da_links[$id_name]['minorid'], $parent_da_links[$id_name]['minor_type_code'], TRUE);
 			if (is_null($da)) continue;
-			$this->createLink($da, SQ_LINK_TYPE_3, $id_name, null, '1');
+			$this->createLink($da, SQ_LINK_TYPE_3, $id_name, NULL, '1');
 		}//end foreach
 
 		//// THIRD, let's update the customised, but not specialised, design areas ////
@@ -393,13 +393,7 @@ class Design_Customisation extends Design
 			if (isset($da->vars['declared_vars'])) {
 				$da->mergeParentDeclaredVars($parent_da->attr('declared_vars'));
 			}
-			// This is added to ensure access history design areas get updated when the main
-			// parse file is edited. The is_a call is to ensure other design areas that use asset_contents
-			// (and are currently working) are not affected by this change.
-			// NOT NEEDED ANY MORE BECAUSE OF ABOVE CHANGE
-			// if (is_a($da, 'design_area_access_history') && isset($da->vars['asset_contents'])) {
-			// $da->setAttrValue('asset_contents', $parent_da->attr('asset_contents'));
-			// }
+
 			$da->saveAttributes();
 
 		}//end foreach
