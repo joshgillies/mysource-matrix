@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_management.inc,v 1.15 2005/10/11 02:04:50 tbarrett Exp $
+* $Id: design_area_management.inc,v 1.16 2006/02/06 23:27:39 dmckee Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,18 +68,18 @@ class Design_Area_Management extends Asset_Management
 						'print'				=> Array(
 												'added'			=> '0.0.1',
 												'type'			=> 'boolean',
-												'default'		=> true,
+												'default'		=> TRUE,
 												'parameters'	=> Array(
-																	'allow_empty'	=> false,
+																	'allow_empty'	=> FALSE,
 																   ),
 												'description'	=> 'Whether this DA should print output from its AREA tag or just initialise itself for later reference',
 											   ),
 						'cache'				=> Array(
 												'added'			=> '0.0.1',
 												'type'			=> 'boolean',
-												'default'		=> false,
+												'default'		=> FALSE,
 												'parameters'	=> Array(
-																	'allow_empty'	=> false,
+																	'allow_empty'	=> FALSE,
 																   ),
 												'description'	=> 'Whether this DA should cache its output',
 											   ),

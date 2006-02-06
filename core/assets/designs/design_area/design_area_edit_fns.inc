@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.52 2005/10/11 02:04:50 tbarrett Exp $
+* $Id: design_area_edit_fns.inc,v 1.53 2006/02/06 23:27:39 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,7 +70,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	function paintIdName(&$asset, &$o, $prefix)
 	{
 		echo $asset->attr('id_name');
-		return true;
+		return TRUE;
 
 	}//end paintIdName()
 
@@ -178,7 +178,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 					$nest_level++;
 					$tag['contents'] = $this->_parseStringContents($file_contents, $cur_pos, $nest_level);
 					// if something went wrong, bail out
-					if (is_null($tag['contents'])) return null;
+					if (is_null($tag['contents'])) return NULL;
 
 					// if this instance of the functions nest level is the same as the global one
 					// then the recursive call found e terminate tag, so remove it
@@ -190,25 +190,25 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 						$die_str = $this->tag_name;
 						$die_str .= (empty($tag['operation'])) ? '' : '_'.$tag['operation'];
 
-						foreach ($tag['attributes'] as $name => $value){
+						foreach ($tag['attributes'] as $name => $value) {
 							$die_str .= ' '.$name.'="'.$value.'"';
 						}
 
 						trigger_localised_error('CORE0213', E_USER_WARNING, $this->tag_name, $die_str);
-						return null;
+						return NULL;
 
 					}// end if
 				}// end if
 
 				$parsed[]  = $tag;
 
-			} //end if if next tag
+			}//end else if next tag
 
 			// end parsing the tag
 
 			$start_pos = $cur_pos;
 
-		}// end while
+		}//end while
 
 		// if this instance opf the funciton is not nested
 		// then it must be the root level
@@ -241,11 +241,11 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	{
 		// get the next terminate and open tag locations
 		$next_open_pos      = strpos($file_contents, '<'.$this->tag_name,  $cur_pos);
-		$next_open_tag      = ($next_open_pos !== false);
+		$next_open_tag      = ($next_open_pos !== FALSE);
 		$next_terminate_pos = strpos($file_contents, '</'.$this->tag_name, $cur_pos);
 
 		// if there is a terminate tag
-		if ($next_terminate_pos !== false) {
+		if ($next_terminate_pos !== FALSE) {
 			// if there is no open tag
 			// or if there is a open tag and its located after the terminate tag
 			// then parse the terminate tag
@@ -283,9 +283,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		$cur_pos += strlen('<'.$this->tag_name);
 
 		$in_quote     = '';
-		$escape_slash = false;
+		$escape_slash = FALSE;
 
-		$currently_getting = '';  // 'name' or 'value'
+		$currently_getting = '';  // name or value
 		$current_name  = '';      // attribute name
 		$current_value = '';      // attribute value
 
@@ -406,7 +406,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Return true if the whole string is whitespace of some kind
+	* Return TRUE if the whole string is whitespace of some kind
 	*
 	* @param string	$str	The string to check
 	*
@@ -455,10 +455,10 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	function _processContents(&$asset, $contents)
 	{
 		if ($this->_setVariables($asset, $contents)) {
-			$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
+			$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = TRUE;
 			return $asset->setAttrValue('contents', $contents);
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end _processContents()
@@ -518,7 +518,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 				if (!$asset->setAttrValue($element['attributes']['name'], $element['attributes']['value'])) {
 					trigger_localised_error('CORE0189', E_USER_WARNING, $element['attributes']['name'], $asset->attr('id_name'));
-					return false;
+					return FALSE;
 				}
 				$set_attrs[] = $element['attributes']['name'];
 
@@ -533,7 +533,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		}//end foreach
 
 		if (!$asset->setAttrValue('var_references', $var_references)) {
-			return false;
+			return FALSE;
 		}
 		// Now remove the elems
 		// reverse the order so we don't throw the numbers out of whack by removing one from the start
@@ -562,9 +562,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 				$default_val = unserialize($default_val);
 			}
 			$asset->setAttrValue($attr_name, $default_val);
-			$attr_to_set = null;
+			$attr_to_set = NULL;
 		}
-		return true;
+		return TRUE;
 
 	}//end _setVariables()
 
@@ -601,7 +601,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function _getDefaultContents(&$asset, $content_type)
 	{
-		$parent_types = $asset->getTypeAncestors(false);
+		$parent_types = $asset->getTypeAncestors(FALSE);
 		array_unshift($parent_types, $asset->type());
 		for ($i = 0, $total = count($parent_types); $i < $total; $i++) {
 
@@ -610,12 +610,12 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 				$contents = $this->_parseString(file_to_string($file));
 				return $contents;
-			}//	end if
+			}//end if
 
 			// we don't need to go any higher than this class
 			if ($parent_types[$i] == 'design_area') break;
 
-		}// end for
+		}//end for
 
 		return Array();
 
