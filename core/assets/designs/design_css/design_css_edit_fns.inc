@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_edit_fns.inc,v 1.14 2006/01/26 22:34:03 lwright Exp $
+* $Id: design_css_edit_fns.inc,v 1.15 2006/02/06 03:45:18 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,7 +47,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 	function Design_Css_Edit_Fns()
 	{
 		$this->Design_Edit_Fns();
-		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
 
@@ -55,10 +55,10 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 	/**
 	* Parses the string into an array recursively cut up into html and tag pieces
 	*
-	* @param object Asset	$asset	the asset to which we belong
+	* @param object	&$asset			the asset to which we belong
 	* @param string	$file_contents	the contents to parse
 	*
-	* @return Array
+	* @return array
 	* @access private
 	*/
 	function _parseString(&$asset, $file_contents)
@@ -76,8 +76,9 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 
 	/**
 	* Creates a new file asset, populates it, and links it to $asset
-	* @param object Asset	$asset	the asset to link the file to
-	* @param array			$info	info about the uploaded file
+	*
+	* @param object	&$asset	the asset to link the file to
+	* @param array	$info	info about the uploaded file
 	*
 	* @return boolean
 	* @access public
@@ -87,7 +88,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		// if we already have a file with the same name TYPE_3 linked to us,
 		// delete this link so we link up this new file
 		$existing_ids = Array();
-		$existing = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3, 'file', false);
+		$existing = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3, 'file', FALSE);
 		foreach ($existing as $link) {
 			$existing_ids[$link['minorid']] = $link['linkid'];
 		}
@@ -108,29 +109,31 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 
 
 	/**
+	* Paint interface for a customisation
 	*
-	* @param object Asset				$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
 	function paintNewCustomisation(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('links')) return false;
+		if (!$asset->writeAccess('links')) return FALSE;
 		check_box($prefix.'_new_customisation');
 		text_box($prefix.'_new_customisation_name', $asset->name.'.css', 40);
-		return true;
+		return TRUE;
 
 	}//end paintNewCustomisation()
 
 
 	/**
+	* Process the options for creating a new customisation
 	*
-	* @param object Asset				$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -138,7 +141,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 	function processNewCustomisation(&$asset, &$o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_new_customisation']) || !($new_name = trim($_POST[$prefix.'_new_customisation_name']))) {
-			return false;
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -148,11 +151,11 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		$map = Array();
 		$create_link = Array();
 
-		$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions'), false);
+		$clone =& $GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions'), FALSE);
 		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->rememberAsset($da);
@@ -161,39 +164,39 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($clone->id, 'all')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 
 		// Now let's morph the dupe into a design customisation
 		if (!$clone->morph('design_css_customisation')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 
 		// and link it back to ourselves
-		if (!$asset->createLink($clone, SQ_LINK_TYPE_2, 'customisation', null, '1')) {
+		if (!$asset->createLink($clone, SQ_LINK_TYPE_2, 'customisation', NULL, '1')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 		if (!($clone->setAttrValue('id_name', $new_name) && $clone->saveAttributes())) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		// Now create the links to our design areas
 		$da_links = $asset->getDesignAreaLink();
 		foreach ($da_links as $link) {
-			$da = &$am->getAsset($link['minorid'], $link['minor_type_code'], true);
+			$da =& $am->getAsset($link['minorid'], $link['minor_type_code'], TRUE);
 			if (is_null($da)) continue;
-			if (!$clone->createLink($da, SQ_LINK_TYPE_3, $link['value'], null, '1')) {
+			if (!$clone->createLink($da, SQ_LINK_TYPE_3, $link['value'], NULL, '1')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return false;
+				return FALSE;
 			}
 		}// end foreach
 
@@ -201,24 +204,24 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		$initial_path = strtolower($new_name);
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_paths = make_valid_web_paths(Array($initial_path));
-		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($asset, $valid_paths, $clone->id, true);
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($asset, $valid_paths, $clone->id, TRUE);
 		if (!$clone->saveWebPaths($good_paths)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 
 		// link up all the files from this design to the customisation
 		$file_link_ids = Array();
-		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', false);
+		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', FALSE);
 		foreach ($file_links as $link) {
-			$minor = &$am->getAsset($link['minorid'], $link['minor_type_code']);
-			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
+			$minor =& $am->getAsset($link['minorid'], $link['minor_type_code']);
+			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
 				trigger_localised_error('CORE0162', E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return false;
+				return FALSE;
 			}
 		}
 		$am->forgetAsset($minor);
@@ -227,33 +230,34 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($clone->id, 'all')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		return true;
+		return TRUE;
 
 	}//end processNewCustomisation()
 
 
 	/**
+	* Paints this assets current customisations
 	*
-	* @param object Asset				$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
 	function paintCurrentCustomisations(&$asset, &$o, $prefix)
 	{
-		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_css_customisation', true, 'major', 'customisation');
+		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_css_customisation', TRUE, 'major', 'customisation');
 		if ($customisation_links) {
-			$am = &$GLOBALS['SQ_SYSTEM']->am;
+			$am =& $GLOBALS['SQ_SYSTEM']->am;
 			foreach ($customisation_links as $link) {
-				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
+				$customisation =& $am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
 				echo '# ', $customisation->id, '&nbsp;&nbsp;<a href="', $customisation->getBackendHref(), '">', $customisation->name, '</a><br>';
 
