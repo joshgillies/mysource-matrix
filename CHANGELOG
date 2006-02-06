@@ -1,5 +1,47 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.6.5
+
+Complete Changelog
+----------------------
+
+Core
+
+* Fixed bug #1068: Lookup constraint violation for files
+* Fixed bug #1076: Lookup setting - URL confusion
+* Fixed bug #1081: Icon for type 2 shows as no access to Backend user
+* Fixed bug #1082: Image varieties in safe edit pages not displaying
+* Fixed bug #1086: Security restriction on one group, restricts access for all groups
+* Fixed bug #1091: Typo: 'Separate' misspelled in multiple places.
+* Fixed bug #1093: Filename change on asset creation
+* Fixed bug #1095: Preview using _nocache suffix for files
+* Fixed bug #1097: keyword event_end_date is not working properly
+* Fixed bug #1083: WYSIWYG needs a kickstart
+* Fixed bug #1108: Can't purge trash w/ desing customisations w/ associated files
+* Fixed bug #1112: Keywords not working in WYSIWYG editor in IE
+* Fixed bug #1115: Basic formatting buttons in WYSIWYG editor not working in IE
+
+CMS
+
+* Fixed bug #1079: Form tag missing in cached content for asset listing (Listing Engine)
+* Fixed bug #1080: Glitch in Default Sort By Option drop down on Asset Sorting screen (Listing Engine)
+* Fixed bug #1088: Complex Validation Rules not saved (Custom Form)
+* Fixed bug #1090: Custom form, switching html/plain text email breaks body content (Custom Form)
+* Fixed bug #1098: Account manager bodycopies missing keyword to access login error message (Account Manager)
+* Fixed bug #1100: Asset listing in random mode not working (Asset Listing)
+
+Search
+
+* Fixed bug #1087: Search folder asset should be link type 2 by default (Search Page)
+
+Calendar
+
+* Fixed bug #1078: Calendar Single Event Title Field Name not showing correctly (Calendar Event)
+* Fixed bug #1089: Asset keywords of recurring event always based on first day of a view (Calendar Page)
+
+
+
+
 VERSION 3.6.4
 
 Featured Changes
