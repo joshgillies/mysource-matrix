@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_roles.inc,v 1.1 2006/02/02 02:29:33 ndvries Exp $
+* $Id: hipo_job_edit_roles.inc,v 1.2 2006/02/06 05:58:20 sdanis Exp $
 *
 */
 
@@ -46,7 +46,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -259,7 +259,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 									case 'add':
 										$GLOBALS['SQ_SYSTEM']->am->setRole($asset->id, $roleid, $userid);
 									break;
-									case 'delete';
+									case 'delete':
 										$GLOBALS['SQ_SYSTEM']->am->deleteRole($asset->id, $roleid, $userid);
 									break;
 								}
