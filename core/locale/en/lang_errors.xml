@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.36 2006/02/02 06:41:25 rhoward Exp $
+* $Id: lang_errors.xml,v 1.37 2006/02/06 00:47:20 lwright Exp $
 *
 */
 
@@ -231,6 +231,10 @@
 	<!-- Role Edit HIPO Job -->
 	<error code="HIPO0075">Unable to initialise "Role Edit" HIPO, no asset(s) specified</error>
 	<error code="HIPO0076">Unable to initialise "Role Edit" HIPO, no roles to add/remove</error>
+
+	<!-- Regenerating Metadata HIPO Job -->
+	<error code="HIPO0077">Unable to regenerate metadata on asset "%1$s" (Id: %2$s) as the lock has expired; aborting job - contact your system administrator to increase the lock length and try again</error>
+	<error code="HIPO0078">Skipped regenerating metadata on asset "%1$s" (Id: %2$s) as the current user does not have write access to the asset</error>
 
 	<!-- CRON MANAGER -->
 
