@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_edit_fns.inc,v 1.2 2005/08/30 00:53:26 dheppell Exp $
+* $Id: report_asset_statuses_edit_fns.inc,v 1.3 2006/02/06 04:57:29 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,10 +48,10 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Generate this report until complete
 	*
-	* @param object HIPO_Job	&$job		a reference to the array of information about
-	* @param array				&$step_data	a reference to the array of information about
-	*										the current step of the HIPO job that is running this report
-	* @param string				$prefix		prefix for form vars
+	* @param object	&$job		a reference to the array of information about
+	* @param array	&$step_data	a reference to the array of information about
+	*							the current step of the HIPO job that is running this report
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
@@ -59,13 +59,13 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 	function generateReport(&$job, &$step_data, $prefix)
 	{
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$owner = &$am->getAsset($job->_running_vars['assetid'], 'report_asset_counter');
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$owner =& $am->getAsset($job->_running_vars['assetid'], 'report_asset_counter');
 		$where = Array();
 		$tables = Array('ast a');
 
-		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, '', false, 'root');
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, '', FALSE, 'root');
 		if (!empty($root_link)) {
 			// need to restrict results according to link tree position too
 			$parent_treeid = $db->getOne('SELECT t.treeid FROM sq_ast_lnk_tree t WHERE linkid IN (SELECT linkid FROM sq_ast_lnk WHERE minorid = '.$root_link['minorid'].')');
@@ -99,18 +99,18 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 
 		if (empty($result)) {
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
-			$job->_addError('No assets were found matching your criteria', true);
-			return false;
+			$step_data['complete']     = TRUE;
+			$job->_addError('No assets were found matching your criteria', TRUE);
+			return FALSE;
 		}
 		// find the users' names
 		$userids = Array();
 		foreach ($result as $r) {
-			if (!empty($r['status_changed_userid']) && (false === strpos($r['status_changed_userid'], ':'))) {
+			if (!empty($r['status_changed_userid']) && (FALSE === strpos($r['status_changed_userid'], ':'))) {
 				$userids[] = $r['status_changed_userid'];
 			}
 		}
-		$names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userids, Array(), false, 'name');
+		$names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userids, Array(), FALSE, 'name');
 		foreach ($result as $i => $r) {
 			if (isset($names[$r['status_changed_userid']])) {
 				$result[$i]['user_name'] = array_get_index($names, $r['status_changed_userid'], 'Unknown');
@@ -138,26 +138,26 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 
 		if (!is_dir($report_dir)) {
 			if (!create_directory($report_dir)) {
-				trigger_localised_error("CORE0198", E_USER_WARNING);
-				return false;
+				trigger_localised_error('CORE0198', E_USER_WARNING);
+				return FALSE;
 			}
 		}
 
 		// file manipulation section
 		$file_handler = fopen($xml_file_name, 'w');
-		if ($file_handler === false) {
-			trigger_localised_error("CORE0017", E_USER_WARNING);
-			return false;
+		if ($file_handler === FALSE) {
+			trigger_localised_error('CORE0017', E_USER_WARNING);
+			return FALSE;
 		}
 		fwrite($file_handler, $contents);
 		fclose($file_handler);
 
 		$step_data['percent_done'] = 100;
-		$step_data['complete']     = true;
+		$step_data['complete']     = TRUE;
 
 		unset($owner->_tmp['getAssetMapLinks']);
 		unset($owner->_tmp['getLinks']);
-		return true;
+		return TRUE;
 
 	}//end generateReport()
 
@@ -165,9 +165,9 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Paints the field for choosing the period of last status change
 	*
-	* @param object	Asset_Listing		&$asset		asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for the html doc element name
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
 	*
 	* @return boolean
 	* @access public
@@ -184,7 +184,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 		$comparator_attr =& $asset->getAttribute('status_change_period');
 		$comparator_attr->paint($prefix.'_period', !$write_access);
 		echo ' ago';
-		return true;
+		return TRUE;
 
 	}//end paintLastStatusChange()
 
@@ -192,9 +192,9 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Process that last status change time
 	*
-	* @param object	Asset_Listing		&$asset		asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for the html doc element name
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
 	*
 	* @return boolean
 	* @access public
@@ -207,7 +207,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 		$period_attr =& $asset->getAttribute('status_change_period');
 		$period_attr->process($prefix.'_period');
 		$asset->setAttrValue('status_change_period', $period_attr->value);
-		return true;
+		return TRUE;
 
 	}//end processLastStatusChange()
 
@@ -215,9 +215,9 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Paint the interface for viewing a report
 	*
-	* @param object Report				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -236,10 +236,10 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 			return;
 		}
 
-		$input = new XML_Tree($report_path);
-		$root  = &$input->getTreeFromFile();
+		$input =& new XML_Tree($report_path);
+		$root  =& $input->getTreeFromFile();
 		if (PEAR::isError($root)) {
-			trigger_localised_error("CORE0092", E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
+			trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
 			return;
 		}
 
@@ -291,12 +291,12 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 					</td>
 				</tr>
 			<?php
-		}
+		}//end foreach
 		?>
 		</table>
 		<?php
 
-	}
+	}//end paintReport()
 
 
 }//end class

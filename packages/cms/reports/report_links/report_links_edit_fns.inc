@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.8 2005/09/19 00:41:53 lwright Exp $
+* $Id: report_links_edit_fns.inc,v 1.9 2006/02/06 04:57:29 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,10 +47,10 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Generate this report until complete
 	*
-	* @param object HIPO_Job	&$job		a reference to the array of information about
-	* @param array				&$step_data	a reference to the array of information about
-	*										the current step of the HIPO job that is running this report
-	* @param string				$prefix		prefix for form vars
+	* @param object	&$job		a reference to the array of information about
+	* @param array	&$step_data	a reference to the array of information about
+	*							the current step of the HIPO job that is running this report
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
@@ -59,30 +59,30 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$owner = &$GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['assetid'], 'report_links');
+		$owner =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['assetid'], 'report_links');
 
 		if (!isset($job->_running_vars['results'])) {
-			$job->_running_vars['todo'] = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->getRootAssetid($owner), 'content_type', false);
+			$job->_running_vars['todo'] = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->getRootAssetid($owner), 'content_type', FALSE);
 			$job->_running_vars['done'] = Array();
 			$job->_running_vars['results'] = Array();
 
 			if (!is_dir($owner->data_path)) {
 				if (!create_directory($owner->data_path)) {
 					trigger_localised_error('CMS0005', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
 			}
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'w');
-			if ($temp_file === false) {
+			if ($temp_file === FALSE) {
 				trigger_localised_error('CMS0006', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 			fwrite($temp_file, "<links>\n");
 		} else {
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'a');
-			if ($temp_file === false) {
+			if ($temp_file === FALSE) {
 				trigger_localised_error('CMS0006', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 		}
 
@@ -94,7 +94,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			if ($asset_type == 'content_type_nest_content') {
 				$step_data['message'] = translate('cms_report_links_skipping_nest_content', $assetid);
 			} else {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 				if (!is_null($asset)) {
 					$step_data['message'] = translate('cms_report_links_generating');
@@ -103,7 +103,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					$wysiwyg_html = $asset->attr('html');
 
 					$master_matches = Array();
-					preg_match_all('%(href|src)=[\'"]([^\'\s"]*)%', $wysiwyg_html, $master_matches);//'
+					preg_match_all('%(href|src)=[\'"]([^\'\s"]*)%', $wysiwyg_html, $master_matches);
 					$matches = $master_matches[2];
 
 					foreach ($matches as $match) {
@@ -120,7 +120,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 						$results = Array();
 						preg_match('|^\./\?a=([0-9]+)#?([^$]*)?|',$match, $results);
-						$validated_results = false;
+						$validated_results = FALSE;
 						if (!empty($results)) {
 							$link_type = 'internal';
 							$validated_results = $this->validateInternalLink($results);
@@ -137,7 +137,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 							}
 						}
 
-						if ($validated_results === false) continue;
+						if ($validated_results === FALSE) continue;
 
 						$content .= "\t\t".'<link type="'.$link_type.'" valid="'.$validated_results['valid'].'">'."\n";
 						$content .= "\t\t\t".'<html><![CDATA['.$match.']]></html>'."\n";
@@ -158,21 +158,21 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					$job->_addError(translate('cms_report_links_asset_not_exist', $assetid));
 				}
 
-			}//end if nest content cell
+			}//end else nest content cell
 
 			// add this assetid to the done array so we dont do it again
 			$job->_running_vars['done'][] = $assetid;
-		}
+		}//end if
 
 		if (empty($job->_running_vars['todo'])) {
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
+			$step_data['complete']     = TRUE;
 
 			// move the temp file to become the real report XML file
 			fwrite($temp_file, '</links>');
 			if (!copy($owner->data_path.'/report.tmp', $owner->data_path.'/report.xml')) {
 				trigger_localised_error('CMS0007', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 			if (!unlink($owner->data_path.'/report.tmp')) {
 				trigger_localised_error('CMS0008', E_USER_WARNING);
@@ -180,11 +180,11 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		} else {
 			$total = count($job->_running_vars['todo']) + count($job->_running_vars['done']);
 			$step_data['percent_done'] = (count($job->_running_vars['done']) / $total) * 100;
-			$step_data['complete']     = false;
+			$step_data['complete']     = FALSE;
 		}
 
 		fclose($temp_file);
-		return true;
+		return TRUE;
 
 	}//end generateReport()
 
@@ -192,48 +192,47 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Check the validity of an internal link
 	*
-	* @param Array	$link	the internal link in the format:
-	*
-	*							Array
-	*							(
-	*								[0] => ./?a=123#anchor_name
-	*								[1] => 142
-	*								[2] => anchor_name
-	*							)
+	* @param array	$link	the internal link in the format:
+	*						Array
+	*						(
+	*						[0] => ./?a=123#anchor_name
+	*						[1] => 142
+	*						[2] => anchor_name
+	*						)
 	*
 	* @return array
 	* @access public
 	*/
 	function validateInternalLink($link)
 	{
-		$asset = null;
+		$asset = NULL;
 		$assetid = $link[1];
 		if ($assetid) {
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
 		}
 
 		if (is_null($asset)) {
 			// the asset was invalid
 			$description = translate('cms_report_links_point_invalid_assetid');
 			$valid = '0';
-		} else if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($assetid, true)) {
+		} else if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($assetid, TRUE)) {
 			// the asset is in the trash
 			$description = translate('cms_report_links_point_to_trash');
 			$valid = '0';
 		} else if (!empty($link[2])) {
 			$contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
-			$anchorExists = false;
+			$anchorExists = FALSE;
 
 			// check if we are looking for an interface for this asset
 			if (preg_match('/\/_admin|\/_edit/', $link[2], $matches)) {
-				$anchorExists = true;
+				$anchorExists = TRUE;
 			} else if (preg_match('/^\?(.+=.*)*/', $link[2], $matches)) {
-				$anchorExists = true;
+				$anchorExists = TRUE;
 			} else {
 			// otherwise lets traul the contents for a matching anchor
 				foreach ($contents as $content) {
 					if (preg_match('/<a name="'.$link[2].'">/', $content, $matches)) {
-						$anchorExists = true;
+						$anchorExists = TRUE;
 						break;
 					}
 				}
@@ -270,7 +269,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	function validateExternalLink($url)
 	{
 		// ignore bookmarks
-		if (substr($url, 0, 1) == '#') return false;
+		if (substr($url, 0, 1) == '#') return FALSE;
 
 		$url_parts = @parse_url($url);
 		if (empty($url_parts['scheme'])) {
@@ -341,8 +340,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					$valid = '0';
 				}
 				fclose($socket);
-			}
-		}
+			}//end else
+		}//end else
 
 		return Array('valid' => $valid, 'description' => $description);
 
@@ -352,7 +351,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Check the validity of an mailto
 	*
-	* @param string	$url	the mailto being validated
+	* @param string	$mailto	the mailto being validated
 	*
 	* @return array
 	* @access public
@@ -376,9 +375,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Paint the interface for viewing a report
 	*
-	* @param object Report				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -396,7 +395,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		}
 
 		$input =& new XML_Tree($report_path);
-		$root  = &$input->getTreeFromFile();
+		$root  =& $input->getTreeFromFile();
 		if (PEAR::isError($root)) {
 			trigger_localised_error('CMS0009', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
 			return;
@@ -440,7 +439,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			}
 		}//end foreach
 
-		//TODO: this translation has a 'note' prefix that is supposed to look like
+		// TODO: this translation has a 'note' prefix that is supposed to look like
 		//      a field header... could this be set up as a field?
 		echo translate('cms_report_links_current');
 		$o->closeSection();
@@ -462,11 +461,11 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					foreach ($reported_links['internal'] as $assetid => $links) {
 						foreach ($links as $link) {
 							$from_info = $this->_getAssetReportInfo($assetid);
-							$from_name = (strlen($from_info['name']) < 40) ? $from_info['name']: ellipsisize($from_info['name'], 40);
+							$from_name = (strlen($from_info['name']) < 40) ? $from_info['name'] : ellipsisize($from_info['name'], 40);
 
-							$to = null;
+							$to = NULL;
 							if ($link['data']) {
-								$to = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['data'], '', true);
+								$to =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['data'], '', TRUE);
 							}
 							if (is_null($to)) {
 								$to_type = '';
@@ -547,7 +546,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					?>
 					</table>
 					<?php
-				}//end if
+				}//end else
 			$o->closeField();
 		$o->closeSection();
 
@@ -569,7 +568,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					foreach ($reported_links['external'] as $assetid => $links) {
 						foreach ($links as $link) {
 							$from_info = $this->_getAssetReportInfo($assetid);
-							$from_name = (strlen($from_info['name']) < 40) ? $from_info['name']: ellipsisize($from_info['name'], 40);
+							$from_name = (strlen($from_info['name']) < 40) ? $from_info['name'] : ellipsisize($from_info['name'], 40);
 
 							$name = (strlen($link['data']) < 50) ? $link['data'] : ellipsisize($link['data'], 50);
 							$to_string = '<a href="'.$link['data'].'" target="_blank" title="'.$link['data'].'">'.$name.'</a>';
@@ -620,7 +619,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					?>
 					</table>
 					<?php
-				}//end if
+				}//end else
 			$o->closeField();
 		$o->closeSection();
 
@@ -691,7 +690,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					?>
 					</table>
 					<?php
-				}//end if
+				}//end else
 			$o->closeField();
 		$o->closeSection();
 
@@ -700,17 +699,18 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 	/**
 	* Get reporting information about an asset
+	* Returns array('assetid', 'type', 'string', 'bg')
 	*
 	* @param string	$assetid	the id of the asset we are getting reporting info for
 	*
-	* @return array('assetid', 'type', 'string', 'bg')
+	* @return array
 	* @access private
 	*/
 	function _getAssetReportInfo($assetid)
 	{
-		$asset = null;
+		$asset = NULL;
 		if ($assetid) {
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
 		}
 		if (is_null($asset)) {
 			$asset_type = '';
@@ -722,7 +722,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$asset_preview_url = '';
 		} else {
 			$dependants = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($asset->id);
-			$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset(array_pop($dependants));
+			$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset(array_pop($dependants));
 			if (!is_null($parent)) {
 				$asset_type = $parent->type();
 				$asset_name = $parent->name;
