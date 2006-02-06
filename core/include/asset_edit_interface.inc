@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.285 2006/01/13 05:42:54 sdanis Exp $
+* $Id: asset_edit_interface.inc,v 1.285.2.1 2006/02/06 21:46:13 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.285 $
+* @version $Revision: 1.285.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1281,6 +1281,12 @@ class Asset_Edit_Interface extends MySource_Object
 				$lm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
 				$current_location = $o->getCurrentLocation();
 				$current_location .= (strstr($current_location, '?')) ? '&' : '?';
+
+				// if we're using a different limbo assetid, make sure that the
+				// assetid is being brought through
+				if (SQ_IN_LIMBO && isset($_REQUEST['limbo_assetid'])) {
+					$current_location .= 'limbo_assetid='.$_REQUEST['limbo_assetid'].'&';
+				}
 
 				for (reset($this->_screens); NULL !== ($code = key($this->_screens)); next($this->_screens)) {
 					if (!$lm->hasLayout($owner->type(), $code)) continue;
