@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.500 2006/02/02 02:29:33 ndvries Exp $
+* $Id: asset.inc,v 1.501 2006/02/06 04:35:21 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.500 $
+* @version $Revision: 1.501 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2062,7 +2062,7 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
-		if ($new_status != $this->status) {
+		if ($new_status != $old_status) {
 			// the status has actually changed to a different one
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;

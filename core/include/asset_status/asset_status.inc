@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status.inc,v 1.18 2005/06/24 01:11:42 dheppell Exp $
+* $Id: asset_status.inc,v 1.19 2006/02/06 04:35:21 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Provide a generic framework for status objects
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 class Asset_Status extends MySource_Object
@@ -56,7 +56,7 @@ class Asset_Status extends MySource_Object
 	*/
 	function Asset_Status(&$owner)
 	{
-		$this->owner = $owner;
+		$this->owner =& $owner;
 		$this->MySource_Object();
 
 	}//end constructor
