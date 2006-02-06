@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.21 2006/01/26 22:34:04 lwright Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.22 2006/02/06 05:38:23 lwright Exp $
 *
 */
 
@@ -50,7 +50,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -192,16 +192,18 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		$this->asset_to_paint =& $asset;
 
 		// Retrieve any assets referenced in this bodycopy, and get their urls for lookup
-		if (file_exists($this->data_path.'/.sq_system/.notice_links')) {
-			$linked_assets = unserialize(file_to_string($this->data_path.'/.sq_system/.notice_links'));
+		if (file_exists($this->data_path.'/.notice_links')) {
+			$linked_assets = unserialize(file_to_string($this->data_path.'/.notice_links'));
 			$sq_asset_url_list = $GLOBALS['SQ_SYSTEM']->am->getAssetHref($linked_assets);
 		}
 
 		// Find stored keyword replacements
 		$paint_layout_keywords = Array();
-		if (file_exists($this->data_path.'/.sq_system/.keywords')) {
-			$required_keywords = array_keys(unserialize(file_to_string($this->data_path.'/.sq_system/.keywords')));
+		if (file_exists($this->data_path.'/.keywords')) {
+			$required_keywords = array_keys(unserialize(file_to_string($this->data_path.'/.keywords')));
 			$paint_layout_keywords = $this->_getAssetKeywordReplacements($asset, $required_keywords);
+		} else {
+			$paint_layout_keywords = $this->_getAssetKeywordReplacements($asset, $this->getKeywords());
 		}
 
 		// Read in content file, find keyword replacements, spit out the results
@@ -213,7 +215,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 				$content = replace_keywords($content, $paint_layout_keywords);
 			ob_end_clean();
 		} else {
-			$this->setKeywordReplacements($this->_getAssetKeywordReplacements($asset, $this->getKeywords()));
+			$this->setKeywordReplacements($paint_layout_keywords);
 			ob_start();
 				$this->printBody();
 				$content = ob_get_contents();
