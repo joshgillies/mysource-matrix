@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.12.2.3 2005/08/30 09:07:55 brobertson Exp $
+* $Id: lang_errors.xml,v 1.12.2.4 2006/02/06 00:48:22 lwright Exp $
 *
 */
 
@@ -211,6 +211,10 @@
 		<!-- core/hipo/hipo_backend_outputter.inc:301: -->
 
 	<error code="HIPO0060">Unable to initialise Install Patch HIPO, no patch ID specified</error>
+
+	<!-- Regenerating Metadata HIPO Job - HIPO0061..0077 used in DEV already -->
+	<error code="HIPO0077">Unable to regenerate metadata on asset "%1$s" (Id: %2$s) as the lock has expired; aborting job - contact your system administrator to increase the lock length and try again</error>
+	<error code="HIPO0078">Skipped regenerating metadata on asset "%1$s" (Id: %2$s) as the current user does not have write access to the asset</error>
 
 	<!-- CRON MANAGER -->
 

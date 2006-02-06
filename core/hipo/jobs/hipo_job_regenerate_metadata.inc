@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.24 2005/05/17 06:58:42 ndvries Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.24.2.1 2006/02/06 00:48:22 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.24.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -261,10 +261,23 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			if (!is_null($asset)) {
-				if (!$mm->regenerateMetadata($asset->id)) return false;
-				$step_data['message'] = translate('hipo_generate_metadata', $asset->name);
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-				unset($asset);
+				// check whether we still have the lock, bomb out if we don't
+				$lock_info = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($assetid, 'metadata');
+				if (empty($lock_info)) {
+					// we don't, bugger :-(
+					trigger_localised_error('HIPO0077', E_USER_ERROR, $asset->name, $assetid);
+					return false;
+				} else if (!$asset->writeAccess('metadata')) {
+					// we don't have write access to this asset for another
+					// reason (eg. status = Archived), skip the asset
+					$step_data['message'] = translate('hipo_skipping_asset', $assetid);
+					trigger_localised_error('HIPO0078', E_USER_WARNING, $asset->name, $assetid);
+				} else {
+					if (!$mm->regenerateMetadata($asset->id)) return false;
+					$step_data['message'] = translate('hipo_generate_metadata', $asset->name);
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+					unset($asset);
+				}
 			} else {
 				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
 				$this->_addError(translate('hipo_cannot_regenerate_metadata', $assetid));
