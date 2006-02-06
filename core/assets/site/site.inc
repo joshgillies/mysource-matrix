@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.85 2006/01/26 22:34:05 lwright Exp $
+* $Id: site.inc,v 1.86 2006/02/06 01:11:00 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -538,6 +538,23 @@ class Site extends Folder
 		$this->paintAsset($index_page);
 
 	}//end printFrontend()
+
+
+	/**
+	* Called by the design to print the body of this asset
+	*
+	* @return void
+	* @access public
+	*/
+	function printBody()
+	{
+		$index_page =& $this->getSpecialPage('index');
+		if (!is_null($index_page)) {
+			$index_page->printBody();
+		}
+		return;
+
+	}//end printBody()
 
 
 	/**
