@@ -1,262 +1,489 @@
 MYSOURCE MATRIX CHANGELOG
 
-
-VERSION 3.5.0 Beta
+VERSION 3.8.0 RC1
 
 Featured Changes
-----------------------
+-----------------------------------
 
-Session Timeouts
+Roles System
 
-	A new feature has been added to allow user sessions within MySource Matrix to be maintained for a customisable period of time (eg. 7 days).
-	A user is able to keep their session information (including login details and shopping basket contents) for a period of time without having to have their web browser open for the entire period. They could
-	log into MySource Matrix, edit some content, come back in 3 days and still be logged in.
+	A new role based system has been developed MySource Matrix. Roles are created like user groups and then used within the permissions and workflow systems. Each asset now has a Roles screen to allow administrators to assign Users or User Groups to a role. Role assignments can be cascaded in the same way as permissions are. When selecting Users or User Groups to assign permissions to, or when adding them to workflow steps, a Role can be added instead. In this case, the role represents a user or a group of users but differs depending on the asset to which it is assigned.
 
-	The 3 different types of session timeout options that can be set are:
-	- whether a user's session should expire when they close their browser
-	- whether a user's session should expire when they've been inactive for a certain period of time
-	- whether a user's session should expire if they haven't authenticated for a certain period of time
 
-	The feature has been added as a global/group preference rather than a system wide configuration setting, so you can choose to customise session timeout options per user group if you require, or use the global preference for all users.
+Linking Shadow Assets And Normal Assets
 
-Oracle Support
+	A system has been developed to allow shadow assets to be linked to real assets within MySource Matrix. The functionality of the link is less than standard asset links, but you are able to see the shadow assets as children of the Matrix asset in the asset map and list the shadow assets in a standard asset listing. One of the things this allows is for LDAP users to be placed in regular MySource Matrix user groups.
 
-	A number of additional changes have been made to the MySource Matrix database schema and source code to allow MySource Matrix to run on an
-	Oracle database. MySource Matrix can be installed and run on Oracle 9i but has not undergone thorough testing. Oracle support should be
-	considered preliminary but one development team will be doing all new development on an Oracle database instead of PostgreSQL.
 
-Paint Layouts
+Static Site URL
 
-	A new concept called Paint Layouts has been added to MySource Matrix. Paint layouts are like designs for your content. You can crate a paint
-	layout and customise how individual types of assets should look. For example, a news asset might be printed a certain way by default, but a
-	paint layout could be created so you can define your own way it is printed. Keywords are used to place attributes and metadata values of the asset on the screen.
+	A new system configuration option has been added to MySource Matrix that allows you to define a static URL for the system. The static URL can be used to allow alternate web servers to serve static content located in the data/public directory of MySource Matrix.
 
-Log Manager
+	The static URL is primarily used for file assets when they go live with public read access. Instead of setting the __data URL for a file MySource Matrix will use the static URL, allowing an alternate web server to serve the files and take some strain off the main Apache web server.
 
-	A new log manager system asset has been created to help manage the rotation of system log files. The Log Manager also allows
-	users to configure custom log rotation schedules as well as view existing system logs from the administration interface.
+	This is a system-wide setting (as there is only one data/public location) and the static URL needs to point to the data/public location. You still need to configure the __data alias in Apache so that the Java applet and any JavaScript code can access that location as well.
 
-Backend Translation
 
-	The MySource Matrix backend is now multi-language capable, meaning all string and error messages can be translated into languages other than English
-	Currently, the backend interface is only available in English, but support for other languages is planned.
+Last/Not Modified Headers
 
-Asset Map Changes
+	There are two new system configuration options that can be enabled to get MySource Matrix to send the correct last modified dates for URLs. If the asset has not been modified, or the same version is still in the MySource Matrix cache, a 304 Not Modified header can also be sent. The MySource Matrix cache manager must be enabled for both of these new options.
 
-	Many changes have been made to the asset map to improve usability for larger systems and to fix some of the bugs that existed. The main new features are multiple tree support, undockable view and multiple move/clone/link operations.
 
-Triggers
+Auto Login With PHP Auth Vars
 
-	A triggering system has been added to MySource Matrix to help users complete repetitive task and to enforce system wide business rules. For
-	example, you can configure a trigger in the system so that when Image assets are created under your site, they are automatically resized to 3 size variations, and added to the Media Folder.
+	There is a new configuration option that allows for the use of existing PHP authentication credentials to be used for an attempted login before displaying the MySource Matrix login box. If a user has visited another PHP application on the same domain as MySource Matrix during their session and has logged into that application using HTTP authentication initiated by the PHP script, MySource Matrix will have access to the username and password the user entered and can attempt to log them in automatically.
 
-Complete Changelog
-----------------------
+	This option, as well as the existing ALLOW_HTTP_LOGIN option, can be configured on the System Configuration screen in the administration interface.
+
+
+Asset Find Me
+
+	The standard tag line for assets now has an icon to show a list of that asset's lineages within the system. Selecting a lineage expands the asset map to the asset and highlights the lineage. The linking screen for assets also has an icon for each lineage displayed, allowing you to quickly open and highlight a lineage in the asset map.
+
+
+Asset Map Support For Large Asset Lists
+
+	When there are a large number of assets on the same level, the asset map takes a while to load all of them and the list becomes too long to browse through. The asset map has now been changed to only load and show a set number of assets on the one level. This number is configurable on the system configuration screen and defaults to 50 assets. When the list of assets is too large to show, buttons are provided to display the next and previous 50 assets in the list and to navigate to the top or bottom of the list.
+
+
+Asset Finder In Simple Edit
+
+	The simple edit interface now has the asset map frame like the administration interface except that the simple asset map is displayed instead of the fully-featured administration asset map. The asset map frame is hidden by default but appears when the user selects "Change" from an asset finder. Once the selection has been made, the asset map is hidden again.
+
+
+Friendly Name & Desciption For Metadata Fields
+
+	Metadata fields now have a friendly name and description that can be entered by the maintainers of metadata schemas. The friendly name, if entered, will be displayed to editors instead of the internal name of the field. For example, "Page Title" instead of "dc.title".
+
+	A description of the field will also be displayed if it has been entered. This description can be used to provide help to content editors and describe what content they should enter into the metadata fields.
+
+
+Forced Workflow Log Messages
+
+	Approvers can enter a workflow message when approving or rejecting the workflow for an asset. Previously, this was optional and there was no way to enforce it. A new option has been added that allows the maintainer of a workflow schema to specify that some workflow step conditions require a workflow message to be entered. When defining the workflow schema, a new checkbox is available next to each workflow condition to enforce the entering of a workflow log message.
+
+	For example, step 1 of the workflow may include an administrator (for escalation) and a group of legal experts. One of the legal experts must approve the content, or the administrator. You are now able to specify that a legal expert must enter a workflow message for this step but that the administrator does not have to.
+
+
+Keywords In Standard Pages
+
+	Standard pages can now include keywords for the page asset. All keywords normally available for standard asset fields, attributes and metadata values are available.
+
+
+Option To Set Web Path Separator
+
+	When web paths are added to assets, spaces in the name of the asset are replaced by "_" characters. There has been some discussion that using a "-" character would make the URLs easier to read and more search engine friendly. A new config option has been added to the system configuration screen that allows the root user to specify the character they want to use for the web path separator. The default value is still "_".
+
+
+Default Content Type Preference
+
+	A new preference has been added that allows you to configure the default content type used when creating DIVs and TABLEs in the bodycopy. Previously, a WYSIWYG cell was created as the default, but this can now be changed to any installed content type. Different preferences can also be set for each user group, allowing some editors to use WYSIWYG by default and others to use Raw HTML.
+
+
+Image Variety Resize On Largest Dimension
+
+	A new option has been added to image varieties that allows the resizing of the image based on the largest dimension. For example, entering a value of 100px will ensure that neither dimension of the image is greater than 100px. So if the original height was 400px and the width was 200px, the height would become 100px and the width 50px. Previously, you had to select which side of the image was used for constraining proportions but this new option allows that side to be determined dynamically.
+
+
+Asset Thumbnail Varieties
+
+	Image varieties of images attached as thumbnails can now be printed in listings using keywords. Previously, only the thumbnail image itself could be printed. To print a variety of a thumbnail, use the following keyword structure:
+		%asset_thumbnail_v_<variety name>%
+
+
+Future Lineage To Delete All Links
+
+	During the configuration of a future linage cron job, users may now optionally select to delete not just one, but all existing links for the given asset.
+
+
+Cascade Future Status Cron Job
+
+	When creating a future status cron job for an asset, you can now select an option to have the status change cascaded to the asset's children. This provides the same functionality already available when setting an asset's status manually.
+
+
+Design Import/Export
+
+	A new feature has been added to designs and CSS Files that allows them to exported to TAR archives and imported from properly constructed TAR archives. This functionality is available on the new Import/Export screen of the design asset. Note that customisations are not exported or imported.
+
+
+Associated Design Files Now Correct Type
+
+	Previously, files uploaded as associated design files were created as File assets within MySource Matrix. Designs now pick the most appropriate asset type when creating associated files. So CSS files are uploaded as MySource Matrix Text File assets and images are uploaded as Image assets.
+
+	This allows for asset specific functionality, such as inline editing of text files and image editing for images, to work on associated design files. It also allows you to embed a design image into the contents of other assets.
+
+
+Exclude Asset Types In Asset Lineage
+
+	The asset lineage design area now has an option that allows you to specify a list of asset types to exclude from the lineage. For example, if you have a deep folder structure that you want to hide you can exclude the Folder asset type from the lineage. The list of types to exclude can either be specified through a MySource_SET tag in the parse file (comma-separated) or chosen through the backend of a customised lineage design area asset.
+
+	An example MySource_SET tag for excluding Folder and User assets is:
+	<MySource_SET name="unwanted_asset_types" value="folder, user" />
+
+
+Override Inherited Design
+
+	New functionality has been added to the settings screen that allows you to override an inherited design (if any) with another one on a single asset, without affecting design inheritance to its children. This allows you to set up, for example, an asset with a 'home' design and all its children using an 'inside' design, by setting the 'home' asset with the 'inside' design set to be inherited by its children (using the regular selection box) and then setting the 'home' design as an override to give it its 'home' design that the children don't get.
+
+
+Reverse Asset Lineage Design Area
+
+	A new attribute has been added to the asset lineage design area to allow you to print the lineage in reverse (ie. with the last asset first and the first last). This may be useful if printing lineages right aligned instead of the usual left alignment.
+
+	To print a lineage in reverse, add the following line to an asset lineage design area:
+		<MySource_SET name="reverse_lineage" value="true" />
+
+
+New User Frequency Show If Condition
+
+	There is now a new show if condition that you can use to conditionally display content either:
+		- once every X hits by a user
+		- once every X hits limit 1 per specified time period
+		- once every specified time period
+
+	This condition requires the use of a cookie so must be used in a design before any output is generated.
+
+
+Global Keywords
+
+	Global keywords to print attributes of the currently logged in user are now available in any asset that has a design applied to it. Keywords are currently in the format: globals_user_*
+
+	Where '*' is any attribute or metadata field available to the user asset, eg. 'globals_user_name' or 'globals_user_assetid'.
+
+	Just place these keywords into the contents of any bodycopy for instant content personalisation.
+
+
+New Datetime Attribute Keywords
+
+	When printing a datetime attribute, you can now suffix the keyword with the format you would like the date shown in. Without the suffix, the keyword will be in the normal '---------- --:--:--' format.
+
+	The formats available are:
+		%asset_attribute_nameofattribute_short%    : 2005-09-14
+		%asset_attribute_nameofattribute_readable% : 14 Sep 2005 4:06pm
+		%asset_attribute_nameofattribute_iso8601%  : 2005-09-14T16:06:41
+		%asset_attribute_nameofattribute_rfc2822%  : Wed, 14 Sep 2005 16:06:41 +1000
+		%asset_attribute_nameofattribute_ical%     : 20050914T160641
+
+
+New Date Format For Keywords
+
+	A new date format has been added, allowing you to print the date component (no time component) of a metadata or attribute date field in RFC2822 format. Append "_rfc2822-dateonly" to date keywords to print a date like "Mon, 16 Jan 2006"
+
+
+New Asset Status Keywords
+
+	Two new keywords have been added for all assets to expose their current status. These keywords are available as standard asset keywords and can be used within listings, search results, paint layouts and even standard pages. The new keywords are:
+			%asset_status_description% - prints the status of the current asset
+										 (Live, Under Construction etc.)
+			%asset_status_colour%      - prints out the colour that corresponds
+										 to current asset's status (eg. #FFFFFF).
+										 This is the same colour that is seen in
+										 the asset map.
+
+
+Content Tagging
+
+	A new system has been developed that allows editors to tag assets with thesaurus terms. The content tagging system can examine the content of an asset and suggest thesaurus terms that may be relevant if you have the search package installed. You are able to cascade content tags (similar to permissions) and assign them weightings. Content tagging is performed on a new screen applied to all assets.
+
+
+Related Content Listing
+
+	A new listing asset has been developed to allow you to list assets that the same content tags as a specified asset. This asset can be used most effectively when nested into a paint layout or design so it can show related content for the asset currently being displayed.
+
+
+Listing Engine No Results Bodycopy
+
+	Previously, the search page was the only listing asset to have a 'No Results' bodycopy, allowing you to customise the look of the results page when the search did not find any assets. Now, all listing engine assets have the ability to print a different format if they have nothing to list.
+
+	For example, if you have a Whats New page that lists pages updated in the last day but no pages were updated in the last day, you can now print a message informing the user that there were no updates.
+
+
+Asset Listing Lists Shadow Assets
+
+	The asset listing now has the ability to list shadow assets, but there are some restrictions. Shadow assets can only be listed in an asset listing (not whats new or search pages) and they will only work with standard grouping (eg. 10 per page). A-Z listings will not work. Grouping and sorting will also not work.
+
+
+Configurable Link Types In Asset Listing
+
+	Asset listings and Whats new pages can now look down any type of link when listing direct children of the root node. Previously, only TYPE_1 and TYPE_2 links were listed, but this is now a configurable option. The link types can be set for the entire listing and also for each parent grouping.
+
+
+Group Listings By Standard Asset Fields
+
+	Listing assets can now group their lists by the value of a standard asset field. The standard fields are asset ID, type code, version, name, short name, status (a text description) and the date fields (created, updated etc).
+
+
+Numeric Sorting In Listings
+
+	Listings already had the ability to sort by the value of an asset attribute, but sorting was only done on strings and not numerically. So if you were sorting based on a numeric value such as a rating, the sorting would not work as expected. New functionality has now been developed to allow for true numeric sorting on INT and FLOAT attributes of assets.
+
+	The Search Fields screen now allows you to determine whether:
+		1) you want to search for an exact value as before
+		2) you want to search on a range of values specified by the user; or
+		3) you want to provide a drop-down list of ranges defined in the back-end for the user to search with
+
+	Keywords for 1) and 3) are as before. In the case of 2), %fieldname_query% and %fieldname_query_terms% will still work but it's recommended to use new "sub-field" keywords %fieldname_query_upper% and %fieldname_query_lower% (and similar for the query terms field, %fieldname_query_terms_upper% and %fieldname_query_terms_lower%) so you can place the upper and lower bound fields separately.
+
+	Numeric sorting also can handle the case were one of the bounds are left empty, in which case there is no boundary used for the empty bound.
+
+
+Asset Listing Levels
+
+	The asset listing page now has the ability to list assets from specified levels in the tree. If you are not listing direct links only then you can specify a minimum and maximum level to list assets from. Both the min and max values can be left empty to indicate no boundary.
+
+	For example, you can list assets 2+ levels down in the tree rather than listing all assets by setting the minimum level to 2 and leaving the maximum level empty. Similarly, you can list all level 2 and 3 assets by setting the minimum level to 2 and the maximum to 3.
+
+
+Paint Layouts Used In Asset Listings
+
+	When printing the contents of assets in a listing, the asset contents are now printed using a paint layout if one is applied. A new keyword, %asset_contents_raw%, has been added to allow you to print the contents of the asset without the paint layout if required.
+
+
+A-Z Listing Non-Alpha Characters Option
+
+	Previously, the A-Z setting of the asset listing only listed assets that started with the letters A-Z. It would exclude assets that started with numbers or other characters. A new page has been added to the frontend of A-Z lists that will list assets that start with non-alpha characters, such as numbers. The default name of this new page is "[Other]" but this can be changed to whatever text is required on the details screen of the asset listing.
+
+	Note that this new frontend screen will only appear if there are assets being listed with names starting with non-alpha characters.
+
+	This feature is also available in the Whats New page.
+
+
+New Odd/Even Keyword In Listing Engine
+
+	A new keyword has been added to the listing engine assets. The keyword %asset_odd_even% will be replaced by the text "odd" or "even" depending on if the result is in an odd or even number position in the listing.
+
+	You can use this keyword in a DIV or TABLE's "class" property to display alternating style combinations (such as row colour). For example, enter "%asset_odd_even%_row" to use the classes "odd_row" and "even_row" in your listings.
+
+
+Listing Engine Grouping Keywords
+
+	When grouping assets by a common parent in listing engine based assets, keywords can now be used to display information about the common parent. All standard keywords are available and are prefixed with "parent_" instead of "asset_".
+
+	For example, to print the URL of the grouping parent, use the keyword %parent_url%.
+
+
+Listing Engine Keyword For Link Value
+
+	A new keyword has been added to the listing engine to expose the value of the link between a listed asset and its group parent. If you have two groups set up, use "%group1_link_value%" for the first group and "%group2_link_value%" for the second group. This keyword is only available when grouping by parent asset.
+
+
+Limit Number Of Assets Listed In Group
+
+	A new option has been added to listing engine groups allowing you to limit the number of assets or other groups displayed within the group. For example, you could group your asset list by a common parent but only show 2 assets within each group.
+
+
+New Search Indexing And Weightings System
+
+	The search indexing and weightings system has been modified to give administrators greater control over the way their system is indexed. The biggest change is to the weightings system, which has received a significant interface overhaul.
+
+	There is no longer a relevance weights screen for any assets. All weightings specific to assets can now be set in the asset weightings screen in the search manager. Weightings are now very granular and can be set on assets, asset types, asset trees and on a global level. Asset components, asset attributes and metadata weightings are all customisable on each of the aforementioned levels. You can also turn off indexing for asset types, metadata assets and individual asset/attribute components on each of the levels.
+
+	Search will now index a lot more content by default, allowing all contents held within bodycopies to be discovered via the indexing system. However, you now have a lot more control over what gets indexed, so you are able to slim down the indexing system and only index the attributes, metadata and dates that you use for searching.
+
+
+Search Proxy Results
+
+	Search Page now has the ability to define "proxy" results, where you search for one type of asset but return another. This is best described using an example.
+
+	Assume you have a series of images in an image library and they are classified using the following structure:
+
+	Images
+	|_ Landscapes
+	|   |_ 123.jpg
+	|   |_ 234.jpg
+	|   |_ landscape_1.jpg
+	|   |_ ferns.jpg
+	|_ People
+		|_ greg.jpg
+		|_ nathan.jpg
+
+	Traditionally, a search for "landscape" with a Search Page configured to search for images would only have returned one result (landscape_1.jpg). However, what we really want is for all images of a "landscape" to be returned. The only way this could be done is to apply a metadata schema to the images and enter the keyword "landscape" into the field.
+
+	Now you can configured the search page to search for Folder assets only. You then go to the Proxy Asset Types screen and add Folder as a new proxy. Then select Image as a child asset type to display (you could also do File and click inherit).
+
+	Now when you search, all Image assets under Folder assets that have "landscape" in their name will be returned. Note that the Folder results are substituted in place of the Folder asset, so no folders will be returned in the search results. So instead of one search result (landscape_1.jpg) you would get 4 search results (123.jpg, 234.jpg, landscape_1.jpg and ferns.jpg).
+
+	You can use the new %initial_result_count% keyword to show out how many results were returned before the children asset types were substituted in. In this case, the following message on the results screen could be used:
+
+		Your search found %result_count% images in %initial_result_count% folders.
+
+
+Search Multiple Data Sources At Once
+
+	Search fields in a search page can now look at several data sources each. For instance, you can set up a field that searches in the "name" attribute of the asset AND in its "description" metadata field. Previously, you had to define two different fields and ask the user to enter terms into both. Note that any search fields that uses multiple data sources will be displayed as a text box.
+
+
+New Standard Search Data Sources
+
+	When defining search fields, you now have the option of searching a few new data sources called "standard asset fields". The standards fields allow you to define searches to look at the asset's name, short name, contents and all dates.
+
+
+Search Category Sets
+
+	Editors now have the ability to set up several sets of search categories in search pages. When a frontend user chooses search category options from several search category sets, results are restricted to assets that satisfy the conditions of all selected sets (eg they exist under several search roots, or their status is accepted in both category options).
+
+
+Customise Search Page Categories
+
+	Search page categories have always allowed you to specify a "Not Selected" option, enabling the user to search from the search page's root node rather than under a particular category. You can now choose to completely remove the "Not Selected" option to force users to choose a category. You can also specify which category option will be the default.
+
+
+Structured Root Node Selector
+
+	The structured root node selector allows a user to specify a location to search or list from when in a listing engine based asset. Essentially, the user is able to select the root node for the listing or search using a subset of the asset tree. The editor of the page can select a part of the tree to list, the types of assets to list and how many levels down should be shown. The user then selects from a drop-down list of assets populated from the part of the tree that was selected.
+
+
+Asset Lineage Divider Improved
+
+	Previously, there way no way of specifying that a divider should not be used in the asset lineage design area. If the divider was left empty, the default divider would be used. This behavior has now been changed to allow for empty dividers. The asset lineage design area will now print the default divider if no <My Source_DIVIDER> tag is  but will use no divider is an empty tag is used (<My Source_DIVIDER></My Source_DIVIDER>).
+
+
+Asset Builder Retains Values
+
+	When creating new assets using the Asset Builder, if something goes wrong and you get an error during processing, the Asset Builder now keeps your original form values and displays them again. Previously, the form was cleared and you had to re-enter the values again.
+
+
+Non-Table Based Site Map Output
+
+	The Site Map page now has an option where you can define the structure of the output. By default, table based output is shown. This can be changed to use a list based style, which uses UL and LI tags to create the site map rather than the default TABLE and TD tags. A list based site map allows you more flexibility by allowing you to use CSS to style the site map and make it look however you want.
+
+
+Ability To Delete Form Submissions
+
+	Custom form submissions can now be deleted from the Form Submissions screen. Individual form submissions can be deleted and a checkbox is provided to delete all form submissions displayed on the screen. Deleted form submissions are placed in the Trash so they can be recovered if required.
+
+
+Datetime Field Print Format
+
+	A new print format field has been added to the custom form datetime question. This format can be used to define how the date will appear in the form summary and the exported submission logs. The print format is entered in PHP date() format and defaults to Y-m-d H:i:s.
+
+
+New Multiple Page Asset
+
+	A new type of page is now available within MySource Matrix to make multi-page articles easier to develop. The new Multiple Page asset manages multiple pages of content and provides keywords to navigate between the pages. The individual pages have their own URLs, so links can be provided to these pages. Content can be shared between the individual pages, or between other pieces of content within the MySource Matrix system.
+
+
+RSS Feeds
+
+	A new asset has been developed to make the creation of RSS feeds easier. You can create RSS feeds by customising the type formats of the listing engine assets, but this new asset allows for feeds to be generated without the need for formatting. It also takes care of sending the correct headers and suppressing the site design. The RSS feed asset currently supports RSS 1.0 (RDF), RSS 2.0 and Atom 1.0.
+
+	To create the feed, you will need either an asset listing or a whats new page configured so the RSS feed can be generated from that list of assets.
+
+
+Online Poll Improved
+
+	The online poll has been rewritten to allow for complete customisation. Bodycopies are now available to define the voting, results and previous question screens. A range of new keywords are also available to help you customise the interface. Designs and paint layouts can be applied to the poll and an option for multiple selections and votes has been added.
+
+	Note that the rewrite will break backwards compatibility for existing online polls. All existing polls will need to be recreated.
+
+
+Referrer Keywords For Redirect Page
+
+	The redirect page now exposes keywords for the referring asset (the asset that the user was on before going to the redirect page). These keywords can be used inside a paint layout for the redirect page. The keywords are in the form: %referring_asset_<keyword>%
+
+	All standard keywords can be used and keywords without a value will be left empty.
+
+
+Redirect Timeout For Redirect Page
+
+	The redirect page now has a redirect timeout setting. The timeout is only used when the new window option is disabled and a design is applied to the redirect page. If set to a value great than 0, the redirect page will wait that number of seconds before redirecting. This allows you to display a 'redirecting you in 10 seconds...' type message using a paint layout.
+
+
+Remote Content Post Data
+
+	The remote content page now has the ability to specify custom POST data that to be sent with the initial request. The POST data is not sent for subsequent requests while the user is navigating within the remote content environment.
+
+
+Account Manager Redirect On Create
+
+	The account manager now has an option that allows you to redirect users to a specified asset once they have created their account. If you are using email validation, the redirect will occur once they validate their account.
+
+
+Reset Password Page
+
+	A new type of page asset has been created to allow a user to reset their password. The various screens are configurable using bodycopies, like the account manager. When the user resets their password, a confirmation email is sent with a confirmation link. When the user verifies that they want their password changed (by clicking the link), they enter their new password and are logged in.
+
+
+A Better Thesaurus
+
+	The thesaurus asset has received a major overhaul and rewrite. You are now able to browse your thesaurus using the asset map. You are also able to add, delete and modify the terms and relationships using the MySource Matrix interface rather than uploading a new XML file. A thesaurus can also be exported now.
+
+
+Bulk Email Management
+
+	The bulk email package is now ready for use. Any asset can be sent as the content of a bulk email (designs and paint layouts can be used). This content can either be generated on the fly for every single bulk email recipient, or can be generated once and sent to everyone. The latter method is useful for large mail outs due to reduced load on the web server.
+
+	Using either method, keywords can be placed in the content or subject header which allow you to print out the recipients' details. Bulk mailing can also be threshold based so that x emails are sent per hour and times can be excluded in order to reduce server load during peak times. System Administrators have the ability to enforce these threshold settings for all jobs in the system and can also view the progress of any queued or running jobs from a single interface.
+
+
+IPB Bridge
+
+	A new bridge has been developed to connect to an Invision Power Board installation. The bridge currently supports version 2.0.4 of IPB and allows you to view all users, groups, forums and polls in your IPB installation. The new IPB authentication system that comes with the bridge allows you to let your users log into your MySource Matrix system to view and edit content. Users in the banned list can be allowed or denied access to the system as required.
+
+
+DB Data Source
+
+	The DB data source allows you to connect to a local or an external database and execute a query. The results of the query will be displayed as shadow assets in the asset map. The DB data source asset also contains a GUI interface to build simple queries.
+
+
+RSS Data Source
+
+	A new data source has be developed to read RSS feeds and display the entries from the feed as shadow assets in the asset map. When used with the asset listing, you are able to redisplay RSS feeds from other sites inside your MySource Matrix system.
+
+
+Data Source Graphing
+
+	A new asset has been developed to graph the records created by a data source asset. This asset uses the PEAR:Graph package, a very powerful graphing tool, and provides a range of options that allow you to customise your graph. Currently, the graph asset is best used to graph the result of queries on your local MySource Matrix database or an external database through the DB data source.
+
+	The data source graph asset can specify an accumulative option to sum the y-axis value throughout the range of the x-axis. This useful for graphing changes over time when you only have the change per time unit.
+
+	The data source graph asset also has the ability to plot multiple data sources on a single graph. For example, you can graph the number of signups to a forum each month in a bar graph and overlay a line graph showing the cumulative value of users in the forum over time.
+
+	The data source graph asset acts like an image, so it can be inserted into the contents of a page and can have image varieties applied to produce smaller (or larger) versions of the main graph.
+
+
+Rolling Calendar Page
+
+	A new page asset has been added to the calendar package. The rolling calendar page is a calendar page that supports listing formats only (no tabular calendar layouts) and can be configured to show events that occur today, x days before today, and y days after today. It uses a page contents bodycopy, single event format bodycopy and recurring event bodycopy in the style of asset listing (although its code is self-contained).
+
+
+Restricted Period Calendar Page
+
+	A new page asset has been added to the calendar page. The restricted period calendar page extends the new rolling calendar page but it will only ever show dates within the period you specify in the backend. You specify how many days to show per page and if today is within the period it shows that number of days starting from today. If today is before or after the period specified the frontend shows the first or last x days of the period. Navigation links to show the next or last x days are available as keywords.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
 
 Core
 
-+ Added image varieties which allow for the creation of auto-size assets and thumbnail management
-+ Added a preview screen to each asset which allows for the asset to be previewed using all its urls
-+ Added a public user which allows better permission settings for non-logged in users on the frontend and backend
-+ Urls are now sorted on the web path screen to make finding urls easier
-+ Changes to bodycopy to allow for the insertion of shadow assets as hyperlinks and images
-+ Interface changes to the permission screen to better indicate when no permissions are set
-+ User Groups now have a web path so user groups can be visible on the frontend
-+ Images now have alt text, title text, an image caption, image width, image height and image size attributes
-+ New "Allow Unrestricted Access" option for files so files can be restricted to use the MySource Matrix url rather than the __data url
-+ Added web folders for designs, users and media to make designs, user and media assets web accessible
-+ Raw HTML content types now has a plugin allowing you to select from a list of available keywords and have the keyword inserted for you
-+ Users now have web paths meaning their details screen can now be edited from the simple editing interface without the account manager
-+ Internal messages can now be sent to other users from their inbox
-+ A new report to allow a list of assets who's status has not changed for a defined period of time
-+ Report assets now have the ability to show the assets under them in the asset map
-+ Added the ability for MySource Matrix sessions to be continued over domains using a site network asset
-+ Added batching of triggers to execute trigger actions on a large number of assets
-+ Added group restrictions based on IP ranges and show_if style conditions
-+ Workflow steps can now have an expiry date set, so that if the step has not been completed after the allocated period of time the administrators of the asset are notified via internal message and email.
-+ Assets can now be deleted in the asset map using the delete key
-+ My Space tab in the Asset Map now has the ability to go straight to a user's inbox, sent messages, and to send a new message
-+ A new global print var, content_type, has been added to designs to allow you to set the content-type of the output
-+ Rss feeds can now be created using the content_type print var in combination with a listing asset
-+ New tools section in the top right corner of the administration interface
-+ Added global search and replace tool to allow the searching and replacing of text in assets
-+ New text file asset that allows the user to edit its contents
-+ A new trigger action to set the future status of an asset
-+ A new trigger action to grant or deny permission for an asset
-+ The Broken Links Report has now been renamed to Links Report
-+ New cron job to rotate log files, and regenerate reports that read the log files
-+ A new trigger action to change an asset's attributes
-+ A new trigger action to set the web path of an asset
-+ A new trigger action to create an asset
-+ A new trigger event to allow a trigger to be fired when the status of an asset has changed
-- The thumbnail size restriction has been removed
-+ Group security restrictions now default to allow unrestricted screen access
-+ PDF File assets now have a password field where you can enter the password to unlock the PDF
-+ A new configuration screen has been added that allows users to define their own password rules
-+ Triggers now have a new blocking option to block the execution of failed triggers
-+ A feature has been added to allow system administrators to enforce a mandatory password change period for users
-+ A new design area has been developed to store and display the last few assets that a user views while accessing the frontend of a site
-+ New keyword date formats have been created to allow dates to be printed in iCal format
-+ The global search and replace tool has now been improved to allow individual matched terms to be selected for replacement
-+ The thesaurus metadata field has been changed to allow an editor to select multiple terms for the field using the thesaurus browser
-+ The metadata storage system has been improved to allow for faster retrieval of metadata values
-+ The Java asset map now supports version 1.5
-* Fixed bug: Sub menus in a design disappear when changes to the design are made.
-* Fixed bug: Design customisations cannot be deleted from the trash properly
-* Fixed bug #196: Uncustomising then recustomising design area in design customisation causes lock error
-* Fixed bug #209: Unable to Purge Trash with Design Customisations inside
-* Fixed bug #273: Linked CSS Design Area - Changing css asset
-* Fixed bug #274: Deleting a design or css customisation from it's parent
-* Fixed bug #327: Archive Status Colour makes name almost unreadable
-* Fixed bug #278: Asset map behaves inconsistently when an asset is visible with two link types
-* Fixed bug #352: Some people can't login using Firefox
-* Fixed bug #360: Adding an image without a URL causes the Insert Image script to freeze
-* Fixed bug #395: Problem declaring multiple vars in a single MySource AREA
-* Fixed bug #406: Permissions should always cascade to dependant assets
-* Fixed bug #420: Caching of nested content URLs breaks
-* Fixed bug #432: Disappearing thumbnails on divs
-* Fixed bug #457: Design area menu_stalks is not XHTML Strict compliant
-* Fixed bug #476: Image assets can't be cloned
-* Fixed bug #477: Permission Cascading in Designs
-* Fixed bug #488: Laying out the layout manager causes 0 is not valid asset error
-* Fixed bug #491: asset_manager::assetInTrash(exclusive=true) returns incorrect result
-* Fixed bug #492: Bookmarks show in Broken link report
-* Fixed bug #493: Permission check is ignoring the groups extending "User Group"
-* Fixed bug #498: DIV properties content type should default to current type
-* Fixed bug #501: Login_Form design area input boxes not using classes
-* Fixed bug #506: login_form design area not XHTML strict compatible
-* Fixed bug #507: Cant set max idle time to 0
-* Fixed bug #509: Two Login boxes on a page means you can't login using the first one
-* Fixed bug #511: IMG tag created by custom image design area is not XHTML compliant
-* Fixed bug #513: Parenthesis in design urls and import() statements break URL
-* Fixed bug #515: System adds Searchable Asset Type and can't remove using Remove
-* Fixed bug #517: Table editor javascript error
-* Fixed bug #518: Invisible tables in WYSIWYG table editor
-* Fixed bug #519: Keyword %asset_lineage% should use short_name of asset
-* Fixed bug #526: Customisation cannot be created in some case
-* Fixed bug #527: Possible undeclared variable in design_edit_fns
-* Fixed bug #528: Design/Media/Users folders can't get Designs applied
-* Fixed bug #529: User groups don't have a Web Paths screen
-* Fixed bug #530: Settings screen doesn't work on User Group assets
-* Fixed bug #532: Force <p> and <br> tags in the editor
-* Fixed bug #534: Problems with declared_vars design area
-* Fixed bug #537: Default Value Not Displaying in Chosen Date Format
-* Fixed bug #540: Customised design areas not always updated
-* Fixed bug #542: Sort order problem with newly created assets
-* Fixed bug #543: Editing interface referencing wrong file
-* Fixed bug #545: Checkbox list has default selection
-* Fixed bug #546: read messages in inbox will not delete
-* Fixed bug #548: Missing table error during install
-* Fixed bug #550: Cannot bump major version on some assets
-* Fixed bug #554: Cron manager bails without clearing error jobs
-* Fixed bug #556: No Table Row Delete Button
-* Fixed bug #557: Setting the character set does nothing
-* Fixed bug #551: CSS comments stop WYSIWYG styles from being shown
-* Fixed bug #552: Image transparency not preserved when resizing
-* Fixed bug #568: Asset names contain unencoded HTML characters
-* Fixed bug #572: Sysadmins getting locked out with 0 max login attempts
-* Fixed bug #574: Nested Redirect assets will still redirect if viewed in the backend
-* Fixed bug #577: Infinite loop with insert_image.php
-* Fixed bug #578: Hitting enter twice produces a mispositioned line
-* Fixed bug #586: Completed time not shown on the last step of a workflow
-* Fixed bug #599: Metadata Date Incorrect When Keyword Chosen
-* Fixed bug #600: Trigger manager - query too long
-* Fixed bug #603: Table content disappears in table editor window when editing large tables
-* Fixed bug #604: Inconsistent treatment of new-linking/cloning vs. moving assets for trashed assets
-* Fixed bug #605: Missing metadata default value (not confirmed)
-* Fixed bug #608: Created assets remain in memory
-* Fixed bug #611: Error adding CSS file to design (not confirmed)
-* Fixed bug #616: Relevance weights reset during step_03
-* Fixed bug #617: Design loses Text File in Safe Edit (not confirmed)
-* Fixed bug #618: Heading styles shortcut keys not working in WYSIWYG (not confirmed)
-* Fixed bug #619: Workflow reminder messages have broken links
-* Fixed bug #620: Thesaurus browser popup appears almost off the screen
-* Fixed bug #633: No metadata field is displayed if 'Only if filled' option is set
-* Fixed bug #635: Hipo Jobs with large number of assets fail when processed in one group
-* Fixed bug #636: Workflow schemas can be removed during workflow
-* Fixed bug #639: Event manager - memory
-* Fixed bug #643: Option list attribute ignores typed values if you dont click "add"
-* Fixed bug #644: Insert Link box's asset finder is broken in DEV
-* Fixed bug #645: Selecting to NOT cascade permissions causes lock cascades
-* Fixed bug #649: Problem moving assets with children; treeids for kids not re-created
-* Fixed bug #650: multiple declared vars type="boolean" error
-* Fixed bug #653: Simple edit has JavaScript error
-* Fixed bug #656: workflow_manager - undefined variables
-* Fixed bug #658: Standard Page Content Div won't release lock with parent
++ Any Image asset can be set as a thumbnail for an asset (previously only allowed Thumbnail assets)
++ Browser window title for Admin interface now contains "Administration Interface" (was "Backend")
++ Browser window title for Simple Edit interface now contains "Simple Edit Interface" (was "Backend")
++ New access key for HIPO job NEXT button (Alt + N)
++ Preview URLs now sorted based on the order of system root URLs on Preview screens
++ Status of Workflow Schema assets can now be changed
++ Status of Metadata Schema assets can now be changed
++ User account locked messages now added to system.log
+- WYSIWYG replace text functionality removed from Format Text WYSIWYG plugin
++ New Replace Text WYSIWYG plugin (previously included in Format Text plugin)
++ New Show Table Borders WYSIWYG plugin
++ New Special Chars WYSIWYG plugin
++ New Trigger Event fired when an asset is viewed on the frontend
++ New Trigger Event fired when an asset's metadata is updated
++ New Trigger Action to set the value of a metadata field
++ New Trigger Action to set a future lineage for an asset
++ Access history design area now allows printing of query string variables in the list
++ Can now exclude assets from Access History design area list
 
 CMS
 
-+ Asset listings can now have assets listed at a user defined hard set position in the list
-+ added two keywords for for use in listing assets to print the thumbnails url and caption
-+ Added position formats to define the format of asset at a particular position in the list
-+ The asset listing can now list assets above the root node as well as below.
-+ Listing assets can now list non-live assets
-+ All listing assets now extend the same set of listing functionality
-+ All listing assets can now sort their lists by the value of an asset attribute
-+ Added new keywords in the asset listing to link multiple asset listings together
-+ Custom Form Sections can now be named during creation
-+ Form submissions are now printed on screen in order of their submission time
-+ Form rules Value Begins With, Value Ends With, Value Contains, Value Found In and Regular Expression now have a case sensitive option
-+ New create location for an asset builder to allow for a user to choose a location to create the asset from the frontend
-+ Listing assets can now display a sort by option on the frontend
-+ Form submissions now have a details screen where you can edit the answers to questions that still exist in the form that created the submission
-* Fixed bug #206: Custom Form - questions being shown on the asset map in reverse sort order
-* Fixed bug #441: Submitting Details screen of Asset Listing wipes customised asset type formats
-* Fixed bug #471: Custom form displays date when only time is set to display
-* Fixed bug #475: Asset Listing - Positional Formats not being printed
-* Fixed bug #480: Client Side validation errors if Selection Limit rule is applied to Tickbox List
-* Fixed bug #484: Custom form select list won't allow "0"
-* Fixed bug #495: Asset listing uses default format when it should use a customised one
-* Fixed bug #496: Asset listing does not replace %asset_contents% keyword
-* Fixed bug #516: Remote Content cannot be nested
-* Fixed bug #523: Remote binary content fails
-* Fixed bug #524: asset_name for custom forms displays as "Form Contents"
-* Fixed bug #562: Email format does not replace keywords in 'To' field
-* Fixed bug #587: Custom form, switching html/plain text email breaks wysiwyg
-* Fixed bug #594: Using an asset builder to create a calendar event returns error
-* Fixed bug #602: Email receipts not sent if a blank email address is entered
-* Fixed bug #609: Asset listing root nodes default (not confirmed)
-* Fixed bug #610: %asset_listing% keyword is left unreplaced when there are no assets to list
-* Fixed bug #615: keyword select dropdown missing from Customised List Position Formats (not confirmed)
-* Fixed bug #621: Comparison form rule breaks when apostrophe in response
-* Fixed bug #622: Adding questions on a fresh install gives attribute not found errors
-* Fixed bug #624: Asset Listing inserts form tags when no dynamic keywords are used
-* Fixed bug #629: When exporting form logs the frontend errors
-* Fixed bug #648: Can't select an attribute to sort by in asset listing
-* Fixed bug #659: Listing Engine - Position not respected
-* Fixed bug #669: Asset Builder WYSIWYG Keywords missing
-* Fixed bug #670: Asset Builder using undefined function translated()
-
-
-LDAP
-
-+ The LDAP bridge can noe explicitly set the LDAP protocol to use
-+ LDAP user groups are now visible on the frontend
-* Fixed bug #561: LDAP fails to get groups based on the DN
-
-Calendar
-
-+ Calendar page now allows further restriction of the events displayed using the personalised attribute
-* Fixed bug #415: Recurring Event Cancellation\Modification does not work
-* Fixed bug #627: Mouseover description popups for calendar events in wrong position
-* Fixed bug #631: Recurring Event Cancellation asset asks for name and wont create
-* Fixed bug #634: Multi-day events don't always show up on the first day
-* Fixed bug #637: Error when creating calendar event modification
-* Fixed bug #651: Yearly events listing is not in chronological order
-
-Installer
-
-* Fixed bug #549: Installer allows mysql being selected
-
-Search
-
-+ Searches performed using a search page are now logged to file
-+ The search box can now display a list of categories from the selected search page
-+ The indexing system has been improved to better index PDF and Word documents
-+ The search page now has a new bodycopy to let you define the screen displayed if no results were found for a search
-+ The search page can now accept dynamic root nodes to use as search nodes on the query string
-+ The search page now has an option to allow it to conduct empty searches
-
-Ecommerce
-
-* Ecommerce engine now has advanced listing capabilities similar to those of the asset listing
++ New Content Type "code" to print syntax highlighted code blocks
++ New Content Type "structure tree" to print a tree strucutre
++ Asset listings can now be sorted by the value of a metadata field
++ New %next_page_href% keyword in listings
++ New %previous_page_href% keyword in listings
++ Incomplete Metadata Report now allows filtering by asset type
++ New option to enforce standard asset creation permissions in Asset Builder pages
++ Redirect Page has new keyword to place JavaScript redirect code in specific location on the page (if required)
++ Better support for cookies in Remote Content pages
