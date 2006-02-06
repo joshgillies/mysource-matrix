@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.3.2.1 2006/01/12 01:18:01 skim Exp $
+* $Id: lang_strings.xml,v 1.3.2.2 2006/02/06 23:29:39 lwright Exp $
 *
 *
 * Calendar Package Localised Strings File
@@ -36,7 +36,7 @@
 <string source="cal_event_every_month_last_weekday">Every month on the %1$s %2$s of the month</string>
 <string source="cal_event_unknown_frequency">Unknown frequency type "%s"</string>
 <string source="cal_event_recur_until_further_notice">until further notice</string>
-<string source="cal_event_recur_until_date">until date</string>
+<string source="cal_event_recur_until_date">until %s</string>
 <string source="cal_event_instance_duration">Duration of each instance</string>
 <string source="cal_event_first_start">Start of first instance</string>
 <string source="cal_event_first_end">End of first instance</string>
