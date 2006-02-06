@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.149 2006/02/02 06:46:23 rhoward Exp $
+* $Id: listing_engine.inc,v 1.150 2006/02/06 03:34:53 dmckee Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.149 $
+* @version $Revision: 1.150 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -474,7 +474,9 @@ class Listing_Engine extends Page
 			$replacements['first_asset_position']	= 0;
 			$replacements['last_asset_position']	= 0;
 			$replacements['previous_page']			= '';
+			$replacements['previous_page_href']		= '';
 			$replacements['next_page']				= '';
+			$replacements['next_page_href']			= '';
 
 			if (!is_null($no_results_bodycopy)) {
 				$no_results_bodycopy->setKeywordReplacements($replacements);
@@ -1144,15 +1146,19 @@ class Listing_Engine extends Page
 				// previous page link
 				if ($result_page <= 1) {
 					$replacements['previous_page'] = $this->attr('prev_page_text');
+					$replacements['previous_page_href'] = '';
 				} else {
 					$replacements['previous_page'] = '<a href="'.replace_query_string_vars(Array('result_page' => $result_page-1)).'">'.$this->attr('prev_page_text').'</a>';
+					$replacements['previous_page_href'] = replace_query_string_vars(Array('result_page' => $result_page-1));
 				}
 
 				// next page link
 				if ($result_page >= count($chunks)) {
 					$replacements['next_page'] = $this->attr('next_page_text');
+					$replacements['next_page_href'] = '';
 				} else {
 					$replacements['next_page'] = '<a href="'.replace_query_string_vars(Array('result_page' => $result_page+1)).'">'.$this->attr('next_page_text').'</a>';
+					$replacements['next_page_href'] = replace_query_string_vars(Array('result_page' => $result_page+1));
 				}
 
 				$this->_tmp['result_page'] = (int)$result_page;
@@ -1216,17 +1222,23 @@ class Listing_Engine extends Page
 
 				// previous page link
 				$prev_page_text = $this->attr('prev_page_text');
+				$prev_page_link = '';
 				if ($this_letter_key > 0) {
 					$prev_page_text = '<a href="'.replace_query_string_vars(Array('result_page' => $letters[$this_letter_key - 1])).'">'.$prev_page_text.'</a>';
+					$prev_page_link = replace_query_string_vars(Array('result_page' => $letters[$this_letter_key - 1]));
 				}
 				$replacements['previous_page'] = $prev_page_text;
+				$replacements['previous_page_href'] = $prev_page_link;
 
 				// next page link
 				$next_page_text = $this->attr('next_page_text');
+				$next_page_href = '';
 				if ($this_letter_key < (sizeof($letters) - 1)) {
 					$next_page_text = '<a href="'.replace_query_string_vars(Array('result_page' => $letters[$this_letter_key + 1])).'">'.$next_page_text.'</a>';
+					$next_page_href = replace_query_string_vars(Array('result_page' => $letters[$this_letter_key + 1]));
 				}
 				$replacements['next_page'] = $next_page_text;
+				$replacements['next_page_href'] = $next_page_href;
 
 				$replacements['total_pages'] = count($letters);
 				$this->_tmp['result_page'] = $this_letter_key + 1;
@@ -1307,15 +1319,19 @@ class Listing_Engine extends Page
 				// previous page link
 				if ($result_page <= 1) {
 					$replacements['previous_page'] = $this->attr('prev_page_text');
+					$replacements['previous_page_href'] = '';
 				} else {
 					$replacements['previous_page'] = '<a href="'.replace_query_string_vars(Array('result_page' => $result_page-1)).'">'.$this->attr('prev_page_text').'</a>';
+					$replacements['previous_page_href'] = replace_query_string_vars(Array('result_page' => $result_page-1));
 				}
 
 				// next page link
 				if ($result_page >= $num_pages) {
 					$replacements['next_page'] = $this->attr('next_page_text');
+					$replacements['next_page_href'] = '';
 				} else {
 					$replacements['next_page'] = '<a href="'.replace_query_string_vars(Array('result_page' => $result_page+1)).'">'.$this->attr('next_page_text').'</a>';
+					$replacements['next_page_href'] = replace_query_string_vars(Array('result_page' => $result_page+1));
 				}
 
 				$this->_tmp['result_page'] = (int)$result_page;
@@ -2952,7 +2968,9 @@ class Listing_Engine extends Page
 
 		$keywords['asset_listing']			= translate('cms_listing_asset_listing');
 		$keywords['previous_page']			= translate('cms_listing_previous_page_link');
+		$keywords['previous_page_href']		= translate('cms_listing_previous_page_link_href');
 		$keywords['next_page']				= translate('cms_listing_next_page_link');
+		$keywords['next_page_href']			= translate('cms_listing_next_page_link_href');
 		$keywords['page_list']				= translate('cms_listing_page_list');
 		$keywords['page_number']			= translate('cms_listing_page_number');
 		$keywords['asset_count']			= translate('cms_listing_asset_count');
