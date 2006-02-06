@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.24 2006/02/03 05:31:41 sdanis Exp $
+* $Id: lang_strings.xml,v 1.25 2006/02/06 01:16:32 ndvries Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -105,7 +105,7 @@ Please click on the following link if you would like to proceed:
 	<string source="bm_warning_no_generate_as">Content: 'Generate As' not set</string>
 	<string source="bm_warning_generate_as_login_error">Content: Unable to generate content as %1$s (Id #%2$s), user is either in trash or not live</string>
 	<string source="bm_warning_generate_as_no_read_access">Content: %1$s (Id #%2$s) does not have Read Access to 'Asset to Send' %3$s (Id #%4$s)</string>
-	<string source="bm_warning_design_no_public_read_access">Content: %1$s (Id #%2$s) does not have Public Read Access</string>
+	<string source="bm_warning_no_public_read_access">Content: %1$s (Id #%2$s) does not have public user read access. Check the status and permissions.</string>
 	<string source="bm_warning_no_from_field">Header Details: Missing 'From' field</string>
 	<string source="bm_warning_from_field_invalid_email">Header Details: Email address provided in 'From' field is invalid</string>
 	<string source="bm_warning_no_subject_field">Header Details: Missing 'Subject' field</string>

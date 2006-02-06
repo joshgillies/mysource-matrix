@@ -11,13 +11,14 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.34 2006/01/26 22:34:14 lwright Exp $
+* $Id: bulkmail_manager.inc,v 1.35 2006/02/06 01:16:03 ndvries Exp $
 *
 */
 
 require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_office.inc';
 require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 require_once SQ_FUDGE_PATH.'/general/www.inc';
+require_once 'Mail/RFC822.php';
 
 
 /**
@@ -29,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -742,18 +743,32 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_design']);
 			$public_read_access = $design->readAccess(Array($public_user->id));
 			if (!$public_read_access) {
-				$errors[] = translate('bm_warning_design_no_public_read_access', $design->name, $design->id);
+				$errors[] = translate('bm_warning_no_public_read_access', $design->name, $design->id);
 			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($design);
 		}
+
+		// layout does not have public read access
+		if (!empty($details_info['content_layout'])) {
+			$layout =& $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_layout']);
+			$public_read_access = $layout->readAccess(Array($public_user->id));
+			if (!$public_read_access) {
+				$errors[] = translate('bm_warning_no_public_read_access', $layout->name, $layout->id);
+			}
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($layout);
+		}
+
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($public_user);
 
 		// no 'from' field
 		if (empty($details_info['from'])) {
 			$errors[] = translate('bm_warning_no_from_field');
 		// 'from' field is not a valid email address
-		} else if (!valid_email($details_info['from'])) {
-			$errors[] = translate('bm_warning_from_field_invalid_email');
+		} else {
+			$addresses = Mail_RFC822::parseAddressList($details_info['from']);
+			if (PEAR::isError($addresses)) {
+				$errors[] = translate('bm_warning_from_field_invalid_email');
+			}
 		}
 
 		// no 'subject' field
