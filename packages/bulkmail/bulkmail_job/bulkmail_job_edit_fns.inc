@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.26 2006/02/03 05:31:41 sdanis Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.27 2006/02/06 04:14:38 ndvries Exp $
 *
 */
 
@@ -19,6 +19,7 @@
 require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_office_edit_fns.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/general/www.inc';
+require_once 'Mail/RFC822.php';
 
 
 /**
@@ -30,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -414,7 +415,8 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$recipient = array_get_index($_REQUEST, $prefix.'_preview_address', '');
-		if (empty($recipient) || !valid_email($recipient)) {
+		$validated_recip = Mail_RFC822::parseAddressList($recipient);
+		if (empty($recipient) || PEAR::isError($validated_recip)) {
 			trigger_localised_error('BML0013', E_USER_WARNING, $recipient);
 			return FALSE;
 		}
