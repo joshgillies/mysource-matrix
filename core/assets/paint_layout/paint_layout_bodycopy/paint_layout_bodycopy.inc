@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.23 2006/02/07 04:51:00 lwright Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.24 2006/02/07 05:07:32 lwright Exp $
 *
 */
 
@@ -50,7 +50,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -200,9 +200,9 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			$linked_assets = Array();
 			$containers =& $this->getContainers();
 
-			foreach($containers as $container) {
+			foreach ($containers as $container) {
 				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($container->id, SQ_LINK_NOTICE);
-				foreach($links as $link) {
+				foreach ($links as $link) {
 					$linked_assets[] = $link['minorid'];
 				}
 			}
