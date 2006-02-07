@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.42 2005/10/27 02:09:00 lwright Exp $
+* $Id: datetime.inc,v 1.43 2006/02/07 22:49:16 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     General function for manipulating dates and times
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package Fudge
 * @subpackage General
 */
@@ -93,10 +93,10 @@ function easy_datetime($then='')
 * @return mixed string|array
 * @access public
 */
-function easy_time_total($secs=0, $full_format=false, $return_array=false, $units=Array('d', 'h', 'm', 's'))
+function easy_time_total($secs=0, $full_format=FALSE, $return_array=FALSE, $units=Array('d', 'h', 'm', 's'))
 {
 	// type verification
-	if (!is_int($secs) || !is_bool($full_format) || !is_bool($return_array) || !is_array($units)) {
+	if (!is_numeric($secs) || !is_bool($full_format) || !is_bool($return_array) || !is_array($units)) {
 		return '';
 	}
 
@@ -107,7 +107,7 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false, $unit
 		$suffix = '';
 	}
 
-	$secs = (int) $secs;
+	$secs = $secs;
 
 	$minute = 60;
 	$hour   = 60 * $minute;
@@ -160,13 +160,11 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false, $unit
 			// if there are no days don't need a joiner
 			if (!$num_days) {
 				$joiner = '';
-			}
-			// else if there aren't any minutes or seconds so join with " and "
-			else if (!$num_minutes && !$num_seconds) {
+			} else if (!$num_minutes && !$num_seconds) {
+				// else if there aren't any minutes or seconds so join with " and "
 				$joiner = ' and ';
-			}
-			// else there must be more following join with a comma
-			else {
+			} else {
+				// else there must be more following join with a comma
 				$joiner = ', ';
 			}
 
@@ -177,13 +175,11 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false, $unit
 			// if there are no days or hours don't need a joiner
 			if (!$num_days && !$num_hours) {
 				$joiner = '';
-			}
-			// else if there aren't any seconds so join with " and "
-			else if (!$num_seconds) {
+			} else if (!$num_seconds) {
+				// else if there aren't any seconds so join with " and "
 				$joiner = ' and ';
-			}
-			// else there must be more following so join with a comma
-			else {
+			} else {
+				// else there must be more following so join with a comma
 				$joiner = ', ';
 			}
 
@@ -194,9 +190,8 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false, $unit
 			// if there are no days, hours or minutes don't need a joiner
 			if (!$num_days && !$num_hours && !$num_minutes) {
 				$joiner = '';
-			}
-			// else must be something preceding us so join with " and "
-			else {
+			} else {
+				// else must be something preceding us so join with " and "
 				$joiner = ' and ';
 			}
 
@@ -217,13 +212,11 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false, $unit
 			// if there are no days don't need a joiner
 			if (!$num_days) {
 				$joiner = '';
-			}
-			// else we must be following the days so if there minutes or seconds we have a space
-			else if ($num_minutes || $num_seconds) {
+			} else if ($num_minutes || $num_seconds) {
+				// else we must be following the days so if there minutes or seconds we have a space
 				$joiner = ' ';
-			}
-			// else we must be following the days so but as there is no minutes or seconds we have " and "
-			else {
+			} else {
+				// else we must be following the days so but as there is no minutes or seconds we have " and "
 				$joiner = ' and ';
 			}
 
@@ -241,17 +234,14 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false, $unit
 			// if there are no days or hours don't need a joiner
 			if (!$num_days && !$num_hours) {
 				$joiner = '';
-			}
-			// else if we are following hours, then have a colon
-			else if ($num_hours) {
+			} else if ($num_hours) {
+				// else if we are following hours, then have a colon
 				$joiner = ':';
-			}
-			// else we must be following the days so if there seconds we have a space
-			else if ($num_seconds) {
+			} else if ($num_seconds) {
+				// else we must be following the days so if there seconds we have a space
 				$joiner = ' ';
-			}
-			// else we must be following the days so but as there is no seconds we have " and "
-			else {
+			} else {
+				// else we must be following the days so but as there is no seconds we have " and "
 				$joiner = ' and ';
 			}
 
@@ -273,13 +263,11 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false, $unit
 			// if there are no days or hours don't need a joiner
 			if (!$num_days && !$num_hours && !$num_minutes) {
 				$joiner = '';
-			}
-			// else if there hours the have a colon
-			else if ($num_hours || $num_minutes) {
+			} else if ($num_hours || $num_minutes) {
+				// else if there hours the have a colon
 				$joiner = ':';
-			}
-			// else we must be following days, so just have a space
-			else {
+			} else {
+				// else we must be following days, so just have a space
 				$joiner = ' and ';
 			}
 
@@ -322,7 +310,7 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false, $unit
 * @return string
 * @access public
 */
-function readable_datetime($then=null)
+function readable_datetime($then=NULL)
 {
 	return (is_null($then)) ? date('jS M Y g:ia') : date('jS M Y g:ia', $then);
 
@@ -337,15 +325,15 @@ function readable_datetime($then=null)
 * @return boolean
 * @access public
 */
-function is_leap_year($year=null)
+function is_leap_year($year=NULL)
 {
 	if (is_null($year)) $year = (int) date('Y');
-	if ($year % 4 != 0) return false;
+	if ($year % 4 != 0) return FALSE;
 
 	// only 1 out of every four hundred year milestones is a leap year
 	if ($year % 100 == 0) return (($year / 100) % 4 == 0);
 
-	return true;
+	return TRUE;
 
 }//end is_leap_year()
 
@@ -428,7 +416,7 @@ function increment_date(&$day, &$month, &$year, $days_to_add=1)
 * @param int	&$year			year component of the date to decrement (YYYY)
 * @param int	$days_to_sub	number of days to subtract from the date
 *
-* @return mixed void|null
+* @return void
 * @access public
 */
 function decrement_date(&$day, &$month, &$year, $days_to_sub=1)
@@ -456,7 +444,7 @@ function decrement_date(&$day, &$month, &$year, $days_to_sub=1)
 * @param int	&$year			year component of the date to increment (YYYY)
 * @param int	$months_to_add	number of months to add to the date
 *
-* @return mixed void|null
+* @return void
 * @access public
 */
 function increment_month(&$month, &$year, $months_to_add=1)
@@ -484,7 +472,7 @@ function increment_month(&$month, &$year, $months_to_add=1)
 * @param int	&$year			year component of the date to increment (YYYY)
 * @param int	$months_to_sub	number of months to subtract from the date
 *
-* @return mixed void|null
+* @return void
 * @access public
 */
 function decrement_month(&$month, &$year, $months_to_sub=1)
@@ -630,8 +618,7 @@ function weekday_dates_in_month($weekday, $month, $year)
 
 	if ((int) $weekday < $first_weekday) {
 		$day_add = 7 - $first_weekday + (int) $weekday;
-	}
-	else {
+	} else {
 		$day_add = (int) $weekday - $first_weekday;
 	}
 	$day = strtotime('+'.$day_add.' days', $day);
@@ -661,9 +648,9 @@ function weekday_dates_in_month($weekday, $month, $year)
 */
 function iso8601_date_component($iso8601)
 {
-	if (!is_iso8601($iso8601)) return false;
+	if (!is_iso8601($iso8601)) return FALSE;
 	if (substr($iso8601,0,10) == '----------') {
-		return false;
+		return FALSE;
 	}
 	return substr($iso8601,0,10);
 
@@ -683,9 +670,9 @@ function iso8601_date_component($iso8601)
 */
 function iso8601_time_component($iso8601)
 {
-	if (!is_iso8601($iso8601)) return false;
-	if (strlen($iso8601) < 13) return false;
-	if (substr($iso8601,11) == '--:--:--') return false;
+	if (!is_iso8601($iso8601)) return FALSE;
+	if (strlen($iso8601) < 13) return FALSE;
+	if (substr($iso8601,11) == '--:--:--') return FALSE;
 	return substr($iso8601,11);
 
 }//end iso8601_time_component()
@@ -693,13 +680,11 @@ function iso8601_time_component($iso8601)
 
 /**
 * Returns true if passed string is a valid ISO8601 time with at least a full date
-*
 * Currently valid
 * Date only (2005-10-27) - five digit dates (for 10000+ AD) are not permitted
 * Date and time without time zone (2005-10-27T09:16:00)
 * Date and time with time zone (2005-10-27T09:16:00+10:00)
 * Date and time with "Z" (Zulu) time zone for UTC (2005-10-26T23:16:00Z)
-*
 * The "T" can also be replaced by a space, for backward compatibility with
 * those using SQL
 *
