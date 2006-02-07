@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.20 2006/01/26 22:34:08 lwright Exp $
+* $Id: linking.inc,v 1.21 2006/02/07 02:18:51 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 */
 
@@ -36,22 +36,22 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 /**
 * Paints the interface for viewing links to/from this asset
 *
-* @param object	Asset					$owner		the asset whose interface we are painting
-* @param object	Backend_Outputter		$o			the outputter class
-* @param object	Asset_Edit_Interface	&$ei		the edit interface
-* @param boolean						$allow_edit	allow editing of link types if user has access
+* @param object		&$owner		the asset whose interface we are painting
+* @param object		&$o			the outputter class
+* @param object		&$ei		the edit interface
+* @param boolean	$allow_edit	allow editing of link types if user has access
 *
 * @return boolean
 * @access public
 */
-function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
+function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 {
 	// If we are allowed to edit, we check the write effective access, minus live edit access
 	// We are ignoring live edit access because changes to links are not reliant on
 	// status of the asset (because the are not safe edited)
-	$created = false;
+	$created = FALSE;
 
-	$write_access = ($allow_edit) ? $owner->writeAccess('links') :  false;
+	$write_access = ($allow_edit) ? $owner->writeAccess('links') :  FALSE;
 
 	// prefix for all the form vars
 	$prefix = $owner->getPrefix();
@@ -61,9 +61,9 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 	$o->openField('');
 	echo '<i>'.translate('link_types_note').'</i><br/><br/>';
 
-	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
 	$assetids = Array();
-	$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_SC_LINK_ALL, '', true, 'minor');
+	$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_SC_LINK_ALL, '', TRUE, 'minor');
 	$editable_link_types = Array(
 							SQ_LINK_TYPE_1	=> link_type_name(SQ_LINK_TYPE_1),
 							SQ_LINK_TYPE_2	=> link_type_name(SQ_LINK_TYPE_2),
@@ -95,7 +95,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 
 		$sql .= $where.' ORDER BY cl.linkid, ct.treeid, pt.treeid';
 
-		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
+		$result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
 		assert_valid_db_result($result);
 	}
 
@@ -150,7 +150,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 						if (!$can_edit) {
 							echo link_type_name($link_type);
 						} else {
-							combo_box($prefix.'_link_type['.$linkid.']', $editable_link_types, false, $link_type);
+							combo_box($prefix.'_link_type['.$linkid.']', $editable_link_types, FALSE, $link_type);
 							$editing_linkids[] = $linkid;
 						}
 						?>
@@ -160,7 +160,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 				<?php
 				$output_lineages[] = ob_get_contents();
 			ob_end_clean();
-		}
+		}//end foreach
 
 	}//end foreach result
 
@@ -190,7 +190,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 	$fl_jobs = &Cron_Job_Future_Lineage::getActiveJobs($owner);
 
 	if (!empty($fl_jobs) || $write_access) {
-		$created = true;
+		$created = TRUE;
 		$o->openSection(translate('future_linking'));
 			if (!empty($fl_jobs)) {
 				$o->openField('', 'new_line');
@@ -205,7 +205,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 							</td>
 							<?php
 							if ($write_access) {
-								$created = true;
+								$created = TRUE;
 								?>
 								<td class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></td>
 								<?php
@@ -224,7 +224,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 								</td>
 								<?php
 								if ($write_access) {
-									$created = true;
+									$created = TRUE;
 									?>
 									<td class="sq-backend-table-cell" style="text-align: center;">
 										<?php
@@ -249,7 +249,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 			}//end if future lineage jobs
 
 			if ($write_access) {
-				$created = true;
+				$created = TRUE;
 				$fl =& new Cron_Job_Future_Lineage();
 				$fl->setAssetInLink($owner, 'minor');
 				$edit_fns = $fl->getEditFns();
@@ -268,9 +268,9 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 /**
 * Processes the interface for viewing links to/from this asset
 *
-* @param object	Asset					$owner		the asset whose interface we are painting
-* @param object	Backend_Outputter		$o			the outputter class
-* @param object	Asset_Edit_Interface	&$ei		the edit interface
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
 *
 * @return boolean
 * @access public
@@ -284,13 +284,13 @@ function processLinking(&$owner, &$o, &$ei)
 	}
 
 	// if we dont have effective write access, dont process anything
-	if (!$owner->writeAccess('links')) return false;
+	if (!$owner->writeAccess('links')) return FALSE;
 
 	// prefix for all the form vars
 	$prefix = $owner->getPrefix();
 
-	$done_something = false;
-	$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_SC_LINK_ALL, '', true, 'minor');
+	$done_something = FALSE;
+	$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_SC_LINK_ALL, '', TRUE, 'minor');
 
 	foreach ($asset_links as $link) {
 		if (!isset($_POST[$prefix.'_link_type'][$link['linkid']])) {
@@ -301,10 +301,10 @@ function processLinking(&$owner, &$o, &$ei)
 		if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], $new_type)) {
 			continue;
 		}
-		$done_something = true;
+		$done_something = TRUE;
 	}
 
-	$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+	$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 	if (!is_null($cron_mgr)) {
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_lineage');
@@ -317,7 +317,7 @@ function processLinking(&$owner, &$o, &$ei)
 					for ($i = 0; $i < count($fl_jobs); $i++) {
 						if (in_array($fl_jobs[$i]->id, $_POST[$prefix.'_remove_fl'])) {
 							if ($cron_mgr->removeJob($fl_jobs[$i])) {
-								$is_updated = true;
+								$is_updated = TRUE;
 							}
 						}
 					}
@@ -338,14 +338,14 @@ function processLinking(&$owner, &$o, &$ei)
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			if ($cron_mgr->addJob($fl, $GLOBALS['SQ_SYSTEM']->user)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-				$done_something = true;
+				$done_something = TRUE;
 			} else {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			}
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		}
 
-	}// end if
+	}//end if
 
 	return $done_something;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.35 2006/01/26 22:34:08 lwright Exp $
+* $Id: settings.inc,v 1.36 2006/02/07 02:18:51 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 */
 
@@ -37,21 +37,21 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 /**
 * Paints the interface for editing various settings
 *
-* @param object	Asset					$owner	the asset whose interface we are painting
-* @param object	Backend_Outputter		$o		the outputter class
-* @param object	Asset_Edit_Interface	&$ei	the edit interface
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
 *
-* @access public
 * @return boolean
+* @access public
 */
 function paintSettings(&$owner, &$o, &$ei)
 {
-	$root = &$ei->findScreen('static_screen_settings');
-	if (is_null($root)) return false;
+	$root =& $ei->findScreen('static_screen_settings');
+	if (is_null($root)) return FALSE;
 
 	$prefix = $owner->getPrefix();
 
-	$created = false;
+	$created = FALSE;
 
 	if (empty($root->children)) {
 		$o->openSection(translate('no_asset_settings', $owner->name));
@@ -59,7 +59,7 @@ function paintSettings(&$owner, &$o, &$ei)
 	}
 
 	for ($i = 0; $i < count($root->children); $i++) {
-		$section = &$root->children[$i];
+		$section =& $root->children[$i];
 
 		// if we are in limbo and this section is not to be printed in limbo - dont print it
 		if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) {
@@ -72,10 +72,10 @@ function paintSettings(&$owner, &$o, &$ei)
 			continue;
 		}
 		for ($j = 0; $j < $num_fields; $j++) {
-			$field = &$section->children[$j];
+			$field =& $section->children[$j];
 
 			// should we print the note for the field or not
-			$print_note = true;
+			$print_note = TRUE;
 
 			switch (strtolower($field->attributes['code'])) {
 				case 'version_current_version' :
@@ -91,7 +91,7 @@ function paintSettings(&$owner, &$o, &$ei)
 				case 'version_update_version' :
 					// have to have admin access to update the major version
 					if ($owner->adminAccess('all')) {
-						$created = true;
+						$created = TRUE;
 
 						if ($field->children[0]->name != 'display_name') {
 							$display_name = translate('update_major_version');
@@ -101,7 +101,7 @@ function paintSettings(&$owner, &$o, &$ei)
 						$o->openField($display_name);
 						check_box($prefix.'_version_update_version');
 					} else {
-						$print_note = false;
+						$print_note = FALSE;
 					}
 				break;
 
@@ -188,11 +188,11 @@ function paintSettings(&$owner, &$o, &$ei)
 						asset_finder($prefix.'_date_'.$date_type.'_userid', $userid, Array('user' => 'D'));
 
 					} else {
-						$print_note = false;
+						$print_note = FALSE;
 						if ($date_field->isEmpty() && $date_type == 'published') {
 							echo translate('never_published');
 						} else {
-							$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), 'user', false);
+							$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), 'user', FALSE);
 							if (empty($info)) {
 								$info[$userid] = Array('name' => '&lt;unknown&gt;');
 							}
@@ -214,7 +214,7 @@ function paintSettings(&$owner, &$o, &$ei)
 					$current_langs = $owner->getLanguages();
 					// have to have admin access to set the force secure
 					if ($owner->adminAccess('settings')) {
-						$created = true;
+						$created = TRUE;
 						check_box($prefix.'_force_secure', '1', ($owner->force_secure == '1'));
 					} else {
 					?>
@@ -235,12 +235,12 @@ function paintSettings(&$owner, &$o, &$ei)
 					require SQ_FUDGE_PATH.'/standards_lists/languages.inc';
 
 					if ($owner->writeAccess('settings')) {
-						$created = true;
+						$created = TRUE;
 						$standards_lists_languages = array_reverse($standards_lists_languages);
 						$standards_lists_languages[''] = '';
 						$standards_lists_languages = array_reverse($standards_lists_languages);
 						$o->openField(translate('add_language'));
-						combo_box($prefix.'_add_intl_language', $standards_lists_languages, false, '');
+						combo_box($prefix.'_add_intl_language', $standards_lists_languages, FALSE, '');
 					}
 
 					$o->openField(translate('current'));
@@ -263,7 +263,7 @@ function paintSettings(&$owner, &$o, &$ei)
 							<tr>
 								<td class="sq-backend-table-cell"><?php echo $standards_lists_languages[$lang_code]; ?></td>
 								<?php if ($owner->writeAccess('settings')) {
-									$created = true;
+									$created = TRUE;
 								?>
 								<td class="sq-backend-table-cell" align="center"><?php check_box($prefix.'_rem_intl_language['.$lang_code.']'); ?></td>
 								<?php }
@@ -289,11 +289,11 @@ function paintSettings(&$owner, &$o, &$ei)
 					require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
 
 					if ($owner->writeAccess('settings')) {
-						$created = true;
+						$created = TRUE;
 						$standards_lists_character_sets = array_reverse($standards_lists_character_sets);
 						$standards_lists_character_sets[''] = '** Use System Default **';
 						$standards_lists_character_sets = array_reverse($standards_lists_character_sets);
-						combo_box($prefix.'_intl_character_set', $standards_lists_character_sets, false, $owner->charset);
+						combo_box($prefix.'_intl_character_set', $standards_lists_character_sets, FALSE, $owner->charset);
 					} else {
 						if (isset($standards_lists_character_sets[$owner->charset])) {
 							echo $standards_lists_character_sets[$owner->charset];
@@ -315,14 +315,14 @@ function paintSettings(&$owner, &$o, &$ei)
 					$o->openField($display_name);
 
 					if ($owner->adminAccess('all')) {
-						$created = true;
+						$created = TRUE;
 						if ($owner->status != SQ_STATUS_UNDER_CONSTRUCTION) {
 							// cant morph an asset if it is not under construction
 							echo translate('only_morph_under_construction');
 						} else {
-							$db = &$GLOBALS['SQ_SYSTEM']->db;
-							$am = &$GLOBALS['SQ_SYSTEM']->am;
-							$user = &$am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
+							$db =& $GLOBALS['SQ_SYSTEM']->db;
+							$am =& $GLOBALS['SQ_SYSTEM']->am;
+							$user =& $am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
 
 							$types = array_merge($am->getTypeAncestors($owner->type()), $am->getTypeDescendants($owner->type()));
 							for ($i = 0; $i < count($types); $i++) {
@@ -354,7 +354,7 @@ function paintSettings(&$owner, &$o, &$ei)
 									$code_name = ucwords($code_name);
 									$morph_types[$type_code] = $code_name;
 								}
-								combo_box($prefix.'_morph_new_type', $morph_types, false, '');
+								combo_box($prefix.'_morph_new_type', $morph_types, FALSE, '');
 								?>
 								<table border="0">
 									<tr>
@@ -366,7 +366,7 @@ function paintSettings(&$owner, &$o, &$ei)
 								</table>
 								<?php
 							}
-						}
+						}//end else
 					} else {
 						echo translate('morph_no_access');
 					}
@@ -384,11 +384,11 @@ function paintSettings(&$owner, &$o, &$ei)
 									'design::system::login'		=> 0,
 								   );
 					$override_designs = Array(
-									'design::system::frontend'	=> 0,
-									'design::system::login'		=> 0,
-								   );
+											'design::system::frontend'	=> 0,
+											'design::system::login'		=> 0,
+										);
 
-					$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_LINK_NOTICE, 'design', false);
+					$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_LINK_NOTICE, 'design', FALSE);
 					foreach ($our_design_links as $link) {
 						if (preg_match('/^design::(system|user)::.*$/', $link['value'])) {
 							$our_designs[$link['value']] = $link['minorid'];
@@ -484,12 +484,12 @@ function paintSettings(&$owner, &$o, &$ei)
 							}
 
 							$o->closeField();
-						}// endif
+						}//end if
 
 						$o->openField(($designid) ? translate('change_question') : translate('new_question'));
 
 						if (!$owner->writeAccess('links')) {
-							$created = true;
+							$created = TRUE;
 							echo '<i>';
 							if (!$designid) {
 								echo translate('none');
@@ -501,7 +501,7 @@ function paintSettings(&$owner, &$o, &$ei)
 						} else {
 							$buttons = Array('clear');
 							if (!$new_user_design) $buttons[] = 'reset';
-							asset_finder($prefix.'_designs['.$design_name.'][designid]', $designid, Array('design' => 'D'), 'sq_sidenav', false, 'null', $buttons);
+							asset_finder($prefix.'_designs['.$design_name.'][designid]', $designid, Array('design' => 'D'), 'sq_sidenav', FALSE, 'null', $buttons);
 						}
 
 
@@ -514,7 +514,7 @@ function paintSettings(&$owner, &$o, &$ei)
 						$o->openField(translate('override_design_question'));
 
 						if (!$owner->writeAccess('links')) {
-							$created = true;
+							$created = TRUE;
 							echo '<i>';
 							if (!$override_designid) {
 								echo translate('none');
@@ -526,7 +526,7 @@ function paintSettings(&$owner, &$o, &$ei)
 						} else {
 							$buttons = Array('clear');
 							if (!$new_user_design) $buttons[] = 'reset';
-							asset_finder($prefix.'_designs['.$design_name.'][override]', $override_designid, Array('design' => 'D'), 'sq_sidenav', false, 'null', $buttons);
+							asset_finder($prefix.'_designs['.$design_name.'][override]', $override_designid, Array('design' => 'D'), 'sq_sidenav', FALSE, 'null', $buttons);
 						}
 
 
@@ -536,10 +536,10 @@ function paintSettings(&$owner, &$o, &$ei)
 
 						$o->closeSection();
 
-					}// end foreach
+					}//end foreach
 
 				break;
-			}
+			}//end switch
 
 			if ($print_note && isset($field->children[1]) && $field->children[1]->name == 'note' && $field->children[1]->content) {
 				$o->note($field->children[1]->content);
@@ -558,14 +558,14 @@ function paintSettings(&$owner, &$o, &$ei)
 
 /**
 * Processes the interface for editing various settings
-* returns true if there is a change
+* returns TRUE if there is a change
 *
-* @param object	Asset					$owner		the asset whose interface we are painting
-* @param object	Backend_Outputter		$o			the outputter class
-* @param object	Asset_Edit_Interface	&$ei		the edit interface
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
 *
-* @access public
 * @return boolean
+* @access public
 */
 function processSettings(&$owner, &$o, &$ei)
 {
@@ -637,7 +637,7 @@ function processSettings(&$owner, &$o, &$ei)
 			}
 
 			if ($date_field->value != $current_date || $current_userid != $userid) {
-				$timestamp = (!$date_field->isEmpty()) ? strtotime($date_field->value) : null;
+				$timestamp = (!$date_field->isEmpty()) ? strtotime($date_field->value) : NULL;
 
 				// the timestamp will be -1 if the date exceeds a 32bit integer
 				if ($timestamp === -1) continue;
@@ -645,7 +645,7 @@ function processSettings(&$owner, &$o, &$ei)
 				$owner->setDate($date_type, $timestamp, $userid);
 			}
 		}//end foreach
-	}
+	}//end if
 
 
 	//// FORCE SECURE ////
@@ -708,8 +708,8 @@ function processSettings(&$owner, &$o, &$ei)
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$designs_ok = true;
-		$designs_changed = false;
+		$designs_ok = TRUE;
+		$designs_changed = FALSE;
 
 		foreach ($_POST[$prefix.'_designs'] as $design_name => $design_data) {
 
@@ -721,16 +721,16 @@ function processSettings(&$owner, &$o, &$ei)
 				$old_designid = 0;
 				$design_name .= strtolower($design_data['name']);
 
-				if ($GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'design', false, $design_name)) {
+				if ($GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'design', FALSE, $design_name)) {
 					trigger_localised_error('SYS0134', E_USER_WARNING, $design_data['name']);
 					continue;
 				}// end if
 
 			} else {
-				$old_design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'design', false, $design_name);
+				$old_design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'design', FALSE, $design_name);
 				$old_designid    = (empty($old_design_link)) ? 0 : $old_design_link['minorid'];
 
-				$old_override_design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'design', false, 'override::'.$design_name);
+				$old_override_design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'design', FALSE, 'override::'.$design_name);
 				$old_override_designid    = (empty($old_override_design_link)) ? 0 : $old_override_design_link['minorid'];
 
 			}// end if
@@ -741,21 +741,21 @@ function processSettings(&$owner, &$o, &$ei)
 				if ($old_designid) {
 					if (!$owner->deleteLink($old_design_link['linkid'])) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$designs_ok = false;
+						$designs_ok = FALSE;
 						break;
 					}
 				}
 
 				if ($new_designid) {
-					$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_designid);
+					$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_designid);
 					if (is_null($design)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$designs_ok = false;
+						$designs_ok = FALSE;
 						break;
 					}
 					if (!$owner->createLink($design, SQ_LINK_NOTICE, $design_name)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$designs_ok = false;
+						$designs_ok = FALSE;
 						break;
 					}
 				}
@@ -767,29 +767,29 @@ function processSettings(&$owner, &$o, &$ei)
 				if ($old_override_designid) {
 					if (!$owner->deleteLink($old_override_design_link['linkid'])) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$designs_ok = false;
+						$designs_ok = FALSE;
 						break;
 					}
 				}
 
 				if ($new_override_designid) {
-					$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_override_designid);
+					$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_override_designid);
 					if (is_null($design)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$designs_ok = false;
+						$designs_ok = FALSE;
 						break;
 					}
 					if (!$owner->createLink($design, SQ_LINK_NOTICE, 'override::'.$design_name)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$designs_ok = false;
+						$designs_ok = FALSE;
 						break;
 					}
 				}
 			}
 
-			$designs_changed = true;
+			$designs_changed = TRUE;
 
-		}// end foreach
+		}//end foreach
 
 		if ($designs_ok) {
 			if ($designs_changed) {
@@ -800,17 +800,17 @@ function processSettings(&$owner, &$o, &$ei)
 
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-	}// end if
+	}//end if
 
 	if (!empty($assets_affected_lookups)) {
 		//// START HIPO PROCESSING ////
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assetids' => array_unique($assets_affected_lookups));
 		$hh->queueHipo('hipo_job_update_lookups', $vars);
 		////  END HIPO PROCESSING  ////
 	}// endif
 
-	return true;
+	return TRUE;
 
 }//end processSettings()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: history.inc,v 1.12 2005/08/02 01:51:08 gsherwood Exp $
+* $Id: history.inc,v 1.13 2006/02/07 02:18:51 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * History Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 
@@ -37,9 +37,9 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Paints the interface for viewing the history of this asset
 * This includes going into rollback view mode
 *
-* @param object	Asset					&$owner		the asset whose interface we are painting
-* @param object	Backend_Outputter		&$o			the outputter class
-* @param object	Asset_Edit_Interface	&$ei		the edit interface
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
 *
 * @return boolean
 * @access public
@@ -51,7 +51,7 @@ function paintHistory(&$owner, &$o, &$ei)
 	// prefix for all the form vars
 	$prefix = $owner->getPrefix();
 
-	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 	// note that we dont prep this query for rollback select
 	// because we are selecting directly from the rollback table
@@ -94,22 +94,22 @@ function paintHistory(&$owner, &$o, &$ei)
 					$to   = $data['eto'];
 
 					$class = 'sq-backend-table-cell';
-					$show_view_btn = true;
+					$show_view_btn = TRUE;
 					if (SQ_ROLLBACK_VIEW) {
 						$rollback_from = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
 						if ($rollback_from >= strtotime($from) && (empty($to) || strtotime($to) > $rollback_from)) {
 							$class .= '-alt';
-							$show_view_btn = false;
+							$show_view_btn = FALSE;
 						}
 					}
 
 					if (empty($to)) {
 						$to = translate('present');
 						$ago = translate('most_recent');
-						$show_view_btn = false;
+						$show_view_btn = FALSE;
 					} else {
 						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-						$ago = easy_time_total(time() - strtotime($from), true);
+						$ago = easy_time_total(time() - strtotime($from), TRUE);
 						list($fd, $ft) = explode(' ', $from);
 						list($td, $tt) = explode(' ', $to);
 						if ($fd == $td) {
@@ -148,7 +148,7 @@ function paintHistory(&$owner, &$o, &$ei)
 		$o->closeRaw();
 	$o->closeSection();
 
-	return false;
+	return FALSE;
 
 }//end paintHistory()
 
@@ -158,9 +158,9 @@ function paintHistory(&$owner, &$o, &$ei)
 *
 * This includes going into rollback view mode
 *
-* @param object	Asset					&$owner	the asset whose interface we are painting
-* @param object	Backend_Outputter		&$o		the outputter class
-* @param object	Asset_Edit_Interface	&$ei	the edit interface
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
 *
 * @return boolean
 * @access public
@@ -176,7 +176,7 @@ function processHistory(&$owner, &$o, &$ei)
 		$o->setRedirect($url, 'top');
 	}
 
-	return true;
+	return TRUE;
 
 }//end processHistory()
 

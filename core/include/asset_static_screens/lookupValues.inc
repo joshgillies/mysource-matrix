@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookupValues.inc,v 1.9 2006/01/26 22:34:08 lwright Exp $
+* $Id: lookupValues.inc,v 1.10 2006/02/07 02:18:51 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 
@@ -37,12 +37,12 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 /**
 * Paints the interface for editing various settings
 *
-* @param object	Asset					$owner	the asset whose interface we are painting
-* @param object	Backend_Outputter		$o		the outputter class
-* @param object	Asset_Edit_Interface	&$ei	the edit interface
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
 *
-* @access public
 * @return boolean
+* @access public
 */
 function paintLookupValues(&$owner, &$o, &$ei)
 {
@@ -51,7 +51,7 @@ function paintLookupValues(&$owner, &$o, &$ei)
 	$lookups = $owner->getLookups('url');
 	$lookup_values = $owner->getLookupValues();
 
-	$am = &$GLOBALS['SQ_SYSTEM']->am;
+	$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 	$lookup_value_types = $am->getTypeDescendants('lookup_value');
 	$lookup_value_details = Array();
@@ -85,13 +85,12 @@ function paintLookupValues(&$owner, &$o, &$ei)
 	}
 	unset($lookup_values);
 
-	$editing_fields = false;
+	$editing_fields = FALSE;
 
-	for (reset($lookup_value_details); null !== ($type_code = key($lookup_value_details)); next($lookup_value_details)) {
+	for (reset($lookup_value_details); NULL !== ($type_code = key($lookup_value_details)); next($lookup_value_details)) {
 		$o->openSection($lookup_value_details[$type_code]['title']);
 		$name_prefix = $lookup_value_details[$type_code]['name_prefix'];
 		eval('$editing_fields |= '.$type_code.'::paintInterface($owner, $o, $lookups, $values[$name_prefix], $prefix.\'_lookup_values_\'.$name_prefix);');
-
 		$o->closeSection();
 
 	}// end foreach
@@ -103,23 +102,23 @@ function paintLookupValues(&$owner, &$o, &$ei)
 
 /**
 * Processes the interface for editing various settings
-* returns true if there is a change
+* returns TRUE if there is a change
 *
-* @param object	Asset					$owner		the asset whose interface we are painting
-* @param object	Backend_Outputter		$o			the outputter class
-* @param object	Asset_Edit_Interface	&$ei		the edit interface
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
 *
-* @access public
 * @return boolean
+* @access public
 */
 function processLookupValues(&$owner, &$o, &$ei)
 {
 	$prefix = $owner->getPrefix();
 	$lookups = $owner->getLookups('url');
 	// get only the lookup values that we have set specifically for ourselves
-	$lookup_values = $owner->getLookupValues(false);
+	$lookup_values = $owner->getLookupValues(FALSE);
 
-	$am = &$GLOBALS['SQ_SYSTEM']->am;
+	$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 	$lookup_value_types = $am->getTypeDescendants('lookup_value');
 
@@ -134,7 +133,7 @@ function processLookupValues(&$owner, &$o, &$ei)
 		if (!$success) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 
 		foreach ($values as $url => $values_data) {
@@ -158,16 +157,16 @@ function processLookupValues(&$owner, &$o, &$ei)
 	if (!$owner->setLookupValues($lookup_values)) {
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		return false;
+		return FALSE;
 	}
 	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-	$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+	$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 	$vars = Array('assetids' => Array($owner->id));
 	$hh->queueHipo('hipo_job_update_lookups', $vars);
 
-	return true;
+	return TRUE;
 
 }//end processLookupValues()
 

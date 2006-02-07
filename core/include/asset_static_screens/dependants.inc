@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: dependants.inc,v 1.7 2005/11/03 23:57:28 lwright Exp $
+* $Id: dependants.inc,v 1.8 2006/02/07 02:18:51 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Dependants Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 
@@ -36,9 +36,9 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 /**
 * Paints the interface for viewing dependants details
 *
-* @param object	Asset					$owner	the asset whose interface we are painting
-* @param object	Backend_Outputter		$o		the outputter class
-* @param object	Asset_Edit_Interface	&$ei		the edit interface
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
 *
 * @return boolean
 * @access public
@@ -106,7 +106,7 @@ function paintDependants(&$owner, &$o, &$ei)
 
 	$o->closeSection();
 
-	return false;
+	return FALSE;
 
 }//end paintDependants()
 
@@ -114,21 +114,21 @@ function paintDependants(&$owner, &$o, &$ei)
 /**
 * Paints an asset dependancy tree with stalks and dependant info
 *
-* @param object	Asset				$owner				the asset whose interface we are painting
-* @param object	Asset				$asset				the asset whose dependants we are painting
-* @param object	Backend_Outputter	$o					the outputter class
-* @param int						$levels				how many levels down are we
-* @param array(int)					$print_stalks_at	what levels to print stalks at
+* @param object	&$owner				the asset whose interface we are painting
+* @param object	&$asset				the asset whose dependants we are painting
+* @param object	&$o					the outputter class
+* @param int	$levels				how many levels down are we
+* @param array	$print_stalks_at	what levels to print stalks at, an array of integer
 *
 * @return void
 * @access public
 */
 function _recursePaintDependants(&$owner, &$asset, &$o, $levels=1, $print_stalks_at=Array())
 {
-	$dependant_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+	$dependant_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'major', NULL, 1);
 	$num_kids = count($dependant_links);
 	for ($i = 0; $i < $num_kids; $i++) {
-		$dep_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dependant_links[$i]['minorid'], $dependant_links[$i]['minor_type_code']);
+		$dep_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($dependant_links[$i]['minorid'], $dependant_links[$i]['minor_type_code']);
 		$end = ($i == $num_kids - 1);
 		$stalk = 'background="'.$o->filesPath('/images/tree/stalk.gif').'"';
 		$bg = ($end) ? '' : $stalk;
@@ -197,14 +197,14 @@ function _recursePaintDependants(&$owner, &$asset, &$o, $levels=1, $print_stalks
 			</td>
 		</tr>
 		<?php
-		$child_deps = $GLOBALS['SQ_SYSTEM']->am->getLinks($dep_asset->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+		$child_deps = $GLOBALS['SQ_SYSTEM']->am->getLinks($dep_asset->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'major', NULL, 1);
 
 		if (!empty($bg)) $new_print_stalks_at[] = $levels;
 
 		if (!empty($child_deps)) {
 			_recursePaintDependants($owner, $dep_asset, $o, ($levels+1), $new_print_stalks_at);
 		}
-	}
+	}//end for
 
 }//end _recursePaintDependants()
 
@@ -213,16 +213,16 @@ function _recursePaintDependants(&$owner, &$asset, &$o, $levels=1, $print_stalks
 * Processes the interface for viewing depedants
 * Note that this function doesnt do anything
 *
-* @param object	Asset					&$owner		the asset whose interface we are painting
-* @param object	Backend_Outputter		&$o			the outputter class
-* @param object	Asset_Edit_Interface	&$ei		the edit interface
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
 *
 * @return boolean
 * @access public
 */
 function processDependants(&$owner, &$o, &$ei)
 {
-	return false;
+	return FALSE;
 
 }//end processDependants()
 

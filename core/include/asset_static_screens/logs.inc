@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.16 2005/12/15 03:11:45 gsherwood Exp $
+* $Id: logs.inc,v 1.17 2006/02/07 02:18:51 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Logs Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 
@@ -36,9 +36,9 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 /**
 * Paints the interface for viewing logged information about the asset
 *
-* @param object	Asset					&$owner	the asset whose interface we are painting
-* @param object	Backend_Outputter		&$o		the outputter class
-* @param object	Asset_Edit_Interface	&$ei	the edit interface
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
 *
 * @return boolean
 * @access public
@@ -48,7 +48,7 @@ function paintLogs(&$owner, &$o, &$ei)
 	// prefix for all the form vars
 	$prefix = $owner->getPrefix();
 
-	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 	$sql = 'SELECT
 				DISTINCT type FROM sq_internal_msg
@@ -69,12 +69,12 @@ function paintLogs(&$owner, &$o, &$ei)
 			}
 
 			echo '<b>'.translate('log_type').'</b>&nbsp;';
-			combo_box('sq_backend_log_type', $type_options, false, $active_log_type);
+			combo_box('sq_backend_log_type', $type_options, FALSE, $active_log_type);
 			echo '&nbsp;';
 			normal_button($prefix.'_go', translate('view'), 'submit_form()');
 		$o->closeRaw();
 
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 		if (strpos($active_log_type, 'asset.linking') === 0) {
 
@@ -187,10 +187,11 @@ function paintLogs(&$owner, &$o, &$ei)
 				</table>
 				<?php
 			$o->closeRaw();
-		}
+		}//end else
+
 	$o->closeSection();
 
-	return false;
+	return FALSE;
 
 }//end paintLogs()
 
@@ -198,16 +199,16 @@ function paintLogs(&$owner, &$o, &$ei)
 /**
 * Processes the interface for viewing logged information about the asset
 *
-* @param object	Asset					&$owner	the asset whose interface we are painting
-* @param object	Backend_Outputter		&$o		the outputter class
-* @param object	Asset_Edit_Interface	&$ei	the edit interface
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
 *
 * @return boolean
 * @access public
 */
 function processLogs(&$owner, &$o, &$ei)
 {
-	return true;
+	return TRUE;
 
 }//end processLogs()
 

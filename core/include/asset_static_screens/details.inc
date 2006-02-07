@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.26 2006/01/26 22:34:08 lwright Exp $
+* $Id: details.inc,v 1.27 2006/02/07 02:18:51 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 */
 
@@ -37,24 +37,25 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 /**
 * Paints the interface for editing details
 *
-* @param object	Asset					&$owner		the asset whose interface we are painting
-* @param object	Backend_Outputter		&$o			the outputter class
-* @param object	Asset_Edit_Interface	&$ei		the edit interface
+* @param object	&$owner		the asset whose interface we are painting
+* @param object	&$o			the outputter class
+* @param object	&$ei		the edit interface
+* @param array	$keywords	the list of keywords
 *
 * @return boolean
 * @access public
 */
-function paintDetails(&$owner, &$o, &$ei, $keywords=null)
+function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 {
-	$root = &$ei->findScreen('static_screen_details');
-	if (is_null($root)) return false;
+	$root =& $ei->findScreen('static_screen_details');
+	if (is_null($root)) return FALSE;
 
 	$prefix = $owner->getPrefix();
-	$print_commit_button = false;
+	$print_commit_button = FALSE;
 
 	for ($i = 0; $i < count($root->children); $i++) {
 
-		$section = &$root->children[$i];
+		$section =& $root->children[$i];
 
 		// only do this if we are not painting a layout
 		if (is_null($keywords)) {
@@ -79,7 +80,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 		}
 
 		for ($j = 0; $j < $num_fields; $j++) {
-			$field = &$section->children[$j];
+			$field =& $section->children[$j];
 
 			switch (strtolower($field->attributes['code'])) {
 
@@ -125,14 +126,14 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 
 						// if this asset is in workflow we do not let the change the status here
 						// because they need to go off to the workflow screen
-						$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-						$running_schemas = $wfm->getSchemas($owner->id, true, true);
+						$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+						$running_schemas = $wfm->getSchemas($owner->id, TRUE, TRUE);
 						if (!empty($running_schemas)) {
 							$o->note(translate('asset_currently_in_workflow', $owner->getBackendHref('workflow')));
 						} else {
 							$available_statii = _paintStatusChange($owner, $o, $prefix);
 							if (!empty($available_statii)) {
-								$print_commit_button = true;
+								$print_commit_button = TRUE;
 							}
 						}
 						if (!is_null($keywords) && isset($keywords['fields']['status_change'])) {
@@ -146,7 +147,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 
 				case 'status_future_status' :
 
-					$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+					$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 					$fs_jobs = &Cron_Job_Future_Status::getActiveJobs($owner);
 					if (!empty($fs_jobs)) {
@@ -231,12 +232,12 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 									$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_future_status']] .= ob_get_contents();
 									ob_end_flush();
 								}
-								$print_commit_button = true;
+								$print_commit_button = TRUE;
 							} else {
 								echo translate('cron_manager_not_configured');
 							}
 						$o->closeField();
-					}
+					}//end if
 
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
 
@@ -282,9 +283,9 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 							ob_start();
 						}
 
-						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'image', false, 'thumbnail');
+						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'image', FALSE, 'thumbnail');
 						if (!empty($link)) {
-							$thumbnail = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+							$thumbnail =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 							$edit_fns = $thumbnail->getEditFns();
 							$edit_fns->printExistingFileInfo($thumbnail);
 
@@ -325,11 +326,13 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 /**
 * Paints the interface for editing the status of an asset
 *
-* @param object	Asset				$owner	the asset whose interface we are painting
-* @param object	Backend_Outputter	$o		the outputter class
-* @param string						$prefix	prefix for form vars
+* It returns the array of of statii shown in the drop down
 *
-* @return array of statii shown in the drop down
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param string	$prefix	prefix for form vars
+*
+* @return array
 * @access public
 */
 function _paintStatusChange(&$owner, &$o, $prefix)
@@ -337,10 +340,10 @@ function _paintStatusChange(&$owner, &$o, $prefix)
 	$statii = $owner->getAvailableStatii();
 
 	if (!empty($statii)) {
-		$statii = array_reverse($statii, true);
+		$statii = array_reverse($statii, TRUE);
 		$statii[0] = '';
-		$statii = array_reverse($statii, true);
-		combo_box($prefix.'_change_status', $statii, false, 0);
+		$statii = array_reverse($statii, TRUE);
+		combo_box($prefix.'_change_status', $statii, FALSE, 0);
 		echo '&nbsp;';
 		check_box($prefix.'_change_status_all_children');
 		echo translate('cascade_status_change');
@@ -354,9 +357,9 @@ function _paintStatusChange(&$owner, &$o, $prefix)
 /**
 * Processes the interface for editing the status of an asset
 *
-* @param object	Asset				$owner	the asset whose interface we are painting
-* @param object	Backend_Outputter	$o		the outputter class
-* @param string						$prefix	prefix for form vars
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param string	$prefix	prefix for form vars
 *
 * @return boolean
 * @access public
@@ -364,8 +367,8 @@ function _paintStatusChange(&$owner, &$o, $prefix)
 function _processStatusChange(&$owner, &$o, $prefix)
 {
 	if (isset($_POST[$prefix.'_change_status']) && (int) $_POST[$prefix.'_change_status'] > 0) {
-		$dependants_only = (isset($_POST[$prefix.'_change_status_all_children']) && $_POST[$prefix.'_change_status_all_children']) ? false : true;
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$dependants_only = (isset($_POST[$prefix.'_change_status_all_children']) && $_POST[$prefix.'_change_status_all_children']) ? FALSE : TRUE;
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assetid' => $owner->id, 'new_status' => $_POST[$prefix.'_change_status'], 'dependants_only' => $dependants_only);
 		$hh->queueHipo('hipo_job_edit_status', $vars);
 	}
@@ -375,33 +378,33 @@ function _processStatusChange(&$owner, &$o, $prefix)
 
 /**
 * Processes the interface for editing details
-* returns true if there is a change
+* returns TRUE if there is a change
 *
-* @param object	Asset					$owner	the asset whose interface we are painting
-* @param object	Backend_Outputter		$o		the outputter class
-* @param object	Asset_Edit_Interface	&$ei	the edit interface
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
 *
-* @access public
 * @return boolean
+* @access public
 */
 function processDetails(&$owner, &$o, &$ei)
 {
 	$prefix = $owner->getPrefix();
 
-	$is_updated = false;
+	$is_updated = FALSE;
 
 	///// IMMEDIATE STATUS CHANGES ////
 
 	// process a status change on this screen if workflow is NOT running
-	$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-	$running_schemas = $wfm->getSchemas($owner->id, true, true);
+	$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+	$running_schemas = $wfm->getSchemas($owner->id, TRUE, TRUE);
 	if (empty($running_schemas)) {
 		_processStatusChange($owner, $o, $prefix);
 	}
 
 	///// FUTURE STATUS CHANGES ////
 
-	$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+	$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 	if (!is_null($cron_mgr)) {
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 
@@ -413,7 +416,7 @@ function processDetails(&$owner, &$o, &$ei)
 					for ($i = 0; $i < count($fs_jobs); $i++) {
 						if (in_array($fs_jobs[$i]->id, $_POST[$prefix.'_remove_fs'])) {
 							if ($cron_mgr->removeJob($fs_jobs[$i])) {
-								$is_updated = true;
+								$is_updated = TRUE;
 							}
 						}// end if
 					}// end for
@@ -440,7 +443,7 @@ function processDetails(&$owner, &$o, &$ei)
 					if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($fs->id, 'links')) {
 						if ($fs->setAssetToUpdate($owner)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-							$is_updated = true;
+							$is_updated = TRUE;
 							$GLOBALS['SQ_SYSTEM']->am->releaseLock($fs->id, 'links');
 						} else {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -456,13 +459,13 @@ function processDetails(&$owner, &$o, &$ei)
 
 		}// end if
 
-	}//end if is null cron mgr
+	}//end if is NULL cron mgr
 
 	///// THUMBNAIL CHANGES ////
 
 	$edit_fns = $owner->getEditFns();
 	if ($edit_fns->processNoticeLinkedAsset($owner, 'thumbnail')) {
-		$is_updated = true;
+		$is_updated = TRUE;
 	}
 
 	return ($is_updated);

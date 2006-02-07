@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.16 2005/11/03 23:57:28 lwright Exp $
+* $Id: metadataSchemas.inc,v 1.17 2006/02/07 02:18:51 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 
@@ -36,18 +36,18 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 /**
 * Paint the interface for viewing metadata schemas (used in popups etc)
 *
-* @param object	Asset					$owner		the asset whose interface we are painting
-* @param object	Backend_Outputter		$o			the outputter class
-* @param object	Asset_Edit_Interface	&$ei		the edit interface
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
 *
-* @access public
 * @return boolean
+* @access public
 */
 function paintInlineMetadataSchemas(&$owner, &$o, &$ei)
 {
 	$prefix = $owner->getPrefix();
 
-	$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+	$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 	$schemas = $mm->getSchemas($owner->id);
 
 	$direct = Array();
@@ -59,7 +59,7 @@ function paintInlineMetadataSchemas(&$owner, &$o, &$ei)
 	}
 	ksort($direct);
 
-	if (empty($direct)) return false;
+	if (empty($direct)) return FALSE;
 
 	$o->openSection(translate('metadata_schemas'));
 		$o->openField('&nbsp;');
@@ -78,7 +78,7 @@ function paintInlineMetadataSchemas(&$owner, &$o, &$ei)
 			foreach ($direct as $granted => $schemaids) {
 				foreach ($schemaids as $schemaid) {
 					if ($schemaid) {
-						$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+						$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 						if (!$schema->id || !is_a($schema, 'metadata_schema')) {
 							continue;
 						}
@@ -102,7 +102,7 @@ function paintInlineMetadataSchemas(&$owner, &$o, &$ei)
 		$o->closeField();
 	$o->closeSection();
 
-	return true;
+	return TRUE;
 
 }//end paintInlineMetadataSchemas()
 
@@ -110,12 +110,12 @@ function paintInlineMetadataSchemas(&$owner, &$o, &$ei)
 /**
 * Paint the interface for managing metadata schamas
 *
-* @param object	Asset					$owner		the asset whose interface we are painting
-* @param object	Backend_Outputter		$o			the outputter class
-* @param object	Asset_Edit_Interface	&$ei		the edit interface
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
 *
-* @access public
 * @return boolean
+* @access public
 */
 function paintMetadataSchemas(&$owner, &$o, &$ei)
 {
@@ -125,7 +125,7 @@ function paintMetadataSchemas(&$owner, &$o, &$ei)
 
 	$o->openSection(translate('metadata_schemas'));
 
-	$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+	$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 	$schemas = $mm->getSchemas($owner->id);
 
 	$direct = Array();
@@ -155,10 +155,8 @@ function paintMetadataSchemas(&$owner, &$o, &$ei)
 			<?php
 			foreach ($schemaids as $schemaid) {
 				if ($schemaid) {
-					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($schemaid), 'metadata_schema', false);
-					if (empty($schema_info)) {
-						continue;
-					}
+					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($schemaid), 'metadata_schema', FALSE);
+					if (empty($schema_info)) continue;
 				}
 			?>
 				<tr>
@@ -183,13 +181,13 @@ function paintMetadataSchemas(&$owner, &$o, &$ei)
 		<?php
 		}//end foreach inherited
 
-	}// end if
+	}//end if
 
 	if ($admin_access) {
 		$o->openField(translate('new_question'), 'new_line');
-			combo_box($prefix.'_metadata[new][granted]', Array('' => '', '1' => translate('apply'), '0' => translate('deny')), false, '');
+			combo_box($prefix.'_metadata[new][granted]', Array('' => '', '1' => translate('apply'), '0' => translate('deny')), FALSE, '');
 			echo ' '.translate('metadata_schema').' ';
-			asset_finder($prefix.'_metadata[new][schemaid]', 0, Array('metadata_schema' => 'D'), 'sq_sidenav', false, 'null', Array('clear'));
+			asset_finder($prefix.'_metadata[new][schemaid]', 0, Array('metadata_schema' => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'));
 		$o->closeField();
 	}
 
@@ -203,7 +201,7 @@ function paintMetadataSchemas(&$owner, &$o, &$ei)
 					echo translate('action_affects_assets_below_this', count($kiddies), $owner->name);
 				$o->closeField();
 				$o->openField('&nbsp;');
-					check_box($prefix.'_metadata[cascade_changes]', '1', true);
+					check_box($prefix.'_metadata[cascade_changes]', '1', TRUE);
 					echo translate('cascade_schema_changes');
 					echo '<br/>';
 					check_box($prefix.'_metadata[manual_cascade]');
@@ -221,12 +219,14 @@ function paintMetadataSchemas(&$owner, &$o, &$ei)
 /**
 * Process the interface for managing metadata schemas
 *
-* @param object	Asset					$owner	the asset whose interface we are painting
-* @param object	Backend_Outputter		$o		the outputter class
-* @param object	Asset_Edit_Interface	&$ei	the edit interface
+* It returns TRUE is there is a change, FALSE on error or no change
 *
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
+*
+* @return boolean
 * @access public
-* @return boolean TRUE is there is a change, false on error or no change
 */
 function processMetadataSchemas(&$owner, &$o, &$ei)
 {
@@ -237,17 +237,17 @@ function processMetadataSchemas(&$owner, &$o, &$ei)
 	}
 
 	// if we dont have admin access, dont process anything
-	if (!$owner->adminAccess('metadata')) return false;
+	if (!$owner->adminAccess('metadata')) return FALSE;
 
 	$prefix = $owner->getPrefix();
-	if (!isset($_POST[$prefix.'_metadata'])) return false;
+	if (!isset($_POST[$prefix.'_metadata'])) return FALSE;
 
-	$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+	$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 	// are we cascading these schema changes to our children?
-	$cascade_changes = false;
+	$cascade_changes = FALSE;
 	if (isset($_POST[$prefix.'_metadata']['cascade_changes']) && $_POST[$prefix.'_metadata']['cascade_changes']) {
-		$cascade_changes = true;
+		$cascade_changes = TRUE;
 	}
 
 	$schema_vars = Array();
@@ -263,12 +263,12 @@ function processMetadataSchemas(&$owner, &$o, &$ei)
 				$schema_vars[] = Array(
 									'granted'			=> (int)$post_data['new']['granted'],
 									'schemaid'			=> (int)$post_data['new']['schemaid']['assetid'],
-									'previous_access'	=> null,
+									'previous_access'	=> NULL,
 								 );
 			} else {
 				// lets do this ourselves
 				if (!$mm->setSchema($owner->id, (int)$post_data['new']['schemaid']['assetid'], (int)$post_data['new']['granted'])) {
-					return false;
+					return FALSE;
 				}
 			}
 		}
@@ -288,7 +288,7 @@ function processMetadataSchemas(&$owner, &$o, &$ei)
 								 );
 			} else {
 				if (!$mm->deleteSchema($owner->id, $schemaid)) {
-					return false;
+					return FALSE;
 				}
 			}
 		}
@@ -300,19 +300,19 @@ function processMetadataSchemas(&$owner, &$o, &$ei)
 			$schema_vars[] = Array(
 								'granted'			=> $granted,
 								'schemaid'			=> $schemaid,
-								'previous_access'	=> null,
+								'previous_access'	=> NULL,
 							 );
 		}
 	}
 
 
 	if (!empty($schema_vars)) {
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assets' => Array($owner->id => Array('type_code' => $owner->type())), 'schema_changes' => $schema_vars);
 		$hh->queueHipo('hipo_job_edit_metadata_schemas', $vars);
 	}
 
-	return true;
+	return TRUE;
 
 }//end processMetadataSchemas()
 

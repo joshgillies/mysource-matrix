@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.34 2005/12/14 00:27:56 lwright Exp $
+* $Id: workflow.inc,v 1.35 2006/02/07 02:18:51 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 */
 
@@ -37,21 +37,21 @@ require_once DIRNAME(__FILE__).'/details.inc';
 /**
 * Paints the interface for viewing current workflows (used for popups etc)
 *
-* @param object	Asset					$owner		the asset whose interface we are painting
-* @param object	Backend_Outputter		$o			the outputter class
-* @param object	Asset_Edit_Interface	&$ei		the edit interface
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
 *
-* @access public
 * @return boolean
+* @access public
 */
 function paintInlineWorkflow(&$owner, &$o, &$ei)
 {
 	$prefix = $owner->getPrefix();
 
-	$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+	$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 	$schemas = $wfm->getSchemas($owner->id);
 
-	if (empty($schemas)) return false;
+	if (empty($schemas)) return FALSE;
 
 	$o->openSection(translate('workflow_schemas'));
 
@@ -80,7 +80,7 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 		foreach ($direct as $granted => $schemaids) {
 			foreach ($schemaids as $schemaid) {
 				if ($schemaid) {
-					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($schemaid), 'workflow_schema', false);
+					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($schemaid), 'workflow_schema', FALSE);
 					if (empty($schema_info)) continue;
 				}
 			?>
@@ -103,52 +103,44 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 		$o->closeField();
 	$o->closeSection();
 
-	return true;
+	return TRUE;
 
 }//end paintInlineWorkflow()
 
 
 /**
-* Paints the interface for managing workflow
-*
-* @param object	Asset					$owner		the asset whose interface we are painting
-* @param object	Backend_Outputter		$o			the outputter class
-* @param object	Asset_Edit_Interface	&$ei		the edit interface
-*
-* @access public
-*/
-/**
 * Paint the interface for managing metadata values
 *
-* @param object	Asset					$owner		the asset whose interface we are painting
-* @param object	Backend_Outputter		$o			the outputter class
-* @param object	Asset_Edit_Interface	&$ei		the edit interface
+* @param object	&$owner		the asset whose interface we are painting
+* @param object	&$o			the outputter class
+* @param object	&$ei		the edit interface
+* @param array	$keywords	the list of the keywords
 *
-* @access public
 * @return boolean
+* @access public
 */
-function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
+function paintWorkflow(&$owner, &$o, &$ei, $keywords=NULL)
 {
-	$root = &$ei->findScreen('static_screen_workflow');
-	if (is_null($root)) return false;
+	$root =& $ei->findScreen('static_screen_workflow');
+	if (is_null($root)) return FALSE;
 
 	$prefix = $owner->getPrefix();
-	$print_commit_button = false;
+	$print_commit_button = FALSE;
 
-	$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+	$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 	$schemas = $wfm->getSchemas($owner->id);
-	$running_schemas = $wfm->getSchemas($owner->id, true, true);
+	$running_schemas = $wfm->getSchemas($owner->id, TRUE, TRUE);
 	$admin_access = $owner->adminAccess('workflow');
 
-	//we only want to paint messages and commit buttons if the user can publish, so we must
-	//use workflow manager to see who these users are.
+	// we only want to paint messages and commit buttons if the user can publish, so we must
+	// use workflow manager to see who these users are.
 	$publishers = $wfm->whoCanPublish($owner->id);
 	$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 	$can_publish = in_array($current_userid, $publishers);
 
 	for ($i = 0; $i < count($root->children); $i++) {
 
-		$section = &$root->children[$i];
+		$section =& $root->children[$i];
 
 		// only do this if we are not painting a layout
 		if (is_null($keywords)) {
@@ -174,7 +166,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 		}
 
 		for ($j = 0; $j < $num_fields; $j++) {
-			$field = &$section->children[$j];
+			$field =& $section->children[$j];
 
 			switch (strtolower($field->attributes['code'])) {
 
@@ -182,7 +174,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 
 				case 'workflow_status_change' :
 
-					//shouldn't be able to changes status, so don't show anything
+					// shouldn't be able to changes status, so don't show anything
 					if ((!$can_publish) && (!$admin_access)) {
 						continue;
 					}
@@ -213,7 +205,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 
 				case 'workflow_log_message' :
 
-					//shouldn't be able to changes status, so don't show anything
+					// shouldn't be able to changes status, so don't show anything
 					if ((!$can_publish) && (!$admin_access)) {
 						continue;
 					}
@@ -245,7 +237,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 
 				case 'workflow_status_commit' :
 
-					//shouldn't be able to changes status, so don't show anything
+					// shouldn't be able to changes status, so don't show anything
 					if ((!$can_publish) && (!$admin_access)) {
 						continue;
 					}
@@ -279,7 +271,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 							ob_start();
 						}
 
-						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+						$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 						$logs = $ms->getLogs('asset.workflow.log.*', Array('assetid' => $owner->id));
 						$user_logs = $ms->getLogs('asset.workflow.userlog', Array('assetid' => $owner->id));
 						usort($logs, Array('Messaging_Service', 'sortMessages'));
@@ -383,7 +375,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 
 								$o->openField(translate('time_running'));
 									require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-									echo easy_time_total(time() - $workflow['started'], true);
+									echo easy_time_total(time() - $workflow['started'], TRUE);
 								$o->closeField();
 								$o->closeSection();
 
@@ -409,9 +401,9 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 												echo ' (<i>';
 												require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 												if ($step_data['completed']) {
-													echo easy_time_total($step_data['completed'] - $step_data['started'], true);
+													echo easy_time_total($step_data['completed'] - $step_data['started'], TRUE);
 												} else {
-													echo easy_time_total(time() - $step_data['started'], true);
+													echo easy_time_total(time() - $step_data['started'], TRUE);
 												}
 												echo '</i>)';
 											$o->closeField();
@@ -439,7 +431,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 
 										$o->openField(translate('conditions'));
 
-											$has_conds = false;
+											$has_conds = FALSE;
 											ob_start();
 											?>
 											<table class="sq-backend-table">
@@ -450,7 +442,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 												</tr>
 											<?php
 											foreach ($step_data['conditions'] as $pub => $cond_data) {
-												$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+												$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
 												if (!$asset->id) continue;
 												?>
 												<tr>
@@ -493,7 +485,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 																if ($cond_logic_num) {
 																	$user_count = $cond_logic_num;
 																} else {
-																	$user_count = count($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false));
+																	$user_count = count($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE));
 																}
 
 																echo '<span style="color:#';
@@ -512,8 +504,8 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 												</tr>
 
 												<?php
-												$has_conds = true;
-											}
+												$has_conds = TRUE;
+											}//end foreach
 
 											if (!$has_conds) {
 												ob_end_clean();
@@ -527,7 +519,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 
 									$o->closeSection();
 
-								}// end foreach
+								}//end foreach
 
 							$o->closeSection();
 
@@ -537,7 +529,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 								ob_end_flush();
 							}
 
-						}// end foreach
+						}//end foreach
 
 						$o->openSection();
 
@@ -565,7 +557,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 
 					// lets show some workflow warnings about metadata if we need to
 					if ($owner->status & SQ_SC_STATUS_PENDING) {
-						$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						if ($mm->allowsMetadata($owner->id)) {
 							$m_complete = $mm->requiredFieldsComplete($owner->id);
 							if (!$m_complete) {
@@ -632,10 +624,8 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 								<?php
 								foreach ($schemaids as $schemaid) {
 									if ($schemaid) {
-										$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($schemaid), 'workflow_schema', false);
-										if (empty($schema_info)) {
-											continue;
-										}
+										$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($schemaid), 'workflow_schema', FALSE);
+										if (empty($schema_info)) continue;
 									}
 								?>
 									<tr>
@@ -660,7 +650,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 							<?php
 							}//end foreach inherited
 
-						}// end if
+						}//end else
 
 						// if there is a keyword replacement for this, add it to the replacements
 						if (!is_null($keywords) && isset($keywords['fields']['workflow_schemas'])) {
@@ -683,13 +673,13 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 							}
 
 							$o->openField('New ?', 'new_line');
-								combo_box($prefix.'_workflow[new][granted]', Array('' => '', '1' => translate('apply'), '0' => translate('deny')), false, '');
+								combo_box($prefix.'_workflow[new][granted]', Array('' => '', '1' => translate('apply'), '0' => translate('deny')), FALSE, '');
 								echo ' '.translate('workflow_schema').' ';
-								asset_finder($prefix.'_workflow[new][schemaid]', 0, Array('workflow_schema' => 'D'), 'sq_sidenav', false, 'null', Array('clear'));
+								asset_finder($prefix.'_workflow[new][schemaid]', 0, Array('workflow_schema' => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'));
 							$o->closeField();
 
 							if (is_null($keywords) || isset($keywords['fields']['workflow_add_schemas'])) {
-								$print_commit_button = true;
+								$print_commit_button = TRUE;
 							}
 
 							// if there is a keyword replacement for this, add it to the replacements
@@ -717,7 +707,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 							if (count($kiddies)) {
 								echo translate('action_affects_assets_below_this', count($kiddies), $owner->name).'<br /><br />';
 
-								check_box($prefix.'_workflow[cascade_changes]', '1', true);
+								check_box($prefix.'_workflow[cascade_changes]', '1', TRUE);
 								echo ' '.translate('cascade_schema_changes');
 								echo '<br/>';
 								check_box($prefix.'_workflow[manual_cascade]');
@@ -765,23 +755,23 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 
 /**
 * Processes the interface for managing workflow
-* returns true if there is a change
+* returns TRUE if there is a change
 *
-* @param object	Asset					$owner	the asset whose interface we are painting
-* @param object	Backend_Outputter		$o		the outputter class
-* @param object	Asset_Edit_Interface	&$ei	the edit interface
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
 *
 * @return boolean
 * @access public
 */
 function processWorkflow(&$owner, &$o, &$ei)
 {
-	$updated = false;
+	$updated = FALSE;
 	$prefix = $owner->getPrefix();
 
 	// process a status change on this screen if workflow is running
-	$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-	$running_schemas = $wfm->getSchemas($owner->id, true, true);
+	$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+	$running_schemas = $wfm->getSchemas($owner->id, TRUE, TRUE);
 
 	// has a message been entered?
 	$message_body = '';
@@ -795,12 +785,12 @@ function processWorkflow(&$owner, &$o, &$ei)
 	// process the status, but only if the required comment conditions are met
 	if (!empty($running_schemas) && !($require_comment && empty($message_body))) {
 		_processStatusChange($owner, $o, $prefix);
-		$updated = true;
+		$updated = TRUE;
 	}
 
 	// process any messages that may have been submitted
 	if (!empty($message_body)) {
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$msg_reps = Array(
 						'message'	=> $message_body,
 					);
@@ -808,7 +798,7 @@ function processWorkflow(&$owner, &$o, &$ei)
 		$message->parameters['assetid'] = $owner->id;
 		$message->parameters['version'] = substr($owner->version, 0, strrpos($owner->version, '.'));
 		$message->send();
-		$updated = true;
+		$updated = TRUE;
 	}
 
 	// if we dont have admin access, dont process anything
@@ -818,12 +808,12 @@ function processWorkflow(&$owner, &$o, &$ei)
 		return $updated;
 	}
 
-	$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+	$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 
 	// are we cascading these schema changes to our children?
-	$cascade_changes = false;
+	$cascade_changes = FALSE;
 	if (isset($_POST[$prefix.'_workflow']['cascade_changes']) && $_POST[$prefix.'_workflow']['cascade_changes']) {
-		$cascade_changes = true;
+		$cascade_changes = TRUE;
 	}
 
 	$schema_vars = Array();
@@ -839,7 +829,7 @@ function processWorkflow(&$owner, &$o, &$ei)
 				$schema_vars[] = Array(
 									'granted'			=> (int)$post_data['new']['granted'],
 									'schemaid'			=> (int)$post_data['new']['schemaid']['assetid'],
-									'previous_access'	=> null,
+									'previous_access'	=> NULL,
 								 );
 			} else {
 				// lets do this ourselves
@@ -876,19 +866,19 @@ function processWorkflow(&$owner, &$o, &$ei)
 			$schema_vars[] = Array(
 								'granted'			=> $granted,
 								'schemaid'			=> $schemaid,
-								'previous_access'	=> null,
+								'previous_access'	=> NULL,
 							 );
 		}
 	}
 
 
 	if (!empty($schema_vars)) {
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assets' => Array($owner->id => Array('type_code' => $owner->type())), 'schema_changes' => $schema_vars);
 		$hh->queueHipo('hipo_job_edit_workflow_schemas', $vars);
 	}
 
-	return true;
+	return TRUE;
 
 }//end processWorkflow()
 

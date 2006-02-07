@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.18 2006/01/19 05:55:07 skim Exp $
+* $Id: preview.inc,v 1.19 2006/02/07 02:18:51 skim Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 
@@ -44,7 +44,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintPreview(&$owner, &$o, &$ei)
 {
-	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
 	$sql = 'SELECT l.url, l.http, l.https, lv.name
 			FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
 					LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url';
@@ -62,7 +62,7 @@ function paintPreview(&$owner, &$o, &$ei)
 		// look at the dependant parents to try and find one
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($owner->id);
 		foreach ($parents as $parentid) {
-			$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parentid, '', true);
+			$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid, '', TRUE);
 			if (is_null($parent)) continue;
 
 			$where = 'assetid = '.$db->quote($parent->id).'
@@ -86,9 +86,9 @@ function paintPreview(&$owner, &$o, &$ei)
 	if (!empty($url_data)) {
 		$preview_urls = Array();
 		$preview_designs = Array('' => 'Default Frontend Design');
-		$has_default_design = false;
+		$has_default_design = FALSE;
 
-		$contains_diff_domain = false;
+		$contains_diff_domain = FALSE;
 		$current_url = parse_url(current_url());
 
 		// set the primary preview url to the first system root url
@@ -114,7 +114,7 @@ function paintPreview(&$owner, &$o, &$ei)
 
 				$url_pieces = parse_url($protocol.$url_info['url']);
 				if ($url_pieces['host'] != $current_url['host']) {
-					$contains_diff_domain = true;
+					$contains_diff_domain = TRUE;
 				}
 
 				if (!empty($url_info['name'])) {
@@ -125,11 +125,11 @@ function paintPreview(&$owner, &$o, &$ei)
 					if ($matches[1] == 'user') {
 						$preview_designs[$matches[2]] = ucwords(str_replace('_', ' ', $matches[2]));
 					} else if ($design_name == 'design::system::frontend') {
-						$has_default_design = true;
+						$has_default_design = TRUE;
 					}
 				}
-			}//end for each protocol
-		}//end for each url
+			}//end foreach protocol
+		}//end foreach url
 
 		if (!$has_default_design) {
 			$preview_designs[''] = 'None';
@@ -185,7 +185,7 @@ function paintPreview(&$owner, &$o, &$ei)
 		$o->openSection(translate('preview_options'));
 			$o->openField(translate('url'));
 				if (count($preview_urls) > 1) {
-					combo_box('preview_url', $preview_urls, false, $primary_url);
+					combo_box('preview_url', $preview_urls, FALSE, $primary_url);
 				} else {
 					echo $primary_url;
 					hidden_field('preview_url', $primary_url);
@@ -193,14 +193,14 @@ function paintPreview(&$owner, &$o, &$ei)
 			$o->closeField();
 			$o->openField(translate('design'));
 				if (count($preview_designs) > 1) {
-					combo_box('preview_design', $preview_designs, false, '');
+					combo_box('preview_design', $preview_designs, FALSE, '');
 				} else {
 					echo ($has_default_design) ? 'Default Frontend Design' : 'None';
 					hidden_field('preview_design', '');
 				}
 			$o->closeField();
 			$o->openField(translate('use_cache'));
-				check_box('use_cache', '1', false, 'set_new_window_href(this);');
+				check_box('use_cache', '1', FALSE, 'set_new_window_href(this);');
 				echo translate('show_cached_asset');
 			$o->closeField();
 			$o->openRaw();
@@ -246,7 +246,7 @@ function paintPreview(&$owner, &$o, &$ei)
 
 	}//end if we have URLs
 
-	return false;
+	return FALSE;
 
 }//end paintPreview()
 
@@ -263,7 +263,7 @@ function paintPreview(&$owner, &$o, &$ei)
 */
 function processPreview(&$owner, &$o, &$ei)
 {
-	return false;
+	return FALSE;
 
 }//end processPreview()
 
