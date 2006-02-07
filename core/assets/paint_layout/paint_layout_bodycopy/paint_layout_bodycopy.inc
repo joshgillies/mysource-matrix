@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.24 2006/02/07 05:07:32 lwright Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.25 2006/02/07 23:07:30 lwright Exp $
 *
 */
 
@@ -50,7 +50,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -139,6 +139,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		$content = replace_keywords($content, $keyword_replacements);
 
 		// Save the substitution keywords we will need to lookup for each asset display
+		create_directory($this->data_path);
 		if (!string_to_file(serialize($required_substitution_keywords), $this->data_path.'/.keywords')) {
 			trigger_localised_error('CORE0048', E_USER_WARNING, $this->name);
 			return FALSE;
