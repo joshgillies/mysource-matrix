@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live.inc,v 1.30 2005/09/27 01:16:25 lwright Exp $
+* $Id: asset_status_live.inc,v 1.31 2006/02/07 23:58:54 lwright Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    LIVE -> UNDER_CONSTRUCTION if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live extends Asset_Status
@@ -94,11 +94,11 @@ class Asset_Status_Live extends Asset_Status
 			bam('FIXME: SOMETHING HAS GONE WRONG HERE');
 		} else {
 			// workflow is not currently running for this asset
-			$statii[SQ_STATUS_LIVE_APPROVAL]          = 'Place Up For Review';
-			$statii[SQ_STATUS_EDITING]                = 'Safe Edit';
+			$statii[SQ_STATUS_LIVE_APPROVAL]          = translate('status_change_place_up_for_review');
+			$statii[SQ_STATUS_EDITING]                = translate('status_change_safe_edit');
 			if ($this->owner->adminAccess('')) {
-				$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Place Under Construction';
-				$statii[SQ_STATUS_ARCHIVED]           = 'Archive';
+				$statii[SQ_STATUS_UNDER_CONSTRUCTION] = translate('status_change_place_under_construction');
+				$statii[SQ_STATUS_ARCHIVED]           = translate('status_change_archive');
 			}
 		}//end if workflow running
 

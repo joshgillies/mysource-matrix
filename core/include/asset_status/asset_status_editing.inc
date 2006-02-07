@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.31 2005/09/27 01:16:25 lwright Exp $
+* $Id: asset_status_editing.inc,v 1.32 2006/02/07 23:58:54 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -87,7 +87,7 @@ class Asset_Status_Editing extends Asset_Status
 		if (!$this->owner->writeAccess('')) return $statii;
 
 		// any editor can cancel the safe edit
-		$statii[SQ_STATUS_LIVE] = 'Cancel Safe Edit';
+		$statii[SQ_STATUS_LIVE] = translate('status_change_cancel_safe_edit');
 
 		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
@@ -102,7 +102,7 @@ class Asset_Status_Editing extends Asset_Status
 			if (empty($schemas)) {
 				// no workflow defined, so any admin can make this live
 				if ($this->owner->adminAccess('')) {
-					$statii[SQ_STATUS_EDITING_APPROVED] = 'Approve';
+					$statii[SQ_STATUS_EDITING_APPROVED] = translate('status_change_approve');
 				}
 			} else {
 				// so we have workflows, but none of them are running so lets see what will happen
@@ -115,15 +115,15 @@ class Asset_Status_Editing extends Asset_Status
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 
 					if ($wf_complete && $m_complete) {
-						$statii[SQ_STATUS_EDITING_APPROVED] = 'Approve';
+						$statii[SQ_STATUS_EDITING_APPROVED] = translate('status_change_approve');
 					} else {
-						$statii[SQ_STATUS_EDITING_APPROVAL] = 'Apply for Approval';
+						$statii[SQ_STATUS_EDITING_APPROVAL] = translate('status_change_apply_for_approval');
 					}
 				} else {
 					// this asset needs to allow both statuses because it cant check metadata requirements
 					// due to it not allowing metadata
-					$statii[SQ_STATUS_EDITING_APPROVED] = 'Approve';
-					$statii[SQ_STATUS_EDITING_APPROVAL] = 'Apply for Approval';
+					$statii[SQ_STATUS_EDITING_APPROVED] = translate('status_change_approve');
+					$statii[SQ_STATUS_EDITING_APPROVAL] = translate('status_change_apply_for_approval');
 				}
 			}
 		}//end if workflow running

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.40 2005/09/27 01:16:25 lwright Exp $
+* $Id: asset_status_live_approval.inc,v 1.41 2006/02/07 23:58:54 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                   there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live_Approval extends Asset_Status
@@ -89,7 +89,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 		if (!$this->owner->readAccess()) return $statii;
 
 		if ($this->owner->adminAccess('')) {
-			$statii[SQ_STATUS_EDITING] = 'Safe Edit';
+			$statii[SQ_STATUS_EDITING] = translate('status_change_safe_edit');
 		}
 
 		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
@@ -114,23 +114,23 @@ class Asset_Status_Live_Approval extends Asset_Status
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 
 					if ($wf_complete && $m_complete) {
-						$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+						$statii[SQ_STATUS_LIVE] = translate('status_change_approve_and_make_live');
 					} else if (in_array($userid, $publishers)) {
-						$statii[SQ_STATUS_LIVE_APPROVAL] = 'Approve Review';
+						$statii[SQ_STATUS_LIVE_APPROVAL] = translate('status_change_approve_review');
 					}
 				} else {
 					// this asset needs to allow both statuses because it cant check metadata requirements
 					// due to it not allowing metadata
-					$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
-					$statii[SQ_STATUS_LIVE_APPROVAL] = 'Approve Review';
+					$statii[SQ_STATUS_LIVE] = translate('status_change_approve_and_make_live');
+					$statii[SQ_STATUS_LIVE_APPROVAL] = translate('status_change_approve_review');
 				}
 
-				$statii[SQ_STATUS_EDITING] = 'Safe Edit';
+				$statii[SQ_STATUS_EDITING] = translate('status_change_safe_edit');
 			}
 		} else {
 			// now running workflow means that anyone with admin access can
 			// make this live (up for review is just a flag in this case)
-			$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+			$statii[SQ_STATUS_LIVE] = translate('status_change_approve_and_make_live');
 
 		}//end if workflow running
 

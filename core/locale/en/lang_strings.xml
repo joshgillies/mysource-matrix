@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.103 2006/02/03 05:14:00 ndvries Exp $
+* $Id: lang_strings.xml,v 1.104 2006/02/07 23:58:54 lwright Exp $
 *
 */
 
@@ -1789,4 +1789,17 @@ Items to delete: %s</string>
 	<string source="http_header_not_modified_field_note">If enabled, server will send a "304 Not Modified" Status-Code indicating nothing has been changed since last visit.</string>
 	<string source="http_header_conditional_note">Note: Only applicable to Live assets that are accessible by public users.</string>
 
+	<!-- Status Changes -->
+	<string source="status_change_place_under_construction">Place Under Construction</string>
+	<string source="status_change_apply_for_approval">Apply for Approval</string>
+	<string source="status_change_approve">Approve</string>
+	<string source="status_change_approve_changes">Approve Changes</string>
+	<string source="status_change_reject_changes">Reject Changes</string>
+	<string source="status_change_approve_review">Approve Review</string>
+	<string source="status_change_approve_and_make_live">Approve and Make Live</string>
+	<string source="status_change_place_up_for_review">Place Up For Review</string>
+	<string source="status_change_safe_edit">Safe Edit</string>
+	<string source="status_change_cancel_safe_edit">Cancel Safe Edit</string>
+	<string source="status_change_archive">Archive</string>
+	<string source="status_change_make_live">Make Live</string>
 </strings>

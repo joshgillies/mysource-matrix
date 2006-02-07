@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_approved.inc,v 1.19 2005/06/29 23:44:12 ndvries Exp $
+* $Id: asset_status_approved.inc,v 1.20 2006/02/07 23:58:54 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    APPROVED -> UNDER_CONSTRUCTION if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 class Asset_Status_Approved extends Asset_Status
@@ -92,8 +92,8 @@ class Asset_Status_Approved extends Asset_Status
 			bam('FIXME: SOMETHING HAS GONE WRONG HERE');
 		} else {
 			// workflow is not currently running for this asset
-			$statii[SQ_STATUS_LIVE] = 'Make Live';
-			$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Reject Changes';
+			$statii[SQ_STATUS_LIVE] = translate('status_change_make_live');
+			$statii[SQ_STATUS_UNDER_CONSTRUCTION] = translate('status_change_reject_changes');
 		}//end if workflow running
 
 		return $statii;
