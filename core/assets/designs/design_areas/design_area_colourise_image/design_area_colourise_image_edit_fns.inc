@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_colourise_image_edit_fns.inc,v 1.19 2005/10/11 02:05:23 tbarrett Exp $
+* $Id: design_area_colourise_image_edit_fns.inc,v 1.20 2006/02/07 01:06:57 dmckee Exp $
 *
 */
 
@@ -32,18 +32,19 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 {
 
+
 	/**
 	* Loops through the contents array and creates the necessary objects
 	*
-	* @param object Asset	$asset		the asset to which we belong
-	* @param array			$contents	the contents array we generated with _parseString()
+	* @param object	&$asset		the asset to which we belong
+	* @param array	$contents	the contents array we generated with _parseString()
 	*
 	* @return boolean
 	* @access private

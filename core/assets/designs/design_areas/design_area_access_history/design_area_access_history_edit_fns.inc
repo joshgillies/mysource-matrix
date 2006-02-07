@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history_edit_fns.inc,v 1.6 2005/10/11 02:05:03 tbarrett Exp $
+* $Id: design_area_access_history_edit_fns.inc,v 1.7 2006/02/07 01:06:57 dmckee Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *	Print the last N assets viewed
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,8 +55,8 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Loops through the contents array and creates the necessary objects
 	*
-	* @param object Asset	$asset		the asset to which we belong
-	* @param array			$contents	the contents array we generated with _parseString()
+	* @param object	&$asset		the asset to which we belong
+	* @param array	&$contents	the contents array we generated with _parseString()
 	*
 	* @return boolean
 	* @access private
@@ -64,7 +64,7 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 	function _processContents(&$asset, &$contents)
 	{
 		if (!$this->_setVariables($asset, $contents)) {
-			return false;
+			return FALSE;
 		}
 
 		// see if our page element has any sub's in it
@@ -77,7 +77,7 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 				}
 
 				if (!$asset->setAttrValue('asset_contents', $element['contents'])) {
-					return false;
+					return FALSE;
 				}
 				// Now what we do is morph it so that this element doesn't contain all the un-necessary contents stuff
 				$contents[$index] = Array(
@@ -90,7 +90,7 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 			}
 		}//end foreach
 
-		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
+		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = TRUE;
 
 
 		return $asset->setAttrValue('contents', $contents);
@@ -98,13 +98,12 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 	}//end _processContents()
 
 
-
 	/**
 	* Paint the interface for choosing which asset types to list
 	*
-	* @param object Design_Area_Access_History	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter			&$o		the outputter class
-	* @param string								$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -116,7 +115,7 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 		$asset_types = $asset->attr('asset_types');
 		$action_column = $write_access && count($asset_types);
 
-		$types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes(true);
+		$types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes(TRUE);
 
 		$print_types[''] = '-- Add New Type --';
 
@@ -152,11 +151,11 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 		echo '</tr>';
 
 		// now print the types that were specified previously
-		$even = false;
+		$even = FALSE;
 		foreach ($asset_types as $type => $query_req) {
 			$type_prefix = $prefix.'[types]['.$type.']';
 
-			$row_class = $even? 'class="alt"':'';
+			$row_class = $even ? 'class="alt"' : '';
 			$even = !$even;
 
 			echo '<tr '.$row_class.'><td>'.$present_types[$type].'</td>';
@@ -186,17 +185,17 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 		if ($write_access) {
 			// new type selector
 			echo '<tr class="alt"><td>';
-			echo combo_box($prefix.'[new][type_code]', $print_types, false, '');
+			echo combo_box($prefix.'[new][type_code]', $print_types, FALSE, '');
 			echo '</td>';
 
 			// request types for new asset type
 			$new_radio_prefix = $prefix.'[new][require_query]';
-			$selected = true;
+			$selected = TRUE;
 			foreach ($this->_request_types as $req_type => $name) {
 				echo '<td>';
 				radio_button($new_radio_prefix, $req_type, $selected);
 				echo '</td>';
-				$selected = false;
+				$selected = FALSE;
 			}
 			if ($action_column) echo '<td>&nbsp;</td>';
 			echo '</tr>';
@@ -216,9 +215,9 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Process the asset types to list
 	*
-	* @param object Design_Area_Access_History	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter			&$o		the outputter class
-	* @param string								$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -227,7 +226,7 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$request_info = array_get_index($_REQUEST, $prefix, Array());
 
-		if (empty($request_info)) return true;
+		if (empty($request_info)) return TRUE;
 
 		$asset_types = $asset->attr('asset_types');
 
@@ -249,7 +248,7 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 
 		$asset->setAttrValue('asset_types', $updated_types);
 
-		return true;
+		return TRUE;
 
 	}//end processAssetTypes()
 
@@ -257,25 +256,25 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paints the Exclued Assets. These assets are not included in the Asset History.
 	*
-	* @param object Design_Area_Access_History	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter			&$o		the outputter class
-	* @param string								$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function paintExcludeAssets(&$asset, &$o, $prefix)
 	{
-		if ($asset->writeAccess('attributes')){
+		if ($asset->writeAccess('attributes')) {
 			multiple_asset_finder($prefix.'exclude_assets', $asset->attr('exclude_assets'), Array());
-			return true;
+			return TRUE;
 		} else {
 			$asset_ids = $asset->attr('exclude_assets');
-			$asset_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset_ids, Array(), true, 'name');
+			$asset_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset_ids, Array(), TRUE, 'name');
 			foreach ($asset_names as $id => $name) {
 				echo $name.' (id #'.$id.') <br />';
 			}
-			return false;
+			return FALSE;
 		}
 
 	}//end paintExcludeAssets()
@@ -284,9 +283,9 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Process the Exclude Assets.
 	*
-	* @param object Design_Area_Access_History	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter			&$o		the outputter class
-	* @param string								$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -300,7 +299,7 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 			}
 			return ($asset->setAttrValue('exclude_assets',$asset_ids));
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end processExcludeAssets()

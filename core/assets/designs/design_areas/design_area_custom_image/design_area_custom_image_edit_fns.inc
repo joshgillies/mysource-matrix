@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_custom_image_edit_fns.inc,v 1.18 2005/11/03 23:57:26 lwright Exp $
+* $Id: design_area_custom_image_edit_fns.inc,v 1.19 2006/02/07 01:06:57 dmckee Exp $
 *
 */
 
@@ -32,31 +32,32 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 {
 
+
 	/**
 	* Prints the interface for uploading a file
 	*
-	* @param object Image				&$asset	the file asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the file asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function paintImageUpload(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 		file_upload($prefix);
 		$o->note(translate('core_only_upload_files_of_type', $this->_getExtensionString($asset->allowed_extensions)));
 		$o->note(translate('core_image_size_restricted', $asset->attr('max_width'), $asset->attr('max_height')));
 
-		return true;
+		return TRUE;
 
 	}//end paintImageUpload()
 
@@ -64,9 +65,9 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes the interface for uploading a file
 	*
-	* @param object Image				&$asset	the file asset
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the file asset
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -76,23 +77,25 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 		$info = get_file_upload_info($prefix);
 
 		// return on failed or no upload
-		if ($info === false || empty($info)) return false;
+		if ($info === FALSE || empty($info)) {
+			return FALSE;
+		}
 
 		// check that the extension is allowed
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		if (!in_array(get_file_type($info['name']) , $asset->allowed_extensions)) {
 			trigger_localised_error('CORE0190', E_USER_WARNING, $this->_getExtensionString($asset->allowed_extensions));
-			return false;
+			return FALSE;
 		}
 
 		// check that the image dimensions are not greater than our limits
 		$size = getimagesize($info['tmp_name']);
-		if ($size === false) return false;
+		if ($size === FALSE) return FALSE;
 		$max_width  = (int) $asset->attr('max_width');
 		$max_height = (int) $asset->attr('max_height');
 		if (($max_width && $size[0] > $max_width) || ($max_height && $size[1] > $max_height)) {
 			trigger_localised_error('CORE0191', E_USER_WARNING, $asset->attr('max_width'), $asset->attr('max_height'));
-			return false;
+			return FALSE;
 		}
 
 		create_directory($asset->data_path_public);
@@ -104,19 +107,21 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 		if ($old_image && $old_image != $new_image && file_exists($asset->data_path_public.'/'.$old_image)) {
 			if (!unlink($asset->data_path_public.'/'.$old_image)) {
 				trigger_localised_error('CORE0163', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 		}
 
 		// copy over the new uploaded file
 		if (!move_uploaded_file($info['tmp_name'], $asset->data_path_public.'/'.$info['name'])) {
 			trigger_localised_error('CORE0166', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
-		if (!$asset->setAttrValue('image', $new_image)) return false;
+		if (!$asset->setAttrValue('image', $new_image)) {
+			return FALSE;
+		}
 
-		return true;
+		return TRUE;
 
 	}//end processImageUpload()
 
@@ -124,9 +129,9 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Prints the interface for uploading a file
 	*
-	* @param object Image				&$asset	the file asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the file asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -140,7 +145,7 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 			<a href="<?php echo sq_web_path('data').'/assets/'.$asset->type().'/'.$asset->id.'/'.$image; ?>" target="_blank"><?php echo $image; ?></a>
 		<?php
 		}
-		return true;
+		return TRUE;
 
 	}//end paintCurrentImage()
 
@@ -148,7 +153,7 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Get a formatted string of extensions (eg 1,2,3 and 4)
 	*
-	* @param array(string)	$extensions	array of extensions to format
+	* @param array	$extensions	array of extensions to format
 	*
 	* @return string
 	* @access public
@@ -157,8 +162,12 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		if (empty($extensions)) return '';
 		$last = array_pop($extensions);
-		if (empty($extensions)) return $last;
-		else return implode(', ', $extensions).' and '.$last;
+		if (empty($extensions)) {
+			return $last;
+		} else {
+			return implode(', ', $extensions).' and '.$last;
+		}
+
 	}//end _getExtensionString()
 
 

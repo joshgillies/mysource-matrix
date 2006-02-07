@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage.inc,v 1.12 2006/01/20 04:45:10 tbarrett Exp $
+* $Id: design_area_asset_lineage.inc,v 1.13 2006/02/07 01:06:57 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,10 +44,11 @@ class Design_Area_Asset_Lineage extends Design_Area
 	* Outputs the var either as straight HTML or PHP code, depending on the type
 	*
 	* @param string	$var			the name of the var to print out
-	* @param Array	$args			array of any extra arguments that existed in the print command
+	* @param array	$args			array of any extra arguments that existed in the print command
 	* @param string	$value_prefix	PHP code to wrap put before the value before outputting it
 	* @param string	$value_suffix	PHP code to wrap put after  the value before outputting it
 	*
+	* @return void
 	* @access public
 	*/
 	function printVar($var, $args, $value_prefix='', $value_suffix='')
@@ -78,10 +79,10 @@ class Design_Area_Asset_Lineage extends Design_Area
 	/**
 	* Print code that outputs a given element from this DA's contents
 	*
-	* @param array	$item	An entry from our contents array
+	* @param array	$element	An entry from our contents array
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _printContentItemCode($element)
 	{
@@ -208,8 +209,8 @@ class Design_Area_Asset_Lineage extends Design_Area
 	* Design Area attributes that can be set in the parse file but aren't are set to defaults
 	* when parsing the design.  Attributes returned by this function are exempted from this process.
 	*
+	* @return array
 	* @access public
-	* @return array(string)
 	*/
 	function getProtectedAttrs()
 	{

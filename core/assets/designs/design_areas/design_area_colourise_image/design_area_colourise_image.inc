@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_colourise_image.inc,v 1.20 2005/10/11 02:05:23 tbarrett Exp $
+* $Id: design_area_colourise_image.inc,v 1.21 2006/02/07 01:06:57 dmckee Exp $
 *
 */
 
@@ -32,18 +32,19 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Colourise_Image extends Design_Area
 {
 
+
 	/**
 	* Set the value for the passed variable to the passed value
 	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -61,7 +62,9 @@ class Design_Area_Colourise_Image extends Design_Area
 			$value = $new_value;
 		}
 
-		if ($name == 'type' && $value != 'multiple_colours') $value = 'greyscale';
+		if ($name == 'type' && $value != 'multiple_colours') {
+			$value = 'greyscale';
+		}
 
 		return parent::setAttrValue($name, $value);
 
@@ -71,9 +74,9 @@ class Design_Area_Colourise_Image extends Design_Area
 	/**
 	* Easy way to get the value of an attribute
 	*
-	* @param string	$name
+	* @param string	$name	Name of the attribute to get
 	*
-	* @return mixed
+	* @return mixed array|string
 	* @access public
 	*/
 	function attr($name)
@@ -83,14 +86,15 @@ class Design_Area_Colourise_Image extends Design_Area
 		} else {
 			return $this->vars['colours']['value'][$name];
 		}
+
 	}//end attr()
 
 
-	/*
+	/**
 	* Print code that actually results in HTML output to the browser for this design area
 	*
-	* @access protected
 	* @return void
+	* @access protected
 	*/
 	function _printPaintingCode()
 	{
@@ -111,7 +115,7 @@ class Design_Area_Colourise_Image extends Design_Area
 	}//end _printPaintingCode()
 
 
-	/*
+	/**
 	* Return whether this DA has been given sufficient details to be able to print stuff
 	*
 	* This function can be overriden by children to enforce required attributes etc
@@ -124,25 +128,25 @@ class Design_Area_Colourise_Image extends Design_Area
 		$image_asset = $GLOBALS['DESIGN_BEING_GENERATED']->getAssociatedFile($this->attr('image'));
 		if (is_null($image_asset)) {
 			trigger_localised_error('CORE0184', E_USER_WARNING, $this->attr('id_name'), $this->attr('image'));
-			return false;
+			return FALSE;
 		}
 
 		// check the source file exists
 		$source = $image_asset->data_path.'/'.$image_asset->attr('name');
 		if (!file_exists($source)) {
 			trigger_localised_error('CORE0183', E_USER_WARNING, $this->attr('id_name'), $source);
-			return false;
+			return FALSE;
 		}
 
 		if ($this->attr('type') == 'greyscale') {
 			$colours = $this->attr('colours');
 			if (!isset($colours['black_colour']) || !isset($colours['white_colour'])) {
-				trigger_localised_error("CORE0186", E_USER_WARNING, $this->attr('id_name'));
-				return false;
+				trigger_localised_error('CORE0186', E_USER_WARNING, $this->attr('id_name'));
+				return FALSE;
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _canInit()
 
@@ -152,8 +156,8 @@ class Design_Area_Colourise_Image extends Design_Area
 	*
 	* This version doesn't actually print any code but it prepares the colourised image for future use
 	*
-	* @access protected
 	* @return void
+	* @access protected
 	*/
 	function _printInitCode()
 	{
@@ -198,7 +202,7 @@ class Design_Area_Colourise_Image extends Design_Area
 
 		}//end switch
 
-	}//end _printInitCode
+	}//end _printInitCode()
 
 
 	/**
@@ -207,8 +211,8 @@ class Design_Area_Colourise_Image extends Design_Area
 	* Design Area attributes that are not mentioned in the parse file are normally set to defaults
 	* when parsing the design.  Attributes returned by this function are exempted from that process.
 	*
+	* @return array
 	* @access public
-	* @return array(string)
 	*/
 	function getProtectedAttrs()
 	{

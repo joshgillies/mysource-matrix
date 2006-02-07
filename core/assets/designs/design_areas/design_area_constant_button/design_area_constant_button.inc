@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_constant_button.inc,v 1.21 2005/10/11 02:05:26 tbarrett Exp $
+* $Id: design_area_constant_button.inc,v 1.22 2006/02/07 01:06:57 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,7 +40,7 @@ class Design_Area_Constant_Button extends Design_Area
 {
 
 
-	/*
+	/**
 	* Prints code in place of the AREA tag
 	*
 	* The protected version of this function, rather than this one, should be overridden by children
@@ -54,7 +54,9 @@ class Design_Area_Constant_Button extends Design_Area
 		$url     = $this->attr('url');
 
 		// return true because it just means that they haven't set anything yet
-		if (empty($assetid) && empty($url)) return true;
+		if (empty($assetid) && empty($url)) {
+			return TRUE;
+		}
 
 		// if there is an assetid then do some prep work before printing the area
 		if (!empty($assetid)) {
@@ -63,14 +65,14 @@ class Design_Area_Constant_Button extends Design_Area
 			?', '>';
 		}// end if
 
-	}//end _printInitCode()
+	}//end printInitCode()
 
 
 	/**
 	* Can we initialise this DA?
 	*
-	* @access protected
 	* @return boolean
+	* @access protected
 	*/
 	function _canInit()
 	{
@@ -79,14 +81,15 @@ class Design_Area_Constant_Button extends Design_Area
 	}//end _canInit()
 
 
-	/*
+	/**
 	* Outputs the var either as straight HTML or PHP code, depending on the type
 	*
 	* @param string	$var			the name of the var to print out
-	* @param Array	$args			array of any extra arguments that existed in the print command
+	* @param array	$args			array of any extra arguments that existed in the print command
 	* @param string	$value_prefix	PHP code to wrap put before the value before outputting it
 	* @param string	$value_suffix	PHP code to wrap put after  the value before outputting it
 	*
+	* @return void
 	* @access public
 	*/
 	function printVar($var, $args, $value_prefix='', $value_suffix='')
@@ -112,7 +115,7 @@ class Design_Area_Constant_Button extends Design_Area
 				}// end if
 
 				echo 'href="'.$url_code.'"';
-				break;
+			break;
 
 			default :
 				parent::printVar($var, $args);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_colourise_image_management.inc,v 1.18 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_area_colourise_image_management.inc,v 1.19 2006/02/07 01:06:57 dmckee Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Colourise_Image_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -47,54 +48,55 @@ class Design_Area_Colourise_Image_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'image' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'text',
-								'default'   => '',
-								'description' => 'filename of the Associated File image that we are to colourise',
-							),
-							'colours' => Array(
-								'added'       => '0.0.1',
-								'type'        => 'serialise',
-								'default'     => Array(),
-								'description' => 'Associative Array of colours that are going to be used in the converison process',
-							),
-							'filename_only'   => Array(
-								'added'       => '0.0.1',
-								'type'        => 'boolean',
-								'default'     => 0,
-								'description' => 'whether to print just the filename or the full img tag',
-								'parameters'  => Array(
-															'allow_empty' => false
-														),
-							),
-							'type' => Array(
-								'added'			=> '0.0.1',
-								'type'			=> 'selection',
-								'default'		=> 'greyscale',
-								'parameters'	=> Array(
-									'options' => Array(
-										'greyscale'			=> 'Greyscale',
-										'multiple_colours'	=> 'Multiple Colours',
-									),
-									'allow_empty' => false,
-									'multiple' => false,
-								),
-							),
-							'tolerance' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'float',
-								'default'   => 0.2,
-							),
-							'extra' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'text',
-								'default'   => '',
-								'description' => 'Any extra HTML that you want to end up in the img tag',
-							),
-						);
+						'image'			=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'text',
+											'default'		=> '',
+											'description'	=> 'filename of the Associated File image that we are to colourise',
+										   ),
+						'colours'		=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'serialise',
+											'default'		=> Array(),
+											'description'	=> 'Associative Array of colours that are going to be used in the converison process',
+										   ),
+						'filename_only'	=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'boolean',
+											'default'		=> 0,
+											'description'	=> 'whether to print just the filename or the full img tag',
+											'parameters'	=> Array(
+																'allow_empty'	=> FALSE,
+															   ),
+										   ),
+						'type'			=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'selection',
+											'default'		=> 'greyscale',
+											'parameters'	=> Array(
+																'options'		=> Array(
+																					'greyscale'			=> 'Greyscale',
+																					'multiple_colours'	=> 'Multiple Colours',
+																				   ),
+																'allow_empty'	=> FALSE,
+																'multiple'		=> FALSE,
+															   ),
+										   ),
+						'tolerance'		=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'float',
+											'default'	=> 0.2,
+										   ),
+						'extra'			=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'text',
+											'default'		=> '',
+											'description'	=> 'Any extra HTML that you want to end up in the img tag',
+										   ),
+					  );
 
 	}//end constructor
+
 
 }//end class
 ?>

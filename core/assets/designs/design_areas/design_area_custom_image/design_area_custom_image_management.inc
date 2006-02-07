@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_custom_image_management.inc,v 1.9 2005/01/20 13:07:32 brobertson Exp $
+* $Id: design_area_custom_image_management.inc,v 1.10 2006/02/07 01:06:57 dmckee Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Custom_Image_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -47,47 +48,48 @@ class Design_Area_Custom_Image_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'image' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'text',
-								'default'   => '',
-							),
-							'max_width' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'int',
-								'default'   => 0,
-								'description' => 'The maximum width that the uploaded image can be',
-							),
-							'max_height' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'int',
-								'default'   => 0,
-								'description' => 'The maximum height that the uploaded image can be',
-							),
-							'alt' => Array(
-								'added'       => '0.0.1',
-								'type'        => 'text',
-								'default'     => '',
-								'description' => 'The text that you want to appear in the alt attribute for this image'
-							),
-							'extra' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'text',
-								'default'   => '',
-								'description' => 'Any extra HTML that you want to end up in the img tag',
-							),
-							'filename_only'   => Array(
-								'added'       => '0.0.1',
-								'type'        => 'boolean',
-								'default'     => 0,
-								'description' => 'whether to print just the filename or the full img tag',
-								'parameters'  => Array(
-															'allow_empty' => false
-														),
-							),
-						);
+						'image'			=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'text',
+											'default'	=> '',
+										   ),
+						'max_width'		=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'int',
+											'default'		=> 0,
+											'description'	=> 'The maximum width that the uploaded image can be',
+										   ),
+						'max_height'	=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'int',
+											'default'		=> 0,
+											'description'	=> 'The maximum height that the uploaded image can be',
+										   ),
+						'alt'			=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'text',
+											'default'		=> '',
+											'description'	=> 'The text that you want to appear in the alt attribute for this image',
+										   ),
+						'extra'			=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'text',
+											'default'		=> '',
+											'description'	=> 'Any extra HTML that you want to end up in the img tag',
+										   ),
+						'filename_only'	=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'boolean',
+											'default'		=> 0,
+											'description'	=> 'whether to print just the filename or the full img tag',
+											'parameters'	=> Array(
+																'allow_empty'	=> FALSE,
+															   ),
+										   ),
+					  );
 
 	}//end constructor
+
 
 }//end class
 ?>

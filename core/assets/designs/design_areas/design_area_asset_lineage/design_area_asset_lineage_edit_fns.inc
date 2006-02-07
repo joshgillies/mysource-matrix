@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage_edit_fns.inc,v 1.15 2006/01/20 04:45:10 tbarrett Exp $
+* $Id: design_area_asset_lineage_edit_fns.inc,v 1.16 2006/02/07 01:06:57 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,8 +43,8 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Loops through the contents array and creates the necessary objects
 	*
-	* @param object Asset	$asset		the asset to which we belong
-	* @param array			$contents	the contents array we generated with _parseString()
+	* @param object	&$asset		the asset to which we belong
+	* @param array	&$contents	the contents array we generated with _parseString()
 	*
 	* @return boolean
 	* @access private
@@ -107,7 +107,7 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 			array_splice($contents, $divider_index, 1);
 
 		} else {
-			//we dont have a tag, so lets use the default value instead
+			// we dont have a tag, so lets use the default value instead
 			if (!$asset->setAttrValue('divider_contents', $this->_getDefaultContents($asset, 'divider'))) {
 				return FALSE;
 			}

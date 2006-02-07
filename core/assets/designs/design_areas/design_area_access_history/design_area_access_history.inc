@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history.inc,v 1.4 2005/10/11 02:05:02 tbarrett Exp $
+* $Id: design_area_access_history.inc,v 1.5 2006/02/07 01:06:57 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,10 +44,11 @@ class Design_Area_Access_History extends Design_Area
 	* Outputs the var either as straight HTML or PHP code, depending on the type
 	*
 	* @param string	$var			the name of the var to print out
-	* @param Array	$args			array of any extra arguments that existed in the print command
+	* @param array	$args			array of any extra arguments that existed in the print command
 	* @param string	$value_prefix	PHP code to wrap put before the value before outputting it
 	* @param string	$value_suffix	PHP code to wrap put after  the value before outputting it
 	*
+	* @return string
 	* @access public
 	*/
 	function printVar($var, $args, $value_prefix='', $value_suffix='')
@@ -86,7 +87,7 @@ class Design_Area_Access_History extends Design_Area
 			default :
 				parent::printVar($var, $args);
 
-		}// end switch
+		}//end switch
 
 	}//end printVar()
 
@@ -94,10 +95,10 @@ class Design_Area_Access_History extends Design_Area
 	/**
 	* Print code that outputs a given element from this DA's contents
 	*
-	* @param array	$item	An entry from our contents array
+	* @param array	$element	An entry from our contents array
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _printContentItemCode($element)
 	{
@@ -120,7 +121,7 @@ class Design_Area_Access_History extends Design_Area
 						}//end foreach
 					?>
 				';
-				return true;
+				return TRUE;
 			default :
 				return parent::_printContentItemCode($element);
 		}//end switch
@@ -128,7 +129,7 @@ class Design_Area_Access_History extends Design_Area
 	}//end _printContentItemCode()
 
 
-	/*
+	/**
 	* Return whether this DA has been given sufficient details to be able to print stuff
 	*
 	* This function can be overriden by children to enforce required attributes etc
@@ -146,8 +147,8 @@ class Design_Area_Access_History extends Design_Area
 	/**
 	* Print code that initialises this design area and should always be printed in place of the AREA tag
 	*
-	* @access protected
 	* @return void
+	* @access protected
 	*/
 	function _printInitCode()
 	{
@@ -159,8 +160,8 @@ class Design_Area_Access_History extends Design_Area
 
 		echo '
 			<?php
-				$exclude_assets = '.var_export($exclude_assets,true).';
-				$allowed_asset_types = '.var_export($this_types,true).';
+				$exclude_assets = '.var_export($exclude_assets,TRUE).';
+				$allowed_asset_types = '.var_export($this_types,TRUE).';
 				$max_asset_count = '.$max_count.';
 				//// Access History Design Area
 
@@ -181,7 +182,7 @@ class Design_Area_Access_History extends Design_Area
 					$url = null;
 					$query_var = array_get_index($_SERVER, "QUERY_STRING");
 					if (!empty($query_var)) {
-						$query = true;
+						$query = TRUE;
 						$query_var = "?".$query_var;
 					} else {
 						$query = false;
@@ -244,8 +245,8 @@ class Design_Area_Access_History extends Design_Area
 	* Design Area attributes that are not mentioned in the parse file are normally set to defaults
 	* when parsing the design.  Attributes returned by this function are exempted from that process.
 	*
+	* @return array
 	* @access public
-	* @return array(string)
 	*/
 	function getProtectedAttrs()
 	{
