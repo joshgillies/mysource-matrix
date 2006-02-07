@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_lookup_value.inc,v 1.5 2006/01/26 22:34:04 lwright Exp $
+* $Id: paint_layout_lookup_value.inc,v 1.6 2006/02/07 00:41:31 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/lookup_value/lookup_value.inc';
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,8 +113,8 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 			$o->openField(translate('lineage'));
 			$lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $url);
 			foreach ($lineage as $i => $asset) {
-				if ($i > 0) echo '&nbsp;&gt;&nbsp;';
-				$o->note(translate('asset_format', $asset['short_name'], $asset['assetid']));
+				if ($i > 0) echo '<br />&nbsp;&gt;&nbsp;<br />';
+				echo get_asset_tag_line($asset['assetid']);
 			}
 			unset($lineage);
 			$o->closeField();
@@ -172,7 +172,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 						} else {
 							$layout =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data['value'], '', TRUE);
 							if (!is_null($layout)) {
-								echo $layout->name.' (Id : #'.$layout->id.')';
+								echo get_asset_tag_line($layout->id);
 								if ($data['inhd']) {
 									echo '<br><b>('.translate('inherited').')</b>';
 								}
