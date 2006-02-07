@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.8 2006/01/26 22:34:04 lwright Exp $
+* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.9 2006/02/07 04:51:00 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -96,29 +96,6 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 		return $condition_list->processConditionsList($asset, $o, $prefix, $write_access, $allowed_keywords);
 
 	}//end processConditionalKeywords()
-
-
-	/**
-	* Processes the interface for creating containers in the bodycopy
-	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processBodycopy(&$asset, &$o, $prefix)
-	{
-		if (!parent::processBodycopy($asset, $o, $prefix)) {
-			return FALSE;
-		}
-
-		if (!$asset->saveSystemVersion()) return FALSE;
-
-		return TRUE;
-
-	}//end processBodycopy()
 
 
 }//end class
