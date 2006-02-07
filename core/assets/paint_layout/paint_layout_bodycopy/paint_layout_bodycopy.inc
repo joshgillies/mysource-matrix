@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.22 2006/02/06 05:38:23 lwright Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.22.2.1 2006/02/07 05:07:09 lwright Exp $
 *
 */
 
@@ -50,7 +50,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.22.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -84,11 +84,11 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	* @return boolean
 	* @access public
 	*/
-	function saveSystemVersion()
+	function _updated()
 	{
 		// Use bodycopy's save functionality to store any notice links our containers have,
 		// and to store the original content before any substitutions take place
-		if (!parent::saveSystemVersion()) return FALSE;
+		if (!parent::_updated()) return FALSE;
 
 		$content = $this->getRawBodycopyContent();
 		$required_keywords = $this->getKeywords();
@@ -139,7 +139,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		$content = replace_keywords($content, $keyword_replacements);
 
 		// Save the substitution keywords we will need to lookup for each asset display
-		if (!string_to_file(serialize($required_substitution_keywords), $this->data_path.'/.sq_system/.keywords')) {
+		if (!string_to_file(serialize($required_substitution_keywords), $this->data_path.'/.keywords')) {
 			trigger_localised_error('CORE0048', E_USER_WARNING, $this->name);
 			return FALSE;
 		}
@@ -160,7 +160,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 		return TRUE;
 
-	}//end saveSystemVersion()
+	}//end _updated()
 
 
 	/**
@@ -194,16 +194,27 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		// Retrieve any assets referenced in this bodycopy, and get their urls for lookup
 		if (file_exists($this->data_path.'/.notice_links')) {
 			$linked_assets = unserialize(file_to_string($this->data_path.'/.notice_links'));
-			$sq_asset_url_list = $GLOBALS['SQ_SYSTEM']->am->getAssetHref($linked_assets);
+		} else {
+			// nothing cached out from the Bodycopy asset level (ie. not in safe edit) so
+			// need to grab our notice links ourselves
+			$linked_assets = Array();
+			$containers =& $this->getContainers();
+
+			foreach ($containers as $container) {
+				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($container->id, SQ_LINK_NOTICE);
+				foreach ($links as $link) {
+					$linked_assets[] = $link['minorid'];
+				}
+			}
+			$linked_assets = array_unique($linked_assets);
 		}
+		$sq_asset_url_list = $GLOBALS['SQ_SYSTEM']->am->getAssetHref($linked_assets);
 
 		// Find stored keyword replacements
 		$paint_layout_keywords = Array();
 		if (file_exists($this->data_path.'/.keywords')) {
 			$required_keywords = array_keys(unserialize(file_to_string($this->data_path.'/.keywords')));
 			$paint_layout_keywords = $this->_getAssetKeywordReplacements($asset, $required_keywords);
-		} else {
-			$paint_layout_keywords = $this->_getAssetKeywordReplacements($asset, $this->getKeywords());
 		}
 
 		// Read in content file, find keyword replacements, spit out the results
@@ -215,7 +226,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 				$content = replace_keywords($content, $paint_layout_keywords);
 			ob_end_clean();
 		} else {
-			$this->setKeywordReplacements($paint_layout_keywords);
+			$this->setKeywordReplacements($this->_getAssetKeywordReplacements($asset, $this->getKeywords()));
 			ob_start();
 				$this->printBody();
 				$content = ob_get_contents();
