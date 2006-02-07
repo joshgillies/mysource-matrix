@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_schema.inc,v 1.2 2005/08/18 05:49:24 ndvries Exp $
+* $Id: trigger_action_set_metadata_schema.inc,v 1.3 2006/02/07 02:27:12 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a metadata schema
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,7 +40,6 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 
 	/**
 	* Execute this action
-	*
 	* Returns an array of data about what it did, or false on error
 	*
 	* The settings used by this action are in the form:<BR />
@@ -54,7 +53,7 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 	* @param array	$settings	the stored settings for this action
 	* @param array	&$state		the state that describes the asset the action is executing on
 	*
-	* @return array | boolean
+	* @return mixed array|boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
@@ -63,32 +62,32 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		// check required settings
-		if (empty($settings['schemaid'])) return false;
+		if (empty($settings['schemaid'])) return FALSE;
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
 			if (empty($state['assetid'])) {
-				return false;
+				return FALSE;
 			} else {
 				$state['asset'] =& $am->getAsset($state['assetid']);
 			}
 		}
 
-		if (is_null($state['asset'])) return false;
+		if (is_null($state['asset'])) return FALSE;
 
 		$schema =& $am->getAsset($settings['schemaid']);
-		if (is_null($schema)) return false;
-		if ($schema->type() != 'metadata_schema') return false;
+		if (is_null($schema)) return FALSE;
+		if ($schema->type() != 'metadata_schema') return FALSE;
 
 		$success = $mm->setSchema($state['asset']->id, $schema->id, $settings['granted']);
 
 		if ($success) {
 			return Array(
-					'assetid'		=> $state['asset']->id,
-					'schemaid'		=> $schema->id,
+					'assetid'	=> $state['asset']->id,
+					'schemaid'	=> $schema->id,
 				   );
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end execute()
@@ -101,21 +100,21 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 	* @param string		$prefix			unique prefix
 	* @param boolean	$write_access	determines whether the interface is editable
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$current_schemaid = array_get_index($settings, 'schemaid', 0);
 		$granted = array_get_index($settings, 'granted', 1);
 		$options = Array(
-					true	=> 'Apply',
-					false	=> 'Deny'
+					TRUE	=> 'Apply',
+					FALSE	=> 'Deny',
 				   );
 
 		ob_start();
 			if ($write_access) {
-				combo_box($prefix.'[granted]', $options, false, $granted);
+				combo_box($prefix.'[granted]', $options, FALSE, $granted);
 				echo ' the following schema ';
 				asset_finder($prefix.'[schemaid]', $current_schemaid, Array('metadata_schema' => 'I'));
 			} else {
@@ -140,19 +139,19 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param array	$settings		a container for any data the action might want to save
+	* @param array	&$settings		a container for any data the action might want to save
 	* @param string	$request_data	array of data corresponding to this action as
-	* 								specified by the $prefix in getInterface.
+	*								specified by the $prefix in getInterface.
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processInterface(&$settings, $request_data)
 	{
 		$schema_info = array_get_index($request_data, 'schemaid', Array('assetid' => 0));
 		$settings['schemaid'] = array_get_index($schema_info, 'assetid', 0);
-		$settings['granted'] = array_get_index($request_data, 'granted', true);
-		return false;
+		$settings['granted'] = array_get_index($request_data, 'granted', TRUE);
+		return FALSE;
 
 	}//end processInterface()
 
@@ -160,8 +159,11 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 	/**
 	* Get the list of locks that the action needs acquire before executing
 	*
-	* @access public
+	* @param array	$settings	a container for any data the action might want to save
+	* @param array	&$state		the state that describes the asset the action is executing on
+	*
 	* @return array
+	* @access public
 	*/
 	function getLocks($settings, &$state)
 	{

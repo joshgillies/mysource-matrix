@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_status.inc,v 1.7 2005/11/03 01:19:37 lwright Exp $
+* $Id: trigger_condition_status.inc,v 1.8 2006/02/07 02:27:13 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,8 +50,8 @@ class Trigger_Condition_Status extends Trigger_Condition
 	*       );
 	* </PRE>
 	*
-	* @param array(string=>mixed)   $settings   the stored settings for this condition
-	* @param array(string=>mixed)   &$state     the state that describes the asset the condition is executing on
+	* @param array	$settings	the stored settings for this condition
+	* @param array	&$state		the state that describes the asset the condition is executing on
 	*
 	* @return boolean
 	* @access public
@@ -63,7 +63,7 @@ class Trigger_Condition_Status extends Trigger_Condition
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset
 			if (empty($state['assetid'])) {
-				return false;
+				return FALSE;
 			} else {
 				$state['asset'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
@@ -71,14 +71,14 @@ class Trigger_Condition_Status extends Trigger_Condition
 
 		if (empty($settings['status'])) {
 			// if no settings, fail
-			return false;
+			return FALSE;
 		}
 
 		// check the condition
 		if ($state['asset']->status == $settings['status']) {
-			return true;
+			return TRUE;
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end evaluate()
@@ -87,14 +87,14 @@ class Trigger_Condition_Status extends Trigger_Condition
 	/**
 	* Get the HTML editing interface for this condition. Returns the string instead of printing it
 	*
-	* @param Array      $settings  settings that this condition save in processInterface()
-	* @param string     $prefix    unique prefix
-	* @param boolean    $write_access   write access flag
+	* @param array		$settings		settings that this condition save in processInterface()
+	* @param string		$prefix			unique prefix
+	* @param boolean	$write_access	write access flag
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		if (empty($settings['status'])) {
 			// set to default
@@ -113,7 +113,7 @@ class Trigger_Condition_Status extends Trigger_Condition
 
 		// begin buffering basic options
 		ob_start();
-			combo_box($prefix.'[status]', $status_list, false, $selected_status, null, $form_element_extras);
+			combo_box($prefix.'[status]', $status_list, FALSE, $selected_status, NULL, $form_element_extras);
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
@@ -125,15 +125,15 @@ class Trigger_Condition_Status extends Trigger_Condition
 	/**
 	* Function that handles the conversion of interface to settings
 	*
-	* @param Array          $settings       a container for any data the condition might want to save
-	* @param array          $request_data   array of data corresponding to this condition as specified by the $prefix in the getInterface.
+	* @param array	&$settings		a container for any data the condition might want to save
+	* @param array	$request_data	array of data corresponding to this condition as specified by the $prefix in the getInterface.
 	*
+	* @return mixed boolean|string
 	* @access public
-	* @return false|string
 	*/
 	function processInterface(&$settings, $request_data)
 	{
-		$status = array_get_index($request_data, 'status', false);
+		$status = array_get_index($request_data, 'status', FALSE);
 		if (!$status) return 'No status selected';
 
 		$status_list = trigger_condition_status::_getStatusList();
@@ -141,7 +141,7 @@ class Trigger_Condition_Status extends Trigger_Condition
 		// check if the status is valid
 		if (isset($status_list[$status])) {
 			$settings['status'] = $status;
-			return false;
+			return FALSE;
 		} else {
 			return translate('trigger_selected_status_invalid');
 		}
@@ -152,8 +152,8 @@ class Trigger_Condition_Status extends Trigger_Condition
 	/**
 	* Returns an array containing all the valid statuses
 	*
+	* @return array
 	* @access private
-	* @return array(int => string)
 	*/
 	function _getStatusList()
 	{

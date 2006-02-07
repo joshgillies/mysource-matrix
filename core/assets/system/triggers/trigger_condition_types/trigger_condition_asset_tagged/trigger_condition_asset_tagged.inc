@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_tagged.inc,v 1.1 2005/12/23 04:33:44 arailean Exp $
+* $Id: trigger_condition_asset_tagged.inc,v 1.2 2006/02/07 02:27:13 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,19 +51,19 @@ class Trigger_Condition_Asset_Tagged extends Trigger_Condition
 	*       );
 	* </PRE>
 	*
-	* @param array(string=>mixed)   $settings   the stored settings for this condition
-	* @param array(string=>mixed)   &$state     the state that describes the asset the condition is executing on
+	* @param array	$settings	the stored settings for this condition
+	* @param array	&$state		the state that describes the asset the condition is executing on
 	*
 	* @return boolean
 	* @access public
 	*/
 	function evaluate($settings, &$state)
 	{
-		$tag_manager = &$GLOBALS['SQ_SYSTEM']->getTagManager();
+		$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
 
 		$assetid	= $state['assetid']; // event broadcaster
 		$tagids		= array_get_index($settings, 'tagids');
-		$is_strict	= array_get_index($settings, 'is_strict', false);
+		$is_strict	= array_get_index($settings, 'is_strict', FALSE);
 
 		return $tag_manager->isAssetTaggedWith($assetid, $tagids, $is_strict);
 
@@ -73,18 +73,18 @@ class Trigger_Condition_Asset_Tagged extends Trigger_Condition
 	/**
 	* Get the HTML editing interface for this condition. Returns the string instead of printing it
 	*
-	* @param Array      $settings  settings that this condition save in processInterface()
-	* @param string     $prefix    unique prefix
-	* @param boolean    $write_access   write access flag
+	* @param array		$settings		settings that this condition save in processInterface()
+	* @param string		$prefix			unique prefix
+	* @param boolean	$write_access	write access flag
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// check settings, set defaults if necessary
 		$tagids		= array_get_index($settings, 'tagids', Array());
-		$is_strict	= array_get_index($settings, 'is_strict', false);
+		$is_strict	= array_get_index($settings, 'is_strict', FALSE);
 
 
 		ob_start();
@@ -92,7 +92,7 @@ class Trigger_Condition_Asset_Tagged extends Trigger_Condition
 			$strict_options[FALSE] = translate('some');
 
 			if ($write_access) {
-				combo_box($prefix.'[is_strict]', $strict_options, false, $is_strict);
+				combo_box($prefix.'[is_strict]', $strict_options, FALSE, $is_strict);
 			} else {
 				echo '<strong>'.$strict_options[$is_strict].'</strong>';
 			}
@@ -126,23 +126,23 @@ class Trigger_Condition_Asset_Tagged extends Trigger_Condition
 	/**
 	* Function that handles the conversion of interface to settings
 	*
-	* @param Array          $settings       a container for any data the condition might want to save
-	* @param array          $request_data   array of data corresponding to this condition as specified by the $prefix in the getInterface.
+	* @param array	&$settings		a container for any data the condition might want to save
+	* @param array	$request_data	array of data corresponding to this condition as specified by the $prefix in the getInterface.
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processInterface(&$settings, $request_data)
 	{
 		$tagids = array_get_index($request_data, 'tagids', Array());
-		$settings['is_strict'] = (boolean) array_get_index($request_data, 'is_strict', false);
+		$settings['is_strict'] = (boolean) array_get_index($request_data, 'is_strict', FALSE);
 
 		foreach ($tagids as $tag) {
 			if (empty($tag['assetid'])) continue;
 			$settings['tagids'][$tag['assetid']] = $tag['assetid'];
 		}
 
-		return false;
+		return FALSE;
 
 	}//end processInterface()
 

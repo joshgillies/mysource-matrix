@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.4 2006/01/17 03:28:43 lwright Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.5 2006/02/07 02:27:12 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,14 +62,14 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		// check required settings
-		if (empty($settings['fieldid'])) return false;
-		if (empty($settings['value'])) return false;
-		if (empty($settings['field_name'])) return false;
-		if (is_null($state['asset'])) return false;
+		if (empty($settings['fieldid'])) return FALSE;
+		if (empty($settings['value'])) return FALSE;
+		if (empty($settings['field_name'])) return FALSE;
+		if (is_null($state['asset'])) return FALSE;
 
 		// verify the fieldid
 		$success = $mm->isMetadataFieldAssetid($settings['fieldid']);
-		if (!$success) return false;
+		if (!$success) return FALSE;
 
 		// get the asset
 		$asset =& $state['asset'];
@@ -95,7 +95,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 					'value'			=> $settings['value'],
 				   );
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end execute()
@@ -111,7 +111,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$output					= '';
 		$metadata_fieldid		= array_get_index($settings, 'fieldid', 0);
@@ -136,8 +136,8 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 				// set the field name
 				$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_fieldid);
 				$edit_fns = $metadata_field->getEditFns();
-				$null = null;
-				$edit_fns->paintValueInterface($metadata_field, $null, $metadata_field_value, true);
+				$null = NULL;
+				$edit_fns->paintValueInterface($metadata_field, $null, $metadata_field_value, TRUE);
 				hidden_field($prefix.'[form_printed]', 1);
 			}
 			$output_part2 = ob_get_contents();

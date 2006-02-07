@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_lineage.inc,v 1.2 2006/01/26 22:34:07 lwright Exp $
+* $Id: trigger_action_set_future_lineage.inc,v 1.3 2006/02/07 02:27:12 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,7 +42,6 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 
 	/**
 	* Execute this action
-	*
 	* Returns an array of data about what it did, or false on error
 	*
 	* The settings used by this action are in the form:
@@ -64,20 +63,20 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 		// check settings, status
 		if (empty($settings['link_type']) || empty($settings['major_assetid'])) {
 			// if no settings, fail
-			return false;
+			return FALSE;
 		}
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
 			if (empty($state['assetid'])) {
-				return false;
+				return FALSE;
 			} else {
 				$state['asset'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 
-		$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-		if (is_null($cron_mgr)) return false;
+		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		if (is_null($cron_mgr)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_lineage');
 		$fs =& new Cron_Job_Future_Lineage();
@@ -94,7 +93,7 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 			$user_for_status_change = $GLOBALS['SQ_SYSTEM']->user;
 		} else {
 			// not doing the whole "security" thing - so pretend we are root
-			$user_for_status_change = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+			$user_for_status_change =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -104,27 +103,27 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 				if ($fs->setAssetInLink($state['asset'], 'major')) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					$is_updated = true;
+					$is_updated = TRUE;
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($fs->id, 'links');
 				} else {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return false;
+					return FALSE;
 				}
 			} else {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return false;
+				return FALSE;
 			}
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 
 		return Array(
 				'jobid'			=> $fs->id,
-				'userid'			=> $user_for_status_change->id,
+				'userid'		=> $user_for_status_change->id,
 				'major_assetid'	=> $settings['major_assetid'],
 				'when'			=> $fs->attr('when'),
 			   );
@@ -139,10 +138,10 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 	* @param string		$prefix			unique prefix
 	* @param boolean	$write_access	determines whether the interface is editable
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// First, munge the prefix so that we can use the Cron Job interfaces to paint/process
 		$munge_prefix = str_replace('[', '_', $prefix);
@@ -152,7 +151,7 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 		$settings['when']	= array_get_index($settings, 'when');
 		$settings['link_type'] = array_get_index($settings, 'link_type');
 		$settings['major_assetid'] = array_get_index($settings, 'major_assetid');
-		$settings['delete_link_all'] = array_get_index($settings, 'delete_link_all', false);
+		$settings['delete_link_all'] = array_get_index($settings, 'delete_link_all', FALSE);
 		$settings['prefix']	= $munge_prefix;
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -161,14 +160,14 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 		$editable_link_types = Array(
 								SQ_LINK_TYPE_1	=> link_type_name(SQ_LINK_TYPE_1),
 								SQ_LINK_TYPE_2	=> link_type_name(SQ_LINK_TYPE_2),
-							  );
+							   );
 		ob_start();
-			combo_box($prefix.'[link_type]', $editable_link_types, false, $settings['link_type']);
+			combo_box($prefix.'[link_type]', $editable_link_types, FALSE, $settings['link_type']);
 		$output['new_link_type'] = ob_get_clean();
 
 		// Asset finder for selecting the new parent.
 		ob_start();
-			asset_finder($prefix.'[major_assetid]', $settings['major_assetid'], Array(), 'sq_sidenav', false, 'null', Array('clear'));
+			asset_finder($prefix.'[major_assetid]', $settings['major_assetid'], Array(), 'sq_sidenav', FALSE, 'null', Array('clear'));
 			echo ' ';
 			check_box($prefix.'[delete_link_all]', 1, $settings['delete_link_all']);
 			echo ' ';
@@ -206,13 +205,12 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param array	$settings		a container for any data the action might want to save
-	* @param string	$prefix			prefix for the form elements
+	* @param array	&$settings		a container for any data the action might want to save
 	* @param string	$request_data	array of data corresponding to this action as specified
-	* 								by the $prefix in getInterface
+	*								by the $prefix in getInterface
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processInterface(&$settings, $request_data)
 	{
@@ -220,15 +218,15 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 		$link_type = $request_data['link_type'];
 		$major_assetid = $request_data['major_assetid']['assetid'];
 
-		$delete_link_all = false;
+		$delete_link_all = FALSE;
 		if (isset($request_data['delete_link_all'])) {
-			$delete_link_all = true;
+			$delete_link_all = TRUE;
 		}
 
 		if (!$major_assetid) return 'New parent not specified';
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_lineage');
-		$fs = new Cron_Job_Future_Lineage();
+		$fs =& new Cron_Job_Future_Lineage();
 		$edit_fns = $fs->getEditFns();
 
 		$settings['when'] = $edit_fns->_processWhenBox($fs, $this, $munge_prefix);
@@ -239,7 +237,7 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 		$settings['delete_link_all'] = $delete_link_all;
 
 		// Right, everything went well, so let's return FALSE?!!
-		return false;
+		return FALSE;
 
 	}//end processInterface()
 

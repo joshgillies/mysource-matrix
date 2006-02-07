@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_id.inc,v 1.6 2005/05/11 06:05:03 lwright Exp $
+* $Id: trigger_condition_asset_id.inc,v 1.7 2006/02/07 02:27:13 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,8 +49,8 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 	*       );
 	* </PRE>
 	*
-	* @param array(string=>mixed)   $settings   the stored settings for this condition
-	* @param array(string=>mixed)   &$state     the state that describes the asset the condition is executing on
+	* @param array	$settings	the stored settings for this condition
+	* @param array	&$state		the state that describes the asset the condition is executing on
 	*
 	* @return boolean
 	* @access public
@@ -63,16 +63,16 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 			if (isset($state['asset'])) {
 				$state['assetid'] = $state['asset']->id();
 			} else {
-				return false;
+				return FALSE;
 			}
 		}
 
 		// check the condition
 		// no need to check if $settings['assetid'] is pointing to a valid asset, $state takes care of that for us
 		if ($state['assetid'] == $settings['assetid']) {
-			return true;
+			return TRUE;
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end evaluate()
@@ -81,14 +81,14 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 	/**
 	* Get the HTML editing interface for this condition. Returns the string instead of printing it
 	*
-	* @param Array      $settings  settings that this condition save in processInterface()
-	* @param string     $prefix    unique prefix
-	* @param boolean    $write_access   write access flag
+	* @param array		$settings		settings that this condition save in processInterface()
+	* @param string		$prefix			unique prefix
+	* @param boolean	$write_access	write access flag
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$selected_assetid = array_get_index($settings, 'assetid', 0);
 
@@ -109,10 +109,10 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 				asset_finder($prefix.'[assetid]', $selected_assetid);
 			} else {
 				if ($selected_assetid) {
-					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), true, 'name');
-					text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', false, $form_element_extras);
+					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), TRUE, 'name');
+					text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', FALSE, $form_element_extras);
 				} else {
-					text_box($prefix.'[assetid]', '', '', '', false, $form_element_extras);
+					text_box($prefix.'[assetid]', '', '', '', FALSE, $form_element_extras);
 				}
 			}
 
@@ -127,11 +127,11 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 	/**
 	* Function that handles the conversion of interface to settings
 	*
-	* @param Array          $settings       a container for any data the condition might want to save
-	* @param array          $request_data   array of data corresponding to this condition as specified by the $prefix in the getInterface.
+	* @param array	&$settings		a container for any data the condition might want to save
+	* @param array	$request_data	array of data corresponding to this condition as specified by the $prefix in the getInterface.
 	*
+	* @return mixed string|boolean
 	* @access public
-	* @return string|false
 	*/
 	function processInterface(&$settings, $request_data)
 	{
@@ -146,7 +146,7 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 		$assetid = $request_data['assetid']['assetid'];
 		$settings['assetid'] = $assetid;
 
-		return false;
+		return FALSE;
 
 	}//end processInterface()
 
@@ -155,18 +155,18 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 	* Sets the hash using the settings from the condition
 	* Consult the hash object to see the list of setter functions
 	*
-	* @param Array          $settings       a container for any data the condition might want to save
-	* @param object Hash    $hash           hash object that takes data that helps to speed up trigger firing
+	* @param array	&$settings	a container for any data the condition might want to save
+	* @param object	&$hash		hash object that takes data that helps to speed up trigger firing
 	*
+	* @return mixed string|boolean
 	* @access public
-	* @return string|false
 	*/
 	function setHash(&$settings, &$hash)
 	{
 		if (isset($settings['assetid'])) {
 			$hash->setAssetID($settings['assetid']);
 		}
-		return false;
+		return FALSE;
 
 	}//end setHash()
 

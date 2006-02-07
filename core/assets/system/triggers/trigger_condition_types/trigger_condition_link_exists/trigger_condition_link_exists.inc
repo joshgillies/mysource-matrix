@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_link_exists.inc,v 1.10 2005/05/11 06:05:05 lwright Exp $
+* $Id: trigger_condition_link_exists.inc,v 1.11 2006/02/07 02:27:13 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,79 +59,79 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 	*       );
 	* </PRE>
 	*
-	* @param array(string=>mixed)   $settings   the stored settings for this condition
-	* @param array(string=>mixed)   &$state     the state that describes the asset the condition is executing on
+	* @param array	$settings	the stored settings for this condition
+	* @param array	&$state		the state that describes the asset the condition is executing on
 	*
 	* @return boolean
 	* @access public
 	*/
 	function evaluate($settings, &$state)
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		$assetid      = $state['assetid']; // event broadcaster
 
 		$link_type    = array_get_index($settings, 'link_type');
 		if (empty($link_type)) $link_type = SQ_SC_LINK_ALL;
-		$is_parent    = array_get_index($settings, 'is_major', false);
-		$link_side    = $is_parent?'major':'minor';
+		$is_parent    = array_get_index($settings, 'is_major', FALSE);
+		$link_side    = $is_parent ? 'major' : 'minor';
 		$value        = array_get_index($settings, 'value');
 		$dependant    = array_get_index($settings, 'is_dependant');
 		$exclusive    = array_get_index($settings, 'is_exclusive');
-		$use_new_link = array_get_index($settings, 'use_new_link', false);
+		$use_new_link = array_get_index($settings, 'use_new_link', FALSE);
 
 		// check if we only want to work with a newly created link
 		if ($use_new_link) {
 			if ($state['event']['name'] != 'trigger_event_link_created') {
 				// incorrect event for this option
-				return false;
+				return FALSE;
 			} else {
-				$new_link = array_get_index($state['event']['data'], 'linkid', false);
+				$new_link = array_get_index($state['event']['data'], 'linkid', FALSE);
 				if (!$new_link) {
 					// correct event, but link id is not provided
-					return false;
+					return FALSE;
 				}
 			}
 		}
 
-		$selector_type = array_get_index($settings, 'selector_type', false);
-		if (!$selector_type) return false;
+		$selector_type = array_get_index($settings, 'selector_type', FALSE);
+		if (!$selector_type) return FALSE;
 
 		switch ($selector_type) {
 			case 'asset_type':
 				$selected_type = array_get_index($settings, 'asset_type');
-				if (empty($selected_type)) return false;
-				$links = $am->getLinks($assetid, $link_type, $selected_type, true, $link_side, $value, $dependant, $exclusive);
+				if (empty($selected_type)) return FALSE;
+				$links = $am->getLinks($assetid, $link_type, $selected_type, TRUE, $link_side, $value, $dependant, $exclusive);
 
 			break;
 
 			case 'asset_id':
 				$selected_id   = array_get_index($settings, 'asset_id');
-				if (!isset($selected_id)) return false;
+				if (!isset($selected_id)) return FALSE;
 
-				if (empty($link_type)) $link_type = null;
+				if (empty($link_type)) $link_type = NULL;
 
 				// do the request
-				$links = $am->getLinkByAsset($assetid, $selected_id, $link_type, $value, $link_side, true, $dependant, $exclusive);
+				$links = $am->getLinkByAsset($assetid, $selected_id, $link_type, $value, $link_side, TRUE, $dependant, $exclusive);
 
 			break;
 
 			default:
-				return false;
+				return FALSE;
 		}
 
 		// we rely on the fact that the links that we got already satisfy the criteria
-		if (empty($links)) return false;
+		if (empty($links)) return FALSE;
 
 		// now do the final test to see if we are looking for a particular link ID
 		if ($use_new_link) {
 			foreach ($links as $link) {
-				if ($new_link == $link['linkid']) return true;
+				if ($new_link == $link['linkid']) return TRUE;
 			}
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end evaluate()
 
@@ -139,17 +139,17 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 	/**
 	* Get the HTML editing interface for this condition. Returns the string instead of printing it
 	*
-	* @param Array      $settings  settings that this condition save in processInterface()
-	* @param string     $prefix    unique prefix
-	* @param boolean    $write_access   write access flag
+	* @param array		$settings		settings that this condition save in processInterface()
+	* @param string		$prefix			unique prefix
+	* @param boolean	$write_access	write access flag
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// check settings, set defaults if necessary
-		$is_major           = array_get_index($settings, 'is_major', false);
+		$is_major           = array_get_index($settings, 'is_major', FALSE);
 		$selected_link_type = array_get_index($settings, 'link_type');
 		$value              = array_get_index($settings, 'value');
 		$is_dependant       = array_get_index($settings, 'is_dependant');
@@ -160,7 +160,7 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		$asset_type         = array_get_index($settings, 'asset_type');
 
 		// event-specific
-		$use_new_link       = array_get_index($settings, 'use_new_link', false);
+		$use_new_link       = array_get_index($settings, 'use_new_link', FALSE);
 
 		$is_major_list = Array(
 							0	=> translate('parent'),
@@ -190,18 +190,18 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 
 		// begin bufferning basic options
 		ob_start();
-			combo_box($prefix.'[is_major]', $is_major_list, false, $is_major, null, $form_element_extras);
+			combo_box($prefix.'[is_major]', $is_major_list, FALSE, $is_major, NULL, $form_element_extras);
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
 		ob_start();
-			radio_button($prefix.'[selector_type]', 'asset_type', $selector_type == 'asset_type', null, $form_element_extras);
+			radio_button($prefix.'[selector_type]', 'asset_type', $selector_type == 'asset_type', NULL, $form_element_extras);
 			$basic_part_2 = ob_get_contents();
 		ob_end_clean();
 
 		ob_start();
 			if ($write_access) {
-				asset_type_chooser($prefix.'[asset_type]', false, $asset_type);
+				asset_type_chooser($prefix.'[asset_type]', FALSE, $asset_type);
 			} else {
 				if ($asset_type) {
 					echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset_type, 'name');
@@ -212,7 +212,7 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		ob_end_clean();
 
 		ob_start();
-			radio_button($prefix.'[selector_type]', 'asset_id', $selector_type == 'asset_id', null, $form_element_extras);
+			radio_button($prefix.'[selector_type]', 'asset_id', $selector_type == 'asset_id', NULL, $form_element_extras);
 			$basic_part_4 = ob_get_contents();
 		ob_end_clean();
 
@@ -221,10 +221,10 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 				asset_finder($prefix.'[asset_id]', $asset_id);
 			} else {
 				if ($asset_id) {
-					$asset_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($asset_id), Array(), true, 'name');
-					text_box($prefix.'[assetid]', $asset_name[$asset_id].' (#'.$asset_id.')', '', '', false, $form_element_extras);
+					$asset_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($asset_id), Array(), TRUE, 'name');
+					text_box($prefix.'[assetid]', $asset_name[$asset_id].' (#'.$asset_id.')', '', '', FALSE, $form_element_extras);
 				} else {
-					text_box($prefix.'[assetid]', '', '', '', false, $form_element_extras);
+					text_box($prefix.'[assetid]', '', '', '', FALSE, $form_element_extras);
 				}
 			}
 
@@ -232,7 +232,7 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		ob_end_clean();
 
 		ob_start();
-			check_box($prefix.'[use_new_link]', '1', $use_new_link, null, $form_element_extras, null, $form_element_extras);
+			check_box($prefix.'[use_new_link]', '1', $use_new_link, NULL, $form_element_extras, NULL, $form_element_extras);
 			label(translate('match_newly_created_link_only'), $prefix.'[use_new_link]');
 			$basic_part_6 = ob_get_contents();
 		ob_end_clean();
@@ -241,28 +241,28 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 
 		// begin buffering advanced options
 		ob_start();
-			combo_box($prefix.'[link_type]', $link_type_list, false, $selected_link_type, null, $form_element_extras); ?>
+			combo_box($prefix.'[link_type]', $link_type_list, FALSE, $selected_link_type, NULL, $form_element_extras); ?>
 			</li>
 			<li><?php
 			$advanced_part_1 = ob_get_contents();
 		ob_end_clean();
 
 		ob_start();
-			combo_box($prefix.'[is_dependant]', $dependant_options, false, $is_dependant, null, $form_element_extras); ?>
+			combo_box($prefix.'[is_dependant]', $dependant_options, FALSE, $is_dependant, NULL, $form_element_extras); ?>
 			</li>
 			<li><?php
 			$advanced_part_2 = ob_get_contents();
 		ob_end_clean();
 
 		ob_start();
-			combo_box($prefix.'[is_exclusive]', $exclusive_options, false, $is_exclusive, null, $form_element_extras); ?>
+			combo_box($prefix.'[is_exclusive]', $exclusive_options, FALSE, $is_exclusive, NULL, $form_element_extras); ?>
 			</li>
 		</ul><?php
 			$advanced_part_3 = ob_get_contents();
 		ob_end_clean();
 
 		ob_start();
-			text_box($prefix.'[value]', $value, 60, null, false, $form_element_extras);
+			text_box($prefix.'[value]', $value, 60, NULL, FALSE, $form_element_extras);
 			$advanced_part_4 = ob_get_contents();
 		ob_end_clean();
 
@@ -273,7 +273,7 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 					'<ul style="list-style-type: none; padding: 0;"><li>'
 					.translate('trigger_link_exists_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3, $advanced_part_4);
 
-		return $contents;//ob_get_clean();
+		return $contents;
 
 	}//end getInterface()
 
@@ -281,11 +281,11 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 	/**
 	* Function that handles the conversion of interface to settings
 	*
-	* @param Array          $settings       a container for any data the condition might want to save
-	* @param array          $request_data   array of data corresponding to this condition as specified by the $prefix in the getInterface.
+	* @param array	&$settings		a container for any data the condition might want to save
+	* @param array	$request_data	array of data corresponding to this condition as specified by the $prefix in the getInterface.
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processInterface(&$settings, $request_data)
 	{
@@ -314,10 +314,10 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		}
 
 		$link_type                  = array_get_index($request_data, 'link_type');
-		$settings['link_type']      = is_null($link_type)?SQ_SC_LINK_ALL:$link_type;
+		$settings['link_type']      = is_null($link_type) ? SQ_SC_LINK_ALL : $link_type;
 		$value                      = trim(array_get_index($request_data, 'value'));
 		if (empty($value)) {
-			$settings['value'] = null;
+			$settings['value'] = NULL;
 		} else {
 			$settings['value'] = $value;
 		}
@@ -326,7 +326,7 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		$settings['is_exclusive']   = array_get_index($request_data, 'is_exclusive');
 		$settings['use_new_link']   = isset($request_data['use_new_link']);
 
-		return false;
+		return FALSE;
 
 	}//end processInterface()
 
@@ -335,11 +335,11 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 	* Sets the hash using the settings from the condition
 	* Consult the hash object to see the list of setter functions
 	*
-	* @param Array          $settings       a container for any data the condition might want to save
-	* @param object Hash    $hash           hash object that takes data that helps to speed up trigger firing
+	* @param array	&$settings	a container for any data the condition might want to save
+	* @param object	&$hash		hash object that takes data that helps to speed up trigger firing
 	*
+	* @return mixed string|boolean
 	* @access public
-	* @return string|false
 	*/
 	function setHash(&$settings, &$hash)
 	{
@@ -359,7 +359,7 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 			}
 		}
 
-		return false;
+		return FALSE;
 
 	}//end setHash()
 
@@ -368,12 +368,12 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 	* Determines whether a condition is allowed to be used multiple times in a trigger
 	* In this case, allow more than one check for links per trigger
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function allowMultiple()
 	{
-		return true;
+		return TRUE;
 
 	}//end allowMultiple()
 

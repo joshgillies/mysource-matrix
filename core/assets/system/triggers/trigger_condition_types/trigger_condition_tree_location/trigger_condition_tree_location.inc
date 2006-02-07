@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_tree_location.inc,v 1.10 2005/05/11 06:05:05 lwright Exp $
+* $Id: trigger_condition_tree_location.inc,v 1.11 2006/02/07 02:27:13 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,8 +52,8 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 	*       );
 	* </PRE>
 	*
-	* @param array(string=>mixed)   $settings   the stored settings for this condition
-	* @param array(string=>mixed)   &$state     the state that describes the asset the condition is executing on
+	* @param array	$settings	the stored settings for this condition
+	* @param array	&$state		the state that describes the asset the condition is executing on
 	*
 	* @return boolean
 	* @access public
@@ -67,23 +67,23 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 				$assetid = $state['asset']->id;
 			} else {
 				// can't retrieve, fail
-				return false;
+				return FALSE;
 			}
 		}
 
 		if (empty($settings['treeid'])) {
 			if (empty($settings['assetid'])) {
-				return false;
+				return FALSE;
 			} else {
 				if ($GLOBALS['SQ_SYSTEM']->am->assetExists($settings['assetid'])) {
 					$settings['treeid'] = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($settings['assetid']);
 				} else {
-					return false;
+					return FALSE;
 				}
 			}
 		}
 
-		if (!isset($settings['immed_child'])) return false;
+		if (!isset($settings['immed_child'])) return FALSE;
 
 		// grab the data we need to check the condition, if it's not already cached
 		// note that new state is modified and new data is available to other conditions
@@ -99,25 +99,25 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 
 
 		// evaluate the condition
-		$result = false;
+		$result = FALSE;
 
 		foreach ($state['treeid'] as $state_tree) {
 			foreach ($settings['treeid'] as $settings_tree) {
 
 				// if the asset in question is under the tree specified in the settings...
 				if ($settings_tree == $state_tree) {
-					$result = false;
+					$result = FALSE;
 					break;
 				} else {
 					if ($settings['immed_child']) {
 						if (strlen($settings_tree) == strlen($state_tree) - SQ_CONF_ASSET_TREE_SIZE &&
 						substr($state_tree, 0, strlen($settings_tree)) == $settings_tree) {
-							$result = true;
+							$result = TRUE;
 							break;
 						}
 					} else {
 						if (substr($state_tree, 0, strlen($settings_tree)) == $settings_tree) {
-							$result = true;
+							$result = TRUE;
 							break;
 						}
 					}
@@ -134,14 +134,14 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 	/**
 	* Get the HTML editing interface for this condition. Returns the string instead of printing it
 	*
-	* @param Array      $settings  settings that this condition save in processInterface()
-	* @param string     $prefix    unique prefix
-	* @param boolean    $write_access   write access flag
+	* @param array		$settings		settings that this condition save in processInterface()
+	* @param string		$prefix			unique prefix
+	* @param boolean	$write_access	write access flag
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// set to default
 		$selected_assetid = array_get_index($settings, 'assetid', 0);
@@ -152,7 +152,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 		}
 
 		$immed_child = array_get_index($settings, 'immed_child', '0');
-		$immed_child = ($immed_child == '0' ? false : true);
+		$immed_child = ($immed_child == '0' ? FALSE : TRUE);
 
 
 		// begin buffering basic options
@@ -163,9 +163,9 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 				check_box($prefix.'[immed_child]', '1', $immed_child);
 				label(translate('immediate_child_only'), $prefix.'[immed_child]');
 			} else {
-				$tree_asset = null;
+				$tree_asset = NULL;
 				if ($selected_assetid > 0) {
-					$tree_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($selected_assetid);
+					$tree_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($selected_assetid);
 				}
 				if (is_null($tree_asset)) {
 					echo '<b>['.translate('no_asset_selected').']</b>';
@@ -188,11 +188,11 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 	/**
 	* Function that handles the conversion of interface to settings
 	*
-	* @param Array          $settings       a container for any data the condition might want to save
-	* @param array          $request_data   array of data corresponding to this condition as specified by the $prefix in the getInterface.
+	* @param array	&$settings		a container for any data the condition might want to save
+	* @param array	$request_data	array of data corresponding to this condition as specified by the $prefix in the getInterface.
 	*
+	* @return mixed boolean|string
 	* @access public
-	* @return false|string
 	*/
 	function processInterface(&$settings, $request_data)
 	{
@@ -210,11 +210,11 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 			$settings['propagate'] = SQ_TRIG_TREE_NO_PROPAGATE;
 		}
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		if (!$am->assetExists($assetid)) {
 			return translate('selected_asset_does_not_exist');
-		};
+		}
 
 		$treeid = $am->getAssetTreeids($assetid);
 
@@ -222,7 +222,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 		$settings['assetid']     = $assetid;
 		$settings['immed_child'] = $immed_child;
 
-		return false;
+		return FALSE;
 
 	}//end processInterface()
 
@@ -231,11 +231,11 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 	* Sets the hash using the settings from the condition
 	* Consult the hash object to see the list of setter functions
 	*
-	* @param Array          $settings       a container for any data the condition might want to save
-	* @param object Hash    $hash           hash object that takes data that helps to speed up trigger firing
+	* @param array	&$settings	a container for any data the condition might want to save
+	* @param object	&$hash		hash object that takes data that helps to speed up trigger firing
 	*
+	* @return mixed string|boolean
 	* @access public
-	* @return string|false
 	*/
 	function setHash(&$settings, &$hash)
 	{
@@ -244,7 +244,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 			$hash->setLinkTree($GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($settings['assetid']), $settings['propagate']);
 		}
 
-		return false;
+		return FALSE;
 
 	}//end setHash()
 
@@ -253,13 +253,13 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 	* Determines whether a condition is allowed to be used multiple times in a trigger
 	* Default to false, children can override if necessary
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function allowMultiple()
 	{
 		// default to to disallow
-		return true;
+		return TRUE;
 
 	}//end allowMultiple()
 

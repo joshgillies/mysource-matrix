@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_link.inc,v 1.12 2005/09/05 06:15:30 skim Exp $
+* $Id: trigger_action_create_link.inc,v 1.13 2006/02/07 02:27:12 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,7 +43,6 @@ class Trigger_Action_Create_Link extends Trigger_Action
 
 	/**
 	* Execute this action
-	*
 	* Returns an array of data about what it did, or false on error
 	*
 	* The settings used by this action are in the form:<BR />
@@ -61,18 +60,18 @@ class Trigger_Action_Create_Link extends Trigger_Action
 	* @param array	$settings	the stored settings for this action
 	* @param array	&$state		the state that describes the asset the action is executing on
 	*
-	* @return array | boolean
+	* @return mixed array|boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
 	{
 		// check for required settings
 		if (empty($settings['assetid']) || !isset($settings['is_major']) || empty($settings['link_type'])) {
-			return false;
+			return FALSE;
 		}
 
 		if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($settings['assetid'])) {
-			return false;
+			return FALSE;
 		}
 
 		// check the optional settings, assign defaults
@@ -84,7 +83,7 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		if (empty($state['asset'])) {
 			// if we've been given the assetid but not the asset, get the asset
 			if (empty($state['assetid'])) {
-				return false;
+				return FALSE;
 			} else {
 				$state['asset'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
@@ -94,25 +93,25 @@ class Trigger_Action_Create_Link extends Trigger_Action
 
 		if ($remove_other_links) {
 			// get a list of the existing links
-			$old_links = $am->getLinks($state['assetid'], SQ_SC_LINK_ALL, '', true, 'minor');
+			$old_links = $am->getLinks($state['assetid'], SQ_SC_LINK_ALL, '', TRUE, 'minor');
 		}
 
 		// determine major/minor from settings
 		if ($settings['is_major']) {
 			$major = $state['asset'];
-			$minor = &$am->getAsset($settings['assetid']);
+			$minor =& $am->getAsset($settings['assetid']);
 		} else {
-			$major = &$am->getAsset($settings['assetid']);
+			$major =& $am->getAsset($settings['assetid']);
 			$minor = $state['asset'];
 		}
 
 
 		$side_of_link = ($settings['is_major']) ? 'major' : 'minor';
-		$link_info = $am->getLinkByAsset($state['assetid'], $settings['assetid'], $settings['link_type'], null, $side_of_link, true);
+		$link_info = $am->getLinkByAsset($state['assetid'], $settings['assetid'], $settings['link_type'], NULL, $side_of_link, TRUE);
 		if (empty($link_info)) {
 			// create a link
-			$linkid = $am->createAssetLink($major, $minor, $settings['link_type'], $value, null, $is_dependant, $is_exclusive);
-			if (!$linkid) return false;
+			$linkid = $am->createAssetLink($major, $minor, $settings['link_type'], $value, NULL, $is_dependant, $is_exclusive);
+			if (!$linkid) return FALSE;
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		} else {
 			// the link is already there, so count as success
@@ -150,10 +149,10 @@ class Trigger_Action_Create_Link extends Trigger_Action
 	* @param string		$prefix			unique prefix
 	* @param boolean	$write_access	determines whether the interface is editable
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// check settings, set defaults if necessary
 		$selected_assetid   = array_get_index($settings, 'assetid', 0);
@@ -182,7 +181,7 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		// begin buffering basic options
 
 		ob_start();
-			combo_box($prefix.'[is_major]', $is_major_list, false, $is_major, null, $form_element_extras);
+			combo_box($prefix.'[is_major]', $is_major_list, FALSE, $is_major, NULL, $form_element_extras);
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
@@ -191,10 +190,10 @@ class Trigger_Action_Create_Link extends Trigger_Action
 				asset_finder($prefix.'[assetid]', $selected_assetid);
 			} else {
 				if ($selected_assetid) {
-					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), true, 'name');
-					text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', false, $form_element_extras);
+					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), TRUE, 'name');
+					text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', FALSE, $form_element_extras);
 				} else {
-					text_box($prefix.'[assetid]', '', '', '', false, $form_element_extras);
+					text_box($prefix.'[assetid]', '', '', '', FALSE, $form_element_extras);
 				}
 			}
 
@@ -202,14 +201,14 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		ob_end_clean();
 
 		ob_start();
-			combo_box($prefix.'[link_type]', $link_type_list, false, $selected_link_type, null, $form_element_extras);
+			combo_box($prefix.'[link_type]', $link_type_list, FALSE, $selected_link_type, NULL, $form_element_extras);
 			$basic_part_3 = ob_get_contents();
 		ob_end_clean();
 
 
 		// begin buffering advanced options
 		ob_start();
-			text_box($prefix.'[value]', $value, '', '', false, $form_element_extras);
+			text_box($prefix.'[value]', $value, '', '', FALSE, $form_element_extras);
 			$advanced_part_1 = ob_get_contents();
 		ob_end_clean();
 
@@ -218,7 +217,7 @@ class Trigger_Action_Create_Link extends Trigger_Action
 									0	=> translate('non_dependantly'),
 									1	=> translate('dependantly'),
 								 );
-			combo_box($prefix.'[is_dependant]', $is_dependant_list, false, $is_dependant, null, $form_element_extras);
+			combo_box($prefix.'[is_dependant]', $is_dependant_list, FALSE, $is_dependant, NULL, $form_element_extras);
 			$advanced_part_2 = ob_get_contents();
 		ob_end_clean();
 
@@ -227,7 +226,7 @@ class Trigger_Action_Create_Link extends Trigger_Action
 									0	=> translate('non_exclusively'),
 									1	=> translate('exclusively'),
 								 );
-			combo_box($prefix.'[is_exclusive]', $is_exclusive_list, false, $is_exclusive, null, $form_element_extras);
+			combo_box($prefix.'[is_exclusive]', $is_exclusive_list, FALSE, $is_exclusive, NULL, $form_element_extras);
 			$advanced_part_3 = ob_get_contents();
 		ob_end_clean();
 
@@ -257,12 +256,12 @@ class Trigger_Action_Create_Link extends Trigger_Action
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param array	$settings		a container for any data the action might want to save
+	* @param array	&$settings		a container for any data the action might want to save
 	* @param string	$request_data	array of data corresponding to this action as specified
-	* 								by the $prefix in getInterface.
+	*								by the $prefix in getInterface.
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processInterface(&$settings, $request_data)
 	{
@@ -293,7 +292,7 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		$settings['is_exclusive'] = array_get_index($request_data, 'is_exclusive', 0);
 		$settings['link_exclusively'] = array_get_index($request_data, 'link_exclusively', 0);
 
-		return false;
+		return FALSE;
 
 	}//end processInterface()
 

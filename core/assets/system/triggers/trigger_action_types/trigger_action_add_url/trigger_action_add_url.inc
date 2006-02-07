@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_url.inc,v 1.1 2005/11/07 04:50:15 skim Exp $
+* $Id: trigger_action_add_url.inc,v 1.2 2006/02/07 02:27:12 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,33 +62,33 @@ class Trigger_Action_Add_Url extends Trigger_Action
 	function execute($settings, &$state)
 	{
 		// check required settings
-		if (!isset($settings['url'])) return false;
+		if (!isset($settings['url'])) return FALSE;
 
 		// url not specified
-		if ($settings['url'] == '') return false;
+		if ($settings['url'] == '') return FALSE;
 
 		// protocols not specified
 		if (!$settings['http'] && !$settings['https']) {
-			return false;
+			return FALSE;
 		}
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
 			if (empty($state['assetid'])) {
-				return false;
+				return FALSE;
 			} else {
 				$state['asset'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
-		if (is_null($state['asset'])) return false;
+		if (is_null($state['asset'])) return FALSE;
 
 		// dont change anything if the asset already has this URL
-		$url_exists = false;
+		$url_exists = FALSE;
 		$urls = $state['asset']->getSiteURLs();
 		foreach ($urls as $key => $value) {
 			if ($value['url'] == $settings['url']) {
 				if ($value['http'] == $settings['http'] && $value['https'] == $settings['https']) {
-					$url_exists = true;
+					$url_exists = TRUE;
 					break;
 				}
 			}
@@ -104,10 +104,10 @@ class Trigger_Action_Add_Url extends Trigger_Action
 					   );
 
 			// save a new url
-			if (!$state['asset']->saveWebURLs($urls)) return false;
+			if (!$state['asset']->saveWebURLs($urls)) return FALSE;
 
 			// update lookup for the asset
-			if (!$state['asset']->updateLookups()) return false;
+			if (!$state['asset']->updateLookups()) return FALSE;
 		}
 
 		return Array(
@@ -130,7 +130,7 @@ class Trigger_Action_Add_Url extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		ob_start();
 
@@ -184,7 +184,7 @@ class Trigger_Action_Add_Url extends Trigger_Action
 		$settings['http'] = ($http == '1');
 		$settings['https'] = ($https == '1');
 
-		return false;
+		return FALSE;
 
 	}//end processInterface()
 

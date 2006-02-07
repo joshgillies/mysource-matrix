@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition.inc,v 1.5 2005/04/28 05:22:07 rhoward Exp $
+* $Id: trigger_condition.inc,v 1.6 2006/02/07 02:27:13 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,15 +42,15 @@ class Trigger_Condition extends Asset
 	/**
 	* Evaluate this condition - needs to be overridden by the conditions themselves.
 	*
-	* @param array(string=>mixed)   $settings   the stored settings for this condition
-	* @param array(string=>mixed)   &$state     the state that describes the asset the condition is executing on
+	* @param array	$settings	the stored settings for this condition
+	* @param array	&$state		the state that describes the asset the condition is executing on
 	*
 	* @return boolean
 	* @access public
 	*/
 	function evaluate($settings, &$state)
 	{
-		return false;
+		return FALSE;
 
 	}//end evaluate()
 
@@ -58,14 +58,14 @@ class Trigger_Condition extends Asset
 	/**
 	* Get the HTML editing interface for this condition. Returns the string instead of printing it
 	*
-	* @param Array      $settings  settings that this condition save in processInterface()
-	* @param string     $prefix    unique prefix
-	* @param boolean    $write_access   write access flag
+	* @param array		$settings		settings that this condition save in processInterface()
+	* @param string		$prefix			unique prefix
+	* @param boolean	$write_access	write access flag
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// create HTML
 		// populate HTML with settings
@@ -75,7 +75,7 @@ class Trigger_Condition extends Asset
 		// Any Form elements that use the prefix should use the prefix as an array index
 		// i.e. <input name="$prefix['whatever']" value="someting" >
 		// or   <input name="$prefix" value="something" >
-		//
+
 		// NOT  <input name="$prefix_something" />
 		// if you do this your processInterface function will not be getting any data back.
 
@@ -95,11 +95,11 @@ class Trigger_Condition extends Asset
 	* Function that handles the conversion of interface to settings
 	* NOTE: returns false if there is no error
 	*
-	* @param Array          $settings       a container for any data the condition might want to save
-	* @param array          $request_data   array of data corresponding to this condition as specified by the $prefix in the getInterface.
+	* @param array	&$settings		a container for any data the condition might want to save
+	* @param array	$request_data	array of data corresponding to this condition as specified by the $prefix in the getInterface.
 	*
+	* @return mixed boolean|string
 	* @access public
-	* @return false|string		false on succsess, error string on failure
 	*/
 	function processInterface(&$settings, $request_data)
 	{
@@ -107,7 +107,7 @@ class Trigger_Condition extends Asset
 		// populate the settings
 		// return status
 
-		return false;
+		return FALSE;
 
 	}//end processInterface()
 
@@ -118,15 +118,15 @@ class Trigger_Condition extends Asset
 	* NOTE: returns false if there is no error, like processInterface()
 	* Returns a string on error
 	*
-	* @param Array          $settings       a container for any data the condition might want to save
-	* @param object Hash    $hash           hash object that takes data that helps to speed up trigger firing
+	* @param array	&$settings	a container for any data the condition might want to save
+	* @param object	&$hash		hash object that takes data that helps to speed up trigger firing
 	*
+	* @return mixed string|boolean
 	* @access public
-	* @return string|false
 	*/
 	function setHash(&$settings, &$hash)
 	{
-		return false;
+		return FALSE;
 
 	}//end setHash()
 
@@ -135,13 +135,13 @@ class Trigger_Condition extends Asset
 	* Determines whether a condition is allowed to be used multiple times in a trigger
 	* Default to false, children can override if necessary
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function allowMultiple()
 	{
 		// default to to disallow
-		return false;
+		return FALSE;
 
 	}//end allowMultiple()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_web_path.inc,v 1.4 2005/06/02 05:03:25 rhoward Exp $
+* $Id: trigger_action_add_web_path.inc,v 1.5 2006/02/07 02:27:12 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,7 +42,6 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 
 	/**
 	* Execute this action
-	*
 	* Returns an array of data about what it did, or false on error
 	*
 	* The settings used by this action are in the form:<BR />
@@ -55,25 +54,25 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 	* @param array	$settings	the stored settings for this action
 	* @param array	&$state		the state that describes the asset the action is executing on
 	*
-	* @return array | boolean
+	* @return mixed array|boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
 	{
 		// check required settings
-		if (!isset($settings['path'])) return false;
-		if ($settings['path'] == '') return false;
+		if (!isset($settings['path'])) return FALSE;
+		if ($settings['path'] == '') return FALSE;
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
 			if (empty($state['assetid'])) {
-				return false;
+				return FALSE;
 			} else {
 				$state['asset'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 
-		if (is_null($state['asset'])) return false;
+		if (is_null($state['asset'])) return FALSE;
 
 		$valid_paths = make_valid_web_paths(Array($settings['path']));
 		$web_path = array_shift($valid_paths);
@@ -84,7 +83,7 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 			// add the new web path (note that lookups are updated by the saveWebPaths fn)
 			$web_paths[] = $web_path;
 			if (!$state['asset']->saveWebPaths($web_paths)) {
-				return false;
+				return FALSE;
 			}
 
 			// note that we dont update the lookups of all our children so we have
@@ -108,10 +107,10 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 	* @param string		$prefix			unique prefix
 	* @param boolean	$write_access	determines whether the interface is editable
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		ob_start();
 
@@ -132,12 +131,12 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param array	$settings		a container for any data the action might want to save
+	* @param array	&$settings		a container for any data the action might want to save
 	* @param string	$request_data	array of data corresponding to this action as
-	* 								specified by the $prefix in getInterface.
+	*								specified by the $prefix in getInterface.
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processInterface(&$settings, $request_data)
 	{
@@ -148,7 +147,7 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 		}
 		$settings['path'] = $web_path;
 
-		return false;
+		return FALSE;
 
 	}//end processInterface()
 
@@ -156,8 +155,11 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 	/**
 	* Get the list of locks that the action needs acquire before executing
 	*
-	* @access public
+	* @param array	$settings	settings that this condition saves in processInterface()
+	* @param array	&$state		the state that describes the asset the action is executing on
+	*
 	* @return array
+	* @access public
 	*/
 	function getLocks($settings, &$state)
 	{

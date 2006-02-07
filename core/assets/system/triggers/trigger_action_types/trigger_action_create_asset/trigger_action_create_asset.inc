@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_asset.inc,v 1.5 2006/01/27 00:19:35 pgannavarapu Exp $
+* $Id: trigger_action_create_asset.inc,v 1.6 2006/02/07 02:27:12 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,7 +43,6 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 
 	/**
 	* Execute this action
-	*
 	* Returns an array of data about what it did, or false on error
 	*
 	* The settings used by this action are in the form:<BR />
@@ -61,21 +60,21 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 	* @param array	$settings	the stored settings for this action
 	* @param array	&$state		the state that describes the asset the action is executing on
 	*
-	* @return array | boolean
+	* @return mixed array|boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
 	{
 		// check required settings
-		if (empty($settings['type_code'])) return false;
-		if (empty($settings['parentid'])) return false;
-		if (empty($settings['link_type'])) return false;
+		if (empty($settings['type_code'])) return FALSE;
+		if (empty($settings['parentid'])) return FALSE;
+		if (empty($settings['link_type'])) return FALSE;
 
 		if ($settings['parentid'] == 'current_asset') {
 			$settings['parentid'] = $state['assetid'];
 		}
-		$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($settings['parentid']);
-		if (is_null($parent)) return false;
+		$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['parentid']);
+		if (is_null($parent)) return FALSE;
 
 		// check the optional settings, assign defaults
 		$is_dependant = array_get_index($settings, 'is_dependant', 0);
@@ -87,16 +86,16 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 					'asset'			=> &$parent,
 					'link_type'		=> $settings['link_type'],
 					'value'			=> $value,
-					'sort_order'	=> null,
+					'sort_order'	=> NULL,
 					'is_dependant'	=> (bool) $is_dependant,
 					'is_exclusive'	=> (bool) $is_exclusive,
 				);
 
 		$type_code = $settings['type_code'];
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-		$new_asset = new $type_code();
+		$new_asset =& new $type_code();
 		$linkid = $new_asset->create($link);
-		if (!$linkid) return false;
+		if (!$linkid) return FALSE;
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 
@@ -121,10 +120,10 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 	* @param string		$prefix			unique prefix
 	* @param boolean	$write_access	determines whether the interface is editable
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// check settings, set defaults if necessary
 		$parentid     = array_get_index($settings, 'parentid', 0);
@@ -148,7 +147,7 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 			// begin buffering basic options
 			ob_start();
 				if ($write_access) {
-					asset_type_chooser($prefix.'[type_code]', false, Array($type_code), true);
+					asset_type_chooser($prefix.'[type_code]', FALSE, Array($type_code), TRUE);
 				} else {
 					echo '<b>'.$type_code.'</b>';
 				}
@@ -163,9 +162,9 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 					echo '<br /><b>'.translate('trigger_create_under_broadcaster').'</b>';
 					check_box($prefix.'[parentid]', 'current_asset', $parent_broadcasted);
 				} else {
-					$parent = null;
+					$parent = NULL;
 					if ($parentid > 0) {
-						$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
+						$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
 					}
 					if (is_null($parent)) {
 						echo '<b>['.translate('no_parent_selected').']</b>';
@@ -183,7 +182,7 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 
 			ob_start();
 				if ($write_access) {
-					combo_box($prefix.'[link_type]', $link_type_list, false, $link_type);
+					combo_box($prefix.'[link_type]', $link_type_list, FALSE, $link_type);
 				} else {
 					echo '<b>'.$link_type_list[$link_type].'</b>';
 				}
@@ -210,7 +209,7 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 										1	=> translate('dependantly'),
 									 );
 				if ($write_access) {
-					combo_box($prefix.'[is_dependant]', $is_dependant_list, false, $is_dependant);
+					combo_box($prefix.'[is_dependant]', $is_dependant_list, FALSE, $is_dependant);
 				} else {
 					echo '<b>'.$is_dependant_list[$is_dependant].'</b>';
 				}
@@ -224,7 +223,7 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 										1	=> translate('exclusively'),
 									 );
 				if ($write_access) {
-					combo_box($prefix.'[is_exclusive]', $is_exclusive_list, false, $is_exclusive);
+					combo_box($prefix.'[is_exclusive]', $is_exclusive_list, FALSE, $is_exclusive);
 				} else {
 					echo '<b>'.$is_exclusive_list[$is_exclusive].'</b>';
 				}
@@ -232,7 +231,7 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 				$advanced_part_3 = ob_get_contents();
 			ob_end_clean();
 
-			//now patch together the output
+			// now patch together the output
 			$contents =	translate('trigger_new_asset_basic', $basic_part_1, $basic_part_2, $basic_part_3).
 						'<br /><br />'.
 						'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
@@ -240,7 +239,7 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 						'<br /><br />'.
 						'<span class="sq-backend-warning"><b>'.translate('can_only_create_assets_without_required_fields').'</b></span>';
 
-		return $contents;//ob_get_clean();
+		return $contents;
 
 	}//end getInterface()
 
@@ -249,12 +248,12 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 	* Handle the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param array	$settings		a container for any data the action might want to save
+	* @param array	&$settings		a container for any data the action might want to save
 	* @param string	$request_data	array of data corresponding to this action as specified
-	* 								by the $prefix in getInterface.
+	*								by the $prefix in getInterface.
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processInterface(&$settings, $request_data)
 	{
@@ -275,7 +274,7 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 		}
 		$settings['link_type'] = $request_data['link_type'];
 
-		$type_code = array_get_index($request_data, 'type_code', false);
+		$type_code = array_get_index($request_data, 'type_code', FALSE);
 		if (!$type_code) {
 			return translate('asset_type_not_specified');
 		}
@@ -286,7 +285,7 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 		$settings['is_dependant'] = array_get_index($request_data, 'is_dependant', 0);
 		$settings['is_exclusive'] = array_get_index($request_data, 'is_exclusive', 0);
 
-		return false;
+		return FALSE;
 
 	}//end processInterface()
 

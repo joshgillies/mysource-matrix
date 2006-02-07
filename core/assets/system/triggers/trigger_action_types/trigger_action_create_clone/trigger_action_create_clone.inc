@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_clone.inc,v 1.11 2005/05/11 06:05:02 lwright Exp $
+* $Id: trigger_action_create_clone.inc,v 1.12 2006/02/07 02:27:12 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,7 +43,6 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 
 	/**
 	* Execute this action
-	*
 	* Returns an array of data about what it did, or false on error
 	*
 	* The settings used by this action are in the form:
@@ -62,18 +61,18 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	* @param array	$settings	the stored settings for this action
 	* @param array	&$state		the state that describes the asset the action is executing on
 	*
-	* @return array | boolean
+	* @return mixed array|boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
 	{
 		// if no settings, fail
 		if (empty($settings['assetid']) || empty($settings['link_type'])) {
-			return false;
+			return FALSE;
 		}
 
 		if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($settings['assetid'])) {
-			return false;
+			return FALSE;
 		}
 
 		// check the optional settings, assign defaults
@@ -84,25 +83,25 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
 			if (empty($state['assetid'])) {
-				return false;
+				return FALSE;
 			} else {
 				$state['asset'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
-		$major = &$am->getAsset($settings['assetid']);
-		$minor = &$state['asset'];
+		$major =& $am->getAsset($settings['assetid']);
+		$minor =& $state['asset'];
 
 		if ($disallow_duplicates) {
 			// get all the children of the target asset, check whether an asset
 			// with the same name, short_name and type_code already exists
 			$children = $am->getChildren($settings['assetid']);
 			foreach ($children as $childid => $child_type) {
-				$name = $am->getAssetInfo(Array($childid), Array(), true, 'name');
-				$short_name = $am->getAssetInfo(Array($childid), Array(), true, 'short_name');
-				$type_code = $am->getAssetInfo(Array($childid), Array(), true, 'type_code');
+				$name = $am->getAssetInfo(Array($childid), Array(), TRUE, 'name');
+				$short_name = $am->getAssetInfo(Array($childid), Array(), TRUE, 'short_name');
+				$type_code = $am->getAssetInfo(Array($childid), Array(), TRUE, 'type_code');
 				if ($name[$childid] == $minor->name && $short_name[$childid] == $minor->short_name && $type_code[$childid] == $minor->type()) {
 					// a copy of the clone already exists
 					return Array(
@@ -122,7 +121,7 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 					'asset'			=> &$major,
 					'link_type'		=> $settings['link_type'],
 					'value'			=> $settings['value'],
-					'sort_order'	=> null,
+					'sort_order'	=> NULL,
 					'is_dependant'	=> $is_dependant,
 					'is_exclusive'	=> $is_exclusive,
 				);
@@ -130,14 +129,14 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		// old -> new asset id mapping
 		$clone_map = Array();
 
-		$clone = &$am->cloneAsset($minor, $link, $clone_map, Array('all'));
+		$clone =& $am->cloneAsset($minor, $link, $clone_map, Array('all'));
 		if (is_null($clone)) {
 			trigger_localised_error('CORE0138', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		$valid_paths = make_valid_web_paths($minor->getWebPaths());
-		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $clone->id, true);
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $clone->id, TRUE);
 
 		$clone->saveWebPaths($good_paths);
 		$clone->remapAssetids($clone_map);
@@ -161,10 +160,10 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	* @param string		$prefix			unique prefix
 	* @param boolean	$write_access	determines whether the interface is editable
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// check settings, set defaults if necessary
 		$selected_assetid    = array_get_index($settings, 'assetid', 0);
@@ -194,10 +193,10 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 				asset_finder($prefix.'[assetid]', $selected_assetid);
 			} else {
 				if ($selected_assetid) {
-					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), true, 'name');
-					text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', false, $form_element_extras);
+					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), TRUE, 'name');
+					text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', FALSE, $form_element_extras);
 				} else {
-					text_box($prefix.'[assetid]', '', '', '', false, $form_element_extras);
+					text_box($prefix.'[assetid]', '', '', '', FALSE, $form_element_extras);
 				}
 			}
 
@@ -205,13 +204,13 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		ob_end_clean();
 
 		ob_start();
-			combo_box($prefix.'[link_type]', $link_type_list, false, $selected_link_type, null, $form_element_extras);
+			combo_box($prefix.'[link_type]', $link_type_list, FALSE, $selected_link_type, NULL, $form_element_extras);
 			$basic_part_2 = ob_get_contents();
 		ob_end_clean();
 
 		// begin buffering advanced options
 		ob_start();
-			text_box($prefix.'[value]', $value, '', '', false, $form_element_extras);
+			text_box($prefix.'[value]', $value, '', '', FALSE, $form_element_extras);
 			$advanced_part_1 = ob_get_contents();
 		ob_end_clean();
 
@@ -220,7 +219,7 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 									0	=> translate('non_dependantly'),
 									1	=> translate('dependantly'),
 								 );
-			combo_box($prefix.'[is_dependant]', $is_dependant_list, false, $is_dependant, null, $form_element_extras);
+			combo_box($prefix.'[is_dependant]', $is_dependant_list, FALSE, $is_dependant, NULL, $form_element_extras);
 			$advanced_part_2 = ob_get_contents();
 		ob_end_clean();
 
@@ -229,24 +228,24 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 									0	=> translate('non_exclusively'),
 									1	=> translate('exclusivly'),
 								 );
-			combo_box($prefix.'[is_exclusive]', $is_exclusive_list, false, $is_exclusive, null, $form_element_extras);
+			combo_box($prefix.'[is_exclusive]', $is_exclusive_list, FALSE, $is_exclusive, NULL, $form_element_extras);
 			$advanced_part_3 = ob_get_contents();
 		ob_end_clean();
 
 		ob_start();
-			check_box($prefix.'[disallow_duplicates]', '1', $disallow_duplicates, null, $form_element_extras);
+			check_box($prefix.'[disallow_duplicates]', '1', $disallow_duplicates, NULL, $form_element_extras);
 			label(translate('do_not_create_clone_if_same_name_exists'), $prefix.'[disallow_duplicates]');
 			$advanced_part_4 = ob_get_contents();
 		ob_end_clean();
 
 
-		//now patch together the output
+		// now patch together the output
 		$contents = translate('trigger_create_clone_basic', $basic_part_1, $basic_part_2).
 					'<br /><br />'.
 					'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
 					translate('trigger_create_clone_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3, $advanced_part_4);
 
-		return $contents;//ob_get_clean();
+		return $contents;
 
 	}//end getInterface()
 
@@ -255,12 +254,12 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	* Handle the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param array	$settings		a container for any data the action might want to save
+	* @param array	&$settings		a container for any data the action might want to save
 	* @param string	$request_data	array of data corresponding to this action as specified
-	* 								by the $prefix in getInterface.
+	*								by the $prefix in getInterface.
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processInterface(&$settings, $request_data)
 	{
@@ -284,7 +283,7 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		$settings['is_exclusive']        = array_get_index($request_data, 'is_exclusive', 0);
 		$settings['disallow_duplicates'] = array_get_index($request_data, 'disallow_duplicates', 0);
 
-		return false;
+		return FALSE;
 
 	}//end processInterface()
 
@@ -292,8 +291,11 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	/**
 	* Get the list of locks that the action needs to acquire before executing
 	*
-	* @access public
+	* @param array	$settings	a container for any data the action might want to save
+	* @param array	&$state		the state that describes the asset the action is executing on
+	*
 	* @return array
+	* @access public
 	*/
 	function getLocks($settings, &$state)
 	{

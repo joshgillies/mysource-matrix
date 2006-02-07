@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_status.inc,v 1.11 2005/10/26 02:05:36 skim Exp $
+* $Id: trigger_action_set_status.inc,v 1.12 2006/02/07 02:27:12 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,7 +43,6 @@ class Trigger_Action_Set_Status extends Trigger_Action
 
 	/**
 	* Execute this action
-	*
 	* Returns an array of data about what it did, or false on error
 	*
 	* The settings used by this action are in the form:<BR />
@@ -56,20 +55,20 @@ class Trigger_Action_Set_Status extends Trigger_Action
 	* @param array	$settings	the stored settings for this action
 	* @param array	&$state		the state that describes the asset the action is executing on
 	*
-	* @return array | boolean
+	* @return mixed array|boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
 	{
 		// check required settings
-		if (empty($settings['status'])) return false;
+		if (empty($settings['status'])) return FALSE;
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
 			if (empty($state['assetid'])) {
-				return false;
+				return FALSE;
 			} else {
-				$state['asset'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+				$state['asset'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 
@@ -79,11 +78,11 @@ class Trigger_Action_Set_Status extends Trigger_Action
 
 			if (!isset($available_statuses[$settings['status']])) {
 				// invalid status, fail
-				return false;
+				return FALSE;
 			}
 
 			if (!$state['asset']->processStatusChange($settings['status'])) {
-				return false;
+				return FALSE;
 			}
 		}
 
@@ -103,10 +102,10 @@ class Trigger_Action_Set_Status extends Trigger_Action
 	* @param string		$prefix			unique prefix
 	* @param boolean	$write_access	determines whether the interface is editable
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		if (empty($settings['status'])) {
 			// set to default
@@ -124,7 +123,7 @@ class Trigger_Action_Set_Status extends Trigger_Action
 		}
 
 		ob_start();
-			combo_box($prefix.'[status]', $status_list, false, $selected_status, null, $form_element_extras);
+			combo_box($prefix.'[status]', $status_list, FALSE, $selected_status, NULL, $form_element_extras);
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
@@ -138,16 +137,16 @@ class Trigger_Action_Set_Status extends Trigger_Action
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param array	$settings		a container for any data the action might want to save
+	* @param array	&$settings		a container for any data the action might want to save
 	* @param string	$request_data	array of data corresponding to this action as
-	* 								specified by the $prefix in getInterface.
+	*								specified by the $prefix in getInterface.
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processInterface(&$settings, $request_data)
 	{
-		$status = array_get_index($request_data, 'status', false);
+		$status = array_get_index($request_data, 'status', FALSE);
 		if (!$status) return 'Status has not been specified';
 
 		$status_list = Trigger_Action_Set_Status::_getStatusList();
@@ -155,7 +154,7 @@ class Trigger_Action_Set_Status extends Trigger_Action
 		// check if the status is valid
 		if (isset($status_list[$status])) {
 			$settings['status'] = $status;
-			return false;
+			return FALSE;
 		} else {
 			return 'Specified status is invalid';
 		}
@@ -164,10 +163,10 @@ class Trigger_Action_Set_Status extends Trigger_Action
 
 
 	/**
-	* Returns an array containing all the valid statuses
+	* Returns an array containing all the valid statuses  array(int => string)
 	*
+	* @return array
 	* @access private
-	* @return array(int => string)
 	*/
 	function _getStatusList()
 	{

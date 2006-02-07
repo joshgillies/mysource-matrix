@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design.inc,v 1.9 2005/05/11 06:05:02 lwright Exp $
+* $Id: trigger_action_set_design.inc,v 1.10 2006/02/07 02:27:12 sdanis Exp $
 *
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-//
+
 
 /**
 * Trigger Action Set Design
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,7 +43,6 @@ class Trigger_Action_Set_Design extends Trigger_Action
 
 	/**
 	* Execute this action
-	*
 	* Returns an array of data about what it did, or false on error
 	*
 	* The settings used by this action are in the form:
@@ -56,7 +55,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 	* @param array	$settings	the stored settings for this action
 	* @param array	&$state		the state that describes the asset the action is executing on
 	*
-	* @return array | boolean
+	* @return mixed array|boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
@@ -64,20 +63,20 @@ class Trigger_Action_Set_Design extends Trigger_Action
 		// check settings, state
 		if (empty($settings['assetid'])) {
 			// if no settings, fail
-			return false;
+			return FALSE;
 		}
 
 		if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($settings['assetid'])) {
-			return false;
+			return FALSE;
 		}
 
 		// state
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
 			if (empty($state['assetid'])) {
-				return false;
+				return FALSE;
 			} else {
-				$state['asset'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+				$state['asset'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 
@@ -88,8 +87,8 @@ class Trigger_Action_Set_Design extends Trigger_Action
 		$design_name = 'design::system::frontend';
 
 		// get all system_design::frontend links attached to the asset
-		$design_links = $am->getLinks($state['assetid'], SQ_LINK_NOTICE, 'design', false, 'major', $design_name);
-		$link_already_created = false;
+		$design_links = $am->getLinks($state['assetid'], SQ_LINK_NOTICE, 'design', FALSE, 'major', $design_name);
+		$link_already_created = FALSE;
 
 		if (!empty($design_links)) {
 
@@ -99,12 +98,12 @@ class Trigger_Action_Set_Design extends Trigger_Action
 				// if the new design is already linked, leave it alone. delete duplicates if found
 				if ($link['minorid'] == $settings['assetid'] && !$link_already_created) {
 					// so that we don't try and recreate the link later if it already exists
-					$link_already_created = true;
+					$link_already_created = TRUE;
 				} else {
 					if (!$am->deleteAssetLink($link['linkid'])) {
 						// if we try to create another system_design::frontend while one already exists, we
 						// end up in a whole world of pain. Bail now.
-						return false;
+						return FALSE;
 					}
 				}
 
@@ -113,12 +112,12 @@ class Trigger_Action_Set_Design extends Trigger_Action
 
 		// create a link between the asset (major) and the design (minor)
 		if (!$link_already_created) {
-			$design = &$am->getAsset($settings['assetid']);
+			$design =& $am->getAsset($settings['assetid']);
 			$link_create_status = $am->createAssetLink($state['asset'], $design, SQ_LINK_NOTICE, $design_name);
 
 			if (!$link_create_status) {
 				// couldn't create link, die
-				return false;
+				return FALSE;
 			}
 		}
 
@@ -141,10 +140,10 @@ class Trigger_Action_Set_Design extends Trigger_Action
 	* @param string		$prefix			unique prefix
 	* @param boolean	$write_access	determines whether the interface is editable
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		if (empty($settings['assetid'])) {
 			// set to default
@@ -170,10 +169,10 @@ class Trigger_Action_Set_Design extends Trigger_Action
 				asset_finder($prefix.'[assetid]', $selected_assetid, Array('design' => 'D'));
 			} else {
 				if ($selected_assetid) {
-					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), true, 'name');
-					text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', false, $form_element_extras);
+					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), TRUE, 'name');
+					text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', FALSE, $form_element_extras);
 				} else {
-					text_box($prefix.'[assetid]', '', '', '', false, $form_element_extras);
+					text_box($prefix.'[assetid]', '', '', '', FALSE, $form_element_extras);
 				}
 			}
 
@@ -189,12 +188,12 @@ class Trigger_Action_Set_Design extends Trigger_Action
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param array	$settings		a container for any data the action might want to save
+	* @param array	&$settings		a container for any data the action might want to save
 	* @param string	$request_data	array of data corresponding to this action
-	* 								as specified by the $prefix in getInterface.
+	*								as specified by the $prefix in getInterface.
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processInterface(&$settings, $request_data)
 	{
@@ -205,7 +204,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 
 		// check if the status is valid
 		$settings['assetid'] = $request_data['assetid']['assetid'];
-		return false;
+		return FALSE;
 
 	}//end processInterface()
 
@@ -213,8 +212,11 @@ class Trigger_Action_Set_Design extends Trigger_Action
 	/**
 	* Get the list of locks that the action needs to acquire before executing
 	*
-	* @access public
+	* @param array	$settings	a container for any data the action might want to save
+	* @param array	&$state		the state that describes the asset the action is executing on
+	*
 	* @return array
+	* @access public
 	*/
 	function getLocks($settings, &$state)
 	{

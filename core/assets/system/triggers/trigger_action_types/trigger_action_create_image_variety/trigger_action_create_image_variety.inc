@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_image_variety.inc,v 1.8 2005/08/18 06:55:41 lwright Exp $
+* $Id: trigger_action_create_image_variety.inc,v 1.9 2006/02/07 02:27:12 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,7 +42,6 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 
 	/**
 	* Execute this action
-	*
 	* Returns an array of data about what it did, or false on error
 	*
 	* The settings used by this action are in the form:
@@ -58,50 +57,50 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 	* @param array	$settings	the stored settings for this action
 	* @param array	&$state		the state that describes the asset the action is executing on
 	*
-	* @return array | boolean
+	* @return mixed array|boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
 			if (empty($state['assetid'])) {
-				return false;
+				return FALSE;
 			} else {
 				$state['asset'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 
 		// asset must be image
-		if (!is_a($state['asset'], 'image')) return false;
+		if (!is_a($state['asset'], 'image')) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
 
-		$variety = new Image_Variety();
+		$variety =& new Image_Variety();
 		$variety->setAttrValue('variety_type', 'resize');
 
 		// set & check settings, state
 
 		// name
 		if (!@$variety->setAttrValue('name', $settings['name'])) {
-			return false;
+			return FALSE;
 		}
 
 		// constrain
 		if (!@$variety->setAttrValue('constrain', $settings['constrain'])) {
-			return false;
+			return FALSE;
 		}
 
 		// width
 		if (!@$variety->setAttrValue('width', $settings['width'])) {
-			return false;
+			return FALSE;
 		}
 
 		// height
 		if (!@$variety->setAttrValue('height', $settings['height'])) {
-			return false;
+			return FALSE;
 		}
 
 		// rely on image_variety to check whether the variety already exists
@@ -125,10 +124,10 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 	* @param string		$prefix			unique prefix
 	* @param boolean	$write_access	determines whether the interface is editable
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// set defaults
 		$settings['name']      = array_get_index($settings, 'name', '');
@@ -145,7 +144,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 
 		// begin buffering basic options
 		ob_start();
-			text_box($prefix.'[name]', $settings['name'], '', '', false, $form_element_extras);
+			text_box($prefix.'[name]', $settings['name'], '', '', FALSE, $form_element_extras);
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
@@ -155,21 +154,21 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 						'height'	=> 'Height',
 						'none'		=> 'Neither',
 					   );
-			combo_box($prefix.'[constrain]', $options, false, $settings['constrain'], 0, $form_element_extras);
+			combo_box($prefix.'[constrain]', $options, FALSE, $settings['constrain'], 0, $form_element_extras);
 			$basic_part_2 = ob_get_contents();
 		ob_end_clean();
 
 		ob_start();
-			int_text_box($prefix.'[width]', $settings['width'], false, '', null, null, '', false, $form_element_extras);
+			int_text_box($prefix.'[width]', $settings['width'], FALSE, '', NULL, NULL, '', FALSE, $form_element_extras);
 			$basic_part_3 = ob_get_contents();
 		ob_end_clean();
 
 		ob_start();
-			int_text_box($prefix.'[height]', $settings['height'], false, '', null, null, '', false, $form_element_extras);
+			int_text_box($prefix.'[height]', $settings['height'], FALSE, '', NULL, NULL, '', FALSE, $form_element_extras);
 			$basic_part_4 = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_create_image_variety_basic', $basic_part_1, $basic_part_2, $basic_part_3, $basic_part_4);//ob_get_clean();
+		return translate('trigger_create_image_variety_basic', $basic_part_1, $basic_part_2, $basic_part_3, $basic_part_4);
 
 	}//end getInterface()
 
@@ -178,12 +177,12 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param array	$settings		a container for any data the action might want to save
+	* @param array	&$settings		a container for any data the action might want to save
 	* @param string	$request_data	array of data corresponding to this action
-	* 								as specified by the $prefix in getInterface
+	*								as specified by the $prefix in getInterface
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processInterface(&$settings, $request_data)
 	{
@@ -202,7 +201,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
 
-		$variety = new Image_Variety();
+		$variety =& new Image_Variety();
 		$variety->setAttrValue('variety_type', 'resize');
 
 		// name
@@ -233,7 +232,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 		$settings['width'] = strval($request_data['width']);
 		$settings['height'] = strval($request_data['height']);
 
-		return false;
+		return FALSE;
 
 	}//end processInterface()
 
@@ -241,8 +240,11 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 	/**
 	* Get the list of locks that the action needs acquire before executing
 	*
-	* @access public
+	* @param array	$settings	a container for any data the action might want to save
+	* @param array	&$state		the state that describes the asset the action is executing on
+	*
 	* @return array
+	* @access public
 	*/
 	function getLocks($settings, &$state)
 	{

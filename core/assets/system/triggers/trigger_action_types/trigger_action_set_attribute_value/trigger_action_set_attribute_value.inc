@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_attribute_value.inc,v 1.6 2005/06/02 05:03:25 rhoward Exp $
+* $Id: trigger_action_set_attribute_value.inc,v 1.7 2006/02/07 02:27:12 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,7 +41,6 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 
 	/**
 	* Execute this action
-	*
 	* Returns an array of data about what it did, or false on error
 	*
 	* The settings used by this action are in the form:<BR />
@@ -55,31 +54,31 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 	* @param array	$settings	the stored settings for this action
 	* @param array	&$state		the state that describes the asset the action is executing on
 	*
-	* @return array | boolean
+	* @return mixed array|boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
 	{
 		// check required settings
-		if (empty($settings['attribute'])) return false;
+		if (empty($settings['attribute'])) return FALSE;
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
 			if (empty($state['assetid'])) {
-				return false;
+				return FALSE;
 			} else {
-				$state['asset'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+				$state['asset'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 
-		if (is_null($state['asset'])) return false;
+		if (is_null($state['asset'])) return FALSE;
 
 		$value = $settings['value'];
 
 		// handle serialised attributes
 		if (is_scalar($value)) {
-			$attr = &$state['asset']->getAttribute($settings['attribute']);
-			if (is_null($attr)) return false;
+			$attr =& $state['asset']->getAttribute($settings['attribute']);
+			if (is_null($attr)) return FALSE;
 
 			switch (get_class($attr)) {
 				case 'asset_attribute_serialise' :
@@ -94,9 +93,9 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 		$current_value = $state['asset']->attr($settings['attribute']);
 		if ($current_value != $value) {
 			if (!$state['asset']->setAttrValue($settings['attribute'], $value)) {
-				return false;
+				return FALSE;
 			}
-			if (!$state['asset']->saveAttributes()) return false;
+			if (!$state['asset']->saveAttributes()) return FALSE;
 		}
 
 		return Array(
@@ -116,17 +115,17 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 	* @param string		$prefix			unique prefix
 	* @param boolean	$write_access	determines whether the interface is editable
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// begin buffering basic options
 
 		$selected_type = array_get_index($settings, 'asset_type', '');
 		ob_start();
 			if ($write_access) {
-				asset_type_chooser($prefix.'[asset_type]', false, Array($selected_type), true);
+				asset_type_chooser($prefix.'[asset_type]', FALSE, Array($selected_type), TRUE);
 			} else {
 				echo '<b>'.$selected_type.'</b>';
 			}
@@ -148,7 +147,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 						foreach ($attrs as $attr_name) {
 							$attr_options[$attr_name] = $attr_name;
 						}
-						combo_box($prefix.'[attribute]', $attr_options, false, $attribute);
+						combo_box($prefix.'[attribute]', $attr_options, FALSE, $attribute);
 					} else {
 						echo '<b>'.$attribute.'</b>';
 					}
@@ -186,16 +185,16 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param array	$settings		a container for any data the action might want to save
+	* @param array	&$settings		a container for any data the action might want to save
 	* @param string	$request_data	array of data corresponding to this action as
-	* 								specified by the $prefix in getInterface.
+	*								specified by the $prefix in getInterface.
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processInterface(&$settings, $request_data)
 	{
-		$type_code = array_get_index($request_data, 'asset_type', false);
+		$type_code = array_get_index($request_data, 'asset_type', FALSE);
 		if (!$type_code) {
 			return translate('asset_type_not_specified');
 		}
@@ -204,7 +203,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 		$settings['attribute'] = array_get_index($request_data, 'attribute', '');
 		$settings['value'] = array_get_index($request_data, 'value', '');
 
-		return false;
+		return FALSE;
 
 	}//end processInterface()
 
@@ -212,8 +211,11 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 	/**
 	* Get the list of locks that the action needs acquire before executing
 	*
-	* @access public
+	* @param array	$settings	a container for any data the action might want to save
+	* @param array	&$state		the state that describes the asset the action is executing on
+	*
 	* @return array
+	* @access public
 	*/
 	function getLocks($settings, &$state)
 	{

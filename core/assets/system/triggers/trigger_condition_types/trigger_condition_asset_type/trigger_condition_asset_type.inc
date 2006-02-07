@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_type.inc,v 1.10 2005/06/02 05:03:25 rhoward Exp $
+* $Id: trigger_condition_asset_type.inc,v 1.11 2006/02/07 02:27:13 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,25 +64,25 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 			if (isset($state['asset'])) {
 				$state['asset_type'] = $state['asset']->type();
 			} else {
-				return false;
+				return FALSE;
 			}
 		}
 
-		if (empty($settings['asset_type'])) return false;
+		if (empty($settings['asset_type'])) return FALSE;
 
 		// check the condition
-		if (array_get_index($settings, 'descendants', false)) {
-			$type_desc = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($settings['asset_type'], true);
+		if (array_get_index($settings, 'descendants', FALSE)) {
+			$type_desc = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($settings['asset_type'], TRUE);
 			if (in_array($state['asset_type'], $type_desc)) {
-				return true;
+				return TRUE;
 			} else {
-				return false;
+				return FALSE;
 			}
 		} else {
 			if ($state['asset_type'] == $settings['asset_type']) {
-				return true;
+				return TRUE;
 			} else {
-				return false;
+				return FALSE;
 			}
 		}
 
@@ -96,21 +96,21 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 	* @param string		$prefix			unique prefix
 	* @param boolean	$write_access	write access flag
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$selected_type = array_get_index($settings, 'asset_type', 'page');
 
 		// asset type selector
 		// get a list of all asset types in the system, sort in alphabetical order
 
-		$is_descendant = array_get_index($settings, 'descendants', false);
+		$is_descendant = array_get_index($settings, 'descendants', FALSE);
 
 		ob_start();
 			if ($write_access) {
-				asset_type_chooser($prefix, false, Array('type_code' => $selected_type, 'inherit' => $is_descendant), null, false, true);
+				asset_type_chooser($prefix, FALSE, Array('type_code' => $selected_type, 'inherit' => $is_descendant), NULL, FALSE, TRUE);
 			} else {
 				echo '<b>';
 				echo $selected_type;
@@ -131,13 +131,12 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 	/**
 	* Function that handles the conversion of interface to settings
 	*
-	* @param array			$settings		a container for any data the condition might want to save
-	* @param object Hash	$hash			hash object that takes data that helps to speed up trigger firing
-	* @param array			$request_data	array of data corresponding to this condition
-	* 										as specified by the $prefix in the getInterface.
+	* @param array	&$settings		a container for any data the condition might want to save
+	* @param array	$request_data	array of data corresponding to this condition
+	*								as specified by the $prefix in the getInterface.
 	*
+	* @return mixed boolean|string
 	* @access public
-	* @return false|string
 	*/
 	function processInterface(&$settings, $request_data)
 	{
@@ -145,18 +144,18 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 			return translate('trigger_input_data_error');
 		}
 
-		$asset_type = array_get_index($request_data, 'type_code', false);
+		$asset_type = array_get_index($request_data, 'type_code', FALSE);
 		if (!$asset_type) {
 			return translate('trigger_type_code_not_supplied');
 		}
 
 		// descendants is set to either '1' or not at all
-		$descendants = array_get_index($request_data, 'inherit', false);
+		$descendants = array_get_index($request_data, 'inherit', FALSE);
 
 		$settings['asset_type'] = $asset_type;
 		$settings['descendants'] = $descendants;
 
-		return false;
+		return FALSE;
 
 	}//end processInterface()
 
@@ -165,18 +164,18 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 	* Sets the hash using the settings from the condition
 	* Consult the hash object to see the list of setter functions
 	*
-	* @param Array          $settings       a container for any data the condition might want to save
-	* @param object Hash    $hash           hash object that takes data that helps to speed up trigger firing
+	* @param array	&$settings	a container for any data the condition might want to save
+	* @param object	&$hash		hash object that takes data that helps to speed up trigger firing
 	*
+	* @return mixed string|boolean
 	* @access public
-	* @return string|false
 	*/
 	function setHash(&$settings, &$hash)
 	{
 		if (isset($settings['asset_type']) && isset($settings['descendants'])) {
-			$hash->setAssetType($settings['asset_type'], ($settings['descendants'] == '1' ? true : false));
+			$hash->setAssetType($settings['asset_type'], ($settings['descendants'] == '1' ? TRUE : FALSE));
 		}
-		return false;
+		return FALSE;
 
 	}//end setHash()
 

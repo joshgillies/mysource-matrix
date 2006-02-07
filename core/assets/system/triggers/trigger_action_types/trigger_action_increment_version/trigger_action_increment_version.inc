@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_increment_version.inc,v 1.1 2005/08/22 04:28:58 lwright Exp $
+* $Id: trigger_action_increment_version.inc,v 1.2 2006/02/07 02:27:12 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,7 +42,6 @@ class Trigger_Action_Increment_Version extends Trigger_Action
 
 	/**
 	* Execute this action
-	*
 	* Returns an array of data about what it did, or false on error
 	*
 	* The settings used by this action are in the form:<BR />
@@ -55,20 +54,20 @@ class Trigger_Action_Increment_Version extends Trigger_Action
 	* @param array	$settings	the stored settings for this action
 	* @param array	&$state		the state that describes the asset the action is executing on
 	*
-	* @return array | boolean
+	* @return mixed array|boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
 	{
 		// check required settings
-		if (empty($settings['version'])) return false;
+		if (empty($settings['version'])) return FALSE;
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
 			if (empty($state['assetid'])) {
-				return false;
+				return FALSE;
 			} else {
-				$state['asset'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+				$state['asset'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 
@@ -90,10 +89,10 @@ class Trigger_Action_Increment_Version extends Trigger_Action
 	* @param string		$prefix			unique prefix
 	* @param boolean	$write_access	determines whether the interface is editable
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		if (empty($settings['version'])) {
 			// set to default
@@ -115,7 +114,7 @@ class Trigger_Action_Increment_Version extends Trigger_Action
 		}
 
 		ob_start();
-			combo_box($prefix.'[version]', $version_list, false, $selected_status, null, $form_element_extras);
+			combo_box($prefix.'[version]', $version_list, FALSE, $selected_status, NULL, $form_element_extras);
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
@@ -129,16 +128,16 @@ class Trigger_Action_Increment_Version extends Trigger_Action
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param array	$settings		a container for any data the action might want to save
+	* @param array	&$settings		a container for any data the action might want to save
 	* @param string	$request_data	array of data corresponding to this action as
-	* 								specified by the $prefix in getInterface.
+	*								specified by the $prefix in getInterface.
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processInterface(&$settings, $request_data)
 	{
-		$version = array_get_index($request_data, 'version', false);
+		$version = array_get_index($request_data, 'version', FALSE);
 		if (!$version) return 'Version has not been specified';
 
 		$version_list = Array(
@@ -150,7 +149,7 @@ class Trigger_Action_Increment_Version extends Trigger_Action
 		// check if the status is valid
 		if (isset($version_list[$version])) {
 			$settings['version'] = $version;
-			return false;
+			return FALSE;
 		} else {
 			return 'Specified version is invalid';
 		}

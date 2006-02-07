@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.7 2006/01/26 22:34:07 lwright Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.8 2006/02/07 02:27:12 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,7 +41,6 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 
 	/**
 	* Execute this action
-	*
 	* Returns an array of data about what it did, or false on error
 	*
 	* The settings used by this action are in the form:
@@ -63,24 +62,24 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		// check settings, status
 		if (empty($settings['status'])) {
 			// if no settings, fail
-			return false;
+			return FALSE;
 		}
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
 			if (empty($state['assetid'])) {
-				return false;
+				return FALSE;
 			} else {
-				$state['asset'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+				$state['asset'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 
-		$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-		if (is_null($cron_mgr)) return false;
+		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		if (is_null($cron_mgr)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 
-		$fs = new Cron_Job_Future_Status();
+		$fs =& new Cron_Job_Future_Status();
 		$fs->setAttrValue('status', $settings['status']);
 		$fs->setAttrValue('when', $settings['when']);
 
@@ -88,7 +87,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 			$user_for_status_change = $GLOBALS['SQ_SYSTEM']->user;
 		} else {
 			// not doing the whole "security" thing - so pretend we are root
-			$user_for_status_change = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+			$user_for_status_change =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -99,22 +98,22 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 				if ($fs->setAssetToUpdate($state['asset'])) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					$is_updated = true;
+					$is_updated = TRUE;
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($fs->id, 'links');
 				} else {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return false;
+					return FALSE;
 				}
 			} else {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return false;
+				return FALSE;
 			}
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 
 		return Array(
@@ -134,10 +133,10 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 	* @param string		$prefix			unique prefix
 	* @param boolean	$write_access	determines whether the interface is editable
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// first, munge the prefix so that we can use the Cron Job interfaces to paint/process
 		$munge_prefix = str_replace('[', '_', $prefix);
@@ -160,7 +159,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		ob_start();
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
-		$fs = new Cron_Job_Future_Status();
+		$fs =& new Cron_Job_Future_Status();
 
 		if (!is_null($settings['status'])) {
 			$fs->setAttrValue('status', $settings['status']);
@@ -180,13 +179,12 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param array	$settings		a container for any data the action might want to save
-	* @param string	$prefix			prefix for the form elements
+	* @param array	&$settings		a container for any data the action might want to save
 	* @param string	$request_data	array of data corresponding to this action as specified
-	* 								by the $prefix in getInterface
+	*								by the $prefix in getInterface
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processInterface(&$settings, $request_data)
 	{
@@ -196,18 +194,18 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		if (!$set_status) return 'Status not specified';
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
-		$fs = new Cron_Job_Future_Status();
+		$fs =& new Cron_Job_Future_Status();
 		$edit_fns = $fs->getEditFns();
 
 		$settings['when'] = $edit_fns->_processWhenBox($fs, $o, $munge_prefix);
 		$settings['prefix'] = $munge_prefix;
 
-		$status_list = &Trigger_Action_Set_Future_Status::_getStatusList();
+		$status_list =& Trigger_Action_Set_Future_Status::_getStatusList();
 
 		// check if the status is valid
 		if (isset($status_list[$set_status])) {
 			$settings['status'] = $set_status;
-			return false;
+			return FALSE;
 		} else {
 			return 'Invalid Status specified';
 		}
@@ -216,10 +214,10 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 
 
 	/**
-	* Returns an array containing all the valid statuses
+	* Returns an array containing all the valid statuses (int => string)
 	*
+	* @return array
 	* @access private
-	* @return array(int => string)
 	*/
 	function _getStatusList()
 	{

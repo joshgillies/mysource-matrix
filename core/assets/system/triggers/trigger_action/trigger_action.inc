@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action.inc,v 1.5 2005/11/24 04:05:27 mmcintyre Exp $
+* $Id: trigger_action.inc,v 1.6 2006/02/07 02:27:12 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,14 +47,14 @@ class Trigger_Action extends Asset
 	* Must be overridden by the actions themselves.
 	*
 	* @param array	$settings	the stored settings for this action
-	* @param array	&$state		the state that describes the asset the action is executing on
+	* @param array	$state		the state that describes the asset the action is executing on
 	*
-	* @return array | boolean
+	* @return mixed array|boolean
 	* @access public
 	*/
 	function execute($settings, $state)
 	{
-		return false;
+		return FALSE;
 
 	}//end execute()
 
@@ -66,10 +66,10 @@ class Trigger_Action extends Asset
 	* @param string		$prefix			unique prefix
 	* @param boolean	$write_access	determines whether the interface is editable
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// create HTML
 		// populate HTML with settings
@@ -79,7 +79,7 @@ class Trigger_Action extends Asset
 		// any Form elements that use the prefix should use the prefix as an array index
 		// i.e. <input name="$prefix['whatever']" value="someting" >
 		// or   <input name="$prefix" value="something" >
-		//
+
 		// NOT  <input name="$prefix_something" />
 		// if you do this your processInterface function will not be getting any data back.
 
@@ -100,12 +100,12 @@ class Trigger_Action extends Asset
 	*
 	* NOTE: Returns false on success
 	*
-	* @param array	$settings		a container for any data the action might want to save
+	* @param array	&$settings		a container for any data the action might want to save
 	* @param array	$request_data	array of data corresponding to this action
-	* 								as specified by the $prefix in getInterface
+	*								as specified by the $prefix in getInterface
 	*
+	* @return mixed boolean|string
 	* @access public
-	* @return false|string
 	*/
 	function processInterface(&$settings, $request_data)
 	{
@@ -113,7 +113,7 @@ class Trigger_Action extends Asset
 		// populate the settings
 		// return status
 
-		return false;
+		return FALSE;
 
 	}//end processInterface()
 
@@ -126,8 +126,11 @@ class Trigger_Action extends Asset
 	*	$locks = Array('assetid' => Array('attributes','links'));
 	* </PRE>
 	*
-	* @access public
+	* @param array	$settings	a container for any data the action might want to save
+	* @param array	&$state		the state that describes the asset the action is executing on
+	*
 	* @return array
+	* @access public
 	*/
 	function getLocks($settings, &$state)
 	{

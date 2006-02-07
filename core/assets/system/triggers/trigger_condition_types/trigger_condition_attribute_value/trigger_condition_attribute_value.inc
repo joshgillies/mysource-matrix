@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_attribute_value.inc,v 1.3 2005/07/18 02:37:17 tbarrett Exp $
+* $Id: trigger_condition_attribute_value.inc,v 1.4 2006/02/07 02:27:13 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(dirname(__FILE__)).'/trigger_condition_asset_type/trigger_c
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,12 +59,12 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 	*/
 	function evaluate($settings, &$state)
 	{
-		if (empty($settings['asset_type'])) return false;
-		if (empty($settings['attribute'])) return false;
+		if (empty($settings['asset_type'])) return FALSE;
+		if (empty($settings['attribute'])) return FALSE;
 
 		if ((!$settings['inherit']) && (array_get_index($state, 'asset_type') != $settings['asset_type'])) {
 			// definitely not the right type
-			return false;
+			return FALSE;
 		}
 
 		if (empty($state['asset'])) {
@@ -86,7 +86,7 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 				return ($state['asset']->attr($settings['attribute']) == $value);
 			}
 		}
-		return false;
+		return FALSE;
 
 	}//end evaluate()
 
@@ -98,10 +98,10 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 	* @param string		$prefix			unique prefix
 	* @param boolean	$write_access	write access flag
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$selected_type = array_get_index($settings, 'asset_type', 'page');
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
@@ -109,7 +109,7 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 		// asset type selector
 		ob_start();
 			if ($write_access) {
-				asset_type_chooser($prefix.'[type_code]', false, Array('type_code' => $selected_type), null, false, false);
+				asset_type_chooser($prefix.'[type_code]', FALSE, Array('type_code' => $selected_type), NULL, FALSE, FALSE);
 				echo ' ( ';
 				check_box($prefix.'[inherit]', 1, array_get_index($settings, 'inherit'), '', 'id="'.$prefix.'_inherit" style="margin: 0px"');
 				echo ' ';
@@ -139,7 +139,7 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 						foreach ($attrs as $attr_name) {
 							$attr_options[$attr_name] = $attr_name;
 						}
-						combo_box($prefix.'[attribute]', $attr_options, false, $attribute);
+						combo_box($prefix.'[attribute]', $attr_options, FALSE, $attribute);
 					} else {
 						echo '<b>'.$attribute.'</b>';
 					}
@@ -167,13 +167,12 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 	/**
 	* Function that handles the conversion of interface to settings
 	*
-	* @param array			$settings		a container for any data the condition might want to save
-	* @param object Hash	$hash			hash object that takes data that helps to speed up trigger firing
-	* @param array			$request_data	array of data corresponding to this condition
-	* 										as specified by the $prefix in the getInterface.
+	* @param array	&$settings		a container for any data the condition might want to save
+	* @param array	$request_data	array of data corresponding to this condition
+	*								as specified by the $prefix in the getInterface.
 	*
+	* @return mixed boolean|string
 	* @access public
-	* @return false|string
 	*/
 	function processInterface(&$settings, $request_data)
 	{
@@ -181,23 +180,23 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 			return translate('trigger_input_data_error');
 		}
 
-		$asset_type = array_get_index($request_data, 'type_code', false);
+		$asset_type = array_get_index($request_data, 'type_code', FALSE);
 		if (!$asset_type) {
 			return translate('trigger_type_code_not_supplied');
 		}
 
 		$settings['asset_type'] = $asset_type;
 		$settings['inherit'] = !empty($request_data['inherit']);
-		$settings['attribute'] = array_get_index($request_data, 'attribute', false);
+		$settings['attribute'] = array_get_index($request_data, 'attribute', FALSE);
 
-		$value = array_get_index($request_data, 'value', false);
+		$value = array_get_index($request_data, 'value', FALSE);
 		$settings['text_value'] = $value;
 
 		// handle serialised attributes
 		if (!empty($settings['asset_type']) && !empty($settings['attribute'])) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($settings['asset_type']);
 			$fake_asset =& new $settings['asset_type'];
-			$attr = &$fake_asset->getAttribute($settings['attribute'], true);
+			$attr =& $fake_asset->getAttribute($settings['attribute'], TRUE);
 			if (!is_null($attr)) {
 				if (is_a($attr, 'asset_attribute_serialise')) {
 					$value = str_replace(';', '', $value); // avoid code injection
@@ -207,7 +206,7 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 		}
 		$settings['value'] = $value;
 
-		return false;
+		return FALSE;
 
 	}//end processInterface()
 

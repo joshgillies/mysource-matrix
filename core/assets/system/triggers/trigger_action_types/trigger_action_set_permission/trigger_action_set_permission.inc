@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.7 2005/11/14 05:13:48 arailean Exp $
+* $Id: trigger_action_set_permission.inc,v 1.8 2006/02/07 02:27:12 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,7 +42,6 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 
 	/**
 	* Execute this action
-	*
 	* Returns an array of data about what it did, or false on error
 	*
 	* The settings used by this action are in the form:<BR />
@@ -57,22 +56,22 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	* @param array	$settings	the stored settings for this action
 	* @param array	&$state		the state that describes the asset the action is executing on
 	*
-	* @return array | boolean
+	* @return mixed array|boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
 	{
 		// check required settings
-		if (empty($settings['permission'])) return false;
-		if (empty($settings['userid'])) return false;
-		if (empty($state['assetid'])) return false;
-		$granted = array_get_index($settings, 'granted', true);
+		if (empty($settings['permission'])) return FALSE;
+		if (empty($settings['userid'])) return FALSE;
+		if (empty($state['assetid'])) return FALSE;
+		$granted = array_get_index($settings, 'granted', TRUE);
 
 		// set the permission on the asset
 		// note that the asset manager already checks if the permission has been
 		// and returns true if it has
 		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($state['assetid'], $settings['userid'], $settings['permission'], $granted)) {
-			return false;
+			return FALSE;
 		}
 
 		return Array(
@@ -92,13 +91,13 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	* @param string		$prefix			unique prefix
 	* @param boolean	$write_access	determines whether the interface is editable
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
-		//due to "access for" being the only stable text in this interface
-		//we are not translating like the rest but just the text as it appears
+		// due to "access for" being the only stable text in this interface
+		// we are not translating like the rest but just the text as it appears
 		ob_start();
 
 		// print the grant/deny selection
@@ -111,7 +110,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 			combo_box($prefix.'[granted]', Array(
 											'1'	=> translate('grant'),
 											'0'	=> translate('deny'),
-										   ), false, $selected_granted);
+										   ), FALSE, $selected_granted);
 		} else {
 			echo '<b>';
 			echo ($selected_granted) ? translate('grant') : translate('deny');
@@ -126,7 +125,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		}
 		$permissions = Trigger_Action_Set_Permission::_getPermissionList();
 		if ($write_access) {
-			combo_box($prefix.'[permission]', $permissions, false, $selected_permission);
+			combo_box($prefix.'[permission]', $permissions, FALSE, $selected_permission);
 		} else {
 			echo '<b>'.$permissions[$selected_permission].'</b>';
 		}
@@ -150,9 +149,9 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 			);
 
 		} else {
-			$user = null;
+			$user = NULL;
 			if ($selected_userid > 0) {
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($selected_userid);
+				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($selected_userid);
 			}
 			if (is_null($user)) {
 				echo '<b>['.translate('trigger_no_user_selected').']</b>';
@@ -170,17 +169,17 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param array	$settings		a container for any data the action might want to save
+	* @param array	&$settings		a container for any data the action might want to save
 	* @param string	$request_data	array of data corresponding to this action as
-	* 								specified by the $prefix in getInterface.
+	*								specified by the $prefix in getInterface.
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processInterface(&$settings, $request_data)
 	{
 		// check if the permission is valid
-		$permission = array_get_index($request_data, 'permission', false);
+		$permission = array_get_index($request_data, 'permission', FALSE);
 		if (!$permission) return 'Permission not specified';
 
 		$valid_permissions = Trigger_Action_Set_Permission::_getPermissionList();
@@ -191,34 +190,34 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		}
 
 		// access must be either 1 or 0
-		$granted = array_get_index($request_data, 'granted', false);
+		$granted = array_get_index($request_data, 'granted', FALSE);
 		if ($granted != '1' && $granted != '0') {
 			return 'Access parameter is invalid';
 		}
 		$settings['granted'] = $granted;
 
 		// a userid must have been selected
-		$user_data = array_get_index($request_data, 'userid', false);
+		$user_data = array_get_index($request_data, 'userid', FALSE);
 		$userid = $user_data['assetid'];
 
 		if (empty($userid)) return 'User id is not specified';
 
-		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+		$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 		if (is_null($user)) {
 			return 'Specified user is not a valid asset';
 		}
 		$settings['userid'] = $userid;
 
-		return false;
+		return FALSE;
 
 	}//end processInterface()
 
 
 	/**
-	* Returns an array containing all the valid permission levels
+	* Returns an array containing all the valid permission levels array(int => string)
 	*
+	* @return void
 	* @access private
-	* @return array(int => string)
 	*/
 	function _getPermissionList()
 	{
@@ -234,8 +233,11 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	/**
 	* Get the list of locks that the action needs acquire before executing
 	*
-	* @access public
+	* @param array	$settings	a container for any data the action might want to save
+	* @param array	&$state		the state that describes the asset the action is executing on
+	*
 	* @return array
+	* @access public
 	*/
 	function getLocks($settings, &$state)
 	{
