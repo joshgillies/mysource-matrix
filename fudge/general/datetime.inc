@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.42 2005/10/27 02:09:00 lwright Exp $
+* $Id: datetime.inc,v 1.42.2.1 2006/02/07 22:58:17 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     General function for manipulating dates and times
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.42.2.1 $
 * @package Fudge
 * @subpackage General
 */
@@ -93,10 +93,10 @@ function easy_datetime($then='')
 * @return mixed string|array
 * @access public
 */
-function easy_time_total($secs=0, $full_format=false, $return_array=false, $units=Array('d', 'h', 'm', 's'))
+function easy_time_total($secs=0, $full_format=FALSE, $return_array=FALSE, $units=Array('d', 'h', 'm', 's'))
 {
 	// type verification
-	if (!is_int($secs) || !is_bool($full_format) || !is_bool($return_array) || !is_array($units)) {
+	if (!is_numeric($secs) || !is_bool($full_format) || !is_bool($return_array) || !is_array($units)) {
 		return '';
 	}
 
@@ -107,7 +107,7 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false, $unit
 		$suffix = '';
 	}
 
-	$secs = (int) $secs;
+	$secs = $secs;
 
 	$minute = 60;
 	$hour   = 60 * $minute;
@@ -322,7 +322,7 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false, $unit
 * @return string
 * @access public
 */
-function readable_datetime($then=null)
+function readable_datetime($then=NULL)
 {
 	return (is_null($then)) ? date('jS M Y g:ia') : date('jS M Y g:ia', $then);
 
@@ -337,15 +337,15 @@ function readable_datetime($then=null)
 * @return boolean
 * @access public
 */
-function is_leap_year($year=null)
+function is_leap_year($year=NULL)
 {
 	if (is_null($year)) $year = (int) date('Y');
-	if ($year % 4 != 0) return false;
+	if ($year % 4 != 0) return FALSE;
 
 	// only 1 out of every four hundred year milestones is a leap year
 	if ($year % 100 == 0) return (($year / 100) % 4 == 0);
 
-	return true;
+	return TRUE;
 
 }//end is_leap_year()
 
@@ -428,7 +428,7 @@ function increment_date(&$day, &$month, &$year, $days_to_add=1)
 * @param int	&$year			year component of the date to decrement (YYYY)
 * @param int	$days_to_sub	number of days to subtract from the date
 *
-* @return mixed void|null
+* @return void
 * @access public
 */
 function decrement_date(&$day, &$month, &$year, $days_to_sub=1)
@@ -456,7 +456,7 @@ function decrement_date(&$day, &$month, &$year, $days_to_sub=1)
 * @param int	&$year			year component of the date to increment (YYYY)
 * @param int	$months_to_add	number of months to add to the date
 *
-* @return mixed void|null
+* @return void
 * @access public
 */
 function increment_month(&$month, &$year, $months_to_add=1)
@@ -484,7 +484,7 @@ function increment_month(&$month, &$year, $months_to_add=1)
 * @param int	&$year			year component of the date to increment (YYYY)
 * @param int	$months_to_sub	number of months to subtract from the date
 *
-* @return mixed void|null
+* @return void
 * @access public
 */
 function decrement_month(&$month, &$year, $months_to_sub=1)
@@ -661,9 +661,9 @@ function weekday_dates_in_month($weekday, $month, $year)
 */
 function iso8601_date_component($iso8601)
 {
-	if (!is_iso8601($iso8601)) return false;
+	if (!is_iso8601($iso8601)) return FALSE;
 	if (substr($iso8601,0,10) == '----------') {
-		return false;
+		return FALSE;
 	}
 	return substr($iso8601,0,10);
 
@@ -683,9 +683,9 @@ function iso8601_date_component($iso8601)
 */
 function iso8601_time_component($iso8601)
 {
-	if (!is_iso8601($iso8601)) return false;
-	if (strlen($iso8601) < 13) return false;
-	if (substr($iso8601,11) == '--:--:--') return false;
+	if (!is_iso8601($iso8601)) return FALSE;
+	if (strlen($iso8601) < 13) return FALSE;
+	if (substr($iso8601,11) == '--:--:--') return FALSE;
 	return substr($iso8601,11);
 
 }//end iso8601_time_component()
