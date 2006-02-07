@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.15 2006/01/26 23:13:57 arailean Exp $
+* $Id: thesaurus.inc,v 1.16 2006/02/07 00:06:33 arailean Exp $
 *
 */
 
@@ -36,7 +36,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -460,6 +460,8 @@ class Thesaurus extends Asset
 		if (empty($relation) && !is_null($relation)) {
 			return NULL;
 		}
+
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
