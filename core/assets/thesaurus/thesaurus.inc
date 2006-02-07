@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.16 2006/02/07 00:06:33 arailean Exp $
+* $Id: thesaurus.inc,v 1.17 2006/02/07 00:18:37 sdanis Exp $
 *
 */
 
@@ -36,7 +36,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -308,7 +308,7 @@ class Thesaurus extends Asset
 			WHERE
 				thesid = '.$db->quoteSmart($this->id).'
 				AND
-				major '.(is_null($term)?'ISNULL':'= '.$db->quoteSmart($termid)).'
+				major '.(is_null($termid) ? 'ISNULL' : '= '.$db->quoteSmart($termid)).'
 		';
 
 		$result = $db->getAll($sql);
@@ -332,7 +332,7 @@ class Thesaurus extends Asset
 	function getParentRelationsForTerm($termid=NULL)
 	{
 
-		if (!isset($term)) return NULL;
+		if (!isset($termid)) return NULL;
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -344,7 +344,7 @@ class Thesaurus extends Asset
 			WHERE
 				thesid = '.$db->quoteSmart($this->id).'
 				AND
-				minor '.(is_null($term)?'ISNULL':'= '.$db->quoteSmart($termid)).'
+				minor '.(is_null($termid)?'ISNULL':'= '.$db->quoteSmart($termid)).'
 		';
 
 		$result = $db->getAll($sql);
