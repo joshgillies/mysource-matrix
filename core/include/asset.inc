@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.503 2006/02/06 05:35:06 lwright Exp $
+* $Id: asset.inc,v 1.503.2.1 2006/02/07 01:10:08 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.503 $
+* @version $Revision: 1.503.2.1 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -136,7 +136,7 @@ class Asset extends MySource_Object
 	* Is this asset type able to be cached automatically by the system?
 	* @var boolean
 	*/
-	var $_is_cacheable = false;
+	var $_is_cacheable = FALSE;
 
 	/**
 	* The Vars that belong to this asset
@@ -177,11 +177,11 @@ class Asset extends MySource_Object
 
 	/**
 	* Whether this asset has serialise attributes or not, basically a performance var
-	* when true the vars a looped over in _loadVars() and if they are type 'serialise' unserialised
+	* when TRUE the vars a looped over in _loadVars() and if they are type 'serialise' unserialised
 	*
 	* @var bool
 	*/
-	var $_ser_attrs = false;
+	var $_ser_attrs = FALSE;
 
 
 	/**
@@ -215,7 +215,7 @@ class Asset extends MySource_Object
 	* </ul>
 	*
 	* @param array	&$link	information used to create the initial link<br/>
-	* <PRE>
+	* <pre>
 	* Array ('asset'         => [ref major asset to create link under],
 	*        'link_type'     => SQ_LINK_?,
 	*        'value'         => [link value],
@@ -223,7 +223,7 @@ class Asset extends MySource_Object
 	*        'is_dependant'  => [0|1],
 	*        'is_exclusive'  => [0|1]
 	*        )
-	* </PRE>
+	* </pre>
 	*
 	* @return mixed int|boolean
 	* @access public
@@ -249,17 +249,17 @@ class Asset extends MySource_Object
 		}
 
 		// disable the triggering system. we do not want to broadcast any nested events, only our own
-		$trigger_level_changed = false;
+		$trigger_level_changed = FALSE;
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_TRIGGERS)) {
 			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() - SQ_SECURITY_TRIGGERS);
-			$trigger_level_changed = true;
+			$trigger_level_changed = TRUE;
 		}
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		// let the system know that we are creating this asset so we dont
 		// do any updating of versions etc. until we are done
-		$this->_tmp['__creating__'] = true;
+		$this->_tmp['__creating__'] = TRUE;
 
 		$assetid = $db->nextId('sq_ast');
 		assert_valid_db_result($assetid);
@@ -271,7 +271,7 @@ class Asset extends MySource_Object
 		$initial_status = SQ_STATUS_UNDER_CONSTRUCTION;
 		if (array_get_index($link, 'is_dependant') && ($link['asset']->status != SQ_STATUS_UNDER_CONSTRUCTION)) {
 			$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-			if (0 == count($wfm->getSchemas($link['asset']->id, true))) {
+			if (0 == count($wfm->getSchemas($link['asset']->id, TRUE))) {
 				// no workflow for parent
 				 $initial_status = $link['asset']->status;
 			}
@@ -325,13 +325,13 @@ class Asset extends MySource_Object
 		$this->created_userid        = $userid;
 		$this->updated               = $now;
 		$this->updated_userid        = $userid;
-		$this->published             = null;
-		$this->published_userid      = null;
+		$this->published             = NULL;
+		$this->published_userid      = NULL;
 		$this->status_changed        = $now;
 		$this->status_changed_userid = $userid;
 
 		// log what happened
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->openLog();
 
 		// do this so that all calls to getAsset() get a reference to us, and don't load a new instance from the DB
@@ -341,7 +341,7 @@ class Asset extends MySource_Object
 			// OK, what we need to do here is set write access for this asset to the current user
 			// so that they can actually do anything
 			// NOW normally this would require admin access but this is a very special case
-			$this->_tmp[__CLASS__.'_in_create_cascading'] = true;
+			$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
 
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) {
@@ -352,7 +352,7 @@ class Asset extends MySource_Object
 			// only set the permission if there is a userid to set it for - otherwise we are going
 			// to be setting public write access
 			if (!$GLOBALS['SQ_SYSTEM']->userPublic()) {
-				if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), SQ_PERMISSION_WRITE, true)) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), SQ_PERMISSION_WRITE, TRUE)) {
 					return $this->_abortCreate($trigger_level_changed);
 				}
 			}
@@ -375,7 +375,7 @@ class Asset extends MySource_Object
 				return $this->_abortCreate($trigger_level_changed);
 			}
 		}
-		if (!$this->saveAttributes(true)) {
+		if (!$this->saveAttributes(TRUE)) {
 			return $this->_abortCreate($trigger_level_changed);
 		}
 
@@ -425,7 +425,7 @@ class Asset extends MySource_Object
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
 				// cascade permissions, and schemas on this asset that the parent
 				// has if the parent is not the root folder
-				$this->_tmp[__CLASS__.'_in_create_cascading'] = true;
+				$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
 
 				if (!$link['asset']->cloneComponents($this, Array('permissions', 'metadata_schemas', 'workflow', 'content_tags'))) {
 					return $this->_abortCreate($trigger_level_changed);
@@ -475,10 +475,10 @@ class Asset extends MySource_Object
 		}
 
 		// before firing the "Before Asset Created" event, turn off locking checks
-		$modified_runlevel = false;
+		$modified_runlevel = FALSE;
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
 			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() - SQ_SECURITY_LOCKING);
-			$modified_runlevel = true;
+			$modified_runlevel = TRUE;
 		}
 
 		// fire the event, abort if the event fails
@@ -510,7 +510,7 @@ class Asset extends MySource_Object
 
 		// fire the 'Asset Created' event
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_created', $this);
-		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 
 		// create a list of asset vars that have changed
 		// only published and published_userid is
@@ -535,7 +535,7 @@ class Asset extends MySource_Object
 		if (!empty($link)) {
 			return (int) $linkid;
 		} else {
-			return true;
+			return TRUE;
 		}
 
 	}//end create()
@@ -547,7 +547,7 @@ class Asset extends MySource_Object
 	* For example, checking that attributes are set should bee performed in this method
 	*
 	* @param array	&$link	information used to create the initial link<br/>
-	* <PRE>
+	* <pre>
 	* Array (
 	*   'asset'        => [ref major asset to create link under],
 	*   'link_type'    => SQ_LINK_?,
@@ -556,14 +556,14 @@ class Asset extends MySource_Object
 	*   'is_dependant' => [0|1],
 	*   'is_exclusive' => [0|1],
 	* )
-	* </PRE>
+	* </pre>
 	*
 	* @return boolean
 	* @access private
 	*/
 	function _preCreateCheck(&$link)
 	{
-		return true;
+		return TRUE;
 
 	}//end _preCreateCheck()
 
@@ -574,7 +574,7 @@ class Asset extends MySource_Object
 	* For example, creating other child assets should be performed in this method
 	*
 	* @param array	&$link	information used to create the initial link<br/>
-	* <PRE>
+	* <pre>
 	* Array (
 	*   'asset'        => [ref major asset to create link under],
 	*   'link_type'    => SQ_LINK_?,
@@ -583,14 +583,14 @@ class Asset extends MySource_Object
 	*   'is_dependant' => [0|1],
 	*   'is_exclusive' => [0|1],
 	* )
-	* </PRE>
+	* </pre>
 	*
 	* @return boolean
 	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
-		return true;
+		return TRUE;
 
 	}//end _createAdditional()
 
@@ -600,24 +600,24 @@ class Asset extends MySource_Object
 	*
 	* The create log and DB transaction will also be aborted
 	*
-	* @param boolean	$trigger_level_changed	if it's false, restore runlevel
+	* @param boolean	$trigger_level_changed	if it's FALSE, restore runlevel
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _abortCreate($trigger_level_changed=false)
+	function _abortCreate($trigger_level_changed=FALSE)
 	{
 		if ($trigger_level_changed) {
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->abortLog();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
 		unset($this->_tmp['__creating__']);
 		$this->id = 0;
-		return false;
+		return FALSE;
 
 	}//end _abortCreate()
 
@@ -632,7 +632,7 @@ class Asset extends MySource_Object
 	*/
 	function load($assetid)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// OK, the first thing to do is check we actually exist :)
 		$sql = 'SELECT assetid, type_code, version, name, short_name, status, languages,
@@ -642,7 +642,7 @@ class Asset extends MySource_Object
 		$where = 'assetid = '.$db->quote($assetid);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-		$result = $db->getRow($sql.$where, null, DB_FETCHMODE_ORDERED);
+		$result = $db->getRow($sql.$where, NULL, DB_FETCHMODE_ORDERED);
 		assert_valid_db_result($result);
 		if (is_null($result)) {
 			trigger_localised_error('SYS0087', E_USER_WARNING, $assetid);
@@ -683,14 +683,14 @@ class Asset extends MySource_Object
 		if ($type_code != $this->type()) {
 			trigger_localised_error('SYS0089', E_USER_WARNING, $assetid, $this->type());
 			$this->id                    = 0;
-			$this->created               = null;
-			$this->created_userid        = null;
-			$this->updated               = null;
-			$this->updated_userid        = null;
-			$this->published             = null;
-			$this->published_userid      = null;
-			$this->status_changed        = null;
-			$this->status_changed_userid = null;
+			$this->created               = NULL;
+			$this->created_userid        = NULL;
+			$this->updated               = NULL;
+			$this->updated_userid        = NULL;
+			$this->published             = NULL;
+			$this->published_userid      = NULL;
+			$this->status_changed        = NULL;
+			$this->status_changed_userid = NULL;
 			return;
 		}
 
@@ -762,7 +762,7 @@ class Asset extends MySource_Object
 					WHERE atr.type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->type());
 		}// end if
 
-		$this->vars = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC);
+		$this->vars = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC);
 		assert_valid_db_result($this->vars);
 
 		if ($this->_ser_attrs && $this->vars) {
@@ -787,7 +787,7 @@ class Asset extends MySource_Object
 	*/
 	function canDelete()
 	{
-		return true;
+		return TRUE;
 
 	}//end canDelete()
 
@@ -802,29 +802,29 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function delete($release_lock=true)
+	function delete($release_lock=TRUE)
 	{
 		// check that we are in the trash
 		if (!$GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id)) {
 			trigger_localised_error('SYS0103', E_USER_WARNING, $this->name, $this->id);
-			return false;
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// say to other assets: 'Delete me bitch cause I'm outa here'
-		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, '', true, 'minor');
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, '', TRUE, 'minor');
 		foreach ($links as $link) {
-			$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+			$major =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 			if (!is_null($major)) {
 				$major->deleteLink($link['linkid']);
 			} else {
 				trigger_localised_error('SYS0128', E_USER_WARNING, $link['majorid']);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return false;
+				return FALSE;
 			}
 		}
 
@@ -835,7 +835,7 @@ class Asset extends MySource_Object
 				trigger_localised_error('SYS0131', E_USER_WARNING, $this->name);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return false;
+				return FALSE;
 			}
 		}
 
@@ -844,7 +844,7 @@ class Asset extends MySource_Object
 			trigger_localised_error('SYS0133', E_USER_WARNING, $this->name);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 
 		// update the lookups to clear them; figures that if there are no web paths there cannot
@@ -853,7 +853,7 @@ class Asset extends MySource_Object
 			trigger_localised_error('SYS0132', E_USER_WARNING, $this->name);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 
 		// delete from the asset table
@@ -891,20 +891,30 @@ class Asset extends MySource_Object
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
+		$sql = 'DELETE FROM
+					sq_ast_role
+				WHERE
+						assetid	= '.$db->quoteSmart($this->id).'
+					OR	roleid	= '.$db->quoteSmart($this->id).'
+					OR	userid	= '.$db->quoteSmart($this->id);
+
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
 		// delete any metadata values this asset might have
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		if (!$mm->purgeMetadata($this->id)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 
 		// delete any workflow values that this asset might have
-		$wm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		if (!$wm->purgeWorkflow($this->id)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 
 		// now try and clear the data directories for this asset
@@ -914,7 +924,7 @@ class Asset extends MySource_Object
 				trigger_localised_error('SYS0151', E_USER_WARNING, $this->name);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return false;
+				return FALSE;
 			}
 		}
 
@@ -923,18 +933,18 @@ class Asset extends MySource_Object
 				trigger_localised_error('SYS0151', E_USER_WARNING, $this->name);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return false;
+				return FALSE;
 			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'assetDeleted', Array());
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this, true);
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this, TRUE);
 
-		return true;
+		return TRUE;
 
 	}//end delete()
 
@@ -953,10 +963,10 @@ class Asset extends MySource_Object
 		if (!isset($this->_tmp['use_system_version'])) {
 			$usv = (($this->status & SQ_SC_STATUS_SAFE_EDITING) && !$this->writeAccess(''));
 			if ($usv && !$GLOBALS['SQ_SYSTEM']->userPublic()) {
-				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+				$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 				$publishers = $wfm->whoCanPublish($this->id);
 				if (!empty($publishers) && in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) {
-					$usv = false;
+					$usv = FALSE;
 				}
 			}
 			$this->_tmp['use_system_version'] = $usv;
@@ -981,13 +991,13 @@ class Asset extends MySource_Object
 		// make sure our data directory exists
 		if (!file_exists($this->data_path.'/.object_data')) {
 			trigger_localised_error('SYS0159', E_USER_WARNING, $this->id, $this->data_path);
-			return false;
+			return FALSE;
 		}
 
 		$real_status = $this->status;
 		$this = unserialize(file_to_string($this->data_path.'/.object_data'));
 		$this->status = $real_status;
-		return true;
+		return TRUE;
 
 	}//end loadSystemVersion()
 
@@ -1007,25 +1017,25 @@ class Asset extends MySource_Object
 		// make sure our data directories exists
 		if (!create_directory($this->data_path)) {
 			trigger_localised_error('CORE0049', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		// make sure our system directories exists
 		if (!create_directory($this->data_path.'/.sq_system')) {
 			trigger_localised_error('CORE0050', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		// make sure there is nothing in the system directories
 		if (!clear_directory($this->data_path.'/.sq_system')) {
 			trigger_localised_error('CORE0050', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		// save the object for later (in the restricted directory)
 		if (!string_to_file(serialize($this), $this->data_path.'/.sq_system/.object_data')) {
 			trigger_localised_error('CORE0051', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		// move all the other files in our data directories
@@ -1034,11 +1044,11 @@ class Asset extends MySource_Object
 		foreach ($files_to_copy as $filename) {
 			if (!copy_file($this->data_path.'/'.$filename, $this->data_path.'/.sq_system/'.$filename)) {
 				trigger_localised_error('SYS0166', E_USER_WARNING, $this->name, $filename);
-				return false;
+				return FALSE;
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end saveSystemVersion()
 
@@ -1056,21 +1066,21 @@ class Asset extends MySource_Object
 		// make sure our data directory exists
 		if (!create_directory($this->data_path)) {
 			trigger_localised_error('SYS0148', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		// make sure our system directory exists
 		if (!create_directory($this->data_path.'/.sq_system')) {
 			trigger_localised_error('SYS0299', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		if (!clear_directory($this->data_path.'/.sq_system')) {
 			trigger_localised_error('SYS0147', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end clearSystemVersion()
 
@@ -1086,7 +1096,7 @@ class Asset extends MySource_Object
 	*/
 	function revertToSystemVersion()
 	{
-		$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = true;
+		$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = TRUE;
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		// load our object data in as it was before
@@ -1094,8 +1104,8 @@ class Asset extends MySource_Object
 			$old_version = unserialize(file_to_string($this->data_path.'/.sq_system/.object_data'));
 		} else {
 			trigger_localised_error('SYS0163', E_USER_WARNING, $this->name);
-			$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
-			return false;
+			$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
+			return FALSE;
 		}
 
 		// copy over the old files we stored in the system directory
@@ -1106,29 +1116,29 @@ class Asset extends MySource_Object
 
 			if (!copy_file($this->data_path.'/.sq_system/'.$filename, $this->data_path.'/'.$filename)) {
 				trigger_localised_error('SYS0162', E_USER_WARNING, $this->name, $filename);
-				$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
-				return false;
+				$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
+				return FALSE;
 			}
 		}
 
 		// update all the vars
 		foreach ($old_version->vars as $var_name => $var_data) {
-			if (!$this->setAttrValue($var_name, $var_data['value'], true)) {
+			if (!$this->setAttrValue($var_name, $var_data['value'], TRUE)) {
 				trigger_localised_error('SYS0165', E_USER_WARNING, $this->name, $var_name);
-				$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
-				return false;
+				$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
+				return FALSE;
 			}
 		}
 		if (!$this->saveAttributes()) {
 			trigger_localised_error('SYS0164', E_USER_WARNING, $this->name);
-			$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
-			return false;
+			$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
+			return FALSE;
 		}
 
 		if (!$this->clearSystemVersion()) {
 			trigger_localised_error('SYS0161', E_USER_WARNING, $this->name);
-			$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
-			return false;
+			$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
+			return FALSE;
 		}
 
 		// ITS ALIVE... ITS ALIVE...
@@ -1137,8 +1147,8 @@ class Asset extends MySource_Object
 		// save this old version to the db
 		$this->_updated();
 
-		$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
-		return true;
+		$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
+		return TRUE;
 
 	}//end revertToSystemVersion()
 
@@ -1157,24 +1167,24 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access private
 	*/
-	function _updated($update_parents=true)
+	function _updated($update_parents=TRUE)
 	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		if (isset($this->_tmp['__creating__']) && $this->_tmp['__creating__']) {
-			return true;
+			return TRUE;
 		}
 
 		$updated = time();
 		$updated_userid  = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$name            = substr($this->_getName(), 0, 255);
-		$short_name      = substr($this->_getName(true), 0, 255);
+		$short_name      = substr($this->_getName(TRUE), 0, 255);
 
 		// if we have an ID hit the DB
 		if ($this->id) {
 
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			$sql = 'UPDATE
@@ -1200,7 +1210,7 @@ class Asset extends MySource_Object
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
-			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 
 			$fields = Array(
 						'name',
@@ -1230,7 +1240,7 @@ class Asset extends MySource_Object
 				trigger_localised_error('SYS0183', E_USER_WARNING, $this->name);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return false;
+				return FALSE;
 			}
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1238,7 +1248,7 @@ class Asset extends MySource_Object
 
 		}//end if $this->id
 
-		return true;
+		return TRUE;
 
 	}//end _updated()
 
@@ -1255,7 +1265,7 @@ class Asset extends MySource_Object
 	* @access private
 	* @see _updated
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' #'.$this->id;
 
@@ -1278,14 +1288,14 @@ class Asset extends MySource_Object
 	/**
 	* Get an array of all assets types that the asset extends from
 	*
-	* @param boolean	$include_asset	when true adds the "Asset" type to the parent list,
+	* @param boolean	$include_asset	when TRUE adds the "Asset" type to the parent list,
 	*									even though it's an unistantiable object
 	*
 	* @return array
 	* @access public
 	* @see Asset_Manager::getTypeAncestors()
 	*/
-	function getTypeAncestors($include_asset=true)
+	function getTypeAncestors($include_asset=TRUE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($this->type(), $include_asset);
 
@@ -1303,9 +1313,9 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function incrementVersion($number='micro', $update_parents=true)
+	function incrementVersion($number='micro', $update_parents=TRUE)
 	{
-		if (!$this->id) return false;
+		if (!$this->id) return FALSE;
 
 		switch ($number) {
 			case 'major' :
@@ -1319,14 +1329,14 @@ class Asset extends MySource_Object
 			break;
 			default :
 				trigger_localised_error('SYS0157', E_USER_WARNING, $this->name, $this->id, $number);
-				return false;
+				return FALSE;
 			break;
 		}
 
 		// work out the new version number based on the part of the
 		// version that we have been asked to update (major|minor|micro)
 		$version_parts = explode('.', $this->version);
-		for (reset($version_parts); null !== ($k = key($version_parts)); next($version_parts)) {
+		for (reset($version_parts); NULL !== ($k = key($version_parts)); next($version_parts)) {
 			$value =& $version_parts[$k];
 			$value = (int)$value;
 			if ($k == $part_num) {
@@ -1341,7 +1351,7 @@ class Asset extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'UPDATE
 					sq_ast
@@ -1358,21 +1368,21 @@ class Asset extends MySource_Object
 			// has been updated - even though they havnt been updated directly
 			$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($this->id);
 			foreach ($dependant_parents as $parentid) {
-				$dep_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
+				$dep_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
 				if (!is_null($dep_parent)) {
-					if (!$dep_parent->_updated(false)) {
+					if (!$dep_parent->_updated(FALSE)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($dep_parent);
 						trigger_localised_error('SYS0158', E_USER_WARNING, $this->name, $this->id, $dep_parent->name, $dep_parent->id);
-						return false;
+						return FALSE;
 					}
 				}
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($dep_parent);
 			}
 		}
 
-		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'AssetVersionUpdate', Array(
 															'old_version'	=> $this->version,
 															'new_version'	=> $new_version,
@@ -1383,7 +1393,7 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		$this->version = $new_version;
-		return true;
+		return TRUE;
 
 	}//end incrementVersion()
 
@@ -1414,23 +1424,23 @@ class Asset extends MySource_Object
 	function setLanguages($languages)
 	{
 		$set_languages = implode(',', $languages);
-		if ($set_languages == $this->languages) return false;
+		if ($set_languages == $this->languages) return FALSE;
 
 		$old_languages = $this->languages;
 		$this->languages = $set_languages;
 		if (!$this->_updated()) {
 			trigger_localised_error('SYS0172', E_USER_WARNING, $this->name);
 			$this->languages = $old_languages;
-			return false;
+			return FALSE;
 		}
 
-		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'AssetLanguageUpdate', Array(
 															'old_languages'	=> $old_languages,
 															'new_languages'	=> $this->languages,
 														  )
 		);
-		return true;
+		return TRUE;
 
 	}//end setLanguages()
 
@@ -1445,22 +1455,22 @@ class Asset extends MySource_Object
 	*/
 	function setCharset($charset)
 	{
-		if ($charset == $this->charset) return false;
+		if ($charset == $this->charset) return FALSE;
 		$old_charset = $this->charset;
 		$this->charset = $charset;
 		if (!$this->_updated()) {
 			trigger_localised_error('SYS0170', E_USER_WARNING, $this->name);
 			$this->charset = $old_charset;
-			return false;
+			return FALSE;
 		}
 
-		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'AssetCharsetUpdate', Array(
 															'old_charset'	=> $old_charset,
 															'new_charset'	=> $this->charset,
 														 )
 		);
-		return true;
+		return TRUE;
 
 	}//end setCharset()
 
@@ -1477,26 +1487,26 @@ class Asset extends MySource_Object
 	{
 		if (!$this->adminAccess('settings')) {
 			trigger_localised_error('SYS0252', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		$force_secure = ($force_secure) ? '1' : '0';
-		if ($force_secure == $this->force_secure) return false;
+		if ($force_secure == $this->force_secure) return FALSE;
 		$old_force_secure = $this->force_secure;
 		$this->force_secure = $force_secure;
 		if (!$this->_updated()) {
 			trigger_localised_error('SYS0169', E_USER_WARNING, $this->name, $this->id);
 			$this->force_secure = $old_force_secure;
-			return false;
+			return FALSE;
 		}
 
-		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'AssetForceSecureUpdate', Array(
 																'old_force_secure'	=> $old_force_secure,
 																'old_force_secure'	=> $this->force_secure,
 															 )
 		);
-		return true;
+		return TRUE;
 
 	}//end setForceSecure()
 
@@ -1514,22 +1524,22 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		// try and acquire locks on our dependants
-		$dependant_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+		$dependant_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'major', NULL, 1);
 		if (!empty($dependant_links)) {
-			$am = &$GLOBALS['SQ_SYSTEM']->am;
+			$am =& $GLOBALS['SQ_SYSTEM']->am;
 			foreach ($dependant_links as $link) {
-				$asset = &$am->getAsset($link['minorid'], $link['minor_type_code']);
+				$asset =& $am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (!$asset->remapAssetids($map)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return false;
+					return FALSE;
 				}
 			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		return true;
+		return TRUE;
 
 	}//end remapAssetids()
 
@@ -1549,19 +1559,19 @@ class Asset extends MySource_Object
 		$new_type_code = strtolower($new_type_code);
 		$old_type_code = $this->type();
 
-		if ($this->type() == $new_type_code) return true;
+		if ($this->type() == $new_type_code) return TRUE;
 
 		if (!$GLOBALS['SQ_SYSTEM']->am->installed($new_type_code)) {
 			trigger_localised_error('SYS0085', E_USER_WARNING, $new_type_code);
-			return false;
+			return FALSE;
 		}
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// is this new type one of our decendents or ancestors?
 		$sql = 'SELECT COUNT(*)
@@ -1574,7 +1584,7 @@ class Asset extends MySource_Object
 			trigger_localised_error('SYS0234', E_USER_WARNING, $this->name, $new_type_code, $this->type());
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 
 		$am->includeAsset($new_type_code);
@@ -1587,12 +1597,12 @@ class Asset extends MySource_Object
 
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL);
 			foreach ($links as $link) {
-				if ($GLOBALS['SQ_SYSTEM']->am->canLinkToType($tmp, $link['minor_type_code'], $link['link_type'], 0, $link['is_exclusive']) !== true) {
+				if ($GLOBALS['SQ_SYSTEM']->am->canLinkToType($tmp, $link['minor_type_code'], $link['link_type'], 0, $link['is_exclusive']) !== TRUE) {
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 					trigger_localised_error('SYS0236', E_USER_WARNING, $this->name, $new_type_code, $link['minor_type_code'], link_type_name($link['link_type']), $new_type_code);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return false;
+					return FALSE;
 				}
 			}// end foreach
 
@@ -1602,16 +1612,16 @@ class Asset extends MySource_Object
 		$num_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'minor');
 		if ($num_links) {
 
-			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, '', true, 'minor');
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, '', TRUE, 'minor');
 			foreach ($links as $link) {
-				$parent = &$am->getAsset($link['majorid'], $link['major_type_code']);
+				$parent =& $am->getAsset($link['majorid'], $link['major_type_code']);
 				if (is_null($parent)) continue;
-				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $new_type_code, $link['link_type'], $link['linkid'], $link['is_exclusive'])) !== true) {
+				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $new_type_code, $link['link_type'], $link['linkid'], $link['is_exclusive'])) !== TRUE) {
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 					trigger_localised_error('SYS0235', E_USER_WARNING, $this->name, $new_type_code, $parent->name, $parent->id, $err_msg);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return false;
+					return FALSE;
 				}
 			}// end foreach
 
@@ -1679,25 +1689,25 @@ class Asset extends MySource_Object
 
 		// now load this new asset into the temporary
 		$tmp->load($this->id);
-		$all_ok = false;
+		$all_ok = FALSE;
 		if ($tmp->id) {
 			// OK if we got this far let's move the directory (if it exists)
 			if (is_dir($this->data_path)) {
 				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 				// make sure the parent directory exists, then move the our directory to it's new home
 				if (create_directory(dirname($tmp->data_path)) && rename($this->data_path, $tmp->data_path)) {
-					$all_ok = true;
+					$all_ok = TRUE;
 				}
 			} else {
 				// if there isn't a directory then everything is fine
-				$all_ok = true;
+				$all_ok = TRUE;
 			}
 
 		}// end if
 
 		// before we override ourselves, do any cleaning up that we might need
 		if ($all_ok && !$this->_morphCleanup($new_type_code)) {
-			$all_ok = false;
+			$all_ok = FALSE;
 		}
 
 		// all is OK so override ourselves with the temporary
@@ -1706,20 +1716,20 @@ class Asset extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'AssetTypeUpdate', Array(
 															'old_type'	=> $old_type_code,
 															'new_type'	=> $new_type_code,
 														  )
 			);
 
-			return true;
+			return TRUE;
 
 		} else {
 			// bugger something went wrong190
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 
 		}// end if
 
@@ -1736,7 +1746,7 @@ class Asset extends MySource_Object
 	*/
 	function _morphCleanup($new_type_code)
 	{
-		return true;
+		return TRUE;
 
 	}//end _morphCleanup()
 
@@ -1776,7 +1786,7 @@ class Asset extends MySource_Object
 	*/
 	function canClone()
 	{
-		return true;
+		return TRUE;
 
 	}//end canClone()
 
@@ -1786,7 +1796,7 @@ class Asset extends MySource_Object
 	*
 	* @param object	&$clone		the clone shell
 	* @param array	$components	the wanted components to clone eg.
-	* <PRE>
+	* <pre>
 	*                       Array(
 	*                         'attributes',
 	*                         'metadata_shemas',
@@ -1798,7 +1808,7 @@ class Asset extends MySource_Object
 	*                       );
 	*                       or alternately
 	*                       Array('all');
-	* </PRE>
+	* </pre>
 	*
 	* @return boolean
 	* @access public
@@ -1806,9 +1816,9 @@ class Asset extends MySource_Object
 	function cloneComponents(&$clone, $components)
 	{
 		if (!is_array($components) || empty($components)) {
-			return false;
+			return FALSE;
 		}
-		if (is_null($clone)) return false;
+		if (is_null($clone)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -1823,16 +1833,16 @@ class Asset extends MySource_Object
 		if (in_array('permissions', $components) || in_array('all', $components)) {
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
-			$this->_tmp[__CLASS__.'_in_create_cascading'] = true;
+			$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
 			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-				$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, null, false, false, true);
+				$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, NULL, FALSE, FALSE, TRUE);
 				foreach ($set_perms as $userid => $granted) {
 					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($clone->id, $userid, $perm, $granted)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-						return false;
+						return FALSE;
 					}
 				}
 			}//end foreach
@@ -1852,7 +1862,7 @@ class Asset extends MySource_Object
 				if (!$clone->setAttrValue($name, $data['value'])) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return false;
+					return FALSE;
 				}
 			}
 			$clone->saveAttributes();
@@ -1864,7 +1874,7 @@ class Asset extends MySource_Object
 		////////////////
 
 		if (in_array('metadata_schemas', $components) || in_array('all', $components)) {
-			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			// apply the schemas from the cloner to the clonee
 			$schemas = $mm->getSchemas($this->id);
 			$metadata = Array();
@@ -1875,7 +1885,7 @@ class Asset extends MySource_Object
 				if (!$mm->setSchema($clone->id, $schemaid, $granted)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return false;
+					return FALSE;
 				}
 			}//end foreach
 
@@ -1886,7 +1896,7 @@ class Asset extends MySource_Object
 					if (!$mm->setMetadata($clone->id, $metadata)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-						return false;
+						return FALSE;
 					}
 				}
 			}
@@ -1900,13 +1910,13 @@ class Asset extends MySource_Object
 		////////////////
 
 		if (in_array('workflow', $components) || in_array('all', $components)) {
-			$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+			$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 			$schemas = $wfm->getSchemas($this->id);
 			foreach ($schemas as $schemaid => $granted) {
 				if (!$wfm->setSchema($clone->id, $schemaid, $granted)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return false;
+					return FALSE;
 				}
 			}//end foreach
 		}//end if workflow
@@ -1923,7 +1933,7 @@ class Asset extends MySource_Object
 				if (!copy_directory($this->data_path, $clone->data_path)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return false;
+					return FALSE;
 				}
 			}
 		}//end if data
@@ -1934,7 +1944,7 @@ class Asset extends MySource_Object
 		////////////////////
 
 		if (in_array('content_tags', $components) || in_array('all', $components)) {
-			$tag_manager = &$GLOBALS['SQ_SYSTEM']->getTagManager();
+			$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
 			$current_tag_links = $tag_manager->getTagLinks($this->id);
 
 			foreach ($current_tag_links as $link) {
@@ -1944,7 +1954,7 @@ class Asset extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		return true;
+		return TRUE;
 
 	}//end cloneComponents()
 
@@ -1982,10 +1992,10 @@ class Asset extends MySource_Object
 	*/
 	function getAvailableStatii()
 	{
-		$status = &$this->getStatus();
+		$status =& $this->getStatus();
 		$statii = $status->getAvailableStatii();
 		ksort($statii, SORT_NUMERIC);
-		return array_reverse($statii, true);
+		return array_reverse($statii, TRUE);
 
 	}//end getAvailableStatii()
 
@@ -1998,7 +2008,7 @@ class Asset extends MySource_Object
 	*/
 	function getStatusDescription()
 	{
-		$status = &$this->getStatus();
+		$status =& $this->getStatus();
 		return $status->getDescription();
 
 	}//end getStatusDescription()
@@ -2013,7 +2023,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function processStatusChange($new_status, $update_parents=true)
+	function processStatusChange($new_status, $update_parents=TRUE)
 	{
 		$old_status = $this->status;
 
@@ -2025,24 +2035,24 @@ class Asset extends MySource_Object
 			// Allow downgrades anyway if in a workflow status - we still want
 			// people to reject a workflow in this situation
 			if ($this->status & ~(SQ_SC_STATUS_PENDING | SQ_SC_STATUS_ALL_APPROVED)) {
-				$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'minor', null, 1);
+				$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'minor', NULL, 1);
 				if (!empty($dependant_parents)) {
-					$am = &$GLOBALS['SQ_SYSTEM']->am;
+					$am =& $GLOBALS['SQ_SYSTEM']->am;
 					foreach ($dependant_parents as $link) {
-						$asset = &$am->getAsset($link['majorid'], $link['major_type_code']);
+						$asset =& $am->getAsset($link['majorid'], $link['major_type_code']);
 						if ($asset->status > $new_status) {
 							// we dont want to rollback, but we dont
 							// want to change our status for real
-							return true;
+							return TRUE;
 						}
 					}
 				}
 			}
 		}
 
-		$status = &$this->getStatus();
+		$status =& $this->getStatus();
 		if (!$status->processStatusChange($new_status)) {
-			return false;
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -2052,7 +2062,7 @@ class Asset extends MySource_Object
 		if ($new_status != $old_status) {
 			// the status has actually changed to a different one
 
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = 'UPDATE
 						sq_ast
@@ -2067,7 +2077,7 @@ class Asset extends MySource_Object
 			assert_valid_db_result($result);
 
 			// broadcast event notifying of status change
-			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$data = Array(
 						'old_status'	=> $old_status,
 						'new_status'	=> $new_status,
@@ -2076,7 +2086,7 @@ class Asset extends MySource_Object
 
 			// send message notifying of status change
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$msg_reps = Array(
 							'asset_name'	=> $this->name,
 							'old_status'	=> get_status_description($old_status),
@@ -2095,11 +2105,11 @@ class Asset extends MySource_Object
 
 			// if we have just made this asset live, we update its minor version
 			if ($new_status == SQ_STATUS_LIVE) {
-				if (!$this->incrementVersion('minor', false)) {
+				if (!$this->incrementVersion('minor', FALSE)) {
 					trigger_localised_error('SYS0271', E_USER_WARNING, $this->name);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return false;
+					return FALSE;
 				}
 			}
 
@@ -2108,12 +2118,12 @@ class Asset extends MySource_Object
 							'old_status'	=> $old_status,
 						  );
 			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_status_changed', $this, $event_data);
-		}
+		}//end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		return true;
+		return TRUE;
 
 	}//end processStatusChange()
 
@@ -2131,11 +2141,11 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function setDate($date_type, $time=null, $userid=null)
+	function setDate($date_type, $time=NULL, $userid=NULL)
 	{
 		if (!in_array($date_type, Array('published' ,'created'))) {
 			trigger_localised_error('SYS0198', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		if (is_null($userid)) {
@@ -2145,9 +2155,9 @@ class Asset extends MySource_Object
 			if ($date_type == 'created') {
 				$time = time();
 			} else {
-				// a null published date means that the asset has never been published
-				// so we also set the userid to null
-				$userid = null;
+				// a NULL published date means that the asset has never been published
+				// so we also set the userid to NULL
+				$userid = NULL;
 			}
 		}
 
@@ -2155,10 +2165,10 @@ class Asset extends MySource_Object
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		// construct a string to represent the current date value
-		if ($this->$date_type != null) {
+		if ($this->$date_type != NULL) {
 			$old_date_string = readable_datetime($this->$date_type);
 			$current_user = $date_type.'_userid';
-			if ($this->$current_user != null) {
+			if ($this->$current_user != NULL) {
 				$old_date_string .= ' by user #'.$this->$current_user;
 			} else {
 				$old_date_string .= ' by [unknown user]';
@@ -2168,9 +2178,9 @@ class Asset extends MySource_Object
 		}
 
 		// construct a string to represent the new date value
-		if ($time != null) {
+		if ($time != NULL) {
 			$new_date_string = readable_datetime($time);
-			if ($userid != null) {
+			if ($userid != NULL) {
 				$new_date_string .= ' by user #'.$userid;
 			} else {
 				$new_date_string .= ' by [unknown user]';
@@ -2180,12 +2190,12 @@ class Asset extends MySource_Object
 		}
 
 		// if the date and user has not changed, dont process anything
-		if ($old_date_string == $new_date_string) return true;
+		if ($old_date_string == $new_date_string) return TRUE;
 
 		// begin a transaction
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'UPDATE
 					sq_ast
@@ -2201,7 +2211,7 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$msg_reps = Array(
 						'date_type'		=> $date_type,
 						'asset_name'	=> $this->name,
@@ -2215,11 +2225,11 @@ class Asset extends MySource_Object
 		eval('$this->'.$date_type.' = $time;');
 		eval('$this->'.$date_type.'_userid = $userid;');
 
-		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'AssetUpdate', Array($date_type));
 
 
-		return true;
+		return TRUE;
 
 	}//end setDate()
 
@@ -2244,6 +2254,7 @@ class Asset extends MySource_Object
 						'metadata'		=> 32,
 						'lookups'		=> 64,
 						'weights'		=> 128,
+						'roles'			=> 256,
 					   );
 
 		// a menu lock allows editing of both attributes (such as name etc)
@@ -2266,37 +2277,37 @@ class Asset extends MySource_Object
 	*/
 	function canForceablyAcquireLock($lock_type)
 	{
-		$current_locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, true, false);
+		$current_locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, TRUE, FALSE);
 		// lock type not known ? bugger off
-		if (empty($current_locks)) return false;
+		if (empty($current_locks)) return FALSE;
 
 		foreach ($current_locks as $lock) {
 			if (empty($lock)) continue;
-			$user = null;
+			$user = NULL;
 			if ($lock['userid']) {
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
 			}
 			// lets work out if the current user has a high
 			// enough level of access to forceably acquire the lock
 			if (!is_null($user)) {
 				// locked by root, no-one can force acquire...
 				if ($GLOBALS['SQ_SYSTEM']->userRoot($user)) {
-					return false;
+					return FALSE;
 				}
 
 				// locked by a sysadmin? only root can force acquire...
 				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($user) && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
-					return false;
+					return FALSE;
 				}
 			}
 
 			// locked by someone else? need to be a system admin to acquire this lock
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-				return false;
+				return FALSE;
 			}
 
 		}//end foreach
-		return true;
+		return TRUE;
 
 	}//end canForceablyAcquireLock()
 
@@ -2327,7 +2338,7 @@ class Asset extends MySource_Object
 	* Where:
 	*   link_type   = SQ_LINK_TYPE_1|SQ_LINK_TYPE_2|SQ_LINK_TYPE_3|SQ_LINK_NOTICE
 	*   cardinality = [max number of links]|'M'
-	*   exclusive   = true|false
+	*   exclusive   = TRUE|FALSE
 	*
 	* @return array
 	* @access private
@@ -2339,8 +2350,8 @@ class Asset extends MySource_Object
 				SQ_LINK_TYPE_2	=> Array(),
 				SQ_LINK_TYPE_3	=> Array(),
 				SQ_LINK_NOTICE	=> Array(
-									'image'		=> Array('card' => 1, 'exclusive' => false),
-									'design'	=> Array('card' => 'M', 'exclusive' => false),
+									'image'		=> Array('card' => 1, 'exclusive' => FALSE),
+									'design'	=> Array('card' => 'M', 'exclusive' => FALSE),
 								   ),
 			   );
 
@@ -2355,7 +2366,7 @@ class Asset extends MySource_Object
 	* @param string		$link_type	the type of link this is
 	* @param string		$value		the value that is to be associated with this link
 	* @param string		$sort_order	the position in the links list that this link should take,
-	*								if null or less than zero places at end of list
+	*								if NULL or less than zero places at end of list
 	* @param string		$dependant	'0' / '1' on whether the this asset is dependant on the
 	*								asset that will be linked by this new link
 	* @param string		$exclusive	'0' / '1' on whether the this asset is linked exclusivly
@@ -2366,7 +2377,7 @@ class Asset extends MySource_Object
 	* @access public
 	* @see Asset_Manager::createAssetLink()
 	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0', $moving=false)
+	function createLink(&$minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0', $moving=FALSE)
 	{
 		if (!$this->id) return 0;
 		return $GLOBALS['SQ_SYSTEM']->am->createAssetLink($this, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
@@ -2396,7 +2407,7 @@ class Asset extends MySource_Object
 	*/
 	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
-		return false;
+		return FALSE;
 
 	}//end prepareLink()
 
@@ -2469,7 +2480,7 @@ class Asset extends MySource_Object
 	*/
 	function isDeletableLink($linkid)
 	{
-		return true;
+		return TRUE;
 
 	}//end isDeletableLink()
 
@@ -2487,13 +2498,13 @@ class Asset extends MySource_Object
 	function canDeleteLink($linkid)
 	{
 		if (!$this->id) return 'Asset Not Created';
-		if (($err_msg = $this->isDeletableLink($linkid)) !== true) {
+		if (($err_msg = $this->isDeletableLink($linkid)) !== TRUE) {
 			return $err_msg;
 		}
 		if (!$this->writeAccess('links')) {
 			return 'Cannot delete link, permission denied';
 		}
-		return true;
+		return TRUE;
 
 	}//end canDeleteLink()
 
@@ -2511,13 +2522,13 @@ class Asset extends MySource_Object
 	function couldDeleteLink($linkid)
 	{
 		if (!$this->id) return 'Asset Not Created';
-		if (($err_msg = $this->isDeletableLink($linkid)) !== true) {
+		if (($err_msg = $this->isDeletableLink($linkid)) !== TRUE) {
 			return $err_msg;
 		}
 		if (!$this->writeAccess()) {
 			return 'Cannot delete link, permission denied';
 		}
-		return true;
+		return TRUE;
 
 	}//end couldDeleteLink()
 
@@ -2532,12 +2543,12 @@ class Asset extends MySource_Object
 	* @access public
 	* @see Asset_Manager::deleteAssetLink()
 	*/
-	function deleteLink($linkid, $moving=false)
+	function deleteLink($linkid, $moving=FALSE)
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($link)) {
 			trigger_localised_error('SYS0243', E_USER_NOTICE, $linkid);
-			return false;
+			return FALSE;
 		} else {
 			return $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid, $moving);
 		}
@@ -2557,7 +2568,7 @@ class Asset extends MySource_Object
 	*/
 	function linksUpdated()
 	{
-		return true;
+		return TRUE;
 
 	}//end linksUpdated()
 
@@ -2568,29 +2579,29 @@ class Asset extends MySource_Object
 	/**
 	* Save attributes set with setAttrValue to the database
 	*
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
+	* @param boolean	$dont_run_updated	if TRUE this->_updated() won't be run
 	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
 	* @see setAttrValue()
 	*/
-	function saveAttributes($dont_run_updated=false)
+	function saveAttributes($dont_run_updated=FALSE)
 	{
-		if (!$this->id) return true;
-		if (empty($this->_tmp['vars_set'])) return true;
+		if (!$this->id) return TRUE;
+		if (empty($this->_tmp['vars_set'])) return TRUE;
 		if (!$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] && !$this->writeAccess('attributes')) {
 			trigger_localised_error('CORE0121', E_USER_WARNING, $this->name, $this->id);
-			return false;
+			return FALSE;
 		}
 
 		$save_vars = Array();
 		$attr_ids  = Array();
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// open a queue for all messages we are going to be logging
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->openLog();
 
 		$changed_array = Array();
@@ -2599,7 +2610,7 @@ class Asset extends MySource_Object
 
 			// if this is a unique attribute then let's make sure that this isn't already set
 			$owning_attributeid = 0;
-			$attribute = &$this->getAttribute($var_name);
+			$attribute =& $this->getAttribute($var_name);
 			if ($attribute->uniq) {
 
 				$sql = 'SELECT oa.attrid
@@ -2653,7 +2664,8 @@ class Asset extends MySource_Object
 			// this allows event listener to act only on what has changed
 
 			$changed_array[] = $attribute->name;
-		}
+
+		}//end foreach
 
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -2686,7 +2698,7 @@ class Asset extends MySource_Object
 				$attr_value = $save_vars[$attr_id]['value'];
 
 				// if this is a unique attribute then let's make sure we register that in the unique value table
-				$attribute = &$this->getAttribute($save_vars[$attr_id]['name']);
+				$attribute =& $this->getAttribute($save_vars[$attr_id]['name']);
 				if ($attribute->uniq) {
 					// update existing entry
 					$result = $db->execute($prepared_uniq, Array($attr_value, $save_vars[$attr_id]['owning_attrid']));
@@ -2717,7 +2729,7 @@ class Asset extends MySource_Object
 				$attr_value = $save_vars[$attr_id]['value'];
 
 				// if this is a unique attribute then let's make sure we register that in the unique value table
-				$attribute = &$this->getAttribute($save_vars[$attr_id]['name']);
+				$attribute =& $this->getAttribute($save_vars[$attr_id]['name']);
 				if ($attribute->uniq) {
 					$result = $db->execute($prepared_uniq, Array($save_vars[$attr_id]['owning_attrid'], $attr_value));
 					assert_valid_db_result($result);
@@ -2738,7 +2750,7 @@ class Asset extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			$ms->abortLog();
-			return false;
+			return FALSE;
 		}
 
 		unset($this->_tmp['vars_set']);
@@ -2753,7 +2765,7 @@ class Asset extends MySource_Object
 		$em->broadcastEvent($this, 'attributeChange', $changed_array);
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_attributes_saved', $this);
 
-		return true;
+		return TRUE;
 
 	}//end saveAttributes()
 
@@ -2775,13 +2787,13 @@ class Asset extends MySource_Object
 	{
 		if (empty($this->vars[$name])) {
 			trigger_localised_error('SYS0093', E_USER_WARNING, $name, $this->type());
-			return false;
+			return FALSE;
 		}
-		$attribute = &$this->getAttribute($name);
+		$attribute =& $this->getAttribute($name);
 		if (!$attribute->setValue($value)) {
 			trigger_localised_error('SYS0073', E_USER_WARNING, $value, $name);
 			$attribute->setValue($this->vars[$name]['value']);
-			return false;
+			return FALSE;
 		}
 
 		if ($this->vars[$name]['type'] == 'serialise') {
@@ -2790,12 +2802,12 @@ class Asset extends MySource_Object
 
 		// if the value being set is the same as the current value - dont do anything
 		if ($this->vars[$name]['value'] === $value) {
-			return true;
+			return TRUE;
 		}
 
 		// if this is a uniq attribute then let's make sure that this isn't already set
 		if ($attribute->uniq) {
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = 'SELECT COUNT(*)
 					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_uniq_val uv
@@ -2813,7 +2825,7 @@ class Asset extends MySource_Object
 			if ((int) $result > 0) {
 				trigger_localised_error('SYS0251', E_USER_WARNING, $name, $value);
 				$attribute->setValue($this->vars[$name]['value']);
-				return false;
+				return FALSE;
 			}
 
 		}// end if
@@ -2829,7 +2841,7 @@ class Asset extends MySource_Object
 
 		$this->vars[$name]['value'] = $value;
 
-		return true;
+		return TRUE;
 
 	}//end setAttrValue()
 
@@ -2839,14 +2851,14 @@ class Asset extends MySource_Object
 	*
 	* @param string	$name	the name of the attribute whose value you want to get
 	*
-	* @return mixed string|null
+	* @return mixed string|NULL
 	* @access public
 	*/
 	function attr($name)
 	{
 		if (!isset($this->vars[$name])) {
 			trigger_localised_error('SYS0092', E_USER_WARNING, $name, $this->name, $this->id);
-			return null;
+			return NULL;
 		}
 		return $this->vars[$name]['value'];
 
@@ -2858,14 +2870,14 @@ class Asset extends MySource_Object
 	*
 	* @param string	$name	the name of the attribute whose value you want to get
 	*
-	* @return mixed object|null
+	* @return mixed object|NULL
 	* @access public
 	*/
 	function &attrByRef($name)
 	{
 		if (!isset($this->vars[$name])) {
 			trigger_localised_error('SYS0092', E_USER_WARNING, $name, $this->name, $this->id);
-			return null;
+			return NULL;
 		}
 		return $this->vars[$name]['value'];
 
@@ -2880,10 +2892,10 @@ class Asset extends MySource_Object
 	*									because you can't use the '@' operator when
 	*									returning by reference
 	*
-	* @return mixed object|null
+	* @return mixed object|NULL
 	* @access public
 	*/
-	function &getAttribute($name, $mute_errors=false)
+	function &getAttribute($name, $mute_errors=FALSE)
 	{
 		if (!isset($this->_tmp['attributes'][$name]) || !is_object($this->_tmp['attributes'][$name])) {
 
@@ -2896,7 +2908,7 @@ class Asset extends MySource_Object
 					trigger_localised_error('SYS0094', E_USER_WARNING, $name, $this->type());
 				}
 
-				$this->_tmp['attributes'][$name] = null;
+				$this->_tmp['attributes'][$name] = NULL;
 			} else {
 
 				require_once SQ_ATTRIBUTES_PATH.'/'.$this->vars[$name]['type'].'/'.$this->vars[$name]['type'].'.inc';
@@ -2904,7 +2916,7 @@ class Asset extends MySource_Object
 				$this->_tmp['attributes'][$name] =& new $attr_class($this->vars[$name]['attrid'], $this->vars[$name]['value']);
 				// make sure of the asset is correct
 				if (empty($this->_tmp['attributes'][$name]->id)) {
-					$this->_tmp['attributes'][$name] = null;
+					$this->_tmp['attributes'][$name] = NULL;
 				}
 
 			}//end if
@@ -2936,7 +2948,7 @@ class Asset extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getAssetKeywords($descriptions=false)
+	function getAssetKeywords($descriptions=FALSE)
 	{
 
 		$keywords = Array();
@@ -2982,8 +2994,8 @@ class Asset extends MySource_Object
 								'asset_thumbnail_caption',
 							);
 
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		$mm_keywords = $mm->generateKeywordReplacements($this, $default_keywords, false);
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm_keywords = $mm->generateKeywordReplacements($this, $default_keywords, FALSE);
 		foreach ($default_keywords as $keyword) {
 			$keywords[$keyword]['value'] = $mm_keywords[$keyword];
 		}
@@ -2993,7 +3005,7 @@ class Asset extends MySource_Object
 			$keywords['asset_attribute_'.$name]['value'] = $info['value'];
 
 			if ($descriptions) {
-				$attr = &$this->getAttribute($name);
+				$attr =& $this->getAttribute($name);
 				$keywords['asset_attribute_'.$name]['description'] = $attr->description;
 			}
 		}
@@ -3046,7 +3058,8 @@ class Asset extends MySource_Object
 			$keywords['asset_thumbnail']['description']                   = 'The img tag for the thumbnail attached to the asset';
 			$keywords['asset_thumbnail_url']['description']               = 'The URL only for the thumbnail attached to the asset';
 			$keywords['asset_thumbnail_caption']['description']           = 'The caption for the thumbnail attached to the asset';
-		}
+
+		}//end if
 
 		return $keywords;
 
@@ -3131,9 +3144,9 @@ class Asset extends MySource_Object
 
 		// add attribute
 		foreach ($this->vars as $name => $info) {
-			$attr = &$this->getAttribute($name);
+			$attr =& $this->getAttribute($name);
 			if (!$attr->is_admin) {
-				$keywords['asset_attribute_'.$name] = empty($attr->description)?'Asset Attribute: '.$name:$attr->description;
+				$keywords['asset_attribute_'.$name] = empty($attr->description) ? 'Asset Attribute: '.$name : $attr->description;
 			}
 		}
 
@@ -3173,7 +3186,7 @@ class Asset extends MySource_Object
 			$attr_name = substr($keyword, strlen('asset_attribute_'));
 			preg_match('/(_([^_]*)){0,1}$/', $attr_name, $matches);
 			if (array_key_exists($attr_name, $this->vars)) {
-				$attr = &$this->getAttribute($attr_name);
+				$attr =& $this->getAttribute($attr_name);
 				if (!$attr->is_admin) {
 					$replacement = $this->attr($attr_name);
 				}
@@ -3194,7 +3207,7 @@ class Asset extends MySource_Object
 				$date_format = $matches[2];
 				$attr_name_cropped = substr($attr_name, 0, (strlen($attr_name) - strlen($matches[1])));
 				if (array_key_exists($attr_name_cropped, $this->vars)) {
-					$attr = &$this->getAttribute($attr_name_cropped);
+					$attr =& $this->getAttribute($attr_name_cropped);
 					if (!$attr->is_admin && ($attr->type() == 'datetime')) {
 						if (array_key_exists($date_format, $date_formats)) {
 							$attr_value = $this->attr($attr_name_cropped);
@@ -3206,7 +3219,7 @@ class Asset extends MySource_Object
 			}
 		} else if (substr($keyword, 0, 15) == 'asset_metadata_') {
 			$metadata_keyword = substr($keyword, 15);
-			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$mm_replacements = $mm->getMetadataFieldValues($this->id, Array($metadata_keyword));
 			if (isset($mm_replacements[$metadata_keyword])) {
 				$replacement = $mm_replacements[$metadata_keyword];
@@ -3214,8 +3227,8 @@ class Asset extends MySource_Object
 				$replacement = '';
 			}
 		} else {
-			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-			$mm_keyword = $mm->generateKeywordReplacements($this, Array($keyword), false);
+			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$mm_keyword = $mm->generateKeywordReplacements($this, Array($keyword), FALSE);
 			if (isset($mm_keyword[$keyword])) {
 				$replacement = $mm_keyword[$keyword];
 			}
@@ -3255,7 +3268,7 @@ class Asset extends MySource_Object
 	function processCustomKeywords($keywords=Array())
 	{
 
-		return true;
+		return TRUE;
 
 	}//end processCustomKeywords()
 
@@ -3281,7 +3294,7 @@ class Asset extends MySource_Object
 	*/
 	function setContent()
 	{
-		return false;
+		return FALSE;
 
 	}//end setContent()
 
@@ -3304,9 +3317,7 @@ class Asset extends MySource_Object
 		// do not include shadow assets
 		foreach ($assetids as $key => $assetid) {
 			$id_parts = explode(':', $assetid);
-			if (isset($id_parts[1])) {
-				unset($assetids[$key]);
-			}
+			if (isset($id_parts[1])) unset($assetids[$key]);
 		}
 
 		// get all updated time from DB
@@ -3319,7 +3330,6 @@ class Asset extends MySource_Object
 		assert_valid_db_result($result);
 
 		// get the effective (most recent) updated time
-		//echo key($result);
 		$most_recent = array_shift($result);
 		return (!is_null($most_recent)) ? strtotime($most_recent) : 0;
 
@@ -3330,7 +3340,7 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Returns true if at least one of the passed assetids has read access to this asset
+	* Returns TRUE if at least one of the passed assetids has read access to this asset
 	*
 	* @param array	$assetids	An array of user_group and/or user ids to check for read access
 	*							If the array is empty, the current user will be checked
@@ -3340,24 +3350,24 @@ class Asset extends MySource_Object
 	*/
 	function readAccess($assetids=Array())
 	{
-		if (!$this->id) return true;
+		if (!$this->id) return TRUE;
 
 		// if the asset is in the middle of workflow and the current user
 		// can approve the asset, we really need to give them read access to it
-		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$publishers = $wfm->whoCanPublish($this->id);
 		if (!empty($publishers) && in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) {
-			return true;
+			return TRUE;
 		}
 
 		// if asset is not live we really need to check for write access
 		if ($this->status < SQ_STATUS_LIVE) {
 			// if we are in rollback view mode, bypass extra write access checks or we
-			// we always be returning false here (writeAccess returns false)
+			// we always be returning FALSE here (writeAccess returns FALSE)
 			if (SQ_ROLLBACK_VIEW) {
-				return $this->_checkPermissionAccess(SQ_PERMISSION_WRITE, $assetids, false);
+				return $this->_checkPermissionAccess(SQ_PERMISSION_WRITE, $assetids, FALSE);
 			}
-			return $this->writeAccess('', $assetids, false);
+			return $this->writeAccess('', $assetids, FALSE);
 		}
 
 		return $this->_checkPermissionAccess(SQ_PERMISSION_READ, $assetids);
@@ -3366,7 +3376,7 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Returns true if at least one of the passed assetids has write access to this asset
+	* Returns TRUE if at least one of the passed assetids has write access to this asset
 	*
 	* The extra parameter, $only_workflow, is currently only be used in
 	* determining read access for an asset before it goes live.
@@ -3376,20 +3386,20 @@ class Asset extends MySource_Object
 	*									on locking and status
 	* @param array		$assetids		An array of user_group and/or user ids to check for write access
 	*									If the array is empty, the current user will be checked
-	* @param boolean	$only_workflow	If true (default), users with write access normally will be denied write access
-	*									if outside the current step of the workflow. If false, both those in the workflow
+	* @param boolean	$only_workflow	If TRUE (default), users with write access normally will be denied write access
+	*									if outside the current step of the workflow. If FALSE, both those in the workflow
 	*									and those with normal write access will be granted write access.
 	*
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess($lock_type='', $assetids=Array(), $only_workflow=true)
+	function writeAccess($lock_type='', $assetids=Array(), $only_workflow=TRUE)
 	{
-		if (SQ_ROLLBACK_VIEW) return false;
+		if (SQ_ROLLBACK_VIEW) return FALSE;
 
-		if (!$this->id) return true;
+		if (!$this->id) return TRUE;
 		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
-			return true;
+			return TRUE;
 		}
 
 		if ($this->status == SQ_STATUS_LIVE) {
@@ -3401,7 +3411,7 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Returns true if at least one of the passed assetids has admin access to this asset
+	* Returns TRUE if at least one of the passed assetids has admin access to this asset
 	*
 	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
 	*							permissions set for this asset, otherwise returns effective access based on locking
@@ -3414,14 +3424,15 @@ class Asset extends MySource_Object
 	*/
 	function adminAccess($lock_type='', $assetids=Array())
 	{
-		if (SQ_ROLLBACK_VIEW) return false;
+		if (SQ_ROLLBACK_VIEW) return FALSE;
 
 		if (!$this->id || !empty($this->_tmp[__CLASS__.'_in_create_cascading'])) {
-			return true;
+			return TRUE;
 		}
 		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
-			return true;
+			return TRUE;
 		}
+
 		$access = $this->checkAccess(SQ_PERMISSION_ADMIN, $lock_type, $assetids);
 		if ($access && $this->status == SQ_STATUS_LIVE) {
 			return $this->liveEditAccess($lock_type);
@@ -3445,10 +3456,10 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Returns true if the current user can live edit this asset
+	* Returns TRUE if the current user can live edit this asset
 	* Live edit means the asset is currently SQ_STATUS_LIVE but this
 	* user can edit the asset without going through a safe edit
-	* NOTE: will return false if asset is not currently live
+	* NOTE: will return FALSE if asset is not currently live
 	*
 	* @param string	$lock_type	the type of lock
 	*
@@ -3461,17 +3472,17 @@ class Asset extends MySource_Object
 		if (empty($lock_type) || $this->canLiveEdit($lock_type)) {
 			return $this->checkAccess(SQ_PERMISSION_WRITE, $lock_type);
 		}
-		return false;
+		return FALSE;
 
 	}//end liveEditAccess()
 
 
 	/**
-	* Returns true if the current user could live edit this asset if they had the lock
+	* Returns TRUE if the current user could live edit this asset if they had the lock
 	*
 	* Live edit means the asset is currently SQ_STATUS_LIVE but this
 	* user can edit the asset without going through a safe edit
-	* NOTE: will return false if asset is not currently live
+	* NOTE: will return FALSE if asset is not currently live
 	*
 	* @param int	$lock_type	the type of lock
 	*
@@ -3480,45 +3491,45 @@ class Asset extends MySource_Object
 	*/
 	function canliveEdit($lock_type)
 	{
-		if (SQ_ROLLBACK_VIEW) return false;
-		if (!$this->id) return true;
-		if ($this->status != SQ_STATUS_LIVE) return true;
+		if (SQ_ROLLBACK_VIEW) return FALSE;
+		if (!$this->id) return TRUE;
+		if ($this->status != SQ_STATUS_LIVE) return TRUE;
 
 		if (!empty($lock_type)) {
 			if ($lock_type != 'attributes') {
-				$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, true);
+				$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, TRUE);
 				// if we are getting a lock type that cant be safe edited (eg permissions), you can live edit
 				// if you dont have the attributes lock also (which must be safe edited)
 				if (!in_array('attributes', array_keys($locks))) {
-					return true;
+					return TRUE;
 				}
 			}
 		}
 
-		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-		$schemas = $wfm->getSchemas($this->id, true);
+		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$schemas = $wfm->getSchemas($this->id, TRUE);
 
-		if (empty($schemas)) return true;
+		if (empty($schemas)) return TRUE;
 
 		// if there is workflow defined for this asset, the current user
 		// must be the only concerned user to be able to live edit
 		$wf_complete = $wfm->testPublish($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
-		if ($wf_complete) return true;
+		if ($wf_complete) return TRUE;
 
-		return false;
+		return FALSE;
 
 	}//end canliveEdit()
 
 
 	/**
-	* Returns true if this asset is effectivly readable by everyone
+	* Returns TRUE if this asset is effectivly readable by everyone
 	*
 	* @return boolean
 	* @access public
 	*/
 	function effectiveUnrestricted()
 	{
-		// This is not readAccess() because if this is false we don't refer to the writeAccess() setting
+		// This is not readAccess() because if this is FALSE we don't refer to the writeAccess() setting
 		$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 		return ($this->status >= SQ_STATUS_LIVE && $this->_checkPermissionAccess(SQ_PERMISSION_READ, Array($public_userid)));
 
@@ -3526,7 +3537,7 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Returns true if at least one of the passed assetids has the passed permission
+	* Returns TRUE if at least one of the passed assetids has the passed permission
 	*
 	* Can perform effective access check based on current status, lock, workflow, and metadata
 	* NOTE: Only for write and above access
@@ -3542,7 +3553,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function checkAccess($perm, $lock_type, $assetids=Array(), $only_workflow=true)
+	function checkAccess($perm, $lock_type, $assetids=Array(), $only_workflow=TRUE)
 	{
 		if ($perm == SQ_PERMISSION_READ) {
 			trigger_localised_error('SYS0172', E_USER_ERROR, __CLASS__, __FUNCTION__);
@@ -3552,27 +3563,27 @@ class Asset extends MySource_Object
 
 		} else {
 			// effective access is only valid for the current user
-			if (!empty($assetids)) return false;
+			if (!empty($assetids)) return FALSE;
 
-			$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, true);
+			$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, TRUE);
 			// if there is no lock or
-			if (empty($locks)) return false;
+			if (empty($locks)) return FALSE;
 
 			foreach ($locks as $lock) {
 				// if any one of these locks is not owned by the current user they can't edit
 				if (empty($lock) || $lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-					return false;
+					return FALSE;
 				}
 			}
 
 			// if we are in a state of total approval no editing allowed
 			if ($this->status & SQ_SC_STATUS_ALL_APPROVED) {
-				return false;
+				return FALSE;
 			}
 
 			// if the asset is archived no editing allowed
 			if ($this->status & SQ_STATUS_ARCHIVED) {
-				return false;
+				return FALSE;
 			}
 
 			// otherwise they can edit if they have permission access
@@ -3584,7 +3595,7 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Returns true if at least one of the passed assetids has the passed permission
+	* Returns TRUE if at least one of the passed assetids has the passed permission
 	* Does not check current status of lock
 	*
 	* @param int		$perm			the permission to check access for
@@ -3595,23 +3606,23 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function _checkPermissionAccess($perm, $assetids=Array(), $only_workflow=true)
+	function _checkPermissionAccess($perm, $assetids=Array(), $only_workflow=TRUE)
 	{
 		if (empty($assetids)) {
 
 			if (!$GLOBALS['SQ_SYSTEM']->userPublic()) {
 				// if we are the root user, we can do anything
-				if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
+				if ($GLOBALS['SQ_SYSTEM']->userRoot()) return TRUE;
 
 				// if we are a system administrator, we can do anything
 				// unless an asset overwrites this function
 				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-					return true;
+					return TRUE;
 				}
 			}
 
 			// get the current user and groups we are not restricted from
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
 			$assetids = $user->getUserGroups();
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 
@@ -3623,29 +3634,29 @@ class Asset extends MySource_Object
 			// except by those users who can currently approve the asset
 			if ($this->status & SQ_SC_STATUS_PENDING) {
 				if ($perm == SQ_PERMISSION_WRITE) {
-					$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+					$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 					$publishers = $wfm->whoCanPublish($this->id);
 					if (in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) {
-						return true;
+						return TRUE;
 					}
 
 					// Those with admin permissions are now allowed to have a
 					// crack at write permission throughout the workflow
 					if ($this->_checkPermissionAccess(SQ_PERMISSION_ADMIN, $assetids)) {
-						return true;
+						return TRUE;
 					}
 
-					if ($only_workflow) return false;
+					if ($only_workflow) return FALSE;
 				}
 			}
 		}
 
-		$grants  = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, true);
-		$revokes = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, false, false);
+		$grants  = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, TRUE);
+		$revokes = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, FALSE, FALSE);
 		// has their access been revoked at all?
 		if (!empty($revokes)) {
 			$revoked = array_intersect($assetids, $revokes);
-			if (!empty($revoked)) return false;
+			if (!empty($revoked)) return FALSE;
 		}
 
 		// Add the public user to the mix, because if the public can see it then everyone should see it.
@@ -3663,14 +3674,14 @@ class Asset extends MySource_Object
 	/**
 	* Called when the any permission is updated for this asset
 	*
-	* It returns true if everything is OK.
+	* It returns TRUE if everything is OK.
 	*
 	* @return boolean
 	* @access public
 	*/
 	function permissionsUpdated()
 	{
-		return true;
+		return TRUE;
 
 	}//end permissionsUpdated()
 
@@ -3702,7 +3713,7 @@ class Asset extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function printFrontendAsset(&$asset, $design=null)
+	function printFrontendAsset(&$asset, $design=NULL)
 	{
 		if (!headers_sent()) {
 			if (!$asset->readAccess()) {
@@ -3717,20 +3728,20 @@ class Asset extends MySource_Object
 			}
 		}
 
-		$original_asset = null;
+		$original_asset = NULL;
 		if ($asset->id != $GLOBALS['SQ_SYSTEM']->frontend_asset->id) {
 			$original_asset = $GLOBALS['SQ_SYSTEM']->frontend_asset;
-			$GLOBALS['SQ_SYSTEM']->frontend_asset = &$asset;
+			$GLOBALS['SQ_SYSTEM']->frontend_asset =& $asset;
 		}
 
 		if ($asset->languages) {
 			header('Content-language: '.$asset->languages);
 		}
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$url = strip_url(current_url(false, true));
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$url = strip_url(current_url(FALSE, TRUE));
 
-		//No design has been passed in, so we need to find one
+		// No design has been passed in, so we need to find one
 		if (is_null($design)) {
 			// Have they set a design name that they want to view ??
 			if (!empty($_GET['SQ_DESIGN_NAME'])) {
@@ -3751,20 +3762,20 @@ class Asset extends MySource_Object
 
 			// if no design was found, try using the asset's URL from the DB
 			if (empty($result)) {
-				$url = strip_url($asset->getUrl(), true);
+				$url = strip_url($asset->getUrl(), TRUE);
 				$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, $design_name);
 				if (empty($result) && $design_name != 'design::system::frontend') {
 					$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, 'design::system::frontend');
 				}
 			}
 		} else {
-			$result = true;
+			$result = TRUE;
 		}
 
 		if (!is_null($design) || $result) {
 			if (is_null($design)) {
 				// we have found the design to use
-				$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
+				$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
 			}
 			$design->paint($asset);
 		} else {
@@ -3815,7 +3826,7 @@ class Asset extends MySource_Object
 	*/
 	function printBodyWithPaintLayout()
 	{
-		$url = strip_url(current_url(false, true));
+		$url = strip_url(current_url(FALSE, TRUE));
 
 		// Have they set a paint layout name that they want to view ??
 		if (!empty($_GET['SQ_PAINT_LAYOUT_NAME'])) {
@@ -3850,13 +3861,13 @@ class Asset extends MySource_Object
 		if ($result) {
 			// we have found the design to use... we might need to fool the system
 			// into thinking we are printing the frontend of that asset
-			$switched_frontend = false;
+			$switched_frontend = FALSE;
 			if ($GLOBALS['SQ_SYSTEM']->frontend_asset->id !== $this->id) {
 				$current_frontend_asset =& $GLOBALS['SQ_SYSTEM']->frontend_asset;
 				$GLOBALS['SQ_SYSTEM']->frontend_asset =& $this;
-				$switched_frontend = true;
+				$switched_frontend = TRUE;
 			}
-			$layout = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result);
+			$layout =& $GLOBALS['SQ_SYSTEM']->am->getAsset($result);
 			$layout->paint($this);
 
 			if ($switched_frontend) {
@@ -3880,7 +3891,7 @@ class Asset extends MySource_Object
 	*/
 	function printLimbo()
 	{
-		$o = &$GLOBALS['SQ_SYSTEM']->backend->out;
+		$o =& $GLOBALS['SQ_SYSTEM']->backend->out;
 		$o->addHiddenField('asset_action', 'limbo');
 		$o->openRaw();
 		$this->paintBackend($o);
@@ -3903,7 +3914,7 @@ class Asset extends MySource_Object
 	{
 		$o->addHiddenField('asset_action', (($this->id) ? 'edit' : 'create'));
 		if ($this->charset) $o->setCharset($this->charset);
-		$ei = &$this->getEI();
+		$ei =& $this->getEI();
 		$ei->paint($this, $o, empty($this->id));
 
 	}//end paintBackend()
@@ -3923,7 +3934,7 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Processes a backend submission from this asset, returns true if all OK
+	* Processes a backend submission from this asset, returns TRUE if all OK
 	* Put's the array of processed attributes into $this->_tmp['process_attributes']
 	*
 	* @param object	&$o		Backend_Outputter object
@@ -3934,19 +3945,19 @@ class Asset extends MySource_Object
 	*/
 	function processBackend(&$o, &$link)
 	{
-		$ei = &$this->getEI();
+		$ei =& $this->getEI();
 
 		switch ($_POST['asset_action']) {
 			case 'create' :
-				if ($ei->process($this, $o, true)) {
+				if ($ei->process($this, $o, TRUE)) {
 					return (bool) $this->create($link);
 				} else {
-					return false;
+					return FALSE;
 				}
 			break;
 
 			default :
-				return $ei->process($this, $o, false);
+				return $ei->process($this, $o, FALSE);
 			break;
 		}
 
@@ -4016,7 +4027,7 @@ class Asset extends MySource_Object
 	* @return string
 	* @access public
 	*/
-	function getURL($base_url=null, $ignore_rollback=false)
+	function getURL($base_url=NULL, $ignore_rollback=FALSE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id, $base_url, $ignore_rollback);
 
@@ -4046,7 +4057,7 @@ class Asset extends MySource_Object
 	* @return string
 	* @access public
 	*/
-	function getHref($base_url=null, $ignore_rollback=false)
+	function getHref($base_url=NULL, $ignore_rollback=FALSE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getAssetHref($this->id, $base_url, $ignore_rollback);
 
@@ -4075,7 +4086,7 @@ class Asset extends MySource_Object
 	function getWebPaths()
 	{
 		if (!isset($this->_tmp['paths'])) {
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$where = 'assetid = '.$db->quote($this->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$sql = 'SELECT path
@@ -4113,7 +4124,7 @@ class Asset extends MySource_Object
 		// if there is no difference in the arrays (including in the sort order - the index),
 		// then there is nothing to do
 		if (!array_diff_assoc($save_paths, $current_paths) && !array_diff_assoc($current_paths, $save_paths)) {
-			return true;
+			return TRUE;
 		}
 
 		//// CHECK INSERTED PATHS ////
@@ -4122,14 +4133,14 @@ class Asset extends MySource_Object
 		if (!empty($inserts)) {
 			// now we need to check that none of our parents have
 			// any nav kids that are also using this path name
-			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_WEB_PATHS, '', null, 'minor');
+			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_WEB_PATHS, '', NULL, 'minor');
 			for ($i = 0; $i < count($parents); $i++) {
-				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
+				$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
 				if (is_null($parent)) continue;
 				$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, $inserts, $this->id);
 				if (!empty($bad_paths)) {
 					trigger_localised_error('SYS0201', E_USER_WARNING, implode('", "', $bad_paths), $parent->name);
-					return false;
+					return FALSE;
 				}
 			}
 		}// end if inserts
@@ -4137,7 +4148,7 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'DELETE FROM
 					sq_ast_path
@@ -4173,11 +4184,11 @@ class Asset extends MySource_Object
 		if ($this->updateLookups()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return true;
+			return TRUE;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 
 	}//end saveWebPaths()
@@ -4198,7 +4209,7 @@ class Asset extends MySource_Object
 	function getLookups($field='')
 	{
 		if (!isset($this->_tmp['lookups'])) {
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = 'SELECT url, http, https, root_urlid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup ';
@@ -4235,7 +4246,7 @@ class Asset extends MySource_Object
 		if (!isset($this->_tmp['design_lookups'])) {
 			$this->_tmp['design_lookups'] = Array();
 
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = 'SELECT l.url, lv.name, lv.value as designid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
@@ -4249,7 +4260,7 @@ class Asset extends MySource_Object
 			$result = $db->query($sql.$where);
 			assert_valid_db_result($result);
 
-			while (null !== ($row = $result->fetchRow())) {
+			while (NULL !== ($row = $result->fetchRow())) {
 				if (!isset($this->_tmp['design_lookups'][$row['url']])) {
 					$this->_tmp['design_lookups'][$row['url']] = Array();
 				}
@@ -4276,7 +4287,7 @@ class Asset extends MySource_Object
 	* )
 	* </PRE>
 	*
-	* @param mixed		$inherited		it takes a mixed argument, boolean or null
+	* @param mixed		$inherited		it takes a mixed argument, boolean or NULL
 	*									include inherited values (NULL = don't care, TRUE = Yes, FALSE = no)
 	* @param string		$prefix			a prefix to search for in the name field of ast_lookup_value
 	* @param boolean	$like_search	TRUE = LIKE $prefix, FALSE = NOT LIKE $prefix
@@ -4284,9 +4295,9 @@ class Asset extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getLookupValues($inherited=null, $prefix='', $like_search=true)
+	function getLookupValues($inherited=NULL, $prefix='', $like_search=TRUE)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT l.url, lv.name, lv.value, lv.inhd
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
@@ -4307,7 +4318,7 @@ class Asset extends MySource_Object
 		assert_valid_db_result($result);
 
 		$ret_val = Array();
-		while (null !== ($row = $result->fetchRow())) {
+		while (NULL !== ($row = $result->fetchRow())) {
 			if (!isset($ret_val[$row['url']])) {
 				$ret_val[$row['url']] = Array();
 			}
@@ -4338,7 +4349,7 @@ class Asset extends MySource_Object
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// Remove all the old URLs
 		$sql = 'SELECT url, http, https
@@ -4348,7 +4359,7 @@ class Asset extends MySource_Object
 		$old_urls = $db->getAll($sql);
 		assert_valid_db_result($old_urls);
 		// get all the lookup information that we have set, ignoring designs as they are set on every url
-		$our_lookup_values = $this->getLookupValues(false, $prefix='design::', false);
+		$our_lookup_values = $this->getLookupValues(FALSE, $prefix='design::', FALSE);
 
 		$tmp_old_urls = Array();
 
@@ -4357,11 +4368,11 @@ class Asset extends MySource_Object
 		foreach ($old_urls as $url_data) {
 			$url = $url_data['url'];
 			$current_urls[] = $db->quoteSmart($url);
-			if (strpos($url, '__data') === false) {
+			if (strpos($url, '__data') === FALSE) {
 				// get the asset lineage and use that as the basis for indexing old URLs
 				$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $url);
 				$url_assetids = Array();
-				foreach($url_lineage as $url_lineage_item) {
+				foreach ($url_lineage as $url_lineage_item) {
 					$url_assetids[] = $url_lineage_item['assetid'];
 				}
 
@@ -4420,7 +4431,7 @@ class Asset extends MySource_Object
 
 			$num_paths = count($paths);
 
-			$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'design', false);
+			$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'design', FALSE);
 			$our_designs = Array();
 			foreach ($our_design_links as $link) {
 				if (preg_match('/^design::(system|user)::.*$/', $link['value'])) {
@@ -4436,15 +4447,15 @@ class Asset extends MySource_Object
 				if (preg_match('/^override::design::(system|user)::.*$/', $link['value'])) {
 					$name = preg_replace('/^override::(.*)$/', '$1', $link['value']);
 					$our_designs[$name] = Array(
-													'value'	=> $link['minorid'],
-													'inhd'	=> '0',
-												 );
+											'value'	=> $link['minorid'],
+											'inhd'	=> '0',
+										  );
 				}
 			}
 			unset($link);
 			unset($our_design_links);
 
-			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_WEB_PATHS, '', null, 'minor');
+			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_WEB_PATHS, '', NULL, 'minor');
 
 			$done_urls    = Array();
 			$done_parents = Array();
@@ -4453,7 +4464,7 @@ class Asset extends MySource_Object
 				if (in_array($parents[$i]['majorid'], $done_parents)) {
 					continue;
 				}
-				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
+				$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
 				if (is_null($parent)) continue;
 				$done_parents[] = $parent->id;
 
@@ -4498,12 +4509,12 @@ class Asset extends MySource_Object
 						// get the asset lineage and use that as the index
 						$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $parent_urls[$j]['url']);
 						$new_url_assetids = Array();
-						foreach($url_lineage as $url_lineage_item) {
+						foreach ($url_lineage as $url_lineage_item) {
 							$new_url_assetids[] = $url_lineage_item['assetid'];
 						}
 						$new_url_assetids[] = $this->id;
 
-						foreach($tmp_old_urls as $tmp_old_url) {
+						foreach ($tmp_old_urls as $tmp_old_url) {
 							if ($tmp_old_url['url'] == $new_url) {
 								// exact same URL as before
 								$lookup_values = isset($our_lookup_values[$tmp_old_url['url']]) ? $our_lookup_values[$tmp_old_url['url']] : Array();
@@ -4592,14 +4603,15 @@ class Asset extends MySource_Object
 
 							$result = $db->query($sql);
 							assert_valid_db_result($result);
-						}
+
+						}//end foreach
 
 					}//end for paths
 				}//end for parent_urls
 			}//end for parents
 
 			if (!empty($old_urls)) {
-				$rm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+				$rm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
 				// get the first new URL
 				reset($done_urls);
 				$new_url = current($done_urls);
@@ -4635,7 +4647,7 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_lookups_updated', $this);
 
-		return true;
+		return TRUE;
 
 	}//end updateLookups()
 
@@ -4644,17 +4656,17 @@ class Asset extends MySource_Object
 	* Set's the lookup values for this asset
 	*
 	* @param array	$values	array of the values that we want to save
-	* <PRE>
+	* <pre>
 	*							"[url]" => array (
 	*								"[name]" => array (
 	*									"value" => "[value]",
 	*									"inhd" => "[inherited]",
 	*								),
 	*							),
-	* </PRE>
+	* </pre>
 	*						NOTE: 'inhd' is ignored - it exists only because it makes it
 	*						easier to just modify the return value of Asset::getLookupValues()
-	*						all values in this array will be saved with inhd set to 0 (false)
+	*						all values in this array will be saved with inhd set to 0 (FALSE)
 	*
 	* @return boolean
 	* @access public
@@ -4664,10 +4676,10 @@ class Asset extends MySource_Object
 	{
 		if (!$this->writeAccess('lookups')) {
 			trigger_localised_error('SYS0265', E_USER_WARNING, $this->name, $this->id);
-			return false;
+			return FALSE;
 		}
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -4717,7 +4729,7 @@ class Asset extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		return true;
+		return TRUE;
 
 	}//end setLookupValues()
 
@@ -4732,6 +4744,7 @@ class Asset extends MySource_Object
 	function getAssetStatusDescriptionKeywordReplacement()
 	{
 		return get_status_description($this->status);
+
 	}//end getAssetStatusDescriptionKeywordReplacement()
 
 
@@ -4746,6 +4759,7 @@ class Asset extends MySource_Object
 	function getAssetStatusColourKeywordReplacement()
 	{
 		return '#'.get_status_colour($this->status);
+
 	}//end getAssetStatusColourKeywordReplacement()
 
 
