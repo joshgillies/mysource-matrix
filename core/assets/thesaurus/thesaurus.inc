@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.17 2006/02/07 00:18:37 sdanis Exp $
+* $Id: thesaurus.inc,v 1.18 2006/02/07 00:42:32 arailean Exp $
 *
 */
 
@@ -36,7 +36,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -468,10 +468,10 @@ class Thesaurus extends Asset
 				major.term		as major,
 				major.termid	as majorid,
 				minor.term		as minor,
-				minor.termid	as minorid,
+				minor.termid	as minorid
 			FROM
 				sq_thes_term major
-				INNER JOIN sq_thes_term_lnk link ON major.termid = link.major
+				INNER JOIN sq_thes_lnk link ON major.termid = link.major
 				INNER JOIN sq_thes_term minor ON minor.termid = link.minor
 			WHERE
 				link.relation '.(is_null($relation)?'ISNULL':'= '.$db->quoteSmart($relation)).'
