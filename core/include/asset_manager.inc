@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.432 2006/02/08 03:16:43 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.433 2006/02/08 06:27:00 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.432 $
+* @version $Revision: 1.433 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -842,7 +842,11 @@ class Asset_Manager extends MySource_Object
 	{
 		assert_valid_assetid($assetid);
 		$asset =& $this->_asset_cache->get($assetid);
-
+		if (!empty($asset) && !empty($type_code)) {
+			if ($asset->type() != $type_code) {
+				$asset = null;
+			}
+		}
 		if (empty($asset)) {
 
 			// check if we are getting links for a shadow asset, and palm the request off to the
