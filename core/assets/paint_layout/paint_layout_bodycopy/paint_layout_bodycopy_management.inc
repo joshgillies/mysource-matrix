@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy_management.inc,v 1.6 2006/01/26 22:34:04 lwright Exp $
+* $Id: paint_layout_bodycopy_management.inc,v 1.6.2.1 2006/02/08 00:07:20 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -84,24 +84,30 @@ class Paint_Layout_Bodycopy_Management extends Asset_Management
 
 		$asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
 
-		if (version_compare($current_version, '0.2', '<')) {
+		if (version_compare($current_version, '0.3', '<')) {
 			// version 0.1 -> 0.2
 			// Changed Paint layouts to use their content files to read/write data that
 			// can be reused. This upgrade simply prints those files for the first time
-			pre_echo('STARTING '.$asset_name.' UPGRADE - FROM VERSION 0.1');
+			// version 0.2 -> 0.3
+			// Keywords file is always cached now at the top level, to be used with
+			// content file. However this is now done with _updated() so run that instead
+			// of saveSystemVersion(). This does the same thing as the 0.2 upgrade, which
+			// should use the same thing now
+			pre_echo('STARTING '.$asset_name.' UPGRADE - FROM VERSION 0.3');
 			$pl_bodycopies = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE, TRUE);
+			pre_echo('Updating '.count($pl_bodycopies).' asset(s)...');
 			foreach ($pl_bodycopies as $assetid => $type_code) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				if (is_null($asset)) continue;
 
 				// We need to output our content files, otherwise old paint layouts will print blank
-				$asset->saveSystemVersion();
+				$asset->_updated();
 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 
 			}//end foreach
-			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION 0.1 to 0.2');
+			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.3');
 
 		}//end version 0.1 upgrade
 

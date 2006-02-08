@@ -22,7 +22,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.3 2005/08/24 02:49:47 dmckee Exp $
+* $Id: asset.xml,v 1.3.2.1 2006/02/08 00:07:20 lwright Exp $
 *
 */
 -->
@@ -30,7 +30,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>__core__</package>
 	<type_code>paint_layout_bodycopy</type_code>
-	<version>0.2</version>
+	<version>0.3</version>
 	<name>Paint Layout Bodycopy</name>
 	<description>HTML Template for assets</description>
 	<instantiable>yes</instantiable>
