@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.32 2006/01/27 03:48:03 lwright Exp $
+* $Id: db_install.inc,v 1.33 2006/02/08 00:23:22 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -547,12 +547,19 @@ function grant_secondary_user_perms($verbose=true)
 		$secondary_dsn = DB::parseDSN(SQ_CONF_DB2_DSN);
 		$tertiary_dsn = DB::parseDSN(SQ_CONF_DB3_DSN);
 
+		// grant to the primary user
+		$grant_sql = 'SELECT sq_grant_access('.$db->quote($primary_dsn['username']).')';
+		$result = $db->query($grant_sql);
+		assert_valid_db_result($result);
+
+		// grant to the secondary user, if different
 		if ($primary_dsn['username'] != $secondary_dsn['username']) {
 			$grant_sql = 'SELECT sq_grant_access('.$db->quote($secondary_dsn['username']).')';
 			$result = $db->query($grant_sql);
 			assert_valid_db_result($result);
 		}
 
+		// grant to the tertiary user, if different to the first two
 		if (($primary_dsn['username'] != $tertiary_dsn['username']) && ($secondary_dsn['username'] != $tertiary_dsn['username'])) {
 			$grant_sql = 'SELECT sq_grant_access('.$db->quote($tertiary_dsn['username']).')';
 			$result = $db->query($grant_sql);
