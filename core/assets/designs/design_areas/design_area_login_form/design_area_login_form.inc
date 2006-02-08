@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form.inc,v 1.21 2005/10/19 04:17:31 lwright Exp $
+* $Id: design_area_login_form.inc,v 1.22 2006/02/08 02:52:24 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,14 +40,15 @@ class Design_Area_Login_Form extends Design_Area
 {
 
 
-	/*
+	/**
 	* Outputs the var either as straight HTML or PHP code, depending on the type
 	*
 	* @param string	$var			the name of the var to print out
-	* @param Array	$args			array of any extra arguments that existed in the print command
+	* @param array	$args			array of any extra arguments that existed in the print command
 	* @param string	$value_prefix	PHP code to wrap put before the value before outputting it
 	* @param string	$value_suffix	PHP code to wrap put after  the value before outputting it
 	*
+	* @return void
 	* @access public
 	*/
 	function printVar($var, $args, $value_prefix='', $value_suffix='')
@@ -58,19 +59,19 @@ class Design_Area_Login_Form extends Design_Area
 			case 'form_close' :
 			case 'submit_button' :
 				if ($this->_tmp['painting_section'] != 'login' && $this->_tmp['painting_section'] != 'logout') {
-					trigger_localised_error("CORE0178", E_USER_WARNING, $var, $this->attr('id_name'));
-					return false;
+					trigger_localised_error('CORE0178', E_USER_WARNING, $var, $this->attr('id_name'));
+					return FALSE;
 				}
-				break;
+			break;
 
 			case 'login_message' :
 			case 'username_box' :
 			case 'password_box' :
 				if ($this->_tmp['painting_section'] != 'login') {
-					trigger_localised_error("CORE0179", E_USER_WARNING, $var, $this->attr('id_name'));
-					return false;
+					trigger_localised_error('CORE0179', E_USER_WARNING, $var, $this->attr('id_name'));
+					return FALSE;
 				}
-				break;
+			break;
 
 		}// end switch
 
@@ -80,15 +81,15 @@ class Design_Area_Login_Form extends Design_Area
 		switch ($var) {
 			case 'login_heading' :
 				echo '<', '?php if (!empty($GLOBALS[\'SQ_LOGIN_FORM\'])) { echo ', $this->_escapeVar('$GLOBALS[\'SQ_LOGIN_FORM\'][\'heading\']', $args), '; } ?', '>';
-				break;
+			break;
 
 			case 'login_message' :
 				echo '<', '?php if (!empty($GLOBALS[\'SQ_LOGIN_FORM\'])) { echo ', $this->_escapeVar('$GLOBALS[\'SQ_LOGIN_FORM\'][\'msg\']', $args), '; } ?', '>';
-				break;
+			break;
 
 			case 'referer' :
 				echo '<', '?php echo ', $this->_escapeVar($referer, $args), '; ?', '>';
-				break;
+			break;
 
 			case 'form_open' :
 
@@ -122,7 +123,7 @@ class Design_Area_Login_Form extends Design_Area
 					?', '>';
 				}// end if
 
-				break;
+			break;
 
 			case 'form_close' :
 				echo '
@@ -136,11 +137,11 @@ class Design_Area_Login_Form extends Design_Area
 					//]]> -->
 					</script>
 				';
-				break;
+			break;
 
 			case 'system_messages' :
 				echo '<', '?php echo implode(\'<br />\', $GLOBALS[\'SQ_SYSTEM\']->messages()); ?', '>';
-				break;
+			break;
 
 			case 'username_box' :
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -152,7 +153,7 @@ class Design_Area_Login_Form extends Design_Area
 				echo '<input type="hidden" name="SQ_LOGIN_KEY"      value="<', '?php echo $GLOBALS[\'SQ_SYSTEM\']->generateLoginKey(); ?', '>" />
 					  <input type="hidden" name="SQ_LOGIN_REFERER"  value="<', '?php echo htmlspecialchars('.$referer.'); ?', '>" />';
 
-				text_box('SQ_LOGIN_USERNAME', '', empty($args['size']) ? 10 : $args['size'], 0, false, $extras);
+				text_box('SQ_LOGIN_USERNAME', '', empty($args['size']) ? 10 : $args['size'], 0, FALSE, $extras);
 				if ($this->attr('give_username_focus')) {
 					echo '
 						<script type="text/javascript"><!--
@@ -167,7 +168,7 @@ class Design_Area_Login_Form extends Design_Area
 						</script>
 					';
 				}
-				break;
+			break;
 
 			case 'password_box' :
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -177,7 +178,7 @@ class Design_Area_Login_Form extends Design_Area
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
 				}
 				password_box('SQ_LOGIN_PASSWORD', '', empty($args['size']) ? 10 : $args['size'], 0, $extras);
-				break;
+			break;
 
 			case 'submit_button' :
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -187,11 +188,11 @@ class Design_Area_Login_Form extends Design_Area
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
 				}
 				submit_button('log_in_out_button', empty($args['value']) ? ucfirst($this->_tmp['painting_section']) : $args['value'], '', $extras);
-				break;
+			break;
 
 			default :
 				parent::printVar($var, $args);
-		}// end switch
+		}//end switch
 
 	}//end printVar()
 
@@ -204,7 +205,7 @@ class Design_Area_Login_Form extends Design_Area
 	*/
 	function canBeCached()
 	{
-		return false;
+		return FALSE;
 
 	}//end canBeCached()
 
@@ -212,8 +213,8 @@ class Design_Area_Login_Form extends Design_Area
 	/**
 	* Print code that initialises this design area and should always be printed in place of the AREA tag
 	*
-	* @access protected
 	* @return void
+	* @access protected
 	*/
 	function _printInitCode()
 	{
@@ -231,10 +232,10 @@ class Design_Area_Login_Form extends Design_Area
 	/**
 	* Print code that outputs a given element from this DA's contents
 	*
-	* @param array	$item	An entry from our contents array
+	* @param array	$element	An entry from our contents array
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _printContentItemCode($element)
 	{
@@ -287,8 +288,8 @@ class Design_Area_Login_Form extends Design_Area
 	* Design Area attributes that are not mentioned in the parse file are normally set to defaults
 	* when parsing the design.  Attributes returned by this function are exempted from that process.
 	*
+	* @return array
 	* @access public
-	* @return array(string)
 	*/
 	function getProtectedAttrs()
 	{

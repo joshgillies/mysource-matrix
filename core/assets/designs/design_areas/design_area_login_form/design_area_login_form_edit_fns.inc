@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form_edit_fns.inc,v 1.14 2005/10/11 02:06:03 tbarrett Exp $
+* $Id: design_area_login_form_edit_fns.inc,v 1.15 2006/02/08 02:52:24 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,15 +43,17 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Loops through the contents array and creates the necessary objects
 	*
-	* @param object Asset	$asset		the asset to which we belong
-	* @param array			$contents	the contents array we generated with _parseString()
+	* @param object	&$asset		the asset to which we belong
+	* @param array	&$contents	the contents array we generated with _parseString()
 	*
 	* @return boolean
 	* @access private
 	*/
 	function _processContents(&$asset, &$contents)
 	{
-		if (!$this->_setVariables($asset, $contents)) return false;
+		if (!$this->_setVariables($asset, $contents)) {
+			return FALSE;
+		}
 		$all_contents = Array();
 
 		foreach ($contents as $index => $element) {
@@ -67,17 +69,20 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 			// if there is some contents then save it to our arrays
 			if (!$element['self_terminating'] && !empty($element['contents'])) {
 				$all_contents = array_merge($all_contents, $element['contents']);
-				if (!$asset->setAttrValue($section.'_contents', $element['contents'])) return false;
+				if (!$asset->setAttrValue($section.'_contents', $element['contents'])) {
+					return FALSE;
+				}
 			}
 
 		}//end foreach
 
-		if (!$this->_setVariables($asset, $all_contents)) return false;
+		if (!$this->_setVariables($asset, $all_contents)) {
+			return FALSE;
+		}
 		$asset->setAttrValue('contents', $contents);
 		return $asset->saveAttributes();
 
 	}//end _processContents()
-
 
 
 }//end class

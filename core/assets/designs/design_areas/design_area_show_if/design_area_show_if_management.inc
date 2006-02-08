@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if_management.inc,v 1.3 2005/01/11 03:44:00 gsherwood Exp $
+* $Id: design_area_show_if_management.inc,v 1.4 2006/02/08 02:52:24 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,40 +48,40 @@ class Design_Area_Show_If_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'condition'      => Array(
-													  'added'       => '0.1',
-													  'type'        => 'text',
-													  'default'     => '',
-													  'description' => 'The condition to be evaluated.',
-													  'parameters'  => Array(
-																			 'allow_empty' => false
-																			 ),
-													  ),
-							'condition_data' => Array(
-													  'added'       => '0.2',
-													  'type'        => 'serialise',
-													  'default'     => Array(),
-													  'description' => 'Data passed to the condition to help in evaluation',
-													  ),
-							'then_contents'  => Array(
-													  'added'       => '0.1',
-													  'type'        => 'serialise',
-													  'default'     => Array(),
-													  'description' => 'The contents displayed when the condition is true',
-													  'parameters'  => Array(
-																			 'allow_empty' => false
-																			 ),
-													  ),
-							'else_contents'  => Array(
-													  'added'       => '0.1',
-													  'type'        => 'serialise',
-													  'default'     => Array(),
-													  'description' => 'The contents displayed when the condition is false',
-													  'parameters'  => Array(
-																			 'allow_empty' => false
-																			 ),
-													  ),
-							);
+						'condition'			=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'text',
+												'default'		=> '',
+												'description'	=> 'The condition to be evaluated.',
+												'parameters'	=> Array(
+																	'allow_empty'	=> FALSE,
+																   ),
+											   ),
+						'condition_data'	=> Array(
+												'added'			=> '0.2',
+												'type'			=> 'serialise',
+												'default'		=> Array(),
+												'description'	=> 'Data passed to the condition to help in evaluation',
+											   ),
+						'then_contents'		=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'serialise',
+												'default'		=> Array(),
+												'description'	=> 'The contents displayed when the condition is true',
+												'parameters'	=> Array(
+																	'allow_empty'	=> FALSE,
+																   ),
+											   ),
+						'else_contents'		=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'serialise',
+												'default'		=> Array(),
+												'description'	=> 'The contents displayed when the condition is false',
+												'parameters'	=> Array(
+																	'allow_empty'	=> FALSE,
+																   ),
+											   ),
+					  );
 
 	}//end constructor
 

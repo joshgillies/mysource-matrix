@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css_edit_fns.inc,v 1.6 2006/01/26 22:34:03 lwright Exp $
+* $Id: design_area_linked_css_edit_fns.inc,v 1.7 2006/02/08 02:52:24 sdanis Exp $
 *
 */
 
@@ -32,19 +32,20 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 {
 
+
 	/**
 	* Prints the interface for linking to an assetid
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the owning asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -56,15 +57,15 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 			$type_code_restrictions['design_css_customisation'] = 'D';
 			asset_finder($prefix.'_assetid', $asset->_getLinkedCSSInfo('minorid'), $type_code_restrictions);
 
-		} elseif ($asset->_getLinkedCSSInfo('minorid')) {
-			$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_getLinkedCSSInfo('minorid'));
+		} else if ($asset->_getLinkedCSSInfo('minorid')) {
+			$link_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_getLinkedCSSInfo('minorid'));
 			if (!is_null($link_asset)) {
 				echo get_asset_tag_line($link_asset->id);
 			}
 
 		}//end if
 
-		return true;
+		return TRUE;
 
 	}//end paintAssetid()
 
@@ -72,9 +73,9 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Prints the interface for selecting a tag type
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the owning asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -85,28 +86,29 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 			$options = Array();
 			$options['link_tag'] = 'Link tag';
 			$options['import_tag'] = '@import tag';
-			combo_box($prefix.'_tag_type', $options, false, $asset->attr('tag_type'));
+			combo_box($prefix.'_tag_type', $options, FALSE, $asset->attr('tag_type'));
 		} else {
 			switch ($asset->attr('tag_type')) {
 				case 'link_tag' :
 					echo 'Link Tag';
-					break;
+				break;
 				case 'import_tag':
 					echo '@import tag';
-					break;
+				break;
 			}
 		}//end if
 
-		return true;
+		return TRUE;
 
 	}//end paintTagType()
+
 
 	/**
 	* Prints the interface for selecting a tag type
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the owning asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -125,12 +127,12 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 			$options['screen'] = 'Screen';
 			$options['tty'] = 'TTY';
 			$options['tv'] = 'TV';
-			combo_box($prefix.'_media', $options, false, $asset->attr('media'));
+			combo_box($prefix.'_media', $options, FALSE, $asset->attr('media'));
 		} else {
 			echo $asset->attr('media');
 		}//end if
 
-		return true;
+		return TRUE;
 
 	}//end paintMedia()
 
@@ -138,9 +140,9 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes the interface for setting the tag type
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the owning asset
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -156,9 +158,9 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes the interface for setting the media
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the owning asset
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -174,18 +176,22 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes the interface for linking to an asset
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the owning asset
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processAssetid(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_assetid']['assetid'])) return false;
+		if (!isset($_POST[$prefix.'_assetid']['assetid'])) {
+			return FALSE;
+		}
 
-		if ($asset->_getLinkedCSSInfo('minorid') == $_POST[$prefix.'_assetid']['assetid']) return false;
+		if ($asset->_getLinkedCSSInfo('minorid') == $_POST[$prefix.'_assetid']['assetid']) {
+			return FALSE;
+		}
 
 		$assetid = (int) $_POST[$prefix.'_assetid']['assetid'];
 
@@ -198,22 +204,22 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 			if (!$asset->deleteLink($old_linkid)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return false;
+				return FALSE;
 			}
 		}
 
 		// now create the new link
 		if ($assetid) {
-			$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$link_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($link_asset)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return false;
+				return FALSE;
 			}
 			if (!$asset->createLink($link_asset, SQ_LINK_NOTICE, 'linked_css_asset')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return false;
+				return FALSE;
 			}
 		}
 
@@ -221,7 +227,7 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		return true;
+		return TRUE;
 
 	}//end processAssetid()
 

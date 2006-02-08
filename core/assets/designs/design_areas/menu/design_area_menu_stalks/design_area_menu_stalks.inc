@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks.inc,v 1.22 2005/10/11 02:07:33 tbarrett Exp $
+* $Id: design_area_menu_stalks.inc,v 1.23 2006/02/08 02:52:24 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_r
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,8 +54,8 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 	/**
 	* Set the value for the passed variable to the passed value
 	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -66,15 +66,15 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 		switch ($name) {
 			case 'alignment' :
 				$value = strtolower($value);
-				break;
+			break;
 
 			case 'min_height' :
 				$value = (int) $value;
 				if ($value <= 0) {
 					trigger_localised_error('CORE0177', E_USER_WARNING, $name);
-					return false;
+					return FALSE;
 				}
-				break;
+			break;
 		}//end switch
 
 		return parent::setAttrValue($name, $value);
@@ -86,6 +86,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 	* Prints the recursive fn that will be used by this menu to printout its details
 	* NOTE: to be overridden by our children
 	*
+	* @return void
 	* @access public
 	*/
 	function printRecursiveFn()
@@ -117,12 +118,12 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 
 		ob_start();
 		if ($asset_contents = $this->attr('asset_contents')) {
-			$this->_tmp['outputting_asset_section'] = true;
+			$this->_tmp['outputting_asset_section'] = TRUE;
 			foreach ($asset_contents as $item) {
 				$this->_printContentItemCode($item);
 			}
 			unset($this->_tmp['outputting_asset_section']);
-		}//	end if
+		}//end if
 
 		$asset_contents = '
 				<td'.$cell_class.' style="width: 100%; vertical-align: top; text-align: '.$this->attr('alignment').';'.(($this->attr('word_wrap')) ? '' : ' white-space: nowrap;').'">'.ob_get_contents().'</td>
@@ -139,7 +140,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 		function '.$this->attr('id_name').'_recursive_fn($level, $parentid, $'.$this->attr('id_name').'_base_url, $depth=Array())
 		{
 			global $RECURSIVE_MENU_ASSET_LINEAGE;
-			static $'.$this->attr('id_name').'_settings = '.var_export($this->_getSettingsArray(), true).';
+			static $'.$this->attr('id_name').'_settings = '.var_export($this->_getSettingsArray(), TRUE).';
 
 			$blank_src    = sq_web_path(\'lib\').\'/web/images/blank.gif\';
 			$stalk_prefix = sq_web_path(\'data\').\'/assets/'.$this->type().'/'.$this->id.'/\';
@@ -173,11 +174,15 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 				<tr>
 			';
 
-		if ($this->attr('alignment') == 'right') echo $asset_contents;
+		if ($this->attr('alignment') == 'right') {
+			echo $asset_contents;
+		}
 
 		if ($this->attr('indent')) {
 
-			if ($this->attr('alignment') == 'right') echo $arrow_contents;
+			if ($this->attr('alignment') == 'right') {
+				echo $arrow_contents;
+			}
 
 			echo '
 			<', '?php
@@ -225,11 +230,15 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 
 			?', '>';
 
-			if ($this->attr('alignment') == 'left') echo $arrow_contents;
+			if ($this->attr('alignment') == 'left') {
+				echo $arrow_contents;
+			}
 
-		}//end indent
+		}//end if
 
-		if ($this->attr('alignment') == 'left') echo $asset_contents;
+		if ($this->attr('alignment') == 'left') {
+			echo $asset_contents;
+		}
 
 		echo '
 
@@ -270,13 +279,13 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 	/**
 	* Print code that initialises this design area and should always be printed in place of the AREA tag
 	*
-	* @access protected
 	* @return void
+	* @access protected
 	*/
 	function _printInitCode()
 	{
 		if ($this->attr('show_stalks') && $this->attr('indent') && $this->attr('min_height')) {
-			if (!$this->_createStalkImages($this)) return false;
+			if (!$this->_createStalkImages($this)) return FALSE;
 		}
 		return parent::_printInitCode();
 
@@ -298,7 +307,9 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 		$w = $this->attr('indent');
 		$h = $this->attr('min_height');
 
-		if (!$w || !$h) return false;
+		if (!$w || !$h) {
+			return FALSE;
+		}
 
 
 		$direction = ($this->attr('alignment') == 'left') ? 'right' : 'left';
@@ -310,18 +321,18 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		require_once SQ_FUDGE_PATH.'/colour/colour.inc';
 
-		if (!create_directory($image_path)) return false;
+		if (!create_directory($image_path)) return FALSE;
 
-		$transparent = false;
+		$transparent = FALSE;
 		if (trim($bg_colour) == '') {
 			// get a nice contrasting shade so we don't pick a colour to close to the FG
 			// to use for transperancy
 			$bg_colour = Colour::contrastingShade($fg_colour);
-			$transparent = true;
+			$transparent = TRUE;
 		}
 
-		$bg_rgb = Colour::htmlToRgb($bg_colour, false);
-		$fg_rgb = Colour::htmlToRgb($fg_colour, false);
+		$bg_rgb = Colour::htmlToRgb($bg_colour, FALSE);
+		$fg_rgb = Colour::htmlToRgb($fg_colour, FALSE);
 
 		foreach (Array('stalk', 'arrow', 'branch', 'endbranch') as $image_name) {
 
@@ -373,7 +384,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 
 		}//end foreach
 
-		return true;
+		return TRUE;
 
 	}//end _createStalkImages()
 

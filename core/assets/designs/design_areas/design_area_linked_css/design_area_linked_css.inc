@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css.inc,v 1.13 2005/12/06 02:42:16 tbarrett Exp $
+* $Id: design_area_linked_css.inc,v 1.14 2006/02/08 02:52:24 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 * Allows you to link to a CSS file or customisation from a standard design
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,8 +43,8 @@ class Design_Area_Linked_Css extends Design_Area
 	/**
 	* Set the value for the passed variable to the passed value
 	*
-	* @param string		$name		the name of the attribute
-	* @param string		$value		the new value of the attribute
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -59,7 +59,7 @@ class Design_Area_Linked_Css extends Design_Area
 			foreach ($value as $type_code) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->installed($type_code)) {
 					trigger_localised_error('CORE0145', E_USER_WARNING, $type_code);
-					return false;
+					return FALSE;
 				}
 			}
 		}
@@ -91,7 +91,7 @@ class Design_Area_Linked_Css extends Design_Area
 				SQ_LINK_NOTICE	=> Array(
 									'asset'	=> Array(
 												'card'		=> 1,
-												'exclusive'	=> false,
+												'exclusive'	=> FALSE,
 											   ),
 								   ),
 			   );
@@ -106,16 +106,16 @@ class Design_Area_Linked_Css extends Design_Area
 	*
 	* @param boolean	$field	field in the link that is required (any valid field from getLink())
 	*
-	* @return mixed NULL if no asset found or the field value
+	* @return mixed NULL|string
 	* @access private
 	* @see Asset::getLink()
 	*/
 	function _getLinkedCSSInfo($field)
 	{
 		if (!isset($this->_tmp['css_assetid'])) {
-			$this->_tmp['css_assetid'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', true, 'linked_css_asset');
+			$this->_tmp['css_assetid'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', TRUE, 'linked_css_asset');
 		}
-		return (empty($this->_tmp['css_assetid'])) ? null : $this->_tmp['css_assetid'][$field];
+		return (empty($this->_tmp['css_assetid'])) ? NULL : $this->_tmp['css_assetid'][$field];
 
 	}//end _getLinkedCSSInfo()
 
@@ -128,34 +128,33 @@ class Design_Area_Linked_Css extends Design_Area
 	*/
 	function linksUpdated()
 	{
-		if (!parent::linksUpdated()) return false;
+		if (!parent::linksUpdated()) return FALSE;
 		unset($this->_tmp['css_assetid']);
-		return true;
+		return TRUE;
 
 	}//end linksUpdated()
 
 
-	/*
+	/**
 	* Print code that actually results in HTML output to the browser for this design area
-	*
 	* This function is called at the AREA tag if print != no, and at the point of any PRINT
 	* tags that reference this area.
 	*
 	* This function can be overridden (partially) by children
 	*
-	* @access protected
 	* @return void
+	* @access protected
 	*/
 	function _printPaintingCode()
 	{
 		$assetid = (int) $this->_getLinkedCSSInfo('minorid');
 
 		// return true because it just means that they haven't set anything yet
-		if (empty($assetid)) return true;
+		if (empty($assetid)) return TRUE;
 
 		// Okay, go ahead and get this linked css asset.
-		$linked_css = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-		if ($linked_css == null) return true;
+		$linked_css =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if ($linked_css == NULL) return TRUE;
 
 		// Try and get the cached version of the css file. If it exists, we'll use that url,
 		// if not we'll use the url directly to the css file asset itself.
