@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431 2006/02/02 02:29:33 ndvries Exp $
+* $Id: asset_manager.inc,v 1.431.2.1 2006/02/08 04:29:26 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431 $
+* @version $Revision: 1.431.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1292,7 +1292,12 @@ class Asset_Manager extends MySource_Object
 			$assetids[$i] = $db->quoteSmart((string) $assetids[$i]);
 		}
 
-		$where = 'a.assetid IN ('.implode(', ', $assetids).')';
+		// break up the assets into chunks of 1000 so that oracle does not complain
+		$in_clauses = Array();
+		foreach (array_chunk($assetids, 999) as $chunk) {
+			$in_clauses[] = ' a.assetid IN ('.implode(', ', $chunk).')';
+		}
+		$where = '('.implode(' OR ', $in_clauses).')';
 
 		if (!empty($type_code)) {
 			$type_code_cond = '';
