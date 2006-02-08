@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: common_views.xml,v 1.2 2006/02/02 02:29:34 ndvries Exp $
+* $Id: common_views.xml,v 1.3 2006/02/08 03:39:05 mmcintyre Exp $
 *
 */
 -->
@@ -135,7 +135,7 @@
 				FROM
 					sq_ast_role
 				WHERE
-					userid <> 0);
+					userid <> 0)
 		]]>
 	</sql_element>
 	<sql_element display_name="sq_vw_ast_perm View">
@@ -144,12 +144,12 @@
 				SELECT DISTINCT
 					r.assetid, r.userid, p.permission, p.granted
 				FROM
-					sq_vw_ast_role r JOIN sq_ast_perm p ON r.roleid::text = p.userid::text
+					sq_vw_ast_role r JOIN sq_ast_perm p ON r.roleid = p.userid
 				UNION
 				SELECT
 					p.assetid, p.userid, p.permission, p.granted
 				FROM
-					sq_ast_perm p;
+					sq_ast_perm p
 		]]>
 	</sql_element>
 </sql>
