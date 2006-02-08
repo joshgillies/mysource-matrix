@@ -19,10 +19,10 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.5 2005/11/06 23:38:57 mmcintyre Exp $
+#* $Id: clean.sh,v 1.6 2006/02/08 00:08:56 lwright Exp $
 #*/
 
-# Creates a clean system by removing data and cache directories 
+# Creates a clean system by removing data and cache directories
 # and clearing out the database and re-inserting the create script
 
 
@@ -48,7 +48,7 @@ cvs up -dP cache data/public data/private
 php_code="<?php
 require_once '${SYSTEM_ROOT}/data/private/conf/main.inc';
 require_once 'DB.php';
-\$dsn = DB::parseDSN(SQ_CONF_DB_DSN);
+\$dsn = DB::parseDSN(SQ_CONF_DB2_DSN);
 foreach(\$dsn as \$k => \$v) {
 	echo 'DB_'.strtoupper(\$k).'=\"'.addslashes(\$v).'\";';
 }
@@ -57,7 +57,7 @@ eval `echo "${php_code}" | php`
 
 set | grep "^DB_"
 
-case "${DB_PHPTYPE}" in 
+case "${DB_PHPTYPE}" in
 	"pgsql")
 		args="";
 		if [ "${DB_USERNAME}" != "" ]; then
