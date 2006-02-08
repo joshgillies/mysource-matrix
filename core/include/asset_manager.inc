@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.433 2006/02/08 06:27:00 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.434 2006/02/08 12:02:47 gnoel Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.433 $
+* @version $Revision: 1.434 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5066,7 +5066,13 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
+		$trash = &$this->getSystemAsset('trash_folder');
+
 		foreach ($parent_links as $link_details) {
+			// don't delete the link to the trash, we don't want to end up with an orphan asset 
+			if ($trash->id == $link_details['majorid']) {
+				continue;
+			}
 			// deleteAssetLink will create the trash link when no other links remain
 			if (!$this->deleteAssetLink($link_details['linkid'])) {
 				trigger_localised_error('SYS0152', $link_details['linkid']);
