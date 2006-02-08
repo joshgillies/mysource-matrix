@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.130 2006/02/01 21:51:15 sdanis Exp $
+* $Id: form.inc,v 1.131 2006/02/08 04:46:59 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.130 $
+* @version $Revision: 1.131 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -55,6 +55,13 @@ class Form extends Asset
 	* @var object
 	*/
 	var $submission_errors = NULL;
+
+
+	/**
+	* the current submission's asset
+	* @var object
+	*/
+	var $submission_asset = NULL;
 
 
 	/**
@@ -1310,14 +1317,14 @@ class Form extends Asset
 
 			// create the submission asset
 			if ($this->attr('log_submissions')) {
-				$submission_asset =& $this->createSubmission();
+				$this->submission_asset =& $this->createSubmission();
 				for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
-					$submission_asset->setAnswer(key($questions), $question->getValue());
-					$submission_asset->setSummary(key($questions), $question->attr('name'), $question->getSummary());
+					$this->submission_asset->setAnswer(key($questions), $question->getValue());
+					$this->submission_asset->setSummary(key($questions), $question->attr('name'), $question->getSummary());
 				}
-				$submission_asset->setAttrValue('complete', TRUE);
-				$submission_asset->setAttrValue('xml', $this->getXML());
-				$submission_asset->saveAttributes();
+				$this->submission_asset->setAttrValue('complete', TRUE);
+				$this->submission_asset->setAttrValue('xml', $this->getXML());
+				$this->submission_asset->saveAttributes();
 			}
 		}
 
@@ -1382,6 +1389,11 @@ class Form extends Asset
 						$replacements['response_'.str_replace(':', '_', $q_asset->id)] = $q_asset->getSummary();
 					}
 				}
+
+				if (!is_null($this->submission_asset)) {
+					$replacements['form_submission_id'] = $this->submission_asset->id;
+				}
+
 				$replacements['form_summary'] = &$summary_info;
 
 				// add global keywords
@@ -1393,7 +1405,7 @@ class Form extends Asset
 				}
 
 				$tyb->setKeywordReplacements($replacements);
-			}
+			}//end if
 
 			$tyb->printBody();
 
@@ -1725,6 +1737,7 @@ class Form extends Asset
 
 			} else if ($bodycopy == 'Thank You') {
 				$keywords['form_summary'] = translate('cms_form_submission_summary');
+				$keywords['form_submission_id'] = translate('cms_form_submission_id');
 
 				foreach ($questions as $q_id => $question) {
 					$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
