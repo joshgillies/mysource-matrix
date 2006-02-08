@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.76 2006/02/02 02:29:32 ndvries Exp $
+* $Id: design_area_menu_type.inc,v 1.77 2006/02/08 00:55:54 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -458,7 +458,7 @@ class Design_Area_Menu_Type extends Design_Area
 
 					if (!empty($USERIDS_COND)) {
 						$USERIDS_COND .= \'
-										  GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
+										  GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order, p.userid
 										  HAVING MIN(p.granted) <> 0\';
 					}
 				}
