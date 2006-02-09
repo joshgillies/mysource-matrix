@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.25 2006/02/01 23:20:33 lwright Exp $
+* $Id: file_versioning.inc,v 1.26 2006/02/09 23:14:56 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -165,9 +165,9 @@ class File_Versioning
 		if (!empty($result)) {
 			$result['fileid']    = (int) $result['fileid'];
 			$result['version']   = (int) $result['version'];
-			$result['from_date'] = $this->_iso8601Ts($result['from_date']);
+			$result['from_date'] = iso8601_ts($result['from_date']);
 			if (!empty($result['to_date'])) {
-				$result['to_date'] = $this->_iso8601Ts($result['to_date']);
+				$result['to_date'] = iso8601_ts($result['to_date']);
 			}
 			$result['file_size'] = (int) $result['file_size'];
 		}
@@ -483,7 +483,7 @@ class File_Versioning
 		assert_valid_db_result($version);
 
 		$now = time();
-		$date = $db->quote($this->_tsIso8601($now));
+		$date = $db->quote(ts_iso8601($now));
 		if ($db->phptype == 'oci8') {
 			$date = 'TO_DATE('.$date.', '.$db->quote('YYYY-MM-DD HH24:MI:SS').')';
 		}
@@ -603,19 +603,16 @@ class File_Versioning
 	*/
 	function _checkOutCheck($rep_file, $version=null, $date=null)
 	{
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$info = $this->_getFileInfoFromPath($rep_file);
 		if (empty($info)) {
 			trigger_localised_error('FVER0007', E_USER_WARNING,$rep_file);
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
 		if (!$this->_lockFile($info['fileid'])) {
 			trigger_localised_error('FVER0018', E_USER_NOTICE);
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
@@ -630,10 +627,10 @@ class File_Versioning
 						FROM sq_file_vers_history
 						WHERE fileid = '.$db->quote($info['fileid']).'
 						  AND to_date IS NULL';
-				$nice_date = $this->_tsIso8601(time());
+				$nice_date = ts_iso8601(time());
 			} else {
 
-				$date = $db->quote($this->_tsIso8601($date));
+				$date = $db->quote(ts_iso8601($date));
 				if ($db->phptype == 'oci8') {
 					$date = 'TO_DATE('.$date.', '.$db->quote('YYYY-MM-DD HH24:MI:SS').')';
 				}
@@ -645,7 +642,7 @@ class File_Versioning
 						  AND from_date <= '.$date.'
 						  AND (to_date IS NULL OR to_date > '.$date.')
 						ORDER BY version DESC';
-				$nice_date = $this->_tsIso8601($date);
+				$nice_date = ts_iso8601($date);
 			}//end if
 
 			$ver_info = $db->getRow($sql);
@@ -654,7 +651,6 @@ class File_Versioning
 			if (empty($ver_info)) {
 				trigger_localised_error('FVER0006', E_USER_NOTICE, $rep_file);
 				$this->_releaseFile($info['fileid']);
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}
 
@@ -671,7 +667,6 @@ class File_Versioning
 			if (empty($ver_info)) {
 				trigger_localised_error('FVER0005', E_USER_NOTICE, $rep_file);
 				$this->_releaseFile($info['fileid']);
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}
 
@@ -683,8 +678,6 @@ class File_Versioning
 		$info['source_file'] = $this->_dir.'/'.$rep_file.',ffv'.$ver_info['version'];
 
 		$this->_releaseFile($info['fileid']);
-
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		if ($this->_validateFileVersion($rep_file, $info)) {
 			return $info;
@@ -1004,7 +997,6 @@ class File_Versioning
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		if (!$this->_lockFile($info['fileid'])) {
 			trigger_localised_error('FVER0018', E_USER_NOTICE);

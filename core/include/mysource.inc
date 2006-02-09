@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.166 2006/02/09 01:18:02 mmcintyre Exp $
+* $Id: mysource.inc,v 1.167 2006/02/09 23:14:56 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.166 $
+* @version $Revision: 1.167 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1788,7 +1788,14 @@ class MySource
 		$dsn = null;
 		switch ($conn) {
 			case 'db':
-				$dsn = SQ_CONF_DB_DSN;
+				// If we are in the backend, we don't want any external concurrency
+				// issues (eg. slow replication) to screw around with us. So we'll
+				// grab db2 instead if we are in an editing mode
+				if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
+					$dsn = SQ_CONF_DB2_DSN;
+				} else {
+					$dsn = SQ_CONF_DB_DSN;
+				}
 			break;
 
 			case 'db2':
