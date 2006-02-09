@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.164.2.1 2006/02/09 00:08:38 mmcintyre Exp $
+* $Id: mysource.inc,v 1.164.2.2 2006/02/09 01:15:28 mmcintyre Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.164.2.1 $
+* @version $Revision: 1.164.2.2 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1825,11 +1825,6 @@ class MySource
 			}
 			$this->_db_conns[$conn]->autoCommit(FALSE);
 		}
-
-		// if we are already connected to the database they want to change to
-		// then return, otherwise the stack will get bigger and they will restore
-		// to the same connection
-		if ($this->db == $this->_db_conns[$conn]) return;
 
 		array_push($this->_db_stack, $conn);
 		$this->db =& $this->_db_conns[$conn];
