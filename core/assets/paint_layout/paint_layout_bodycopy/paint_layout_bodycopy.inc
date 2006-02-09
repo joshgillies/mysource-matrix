@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.22.2.2 2006/02/07 23:09:34 lwright Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.22.2.3 2006/02/09 00:41:27 lwright Exp $
 *
 */
 
@@ -50,7 +50,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.22.2.2 $
+* @version $Revision: 1.22.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -140,7 +140,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 		// Save the substitution keywords we will need to lookup for each asset display
 		create_directory($this->data_path);
-		if (!string_to_file(serialize($required_substitution_keywords), $this->data_path.'/.keywords')) {
+		if (!string_to_file(serialize($required_substitution_keywords), $this->data_path.'/keywords')) {
 			trigger_localised_error('CORE0048', E_USER_WARNING, $this->name);
 			return FALSE;
 		}
@@ -213,8 +213,8 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 		// Find stored keyword replacements
 		$paint_layout_keywords = Array();
-		if (file_exists($this->data_path.'/.keywords')) {
-			$required_keywords = array_keys(unserialize(file_to_string($this->data_path.'/.keywords')));
+		if (file_exists($this->data_path.'/keywords')) {
+			$required_keywords = array_keys(unserialize(file_to_string($this->data_path.'/keywords')));
 			$paint_layout_keywords = $this->_getAssetKeywordReplacements($asset, $required_keywords);
 		}
 
