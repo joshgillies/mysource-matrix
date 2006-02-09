@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.21 2006/02/07 02:18:51 skim Exp $
+* $Id: linking.inc,v 1.22 2006/02/09 01:52:12 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 
@@ -138,14 +138,21 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 				?>
 				<tr>
 					<td class="sq-backend-table-cell" style="text-align: center;">
-					<?php if ($link_type & SQ_SC_LINK_BACKEND_NAV) {
-						?><a href="#"><?php echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, translate('show_in_asset_map'), translate('show_in_asset_map'),' style="border: 0;"  onclick="'.asset_locator_js($asset_lineage_ids).'"'); ?></a><?php
-					}
-					?></td>
-					<td class="sq-backend-table-cell" style="text-align: center;">
+						<?php
+						if ($link_type & SQ_SC_LINK_BACKEND_NAV) {
+							?>
+							<a href="#">
+							<?php echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, translate('show_in_asset_map'), translate('show_in_asset_map'),' style="border: 0;"  onclick="'.asset_locator_js($asset_lineage_ids).'"'); 
+							?>
+							</a>
+							<?php
+						}
+						?>
+					</td>
+					<td style="text-align: center;">
 						<?php echo $linkid; ?>
 					</td>
-					<td class="sq-backend-table-cell" style="text-align: center;">
+					<td style="text-align: center;">
 						<?php
 						if (!$can_edit) {
 							echo link_type_name($link_type);
@@ -155,7 +162,10 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 						}
 						?>
 					</td>
-					<td class="sq-backend-table-cell"><?php echo $asset_lineage; ?></td>
+					<td style="text-align: center;">
+						<?php echo $majorid; ?>
+					</td>
+					<td><?php echo $asset_lineage; ?></td>
 				</tr>
 				<?php
 				$output_lineages[] = ob_get_contents();
@@ -170,10 +180,11 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header" style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('find'); ?></td>
-				<td class="sq-backend-table-header" style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('link_id'); ?></td>
-				<td class="sq-backend-table-header" style="text-align: center;" width="10%"><?php echo translate('link_type'); ?></td>
-				<td class="sq-backend-table-header" width="70"><?php echo translate('lineage'); ?></td>
+				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('find'); ?></th>
+				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('link_id'); ?></th>
+				<th style="text-align: center;" width="10%"><?php echo translate('link_type'); ?></th>
+				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('assetid'); ?></th>
+				<th width="70"><?php echo translate('lineage'); ?></th>
 			</tr>
 			<?php
 				foreach ($output_lineages as $null => $lineage_data) {
