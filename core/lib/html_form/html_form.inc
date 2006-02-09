@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.116 2006/01/27 03:22:46 dmckee Exp $
+* $Id: html_form.inc,v 1.117 2006/02/09 23:44:12 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.116 $
+* @version $Revision: 1.117 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1244,11 +1244,10 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 		}
 	}
 
-	$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset_info_ids);
-
 	// check if we have statuses we want to filter out, and also check user has atleast read permission
 	if (!empty($statuses) && count($statuses) < 9) {
 		foreach ($child_links as $treeid => $data) {
+			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($data['assetid']));
 			if (!in_array($asset_info[$data['assetid']]['status'], $statuses)) {
 				unset($child_links[$treeid]);
 			}
