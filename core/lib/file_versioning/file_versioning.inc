@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.25 2006/02/01 23:20:33 lwright Exp $
+* $Id: file_versioning.inc,v 1.25.2.1 2006/02/09 23:40:06 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.25.2.1 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -603,19 +603,16 @@ class File_Versioning
 	*/
 	function _checkOutCheck($rep_file, $version=null, $date=null)
 	{
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$info = $this->_getFileInfoFromPath($rep_file);
 		if (empty($info)) {
 			trigger_localised_error('FVER0007', E_USER_WARNING,$rep_file);
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
 		if (!$this->_lockFile($info['fileid'])) {
 			trigger_localised_error('FVER0018', E_USER_NOTICE);
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
@@ -654,7 +651,6 @@ class File_Versioning
 			if (empty($ver_info)) {
 				trigger_localised_error('FVER0006', E_USER_NOTICE, $rep_file);
 				$this->_releaseFile($info['fileid']);
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}
 
@@ -671,7 +667,6 @@ class File_Versioning
 			if (empty($ver_info)) {
 				trigger_localised_error('FVER0005', E_USER_NOTICE, $rep_file);
 				$this->_releaseFile($info['fileid']);
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return false;
 			}
 
@@ -683,8 +678,6 @@ class File_Versioning
 		$info['source_file'] = $this->_dir.'/'.$rep_file.',ffv'.$ver_info['version'];
 
 		$this->_releaseFile($info['fileid']);
-
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		if ($this->_validateFileVersion($rep_file, $info)) {
 			return $info;
