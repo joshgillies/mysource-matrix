@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy_management.inc,v 1.2 2005/04/21 15:42:20 gnoel Exp $
+* $Id: paint_layout_bodycopy_management.inc,v 1.2.2.1 2006/02/09 06:36:59 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,7 +60,7 @@ class Paint_Layout_Bodycopy_Management extends Asset_Management
 						),
 						'associated_asset_type' => Array(
 							'added'		=> '0.1',
-							'type'		=> 'text',  
+							'type'		=> 'text',
 							'default'	=> '',
 						),
 						'lineage_separator' => Array (
@@ -72,6 +72,49 @@ class Paint_Layout_Bodycopy_Management extends Asset_Management
 					);
 
 	}//end constructor
+
+
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		if (!parent::_upgrade($current_version)) return FALSE;
+
+		$asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
+
+		if (version_compare($current_version, '0.1.1', '<')) {
+			// version 0.1 -> 0.1.1 (= same as 0.2 -> 0.4 in the 3.8-branch)
+			// Keywords file is always cached now at the top level, to be used with
+			// content file. However this is now done with _updated() so run that instead
+			// of saveSystemVersion().
+			pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.1.1');
+			$pl_bodycopies = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE, TRUE);
+			pre_echo('Updating '.count($pl_bodycopies).' asset(s)...');
+			foreach ($pl_bodycopies as $assetid => $type_code) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				if (is_null($asset)) continue;
+
+				// We need to output our content files, otherwise old paint layouts will print blank
+				$asset->_updated();
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				unset($asset);
+
+			}//end foreach
+			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.1.1');
+
+		}//end version 0.1 upgrade
+
+		return TRUE;
+
+	}//end _upgrade()
+
 
 }//end class
 ?>
