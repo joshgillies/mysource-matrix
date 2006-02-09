@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.398.2.22 2006/02/08 04:01:16 lwright Exp $
+* $Id: asset.inc,v 1.398.2.23 2006/02/09 06:33:32 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.398.2.22 $
+* @version $Revision: 1.398.2.23 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1043,6 +1043,7 @@ class Asset extends MySource_Object
 		if (is_file($this->data_path.'/.sq_system/.object_data')) {
 			$old_version = unserialize(file_to_string($this->data_path.'/.sq_system/.object_data'));
 		} else {
+			error_log(var_export(array_contents(debug_backtrace(), 3),1));
 			trigger_localised_error('SYS0163', E_USER_WARNING, $this->name);
 			$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
 			return false;
@@ -1940,7 +1941,7 @@ class Asset extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		if ($new_status != $this->status) {
+		if ($new_status != $old_status) {
 			// the status has actually changed to a different one
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -1960,7 +1961,7 @@ class Asset extends MySource_Object
 			// broadcast event notifying of status change
 			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 			$data = Array(
-						'old_status'	=> $this->status,
+						'old_status'	=> $old_status,
 						'new_status'	=> $new_status,
 					);
 			$em->broadcastEvent($this, 'AssetStatusUpdate', $data);
@@ -1970,7 +1971,7 @@ class Asset extends MySource_Object
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$msg_reps = Array(
 							'asset_name'	=> $this->name,
-							'old_status'	=> get_status_description($this->status),
+							'old_status'	=> get_status_description($old_status),
 							'new_status'	=> get_status_description($new_status),
 						);
 			$message = $ms->newMessage(Array(), 'asset.status', $msg_reps);
