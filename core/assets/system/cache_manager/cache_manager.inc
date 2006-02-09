@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.34 2006/02/02 02:29:33 ndvries Exp $
+* $Id: cache_manager.inc,v 1.35 2006/02/09 03:56:24 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -207,7 +207,6 @@ class Cache_Manager extends Asset
 	*/
 	function saveToCache($assetid, $asset_type, $cache_key, $contents, $use_url=TRUE)
 	{
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		if (SQ_ROLLBACK_VIEW) return FALSE;
@@ -263,6 +262,8 @@ class Cache_Manager extends Asset
 		}
 		umask($old_umask);
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'INSERT INTO
