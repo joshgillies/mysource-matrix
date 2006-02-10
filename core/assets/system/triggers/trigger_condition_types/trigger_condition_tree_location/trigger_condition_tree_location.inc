@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_tree_location.inc,v 1.11 2006/02/07 02:27:13 sdanis Exp $
+* $Id: trigger_condition_tree_location.inc,v 1.12 2006/02/10 02:05:08 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -163,17 +163,13 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 				check_box($prefix.'[immed_child]', '1', $immed_child);
 				label(translate('immediate_child_only'), $prefix.'[immed_child]');
 			} else {
-				$tree_asset = NULL;
-				if ($selected_assetid > 0) {
-					$tree_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($selected_assetid);
-				}
-				if (is_null($tree_asset)) {
-					echo '<b>['.translate('no_asset_selected').']</b>';
-				} else {
-					echo '<b>'.translate('asset_format', $tree_asset->name, $tree_asset->id).'</b>';
+				if ($selected_assetid) {
+					echo get_asset_tag_line($selected_assetid);
 					if ($immed_child) {
 						echo '<b> '.translate('as_an_immediate_child_only').'</b>';
 					}
+				} else {
+					echo '<b>['.translate('no_asset_selected').']</b>';
 				}
 			}
 

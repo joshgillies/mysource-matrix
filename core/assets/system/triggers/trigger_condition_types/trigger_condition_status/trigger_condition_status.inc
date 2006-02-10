@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_status.inc,v 1.8 2006/02/07 02:27:13 sdanis Exp $
+* $Id: trigger_condition_status.inc,v 1.9 2006/02/10 02:05:08 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,7 +113,11 @@ class Trigger_Condition_Status extends Trigger_Condition
 
 		// begin buffering basic options
 		ob_start();
-			combo_box($prefix.'[status]', $status_list, FALSE, $selected_status, NULL, $form_element_extras);
+			if ($write_access) {
+				combo_box($prefix.'[status]', $status_list, FALSE, $selected_status, NULL, $form_element_extras);
+			} else {
+				echo get_asset_status_icon($selected_status).'<strong>'. get_status_description($selected_status).'</strong>';
+			}
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
