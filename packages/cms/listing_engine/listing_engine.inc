@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.150 2006/02/06 03:34:53 dmckee Exp $
+* $Id: listing_engine.inc,v 1.151 2006/02/10 00:01:31 tbarrett Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.150 $
+* @version $Revision: 1.151 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -264,6 +264,8 @@ class Listing_Engine extends Page
 		$page_links[SQ_LINK_NOTICE]['asset']    = Array('card' => 'M', 'exclusive' => FALSE);
 		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 2,   'exclusive' => FALSE);
 		$page_links[SQ_LINK_TYPE_3]['bodycopy'] = Array('card' => 1,   'exclusive' => FALSE);
+		$page_links[SQ_LINK_TYPE_1]['austereo_auction']   = Array('card' => 'M', 'exclusive' => FALSE);
+		$page_links[SQ_LINK_TYPE_1]['austereo_raffle']   = Array('card' => 'M', 'exclusive' => FALSE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -1440,13 +1442,16 @@ class Listing_Engine extends Page
 		$relations = $this->_analyseCheckAllRelations($todo);
 
 		ob_start();
-			?>
-			<script type="text/javascript">
-			<!--
-				<?php echo $this->_buildRelationsJS(); ?>
-			//-->
-			</script>
-			<?php
+			$selections = $this->attr('asset_selections');
+			if (!empty($selections)) {
+				?>
+				<script type="text/javascript">
+				<!--
+					<?php echo $this->_buildRelationsJS(); ?>
+				//-->
+				</script>
+				<?php
+			}
 		$this->_tmp['js_relation_code'] = ob_get_clean();
 
 		if ($this->attr('group_by') == 'grouped') {
