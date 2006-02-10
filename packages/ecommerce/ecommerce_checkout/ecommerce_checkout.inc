@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.45 2006/01/26 22:35:23 lwright Exp $
+* $Id: ecommerce_checkout.inc,v 1.45.2.1 2006/02/10 03:51:49 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.45.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -130,11 +130,18 @@ class Ecommerce_Checkout extends Page
 	*/
 	function printBody()
 	{
+		// since we are doing a lot of editing stuff with the checkout page, it's
+		// probably best if we tie everything together using db2
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+
 		// process interface. this determines the print context
 		$this->_processInterface();
 
 		// error occured in processing interface, just return
-		if (empty($this->print_context)) return;
+		if (empty($this->print_context)) {
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return;
+		}
 
 		// print context
 		$this->_printContext();
@@ -150,6 +157,8 @@ class Ecommerce_Checkout extends Page
 			// clear local cart
 			$_SESSION['sq_local_cart_contents'] = Array();
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}//end printBody()
 

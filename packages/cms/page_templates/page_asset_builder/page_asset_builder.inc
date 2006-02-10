@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.85 2006/01/26 22:35:20 lwright Exp $
+* $Id: page_asset_builder.inc,v 1.85.2.1 2006/02/10 03:51:48 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.85.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -185,6 +185,10 @@ class Page_Asset_Builder extends Page
 	*/
 	function printBody()
 	{
+		if (isset($_POST['ASSET_BUILDER_ACTION'])) {
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		}
+
 		$this->_current_state = '';
 		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
 		set_error_handler(Array(&$this, '_errorHandler'));
@@ -226,6 +230,10 @@ class Page_Asset_Builder extends Page
 		$fn = '_load'.$this->_default_state.'Replacements';
 		$this->$fn();
 		$this->_printBody();
+
+		if (isset($_POST['ASSET_BUILDER_ACTION'])) {
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		}
 
 	}//end printBody()
 

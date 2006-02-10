@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.130 2006/02/01 21:51:15 sdanis Exp $
+* $Id: form.inc,v 1.130.2.1 2006/02/10 03:51:48 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.130 $
+* @version $Revision: 1.130.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1132,7 +1132,13 @@ class Form extends Asset
 	{
 		$prefix = $this->getPrefix();
 
+		// Make sure that the thank you bodycopy is always able to access the
+		// newly created submission in replicated database instances, by tying
+		// it all to db2
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		// check to see if the form has been submitted or not
+
 		if (isset($_POST[$prefix.'_submit']) && $this->processForm()) {
 			$this->finishForm();
 			return TRUE;
