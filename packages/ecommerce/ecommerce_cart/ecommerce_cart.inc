@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.24 2006/01/13 00:19:23 rhoward Exp $
+* $Id: ecommerce_cart.inc,v 1.25 2006/02/10 02:47:14 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -188,8 +188,14 @@ class Ecommerce_Cart extends Listing_Engine
 	*/
 	function printFrontend()
 	{
+		// Tie the process and following paint together using db2 in order to
+		// avoid possible replication slowdown on db1
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+
 		$this->processAssetSelections();
-		return parent::printFrontend();
+		parent::printFrontend();
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}//end printFrontend()
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.10 2006/01/20 03:46:59 sdanis Exp $
+* $Id: page_poll.inc,v 1.11 2006/02/10 02:47:01 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -180,7 +180,6 @@ class Page_Poll extends Page
 	*/
 	function printBody()
 	{
-
 		// declaration
 		$active_question_id	= $this->attr('active_question');
 		$format_type 		= 'question_format';
@@ -257,6 +256,9 @@ class Page_Poll extends Page
 		if (isset($_POST['option_id'])) {
 			// save the results
 			if ($can_vote) {
+				// tie any vote processing to the subsequent printing of results
+				// (due to possible slow DB replication issues) using db2
+				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$this->_processVote($question, $_POST['option_id']);
 			}
 			$format_type = 'results_format';
@@ -300,10 +302,15 @@ class Page_Poll extends Page
 
 
 		$format_bodycopy = $this->getFormatAsset($format_type);
-		if (is_null($format_bodycopy)) return FALSE;
+		if (!is_null($format_bodycopy)) {
+			$format_bodycopy->setKeywordReplacements($keywords);
+			$format_bodycopy->printBody();
+		}
 
-		$format_bodycopy->setKeywordReplacements($keywords);
-		$format_bodycopy->printBody();
+		if (isset($_POST['option_id']) && $can_vote) {
+			// untie the connection
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		}
 
 	}//end printBody()
 

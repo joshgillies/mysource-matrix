@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager.inc,v 1.8 2006/01/27 03:24:29 dmckee Exp $
+* $Id: page_user_group_manager.inc,v 1.9 2006/02/10 02:47:01 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Darren McKee <dmckee@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -121,6 +121,14 @@ class Page_User_Group_Manager extends Page
 	*/
 	function printBody()
 	{
+		// if the page is being submitted, a slow DB replication could mean that
+		// the printed bodycopy contents may not immediately match the newly
+		// committed data if done on db1... so tying the process and print
+		// together, IF the form is being submitted
+		if (isset($_REQUEST['submitted'])) {
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		}
+
 		// Process any operations. Deleting, New links etc.
 		$this->processForm();
 		?>
@@ -130,6 +138,10 @@ class Page_User_Group_Manager extends Page
 		// Print the form and details again
 		echo $this->printBodycopyContents();
 		?></form><?php
+
+		if (isset($_REQUEST['submitted'])) {
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		}
 
 	}//end printBody()
 

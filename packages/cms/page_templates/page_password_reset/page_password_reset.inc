@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_password_reset.inc,v 1.4 2006/01/20 04:39:02 sdanis Exp $
+* $Id: page_password_reset.inc,v 1.5 2006/02/10 02:47:01 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	Allows a user to reset their password.
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -124,11 +124,17 @@ class Page_Password_Reset extends Page
 	*/
 	function printBody()
 	{
+		// Since we are going a lot of changes here, tie the paint and process
+		// together using db2
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+
 		$password_reset_action = $this->default_state;
 		if (isset($_REQUEST['action'])) { // Handle form submission.
 			$password_reset_action = $_REQUEST['action'];
 		}
 		echo $this->_printContents($password_reset_action);
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}//end printBody()
 

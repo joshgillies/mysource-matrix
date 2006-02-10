@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order.inc,v 1.11 2006/01/26 22:35:23 lwright Exp $
+* $Id: ecommerce_order.inc,v 1.12 2006/02/10 02:47:14 lwright Exp $
 *
 */
 
@@ -129,11 +129,13 @@ class Ecommerce_Order extends Asset
 	{
 		switch ($name) {
 			case 'products':
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 				$this->_linkProducts($value);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			break;
 		}
 		return parent::setAttrValue($name, $value);
