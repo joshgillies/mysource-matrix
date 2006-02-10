@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.1 2006/02/10 02:01:35 sdanis Exp $
+* $Id: trigger_action_send_email.inc,v 1.2 2006/02/10 06:03:35 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/email_format/email_format.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,9 +61,7 @@ class Trigger_Action_Send_Email extends Trigger_Action
 			}
 		}
 
-		if (is_null($state['asset'])) {
-			return FALSE;
-		}
+		if (is_null($state['asset'])) return FALSE;
 
 		$assetid = $state['asset']->id;
 
@@ -76,7 +74,7 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		if ($settings['to_owner']) {
 			// add owners id
 			$unserialised = unserialize($email_format_value);
-			$unserialised['to_assetids'][] = $asset_id;
+			$unserialised['to_assetids'][] = $assetid;
 			$email_format_value = serialize($unserialised);
 		}
 
