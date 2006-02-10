@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.21 2006/01/19 04:47:04 tbarrett Exp $
+* $Id: email_format.inc,v 1.22 2006/02/10 01:57:27 sdanis Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *    <email_format />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -60,20 +60,25 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 	/**
 	* Print the interface for filling in a value
 	*
-	* @param string		$prefix		prefix for the form elements
-	* @param boolean	$read_only	are we just printing the value
+	* @param string		$prefix				prefix for the form elements
+	* @param boolean	$read_only			are we just printing the value
+	* @param boolean	$with_asset_finder	Adds Musltiple asset finder for To field
 	*
 	* @return void
 	* @access public
 	*/
-	function paint($prefix, $read_only=FALSE)
+	function paint($prefix, $read_only=FALSE, $with_asset_finder=FALSE)
 	{
+
 		$current_value = @unserialize($this->value);
 		if (!is_array($current_value)) {
 			$current_value = Array();
 		}
 		if (!isset($current_value['to'])) {
 			$current_value['to'] = Array();
+		}
+		if (!isset($current_value['to_assetids'])) {
+			$current_value['to_assetids'] = Array();
 		}
 		if (!isset($current_value['from'])) {
 			$current_value['from'] = '';
@@ -118,6 +123,9 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 						<?php
 						foreach ($current_value['to'] as $email) {
 							echo htmlspecialchars($email).'<br />';
+						}
+						foreach ($current_value['to_assetids'] as $assetid) {
+							echo get_asset_tag_line($assetid).'<br />';
 						}
 						?>
 					</td>
@@ -172,15 +180,17 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$wysiwyg->set_contents($current_value['html_format']);
 
 		$current_to_string = '';
-		$current_to = '';
-
 		$i = 0;
+
+		$current_to_emails = '';
 
 		foreach ($current_value['to'] as $email) {
 			$current_to_string .= '<div id="'.$prefix.'_'.$i.'">[ <a href="#" onclick="Javascript: emailFormatDeleteAddress('.$i.', \''.$prefix.'\', \'to\'); return false;">del</a> ] <span id="'.$prefix.'_content_'.$i.'">'.htmlspecialchars($email).'</span></div>';
-			$current_to .= $email.';';
+			$current_to_emails .= $email.';';
 			$i++;
 		}
+
+		$current_to_assetids = $current_value['to_assetids'];
 
 		?>
 		<script language="Javascript">
@@ -196,7 +206,6 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				var value = document.getElementById(editor_name + "_" + type);
 				var box = document.getElementById(editor_name + "_new_" + type);
 				var div = document.getElementById(editor_name + "_current_" + type);
-
 				if (box.value == "") return;
 
 				div.innerHTML += '<div id="' + editor_name + '_' + next_index[editor_name].toString() + '">[ <a href="#" onclick="Javascript: emailFormatDeleteAddress(' + next_index[editor_name].toString() + ', \'' + editor_name + '\', \'' + type + '\'); return false;">del</a> ] <span id="' + editor_name + '_content_' + next_index[editor_name].toString() + '">' + box.value.replace('<', '&lt;').replace('>', '&gt;') + '</span></div>';
@@ -205,7 +214,9 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				next_index[editor_name]++;
 
 				box.value = "";
-				box.focus();
+				if (box.type != 'hidden') {
+					box.focus();
+				}
 
 			}//end emailFormatAddAddress()
 
@@ -299,10 +310,18 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			<tr>
 				<td align="right" valign="top"><b>To</b></td>
 				<td valign="top">
-					<?php text_box($prefix.'_new_to', '', 50); ?>
-					[ <a href="#" onclick="Javascript: emailFormatAddAddress('<?php echo $prefix ?>', 'to'); return false;">add</a> ]<br/>
-					<div id="<?php echo $prefix; ?>_current_to"><?php echo $current_to_string; ?></div>
-					<?php hidden_field($prefix.'_to', $current_to); ?>
+					<?php
+					if ($with_asset_finder) {
+						multiple_asset_finder($prefix.'_new_to_assetids[assetids]', $current_to_assetids, Array('user' => 'D'));
+					}
+						text_box($prefix.'_new_to', '', 50);
+					?>
+							[ <a href="#" onclick="Javascript: emailFormatAddAddress('<?php echo $prefix ?>', 'to'); return false;">add</a> ]<br/>
+							<div id="<?php echo $prefix; ?>_current_to"><?php echo $current_to_string; ?></div>
+					<?php
+						hidden_field($prefix.'_to', $current_to_emails);
+
+					?>
 				</td>
 			</tr>
 			<tr>
@@ -382,6 +401,16 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			}
 		}
 
+		if (isset($_REQUEST[$prefix.'_new_to_assetids']['assetids']) && is_array($_REQUEST[$prefix.'_new_to_assetids']['assetids'])) {
+			// this is an asset_finder
+			foreach ($_REQUEST[$prefix.'_new_to_assetids']['assetids'] as $new_to_info) {
+				if (!empty($new_to_info['assetid']) || $new_to_info['assetid'] != 0) {
+					$value['to_assetids'][] = $new_to_info['assetid'];
+				}
+			}
+		}
+
+		// text field
 		$new_to = trim(array_get_index($_REQUEST, $prefix.'_new_to', ''));
 		if (!empty($new_to)) $value['to'][] = $new_to;
 
@@ -449,11 +478,25 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$current_value = @unserialize($this->value);
 
 		// replace keywords in all our values
+		$assetid_emails = Array();
+		if (isset($current_value['to_assetids']) && !empty($current_value['to_assetids'])) {
+			foreach ($current_value['to_assetids'] as $assetid) {
+				$user_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+				if (is_null($user_asset)) continue;
+
+				$assetid_emails[] = $user_asset->attr('email');
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user_asset);
+			}
+		}
+
+		$to 	   = replace_keywords($current_value['to'], 		 $replacements);
 		$from      = replace_keywords($current_value['from'],        $replacements);
-		$to        = replace_keywords($current_value['to'],          $replacements);
 		$subject   = replace_keywords($current_value['subject'],     $replacements);
 		$text_body = replace_keywords($current_value['text_format'], $replacements);
 		$html_body = replace_keywords($current_value['html_format'], $replacements);
+
+		$to =  array_merge($to, $assetid_emails);
 
 		// if no 'From:' address (possibly because of empty keyword replacement)
 		// send from the system's default email address
@@ -496,7 +539,6 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			// get() must be called before headers()
 			$body = $mime->get();
 			$hdrs = $mime->headers($hdrs);
-
 			$msg = $mail->send($to_email, $hdrs, $body);
 
 		}//end foreach
