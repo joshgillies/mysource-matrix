@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.51 2006/02/03 05:31:41 sdanis Exp $
+* $Id: bulk_mailer.inc,v 1.52 2006/02/10 00:20:23 ndvries Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -284,7 +284,7 @@ class Bulk_Mailer
 						if (!$pid) {
 							$content = $this->generateContent($details['content_id'], $details['content_gen_as'], $details['content_design'], $details['content_layout'], $job_path, $user_id);
 							$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($user_id);
-							$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $GLOBALS['SQ_SYSTEM']->user);
+							$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $user);
 							// only queue the mail if we can generate content
 							$problematic = (empty($content)) ? TRUE : FALSE;
 							if (!$problematic) {
@@ -463,57 +463,67 @@ class Bulk_Mailer
 	* @return array
 	* @access public
 	*/
-	function getAllRecipients($asset_to_send, $recipients)
+	function getAllRecipients($asset_to_send_id, $recipients)
 	{
-		// handle groups and users/bulkmail_users separately
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$user_list = Array();
-		$group_list = Array();
-		$problematic_list = Array();
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$asset_to_send =& $am->getAsset($asset_to_send_id);
 
 		if (!is_array($recipients)) {
 			$recipients = Array($recipients);
 		}
 
-		// an array of userids that have read access to the asset to send (content page)
-		// if public user has read access, then everyone should be able to read it
-		$read_permission = $am->getPermission($asset_to_send, SQ_PERMISSION_READ, TRUE);
-		$public_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
-		$public_read_access = in_array($public_user->id, $read_permission);
-
+		$recipients_expanded = Array();
 		foreach ($recipients as $recipient_id) {
-			// only add to user list if this recipient has read permission
-			if ($public_read_access || in_array($recipient_id, $read_permission)) {
+			$recipient =& $am->getAsset($recipient_id);
+			if ($am->isTypeDecendant($recipient->type(), 'user_group')) {
+				$recipients_expanded += $am->getChildren($recipient->id, 'user', FALSE, FALSE);
+				$recipients_expanded += $am->getChildren($recipient->id, 'bulkmail_user', FALSE, FALSE);
+			} else {
+				$recipients_expanded[$recipient->id] = '';
+			}
+			$am->forgetAsset($recipient);
+		}
+
+		$recipients = Array();
+		$recipients_query = Array();
+		$problematic_list = Array();
+
+		for ($recipients_expanded; NULL != ($recipient_id = key($recipients_expanded)); next($recipients_expanded)) {
+			if (!$asset_to_send->readAccess(Array($recipient_id))) {
+				unset($recipients_expanded[$recipient_id]);
+				$problematic_list[] = $recipient_id;
+			}
+
+			$recipient_id_parts = explode(':', $recipient_id);
+			if (isset($recipient_id_parts[1])) {
 				$recipient =& $am->getAsset($recipient_id);
-				if (!is_null($recipient)) {
-					if (is_a($recipient, 'user') || is_a($recipient, 'bulkmail_user')) {
-						$user_list += Array($recipient_id => $recipient->attr('email'));
-					// store all group ids
-					} else if (is_a($recipient, 'user_group')) {
-						$group_ids[] = $recipient_id;
-					}
-				}
+				$recipients[$recipient->id] = $recipient->attr('email');
 				$am->forgetAsset($recipient);
 			} else {
-				// problematic recipient: no read access to content
-				$problematic_list[] = $recipient_id;
+				$recipients_query[] = $db->quoteSmart($recipient_id);
 			}
 		}
 
-		// expand groups and get all users/bulkmail_users from a query
-		if (!empty($group_ids)) {
-			$type_codes = Array(
-							'user'			=> FALSE,
-							'bulkmail_user'	=> TRUE,
-						  );
-			$query = $this->generateGetRecipientsQuery($group_ids, $type_codes);
-			$group_list = $GLOBALS['SQ_SYSTEM']->db->getAssoc($query);
-			assert_valid_db_result($group_list);
+		$query = Array();
+		if (!empty($recipients_query)) {
+			// Now, let's do one big-ass query to get all the email addresses of REAL assets
+			$sql = 'SELECT attr_val.assetid, attr_val.custom_val
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val attr_val
+					  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr attr
+						ON (attr_val.attrid = attr.attrid)
+					WHERE attr.name = \'email\'
+					AND attr_val.assetid IN ('.implode(',', $recipients_query).')';
+
+			$query = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql);
+			assert_valid_db_result($query);
 		}
 
-		// combine group/user results
-		$result['recipient'] = $group_list + $user_list;
-		$result['problematic'] = $problematic_list;
+		$recipients += $query;
+
+		$result['recipient'] = $recipients;
+		$result['problematic'] = array_diff(array_keys($recipients_expanded), array_keys($recipients));
 		return $result;
 
 	}//end getAllRecipients()
@@ -623,7 +633,7 @@ class Bulk_Mailer
 	* @return string
 	* @access public
 	*/
-	function generateContent($content_id, $content_gen_as, $content_design, $content_layout, $job_path, $recipient_id=0)
+	function generateContent($content_id, $content_gen_as, $content_design, $content_layout, $job_path, $recipient_id=null)
 	{
 		// Get the user before we change it
 		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
@@ -633,12 +643,10 @@ class Bulk_Mailer
 		$replaceUser =& $generateUser;
 
 		$cache = TRUE;
-		if (!$recipient_id) {
+		if (is_null($recipient_id)) {
 			$replaceUser =& $current_user;
 			$cache = FALSE;
-		}
-
-		if ($recipient_id) {
+		} else if ($recipient_id) {
 			$replaceUser =& $am->getAsset($recipient_id);
 			if (!is_a($replaceUser, 'Bulkmail_User')) {
 				$generateUser =& $replaceUser;
