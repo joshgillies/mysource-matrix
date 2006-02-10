@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.21 2005/05/16 06:36:31 lwright Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.22 2006/02/10 02:03:19 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,7 +54,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		// enable just the details
 		$this->static_screens['details']['name'] = translate('details');
-		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
 
@@ -64,9 +64,9 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	*
 	* Determines which Subscreen to display based on state info
 	*
-	* @param object Trigger_Manager &$tm trigger manager
-	* @param object Backend_Outputter   &$o     the outputter class
-	* @param string                     $prefix prefix for the form elements
+	* @param object	&$tm	trigger manager
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -109,14 +109,15 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint Subscreen for Edit Triggers
 	*
-	* @param object Trigger_Manager     &$tm          trigger manager
-	* @param object Backend_Outputter   &$o           the outputter class
-	* @param string                     $prefix       prefix for the form elements
-	* @param boolean                    $write_access flag whether it is
+	* @param object		&$tm			trigger manager
+	* @param object		&$o				the outputter class
+	* @param string		$prefix			prefix for the form elements
+	* @param boolean	$write_access	flag whether it is
 	*
+	* @return void
 	* @access private
 	*/
-	function _paintSubScreenEdit(&$tm, &$o, $prefix, $write_access=false)
+	function _paintSubScreenEdit(&$tm, &$o, $prefix, $write_access=FALSE)
 	{
 
 		$trigger_id = $this->_tmp['edit_id'];
@@ -125,7 +126,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		if (empty($trigger)) {
 			// paint error message
 			trigger_localised_error('CORE0136', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		// the styles below can be moved to edit.css in the future
@@ -332,9 +333,9 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$o->openField(translate('blocking').':');
 			if (isset($trigger['data']['settings'])) {
-				$blocking = array_get_index($trigger['data']['settings'], 'blocking', false);
+				$blocking = array_get_index($trigger['data']['settings'], 'blocking', FALSE);
 			} else {
-				$blocking = false;
+				$blocking = FALSE;
 			}
 			if ($write_access) {
 				check_box($prefix.'[info][blocking]', '1', $blocking, '', 'id="info_blocking"');
@@ -386,13 +387,13 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		// paint a tickbox list of all the events in the system
-		$events_selected = false;
+		$events_selected = FALSE;
 		$event_prefix = $prefix.'[events]';
 		foreach ($event_type_list as $e_type => $e_name) {
 			if (isset($events[$e_type])) {
-				$checked = true;
+				$checked = TRUE;
 			} else {
-				$checked = false;
+				$checked = FALSE;
 			}
 
 			$events_selected = $checked || $events_selected;
@@ -481,10 +482,11 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 				</div>
 				<?php
 				$i++;
-			}
+			}//end foreach
 			?>
 			</div>
-			<?php  if ($write_access) { ?>
+			<?php  if ($write_access) {
+			?>
 			<script type="text/javascript">var conditionOrdererObject = new componentOrderer('conditionOrderer',<?php echo $i; ?>)</script>
 			<input type="hidden" id="conditionOrderer" name="<?php echo $condition_order_prefix; ?>" />
 			<!-- Adding a New Condition -->
@@ -492,16 +494,16 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 				<?php echo translate('add_new_condition_type'); ?>:
 					<?php
 					$select_list = Array(' '=>' ---- '.translate('select_to_add').'  ---- ');
-					$removed = false;
+					$removed = FALSE;
 					foreach ($condition_type_list as $type => $name) {
 						if (!$multiple_status[$type] && $type_instance_count[$type] != 0) {
-							$removed = true;
+							$removed = TRUE;
 							continue;
 						}
 						$select_list[$type] = $name;
 					}
 
-					combo_box($prefix.'[new_condition]', $select_list, false, ' ');
+					combo_box($prefix.'[new_condition]', $select_list, FALSE, ' ');
 					if ($removed) {
 						echo ' <span class="sq-backend-warning">'.translate('some_conditions_can_only_be_added_once').'</span>';
 					}
@@ -543,8 +545,8 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 				$type = $action['type'];
 				$data = $action['data'];
-				$not_required = array_get_index($action, 'not_required', false);
-				$ignore_permissions = array_get_index($action, 'ignore_permissions', false);
+				$not_required = array_get_index($action, 'not_required', FALSE);
+				$ignore_permissions = array_get_index($action, 'ignore_permissions', FALSE);
 
 				$interface = $tm->_getComponentInterface($type, $data, $data_prefix, $write_access);
 				$type_name = $tm->_getComponentName($type);
@@ -577,10 +579,10 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 							$extras = '';
 						}
 
-						check_box($ignore_permissions_prefix, 1, $ignore_permissions, null, $extras);
+						check_box($ignore_permissions_prefix, 1, $ignore_permissions, NULL, $extras);
 						label(translate('ignore_permissions'), $ignore_permissions_prefix);
 
-						check_box($not_required_prefix, 1, $not_required, null, $extras);
+						check_box($not_required_prefix, 1, $not_required, NULL, $extras);
 						label(translate('not_required'), $not_required_prefix);
 						?>
 					</div>
@@ -591,7 +593,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 				</div>
 				<?php
 				$i++;
-			}
+			}//end foreach
 			if ($write_access) {
 				?>
 				<script type="text/javascript">var actionOrdererObject = new componentOrderer('actionOrderer',<?php echo $i; ?>)</script>
@@ -629,7 +631,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			$o->closeSection();
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _paintSubScreenEdit()
 
@@ -639,22 +641,23 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	*
 	* This function determines how to process the input from the backend interface
 	*
-	* @param object Trigger_Manager     &$tm    trigger manager
-	* @param object Backend_Outputter   &$o     the outputter class
-	* @param string                     $prefix prefix for the form elements
+	* @param object	&$tm	trigger manager
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
+	* @return boolean
 	* @access public
 	*/
 	function processTriggerScreen(&$tm, &$o, $prefix)
 	{
 		$write_access = $tm->writeAccess('attributes');
-		$status = false;
+		$status = FALSE;
 
-		$request_data = array_get_index($_REQUEST, $prefix, false);
+		$request_data = array_get_index($_REQUEST, $prefix, FALSE);
 
 		if (!$request_data) {
 			// Can't do anything without the REQUEST vars, fail
-			return false;
+			return FALSE;
 		}
 
 		$screen = array_get_index($request_data, 'sub_screen', 'list');
@@ -683,18 +686,20 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	*
 	* This function determines how to process the input from the backend interface
 	*
-	* @param object Trigger_Manager     &$tm trigger manager
-	* @param array                      &$request_data      data extracted from the request variables
+	* @param object		&$tm			trigger manager
+	* @param array		$request_data	data extracted from the request variables
+	* @param boolean	$write_access	Write access
 	*
+	* @return void
 	* @access private
 	*/
-	function _processSubScreenList(&$tm, $request_data, $write_access=false)
+	function _processSubScreenList(&$tm, $request_data, $write_access=FALSE)
 	{
 		// edit request
-		$edit_id = array_get_index($request_data, 'edit_id', false);
+		$edit_id = array_get_index($request_data, 'edit_id', FALSE);
 
 		// add new trigger
-		$new_name = array_get_index($request_data, 'add_name', false);
+		$new_name = array_get_index($request_data, 'add_name', FALSE);
 		if ($new_name && !empty($new_name)) {
 			$trigger = $tm->_getEmptyTrigger();
 			$trigger['name'] = $new_name;
@@ -709,7 +714,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		if ($edit_id) $this->_tmp['edit_id'] = $edit_id;
 
 		// delete the requested triggers
-		$to_delete = array_get_index($request_data, 'delete', false);
+		$to_delete = array_get_index($request_data, 'delete', FALSE);
 		if (!empty($to_delete)) {
 			$i=0;
 			foreach ($to_delete as $trigger_id => $junk) {
@@ -722,8 +727,6 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		//return true;
-
 	}//end _processSubScreenList()
 
 
@@ -732,30 +735,31 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	*
 	* This function determines how to process the input from the backend interface
 	*
-	* @param object Trigger_Manager     &$tm                trigger manager
-	* @param array                      &$request_data      data extracted from the request variables
-	* @param boolean                    $write_access       write access flag
+	* @param object		&$tm			trigger manager
+	* @param array		$request_data	data extracted from the request variables
+	* @param boolean	$write_access	write access flag
 	*
+	* @return boolean
 	* @access private
 	*/
-	function _processSubScreenEdit(&$tm, $request_data, $write_access=false)
+	function _processSubScreenEdit(&$tm, $request_data, $write_access=FALSE)
 	{
 		$edit_data = array_get_index($request_data, 'edit', Array());
 		$edit_id = array_get_index($edit_data, 'id');
 
 		if (empty($edit_data) || empty($edit_id)) {
-			return false;
+			return FALSE;
 		}
 
 		$trigger = $tm->_loadTrigger($edit_id);
-		if (empty($trigger)) return false;
+		if (empty($trigger)) return FALSE;
 
 		// set this to make sure we return to edit screen of the same trigger
 		if (!isset($edit_data['finish'])) {
 			$this->_tmp['edit_id'] = $edit_id;
 		}
 
-		if (!$write_access) return false;
+		if (!$write_access) return FALSE;
 
 		$edit_info = array_get_index($edit_data, 'info');
 
@@ -785,7 +789,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$new_condition_type = array_get_index($edit_data, 'new_condition');
 		if (!empty($new_condition_type)) {
 			$new_condition['type'] = $new_condition_type;
-			$new_condition['new']  = true;
+			$new_condition['new']  = TRUE;
 
 			$raw_conditions[] = $new_condition;
 		}
@@ -804,7 +808,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$new_action_type = array_get_index($edit_data, 'new_action');
 		if (!empty($new_action_type)) {
 			$new_action['type'] = $new_action_type;
-			$new_action['new']  = true;
+			$new_action['new']  = TRUE;
 
 			$raw_actions[] = $new_action;
 		}
@@ -812,7 +816,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$processed_actions = $this->_processRawActionSet($tm, $raw_actions);
 
 		if (empty($processed_events) || empty($processed_actions) || empty($trigger['active'])) {
-			$trigger['save_hash'] = false;
+			$trigger['save_hash'] = FALSE;
 		}
 
 		$trigger['data']['events']     = $processed_events;
@@ -821,7 +825,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$tm->_saveTrigger($trigger);
 
-		return true;
+		return TRUE;
 
 	}//end _processSubScreenEdit()
 
@@ -831,13 +835,12 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	*
 	* Conditions that were supplied by the interface, plus the newly added one
 	*
-	* @param object Trigger_Manager     &$tm trigger manager
-	* @param array                      $raw_components a list of submitted conditions
-	* @param object Hash                &$hash      hash object to populate
+	* @param object	&$tm			trigger manager
+	* @param array	$raw_components	a list of submitted conditions
 	*
+	* @return array
 	* @access private
 	*/
-	//function _processRawConditionSet(&$tm, $raw_components, &$hash)
 	function _processRawConditionSet(&$tm, $raw_components)
 	{
 		$processed_components = Array();
@@ -848,7 +851,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$i = 1;
 		foreach ($raw_components as $component) {
-			$error = false;
+			$error = FALSE;
 			if (isset($component['delete'])) continue;
 			$settings = Array();
 
@@ -859,12 +862,11 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 
 			$data = array_get_index($component, 'data', Array());
-			if (!array_get_index($component, 'new', false)) {
-				//eval('$error = '.$type.'::processInterface($settings, $hash, $data);');
+			if (!array_get_index($component, 'new', FALSE)) {
 				eval('$error = '.$type.'::processInterface($settings, $data);');
 			}
 
-			if (false !== $error) {
+			if (FALSE !== $error) {
 				trigger_localised_error('CORE0217', E_USER_NOTICE, $i, $type, $error);
 			}
 
@@ -887,10 +889,10 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	* Action settings that were supplied by the interface, plus the newly added one are
 	* converted to the form that can be saved and used later
 	*
-	* @param object Trigger_Manager     &$tm trigger manager
-	* @param array                      $raw_components a list of submitted actions
-	* @param object Hash                &$hash      hash object to populate
+	* @param object	&$tm			trigger manager
+	* @param array	$raw_components	a list of submitted actions
 	*
+	* @return array
 	* @access private
 	*/
 	function _processRawActionSet(&$tm, $raw_components)
@@ -903,7 +905,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$i=1;
 		foreach ($raw_components as $component) {
-			$error = false;
+			$error = FALSE;
 			if (isset($component['delete'])) continue;
 
 			$settings = Array();
@@ -915,7 +917,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 			$data = array_get_index($component, 'data', Array());
-			if (!array_get_index($component, 'new', false)) {
+			if (!array_get_index($component, 'new', FALSE)) {
 				eval('$error = '.$type.'::processInterface($settings, $data);');
 			}
 
@@ -926,7 +928,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 										'ignore_permissions'	=> isset($component['ignore_permissions']),
 									  );
 
-			if (false !== $error) {
+			if (FALSE !== $error) {
 				trigger_localised_error('CORE0130', E_USER_NOTICE, $i, $type, $error);
 			}
 			$i++;
@@ -940,11 +942,12 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint Trigger List sub screen
 	*
-	* @param object Trigger_Manager     &$tm trigger manager
-	* @param object Backend_Outputter   &$o     the outputter class
-	* @param string                     $prefix prefix for the form elements
-	* @param boolean                    $write_access a flag denoting whether we're editing or not
+	* @param object		&$tm			trigger manager
+	* @param object		&$o				the outputter class
+	* @param string		$prefix			prefix for the form elements
+	* @param boolean	$write_access	a flag denoting whether we're editing or not
 	*
+	* @return boolean
 	* @access private
 	*/
 	function _paintSubScreenList(&$tm, &$o, $prefix, $write_access)
@@ -996,9 +999,12 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 				<td class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('name'); ?></td>
 				<td class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('description'); ?></td>
 				<td width="50" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('status'); ?></td>
-				<?php if ($write_access) { ?>
+				<?php if ($write_access) {
+				?>
 				<td width="50" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('delete_question'); ?></td>
-				<?php } ?>
+				<?php
+					}
+				?>
 			</tr>
 
 		<?php
@@ -1007,25 +1013,30 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		foreach ($list as $trigger) {
 			$trigger_url = $screen_url.'&'.$prefix.'[edit_id]='.$trigger['id'];
-			$active_text = $trigger['active']?'<strong>'.translate('active').'</strong>':'<span style="color: red">'.translate('inactive').'</span>';
+			$active_text = $trigger['active'] ? '<strong>'.translate('active').'</strong>' : '<span style="color: red">'.translate('inactive').'</span>';
 			?>
 			<tr>
 				<td class="sq-backend-table-cell"><?php echo $trigger['id']; ?></td>
 				<td class="sq-backend-table-cell"><a href="<?php echo $trigger_url; ?>"><?php echo $trigger['name']; ?></a></td>
 				<td class="sq-backend-table-cell"><?php echo $trigger['description']; ?></td>
 				<td class="sq-backend-table-cell"><strong><?php echo $active_text; ?></strong></td>
-				<?php if ($write_access) { ?>
+				<?php if ($write_access) {
+				?>
 				<td class="sq-backend-table-cell"><input type="checkbox" name="<?php echo $prefix; ?>[delete][<?php echo $trigger['id']; ?>]"  onClick="checkDelete(this.checked)" ></td>
-				<?php } ?>
+				<?php
+					}
+				?>
 			</tr>
-		<?php } ?>
+		<?php
+			}
+		?>
 		</table>
 		<?php
 
 		$o->closeSection();
 		$o->addOnsubmit('return confirmDelete();');
 
-		return true;
+		return TRUE;
 
 	}//end _paintSubScreenList()
 
@@ -1033,9 +1044,9 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Display the Batching Triggers Screen
 	*
-	* @param object Trigger_Manager     &$tm    trigger manager
-	* @param object Backend_Outputter   &$o     the outputter class
-	* @param string                     $prefix prefix for the form elements
+	* @param object	&$tm	trigger manager
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -1048,7 +1059,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			asset_finder($prefix.'[target_node]', array_get_index($this->_tmp, 'target_id'));
 
 			$o->openField(translate('children'));
-			check_box($prefix.'[include_children]', 'yes', array_get_index($this->_tmp, 'include_children', true));
+			check_box($prefix.'[include_children]', 'yes', array_get_index($this->_tmp, 'include_children', TRUE));
 			label(translate('include_children_question'), $prefix.'[include_children]');
 
 			$o->openField(translate('events'));
@@ -1058,17 +1069,17 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			$event_prefix = $prefix.'[selected_events]';
 			foreach ($event_type_list as $e_type => $e_name) {
 				if (isset($events[$e_type])) {
-					$checked = true;
+					$checked = TRUE;
 				} else {
-					$checked = false;
+					$checked = FALSE;
 				}
 				check_box($event_prefix.'['.$e_type.']', $e_type, $checked);
 				label($e_name, $event_prefix.'['.$e_type.']');
 				?><br /> <?php
 			}
-			return true;
+			return TRUE;
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end paintBatching()
@@ -1079,15 +1090,16 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	*
 	* Prepares and fires the trigger batching HIPO job
 	*
-	* @param object Trigger_Manager     &$tm    trigger manager
-	* @param object Backend_Outputter   &$o     the outputter class
-	* @param string                     $prefix prefix for the form elements
+	* @param object	&$tm	trigger manager
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
+	* @return boolean
 	* @access public
 	*/
 	function processBatching(&$tm, &$o, $prefix)
 	{
-		$error = false;
+		$error = FALSE;
 
 		$request_data = array_get_index($_REQUEST, $prefix, Array());
 
@@ -1102,29 +1114,29 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		if (empty($target_id)) {
 			trigger_localised_error('CORE0132', E_USER_WARNING);
-			$error = true;
+			$error = TRUE;
 		}
 
 		if (empty($events)) {
 			trigger_localised_error('CORE0126', E_USER_WARNING);
-			$error = true;
+			$error = TRUE;
 		}
 
-		if ($error) return false;
+		if ($error) return FALSE;
 
 		// grab all the children of the target if applicable, then add the target itself
 		$all_targets = Array();
 		if ($propagate) {
 			$all_targets = $GLOBALS['SQ_SYSTEM']->am->getChildren($target_id);
 		}
-		$target_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($target_id);
+		$target_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($target_id);
 		$all_targets[$target_id] = $target_asset->type();
 
 		// convert from id->type to index->id
 		$all_targets = array_keys($all_targets);
 
 		// start up the HIPO
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
 					'assets'				=> $all_targets,
 					'events'				=> $events,
@@ -1133,7 +1145,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 				);
 		$hh->queueHipo('hipo_job_trigger_batch_events', $vars);
 
-		return true;
+		return TRUE;
 
 	}//end processBatching()
 

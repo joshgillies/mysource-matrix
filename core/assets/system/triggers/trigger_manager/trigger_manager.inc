@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.29 2006/01/26 22:34:07 lwright Exp $
+* $Id: trigger_manager.inc,v 1.30 2006/02/10 02:03:19 sdanis Exp $
 *
 */
 
@@ -48,7 +48,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -88,7 +88,7 @@ class Trigger_Manager extends Asset
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
-			return false;
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -96,7 +96,7 @@ class Trigger_Manager extends Asset
 
 		if ($linkid = parent::create($link)) {
 			if (!system_asset_fns_create_cleanup($this)) {
-				$linkid = false;
+				$linkid = FALSE;
 			}
 		}
 
@@ -139,7 +139,7 @@ class Trigger_Manager extends Asset
 	*/
 	function canClone()
 	{
-		return false;
+		return FALSE;
 
 	}//end canClone()
 
@@ -153,7 +153,7 @@ class Trigger_Manager extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 
@@ -204,29 +204,29 @@ class Trigger_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function broadcastEvent($event_name, &$broadcaster, $parameters=null)
+	function broadcastEvent($event_name, &$broadcaster, $parameters=NULL)
 	{
 		// triggers do not work in ROLLBACK mode
-		if (SQ_ROLLBACK_VIEW) return true;
-		if (!$this->attr('enabled')) return true;
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		if (SQ_ROLLBACK_VIEW) return TRUE;
+		if (!$this->attr('enabled')) return TRUE;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		// include the event asset
 		if (!$this->_loadComponent($event_name)) {
 			trigger_localised_error('CORE0219', E_USER_WARNING, $event_name);
-			return false;
+			return FALSE;
 		}
 
-		//check whether any triggers listen for this event
+		// check whether any triggers listen for this event
 		if (!$this->_isEventListenedFor($event_name)) {
-			return true;
+			return TRUE;
 		}
 
 		// calculate state, prepare state hash
 		$state = $this->_calculateState($event_name, $broadcaster, $parameters);
 		$state_hash = $this->_calculateStateHash($state);
 
-		$broadcast_status = true;
+		$broadcast_status = TRUE;
 
 		// lookup triggers
 		$candidate_trigger_ids = $this->_lookupCandidateTriggers($state_hash);
@@ -234,15 +234,15 @@ class Trigger_Manager extends Asset
 		// execute each trigger
 		foreach ($candidate_trigger_ids as $trigger_id) {
 
-			$status_message = null;
-			$msg_type = null;
+			$status_message = NULL;
+			$msg_type = NULL;
 			// re-create a trigger
 			$trigger = $this->_loadTrigger($trigger_id);
 			$status  = $this->_executeTrigger($trigger['data'], $state);
 
 			// get settings
-			$trigger_settings = &$trigger['data']['settings'];
-			$is_blocking      = array_get_index($trigger['data']['settings'], 'blocking', false);
+			$trigger_settings =& $trigger['data']['settings'];
+			$is_blocking      = array_get_index($trigger['data']['settings'], 'blocking', FALSE);
 
 			// prepare message data
 			$msg_reps = Array(
@@ -259,7 +259,7 @@ class Trigger_Manager extends Asset
 						// if the trigger is set to block, then drop out of the
 						// loop to prevent the other triggers from running
 						// only allowing blocking triggers to affect the broadcast status
-						$broadcast_status = false;
+						$broadcast_status = FALSE;
 						break 2;
 					} else {
 						trigger_localised_error('CORE0127', E_USER_WARNING, $trigger['id'], $trigger['name'], $event_name, $broadcaster->id, $broadcaster->name);
@@ -280,13 +280,13 @@ class Trigger_Manager extends Asset
 
 			if (!empty($msg_type)) {
 				// log message using messaging service
-				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 				$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
 				$message->send();
 			}
 
-		}
+		}//end foreach
 
 		// clear out the record of running triggers
 		$this->_tmp['running_triggers'] = Array();
@@ -306,21 +306,21 @@ class Trigger_Manager extends Asset
 	* @return array
 	* @access private
 	*/
-	function _calculateState($event_type, &$event_broadcaster, $parameters=null)
+	function _calculateState($event_type, &$event_broadcaster, $parameters=NULL)
 	{
 		// calculate the environment state
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		// for use by the trigger
 		$state['event']['name'] = $event_type;
 		$state['event']['data'] = $parameters;
 
-		$state['asset']         = &$event_broadcaster;
+		$state['asset']         =& $event_broadcaster;
 		$state['assetid']       = $event_broadcaster->id;
 		$state['asset_type']    = $event_broadcaster->type();
 
 		//// parent links
-		$parent_links = $am->getLinks($state['assetid'], SQ_SC_LINK_ALL, null, true, 'minor');
+		$parent_links = $am->getLinks($state['assetid'], SQ_SC_LINK_ALL, NULL, TRUE, 'minor');
 		$new_parent_links = Array();
 		$parent_assets    = Array();
 		$parent_link_map  = Array();
@@ -335,7 +335,7 @@ class Trigger_Manager extends Asset
 
 
 		//// child links
-		$child_links = $am->getLinks($state['assetid'], SQ_SC_LINK_ALL, null, true, 'major');
+		$child_links = $am->getLinks($state['assetid'], SQ_SC_LINK_ALL, NULL, TRUE, 'major');
 		$new_child_links = Array();
 		$child_assets = Array();
 		$child_link_map  = Array();
@@ -392,11 +392,11 @@ class Trigger_Manager extends Asset
 	* @return array
 	* @access private
 	*/
-	function _lookupCandidateTriggers($state_hash=null)
+	function _lookupCandidateTriggers($state_hash=NULL)
 	{
 		// if no state_hash, then fail
 		if (empty($state_hash)) return Array();
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$PROPAGATE      = $db->quoteSmart(SQ_TRIG_TREE_PROPAGATE);
 		$NO_PROPAGATE   = $db->quoteSmart(SQ_TRIG_TREE_NO_PROPAGATE);
@@ -485,7 +485,7 @@ class Trigger_Manager extends Asset
 				'.$child_fromwhere_sql.'
 				)
 			';
-		}
+		}//end if
 
 		// event
 		$event_sql = 'event = '.$db->quoteSmart('-1');
@@ -547,12 +547,12 @@ class Trigger_Manager extends Asset
 		$actions     = $trigger_data['actions'];
 
 		if (isset($trigger_data['settings'])) {
-			$is_blocking = array_get_index($trigger_data['settings'], 'blocking', false);
+			$is_blocking = array_get_index($trigger_data['settings'], 'blocking', FALSE);
 		} else {
-			$is_blocking = false;
+			$is_blocking = FALSE;
 		}
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		// check each condition
 		foreach ($conditions as $condition) {
@@ -592,8 +592,8 @@ class Trigger_Manager extends Asset
 
 		// perform actions
 		foreach ($actions as $action) {
-			$not_required = array_get_index($action, 'not_required', false);
-			$ignore_permissions = array_get_index($action, 'ignore_permissions', false);
+			$not_required = array_get_index($action, 'not_required', FALSE);
+			$ignore_permissions = array_get_index($action, 'ignore_permissions', FALSE);
 
 			if ($ignore_permissions || !$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
 
@@ -603,7 +603,7 @@ class Trigger_Manager extends Asset
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 			} else {
-				$lock_success = true;
+				$lock_success = TRUE;
 				// acquire locks
 				// dynamic substitution of static action class
 				eval('$action_locks = '.$action['type'].'::getLocks($action["data"], $state_data);');
@@ -612,7 +612,7 @@ class Trigger_Manager extends Asset
 					foreach ($lock_types as $lock_type) {
 						$lock_success = $am->acquireLock($lock_assetid, $lock_type);
 						if ($lock_success) {
-							$locks_held[$lock_assetid][$lock_type] = true;
+							$locks_held[$lock_assetid][$lock_type] = TRUE;
 						} else {
 							// bail if we can't get all of the locks
 							break 2;
@@ -634,7 +634,7 @@ class Trigger_Manager extends Asset
 				eval('$action_success = '.$action['type'].'::execute($action["data"], $state_data);');
 			}
 
-			if ($action_success === false) {
+			if ($action_success === FALSE) {
 				if ($not_required) {
 					if (!$is_blocking) {
 						trigger_localised_error('CORE0134', E_USER_NOTICE, $action['type']);
@@ -651,7 +651,7 @@ class Trigger_Manager extends Asset
 
 			$status = SQ_TRIG_RESULT_SUCCESS;
 
-		}
+		}//end foreach
 
 		// release the locks
 		foreach ($locks_held as $lock_assetid => $lock_types) {
@@ -693,7 +693,7 @@ class Trigger_Manager extends Asset
 	{
 		$trigger['name'] = '';
 		$trigger['description'] = '';
-		$trigger['data'] = null;
+		$trigger['data'] = NULL;
 		$trigger['active'] = SQ_TRIG_STATUS_INACTIVE;
 		$trigger['state_hash'] = $this->_getHashObject();
 
@@ -715,21 +715,21 @@ class Trigger_Manager extends Asset
 	function _saveTrigger($trigger)
 	{
 		// triggers do not work in ROLLBACK mode
-		if (SQ_ROLLBACK_VIEW) return true;
-		if (empty($trigger)) return false;
+		if (SQ_ROLLBACK_VIEW) return TRUE;
+		if (empty($trigger)) return FALSE;
 
 		// start transaction
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$status = true;
-		$new    = false;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$status = TRUE;
+		$new    = FALSE;
 
 		// lack of id means it is a new trigger
 		// this bit gets all ids to come from the sequence, manual entries will make db inconsistent
 		if (!isset($trigger['id'])) {
-			$new = true;
+			$new = TRUE;
 			$tr_id = $db->nextId('sq_trig_id');
 			assert_valid_db_result($tr_id);
 			$trigger['id'] = $tr_id;
@@ -801,7 +801,7 @@ class Trigger_Manager extends Asset
 		// prepare and save the hash
 		// the edit interface can set the optional 'save_hash' index to false, which will cause
 		// the hash not to be saved for this trigger, for whatever reason
-		if ($status && array_get_index($trigger, 'save_hash', true) && $trigger['active']) {
+		if ($status && array_get_index($trigger, 'save_hash', TRUE) && $trigger['active']) {
 
 			$hash = $this->_getHashObject();
 			$hash->setTriggerId($trigger['id']);
@@ -818,7 +818,7 @@ class Trigger_Manager extends Asset
 						if ($GLOBALS['SQ_SYSTEM']->am->installed(array_get_index($condition, 'type', ''))) {
 							if ($this->_loadComponent($condition['type'])) {
 								if (isset($condition['data'])) {
-									$settings = &$condition['data'];
+									$settings =& $condition['data'];
 									eval($condition['type'].'::setHash($settings, $hash);');
 								}
 							}
@@ -838,7 +838,7 @@ class Trigger_Manager extends Asset
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 
 	}//end _saveTrigger()
@@ -852,16 +852,16 @@ class Trigger_Manager extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _saveTriggerHash($hash=null)
+	function _saveTriggerHash($hash=NULL)
 	{
-		if (empty($hash)) return false;
+		if (empty($hash)) return FALSE;
 
 		$hash_combinations = $hash->getHashCombinations();
 
-		if (empty($hash_combinations)) return false;
+		if (empty($hash_combinations)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		foreach ($hash_combinations as $combination) {
@@ -887,10 +887,10 @@ class Trigger_Manager extends Asset
 			$result = $db->query($sql);
 
 			// check result
-			if (!assert_valid_db_result($result, null, false, false)) {
+			if (!assert_valid_db_result($result, NULL, FALSE, FALSE)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return false;
+				return FALSE;
 			}
 
 		}//end foreach
@@ -898,7 +898,7 @@ class Trigger_Manager extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		return true;
+		return TRUE;
 
 	}//end _saveTriggerHash()
 
@@ -955,7 +955,7 @@ class Trigger_Manager extends Asset
 	function _deleteTrigger($trigger_id)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'DELETE FROM
@@ -987,7 +987,7 @@ class Trigger_Manager extends Asset
 	function _deleteTriggerHash($trigger_id)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'DELETE FROM
@@ -1001,7 +1001,7 @@ class Trigger_Manager extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		return true;
+		return TRUE;
 
 	}//end _deleteTriggerHash()
 
@@ -1019,7 +1019,7 @@ class Trigger_Manager extends Asset
 	*/
 	function &getTriggerList()
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$query = 'SELECT
 					id,
 					name,
@@ -1088,7 +1088,7 @@ class Trigger_Manager extends Asset
 		if (is_numeric($triggerid)) {
 			return $this->_loadTrigger($triggerid);
 		} else {
-			return null;
+			return NULL;
 		}
 
 	}//end getTrigger()
@@ -1110,8 +1110,8 @@ class Trigger_Manager extends Asset
 		// check the structure of trigger
 		// $s contains the status - if any part of $trigger fails the checking,
 		// $s will stop further checks from happening
-		$s  = true;
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$s  = TRUE;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		// basic elements
 		$s = $s && isset($trigger['name']);
@@ -1146,7 +1146,7 @@ class Trigger_Manager extends Asset
 			return $this->_saveTrigger($trigger);
 		} else {
 			trigger_localised_error('CORE0232', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 	}//end createTrigger()
@@ -1160,10 +1160,10 @@ class Trigger_Manager extends Asset
 	* @return array
 	* @access private
 	*/
-	function _loadTrigger($trigger_id=null)
+	function _loadTrigger($trigger_id=NULL)
 	{
-		if (!isset($trigger_id)) return null;
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		if (!isset($trigger_id)) return NULL;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$select = 'SELECT
 					id,
@@ -1186,7 +1186,7 @@ class Trigger_Manager extends Asset
 				trigger_localised_error('CORE0133', E_USER_WARNING, $trigger_id);
 			}
 
-			return null;
+			return NULL;
 		}
 
 		$trigger_db['data'] = (isset($trigger_db['data']) && !empty($trigger_db['data'])) ? unserialize($trigger_db['data']) : '';
@@ -1218,7 +1218,7 @@ class Trigger_Manager extends Asset
 	*/
 	function _getTriggerInfoList()
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$select = 'SELECT
 						id,
@@ -1248,11 +1248,11 @@ class Trigger_Manager extends Asset
 	* @return array
 	* @access private
 	*/
-	function _getComponentList($type=null)
+	function _getComponentList($type=NULL)
 	{
 		if (empty($type)) return Array();
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		$component_types = $am->getTypeDescendants($type);
 		$component_info  = $am->getTypeInfo($component_types, 'name');
@@ -1317,13 +1317,13 @@ class Trigger_Manager extends Asset
 	*/
 	function _loadComponent($type_code)
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		if ($am->installed($type_code)) {
 			$am->includeAsset($type_code);
-			return true;
+			return TRUE;
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end _loadComponent()
@@ -1340,7 +1340,7 @@ class Trigger_Manager extends Asset
 	* @return string
 	* @access private
 	*/
-	function _getComponentInterface($type_code, $data, $prefix, $write_access=false)
+	function _getComponentInterface($type_code, $data, $prefix, $write_access=FALSE)
 	{
 		if (!$this->_loadComponent($type_code)) return '';
 
@@ -1378,8 +1378,8 @@ class Trigger_Manager extends Asset
 	*/
 	function _isEventListenedFor($event)
 	{
-		//Check the trigger hash table to see whether any active triggers are listening for this event
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		// Check the trigger hash table to see whether any active triggers are listening for this event
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = '
 				SELECT
 					COUNT(triggerid)
