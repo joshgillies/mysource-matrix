@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.27 2006/01/30 04:54:49 sdanis Exp $
+* $Id: page_asset_builder_management.inc,v 1.28 2006/02/10 08:52:12 rhoward Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -165,6 +165,23 @@ class Page_Asset_Builder_Management extends Asset_Management
 														'type'		=> 'serialise',
 														'default'	=> Array(),
 													 );
+
+		/* Additional (query-fed) create locations will use this link type by default */
+		$this->vars['additional_location_default_link_type'] = Array(
+																'added'			=> '0.8',
+																'type'			=> 'selection',
+																'default'		=> SQ_LINK_TYPE_1,
+																'parameters'	=> Array(
+																					'options'	=> Array(
+																									SQ_LINK_TYPE_1	=> 'TYPE_1',
+																									SQ_LINK_TYPE_2	=> 'TYPE_2',
+																									SQ_LINK_TYPE_3	=> 'TYPE_3',
+																									SQ_LINK_NOTICE	=> 'NOTICE',
+																								   ),
+																				   ),
+																'multiple'		=> FALSE,
+																'allow_empty'	=> FALSE,
+															   );
 
 		/* Additional (query-fed) create locations must be of one of these types */
 		$this->vars['additional_location_types'] = Array(

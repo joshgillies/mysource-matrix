@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.86 2006/02/10 02:47:01 lwright Exp $
+* $Id: page_asset_builder.inc,v 1.87 2006/02/10 08:52:12 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -392,7 +392,6 @@ class Page_Asset_Builder extends Page
 						$this->_tmp['new_asset_created_'.$create_type] =& $new_asset;
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
 					} else {
 						// if we have multiple locations to create this asset under, create
 						// the new links to all the other parents
@@ -647,7 +646,8 @@ class Page_Asset_Builder extends Page
 			// set the assetids and link types from the query
 			foreach (explode(';', $_REQUEST['ASSET_BUILDER_ADDITIONAL_LOCATIONS']) as $loc_code) {
 				if (FALSE === strpos($loc_code, '-')) {
-					$link_type = SQ_LINK_TYPE_1;
+					// no link type specified, use the default
+					$link_type = $this->attr('additional_location_default_link_type');
 					$loc_id = $loc_code;
 				} else {
 					list($loc_id, $link_type) = explode('-', $loc_code);

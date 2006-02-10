@@ -14,7 +14,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.9 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: asset.xml,v 1.10 2006/02/10 08:52:12 rhoward Exp $
 *
 */
 -->
@@ -22,7 +22,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
 	<type_code>page_asset_builder</type_code>
-	<version>0.7</version>
+	<version>0.8</version>
 	<name>Asset Builder Page</name>
 	<description>Asset Builder Page, a template to add assets from the frontend</description>
 	<instantiable>yes</instantiable>

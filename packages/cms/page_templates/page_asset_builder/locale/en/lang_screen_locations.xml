@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_locations.xml,v 1.5 2005/08/17 01:47:33 tbarrett Exp $
+* $Id: lang_screen_locations.xml,v 1.6 2006/02/10 08:52:12 rhoward Exp $
 *
 */
 -->
@@ -64,7 +64,11 @@
 	<section name="Additional Create Locations">
 		<field attribute="parameter_map">
 			<display_name>Additional Location Data Sources</display_name>
-			<note />
+			<note>If the source is either GET or POST, the passed value is the ID of the asset to link the created asset under, optionally followed by the link type (eg. "145-2", for an asset to be created under asset #145, with a Type 2 link).</note>
+		</field>
+		<field attribute="additional_location_default_link_type">
+			<display_name>Default Link Type</display_name>
+			<note>This value is used for any of the Additional Location Data Sources above that don't specify a link type.</note>
 		</field>
 		<field>
 			<display_name>Permitted Tree Locations</display_name>
