@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.22 2005/12/23 01:58:50 tbarrett Exp $
+* $Id: option_list.inc,v 1.23 2006/02/12 22:57:29 emcdonald Exp $
 *
 */
 
@@ -28,14 +28,14 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 /**
 * Option List Asset Attribute
 *
-*
+* A list of text fields. The user can add additional fields as required.
 *
 *
 * <!-- Sample Edit Interface XML Node -->
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -50,7 +50,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Option_List($attributeid=0, $value=null)
+	function Asset_Attribute_Option_List($attributeid=0, $value=NULL)
 	{
 		$this->Asset_Attribute($attributeid, $value);
 
@@ -63,9 +63,10 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	* @param string		$prefix		prefix for the form elements
 	* @param boolean	$read_only	are we just printing the value
 	*
+	* @return void
 	* @access public
 	*/
-	function paint($prefix, $read_only=false)
+	function paint($prefix, $read_only=FALSE)
 	{
 		$prefix = str_replace(':','_',$prefix); // handle shadow assets
 		$value = explode("\r\n", $this->value);
@@ -110,8 +111,9 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	/**
 	* Process the interface for filling in a value
 	*
-	* @param string	prefix	prefix for the form elements
+	* @param string	$prefix	prefix for the form elements
 	*
+	* @return void
 	* @access public
 	*/
 	function process($prefix)
