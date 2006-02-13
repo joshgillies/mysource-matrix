@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2005/11/10 04:39:27 tbarrett Exp $
+* $Id: lang_screen_details.xml,v 1.5 2006/02/13 04:33:01 sdanis Exp $
 *
 */
 -->
@@ -61,6 +61,10 @@
 			&lt;li&gt;%username% - the value the new user entered as their username&lt;/li&gt;
 			&lt;/ul&gt;
 			</note>
+		</field>
+		<field attribute="resend_validation_button" show_if="usingEmailValidation">
+			<display_name>Send Validation Button Text</display_name>
+			<note>Text that will be displayed on the re-send validation email form button</note>
 		</field>
 		<field>
 			<display_name>Post-Login Redirect</display_name>

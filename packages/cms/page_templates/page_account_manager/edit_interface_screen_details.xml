@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.11 2005/11/10 04:39:27 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.12 2006/02/13 04:33:01 sdanis Exp $
 *
 */
 -->
@@ -45,6 +45,9 @@
 		</field>
 		<field attribute="validation_email_format" show_if="usingEmailValidation">
 			<email_format />
+		</field>
+		<field attribute="resend_validation_button" show_if="usingEmailValidation">
+			<text width="15" height="1" />
 		</field>
 	</section>
 	<section name="Post-Login Redirect" write_access="write:attributes">

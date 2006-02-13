@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_messages.xml,v 1.2 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: lang_screen_messages.xml,v 1.3 2006/02/13 04:33:01 sdanis Exp $
 *
 */
 -->
@@ -49,6 +49,16 @@
 		<field attribute="edit_details_lock_error">
 			<display_name>Lock Error</display_name>
 			<note>This message is displayed when the system cannot lock the current user for editing - probably due to the lock being held by someone else</note>
+		</field>
+	</section>
+	<section name="Send Validation" write_access="write:attributes">
+		<field attribute="resend_validation_success">
+			<display_name>Success</display_name>
+			<note>This message is displayed if validation email was sent</note>
+		</field>
+		<field attribute="resend_validation_error">
+			<display_name>Error</display_name>
+			<note>This message is displayed if there was an error with sending the validation email</note>
 		</field>
 	</section>
 </contents>

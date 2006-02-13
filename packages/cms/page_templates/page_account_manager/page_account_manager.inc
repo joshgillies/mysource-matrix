@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.38 2006/01/26 22:35:20 lwright Exp $
+* $Id: page_account_manager.inc,v 1.39 2006/02/13 04:33:01 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -152,6 +152,20 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 
 	/**
+	* Loads keyword replacements for the create asset interface, into the Asset Builder
+	*
+	* @return void
+	* @access private
+	*/
+	function _loadCreateReplacements()
+	{
+		$this->_replacements['resend_validation_form'] = $this->getkeywordreplacement('re_send_validation_form');
+		array_merge($this->_replacements, parent::_loadCreateReplacements());
+
+	}//end _loadCreateReplacements()
+
+
+	/**
 	* Called by the design to print the body of this asset when in limbo
 	*
 	* @return void
@@ -257,6 +271,12 @@ class Page_Account_Manager extends Page_Asset_Builder
 	function _processGlobalActions()
 	{
 		list($create_type) = array_keys($this->attr('create_type'));
+
+		// resend validation email form was submitted?
+
+		if (isset($_POST['ASSET_BUILDER_ACTION']) && $_POST['ASSET_BUILDER_ACTION'] == 'resend_validation') {
+			return $this->_reSendValidation();
+		}
 
 		if (isset($_GET['action']) && (strtolower($_GET['action']) == 'validate')) {
 			$user =& $this->_getCurrentPendingUser();
@@ -368,6 +388,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		// get asset_builder to create the asset, but since we have overridden
 		// getCreateLocations it will only go into our pending accounts group
 		// if email verification is enabled.
+
 		$success = parent::_processGlobalActions();
 		if (!$success) return FALSE;
 
@@ -428,6 +449,94 @@ class Page_Account_Manager extends Page_Asset_Builder
 		return TRUE;
 
 	}//end _processGlobalActions()
+
+
+	/**
+	* Re-sends validation email to specified user
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _reSendValidation()
+	{
+
+		if (isset($_REQUEST[$this->getPrefix().'_resend_validation_username']) && !empty($_REQUEST[$this->getPrefix().'_resend_validation_username']) && $this->attr('use_email_validation')) {
+				// add an email to the TO list for the user who just signed up
+
+				$auth_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
+				$auth_systems = $auth_folder->getAuthSystems();
+				$user = NULL;
+				foreach ($auth_systems as $systemid) {
+					$system =& $GLOBALS['SQ_SYSTEM']->am->getAsset($systemid);
+					if (is_null($system)) continue;
+					$user =& $system->locateUser($_REQUEST[$this->getPrefix().'_resend_validation_username']);
+					if (!is_null($user) && $user->id) {
+						break;
+					}
+				}
+
+				if (is_null($user)) {
+					$this->_errors[] = translate('cms_account_manager_keyword_resend_validation_user_not_found');
+					return FALSE;
+
+				} else {
+
+					$pending_usergroup_id = $this->_getPendingAccountsGroupId();
+					$links = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($pending_usergroup_id, $user->id);
+
+					// we should only have one link
+					if (!empty($links)) {
+						$replacements = Array();
+						list($create_type) = array_keys($this->attr('create_type'));
+						$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type);
+						foreach ($attrs as $attr => $type) {
+							if (($attr == 'password') || ($type == 'serialise')) {
+								continue;
+							}
+							$replacements[$attr] = $user->attr($attr);
+						}
+
+						$validation_url = current_url().'?action=validate&amid='.$links['value'].'&amlocs=';
+
+						// work out what selectable create locations they have selected and add them to the URL.
+						// (Mandatory and rule-based create locations can be worked out after validation).
+						// Locations passed through the URL will be checked at the other end to make sure
+						// nobody's tried to sneak in any other locations...
+						$selected_create_locations = $this->getSelectedCreateLocations();
+						if (!empty($selected_create_locations)) {
+							foreach ($selected_create_locations as $location => $link_type) {
+								$validation_url .= $location.':'.$link_type.'-';
+							}
+							$validation_url = trim($validation_url, '-');
+						}
+						$replacements['validation_url'] = $validation_url;
+
+						// add an email to the TO list for the user who just signed up
+						$email_attr =& $this->getAttribute('validation_email_format');
+						$new_value = unserialize($email_attr->value);
+						$new_value['to'][] = $replacements['email'];
+						$email_attr->value = serialize($new_value);
+
+						// let the email format attribute send the email for us
+						$email_attr->sendMail($replacements);
+						$this->_replacements['resend_validation_success'] = $this->getKeywordReplacement('re_send_validation_success');
+						return TRUE;
+
+					} else {
+						$this->_errors[] = translate('cms_account_manager_keyword_resend_validation_cannot_send_user');
+						return FALSE;
+					}
+
+				}//end else
+
+		} else {
+			$this->_errors[] = translate('cms_account_manager_keyword_resend_validation_cannot_send_user');
+			return FALSE;
+		}
+
+		return FALSE;
+
+	}//end _reSendValidation()
 
 
 	/**
@@ -721,16 +830,51 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$keywords = parent::_getCreatedKeywords();
 
 		// override parent's keywords
-		$keywords['create_invite'] 	= translate('cms_account_manager_keyword_create_invite');
-		$keywords['create_form'] 	= translate('cms_account_manager_keyword_create_form');
-		$keywords['create_error'] 	= translate('cms_account_manager_keyword_create_error');
+		$keywords['create_invite'] 			= translate('cms_account_manager_keyword_create_invite');
+		$keywords['create_form'] 			= translate('cms_account_manager_keyword_create_form');
+		$keywords['create_error'] 			= translate('cms_account_manager_keyword_create_error');
+		$keywords['resend_validation_form']	= translate('cms_account_manager_keyword_resend_validation_form');
 
 		return $keywords;
 
 	}//end _getCreateLoginKeywords()
 
 
-//--        KEYWORD REPLACEMENT        --//
+	/**
+	* Get the keyword replacements used in not_logged_in bodycopy
+	*
+	* @return array
+	* @access protected
+	*/
+	function _getNotLoggedInKeywords()
+	{
+		$keywords = parent::_getNotLoggedInKeywords();
+		$keywords['resend_validation_error']	= translate('cms_account_manager_keyword_resend_validation_error');
+		$keywords['resend_validation_form'] 	= translate('cms_account_manager_keyword_resend_validation_form');
+		$keywords['resend_validation_success'] 	= translate('cms_account_manager_keyword_resend_validation_success');
+
+		return $keywords;
+
+	}//end _getNotLoggedInKeywords()
+
+
+	//--        KEYWORD REPLACEMENT        --//
+
+
+	/**
+	* Get edit_details_lock_error keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getReSendValidationFormKeywordReplacement()
+	{
+		ob_start();
+			text_box($this->getPrefix().'_resend_validation_username', '',20);
+			submit_button('', $this->attr('resend_validation_button'), 'this.form.action = \''.$_SERVER['PHP_SELF'].'\'; document.getElementById(\'ASSET_BUILDER_ACTION\').value = \'resend_validation\';');
+		return ob_get_clean();
+
+	}//end getReSendValidationFormKeywordReplacement()
 
 
 	/**
@@ -757,6 +901,19 @@ class Page_Account_Manager extends Page_Asset_Builder
 		return $this->attr('edit_details_success');
 
 	}//end getEditDetailsSuccessKeywordReplacement()
+
+
+	/**
+	* Get edit_details_success keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getReSendValidationSuccessKeywordReplacement()
+	{
+		return $this->attr('resend_validation_success');
+
+	}//end getReSendValidationSuccessKeywordReplacement()
 
 
 	/**

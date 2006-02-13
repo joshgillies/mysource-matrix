@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_management.inc,v 1.20 2006/01/20 04:54:36 sdanis Exp $
+* $Id: page_account_manager_management.inc,v 1.21 2006/02/13 04:33:01 sdanis Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -93,6 +93,22 @@ class Page_Account_Manager_Management extends Asset_Management
 													'added'		=> '0.1',
 													'type'		=> 'email_format',
 													'default'	=> Array(),
+												  );
+
+		$this->vars['resend_validation_error']	= Array(
+													'added'		=> '0.4',
+													'type'		=> 'wysiwyg',
+													'default'	=> '<p></p>',
+												  );
+		$this->vars['resend_validation_success']= Array(
+													'added'		=> '0.4',
+													'type'		=> 'wysiwyg',
+													'default'	=> '<p></p>',
+												  );
+		$this->vars['resend_validation_button']	= Array(
+													'added'		=> '0.4',
+													'type'		=> 'text',
+													'default'	=> 'Re-Send Validation',
 												  );
 
 	}//end constructor
