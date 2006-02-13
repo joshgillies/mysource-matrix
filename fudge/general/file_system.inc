@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.39 2005/11/25 00:28:46 rong Exp $
+* $Id: file_system.inc,v 1.40 2006/02/13 05:12:55 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions for the file system
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package Fudge
 * @subpackage General
 */
@@ -107,8 +107,6 @@ function file_to_string($filename)
 */
 function string_to_file($string, $filename)
 {
-	//retun false if $filename is not a string or it is empty
-
 	if (!is_string($filename) || empty($filename)) {
 		return false;
 	}
