@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.83.2.10 2006/02/05 22:34:46 lwright Exp $
+* $Id: metadata_manager.inc,v 1.83.2.11 2006/02/13 05:50:14 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.83.2.10 $
+* @version $Revision: 1.83.2.11 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -948,12 +948,12 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_status_changed_by_name':
 					$field_name = substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_by_name') - strlen('asset_'));
 					echo 'if (!isset($metadata_'.$field_name.'_by_user) && !empty($metadata_asset->'.$field_name.'_userid)) {'."\n";
-					echo '	$metadata_'.$field_name.'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.$field_name.'_userid);'."\n";
+					echo '	$metadata_'.$field_name.'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.$field_name.'_userid, \'\', TRUE);'."\n";
 					echo '}'."\n";
 					echo 'if (!empty($metadata_'.$field_name.'_by_user)) { ';
 					echo '	$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.$field_name.'_by_user->name;'."\n";
 					echo '} else {'."\n";
-					echo '	$metadata_replacements['.var_export($keyword, 1).'] = \'System\';'."\n";
+					echo '	$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('unknown').'\';'."\n";
 					echo '}'."\n";
 				break;
 
@@ -968,7 +968,7 @@ class Metadata_Manager extends MySource_Object
 					echo 'if (!empty($metadata_'.substr($keyword,6,7).'_by_user)) { ';
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.substr($keyword,6,7).'_by_user->attr(\''.substr($keyword,17).'\');'."\n";
 					echo '} else {'."\n";
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('unknown').'\';'."\n";
 					echo '}'."\n";
 
 				break;
@@ -1003,11 +1003,11 @@ class Metadata_Manager extends MySource_Object
 					echo 'if (empty($metadata_asset->published_userid)) {'."\n";
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'Never Published\';'."\n";
 					echo '} else { if (!isset($metadata_published_by_user)) {
-					$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n";
+					$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid, \'\', TRUE);'."\n}\n";
 					echo 'if (!empty($metadata_published_by_user)) { ';
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_published_by_user->name;'."\n";
 					echo '} else {'."\n";
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'System\';'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('unknown').'\';'."\n";
 					echo '}}'."\n";
 				break;
 
@@ -1017,11 +1017,11 @@ class Metadata_Manager extends MySource_Object
 					echo 'if (empty($metadata_asset->published_userid)) {'."\n";
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
 					echo '} else { if (!isset($metadata_published_by_user)) {
-					$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n";
+					$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid, \'\', TRUE);'."\n}\n";
 					echo 'if (!empty($metadata_published_by_user)) { ';
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_published_by_user->attr(\''.substr($keyword,19).'\');'."\n";
 					echo '} else {'."\n";
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = \''.translate('unknown').'\';'."\n";
 					echo '}}'."\n";
 
 				break;
