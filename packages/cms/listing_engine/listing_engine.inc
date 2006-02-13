@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.151 2006/02/10 00:01:31 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.152 2006/02/13 23:33:07 sdanis Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.151 $
+* @version $Revision: 1.152 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1301,6 +1301,7 @@ class Listing_Engine extends Page
 
 				// chunk it hard, baby
 				$this->sortGroups($this->attr('asset_grouping'), $children, $children);
+
 				$this->_groupChunk($children, $todo, $count, $num_per_page, count($this->attr('asset_grouping')));
 
 				if ($num_per_page == 0) {
@@ -2381,7 +2382,7 @@ class Listing_Engine extends Page
 
 				switch ($group_level['group_type']) {
 					case 'parent_asset':
-						$value = $this->getGroupableParentAssetids($current_parent);
+						$value = $this->getGroupableParentAssetids($current_parent, $group_level['restrict_types']);
 
 						// skip this whole section if both depth fields are NULL
 						// otherwise, we are limiting by parent's depth, relative
@@ -2459,8 +2460,10 @@ class Listing_Engine extends Page
 						$group_data['group'][$group_key] = $sub_value;
 						$new_asset_groups[] = $group_data;
 					}
+
 				}
 			}//end foreach on asset groups
+
 			$asset_groups = $new_asset_groups;
 
 			if ($group_level['group_type'] == 'parent_asset') {
@@ -2471,6 +2474,7 @@ class Listing_Engine extends Page
 
 		$results = Array();
 		$group_keys = array_keys($group_levels);
+
 
 		// we need to flip the keys back to what they were to construct the array
 		foreach ($asset_groups as $group_data) {
@@ -2530,11 +2534,12 @@ class Listing_Engine extends Page
 	* of proxy search types require alternate logic to just getting ALL parents.
 	*
 	* @param array	$child_assetid	the asset to find the parents of
+	* @param array	$restrict_types	Group type restrictions
 	*
 	* @return array
 	* @access public
 	*/
-	function getGroupableParentAssetids($child_assetid)
+	function getGroupableParentAssetids($child_assetid, $restrict_types=Array())
 	{
 		$root_nodes = $this->getRootNodes();
 
@@ -2552,14 +2557,35 @@ class Listing_Engine extends Page
 					// check if parent is a root node itself
 					$parent_link_assetids[] = $parent_assetid;
 				} else {
+
 					// check if the parent is within the root node
 					$parents_of_parent = $GLOBALS['SQ_SYSTEM']->am->getParents($parent_assetid);
+
+					if (!empty($restrict_types['type_code'])) {
+						// find the first parent that is one of the restricted types
+						$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($child_assetid);
+						$parents = array_reverse($parents, TRUE);
+						$found = FALSE;
+						foreach ($parents as $parentid => $type_code) {
+							$inherit_values = $restrict_types['inherit'];
+							foreach ($restrict_types['type_code'] as $restricted_type_code) {
+								$inherit = array_shift($inherit_values);
+								if ($type_code == $restricted_type_code || ($inherit && $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($type_code, $restricted_type_code))) {
+									$parent_assetid = $parentid;
+									$found = TRUE;
+									break;
+								}
+							}
+
+							if ($found) break;
+						}
+					}
 
 					if (count(array_intersect(array_keys($parents_of_parent), $root_nodes)) > 0) {
 						$parent_link_assetids[] = $parent_assetid;
 					}
-				}
-			}//end if empty root nodes
+				}//end else
+			}//end else empty root nodes
 		}//end foreach
 
 		return $parent_link_assetids;
