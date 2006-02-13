@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2005/11/21 01:34:03 ndvries Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10 2006/02/13 03:30:29 ndvries Exp $
 *
 */
 -->
@@ -36,7 +36,7 @@
 	</section>
 	<section name="Header Details" write_access="write:attributes">
 		<field attribute="from">
-			<text width="30" height="1" />
+			<email width="30" />
 		</field>
 		<field attribute="subject">
 			<text width="30" height="1" />

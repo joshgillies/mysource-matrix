@@ -11,14 +11,13 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.35 2006/02/06 01:16:03 ndvries Exp $
+* $Id: bulkmail_manager.inc,v 1.36 2006/02/13 03:30:28 ndvries Exp $
 *
 */
 
 require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_office.inc';
 require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 require_once SQ_FUDGE_PATH.'/general/www.inc';
-require_once 'Mail/RFC822.php';
 
 
 /**
@@ -30,7 +29,7 @@ require_once 'Mail/RFC822.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -765,8 +764,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			$errors[] = translate('bm_warning_no_from_field');
 		// 'from' field is not a valid email address
 		} else {
-			$addresses = Mail_RFC822::parseAddressList($details_info['from']);
-			if (PEAR::isError($addresses)) {
+			if (!valid_email($details_info['from'])) {
 				$errors[] = translate('bm_warning_from_field_invalid_email');
 			}
 		}

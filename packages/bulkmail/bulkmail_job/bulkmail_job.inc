@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.26 2006/02/03 05:31:41 sdanis Exp $
+* $Id: bulkmail_job.inc,v 1.27 2006/02/13 03:30:28 ndvries Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -180,9 +180,15 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		// cannot change the status of the job is in the db table
 		if (!empty($queued_jobs)) return FALSE;
 
-		// user set the job to live, do validation in addJob()
-		if ($new_status == SQ_STATUS_LIVE) {
-			if (!$bm->addJob($this)) return FALSE;
+		switch ($new_status) {
+			case SQ_STATUS_LIVE:
+				// user set the job to live, do validation in addJob()
+				if (!$bm->addJob($this)) return FALSE;
+			break;
+			case SQ_STATUS_UNDER_CONSTRUCTION:
+				$job_path = $bm->getJobDataPath($this->id);
+				clear_directory($job_path);
+			break;
 		}
 
 		return parent::processStatusChange($new_status, $update_parents);

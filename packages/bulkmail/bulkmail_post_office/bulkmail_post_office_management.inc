@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_management.inc,v 1.17 2006/01/05 22:39:05 rong Exp $
+* $Id: bulkmail_post_office_management.inc,v 1.18 2006/02/13 03:30:29 ndvries Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -100,7 +100,7 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 											   ),
 						'from'				=> Array(
 												'added'			=> '0.1',
-												'type'			=> 'text',
+												'type'			=> 'email',
 												'default'		=> SQ_CONF_DEFAULT_EMAIL,
 												'description'	=> 'Sending address as per RFC822',
 											   ),
