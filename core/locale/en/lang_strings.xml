@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.106 2006/02/10 01:56:10 sdanis Exp $
+* $Id: lang_strings.xml,v 1.107 2006/02/13 22:46:19 pgannavarapu Exp $
 *
 */
 
@@ -835,7 +835,7 @@
 	<string source="parent_to_create_under_is_missing">Parent to create under is missing</string>
 	<string source="link_type_missing">Link type is missing</string>
 	<string source="asset_type_not_specified">Asset type not specified</string>
-	<string source="can_only_create_assets_without_required_fields">You can only create assets that do not have required attribute values</string>
+	<string source="can_only_create_assets_explanation">You can create assets with no required attributes or assets for which the required attributes' values are entered here</string>
 
 	<string source="cannot_delete_inbox-user_link">You cant delete the link between a user and their inbox</string>
 	<string source="cannot_delete_workspace-user_link">You cant delete the link between a user and their workspace</string>
@@ -910,6 +910,7 @@
 	<string source="no_parent_selected">no parent selected</string>
 	<string source="trigger_new_asset_advanced">Use the link value %1$s and link the asset %2$s and %3$s to the parent</string>
 	<string source="no_value_entered">no value entered</string>
+	<string source="set_attributes">Set Attribute Values</string>
 	<string source="trigger_variety_name_cannot_be_empty">Variety name cannot be empty</string>
 	<string source="trigger_require_constrain_width_height">must have constrain, height and width set, even if one is zero</string>
 	<string source="trigger_cannot_set_variety_value">Unable to set the variety's "%s" value</string>

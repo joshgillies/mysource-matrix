@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_asset.inc,v 1.6 2006/02/07 02:27:12 sdanis Exp $
+* $Id: trigger_action_create_asset.inc,v 1.7 2006/02/13 22:45:34 pgannavarapu Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,6 +73,10 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 		if ($settings['parentid'] == 'current_asset') {
 			$settings['parentid'] = $state['assetid'];
 		}
+		$attributes = Array();
+		if (!empty($settings['attributes'])) {
+			$attributes = $settings['attributes'];
+		}
 		$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['parentid']);
 		if (is_null($parent)) return FALSE;
 
@@ -94,6 +98,12 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 		$type_code = $settings['type_code'];
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 		$new_asset =& new $type_code();
+		// set the attributes for the newly created asset
+		if (!empty($attributes)) {
+			foreach ($attributes as $index => $val) {
+				$new_asset->setAttrValue($val['attribute'], $val['value']);
+			}
+		}
 		$linkid = $new_asset->create($link);
 		if (!$linkid) return FALSE;
 
@@ -132,6 +142,18 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 		$value        = array_get_index($settings, 'value', '');
 		$is_dependant = array_get_index($settings, 'is_dependant', 0);
 		$is_exclusive = array_get_index($settings, 'is_exclusive', 0);
+		$selected     = array_get_index($settings, 'attributes', 0);
+
+		$attrs = Array();
+		$attributes = Array();
+		if (!empty($type_code)) {
+			// get the attributes of this asset
+			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($type_code);
+			foreach ($attrs as $attr => $type) {
+				$attributes[$attr] = ucwords(str_replace('_', ' ', $attr)).' - '.ucwords($type);
+			}
+			$attributes[''] = '--SELECT ATTRIBUTE--';
+		}
 
 		// check if the parent asset is valid
 		$parent_broadcasted = FALSE;
@@ -171,7 +193,6 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 					} else {
 						echo '<b>'.translate('asset_format', $parent->name, $parent->id).'</b>';
 					}
-
 				}
 
 				$basic_part_2 = ob_get_contents();
@@ -231,13 +252,39 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 				$advanced_part_3 = ob_get_contents();
 			ob_end_clean();
 
+			ob_start();
+			if (!empty($attributes)) {
+				$count = 0;
+				if (!empty($selected)) {
+					$count = count($selected);
+					foreach ($selected as $index => $attr) {
+						if ($write_access) {
+							combo_box($prefix.'[attributes]['.$index.'][attribute]', $attributes, FALSE, $attr['attribute']);
+							text_box($prefix.'[attributes]['.$index.'][value]', $attr['value']);
+							check_box($prefix.'[attributes]['.$index.'][delete]','delete', FALSE);
+							echo translate('delete_question');
+							echo '<br />';
+						} else {
+							echo ucwords($attr['attribute']).':  '.$attr['value'].'<br />';
+						}
+					}
+				}
+				if ($write_access) {
+					echo '<br />';
+					combo_box($prefix.'[attributes]['.$count.'][attribute]', $attributes, FALSE, '');
+					text_box($prefix.'[attributes]['.$count.'][value]', '');
+				}
+			}
+			$attributes = ob_get_contents();
+			ob_end_clean();
+
 			// now patch together the output
 			$contents =	translate('trigger_new_asset_basic', $basic_part_1, $basic_part_2, $basic_part_3).
 						'<br /><br />'.
 						'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
 						translate('trigger_new_asset_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3).
-						'<br /><br />'.
-						'<span class="sq-backend-warning"><b>'.translate('can_only_create_assets_without_required_fields').'</b></span>';
+						'<br /><br /><b>'.translate('set_attributes').'</b><br />'.$attributes.'<br /><br />'.
+						'<span class="sq-backend-warning"><b>'.translate('can_only_create_assets_explanation').'</b></span>';
 
 		return $contents;
 
@@ -285,6 +332,19 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 		$settings['is_dependant'] = array_get_index($request_data, 'is_dependant', 0);
 		$settings['is_exclusive'] = array_get_index($request_data, 'is_exclusive', 0);
 
+		// if the user has chosen attributes and their default values
+		if (isset($request_data['attributes']) && !empty($request_data['attributes'])) {
+			$attribute = $request_data['attributes'];
+			$new_attr = Array();
+			foreach ($attribute as $index => $val) {
+				if (empty($val['attribute']) || empty($val['value'])) {
+					continue;
+				}
+				if (isset($val['delete'])) continue;
+				$new_attr[] = $val;
+			}
+			$settings['attributes'] = $new_attr;
+		}
 		return FALSE;
 
 	}//end processInterface()
