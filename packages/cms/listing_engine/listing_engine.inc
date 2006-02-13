@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.31 2006/01/11 00:09:02 rong Exp $
+* $Id: listing_engine.inc,v 1.38.2.32 2006/02/13 23:10:56 sdanis Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.31 $
+* @version $Revision: 1.38.2.32 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1045,7 +1045,6 @@ class Listing_Engine extends Page
 	*/
 	function _groupChunk(&$todo, &$chunk, &$remaining_count, $num_per_page, $group_limit=null)
 	{
-		$pointer =& reset($todo);
 
 		//keep calling this for each group until we get to the actual assets
 		if (($group_limit > 0) || is_null($group_limit)) {
@@ -1968,7 +1967,7 @@ class Listing_Engine extends Page
 
 				switch ($group_level['group_type']) {
 					case 'parent_asset':
-						$value = $this->getGroupableParentAssetids($current_parent);
+						$value = $this->getGroupableParentAssetids($current_parent, $group_level['restrict_types']);
 					break;
 
 					case 'metadata':
@@ -2112,7 +2111,7 @@ class Listing_Engine extends Page
 	* @return array
 	* @access public
 	*/
-	function getGroupableParentAssetids($child_assetid)
+	function getGroupableParentAssetids($child_assetid, $restrict_types=Array())
 	{
 		$root_nodes = $this->getRootNodes();
 
@@ -2132,6 +2131,20 @@ class Listing_Engine extends Page
 				} else {
 					// check if the parent is within the root node
 					$parents_of_parent = $GLOBALS['SQ_SYSTEM']->am->getParents($parent_assetid);
+
+					if (!empty($restrict_types['type_code'])) {
+						// find the first parent that is one of the restricted types
+						$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($child_assetid);
+						foreach ($parents as $parentid => $type_code) {
+							$inherit_values = $restrict_types['inherit'];
+							foreach ($restrict_types['type_code'] as $restricted_type_code) {
+								$inherit = array_shift($inherit_values);
+								if ($type_code == $restricted_type_code || ($inherit && $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($type_code, $restricted_type_code))) {
+									$parent_assetid = $parentid;
+								}
+							}
+						}
+					}
 
 					if (count(array_intersect(array_keys($parents_of_parent), $root_nodes)) > 0) {
 						$parent_link_assetids[] = $parent_assetid;
