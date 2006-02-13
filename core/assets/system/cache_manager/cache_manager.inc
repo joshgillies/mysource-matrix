@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.35 2006/02/09 03:56:24 mmcintyre Exp $
+* $Id: cache_manager.inc,v 1.36 2006/02/13 01:19:53 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -240,7 +240,7 @@ class Cache_Manager extends Asset
 		// replace/update existing cache entry
 		// warning: will NOT cause duplicate primary key db error
 		$cached = $this->_getCache($cache_key, $perm_key, $url);
-		if (!is_null($cached) && (time() < strtotime($cached['expires']))) {
+		if (!is_null($cached)) {
 			$this->_updateCache($cache_key, $perm_key, $url, $expiry_sql, $file_path, $contents);
 			return TRUE;
 		}
