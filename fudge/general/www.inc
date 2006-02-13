@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.19 2005/10/31 05:49:02 lwright Exp $
+* $Id: www.inc,v 1.20 2006/02/13 03:28:01 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package Fudge
 * @subpackage General
 */
@@ -117,7 +117,7 @@ function valid_email($e)
 {
 	if (!is_string($e)) return false;
 
-	return preg_match("|^[A-Za-z0-9](([_\.\-\']?[A-Za-z0-9]+)*)@([0-9a-zA-Z]([0-9A-Za-z-]*)+\.)+[a-zA-Z]{2,}$|",$e);
+	return preg_match('/^[a-zA-Z]+(([\'\,\.\- ][a-zA-Z ])?[a-zA-Z]*)*\s+<(\w[-._\w]*\w@\w[-._\w]*\w\.\w{2,7})>$|^(\w[-._\w]*\w@\w[-._\w]*\w\.\w{2,7})$/', $e);
 
 }//end valid_email()
 
