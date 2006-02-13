@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.2 2006/02/10 06:03:35 sdanis Exp $
+* $Id: trigger_action_send_email.inc,v 1.3 2006/02/13 04:20:20 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/email_format/email_format.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,23 +65,18 @@ class Trigger_Action_Send_Email extends Trigger_Action
 
 		$assetid = $state['asset']->id;
 
-		// we only want to process user assets
-		if (!$GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($state['asset']->type(), 'user')) {
-			return TRUE;
-		}
-
 		$email_format_value = $settings['email_format_value'];
-		if ($settings['to_owner']) {
+		if ($settings['to_owner'] && $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($state['asset']->type(), 'user')) {
 			// add owners id
 			$unserialised = unserialize($email_format_value);
 			$unserialised['to_assetids'][] = $assetid;
 			$email_format_value = serialize($unserialised);
 		}
 
-		$keywords = Array('username','first_name', 'last_name', 'email');
-		$keyword_replacements = Array();
-		foreach ($keywords as $keyword) {
-			$keyword_replacements[$keyword] = $state['asset']->attr($keyword);
+		// get the keywords
+		$avl_keywords = $state['asset']->getAvailableKeywords();
+		foreach ($avl_keywords as $keyword => $desc) {
+			$keyword_replacements[$keyword] = $state['asset']->getKeywordReplacement($keyword);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($state['asset']);
