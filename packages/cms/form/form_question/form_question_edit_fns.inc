@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.35 2005/06/06 05:29:00 lwright Exp $
+* $Id: form_question_edit_fns.inc,v 1.35.2.1 2006/02/14 23:08:05 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.35.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -81,7 +81,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 
 		$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_codes, 'description');
 
-		$rules = &$asset->getRules();
+		$rules = $asset->getRules();
 
 		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
 			$rule = &$rules[$k];
@@ -146,7 +146,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 
 		$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_codes, 'description');
 
-		$rules = &$asset->getRules();
+		$rules = $asset->getRules();
 
 		// delete rules first
 		foreach (array_keys($rules) as $k) {
@@ -229,7 +229,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		$rule_code = substr($type_code,strlen('form_question_rule_type_'));
 		if (!trim($rule_code)) return false;
 
-		$rules = &$asset->getRules();
+		$rules = $asset->getRules();
 		$rules[] = Array('rule_code' => $rule_code);
 
 		$asset->setAttrValue('rules', $rules);
