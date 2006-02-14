@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.132 2006/02/10 02:42:28 lwright Exp $
+* $Id: form.inc,v 1.133 2006/02/14 21:28:52 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.132 $
+* @version $Revision: 1.133 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -996,9 +996,9 @@ class Form extends Asset
 						errors_list += submission_errors[x] + "\n";
 					}
 					alert(errors_list);
-					return FALSE;
+					return false;
 				}
-				return TRUE;
+				return true;
 			}
 			</script>
 		<?php
