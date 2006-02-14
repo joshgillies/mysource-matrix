@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.107 2006/02/13 22:46:19 pgannavarapu Exp $
+* $Id: lang_strings.xml,v 1.108 2006/02/14 23:35:54 rong Exp $
 *
 */
 
@@ -520,6 +520,9 @@
 	<string source="this_asset">This asset</string>
 	<string source="this_asset_and_dependants">This asset and its dependants</string>
 	<string source="this_asset_and_children">This asset and its children</string>
+	<string source="selected_asset">Selected assets</string>
+	<string source="selected_asset_and_dependants">Selected assets and their dependants</string>
+	<string source="selected_asset_and_children">Selected assets and their children</string>
 	<string source="all_asset_types">All Asset Types</string>
 	<string source="no_charactet_set_set">Unkown character set %1$s is currently set for "%2$s"</string>
 	<string source="new_type">New Type</string>
@@ -966,6 +969,12 @@
 
 	<string source="trigger_send_to_active_user">Send to active user</string>
 	<string source="trigger_send_to_active_user_note">Sends a copy to the user asset that fired this event</string>
+
+	<string source="trigger_clear_cache_current_asset">Include Current Asset?</string>
+	<string source="trigger_clear_cache_include_current_asset">Includes the asset that the action is executing on?</string>
+	<string source="trigger_clear_cache_choose_asset">Choose Assets</string>
+	<string source="trigger_clear_cache_choose_asset_selected">Selected Assets</string>
+	<string source="trigger_clear_cache_asset_types_selected">Selected Asset Types</string>
 
 	<string source="security_key_incorrect_message">The security key entered was incorrect. The lock on "%s" has not been forceably acquired. You may try again using the new security key displayed below.</string>
 
