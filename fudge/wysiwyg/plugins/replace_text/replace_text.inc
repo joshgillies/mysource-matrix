@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replace_text.inc,v 1.2 2005/10/04 00:11:00 dmckee Exp $
+* $Id: replace_text.inc,v 1.2.2.1 2006/02/14 23:48:50 skim Exp $
 *
 */
 
@@ -34,7 +34,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *		from other formatting functions
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -51,7 +51,7 @@ class Replace_Text extends WYSIWYG_Plugin
 	*/
 	function replace_text()
 	{
-		$this->_add_button('replacetext','ReplaceText','Replace Text','true','11');
+		$this->_add_button('replacetext','ReplaceText','Replace Text','false','11');
 	}
 
 
