@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.36 2006/02/13 01:19:53 rong Exp $
+* $Id: cache_manager.inc,v 1.37 2006/02/14 22:18:36 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -510,6 +510,9 @@ class Cache_Manager extends Asset
 	*/
 	function _getCache($cache_key, $perm_key, $url)
 	{
+		// to get rid of replication lag if the system has multiple db
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT
 					expires, path
@@ -521,6 +524,8 @@ class Cache_Manager extends Asset
 					url = '.$db->quoteSmart($url);
 		$result = $db->getAll($sql);
 		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return array_shift($result);
 
