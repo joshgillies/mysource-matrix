@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.504 2006/02/07 01:09:39 lwright Exp $
+* $Id: asset.inc,v 1.505 2006/02/14 01:10:27 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.504 $
+* @version $Revision: 1.505 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4514,6 +4514,8 @@ class Asset extends MySource_Object
 						}
 						$new_url_assetids[] = $this->id;
 
+						$lookup_values = Array();
+
 						foreach ($tmp_old_urls as $tmp_old_url) {
 							if ($tmp_old_url['url'] == $new_url) {
 								// exact same URL as before
@@ -4531,8 +4533,6 @@ class Asset extends MySource_Object
 								}
 							}
 						}
-
-						if (!isset($lookup_values)) $lookup_values = Array();
 
 						// all designs go to all urls (at the moment anyway), so merge them all in
 						foreach ($our_designs as $name => $data) {
