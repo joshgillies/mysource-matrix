@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.52 2006/01/26 22:34:04 lwright Exp $
+* $Id: image.inc,v 1.52.2.1 2006/02/14 05:47:29 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.52.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -144,22 +144,24 @@ class Image extends File
 			// file versioning magick :D
 			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
-			foreach ($varieties['data'] as $variety_shadowid => $variety) {
-				$old_variety_path = $old_base_path.'/'.$variety['filename'];
-				$new_variety_path = $new_base_path.'/'.$variety['filename'];
+			if (isset($varieties['data']) && is_array($varieties['data'])) {
+				foreach ($varieties['data'] as $variety_shadowid => $variety) {
+					$old_variety_path = $old_base_path.'/'.$variety['filename'];
+					$new_variety_path = $new_base_path.'/'.$variety['filename'];
 
-				if (!copy($old_variety_path, $new_variety_path)) {
-					trigger_localised_error('CORE0036', E_USER_WARNING, $old_variety_path, $new_variety_path);
-					return FALSE;
-				}
+					if (!copy($old_variety_path, $new_variety_path)) {
+						trigger_localised_error('CORE0036', E_USER_WARNING, $old_variety_path, $new_variety_path);
+						return FALSE;
+					}
 
-				if (!$fv->add($clone->data_path_suffix.'/varieties', $new_variety_path)) {
-					return FALSE;
-				}
+					if (!$fv->add($clone->data_path_suffix.'/varieties', $new_variety_path)) {
+						return FALSE;
+					}
 
-				if (!$fv->checkOut($clone->data_path_suffix.'/varieties/'.$variety['filename'], $clone->data_path.'/varieties')) {
-					trigger_localised_error('CORE0103', E_USER_WARNING);
-					return FALSE;
+					if (!$fv->checkOut($clone->data_path_suffix.'/varieties/'.$variety['filename'], $clone->data_path.'/varieties')) {
+						trigger_localised_error('CORE0103', E_USER_WARNING);
+						return FALSE;
+					}
 				}
 			}
 		}//end if attributes|all
