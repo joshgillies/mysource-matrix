@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.37 2006/02/14 22:18:36 rong Exp $
+* $Id: cache_manager.inc,v 1.38 2006/02/14 23:54:53 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -307,14 +307,21 @@ class Cache_Manager extends Asset
 	function clearCache($assetids)
 	{
 		if (!empty($assetids)) {
+
+			// break up the assets into chunks of 1000 so that oracle does not complain
+			$in_clauses = Array();
+			foreach (array_chunk($assetids, 999) as $chunk) {
+				$in_clauses[] = ' assetid IN ('.implode(', ', $chunk).')';
+			}
+			$sql = 'DELETE FROM
+						sq_cache
+					WHERE
+						('.implode(' OR ', $in_clauses).')';
+
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
-			$sql = 'DELETE FROM
-						sq_cache
-					WHERE
-						assetid in ('.implode(',', $assetids).')';
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
