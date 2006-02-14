@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form.inc,v 1.22 2006/02/08 02:52:24 sdanis Exp $
+* $Id: design_area_login_form.inc,v 1.23 2006/02/14 00:53:24 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -132,7 +132,7 @@ class Design_Area_Login_Form extends Design_Area
 					//<![CDATA[
 						var loginForm = document.forms[\''.$this->attr('id_name').'_login_prompt\'];
 						function checkEntry() {
-							return (loginForm.SQ_LOGIN_USERNAME.value.length > 0 && loginForm.SQ_LOGIN_PASSWORD.value.length > 1);
+							return (loginForm.SQ_LOGIN_USERNAME.value.length > 0 && loginForm.SQ_LOGIN_PASSWORD.value.length > 0);
 						}
 					//]]> -->
 					</script>
