@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.70 2006/02/02 03:38:32 sdanis Exp $
+* $Id: calendar_event_recurring.inc,v 1.71 2006/02/14 23:52:47 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -220,7 +220,6 @@ class Calendar_Event_Recurring extends Calendar_Event
 					increment_month($res_month, $res_year, $interval);
 				} else if ((int)((days_in_month($after_month, $after_year) - $after_day) / 7) == $target_weeks_from_end) {
 					// we're in the right week so start from 'now', not the begining of the week,
-					// $min_day = $start_day;
 				}
 				$min_day = $after_day;
 
@@ -788,14 +787,6 @@ class Calendar_Event_Recurring extends Calendar_Event
 					if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
 						if ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE'])) {
 							// exception today
-							/*
-							$exception_type = ($exception_link['minor_type_code'] == 'calendar_event_cancellation') ? 'cancelled' : 'modified';
-							echo '<p>'.translate('cal_event_recur_'.$exception_type.'_notice', replace_query_string_vars(Array('SQ_CALENDAR_EVENT_ACTION'=>null, 'SQ_CALENDAR_EVENT_ID'=>$exception_link['minorid'])), $exception_link['minorid']).'</p>';
-							$keywords['instance_start_datetime'] = Array('value'=>'');
-							$keywords['instance_end_datetime'] = Array('value'=>'');
-							$keywords['cancel_link'] = Array('value'=>'');
-							$keywords['modify_link'] = Array('value'=>'');
-							*/
 							return '';
 						} else {
 							// we are showing a normal instance of this event
@@ -1100,7 +1091,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	* Cache the calendar data's stuff
 	*
 	* @param boolean	$updating	are we updating (TRUE) or inserting a new record
-	* 								(FALSE - set only in create() call)
+	*								(FALSE - set only in create() call)
 	*
 	* @return boolean
 	* @access private

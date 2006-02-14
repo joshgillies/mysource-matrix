@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars_edit_fns.inc,v 1.24 2005/10/11 02:05:51 tbarrett Exp $
+* $Id: design_area_declared_vars_edit_fns.inc,v 1.25 2006/02/14 23:57:09 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,8 +43,8 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Loops through the contents array and creates the necessary objects
 	*
-	* @param object Asset	$asset		the asset to which we belong
-	* @param array			$contents	the contents array we generated with _parseString()
+	* @param object	&$asset		the asset to which we belong
+	* @param array	$contents	the contents array we generated with _parseString()
 	*
 	* @return boolean
 	* @access private
@@ -80,16 +80,16 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 			// make sure this is a valid attribute type
 			if (!$GLOBALS['SQ_SYSTEM']->am->validAttributeType($element['attributes']['type'])) {
 				trigger_localised_error('CORE0152', E_USER_WARNING, $name, $asset->attr('id_name'), $element['attributes']['type']);
-				return false;
+				return FALSE;
 			}//end if
 
 			// check that the value is valid
 			require_once(SQ_ATTRIBUTES_PATH.'/'.$element['attributes']['type'].'/'.$element['attributes']['type'].'.inc');
 			$class = 'Asset_Attribute_'.$element['attributes']['type'];
-			$attr = new $class();
+			$attr =& new $class();
 			if (!$attr->validateValue($element['attributes']['value'])) {
 				trigger_localised_error('CORE0151', E_USER_WARNING, $name, $asset->attr('id_name'), $element['attributes']['value'], $element['attributes']['type']);
-				return false;
+				return FALSE;
 			}//end if
 
 			$declared_vars[$name] = Array(
@@ -100,7 +100,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 		}//end foreach
 
 		// now make sure we save our changes
-		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
+		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = TRUE;
 		return $asset->setAttrValue('declared_vars', $declared_vars);
 
 		// NOTE: we deliberately don't set the 'contents' as is done in other design areas
@@ -111,9 +111,9 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint declared variables
 	*
-	* @param object Asset				$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -140,32 +140,32 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Process declared variables
 	*
-	* @param object Asset				$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processDecVars(&$asset, &$o, $prefix)
 	{
-		$save = false;
+		$save = FALSE;
 		$attrs = $asset->getDeclaredVarAttributes();
 		$declared_vars = $asset->attr('declared_vars');
 		foreach ($attrs as $name => $attr) {
 			$attr->process($prefix.'_'.$name);
 			if ($attr->processed) {
 				$declared_vars[$name]['value'] = $attr->value;
-				$save = true;
+				$save = TRUE;
 			}
 		}
 
 		if ($save) {
 			// now make sure we save our changes
 			$asset->setAttrValue('declared_vars', $declared_vars);
-			return true;
+			return TRUE;
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end processDecVars()

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_calendar.inc,v 1.4 2005/08/02 01:17:43 gsherwood Exp $
+* $Id: package_manager_calendar.inc,v 1.5 2006/02/14 23:52:47 sdanis Exp $
 *
 */
 
@@ -21,16 +21,17 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 * Package_Manager_Calendar
 *
 * Purpose
-*    Manages the install and upgrade of the Calendar system assets, 
+*    Manages the install and upgrade of the Calendar system assets,
 *    uses info gleaned from the package.xml and asset.xml files
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
 class Package_Manager_Calendar extends Package_Manager
 {
+
 
 	/**
 	* Constructor
@@ -42,6 +43,7 @@ class Package_Manager_Calendar extends Package_Manager
 		$this->Package_Manager();
 
 	}//end constructor
+
 
 }//end class
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_datetime.inc,v 1.9 2005/10/11 02:05:48 tbarrett Exp $
+* $Id: design_area_datetime.inc,v 1.10 2006/02/14 23:55:09 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,14 +40,14 @@ class Design_Area_DateTime extends Design_Area
 {
 
 
-	/*
+	/**
 	* Print code that actually results in HTML output to the browser for this design area
 	*
 	* This function is called at the AREA tag if print != no, and at the point of any PRINT
 	* tags that reference this area.
 	*
-	* @access protected
 	* @return void
+	* @access protected
 	*/
 	function _printPaintingCode()
 	{
@@ -55,14 +55,14 @@ class Design_Area_DateTime extends Design_Area
 		switch ($this->attr('datetime')) {
 			case 'updated' :
 				$datetime = '$ASSET->updated';
-				break;
+			break;
 			case 'now' :
 			default :
 				$datetime = 'time()';
 		}
 
 		echo '<', '?php echo date("'.$format.'", '.$datetime.'); ?', '>';
-		return true;
+		return TRUE;
 
 	}//end _printPaintingCode()
 

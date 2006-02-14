@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars.inc,v 1.17 2005/10/11 02:05:51 tbarrett Exp $
+* $Id: design_area_declared_vars.inc,v 1.18 2006/02/14 23:57:09 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,9 +43,9 @@ class Design_Area_Declared_Vars extends Design_Area
 	/**
 	* Easy way to get the value of an attribute
 	*
-	* @param string	$name
+	* @param string	$name	Attribute name
 	*
-	* @return mixed
+	* @return mixed string|object|int|float
 	* @access public
 	*/
 	function attr($name)
@@ -55,16 +55,17 @@ class Design_Area_Declared_Vars extends Design_Area
 		} else {
 			return $this->vars['declared_vars']['value'][$name]['value'];
 		}
+
 	}//end attr()
 
 
-	/*
+	/**
 	* Print code that actually results in HTML output to the browser for this design area
 	*
 	* Declared Vars DAs never show any direct HTML output
 	*
-	* @access protected
 	* @return void
+	* @access protected
 	*/
 	function _printPaintingCode()
 	{
@@ -75,7 +76,7 @@ class Design_Area_Declared_Vars extends Design_Area
 	/**
 	* Returns an array of Asset_Attribute object, one for each declared var
 	*
-	* @return Array(object Asset_Attribute)
+	* @return array
 	* @access public
 	*/
 	function getDeclaredVarAttributes()
@@ -90,7 +91,7 @@ class Design_Area_Declared_Vars extends Design_Area
 				trigger_localised_error('CORE0146', E_USER_WARNING, $type, $name);
 				continue;
 			}
-			$attrs[$name] = new $attr_class(0, $data['value']);
+			$attrs[$name] =& new $attr_class(0, $data['value']);
 			$attrs[$name]->name = $name;
 		}
 
@@ -102,7 +103,9 @@ class Design_Area_Declared_Vars extends Design_Area
 	/**
 	* Merges any new declared vars from the parent design
 	*
-	* @param  Array() $parent_attrs
+	* @param array	$parent_attrs	Parent attributes
+	*
+	* @return void
 	* @access public
 	*/
 	function mergeParentDeclaredVars($parent_attrs)

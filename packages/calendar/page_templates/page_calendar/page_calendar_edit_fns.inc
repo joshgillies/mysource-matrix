@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.32 2006/02/02 03:55:37 sdanis Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.33 2006/02/14 23:52:47 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -301,7 +301,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint an interface where you can choose a point in time with 5-minute precision
 	*
-	* @param string		$prefix	prefix	for the form elements
+	* @param string		$prefix			prefix for the form elements
 	* @param int		$default_hour	the default value for the hour field
 	* @param int		$default_min	the default value for the minutes field
 	* @param boolean	$default_is_pm	whether the default time is pm

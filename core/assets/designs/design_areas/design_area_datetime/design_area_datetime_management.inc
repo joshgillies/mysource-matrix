@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_datetime_management.inc,v 1.9 2005/01/20 13:07:32 brobertson Exp $
+* $Id: design_area_datetime_management.inc,v 1.10 2006/02/14 23:55:09 sdanis Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_DateTime_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -47,29 +48,30 @@ class Design_Area_DateTime_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'format' => Array(
-								'added'			=> '0.0.1',
-								'type'			=> 'text',
-								'default'		=> 'h:ia  d/m/Y',
-								'description'   => 'Format of the datetime field, see PHP\'s date fn for format specifications <a href="http://www.php.net/date">http://www.php.net/date</a>'
-							),
-							'datetime' => Array(
-								'added'			=> '0.0.1',
-								'type'			=> 'selection',
-								'default'		=> 'now',
-								'parameters'	=> Array(
-									'options' => Array(
-											'now'		=> 'When the page is loaded',
-											'updated'	=> 'When the page was last modified',
-									),
-									'multiple' => false,
-									'allow_empty' => false,
-								),
-								'description'	=> 'The value to be used',
-							),
-						);
+						'format'	=> Array(
+										'added'			=> '0.0.1',
+										'type'			=> 'text',
+										'default'		=> 'h:ia  d/m/Y',
+										'description'	=> 'Format of the datetime field, see PHP\'s date fn for format specifications <a href="http://www.php.net/date">http://www.php.net/date</a>',
+									   ),
+						'datetime'	=> Array(
+										'added'			=> '0.0.1',
+										'type'			=> 'selection',
+										'default'		=> 'now',
+										'parameters'	=> Array(
+															'options'		=> Array(
+																				'now'		=> 'When the page is loaded',
+																				'updated'	=> 'When the page was last modified',
+																			   ),
+															'multiple'		=> FALSE,
+															'allow_empty'	=> FALSE,
+														   ),
+										'description'	=> 'The value to be used',
+									   ),
+					  );
 
 	}//end constructor
+
 
 }//end class
 ?>
