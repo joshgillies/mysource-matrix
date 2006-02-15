@@ -18,10 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookup_value_edit_fns.inc,v 1.1 2005/02/21 11:18:44 brobertson Exp $
+* $Id: lookup_value_edit_fns.inc,v 1.1.2.1 2006/02/15 02:30:51 sdanis Exp $
 *
 */
 
+require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 
 /**
 * Lookup_Value_Edit_Fns
@@ -30,7 +31,7 @@
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

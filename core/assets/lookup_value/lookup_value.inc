@@ -18,10 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookup_value.inc,v 1.3 2005/05/11 06:04:52 lwright Exp $
+* $Id: lookup_value.inc,v 1.3.2.1 2006/02/15 02:30:51 sdanis Exp $
 *
 */
 
+require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 /**
 * Lookup Value
@@ -30,17 +31,19 @@
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Lookup_Value extends Asset
 {
+
+
 	/**
 	* Return the lookup name to use in the interface
 	*
-	* @access public
 	* @return string
+	* @access public
 	* @static
 	*/
 	function lookupValueName()
@@ -53,8 +56,8 @@ class Lookup_Value extends Asset
 	/**
 	* Return the prefix that these values use in their name (minus the '::')
 	*
-	* @access public
 	* @return string
+	* @access public
 	* @static
 	*/
 	function namePrefix()
@@ -67,10 +70,10 @@ class Lookup_Value extends Asset
 	/**
 	* Paint the HTML editing interface for this condition.
 	*
-	* @param object	Asset				&$owner			the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o				the outputter class
-	* @param Array 						$lookups		array of available lookups
-	* @param Array 						$lookup_values	array of current values
+	* @param object	&$owner			the asset whose interface we are painting
+	* @param object	&$o				the outputter class
+	* @param array	$lookups		array of available lookups
+	* @param array	$lookup_values	array of current values
 	*													<pre>
 	*													"[url]" => array (
 	*														"[name]" => array (
@@ -79,10 +82,10 @@ class Lookup_Value extends Asset
 	*														),
 	*													),
 	*													</pre>
-	* @param string 					$prefix			unique prefix to use for the form elements
+	* @param string	$prefix			unique prefix to use for the form elements
 	*
+	* @return boolean
 	* @access public
-	* @return boolean		indicating if any editing fields were printed
 	* @static
 	*/
 	function paintInterface(&$owner, &$o, $lookups, $lookup_values, $prefix)
@@ -93,7 +96,9 @@ class Lookup_Value extends Asset
 
 			$o->openSection($url);
 
-			if (empty($lookup_values[$url])) $lookup_values[$url] = Array();
+			if (empty($lookup_values[$url])) {
+				$lookup_values[$url] = Array();
+			}
 
 			// add blank entry if we have write access
 			if ($wa) {
@@ -131,7 +136,7 @@ class Lookup_Value extends Asset
 
 			$o->closeSection();
 
-		}// end foreach
+		}//end foreach
 
 		return $wa;
 
@@ -141,10 +146,10 @@ class Lookup_Value extends Asset
 	/**
 	* Process the editing interface for this lookup value
 	*
-	* @param object	Asset				&$owner			the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o				the outputter class
-	* @param Array 						$lookups		array of available lookups
-	* @param Array 						$lookup_values	array of the values that we want to save
+	* @param object	&$owner			the asset whose interface we are painting
+	* @param object	&$o				the outputter class
+	* @param array	$lookups		array of available lookups
+	* @param array	&$lookup_values	array of the values that we want to save
 	*													<pre>
 	*													"[url]" => array (
 	*														"[name]" => array (
@@ -153,17 +158,18 @@ class Lookup_Value extends Asset
 	*														),
 	*													),
 	*													</pre>
-	* @param string 					$prefix			unique prefix to use for the form elements
+	* @param string	$prefix			unique prefix to use for the form elements
 	*
+	* @return boolean
 	* @access public
-	* @return boolean		indicating success or abort
 	* @static
 	*/
 	function processInterface(&$owner, &$o, $lookups, &$lookup_values, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processInterface()
+
 
 }//end class
 
