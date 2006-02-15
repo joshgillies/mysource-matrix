@@ -18,10 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookup_value.inc,v 1.4 2006/01/26 22:34:04 lwright Exp $
+* $Id: lookup_value.inc,v 1.5 2006/02/15 02:35:03 sdanis Exp $
 *
 */
 
+require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 /**
 * Lookup Value
@@ -30,18 +31,20 @@
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Lookup_Value extends Asset
 {
+
+
 	/**
 	* Return the lookup name to use in the interface
 	*
-	* @static
 	* @return string
 	* @access public
+	* @static
 	*/
 	function lookupValueName()
 	{
@@ -53,9 +56,9 @@ class Lookup_Value extends Asset
 	/**
 	* Return the prefix that these values use in their name (minus the '::')
 	*
-	* @static
 	* @return string
 	* @access public
+	* @static
 	*/
 	function namePrefix()
 	{
@@ -83,9 +86,9 @@ class Lookup_Value extends Asset
 	*								</pre>
 	* @param string	$prefix			unique prefix to use for the form elements
 	*
-	* @static
 	* @return boolean
 	* @access public
+	* @static
 	*/
 	function paintInterface(&$owner, &$o, $lookups, $lookup_values, $prefix)
 	{
@@ -148,7 +151,7 @@ class Lookup_Value extends Asset
 	* @param object	&$owner			the asset whose interface we are painting
 	* @param object	&$o				the outputter class
 	* @param array	$lookups		array of available lookups
-	* @param Array 	&$lookup_values	array of the values that we want to save
+	* @param array	&$lookup_values	array of the values that we want to save
 	*								<pre>
 	*								"[url]" => array (
 	*									"[name]" => array (
@@ -159,9 +162,9 @@ class Lookup_Value extends Asset
 	*								</pre>
 	* @param string	$prefix			unique prefix to use for the form elements
 	*
-	* @static
 	* @return boolean
 	* @access public
+	* @static
 	*/
 	function processInterface(&$owner, &$o, $lookups, &$lookup_values, $prefix)
 	{
