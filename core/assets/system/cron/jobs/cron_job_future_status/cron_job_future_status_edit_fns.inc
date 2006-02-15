@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status_edit_fns.inc,v 1.15 2006/01/26 22:34:06 lwright Exp $
+* $Id: cron_job_future_status_edit_fns.inc,v 1.16 2006/02/15 05:50:59 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -102,6 +102,8 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 			$dependants_only = (isset($_POST[$prefix.'_change_status_all_children']) && $_POST[$prefix.'_change_status_all_children']) ? false : true;
 			if ($when = $this->_processWhenBox($asset, $o, $prefix)) {
 				return ($asset->setAttrValue('when', $when) && $asset->setAttrValue('dependants_only', $dependants_only));
+			} else {
+				trigger_localised_error('CRON0046', E_USER_NOTICE);
 			}
 		}
 
