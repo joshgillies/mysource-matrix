@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.38 2006/02/15 05:49:20 tbarrett Exp $
+* $Id: lang_errors.xml,v 1.39 2006/02/15 22:48:07 tbarrett Exp $
 *
 */
 
@@ -1425,6 +1425,7 @@ Full Node Contents %3$s</error>
 	<error code="CORE0082">URL "%s" is not based upon an existing System Root URL</error>
 	<error code="CORE0083">Unable to create a %s with a blank name</error>
 	<error code="CORE0084">Unable to create a %s without a username and password</error>
+	<error code="CORE0247">Password cannot be blank</error>
 	<error code="CORE0085">Unable to create another "%s", it is a System Asset and you are only allowed one</error>
 	<error code="CORE0086">Unable to create file with name "%s", web path already exists?</error>
 	<error code="CORE0087">Unable to delete variety "%s" it does not exist</error>
