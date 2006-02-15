@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling_management.inc,v 1.3 2006/02/15 01:06:48 rhoward Exp $
+* $Id: page_calendar_rolling_management.inc,v 1.4 2006/02/15 04:07:34 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -163,7 +163,7 @@ class Page_Calendar_Rolling_Management extends Asset_Management
 
 		if (version_compare($current_version, '0.2', '<')) {
 			// version 0.1 -> 0.2
-			pre_echo('STARTING '.$asset_name.' UPGRADE - FROM VER66SION 0.1');
+			pre_echo('STARTING '.$asset_name.' UPGRADE - FROM VERSION 0.1');
 			$pages = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE, TRUE);
 			foreach ($pages as $assetid => $type_code) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
