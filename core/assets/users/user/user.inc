@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.96 2006/01/26 22:34:07 lwright Exp $
+* $Id: user.inc,v 1.97 2006/02/15 22:48:53 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,7 +77,11 @@ class User extends Asset
 		$password = $this->attr('password');
 
 		if (!$this->_catchBlankUserNamePass($username, $password)) {
-			trigger_localised_error('CORE0084', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			if (!array_get_index($this->_tmp, 'username_set') || !array_get_index($this->_tmp, 'password_set')) {
+				// in this case they have tried to create without even trying to set the username or password, so
+				// we error here.  Otherwise errors have already been thrown so we don't throw them now.
+				trigger_localised_error('CORE0084', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			}
 			return FALSE;
 		}
 
@@ -177,6 +181,7 @@ class User extends Asset
 	{
 		// if this is the password, encrypt it
 		if ($name == 'password') {
+			$this->_tmp['password_set'] = true; // so we know at create time whether to throw an extra error
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PASSWORD_VALIDATION)) {
 				$config =& new Password_Rules_Config();
 				require_once $config->config_file;
@@ -184,6 +189,7 @@ class User extends Asset
 			}
 			$value = crypt($value); // let salt be generated
 		} else if ($name == 'username') {
+			$this->_tmp['username_set'] = true; // so we know at create time whether to throw an extra error
 			if (!$this->_catchBlankSetUserName(trim($value))) {
 				trigger_localised_error('CORE0110', E_USER_WARNING);
 				return FALSE;
@@ -231,6 +237,13 @@ class User extends Asset
 	*/
 	function validatePassword($passwd)
 	{
+		// one rule that is always in effect:
+		if ($passwd === '') {
+			trigger_localised_error('CORE0247', E_USER_NOTICE);
+			$this->_tmp['password_validation_error'] = true;
+			return false;
+		}
+
 		$status = TRUE;
 
 		// errors for when a character type does not occur in the password
@@ -671,7 +684,11 @@ class User extends Asset
 	*/
 	function _catchBlankSetUserName($username)
 	{
-		return ($username != '');
+		if ($username === '') {
+			$this->_tmp['blank_username_caught'] = true;
+			return false;
+		}
+		return true;
 
 	}//end _catchBlankSetUserName()
 
