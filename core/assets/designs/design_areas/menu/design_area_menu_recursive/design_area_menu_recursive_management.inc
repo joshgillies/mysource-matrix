@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive_management.inc,v 1.12 2005/01/20 13:07:32 brobertson Exp $
+* $Id: design_area_menu_recursive_management.inc,v 1.13 2006/02/15 02:52:58 sdanis Exp $
 *
 */
 
@@ -31,12 +31,14 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Menu_Recursive_Management extends Asset_Management
 {
+
+
 	/**
 	* Constructor
 	*
@@ -46,21 +48,22 @@ class Design_Area_Menu_Recursive_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'min_num_levels' => Array(
-								'added'			=> '0.0.1',
-								'type'			=> 'int',
-								'default'		=> 0,
-								'description'	=> 'The minimum number of levels into the hierarchy to always show. Set to zero to emulate "show_subs" == "on_current", set to number greater than zero to be "show_sub" == "always" for that many levels'
-							),
-							'max_num_levels' => Array(
-								'added'			=> '0.0.1',
-								'type'			=> 'int',
-								'default'		=> 0,
-								'description'	=> 'The maximum number of levels into the hierarchy to show, blank or zero means no maximum'
-							),
-						);
+						'min_num_levels'	=> Array(
+												'added'			=> '0.0.1',
+												'type'			=> 'int',
+												'default'		=> 0,
+												'description'	=> 'The minimum number of levels into the hierarchy to always show. Set to zero to emulate "show_subs" == "on_current", set to number greater than zero to be "show_sub" == "always" for that many levels',
+											   ),
+						'max_num_levels'	=> Array(
+												'added'			=> '0.0.1',
+												'type'			=> 'int',
+												'default'		=> 0,
+												'description'	=> 'The maximum number of levels into the hierarchy to show, blank or zero means no maximum',
+											   ),
+					  );
 
 	}//end constructor
+
 
 }//end class
 ?>

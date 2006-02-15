@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_head_management.inc,v 1.2 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_area_head_management.inc,v 1.3 2006/02/15 02:56:47 sdanis Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Head_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor

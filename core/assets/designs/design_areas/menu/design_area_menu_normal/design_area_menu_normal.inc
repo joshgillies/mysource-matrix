@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_normal.inc,v 1.15 2005/10/11 02:06:39 tbarrett Exp $
+* $Id: design_area_menu_normal.inc,v 1.16 2006/02/15 02:52:58 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,11 +44,12 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 	* Outputs the way for this menu type to get their information and place it in the
 	* $GLOBALS['MENU_DATA'] array
 	*
+	* @return void
 	* @access public
 	*/
 	function printDataCollection()
 	{
-		$parent_menu = &$this->getParentMenu();
+		$parent_menu =& $this->getParentMenu();
 
 		// if we aren't a sub menu, or if our parent is only showing subs if we are in the lineage, use the asset from the lineage
 		if (is_null($parent_menu) || $parent_menu->attr('show_subs') == 'on_current') {
@@ -68,7 +69,7 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 			';
 		}// end if
 
-		$sub_menu = &$this->getSubMenu();
+		$sub_menu =& $this->getSubMenu();
 		if (!is_null($sub_menu)) {
 			echo '
 		if (!empty($'.$this->attr('id_name').'_assetids)) {

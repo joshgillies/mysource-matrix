@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content_edit_fns.inc,v 1.13 2006/01/26 22:34:03 lwright Exp $
+* $Id: design_area_nest_content_edit_fns.inc,v 1.14 2006/02/15 02:59:38 sdanis Exp $
 *
 */
 
@@ -32,19 +32,20 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 {
 
+
 	/**
 	* Prints the interface for linking to an assetid
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the owning asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -55,19 +56,21 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 			$type_codes = $asset->attr('type_codes');
 			$type_code_restrictions = Array();
 			if (is_array($type_codes)) {
-				foreach ($type_codes as $type_code) $type_code_restrictions[$type_code] = 'D';
+				foreach ($type_codes as $type_code) {
+					$type_code_restrictions[$type_code] = 'D';
+				}
 			}
 			asset_finder($prefix.'_assetid', $asset->_getNestAssetInfo('minorid'), $type_code_restrictions);
 
-		} elseif ($asset->_getNestAssetInfo('minorid')) {
-			$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_getNestAssetInfo('minorid'));
+		} else if ($asset->_getNestAssetInfo('minorid')) {
+			$link_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_getNestAssetInfo('minorid'));
 			if (!is_null($link_asset)) {
 				echo get_asset_tag_line($link_asset->id);
 			}
 
 		}// end if
 
-		return true;
+		return TRUE;
 
 	}//end paintAssetid()
 
@@ -75,18 +78,22 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes the interface for linking to an asset
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the owning asset
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processAssetid(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_assetid']['assetid'])) return false;
+		if (!isset($_POST[$prefix.'_assetid']['assetid'])) {
+			return FALSE;
+		}
 
-		if ($asset->_getNestAssetInfo('minorid') == $_POST[$prefix.'_assetid']['assetid']) return false;
+		if ($asset->_getNestAssetInfo('minorid') == $_POST[$prefix.'_assetid']['assetid']) {
+			return FALSE;
+		}
 
 		$assetid = (int) $_POST[$prefix.'_assetid']['assetid'];
 
@@ -99,22 +106,22 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 			if (!$asset->deleteLink($old_linkid)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return false;
+				return FALSE;
 			}
 		}
 
 		// now create the new link
 		if ($assetid) {
-			$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$link_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($link_asset)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return false;
+				return FALSE;
 			}
 			if (!$asset->createLink($link_asset, SQ_LINK_NOTICE, 'nest_content_asset')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return false;
+				return FALSE;
 			}
 		}
 
@@ -122,7 +129,7 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		return true;
+		return TRUE;
 
 	}//end processAssetid()
 

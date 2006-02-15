@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content.inc,v 1.20 2005/12/08 00:58:56 rhoward Exp $
+* $Id: design_area_nest_content.inc,v 1.21 2006/02/15 02:59:38 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,11 +53,13 @@ class Design_Area_Nest_Content extends Design_Area
 	{
 		// if they are trying to set the type_codes, split the string
 		if ($name == 'type_codes') {
-			if (!is_array($value)) $value = preg_split('/[ ,]+/', (string) $value);
+			if (!is_array($value)) {
+				$value = preg_split('/[ ,]+/', (string) $value);
+			}
 			foreach ($value as $type_code) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->installed($type_code)) {
-					trigger_localised_error("CORE0145", E_USER_WARNING, $type_code);
-					return false;
+					trigger_localised_error('CORE0145', E_USER_WARNING, $type_code);
+					return FALSE;
 				}
 			}
 		}
@@ -82,11 +84,17 @@ class Design_Area_Nest_Content extends Design_Area
 	function _getAllowedLinks()
 	{
 
-		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array(),
-					 SQ_LINK_TYPE_3 => Array(),
-					 SQ_LINK_NOTICE => Array('asset' => Array('card' => 1, 'exclusive' => false))
-					);
+		return Array(
+				SQ_LINK_TYPE_1	=> Array(),
+				SQ_LINK_TYPE_2	=> Array(),
+				SQ_LINK_TYPE_3	=> Array(),
+				SQ_LINK_NOTICE	=> Array(
+									'asset'	=> Array(
+												'card'		=> 1,
+												'exclusive'	=> FALSE,
+											   ),
+								   ),
+			   );
 
 	}//end _getAllowedLinks()
 
@@ -98,16 +106,16 @@ class Design_Area_Nest_Content extends Design_Area
 	*
 	* @param boolean	$field	field in the link that is required (any valid field from getLink())
 	*
-	* @return mixed NULL if no asset found or the field value
+	* @return mixed NULL|string|object
 	* @access private
 	* @see Asset::getLink()
 	*/
 	function _getNestAssetInfo($field)
 	{
 		if (!isset($this->_tmp['nest_assetid'])) {
-			$this->_tmp['nest_assetid'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', true, 'nest_content_asset');
+			$this->_tmp['nest_assetid'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', TRUE, 'nest_content_asset');
 		}
-		return (empty($this->_tmp['nest_assetid'])) ? null : $this->_tmp['nest_assetid'][$field];
+		return (empty($this->_tmp['nest_assetid'])) ? NULL : $this->_tmp['nest_assetid'][$field];
 
 	}//end _getNestAssetInfo()
 
@@ -120,14 +128,14 @@ class Design_Area_Nest_Content extends Design_Area
 	*/
 	function linksUpdated()
 	{
-		if (!parent::linksUpdated()) return false;
+		if (!parent::linksUpdated()) return FALSE;
 		unset($this->_tmp['nest_assetid']);
-		return true;
+		return TRUE;
 
-	}//end _linksUpdated()
+	}//end linksUpdated()
 
 
-	/*
+	/**
 	* Return whether this DA has been given sufficient details to be able to print stuff
 	*
 	* @return boolean
@@ -144,8 +152,8 @@ class Design_Area_Nest_Content extends Design_Area
 	/**
 	* Print code that initialises this design area and should always be printed in place of the AREA tag
 	*
-	* @access protected
 	* @return void
+	* @access protected
 	*/
 	function _printInitCode()
 	{
@@ -163,8 +171,8 @@ class Design_Area_Nest_Content extends Design_Area
 	* This function is called at the AREA tag if print != no, and at the point of any PRINT
 	* tags that reference this area.
 	*
-	* @access protected
 	* @return void
+	* @access protected
 	*/
 	function _printPaintingCode()
 	{

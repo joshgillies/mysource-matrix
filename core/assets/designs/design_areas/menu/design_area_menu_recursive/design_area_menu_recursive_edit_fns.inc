@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive_edit_fns.inc,v 1.22 2005/10/11 02:06:46 tbarrett Exp $
+* $Id: design_area_menu_recursive_edit_fns.inc,v 1.23 2006/02/15 02:52:58 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,9 +56,8 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 	* Takes the contents for the sub menu element and attempts to process it,
 	* is a separate fn to allow menu types that don't want to allow sub menu's to override
 	*
-	* @param object Asset	$asset			the asset to which we belong
-	* @param string			$design_area	the menu type design area that the sub menu is supposed to be
-	* @param array			$contents		the sub menu's contents array that we generated with _parseString()
+	* @param object	&$asset		the asset to which we belong
+	* @param array	&$contents	the sub menu's contents array that we generated with _parseString()
 	*
 	* @return boolean
 	* @access private
@@ -67,8 +66,8 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 	function _processSubMenu(&$asset, &$contents)
 	{
 		// we just want to ignore any stupid sub menu's in our asset contents
-		trigger_localised_error("CORE0215", E_USER_WARNING);
-		return false;
+		trigger_localised_error('CORE0215', E_USER_WARNING);
+		return FALSE;
 
 	}//end _processSubMenu()
 

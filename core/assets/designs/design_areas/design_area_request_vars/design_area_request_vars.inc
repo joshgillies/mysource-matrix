@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_request_vars.inc,v 1.4 2005/10/11 02:06:30 tbarrett Exp $
+* $Id: design_area_request_vars.inc,v 1.5 2006/02/15 02:55:37 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *	Display something from the request (GET or POST) in the design
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,8 +44,9 @@ class Design_Area_Request_Vars extends Design_Area
 	* Outputs the var either as straight HTML or PHP code, depending on the type
 	*
 	* @param string	$var	the name of the var to print out
-	* @param Array	$args	array of any extra arguments that existed in the print command
+	* @param array	$args	array of any extra arguments that existed in the print command
 	*
+	* @return void
 	* @access public
 	*/
 	function printVar($var, $args)
