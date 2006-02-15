@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.57.2.6 2005/11/17 23:11:23 lwright Exp $
+* $Id: form_question.inc,v 1.57.2.7 2006/02/15 03:15:34 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.57.2.6 $
+* @version $Revision: 1.57.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -99,7 +99,7 @@ class Form_Question extends Asset
 		if (!$formid || empty($data)) {
 			return;
 		}
-		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($formid, 'form');
+		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($formid);
 
 		if (is_null($form)) return;
 		$this->_formid = $formid;
