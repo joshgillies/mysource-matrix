@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.6 2006/02/02 03:55:37 sdanis Exp $
+* $Id: page_calendar_rolling.inc,v 1.7 2006/02/15 01:06:48 rhoward Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -329,9 +329,19 @@ class Page_Calendar_Rolling extends Page
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		if (is_null($start_date)) {
+			$days_from = $this->attr('days_from');
+			$days_to   = $this->attr('days_to');
+
+			// switch if the values are the wrong way around
+			if ($days_from > $days_to) {
+				$tmp       = $days_from;
+				$days_from = $days_to;
+				$days_to   = $tmp;
+			}
+
 			$now_ts = time();
-			$start_date = date('Y-m-d', $now_ts - ($this->attr('days_past') * 60 * 60 * 24));
-			$end_date = date('Y-m-d', $now_ts + ($this->attr('days_future') * 60 * 60 * 24));
+			$start_date = date('Y-m-d', $now_ts + ($days_from * 60 * 60 * 24));
+			$end_date   = date('Y-m-d', $now_ts + ($days_to   * 60 * 60 * 24));
 		}
 		$length = (iso8601_ts($end_date) - iso8601_ts($start_date)) / (60 * 60 * 24);
 
@@ -373,6 +383,15 @@ class Page_Calendar_Rolling extends Page
 			$event_date = sprintf('%04d-%02d-%02d', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday']);
 			$res[$event_date][strtok($id, ':')] = $event;
 		}
+
+		// finally, filter by weekdays
+		$day_filter = explode('|', $this->attr('day_filter'));
+		foreach ($res as $day => $day_events) {
+			if (!in_array(date('D', strtotime($day)), $day_filter)) {
+				unset($res[$day]);
+			}
+		}
+
 		return $res;
 
 	}//end _getEvents()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2005/06/23 23:51:53 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2006/02/15 01:06:48 rhoward Exp $
 *
 */
 -->
@@ -37,11 +37,20 @@
 				<process_function name="processEventSources" />
 			</function_call>
 		</field>
-		<field attribute="days_past">
-			<int width="2" />
+		<field>
+			<function_call>
+				<paint_function name="paintDaysFrom" />
+				<process_function name="processDaysFrom" />
+			</function_call>
 		</field>
-		<field attribute="days_future">
-			<int width="2" />
+		<field>
+			<function_call>
+				<paint_function name="paintDaysTo" />
+				<process_function name="processDaysTo" />
+			</function_call>
+		</field>
+		<field attribute="day_filter">
+			<selection />
 		</field>
 		<field attribute="day_heading_format">
 			<text width="20" height="1" />

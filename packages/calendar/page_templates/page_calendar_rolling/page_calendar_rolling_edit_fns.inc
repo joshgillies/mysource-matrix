@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling_edit_fns.inc,v 1.3 2006/02/02 03:55:37 sdanis Exp $
+* $Id: page_calendar_rolling_edit_fns.inc,v 1.4 2006/02/15 01:06:48 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *	Functions to help print and process the backend interface of rolling calendar page assets
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -104,6 +104,140 @@ class Page_Calendar_Rolling_Edit_Fns extends Page_Edit_Fns
 		return FALSE;
 
 	}//end processEventSources()
+
+
+//--        Days From/To        --//
+
+
+	/**
+	* Paints the interface for the 'From' attribute
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintDaysFrom(&$asset, &$o, $prefix)
+	{
+		return $this->_paintDaySelect($asset, $prefix, 'days_from');
+
+	}//end paintDaysFrom()
+
+
+	/**
+	* Processes the interface for the 'From' attribute
+	*
+	* @param object	&$asset	the asset whose interface we are processing
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processDaysFrom(&$asset, &$o, $prefix)
+	{
+		return $this->_processDaySelect($asset, $prefix, 'days_from');
+
+	}//end processDaysFrom()
+
+
+	/**
+	* Paints the interface for the 'To' attribute
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintDaysTo(&$asset, &$o, $prefix)
+	{
+		return $this->_paintDaySelect($asset, $prefix, 'days_to');
+
+	}//end paintDaysTo()
+
+
+	/**
+	* Processes the interface for the 'To' attribute
+	*
+	* @param object	&$asset	the asset whose interface we are processing
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processDaysTo(&$asset, &$o, $prefix)
+	{
+		return $this->_processDaySelect($asset, $prefix, 'days_to');
+
+	}//end processDaysTo()
+
+
+	/**
+	* Paints the controls used by paintDaysTo and paintDaysFrom
+	*
+	* @param string	&$asset	the asset to which the attribute belongs
+	* @param string	$prefix	prefix for the form elements
+	* @param string	$attr	the attribute to paint
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _paintDaySelect(&$asset, $prefix, $attr)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$pf_select_contents = Array(
+								'days_past'		=> translate('cal_rolling_days_past_combo'),
+								'days_future'	=> translate('cal_rolling_days_future_combo'),
+							  );
+
+		// take the single attribute, break it out into a (positive) textbox value,
+		// and a dropdown switching between days in the past, and days in the future
+		$attr_val  = $asset->attr($attr);
+		$text_val  = abs($attr_val);
+		$combo_val = ($attr_val < 0 ? 'days_past' : 'days_future');
+
+		if ($write_access) {
+			int_text_box($prefix.'_'.$attr, $text_val, FALSE, 2);
+			combo_box($prefix.'_pastfuture_select_'.$attr, $pf_select_contents, FALSE, $combo_val);
+		} else {
+			echo translate('cal_rolling_'.$combo_val, $text_val);
+		}
+
+		return $write_access;
+
+	}//end _paintDaySelect()
+
+
+	/**
+	* Processes the day selection for processDaysTo and processDaysFrom
+	*
+	* @param string	&$asset	the asset to which the attribute belongs
+	* @param string	$prefix	prefix for the form elements
+	* @param string	$attr	the attribute to process
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _processDaySelect(&$asset, $prefix, $attr)
+	{
+		if ($asset->writeAccess('attributes')) {
+			$text_val   = abs(array_get_index($_REQUEST, $prefix.'_'.$attr, 0));
+			$select_val = array_get_index($_REQUEST, $prefix.'_pastfuture_select_'.$attr, 'days_future');
+
+			$attr_val = ($select_val == 'days_past' ? ($text_val * -1) : $text_val);
+
+			return $asset->setAttrValue($attr, $attr_val);
+		}
+
+		return TRUE;
+
+	}//end _processDaySelect()
 
 
 }//end class

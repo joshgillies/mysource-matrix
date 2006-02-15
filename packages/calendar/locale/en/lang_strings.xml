@@ -1,0 +1,27 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2006/02/15 01:06:47 rhoward Exp $
+*
+*
+* Calendar Package Localised Strings File
+*/
+-->
+
+<strings>
+	<string source="cal_rolling_days_past">%s days in the past.</string>
+	<string source="cal_rolling_days_future">%s days in the future.</string>
+	
+	<string source="cal_rolling_days_past_combo">days in the past</string>
+	<string source="cal_rolling_days_future_combo">days in the future</string>
+</strings>

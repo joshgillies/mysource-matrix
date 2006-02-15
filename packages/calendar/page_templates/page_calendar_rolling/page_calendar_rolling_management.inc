@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling_management.inc,v 1.2 2006/02/02 03:55:37 sdanis Exp $
+* $Id: page_calendar_rolling_management.inc,v 1.3 2006/02/15 01:06:48 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -48,15 +48,44 @@ class Page_Calendar_Rolling_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-						'days_past'				=> Array(
+						'days_from'				=> Array(
 													'type'			=> 'int',
 													'default'		=> 0,
-													'parameters'	=> Array('allow_negative' => FALSE),
+													'parameters'	=> Array(
+																		'allow_negative'	=> TRUE,
+																	   ),
 												   ),
-						'days_future'			=> Array(
+						'days_to'				=> Array(
 													'type'			=> 'int',
 													'default'		=> 6,
-													'parameters'	=> Array('allow_negative' => FALSE),
+													'parameters'	=> Array(
+																		'allow_negative'	=> TRUE,
+																	   ),
+												   ),
+						'day_filter'			=> Array(
+													'type'			=> 'selection',
+													'default'		=> Array(
+																		'Sun',
+																		'Mon',
+																		'Tue',
+																		'Wed',
+																		'Thu',
+																		'Fri',
+																		'Sat',
+																	   ),
+													'parameters'	=> Array(
+																		'options'		=> Array(
+																							'Sun'	=> translate('sunday'),
+																							'Mon'	=> translate('monday'),
+																							'Tue'	=> translate('tuesday'),
+																							'Wed'	=> translate('wednesday'),
+																							'Thu'	=> translate('thursday'),
+																							'Fri'	=> translate('friday'),
+																							'Sat'	=> translate('saturday'),
+																						   ),
+																		'multiple'		=> TRUE,
+																		'allow_empty'	=> FALSE,
+																	   ),
 												   ),
 						'day_heading_tag'		=> Array(
 													'type'			=> 'selection',
@@ -116,6 +145,51 @@ class Page_Calendar_Rolling_Management extends Asset_Management
 			   );
 
 	}//end getEventList()
+
+
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		if (!parent::_upgrade($current_version)) return FALSE;
+
+		$asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
+
+		if (version_compare($current_version, '0.2', '<')) {
+			// version 0.1 -> 0.2
+			pre_echo('STARTING '.$asset_name.' UPGRADE - FROM VER66SION 0.1');
+			$pages = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE, TRUE);
+			foreach ($pages as $assetid => $type_code) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				if (is_null($asset)) continue;
+
+				// convert the old days_past and days_future, and convert them into the new days_from and days_to
+				// days_from/to use negative numbers to represent days before the current date
+				if (!$asset->setAttrValue('days_from', ($asset->attr('days_past') * -1)) || !$asset->setAttrValue('days_to', $asset->attr('days_future'))) {
+					echo 'Asset #', $asset->id, ' (', $asset->name,') Unable to convert old past and/or future values', "\n";
+					continue;
+				}
+
+				if (!$asset->saveAttributes()) {
+					echo 'Asset #', $asset->id, ' (', $asset->name,') Unable to save attributes', "\n";
+					continue;
+				}
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				unset($asset);
+			}//end foreach
+			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION 0.1');
+
+		}//end if - upgrade to version 0.2
+
+		return TRUE;
+
+	}//end _upgrade()
 
 
 }//end class
