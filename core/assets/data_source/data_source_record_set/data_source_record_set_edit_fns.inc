@@ -11,12 +11,13 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_record_set_edit_fns.inc,v 1.3 2006/01/18 00:29:27 lwright Exp $
+* $Id: data_source_record_set_edit_fns.inc,v 1.4 2006/02/15 03:03:40 lwright Exp $
 *
 */
 
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+
 
 /**
 * Data_Source_Record_Set_Edit_Fns
@@ -25,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
