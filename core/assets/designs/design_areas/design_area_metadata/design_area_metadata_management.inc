@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_metadata_management.inc,v 1.7 2005/01/20 13:07:32 brobertson Exp $
+* $Id: design_area_metadata_management.inc,v 1.8 2006/02/15 00:05:20 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,13 +48,13 @@ class Design_Area_Metadata_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'metadata_field' => Array(
-								'added'			=> '0.1',
-								'type'			=> 'text',
-								'default'		=> '',
-								'description'	=> 'Output a specific field value - leave blank to output all metadata',
-							),
-						);
+						'metadata_field'	=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'text',
+												'default'		=> '',
+												'description'	=> 'Output a specific field value - leave blank to output all metadata',
+											   ),
+					  );
 
 	}//end constructor
 

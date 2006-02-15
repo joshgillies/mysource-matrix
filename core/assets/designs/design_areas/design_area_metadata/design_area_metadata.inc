@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_metadata.inc,v 1.11 2005/12/02 14:12:18 gnoel Exp $
+* $Id: design_area_metadata.inc,v 1.12 2006/02/15 00:05:20 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,14 +40,14 @@ class Design_Area_Metadata extends Design_Area
 {
 
 
-	/*
+	/**
 	* Print code that actually results in HTML output to the browser for this design area
 	*
 	* This function is called at the AREA tag if print != no, and at the point of any PRINT
 	* tags that reference this area.
 	*
-	* @access protected
 	* @return void
+	* @access protected
 	*/
 	function _printPaintingCode()
 	{
@@ -64,12 +64,12 @@ class Design_Area_Metadata extends Design_Area
 			// printing a specific field
 			echo '
 					$METADATA_MANAGER = &$GLOBALS[\'SQ_SYSTEM\']->getMetadataManager();
-					$metadata_field_value = $METADATA_MANAGER->getMetadataFieldValues($ASSET->id, Array('.var_export($field_name, true).'));
-					echo array_get_index($metadata_field_value, '.var_export($field_name, true).', \'\');
+					$metadata_field_value = $METADATA_MANAGER->getMetadataFieldValues($ASSET->id, Array('.var_export($field_name, TRUE).'));
+					echo array_get_index($metadata_field_value, '.var_export($field_name, TRUE).', \'\');
 				 ';
 		}
 		echo '?', ">\n";
-		return true;
+		return TRUE;
 
 	}//end _printPaintingCode()
 
