@@ -11,10 +11,12 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_record_set.inc,v 1.6 2006/01/18 00:29:27 lwright Exp $
+* $Id: data_source_record_set.inc,v 1.6.2.1 2006/02/15 03:04:10 lwright Exp $
 *
 */
 
+
+require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 
 /**
@@ -24,7 +26,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -55,7 +57,7 @@ class Data_Source_Record_Set extends Asset
 			return;
 		}
 
-		$data_source =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_sourceid, 'data_source');
+		$data_source =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_sourceid);
 		if (is_null($data_source)) return;
 
 		$this->_data_sourceid = $data_sourceid;
