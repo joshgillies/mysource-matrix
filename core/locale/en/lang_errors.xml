@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.37 2006/02/06 00:47:20 lwright Exp $
+* $Id: lang_errors.xml,v 1.38 2006/02/15 05:49:20 tbarrett Exp $
 *
 */
 
@@ -370,6 +370,8 @@
 
 	<error code="CRON0045">Only repeating type cron jobs can have their "when" attributes set to a "TI=" prefixed value</error>
 
+	<error code="CRON0046">To add a future status you must specify the date and time at which the status should be changed</error>
+	
 	<!-- MAPS - MYSOURCE AUTOMATED PATCHING SYSTEM -->
 
 	<error code="MAPS0001">Unable to Read File : %1$s
