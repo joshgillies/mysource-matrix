@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2005/11/04 00:00:40 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.5 2006/02/15 22:30:13 sdanis Exp $
 *
 */
 -->
@@ -65,11 +65,19 @@
 			<note />
 		</field>
 		<field>
-			<display_name>Exclude List</display_name>
+			<display_name>Exclude Asset List</display_name>
 			<note>Assets within this list are excluded from the site map</note>
 			<function_call>
 				<paint_function   name="paintExcludeList"   />
 				<process_function name="processExcludeList" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Include Type List</display_name>
+			<note>Asset types within this list are included in the site map. If nothing is selected all asset types will be included.</note>
+			<function_call>
+				<paint_function   name="paintTypeIncludeList"   />
+				<process_function name="processTypeIncludeList" />
 			</function_call>
 		</field>
 	</section>

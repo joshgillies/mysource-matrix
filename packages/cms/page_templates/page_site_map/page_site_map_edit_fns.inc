@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_edit_fns.inc,v 1.18 2006/01/26 22:35:20 lwright Exp $
+* $Id: page_site_map_edit_fns.inc,v 1.19 2006/02/15 22:30:13 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -190,6 +190,84 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 		return $asset->setAttrValue('exclude_list', $exclude_list);
 
 	}//end processExcludeList()
+
+
+	/**
+	* paints the include type list and the asset type finder for adding to the include list
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintTypeIncludeList(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$curr_list = $asset->attr('include_types');
+
+		if ($write_access) {
+			asset_type_chooser($prefix.'_include_types', TRUE, $curr_list, NULL, TRUE, TRUE);
+		} else {
+			if (empty($curr_list)) {
+				echo translate('cms_page_site_map_all_asset_types_included');
+			} else {
+				?><ul style="margin:1px 15px;"><?php
+
+				$type_inherit = Array();
+				if (isset($curr_list['inherit'])) {
+					$type_inherit = $curr_list['inherit'];
+				}
+
+				foreach ($curr_list['type_code'] as $type_code) {
+					if (!empty($type_code)) {
+						$inherit = FALSE;
+						if (!empty($type_inherit)) {
+							$inherit = array_shift($type_inherit);
+						}
+
+						$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name');
+						echo '<li>';
+						get_asset_type_icon($type_code);
+						echo ' '.$type_name;
+
+						if ($inherit) {
+							echo ' ('.translate('cms_page_site_map_inherits_child_types').')';
+						}
+
+						echo '</li>';
+					}
+				}
+				?></ul><?php
+			}
+		}//end else
+
+		return $write_access;
+
+	}//end paintTypeIncludeList()
+
+
+	/**
+	* processes the type include list
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processTypeIncludeList(&$asset, &$o, $prefix)
+	{
+		$exclude_types = Array();
+		if (isset($_POST[$prefix.'_include_types']) && !empty($_POST[$prefix.'_include_types']['type_code'][0])) {
+			$exclude_types = $_POST[$prefix.'_include_types'];
+		}
+
+		return $asset->setAttrValue('include_types', $exclude_types);
+
+	}//end processTypeIncludeList()
 
 
 }//end class
