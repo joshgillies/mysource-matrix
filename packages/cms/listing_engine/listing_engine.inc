@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.32 2006/02/13 23:10:56 sdanis Exp $
+* $Id: listing_engine.inc,v 1.38.2.33 2006/02/16 00:54:51 sdanis Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.32 $
+* @version $Revision: 1.38.2.33 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1967,7 +1967,8 @@ class Listing_Engine extends Page
 
 				switch ($group_level['group_type']) {
 					case 'parent_asset':
-						$value = $this->getGroupableParentAssetids($current_parent, $group_level['restrict_types']);
+						$restrict_types = array_get_index($group_level, 'restrict_types', Array());
+						$value = $this->getGroupableParentAssetids($current_parent, $restrict_types);
 					break;
 
 					case 'metadata':
