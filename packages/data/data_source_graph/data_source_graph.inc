@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.8 2006/01/26 22:35:21 lwright Exp $
+* $Id: data_source_graph.inc,v 1.9 2006/02/16 03:11:49 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -349,13 +349,18 @@ class Data_Source_Graph extends Image
 		$height	= $this->attr('height');
 		$graph	= &Image_Graph::factory('graph', Array((int) $width, (int) $height));
 		$title = $this->attr('title');
+		if ($this->attr('show_legend')) {
+			$graph_ratio = 90;
+		} else {
+			$graph_ratio = 100;
+		}
 		$graph->add(
 					Image_Graph::vertical(
 						Image_Graph::factory('title', Array($title, 12)),
 						Image_Graph::vertical(
 							$plotarea = Image_Graph::factory('plotarea'),
 							$legend = Image_Graph::factory('legend'),
-							90
+							$graph_ratio
 						),
 						5
 					)
@@ -420,8 +425,8 @@ class Data_Source_Graph extends Image
 	{
 		$graph		=& $this->getNewGraph();
 		$datasets	= $this->attr('datasets');
-		$plot_order	= $this->attr('plot_order');
 
+		$plot_order	= $this->attr('plot_order');
 		foreach ($plot_order as $key => $plot_name) {
 			$dataset = $datasets[$plot_name];
 
@@ -443,7 +448,7 @@ class Data_Source_Graph extends Image
 					$image_dataset->addPoint($record[$x_axis_name], intval($record[$y_axis_name]));
 				}
 			}
-			$plot = $this->plotarea->addNew($dataset['settings']['graph_type'], $image_dataset);
+			$plot =& $this->plotarea->addNew($dataset['settings']['graph_type'], $image_dataset);
 			$plot->setTitle($dataset['settings']['plot_name']);
 
 			if ($dataset['settings']['gradient_type'] != 'none') {
@@ -459,19 +464,19 @@ class Data_Source_Graph extends Image
 			$plot->setFillStyle($fill);
 
 			// marker
-
 			if (isset($dataset['settings']['value_marker']) && $dataset['settings']['value_marker'] != 'none') {
 				$this->_addMarkerToPlot($dataset, $plot);
 			}
 		}
 
 		if ($to_file) {
+
 			if (empty($this->_tmp['graph_file_name'])) {
 				// mainly for the dummy file during the asset creation
 				$filename = $this->data_path.'/'.$this->name;
 				$graph->done(Array('filename' => $filename));
 			} else {
-				$graph->done($this->_tmp['graph_file_name']);
+				$graph->done(Array('filename' => $this->_tmp['graph_file_name']));
 			}
 		} else {
 			$graph->done();
@@ -650,12 +655,8 @@ class Data_Source_Graph extends Image
 		// re-generate the image file
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$result = $cm->loadFromCache($this->id, $this->type(), 'default');
-
 		if (empty($result)) {
-			if (!$this->updateCache()) {
-				trigger_localised_error('DATA0002', E_USER_WARNING);
-				return false;
-			}
+			$this->updateCache();
 		}
 
 		$existing = $this->getExistingFile();

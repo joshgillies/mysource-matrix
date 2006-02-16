@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_global_settings.xml,v 1.1 2005/12/15 01:43:30 skim Exp $
+* $Id: lang_screen_global_settings.xml,v 1.2 2006/02/16 03:11:59 skim Exp $
 *
 */
 -->
@@ -55,6 +55,10 @@
 		</field>
 		<field attribute="y_font_label_angle">
 			<display_name>Set Angle for y-Axis Label?</display_name>
+			<note />
+		</field>
+		<field attribute="show_legend">
+			<display_name>Show the legend area?</display_name>
 			<note />
 		</field>
 		<field attribute="background">

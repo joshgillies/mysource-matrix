@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_global_settings.xml,v 1.1 2005/12/15 01:43:30 skim Exp $
+* $Id: edit_interface_screen_global_settings.xml,v 1.2 2006/02/16 03:11:49 skim Exp $
 *
 */
 -->
@@ -48,6 +48,9 @@
 		</field>
 		<field attribute="y_font_label_angle">
 			<boolean true_text="vertical" false_text="horizontal" />
+		</field>
+		<field attribute="show_legend">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="background">
 			<colour />
