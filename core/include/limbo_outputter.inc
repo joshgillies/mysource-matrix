@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.20.2.5 2005/12/23 04:26:35 sdanis Exp $
+* $Id: limbo_outputter.inc,v 1.20.2.6 2006/02/16 23:54:41 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20.2.5 $
+* @version $Revision: 1.20.2.6 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -252,8 +252,6 @@ class Limbo_Outputter extends Backend_Outputter
 		//<![CDATA[
 
 			// slip our own onLoad function into the onLoad event of the window
-			page_on_load();
-
 			var SQ_DOCUMENT_LOADED = false;
 
 			function page_on_load()
@@ -567,14 +565,16 @@ class Limbo_Outputter extends Backend_Outputter
 	function _paintBodyHeader()
 	{
 		// if a redirect has been set - add an onLoad call so we redirect as normal
+		?><script type="text/javascript"><?php
 		if ($this->_redirect) {
 			?>
-			<script type="text/javascript">
 				<?php echo $this->_redirect_target; ?>.location = "<?php echo addslashes($this->_redirect); ?>";
-			</script>
 			<?php
+		} else {
+			?>page_on_load();<?php
 		}
 		?>
+		</script>
 
 		<!--
 			some special styles we need in limbo that dont get
