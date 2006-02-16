@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb.inc,v 1.5 2005/12/21 04:18:25 skim Exp $
+* $Id: ipb.inc,v 1.5.2.1 2006/02/16 03:33:54 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 * from Invision Power Board database
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package Fudge
 * @subpackage ipb
 */
@@ -228,6 +228,7 @@ class Ipb
 	/**
 	* Authenticate the user based on the username and the password
 	*
+	* @param object		&$bridge		the reference to the ipb bridge
 	* @param string		$username		the user name to verify
 	* @param string		$password		the password to verify
 	* @param boolean	$is_email_login	it's TRUE if email is used for loggin
@@ -235,9 +236,9 @@ class Ipb
 	* @return boolean
 	* @access public
 	*/
-	function authenticateUser($username, $password, $is_email_login)
+	function authenticateUser(&$bridge, $username, $password, $is_email_login)
 	{
-		require_once IPB_KERNEL_PATH.'/class_converge.php';
+		require_once $bridge->attr('location').'/ips_kernel/class_converge.php';
 		$converge =& new class_converge($this->db);
 
 		if ($is_email_login) {
