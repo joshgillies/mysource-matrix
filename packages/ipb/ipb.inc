@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb.inc,v 1.5 2005/12/21 04:18:25 skim Exp $
+* $Id: ipb.inc,v 1.6 2006/02/16 01:18:03 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 * from Invision Power Board database
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package Fudge
 * @subpackage ipb
 */
@@ -235,9 +235,9 @@ class Ipb
 	* @return boolean
 	* @access public
 	*/
-	function authenticateUser($username, $password, $is_email_login)
+	function authenticateUser(&$bridge, $username, $password, $is_email_login)
 	{
-		require_once IPB_KERNEL_PATH.'/class_converge.php';
+		require_once $bridge->attr('location').'/ips_kernel/class_converge.php';
 		$converge =& new class_converge($this->db);
 
 		if ($is_email_login) {

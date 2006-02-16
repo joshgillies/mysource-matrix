@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ipb.inc,v 1.2 2005/12/21 04:18:25 skim Exp $
+* $Id: authentication_ipb.inc,v 1.3 2006/02/16 01:18:03 gsherwood Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -82,7 +82,7 @@ class Authentication_IPB extends Authentication
 				$can_view = intval($result['g_view_board']);
 				if (!$can_view) return $user;
 			}
-			$result = $ipb->authenticateUser($username, $password, $email_login);
+			$result = $ipb->authenticateUser($bridge, $username, $password, $email_login);
 			if ($result) {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ipb_user');
 				$data = $ipb->getMemberInfoByName($username);
