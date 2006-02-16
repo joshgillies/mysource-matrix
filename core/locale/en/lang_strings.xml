@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.108 2006/02/14 23:35:54 rong Exp $
+* $Id: lang_strings.xml,v 1.109 2006/02/16 00:20:05 rhoward Exp $
 *
 */
 
@@ -85,6 +85,7 @@
 	<string source="current_variety">Current Variety</string>
 	<string source="current">Current</string>
 	<string source="current_asset">Current Asset</string>
+	<string source="current_user">Current User</string>
 	<string source="change_question">Change ?</string>
 	<string source="custom_error_text">Custom Error Text</string>
 	<string source="customise_row">Customise Row</string>
