@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_edit_fns.inc,v 1.3 2006/02/06 04:57:29 sdanis Exp $
+* $Id: report_asset_statuses_edit_fns.inc,v 1.4 2006/02/16 23:22:18 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -61,7 +61,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$owner =& $am->getAsset($job->_running_vars['assetid'], 'report_asset_counter');
+		$owner =& $am->getAsset($job->_running_vars['assetid'], 'report_asset_statuses');
 		$where = Array();
 		$tables = Array('ast a');
 
