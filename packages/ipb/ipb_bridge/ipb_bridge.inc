@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_bridge.inc,v 1.4 2006/01/09 03:41:06 emcdonald Exp $
+* $Id: ipb_bridge.inc,v 1.4.2.1 2006/02/16 03:29:08 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/ipb/ipb.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -107,7 +107,7 @@ class IPB_Bridge extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSEt)
+	function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
