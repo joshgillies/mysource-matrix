@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.1 2006/02/08 04:29:26 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.431.2.2 2006/02/16 22:23:34 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.1 $
+* @version $Revision: 1.431.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3047,15 +3047,26 @@ class Asset_Manager extends MySource_Object
 	* @param int		$levels			the number of levels to traverse (if null, traverse all levels)
 	* @param array		$exclude_list	an array of assetid to exclude from the tree
 	* @param int		$link_type		the type of wanted links
+	* @param array		$include_type_list	Array of asset types to include
+	*										Array(
+	*											'type_code' => Array(
+	*															0	=> 'type_code1',
+	*															1	=> 'type_code2'
+	*														   ),
+	*											'inherit'	=> Array(
+	*															0	=> TRUE,
+	*															1	=> FALSE,
+	*														   ),
+	*										)
 	*
 	* @return array
 	* @access public
 	*/
-	function getAssetTree($majorids, $levels=NULL, $exclude_list=Array(), $link_type=SQ_SC_LINK_FRONTEND_NAV)
+	function getAssetTree($majorids, $levels=NULL, $exclude_list=Array(), $link_type=SQ_SC_LINK_FRONTEND_NAV, $include_type_list=Array())
 	{
 		$tree_data = Array();
 		if (!is_array($majorids)) $majorids = Array($majorids);
-		$this->_getAssetTree($majorids, $tree_data, $levels, $exclude_list, $link_type);
+		$this->_getAssetTree($majorids, $tree_data, $levels, $exclude_list, $link_type, $include_type_list);
 		return $tree_data;
 
 	}//end getAssetTree()
@@ -3069,11 +3080,22 @@ class Asset_Manager extends MySource_Object
 	* @param int		$levels			the number of levels to traverse (if NULL, traverse all levels)
 	* @param array		$exclude_list	an array of assetid to exclude from the tree
 	* @param int		$link_type		the type of wanted links
+	* @param array		$include_type_list	Array of asset types to include
+	*										Array(
+	*											'type_code' => Array(
+	*															0	=> 'type_code1',
+	*															1	=> 'type_code2'
+	*														   ),
+	*											'inherit'	=> Array(
+	*															0	=> TRUE,
+	*															1	=> FALSE,
+	*														   ),
+	*										)
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _getAssetTree($majorids, &$tree_data, $levels, $exclude_list, $link_type)
+	function _getAssetTree($majorids, &$tree_data, $levels, $exclude_list, $link_type, $include_type_list)
 	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
@@ -3116,6 +3138,30 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
+		$include_types_str = '';
+		if (isset($include_type_list['type_code'])) {
+			$include_types = Array();
+			$include_inherit = Array();
+
+			if (isset($include_type_list['inherit'])) {
+				$include_inherit = $include_type_list['inherit'];
+			}
+
+			foreach ($include_type_list['type_code'] as $include_type) {
+				if (!empty($include_type)) {
+					if (isset($include_inherit) && !empty($include_inherit) && array_shift($include_inherit)) {
+						$include_types += $this->getTypeDescendants($include_type, TRUE);
+					} else {
+						$include_types[] = $include_type;
+					}
+				}
+			}
+
+			if (!empty($include_types)) {
+				$include_types_str = '\''.implode('\',\'', $include_types).'\'';
+			}
+		}
+
 		$sql    = 'SELECT DISTINCT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
 				   FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a
 					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON a.assetid = l.minorid
@@ -3129,6 +3175,11 @@ class Asset_Manager extends MySource_Object
 		if (!empty($exclude_list)) {
 			$where .= 'AND a.assetid NOT IN ('.$exclude_str.')';
 		}
+
+		if (!empty($include_types_str)) {
+			$where .= ' AND a.type_code IN ('.$include_types_str.')';
+		}
+
 		$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		if (!empty($USERIDS_COND)) {
@@ -3170,7 +3221,7 @@ class Asset_Manager extends MySource_Object
 
 		if (!empty($assetids) && ($levels > 1 || is_null($levels))) {
 			$levels--;
-			$this->_getAssetTree($assetids, $tree_data, $levels, $exclude_list, $link_type);
+			$this->_getAssetTree($assetids, $tree_data, $levels, $exclude_list, $link_type, $include_type_list);
 		}
 		return TRUE;
 

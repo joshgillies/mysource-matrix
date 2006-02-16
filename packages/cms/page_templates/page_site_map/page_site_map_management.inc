@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_management.inc,v 1.12 2006/01/20 04:03:51 sdanis Exp $
+* $Id: page_site_map_management.inc,v 1.12.2.1 2006/02/16 22:22:38 sdanis Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -74,6 +74,11 @@ class Page_Site_Map_Management extends Asset_Management
 										   ),
 						'exclude_list'	=> Array(
 											'added'		=> '0.0.1',
+											'type'		=> 'serialise',
+											'default'	=> Array(),
+										   ),
+						'include_types'	=> Array(
+											'added'		=> '0.2',
 											'type'		=> 'serialise',
 											'default'	=> Array(),
 										   ),
