@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.10 2006/02/02 06:40:41 rhoward Exp $
+* $Id: parameter_map.inc,v 1.11 2006/02/16 01:12:05 rhoward Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once dirname(dirname(__FILE__)).'/serialise/serialise.inc';
 *   When requesting the runtime value for a parameter you give its code.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -51,12 +51,12 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Parameter_Map($attributeid=0, $value=null)
+	function Asset_Attribute_Parameter_Map($attributeid=0, $value=NULL)
 	{
 		if (!isset($this->_params['parameters'])) {
 			$this->_params['parameters'] = Array();
 		}
-		if ($value == null) $value = Array();
+		if ($value == NULL) $value = Array();
 		$this->Asset_Attribute_Serialise($attributeid, $value);
 
 	}//end constructor
@@ -68,9 +68,10 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	* @param string		$prefix		prefix for the form element
 	* @param boolean	$read_only	are we just printing the value
 	*
+	* @return void
 	* @access public
 	*/
-	function paint($prefix, $read_only=false)
+	function paint($prefix, $read_only=FALSE)
 	{
 		$value = unserialize($this->value);
 		if (!$read_only) {
@@ -79,20 +80,16 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 			//<![CDATA[
 				function updateFieldChooser(dataSource)
 				{
-				  if (dataSource.options[dataSource.selectedIndex].value != 'ASSET') {
-					var selectElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[attribute]');
-					selectElts[0].style.display = 'none';
-					var inputElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[index]');
-					if (dataSource.options[dataSource.selectedIndex].value != 'USER') {
-						inputElts[0].style.display = 'inline';
-					} else {
-						inputElts[0].style.display = 'none';
-					}
-				  } else {
+				  if (dataSource.options[dataSource.selectedIndex].value == 'ASSET' || dataSource.options[dataSource.selectedIndex].value == 'USER') {
 					var selectElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[attribute]');
 					selectElts[0].style.display = 'inline';
 					var inputElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[index]');
 					inputElts[0].style.display = 'none';
+				  } else {
+					var selectElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[attribute]');
+					selectElts[0].style.display = 'none';
+					var inputElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[index]');
+					inputElts[0].style.display = 'inline';
 				  }
 				}
 			//]]> -->
@@ -114,11 +111,11 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 						<?php
 							foreach ($sources as $index => $details) {
 								if (!$read_only) {
-									$this->_printSourceChooser($prefix.'['.$parameter.']['.$index.']', $details['source'], ($details['source'] != 'ASSET') ? $details['index'] : $details['attribute']);
+									$this->_printSourceChooser($prefix.'['.$parameter.']['.$index.']', $details['source'], ($details['source'] == 'ASSET' || $details['source'] == 'USER') ? $details['attribute'] : $details['index']);
 								} else {
 									$source_types = $this->_getSourceTypes();
 									echo $source_types[$details['source']];
-									if ($details['source'] == 'ASSET') {
+									if ($details['source'] == 'ASSET' || $details['source'] == 'USER') {
 										echo ' '.$details['attribute'];
 									} else {
 										echo '['.$details['index'].']';
@@ -149,20 +146,20 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	/**
 	* Paint the fields to choose a data source
 	*
-	* @param string		$prefix			The prefix for the fields' names
-	* @param string		$source_type	The current value for the source-type field
-	* @param string		$component		The current value for the array-index or asset-attribute field
+	* @param string	$prefix			The prefix for the fields' names
+	* @param string	$source_type	The current value for the source-type field
+	* @param string	$component		The current value for the array-index or asset-attribute field
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
-	function _printSourceChooser($prefix, $source_type=null, $component=null)
+	function _printSourceChooser($prefix, $source_type=NULL, $component=NULL)
 	{
-		combo_box($prefix.'[source]', $this->_getSourceTypes(), false, Array($source_type), 0, 'onchange="updateFieldChooser(this)" onkeyup="updateFieldChooser(this)"');
+		combo_box($prefix.'[source]', $this->_getSourceTypes(), FALSE, Array($source_type), 0, 'onchange="updateFieldChooser(this)" onkeyup="updateFieldChooser(this)"');
 		echo '&nbsp;';
-		text_box($prefix.'[index]', (($source_type == 'ASSET') || ($source_type == 'USER') ? '' : $component), '', '', false, 'style="width: 25ex; '.(($source_type == 'ASSET') || ($source_type == 'USER') ? 'display: none' : '').'"');
-		combo_box($prefix.'[attribute]', $this->_getAssetAttributeOptions(), false, Array($component), 0, 'style="width: 25ex; '.(($source_type != 'ASSET') ? 'display: none' : '').'"');
-		if ($source_type != null) {
+		text_box($prefix.'[index]', (($source_type == 'ASSET') || ($source_type == 'USER') ? '' : $component), '', '', FALSE, 'style="width: 25ex; '.(($source_type == 'ASSET') || ($source_type == 'USER') ? 'display: none' : '').'"');
+		combo_box($prefix.'[attribute]', $this->_getAssetAttributeOptions(), FALSE, Array($component), 0, 'style="width: 25ex; '.(($source_type == 'ASSET') || ($source_type == 'USER') ? '' : 'display: none').'"');
+		if ($source_type != NULL) {
 			check_box($prefix.'[delete]');
 			echo '<label for="'.$prefix.'[delete]">'.translate('delete').'</label>';
 		}
@@ -174,14 +171,14 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	/**
 	* Paints the field to choose a parameter for a new mapping
 	*
-	* @param string		$prefix		The prefix for the field's name
+	* @param string	$prefix	The prefix for the field's name
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _printParameterChooser($prefix)
 	{
-		combo_box($prefix.'[parameter]', Array(''=>'-- New Mapping --')+$this->_params['parameters'], false, Array());
+		combo_box($prefix.'[parameter]', Array(''=>'-- New Mapping --')+$this->_params['parameters'], FALSE, Array());
 
 	}//end _printParameterChooser()
 
@@ -189,9 +186,9 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	/**
 	* Prints the interface for filling in a value
 	*
-	* @param object Asset	$asset	the asset that owns the aprefix for the form element
-	* @param string	prefix	prefix for the form element
+	* @param string	$prefix	prefix for the form element
 	*
+	* @return void
 	* @access public
 	*/
 	function process($prefix)
@@ -202,7 +199,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				if ($index == 'new') continue;
 				$value[$index] = $details;
 				foreach ($details as $j => $fields) {
-					if ($fields['source'] == 'ASSET') {
+					if ($fields['source'] == 'ASSET' || $fields['source'] == 'USER') {
 						unset($value[$index][$j]['index']);
 					} else {
 						unset($value[$index][$j]['attribute']);
@@ -217,7 +214,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				if (empty($new_mapping['parameter'])) continue;
 				$param = $new_mapping['parameter'];
 				unset($new_mapping['parameter']);
-				if ($new_mapping['source'] == 'ASSET') {
+				if ($new_mapping['source'] == 'ASSET' | $new_mapping['source'] == 'USER') {
 					unset($new_mapping['index']);
 				} else {
 					unset($new_mapping['attribute']);
@@ -230,23 +227,23 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 			}
 			$this->validateValue($value);
 			$this->processed = $this->setValue($value);
-		}
+		}//end if (is_array())
 
 	}//end process()
 
 
 	/**
-	* Get the runtime value for the specified parameter
+	* Get the runtime value for the specified parameter, returns NULL is no value found
 	*
 	* @param string	$parameter	The code of the parameter we want the value for
 	*
+	* @return mixed NULL|object
 	* @access public
-	* @return mixed		null if no value found
 	*/
 	function getParameterValue($parameter)
 	{
 		$value = unserialize($this->value);
-		if (!isset($value[$parameter])) return null;
+		if (!isset($value[$parameter])) return NULL;
 		foreach ($value[$parameter] as $rule) {
 			switch ($rule['source']) {
 				case 'GET':
@@ -274,10 +271,18 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				break;
 
 				case 'USER':
-					return $GLOBALS['SQ_SYSTEM']->currentUserId();
-			}
-		}
-		return null;
+					switch ($rule['attribute']) {
+						case 'assetid':
+							return $GLOBALS['SQ_SYSTEM']->currentUserId();
+						break;
+						case 'name':
+						case 'short_name':
+							return $GLOBALS['SQ_SYSTEM']->user->attr($rule['attribute']);
+						break;
+					}
+			}//end switch ($rule['source'])
+		}//end foreach ($value[$parameter])
+		return NULL;
 
 	}//end getParameterValue()
 
@@ -285,8 +290,8 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	/**
 	* Returns the list of parameters available
 	*
-	* @access public
 	* @return array
+	* @access public
 	*/
 	function getParameters()
 	{
@@ -298,7 +303,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	/**
 	* Get the list of source types - the list of sources to draw from
 	*
-	* @return Array
+	* @return array
 	* @access private
 	*/
 	function _getSourceTypes()
@@ -307,7 +312,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				'GET'	=> 'GET',
 				'POST'	=> 'POST',
 				'ASSET'	=> translate('current_asset'),
-				'USER'	=> 'Current User',
+				'USER'	=> translate('current_user'),
 			   );
 
 	}//end _getSourceTypes()
@@ -316,7 +321,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	/**
 	* Return the list of options available under the ASSET source type
 	*
-	* @return Array
+	* @return array
 	* @access private
 	*/
 	function _getAssetAttributeOptions()
