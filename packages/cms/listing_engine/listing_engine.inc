@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.150.2.1 2006/02/13 23:31:47 sdanis Exp $
+* $Id: listing_engine.inc,v 1.150.2.2 2006/02/16 00:55:05 sdanis Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.150.2.1 $
+* @version $Revision: 1.150.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2376,7 +2376,8 @@ class Listing_Engine extends Page
 
 				switch ($group_level['group_type']) {
 					case 'parent_asset':
-						$value = $this->getGroupableParentAssetids($current_parent, $group_level['restrict_types']);
+						$restrict_types = array_get_index($group_level, 'restrict_types', Array());
+						$value = $this->getGroupableParentAssetids($current_parent, $restrict_types);
 
 						// skip this whole section if both depth fields are NULL
 						// otherwise, we are limiting by parent's depth, relative
