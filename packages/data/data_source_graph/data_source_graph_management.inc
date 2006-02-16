@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_management.inc,v 1.5 2006/02/16 03:11:49 skim Exp $
+* $Id: data_source_graph_management.inc,v 1.6 2006/02/16 05:25:27 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -97,6 +97,14 @@ class Data_Source_Graph_Management extends Asset_Management
 													'description'	=> 'Size (in bytes) of the image (generated from the image file)',
 													'is_admin'		=> false,
 												   ),
+						'show_graph_title'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> true,
+													'parameters'	=> Array(
+																		'allow_empty'	=> false,
+																	   ),
+												   ),
 						'x_set_title'			=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'text',
@@ -122,6 +130,14 @@ class Data_Source_Graph_Management extends Asset_Management
 													'type'			=> 'int',
 													'default'		=> 0,
 													'description'	=> 'y-axis set label interval',
+												   ),
+						'graph_angle'			=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> true,
+													'parameters'	=> Array(
+																		'allow_empty'	=> false,
+																	   ),
 												   ),
 						'x_font_label_angle'	=> Array(
 													'added'			=> '0.1',

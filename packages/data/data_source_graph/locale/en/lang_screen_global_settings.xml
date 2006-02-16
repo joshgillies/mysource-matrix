@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_global_settings.xml,v 1.2 2006/02/16 03:11:59 skim Exp $
+* $Id: lang_screen_global_settings.xml,v 1.3 2006/02/16 05:25:30 skim Exp $
 *
 */
 -->
@@ -31,6 +31,10 @@
 		</field>
 		<field attribute="height">
 			<display_name>Height</display_name>
+			<note />
+		</field>
+		<field attribute="show_graph_title">
+			<display_name>Show the graph title?</display_name>
 			<note />
 		</field>
 		<field attribute="x_set_title">
@@ -47,6 +51,10 @@
 		</field>
 		<field attribute="y_label_interval">
 			<display_name>Set Label Intervals For y-Axis</display_name>
+			<note />
+		</field>
+		<field attribute="graph_angle">
+			<display_name>Set Angle for the graph?</display_name>
 			<note />
 		</field>
 		<field attribute="x_font_label_angle">

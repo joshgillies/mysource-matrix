@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.9 2006/02/16 03:11:49 skim Exp $
+* $Id: data_source_graph.inc,v 1.10 2006/02/16 05:25:27 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -348,23 +348,42 @@ class Data_Source_Graph extends Image
 		$width	= $this->attr('width');
 		$height	= $this->attr('height');
 		$graph	= &Image_Graph::factory('graph', Array((int) $width, (int) $height));
-		$title = $this->attr('title');
+		$title = $this->attr('show_graph_title') ? $this->attr('title') : '';
 		if ($this->attr('show_legend')) {
 			$graph_ratio = 90;
 		} else {
 			$graph_ratio = 100;
 		}
-		$graph->add(
+		if ($this->attr('graph_angle')) {
+			$graph->add(
+				Image_Graph::vertical(
+					Image_Graph::factory('title', Array($title, 12)),
 					Image_Graph::vertical(
-						Image_Graph::factory('title', Array($title, 12)),
-						Image_Graph::vertical(
-							$plotarea = Image_Graph::factory('plotarea'),
-							$legend = Image_Graph::factory('legend'),
-							$graph_ratio
-						),
-						5
-					)
-				);
+						$plotarea = Image_Graph::factory('plotarea'),
+						$legend = Image_Graph::factory('legend'),
+						$graph_ratio
+					),
+					5
+				)
+			);
+		} else if (!$this->attr('graph_angle')) {
+			$param = Array(
+						'Image_Graph_Axis_Category',
+						'Image_Graph_Axis',
+						'horizontal'
+					 );
+			$graph->add(
+				Image_Graph::horizontal(
+					Image_Graph::factory('title', Array($title, 12)),
+					Image_Graph::vertical(
+						$plotarea = Image_Graph::factory('plotarea', $param),
+						$legend = Image_Graph::factory('legend'),
+						$graph_ratio
+					),
+					10
+				)
+			);
+		}
 		$legend->setPlotarea($plotarea);
 
 		// Background Color
@@ -655,6 +674,7 @@ class Data_Source_Graph extends Image
 		// re-generate the image file
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$result = $cm->loadFromCache($this->id, $this->type(), 'default');
+
 		if (empty($result)) {
 			$this->updateCache();
 		}
