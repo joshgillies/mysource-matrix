@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.10 2006/01/19 02:54:05 pgannavarapu Exp $
+* $Id: data_source.inc,v 1.11 2006/02/16 00:53:13 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -608,20 +608,19 @@ class Data_Source extends Asset
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
+	function &getAsset($assetid, $type_code='', $mute_errors=FALSE)
 	{
+		$shadowid = array_pop(explode(':', $assetid));
 		$asset = NULL;
 		if (is_null($shadowid)) return $asset;
 		$result = $this->getResultSet();
 		if (!empty($result)) {
-			$name = $this->attr('shadow_name');
-			foreach ($result as $index => $record) {
-				if ($this->id.':'.$index == $shadowid) {
-					$record['shadow_asset_name'] = $name;
-					$record['shadow_asset_id'] = $index;
-					$GLOBALS['SQ_SYSTEM']->am->includeAsset('data_source_record_set');
-					$asset =& new Data_Source_Record_Set($this->id, $record);
-				}
+			if (isset($result[$shadowid])) {
+				$record = $result[$shadowid];
+				$record['shadow_asset_name'] = $this->attr('shadow_name');
+				$record['shadow_asset_id'] = $shadowid;
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('data_source_record_set');
+				$asset =& new Data_Source_Record_Set($this->id, $record);
 			}
 		} else {
 			return $asset;
