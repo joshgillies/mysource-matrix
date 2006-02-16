@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.12 2005/12/21 21:58:35 rong Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.13 2006/02/16 03:00:05 pgannavarapu Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1637,8 +1637,17 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		$this->_queryProcessing($asset, $prefix);
 		$sql = $asset->attr('sql');
 
-		if ($mode == 'edit') {
-			hidden_field($prefix.'_from_edit', '1');
+		switch ($mode) {
+			case 'edit':
+				//if we are currently in edit mode
+				hidden_field($prefix.'_from_edit', '1');
+				break;
+			case 'execute':
+				//we are currently in execute mode but we came here from edit mode
+				if (isset($_POST[$prefix.'_from_edit']) && ($_POST[$prefix.'_from_edit']) == 1) {
+					hidden_field($prefix.'_from_edit', '1');
+				}
+				break;
 		}
 
 		if ($wa) {
