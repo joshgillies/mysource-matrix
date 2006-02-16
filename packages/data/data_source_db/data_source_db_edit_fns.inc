@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.13 2006/02/16 03:00:05 pgannavarapu Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.14 2006/02/16 04:30:13 gsherwood Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1843,10 +1843,10 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 						$sql .= '<br />'.$val['field'].' ';
 						!empty($val['condition']) && !in_array($val['condition'], Array('Relation', 'Other'))? $sql .= $val['condition'] : $sql .= '';
 						isset($val['operator'])? $sql .= ' '.$val['operator'] : $sql .= '';
-						if (!empty($val['value'])) {
+						if (trim($val['value']) != '') {
 							$sql .= ' '.$val['value'];
 						} else {
-							if (!empty($val['min_value']) && !empty($val['max_value'])) {
+							if (trim($val['min_value']) != '' && trim($val['max_value']) != '') {
 								$sql .=' '.$val['min_value'].' AND '.$val['max_value'];
 							}
 						}
