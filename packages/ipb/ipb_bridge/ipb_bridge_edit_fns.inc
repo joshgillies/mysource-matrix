@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_bridge_edit_fns.inc,v 1.3 2005/12/21 04:18:25 skim Exp $
+* $Id: ipb_bridge_edit_fns.inc,v 1.4 2006/02/16 01:09:50 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -66,7 +66,6 @@ class IPB_Bridge_Edit_Fns extends Asset_Edit_Fns
 			} else {
 				echo '<span style="color: red"><b>'.translate('ipb_unable_to_connect').'</b></span>';
 			}
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLinks('42:p_160', SQ_LINK_TYPE_1, '', TRUE, 'minor');
 		} else {
 			echo '<span style="color: red"><b>'.translate('ipb_setup_note').'</b></span>';
 		}
