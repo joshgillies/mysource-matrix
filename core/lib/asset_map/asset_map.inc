@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.184.2.3 2005/12/09 00:47:47 sdanis Exp $
+* $Id: asset_map.inc,v 1.184.2.4 2006/02/17 00:37:58 sdanis Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.184.2.3 $
+* @version $Revision: 1.184.2.4 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -375,6 +375,22 @@ class Asset_Map
 
 
 	/**
+	* Converts encoding of a string to the specified charset
+	*
+	* @param string	$string		String to convert
+	* @param string	$charset	Character set to convert to
+	*
+	* @return string
+	* @access private
+	*/
+	function _convertCharset($string='', $charset='UTF-8')
+	{
+		return mb_convert_encoding($string, $charset, SQ_CONF_DEFAULT_CHARACTER_SET);
+
+	}//end _convertCharset()
+
+
+	/**
 	* Returns an array of the asset's information to be used by the asset map
 	*
 	* @param string $assetid the assetid of the asset's wanted info
@@ -503,7 +519,7 @@ class Asset_Map
 
 			$attrs = Array(
 						   'assetid'    => urlencode($asset['assetid']),
-						   'name'       => urlencode($asset['short_name']),
+						   'name'       => urlencode($this->_convertCharset($asset['short_name'])),
 						   'type_code'  => $asset['type_code'],
 						   'link_type'  => $asset['link_type'],
 						   'accessible' => $asset['accessible'],
@@ -697,7 +713,7 @@ class Asset_Map
 
 			$attrs = Array(
 						   'assetid'    => urlencode($asset['assetid']),
-						   'name'       => urlencode($asset['short_name']),
+						   'name'       => urlencode($this->_convertCharset($asset['short_name'])),
 						   'type_code'  => $asset['type_code'],
 						   'link_type'  => $asset['link_type'],
 						   'accessible' => $asset['accessible'],
