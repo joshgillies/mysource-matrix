@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.210.2.1 2006/02/17 00:37:28 sdanis Exp $
+* $Id: asset_map.inc,v 1.210.2.2 2006/02/17 02:35:38 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.210.2.1 $
+* @version $Revision: 1.210.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -396,7 +396,12 @@ class Asset_Map
 	*/
 	function _convertCharset($string='', $charset='UTF-8')
 	{
-		return mb_convert_encoding($string, $charset, SQ_CONF_DEFAULT_CHARACTER_SET);
+		// mb_ functions require mbstring extension
+		if (function_exists('mb_convert_encoding')) {
+			return mb_convert_encoding($string, $charset, SQ_CONF_DEFAULT_CHARACTER_SET);
+		} else {
+			return $string;
+		}
 
 	}//end _convertCharset()
 
