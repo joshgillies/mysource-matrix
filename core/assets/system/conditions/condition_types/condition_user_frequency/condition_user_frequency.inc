@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_frequency.inc,v 1.9 2006/01/26 22:34:05 lwright Exp $
+* $Id: condition_user_frequency.inc,v 1.10 2006/02/17 05:34:13 mnyeholt Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *    the current user.  (It sets a cookie to keep track of this).
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -86,13 +86,11 @@ class Condition_User_Frequency extends Condition
 
 		// time difference between now and last update in days
 		$difference = (time() - $data['last_date']) / 86400;
-
 		// EVERY X HITS
 		// Condition evaluates to TRUE every x hits, for example when
 		// x is 20, it will return TRUE on hit 20, 40, 60... etc
 		if ($condition_data['units'] == 'hits') {
 			$hits = (int) $condition_data['value'];
-
 			// if the current counter divides evenly into condition return TRUE
 			if (($hits != 0) && (($data['value'] % $hits) == 0)) {
 				$result = TRUE;
@@ -142,7 +140,7 @@ class Condition_User_Frequency extends Condition
 		$data['last_date'] = time();
 		$root_url = str_replace(Array('http://', 'https://'), '', sq_web_path('root_url'));
 		$domain = $root_url;
-		$path = '';
+		$path = '/';
 		if (FALSE !== ($slashpos = strpos($root_url, '/'))) {
 			$domain = substr($root_url, 0, $slashpos);
 			$path = substr($root_url, $slashpos);
