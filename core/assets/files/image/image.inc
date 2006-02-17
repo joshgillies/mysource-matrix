@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.53 2006/02/14 05:44:10 sdanis Exp $
+* $Id: image.inc,v 1.54 2006/02/17 04:28:42 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -284,16 +284,18 @@ class Image extends File
 	* If the variety has an ID then it must belong to this asset in order to be saved.
 	* Returns FALSE on error, shadow assetid on success
 	*
-	* @param object		$variety		the variety to save
-	* @param boolean	$recreate_image	hether to generate the image file or not
-	* @param boolean	$save_attrs		whether to run saveAttributes() or not,
-	*									usually you only would set this to FALSE if you are running
-	*									this multiple times and only want to save once at the end
+	* @param object		$variety			the variety to save
+	* @param boolean	$recreate_image		hether to generate the image file or not
+	* @param boolean	$save_attrs			whether to run saveAttributes() or not,
+	*										usually you only would set this to FALSE if you are running
+	*										this multiple times and only want to save once at the end
+	* @param boolean	$file_versioning	the argument which will be passed onto image_variety to tell
+	*										it not to use file_versioning
 	*
 	* @return mixed boolean|int
 	* @access public
 	*/
-	function saveVariety($variety, $recreate_image=TRUE, $save_attrs=TRUE)
+	function saveVariety($variety, $recreate_image=TRUE, $save_attrs=TRUE, $file_versioning=TRUE)
 	{
 		if (!$this->writeAccess('attributes')) {
 			trigger_localised_error('CORE0069', E_USER_WARNING, $this->name, $this->id);
@@ -372,7 +374,7 @@ class Image extends File
 
 		// create the actual scaled image if necessary and add any lookups
 		if ($recreate_image) {
-			if (!$variety->updateImage()) {
+			if (!$variety->updateImage($file_versioning)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;

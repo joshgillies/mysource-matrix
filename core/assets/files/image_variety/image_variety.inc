@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.26 2006/01/26 22:34:04 lwright Exp $
+* $Id: image_variety.inc,v 1.27 2006/02/17 04:28:44 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -235,16 +235,18 @@ class Image_Variety extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function updateImage()
+	function updateImage($file_versioning=TRUE)
 	{
 		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		if (is_null($image)) return FALSE;
 
 		if ($this->attr('variety_type') == 'resize') {
 
-			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-			require_once SQ_FUDGE_PATH.'/image/image_manip.inc';
-			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			if ($file_versioning) {
+				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+				require_once SQ_FUDGE_PATH.'/image/image_manip.inc';
+				$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			}
 
 			if (!is_dir($this->data_path) && !create_directory($this->data_path)) {
 				return FALSE;
@@ -308,37 +310,42 @@ class Image_Variety extends Asset
 				$this->deleteImage();
 
 			} else {
-				// make sure we have the latest version checked out if we are modifying the file
-				$up_to_date = $fv->upToDate($d_new_file);
-				if ($up_to_date & FUDGE_FV_OLD_VERSION) {
-					if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
-						trigger_localised_error('COR0103', E_USER_WARNING);
-						return FALSE;
+				if ($file_versioning) {
+					// make sure we have the latest version checked out if we are modifying the file
+					$up_to_date = $fv->upToDate($d_new_file);
+					if ($up_to_date & FUDGE_FV_OLD_VERSION) {
+						if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
+							trigger_localised_error('COR0103', E_USER_WARNING);
+							return FALSE;
+						}
 					}
 				}
 
 			}// endif
 
+			require_once(SQ_FUDGE_PATH.'/image/image_manip.inc');
 			if (!Image_Manip::resize($s_file, $d_new_file, $d_width, $d_height)) {
 				return FALSE;
 			}
 
-			$up_to_date = $fv->upToDate($d_new_file);
+			if ($file_versioning) {
+				$up_to_date = $fv->upToDate($d_new_file);
 
-			// file not in repository
-			if ($up_to_date & FUDGE_FV_NOT_CHECKED_OUT) {
-				if (!$fv->add($this->data_path_suffix, $d_new_file, '')) {
-					return FALSE;
+				// file not in repository
+				if ($up_to_date & FUDGE_FV_NOT_CHECKED_OUT) {
+					if (!$fv->add($this->data_path_suffix, $d_new_file, '')) {
+						return FALSE;
+					}
+
+					if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
+						trigger_localised_error('COR0103', E_USER_WARNING);
+						return FALSE;
+					}
+
+				} else if ($up_to_date & FUDGE_FV_MODIFIED) {
+					if (!$fv->commit($d_new_file, '', FALSE)) return FALSE;
+
 				}
-
-				if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
-					trigger_localised_error('COR0103', E_USER_WARNING);
-					return FALSE;
-				}
-
-			} else if ($up_to_date & FUDGE_FV_MODIFIED) {
-				if (!$fv->commit($d_new_file, '', FALSE)) return FALSE;
-
 			}
 
 			// if the filename has changed then we need to upadte the look ups
