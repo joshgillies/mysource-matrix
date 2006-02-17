@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_plots.xml,v 1.1 2005/12/15 01:43:30 skim Exp $
+* $Id: edit_interface_screen_plots.xml,v 1.2 2006/02/17 04:36:21 skim Exp $
 *
 */
 -->
@@ -40,11 +40,19 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Plot Settings" write_access="write:attributes" limbo_access="1" show_if="datasetNotEmpty">
+	<section name="General Plot Settings" write_access="write:attributes" limbo_access="1" show_if="datasetNotEmpty">
 		<field>
 			<function_call>
-				<paint_function   name="paintPlotSettings"   />
-				<process_function name="processPlotSettings" />
+				<paint_function   name="paintGeneralPlotSettings"   />
+				<process_function name="processGeneralPlotSettings" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Plot Specific Settings" write_access="write:attributes" limbo_access="1" show_if="datasetNotEmpty">
+		<field>
+			<function_call>
+				<paint_function   name="paintPlotSpecificSettings"   />
+				<process_function name="processPlotSpecificSettings" />
 			</function_call>
 		</field>
 	</section>

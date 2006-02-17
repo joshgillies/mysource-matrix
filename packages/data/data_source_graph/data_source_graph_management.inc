@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_management.inc,v 1.6 2006/02/16 05:25:27 skim Exp $
+* $Id: data_source_graph_management.inc,v 1.7 2006/02/17 04:36:21 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -193,6 +193,34 @@ class Data_Source_Graph_Management extends Asset_Management
 													'type'		=> 'colour',
 													'default'	=> '#000000',
 												   ),
+						'axis_left_padding'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'int',
+													'default'		=> 0,
+													'description'	=> 'Size (in px) of the padding on the left side of the axis',
+													'is_admin'		=> false,
+												   ),
+						'axis_right_padding'	=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'int',
+													'default'		=> 0,
+													'description'	=> 'Size (in px) of the padding on the right side of the axis',
+													'is_admin'		=> false,
+												   ),
+						'axis_top_padding'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'int',
+													'default'		=> 0,
+													'description'	=> 'Size (in px) of the padding on the top side of the axis',
+													'is_admin'		=> false,
+												   ),
+						'axis_bottom_padding'	=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'int',
+													'default'		=> 0,
+													'description'	=> 'Size (in px) of the padding on the bottom side of the axis',
+													'is_admin'		=> false,
+												   ),
 						'global_settings'		=> Array(
 													'added'		=> '0.1',
 													'type'		=> 'serialise',
@@ -207,6 +235,7 @@ class Data_Source_Graph_Management extends Asset_Management
 																	'y_label_interval'		=> '1',
 																	'x_font_label_angle'	=> '90',
 																	'y_font_label_angle'	=> '180',
+																	'bar_spacing'			=> '0',
 																	'background'			=> 'ffffff',
 																	'border_colour'			=> '000000',
 																	'x_axis_colour'			=> '000000',

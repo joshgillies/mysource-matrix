@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_plots.xml,v 1.1 2005/12/15 01:43:30 skim Exp $
+* $Id: lang_screen_plots.xml,v 1.2 2006/02/17 04:36:24 skim Exp $
 *
 */
 -->
@@ -26,7 +26,8 @@
 <contents>
 	<section name="Add a new plot" />
 	<section name="Choose a plot" />
-	<section name="Plot Settings" />
+	<section name="General Plot Settings" />
+	<section name="Plot Specific Settings" />
 	<section name="Marker Settings" />
 	<section name="Single Preview" />
 	<section name="Final Preview" />

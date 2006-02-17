@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.10 2006/02/16 05:25:27 skim Exp $
+* $Id: data_source_graph.inc,v 1.11 2006/02/17 04:36:21 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -373,17 +373,25 @@ class Data_Source_Graph extends Image
 						'horizontal'
 					 );
 			$graph->add(
-				Image_Graph::horizontal(
+				Image_Graph::vertical(
 					Image_Graph::factory('title', Array($title, 12)),
 					Image_Graph::vertical(
 						$plotarea = Image_Graph::factory('plotarea', $param),
 						$legend = Image_Graph::factory('legend'),
-						$graph_ratio
-					),
-					10
+						$graph_ratio - 1
+						),
+					5
 				)
 			);
 		}
+		$plotarea->setAxisPadding(
+			Array(
+				'left'		=> (int) $this->attr('axis_left_padding'),
+				'right'		=> (int) $this->attr('axis_right_padding'),
+				'top'		=> (int) $this->attr('axis_top_padding'),
+				'bottom'	=> (int) $this->attr('axis_bottom_padding'),
+			)
+		);
 		$legend->setPlotarea($plotarea);
 
 		// Background Color
@@ -392,12 +400,21 @@ class Data_Source_Graph extends Image
 		// Border Color
 		$graph->setBorderColor($this->attr('border_colour'));
 
+		$x_axis_title_angle = 90;
+		$y_axis_title_angle = 90;
+		if ($this->attr('graph_angle')) {
+			$x_axis_title_angle = $x_axis_title_angle * 2;
+		} else {
+			$y_axis_title_angle = $y_axis_title_angle * 2;
+		}
+
 		$x_axis =& $plotarea->getAxis(IMAGE_GRAPH_AXIS_X);
-		$x_axis->setTitle($this->attr('x_set_title'), Array('size' => 13, 'angle' => 180));
+		$x_axis->setTitle($this->attr('x_set_title'), Array('size' => 13, 'angle' => $x_axis_title_angle));
 		$x_axis->setLabelInterval($this->attr('x_label_interval'));
 
 		$y_axis =& $plotarea->getAxis(IMAGE_GRAPH_AXIS_Y);
-		$y_axis->setTitle($this->attr('y_set_title'), Array('size' => 13, 'angle' => 90));
+		$y_axis->setTitle($this->attr('y_set_title'), Array('size' => 13, 'angle' => $y_axis_title_angle));
+		//$y_axis->setTitle($this->attr('y_set_title'));
 		$y_axis->setLabelInterval($this->attr('y_label_interval'));
 
 		//setting up x-axis colour and title
@@ -481,6 +498,30 @@ class Data_Source_Graph extends Image
 				$fill->addColor('#'.$dataset['settings']['fill_colour']);
 			}
 			$plot->setFillStyle($fill);
+			$plot->setLineColor('#'.$dataset['settings']['line_colour']);
+			//minibam($dataset['settings']['line_colour']);
+			  ////////////////////////////
+			 // Plot specific settings //
+			////////////////////////////
+			switch ($dataset['settings']['graph_type']) {
+				case 'Image_Graph_Plot_Bar' :
+					$plot->setSpacing(intval($dataset['settings']['bar_spacing']));
+				break;
+				case 'Image_Graph_Plot_Line' :
+				case 'Image_Graph_Plot_Area' :
+				case 'Image_Graph_Plot_Smoothed_Line' :
+				case 'Image_Graph_Plot_Smoothed_Area' :
+				case 'Image_Graph_Plot_Pie' :
+				case 'Image_Graph_Plot_Step' :
+				case 'Image_Graph_Plot_Impulse' :
+				case 'Image_Graph_Plot_Dot' :
+				case 'Image_Graph_Plot_Radar' :
+				case 'Image_Graph_Plot_CandleStick' :
+				case 'Image_Graph_Plot_Band' :
+				break;
+				default :
+				break;
+			}
 
 			// marker
 			if (isset($dataset['settings']['value_marker']) && $dataset['settings']['value_marker'] != 'none') {
@@ -489,13 +530,32 @@ class Data_Source_Graph extends Image
 		}
 
 		if ($to_file) {
-
 			if (empty($this->_tmp['graph_file_name'])) {
 				// mainly for the dummy file during the asset creation
 				$filename = $this->data_path.'/'.$this->name;
 				$graph->done(Array('filename' => $filename));
 			} else {
 				$graph->done(Array('filename' => $this->_tmp['graph_file_name']));
+			}
+
+			if ($this->attr('variety_count') > 0) {
+				// Update varieties
+				$am =& $GLOBALS['SQ_SYSTEM']->am;
+				$links = $am->getLinks($this->id, SQ_LINK_TYPE_2, 'image_variety');
+				foreach ($links as $link) {
+					$variety =& $am->getAsset($link['minorid'], 'image_variety');
+
+					if (!$this->writeAccess('attributes')) {
+						$am->acquireLock($this->id, 'attributes');
+					}
+
+					if (!$this->saveVariety($variety, TRUE, TRUE, FALSE)) {
+					} else {
+					}
+
+					// release the lock on attributes
+				}
+				//bam($links);
 			}
 		} else {
 			$graph->done();
@@ -555,6 +615,30 @@ class Data_Source_Graph extends Image
 			$fill->addColor('#'.$graph_info['settings']['fill_colour']);
 		}
 		$plot->setFillStyle($fill);
+		$plot->setLineColor('#'.$graph_info['settings']['line_colour']);
+
+		  ////////////////////////////
+		 // Plot specific settings //
+		////////////////////////////
+		switch ($graph_info['settings']['graph_type']) {
+			case 'Image_Graph_Plot_Bar' :
+				$plot->setSpacing(intval($graph_info['settings']['bar_spacing']));
+			break;
+			case 'Image_Graph_Plot_Line' :
+			case 'Image_Graph_Plot_Area' :
+			case 'Image_Graph_Plot_Smoothed_Line' :
+			case 'Image_Graph_Plot_Smoothed_Area' :
+			case 'Image_Graph_Plot_Pie' :
+			case 'Image_Graph_Plot_Step' :
+			case 'Image_Graph_Plot_Impulse' :
+			case 'Image_Graph_Plot_Dot' :
+			case 'Image_Graph_Plot_Radar' :
+			case 'Image_Graph_Plot_CandleStick' :
+			case 'Image_Graph_Plot_Band' :
+			break;
+			default :
+			break;
+		}
 
 		// marker settings
 		if (isset($graph_info['settings']['value_marker']) && $graph_info['settings']['value_marker'] != 'none') {

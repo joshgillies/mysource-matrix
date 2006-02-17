@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_global_settings.xml,v 1.3 2006/02/16 05:25:27 skim Exp $
+* $Id: edit_interface_screen_global_settings.xml,v 1.4 2006/02/17 04:36:21 skim Exp $
 *
 */
 -->
@@ -75,6 +75,18 @@
 		</field>
 		<field attribute="y_font_axis_colour">
 			<colour />
+		</field>
+		<field attribute="axis_left_padding">
+			<int width="5" />
+		</field>
+		<field attribute="axis_right_padding">
+			<int width="5" />
+		</field>
+		<field attribute="axis_top_padding">
+			<int width="5" />
+		</field>
+		<field attribute="axis_bottom_padding">
+			<int width="5" />
 		</field>
 	</section>
 	<section name="Preview" write_access="write:attributes" limbo_access="1">

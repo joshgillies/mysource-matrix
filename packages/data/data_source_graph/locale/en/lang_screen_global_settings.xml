@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_global_settings.xml,v 1.3 2006/02/16 05:25:30 skim Exp $
+* $Id: lang_screen_global_settings.xml,v 1.4 2006/02/17 04:36:24 skim Exp $
 *
 */
 -->
@@ -91,6 +91,22 @@
 		</field>
 		<field attribute="y_font_axis_colour">
 			<display_name>y-Axis Font Colour</display_name>
+			<note />
+		</field>
+		<field attribute="axis_left_padding">
+			<display_name>Axis Left padding</display_name>
+			<note />
+		</field>
+		<field attribute="axis_right_padding">
+			<display_name>Axis Right padding</display_name>
+			<note />
+		</field>
+		<field attribute="axis_top_padding">
+			<display_name>Axis Top padding</display_name>
+			<note />
+		</field>
+		<field attribute="axis_bottom_padding">
+			<display_name>Axis Bottom padding</display_name>
 			<note />
 		</field>
 	</section>

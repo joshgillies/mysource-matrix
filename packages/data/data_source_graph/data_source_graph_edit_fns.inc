@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_edit_fns.inc,v 1.7 2005/12/21 21:58:35 rong Exp $
+* $Id: data_source_graph_edit_fns.inc,v 1.8 2006/02/17 04:36:21 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -309,7 +309,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function paintPlotSettings(&$asset, &$o, $prefix)
+	function paintGeneralPlotSettings(&$asset, &$o, $prefix)
 	{
 		$wa = $asset->writeAccess('attributes');
 		$datasets = $asset->attr('datasets');
@@ -367,6 +367,9 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 			$o->openField('Fill Colour');
 				colour_box($prefix.'_fill_colour', empty($datasets[$plot_name]['settings']['fill_colour']) ? 'ffffff' : $datasets[$plot_name]['settings']['fill_colour']);
 			$o->closeField();
+			$o->openField('Line Colour');
+				colour_box($prefix.'_line_colour', empty($datasets[$plot_name]['settings']['line_colour']) ? 'ffffff' : $datasets[$plot_name]['settings']['line_colour']);
+			$o->closeField();
 			$o->openField('Fill Gradient Type');
 				combo_box($prefix.'_gradient_type', $this->fill_grad_types, false, $datasets[$plot_name]['settings']['gradient_type']);
 				?>
@@ -410,6 +413,16 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 					</tr></table>';
 				}
 			$o->closeField();
+			$o->openField('Line Colour');
+				if (empty($datasets[$plot_name]['settings']['line_colour'])) {
+					echo 'none';
+				} else {
+					echo '<table><tr>
+					<td width="20" height="13" style="background-color: #'.$datasets[$plot_name]['settings']['line_colour'].'"></td>
+					<td>&nbsp;#'.$datasets[$plot_name]['settings']['line_colour'].'</td>
+					</tr></table>';
+				}
+			$o->closeField();
 			$o->openField('Fill Gradient Type');
 				echo $datasets[$plot_name]['settings']['gradient_type'];
 				?>
@@ -439,7 +452,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 		}
 		return true;
 
-	}//end paintPlotSettings()
+	}//end paintGeneralPlotSettings()
 
 
 	/**
@@ -452,7 +465,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function processPlotSettings(&$asset, &$o, $prefix)
+	function processGeneralPlotSettings(&$asset, &$o, $prefix)
 	{
 		$plot_settings_submit = isset($_POST[$prefix.'_plot_settings_submit']);
 		$wa = $asset->writeAccess('attributes');
@@ -472,9 +485,11 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 				$datasets[$plot_name]['settings']['graph_type']		= $this->graph_types[intval($_POST[$prefix.'_graph_type'])];
 				$datasets[$plot_name]['settings']['accumulative']	= $_POST[$prefix.'_accumulative'];
 				$datasets[$plot_name]['settings']['fill_colour']	= $_POST[$prefix.'_fill_colour'];
+				$datasets[$plot_name]['settings']['line_colour']	= $_POST[$prefix.'_line_colour'];
 				$datasets[$plot_name]['settings']['gradient_type']	= $_POST[$prefix.'_gradient_type'];
 				$datasets[$plot_name]['settings']['gradient_1']		= $_POST[$prefix.'_gradient_1'];
 				$datasets[$plot_name]['settings']['gradient_2']		= $_POST[$prefix.'_gradient_2'];
+				$datasets[$plot_name]['settings']['bar_spacing']	= $_POST[$prefix.'_bar_spacing'];
 				$asset->setAttrValue('datasets', $datasets);
 
 				// Re-order plots
@@ -518,7 +533,142 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 
 		return true;
 
-	}//end processPlotSettings()
+	}//end processGeneralPlotSettings()
+
+
+	/**
+	* Paints the interface for editing the plot settings
+	*
+	* @param object	&$asset	the graph asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintPlotSpecificSettings(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$datasets = $asset->attr('datasets');
+		$plot_order = $asset->attr('plot_order');
+		$plot_not_deleted = @isset($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
+
+		if (!empty($_POST[$prefix.'_plot_name']) && $plot_not_deleted) {
+			$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
+		} else {
+			$plot_name = $plot_order[0];
+		}
+
+		$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($datasets[$plot_name]['assetid']);
+		$result = $data_source_asset->getResultSet('default');
+		$data = array_keys($result[0]);
+		foreach ($data as $field) {
+			$fields[$field] = $field;
+		}
+
+		$plot_type = $datasets[$plot_name]['settings']['graph_type'];
+		if ($wa) {
+			switch ($plot_type) {
+				case 'Image_Graph_Plot_Bar' :
+					$o->openField('Spacing');
+						text_box($prefix.'_bar_spacing', empty($datasets[$plot_name]['settings']['bar_spacing']) ? '0' : $datasets[$plot_name]['settings']['bar_spacing'], '10');
+					$o->closeField();
+				break;
+				case 'Image_Graph_Plot_Line' :
+				case 'Image_Graph_Plot_Area' :
+				case 'Image_Graph_Plot_Smoothed_Line' :
+				case 'Image_Graph_Plot_Smoothed_Area' :
+				case 'Image_Graph_Plot_Pie' :
+				case 'Image_Graph_Plot_Step' :
+				case 'Image_Graph_Plot_Impulse' :
+				case 'Image_Graph_Plot_Dot' :
+				case 'Image_Graph_Plot_Radar' :
+				case 'Image_Graph_Plot_CandleStick' :
+				case 'Image_Graph_Plot_Band' :
+				break;
+				default :
+				break;
+			}
+		} else {
+			switch ($plot_type) {
+				case 'Image_Graph_Plot_Bar' :
+					$o->openField('Spacing');
+						echo $datasets[$plot_name]['settings']['bar_spacing'];
+					$o->closeField();
+				break;
+				case 'Image_Graph_Plot_Line' :
+				case 'Image_Graph_Plot_Area' :
+				case 'Image_Graph_Plot_Smoothed_Line' :
+				case 'Image_Graph_Plot_Smoothed_Area' :
+				case 'Image_Graph_Plot_Pie' :
+				case 'Image_Graph_Plot_Step' :
+				case 'Image_Graph_Plot_Impulse' :
+				case 'Image_Graph_Plot_Dot' :
+				case 'Image_Graph_Plot_Radar' :
+				case 'Image_Graph_Plot_CandleStick' :
+				case 'Image_Graph_Plot_Band' :
+					$o->openField('None');
+					$o->closeField();
+				break;
+				default :
+				break;
+			}
+		}
+		return true;
+
+	}//end paintPlotSpecificSettings()
+
+
+	/**
+	* Processes the interface for editing the plot settings
+	*
+	* @param object	&$asset	the graph asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function processPlotSpecificSettings(&$asset, &$o, $prefix)
+	{
+		$plot_settings_submit = isset($_POST[$prefix.'_plot_settings_submit']);
+		$wa = $asset->writeAccess('attributes');
+		if ($wa && $plot_settings_submit) {
+			$datasets = $asset->attr('datasets');
+			$plot_order = $asset->attr('plot_order');
+
+			$plot_not_deleted = isset($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
+			$first_plot_added = $_POST[$prefix.'_prev_plot_name'] == '';
+			$plot_changed = ($_POST[$prefix.'_plot_name'] != $_POST[$prefix.'_prev_plot_name']);
+
+			if (($first_plot_added || !$plot_changed) && $plot_not_deleted) {
+				$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
+				$plot_type = $datasets[$plot_name]['settings']['graph_type'];
+				switch ($plot_type) {
+					case 'Image_Graph_Plot_Bar' :
+						$datasets[$plot_name]['settings']['bar_spacing']	= $_POST[$prefix.'_bar_spacing'];
+					break;
+					case 'Image_Graph_Plot_Line' :
+					case 'Image_Graph_Plot_Area' :
+					case 'Image_Graph_Plot_Smoothed_Line' :
+					case 'Image_Graph_Plot_Smoothed_Area' :
+					case 'Image_Graph_Plot_Pie' :
+					case 'Image_Graph_Plot_Step' :
+					case 'Image_Graph_Plot_Impulse' :
+					case 'Image_Graph_Plot_Dot' :
+					case 'Image_Graph_Plot_Radar' :
+					case 'Image_Graph_Plot_CandleStick' :
+					case 'Image_Graph_Plot_Band' :
+					break;
+					default :
+					break;
+				}
+				$asset->setAttrValue('datasets', $datasets);
+			}
+		}
+		return true;
+
+	}//end processPlotSpecificSettings()
 
 
 	/**
@@ -535,9 +685,10 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 	{
 		$wa = $asset->writeAccess('attributes');
 		$datasets = $asset->attr('datasets');
-		$plot_not_deleted = @isset($datasets[$_POST[$prefix.'_plot_name']]);
+		$plot_order = $asset->attr('plot_order');
+		$plot_not_deleted = @isset($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
 		if (!empty($_POST[$prefix.'_plot_name']) && $plot_not_deleted) {
-			$plot_name = $_POST[$prefix.'_plot_name'];
+			$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
 		} else {
 			asort($datasets);
 			$plot_name = array_pop(array_keys($datasets));
@@ -551,7 +702,6 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 		}
 
 		if ($wa) {
-
 			$o->openField('Choose Value To be Marked On The Graph');
 				combo_box($prefix.'_value_marker', $this->value_marker_types, false, empty($datasets[$plot_name]['settings']['value_marker']) ? 'none' : $datasets[$plot_name]['settings']['value_marker']);
 				?>
@@ -616,18 +766,20 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 	*/
 	function processMarkerSettings(&$asset, &$o, $prefix)
 	{
-		$plot_settings_submit = isset($_POST[$prefix.'_plot_settings_submit']);
 		$wa = $asset->writeAccess('attributes');
+		$plot_settings_submit = isset($_POST[$prefix.'_plot_settings_submit']);
 		if ($wa && $plot_settings_submit) {
 			$datasets = $asset->attr('datasets');
-			$plot_not_deleted = isset($datasets[$_POST[$prefix.'_plot_name']]);
+			$plot_order = $asset->attr('plot_order');
+			$plot_not_deleted = @isset($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
 			$first_plot_added = $_POST[$prefix.'_prev_plot_name'] == '';
 			$plot_changed = ($_POST[$prefix.'_plot_name'] != $_POST[$prefix.'_prev_plot_name']);
 			if (($first_plot_added || !$plot_changed) && $plot_not_deleted) {
-				$datasets[$_POST[$prefix.'_plot_name']]['settings']['value_marker']			= $_POST[$prefix.'_value_marker'];
-				$datasets[$_POST[$prefix.'_plot_name']]['settings']['general_marker']		= $_POST[$prefix.'_general_marker'];
-				$datasets[$_POST[$prefix.'_plot_name']]['settings']['marker_type']			= $_POST[$prefix.'_marker_type'];
-				$datasets[$_POST[$prefix.'_plot_name']]['settings']['marker_background']	= $_POST[$prefix.'_marker_background'];
+				$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
+				$datasets[$plot_name]['settings']['value_marker']		= $_POST[$prefix.'_value_marker'];
+				$datasets[$plot_name]['settings']['general_marker']		= $_POST[$prefix.'_general_marker'];
+				$datasets[$plot_name]['settings']['marker_type']		= $_POST[$prefix.'_marker_type'];
+				$datasets[$plot_name]['settings']['marker_background']	= $_POST[$prefix.'_marker_background'];
 				$asset->setAttrValue('datasets', $datasets);
 			}
 		}
