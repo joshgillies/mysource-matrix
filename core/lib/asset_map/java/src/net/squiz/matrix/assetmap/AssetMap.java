@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMap.java,v 1.20 2006/01/29 23:43:22 sdanis Exp $
+* $Id: AssetMap.java,v 1.20.2.1 2006/02/19 23:07:23 sdanis Exp $
 *
 */
 
@@ -126,6 +126,10 @@ public class AssetMap extends JApplet implements InitialisationListener, KeyList
 		javaVersionCheck();
 		initAssetMap();
 		startPolling();
+	}
+
+	public void destroy() {
+		System.gc();
 	}
 
 	/**

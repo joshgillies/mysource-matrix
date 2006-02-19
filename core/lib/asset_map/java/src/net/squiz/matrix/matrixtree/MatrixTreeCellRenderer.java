@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTreeCellRenderer.java,v 1.6 2005/12/13 22:18:48 sdanis Exp $
+* $Id: MatrixTreeCellRenderer.java,v 1.6.2.1 2006/02/19 23:07:26 sdanis Exp $
 *
 */
 
@@ -171,7 +171,11 @@ public class MatrixTreeCellRenderer extends JLabel implements TreeCellRenderer, 
 
 		if ((selected || allSelected) && !isNavNode(node)) {
 			int offset = getIcon().getIconWidth() + (getIconTextGap() / 2);
-			g.setColor(asset.getStatusColour());
+			if (selected && allSelected) {
+				g.setColor(asset.getStatusColour().darker());
+			} else {
+				g.setColor(asset.getStatusColour());
+			}
 			g.fillRect(offset, 2, getWidth(), getHeight() - 4);
 			g.setColor(asset.getStatusColour().darker());
 			g.drawRect(offset, 2,  getWidth() - offset - 1, getHeight() - 4);

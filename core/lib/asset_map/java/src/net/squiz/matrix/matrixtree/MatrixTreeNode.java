@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTreeNode.java,v 1.9 2006/01/18 02:51:17 sdanis Exp $
+* $Id: MatrixTreeNode.java,v 1.9.2.1 2006/02/19 23:07:26 sdanis Exp $
 *
 */
 
@@ -50,6 +50,8 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 	 */
 	private int linkType;
 
+	private int sort_order;
+
 	/* The URL including paths to this node */
 	private String url;
 	private String webPath;
@@ -64,13 +66,14 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 	 * @param asset the asset that represents this node
 	 * @param linkid the linkid of this node
 	 */
-	public MatrixTreeNode(Asset asset, String linkid, int linkType, String url, String webPath, String name) {
+	public MatrixTreeNode(Asset asset, String linkid, int linkType, String url, String webPath, String name, int sort_order) {
 		setUserObject(asset);
 		this.linkid = linkid;
 		this.linkType = linkType;
 		this.url = url;
 		this.webPath = webPath;
 		this.name = name;
+		this.sort_order = sort_order;
 	}
 
 	public String toString() {
@@ -86,6 +89,13 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 		return name;
 	}
 
+	public void setSortOrder(int sort_order) {
+		this.sort_order = sort_order;
+	}
+
+	public int getSortOrder() {
+		return this.sort_order;
+	}
 
 	/**
 	 * Returns the asset that represents this node

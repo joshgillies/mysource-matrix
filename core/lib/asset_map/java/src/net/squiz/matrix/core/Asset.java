@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: Asset.java,v 1.9 2005/12/14 23:07:24 sdanis Exp $
+* $Id: Asset.java,v 1.9.2.1 2006/02/19 23:07:24 sdanis Exp $
 *
 */
 
@@ -55,6 +55,7 @@ public class Asset implements MatrixConstants, Serializable {
 	private int numKids = 0;
 	private int totalKidsLoaded = 0;
 	protected Map nodes = null;
+	private int sort_order = 0;
 
 	//{{{ Public Methods
 
@@ -387,6 +388,19 @@ public class Asset implements MatrixConstants, Serializable {
 		}
 	}
 
+
+	private boolean setNodeSortOrder(String linkid, int sort_order) {
+		MatrixTreeNode[] nodes = getNodesWithLinkid(linkid);
+		boolean changed = false;
+		for (int i = 0; i < nodes.length; i++) {
+			if (nodes[i].getSortOrder() != sort_order) {
+				nodes[i].setSortOrder(sort_order);
+				changed = true;
+			}
+		}
+		return changed;
+	}
+
 	//}}}
 	//{{{ Protected Methods
 
@@ -396,7 +410,7 @@ public class Asset implements MatrixConstants, Serializable {
 		boolean accessible = false;
 		int linkType = 0, status = 0, numKids = 0;
 		boolean hasLinkType = false, hasStatus = false, hasName = false,
-		hasAccessible = false, hasUrl = false, hasWebPath = false,
+		hasAccessible = false, hasUrl = false, hasWebPath = false, hasSortOrder = false,
 		hasNumKids = false, hasTypeCode = false;
 		AssetType type = this.type;
 
@@ -441,6 +455,11 @@ public class Asset implements MatrixConstants, Serializable {
 				String webPath = assetElement.getAttribute("web_path");
 				hasWebPath = true;
 			}
+			if (assetElement.hasAttribute("sort_order")) {
+				this.sort_order	= Integer.parseInt(assetElement.getAttribute("sort_order"));
+				hasSortOrder = true;
+			}
+
 		} catch (NumberFormatException exp) {
 			System.out.println(exp.getMessage());
 		}
@@ -472,6 +491,8 @@ public class Asset implements MatrixConstants, Serializable {
 			refresh |= hasAccessible && setAccessible(accessible);
 			refresh |= hasNumKids    && setNumKids(numKids);
 			refresh |= hasTypeCode   && setTypeCode(type);
+			refresh |= hasSortOrder	 && setNodeSortOrder(linkid, this.sort_order);
+
 			if (refresh)
 				nodesChanged();
 			if (hasUrl && setUrl(url))
@@ -509,7 +530,8 @@ public class Asset implements MatrixConstants, Serializable {
 			linkType,
 			getNodeURL(parent),
 			webPath,
-			this.initName
+			this.initName,
+			this.sort_order
 		);
 		addNode(node, linkid);
 
