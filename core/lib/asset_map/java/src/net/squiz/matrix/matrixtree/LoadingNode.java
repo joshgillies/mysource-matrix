@@ -6,7 +6,7 @@ import net.squiz.matrix.core.*;
 public class LoadingNode extends MatrixTreeNode {
 
 	public LoadingNode() {
-		super(null, "", 1, "", "", "");
+		super(null, "", 1, "", "", "", 0);
 		Asset loadingAsset = new LoadingAsset();
 		setUserObject(loadingAsset);
 	}

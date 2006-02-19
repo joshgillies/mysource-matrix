@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.14 2006/01/23 03:43:06 sdanis Exp $
+* $Id: CueTree.java,v 1.15 2006/02/19 23:10:13 sdanis Exp $
 *
 */
 
@@ -560,6 +560,7 @@ public class CueTree extends JTree {
 		paintImmediately(dirtyCueBounds);
 		inCueMode = false;
 		ghostedNode = null;
+		requestMode = MOVE_REQUEST_MODE;
 	}
 
 	/**
@@ -990,6 +991,7 @@ public class CueTree extends JTree {
 		 * @param evt the mouse event
 		 */
 		public void mousePressed(MouseEvent evt) {
+
 			// TODO: (MM) need to make use of GUIUtilities.isRightMouseButton
 			if (GUIUtilities.isRightMouseButton(evt)) {
 				if (inCueMode) {

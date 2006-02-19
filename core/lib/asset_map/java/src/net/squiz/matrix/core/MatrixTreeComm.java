@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTreeComm.java,v 1.9 2006/01/23 03:43:06 sdanis Exp $
+ * $Id: MatrixTreeComm.java,v 1.10 2006/02/19 23:10:14 sdanis Exp $
  *
  */
 
@@ -71,14 +71,16 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 		MatrixTreeNode parent = evt.getParentNode();
 		int index             = evt.getIndex();
 		String parentAssetid  = MatrixToolkit.rawUrlEncode(parent.getAsset().getId(), true);
-		int mod = 0;
 
 		if (index >= 0) {
-			// check if we have a previous node
-			if (parent.getAsset().getTotalKidsLoaded() > 0) {
-				mod = -1;
+			if (parent.getChildCount() > 0) {
+				int modifier = 0;
+				if (index >= parent.getChildCount()) {
+					index = parent.getChildCount()-1;
+					modifier = 1;
+				}
+				index = (((MatrixTreeNode)parent.getChildAt(index)).getSortOrder())+modifier;
 			}
-			index = (parent.getAsset().getTotalKidsLoaded()+index+mod);
 		}
 
 		String xml = "<command action=\"get url\" cmd=\"add\" " +
@@ -160,16 +162,21 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 						// we need to change the index since we are not on the first set
 						if (index >= limit) {
 							// move the asset to the next set
-							newIndex = parent.getAsset().getTotalKidsLoaded() + limit + children.length;
+							int modifier = 0;
+							// check for previous node
+							if (parent.getAsset().getTotalKidsLoaded() == 0) {
+								modifier = 1;
+							}
+							newIndex = ((MatrixTreeNode)parent.getChildAt(limit-modifier)).getSortOrder() + children.length;
+
 						} else if ((index <= 0) && (parent.getAsset().getTotalKidsLoaded() > 0)) {
-							// move the asset to previous set
-							newIndex = parent.getAsset().getTotalKidsLoaded() - children.length;
+							if (parent.getChildCount() > 0) {
+								// move the asset to previous set
+								newIndex = ((MatrixTreeNode)parent.getChildAt(1)).getSortOrder() - children.length;
+							}
 						} else {
-							// move the asset to different index on the same set
-							newIndex = parent.getAsset().getTotalKidsLoaded() + index;
-							if (parent.getAsset().getTotalKidsLoaded() > 0) {
-								// we have a previous node
-								newIndex--;
+							if (parent.getChildCount() > 0) {
+								newIndex = ((MatrixTreeNode)parent.getChildAt(index)).getSortOrder();
 							}
 						}
 					}

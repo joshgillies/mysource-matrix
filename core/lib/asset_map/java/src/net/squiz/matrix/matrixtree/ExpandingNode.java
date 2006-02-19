@@ -13,7 +13,7 @@ public class ExpandingNode extends MatrixTreeNode {
 	private String cueModeName = "";
 
 	public ExpandingNode() {
-		super(null, "", 1, "", "", "");
+		super(null, "", 1, "", "", "", 0);
 	}
 
 	public void setParentTotalAssets(int parentTotalAssets) {
