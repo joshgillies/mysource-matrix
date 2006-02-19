@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.4 2006/01/19 03:18:02 skim Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.5 2006/02/19 22:18:45 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -118,6 +118,11 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		$thesaurus =& $asset->getThesaurusRef();
+		if (is_null($thesaurus) || !$thesaurus) {
+			$type_code = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
+			echo translate('thesaurus_linked_thesaurus_not_set', $type_code).get_asset_tag_line($asset->id, 'details');
+			return TRUE;
+		}
 
 		if (empty($value)) {
 			$values = Array();
@@ -144,7 +149,6 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		$editable = $asset->attr('editable');
-
 		if ($write_access && $editable) {
 			?>
 			<script type="text/javascript">

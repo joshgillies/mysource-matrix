@@ -18,13 +18,14 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2005/12/19 04:57:21 arailean Exp $
+* $Id: lang_strings.xml,v 1.3 2006/02/19 22:18:45 rong Exp $
 *
 */
 
 -->
 
 <strings>
+	<string source="thesaurus_linked_thesaurus_not_set">Thesaurus Asset for %s is not set in </string>
 	<string source="thesaurus_term_not_found">Term not found in thesaurus</string>
 	<string source="thesaurus_entity_description">Description: %s</string>
 	<string source="thesaurus_linked_thesaurus_inactive">Linked thesaurus is <![CDATA[<strong>INACTIVE</strong>]]>. This value cannot be set.</string>
