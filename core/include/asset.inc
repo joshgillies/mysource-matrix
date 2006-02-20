@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.505 2006/02/14 01:10:27 sdanis Exp $
+* $Id: asset.inc,v 1.506 2006/02/20 00:44:52 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.505 $
+* @version $Revision: 1.506 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3793,7 +3793,6 @@ class Asset extends MySource_Object
 	/**
 	* Called by the design to print extra material in the head of the HTML document for this asset
 	* it's up to the kids to override
-	* TODO: empty function
 	*
 	* @return void
 	* @access public
