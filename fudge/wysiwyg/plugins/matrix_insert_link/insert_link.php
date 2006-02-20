@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.34.2.1 2005/08/03 23:09:07 dmckee Exp $
+* $Id: insert_link.php,v 1.34.2.2 2006/02/20 04:58:11 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.34.2.1 $
+* @version $Revision: 1.34.2.2 $
 * @package MySource_Matrix
 */
 
@@ -83,7 +83,7 @@ if (!isset($_GET['new_window'])) {
 
 ?>
 
-<html style="width: 750px; height: 440px;">
+<html style="width: 750px; height: 488px;">
 	<head>
 		<title>Insert Link</title>
 		<?php
