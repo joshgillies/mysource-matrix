@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: duration.inc,v 1.6 2005/10/27 23:50:48 bcaldwell Exp $
+* $Id: duration.inc,v 1.7 2006/02/20 03:20:00 emcdonald Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
 * @author	Tom Barrett			<tbarrett@squiz.net>
 *
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -60,7 +60,7 @@ class Asset_Attribute_Duration extends Asset_Attribute
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Duration($attributeid=0, $value=null)
+	function Asset_Attribute_Duration($attributeid=0, $value=NULL)
 	{
 		$this->Asset_Attribute($attributeid, (int) $value);
 
@@ -75,19 +75,19 @@ class Asset_Attribute_Duration extends Asset_Attribute
 	* Takes an XML_Tree_Node from an edit interface XML file and creates
 	* the params array from it
 	*
-	* @param object XML_Tree_Node	$node
+	* @param object	&$node	an XML_Tree_Node from an edit interface XML file
 	*
 	* @return boolean
 	* @access public
 	*/
 	function setEditParams(&$node)
 	{
-		if (!parent::setEditParams($node)) return false;
+		if (!parent::setEditParams($node)) return FALSE;
 		$biggest	=  $this->units[$node->attributes['biggest_units']];
 		$smallest	= $this->units[$node->attributes['smallest_units']];
 		$this->_edit_params['biggest_units']	= max($biggest, $smallest);
 		$this->_edit_params['smallest_units']	= min($biggest, $smallest);
-		return true;
+		return TRUE;
 
 	}//end setEditParams()
 
@@ -95,7 +95,7 @@ class Asset_Attribute_Duration extends Asset_Attribute
 	/**
 	* Returns an array of the current units and their actual values
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getUnitValues()
@@ -112,6 +112,7 @@ class Asset_Attribute_Duration extends Asset_Attribute
 			}
 		}
 		return $unit_values;
+
 	}//end getUnitValues()
 
 
@@ -121,22 +122,23 @@ class Asset_Attribute_Duration extends Asset_Attribute
 	* @param string		$prefix		prefix for the form element
 	* @param boolean	$read_only	are we just printing the value
 	*
+	* @return NULL
 	* @access public
 	*/
-	function paint($prefix, $read_only=false)
+	function paint($prefix, $read_only=FALSE)
 	{
 		$biggest_units	= array_get_index($this->_edit_params, 'biggest_units', $this->units['days']);
 		$smallest_units	= array_get_index($this->_edit_params, 'smallest_units', $this->units['minutes']);
 
-		//moves smallest unit to the lowest unit above the smallest unit that has a value
+		// moves smallest unit to the lowest unit above the smallest unit that has a value
 		if ($read_only) {
-			$all_values = array_reverse($this->getUnitValues(), true);
-			$set = false;
+			$all_values = array_reverse($this->getUnitValues(), TRUE);
+			$set = FALSE;
 			foreach ($all_values as $unit_name => $value) {
 				if ($set) $smallest_units = $this->units[$unit_name];
-				if ($this->units[$unit_name] == $smallest_units){
+				if ($this->units[$unit_name] == $smallest_units) {
 					if ($value == 0) {
-						$set = true;
+						$set = TRUE;
 					} else {
 						break;
 					}
@@ -146,13 +148,13 @@ class Asset_Attribute_Duration extends Asset_Attribute
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$remaining_value = $this->value;
 		$last_value = 0;
-		$printed_any = false;
+		$printed_any = FALSE;
 		foreach ($this->units as $current_name => $current_units) {
 			if ($current_units >= $smallest_units && $current_units <= $biggest_units) {
 				$current_value = (int) ($remaining_value / $current_units);
 				$remaining_value -= $current_value * $current_units;
 
-				//modified below to only print duration units that have a value other than 0 when read-only is set
+				// modified below to only print duration units that have a value other than 0 when read-only is set
 				if ($smallest_units != $biggest_units) {
 					if (!$read_only) {
 						if ($current_units == $smallest_units) {
@@ -177,15 +179,15 @@ class Asset_Attribute_Duration extends Asset_Attribute
 							$current_name = substr($current_name, 0, -1);
 						}
 						echo ' '.$current_value.' '.$current_name;
-						$printed_any = true;
+						$printed_any = TRUE;
 					}
 				} else {
-					text_box($prefix.'_'.$current_name, $current_value, 2, 0, false, ' onkeypress="return checkDurationValue(this, event)" onblur="updateDurationValues(this)" style="width:4ex"');
+					text_box($prefix.'_'.$current_name, $current_value, 2, 0, FALSE, ' onkeypress="return checkDurationValue(this, event)" onblur="updateDurationValues(this)" style="width:4ex"');
 					echo '<label for="'.$prefix.'_'.$current_name.'"> '.$current_name.'</label>';
-					$printed_any = true;
+					$printed_any = TRUE;
 				}
-			}
-		}
+			}//end if
+		}//end foreach unit
 
 	}//end paint()
 
@@ -193,8 +195,9 @@ class Asset_Attribute_Duration extends Asset_Attribute
 	/**
 	* Processes the interface for filling in a value
 	*
-	* @param string	prefix	prefix for the form element
+	* @param string	$prefix	prefix for the form element
 	*
+	* @return NULL
 	* @access public
 	*/
 	function process($prefix)
@@ -203,7 +206,7 @@ class Asset_Attribute_Duration extends Asset_Attribute
 		$smallest_units	= array_get_index($this->_edit_params, 'smallest_units', $this->units['minutes']);
 
 		if (!isset($_REQUEST[$prefix.'_'.array_search($biggest_units, $this->units)])) {
-			return false;
+			return FALSE;
 		}
 
 		$res = 0;
@@ -213,9 +216,9 @@ class Asset_Attribute_Duration extends Asset_Attribute
 
 		$value = (int) $res;
 		if ($this->value != $value && $this->setValue($value)) {
-			$this->processed = true;
+			$this->processed = TRUE;
 		} else {
-			$this->processed = false;
+			$this->processed = FALSE;
 		}
 
 	}//end process()
@@ -242,10 +245,30 @@ class Asset_Attribute_Duration extends Asset_Attribute
 		// becomes comparing $value with zero which is TRUE. So instead we would be comparing
 		// it with a string '0', which is FALSE and what we want for it to invalidate.
 		// Only genuine ints will pass through.
-		if ((string)$new_value != $value) return false;
-		return true;
+		if ((string)$new_value != $value) return FALSE;
+		return TRUE;
 
 	}//end validateValue()
+
+
+	/**
+	* Returns a representation of this asset's parameters, edit parameters and value as XML
+	*
+	* @return string
+	* @access public
+	*/
+	function exportContentsToXML()
+	{
+		$value_array = $this->getUnitValues();
+		$value_xml = '';
+		foreach ($value_array as $unit => $unit_value) {
+			$value_xml .= '<'.$unit.'>'.$unit_value.'</'.$unit.'>';
+		}
+		$xml = '<value>'.$value_xml.'</value>';
+
+		return $xml;
+
+	}//end exportContentsToXML()
 
 
 }//end class
