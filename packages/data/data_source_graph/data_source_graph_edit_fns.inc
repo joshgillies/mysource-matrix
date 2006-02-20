@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_edit_fns.inc,v 1.7 2005/12/21 21:58:35 rong Exp $
+* $Id: data_source_graph_edit_fns.inc,v 1.7.2.1 2006/02/20 00:41:48 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,38 +72,44 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 							'IMAGE_GRAPH_GRAD_RADIAL'				=> 'Radially (concentric circles in the center)',
 						   );
 
-	/**
-	* Option list for marker value types
-	* @var array
-	*/
-	var $value_marker_types = Array(
-								'none'					=> '-- Leave Empty --',
-								'IMAGE_GRAPH_VALUE_X'	=> 'Mark x-Axis Values',
-								'IMAGE_GRAPH_VALUE_Y'	=> 'Mark y-Axis Values',
-							  );
-
-	/**
-	* Option list for general markers
-	* @var array
-	*/
-	var $general_markers = Array(
-							'Image_Graph_Marker_Star'		=> 'Mark Star For A Dataset',
-							'Image_Graph_Marker_Asterisk'	=> 'Mark Asterisk For A Dataset',
-							'Image_Graph_Marker_Box'		=> 'Mark Box For A Dataset',
-							'Image_Graph_Marker_Circle'		=> 'Mark Circle For A Dataset',
-							'Image_Graph_Marker_Cross'		=> 'Mark Cross For A Dataset',
-							'Image_Graph_Marker_Diamond'	=> 'Mark Diamond For A Dataset',
-							'Image_Graph_Marker_Triangle'	=> 'Mark Triangle For A Dataset',
-						   );
 
 	/**
 	* Option list for mark types
 	* @var array
 	*/
 	var $marker_types = Array(
-							'Image_Graph_Marker_Pointing_Angular'	=> 'Marker that points away from the graph',
-							'Image_Graph_Marker_Pointing_Radial'	=> 'A pointing marker in a random angle from the data',
+							'none'							=> '-- Leave Empty --',
+							'Image_Graph_Marker_Asterisk'	=> 'Mark Asterisk For A Dataset',
+							'Image_Graph_Marker_Average'	=> 'Mark Average For A Dataset',
+							'Image_Graph_Marker_Box'		=> 'Mark Box For A Dataset',
+							'Image_Graph_Marker_Cross'		=> 'Mark Cross For A Dataset',
+							'Image_Graph_Marker_Diamond'	=> 'Mark Diamond For A Dataset',
+							'Image_Graph_Marker_Plus'		=> 'Mark Plus For A Dataset',
+							'Image_Graph_Marker_Star'		=> 'Mark Star For A Dataset',
+							'Image_Graph_Marker_Triangle'	=> 'Mark Triangle For A Dataset',
+							'Image_Graph_Marker_Value'		=> 'Mark Value For A Dataset',
+							'Image_Graph_Marker_Bubble'		=> 'Mark Bubble For A Dataset',
 						);
+
+	/**
+	* Option list for marker value types
+	* @var array
+	*/
+	var $value_marker_types = Array(
+								'IMAGE_GRAPH_VALUE_X'	=> 'Mark x-Axis Values',
+								'IMAGE_GRAPH_VALUE_Y'	=> 'Mark y-Axis Values',
+							  );
+
+	/**
+	* Option list for mark types
+	* @var array
+	*/
+	var $pointing_types = Array(
+							'none'									=> '-- Leave Empty --',
+							'Image_Graph_Marker_Pointing_Angular'	=> 'Image_Graph_Marker_Pointing_Angular',
+							'Image_Graph_Marker_Pointing_Radial'	=> 'Image_Graph_Marker_Pointing_Radial',
+							'Image_Graph_Marker_ReversePinpoint'	=> 'Image_Graph_Marker_ReversePinpoint',
+						  );
 
 
 	/**
@@ -152,7 +158,6 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 					<td>Data Source</td>';
 			if ($wa) echo '<td>Delete?</td>';
 			echo '</tr>';
-			//foreach ($datasets as $key => $dataset) {
 			foreach ($plot_order as $key => $plot_name) {
 				?>
 				<tr>
@@ -175,7 +180,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 				echo 'There is no plot.';
 			$o->closeField();
 		}
-		return true;
+		return TRUE;
 
 	}//end paintAddPlots()
 
@@ -246,7 +251,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 		}
 		$asset->setAttrValue('datasets', $datasets);
 		$asset->setAttrValue('plot_order', $plot_order);
-		return true;
+		return TRUE;
 
 	}//end processAddPlots()
 
@@ -270,14 +275,14 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 			if (!empty($_POST[$prefix.'_plot_name'])) {
 				$plot_name = $_POST[$prefix.'_plot_name'];
 			}
-			combo_box($prefix.'_plot_name', $plot_order, false, $plot_name);
+			combo_box($prefix.'_plot_name', $plot_order, FALSE, $plot_name);
 			?>
 				<br /><b>Note</b>&nbsp;:&nbsp;If you choose a plot other than one displayed below and submit, then the current changes in the plot settings <b>WILL NOT</b> be applied,
 				i.e. If you want to submit the changes in the plot settings, <b>DO NOT</b> choose a new plot here
 			<?php
 			hidden_field($prefix.'_prev_plot_name', isset($_POST[$prefix.'_plot_name']) ? $_POST[$prefix.'_plot_name'] : '');
 		$o->closeField();
-		return true;
+		return TRUE;
 
 	}//end paintChoosePlots()
 
@@ -294,7 +299,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 	*/
 	function processChoosePlots(&$asset, &$o, $prefix)
 	{
-		return true;
+		return TRUE;
 
 	}//end processChoosePlots()
 
@@ -309,14 +314,13 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function paintPlotSettings(&$asset, &$o, $prefix)
+	function paintGeneralPlotSettings(&$asset, &$o, $prefix)
 	{
 		$wa = $asset->writeAccess('attributes');
 		$datasets = $asset->attr('datasets');
 		$plot_order = $asset->attr('plot_order');
-		$plot_not_deleted = @isset($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
-
-		if (!empty($_POST[$prefix.'_plot_name']) && $plot_not_deleted) {
+		$plot_not_deleted = !empty($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
+		if (isset($_POST[$prefix.'_plot_name']) && $plot_not_deleted) {
 			$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
 		} else {
 			$plot_name = $plot_order[0];
@@ -337,7 +341,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 
 			if ($this->moreThanOnePlot($asset, $prefix)) {
 				$o->openField('Move the plot');
-					combo_box($prefix.'_move_this_plot', Array(0 => '-- Leave Empty --', 1 => 'Backward', 2 => 'Forward'), false, 0);
+					combo_box($prefix.'_move_this_plot', Array(0 => '-- Leave Empty --', 1 => 'Backward', 2 => 'Forward'), FALSE, 0);
 					?>
 					<br /><b>Note</b>&nbsp;:&nbsp;You can move this plot <b>backward</b> or <b>forward</b> as shown in the final graph
 					<?php
@@ -347,28 +351,30 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 				asset_finder($prefix.'_data_source', !empty($datasets[$plot_name]['assetid']) ? $datasets[$plot_name]['assetid'] : '0', Array('data_source_db'	=> 'I', 'data_source_rss'	=> 'I'));
 			$o->closeField();
 			$o->openField(translate('choose').' x-Axis');
-				combo_box($prefix.'_x_axis', $fields, false, empty($datasets[$plot_name]['settings']['x_axis']) ? current($fields) : $datasets[$plot_name]['settings']['x_axis']);
+				combo_box($prefix.'_x_axis', $fields, FALSE, empty($datasets[$plot_name]['settings']['x_axis']) ? current($fields) : $datasets[$plot_name]['settings']['x_axis']);
 			$o->closeField();
 			$o->openField(translate('choose').' y-Axis');
-				combo_box($prefix.'_y_axis', $fields, false, empty($datasets[$plot_name]['settings']['y_axis']) ? current($fields) : $datasets[$plot_name]['settings']['y_axis']);
+				combo_box($prefix.'_y_axis', $fields, FALSE, empty($datasets[$plot_name]['settings']['y_axis']) ? current($fields) : $datasets[$plot_name]['settings']['y_axis']);
 			$o->closeField();
 			$o->openField(translate('choose').' '.translate('graph_type'));
-				combo_box($prefix.'_graph_type', $this->graph_types, false, array_search($datasets[$plot_name]['settings']['graph_type'], $this->graph_types));
+				combo_box($prefix.'_graph_type', $this->graph_types, FALSE, array_search($datasets[$plot_name]['settings']['graph_type'], $this->graph_types));
 			$o->closeField();
 			$o->openField('Accumulative?');
-				combo_box($prefix.'_accumulative', Array(1 => 'Yes', 0 => 'No'), false, $datasets[$plot_name]['settings']['accumulative']);
+				combo_box($prefix.'_accumulative', Array(1 => 'Yes', 0 => 'No'), FALSE, $datasets[$plot_name]['settings']['accumulative']);
 				?>
 				<br /><b>Note</b>&nbsp;:&nbsp;If it's yes, y-Axis values are accumulated
 				<?php
-				// Hidden Field!!!
 				hidden_field($prefix.'_plot_settings_submit', '1');
 			$o->closeField();
 
 			$o->openField('Fill Colour');
 				colour_box($prefix.'_fill_colour', empty($datasets[$plot_name]['settings']['fill_colour']) ? 'ffffff' : $datasets[$plot_name]['settings']['fill_colour']);
 			$o->closeField();
+			$o->openField('Line Colour');
+				colour_box($prefix.'_line_colour', empty($datasets[$plot_name]['settings']['line_colour']) ? 'ffffff' : $datasets[$plot_name]['settings']['line_colour']);
+			$o->closeField();
 			$o->openField('Fill Gradient Type');
-				combo_box($prefix.'_gradient_type', $this->fill_grad_types, false, $datasets[$plot_name]['settings']['gradient_type']);
+				combo_box($prefix.'_gradient_type', $this->fill_grad_types, FALSE, $datasets[$plot_name]['settings']['gradient_type']);
 				?>
 				<br /><b>Note</b>&nbsp;:&nbsp;If the type is set other than 'Leave Empty', a fill colour is ignored
 				<?php
@@ -410,6 +416,16 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 					</tr></table>';
 				}
 			$o->closeField();
+			$o->openField('Line Colour');
+				if (empty($datasets[$plot_name]['settings']['line_colour'])) {
+					echo 'none';
+				} else {
+					echo '<table><tr>
+					<td width="20" height="13" style="background-color: #'.$datasets[$plot_name]['settings']['line_colour'].'"></td>
+					<td>&nbsp;#'.$datasets[$plot_name]['settings']['line_colour'].'</td>
+					</tr></table>';
+				}
+			$o->closeField();
 			$o->openField('Fill Gradient Type');
 				echo $datasets[$plot_name]['settings']['gradient_type'];
 				?>
@@ -436,10 +452,11 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 					</tr></table>';
 				}
 			$o->closeField();
-		}
-		return true;
+		}//end else
 
-	}//end paintPlotSettings()
+		return TRUE;
+
+	}//end paintGeneralPlotSettings()
 
 
 	/**
@@ -452,7 +469,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function processPlotSettings(&$asset, &$o, $prefix)
+	function processGeneralPlotSettings(&$asset, &$o, $prefix)
 	{
 		$plot_settings_submit = isset($_POST[$prefix.'_plot_settings_submit']);
 		$wa = $asset->writeAccess('attributes');
@@ -472,9 +489,11 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 				$datasets[$plot_name]['settings']['graph_type']		= $this->graph_types[intval($_POST[$prefix.'_graph_type'])];
 				$datasets[$plot_name]['settings']['accumulative']	= $_POST[$prefix.'_accumulative'];
 				$datasets[$plot_name]['settings']['fill_colour']	= $_POST[$prefix.'_fill_colour'];
+				$datasets[$plot_name]['settings']['line_colour']	= $_POST[$prefix.'_line_colour'];
 				$datasets[$plot_name]['settings']['gradient_type']	= $_POST[$prefix.'_gradient_type'];
 				$datasets[$plot_name]['settings']['gradient_1']		= $_POST[$prefix.'_gradient_1'];
 				$datasets[$plot_name]['settings']['gradient_2']		= $_POST[$prefix.'_gradient_2'];
+				$datasets[$plot_name]['settings']['bar_spacing']	= $_POST[$prefix.'_bar_spacing'];
 				$asset->setAttrValue('datasets', $datasets);
 
 				// Re-order plots
@@ -482,20 +501,20 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 
 					$current_index = array_search($plot_name, $plot_order);
 
-					$swap = false;
+					$swap = FALSE;
 					switch ($_POST[$prefix.'_move_this_plot']) {
 						case '1':
 							// move backward
 							if ($current_index > 0) {
 								$dest_index = $current_index - 1;
-								$swap = true;
+								$swap = TRUE;
 							}
 						break;
 						case '2':
 							// move forward
 							if ($current_index < (count($plot_order) - 1)) {
 								$dest_index = $current_index + 1;
-								$swap = true;
+								$swap = TRUE;
 							}
 						break;
 					}
@@ -511,14 +530,148 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 						$_POST[$prefix.'_plot_name'] = $dest_index;
 						$_POST[$prefix.'_prev_plot_name'] = $dest_index;
 					}
-				}
+				}//end if
+			}//end if
+		}//end if
 
-			}
+		return TRUE;
+
+	}//end processGeneralPlotSettings()
+
+
+	/**
+	* Paints the interface for editing the plot settings
+	*
+	* @param object	&$asset	the graph asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintPlotSpecificSettings(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$datasets = $asset->attr('datasets');
+		$plot_order = $asset->attr('plot_order');
+		$plot_not_deleted = !empty($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
+		if (isset($_POST[$prefix.'_plot_name']) && $plot_not_deleted) {
+			$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
+		} else {
+			$plot_name = $plot_order[0];
 		}
 
-		return true;
+		$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($datasets[$plot_name]['assetid']);
+		$result = $data_source_asset->getResultSet('default');
+		$data = array_keys($result[0]);
+		foreach ($data as $field) {
+			$fields[$field] = $field;
+		}
 
-	}//end processPlotSettings()
+		$plot_type = $datasets[$plot_name]['settings']['graph_type'];
+		if ($wa) {
+			switch ($plot_type) {
+				case 'Image_Graph_Plot_Bar' :
+					$o->openField('Spacing');
+						text_box($prefix.'_bar_spacing', empty($datasets[$plot_name]['settings']['bar_spacing']) ? '0' : $datasets[$plot_name]['settings']['bar_spacing'], '10');
+					$o->closeField();
+				break;
+				case 'Image_Graph_Plot_Line' :
+				case 'Image_Graph_Plot_Area' :
+				case 'Image_Graph_Plot_Smoothed_Line' :
+				case 'Image_Graph_Plot_Smoothed_Area' :
+				case 'Image_Graph_Plot_Pie' :
+				case 'Image_Graph_Plot_Step' :
+				case 'Image_Graph_Plot_Impulse' :
+				case 'Image_Graph_Plot_Dot' :
+				case 'Image_Graph_Plot_Radar' :
+				case 'Image_Graph_Plot_CandleStick' :
+				case 'Image_Graph_Plot_Band' :
+				break;
+				default :
+				break;
+			}
+		} else {
+			switch ($plot_type) {
+				case 'Image_Graph_Plot_Bar' :
+					$o->openField('Spacing');
+						echo $datasets[$plot_name]['settings']['bar_spacing'];
+					$o->closeField();
+				break;
+				case 'Image_Graph_Plot_Line' :
+				case 'Image_Graph_Plot_Area' :
+				case 'Image_Graph_Plot_Smoothed_Line' :
+				case 'Image_Graph_Plot_Smoothed_Area' :
+				case 'Image_Graph_Plot_Pie' :
+				case 'Image_Graph_Plot_Step' :
+				case 'Image_Graph_Plot_Impulse' :
+				case 'Image_Graph_Plot_Dot' :
+				case 'Image_Graph_Plot_Radar' :
+				case 'Image_Graph_Plot_CandleStick' :
+				case 'Image_Graph_Plot_Band' :
+					$o->openField('None');
+					$o->closeField();
+				break;
+				default :
+				break;
+			}
+		}
+		return TRUE;
+
+	}//end paintPlotSpecificSettings()
+
+
+	/**
+	* Processes the interface for editing the plot settings
+	*
+	* @param object	&$asset	the graph asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function processPlotSpecificSettings(&$asset, &$o, $prefix)
+	{
+		$plot_settings_submit = isset($_POST[$prefix.'_plot_settings_submit']);
+		$wa = $asset->writeAccess('attributes');
+		if ($wa && $plot_settings_submit) {
+			$datasets = $asset->attr('datasets');
+			$plot_order = $asset->attr('plot_order');
+
+			$plot_not_deleted = isset($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
+			$first_plot_added = $_POST[$prefix.'_prev_plot_name'] == '';
+			$plot_changed = ($_POST[$prefix.'_plot_name'] != $_POST[$prefix.'_prev_plot_name']);
+
+			if (($first_plot_added || !$plot_changed) && $plot_not_deleted) {
+				$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
+				$plot_type = $datasets[$plot_name]['settings']['graph_type'];
+				switch ($plot_type) {
+					case 'Image_Graph_Plot_Bar' :
+						$datasets[$plot_name]['settings']['bar_spacing']	= $_POST[$prefix.'_bar_spacing'];
+					break;
+					case 'Image_Graph_Plot_Line' :
+					case 'Image_Graph_Plot_Area' :
+					case 'Image_Graph_Plot_Smoothed_Line' :
+					case 'Image_Graph_Plot_Smoothed_Area' :
+					case 'Image_Graph_Plot_Pie' :
+					case 'Image_Graph_Plot_Step' :
+					case 'Image_Graph_Plot_Impulse' :
+					case 'Image_Graph_Plot_Dot' :
+					case 'Image_Graph_Plot_Radar' :
+					case 'Image_Graph_Plot_CandleStick' :
+					case 'Image_Graph_Plot_Band' :
+					break;
+					default :
+					break;
+				}
+				$asset->setAttrValue('datasets', $datasets);
+			}
+		}//end if
+
+		return TRUE;
+
+	}//end processPlotSpecificSettings()
 
 
 	/**
@@ -535,9 +688,10 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 	{
 		$wa = $asset->writeAccess('attributes');
 		$datasets = $asset->attr('datasets');
-		$plot_not_deleted = @isset($datasets[$_POST[$prefix.'_plot_name']]);
-		if (!empty($_POST[$prefix.'_plot_name']) && $plot_not_deleted) {
-			$plot_name = $_POST[$prefix.'_plot_name'];
+		$plot_order = $asset->attr('plot_order');
+		$plot_not_deleted = !empty($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
+		if (isset($_POST[$prefix.'_plot_name']) && $plot_not_deleted) {
+			$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
 		} else {
 			asort($datasets);
 			$plot_name = array_pop(array_keys($datasets));
@@ -550,53 +704,59 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 			$fields[$field] = $field;
 		}
 
+		$colours = Array(
+					'Set Font Colour'	=> 'marker_font_colour',
+					'Set Line Colour'	=> 'marker_line_colour',
+					'Set Fill Colour'	=> 'marker_fill_colour',
+				   );
 		if ($wa) {
-
-			$o->openField('Choose Value To be Marked On The Graph');
-				combo_box($prefix.'_value_marker', $this->value_marker_types, false, empty($datasets[$plot_name]['settings']['value_marker']) ? 'none' : $datasets[$plot_name]['settings']['value_marker']);
+			$o->openField('Choose The Type Of Marker');
+				combo_box($prefix.'_marker_type', $this->marker_types, FALSE, empty($datasets[$plot_name]['settings']['marker_type']) ? 'none' : $datasets[$plot_name]['settings']['marker_type']);
 				?>
 					<br /><b>Note</b>&nbsp;:&nbsp;If you don't want to use marker, leave this empty
 				<?php
 			$o->closeField();
-			$o->openField('Choose The Type Of Marker');
-				combo_box($prefix.'_general_marker', $this->general_markers, true, empty($datasets[$plot_name]['settings']['general_marker']) ? 'Image_Graph_Marker_Star' : $datasets[$plot_name]['settings']['general_marker']);
+			$o->openField('Choose Value To be Marked On The Graph');
+				combo_box($prefix.'_value_marker_type', $this->value_marker_types, FALSE, empty($datasets[$plot_name]['settings']['value_marker_type']) ? 'none' : $datasets[$plot_name]['settings']['value_marker_type']);
 			$o->closeField();
-			$o->openField('Choose The Type Of Marker For The Value');
-				combo_box($prefix.'_marker_type', $this->marker_types, false, empty($datasets[$plot_name]['settings']['marker_type']) ? 'Image_Graph_Marker_Pointing_Angular' : $datasets[$plot_name]['settings']['marker_type']);
+			foreach ($colours as $fiend_title => $key) {
+				$o->openField($fiend_title);
+					colour_box($prefix.'_'.$key, empty($datasets[$plot_name]['settings'][$key]) ? '000000' : $datasets[$plot_name]['settings'][$key]);
+				$o->closeField();
+			}
+			$o->openField('Choose The Marker Pointer');
+				combo_box($prefix.'_pointer_type', $this->pointing_types, FALSE, empty($datasets[$plot_name]['settings']['pointer_type']) ? 'none' : $datasets[$plot_name]['settings']['pointer_type']);
+				?>
+					<br /><b>Note</b>&nbsp;:&nbsp;If you don't want to use pointer, leave this empty
+				<?php
 			$o->closeField();
-			$o->openField('Choose The Fill Colour For The Markers');
-				colour_box($prefix.'_marker_background', empty($datasets[$plot_name]['settings']['marker_background']) ? 'ffffff' : $datasets[$plot_name]['settings']['marker_background']);
+			$o->openField('Set The Length Of The Pointer');
+				text_box($prefix.'_pointer_length', empty($datasets[$plot_name]['settings']['pointer_length']) ? '20' : $datasets[$plot_name]['settings']['pointer_length'], 5);
 			$o->closeField();
-
 		} else {
-
-			$o->openField('Choose Value To be Marked On The Graph');
-				echo isset($datasets[$plot_name]['settings']['value_marker']) ? $datasets[$plot_name]['settings']['value_marker'] : 'none';
-				?>
-					<br /><b>Note</b>&nbsp;:&nbsp;If you don't want to use marker, leave this empty
-				<?php
-			$o->closeField();
 			$o->openField('Choose The Type Of Marker');
-				if (empty($datasets[$plot_name]['settings']['general_marker'])) {
-					echo 'none';
-				} else {
-					foreach ($datasets[$plot_name]['settings']['general_marker'] as $marker) {
-						echo $marker.'<br />';
-					}
-				}
+				echo $datasets[$plot_name]['settings']['marker_type'];
 			$o->closeField();
-			$o->openField('Choose The Type Of Marker For The Value');
-				echo isset($datasets[$plot_name]['settings']['marker_type']) ? $datasets[$plot_name]['settings']['marker_type'] : 'none';
+			$o->openField('Choose Value To be Marked On The Graph');
+				echo $datasets[$plot_name]['settings']['value_marker_type'];
 			$o->closeField();
-			$o->openField('Choose The Fill Colour For The Markers');
-				if (empty($datasets[$plot_name]['settings']['marker_background'])) {
+			foreach ($colours as $fiend_title => $key) {
+				$o->openField($fiend_title);
+				if (empty($datasets[$plot_name]['settings'][$key])) {
 					echo 'none';
 				} else {
 					echo '<table><tr>
-					<td width="20" height="13" style="background-color: #'.$datasets[$plot_name]['settings']['marker_background'].'"></td>
-					<td>&nbsp;#'.$datasets[$plot_name]['settings']['marker_background'].'</td>
+					<td width="20" height="13" style="background-color: #'.$datasets[$plot_name]['settings'][$key].'"></td>
+					<td>&nbsp;#'.$datasets[$plot_name]['settings'][$key].'</td>
 					</tr></table>';
 				}
+				$o->closeField();
+			}
+			$o->openField('Choose The Marker Pointer');
+				echo $datasets[$plot_name]['settings']['pointer_type'];
+			$o->closeField();
+			$o->openField('Set The Length Of The Pointer');
+				echo $datasets[$plot_name]['settings']['pointer_length'];
 			$o->closeField();
 
 		}
@@ -616,23 +776,28 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 	*/
 	function processMarkerSettings(&$asset, &$o, $prefix)
 	{
-		$plot_settings_submit = isset($_POST[$prefix.'_plot_settings_submit']);
 		$wa = $asset->writeAccess('attributes');
+		$plot_settings_submit = isset($_POST[$prefix.'_plot_settings_submit']);
 		if ($wa && $plot_settings_submit) {
 			$datasets = $asset->attr('datasets');
-			$plot_not_deleted = isset($datasets[$_POST[$prefix.'_plot_name']]);
+			$plot_order = $asset->attr('plot_order');
+			$plot_not_deleted = @isset($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
 			$first_plot_added = $_POST[$prefix.'_prev_plot_name'] == '';
 			$plot_changed = ($_POST[$prefix.'_plot_name'] != $_POST[$prefix.'_prev_plot_name']);
 			if (($first_plot_added || !$plot_changed) && $plot_not_deleted) {
-				$datasets[$_POST[$prefix.'_plot_name']]['settings']['value_marker']			= $_POST[$prefix.'_value_marker'];
-				$datasets[$_POST[$prefix.'_plot_name']]['settings']['general_marker']		= $_POST[$prefix.'_general_marker'];
-				$datasets[$_POST[$prefix.'_plot_name']]['settings']['marker_type']			= $_POST[$prefix.'_marker_type'];
-				$datasets[$_POST[$prefix.'_plot_name']]['settings']['marker_background']	= $_POST[$prefix.'_marker_background'];
+				$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
+				$datasets[$plot_name]['settings']['marker_type']				= $_POST[$prefix.'_marker_type'];
+				$datasets[$plot_name]['settings']['value_marker_type']			= $_POST[$prefix.'_value_marker_type'];
+				$datasets[$plot_name]['settings']['marker_font_colour']			= $_POST[$prefix.'_marker_font_colour'];
+				$datasets[$plot_name]['settings']['marker_line_colour']			= $_POST[$prefix.'_marker_line_colour'];
+				$datasets[$plot_name]['settings']['marker_fill_colour']			= $_POST[$prefix.'_marker_fill_colour'];
+				$datasets[$plot_name]['settings']['pointer_type']				= $_POST[$prefix.'_pointer_type'];
+				$datasets[$plot_name]['settings']['pointer_length']				= $_POST[$prefix.'_pointer_length'];
 				$asset->setAttrValue('datasets', $datasets);
 			}
 		}
 
-		return true;
+		return $wa;
 
 	}//end processMarkerSettings()
 
@@ -670,7 +835,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 			<img alt="<?php echo $alt; ?>" title="<?php echo $title; ?>" src="<?php echo $href.'&preview_graph=1' ?>" width="<?php echo $width; ?>" height="<?php echo $height; ?>" alt="" />
 		<?php
 
-		return true;
+		return TRUE;
 
 	}//end paintGlobalSettingPreview()
 
@@ -687,7 +852,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 	*/
 	function processGlobalSettingPreview(&$asset, &$o, $prefix)
 	{
-		return true;
+		return TRUE;
 
 	}//end processGlobalSettingPreview()
 
@@ -726,7 +891,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 			<img alt="<?php echo $alt; ?>" title="<?php echo $title; ?>" src="<?php echo $href.'&preview_graph=1&graph_info='.urlencode($graph_info) ?>" width="<?php echo $asset->attr('width'); ?>" height="<?php echo $asset->attr('height'); ?>" />
 			<?php
 		}
-		return false;
+		return FALSE;
 
 	}//end paintSinglePreview()
 
@@ -743,7 +908,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 	*/
 	function processSinglePreview(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processSinglePreview()
 
@@ -761,11 +926,11 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 	function paintFinalPreview(&$asset, &$o, $prefix)
 	{
 		$datasets	= $asset->attr('datasets');
-		$preview	= true;
+		$preview	= TRUE;
 		$not_set	= Array();
 		foreach ($datasets as $name => $dataset) {
 			if ($dataset['settings']['x_axis'] == 'Not saved' || $dataset['settings']['y_axis'] == 'Not saved') {
-				$preview = false;
+				$preview = FALSE;
 				$not_set[] = $name;
 			}
 		}
@@ -784,7 +949,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 			<?php
 		}
 
-		return false;
+		return FALSE;
 
 	}//end paintFinalPreview()
 
@@ -801,7 +966,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 	*/
 	function processFinalPreview(&$asset, &$o, $prefix)
 	{
-		return false;
+		return FALSE;
 
 	}//end processFinalPreview()
 
@@ -810,7 +975,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 
 
 	/**
-	* It returns true if there are not dataset
+	* It returns TRUE if there are not dataset
 	*
 	* @param object	&$asset	the graph asset
 	* @param string	$prefix	prefix for form elements
@@ -827,7 +992,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 
 
 	/**
-	* It reuturns true if there exist more than one plot
+	* It reuturns TRUE if there exist more than one plot
 	*
 	* @param object	&$asset	the graph asset
 	* @param string	$prefix	prefix for form elements

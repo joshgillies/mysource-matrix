@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.8.2.1 2006/02/16 03:52:44 skim Exp $
+* $Id: data_source_graph.inc,v 1.8.2.2 2006/02/20 00:41:48 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.8.2.1 $
+* @version $Revision: 1.8.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,7 +49,7 @@ class Data_Source_Graph extends Image
 	* Reference to the plotarea of the current graph
 	* @var object
 	*/
-	var $plotarea = null;
+	var $plotarea = NULL;
 
 
 	/**
@@ -60,7 +60,7 @@ class Data_Source_Graph extends Image
 	*/
 	function Data_Source_Graph($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Image($assetid);
 
 	}//end constructor
@@ -82,7 +82,7 @@ class Data_Source_Graph extends Image
 	function create(&$link, $info=Array())
 	{
 		// make a dummy png file first
-		$this->makeGlobalSettingsPreview(true);
+		$this->makeGlobalSettingsPreview(TRUE);
 
 		// fill $info array
 		$name = trim(strtolower(str_replace(' ', '_', $this->attr('title'))));
@@ -96,9 +96,9 @@ class Data_Source_Graph extends Image
 
 		if ($name == '') {
 			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-			return false;
+			return FALSE;
 		}
-		if (!$this->validFile($info)) return false;
+		if (!$this->validFile($info)) return FALSE;
 
 		// check that we are not going to have web path conflicts
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -109,7 +109,7 @@ class Data_Source_Graph extends Image
 		$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], Array($name));
 		if (!empty($bad_paths)) {
 			trigger_localised_error('CORE0086', E_USER_WARNING, $name);
-			return false;
+			return FALSE;
 		}
 		$this->setAttrValue('name', $name);
 
@@ -132,26 +132,26 @@ class Data_Source_Graph extends Image
 	function _createAdditional(&$link)
 	{
 		// assetid will not be set if we are creating
-		if (!$this->id) return true;
+		if (!$this->id) return TRUE;
 
 		// make the info array look like a result from getExistingFile()
 		$info = $this->_tmp['file_create_data'];
 
-		if (!$this->validFile($info)) return false;
+		if (!$this->validFile($info)) return FALSE;
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$name = current(make_valid_web_paths(Array(strtolower($info['name']))));
 
 		// make sure the new web path is not already is use
 		if ($this->name != $name) {
-			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', null, 'minor');
+			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', NULL, 'minor');
 			for ($i = 0; $i < count($parents); $i++) {
-				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
+				$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
 				if (is_null($parent)) continue;
 				$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, Array($name), $this->id);
 				if (!empty($bad_paths)) {
 					trigger_localised_error('CORE0055', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
 			}
 		}
@@ -162,7 +162,7 @@ class Data_Source_Graph extends Image
 		// copy over the new uploaded file
 		if (!copy($info['path'].'/'.$info['name'], $this->data_path.'/'.$name)) {
 			trigger_localised_error('CORE0036', E_USER_WARNING, $info['name'], $this->data_path.'/'.$name);
-			return false;
+			return FALSE;
 		}
 
 		// set the graph file name to pass done() function
@@ -171,44 +171,44 @@ class Data_Source_Graph extends Image
 		$existing = $this->getExistingFile();
 
 		// set the name of the file to the newly uploaded one
-		$this->_tmp['uploading_file'] = false;
+		$this->_tmp['uploading_file'] = FALSE;
 		$name_changed = $this->setAttrValue('name', $name);
 		if (!$this->saveAttributes()) {
 			trigger_localised_error('CORE0052', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
-		$asset->_tmp['uploading_file'] = false;
+		$asset->_tmp['uploading_file'] = FALSE;
 
 		if (!$this->saveWebPaths(Array($name))) {
 			trigger_localised_error('CORE0054', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
-		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'ContentsUpdated');
 
 		// Now we can call getExistingFile() function
 		$info = $this->getExistingFile();
 		if (!empty($info)) {
 			if (!$this->setAttrValue('width', $info['width'])) {
-				return false;
+				return FALSE;
 			}
 			if (!$this->setAttrValue('height', $info['height'])) {
-				return false;
+				return FALSE;
 			}
 			if (!$this->setAttrValue('size', $info['size'])) {
-				return false;
+				return FALSE;
 			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'all');
 		if (!$this->saveAttributes()) {
 			trigger_localised_error('CORE0052', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'all');
 
-		return true;
+		return TRUE;
 
 	}//end _createAdditional()
 
@@ -239,7 +239,7 @@ class Data_Source_Graph extends Image
 	* @return mixed string|void
 	* @access public
 	*/
-	function printImageTag($alt='', $title='', $return=false)
+	function printImageTag($alt='', $title='', $return=FALSE)
 	{
 		if ($title == '') {
 			$title = ($alt != '') ? $alt : $this->attr('title');
@@ -299,16 +299,16 @@ class Data_Source_Graph extends Image
 				// if count(datasets) >= 1, update the img file here
 				$datasets = $this->attr('datasets');
 				if (count($datasets) > 0 && $this->isGraphReady()) {
-					$this->getFinalGraph(true);
+					$this->getFinalGraph(TRUE);
 				}
 
 				// global setting preview
-				$this->makeGlobalSettingsPreview(false);
+				$this->makeGlobalSettingsPreview(FALSE);
 				exit();
 
 			case 'datasets' :
 				// update the img file here
-				$this->getFinalGraph(true);
+				$this->getFinalGraph(TRUE);
 
 				// single plot preview
 				if (isset($_REQUEST['final_preview'])) {
@@ -348,23 +348,50 @@ class Data_Source_Graph extends Image
 		$width	= $this->attr('width');
 		$height	= $this->attr('height');
 		$graph	= &Image_Graph::factory('graph', Array((int) $width, (int) $height));
-		$title = $this->attr('title');
+		$title = $this->attr('show_graph_title') ? $this->attr('title') : '';
 		if ($this->attr('show_legend')) {
 			$graph_ratio = 90;
 		} else {
 			$graph_ratio = 100;
 		}
-		$graph->add(
+		if ($this->attr('graph_angle')) {
+			$graph->add(
+				Image_Graph::vertical(
+					Image_Graph::factory('title', Array($title, 12)),
 					Image_Graph::vertical(
-						Image_Graph::factory('title', Array($title, 12)),
-						Image_Graph::vertical(
-							$plotarea = Image_Graph::factory('plotarea'),
-							$legend = Image_Graph::factory('legend'),
-							$graph_ratio
+						$plotarea = Image_Graph::factory('plotarea'),
+						$legend = Image_Graph::factory('legend'),
+						$graph_ratio
+					),
+					5
+				)
+			);
+		} else if (!$this->attr('graph_angle')) {
+			$param = Array(
+						'Image_Graph_Axis_Category',
+						'Image_Graph_Axis',
+						'horizontal',
+					 );
+			$graph->add(
+				Image_Graph::vertical(
+					Image_Graph::factory('title', Array($title, 12)),
+					Image_Graph::vertical(
+						$plotarea = Image_Graph::factory('plotarea', $param),
+						$legend = Image_Graph::factory('legend'),
+						$graph_ratio - 1
 						),
-						5
-					)
-				);
+					5
+				)
+			);
+		}
+		$plotarea->setAxisPadding(
+			Array(
+				'left'		=> (int) $this->attr('axis_left_padding'),
+				'right'		=> (int) $this->attr('axis_right_padding'),
+				'top'		=> (int) $this->attr('axis_top_padding'),
+				'bottom'	=> (int) $this->attr('axis_bottom_padding'),
+			)
+		);
 		$legend->setPlotarea($plotarea);
 
 		// Background Color
@@ -373,28 +400,36 @@ class Data_Source_Graph extends Image
 		// Border Color
 		$graph->setBorderColor($this->attr('border_colour'));
 
+		$x_axis_title_angle = 90;
+		$y_axis_title_angle = 90;
+		if ($this->attr('graph_angle')) {
+			$x_axis_title_angle = $x_axis_title_angle * 2;
+		} else {
+			$y_axis_title_angle = $y_axis_title_angle * 2;
+		}
+
 		$x_axis =& $plotarea->getAxis(IMAGE_GRAPH_AXIS_X);
-		$x_axis->setTitle($this->attr('x_set_title'), Array('size' => 13, 'angle' => 180));
+		$x_axis->setTitle($this->attr('x_set_title'), Array('size' => 13, 'angle' => $x_axis_title_angle));
 		$x_axis->setLabelInterval($this->attr('x_label_interval'));
 
 		$y_axis =& $plotarea->getAxis(IMAGE_GRAPH_AXIS_Y);
-		$y_axis->setTitle($this->attr('y_set_title'), Array('size' => 13, 'angle' => 90));
+		$y_axis->setTitle($this->attr('y_set_title'), Array('size' => 13, 'angle' => $y_axis_title_angle));
 		$y_axis->setLabelInterval($this->attr('y_label_interval'));
 
-		//setting up x-axis colour and title
+		// setting up x-axis colour and title
 		$x_axis->setLineColor($this->attr('x_axis_colour'));
 
-		//setting up font colour for x-axis
+		// setting up font colour for x-axis
 		$x_axis_font =& $graph->addNew('Image_Graph_Font');
 		$x_axis_font->setSize(12);
 		$x_axis_font->setColor($this->attr('x_font_axis_colour'));
 		$x_axis->setFont($x_axis_font);
 		$x_axis->setFontAngle($this->attr('x_font_label_angle') ? 'vertical' : 'horizontal');
 
-		//setting up y-axis colour and title
+		// setting up y-axis colour and title
 		$y_axis->setLineColor($this->attr('y_axis_colour'));
 
-		//setting up font colour for y-axis
+		// setting up font colour for y-axis
 		$y_axis_font =& $graph->addNew('Image_Graph_Font');
 		$y_axis_font->setSize(12);
 		$y_axis_font->setColor($this->attr('y_font_axis_colour'));
@@ -415,13 +450,13 @@ class Data_Source_Graph extends Image
 	* User must call this function to create a new graph. All the
 	* global settings are applied at here during the creation
 	*
-	* @param boolean	$to_file	If it's true, it saves a image as a file in the data directory
+	* @param boolean	$to_file	If it's TRUE, it saves a image as a file in the data directory
 	*								instead of outputting a binary file with HTTP header information
 	*
 	* @return object
 	* @access public
 	*/
-	function getFinalGraph($to_file=false)
+	function getFinalGraph($to_file=FALSE)
 	{
 		$graph		=& $this->getNewGraph();
 		$datasets	= $this->attr('datasets');
@@ -462,21 +497,57 @@ class Data_Source_Graph extends Image
 				$fill->addColor('#'.$dataset['settings']['fill_colour']);
 			}
 			$plot->setFillStyle($fill);
+			$plot->setLineColor('#'.$dataset['settings']['line_colour']);
+
+			  ////////////////////////////
+			 // Plot specific settings //
+			////////////////////////////
+			switch ($dataset['settings']['graph_type']) {
+				case 'Image_Graph_Plot_Bar' :
+					$plot->setSpacing(intval($dataset['settings']['bar_spacing']));
+				break;
+				case 'Image_Graph_Plot_Line' :
+				case 'Image_Graph_Plot_Area' :
+				case 'Image_Graph_Plot_Smoothed_Line' :
+				case 'Image_Graph_Plot_Smoothed_Area' :
+				case 'Image_Graph_Plot_Pie' :
+				case 'Image_Graph_Plot_Step' :
+				case 'Image_Graph_Plot_Impulse' :
+				case 'Image_Graph_Plot_Dot' :
+				case 'Image_Graph_Plot_Radar' :
+				case 'Image_Graph_Plot_CandleStick' :
+				case 'Image_Graph_Plot_Band' :
+				break;
+				default :
+				break;
+			}
 
 			// marker
-			if (isset($dataset['settings']['value_marker']) && $dataset['settings']['value_marker'] != 'none') {
+			if (isset($dataset['settings']['marker_type']) && $dataset['settings']['marker_type'] != 'none') {
 				$this->_addMarkerToPlot($dataset, $plot);
 			}
-		}
+
+		}//end foreach
 
 		if ($to_file) {
-
 			if (empty($this->_tmp['graph_file_name'])) {
 				// mainly for the dummy file during the asset creation
 				$filename = $this->data_path.'/'.$this->name;
 				$graph->done(Array('filename' => $filename));
 			} else {
 				$graph->done(Array('filename' => $this->_tmp['graph_file_name']));
+			}
+
+			if ($this->attr('variety_count') > 0) {
+				// Update varieties
+				$am =& $GLOBALS['SQ_SYSTEM']->am;
+				$links = $am->getLinks($this->id, SQ_LINK_TYPE_2, 'image_variety');
+				foreach ($links as $link) {
+					$variety =& $am->getAsset($link['minorid'], 'image_variety');
+					if (!$this->saveVariety($variety, TRUE, TRUE, FALSE)) {
+						trigger_error('Failed to update the image varieties', E_USER_WARNING);
+					}
+				}
 			}
 		} else {
 			$graph->done();
@@ -486,7 +557,7 @@ class Data_Source_Graph extends Image
 
 
 	/**
-	* Returns true if the graph is ready to draw
+	* Returns TRUE if the graph is ready to draw
 	*
 	* @return boolean
 	* @access public
@@ -494,10 +565,10 @@ class Data_Source_Graph extends Image
 	function isGraphReady()
 	{
 		$datasets		= $this->attr('datasets');
-		$graph_ready	= true;
+		$graph_ready	= TRUE;
 		foreach ($datasets as $name => $dataset) {
 			if ($dataset['settings']['x_axis'] == 'Not saved' || $dataset['settings']['y_axis'] == 'Not saved') {
-				$graph_ready = false;
+				$graph_ready = FALSE;
 				break;
 			}
 		}
@@ -520,11 +591,11 @@ class Data_Source_Graph extends Image
 		require_once 'Image/Graph.php';
 		$global_settings = $this->attr('global_settings');
 
-		$graph = &$this->getNewGraph();
-		$sample_dataset = &Image_Graph::factory('random', Array(10, 2, 15, true));
+		$graph =& $this->getNewGraph();
+		$sample_dataset = &Image_Graph::factory('random', Array(10, 2, 15, TRUE));
 
 		// plot settings
-		$plot = &$this->plotarea->addNew($graph_info['settings']['graph_type'], Array(&$sample_dataset));
+		$plot =& $this->plotarea->addNew($graph_info['settings']['graph_type'], Array(&$sample_dataset));
 		if ($graph_info['settings']['gradient_type'] != 'none') {
 			// gradient colour
 			$grad_type = $this->getGradType($graph_info['settings']['gradient_type']);
@@ -536,6 +607,30 @@ class Data_Source_Graph extends Image
 			$fill->addColor('#'.$graph_info['settings']['fill_colour']);
 		}
 		$plot->setFillStyle($fill);
+		$plot->setLineColor('#'.$graph_info['settings']['line_colour']);
+
+		  ////////////////////////////
+		 // Plot specific settings //
+		////////////////////////////
+		switch ($graph_info['settings']['graph_type']) {
+			case 'Image_Graph_Plot_Bar' :
+				$plot->setSpacing(intval($graph_info['settings']['bar_spacing']));
+			break;
+			case 'Image_Graph_Plot_Line' :
+			case 'Image_Graph_Plot_Area' :
+			case 'Image_Graph_Plot_Smoothed_Line' :
+			case 'Image_Graph_Plot_Smoothed_Area' :
+			case 'Image_Graph_Plot_Pie' :
+			case 'Image_Graph_Plot_Step' :
+			case 'Image_Graph_Plot_Impulse' :
+			case 'Image_Graph_Plot_Dot' :
+			case 'Image_Graph_Plot_Radar' :
+			case 'Image_Graph_Plot_CandleStick' :
+			case 'Image_Graph_Plot_Band' :
+			break;
+			default :
+			break;
+		}
 
 		// marker settings
 		if (isset($graph_info['settings']['value_marker']) && $graph_info['settings']['value_marker'] != 'none') {
@@ -550,7 +645,7 @@ class Data_Source_Graph extends Image
 	/**
 	* Returns the preview graph to show the current plot setting
 	*
-	* @param boolean	$to_file	If it's true, it saves a image as a file in the data directory
+	* @param boolean	$to_file	If it's TRUE, it saves a image as a file in the data directory
 	*								instead of outputting a binary file with HTTP header information
 	*								In this function, it's mainly used to generate a dummy graph image
 	*								during the creation of this asset
@@ -558,12 +653,12 @@ class Data_Source_Graph extends Image
 	* @return boolean
 	* @access public
 	*/
-	function makeGlobalSettingsPreview($to_file=false)
+	function makeGlobalSettingsPreview($to_file=FALSE)
 	{
-		$graph = &$this->getNewGraph();
-		$sample_dataset = &Image_Graph::factory('random', Array(10, 2, 15, true));
+		$graph =& $this->getNewGraph();
+		$sample_dataset =& Image_Graph::factory('random', Array(10, 2, 15, TRUE));
 
-		$plot = &$this->plotarea->addNew('Image_Graph_Plot_Bar', Array(&$sample_dataset));
+		$plot =& $this->plotarea->addNew('Image_Graph_Plot_Bar', Array(&$sample_dataset));
 
 		if ($to_file) {
 			if (empty($this->_tmp['graph_file_name'])) {
@@ -592,39 +687,36 @@ class Data_Source_Graph extends Image
 	*/
 	function _addMarkerToPlot(&$marker_info, &$plot)
 	{
-		$marker_array = null;
-		if ($marker_info['settings']['value_marker'] != 'none') {
-			$markers = $marker_info['settings']['general_marker'];
-			if (!empty($markers)) {
-				$marker_array = Image_Graph::factory('Image_Graph_Marker_Array');
-				foreach ($markers as $marker) {
-					$marker_obj =& Image_Graph::factory($marker);
-					$marker_colour = '#'.$marker_info['settings']['marker_background'];
-					$marker_obj->setFillColor($marker_colour);
-					$marker_array->add($marker_obj);
-				}
-			}
-
-			// create a data value marker
-			$marker = $marker_info['settings']['value_marker'];
-
-			if ($marker == 'IMAGE_GRAPH_VALUE_X') {
-				$marker_obj =& $plot->addNew('Image_Graph_Marker_Value', IMAGE_GRAPH_VALUE_X);
-			} else if ($marker == 'IMAGE_GRAPH_VALUE_Y') {
-				$marker_obj =& $plot->addNew('Image_Graph_Marker_Value', IMAGE_GRAPH_VALUE_Y);
-			}
-
-			$marker_colour = '#'.$marker_info['settings']['marker_background'];
-			$marker_obj->setBackgroundColor($marker_colour);
-
-			// create a pin-point marker type
+		$marker_array = NULL;
+		if ($marker_info['settings']['marker_type'] != 'none') {
 			$marker_type = $marker_info['settings']['marker_type'];
-			$pointing_marker =& $plot->addNew($marker_type, Array(20, &$marker_obj));
+			$marker_value_type = $marker_info['settings']['value_marker_type'];
 
-			// add the marker to the marker array to finally set to the plot
-			$marker_array->add($pointing_marker);
+			if ($marker_value_type == 'IMAGE_GRAPH_VALUE_X') {
+				$new_marker =& $plot->addNew($marker_type, IMAGE_GRAPH_VALUE_X);
+			} else if ($marker_value_type == 'IMAGE_GRAPH_VALUE_Y') {
+				$new_marker =& $plot->addNew($marker_type, IMAGE_GRAPH_VALUE_Y);
+			}
+
+			$new_marker->setFontColor('#'.$marker_info['settings']['marker_font_colour']);
+			$new_marker->setLineColor('#'.$marker_info['settings']['marker_line_colour']);
+			$new_marker->setFillColor('#'.$marker_info['settings']['marker_fill_colour']);
+
+			$pointing_marker = NULL;
+			if ($marker_info['settings']['pointer_type'] != 'none') {
+				$pointer_type = $marker_info['settings']['pointer_type'];
+				$pointer_length = $marker_info['settings']['pointer_length'];
+				$pointing_marker =& $plot->addNew($pointer_type, Array((int) $pointer_length, &$new_marker));
+			}
+
+			if (is_null($pointing_marker)) {
+				// set the marker without the pointer
+				$plot->setMarker($new_marker);
+			} else {
+				// set the marker with the pointer
+				$plot->setMarker($pointing_marker);
+			}
 		}
-		if ($marker_array) $plot->setMarker($marker_array);
 
 	}//end _addMarkerToPlot()
 
@@ -656,9 +748,7 @@ class Data_Source_Graph extends Image
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$result = $cm->loadFromCache($this->id, $this->type(), 'default');
 
-		if (empty($result)) {
-			$this->updateCache();
-		}
+		if (empty($result)) $this->updateCache();
 
 		$existing = $this->getExistingFile();
 		if (!empty($existing)) {
@@ -696,13 +786,13 @@ class Data_Source_Graph extends Image
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 
 		// regenerate the image
-		$this->getFinalGraph(true);
+		$this->getFinalGraph(TRUE);
 
 		// read the file
 		$content = file_get_contents($this->data_path.'/'.$this->name);
-		if ($content === false) {
+		if ($content === FALSE) {
 			trigger_localised_error('DATA0003', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 		// cache dummy string, will be used later to check for expiry time of this image file
 		$result = $cm->saveToCache($this->id, $this->type(), 'default', 'Dummy String');
@@ -730,7 +820,7 @@ class Data_Source_Graph extends Image
 	*/
 	function usePublicPath()
 	{
-		return false;
+		return FALSE;
 
 	}//end usePublicPath()
 
@@ -799,34 +889,34 @@ class Data_Source_Graph extends Image
 		// make sure our data directory exists
 		if (!create_directory($this->data_path)) {
 			trigger_localised_error('CORE0049', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		// make sure our system directory exists
 		if (!create_directory($this->data_path.'/.sq_system')) {
 			trigger_localised_error('CORE0050', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		// make sure there is nothing in the system directory
 		if (!clear_directory($this->data_path.'/.sq_system')) {
 			trigger_localised_error('CORE0046', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		// save the object for later (in the restricted directory)
 		if (!string_to_file(serialize($this), $this->data_path.'/.sq_system/.object_data')) {
 			trigger_localised_error('CORE0051', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		// update our lookup tables to not use __data
 		if (!parent::updateLookups()) {
 			trigger_localised_error('CORE0053', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end saveSystemVersion()
 
@@ -844,14 +934,14 @@ class Data_Source_Graph extends Image
 
 		// pretend we are uploading a file because we may be changing the name of the file
 		// and we want to fool setAttributeValue
-		$this->_tmp['uploading_file'] = true;
+		$this->_tmp['uploading_file'] = TRUE;
 		if (!Asset::revertToSystemVersion()) {
-			$this->_tmp['uploading_file'] = false;
-			return false;
+			$this->_tmp['uploading_file'] = FALSE;
+			return FALSE;
 		}
-		$this->_tmp['uploading_file'] = false;
+		$this->_tmp['uploading_file'] = FALSE;
 
-		return true;
+		return TRUE;
 
 	}//end revertToSystemVersion()
 
@@ -867,9 +957,9 @@ class Data_Source_Graph extends Image
 	*/
 	function morph($new_type_code)
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
-		$file_types = array_merge($am->getTypeAncestors($this->type(), false), $am->getTypeDescendants($this->type()));
+		$file_types = array_merge($am->getTypeAncestors($this->type(), FALSE), $am->getTypeDescendants($this->type()));
 
 		if (in_array($new_type_code, $file_types)) {
 			// we are morphing into another file type, so check that the actual
@@ -880,7 +970,7 @@ class Data_Source_Graph extends Image
 			if (!empty($existing)) {
 				if (!$tmp->validFile($existing)) {
 					trigger_localised_error('CORE0008', E_USER_WARNING, $this->name, $new_type_code, $existing['filename'], $new_type_code);
-					return false;
+					return FALSE;
 				}
 
 			}
@@ -903,11 +993,11 @@ class Data_Source_Graph extends Image
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		$existing = $this->getExistingFile();
-		if (empty($existing)) return true;
+		if (empty($existing)) return TRUE;
 
 		$unrestricted = $this->data_path_public.'/'.$existing['filename'];
 
-		$changed = false;
+		$changed = FALSE;
 
 		// if we should be storing our file in the public
 		// data directory for all the world to see
@@ -915,7 +1005,7 @@ class Data_Source_Graph extends Image
 			// make sure our data directory exists
 			if (!create_directory($this->data_path_public)) {
 				trigger_localised_error('CORE0049', E_USER_WARNING, $this->name);
-				return false;
+				return FALSE;
 			}
 
 			if (!file_exists($unrestricted)) {
@@ -923,7 +1013,7 @@ class Data_Source_Graph extends Image
 				if (!copy($this->data_path.'/'.$this->name, $unrestricted)) {
 					trigger_localised_error('DATA0001', E_USER_WARNING, $this->name);
 				} else {
-					$changed = true;
+					$changed = TRUE;
 				}
 			}
 		} else {
@@ -933,7 +1023,7 @@ class Data_Source_Graph extends Image
 				if (!unlink($unrestricted)) {
 					trigger_localised_error('DATA0001', E_USER_WARNING, $this->name);
 				} else {
-					$changed = true;
+					$changed = TRUE;
 				}
 			}
 		}//end if effectiveUnrestricted
@@ -941,7 +1031,7 @@ class Data_Source_Graph extends Image
 		if ($changed) {
 			return $this->updateLookups();
 		} else {
-			return true;
+			return TRUE;
 		}
 
 	}//end _checkFileState()
@@ -950,15 +1040,15 @@ class Data_Source_Graph extends Image
 	/**
 	* Set the value of an attribute
 	*
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
+	* @param boolean	$dont_run_updated	if TRUE this->_updated() won't be run
 	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
 	*/
-	function saveAttributes($dont_run_updated=false)
+	function saveAttributes($dont_run_updated=FALSE)
 	{
-		if (!$this->id) return true;
+		if (!$this->id) return TRUE;
 
 		// if there are no values for the title attribute use the filename
 		if (trim($this->attr('title')) == '') {
@@ -974,16 +1064,16 @@ class Data_Source_Graph extends Image
 				$old_filename = $this->_tmp['vars_set']['name']['old_value'];
 				$new_filename = $this->attr('name');
 
-				// try and set the new filename - return false if it fails
+				// try and set the new filename - return FALSE if it fails
 				if (!parent::saveAttributes($dont_run_updated)) {
-					return false;
+					return FALSE;
 				}
 
 				if (is_file($this->data_path.'/'.$old_filename)) {
 					if (!$this->_renameFile($this->data_path, $old_filename, $new_filename)) {
 						parent::setAttrValue('name', $old_filename);
 						parent::saveAttributes($dont_run_updated);
-						return false;
+						return FALSE;
 					}
 				}
 
@@ -997,7 +1087,7 @@ class Data_Source_Graph extends Image
 				// update the lookups so that the __data path gets rewritten if applicable
 				$this->updateLookups();
 
-				return true;
+				return TRUE;
 
 			}//end if not uploading a file
 
@@ -1006,7 +1096,7 @@ class Data_Source_Graph extends Image
 		if (isset($this->_tmp['vars_set']['allow_unrestricted'])) {
 			// the unrestricted setting is being changed, so we may need to update lookups
 			if ($this->effectiveUnrestricted() && !($this->status & SQ_SC_STATUS_SAFE_EDITING)) {
-				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$vars = Array('assetids' => Array($this->id));
 				$hh->queueHipo('hipo_job_update_lookups', $vars);
 			}
@@ -1029,21 +1119,21 @@ class Data_Source_Graph extends Image
 	*/
 	function _renameFile($data_path, $old_filename, $new_filename)
 	{
-		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 		// copy the file instead of a direct rename because removing the
 		// file from the repository will also remove it from the file system
 		if (!copy($data_path.'/'.$old_filename, $data_path.'/'.$new_filename)) {
 			trigger_localised_error('CORE0026', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		if (!unlink($data_path.'/'.$old_filename)) {
 			trigger_localised_error('DATA0001', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _renameFile()
 
