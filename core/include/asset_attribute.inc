@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.45 2006/02/20 04:45:43 emcdonald Exp $
+* $Id: asset_attribute.inc,v 1.46 2006/02/20 05:10:11 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -389,12 +389,12 @@ class Asset_Attribute extends MySource_Object
 
 		$tag_attributes  = 'name="'.$this->name.'" ';
 		$tag_attributes .= 'type="'.$this->type().'" ';
-		$tag_attributes .= 'id = "'.$this->id.'" ';
-		$tag_attributes .= 'uniq = "'.$this->uniq.'" ';
-		$tag_attributes .= 'description = "'.$this->description.'" ';
-		$tag_attributes .= 'default_value = "'.$this->_default_value.'" ';
-		$tag_attributes .= 'processed = "'.$this->processed.'" ';
-		$tag_attributes .= 'is_admin = "'.$this->is_admin.'" ';
+		$tag_attributes .= 'id="'.$this->id.'" ';
+		$tag_attributes .= 'uniq="'.$this->uniq.'" ';
+		$tag_attributes .= 'description="'.$this->description.'" ';
+		$tag_attributes .= 'default_value="'.$this->_default_value.'" ';
+		$tag_attributes .= 'processed="'.$this->processed.'" ';
+		$tag_attributes .= 'is_admin="'.$this->is_admin.'" ';
 
 		$open_tag = '<attribute '.$tag_attributes.'>';
 		$close_tag = '</attribute>';
@@ -418,7 +418,7 @@ class Asset_Attribute extends MySource_Object
 	*/
 	function exportContentsToXML()
 	{
-		$xml = '<value>'.$this->getContent().'</value>';
+		$xml = '<value><![CDATA['.$this->getContent().']]></value>';
 		return $xml;
 
 	}//end exportContentsToXML()
