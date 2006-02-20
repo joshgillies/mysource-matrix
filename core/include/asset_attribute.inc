@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.44 2005/11/01 23:24:35 skim Exp $
+* $Id: asset_attribute.inc,v 1.45 2006/02/20 04:45:43 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -52,7 +52,7 @@ class Asset_Attribute extends MySource_Object
 	* Whether this attribute value is unique
 	* @var boolean
 	*/
-	var $uniq = false;
+	var $uniq = FALSE;
 
 	/**
 	* The description of this attribute
@@ -70,7 +70,7 @@ class Asset_Attribute extends MySource_Object
 	* The default value for this attribute
 	* @var mixed
 	*/
-	var $_default_value = null;
+	var $_default_value = NULL;
 
 	/**
 	* Parameters for displaying this attribute
@@ -82,19 +82,19 @@ class Asset_Attribute extends MySource_Object
 	* The current value for this instance of this attribute
 	* @var mixed
 	*/
-	var $value = null;
+	var $value = NULL;
 
 	/**
 	* Whether or not this attribute has processed the results of a form post successfully
 	* @var mixed
 	*/
-	var $processed = false;
+	var $processed = FALSE;
 
 	/**
 	* Whether or not this attribute is used for administrative purposes only
 	* @var boolean
 	*/
-	var $is_admin = false;
+	var $is_admin = FALSE;
 
 
 	/**
@@ -105,18 +105,18 @@ class Asset_Attribute extends MySource_Object
 	* @param array	$default_params	the default values for the params
 	*
 	*/
-	function Asset_Attribute($attributeid=0, $value=null, $default_params=Array())
+	function Asset_Attribute($attributeid=0, $value=NULL, $default_params=Array())
 	{
 		$this->MySource_Object();
 
 		if ($attributeid) {
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = 'SELECT attrid, name, type, uniq, description, is_admin, parameters_val, default_val
 					FROM sq_ast_attr
 					WHERE attrid = '.$db->quote($attributeid);
 
-			$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);
+			$result = $db->getRow($sql, NULL, DB_FETCHMODE_ORDERED);
 			assert_valid_db_result($result);
 
 			if (is_null($result)) return;
@@ -126,7 +126,7 @@ class Asset_Attribute extends MySource_Object
 			// make sure the asset we are loading is of the same type as our class
 			if ($type != $this->type()) {
 				trigger_localised_error('SYS0095', E_USER_WARNING, $attributeid, $this->type());
-				$this->id = null;
+				$this->id = NULL;
 				return;
 			}
 
@@ -158,14 +158,14 @@ class Asset_Attribute extends MySource_Object
 	* @return mixed object
 	* @access public
 	*/
-	function &loadAttribute($attributeid=0, $value=null, $default_params=Array())
+	function &loadAttribute($attributeid=0, $value=NULL, $default_params=Array())
 	{
 		if ($attributeid == 0) {
 			$empty_attr =& new Asset_Attribute(0, $value, $default_params);
 			return $empty_attr;
 		}
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT type FROM sq_ast_attr
 				WHERE attrid = '.$db->quote($attributeid);
@@ -205,7 +205,7 @@ class Asset_Attribute extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function paint($prefix, $read_only=false)
+	function paint($prefix, $read_only=FALSE)
 	{
 		echo translate('interface_not_created', ucwords(str_replace('_', ' ', $this->type())));
 
@@ -223,9 +223,9 @@ class Asset_Attribute extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function paintEditParams($prefix, $write_access=false)
+	function paintEditParams($prefix, $write_access=FALSE)
 	{
-		return true;
+		return TRUE;
 
 	}//end paintEditParams()
 
@@ -242,7 +242,7 @@ class Asset_Attribute extends MySource_Object
 	*/
 	function processEditParams($prefix)
 	{
-		return true;
+		return TRUE;
 
 	}//end processEditParams()
 
@@ -257,7 +257,7 @@ class Asset_Attribute extends MySource_Object
 	*/
 	function process($prefix)
 	{
-		$this->processed = false;
+		$this->processed = FALSE;
 
 	}//end process()
 
@@ -272,7 +272,7 @@ class Asset_Attribute extends MySource_Object
 	*/
 	function validateValue(&$value)
 	{
-		return true;
+		return TRUE;
 
 	}//end validateValue()
 
@@ -287,9 +287,9 @@ class Asset_Attribute extends MySource_Object
 	*/
 	function setValue(&$value)
 	{
-		if (!$this->validateValue($value)) return false;
+		if (!$this->validateValue($value)) return FALSE;
 		$this->value = $value;
-		return true;
+		return TRUE;
 
 	}//end setValue()
 
@@ -307,9 +307,9 @@ class Asset_Attribute extends MySource_Object
 	{
 		if (strtolower($node->name) != strtolower($this->type())) {
 			trigger_localised_error('SYS0300', E_USER_WARNING, $node->name, $this->type(), '<pre>'.htmlspecialchars($node->get()).'</pre>');
-			return false;
+			return FALSE;
 		}
-		return true;
+		return TRUE;
 
 	}//end setEditParams()
 
@@ -318,7 +318,7 @@ class Asset_Attribute extends MySource_Object
 	* Manually set the value of an edit parameter for this attribute
 	*
 	* The parameter must already contain a default value to be set with this function
-	* It returns True if parameter set successfully
+	* It returns TRUE if parameter set successfully
 	*
 	* @param string	$field	The parameter field to set
 	* @param mixed	$value	The value to set it to
@@ -330,10 +330,10 @@ class Asset_Attribute extends MySource_Object
 	{
 		if (isset($this->_edit_params[$field])) {
 			$this->_edit_params[$field] = $value;
-			return true;
+			return TRUE;
 		} else {
 			trigger_localised_error('SYS0258', E_USER_NOTICE, $field, $this->type());
-			return false;
+			return FALSE;
 		}
 
 	}//end setEditParam()
@@ -343,7 +343,7 @@ class Asset_Attribute extends MySource_Object
 	* Manually set the value of an  parameter for this attribute
 	*
 	* The parameter must already contain a default value to be set with this function
-	* It returns True if parameter set successfully
+	* It returns TRUE if parameter set successfully
 	*
 	* @param string	$field	The parameter field to set
 	* @param mixed	$value	The value to set it to
@@ -355,10 +355,10 @@ class Asset_Attribute extends MySource_Object
 	{
 		if (isset($this->_params[$field])) {
 			$this->_params[$field] = $value;
-			return true;
+			return TRUE;
 		} else {
 			trigger_localised_error('SYS0258', E_USER_NOTICE, $field, $this->type());
-			return false;
+			return FALSE;
 		}
 
 	}//end setParam()
@@ -375,6 +375,53 @@ class Asset_Attribute extends MySource_Object
 		return $this->value;
 
 	}//end getContent()
+
+
+	/**
+	* Returns a representation of this asset in XML
+	*
+	* @return string
+	* @access public
+	*/
+	function exportToXML()
+	{
+		$xml='';
+
+		$tag_attributes  = 'name="'.$this->name.'" ';
+		$tag_attributes .= 'type="'.$this->type().'" ';
+		$tag_attributes .= 'id = "'.$this->id.'" ';
+		$tag_attributes .= 'uniq = "'.$this->uniq.'" ';
+		$tag_attributes .= 'description = "'.$this->description.'" ';
+		$tag_attributes .= 'default_value = "'.$this->_default_value.'" ';
+		$tag_attributes .= 'processed = "'.$this->processed.'" ';
+		$tag_attributes .= 'is_admin = "'.$this->is_admin.'" ';
+
+		$open_tag = '<attribute '.$tag_attributes.'>';
+		$close_tag = '</attribute>';
+
+		$contents = $this->exportContentsToXML();
+
+		$xml = $open_tag.$contents.$close_tag;
+
+		return $xml;
+
+	}//end exportToXML()
+
+
+	/**
+	* Returns a representation of this asset's parameters, edit parameters and value as XML
+	*
+	* This function will be overridden by children who do not use getContent to get their value
+	*
+	* @return string
+	* @access public
+	*/
+	function exportContentsToXML()
+	{
+		$xml = '<value>'.$this->getContent().'</value>';
+		return $xml;
+
+	}//end exportContentsToXML()
 
 
 }//end class
