@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.49 2006/02/06 23:27:39 dmckee Exp $
+* $Id: design_area.inc,v 1.50 2006/02/20 02:00:06 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -341,15 +341,14 @@ class Design_Area extends Asset
 	function printInitCode()
 	{
 		$design =& $GLOBALS['DESIGN_BEING_GENERATED'];
-		$instance_id = '_init_'.$this->id.'_'.$design->id;
+		$instance_id = '_'.$this->id.'_'.$design->id;
 		if ($this->attr('cache') && $this->_canBeCached()) {
 			echo '
 			<?php
 				$cm = &$GLOBALS[\'SQ_SYSTEM\']->am->getSystemAsset(\'cache_manager\');
-				$asset_contents'.$instance_id.' = $cm->loadFromCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'_init\');
+				$asset_contents'.$instance_id.' = $cm->loadFromCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'\');
 
 				if (empty($asset_contents'.$instance_id.')) {
-					ob_start();
 			?>
 			';
 		}
@@ -358,12 +357,7 @@ class Design_Area extends Asset
 		if ($this->attr('cache') && $this->_canBeCached()) {
 			echo '
 			<?php
-					$asset_contents'.$instance_id.' = ob_get_contents();
-					ob_end_clean();
-					$cm->saveToCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'_init\', $asset_contents'.$instance_id.');
 				}
-
-				echo $asset_contents'.$instance_id.';
 			?>
 			';
 		}
@@ -401,13 +395,10 @@ class Design_Area extends Asset
 			return;
 		}
 		$design =& $GLOBALS['DESIGN_BEING_GENERATED'];
-		$instance_id = '_paint_'.$this->id.'_'.$design->id;
+		$instance_id = '_'.$this->id.'_'.$design->id;
 		if ($this->attr('cache') && $this->_canBeCached()) {
 			echo '
 			<?php
-				$cm = &$GLOBALS[\'SQ_SYSTEM\']->am->getSystemAsset(\'cache_manager\');
-				$asset_contents'.$instance_id.' = $cm->loadFromCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'\');
-
 				if (empty($asset_contents'.$instance_id.')) {
 					ob_start();
 			?>
@@ -423,7 +414,6 @@ class Design_Area extends Asset
 					ob_end_clean();
 					$cm->saveToCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'\', $asset_contents'.$instance_id.');
 				}
-
 				echo $asset_contents'.$instance_id.';
 			?>
 			';
