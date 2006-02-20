@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.11 2006/02/17 04:36:21 skim Exp $
+* $Id: data_source_graph.inc,v 1.12 2006/02/20 00:26:09 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -414,7 +414,6 @@ class Data_Source_Graph extends Image
 
 		$y_axis =& $plotarea->getAxis(IMAGE_GRAPH_AXIS_Y);
 		$y_axis->setTitle($this->attr('y_set_title'), Array('size' => 13, 'angle' => $y_axis_title_angle));
-		//$y_axis->setTitle($this->attr('y_set_title'));
 		$y_axis->setLabelInterval($this->attr('y_label_interval'));
 
 		//setting up x-axis colour and title
@@ -499,7 +498,7 @@ class Data_Source_Graph extends Image
 			}
 			$plot->setFillStyle($fill);
 			$plot->setLineColor('#'.$dataset['settings']['line_colour']);
-			//minibam($dataset['settings']['line_colour']);
+
 			  ////////////////////////////
 			 // Plot specific settings //
 			////////////////////////////
@@ -524,7 +523,7 @@ class Data_Source_Graph extends Image
 			}
 
 			// marker
-			if (isset($dataset['settings']['value_marker']) && $dataset['settings']['value_marker'] != 'none') {
+			if (isset($dataset['settings']['marker_type']) && $dataset['settings']['marker_type'] != 'none') {
 				$this->_addMarkerToPlot($dataset, $plot);
 			}
 		}
@@ -550,12 +549,8 @@ class Data_Source_Graph extends Image
 					}
 
 					if (!$this->saveVariety($variety, TRUE, TRUE, FALSE)) {
-					} else {
 					}
-
-					// release the lock on attributes
 				}
-				//bam($links);
 			}
 		} else {
 			$graph->done();
@@ -696,38 +691,35 @@ class Data_Source_Graph extends Image
 	function _addMarkerToPlot(&$marker_info, &$plot)
 	{
 		$marker_array = null;
-		if ($marker_info['settings']['value_marker'] != 'none') {
-			$markers = $marker_info['settings']['general_marker'];
-			if (!empty($markers)) {
-				$marker_array = Image_Graph::factory('Image_Graph_Marker_Array');
-				foreach ($markers as $marker) {
-					$marker_obj =& Image_Graph::factory($marker);
-					$marker_colour = '#'.$marker_info['settings']['marker_background'];
-					$marker_obj->setFillColor($marker_colour);
-					$marker_array->add($marker_obj);
-				}
-			}
-
-			// create a data value marker
-			$marker = $marker_info['settings']['value_marker'];
-
-			if ($marker == 'IMAGE_GRAPH_VALUE_X') {
-				$marker_obj =& $plot->addNew('Image_Graph_Marker_Value', IMAGE_GRAPH_VALUE_X);
-			} else if ($marker == 'IMAGE_GRAPH_VALUE_Y') {
-				$marker_obj =& $plot->addNew('Image_Graph_Marker_Value', IMAGE_GRAPH_VALUE_Y);
-			}
-
-			$marker_colour = '#'.$marker_info['settings']['marker_background'];
-			$marker_obj->setBackgroundColor($marker_colour);
-
-			// create a pin-point marker type
+		if ($marker_info['settings']['marker_type'] != 'none') {
 			$marker_type = $marker_info['settings']['marker_type'];
-			$pointing_marker =& $plot->addNew($marker_type, Array(20, &$marker_obj));
+			$marker_value_type = $marker_info['settings']['value_marker_type'];
 
-			// add the marker to the marker array to finally set to the plot
-			$marker_array->add($pointing_marker);
+			if ($marker_value_type == 'IMAGE_GRAPH_VALUE_X') {
+				$new_marker =& $plot->addNew($marker_type, IMAGE_GRAPH_VALUE_X);
+			} else if ($marker_value_type == 'IMAGE_GRAPH_VALUE_Y') {
+				$new_marker =& $plot->addNew($marker_type, IMAGE_GRAPH_VALUE_Y);
+			}
+
+			$new_marker->setFontColor('#'.$marker_info['settings']['marker_font_colour']);
+			$new_marker->setLineColor('#'.$marker_info['settings']['marker_line_colour']);
+			$new_marker->setFillColor('#'.$marker_info['settings']['marker_fill_colour']);
+
+			$pointing_marker = null;
+			if ($marker_info['settings']['pointer_type'] != 'none') {
+				$pointer_type = $marker_info['settings']['pointer_type'];
+				$pointer_length = $marker_info['settings']['pointer_length'];
+				$pointing_marker =& $plot->addNew($pointer_type, array((int) $pointer_length, &$new_marker));
+			}
+
+			if (is_null($pointing_marker)) {
+				// set the marker without the pointer
+				$plot->setMarker($new_marker);
+			} else {
+				// set the marker with the pointer
+				$plot->setMarker($pointing_marker);
+			}
 		}
-		if ($marker_array) $plot->setMarker($marker_array);
 
 	}//end _addMarkerToPlot()
 
