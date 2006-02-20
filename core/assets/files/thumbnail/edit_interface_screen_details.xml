@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.14 2005/05/26 04:35:09 ndvries Exp $
+* $Id: edit_interface_screen_details.xml,v 1.14.4.1 2006/02/20 05:59:50 sdanis Exp $
 *
 */
 -->
@@ -35,6 +35,13 @@
 			<function_call>
 				<paint_function   name="paintFileUpload"   />
 				<process_function name="processFileUpload" />
+			</function_call>
+		</field>
+		<field hidden="hidden" show_if="havePreUploadedFiles">
+			<display_name>Choose Pre-Uploaded File</display_name>
+			<function_call>
+				<paint_function   name="paintFileChooser"   />
+				<process_function name="processFileChooser" />
 			</function_call>
 		</field>
 		<field attribute="allow_unrestricted">
