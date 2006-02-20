@@ -11,7 +11,7 @@
 * | Please refer to http:// www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page.inc,v 1.12 2006/01/13 00:22:16 dmckee Exp $
+* $Id: page_multiple_page.inc,v 1.13 2006/02/20 23:33:36 mmcintyre Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -83,12 +83,12 @@ class Page_Multiple_Page extends Page
 	/**
 	* Called by the child pages, when their url is accessed
 	*
-	* @param object	$asset	The asset object of the page to print
+	* @param object	&$asset	The asset object of the page to print
 	*
 	* @return void
 	* @access public
 	*/
-	function printPage($asset)
+	function printPage(&$asset)
 	{
 		$this->_tmp['current_page_asset'] = &$asset;
 
@@ -166,7 +166,7 @@ class Page_Multiple_Page extends Page
 	*/
 	function getNumberofPages()
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$page_links = $am->getLinks($this->id, SQ_LINK_TYPE_2|SQ_LINK_TYPE_1, 'page_multiple_page_page', TRUE);
 		return count($this->getPageLinks());
 
@@ -182,7 +182,7 @@ class Page_Multiple_Page extends Page
 	*/
 	function getPageLinks()
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$page_links = $am->getLinks($this->id, SQ_LINK_TYPE_2|SQ_LINK_TYPE_1, 'page_multiple_page_page', TRUE);
 		return $page_links;
 
@@ -376,7 +376,7 @@ class Page_Multiple_Page extends Page
 	* @return string
 	* @access public
 	*/
-	function getCurrentPage()
+	function &getCurrentPage()
 	{
 		return $this->getPageAsset($this->getCurrentPageId());
 
@@ -404,7 +404,7 @@ class Page_Multiple_Page extends Page
 		}
 
 		if (!isset($this->_tmp['current_page_asset']) || empty($this->_tmp['current_page_asset'])) {
-			$this->_tmp['current_page_asset'] = $this->getCurrentPage();
+			$this->_tmp['current_page_asset'] =& $this->getCurrentPage();
 		}
 		if (!isset($this->_tmp['current_page_links']) || empty($this->_tmp['current_page_links'])) {
 			$this->_tmp['current_page_links'] = $this->getPageLinks();
@@ -424,7 +424,7 @@ class Page_Multiple_Page extends Page
 			return $this->paintTOC($ordered);
 		}
 
-		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		$replacement = '';
 
@@ -478,7 +478,7 @@ class Page_Multiple_Page extends Page
 			$value = 'page_assetid_';
 		}
 		if ($page_number != '') {
-			$page_number_asset = $this->getPageAsset($page_number);
+			$page_number_asset =& $this->getPageAsset($page_number);
 		}
 
 		// Evaluate the values we need for keyword replacement
@@ -592,7 +592,7 @@ class Page_Multiple_Page extends Page
 	* @return void
 	* @access public
 	*/
-	function getFirstPageAsset()
+	function &getFirstPageAsset()
 	{
 		$page_one = $this->getPageAsset('1');
 		return $page_one;
@@ -609,7 +609,7 @@ class Page_Multiple_Page extends Page
 	*/
 	function printFrontend()
 	{
-		$page_one = $this->getFirstPageAsset();
+		$page_one = &$this->getFirstPageAsset();
 		if (is_null($page_one)) $page_one =& $this;
 		$this->printFrontendAsset($page_one);
 
@@ -627,7 +627,7 @@ class Page_Multiple_Page extends Page
 	*/
 	function paintTOC($ordered=FALSE, $link_current=FALSE)
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$links = $this->getPageLinks();
 		$current = $this->getCurrentPageId();
 		$current_id = $links[intval($current) - 1]['minorid'];
@@ -684,7 +684,7 @@ class Page_Multiple_Page extends Page
 	*/
 	function paintNavSelectionList($link_current=FALSE)
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$links = $this->getPageLinks();
 		$current = $this->getCurrentPageId();
 		$current_id = $links[intval($current) - 1]['minorid'];
