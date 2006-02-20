@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.23 2006/02/12 22:57:29 emcdonald Exp $
+* $Id: option_list.inc,v 1.24 2006/02/20 03:28:29 emcdonald Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -127,6 +127,27 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 		$this->processed = $this->setValue(implode("\r\n",$value));
 
 	}//end process()
+
+
+	/**
+	* Returns a representation of this asset's parameters, edit parameters and value as XML
+	*
+	* @return string
+	* @access public
+	*/
+	function exportContentsToXML()
+	{
+
+		$option_array = explode("\r\n", $this->value);
+		$option_xml = '';
+		foreach ($option_array as $option) {
+			$option_xml .= '<option>'.$option.'</option>';
+		}
+		$xml = '<value>'.$option_xml.'</value>';
+
+		return $xml;
+
+	}//end exportContentsToXML()
 
 
 }//end class
