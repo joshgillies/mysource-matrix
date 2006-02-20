@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.27 2006/02/17 04:28:44 skim Exp $
+* $Id: image_variety.inc,v 1.28 2006/02/20 22:39:31 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -497,7 +497,8 @@ class Image_Variety extends Asset
 							WHERE
 								assetid = '.$db->quoteSmart($this->id).'
 						)
-					AND	name LIKE '.$db->quoteSmart('design::%');
+					AND	(name LIKE '.$db->quoteSmart('design::%').'
+						OR name LIKE '.$db->quoteSmart('paint_layout::%').')';
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
@@ -526,40 +527,48 @@ class Image_Variety extends Asset
 		$save_urls = Array();
 		$root_urls = explode("\n", trim(SQ_CONF_SYSTEM_ROOT_URLS));
 
-		$site_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', FALSE);
-		foreach ($site_parents as $assetid => $type_code) {
-			$site =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
-			if (is_null($site)) continue;
-			$urls = $site->getSiteURLS();
+		if (!SQ_CONF_STATIC_ROOT_URL == '') {
+			// use the static root URL data
+			$web_path = str_replace(sq_web_path('data').'/', '', $web_path);
+			$save_urls[SQ_CONF_STATIC_ROOT_URL] = Array('http' => SQ_CONF_STATIC_ROOT_HTTP, 'https' => SQ_CONF_STATIC_ROOT_HTTPS);
 
-			foreach ($urls as $urlid => $data) {
+		} else {
 
-				$root_url = '';
+			$site_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', FALSE);
+			foreach ($site_parents as $assetid => $type_code) {
+				$site =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				if (is_null($site)) continue;
+				$urls = $site->getSiteURLS();
 
-				foreach ($root_urls as $tmp_url) {
-					if (substr($data['url'], 0, strlen($tmp_url)) == $tmp_url) {
-						$root_url = $tmp_url;
-						continue;
+				foreach ($urls as $urlid => $data) {
+
+					$root_url = '';
+
+					foreach ($root_urls as $tmp_url) {
+						if (substr($data['url'], 0, strlen($tmp_url)) == $tmp_url) {
+							$root_url = $tmp_url;
+							continue;
+						}
 					}
-				}
 
-				if (empty($root_url)) continue;
+					if (empty($root_url)) continue;
 
-				if (isset($save_urls[$root_url])) {
-					if (empty($save_urls[$root_url]['http'])) {
-						$save_urls[$root_url]['http']  = $data['http'];
+					if (isset($save_urls[$root_url])) {
+						if (empty($save_urls[$root_url]['http'])) {
+							$save_urls[$root_url]['http']  = $data['http'];
+						}
+						if (empty($save_urls[$root_url]['https'])) {
+							$save_urls[$root_url]['https'] = $data['https'];
+						}
+					} else {
+						$save_urls[$root_url] = Array('http' => $data['http'], 'https' => $data['https']);
 					}
-					if (empty($save_urls[$root_url]['https'])) {
-						$save_urls[$root_url]['https'] = $data['https'];
-					}
-				} else {
-					$save_urls[$root_url] = Array('http' => $data['http'], 'https' => $data['https']);
-				}
+
+				}//end foreach
 
 			}//end foreach
 
-		}//end foreach
-
+		}//end else - if SQ_CONF_STATIC_ROOT_URL is not empty
 
 		foreach ($save_urls as $url => $url_data) {
 
