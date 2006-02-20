@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: duration.inc,v 1.7 2006/02/20 03:20:00 emcdonald Exp $
+* $Id: duration.inc,v 1.8 2006/02/20 05:12:29 emcdonald Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
 * @author	Tom Barrett			<tbarrett@squiz.net>
 *
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -262,7 +262,7 @@ class Asset_Attribute_Duration extends Asset_Attribute
 		$value_array = $this->getUnitValues();
 		$value_xml = '';
 		foreach ($value_array as $unit => $unit_value) {
-			$value_xml .= '<'.$unit.'>'.$unit_value.'</'.$unit.'>';
+			$value_xml .= '<'.$unit.'><![CDATA['.$unit_value.']]></'.$unit.'>';
 		}
 		$xml = '<value>'.$value_xml.'</value>';
 

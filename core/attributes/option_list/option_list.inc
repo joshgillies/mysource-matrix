@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.24 2006/02/20 03:28:29 emcdonald Exp $
+* $Id: option_list.inc,v 1.25 2006/02/20 05:16:22 emcdonald Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -141,7 +141,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 		$option_array = explode("\r\n", $this->value);
 		$option_xml = '';
 		foreach ($option_array as $option) {
-			$option_xml .= '<option>'.$option.'</option>';
+			$option_xml .= '<option><![CDATA['.$option.']]></option>';
 		}
 		$xml = '<value>'.$option_xml.'</value>';
 

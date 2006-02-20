@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.53 2006/02/20 04:18:53 emcdonald Exp $
+* $Id: selection.inc,v 1.54 2006/02/20 05:11:24 emcdonald Exp $
 *
 */
 
@@ -47,7 +47,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" extras="" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -583,7 +583,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 
 		$value_xml = '';
 		foreach ($this->getValueArray() as $value => $display_name) {
-			$value_xml .= '<selection displayname = "'.$display_name.'">'.$value.'</selection>';
+			$value_xml .= '<selection displayname="'.$display_name.'"><![CDATA['.$value.']]></selection>';
 		}
 		$xml = '<value>'.$value_xml.'</value>';
 
