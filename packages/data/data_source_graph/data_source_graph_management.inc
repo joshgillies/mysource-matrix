@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_management.inc,v 1.7 2006/02/17 04:36:21 skim Exp $
+* $Id: data_source_graph_management.inc,v 1.8 2006/02/20 00:39:55 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,55 +54,55 @@ class Data_Source_Graph_Management extends Asset_Management
 													'type'			=> 'text',
 													'default'		=> '',
 													'description'	=> 'Some text to be associated with the image and can be accessed and printed out separately if required',
-													'is_admin'		=> false,
+													'is_admin'		=> FALSE,
 												   ),
 						'name'					=> Array(
 													'added'		=> '0.1',
 													'type'		=> 'text',
 													'default'	=> '',
-													'is_admin'	=> false,
+													'is_admin'	=> FALSE,
 												   ),
 						'alt'					=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'text',
 													'default'		=> '',
 													'description'	=> 'The text to be used in the Alt attribute of the IMG tag',
-													'is_admin'		=> false,
+													'is_admin'		=> FALSE,
 												   ),
 						'caption'				=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'text',
 													'default'		=> '',
 													'description'	=> 'Some text to be associated with the image and can be accessed and printed out separately if required',
-													'is_admin'		=> false,
+													'is_admin'		=> FALSE,
 												   ),
 						'width'					=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'int',
 													'default'		=> 600,
 													'description'	=> 'Width of the image (generated from the image file)',
-													'is_admin'		=> false,
+													'is_admin'		=> FALSE,
 												   ),
 						'height'				=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'int',
 													'default'		=> 400,
 													'description'	=> 'Height of the image (generated from the image file)',
-													'is_admin'		=> false,
+													'is_admin'		=> FALSE,
 												   ),
 						'size'					=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'int',
 													'default'		=> 0,
 													'description'	=> 'Size (in bytes) of the image (generated from the image file)',
-													'is_admin'		=> false,
+													'is_admin'		=> FALSE,
 												   ),
 						'show_graph_title'		=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'boolean',
-													'default'		=> true,
+													'default'		=> TRUE,
 													'parameters'	=> Array(
-																		'allow_empty'	=> false,
+																		'allow_empty'	=> FALSE,
 																	   ),
 												   ),
 						'x_set_title'			=> Array(
@@ -110,14 +110,14 @@ class Data_Source_Graph_Management extends Asset_Management
 													'type'			=> 'text',
 													'default'		=> 'x-Axis',
 													'description'	=> 'The text to be used in the x-Axis label',
-													'is_admin'		=> false,
+													'is_admin'		=> FALSE,
 												   ),
 						'y_set_title'			=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'text',
 													'default'		=> 'y-Axis',
 													'description'	=> 'The text to be used in the y-Axis label',
-													'is_admin'		=> false,
+													'is_admin'		=> FALSE,
 												   ),
 						'x_label_interval'		=> Array(
 													'added'			=> '0.1',
@@ -134,33 +134,33 @@ class Data_Source_Graph_Management extends Asset_Management
 						'graph_angle'			=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'boolean',
-													'default'		=> true,
+													'default'		=> TRUE,
 													'parameters'	=> Array(
-																		'allow_empty'	=> false,
+																		'allow_empty'	=> FALSE,
 																	   ),
 												   ),
 						'x_font_label_angle'	=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'boolean',
-													'default'		=> false,
+													'default'		=> FALSE,
 													'parameters'	=> Array(
-																		'allow_empty'	=> false,
+																		'allow_empty'	=> FALSE,
 																	   ),
 												   ),
 						'y_font_label_angle'	=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'boolean',
-													'default'		=> true,
+													'default'		=> TRUE,
 													'parameters'	=> Array(
-																		'allow_empty'	=> false,
+																		'allow_empty'	=> FALSE,
 																	   ),
 												   ),
 						'show_legend'			=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'boolean',
-													'default'		=> true,
+													'default'		=> TRUE,
 													'parameters'	=> Array(
-																		'allow_empty'	=> false,
+																		'allow_empty'	=> FALSE,
 																	   ),
 												   ),
 						'background'			=> Array(
@@ -198,28 +198,28 @@ class Data_Source_Graph_Management extends Asset_Management
 													'type'			=> 'int',
 													'default'		=> 0,
 													'description'	=> 'Size (in px) of the padding on the left side of the axis',
-													'is_admin'		=> false,
+													'is_admin'		=> FALSE,
 												   ),
 						'axis_right_padding'	=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'int',
 													'default'		=> 0,
 													'description'	=> 'Size (in px) of the padding on the right side of the axis',
-													'is_admin'		=> false,
+													'is_admin'		=> FALSE,
 												   ),
 						'axis_top_padding'		=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'int',
 													'default'		=> 0,
 													'description'	=> 'Size (in px) of the padding on the top side of the axis',
-													'is_admin'		=> false,
+													'is_admin'		=> FALSE,
 												   ),
 						'axis_bottom_padding'	=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'int',
 													'default'		=> 0,
 													'description'	=> 'Size (in px) of the padding on the bottom side of the axis',
-													'is_admin'		=> false,
+													'is_admin'		=> FALSE,
 												   ),
 						'global_settings'		=> Array(
 													'added'		=> '0.1',
@@ -243,19 +243,19 @@ class Data_Source_Graph_Management extends Asset_Management
 																	'x_font_axis_colour'	=> '000000',
 																	'y_font_axis_colour'	=> '000000',
 																   ),
-													'is_admin'	=> false,
+													'is_admin'	=> FALSE,
 												   ),
 						'datasets'				=> Array(
 													'added'		=> '0.1',
 													'type'		=> 'serialise',
 													'default'	=> Array(),
-													'is_admin'	=> false,
+													'is_admin'	=> FALSE,
 												   ),
 						'plot_order'			=> Array(
 													'added'		=> '0.1',
 													'type'		=> 'serialise',
 													'default'	=> Array(),
-													'is_admin'	=> false,
+													'is_admin'	=> FALSE,
 												   ),
 					  );
 
