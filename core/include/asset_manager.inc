@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.435 2006/02/15 22:31:28 sdanis Exp $
+* $Id: asset_manager.inc,v 1.436 2006/02/20 00:44:02 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.435 $
+* @version $Revision: 1.436 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2448,7 +2448,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $value=NULL, $dependant=NULL, $exclusive=NULL, $sort_by=NULL, $access=NULL)
 	{
-		// $dependant_links = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'minor', null, 1);
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 
 		$force_array = FALSE;
