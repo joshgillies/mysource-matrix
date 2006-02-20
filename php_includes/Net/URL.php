@@ -32,7 +32,7 @@
 // | Author: Richard Heyes <richard at php net>                            |
 // +-----------------------------------------------------------------------+
 //
-// $Id: URL.php,v 1.1 2006/01/13 05:44:52 arailean Exp $
+// $Id: URL.php,v 1.2 2006/02/20 03:47:38 arailean Exp $
 //
 // Net_URL Class
 
@@ -322,7 +322,7 @@ class Net_URL
 
 		foreach ($path_parts as $key => $part) {
 			// Check for % that is NOT an escape sequence || invalid chars
-			if (preg_match('/%[^a-f0-9]/i', $part) || preg_match('/[^@a-z0-9_.!~*\'()$+&,%:=;?-]/i', $part)) {
+			if (preg_match('/%[^a-f0-9]/i', $part) || preg_match('/[^@a-z0-9_.!~*\'()$+&,:=-]/i', $part)) {
 				$path_parts[$key] = urlencode(urldecode($part));
 			}
 		}
