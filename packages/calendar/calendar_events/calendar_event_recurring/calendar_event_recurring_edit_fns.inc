@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.23 2005/05/17 02:50:14 tbarrett Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.23.2.1 2006/02/21 21:47:12 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -177,7 +177,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 					$date_chooser = ob_get_contents();
 					ob_end_clean(); ?>
 				  <input type="radio" name="<?php echo $prefix; ?>_stop_date_selected" value="0" <?php echo ($stopdate ? '' : 'checked="checked" '); ?> onkeypress="this.click();" onclick="disableDateField('<?php echo $prefix; ?>_stop')" /><?php echo ucfirst(translate('cal_event_recur_until_further_notice')); ?>
-				  <br /><input type="radio" <?php echo ($stopdate ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_stop_date_selected" value="1" onkeypress="this.click();" onclick="enableDateField('<?php echo $prefix; ?>_stop')" /><?php echo ucfirst(translate('cal_event_recur_until_date')).$date_chooser; ?>
+				  <br /><input type="radio" <?php echo ($stopdate ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_stop_date_selected" value="1" onkeypress="this.click();" onclick="enableDateField('<?php echo $prefix; ?>_stop')" /><?php echo ucfirst(translate('cal_event_recur_until_date','')).$date_chooser; ?>
 				</td>
 			  </tr>
 			</table>
