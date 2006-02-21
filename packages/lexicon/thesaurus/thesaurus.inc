@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.16 2005/06/02 06:21:02 tbarrett Exp $
+* $Id: thesaurus.inc,v 1.16.2.1 2006/02/21 05:51:30 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -1238,14 +1238,16 @@ class Thesaurus extends Asset
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = '
-			DELETE FROM sq_lex_thes_ent     WHERE thes_id = '.$db->quoteSmart($this->id).';
-			DELETE FROM sq_lex_thes_rel     WHERE thes_id = '.$db->quoteSmart($this->id).';
-			DELETE FROM sq_lex_thes_ent_rel WHERE thes_id = '.$db->quoteSmart($this->id).';
-		';
+		$sql = Array(
+				'DELETE FROM sq_lex_thes_ent     WHERE thes_id = '.$db->quoteSmart($this->id),
+				'DELETE FROM sq_lex_thes_rel     WHERE thes_id = '.$db->quoteSmart($this->id),
+				'DELETE FROM sq_lex_thes_ent_rel WHERE thes_id = '.$db->quoteSmart($this->id),
+		);
 
-		$result   = $db->query($sql);
-		assert_valid_db_result($result);
+		foreach ($sql as $query) {
+			$result   = $db->query($query);
+			assert_valid_db_result($result);
+		}
 
 		return true;
 
