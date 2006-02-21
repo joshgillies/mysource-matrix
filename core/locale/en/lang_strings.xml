@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.103 2006/02/03 05:14:00 ndvries Exp $
+* $Id: lang_strings.xml,v 1.103.2.1 2006/02/21 01:08:50 bcaldwell Exp $
 *
 */
 
@@ -325,7 +325,7 @@
 
 	<string source="scheduled_future_status_change">Scheduled Future Status Changes</string>
 	<string source="locking_editing">Locking / Editing</string>
-	<string source="forcibly_acquire_lock">You can forceably acquire this lock, which will remove the lock from "%1$s" and give the lock to yourself.&lt;br /&gt;Any changes currently being made by "%1$s" will be lost if this lock is forceably acquired.</string>
+	<string source="forcibly_acquire_lock">You can forcibly acquire this lock, which will remove the lock from "%1$s" and give the lock to yourself.&lt;br /&gt;Any changes currently being made by "%1$s" will be lost if this lock is forceably acquired.</string>
 	<string source="acquire_lock">Press the &lt;span class="sq-backend-button-fake"&gt;%1$s&lt;/span&gt; button to lock "%2$s" for editing.</string>
 	<string source="release_lock">Press the &lt;span class="sq-backend-button-fake"&gt;%1$s&lt;/span&gt; button to release the locks you hold on "%2$s".</string>
 	<string source="lock_type">Lock Type</string>
