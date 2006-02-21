@@ -18,7 +18,7 @@
 * | licence.                                                      |
 * +--------------------------------------------------------------------+
 *
-* $Id: dev.inc,v 1.26 2005/11/07 05:25:24 mmcintyre Exp $
+* $Id: dev.inc,v 1.27 2006/02/21 04:14:49 emcdonald Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 *     Generic functions that are useful for developers
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package Fudge
 * @subpackage dev
 */
@@ -47,7 +47,7 @@
 * @return string
 * @access public
 */
-function array_contents(&$array, $max_depth=0, $ignore_ints=false, $depth=0)
+function array_contents(&$array, $max_depth=0, $ignore_ints=FALSE, $depth=0)
 {
 	$string = $indent = '';
 	for ($i = 0; $i < $depth; $i++) {
@@ -67,8 +67,8 @@ function array_contents(&$array, $max_depth=0, $ignore_ints=false, $depth=0)
 		if ($type == 'array' || $type == 'object') {
 			$string .= $indent
 					.((is_string($key)) ? "\"$print_key\"": $key).' => '
-					.(($type == 'array')?"array (\n":'')
-					.(($type == 'object')?'new '.get_class($value)." Object (\n":'');
+					.(($type == 'array') ? "array (\n" : '')
+					.(($type == 'object') ? 'new '.get_class($value)." Object (\n" : '');
 			$string .= array_contents($value, $max_depth, $ignore_ints, $depth + 1);
 			$string .= $indent."),\n";
 		} else {
@@ -76,8 +76,8 @@ function array_contents(&$array, $max_depth=0, $ignore_ints=false, $depth=0)
 				$value = str_replace("\n","\\n",str_replace("\r","\\r",str_replace("\t","\\t",addslashes($value))));
 			}
 			$string .= $indent
-					.((is_string($key)) ? "\"$print_key\"": $key).' => '
-					.((is_string($value)) ? "\"$value\"": $value).",\n";
+					.((is_string($key)) ? "\"$print_key\"" : $key).' => '
+					.((is_string($value)) ? "\"$value\"" : $value).",\n";
 		}
 	}
 	$string[ strlen($string) - 2 ] = ' ';
@@ -96,7 +96,7 @@ function array_contents(&$array, $max_depth=0, $ignore_ints=false, $depth=0)
 function ascii_chart()
 {
 	for ($i=0; $i<256; $i++) {
-		echo(($i==0)?'<table><tr>':'')."<td>$i:</td><td>".chr($i).'</td><td>&nbsp;</td>'.((7==($i%8))?'</tr><tr>':'').(($i==255)?'</tr></table>':'');
+		echo(($i==0) ? '<table><tr>' : '')."<td>$i:</td><td>".chr($i).'</td><td>&nbsp;</td>'.((7==($i%8)) ? '</tr><tr>' : '').(($i==255) ? '</tr></table>' : '');
 	}
 
 }//end ascii_chart()
@@ -113,7 +113,8 @@ function inject_beef()
 {
 	$check = '';
 	list($msec, $sec) = explode(' ',microtime());
-	$BAM = ((double) $sec) + ((double) $msec); // Record time (note we ignore time spent IN this function)
+	$BAM = ((double) $sec) + ((double) $msec);
+	// Record time (note we ignore time spent IN this function)
 	global $SPEED_CHECK_LAST_HIT, $SPEED_CHECK_TOTAL;
 	if ($SPEED_CHECK_LAST_HIT) {
 		$elapsed = $BAM - $SPEED_CHECK_LAST_HIT;
@@ -122,7 +123,8 @@ function inject_beef()
 	}
 
 	list($msec, $sec) = explode(' ',microtime());
-	$SPEED_CHECK_LAST_HIT = ((double) $sec) + ((double) $msec); //initialize
+	// initialize
+	$SPEED_CHECK_LAST_HIT = ((double) $sec) + ((double) $msec);
 
 	$len = strlen($check);
 	if (!$len) return;
@@ -188,7 +190,7 @@ function minibam($contents, $title='BAM')
 		</tr>
 		<tr>
 			<td id="<?php echo $id; ?>" style="display: none">
-				<?php bam($contents); ?>
+				<?php pre_echo($contents); ?>
 			</td>
 		</tr>
 	</table>
@@ -249,7 +251,8 @@ function pre_echo($x, $max_depth=0, $style='')
 function speed_check($str='')
 {
 	list($msec, $sec) = explode(' ',microtime());
-	$BAM = ((double) $sec) + ((double) $msec); // Record time (note we ignore time spent IN this function)
+	// Record time (note we ignore time spent IN this function)
+	$BAM = ((double) $sec) + ((double) $msec);
 
 	global $SPEED_CHECK_LAST_HIT, $SPEED_CHECK_TOTAL;
 	if ($SPEED_CHECK_LAST_HIT) {
@@ -258,7 +261,8 @@ function speed_check($str='')
 		echo('<table cellpadding=0 cellspacing=0 border=0 bgcolor="#ffff88"><tr><td><p style="color:red;font-weight:bold;font-family:sans-serif;font-size:13px;">'.sprintf('%.5f&nbsp;/&nbsp;%.5f',$elapsed,$SPEED_CHECK_TOTAL)."&nbsp;&nbsp;$str</p></td></tr></table>");
 	}
 	list($msec, $sec) = explode(' ',microtime());
-	$SPEED_CHECK_LAST_HIT = ((double) $sec) + ((double) $msec); //initialize
+	// initialize
+	$SPEED_CHECK_LAST_HIT = ((double) $sec) + ((double) $msec);
 
 }//end speed_check()
 
@@ -273,7 +277,7 @@ function speed_check($str='')
 * @return string
 * @access public
 */
-function mem_check($print=null, $return_value=false, $start_over=false)
+function mem_check($print=NULL, $return_value=FALSE, $start_over=FALSE)
 {
 	global $MEM_CHECK_FIRST_HIT, $MEM_CHECK_LAST_HIT;
 	if ($start_over) {
@@ -378,12 +382,16 @@ function pts_spew($i,$s)
 */
 function get_calling_func()
 {
+
 	$bt = debug_backtrace();
 	$file = substr($bt[1]['file'], strrpos($bt[1]['file']+1, '/'));
-	if (isset($bt[2]['class'])) {
-		$res = $bt[2]['class'].'::'.$bt[2]['function'];
-	} else {
-		$res = $bt[2]['function'];
+	$res = '';
+	if (isset($bt[2])) {
+		if (isset($bt[2]['class'])) {
+			$res = $bt[2]['class'].'::'.$bt[2]['function'];
+		} else {
+			$res = $bt[2]['function'];
+		}
 	}
 	$res .= ' ('.$file.' line '.$bt[1]['line'].')';
 	return $res;
@@ -453,7 +461,7 @@ function get_microtime()
 * @return void
 * @access public
 */
-function log_dump($var=null)
+function log_dump($var=NULL)
 {
 	static $count = 0;
 	if (is_null($var)) {
