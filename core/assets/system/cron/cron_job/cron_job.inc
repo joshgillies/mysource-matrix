@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.42 2006/01/26 22:34:06 lwright Exp $
+* $Id: cron_job.inc,v 1.43 2006/02/21 01:33:33 tbarrett Exp $
 *
 */
 
@@ -40,7 +40,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -285,6 +285,11 @@ class Cron_Job extends Asset
 			}//end if
 
 		}//end if
+
+		// Make sure exact date/times have the right precision, because later DB queries depend on this
+		if (0 === strpos($value, 'OO=')) {
+			$value = substr($value, 0, 19);
+		}
 
 		return parent::setAttrValue($name, $value);
 
