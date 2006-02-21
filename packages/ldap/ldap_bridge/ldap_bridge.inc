@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.38 2006/01/30 05:10:35 dmckee Exp $
+* $Id: ldap_bridge.inc,v 1.39 2006/02/21 23:38:10 bcaldwell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -110,9 +110,9 @@ class LDAP_Bridge extends Asset
 			return NULL;
 		}
 
-		if ($this->attr('system_type') == 'openldap3') {
-			// set the protocol version for openLDAP (protocol v3)
-			ldap_set_option($ldap->ptr, LDAP_OPT_PROTOCOL_VERSION, 3);
+		// any non-default ldap connection settings set here
+		foreach ($this->attr('ldap_options') as $option => $value) {
+			ldap_set_option($ldap->ptr, constant($option), $value);
 		}
 
 		if (!$ldap->bind($this->attr('bind_dn'), $this->attr('password'))) {
@@ -121,6 +121,30 @@ class LDAP_Bridge extends Asset
 		return $ldap;
 
 	}//end connectToLdap()
+
+
+	/**
+	* Returns an array of defined user-customisable LDAP connection options.
+	*
+	* The options below are customisable by the user. If the user chooses to
+	* customise one of the below options, it's value will be set according
+	* to the array below. If an option is not customised, the default is assumed.
+	*
+	* @return array
+	* @access public
+	*/
+	function getConnectionOptions()
+	{
+		// an array of customisable ldap connection options to their customised value
+		// defaults:
+		// LDAP_OPT_PROTOCOL_VERSION default = 2
+		// LDAP_OPT_REFERRALS = 1
+		return Array(
+				'LDAP_OPT_PROTOCOL_VERSION'	=> 3,
+				'LDAP_OPT_REFERRALS'		=> 0,
+			   );
+
+	}//end getConnectionOptions()
 
 
 	/**

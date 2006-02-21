@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.20 2006/01/30 05:10:35 dmckee Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.21 2006/02/21 23:38:10 bcaldwell Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -122,6 +122,77 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		return FALSE;
 
 	}//end processConnectionTest()
+
+
+	/**
+	* Paints an interface that allows the user customisation of LDAP connection options.
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintConnectionOptions(&$asset, &$o, $prefix)
+	{
+		$configured_options = $asset->attr('ldap_options');
+
+		// display defined connection options
+		foreach ($asset->getConnectionOptions() as $option => $checked_value) {
+			$checked = FALSE;
+			if (isset($configured_options[$option])) {
+				$checked = TRUE;
+			}
+
+			if ($asset->writeAccess('attributes')) {
+				$element_name = $prefix.'_ldap_options['.$option.']';
+
+				check_box($element_name, $checked_value, $checked);
+				?>
+				<label for="<?php echo $element_name; ?>"><?php echo translate('option_'.strtolower($option)); ?></label><br />
+				<?php
+			} else {
+				$display_image = 'cross';
+				if ($checked) $display_image = 'tick';
+
+				$mask = '<img src="'.sq_web_path('lib').'/web/images/'.$display_image.'.gif" />';
+				echo $mask.' '.translate('option_'.strtolower($option)).'<br />';
+			}
+		}//end for
+		return $asset->writeAccess('attributes');
+
+	}//end paintConnectionOptions()
+
+
+	/**
+	* Process interface allowing user customisation of LDAP connection options.
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processConnectionOptions(&$asset, &$o, $prefix)
+	{
+		$configured_options = Array();
+		$element_name = $prefix.'_ldap_options';
+
+		// for security, use defined connection options only
+		foreach ($asset->getConnectionOptions() as $option => $value) {
+			if (isset($_REQUEST[$element_name][$option])) {
+				$configured_options[$option] = $value;
+			}
+		}//end for
+
+		// only non-default LDAP options are stored, otherwise omitted
+		$asset->setAttrValue('ldap_options', $configured_options);
+
+		return $asset->writeAccess('attributes');
+
+	}//end processConnectionOptions()
 
 
 	/**

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2005/04/29 05:38:57 gsherwood Exp $
+* $Id: lang_screen_details.xml,v 1.3 2006/02/21 23:38:10 bcaldwell Exp $
 *
 */
 -->
@@ -35,6 +35,13 @@
 		<field attribute="system_type">
 			<display_name>System Type</display_name>
 			<note>The type of your LDAP directory</note>
+		</field>
+		<field>
+			<display_name>Options</display_name>
+			<function_call>
+				<paint_function   name="paintConnectionOptions"   />
+				<process_function name="processConnectionOptions" />
+			</function_call>
 		</field>
 		<field attribute="host">
 			<display_name>Host</display_name>

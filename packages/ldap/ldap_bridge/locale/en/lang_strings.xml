@@ -1,0 +1,26 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2006/02/21 23:38:10 bcaldwell Exp $
+*
+*
+* Search Package Localised Strings File
+*/
+-->
+
+<strings>
+	<!-- LDAP connection option strings -->
+	<string source="option_ldap_opt_protocol_version">Use Protocol Version 3</string>
+	<string source="option_ldap_opt_referrals">Disallow Referrals</string>
+
+</strings>
