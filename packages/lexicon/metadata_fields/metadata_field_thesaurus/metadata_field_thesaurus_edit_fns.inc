@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.6.2.1 2005/07/26 05:32:59 tbarrett Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.6.2.2 2006/02/21 03:16:57 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.6.2.1 $
+* @version $Revision: 1.6.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -130,6 +130,33 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 
 	}//end paintValueInterface()
 
+
+	/**
+	* Paint the interface for filling in metadata values
+	*
+	* @param object Metadata_Schema		&$asset			the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o				the outputter class
+	* @param array						$values			current metadata values set for this asset
+	* @param boolean					$write_access	does the current user have write access to the asset
+	*													that we are setting metadata for (NOT THE SAME AS $asset)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintInlineValueInterface(&$asset, &$o, $values, $write_access) {
+		$prefix = $asset->getPrefix();
+		$direct = array_get_index($_REQUEST, $prefix.'_direct_connection', false);
+
+		// if a direct connection is requested, pass the control
+		// to the direct Communicator, otherwise take normal course of action
+		if ($direct) {
+			$asset->_directCommunicator();
+			exit;	// need this since Matrix tries to print extras after this section is done
+		}
+
+		return parent::paintInlineValueInterface($asset, $o, $values, $write_access);
+
+	}
 
 	/**
 	* Process the interface for filling in metadata values
