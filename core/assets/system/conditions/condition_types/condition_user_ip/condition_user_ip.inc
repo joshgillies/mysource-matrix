@@ -18,11 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_ip.inc,v 1.5 2006/01/26 22:34:05 lwright Exp $
+* $Id: condition_user_ip.inc,v 1.6 2006/02/22 04:39:27 lwright Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
+require_once dirname(__FILE__).'/condition_user_ip_edit_fns.inc';
+
 
 /**
 * Condition_User_IP
@@ -34,7 +36,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,15 +68,49 @@ class Condition_User_IP extends Condition
 	*/
 	function evaluate(&$asset, $condition_data)
 	{
-		if (!isset($condition_data['user_ip'])) return FALSE;
+		if (!isset($condition_data['user_ip_ranges'])) {
+			return FALSE;
+		}
 
-		// replace '*' with 'match between 1 and 3 digits'
-		$condition_data['user_ip'] = preg_replace(Array('/\*/', '/\./'), Array('\d{1,3}', '\\\.'), $condition_data['user_ip']);
-		$matches = preg_match('|'.$condition_data['user_ip'].'|i', $_SERVER['REMOTE_ADDR']);
+		$remote_ip = $_SERVER['REMOTE_ADDR'];
+		$grant = array_get_index($condition_data, 'default_grant', FALSE);
 
-		return ($matches > 0);
+		// sort the IP ranges by subnet mask order
+		$ip_ranges = Condition_User_IP_Edit_Fns::_sortByCIDROrder($condition_data['user_ip_ranges']);
+
+		foreach ($ip_ranges as $ip_range) {
+			if (Condition_User_IP_Edit_Fns::_isInSubnet($remote_ip, $ip_range['ip_address'], $ip_range['subnet'])) {
+				$grant = $ip_range['grant'];
+			}
+		}
+
+		return $grant;
 
 	}//end evaluate()
+
+
+	/**
+	* Get a list of match keywords
+	*
+	* For User IP condition, we are not using the true/false condition - we are
+	* using our own Grant/Deny logic. Therefore we will limit the 'match'
+	* condition to just the TRUE condition
+	*
+	* @param string	$type_code	the type code of this asset
+	*
+	* @return array
+	* @access public
+	* @static
+	*/
+	function getMatchKeywords($type_code)
+	{
+		$match_options = Array(
+							'1'	=> translate($type_code.'_true'),
+						 );
+
+		return $match_options;
+
+	}//end getMatchKeywords()
 
 
 }//end class
