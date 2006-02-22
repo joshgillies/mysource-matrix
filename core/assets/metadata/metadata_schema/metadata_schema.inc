@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema.inc,v 1.20 2006/01/26 22:34:04 lwright Exp $
+* $Id: metadata_schema.inc,v 1.20.2.1 2006/02/22 04:57:40 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -110,6 +110,7 @@ class Metadata_Schema extends Folder
 	{
 		// if this is a metadata section then we need to make it a dependant link
 		if ($side_of_link == 'major' && is_a($asset, 'metadata_section') && $dependant != '1') {
+			$link_type = SQ_LINK_TYPE_2;
 			$dependant = '1';
 			return TRUE;
 		}
