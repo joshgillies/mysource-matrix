@@ -18,12 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_size_edit_fns.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
+* $Id: form_question_rule_type_file_size_edit_fns.inc,v 1.2.2.1 2006/02/22 04:34:14 bcaldwell Exp $
 *
 */
 
 
 require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edit_fns.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 /**
 * Form_Question_Rule_Type_File_Size_Edit_Fns
@@ -32,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
