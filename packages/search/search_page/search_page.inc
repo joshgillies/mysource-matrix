@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.159 2006/02/22 22:26:32 tbarrett Exp $
+* $Id: search_page.inc,v 1.160 2006/02/22 22:35:59 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.159 $
+* @version $Revision: 1.160 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -523,11 +523,12 @@ class Search_Page extends Listing_Engine
 
 
 	/**
-	* Returns true if the supplied field contains several different field types
+	* Returns true if the datasources for the supplied field imply more than one input style
 	*
-	* Mixed field types are when there are datasources of different types, or asset-attribute
-	* datasources with different types of attribute, or metadata datasources with different
-	* kinds of metadata field etc
+	* Different input styles are implied if there are datasources of more than one type, or if
+	* the attributes for several asset-attribute datasources are of different types.  They are
+	* also implied if a selection attribute or selection metadata field is found, since the input
+	* style for these is specific to the particular attribute or field.
 	*
 	* @param array	$field	Details of a field from the fields attr
 	*
@@ -575,6 +576,10 @@ class Search_Page extends Listing_Engine
 					$first_field_type = $this_field_type;
 				}
 				if ($this_field_type != $first_field_type) {
+					$mixed_ds_types = true;
+					break;
+				}
+				if (in_array(strtolower($this_field_type), Array('selection', 'metadata_field_select'))) {
 					$mixed_ds_types = true;
 					break;
 				}
