@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_deleted_user_perms.php,v 1.5 2004/12/06 14:38:13 brobertson Exp $
+* $Id: system_integrity_deleted_user_perms.php,v 1.5.2.1 2006/02/22 03:10:21 bcaldwell Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 * exist)
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -62,49 +62,50 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 	trigger_error("Failed login in as root user\n", E_USER_ERROR);
 }
 
+$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-$assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID);
-foreach ($assets as $assetid => $type_code) {
+$sql = 'SELECT
+			DISTINCT userid,
+			permission
+		FROM sq_ast_perm
+		ORDER BY userid';
+$user_ids = array_keys($db->getAssoc($sql));
 
-	$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
-	printAssetName($asset);
+foreach ($user_ids as $user_id) {
 
-	// what is in the permissions table?
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
-	$sql = 'SELECT userid, permission FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_perm WHERE assetid='.$db->quote($asset->id);
-	$perms_info = $db->getAll($sql);
-	assert_valid_db_result($perms_info);
-
-	$deletes = Array();
-
-	foreach ($perms_info as $perm_info) {
-		$user_avail = true;
-		if ($perm_info['userid'] != 0) {
-			$id_parts = explode(':', $perm_info['userid']);
-			if (isset($id_parts[1])) {
-				// we are looking at a shadow asset
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($perm_info['userid']);
-				$user_avail = !is_null($user);
-			} else {
-				// check that each user is in the asset table, if not then delete the permission
-				$asset_info = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($perm_info['userid'])));
-				$user_avail = !empty($asset_info);
-			}
-		}
-
-		if (!$user_avail) $deletes[] = $db->quote($perm_info['userid']);
-	}
-
-	if (!empty($deletes)) {
-		$where = 'userid IN ('.implode(', ', $deletes).')';
-		$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_perm', $where);
+	$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($user_id, '', TRUE);
+	if (!is_null($asset)) {
+		// print info the asset, as it exists
+		printAssetName($asset);
 		printUpdateStatus('OK');
-	} else {
-		printUpdateStatus('--');
-	}
-	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
-}//end foreach
+		// conserve memory and move on to the next perm
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+		continue;
+	}
+
+	// the asset doesn't exist
+	$dummy_asset->id = $user_id;
+	$dummy_asset->name = 'Unknown Asset';
+
+	printAssetName($dummy_asset);
+
+	// open the transaction
+	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+	$sql = 'DELETE FROM sq_ast_perm WHERE userid = '.$user_id;
+
+	$result = $db->query($sql);
+	if (assert_valid_db_result($result)) {
+		// all good
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		printUpdateStatus('FIXED');
+	} else {
+		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		printUpdateStatus('FAILED');
+	}
+
+}//end for
 
 
 /**
