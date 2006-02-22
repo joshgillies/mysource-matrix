@@ -11,12 +11,13 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_size_edit_fns.inc,v 1.7 2005/05/12 00:54:41 rhoward Exp $
+* $Id: form_question_rule_type_file_size_edit_fns.inc,v 1.7.2.1 2006/02/22 04:33:02 bcaldwell Exp $
 *
 */
 
 
 require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edit_fns.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 /**
 * Form_Question_Rule_Type_File_Size_Edit_Fns
@@ -25,7 +26,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
