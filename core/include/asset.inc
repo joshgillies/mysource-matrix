@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.506 2006/02/20 00:44:52 skim Exp $
+* $Id: asset.inc,v 1.507 2006/02/22 03:51:56 bcaldwell Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.506 $
+* @version $Revision: 1.507 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2253,7 +2253,6 @@ class Asset extends MySource_Object
 						'workflow'		=> 16,
 						'metadata'		=> 32,
 						'lookups'		=> 64,
-						'weights'		=> 128,
 						'roles'			=> 256,
 					   );
 
