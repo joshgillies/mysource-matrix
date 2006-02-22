@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.35 2005/11/28 04:19:31 dmckee Exp $
+* $Id: insert_image.php,v 1.36 2006/02/22 22:57:14 skim Exp $
 *
 */
 
@@ -26,7 +26,8 @@
 * Insert Image Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.35 $
+* @author  Scott Kim <skim@squiz.net>
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 */
 
@@ -103,6 +104,13 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 				// we can't get use getElementById, so do this...
 				param["f_imageid"] = document.main_form.elements["f_imageid[assetid]"].value;
 
+				// Optional Long Description
+				if (document.main_form.elements["f_longdesc[assetid]"].value != null && document.main_form.elements["f_longdesc[assetid]"].value != "0") {
+					param["f_longdesc"] = document.main_form.elements["f_longdesc[assetid]"].value;
+				} else if (document.main_form.elements["f_longdesc"].value != "") {
+					param["f_longdesc"] = document.main_form.elements["f_longdesc"].value;
+				}
+
 				__dlg_close("matrixInsertImage", param);
 				return false;
 			};
@@ -124,9 +132,9 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 					while (ext.charAt(0) != "." && i > 0) ext = path.substring(i--);
 					imageInfo['alt'] = path.substring(0, ++i);
 				}
-				document.getElementById("f_alt").value    = imageInfo['alt'];
-				document.getElementById("f_width").value  = imageInfo['width'];
-				document.getElementById("f_height").value = imageInfo['height'];
+				document.getElementById("f_alt").value		= imageInfo['alt'];
+				document.getElementById("f_width").value	= imageInfo['width'];
+				document.getElementById("f_height").value	= imageInfo['height'];
 				newImg(document.getElementById('image_container'), '<?php echo sq_web_path('root_url'); ?>' + '/?a=' + document.getElementById("f_imageid[assetid]").value, imageInfo['width'], imageInfo['height']);
 			};
 
@@ -287,6 +295,33 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 												<td class="label" nowrap="nowrap"><?php echo translate('alternate_text'); ?>:</td>
 												<td>
 													<input type="text" name="alt" id="f_alt" style="width:100%" title="For browsers that don't support images" value="<?php echo $_REQUEST['f_alt']?>" />
+												</td>
+											</tr>
+											<tr>
+												<td valign="top" class="label" nowrap="nowrap"><?php echo translate('longdesc_text'); ?>:<br />(optional)</td>
+												<td>
+													You can select the standard page to link to the longdesc<br />
+													<?php
+
+													if (!empty($_GET['f_longdesc'])) {
+														if (preg_match("/\d+/", $_GET['f_longdesc']) && $_GET['f_longdesc'] != "0") {?>
+															<?php asset_finder('f_longdesc', $_GET['f_longdesc'], Array('page_standard' => 'D'), ''); ?><br />
+															Or manually type the longdesc<br />
+															<input type="text" name="longdesc" id="f_longdesc" style="width:100%" title="For browsers that don't support images" value="" />
+														<?php
+														} else {?>
+															<?php asset_finder('f_longdesc', "", Array('page_standard' => 'D'), ''); ?><br />
+															Or manually type the longdesc<br />
+															<input type="text" name="longdesc" id="f_longdesc" style="width:100%" title="For browsers that don't support images" value="<?php echo $_GET['f_longdesc']; ?>" />
+														<?php
+														}
+													} else {?>
+													<br />
+														<?php asset_finder('f_longdesc', $_GET['f_longdesc'], Array('page_standard' => 'D'), ''); ?><br />
+														Or manually type the longdesc<br />
+														<input type="text" name="longdesc" id="f_longdesc" style="width:100%" title="For browsers that don't support images" value="" />
+													<?php
+													}?>
 												</td>
 											</tr>
 										</table>

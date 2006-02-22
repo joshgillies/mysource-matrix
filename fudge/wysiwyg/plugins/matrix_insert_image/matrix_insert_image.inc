@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_image.inc,v 1.25 2005/07/22 02:05:52 dmckee Exp $
+* $Id: matrix_insert_image.inc,v 1.26 2006/02/22 22:57:14 skim Exp $
 *
 */
 
@@ -34,7 +34,8 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     in the editable document using an image asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @author  Scott Kim <skim@squiz.net>
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -77,6 +78,7 @@ class matrix_insert_image extends wysiwyg_plugin
 				var width    = "";
 				var height   = "";
 				var alt      = "";
+				var longdesc = "";
 				var hspace   = "";
 				var vspace   = "";
 				var border   = "0";
@@ -85,7 +87,6 @@ class matrix_insert_image extends wysiwyg_plugin
 
 				var sel = this._getSelection();
 				var range = this._createRange(sel);
-
 				// loop through and try and find a selected image tag
 				if (HTMLArea.is_gecko) {
 					var fragment = this._doc.createDocumentFragment();
@@ -111,15 +112,30 @@ class matrix_insert_image extends wysiwyg_plugin
 
 				// if there is an existing image, get its properties
 				if (is_image && image_tag) {
-					url    = image_tag.src;
-					align  = image_tag.align;
-					alt    = image_tag.alt;
-					width  = (!image_tag.width)  ? ""  : image_tag.width;
-					height = (!image_tag.height) ? ""  : image_tag.height;
-					hspace = (!image_tag.hspace) ? ""  : image_tag.hspace;
-					vspace = (!image_tag.vspace) ? ""  : image_tag.vspace;
-					border = (!image_tag.border) ? "0" : image_tag.border;
+					url			= image_tag.src;
+					align		= image_tag.align;
+					alt			= image_tag.alt;
+					width		= (!image_tag.width)	? ""  : image_tag.width;
+					height		= (!image_tag.height)	? ""  : image_tag.height;
+					hspace		= (!image_tag.hspace)	? ""  : image_tag.hspace;
+					vspace		= (!image_tag.vspace)	? ""  : image_tag.vspace;
+					border		= (!image_tag.border)	? "0" : image_tag.border;
+					longdesc	= (!image_tag.longDesc)	? ""  : image_tag.longDesc;
+					if (image_tag.longDesc) {
+						var result = image_tag.longDesc.match(/(.+)\/\?a=(\d+)/);
+						if (result != null) {
+							// longdesc is from assetid
+							longdesc = result[2];
+						} else {
+							// long desc is manually typed
+							e = 'http[s]?://<?php echo $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']?>';
+							re = new RegExp(e, "gi");
+							longdesc = image_tag.longDesc.replace(re, "");
 
+						}
+					} else {
+						longdesc = "";
+					}
 					imageid = editor.make_relative_hrefs(url);
 					e = '.*\\?a=([0-9]+)((:[^$]*)\\$)?';
 					re = new RegExp(e, "gi");
@@ -130,9 +146,9 @@ class matrix_insert_image extends wysiwyg_plugin
 				if (this._inPopup == true) { in_popup = '1'; }
 
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
-				strPage = "<?php echo $this->get_popup_href('insert_image.php')?>?f_imageid=" + escape(imageid) + "&f_align=" + escape(align) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_alt=" + escape(alt) + "&f_horiz=" + escape(hspace) + "&f_vert=" + escape(vspace) + "&f_border=" + escape(border) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
+				strPage = "<?php echo $this->get_popup_href('insert_image.php')?>?f_imageid=" + escape(imageid) + "&f_align=" + escape(align) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_alt=" + escape(alt) + "&f_longdesc=" + escape(longdesc) + "&f_horiz=" + escape(hspace) + "&f_vert=" + escape(vspace) + "&f_border=" + escape(border) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				this._popupDialog("matrixInsertImage", strPage, 740, 480, true, function(param) {
+				this._popupDialog("matrixInsertImage", strPage, 750, 480, true, function(param) {
 					if (!param) {
 						// user must have pressed Cancel
 						return false;
@@ -157,6 +173,18 @@ class matrix_insert_image extends wysiwyg_plugin
 					if (param["f_alt"] != "") {
 						html += ' alt="' + param["f_alt"] + '"';
 					}
+
+					if (param["f_longdesc"] != null && param["f_longdesc"] != "") {
+						var result = param["f_longdesc"].match(/(\d)+/);
+						if (result != null) {
+							if (result[1] != "0") {
+								html += ' longdesc="<?php echo sq_web_path('root_url'); ?>' + '/?a=' + param["f_longdesc"] + '"';
+							}
+						} else {
+							html += ' longdesc="' + param["f_longdesc"] + '"';
+						}
+					}
+
 					if (param["f_horiz"] != "") {
 						html += ' hspace="' + param["f_horiz"] + '"';
 					}
