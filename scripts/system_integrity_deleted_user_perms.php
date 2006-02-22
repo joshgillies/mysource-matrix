@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_deleted_user_perms.php,v 1.5.2.1 2006/02/22 03:10:21 bcaldwell Exp $
+* $Id: system_integrity_deleted_user_perms.php,v 1.5.2.2 2006/02/22 03:40:20 bcaldwell Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 * exist)
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5.2.1 $
+* @version $Revision: 1.5.2.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -65,11 +65,10 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 $db =& $GLOBALS['SQ_SYSTEM']->db;
 
 $sql = 'SELECT
-			DISTINCT userid,
-			permission
+			DISTINCT userid
 		FROM sq_ast_perm
 		ORDER BY userid';
-$user_ids = array_keys($db->getAssoc($sql));
+$user_ids = $db->getCol($sql);
 
 foreach ($user_ids as $user_id) {
 
