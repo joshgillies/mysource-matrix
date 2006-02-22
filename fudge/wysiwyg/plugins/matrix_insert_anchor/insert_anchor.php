@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_anchor.php,v 1.5 2005/05/20 04:33:46 lwright Exp $
+* $Id: insert_anchor.php,v 1.6 2006/02/22 23:00:49 skim Exp $
 *
 */
 
@@ -26,7 +26,8 @@
 * Insert Anchor Popup for the WYSIWYG
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.5 $
+* @author  Scott Kim <skim@squiz.net>
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 
@@ -34,7 +35,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 
-if (!isset($_GET['name']))		  $_GET['name'] = "";
+if (!isset($_GET['name']))		$_GET['name']	= "";
 
 ?>
 
@@ -76,15 +77,26 @@ if (!isset($_GET['name']))		  $_GET['name'] = "";
 			};
 
 			function onOK() {
+				var confirm_str = "WARNING!\nYou are about to remove this anchor tag and can not be undone.\nAre you sure you want to remove the anchor?";
+
 				// pass data back to the calling window
 				var fields = ["name"];
 				var param = new Object();
 				var f = document.main_form;
 
-				param["name"]        = form_element_value(f.name);
+				param["name"]	= form_element_value(f.name);
+				param["remove"]	= form_element_value(f.remove);
 
-				__dlg_close("matrixInsertAnchor", param);
-				return false;
+				if (param["remove"] == "1") {
+					if (confirm(confirm_str)) {
+						__dlg_close("matrixInsertAnchor", param);
+						return false;
+					}
+				} else {
+					__dlg_close("matrixInsertAnchor", param);
+					return false;
+				}
+				return true;
 			};
 
 			function onCancel() {
@@ -175,6 +187,14 @@ if (!isset($_GET['name']))		  $_GET['name'] = "";
 							<tr>
 								<td class="label">Anchor Name:</td>
 								<td colspan="3"><?php text_box('name', $_GET['name'], 40, 0);?>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="4"><hr /></td>
+							</tr>
+							<tr>
+								<td class="label">Remove:</td>
+								<td colspan="3"><?php check_box('remove', (empty($_GET['name']) ? '0' : '1'), FALSE, '', (empty($_GET['name']) ? 'disabled=true' : '')); ?>
 								</td>
 							</tr>
 						</table>

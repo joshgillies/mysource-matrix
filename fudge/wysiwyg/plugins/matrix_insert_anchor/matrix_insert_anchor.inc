@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_anchor.inc,v 1.9 2006/01/06 02:21:02 rong Exp $
+* $Id: matrix_insert_anchor.inc,v 1.10 2006/02/22 23:00:49 skim Exp $
 *
 */
 
@@ -35,7 +35,8 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     an anchor in the editable document
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.9 $
+* @author  Scott Kim <skim@squiz.net>
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -85,7 +86,6 @@ class matrix_insert_anchor extends wysiwyg_plugin
 				var sel = this._getSelection();
 				var range = this._createRange(sel);
 				var text_range = false;
-
 				// OK, so they have a control object selected, let's try and make it a text selection
 				if (sel.type && sel.type.toLowerCase() == "control") {
 					var control_range = this._createRange(sel);
@@ -100,7 +100,7 @@ class matrix_insert_anchor extends wysiwyg_plugin
 					}
 					sel = this._getSelection();
 					range = this._createRange(sel);
-				}// end if a control
+				}//end if a control
 
 				var inside_html = '';
 				var current_a = this.getClosest("a");
@@ -115,12 +115,23 @@ class matrix_insert_anchor extends wysiwyg_plugin
 				} else {
 					inside_html = editor.getSelectedHTML();
 				}
-
 				sel = this._getSelection();
 				range = this._createRange(sel);
-
 				// Is this aready a link?
 				if (current_a) {
+
+					if (visual_aid_mode) {
+						// If visual aid is being used now, remove it before processing
+						// we keep the copy here in the case of canceling
+						var copied_html = current_a.innerHTML;
+						if (HTMLArea.is_gecko) {
+							current_a.innerHTML = current_a.innerHTML.replace(/<span id="wysiwyg-visual-aid-plugin-anchor".*>A<\/span>/, "");
+						} else if (HTMLArea.is_ie) {
+							var e = '<span id=wysiwyg-visual-aid-plugin-anchor.*>A<\/span>';
+							var re = new RegExp(e, "ig");
+							current_a.innerHTML = current_a.innerHTML.replace(re, '');
+						}
+					}
 
 					var e = '^(\<a [^\>]+>)(.*)</a>$';
 					var re = new RegExp(e, "i");
@@ -137,6 +148,7 @@ class matrix_insert_anchor extends wysiwyg_plugin
 					if (results != null) {
 						currArgs["name"] = results[1];
 					}// end if
+
 				// else not a link so check for paragraphs
 				} else {
 
@@ -165,31 +177,66 @@ class matrix_insert_anchor extends wysiwyg_plugin
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				var strPage = "<?php echo $this->get_popup_href('insert_anchor.php')?>?&name=" + escape(currArgs["name"]) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				this._popupDialog("matrixInsertAnchor", strPage, 400, 180, true, function(param) {
+				this._popupDialog("matrixInsertAnchor", strPage, 420, 180, true, function(param) {
 					if (!param) {
 						// user must have pressed Cancel
+						if (visual_aid_mode) {
+							current_a.innerHTML = copied_html;
+						}
 						return false;
 					}
 
-					if (param["name"] != "") {
-
-						var para = new RegExp("^[\n\t\s]*<P[^>]*>(.*)<\/P>", "gim")
-						var insideP = inside_html.replace(para, "$1");
-
-						if (insideP != inside_html) {
-							var html = '<p><a name="' + param["name"] + '" id="' + param["name"];
-							html += '">' + insideP + '</a></p>';
-						} else {
-							var html = '<a name="' + param["name"] + '" id="' + param["name"];
-							html += '">' + inside_html + '</a>';
+					if (param["remove"] == "1") {
+						// remove this anchor tag
+						var parent = current_a.parentNode;
+						if (HTMLArea.is_gecko) {
+							var e = '(<a.*name="' + param["name"] + '".*>)' + current_a.innerHTML + '</a>';
+						} else if (HTMLArea.is_ie) {
+							var e = '(<a.*name=' + param["name"] + '.*>)' + current_a.innerHTML + '</a>';
 						}
+						var re = new RegExp(e, "ig");
+						var new_html = parent.innerHTML.replace(re, current_a.innerHTML);
+						parent.innerHTML = new_html;
+					} else {
 
-						html = editor.make_absolute_urls(html);
+						if (param["name"] != "") {
 
-						// replace with new URL
-						editor.insertHTML(html, range);
+							if (current_a) {
+								// editing
+								if (param["name"] != current_a.getAttribute("name")) {
+									if (HTMLArea.is_gecko) {
+										current_a.setAttribute("name", param["name"]);
+										current_a.setAttribute("id", param["name"]);
+									} else if (HTMLArea.is_ie) {
+										// somehow IE can not update the name attribute value in the wysiwyg
+										// this is just mysterious...
+										var e = '<A( id=' + current_a.getAttribute("name") + '){0,1} name=' + current_a.getAttribute("name") + '>';
+										var re = new RegExp(e, "gi");
+										var replacement = '<A id=' + param["name"] + ' name=' + param["name"] + '>';
+										current_a.parentNode.innerHTML = current_a.parentNode.innerHTML.replace(re, replacement);
+									}
+								}
+							} else {
+								// adding
+								var para = new RegExp("^[\n\t\s]*<P[^>]*>(.*)<\/P>", "gim")
+								var insideP = inside_html.replace(para, "$1");
 
-					}// end if param exists
+								if (insideP != inside_html) {
+									var html = '<p><a name="' + param["name"] + '" id="' + param["name"];
+									html += '">' + insideP + '</a></p>';
+								} else {
+									var html = '<a name="' + param["name"] + '" id="' + param["name"];
+									html += '">' + inside_html + '</a>';
+								}
+
+								html = editor.make_absolute_urls(html);
+
+								// replace with new URL
+								editor.insertHTML(html, range);
+							}
+
+						}// end if param exists
+					}
 
 				}, null);
 
