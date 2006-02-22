@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.php,v 1.7 2006/01/08 22:42:21 emcdonald Exp $
+* $Id: html_tidy.php,v 1.8 2006/02/22 22:28:28 skim Exp $
 *
 */
 
@@ -26,7 +26,8 @@
 * Insert HTML Tidy for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.7 $
+* @author	Scott Kim <skim@squiz.net>
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 
@@ -76,15 +77,20 @@ if (!isset($_GET['name']))		  $_GET['name'] = '';
 			};
 
 			function onOK() {
-				var rep_types = new Array();
-				var i = 0;
-				while (document.getElementById("rep_type"+i) != null)
-				{
-					rep_types.push(document.getElementById("rep_type"+i).checked);
-					i++;
+				var confirm_str = "WARNING!\nThe apprearance of the content can be changed and it can not be undone.\nAre you sure you want to run the replacement?";
+
+				if (confirm(confirm_str)) {
+					var rep_types = new Array();
+					var i = 0;
+					while (document.getElementById("rep_type"+i) != null)
+					{
+						rep_types.push(document.getElementById("rep_type"+i).checked);
+						i++;
+					}
+					__dlg_close("ReplaceText", rep_types);
+					return false;
 				}
-				__dlg_close("ReplaceText", rep_types);
-				return false;
+				return true;
 			};
 
 			function onCancel() {
@@ -168,17 +174,35 @@ if (!isset($_GET['name']))		  $_GET['name'] = '';
 									</td>
 								</tr>
 								<tr>
+									<td class="label" style="border-bottom:solid 1px #725B7D; font-weight: bold;">Selected text only?</td>
+								</tr>
+								<tr>
+									<td class="label" style="border-bottom:solid 1px #725B7D">
+										<input type="checkbox" name="rep_type0" id="rep_type0" checked="checked"/> Yes<br/>
+									</td>
+								</tr>
+								<tr>
+									<td class="label" style="border-bottom:solid 1px #725B7D; font-weight: bold;">Non-extreme options</td>
+								</tr>
+								<tr>
+									<td class="label" style="border-bottom:solid 1px #725B7D">
+										<input type="checkbox" name="rep_type1" id="rep_type1" checked="checked"/> Remove <b>&lt;font&gt;</b> tags<br/>
+										<input type="checkbox" name="rep_type2" id="rep_type2" checked="checked"/> Remove double spaces<br/>
+										<input type="checkbox" name="rep_type3" id="rep_type3" checked="checked"/> Remove <b>non-HTML</b> tags<br/>
+										<input type="checkbox" name="rep_type4" id="rep_type4" checked="checked"/> Change Microsoft Word<sup>&#174;</sup>'s bullets<br/>
+									</td>
+								</tr>
+								<tr>
+									<td class="label" style="border-bottom:solid 1px #725B7D; font-weight: bold;">Extreme options</td>
+								</tr>
+								<tr>
 									<td class="label">
-										<input type="checkbox" name="rep_type0" id="rep_type0" /> Remove <b>&lt;font&gt;</b> tags<br/>
-										<input type="checkbox" name="rep_type1" id="rep_type1" /> Remove <b>style</b> attribute<br/>
-										<input type="checkbox" name="rep_type2" id="rep_type2" /> Remove <b>class</b> attribute<br/>
-										<input type="checkbox" name="rep_type3" id="rep_type3" /> Remove <b>&lt;table&gt;</b> tags<br/>
-										<input type="checkbox" name="rep_type4" id="rep_type4" /> Remove <b>&lt;span&gt;</b> tags<br/>
-										<input type="checkbox" name="rep_type5" id="rep_type5" /> Remove <b>non-HTML</b> tags<br/>
-										<input type="checkbox" name="rep_type6" id="rep_type6" /> Remove double spaces<br/>
-										<input type="checkbox" name="rep_type7" id="rep_type7" /> Remove all empty tags<br/>
-										<input type="checkbox" name="rep_type8" id="rep_type8" /> Remove all tags' attributes<br/>
-										<input type="checkbox" name="rep_type9" id="rep_type9" /> Change Microsoft Word<sup>&#174;</sup>'s bullets<br/>
+										<input type="checkbox" name="rep_type5" id="rep_type5" /> Remove <b>style</b> attribute<br/>
+										<input type="checkbox" name="rep_type6" id="rep_type6" /> Remove <b>class</b> attribute<br/>
+										<input type="checkbox" name="rep_type7" id="rep_type7" /> Remove <b>&lt;table&gt;</b> tags<br/>
+										<input type="checkbox" name="rep_type8" id="rep_type8" /> Remove <b>&lt;span&gt;</b> tags<br/>
+										<input type="checkbox" name="rep_type9" id="rep_type9" /> Remove all empty tags<br/>
+										<input type="checkbox" name="rep_type10" id="rep_type10" /> Remove all tags' attributes<br/>
 									</td>
 								</tr>
 							</table>
@@ -189,7 +213,7 @@ if (!isset($_GET['name']))		  $_GET['name'] = '';
 
 			<div style="text-align: right;">
 			<hr />
-			<button type="button" name="ok" onclick="return onOK();">OK</button>
+			<button type="button" name="ok" onclick="if (!onOK()) return;">OK</button>
 			&nbsp;
 			<button type="button" name="cancel" onclick="window.close();">Cancel</button>
 			</div>
