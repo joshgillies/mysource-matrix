@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.73 2006/01/26 22:12:45 lwright Exp $
+* $Id: system_config.inc,v 1.74 2006/02/22 04:41:56 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -72,7 +72,6 @@ class System_Config extends Config
 						'SQ_CONF_ASSET_MAP_ASSET_LIMIT'		=> Array('editable' => 1, 'default' => 50),
 						'SQ_CONF_SEND_LAST_MODIFIED_HEADER'	=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_SEND_NOT_MODIFIED_HEADER'	=> Array('editable' => 1, 'default' => '0'),
-						'SQ_CONF_LOG_FILE'					=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_LOG_ERRORS'				=> Array('editable' => 1, 'default' => true),
 						'SQ_CONF_ERRORS_HIDE_FRONTEND'		=> Array('editable' => 1, 'default' => false),
 						'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'	=> Array('editable' => 1, 'default' => 'en'),
