@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.158 2006/02/13 03:29:16 dheppell Exp $
+* $Id: search_page.inc,v 1.159 2006/02/22 22:26:32 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.158 $
+* @version $Revision: 1.159 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -523,6 +523,69 @@ class Search_Page extends Listing_Engine
 
 
 	/**
+	* Returns true if the supplied field contains several different field types
+	*
+	* Mixed field types are when there are datasources of different types, or asset-attribute
+	* datasources with different types of attribute, or metadata datasources with different
+	* kinds of metadata field etc
+	*
+	* @param array	$field	Details of a field from the fields attr
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _hasMixedFieldTypes($field)
+	{
+		$mixed_ds_types = false;
+		if (count($field['data_sources']) > 1) {
+			// several data sources, see what we can do
+			$first_ds_type = null;
+			$first_field_type = null;
+			foreach ($field['data_sources'] as $ds) {
+				if (is_null($first_ds_type)) {
+					$first_ds_type = $ds['type'];
+				}
+				if ($ds['type'] != $first_ds_type) {
+					$mixed_ds_types = true;
+					break;
+				}
+				$this_field_type = null;
+				switch ($ds['type']) {
+					case 'metadata':
+						$assetid = $ds['params']['assetid'];
+						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						if (!is_null($asset)) {
+							$this_field_type = get_class($asset);
+						}
+					break;
+					case 'asset_attrib':
+						$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($ds['params']['attrid']);
+						$this_field_type = $attribute->type();
+					break;
+					case 'standard' :
+						$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+						if (isset($sm->standard_date_fields[$ds['params']['field']])) {
+							$this_field_type = 'date';
+						} else {
+							$this_field_type = 'text';
+						}
+					break;
+				}
+				if (is_null($first_field_type)) {
+					$first_field_type = $this_field_type;
+				}
+				if ($this_field_type != $first_field_type) {
+					$mixed_ds_types = true;
+					break;
+				}
+			}
+		}
+		return $mixed_ds_types;
+
+	}//end _hasMixedFieldTypes()
+
+
+	/**
 	* Get a datetime field for painting and processing
 	*
 	* @param string	$field_name	the name of the field we are creating
@@ -909,8 +972,10 @@ class Search_Page extends Listing_Engine
 
 		ob_start();
 
-			if (count($fields[$field_name]['data_sources']) == 1) {
-				// only one data source; we'll base our format on that
+			if (empty($fields[$field_name]['data_sources']) || $this->_hasMixedFieldTypes($fields[$field_name])) {
+				text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
+			} else {
+				// only one data source, or all matching; we'll base our format on the first one
 				$data_source = $fields[$field_name]['data_sources'][0];
 
 				switch ($data_source['type']) {
@@ -988,9 +1053,6 @@ class Search_Page extends Listing_Engine
 					break;
 
 				}//end switch field type
-			} else {
-				// when there are multiple (or 0) data sources supplied the format is always text (for now)
-				text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
 			}
 
 			if (!$read_only) {
@@ -2136,7 +2198,7 @@ class Search_Page extends Listing_Engine
 			$queries[$field_name] = '';
 			$query_var = 'queries_'.$field_name.$suffix;
 
-			if (count($field_details['data_sources']) == 1) {
+			if (!empty($field_details['data_sources']) && !$this->_hasMixedFieldTypes($field_details)) {
 				$data_source = $field_details['data_sources'][0];
 				switch ($data_source['type']) {
 					case 'include_all' :
