@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.39 2006/02/13 04:33:01 sdanis Exp $
+* $Id: page_account_manager.inc,v 1.40 2006/02/22 00:13:46 bcaldwell Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -480,12 +480,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 					return FALSE;
 
 				} else {
-
-					$pending_usergroup_id = $this->_getPendingAccountsGroupId();
-					$links = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($pending_usergroup_id, $user->id);
-
-					// we should only have one link
-					if (!empty($links)) {
+					if ($validation_key = $this->getValidationKeyForUser($user)) {
 						$replacements = Array();
 						list($create_type) = array_keys($this->attr('create_type'));
 						$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type);
@@ -496,7 +491,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 							$replacements[$attr] = $user->attr($attr);
 						}
 
-						$validation_url = current_url().'?action=validate&amid='.$links['value'].'&amlocs=';
+						$validation_url = current_url().'?action=validate&amid='.$validation_key.'&amlocs=';
 
 						// work out what selectable create locations they have selected and add them to the URL.
 						// (Mandatory and rule-based create locations can be worked out after validation).
@@ -537,6 +532,28 @@ class Page_Account_Manager extends Page_Asset_Builder
 		return FALSE;
 
 	}//end _reSendValidation()
+
+
+	/**
+	* Returns the validation key for the supplied user.
+	*
+	* @param &object	$user	The user we want the validation key for
+	*
+	* @return string
+	* @access public
+	*/
+	function getValidationKeyForUser(&$user)
+	{
+		$pending_usergroup_id = $this->_getPendingAccountsGroupId();
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($pending_usergroup_id, $user->id);
+
+		// we should only have one link
+		if (!empty($links)) {
+			return $links['value'];
+		}
+		return FALSE;
+
+	}//end getValidationKeyForUser()
 
 
 	/**
