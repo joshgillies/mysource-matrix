@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.22 2006/01/17 21:57:01 lwright Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.23 2006/02/22 23:10:34 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -97,7 +97,6 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$keyword_vars = Array('keywords' => &$keywords);
 
 			$em->broadcastEvent($asset, 'requestKeywords', $keyword_vars);
-
 
 			$wysiwyg->open_group();
 				if ($iap || in_array('format_text', $ap)) {
@@ -196,6 +195,12 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$wysiwyg->open_group();
 				if ($iap || in_array('special_chars', $ap)) {
 					$wysiwyg->add_plugin('special_chars');
+				}
+			$wysiwyg->close_group();
+
+			$wysiwyg->open_group();
+				if ($iap || in_array('choose_language', $ap)) {
+					$wysiwyg->add_plugin('choose_language');
 				}
 			$wysiwyg->close_group();
 
