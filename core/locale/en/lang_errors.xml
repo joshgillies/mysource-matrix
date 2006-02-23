@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.39 2006/02/15 22:48:07 tbarrett Exp $
+* $Id: lang_errors.xml,v 1.40 2006/02/23 00:12:45 lwright Exp $
 *
 */
 
@@ -371,7 +371,7 @@
 	<error code="CRON0045">Only repeating type cron jobs can have their "when" attributes set to a "TI=" prefixed value</error>
 
 	<error code="CRON0046">To add a future status you must specify the date and time at which the status should be changed</error>
-	
+
 	<!-- MAPS - MYSOURCE AUTOMATED PATCHING SYSTEM -->
 
 	<error code="MAPS0001">Unable to Read File : %1$s
@@ -1425,7 +1425,6 @@ Full Node Contents %3$s</error>
 	<error code="CORE0082">URL "%s" is not based upon an existing System Root URL</error>
 	<error code="CORE0083">Unable to create a %s with a blank name</error>
 	<error code="CORE0084">Unable to create a %s without a username and password</error>
-	<error code="CORE0247">Password cannot be blank</error>
 	<error code="CORE0085">Unable to create another "%s", it is a System Asset and you are only allowed one</error>
 	<error code="CORE0086">Unable to create file with name "%s", web path already exists?</error>
 	<error code="CORE0087">Unable to delete variety "%s" it does not exist</error>
@@ -1610,4 +1609,13 @@ Full Node Contents :
 
 	<!-- Set Metadata Value Trigger -->
 	<error code="CORE0246">Metadata field "%1$s" (Id: #%2$s) is marked as not editable; it cannot be set as the field to set</error>
+
+
+	<error code="CORE0247">Password cannot be blank</error>
+
+	<!-- User IP Condition -->
+	<error code="CORE0248">The IP/subnet combination "%1$s/$2$s" does not represent a valid network IP - ignoring</error>
+	<error code="CORE0249">Ignoring uploaded IP ranges file as it appears to be invalid</error>
+	<error code="CORE0250">The IP/subnet combination "%1$s/$2$s" is in the file once for both grant and deny - using the first line found and ignoring the rest</error>
+
 </errors>

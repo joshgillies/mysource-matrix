@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.110 2006/02/21 00:58:08 bcaldwell Exp $
+* $Id: lang_strings.xml,v 1.111 2006/02/23 00:12:45 lwright Exp $
 *
 */
 
@@ -783,6 +783,13 @@
 	<string source="condition_logical_true">The following combination of keywords evaluates to True</string>
 	<string source="condition_logical_false">The following combination of keywords evaluates to False</string>
 
+	<!-- User IP Condition -->
+	<string source="network_ip_address">Network IP Address</string>
+	<string source="subnet_mask">Subnet Mask</string>
+	<string source="condition_user_ip_no_conditions_set">There are no conditions set</string>
+	<string source="condition_user_ip_default_grant">If IP address is outside one of these ranges</string>
+	<string source="condition_user_ip_import_from_file">Import rules from CSV file</string>
+	<string source="condition_user_ip_import_from_file_explain">The file uploaded should be a CSV file without a header row. Each line should contain exactly six fields: the first four being the octets of the network IP address, the fifth being the subnet mask (in CIDR format, eg. "255.255.255.0" would be represented in the file by "24"), and the sixth being a one (1) for a Grant rule or zero (0) for a Deny rule. The default Grant/Deny setting is not affected by any upload and should be set separately.</string>
 
 	<string source="server_variable">Server Variable</string>
 	<string source="pattern">Pattern</string>
