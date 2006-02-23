@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_locks.inc,v 1.16 2005/10/26 00:05:23 sdanis Exp $
+* $Id: hipo_job_acquire_locks.inc,v 1.17 2006/02/23 00:14:10 bcaldwell Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -171,7 +171,9 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 		if (isset($this->_running_vars['lock_type']) && isset($assetid)) {
 			if (is_array($this->_running_vars['lock_type'])) {
 				foreach ($this->_running_vars['lock_type'] as $lock_type) {
-					$types = $GLOBALS['SQ_SYSTEM']->am->getLockTypes($assetid, $lock_type);
+					foreach ($GLOBALS['SQ_SYSTEM']->am->getLockTypes($assetid, $lock_type) as $type) {
+						if (!in_array($type, $types)) $types[] = $type;
+					}
 				}
 			} else {
 				$types = $GLOBALS['SQ_SYSTEM']->am->getLockTypes($assetid, $this->_running_vars['lock_type']);
