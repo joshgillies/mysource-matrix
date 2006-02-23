@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.15.2.2 2006/02/07 00:45:04 arailean Exp $
+* $Id: thesaurus.inc,v 1.15.2.3 2006/02/23 02:43:17 sdanis Exp $
 *
 */
 
@@ -36,7 +36,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.15.2.2 $
+* @version $Revision: 1.15.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -198,13 +198,13 @@ class Thesaurus extends Asset
 				AND
 				link.thesid = '.$db->quoteSmart($this->id).'
 				AND
-				major '.(is_null($termid)?'ISNULL':'= '.$db->quoteSmart($termid)).'
+				major '.(is_null($termid)?'IS NULL':'= '.$db->quoteSmart($termid)).'
 		';
 
 		if ($limit_relation) {
 			$sql .= '
 				AND
-				relation '.(is_null($relation)?'ISNULL':'= '.$db->quoteSmart($relation)).'
+				relation '.(is_null($relation)?'IS NULL':'= '.$db->quoteSmart($relation)).'
 			';
 		}
 
@@ -244,7 +244,7 @@ class Thesaurus extends Asset
 			WHERE
 				thesid = '.$db->quoteSmart($this->id).'
 				AND
-				major '.(is_null($termid)?'ISNULL':'= '.$db->quoteSmart($termid)).'
+				major '.(is_null($termid)?'IS NULL':'= '.$db->quoteSmart($termid)).'
 		';
 
 		$result = $db->getOne($sql);
@@ -308,7 +308,7 @@ class Thesaurus extends Asset
 			WHERE
 				thesid = '.$db->quoteSmart($this->id).'
 				AND
-				major '.(is_null($termid) ? 'ISNULL' : '= '.$db->quoteSmart($termid)).'
+				major '.(is_null($termid) ? 'IS NULL' : '= '.$db->quoteSmart($termid)).'
 		';
 
 		$result = $db->getAll($sql);
@@ -344,7 +344,7 @@ class Thesaurus extends Asset
 			WHERE
 				thesid = '.$db->quoteSmart($this->id).'
 				AND
-				minor '.(is_null($termid)?'ISNULL':'= '.$db->quoteSmart($termid)).'
+				minor '.(is_null($termid)?'IS NULL':'= '.$db->quoteSmart($termid)).'
 		';
 
 		$result = $db->getAll($sql);
@@ -382,7 +382,7 @@ class Thesaurus extends Asset
 				(
 					term.thesid = '.$db->quoteSmart($this->id).'
 					OR
-					term.thesid ISNULL
+					term.thesid IS NULL
 				)
 				AND
 				link.thesid = '.$db->quoteSmart($this->id).'
@@ -474,7 +474,7 @@ class Thesaurus extends Asset
 				INNER JOIN sq_thes_lnk link ON major.termid = link.major
 				INNER JOIN sq_thes_term minor ON minor.termid = link.minor
 			WHERE
-				link.relation '.(is_null($relation)?'ISNULL':'= '.$db->quoteSmart($relation)).'
+				link.relation '.(is_null($relation)?'IS NULL':'= '.$db->quoteSmart($relation)).'
 				AND
 				major.thesid = '.$db->quoteSmart($this->id).'
 				AND
@@ -586,7 +586,7 @@ class Thesaurus extends Asset
 				WHERE
 					sort_order >= '.$db->quoteSmart($sort_order).'
 					AND
-					major '.(is_null($majorid)?'ISNULL':'= '.$db->quoteSmart($majorid)).'
+					major '.(is_null($majorid)?'IS NULL':'= '.$db->quoteSmart($majorid)).'
 					AND
 					thesid = '.$db->quoteSmart($this->id).'
 			';
@@ -1052,7 +1052,7 @@ class Thesaurus extends Asset
 				WHERE
 					sort_order >= '.$db->quoteSmart($sort_order).'
 					AND
-					major '.(is_null($parentid)?'ISNULL':'= '.$db->quoteSmart($parentid)).'
+					major '.(is_null($parentid)?'IS NULL':'= '.$db->quoteSmart($parentid)).'
 					AND
 					thesid = '.$db->quoteSmart($this->id).'
 			';
@@ -1718,9 +1718,9 @@ class Thesaurus extends Asset
 				AND
 				thesid = '.$db->quoteSmart($this->id).'
 				AND
-				major '.(is_null($parent)?'ISNULL ':('= '.$db->quoteSmart($parent))).'
+				major '.(is_null($parent)?'IS NULL ':('= '.$db->quoteSmart($parent))).'
 				AND
-				relation '.(is_null($relation)?'ISNULL ':('= '.$db->quoteSmart($relation))).'
+				relation '.(is_null($relation)?'IS NULL ':('= '.$db->quoteSmart($relation))).'
 		';
 
 		$result = $db->getOne($sql);
@@ -1757,9 +1757,9 @@ class Thesaurus extends Asset
 			WHERE
 				minor = '.$db->quoteSmart($termid).'
 				AND
-				major '.(is_null($parentid)?'ISNULL ':('= '.$db->quoteSmart($parentid))).'
+				major '.(is_null($parentid)?'IS NULL ':('= '.$db->quoteSmart($parentid))).'
 				AND
-				relation '.(is_null($relation)?'ISNULL ':('= '.$db->quoteSmart($relation))).'
+				relation '.(is_null($relation)?'IS NULL ':('= '.$db->quoteSmart($relation))).'
 				AND
 				thesid = '.$db->quoteSmart($this->id).'
 		';
@@ -2831,7 +2831,7 @@ class Thesaurus extends Asset
 					AND
 					sort_order <= '.$db->quoteSmart($new_sort_order).'
 					AND
-					major '.(is_null($parentid)?'ISNULL':'= '.$db->quoteSmart($parentid)).'
+					major '.(is_null($parentid)?'IS NULL':'= '.$db->quoteSmart($parentid)).'
 					AND
 					thesid = '.$db->quoteSmart($this->id).'
 			';
@@ -2846,7 +2846,7 @@ class Thesaurus extends Asset
 					AND
 					sort_order >= '.$db->quoteSmart($new_sort_order).'
 					AND
-					major '.(is_null($parentid)?'ISNULL':'= '.$db->quoteSmart($parentid)).'
+					major '.(is_null($parentid)?'IS NULL':'= '.$db->quoteSmart($parentid)).'
 					AND
 					thesid = '.$db->quoteSmart($this->id).'
 			';
@@ -2895,7 +2895,7 @@ class Thesaurus extends Asset
 			FROM
 				sq_thes_lnk
 			WHERE
-				major '.(is_null($majorid)?'ISNULL':'= '.$db->quoteSmart($majorid)).'
+				major '.(is_null($majorid)?'IS NULL':'= '.$db->quoteSmart($majorid)).'
 				AND
 				thesid = '.$db->quoteSmart($this->id).'
 		';
