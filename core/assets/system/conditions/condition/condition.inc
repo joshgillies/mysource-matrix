@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition.inc,v 1.9 2006/01/26 22:34:05 lwright Exp $
+* $Id: condition.inc,v 1.10 2006/02/23 00:13:47 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -145,6 +145,34 @@ class Condition extends Asset
 		return Array();
 
 	}//end getRequiredKeywords()
+
+
+	/**
+	* Get a list of match keywords
+	*
+	* Only override this in a child condition asset in very exceptional
+	* circumstances (see the User IP condition for an example).
+	*
+	* In the future, this could be potentially expanded to offer options other
+	* than TRUE or FALSE match options, but not without a fair bit of further
+	* development.
+	*
+	* @param string	$type_code	the type code of this asset
+	*
+	* @return array
+	* @access public
+	* @static
+	*/
+	function getMatchKeywords($type_code)
+	{
+		$match_options = Array(
+							'1'	=> translate($type_code.'_true'),
+							'0'	=> translate($type_code.'_false'),
+						 );
+
+		return $match_options;
+
+	}//end getMatchKeywords()
 
 
 }//end class

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_ip_edit_fns.inc,v 1.7 2006/02/22 04:39:27 lwright Exp $
+* $Id: condition_user_ip_edit_fns.inc,v 1.8 2006/02/23 00:13:47 lwright Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once dirname(__FILE__).'/condition_user_ip.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -238,7 +238,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 				// of the other kind of rule
 				$this_row['grant'] = !$this_row['grant'];
 				if (in_array($this_row, $ip_ranges)) {
-					trigger_error('CORE0247', E_USER_WARNING, $this_row['ip_address'], $this_row['subnet']);
+					trigger_error('CORE0250', E_USER_WARNING, $this_row['ip_address'], $this_row['subnet']);
 					continue;
 				}
 
@@ -663,7 +663,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 			// complain, then ignore it
 			$ip_range_field['grant'] = !$ip_range_field['grant'];
 			if (in_array($ip_range_field, $ip_ranges)) {
-				trigger_error('CORE0247', E_USER_WARNING, $ip_range_field['ip_address'], $ip_range_field['subnet']);
+				trigger_error('CORE0250', E_USER_WARNING, $ip_range_field['ip_address'], $ip_range_field['subnet']);
 				continue;
 			}
 
