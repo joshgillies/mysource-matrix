@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_thesaurus_db.php,v 1.3 2006/01/30 00:31:08 lwright Exp $
+* $Id: upgrade_thesaurus_db.php,v 1.3.2.1 2006/02/23 05:59:46 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Upgrades thesaurus contents from 0.1 to 0.2
 *
 * @author  Elden McDonald
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,14 +68,14 @@ $db = &$GLOBALS['SQ_SYSTEM']->db;
 $am = &$GLOBALS['SQ_SYSTEM']->am;
 
 
- //Add a column to the old table to mark a record as deleted.
+// Add a column to the old table to mark a record as deleted.
 // Add another column that marks a record as seen
 
-$sql = 'ALTER TABLE ONLY sq_lex_thes_ent_rel
-		 ADD deleted boolean';
+$sql = 'ALTER TABLE sq_lex_thes_ent_rel
+		 ADD deleted char(1)';
 	$result = $db->query($sql);
 	assert_valid_db_result($result);
-$sql = 'ALTER TABLE ONLY sq_lex_thes_ent_rel
+$sql = 'ALTER TABLE sq_lex_thes_ent_rel
 		ADD depth integer';
 	$result = $db->query($sql);
 	assert_valid_db_result($result);
@@ -164,7 +164,7 @@ foreach ($thesaurii as $thesaurus_id) {
 				er.thes_id = '.$db->quoteSmart($thesaurus_id).'
 				AND
 				(
-					er.deleted IS FALSE
+					er.deleted = '.$db->quoteSmart('0').'
 					OR
 					er.deleted IS NULL
 				)
@@ -212,7 +212,7 @@ foreach ($thesaurii as $thesaurus_id) {
 			//Delete this node to avoid loops
 			$sql ='
 				UPDATE sq_lex_thes_ent_rel
-				SET deleted = '.$db->quoteSmart('TRUE').'
+				SET deleted = '.$db->quoteSmart('1').'
 				WHERE cld_ent_id = '.$minor_id.'
 				AND rel_id = '.$db->quoteSmart($rel_id).'
 				AND thes_id = '.$db->quoteSmart($thesaurus_id);
@@ -242,7 +242,7 @@ foreach ($thesaurii as $thesaurus_id) {
 					WHERE id IN (SELECT distinct pnt_ent_id
 									FROM sq_lex_thes_ent_rel
 									WHERE thes_id='.$db->quoteSmart($thesaurus_id).'
-									AND(deleted IS FALSE
+									AND(deleted = '.$db->quoteSmart('0').'
 										OR deleted IS NULL))
 					AND thes_id = '.$db->quoteSmart($thesaurus_id);
 
@@ -302,7 +302,7 @@ foreach ($thesaurii as $thesaurus_id) {
 						er.thes_id = '.$db->quoteSmart($thesaurus_id).'
 						AND
 						(
-							er.deleted IS FALSE
+							er.deleted = '.$db->quoteSmart('0').'
 							OR
 							er.deleted IS NULL
 						)
@@ -351,7 +351,7 @@ foreach ($thesaurii as $thesaurus_id) {
 					//Delete this node to avoid loops
 					$sql ='
 						UPDATE sq_lex_thes_ent_rel
-						SET deleted = '.$db->quoteSmart('TRUE').'
+						SET deleted = '.$db->quoteSmart('1').'
 						WHERE cld_ent_id = '.$minor_id.'
 						AND rel_id = '.$db->quoteSmart($rel_id).'
 						AND thes_id = '.$db->quoteSmart($thesaurus_id);
@@ -386,20 +386,28 @@ function _termLinksRemaining($thesaurus_id)
 	$sql = 'SELECT count(*)
 			FROM sq_lex_thes_ent_rel
 			WHERE thes_id = '.$db->quoteSmart($thesaurus_id).'
-			AND (deleted IS FALSE OR deleted IS NULL)';
+			AND (deleted = '.$db->quoteSmart('0').' OR deleted IS NULL)';
 	$result = $db->getOne($sql);
 	assert_valid_db_result($result);
 	return($result);
 }//end _termLinksRemaining()
 
 
-$sql = 'DROP TABLE sq_lex_thes_ent, sq_lex_thes_rel, sq_lex_thes_ent_rel';
-$result = $db->query($sql);
-assert_valid_db_result($result);
+$tables_to_drop = Array('sq_lex_thes_ent', 'sq_lex_thes_rel', 'sq_lex_thes_ent_rel');
 
-$sql = 'DROP SEQUENCE sq_lex_thes_ent_id_seq, sq_lex_thes_rel_id_seq';
-$result = $db->query($sql);
-assert_valid_db_result($result);
+foreach ($tables_to_drop as $table_name) {
+	$sql = 'DROP TABLE '.$table_name;
+	$result = $db->query($sql);
+	assert_valid_db_result($result);
+}
+
+$seq_to_drop = Array('sq_lex_thes_ent_id_seq', 'sq_lex_thes_rel_id_seq');
+
+foreach ($seq_to_drop as $seq_name) {
+	$sql = 'DROP SEQUENCE '.$seq_name;
+	$result = $db->query($sql);
+	assert_valid_db_result($result);
+}
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
