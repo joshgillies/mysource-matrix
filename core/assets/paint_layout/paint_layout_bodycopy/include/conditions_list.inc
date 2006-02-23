@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: conditions_list.inc,v 1.9 2006/01/26 22:34:04 lwright Exp $
+* $Id: conditions_list.inc,v 1.10 2006/02/23 00:14:27 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('SQ_KEYWORD_CONDITION_ELSE', 'else');
 * parameters in a single attribute (of type Array).
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 class Conditions_List
@@ -376,22 +376,19 @@ class Conditions_List
 				}
 				$o->closeField();
 
+				// let the condition paint itself
+				$condition_type = $parameters['type_code'];
+				$condition =& $this->_getConditionAsset($condition_type);
+				$condition_edit_fns =& $this->_getConditionAsset($condition_type, TRUE);
+
 				// paint TRUE/FALSE bit
 				$o->openField('Keyword is true if: ');
-				$match_options = Array(
-									'1'	=> translate($parameters['type_code'].'_true'),
-									'0'	=> translate($parameters['type_code'].'_false'),
-								 );
+				$match_options = call_user_func(Array($condition_type, 'getMatchKeywords'), $condition_type);
 				if ($write_access) {
 					combo_box($condition_prefix.'_match', $match_options, FALSE, $parameters['restriction']['match']);
 				} else {
 					echo $match_options[$parameters['restriction']['match']];
 				}
-
-				// let the condition paint itself
-				$condition_type = $parameters['type_code'];
-				$condition =& $this->_getConditionAsset($condition_type);
-				$condition_edit_fns =& $this->_getConditionAsset($condition_type, TRUE);
 
 				if (isset($parameters['restriction']) && empty($parameters['restriction']['condition_data'])) {
 					$parameters['restriction']['condition_data'] = Array();

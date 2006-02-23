@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.26 2006/02/02 02:29:33 ndvries Exp $
+* $Id: user_edit_fns.inc,v 1.27 2006/02/23 00:14:27 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -109,6 +109,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 
 		// get a list of user restrictions
 		$restrictions = $asset->attr('restrictions');
+
 		foreach ($groups as $group_assetid => $group) {
 			$o->openSection($group['name'].' (#'.$group_assetid.')');
 			$o->openField('');
@@ -139,18 +140,16 @@ class User_Edit_Fns extends Asset_Edit_Fns
 						<td><?php echo $key; ?></td>
 						<td>
 							<?php
+							$edit_fns_classname = $restriction['name'].'_edit_fns';
+							$GLOBALS['SQ_SYSTEM']->am->includeAsset($restriction['name'], TRUE);
+
 							if ($admin_access) {
-								$match_options = Array(
-													'1'	=> translate($restriction['name'].'_true'),
-													'0'	=> translate($restriction['name'].'_false'),
-												 );
+								$match_options = call_user_func(Array($restriction['name'], 'getMatchKeywords'), $restriction['name']);
 								combo_box($condition_prefix.'_match', $match_options, FALSE, $restriction['match']);
 							} else {
 								echo translate($restriction['name'].'_'.($restriction['match'] ? 'true' : 'false'));
 							}
 							echo '<br />';
-							$edit_fns_classname = $restriction['name'].'_edit_fns';
-							$GLOBALS['SQ_SYSTEM']->am->includeAsset($restriction['name'], TRUE);
 							call_user_func(Array($edit_fns_classname, 'paintEditInterface'), $restriction['condition_data'], $o, $condition_prefix, $admin_access);
 							?>
 						</td>
