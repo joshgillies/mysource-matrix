@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_edit_fns.inc,v 1.3 2006/02/06 04:57:29 sdanis Exp $
+* $Id: report_asset_statuses_edit_fns.inc,v 1.3.2.1 2006/02/23 01:18:33 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -78,6 +78,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 		}
 
 		$search_status = str_replace('|', ', ', $owner->attr('search_status'));
+
 		if ($search_status != SQ_SC_STATUS_ALL) {
 			$where[] = 'a.status in ('.$search_status.')';
 		}
@@ -246,12 +247,12 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header" style="width: 10ex">Icon</td>
-				<td class="sq-backend-table-header" style="width: 10ex">Asset ID</td>
-				<td class="sq-backend-table-header">Name</td>
-				<td class="sq-backend-table-header">Status</td>
-				<td class="sq-backend-table-header">Last Status Change</td>
-				<td class="sq-backend-table-header">Last Status Changer</td>
+				<th class="sq-backend-table-header" style="width: 10ex"><?php echo translate('cms_reports_asset_statuses_asset_icon'); ?></td>
+				<th class="sq-backend-table-header" style="width: 10ex"><?php echo translate('assetid'); ?></td>
+				<th class="sq-backend-table-header"><?php echo translate('name'); ?></td>
+				<th class="sq-backend-table-header"><?php echo translate('status'); ?></td>
+				<th class="sq-backend-table-header"><?php echo translate('cms_reports_asset_statuses_last_status_change'); ?></td>
+				<th class="sq-backend-table-header"><?php echo translate('cms_reports_asset_statuses_last_status_changer'); ?></td>
 			</tr>
 		<?php
 		$cmp_func = create_function('$a, $b', 'return $a->attributes[\'type_code\'] > $b->attributes[\'type_code\'];');
@@ -267,8 +268,6 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 			$status_changed_userid = $asset_node->children[0]->attributes['changed_userid'];
 			$status_changed_user_name = $asset_node->children[0]->attributes['changed_user_name'];
 
-			$status_names = get_status_names();
-
 			?>
 				<tr>
 					<td class="sq-backend-table-cell">
@@ -281,7 +280,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 						<?php echo $name; ?>
 					</td>
 					<td class="sq-backend-table-cell">
-						<span style="padding: 0 1ex 0 1ex;background: #<?php echo get_status_colour($status); ?>"><?php echo $status_names[$status]; ?></span>
+						<?php echo get_asset_status_icon($status); ?><?php echo get_status_description($status); ?>
 					</td>
 					<td class="sq-backend-table-cell">
 						<?php echo $status_changed; ?>
@@ -297,6 +296,67 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 		<?php
 
 	}//end paintReport()
+
+
+	/**
+	* Paint the interface for asset status selection
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintSearchStatuses(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$current_statuses = explode('|',$asset->attr('search_status'));
+
+		if ($write_access) {
+			$statuses = get_constant_values('SQ_STATUS');
+			$options = Array();
+			foreach ($statuses as $constant => $value) {
+				$options[$value] = get_status_description($value);
+			}
+			combo_box($prefix.'_statuses', $options, TRUE, $current_statuses);
+		} else {
+			if (empty($current_statuses)) {
+				echo translate('cms_listing_no_status_selected');
+			} else {
+				?><ul style="margin: 1px 15px;"><?php
+				foreach ($current_statuses as $status) {
+					echo '<li>';
+					echo get_asset_status_icon($status);
+					echo get_status_description($status);
+					echo '</li>';
+				}
+				?></ul><?php
+			}
+		}
+
+	}//end paintSearchStatuses()
+
+
+	/**
+	* Process asset selections
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processSearchStatuses(&$asset, &$o, $prefix)
+	{
+		$new_statuses = Array();
+		if (isset($_REQUEST[$prefix.'_statuses'])) {
+			$new_statuses = implode('|', $_REQUEST[$prefix.'_statuses']);
+			$asset->setAttrValue('search_status', $new_statuses);
+		}
+
+	}//end processSearchStatuses()
 
 
 }//end class

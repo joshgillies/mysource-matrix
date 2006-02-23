@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2005/05/02 04:40:51 ndvries Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2.4.1 2006/02/23 01:18:33 sdanis Exp $
 *
 */
 -->
@@ -27,8 +27,11 @@
 				<process_function name="processRootNode" />
 			</function_call>
 		</field>
-		<field attribute="search_status">
-			<selection style="list" height="1" />
+		<field>
+			<function_call>
+				<paint_function   name="paintSearchStatuses" />
+				<process_function name="processSearchStatuses" />
+			</function_call>
 		</field>
 		<field>
 			<function_call>
