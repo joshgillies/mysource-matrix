@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.13 2006/02/20 00:39:54 skim Exp $
+* $Id: data_source_graph.inc,v 1.14 2006/02/23 03:32:40 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,7 +113,12 @@ class Data_Source_Graph extends Image
 		}
 		$this->setAttrValue('name', $name);
 
-		return Asset::create($link);
+		if (Asset::create($link)) {
+			return unlink($info['path'].'/'.$info['filename']);
+		} else {
+			unlink($info['path'].'/'.$info['filename']);
+			return FALSE;
+		}
 
 	}//end create()
 
