@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.25 2006/02/23 21:52:47 skim Exp $
+* $Id: edit_table.php,v 1.26 2006/02/23 23:16:44 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 */
 
@@ -248,46 +248,15 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			</div>
 		</fieldset>
 
-		<fieldset id="color_panel">
-			<legend><?php echo translate('colour'); ?></legend>
-			<div style="width:40px;height:40px;position:relative;" id="bgborder" onclick="table.toggleBgBorder();">
-				<div id="border" style="width:30px;height:30px;position:absolute;left:10px;top:10px;border:inset 1px;background:url(images/empty.gif)">
-					<div style="width:19px;height:19px;position:absolute;left:5px;top:5px;border:outset 1px;background:#FFF;font-size:5px"></div>
-				</div>
-				<div id="bg" style="width:30px;height:30px;position:absolute;left:0px;top:0px;border:inset 1px;background:url(images/empty.gif)"></div>
-			</div>
-			<div id="colors" style="margin-top:5px" class="colors">
-				<script type="text/javascript">
-				//<![CDATA[
-					var Clr = Array("0", "3", "6", "9", "C", "F");
-					var out = '<table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse">';
-					for (h1 = 0; h1 < Clr.length; h1++) {
-						if (h1 == 0) out += '<tr>' + '<td style="width:10px;height:10px;font-size:4px;" title="none" onclick="table.setColor(null)"><img src="images/empty.gif" width="10" height="10" alt="none" /></td>';
-						else out += '<tr>' + '<td style="width:10px;height:10px;font-size:4px;background:#' + Clr[h1] + Clr[h1] + Clr[h1] + '" title="' + Clr[h1] + Clr[h1] + Clr[h1] + Clr[h1] + Clr[h1] + Clr[h1] + '" onclick="table.setColor(\'' + Clr[h1] + Clr[h1] + Clr[h1] + '\')"></td>';
-						for (h2 = 0; h2 < Clr.length; h2++)
-							for (h3 = 0; h3 < Clr.length; h3++) {
-								color = Clr[h1] + Clr[h2] + Clr[h3];
-								title = Clr[h1] + Clr[h1] + Clr[h2] + Clr[h2] + Clr[h3] + Clr[h3]
-								out += '<td style="width:10px;height:10px;font-size:4px;background:#' + color + '" title="' + title + '" onclick="table.setColor(\'' + color + '\')"></td>';
-							}
-						out += '</tr>';
-						}
-					out += '</table>';
-					document.write(out);
-				//]]>
-				</script>
-			</div>
-		</fieldset>
-
 		<!-- Properties for the table selector -->
 		<fieldset id="table_panel">
 			<legend><?php echo translate('table'); ?></legend>
 			<label for="tid"><?php echo translate('id'); ?></label>
 			<input id="tid" name="tid" onkeyup="table.setID(this.value)" /><br />
-			<label for="caption"><?php echo translate('caption'); ?></label>
+			<label for="caption"><?php echo translate('caption'); ?>:</label>
 			<input id="caption" name="caption" onkeyup="table.setCaption(this.value)"/><br />
 			<hr />
-			<label for="width"><?php echo translate('css').' '; echo translate('width'); ?></label>
+			<label for="width"><?php echo translate('css').' '; echo translate('width'); ?>:</label>
 			<input id="width" name="width" onkeyup="table.setWidth(parseInt(document.getElementById('width').value) + document.getElementById('widthtype').value)" style="width:100px" value="100" />
 			<select id="widthtype" name="widthtype" style="width:50px" onchange="table.setWidth(parseInt(document.getElementById('width').value) + document.getElementById('widthtype').value)">
 				<option value="px">px</option>
@@ -296,15 +265,15 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 				<option value="em">em</option>
 				<option value="ex">ex</option>
 			</select><br />
-			<label for="htmlwidth"><?php echo translate('htmlwidth'); ?></label>
+			<label for="htmlwidth"><?php echo translate('htmlwidth'); ?>:</label>
 			<input id="htmlwidth" name="htmlwidth" onkeyup="table.setHTMLWidth(parseInt(document.getElementById('htmlwidth').value) + document.getElementById('htmlwidthtype').value)" style="width:100px" value="100" />
 			<select id="htmlwidthtype" name="htmlwidthtype" style="width:50px" onchange="table.setHTMLWidth(parseInt(document.getElementById('htmlwidth').value) + document.getElementById('htmlwidthtype').value)">
 				<option value="" selected="selected"> </option>
 				<option value="%">%</option>
 			</select><br />
-			<label for="html_table_border"><?php echo translate('html_border'); ?></label>
+			<label for="html_table_border"><?php echo translate('html_border'); ?>:</label>
 			<input id="html_table_border" name="html_table_border" style="width: 50px" onkeyup="table.setTableHtmlBorder(parseInt(document.getElementById('html_table_border').value))" value="0" /><br />
-			<label for="table_border"><?php echo translate('border'); ?></label>
+			<label for="table_border"><?php echo translate('border'); ?>:</label>
 			<input id="table_border" name="table_border" style="width: 50px" onkeyup="table.setElementBorder((parseInt(document.getElementById('table_border').value)), document.getElementById('table_bordertype').value);" value="0" />
 			<select id="table_bordertype" name="table_bordertype" style="width:80px" onchange="table.setElementBorder((parseInt(document.getElementById('table_border').value)), document.getElementById('table_bordertype').value);" >
 				<option value="solid" selected="selected">solid</option>
@@ -319,14 +288,14 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 				<option value="hidden">hidden</option>
 			</select>
 			<br />
-			<label for="cellspacing"><?php echo translate('cell_spacing'); ?></label>
+			<label for="cellspacing"><?php echo translate('cell_spacing'); ?>:</label>
 			<input id="cellspacing" name="cellspacing" onkeyup="table.setCellSpacing(parseInt(this.value))" value="2"/><br />
-			<label for="cellpadding"><?php echo translate('cell_padding'); ?></label>
+			<label for="cellpadding"><?php echo translate('cell_padding'); ?>:</label>
 			<input id="cellpadding" name="cellpadding" onkeyup="table.setCellPadding(parseInt(this.value))" value="2"/><br />
 			<hr />
-			<label for="summary"><?php echo translate('summary'); ?></label>
+			<label for="summary"><?php echo translate('summary'); ?>:</label>
 			<textarea id="summary" cols="10" rows="3" onkeyup="table.setSummary(this.value)"></textarea>
-			<label for="frame"><?php echo translate('frame'); ?></label>
+			<label for="frame"><?php echo translate('frame'); ?>:</label>
 			<select id="frame" name="frame" onchange="table.setFrame(this.value)">
 				<option value=""><?php echo strtolower(translate('empty')); ?></option>
 				<option value="void"><?php echo translate('no_sides'); ?></option>
@@ -338,7 +307,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 				<option value="rhs"><?php echo translate('the_right-hand_side_only'); ?></option>
 				<option value="box"><?php echo translate('all_four_sides'); ?></option>
 			</select><br />
-			<label for="rules"><?php echo translate('rules'); ?></label>
+			<label for="rules"><?php echo translate('rules'); ?>:</label>
 			<select id="rules" name="rules" onchange="table.setRules(this.value)">
 				<option value=""><?php echo strtolower(translate('empty')); ?></option>
 				<option value="none"><?php echo translate('no_rules'); ?></option>
@@ -393,7 +362,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 
 		<!-- Properties for the column selector -->
 		<fieldset id="col_panel" style="display:none;">
-			<legend><?php translate('column_properties'); ?></legend>
+			<legend>Column Properties</legend>
 			<label for="col_width"><?php echo translate('width'); ?></label>
 			<input id="col_width" name="col_width" onkeyup="table.setColumnWidth(parseInt(document.getElementById('col_width').value) + document.getElementById('col_widthtype').value)" style="width:100px" value="100" disabled="disabled" />
 			<select id="col_widthtype" name="col_widthtype" style="width:50px" onchange="table.setColumnWidth(parseInt(document.getElementById('col_width').value) + document.getElementById('col_widthtype').value)" disabled="disabled">
@@ -499,6 +468,36 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			</select><br />
 			<label for="headings"><?php echo translate('headings'); ?></label>
 			<button id="headings" name="headings" onclick="table.toggleHeaders();" disabled="disabled" ><?php echo translate('click_to_select'); ?></button>
+		</fieldset>
+		<fieldset id="color_panel">
+			<legend><?php echo translate('colour'); ?></legend>
+			<div style="width:40px;height:40px;position:relative;" id="bgborder" onclick="table.toggleBgBorder();">
+				<div id="border" style="width:30px;height:30px;position:absolute;left:10px;top:10px;border:inset 1px;background:url(images/empty.gif)">
+					<div style="width:19px;height:19px;position:absolute;left:5px;top:5px;border:outset 1px;background:#FFF;font-size:5px"></div>
+				</div>
+				<div id="bg" style="width:30px;height:30px;position:absolute;left:0px;top:0px;border:inset 1px;background:url(images/empty.gif)"></div>
+			</div>
+			<div id="colors" style="margin-top:5px" class="colors">
+				<script type="text/javascript">
+				//<![CDATA[
+					var Clr = Array("0", "3", "6", "9", "C", "F");
+					var out = '<table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse">';
+					for (h1 = 0; h1 < Clr.length; h1++) {
+						if (h1 == 0) out += '<tr>' + '<td style="width:10px;height:10px;font-size:4px;" title="none" onclick="table.setColor(null)"><img src="images/empty.gif" width="10" height="10" alt="none" /></td>';
+						else out += '<tr>' + '<td style="width:10px;height:10px;font-size:4px;background:#' + Clr[h1] + Clr[h1] + Clr[h1] + '" title="' + Clr[h1] + Clr[h1] + Clr[h1] + Clr[h1] + Clr[h1] + Clr[h1] + '" onclick="table.setColor(\'' + Clr[h1] + Clr[h1] + Clr[h1] + '\')"></td>';
+						for (h2 = 0; h2 < Clr.length; h2++)
+							for (h3 = 0; h3 < Clr.length; h3++) {
+								color = Clr[h1] + Clr[h2] + Clr[h3];
+								title = Clr[h1] + Clr[h1] + Clr[h2] + Clr[h2] + Clr[h3] + Clr[h3]
+								out += '<td style="width:10px;height:10px;font-size:4px;background:#' + color + '" title="' + title + '" onclick="table.setColor(\'' + color + '\')"></td>';
+							}
+						out += '</tr>';
+						}
+					out += '</table>';
+					document.write(out);
+				//]]>
+				</script>
+			</div>
 		</fieldset>
 	</div>
 
