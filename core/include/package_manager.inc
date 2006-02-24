@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.76 2006/01/26 22:34:08 lwright Exp $
+* $Id: package_manager.inc,v 1.77 2006/02/24 05:49:40 sdanis Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -353,6 +353,10 @@ class Package_Manager extends MySource_Object
 		$this->assets = Array();
 		$this->_recurseLoadPackageAssets($this->assets, $this->_full_path, $this->_base_path);
 
+		// reload the asset types here :/
+		// otherwise any changes in asset locations will not be picked up by the asset manager
+		$GLOBALS['SQ_SYSTEM']->am->_loadAssetTypes();
+
 	}//end _loadPackageAssets()
 
 
@@ -390,6 +394,26 @@ class Package_Manager extends MySource_Object
 				}
 
 				$info['dir'] = $base_path;
+
+				// check the path of this type in db we may need to update it here incase it was moved
+				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+				$db =& $GLOBALS['SQ_SYSTEM']->db;
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+				$sql = 'SELECT dir FROM sq_ast_typ WHERE type_code ='.$db->quote($info['type_code']);
+
+				$result = $db->getOne($sql);
+				assert_valid_db_result($result);
+
+				if (!empty($result) && ($result != $info['dir'])) {
+					// update path
+					$sql = 'UPDATE sq_ast_typ SET dir='.$db->quote($info['dir']).' WHERE type_code='.$db->quote($info['type_code']);
+					$result = $db->query($sql);
+					assert_valid_db_result($result);
+				}
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 				$assets[$info['type_code']] = $info;
 
