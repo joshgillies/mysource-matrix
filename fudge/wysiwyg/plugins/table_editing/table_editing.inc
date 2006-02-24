@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table_editing.inc,v 1.27 2005/09/29 23:43:24 dmckee Exp $
+* $Id: table_editing.inc,v 1.28 2006/02/24 02:41:05 rong Exp $
 *
 */
 
@@ -126,26 +126,37 @@ class Table_Editing extends WYSIWYG_Plugin
 				// set focus in case we havnt selected anything
 				if (HTMLArea.is_ie) {
 					this._docContent.focus();
-				} else if (HTMLArea.ie_gecko) {
+				} else if (HTMLArea.is_gecko) {
 					this.focusEditor();
 				}
 				var sel = this._getSelection();
 				var range = this._createRange(sel);
 				this._popupDialog
-				("insertTable", "<?php echo $this->get_popup_href('insert_table.html')?>", 340, 260, true, function(param) {
+				("insertTable", "<?php echo $this->get_popup_href('insert_table.html')?>", 400, 500, true, function(param) {
 					if (!param) { // user must have pressed Cancel
 						return false;
 					}
 					var doc = editor._doc;
 					// create the table element
 					var table = doc.createElement("table");
+
+					var row_header = param["f_headerRow"];
+					var col_header = param["f_headerCol"];
+
 					// assign the given arguments
 					for (var field in param) {
 						var value = param[field];
+						//alert("value="+value+"\nfield="+field);
 						if (!value) {
 							continue;
 						}
 						switch (field) {
+							case "f_class":
+								if (value != "") {
+									table.className = value;
+								}
+							break;
+
 							case "f_width":
 								table.style.width = value + param["f_widthUnit"];
 							break;
@@ -155,21 +166,35 @@ class Table_Editing extends WYSIWYG_Plugin
 							break;
 
 							case "f_spacing":
-								table.cellspacing = parseInt(value);
+								table.cellSpacing = parseInt(value);
 							break;
 
 							case "f_padding":
-								table.cellpadding = parseInt(value);
+								table.cellPadding = parseInt(value);
+							break;
+
+							case "f_summary":
+								if (value != "") {
+									table.setAttribute("summary", value);
+								}
 							break;
 						}
 					}
+
 					var tbody = doc.createElement("tbody");
 					table.appendChild(tbody);
 					for (var i = 0; i < param["f_rows"]; ++i) {
 						var tr = doc.createElement("tr");
 						tbody.appendChild(tr);
 						for (var j = 0; j < param["f_cols"]; ++j) {
-							var td = doc.createElement("td");
+							var td = null;
+							// create a table header
+							if ((col_header && j == 0)
+								|| (row_header && i == 0)) {
+								td = doc.createElement("th");
+							} else {
+								td = doc.createElement("td");
+							}
 							tr.appendChild(td);
 							if (HTMLArea.is_gecko) {
 								// Mozilla likes to see something
@@ -178,6 +203,7 @@ class Table_Editing extends WYSIWYG_Plugin
 							}
 						}
 					}
+
 					if (HTMLArea.is_ie) {
 						range.pasteHTML(HTMLArea.getHTML(table, true));
 					} else {
@@ -205,8 +231,8 @@ class Table_Editing extends WYSIWYG_Plugin
 				}
 				table_structure = tablekeeper;
 				strPage = "<?php echo $this->get_popup_href('edit_table.php')?>";
-				var width = 820;
-				var height = 570;
+				var width = 835;
+				var height = 730;
 				table_structure = this.make_absolute_urls(table_structure);
 				this._popupDialog("editTableProperties", strPage, width, height, true, function(params) {
 					if (!params) {

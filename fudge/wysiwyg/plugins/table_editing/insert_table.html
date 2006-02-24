@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_table.html,v 1.9 2005/07/21 00:46:16 dmckee Exp $
+* $Id: insert_table.html,v 1.10 2006/02/24 02:41:05 rong Exp $
 *
 */
 -->
 
-<html style="width: 340px; height: 260px;">
+<html style="width: 370px; height: 480px;">
 
 	<head>
 		<title>Insert Table</title>
@@ -50,14 +50,21 @@
 					}
 				}
 
-				var fields = ["f_rows", "f_cols", "f_width", "f_widthUnit",
-							  "f_border", "f_spacing", "f_padding"];
+				var fields = ["f_rows", "f_cols", "f_class",
+							  "f_border", "f_width", "f_widthUnit",
+							  "f_spacing", "f_padding", "f_summary"];
 				var param = new Object();
 				for (var i in fields) {
 					var id = fields[i];
 					var el = document.getElementById(id);
 					param[id] = el.value;
 				}
+
+				// handles checkbox differently
+				var el = document.getElementById("f_headerRow");
+				param["f_headerRow"] = el.checked;
+				var el = document.getElementById("f_headerCol");
+				param["f_headerCol"] = el.checked;
 
 				__dlg_close("insertTable", param);
 				return false;
@@ -167,15 +174,15 @@
 								<td>&nbsp;</td>
 								<td valign="top" width="50%">
 									<fieldset>
-									<legend><b>Spacing and Padding</b></legend>
+									<legend><b>Table Headers</b></legend>
 									<table style="width:100%">
 										<tr>
-											<td class="label">Spacing:</td>
-											<td><input type="text" id="f_spacing" size="5" value="2" /> px</td>
+											<td class="label">First Row:</td>
+											<td width="50%"><input type="checkbox" id="f_headerRow" value="1"></td>
 										</tr>
 										<tr>
-											<td class="label">Padding:</td>
-											<td><input type="text" id="f_padding" size="5" value="2" /> px</td>
+											<td class="label">First Column:</td>
+											<td width="50%"><input type="checkbox" id="f_headerCol" value="1"></td>
 										</tr>
 									</table>
 									</fieldset>
@@ -184,29 +191,59 @@
 						</table>
 					</td>
 				</tr>
+
 				<tr>
 					<td>
 						<fieldset>
-							<legend><b>Style</b></legend>
-							<table style="width:100%">
-								<tr>
-									<td class="label">Width:</td>
-									<td width="100%">
+						<legend><b>Style Attributes</b></legend>
+						<table width="100%">
+							<tr>
+								<td class="label">Class Name:</td>
+								<td><input type="text" id="f_class" size="30" value="" /></td>
+							</tr>
+							<tr>
+								<td class="label">Width:</td>
+								<td>
 									<input type="text" id="f_width" size="5" value="100" />
 									<select id="f_widthUnit">
-										<option value="px">px</option>
 										<option value="%" selected="1">%</option>
+										<option value="px">px</option>
 									</select>
-									</td>
-								</tr>
-								<tr>
-									<td class="label">HTML Border:</td>
-									<td width="100%"><input type="text" id="f_border" size="5" value="1" /></td>
-								</tr>
-							</table>
+								</td>
+							</tr>
+							<tr>
+								<td class="label">Border:</td>
+								<td>
+								<input type="text" id="f_border" size="5" value="1" />
+								</td>
+							</tr>
+							<tr>
+								<td class="label">Cell Spacing:</td>
+								<td><input type="text" id="f_spacing" size="5" value="" /> px</td>
+							</tr>
+							<tr>
+								<td class="label">Cell Padding:</td>
+								<td><input type="text" id="f_padding" size="5" value="" /> px</td>
+							</tr>
+						</table>
 						</fieldset>
 					</td>
 				</tr>
+
+				<tr>
+					<td>
+						<fieldset>
+						<legend><b>Optional Attributes</b></legend>
+						<table width="100%">
+							<tr>
+								<td class="label" valign="top">Summary:</td>
+								<td><textarea  id="f_summary" cols="20" rows="3"></textarea></td>
+							</tr>
+						</table>
+						</fieldset>
+					</td>
+				</tr>
+
 			</table>
 
 			<div style="text-align: right;">
@@ -215,6 +252,7 @@
 			&nbsp;
 			<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
 			</div>
+
 		</form>
 	</body>
 </html>
