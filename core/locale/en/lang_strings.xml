@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.111 2006/02/23 00:12:45 lwright Exp $
+* $Id: lang_strings.xml,v 1.112 2006/02/24 03:19:00 skim Exp $
 *
 */
 
@@ -1433,6 +1433,7 @@
 	<string source="insert_abbreviation">Insert Abbreviation</string>
 	<string source="insert_acronym">Insert Acronym</string>
 	<string source="alternate_text">Alternate text</string>
+	<string source="longdesc_text">Long Description URL</string>
 	<string source="positioning_of_this_image">Positioning of this image</string>
 	<string source="texttop">Texttop</string>
 	<string source="baseline">Baseline</string>
