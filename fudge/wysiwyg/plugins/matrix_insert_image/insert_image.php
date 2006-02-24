@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.37 2006/02/24 05:00:00 skim Exp $
+* $Id: insert_image.php,v 1.38 2006/02/24 05:19:22 skim Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 */
 
@@ -310,7 +310,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 							<tr>
 								<td valign="top" width="100%" colspan=2>
 								<fieldset>
-									<legend><b>Optional Attributes</b></legend>
+									<legend><b><?php echo translate('optional_attributes'); ?></b></legend>
 									<table style="width:100%">
 										<tr>
 											<td valign="top" class="label" nowrap="nowrap"><?php echo translate('longdesc_text'); ?>:<br />(optional)</td>
@@ -356,7 +356,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 							<tr>
 								<td valign="center" align="center" rowspan=2 width="50%">
 									<fieldset class="prev">
-									<legend><b>Preview</b></legend>
+									<legend><b><?php echo translate('preview'); ?></b></legend>
 										<table class="preview" >
 											<tr>
 												<td id="image_container" align="center" valign="center" height="160px" width="340px">

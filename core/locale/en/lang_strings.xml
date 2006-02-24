@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.112 2006/02/24 03:19:00 skim Exp $
+* $Id: lang_strings.xml,v 1.113 2006/02/24 05:19:27 skim Exp $
 *
 */
 
@@ -1275,6 +1275,7 @@
 	<string source="until">Until</string>
 	<string source="cancels">Cancels</string>
 	<string source="asset_attributes">Asset Attributes</string>
+	<string source="optional_attributes">Optional Attributes</string>
 	<string source="applied_metadata">Applied Metadata</string>
 	<string source="schema_id">Schema ID</string>
 	<string source="content_div_id">Content DIV ID</string>
