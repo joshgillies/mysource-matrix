@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.26 2006/02/23 23:16:44 skim Exp $
+* $Id: edit_table.php,v 1.27 2006/02/24 02:30:03 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 */
 
@@ -210,6 +210,13 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 				if (table.selector == panels[i]) {
 					panel.style.display = "";
 					button.style.border = "2px solid #FF8040";
+					if (table.r != null) {
+						if (table.c == null) {
+							table.select(document.getElementById("td" + table.r + "_0"));
+						} else {
+							table.select(document.getElementById("td" + table.r + "_" + table.c));
+						}
+					}
 				} else {
 					panel.style.display = "none";
 					button.style.border = "0";
