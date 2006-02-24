@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.153 2006/02/16 00:54:21 sdanis Exp $
+* $Id: listing_engine.inc,v 1.154 2006/02/24 00:17:31 rhoward Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.153 $
+* @version $Revision: 1.154 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1544,8 +1544,10 @@ class Listing_Engine extends Page
 					ob_end_clean();
 
 					// populate replacements
-					$replacements['group_listing'] = $group_contents;
-					$replacements['group_name']    = $group_name;
+					$replacements['group_listing']                 = $group_contents;
+					$replacements['group_name']                    = $group_name;
+					$replacements['group_immed_child_group_count'] = count($todo[$group_level]);
+					$replacements['group_total_child_asset_count'] = count(array_flatten($todo[$group_level], TRUE, FALSE));
 
 					// only print the 'check all' checkbox if we're only dealing with checkboxes
 					$selections = $this->attr('asset_selections');
@@ -3084,8 +3086,11 @@ class Listing_Engine extends Page
 			$keywords[$key1] = $keywords[$key];
 			unset($keywords[$key]);
 		}
-		$keywords['group_listing'] = translate('cms_listing_group_listing');
-		$keywords['group_name']    = translate('cms_listing_group_name');
+		$keywords['group_listing']                 = translate('cms_listing_group_listing');
+		$keywords['group_name']                    = translate('cms_listing_group_name');
+		$keywords['group_immed_child_group_count'] = translate('cms_listing_group_immed_child_group_count');
+		$keywords['group_total_child_asset_count'] = translate('cms_listing_group_total_child_asset_count');
+
 		$selections = $this->attr('asset_selections');
 		if (is_array($selections) && !empty($selections)) {
 			foreach ($selections as $name => $settings) {

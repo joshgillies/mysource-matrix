@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.36 2006/02/02 06:42:27 rhoward Exp $
+* $Id: general.inc,v 1.37 2006/02/24 00:17:30 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package Fudge
 * @subpackage General
 */
@@ -50,9 +50,8 @@ function gpc_stripslashes($var)
 {
 	if (get_magic_quotes_gpc()) {
 		if (is_array($var)) {
-			stripslashes_array($var, true);
-		}
-		else {
+			stripslashes_array($var, TRUE);
+		} else {
 			$var = stripslashes($var);
 		}
 	}
@@ -70,7 +69,7 @@ function gpc_stripslashes($var)
 * @return array
 * @access public
 */
-function stripslashes_array(&$array, $strip_keys=false)
+function stripslashes_array(&$array, $strip_keys=FALSE)
 {
 	if (is_string($array)) return stripslashes($array);
 	$keys_to_replace = Array();
@@ -104,7 +103,7 @@ function stripslashes_array(&$array, $strip_keys=false)
 * @return mixed array|string
 * @access public
 */
-function htmlentities_array(&$array, $encode_keys=false)
+function htmlentities_array(&$array, $encode_keys=FALSE)
 {
 	// type verification
 	if ((!is_array($array) && !is_string($array)) || !is_bool($encode_keys)) {
@@ -137,7 +136,7 @@ function htmlentities_array(&$array, $encode_keys=false)
 /**
 * Searches an array for a value and removes one instance of it if found
 *
-* It returns true if instance removed, false if not found
+* It returns TRUE if instance removed, FALSE if not found
 *
 * @param mixed	$v	the value to remove
 * @param array	&$a	the array to search and remove from
@@ -148,11 +147,11 @@ function htmlentities_array(&$array, $encode_keys=false)
 function array_remove_element($v, &$a)
 {
 	if (!is_array($a) || empty($a)) {
-		return false;
+		return FALSE;
 	}
 	if (in_array($v,$a)) {
 		unset($a[array_search($v,$a)]);
-		return true;
+		return TRUE;
 	}
 
 }//end array_remove_element()
@@ -238,14 +237,24 @@ function _array_merge_multi_recursive($array1, $array2)
 * )
 * </pre>
 *
+* If $return_unique_keys is FALSE, instead return:
+* <pre>
+* Array(
+*	0	=> '10',
+*	1	=> '11',
+*	2	=> '12',
+* )
+*
 * If $array isn't an array, an empty array is returned.
 *
-* @param array	$array	the array to flatten
+* @param array		$array				the array to flatten
+* @param boolean	$prune_parents		if TRUE, any parents (denoted by having a value of Array()) will be pruned from the list
+* @param boolean	$return_unique_keys	if TRUE, return Array(key => value/array), otherwise return an array containing the array keys instead
 *
 * @return array
 * @access public
 */
-function array_flatten($array)
+function array_flatten($array, $prune_parents=FALSE, $return_unique_keys=TRUE)
 {
 	if (!is_array($array) || empty($array)) {
 		return Array();
@@ -255,16 +264,33 @@ function array_flatten($array)
 
 	foreach ($array as $key => $value) {
 		if (is_array($value)) {
-			$flattened_array[$key] = Array();
-			$flattened_array += array_flatten($value);
+			if (!$prune_parents) {
+				if ($return_unique_keys) {
+					$flattened_array[$key] = Array();
+				} else {
+					$flattened_array[] = $key;
+				}
+			}
+
+			if ($return_unique_keys) {
+				$flattened_array += array_flatten($value, $prune_parents, $return_unique_keys);
+			} else {
+				foreach (array_flatten($value, $prune_parents, $return_unique_keys) as $flattened_value) {
+					$flattened_array[] = $flattened_value;
+				}
+			}
 		} else {
-			$flattened_array[$key] = $value;
+			if ($return_unique_keys) {
+				$flattened_array[$key] = $value;
+			} else {
+				$flattened_array[] = $key;
+			}
 		}
 	}
 
 	return $flattened_array;
 
-}//end array_flatten
+}//end array_flatten()
 
 
 /**
@@ -317,31 +343,26 @@ function ellipsisize($string, $length)
 	}
 
 	// boundary check #1 - length needs to be at least zero
-	if ($length < 0) {
-		return '';
-	}
+	if ($length < 0) return '';
 
 	// boundary check #2 - if the string isn't long enough to contract, return
 	// it unedited
-	if (strlen($string) <= $length) {
-		return $string;
-	}
+	if (strlen($string) <= $length) return $string;
 
 	$full_length = strlen((string) $string);
 	$length += 2; // add 2 because an elipsis is 3 chars long
-	$on = true;
+	$on = TRUE;
 	$j = 0;
 	for ($i = 0; $i < $full_length; $i++) {
 		if ($j == $length - 2)	$chophere = $i;
 		if ($on) {
 			if ($string[$i] == '<') {
-				$on = false;
-			}
-			else {
+				$on = FALSE;
+			} else {
 				$j++;
 			}
 		} else {
-			if ($string[$i] == '>') $on = true;
+			if ($string[$i] == '>') $on = TRUE;
 		}
 	}
 	if ($length < $j) {
@@ -404,7 +425,6 @@ function increment_name($name='', $spacer='')
 				} else {
 					return $number[1].$number2[1].strval($next_number);
 				}
-				//echo print_r($number2);
 			}
 
 		} else if (preg_match('/(.*[^0-9]{1})([0-9]{1,})$/', $name, $number)) {
@@ -469,12 +489,12 @@ function security_key_image($word, $w, $h, $bg='FFFFFF', $text='000000', $border
 		// zoomed text for easier reading
 		if (!($test_im = @imagecreate($w, $h))) {
 			trigger_error('Cannot Initialize new GD image stream', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		if (!$final_im = @imagecreate(($w * $zoom), ($h * $zoom))) {
 			trigger_error('Cannot Initialize new GD image stream', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		// create some colours we will use in the image
@@ -526,7 +546,7 @@ function security_key_image($word, $w, $h, $bg='FFFFFF', $text='000000', $border
 		// cleanup
 		imagedestroy($test_im);
 		imagedestroy($final_im);
-	}
+	}//end if empty($word)
 
 }//end security_key_image()
 
