@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.36 2006/02/22 22:57:14 skim Exp $
+* $Id: insert_image.php,v 1.37 2006/02/24 05:00:00 skim Exp $
 *
 */
 
@@ -27,12 +27,18 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 */
 
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+
+$url_protocol_options = Array(
+							''			=> '',
+							'http://'	=> 'http://',
+							'https://'	=> 'https://',
+						);
 
 if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 ?>
@@ -105,10 +111,10 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 				param["f_imageid"] = document.main_form.elements["f_imageid[assetid]"].value;
 
 				// Optional Long Description
-				if (document.main_form.elements["f_longdesc[assetid]"].value != null && document.main_form.elements["f_longdesc[assetid]"].value != "0") {
+				if (document.main_form.elements["f_longdesc[assetid]"].value != "" && document.main_form.elements["f_longdesc[assetid]"].value != "0") {
 					param["f_longdesc"] = document.main_form.elements["f_longdesc[assetid]"].value;
-				} else if (document.main_form.elements["f_longdesc"].value != "") {
-					param["f_longdesc"] = document.main_form.elements["f_longdesc"].value;
+				} else {
+					param["f_longdesc"] = document.main_form.elements["f_longdesc_protocol"].value + document.main_form.elements["f_longdesc_link"].value;
 				}
 
 				__dlg_close("matrixInsertImage", param);
@@ -297,41 +303,60 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 													<input type="text" name="alt" id="f_alt" style="width:100%" title="For browsers that don't support images" value="<?php echo $_REQUEST['f_alt']?>" />
 												</td>
 											</tr>
-											<tr>
-												<td valign="top" class="label" nowrap="nowrap"><?php echo translate('longdesc_text'); ?>:<br />(optional)</td>
-												<td>
-													You can select the standard page to link to the longdesc<br />
-													<?php
-
-													if (!empty($_GET['f_longdesc'])) {
-														if (preg_match("/\d+/", $_GET['f_longdesc']) && $_GET['f_longdesc'] != "0") {?>
-															<?php asset_finder('f_longdesc', $_GET['f_longdesc'], Array('page_standard' => 'D'), ''); ?><br />
-															Or manually type the longdesc<br />
-															<input type="text" name="longdesc" id="f_longdesc" style="width:100%" title="For browsers that don't support images" value="" />
-														<?php
-														} else {?>
-															<?php asset_finder('f_longdesc', "", Array('page_standard' => 'D'), ''); ?><br />
-															Or manually type the longdesc<br />
-															<input type="text" name="longdesc" id="f_longdesc" style="width:100%" title="For browsers that don't support images" value="<?php echo $_GET['f_longdesc']; ?>" />
-														<?php
-														}
-													} else {?>
-													<br />
-														<?php asset_finder('f_longdesc', $_GET['f_longdesc'], Array('page_standard' => 'D'), ''); ?><br />
-														Or manually type the longdesc<br />
-														<input type="text" name="longdesc" id="f_longdesc" style="width:100%" title="For browsers that don't support images" value="" />
-													<?php
-													}?>
-												</td>
-											</tr>
 										</table>
 									</fieldset>
 								</td>
 							</tr>
 							<tr>
+								<td valign="top" width="100%" colspan=2>
+								<fieldset>
+									<legend><b>Optional Attributes</b></legend>
+									<table style="width:100%">
+										<tr>
+											<td valign="top" class="label" nowrap="nowrap"><?php echo translate('longdesc_text'); ?>:<br />(optional)</td>
+											<td>
+												<?php
+												if (!empty($_GET['f_longdesc'])) {
+													if (preg_match("/^\d+$/", $_GET['f_longdesc']) && $_GET['f_longdesc'] != "0") {?>
+														<?php echo translate('protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, '', 'style="font-family: courier new; font-size: 11px;"'); ?>
+														<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', '', 40, 0)?><br />
+														<br /><b>Or Choose From Standard Page Asset</b><br />
+														<?php asset_finder('f_longdesc', $_GET['f_longdesc'], Array('page_standard' => 'D'), ''); ?><br />
+													<?php
+													} else {
+														$matches = Array();
+														if (preg_match_all('/^(http:\/\/|https:\/\/){1}(.*)$/', $_GET['f_longdesc'], $matches) === FALSE ||
+															empty($matches[0])) {?>
+															<?php echo translate('protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, FALSE, '', 'style="font-family: courier new; font-size: 11px;"'); ?>
+															<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', $_GET['f_longdesc'], 40, 0)?><br />
+															<br />Or Choose From Standard Page Asset<br />
+															<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), ''); ?><br />
+														<?php
+														} else {?>
+															<?php echo translate('protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, FALSE, $matches[1][0], 'style="font-family: courier new; font-size: 11px;"'); ?>
+															<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', $matches[2][0], 40, 0)?><br />
+															<br />Or Choose From Standard Page Asset<br />
+															<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), ''); ?><br />
+														<?php
+														}
+
+													}
+												} else {?>
+													<?php echo translate('protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, '', 'style="font-family: courier new; font-size: 11px;"'); ?>
+													<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', '', 40, 0)?><br />
+													<br />Or Choose From Standard Page Asset<br />
+													<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), ''); ?><br />
+												<?php
+												}?>
+											</td>
+										</tr>
+									</table>
+								</fieldset>
+							</tr>
+							<tr>
 								<td valign="center" align="center" rowspan=2 width="50%">
 									<fieldset class="prev">
-									<legend><b><?php translate('Preview'); ?></b></legend>
+									<legend><b>Preview</b></legend>
 										<table class="preview" >
 											<tr>
 												<td id="image_container" align="center" valign="center" height="160px" width="340px">
