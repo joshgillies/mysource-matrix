@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.12 2005/12/21 21:58:35 rong Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.12.2.1 2006/02/24 01:06:03 arailean Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -984,6 +984,9 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		if ($mode != 'edit') {
 			$asset->setAttrValue('sql', null);
 			$asset->setAttrValue('shadow_name', null);
+			$asset->setAttrValue('reset_edit', false);
+		} else {
+			$asset->setAttrValue('reset_edit', true);
 		}
 		$asset->setAttrValue('where', Array());
 		$asset->setAttrValue('join', Array());
@@ -993,7 +996,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		$asset->setAttrValue('fields', null);
 		$asset->setAttrValue('tables', null);
 		$asset->setAttrValue('aggregates', Array());
-		$asset->saveAttributes();
+		$asset->setAttrValue('limit', 0);
 
 	}//end _resetAttributes()
 
@@ -1634,11 +1637,22 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	{
 		$mode = $asset->attr('mode');
 		$wa = $asset->writeAccess('attributes') && ($mode == 'edit');
-		$this->_queryProcessing($asset, $prefix);
+		if ($asset->writeAccess('attributes')) {
+			$this->_queryProcessing($asset, $prefix);
+		}
 		$sql = $asset->attr('sql');
 
-		if ($mode == 'edit') {
-			hidden_field($prefix.'_from_edit', '1');
+		switch ($mode) {
+			case 'edit':
+				//if we are currently in edit mode
+				hidden_field($prefix.'_from_edit', '1');
+				break;
+			case 'execute':
+				//we are currently in execute mode but we came here from edit mode
+				if (isset($_POST[$prefix.'_from_edit']) && ($_POST[$prefix.'_from_edit']) == 1) {
+					hidden_field($prefix.'_from_edit', '1');
+				}
+				break;
 		}
 
 		if ($wa) {
@@ -1672,7 +1686,15 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		if (isset($_POST[$prefix.'_sql'])) {
 			$asset->setAttrValue('sql', $_POST[$prefix.'_sql']);
 		}
-
+		$mode = $asset->attr('mode');
+		switch ($mode) {
+			case 'edit':
+				$this->_resetAttributes($asset, 'edit');
+			break;
+			case 'builder':
+				$asset->setAttrValue('reset_edit', false);
+			break;
+		}
 		return true;
 
 	}//end processQuerySoFar()
@@ -1689,7 +1711,8 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	function _queryProcessing(&$asset, $prefix)
 	{
-		if ($asset->attr('mode') == 'edit' || isset($_POST[$prefix.'_from_edit'])) {
+		$reset_edit = $asset->attr('reset_edit');
+		if ($reset_edit) {
 			$sql = null;
 			if (isset($_POST[$prefix.'_sql'])) {
 				$sql = $_POST[$prefix.'_sql'];
@@ -1698,9 +1721,10 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 			}
 			if (empty($sql)) {
 				$res = $this->_resetAttributes($asset, 'reset');
+			} else {
+				$res = $this->_resetAttributes($asset, 'edit');
 			}
 			$asset->setAttrValue('sql', $sql);
-			$asset->saveAttributes();
 			return true;
 		}
 
@@ -1834,10 +1858,10 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 						$sql .= '<br />'.$val['field'].' ';
 						!empty($val['condition']) && !in_array($val['condition'], Array('Relation', 'Other'))? $sql .= $val['condition'] : $sql .= '';
 						isset($val['operator'])? $sql .= ' '.$val['operator'] : $sql .= '';
-						if (!empty($val['value'])) {
+						if (trim($val['value']) != '') {
 							$sql .= ' '.$val['value'];
 						} else {
-							if (!empty($val['min_value']) && !empty($val['max_value'])) {
+							if (trim($val['min_value']) != '' && trim($val['max_value']) != '') {
 								$sql .=' '.$val['min_value'].' AND '.$val['max_value'];
 							}
 						}
@@ -1878,7 +1902,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		}
 		if (strcasecmp($old_sql, $sql) != 0) {
 			$asset->setAttrValue('sql', $sql);
-			$asset->saveAttributes();
 		}
 		return false;
 
@@ -1907,7 +1930,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 			$mode = $asset->attr('mode');
 			if ($mode == 'edit') {
 				$asset->setAttrValue('edit_on', true);
-				$asset->saveAttributes();
 			}
 			$edit_on = $asset->attr('edit_on');
 			if (($mode == 'edit') || (($mode == 'execute') && (!empty($query) || !empty($_POST['sql'])))) {
@@ -2086,13 +2108,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 					return true;
 				}
 			} else {
-				if ($mode == 'execute') {
-					if ($wa) {
-						//speed_check('BEFORE QUERYNOTEMPTY');
-						$result = $asset->getResultSet($asset->attr('sql'));
-						//speed_check('AFTER QUERYNOTEMPTY');
-					}
-				}
 				return true;
 			}
 		}
@@ -2120,7 +2135,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 		$wa = $asset->writeAccess('attributes');
 		if ($mode == 'edit') {
-			$edit_on = $asset->attr('edit_on');
 			return false;
 		} else if ($mode == 'execute') {
 			$tables = $asset->attr('tables');
@@ -2128,11 +2142,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 			if (empty($tables) && !($edit_on)) {
 				return false;
 			} else {
-				if ($wa) {
-					//speed_check();
-					$result = $asset->getResultSet($asset->attr('sql'));
-					//speed_check();
-				}
 				return true;
 			}
 		} else {
