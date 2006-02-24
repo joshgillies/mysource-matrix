@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.47 2006/02/21 02:33:59 emcdonald Exp $
+* $Id: asset_attribute.inc,v 1.48 2006/02/24 04:50:03 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -287,7 +287,10 @@ class Asset_Attribute extends MySource_Object
 	*/
 	function setValue(&$value)
 	{
-		if (!$this->validateValue($value)) return FALSE;
+		if (!$this->validateValue($value)) {
+			trigger_localised_error('SYS0073', E_USER_WARNING, $value, $this->type());
+			return FALSE;
+		}
 		$this->value = $value;
 		return TRUE;
 
