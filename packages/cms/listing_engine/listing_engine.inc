@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.155 2006/02/26 22:47:03 pgannavarapu Exp $
+* $Id: listing_engine.inc,v 1.156 2006/02/26 23:51:28 pgannavarapu Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.155 $
+* @version $Revision: 1.156 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2172,16 +2172,6 @@ class Listing_Engine extends Page
 				$root_asset_ids = $dynamic_root_nodes;
 			}
 		}//end if
-
-		//if the user has a structured root node selector set up then the root has to be from the GET variable
-		$structured_root_selection = $this->attr('structured_dropdown_options');
-		if (!empty($structured_root_selection['root_node'])) {
-			$name = $structured_root_selection['name'];
-			$name = str_replace(' ', '_', $name);
-			if (isset($_GET[$name]) && !empty($_GET[$name])) {
-				$root_asset_ids = array_keys($_GET[$name]);
-			}
-		}
 
 		if (empty($root_asset_ids)) {
 			$root_asset_ids = Array($this->id);
