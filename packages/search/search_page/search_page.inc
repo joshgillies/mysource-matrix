@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.160 2006/02/22 22:35:59 tbarrett Exp $
+* $Id: search_page.inc,v 1.161 2006/02/26 23:55:20 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.160 $
+* @version $Revision: 1.161 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2256,6 +2256,9 @@ class Search_Page extends Listing_Engine
 									break;
 								}
 							} else {
+								if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
+									$attribute->_params['allow_empty'] = TRUE;
+								}
 								$attribute->process($query_var);
 								$queries[$field_name] = trim($attribute->value);
 								if ($attribute->type() == 'selection' && !empty($attribute->_params['multiple'])) {
