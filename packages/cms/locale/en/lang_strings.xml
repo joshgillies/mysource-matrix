@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.7 2005/12/16 05:35:56 dmckee Exp $
+* $Id: lang_strings.xml,v 1.8 2006/02/26 22:47:33 pgannavarapu Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -35,6 +35,7 @@
 <string source="root_node">Root Node</string>
 <string source="dropdown_list">Drop-down List</string>
 <string source="radio_buttons">Radio Buttons</string>
+<string source="check_boxes">Check Boxes</string>
 <string source="cms_page_contents">Page Contents</string>
 <string source="clear_form">Clear Form</string>
 <string source="submission_time">Submission Time</string>

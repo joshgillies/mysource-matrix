@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.53 2006/01/30 04:12:59 dmckee Exp $
+* $Id: listing_engine_management.inc,v 1.54 2006/02/26 22:47:03 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -293,11 +293,8 @@ class Listing_Engine_Management extends Asset_Management
 													 );
 		$this->vars['check_boxes'] = Array(
 										'added'			=> '0.10',
-										'type'			=> 'boolean',
-										'default'		=> FALSE,
-										'parameters'	=> Array(
-															'allow_empty'	=> FALSE,
-														   ),
+										'type'			=> 'int',
+										'default'		=> 0,
 									 );
 
 		$this->vars['other_page_text'] = Array(

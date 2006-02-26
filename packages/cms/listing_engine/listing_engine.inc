@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.154 2006/02/24 00:17:31 rhoward Exp $
+* $Id: listing_engine.inc,v 1.155 2006/02/26 22:47:03 pgannavarapu Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.154 $
+* @version $Revision: 1.155 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2133,6 +2133,7 @@ class Listing_Engine extends Page
 				$root_asset_ids[] = (int)$root_link['minorid'];
 			}
 		}
+
 		$parameter_map =& $this->getAttribute('parameter_map');
 		$raw_dynamic_root_nodes = $parameter_map->getParameterValue('root_node');
 
@@ -2172,10 +2173,19 @@ class Listing_Engine extends Page
 			}
 		}//end if
 
+		//if the user has a structured root node selector set up then the root has to be from the GET variable
+		$structured_root_selection = $this->attr('structured_dropdown_options');
+		if (!empty($structured_root_selection['root_node'])) {
+			$name = $structured_root_selection['name'];
+			$name = str_replace(' ', '_', $name);
+			if (isset($_GET[$name]) && !empty($_GET[$name])) {
+				$root_asset_ids = array_keys($_GET[$name]);
+			}
+		}
+
 		if (empty($root_asset_ids)) {
 			$root_asset_ids = Array($this->id);
 		}
-
 		return $root_asset_ids;
 
 	}//end getRootNodes()
@@ -3386,7 +3396,7 @@ class Listing_Engine extends Page
 		$selected = (isset($_REQUEST[$options['name']])) ? Array($_REQUEST[$options['name']]) : Array();
 
 		ob_start();
-			structured_drop_down($options['name'], $options['root_node'], $pass_codes, $selected, $options['width'], $options['height'], $options['max_depth'], FALSE, $options['seperator'], TRUE, $options['all_text'], $this->attr('check_boxes'));
+			structured_drop_down($options['name'], $options['root_node'], $pass_codes, $selected, $options['width'], $options['height'], $options['max_depth'], $this->attr('check_boxes') == 2 ? TRUE : FALSE, $options['seperator'], TRUE, $options['all_text'], $this->attr('check_boxes'));
 			$replacement = ob_get_contents();
 		ob_end_clean();
 		return $replacement;

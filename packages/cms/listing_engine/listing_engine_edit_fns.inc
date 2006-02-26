@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.55 2006/01/30 04:12:59 dmckee Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.56 2006/02/26 22:47:03 pgannavarapu Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3074,11 +3074,12 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				<?php if ($write_access) {
 					?>
 					<select name="<?php echo $prefix.'_structured_input_style'; ?>">
-						<option value="FALSE" <?php echo $asset->attr('check_boxes')== FALSE ? 'selected="selected"' : ''; ?> ><?php echo translate('dropdown_list'); ?></option>
-						<option value="TRUE" <?php echo $asset->attr('check_boxes')== TRUE ? 'selected="selected"' : ''; ?> ><?php echo translate('radio_buttons'); ?></option>
+						<option value="0" <?php echo $asset->attr('check_boxes')== 0 ? 'selected="selected"' : ''; ?> ><?php echo translate('dropdown_list'); ?></option>
+						<option value="1" <?php echo $asset->attr('check_boxes')== 1 ? 'selected="selected"' : ''; ?> ><?php echo translate('radio_buttons'); ?></option>
+						<option value="2" <?php echo $asset->attr('check_boxes')== 2 ? 'selected="selected"' : ''; ?> ><?php echo translate('check_boxes'); ?></option>
 					</select>
 				<?php } else {
-						echo $asset->attr('check_boxes') == FALSE ? translate('dropdown_list') : translate('radio_buttons');;
+						echo $asset->attr('check_boxes') == 0 ? translate('dropdown_list') : $asset->attr('check_boxes') == 1 ? translate('radio_buttons') : translate('check_boxes');
 					  }
 
 				?>
