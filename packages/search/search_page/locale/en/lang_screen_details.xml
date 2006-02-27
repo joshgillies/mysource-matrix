@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.13 2005/11/16 00:44:11 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.14 2006/02/27 23:52:11 dmckee Exp $
 *
 */
 -->
@@ -82,6 +82,14 @@
 			<note>This text will appear on the reset button of this search page</note>
 		</field>
 		<field attribute="sis_button_text">
+			<display_name>Search in search button text</display_name>
+			<note>This text will appear on the submit button of the search within search form</note>
+		</field>
+		<field attribute="next_page_text">
+			<display_name>Search in search button text</display_name>
+			<note>This text will appear on the submit button of the search within search form</note>
+		</field>
+		<field attribute="prev_page_text">
 			<display_name>Search in search button text</display_name>
 			<note>This text will appear on the submit button of the search within search form</note>
 		</field>
