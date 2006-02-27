@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.436 2006/02/20 00:44:02 skim Exp $
+* $Id: asset_manager.inc,v 1.437 2006/02/27 00:38:36 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.436 $
+* @version $Revision: 1.437 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3275,6 +3275,7 @@ class Asset_Manager extends MySource_Object
 	* Return TRUE if the passed assetid is in the trash, FALSE otherwise
 	*
 	* Note that if the passed assetid is the id of the trash folder, FALSE will be returned
+	* NOTE: If $exclusively is TRUE, TRUE will be returned for assets that are not linked anywhere outside the trash including non existent assets
 	*
 	* @param int		$assetid		the asset id to check the trash for
 	* @param boolean	$exclusively	is the asset ONLY in the trash
