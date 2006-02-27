@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: role.inc,v 1.1 2006/02/02 02:29:33 ndvries Exp $
+* $Id: role.inc,v 1.2 2006/02/27 03:57:31 bcaldwell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group.inc';
 *
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Role extends User_Group
 	/**
 	* Returns a list of lock types available for this asset type
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function lockTypes()
@@ -71,14 +71,15 @@ class Role extends User_Group
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
 		$allowed = parent::_getAllowedLinks();
-		$allowed[SQ_LINK_TYPE_1]['role'] = Array('card' => 'M', 'exclusive' => false);
-		$allowed[SQ_LINK_TYPE_1]['role'] = Array('card' => 'M', 'exclusive' => false);
+		$allowed[SQ_LINK_TYPE_1]['role'] = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_TYPE_1]['role'] = Array('card' => 'M', 'exclusive' => FALSE);
 		return $allowed;
 
 	}//end _getAllowedLinks()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.97 2006/02/15 22:48:53 tbarrett Exp $
+* $Id: user.inc,v 1.98 2006/02/27 03:57:31 bcaldwell Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -181,7 +181,7 @@ class User extends Asset
 	{
 		// if this is the password, encrypt it
 		if ($name == 'password') {
-			$this->_tmp['password_set'] = true; // so we know at create time whether to throw an extra error
+			$this->_tmp['password_set'] = TRUE; // so we know at create time whether to throw an extra error
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PASSWORD_VALIDATION)) {
 				$config =& new Password_Rules_Config();
 				require_once $config->config_file;
@@ -189,7 +189,7 @@ class User extends Asset
 			}
 			$value = crypt($value); // let salt be generated
 		} else if ($name == 'username') {
-			$this->_tmp['username_set'] = true; // so we know at create time whether to throw an extra error
+			$this->_tmp['username_set'] = TRUE; // so we know at create time whether to throw an extra error
 			if (!$this->_catchBlankSetUserName(trim($value))) {
 				trigger_localised_error('CORE0110', E_USER_WARNING);
 				return FALSE;
@@ -240,8 +240,8 @@ class User extends Asset
 		// one rule that is always in effect:
 		if ($passwd === '') {
 			trigger_localised_error('CORE0247', E_USER_NOTICE);
-			$this->_tmp['password_validation_error'] = true;
-			return false;
+			$this->_tmp['password_validation_error'] = TRUE;
+			return FALSE;
 		}
 
 		$status = TRUE;
@@ -685,10 +685,10 @@ class User extends Asset
 	function _catchBlankSetUserName($username)
 	{
 		if ($username === '') {
-			$this->_tmp['blank_username_caught'] = true;
-			return false;
+			$this->_tmp['blank_username_caught'] = TRUE;
+			return FALSE;
 		}
-		return true;
+		return TRUE;
 
 	}//end _catchBlankSetUserName()
 

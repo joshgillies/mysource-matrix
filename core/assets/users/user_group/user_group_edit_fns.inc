@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.31 2006/02/03 05:13:35 ndvries Exp $
+* $Id: user_group_edit_fns.inc,v 1.32 2006/02/27 03:57:31 bcaldwell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -476,6 +476,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	* Paints a table with a list of roles
 	*
 	* @param string		$prefix			Prefix of the calling edit function
+	* @param string		$pag_id			The id of the page
 	* @param array		$roles			Roles to be printed
 	* @param boolean	$write_access	True to show checkboxes for re-assigning
 	* @param boolean	$include_userid	True to include an "Assigned To" column
