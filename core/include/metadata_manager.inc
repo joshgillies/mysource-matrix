@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.110.2.1 2006/02/13 04:04:35 sdanis Exp $
+* $Id: metadata_manager.inc,v 1.110.2.2 2006/02/27 22:20:39 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.110.2.1 $
+* @version $Revision: 1.110.2.2 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1089,7 +1089,7 @@ class Metadata_Manager extends MySource_Object
 							echo '$metadata_roles_info = Array();'."\n";
 							if (preg_match('/asset_role_([^_]*)(.*)$/', $keyword, $matches)) {
 								$role_assetid = $matches[1];
-								echo '$metadata_roles = $am->getRole($metadata_asset->id, '.$role_assetid.', NULL, FALSE, TRUE);'."\n";
+								echo '$metadata_roles = $am->getRole($metadata_asset->id, '.$role_assetid.', NULL, FALSE, TRUE, TRUE);'."\n";
 								echo 'if (!empty($metadata_roles)) {'."\n";
 								echo '	foreach ($metadata_roles['.$role_assetid.'] as $role_userid) {'."\n";
 								echo '		$user = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($role_userid);'."\n";

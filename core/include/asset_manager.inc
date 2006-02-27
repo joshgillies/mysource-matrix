@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.2 2006/02/16 22:23:34 sdanis Exp $
+* $Id: asset_manager.inc,v 1.431.2.3 2006/02/27 22:20:39 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.2 $
+* @version $Revision: 1.431.2.3 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5496,11 +5496,13 @@ class Asset_Manager extends MySource_Object
 	* @param boolean	$include_assetid	whether to include the assetid in the returned array
 	* @param boolean	$include_globals	whether to query the role view which includes
 	*										expanded global roles as individual users
+	* @param boolean	$expand_groups		if set to TRUE, any role with a userid that's a
+	*										group will be expanded into users
 	*
 	* @return array
 	* @access public
 	*/
-	function getRole($assetid=NULL, $roleid=NULL, $userid=NULL, $include_assetid=FALSE, $include_globals=FALSE)
+	function getRole($assetid=NULL, $roleid=NULL, $userid=NULL, $include_assetid=FALSE, $include_globals=FALSE, $expand_groups=FALSE)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -5537,6 +5539,30 @@ class Asset_Manager extends MySource_Object
 					$assetid = $userid_assetid['assetid'];
 					$userid =$userid_assetid['userid'];
 					$roles[$roleid][$userid][] = $assetid;
+				}
+			}
+			$result = $roles;
+		}
+
+		if ($expand_groups) {
+			$roles = Array();
+			foreach ($result as $roleid => $userid_assetids) {
+				$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userid_assetids, Array(), FALSE, 'type_code');
+				foreach ($userid_assetids as $index => $userid_assetid) {
+					if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid_assetid], 'user_group')) {
+						$expanded_users = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid_assetid, Array('user'), FALSE));
+						if (!empty($expanded_users)) {
+							if (isset($roles[$roleid])) {
+								$roles[$roleid] += $expanded_users;
+							} else {
+								$roles[$roleid] = $expanded_users;
+							}
+						}
+					} else {
+						$assetid = $userid_assetid['assetid'];
+						$userid =$userid_assetid['userid'];
+						$roles[$roleid][$userid][] = $assetid;
+					}
 				}
 			}
 			$result = $roles;
