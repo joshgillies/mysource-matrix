@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks.inc,v 1.23 2006/02/08 02:52:24 sdanis Exp $
+* $Id: design_area_menu_stalks.inc,v 1.24 2006/02/27 04:28:37 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_r
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -372,10 +372,14 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 				}
 				$y1 = floor($h / 2) - ($this->arrow_height / 2);
 
-				$points = Array($x1, $y1, // x1, y1
-								$x1 + ($multiplier * ($this->arrow_width - 1)),  $y1 + ($this->arrow_height / 2), // x2, y2
-								$x1,  $y1 + $this->arrow_height, // x3, y3
-								);
+				$points = Array(
+							$x1,
+							$y1,
+							$x1 + ($multiplier * ($this->arrow_width - 1)),
+							$y1 + ($this->arrow_height / 2),
+							$x1,
+							$y1 + $this->arrow_height,
+						  );
 				ImageFilledPolygon($img, $points, 3, $fg);
 			}//end if
 

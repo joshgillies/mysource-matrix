@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_password_change_form_management.inc,v 1.2 2005/10/11 02:06:24 tbarrett Exp $
+* $Id: design_area_password_change_form_management.inc,v 1.3 2006/02/27 04:28:37 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,19 +58,19 @@ class Design_Area_Password_Change_Form_Management extends Asset_Management
 						'give_password_old_focus'	=> Array(
 														'added'			=> '0.0.1',
 														'type'			=> 'boolean',
-														'default'		=> false,
+														'default'		=> FALSE,
 														'description'	=> 'Whether to give the password box focus on load of the page',
 														'parameters'	=> Array(
-																			'allow_empty'	=> false,
+																			'allow_empty'	=> FALSE,
 																		   ),
 													   ),
 						'forward_www_vars'			=> Array(
 														'added'			=> '0.0.1',
 														'type'			=> 'boolean',
-														'default'		=> false,
+														'default'		=> FALSE,
 														'description'	=> 'When true will attempt to forward all the GET and POST vars (unable to files)',
 														'parameters'	=> Array(
-																			'allow_empty'	=> false,
+																			'allow_empty'	=> FALSE,
 																		   ),
 													   ),
 					  );

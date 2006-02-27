@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if_edit_fns.inc,v 1.11 2006/02/08 02:52:24 sdanis Exp $
+* $Id: design_area_show_if_edit_fns.inc,v 1.12 2006/02/27 04:28:37 bcaldwell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,7 +45,7 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function Design_Area_Show_If_Edit_fns()
+	function Design_Area_Show_If_Edit_Fns()
 	{
 		$this->static_screens['details']['force_unlock'] = FALSE;
 		return $this->Design_Area_Edit_Fns();

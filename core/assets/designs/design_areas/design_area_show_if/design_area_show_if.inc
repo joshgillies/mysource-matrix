@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if.inc,v 1.11 2005/10/19 07:03:11 tbarrett Exp $
+* $Id: design_area_show_if.inc,v 1.12 2006/02/27 04:28:37 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *	Show different content depending on certain conditions evaluated at runtime
 *
 * @author  Avi Miller <Avi Miller@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,8 +43,8 @@ class Design_Area_Show_If extends Design_Area
 	/**
 	* Queue the setting of the value of an attribute
 	*
-	* @param string		$name	the name of the attribute
-	* @param string		$value	the new value of the attribute
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -67,7 +67,7 @@ class Design_Area_Show_If extends Design_Area
 	}//end setAttrValue()
 
 
-	/*
+	/**
 	* Print code that initialises this design area and should always be printed in place of the AREA tag
 	*
 	* This function can be overridden by children
@@ -84,7 +84,7 @@ class Design_Area_Show_If extends Design_Area
 		$cond_var_name = '$'.$this->attr('id_name').'_condition_result';
 		echo '<','?php
 		$GLOBALS[\'SQ_SYSTEM\']->am->includeAsset(\'condition_'.$condition.'\');
-		$'.$id_name.'_condition_data = '.var_export($condition_data, true).';
+		$'.$id_name.'_condition_data = '.var_export($condition_data, TRUE).';
 		'.$cond_var_name.' = condition_'.$condition.'::evaluate($ASSET, $'.$id_name.'_condition_data);';
 		echo '?', '>
 		';
@@ -92,14 +92,14 @@ class Design_Area_Show_If extends Design_Area
 	}//end _printInitCode()
 
 
-	/*
+	/**
 	* Print code that actually results in HTML output to the browser for this design area
 	*
 	* This function is called at the AREA tag if print != no, and at the point of any PRINT
 	* tags that reference this area.
 	*
-	* @access protected
 	* @return void
+	* @access protected
 	*/
 	function _printPaintingCode()
 	{
@@ -140,7 +140,7 @@ class Design_Area_Show_If extends Design_Area
 		echo '}
 		?','>
 		';
-		return true;
+		return TRUE;
 
 	}//end _printPaintingCode()
 
@@ -153,7 +153,7 @@ class Design_Area_Show_If extends Design_Area
 	*/
 	function canBeCached()
 	{
-		return false;
+		return FALSE;
 
 	}//end canBeCached()
 

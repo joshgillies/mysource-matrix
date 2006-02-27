@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.28 2006/02/20 22:39:31 lwright Exp $
+* $Id: image_variety.inc,v 1.29 2006/02/27 04:30:52 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -231,6 +231,8 @@ class Image_Variety extends Asset
 
 	/**
 	* (Re)Create the image file from our parents original
+	*
+	* @param boolean	$file_versioning	Whether or not to use file versioning
 	*
 	* @return boolean
 	* @access public

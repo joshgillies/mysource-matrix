@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_password_change_form_edit_fns.inc,v 1.2 2005/10/11 02:06:24 tbarrett Exp $
+* $Id: design_area_password_change_form_edit_fns.inc,v 1.3 2006/02/27 04:28:37 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,8 +44,8 @@ class Design_Area_Password_Change_Form_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Loops through the contents array and creates the necessary objects
 	*
-	* @param object Asset	$asset		the asset to which we belong
-	* @param array			$contents	the contents array we generated with _parseString()
+	* @param object	&$asset		the asset to which we belong
+	* @param array	&$contents	the contents array we generated with _parseString()
 	*
 	* @return boolean
 	* @access private
@@ -66,7 +66,7 @@ class Design_Area_Password_Change_Form_Edit_Fns extends Design_Area_Edit_Fns
 			if (!$element['self_terminating'] && !empty($element['contents'])) {
 				$all_contents = array_merge($all_contents, $element['contents']);
 				if (!$asset->setAttrValue('password_change_contents', $element['contents'])) {
-					return false;
+					return FALSE;
 				}
 			}
 
@@ -74,9 +74,9 @@ class Design_Area_Password_Change_Form_Edit_Fns extends Design_Area_Edit_Fns
 
 		$asset->setAttrValue('contents', $contents);
 
-		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
+		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = TRUE;
 		if (!$this->_setVariables($asset, $all_contents)) {
-			return false;
+			return FALSE;
 		}
 		return $asset->saveAttributes();
 
