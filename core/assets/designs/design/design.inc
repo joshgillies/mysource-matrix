@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.104 2006/02/03 00:41:16 dmckee Exp $
+* $Id: design.inc,v 1.104.2.1 2006/02/27 05:50:14 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.104.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -596,14 +596,14 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			break;
 
 			case 'site_link' :
-				if (!empty($args['full_url']) && in_array($args['full_url'], Array('yes', 'TRUE', '1'))) {
+				if (!empty($args['full_url']) && in_array($args['full_url'], Array('yes', 'true', '1'))) {
 					$res_exp = '$ASSET_LINEAGE[0][\'protocol\'].\'://\'.$ASSET_LINEAGE[0][\'url\']';
 				} else {
 					$res_exp = 'substr($ASSET_LINEAGE[0][\'url\'], strpos($ASSET_LINEAGE[0][\'url\'], \'/\'))';
 				}
 
-				$aqs = (!empty($args['append_query_string']) && in_array($args['append_query_string'], Array('yes', 'TRUE', '1')));
-				$sqs = (!empty($args['start_query_string']) && in_array($args['start_query_string'], Array('yes', 'TRUE', '1')));
+				$aqs = (!empty($args['append_query_string']) && in_array($args['append_query_string'], Array('yes', 'true', '1')));
+				$sqs = (!empty($args['start_query_string']) && in_array($args['start_query_string'], Array('yes', 'true', '1')));
 
 				if ($aqs) {
 					$res_exp .= '.((!empty($_SERVER[\'QUERY_STRING\'])) ? \'?\'.$_SERVER[\'QUERY_STRING\'] : \'\')';
@@ -641,7 +641,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 				if (!empty($args['full_url'])) {
 					switch ($args['full_url']) {
 						case 'yes'  :
-						case 'TRUE' :
+						case 'true' :
 						case '1'    :
 							$link_fn = 'getUrl';
 						break;
@@ -652,7 +652,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 				if (!empty($args['append_query_string'])) {
 					switch ($args['append_query_string']) {
 						case 'yes'  :
-						case 'TRUE' :
+						case 'true' :
 						case '1'    :
 							$aqs = TRUE;
 						break;
@@ -663,7 +663,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 				if (!empty($args['start_query_string'])) {
 					switch ($args['start_query_string']) {
 						case 'yes'  :
-						case 'TRUE' :
+						case 'true' :
 						case '1'    :
 							$sqs = TRUE;
 						break;
