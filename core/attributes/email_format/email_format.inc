@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.22 2006/02/10 01:57:27 sdanis Exp $
+* $Id: email_format.inc,v 1.23 2006/02/27 04:55:36 emcdonald Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *    <email_format />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -312,7 +312,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				<td valign="top">
 					<?php
 					if ($with_asset_finder) {
-						multiple_asset_finder($prefix.'_new_to_assetids[assetids]', $current_to_assetids, Array('user' => 'D'));
+						multiple_asset_finder($prefix.'_new_to_assetids[assetids]', $current_to_assetids, Array('user' => 'D', 'user_group' => 'I'));
 					}
 						text_box($prefix.'_new_to', '', 50);
 					?>
@@ -481,12 +481,21 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$assetid_emails = Array();
 		if (isset($current_value['to_assetids']) && !empty($current_value['to_assetids'])) {
 			foreach ($current_value['to_assetids'] as $assetid) {
-				$user_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$addressee =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
-				if (is_null($user_asset)) continue;
+				if (is_null($addressee)) continue;
 
-				$assetid_emails[] = $user_asset->attr('email');
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user_asset);
+				if ($addressee->type() == 'user_group') {
+					$user_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($addressee->id, SQ_LINK_TYPE_1, 'user', FALSE);
+					foreach ($user_links as $user_link) {
+						$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($user_link['minor_id']);
+						$value['to_assetids'][] = $user->attr('email');
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
+					}
+				} else {
+					$assetid_emails[] = $addressee->attr('email');
+				}
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($addressee);
 			}
 		}
 
@@ -495,6 +504,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$subject   = replace_keywords($current_value['subject'],     $replacements);
 		$text_body = replace_keywords($current_value['text_format'], $replacements);
 		$html_body = replace_keywords($current_value['html_format'], $replacements);
+
 
 		$to =  array_merge($to, $assetid_emails);
 
