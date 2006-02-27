@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.5 2006/01/05 23:33:21 rong Exp $
+* $Id: cache_manager_edit_fns.inc,v 1.6 2006/02/27 23:05:43 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.5 $ - 1.0
+* @version $Revision: 1.6 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */
@@ -330,6 +330,82 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 		}
 
 	}//end processClearCache()
+
+	/**
+	* Paint the interface for choosing cachable root URLs
+	*
+	* @param object	&$asset	the asset we are working on
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCachableRootURLs(&$asset, &$o, $prefix)
+	{
+		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+		$non_cachable_urls = $asset->attr('non_cachable_urls');
+		$wa = $asset->writeAccess('attributes');
+		?>
+		<table class="sq-backend-table" style="width: auto">
+			<thead>
+				<tr>
+					<th><?php echo translate('url'); ?></th>
+					<th><?php echo translate('use_cache'); ?></th>
+				</tr>
+			</thead>
+			<tbody>
+			<?php
+			foreach ($root_urls as $i => $url) {
+				?>
+				<tr>
+					<td><?php echo $url; ?></td>
+					<td>
+						<?php
+						if ($wa) {
+							check_box($prefix.'_url_'.$i, 1, !in_array($url, $non_cachable_urls));
+						} else {
+							$filename = in_array($url, $non_cachable_urls) ? 'cross' : 'tick';
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.gif" />';
+						}
+						?>
+					</td>
+				</tr>
+				<?php
+			}
+			?>
+			</tbody>
+		</table>
+		<?php
+
+	}//end paintCachableRootURLs()
+
+
+	/**
+	* Process the interface for choosing cachable root URLs
+	*
+	* @param object	&$asset	the asset we are working on
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCachableRootURLs(&$asset, &$o, $prefix)
+	{
+		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+		$cachable = Array();
+		foreach ($root_urls as $i => $url) {
+			if (!empty($_POST[$prefix.'_url_'.$i])) {
+				$cachable[] = $url;
+			}
+		}
+		// Note that we save the *non-cachable* root URLs, so that any new URLs are 
+		// cachable by default.
+		$non_cachable = array_diff($root_urls, $cachable);
+		return $asset->setAttrValue('non_cachable_urls', $non_cachable);
+
+	}//end processCachableRootURLs()
 
 
 }//end class

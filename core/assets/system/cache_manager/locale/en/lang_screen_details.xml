@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/03/30 00:39:54 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.2 2006/02/27 23:05:43 tbarrett Exp $
 *
 */
 -->
@@ -49,6 +49,16 @@
 		<field attribute="group_caching">
 			<display_name>Group Level Caching</display_name>
 			<note />
+		</field>
+	</section>
+	<section name="Cachable Root URLs">
+		<field>
+			<function_call>
+				<paint_function name="paintCachableRootURLs" />
+				<process_function name="processCachableRootURLs" />
+			</function_call>
+			<display_name />
+			<note>Choose the system root URLs for which caching should be enabled.  If a root URL has caching disabled then content will be served via that URL as if the URL had the no-cache suffix applied.</note>
 		</field>
 	</section>
 </contents>

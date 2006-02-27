@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.38 2006/02/14 23:54:53 rong Exp $
+* $Id: cache_manager.inc,v 1.39 2006/02/27 23:05:43 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -147,11 +147,6 @@ class Cache_Manager extends Asset
 	*/
 	function loadFromCache($assetid, $asset_type, $cache_key='', $use_url=TRUE)
 	{
-		if (SQ_ROLLBACK_VIEW) return '';
-		if (basename($_SERVER['PHP_SELF']) == SQ_CONF_NOCACHE_SUFFIX) {
-			return '';
-		}
-
 		if (!$this->cacheEnabled($asset_type)) return '';
 
 		$perm_key = $this->_getPermKey($assetid, $cache_key);
@@ -207,13 +202,6 @@ class Cache_Manager extends Asset
 	*/
 	function saveToCache($assetid, $asset_type, $cache_key, $contents, $use_url=TRUE)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
-		if (SQ_ROLLBACK_VIEW) return FALSE;
-		if (basename($_SERVER['PHP_SELF']) == SQ_CONF_NOCACHE_SUFFIX) {
-			return FALSE;
-		}
-
 		if (!$this->cacheEnabled($asset_type)) return FALSE;
 
 		$perm_key = $this->_getPermKey($assetid, $cache_key);
@@ -235,6 +223,7 @@ class Cache_Manager extends Asset
 		$file_name = md5($cache_key.':'.$perm_key.':'.$url);
 		$file_path = $group.'/'.$file_name;
 		$expiry = time() + $this->getExpiry($asset_type);
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$expiry_sql = db_extras_todate($db, ts_iso8601($expiry));
 
 		// replace/update existing cache entry
@@ -463,7 +452,7 @@ class Cache_Manager extends Asset
 
 
 	/**
-	* Check if caching is enabled for the specfied type code
+	* Check if caching is enabled, generally, for the current root URL and for the specfied type code
 	*
 	* If no type code is specified this function will check the system wide setting
 	*
@@ -474,6 +463,28 @@ class Cache_Manager extends Asset
 	*/
 	function cacheEnabled($type_code='')
 	{
+		// First check some obvious things
+		if (SQ_ROLLBACK_VIEW) return false;
+		if (basename($_SERVER['PHP_SELF']) == SQ_CONF_NOCACHE_SUFFIX) {
+			return false;
+		}
+
+		// check if the current URL is excluded
+		$current_url = current_url(false, true);
+		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+		$current_root_url = '';
+		foreach ($root_urls as $url) {
+			if (0 === strpos($current_url, $url)) {
+				if (strlen($url) > strlen($current_root_url)) {
+					$current_root_url = $url;
+				}
+			}
+		}
+		if (in_array($current_url, $this->attr('non_cachable_urls'))) {
+			return false;
+		}
+
+		// Check for type-code-specific settings
 		$type_codes = $this->attr('type_codes');
 		if (isset($type_codes[$type_code]['enabled'])) {
 			return $type_codes[$type_code]['enabled'];
@@ -481,6 +492,8 @@ class Cache_Manager extends Asset
 		return $this->attr('enabled');
 
 	}//end cacheEnabled()
+
+
 
 
 	/**
