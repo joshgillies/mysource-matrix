@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.11 2006/02/16 00:53:13 tbarrett Exp $
+* $Id: data_source.inc,v 1.12 2006/02/27 04:02:57 bcaldwell Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -263,8 +263,8 @@ class Data_Source extends Asset
 									'published'				=> $asset->getKeywordReplacement('asset_published'),
 									'published_userid'		=> $asset->published_userid,
 									'status_changed'		=> $asset->getKeywordReplacement('asset_status_changed'),
-									'status_changed_userid'	=> $asset->status_changed_userid
-,								  );
+									'status_changed_userid'	=> $asset->status_changed_userid,
+								  );
 			}//end if field not empty
 		}//end foreach of assetids
 		return $info;
@@ -597,7 +597,7 @@ class Data_Source extends Asset
 	/**
 	* Returns a reference to the asset represented by the passed assetid
 	*
-	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
+	* @param int		$assetid		the shadow part asset id to be loaded (i.e part after the ':')
 	* @param string		$type_code		if this exists then this object is used to
 	*									load the asset, if not then the DB is queried
 	*									to find out the asset type
