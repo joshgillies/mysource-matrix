@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form_edit_fns.inc,v 1.5 2006/01/26 22:34:04 lwright Exp $
+* $Id: simple_form_edit_fns.inc,v 1.6 2006/02/27 05:30:03 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,7 +50,7 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 	function Simple_Form_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
 
@@ -61,9 +61,9 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the questions
 	*
-	* @param object Simple_Form			$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -72,7 +72,7 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 
-		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($asset->id.':q1', '', true);
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($asset->id.':q1', '', TRUE);
 
 		// TRANSLATE
 		?>
@@ -152,8 +152,8 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 					</td>
 				<?php }
 				?></tr>
-			<?php }
-			}
+			<?php }//end foreach
+			}//end else
 		?></tbody>
 		</table>
 		<?php
@@ -166,17 +166,19 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the questions
 	*
-	* @param object Simple_Form			$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processQuestions(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
-		if (!isset($_POST[$prefix.'_order']['reorder'])) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
+		if (!isset($_POST[$prefix.'_order']['reorder'])) {
+			return FALSE;
+		}
 
 		$old_questions = $asset->attr('questions');
 		$questions = Array();
@@ -193,7 +195,7 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		$asset->setAttrValue('questions', $questions);
-		return true;
+		return TRUE;
 
 	}//end processQuestions()
 
@@ -201,21 +203,21 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the dropdowns to add questions to this section
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
-	* @return boolean false if no questions in this section, true otherwise
+	* @return boolean
 	* @access public
 	*/
 	function paintAddQuestions(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) {
 			?><i><?php echo translate('core_simple_form_lock_to_add_questions'); ?></i><?php
-			return false;
+			return FALSE;
 		}
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$question_types = $am->getTypeDescendants('form_question');
 		$questions = Array('' => '-- '.translate('choose_type').' --');
 
@@ -232,7 +234,7 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 			<?php
 			for ($i =0; $i < 2; $i++) {
 				?>
-				<div><input type="text" name="<?php echo $prefix; ?>_add[names][]" /><?php echo combo_box($prefix.'_add[types][]', $questions, false, ''); ?><button type="button" tabindex="99999" class="delete-button">&nbsp;</button></div>
+				<div><input type="text" name="<?php echo $prefix; ?>_add[names][]" /><?php echo combo_box($prefix.'_add[types][]', $questions, FALSE, ''); ?><button type="button" tabindex="99999" class="delete-button">&nbsp;</button></div>
 				<?php
 			}
 			?>
@@ -259,7 +261,7 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 			}
 		</script>
 		<?php
-		return true;
+		return TRUE;
 
 	}//end paintAddQuestions()
 
@@ -267,22 +269,22 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the newly added questions
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processAddQuestions(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$names = $_POST[$prefix.'_add']['names'];
 		$types = $_POST[$prefix.'_add']['types'];
 
 		// this can eventually be expanded to handle named questions
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		foreach ($types as $i => $type) {
 			if (empty($type)) continue;
@@ -295,7 +297,7 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 			if (!$asset->createQuestion($type, $names[$i])) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return false;
+				return FALSE;
 			}//end if
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -303,7 +305,7 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 
 		}//end foreach
 
-		return true;
+		return TRUE;
 
 	}//end processAddQuestions()
 
@@ -311,11 +313,11 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process use format bodycopy dropdown
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
-	* @return boolean false if no questions in this section, true otherwise
+	* @return boolean
 	* @access public
 	*/
 	function paintUseBodycopy(&$asset, &$o, $prefix)
@@ -330,7 +332,7 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 						'0'	=> translate('no'),
 					   );
 
-			combo_box($prefix.'_use_bodycopy', $options, false, Array($enabled));
+			combo_box($prefix.'_use_bodycopy', $options, FALSE, Array($enabled));
 
 		} else {
 			echo $enabled ? translate('on') : translate('off');
@@ -344,16 +346,16 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process use format bodycopy
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processUseBodycopy(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('links')) return false;
+		if (!$asset->writeAccess('links')) return FALSE;
 		$enabled = $_POST[$prefix.'_use_bodycopy'];
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -362,13 +364,13 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 		if (!$asset->setUseFormatBodycopy($enabled)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		return true;
+		return TRUE;
 
 	}//end processUseBodycopy()
 

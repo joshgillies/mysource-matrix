@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form_management.inc,v 1.2 2005/08/09 23:26:46 lwright Exp $
+* $Id: simple_form_management.inc,v 1.3 2006/02/27 05:30:03 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,12 +82,11 @@ class Simple_Form_Management extends Asset_Management
 						'client_side'	=> Array(
 											'added'			=> '0.1',
 											'type'			=> 'boolean',
-											'default'		=> false,
+											'default'		=> FALSE,
 											'parameters'	=> Array(
-																'allow_empty' => false,
+																'allow_empty'	=> FALSE,
 															   ),
 										   ),
-
 					  );
 
 	}//end constructor
@@ -96,8 +95,8 @@ class Simple_Form_Management extends Asset_Management
 	/**
 	* Gets a list of all files that we want web accessable
 	*
+	* @return array
 	* @access private
-	* @return array(string)
 	*/
 	function _getFileList()
 	{
@@ -111,8 +110,8 @@ class Simple_Form_Management extends Asset_Management
 	/**
 	* returns an array with information about the events that the form is listening for
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function getEventList()
 	{
@@ -120,11 +119,11 @@ class Simple_Form_Management extends Asset_Management
 				Array(
 					'event_name'					=> 'requestKeywords',
 					'broadcast_type_code'			=> 'content_type',
-					'broadcast_strict_type_code'	=> false,
+					'broadcast_strict_type_code'	=> FALSE,
 					'options'						=> Array(
 														'side_of_link'	=> 'major',
-														'indirect'		=> true,
-														'is_exclusive'	=> null,
+														'indirect'		=> TRUE,
+														'is_exclusive'	=> NULL,
 														'is_dependant'	=> 1,
 														'value'			=> '',
 														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
