@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.167 2006/02/09 23:14:56 lwright Exp $
+* $Id: mysource.inc,v 1.168 2006/02/27 00:47:54 emcdonald Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.167 $
+* @version $Revision: 1.168 $
 * @package MySource_Matrix
 */
 class MySource
@@ -145,7 +145,7 @@ class MySource
 	*
 	* @var object User
 	*/
-	var $user = null;
+	var $user = NULL;
 
 	/**
 	* The object of the (main) asset being printed on the frontend
@@ -351,14 +351,18 @@ class MySource
 
 			// check for ./?a=xx type urls or normal
 			if (isset($_REQUEST['a'])) {
-				$asset =& $this->am->getAsset($_REQUEST['a']);
+				// requested asset is exclusively in the trash - don't display
+				if ($this->am->assetInTrash($_REQUEST['a'], TRUE)) {
+					$asset = NULL;
+				} else {
+					$asset =& $this->am->getAsset($_REQUEST['a'], '', TRUE);
+				}
 			} else {
-				$asset =& $this->am->getAssetFromURL(current_protocol(), null, TRUE, TRUE);
+				$asset =& $this->am->getAssetFromURL(current_protocol(), NULL, TRUE, TRUE);
 			}
 
 			if (!is_null($asset) && !$asset->effectiveUnrestricted() && $require_password_change) {
-				// FIXME: How can the true condition be possible if the parent IF statement prohibits it?
-				$page_name = is_null($asset) ? 'this page' : '"'.$asset->name.'"';
+				$page_name = '"'.$asset->name.'"';
 				$this->paintPasswordChange(translate('change_password'), translate('must_change_password_to_access_asset', $page_name));
 				exit();
 			}
@@ -414,7 +418,7 @@ class MySource
 				$asset->printFrontend();
 			}
 
-		}//end if backend/limbo
+		}//end else backend/limbo
 
 		if (SQ_CONF_DEBUG & 4) {
 			// report all the assets with a reference count > 0
@@ -542,10 +546,10 @@ class MySource
 	* @param string	$index		the index of the variable
 	* @param string	$default	a default value to return if $index not set
 	*
-	* @return mixed int|float|string|boolean|array|object|void|null
+	* @return mixed int|float|string|boolean|array|object|void|NULL
 	* @access public
 	*/
-	function getGlobalDefine($index, $default=null)
+	function getGlobalDefine($index, $default=NULL)
 	{
 		if (!is_array($this->_global_defines)) return $default;
 		return $this->isGlobalDefineSet($index) ? $this->_global_defines[$index] : $default;
@@ -587,7 +591,7 @@ class MySource
 
 		if (array_get_index($_REQUEST, 'SQ_BACKEND_PAGE') == 'header') {
 			// we don't want to print a login box in the top frame, so reload the parent frame
-			$redirect_location = replace_query_string_vars(Array('SQ_BACKEND_PAGE' => null));
+			$redirect_location = replace_query_string_vars(Array('SQ_BACKEND_PAGE' => NULL));
 			?>
 			<script type="text/javascript">
 				window.parent.document.location = '<?php echo $redirect_location; ?>';
@@ -600,7 +604,7 @@ class MySource
 
 		if (empty($_GET['FORCE_BACKUP_LOGIN'])) {
 
-			$current_asset =& $this->am->getAssetFromURL(null, null, TRUE, TRUE);
+			$current_asset =& $this->am->getAssetFromURL(NULL, NULL, TRUE, TRUE);
 			// if we can't find a current asset, use the root folder
 			if (is_null($current_asset)) {
 				$current_asset =& $this->am->getSystemAsset('root_folder');
@@ -651,7 +655,7 @@ class MySource
 
 		if (empty($_GET['FORCE_BACKUP_PASSWORD_CHANGE'])) {
 
-			$current_asset =& $this->am->getAssetFromURL(null, null, TRUE, TRUE);
+			$current_asset =& $this->am->getAssetFromURL(NULL, NULL, TRUE, TRUE);
 			// if we can't find a current asset, use the root folder
 			if (is_null($current_asset)) {
 				$current_asset =& $this->am->getSystemAsset('root_folder');
@@ -698,7 +702,7 @@ class MySource
 			return;
 		}
 
-		$this->user = null;
+		$this->user = NULL;
 		if (array_get_index($_SESSION, 'userid')) {
 			// try to log in the user whose ID is in the session
 			$this->user =& $this->am->getAsset($_SESSION['userid'], $_SESSION['user_type_code'], TRUE);
@@ -870,7 +874,7 @@ class MySource
 					$auth_systems = $auth_folder->getAuthSystems();
 
 					// try each auth system in order to see if we can load a user asset
-					$user = null;
+					$user = NULL;
 					foreach ($auth_systems as $systemid) {
 						$system =& $this->am->getAsset($systemid);
 						if (is_null($system)) continue;
@@ -1015,7 +1019,7 @@ class MySource
 		$auth_systems = $auth_folder->getAuthSystems();
 
 		// try each auth system in order to see if we can load a user asset
-		$user = null;
+		$user = NULL;
 		foreach ($auth_systems as $systemid) {
 			$system =& $this->am->getAsset($systemid);
 			if (is_null($system)) continue;
@@ -1047,7 +1051,7 @@ class MySource
 		}
 		$auth_systems = $auth_folder->getAuthSystems();
 		// try each auth system in order to see if we can load a user asset
-		$user = null;
+		$user = NULL;
 		foreach ($auth_systems as $systemid) {
 			$system =& $this->am->getAsset($systemid);
 			if (is_null($system)) continue;
@@ -1147,7 +1151,7 @@ class MySource
 	function restoreCurrentUser()
 	{
 		if (empty($this->_tmp['current_user_cache'])) {
-			$user = null;
+			$user = NULL;
 		} else {
 			list($userid, $type_code) = array_pop($this->_tmp['current_user_cache']);
 			$user =& $this->am->getAsset($userid, $type_code);
@@ -1363,7 +1367,7 @@ class MySource
 	* @return boolean
 	* @access public
 	*/
-	function userRoot($user=null)
+	function userRoot($user=NULL)
 	{
 		if (is_null($user)) return $this->_user_is_root;
 		if (!$user->id) return FALSE;
@@ -1385,7 +1389,7 @@ class MySource
 	* @return boolean
 	* @access public
 	*/
-	function userSystemAdmin($user=null)
+	function userSystemAdmin($user=NULL)
 	{
 		if (is_null($user)) return $this->_user_is_sys_admin;
 		if (!$user->id) return FALSE;
@@ -1411,7 +1415,7 @@ class MySource
 	* @return boolean
 	* @access public
 	*/
-	function userPublic($user=null)
+	function userPublic($user=NULL)
 	{
 		if (is_null($user)) return $this->_user_is_public;
 		if (!$user->id) return FALSE;
@@ -1431,7 +1435,7 @@ class MySource
 	* @return mixed array|string|boolean
 	* @access public
 	*/
-	function getUserPrefs($asset_type=null, $pref=null, $value_only=TRUE)
+	function getUserPrefs($asset_type=NULL, $pref=NULL, $value_only=TRUE)
 	{
 		if (!is_file(SQ_DATA_PATH.'/private/conf/preferences.inc')) {
 			return FALSE;
@@ -1734,12 +1738,12 @@ class MySource
 	*
 	* Returns NULL if no run level has been set
 	*
-	* @return mixed int|null
+	* @return mixed int|NULL
 	* @access public
 	*/
 	function getRunLevel()
 	{
-		if (empty($this->_run_level_stack)) return null;
+		if (empty($this->_run_level_stack)) return NULL;
 
 		end($this->_run_level_stack);
 		$current_run_level = current($this->_run_level_stack);
@@ -1785,7 +1789,7 @@ class MySource
 	*/
 	function changeDatabaseConnection($conn)
 	{
-		$dsn = null;
+		$dsn = NULL;
 		switch ($conn) {
 			case 'db':
 				// If we are in the backend, we don't want any external concurrency
@@ -1851,7 +1855,7 @@ class MySource
 
 		if (empty($this->_db_stack)) {
 			unset($this->db);
-			$this->db = null;
+			$this->db = NULL;
 		} else {
 			$conn = $this->_db_stack[count($this->_db_stack) - 1];
 			$this->db =& $this->_db_conns[$conn];
@@ -1935,7 +1939,7 @@ class MySource
 				<td bgcolor="#FFE5E8">
 					<table border="0" cellspacing="2" cellpadding="2" width="100%">
 						<tr>
-							<td class="sq-rollback-warning" align="right"><?php echo translate('exit_rollback_view'); ?><?php sq_print_icon(sq_web_path('lib').'/web/images/icons/delete.png', '16', '16', translate('exit_rollback_view'), null, 'onClick="Javascript: window.top.location=\''.$exit_url.'\'"; return false;" style="cursor: pointer;"'); ?>
+							<td class="sq-rollback-warning" align="right"><?php echo translate('exit_rollback_view'); ?><?php sq_print_icon(sq_web_path('lib').'/web/images/icons/delete.png', '16', '16', translate('exit_rollback_view'), NULL, 'onClick="Javascript: window.top.location=\''.$exit_url.'\'"; return false;" style="cursor: pointer;"'); ?>
 							</td>
 						</tr>
 						<tr>
@@ -1975,7 +1979,7 @@ class MySource
 	* @return string
 	* @access public
 	*/
-	function constructRollbackWhereClause($where='', $table_alias=null, $prefix='WHERE', $is_table_alias=TRUE)
+	function constructRollbackWhereClause($where='', $table_alias=NULL, $prefix='WHERE', $is_table_alias=TRUE)
 	{
 		// trim off a current prefix keyword if it exists
 		$where = trim($where);
@@ -2252,7 +2256,7 @@ class MySource
 	* @return string
 	* @access public
 	*/
-	function datetime($timestamp=null)
+	function datetime($timestamp=NULL)
 	{
 		return (is_null($timestamp)) ? date('d/m/Y H:i:s') : date('d/m/Y H:i:s', $timestamp);
 
@@ -2267,7 +2271,7 @@ class MySource
 	* @return string
 	* @access public
 	*/
-	function date($timestamp=null)
+	function date($timestamp=NULL)
 	{
 		return (is_null($timestamp)) ? date('d/m/Y') : date('d/m/Y', $timestamp);
 
@@ -2282,7 +2286,7 @@ class MySource
 	* @return string
 	* @access public
 	*/
-	function time($timestamp=null)
+	function time($timestamp=NULL)
 	{
 		return (is_null($timestamp)) ? date('H:i:s') : date('H:i:s', $timestamp);
 
@@ -2325,7 +2329,7 @@ class MySource
 	* @return boolean
 	* @access public
 	*/
-	function broadcastTriggerEvent($event_name, &$broadcaster, $parameters=null)
+	function broadcastTriggerEvent($event_name, &$broadcaster, $parameters=NULL)
 	{
 		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_TRIGGERS)) {
 			return TRUE;
