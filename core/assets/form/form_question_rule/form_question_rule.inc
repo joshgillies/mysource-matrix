@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule.inc,v 1.1 2005/07/20 00:02:42 lwright Exp $
+* $Id: form_question_rule.inc,v 1.2 2006/02/27 05:19:26 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @static
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,7 +62,7 @@ class Form_Question_Rule extends Asset
 	*/
 	function isValidationRule()
 	{
-		return true;
+		return TRUE;
 
 	}//end isValidationRule()
 
@@ -75,7 +75,7 @@ class Form_Question_Rule extends Asset
 	*/
 	function isSelectiveEmailRule()
 	{
-		return true;
+		return TRUE;
 
 	}//end isSelectiveEmailRule()
 
@@ -83,9 +83,11 @@ class Form_Question_Rule extends Asset
 	/**
 	* Returns a list of operators for this rule type
 	*
+	* Returns an array of descriptions indexed by operator id (which can be
+	* anything, generally string or (int)0|1 for a boolean value)
+	*
+	* @return array
 	* @access public
-	* @return array (mixed => string) an array of descriptions indexed by operator id (which can be
-	*                                 anything, generally string or (int)0|1 for a boolean value)
 	*/
 	function getOperators()
 	{
@@ -95,17 +97,33 @@ class Form_Question_Rule extends Asset
 
 
 	/**
-	* @abstract
+	* Processes the form question and returns true if it is valid
+	*
+	* You should overwrite this function
+	*
+	* @param string	$answer		The answer to the question
+	* @param array	$rule_data	the rule data
+	*
+	* @return boolean
+	* @access public
 	*/
 	function evaluate($answer, $rule_data)
 	{
-		return true;
+		return TRUE;
 
 	}//end evaluate()
 
 
 	/**
-	* @abstract
+	* Writes JavaScript code for client side validation
+	*
+	* You should overwrite this function
+	*
+	* @param object	&$q_asset	reference to the question asset
+	* @param array	$rule_data	the rule data
+	*
+	* @return boolean
+	* @access public
 	*/
 	function generateJSCode(&$q_asset, $rule_data)
 	{
@@ -115,7 +133,15 @@ class Form_Question_Rule extends Asset
 
 
 	/**
-	* @abstract
+	* Returns a default error message for this rule
+	*
+	* You should overwrite this function
+	*
+	* @param object	&$q_asset	the question asset that failed
+	* @param array	$rule_data	the rule data
+	*
+	* @return string
+	* @access public
 	*/
 	function defaultError(&$q_asset, $rule_data)
 	{
@@ -125,7 +151,15 @@ class Form_Question_Rule extends Asset
 
 
 	/**
-	* @abstract
+	* Returns a description of the rule
+	*
+	* You should overwrite this function
+	*
+	* @param object	&$q_asset	the question asset that failed
+	* @param array	$rule_data	the rule data
+	*
+	* @return string
+	* @access public
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
 	{

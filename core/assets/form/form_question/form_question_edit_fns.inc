@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.4 2006/01/20 03:02:51 skim Exp $
+* $Id: form_question_edit_fns.inc,v 1.5 2006/02/27 05:18:55 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,7 +51,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		$this->static_screens = Array(
 									'details'	=> Array(
 													'name'			=> 'Details',
-													'force_unlock'	=> false,
+													'force_unlock'	=> FALSE,
 													'lock_type'		=> 'none',
 												   ),
 								);
@@ -60,11 +60,11 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* paint the current rules
+	* Paint the current rules
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -75,7 +75,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 			$o->openRaw();
 			echo translate('core_form_no_rules_set');
 			$o->closeRaw();
-			return false;
+			return FALSE;
 		}
 
 		$rule_codes = $asset->getAllowedRules();
@@ -90,8 +90,8 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 
 		$rules = $asset->getRules();
 
-		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
-			$rule = &$rules[$k];
+		for (reset($rules); NULL !== ($k = key($rules)); next($rules)) {
+			$rule =& $rules[$k];
 			// let the rule paint itself here!!
 			$type_code = 'form_question_rule_type_'.$rule['rule_code'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
@@ -121,7 +121,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 			}
 
 			$o->closeSection();
-		}
+		}//end for
 
 		return $write_access;
 
@@ -131,18 +131,18 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* get the rules to process their parameters
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processRules(&$asset, &$o, $prefix)
 	{
-		if ($asset->getRuleCount() == 0) return false;
+		if ($asset->getRuleCount() == 0) return FALSE;
 
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$rule_codes = $asset->getAllowedRules();
 		$type_codes = Array();
@@ -165,8 +165,8 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		// modify what's left
-		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
-			$rule = &$rules[$k];
+		for (reset($rules); NULL !== ($k = key($rules)); next($rules)) {
+			$rule =& $rules[$k];
 			$rule_prefix = $prefix.'_rule_'.$k;
 			// let the rule paint itself here!!
 			$type_code = 'form_question_rule_type_'.$rule['rule_code'];
@@ -191,16 +191,18 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the dropdowns to add rules to this question
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* Retruns false if no questions in this section, true otherwise
 	*
-	* @return boolean false if no questions in this section, true otherwise
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
 	* @access public
 	*/
 	function paintAddRule(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$rule_codes = $asset->getAllowedRules();
 		$type_codes = Array();
@@ -213,9 +215,9 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_codes, 'description');
-		combo_box('rule', array_merge(Array(' ' => '------ '.translate('please_select').' ------'), $desc), false, '');
+		combo_box('rule', array_merge(Array(' ' => '------ '.translate('please_select').' ------'), $desc), FALSE, '');
 
-		return true;
+		return TRUE;
 
 	}//end paintAddRule()
 
@@ -223,9 +225,9 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the newly added questions
 	*
-	* @param object Form_Section		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -234,7 +236,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	{
 		$type_code = $_POST['rule'];
 		$rule_code = substr($type_code,strlen('form_question_rule_type_'));
-		if (!trim($rule_code)) return false;
+		if (!trim($rule_code)) return FALSE;
 
 		$rules = $asset->getRules();
 		$rules[] = Array('rule_code' => $rule_code);
@@ -248,18 +250,20 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint lock message telling the user to go to our parent to lock me
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* Returns false if no questions in this section, true otherwise
 	*
-	* @return boolean false if no questions in this section, true otherwise
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
 	* @access public
 	*/
 	function paintLockMessage(&$asset, &$o, $prefix)
 	{
 		$section_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_formid);
 
-		$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($section_asset->id, 'attributes', true);
+		$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($section_asset->id, 'attributes', TRUE);
 		$lock  = $locks['attributes'];
 
 		$full_write_access = $section_asset->writeAccess('');
@@ -274,8 +278,8 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 
 		} else {
 			// this asset is currently locked so display message to the user
-			$user    = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-			$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
+			$user    =& $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+			$editing =& $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
 
 			if (SQ_ROLLBACK_VIEW) {
 				$now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
@@ -287,7 +291,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 				$expires_in = 'The lock is being held indefinitely and will not expire. The lock must be released manually or be forceably acquired by a System Administrator.';
 			} else {
 				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-				$expires_in = easy_time_total(($lock['expires'] - $now), true);
+				$expires_in = easy_time_total(($lock['expires'] - $now), TRUE);
 				if (!$expires_in) $expires_in = '1 second';
 				$expires_in = 'The lock is due to expire in '.$expires_in;
 			}
@@ -307,7 +311,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 				echo ' section';
 			}
 		?>. Click to access this asset: <?php $href = $section_asset->getBackendHref(!is_a($section_asset, 'form') ? 'details' : 'contents'); ?><a href="<?php echo $href ?>"><?php echo $section_asset->_getName() ?></a></p><?php
-		return true;
+		return TRUE;
 
 	}//end paintLockMessage()
 
@@ -315,16 +319,16 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process lock message (no implementation)
 	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
-	* @return boolean always true
+	* @return boolean
 	* @access public
 	*/
 	function processLockMessage(&$asset, &$o, $prefix)
 	{
-		return true;
+		return TRUE;
 
 	}//end processLockMessage()
 

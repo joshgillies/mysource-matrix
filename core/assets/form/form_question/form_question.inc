@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.8 2006/02/23 00:27:46 lwright Exp $
+* $Id: form_question.inc,v 1.9 2006/02/27 05:18:55 bcaldwell Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,21 +72,21 @@ class Form_Question extends Asset
 	* the current value
 	* @var string
 	*/
-	var $value = null;
+	var $value = NULL;
 
 
 	/**
 	* array of submission errors
 	* @var object
 	*/
-	var $submission_errors = null;
+	var $submission_errors = NULL;
 
 
 	/**
 	* the active form
 	* @var &object Form
 	*/
-	var $active_form = null;
+	var $active_form = NULL;
 
 
 	/**
@@ -108,7 +108,7 @@ class Form_Question extends Asset
 		if (!$formid || empty($data)) {
 			return;
 		}
-		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($formid);
+		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($formid);
 
 		if (is_null($form)) return;
 		$this->_formid = $formid;
@@ -119,8 +119,7 @@ class Form_Question extends Asset
 
 		$asset_attributes = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes(get_class($this), Array('name', 'type','default_val','attrid'));
 
-		foreach ($asset_attributes as $attribute_name => $asset_attribute)
-		{
+		foreach ($asset_attributes as $attribute_name => $asset_attribute) {
 			$this->vars[$attribute_name]['type'] = $asset_attribute['type'];
 			$this->vars[$attribute_name]['attrid'] = $asset_attribute['attrid'];
 			if (isset($data['attributes'][$attribute_name])) {
@@ -157,22 +156,22 @@ class Form_Question extends Asset
 	* @access public
 	* @see setAttrValue()
 	*/
-	function saveAttributes($dont_run_updated=false)
+	function saveAttributes($dont_run_updated=FALSE)
 	{
-		if (!$this->id) return true;
-		if (empty($this->_tmp['vars_set'])) return true;
+		if (!$this->id) return TRUE;
+		if (empty($this->_tmp['vars_set'])) return TRUE;
 
-		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 
 		if (!$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] && !$form->writeAccess('attributes')) {
 			trigger_localised_error('CORE0121', E_USER_WARNING, $this->name, $this->id);
-			return false;
+			return FALSE;
 		}
 
 		$save_vars = Array();
 		$attr_ids  = Array();
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// prepare for the save
 		$saved_vars = $this->vars;
@@ -213,14 +212,14 @@ class Form_Question extends Asset
 		if (!$form->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 
 		// tell, the asset it has updated
 		if (!$dont_run_updated && !$this->_updated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 
 		unset($this->_tmp['vars_set']);
@@ -231,7 +230,7 @@ class Form_Question extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->am->updateLock($this->_formid, 'attributes');
 
-		return true;
+		return TRUE;
 
 	}//end saveAttributes()
 
@@ -250,16 +249,16 @@ class Form_Question extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _updated($update_parents=true)
+	function _updated($update_parents=TRUE)
 	{
 		// We should not be running our _updated() because we don't have anything in the asset table
 		// to update... but we should run our form/section's update, if only to increment the version
 		if (SQ_IN_BACKEND) {
-			$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+			$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 			return $form->_updated($update_parents);
 		}
 
-		return true;
+		return TRUE;
 
 	}//end _updated()
 
@@ -272,7 +271,7 @@ class Form_Question extends Asset
 	*/
 	function canClone()
 	{
-		return false;
+		return FALSE;
 
 	}//end canClone()
 
@@ -280,12 +279,12 @@ class Form_Question extends Asset
 	/**
 	* return the name of this question
 	*
-	* @param boolean $short_name if TRUE, returns the short name
+	* @param boolean	$short_name	if TRUE, returns the short name
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
@@ -295,14 +294,17 @@ class Form_Question extends Asset
 	/**
 	* Get one of this question's parameters based on the parameter passed
 	*
+	* Returns string relating to the $val field as described above,
+	* or empty string if other.
+	*
 	* @param string	$field	The field you want; can be one of the following
 	*						'title'  : The name of the question
 	*						'answer' : The HTML for the form field
 	*						'note'   : The note attached to the question
 	*						'value'  : The current value of the question
 	*
+	* @return string
 	* @access public
-	* @return string relating to the $val field as described above, or empty string if other
 	*/
 	function getVal($field='')
 	{
@@ -324,13 +326,15 @@ class Form_Question extends Asset
 
 
 	/**
-	* returns the answer by its offset in the list (select type questions)
+	* Returns the answer by its offset in the list (select type questions)
 	*
-	* @param Array|int $offset the offset(s) to the answers
+	* Returns an array of selection options if an array is passed, or a
+	* single option if an int is passed
 	*
+	* @param array|int	$offset	the offset(s) to the answers
+	*
+	* @return mixed array|string
 	* @access public
-	* @return mixed (Array | string) Array of selection options if an array is passed, or a single
-	*								 option if an int is passed
 	*/
 	function getAnswerByOffset($offset=0)
 	{
@@ -344,22 +348,22 @@ class Form_Question extends Asset
 		}
 		if (isset($options[$offset])) return $options[$offset];
 
-		return false;
+		return FALSE;
 
 	}//end getAnswerByOffset()
 
 
 	/**
-	* returns an Offset for a given answer (select type questions)
+	* Returns an Offset for a given answer (select type questions)
 	*
-	* @param string $answer the answer to find the offset for
+	* @param string	$answer	the answer to find the offset for
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function getOffsetByAnswer($answer='')
 	{
-		if (!$answer) return false;
+		if (!$answer) return FALSE;
 
 		$options = $this->getOptions();
 		if (in_array($answer, $options)) {
@@ -370,28 +374,28 @@ class Form_Question extends Asset
 
 
 	/**
-	* returns TRUE if the question that this rule belongs to is a selection type question
+	* Returns TRUE if the question that this rule belongs to is a selection type question
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function isSelection()
 	{
 		foreach ($this->getSelectionTypeQuestions() as $types) {
-			if (is_a($this, $types)) return true;
+			if (is_a($this, $types)) return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end isSelection()
 
 
 	/**
-	* returns a list of question types that are selections
+	* Returns a list of question types that are selections
 	* the rule uses this information to see if it should be displaying
 	* any more information in the rule itself
 	*
+	* @return array
 	* @access public
-	* @return Array()
 	*/
 	function getSelectionTypeQuestions()
 	{
@@ -408,32 +412,32 @@ class Form_Question extends Asset
 
 
 	/**
-	* returns the section that this question belongs to (or form if not attached to a section)
+	* Returns the section that this question belongs to (or form if not attached to a section)
 	*
+	* @return object
 	* @access public
-	* @return Object (Form|Form_Section)
 	*/
 	function &getMySection()
 	{
-		$asset = null;
+		$asset = NULL;
 		if (empty($this->_formid)) return $asset;
 
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 		return $asset;
 
 	}//end getMySection()
 
 
 	/**
-	* returns the section name that this question belongs to
+	* Returns the section name that this question belongs to
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function getMySectionName()
 	{
 		if (!$this->section_name) {
-			$section = &$this->getMySection();
+			$section =& $this->getMySection();
 			$this->section_name = $section->name;
 		}
 		return $this->section_name;
@@ -442,13 +446,13 @@ class Form_Question extends Asset
 
 
 	/**
-	* writes JavaScript code for client side validation
+	* Writes JavaScript code for client side validation
 	*
 	* This function assumes the skeleton of a JS validation function has been created around this code
 	* with a form variable named 'form' passed (this is done when generating the content file).
 	*
+	* @return string
 	* @access public
-	* @return string the javascript code used for client-side validation
 	*/
 	function generateJSCode()
 	{
@@ -470,15 +474,15 @@ class Form_Question extends Asset
 
 
 	/**
-	* returns an array of the types of rules
+	* Returns an array of the types of rules
 	*
 	* Returned array is 'short name' => 'full name'
 	* this should be overridden with something like (substitute actual allowed rules)
 	* eg. return Array('regexp', 'comparison', 'numeric', 'found_in', 'contain', 'length', 'email',
 	* 'begins_with', 'ends_with', 'select_limit');
 	*
+	* @return array
 	* @access public
-	* @return Array(string => string)
 	*/
 	function getAllowedRules()
 	{
@@ -488,18 +492,18 @@ class Form_Question extends Asset
 
 
 	/**
-	* adds a validation rule to this question
+	* Adds a validation rule to this question
 	*
-	* @param string $rule_code the code of the rule that will be added
-	* @param mixed $operator the operator being used by the rule - Possible values defined by rule, comparison questions generally have a string like '==', is/is not rules use a 0|1 integer
-	* @param mixed $value the value to compare the question's response to
+	* @param string	$rule_code	the code of the rule that will be added
+	* @param mixed	$operator	the operator being used by the rule - Possible values defined by rule, comparison questions generally have a string like '==', is/is not rules use a 0|1 integer
+	* @param mixed	$value		the value to compare the question's response to
 	*
+	* @return array
 	* @access public
-	* @return Array(link)
 	*/
 	function &addRule($rule_code, $operator, $value)
 	{
-		$rules = &$this->attr('rules');
+		$rules =& $this->attr('rules');
 		$rules[] = Array('rule_code' => $rule_code, 'operator' => $operator, 'value' => $value);
 		$this->setAttrValue('rules', $rules);
 		$this->saveAttributes();
@@ -509,16 +513,16 @@ class Form_Question extends Asset
 
 
 	/**
-	* removes a validation rule(s) from this question
+	* Removes a validation rule(s) from this question
 	*
-	* @param Array &$deleted_rule the rule(s) that will be removed
+	* @param array	&$deleted_rule	the rule(s) that will be removed
 	*
+	* @return array
 	* @access public
-	* @return Array(link)
 	*/
 	function &removeRule(&$deleted_rule)
 	{
-		$rules = &$this->attr('rules');
+		$rules =& $this->attr('rules');
 		$rules = array_diff($rules, $deleted_rule);
 		$this->setAttrValue('rules', $rules);
 		$this->saveAttributes();
@@ -528,10 +532,10 @@ class Form_Question extends Asset
 
 
 	/**
-	* returns all the rules that this question has
+	* Returns all the rules that this question has
 	*
+	* @return array
 	* @access public
-	* @return Array(link)
 	*/
 	function getRules()
 	{
@@ -541,10 +545,10 @@ class Form_Question extends Asset
 
 
 	/**
-	* returns the number of rules this question has
+	* Returns the number of rules this question has
 	*
+	* @return array
 	* @access public
-	* @return Array(link)
 	*/
 	function getRuleCount()
 	{
@@ -556,12 +560,12 @@ class Form_Question extends Asset
 	/**
 	* Returns whether questions of this type can be edited after the form has been initially submitted
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function isEditable()
 	{
-		return true;
+		return TRUE;
 
 	}//end isEditable()
 
@@ -569,11 +573,12 @@ class Form_Question extends Asset
 	/**
 	* Get the HTML that allows answering of this question by the user
 	*
-	* @abstract
+	* @return boolean
+	* @access public
 	*/
 	function getHtmlField()
 	{
-		return true;
+		return TRUE;
 
 	}//end getHtmlField()
 
@@ -592,7 +597,7 @@ class Form_Question extends Asset
 		if (isset($_POST['q'.$this->id])) {
 			$this->setValue($_POST['q'.$this->id]);
 		}
-		return true;
+		return TRUE;
 
 	}//end populate()
 
@@ -602,8 +607,8 @@ class Form_Question extends Asset
 	*
 	* @param mixed	$value	The value to set for this question
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function setValue($value)
 	{
@@ -615,7 +620,9 @@ class Form_Question extends Asset
 	/**
 	* Look at user-specified and internal rules to see if this question currently has a valid value
 	*
-	* @return boolean	true if all rules pass
+	* Returns TRUE if all validation rules pass
+	*
+	* @return boolean
 	* @access public
 	*/
 	function hasValidValue()
@@ -624,11 +631,11 @@ class Form_Question extends Asset
 
 		// if the question is optional and answer is empty then dont check this rule
 		if (empty($answer) && !$this->attr('is_required')) {
-			return true;
+			return TRUE;
 		}
 
 		$rules = $this->getRules();
-		$ok = true;						// We start as being all OK
+		$ok = TRUE;						// We start as being all OK
 
 		foreach ($rules as $k=>$rule) {
 			$type_code = 'form_question_rule_type_'.$rule['rule_code'];
@@ -638,7 +645,7 @@ class Form_Question extends Asset
 			$rule_ok = $rule_asset->evaluate($answer, $rule, $this);
 
 			if (!$rule_ok) {
-				$ok = false;
+				$ok = FALSE;
 				$custom_text = array_get_index($rule, 'custom_text', '');
 				if (!empty($custom_text)) {
 					$this->failed_rules[] = $rule['custom_text'];
@@ -659,8 +666,8 @@ class Form_Question extends Asset
 	*
 	* This gets called once we know the whole form is valid and we want to save all the values.
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function saveValue()
 	{
@@ -670,10 +677,10 @@ class Form_Question extends Asset
 
 
 	/**
-	* returns the current value of the question, or the default value if no current value exists
+	* Returns the current value of the question, or the default value if no current value exists
 	*
+	* @return mixed string|NULL
 	* @access public
-	* @return mixed type depends on the subclass of question
 	*/
 	function getValue()
 	{
@@ -688,8 +695,8 @@ class Form_Question extends Asset
 	/**
 	* Get the current answer for this question, in a sensible format
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function getSummary()
 	{
@@ -699,12 +706,10 @@ class Form_Question extends Asset
 
 
 	/**
-	* returns an answer summary in XML format (suitable for submission logs)
+	* Returns an answer summary in XML format (suitable for submission logs)
 	*
-	* @param mixed	$answer	the answer for the question
-	*
+	* @return string
 	* @access public
-	* @return string	the summary XML
 	*/
 	function getXML()
 	{
@@ -725,7 +730,7 @@ class Form_Question extends Asset
 	/**
 	* Return a list of errors from last time we processed the form
 	*
-	* @return Array(string)
+	* @return array
 	* @access public
 	*/
 	function getErrors()
@@ -749,8 +754,8 @@ class Form_Question extends Asset
 	*/
 	function readAccess($assetids=Array())
 	{
-		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
-		if (is_null($form)) return false;
+		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+		if (is_null($form)) return FALSE;
 
 		return $form->readAccess($assetids);
 
@@ -763,7 +768,7 @@ class Form_Question extends Asset
 	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
 	*							permissions set for this asset, otherwise returns effective access based on locking
 	*							and status
-	* @param Array	$assetids	An array of user_group and/or user ids to check for write access
+	* @param array	$assetids	An array of user_group and/or user ids to check for write access
 	*							If the array is empty, the current user will be checked
 	*
 	* @return boolean
@@ -771,8 +776,8 @@ class Form_Question extends Asset
 	*/
 	function writeAccess($lock_type='', $assetids=Array())
 	{
-		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
-		if (is_null($form)) return false;
+		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+		if (is_null($form)) return FALSE;
 
 		return $form->writeAccess($lock_type, $assetids);
 
@@ -793,8 +798,8 @@ class Form_Question extends Asset
 	*/
 	function adminAccess($lock_type='', $assetids=Array())
 	{
-		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
-		if (is_null($form)) return false;
+		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+		if (is_null($form)) return FALSE;
 
 		return $form->adminAccess($lock_type, $assetids);
 
@@ -803,9 +808,12 @@ class Form_Question extends Asset
 
 	/**
 	* Returns true if the current user can live edit this asset
+	*
 	* Live edit means the asset is currently SQ_STATUS_LIVE but this
 	* user can edit the asset without going through a safe edit
 	* NOTE: will return false if asset is not currently live
+	*
+	* @param string	$lock_type	The type of lock
 	*
 	* @return boolean
 	* @access public
@@ -816,7 +824,7 @@ class Form_Question extends Asset
 		if (empty($lock_type) || $this->canLiveEdit($lock_type)) {
 			return $this->checkAccess(SQ_PERMISSION_WRITE, $lock_type);
 		}
-		return false;
+		return FALSE;
 
 	}//end liveEditAccess()
 
@@ -838,8 +846,8 @@ class Form_Question extends Asset
 	*/
 	function checkAccess($perm, $lock_type, $assetids=Array())
 	{
-		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
-		if (is_null($form)) return false;
+		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+		if (is_null($form)) return FALSE;
 
 		return $form->checkAccess($perm, $lock_type, $assetids);
 
@@ -859,8 +867,8 @@ class Form_Question extends Asset
 	*/
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
-		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
-		if (is_null($form)) return false;
+		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+		if (is_null($form)) return FALSE;
 
 		return $form->_checkPermissionAccess($perm, $assetids);
 
