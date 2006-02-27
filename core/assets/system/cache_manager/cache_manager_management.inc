@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_management.inc,v 1.8 2006/02/27 23:05:43 tbarrett Exp $
+* $Id: cache_manager_management.inc,v 1.9 2006/02/27 23:08:59 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $ - 0.1
+* @version $Revision: 1.9 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -96,7 +96,6 @@ class Cache_Manager_Management extends Asset_Management
 													'type'		=> 'serialise',
 													'default'	=> Array(),
 												   ),
-													
 					  );
 
 	}//end constructor

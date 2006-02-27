@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.6 2006/02/27 23:05:43 tbarrett Exp $
+* $Id: cache_manager_edit_fns.inc,v 1.7 2006/02/27 23:08:59 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.6 $ - 1.0
+* @version $Revision: 1.7 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */
@@ -331,6 +331,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 
 	}//end processClearCache()
 
+
 	/**
 	* Paint the interface for choosing cachable root URLs
 	*
@@ -400,7 +401,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				$cachable[] = $url;
 			}
 		}
-		// Note that we save the *non-cachable* root URLs, so that any new URLs are 
+		// Note that we save the *non-cachable* root URLs, so that any new URLs are
 		// cachable by default.
 		$non_cachable = array_diff($root_urls, $cachable);
 		return $asset->setAttrValue('non_cachable_urls', $non_cachable);

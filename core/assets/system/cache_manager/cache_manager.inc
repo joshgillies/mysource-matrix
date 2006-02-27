@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.39 2006/02/27 23:05:43 tbarrett Exp $
+* $Id: cache_manager.inc,v 1.40 2006/02/27 23:08:59 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -464,13 +464,13 @@ class Cache_Manager extends Asset
 	function cacheEnabled($type_code='')
 	{
 		// First check some obvious things
-		if (SQ_ROLLBACK_VIEW) return false;
+		if (SQ_ROLLBACK_VIEW) return FALSE;
 		if (basename($_SERVER['PHP_SELF']) == SQ_CONF_NOCACHE_SUFFIX) {
-			return false;
+			return FALSE;
 		}
 
 		// check if the current URL is excluded
-		$current_url = current_url(false, true);
+		$current_url = current_url(FALSE, TRUE);
 		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 		$current_root_url = '';
 		foreach ($root_urls as $url) {
@@ -481,7 +481,7 @@ class Cache_Manager extends Asset
 			}
 		}
 		if (in_array($current_url, $this->attr('non_cachable_urls'))) {
-			return false;
+			return FALSE;
 		}
 
 		// Check for type-code-specific settings
@@ -492,8 +492,6 @@ class Cache_Manager extends Asset
 		return $this->attr('enabled');
 
 	}//end cacheEnabled()
-
-
 
 
 	/**
