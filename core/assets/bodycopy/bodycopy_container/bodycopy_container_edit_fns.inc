@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.37 2006/02/26 22:50:29 emcdonald Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.38 2006/02/27 00:08:11 arailean Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -232,7 +232,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 		// replacing normal assetids is simple because they can only be numerical chars :)
 		$e = '|\\./\\?a=([0-9]+)([^0-9:])|';
-		$r = '<'.'?php echo array_get_index($sq_asset_url_list, $1, "?a=$1"); ?'.'>$2';
+		$r = '<'.'?php echo array_get_index($sq_asset_url_list, $1, "./?a=$1"); ?'.'>$2';
 		$output = preg_replace($e, $r, $output);
 
 		// replacing shadow assetids isn't so simple because they can have any characters...and therefore need to be escaped
