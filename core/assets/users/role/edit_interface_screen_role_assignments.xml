@@ -18,14 +18,18 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.2 2006/02/27 23:15:13 ndvries Exp $
+* $Id: edit_interface_screen_role_assignments.xml,v 1.2 2006/02/27 23:15:13 ndvries Exp $
 *
 */
 -->
 
-<screens>
-	<screen code_name="role_assignments" display_name="Role Assignments" icon="edit" lock_type="roles" force_unlock="0" />
-	<screen code_name="security" display_name="Security Restrictions" icon="edit" lock_type="security" force_unlock="0" />
-	<screen code_name="preferences" display_name="Preferences" icon="edit" lock_type="preferences" force_unlock="0" />
-	<screen code_name="paths" display_name="Web Paths" icon="web" lock_type="lookups"/>
-</screens>
+<contents>
+	<section name="Directly Assigned Roles" write_access="admin:roles">
+		<field>
+			<function_call>
+				<paint_function name="paintRoles" />
+				<process_function name="processRoles" />
+			</function_call>
+		</field>
+	</section>
+</contents>
