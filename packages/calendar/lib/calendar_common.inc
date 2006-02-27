@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.42 2006/02/15 01:06:48 rhoward Exp $
+* $Id: calendar_common.inc,v 1.43 2006/02/27 22:27:22 lwright Exp $
 *
 */
 
@@ -23,12 +23,13 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
 
 require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 
 /**
@@ -106,13 +107,34 @@ function build_join_statements()
 * @param string	$y	Expression for the year component of the date
 * @param string	$m	Expression for the month component of the date
 * @param string	$d	Expression for the day component of the date
+* @param string	$h	Expression for the hour component of the time
+* @param string	$i	Expression for the minute component of the time
+* @param string	$s	Expression for the second component of the time
 *
-* @return void
+* @return string
 * @access public
 */
-function make_timestamp_sql($y, $m, $d)
+function make_timestamp_sql($y, $m, $d, $h='00', $i='00', $s='00')
 {
-	return "EXTRACT(epoch from DATE (($y) || '-' || ($m) || '-' || ($d)))";
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
+	switch($db->phptype) {
+		case 'pgsql':
+			// can only subtract dates because subtracting timestamps results
+			// in an INTERVAL data type, which can't be converted. Only DATE
+			// subtraction returns an integer.
+			// Add the hours, minutes and seconds manually afterwards
+			$sql = "(86400 * (DATE (($y) || '-' || ($m) || '-' || ($d)) - DATE '1970-01-01') + ($h) * 3600 + ($i) * 60 + ($s))";
+		break;
+
+		case 'oci8':
+			// Subtracting datetimes in Oracle gives a fractional number of
+			// days - I haven't had any problems yet but if rounding errors
+			// occur then might have to go with similar to above
+			$sql = "(86400 * (".db_extras_todate($db, "(($y) || '-' || ($m) || '-' || ($d) || ' ' || ($h) || ':' || ($i) || ':' || ($s))"). " - ".db_extras_todate($db, '1970-01-01 00:00:00')."))";
+		break;
+	}
+
+	return $sql;
 
 }//end make_timestamp_sql()
 
@@ -1098,7 +1120,7 @@ function get_date_components($iso, $prefix='')
 		unset($this_date['month']);
 
 		// move timestamp field to a string-based key instead of [0]
-		$this_date['ts'] = $this_date[0];
+		$this_date['ts'] = strtotime($iso.' Z') - strtotime('1970-01-01 00:00:00 Z');
 		unset($this_date[0]);
 
 		// add 'day-count stamp'
@@ -1140,7 +1162,7 @@ function get_date_components($iso, $prefix='')
 				$this_date['ts'] = NULL;
 			} else {
 				// make a best guess on timestamp, setting all blanks to 0
-				$this_date['ts'] = strtotime(substr($iso,0,10).' '.str_replace('-','0',substr($iso,11)));
+				$this_date['ts'] = strtotime(substr($iso,0,10).' '.str_replace('-','0',substr($iso,11)).' Z') - strtotime('1970-01-01 00:00:00 Z');
 			}
 
 			// we can do these in any case
