@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.27 2006/02/24 02:30:03 skim Exp $
+* $Id: edit_table.php,v 1.28 2006/02/27 04:17:42 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 */
 
@@ -85,16 +85,20 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 
 		form { padding: 0px; margin: 0px; }
 
-		#title {
+		.title {
+			position: absolute;
+			width: 800px;
+			top: 2px;
+			left: 1px;
+			height: 16px;
+			margin: 10px;
 			background: #402F48;
 			color: #FFFFFF;
-			width: 800px;
 			font-weight: bold;
 			font-size: 120%;
 			padding: 3px 10px;
-			margin-bottom: 10px;
 			border-bottom: 1px solid black;
-			letter-spacing: 4px;
+			letter-spacing: 2px;
 		}
 
 		#panels {
@@ -165,7 +169,6 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			table.Import(window.dialogArguments.table_structure);
 			window.focus();
 			init_finished = true;
-
 		};
 
 		function onOK() {
@@ -191,7 +194,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 
 		};
 
-		//Called to avoid the mouse move event being called prematurely
+		// Called to avoid the mouse move event being called prematurely
 		function onMove(event) {
 			if ((init_finished == false) || (table.selector == 'table')) return false;
 			table.mouse.Move(event);
@@ -232,7 +235,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 </head>
 <body onload="Init();">
 
-	<div id="title">Table Properties</div>
+	<span class="title">Table Properties</span>
 
 	<div id="table_container" onmousemove="onMove(event)" onmouseout="if(init_finished) table.mouse.Out();"></div>
 
@@ -476,6 +479,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			<label for="headings"><?php echo translate('headings'); ?></label>
 			<button id="headings" name="headings" onclick="table.toggleHeaders();" disabled="disabled" ><?php echo translate('click_to_select'); ?></button>
 		</fieldset>
+
 		<fieldset id="color_panel">
 			<legend><?php echo translate('colour'); ?></legend>
 			<div style="width:40px;height:40px;position:relative;" id="bgborder" onclick="table.toggleBgBorder();">
