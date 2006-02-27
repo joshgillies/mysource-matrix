@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.14 2005/09/30 00:57:54 dmckee Exp $
+* $Id: table-editor.js,v 1.15 2006/02/27 23:19:23 rong Exp $
 *
 */
 
@@ -31,6 +31,7 @@ THeader = function(r, c)
 
 TCell = function(parent)
 {
+	this.className	= null;
 	this.colspan 	= 1;
 	this.rowspan 	= 1;
 	this.visible 	= true;
@@ -63,6 +64,7 @@ TCell = function(parent)
 		var r = this.parent.row;
 		var name = this.parent.parent.varname;
 		out += ' id="td' + r + '_' + c + '"';
+		if (this.className != null) out += ' class="' + this.className + '"';
 		out += ' onclick="' + name + '.select(this)"';
 		if (this.colspan > 1) out += ' colspan="' + this.colspan + '"';
 		if (this.rowspan > 1) out += ' rowspan="' + this.rowspan + '"';
@@ -127,6 +129,7 @@ TCell = function(parent)
 		var r = this.parent.row;
 		var name = this.parent.parent.id;
 		out += ' id="' + name + '_td' + r + '_' + c + '"';
+		if (this.className != null && this.className != "") out += ' class="' + this.className + '"';
 		if (this.colspan > 1) out += ' colspan="' + this.colspan + '"';
 		if (this.rowspan > 1) out += ' rowspan="' + this.rowspan + '"';
 		if (this.abbr != null && this.abbr != "") out += ' abbr="' + this.abbr + '"';
@@ -160,6 +163,7 @@ TCell = function(parent)
 
 	this.setPanels = function()
 	{
+		document.getElementById("cell_class").value = (this.className == null)?"":this.className;
 		document.getElementById("cell_aleft").style.background = "";
 		document.getElementById("cell_acenter").style.background = "";
 		document.getElementById("cell_aright").style.background = "";
@@ -229,6 +233,7 @@ TCell = function(parent)
 
 TRow = function(parent, row)
 {
+	this.className	= null;
 	this.align		= "left";
 	this.valign		= "middle";
 	this.style		= null;
@@ -247,6 +252,7 @@ TRow = function(parent, row)
 	{
 		var out = "";
 		out += '<tr';
+		if (this.className != null) out += ' class="' + this.className + '"';
 		if (this.align != "left") out += ' align="' + this.align + '"';
 		if (this.valign != "middle") out += ' valign="' + this.valign + '"';
 		var style = 'style="';
@@ -272,6 +278,7 @@ TRow = function(parent, row)
 	{
 		var out = "";
 		out += '<tr';
+		if (this.className != null && this.className != "") out += ' class="' + this.className + '"';
 		if (this.align != "left") out += ' align="' + this.align + '"';
 		if (this.valign != "middle") out += ' valign="' + this.valign + '"';
 		var style = 'style="';
@@ -302,6 +309,7 @@ TRow = function(parent, row)
 
 	this.setPanels = function()
 	{
+		document.getElementById("row_class").value = (this.className == null)?"":this.className;
 		document.getElementById("row_aleft").style.background = "";
 		document.getElementById("row_acenter").style.background = "";
 		document.getElementById("row_aright").style.background = "";
@@ -337,6 +345,7 @@ TRow = function(parent, row)
 		var orig_b_style = null;
 
 		for (c = 0;c<this.cols;c++) {
+
 			if (orig_b_width != null && this.cells[c].borderWidth != orig_b_width) {
 				b_width_changed = true;
 			} else {
@@ -352,6 +361,7 @@ TRow = function(parent, row)
 					orig_b_style = this.cells[c].borderStyle;
 				}
 			}
+
 		}
 
 		if (!b_width_changed && orig_b_width != null) {
@@ -383,11 +393,12 @@ TRow = function(parent, row)
 
 TTable = function(name, rows, cols)
 {
+	this.className	= null;
 	this.matrix		= Array();
 	this.summary	= null;
 	this.caption	= null;
-	this.cellspacing= 2;
-	this.cellpadding= 2;
+	this.cellPadding= 0;
+	this.cellSpacing= 0;
 	this.htmlborder	= null;
 	this.border		= null;
 	this.borderStyle= null;
@@ -431,7 +442,10 @@ TTable = function(name, rows, cols)
 
 	this.toString = function()
 	{
-		var out = '<table id="js_' + this.id + '" cellpadding="' + this.cellpadding + '" cellspacing="' + this.cellspacing + '"';
+		var out = '<table id="js_' + this.id + '"';
+		if (this.cellPadding != "") out += '" cellpadding="' + this.cellPadding + '"';
+		if (this.cellSpacing != "") out += '" cellspacing="' + this.cellSpacing + '"';
+		if (this.className != null) out += ' class="' + this.className + '"';
 		if (this.htmlwidth != "") out += ' width=' + this.htmlwidth;
 		if (this.htmlborder != null) out += ' border=' + this.htmlborder;
 		out += ' style="width:' + this.width + ';';
@@ -454,7 +468,10 @@ TTable = function(name, rows, cols)
 
 	this.Export = function()
 	{
-		var out = '<table id="' + this.id + '" cellpadding="' + this.cellpadding + '" cellspacing="' + this.cellspacing + '"';
+		var out = '<table id="' + this.id +'"';
+		if (this.cellPadding != "") out += '" cellpadding="' + this.cellPadding + '"';
+		if (this.cellSpacing != "") out += '" cellspacing="' + this.cellSpacing + '"';
+		if (this.className != null) out += ' class="' + this.className + '"';
 		if (this.htmlwidth != "") out += ' width=' + this.htmlwidth;
 		if (this.htmlborder != null) out += ' border=' + this.htmlborder;
 		out += ' style="width:' + this.width + ';' + this.style + ';';
@@ -690,6 +707,7 @@ TTable = function(name, rows, cols)
 		var status = "";
 		if (disable) status = "disabled";
 		if (start == 'row_' || start == 'col_' || start == 'cell_') {
+			document.getElementById(start + 'class').disabled = status;
 			document.getElementById(start + 'border').disabled = status;
 			//document.getElementById(start + 'bordercolor').disabled = status;
 			document.getElementById(start + 'bordertype').disabled = status;
@@ -724,7 +742,9 @@ TTable = function(name, rows, cols)
 		document.getElementById("col_amiddle").style.background = "";
 		document.getElementById("col_abottom").style.background = "";
 
-
+		if (this.matrix[0].cells[this.c].className != null) {
+			document.getElementById("col_class").value = this.matrix[0].cells[this.c].className;
+		}
 		var w_changed = false;
 		var b_width_changed = false;
 		var b_style_changed = false;
@@ -1156,11 +1176,12 @@ TTable = function(name, rows, cols)
 
 		this.id			= table.id;
 		this.summary	= table.summary;
+		this.className	= table.className;
 		this.htmlborder	= (table.border == "")?0:table.border;
 		this.frame		= table.frame;
 		this.rules		= table.rules;
-		this.cellspacing= (table.cellSpacing == "")?2:table.cellSpacing;
-		this.cellpadding= (table.cellPadding == "")?2:table.cellPadding;
+		this.cellSpacing= table.cellSpacing;
+		this.cellPadding= table.cellPadding;
 		if (table.style.width != "") this.width = table.style.width;
 		if (table.width != "") this.htmlwidth = table.width;
 		this.extra = getExtra(table);
@@ -1192,6 +1213,7 @@ TTable = function(name, rows, cols)
 		for (r = 0;r<this.rows;r++) {
 			var temp = new TRow(this, r);
 			var row = table.rows[r];
+			temp.className = row.className;
 			temp.align = (row.align == "")?"left":row.align;
 			temp.valign = (row.valign + "" == "undefined")?"middle":row.valign;
 			temp.extra = getExtra(row);
@@ -1212,6 +1234,7 @@ TTable = function(name, rows, cols)
 				var Cell = new TCell(temp);
 				if (c<row.cells.length) {
 					var cell = row.cells[c];
+					Cell.className	= cell.className;
 					Cell.content	= cell.innerHTML;
 					Cell.th = (cell.tagName == "TH");
 					Cell.align		= (cell.align == "")?"left":cell.align;
@@ -1272,8 +1295,9 @@ TTable = function(name, rows, cols)
 		}
 		document.getElementById("tid").value = this.id;
 		document.getElementById("caption").value = this.caption == null? "" : this.caption;
-		document.getElementById("cellspacing").value = this.cellspacing;
-		document.getElementById("cellpadding").value = this.cellpadding;
+		document.getElementById("class").value = this.className == null? "" : this.className;
+		document.getElementById("cellspacing").value = this.cellSpacing;
+		document.getElementById("cellpadding").value = this.cellPadding;
 		document.getElementById("summary").value = this.summary;
 		if (this.width.indexOf("%") > -1) {
 			document.getElementById("width").value = this.width.substring(0, this.width.length - 1);
@@ -1299,6 +1323,34 @@ TTable = function(name, rows, cols)
 	}
 
 
+	this.setClass = function(name)
+	{
+		this.className = name;
+	}
+	this.setRowClass = function(name)
+	{
+		if (table.r == null) return false;
+		table.matrix[table.r].className = name;
+		this.refresh();
+	}
+	this.setCellClass = function(name)
+	{
+		if (table.r == null || table.c == null) return false;
+		table.matrix[table.r].cells[table.c].className = name;
+		this.refresh();
+	}
+	this.setColClass = function(name)
+	{
+		// only show the class name of the first cell as column class name
+		// every cell in the selected column will get the new class name
+		if (table.c == null) return false;
+		for (i = 0; i < this.rows; i++) {
+			this.matrix[i].cells[this.c].className = name;
+		}
+		this.refresh();
+	}
+
+
 	this.setID = function(id)
 	{
 		this.id = id;
@@ -1314,14 +1366,14 @@ TTable = function(name, rows, cols)
 
 	this.setCellSpacing = function(val)
 	{
-		this.cellspacing = val;
+		this.cellSpacing = val;
 		this.refresh();
 	}
 
 
 	this.setCellPadding = function(val)
 	{
-		this.cellpadding = val;
+		this.cellPadding = val;
 		this.refresh();
 	}
 

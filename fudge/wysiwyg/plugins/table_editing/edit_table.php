@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.28 2006/02/27 04:17:42 skim Exp $
+* $Id: edit_table.php,v 1.29 2006/02/27 23:19:23 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 */
 
@@ -266,6 +266,8 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			<label for="caption"><?php echo translate('caption'); ?>:</label>
 			<input id="caption" name="caption" onkeyup="table.setCaption(this.value)"/><br />
 			<hr />
+			<label for="class">Class Name:</label>
+			<input id="class" name="class" onkeyup="table.setClass(this.value)" /><br />
 			<label for="width"><?php echo translate('css').' '; echo translate('width'); ?>:</label>
 			<input id="width" name="width" onkeyup="table.setWidth(parseInt(document.getElementById('width').value) + document.getElementById('widthtype').value)" style="width:100px" value="100" />
 			<select id="widthtype" name="widthtype" style="width:50px" onchange="table.setWidth(parseInt(document.getElementById('width').value) + document.getElementById('widthtype').value)">
@@ -330,6 +332,8 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		<!-- Properties for the row selector -->
 		<fieldset id="row_panel" style="display:none">
 			<legend><?php echo translate('row_properties') ?></legend>
+			<label for="row_class">Class Name:</label>
+			<input id="row_class" name="row_class" onkeyup="table.setRowClass(document.getElementById('row_class').value)" disabled="disabled"/><br />
 			<label for="row_width"><?php echo 'Height' ?></label>
 			<input id="row_width" name="row_width" onkeyup="table.setRowHeight(parseInt(document.getElementById('row_width').value) + document.getElementById('row_widthtype').value)" style="width:100px" value="100" disabled="disabled"/>
 			<select id="row_widthtype" name="row_widthtype" style="width:50px" onchange="table.setRowHeight(parseInt(document.getElementById('row_width').value) + document.getElementById('row_widthtype').value)" disabled="disabled">
@@ -373,6 +377,8 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		<!-- Properties for the column selector -->
 		<fieldset id="col_panel" style="display:none;">
 			<legend>Column Properties</legend>
+			 <label for="col_class">Class Name:</label>
+			 <input id="col_class" name="col_class" onkeyup="table.setColClass(document.getElementById('col_class').value)" disabled="disabled"/><br />
 			<label for="col_width"><?php echo translate('width'); ?></label>
 			<input id="col_width" name="col_width" onkeyup="table.setColumnWidth(parseInt(document.getElementById('col_width').value) + document.getElementById('col_widthtype').value)" style="width:100px" value="100" disabled="disabled" />
 			<select id="col_widthtype" name="col_widthtype" style="width:50px" onchange="table.setColumnWidth(parseInt(document.getElementById('col_width').value) + document.getElementById('col_widthtype').value)" disabled="disabled">
@@ -416,6 +422,8 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		<!-- Properties for the cell selector -->
 		<fieldset id="cell_panel" style="display:none">
 			<legend><?php echo translate('cell_properties'); ?></legend>
+			<label for="cell_class">Class Name:</label>
+			<input id="cell_class" name="cell_class" onkeyup="table.setCellClass(document.getElementById('cell_class').value)" disabled="disabled"/><br />
 			<label for="cell_width"><?php echo translate('width'); ?></label>
 			<input id="cell_width" name="cell_width" onkeyup="table.setCellWidth(parseInt(document.getElementById('cell_width').value) + document.getElementById('cell_widthtype').value)" style="width:100px" value="100" disabled="disabled" />
 			<select id="cell_widthtype" name="cell_widthtype" style="width:50px" onchange="table.setCellWidth(parseInt(document.getElementById('cell_width').value) + document.getElementById('cell_widthtype').value)" disabled="disabled">
