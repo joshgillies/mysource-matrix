@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.84 2006/02/02 02:29:33 ndvries Exp $
+* $Id: workflow_manager.inc,v 1.85 2006/02/27 05:12:22 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -637,17 +637,30 @@ class Workflow_Manager extends MySource_Object
 					// work out who can publish right now
 					$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
 					if ($asset->id) {
-						if (is_a($asset, 'user')) {
-							$can_publish_cond[] = $asset->id;
-						} else if (is_a($asset, 'user_group')) {
-							$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE));
-						} else if (is_a($asset, 'role')) {
-							$roles =& $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $asset->id);
-							if (!empty($roles)) {
-								$can_publish_cond += $roles[$asset->id];
-							}
+						$asset_class = get_class($asset);
+						switch ($asset_class) {
+							case 'user':
+								$can_publish_cond[] = $asset->id;
+							break;
+							case 'user_group':
+								$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE));
+							break;
+							case 'role':
+								$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $asset->id);
+								foreach ($roles as $roleid => $userids) {
+									foreach ($userids as $userid) {
+										$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array(), FALSE, 'type_code');
+										if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid], 'user_group')) {
+											$can_publish_cond += array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid, Array('user'), FALSE));
+										} else {
+											$can_publish_cond[] = $userid;
+										}
+									}
+								}
+							break;
 						}
 					}
+
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
 					if ($cond_data['logic'] == 'all') {
@@ -818,7 +831,7 @@ class Workflow_Manager extends MySource_Object
 		for (reset($schema_workflows); NULL !== ($schemaid = key($schema_workflows)); next($schema_workflows)) {
 			if (!in_array($schemaid, $running_schemas)) continue;
 			$workflow =& $schema_workflows[$schemaid];
-			if ($this->_recordPublish($workflow, $publisher)) {
+			if ($this->_recordPublish($workflow, $publisher, $assetid)) {
 				$new_workflow = serialize($workflow);
 
 				$values = Array(
@@ -935,7 +948,7 @@ class Workflow_Manager extends MySource_Object
 			if (!in_array($schemaid, $running_schemas)) continue;
 			$workflow =& $schema_workflows[$schemaid];
 			if ($workflow['complete']) return TRUE;
-			if (!$this->_recordPublish($workflow, $publisher)) {
+			if (!$this->_recordPublish($workflow, $publisher, $assetid)) {
 				return FALSE;
 			}
 			if (!$workflow['complete']) return FALSE;
@@ -958,7 +971,7 @@ class Workflow_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function _recordPublish(&$workflow, $publisher)
+	function _recordPublish(&$workflow, $publisherid, $assetid)
 	{
 		$workflow_updated = FALSE;
 
@@ -980,22 +993,34 @@ class Workflow_Manager extends MySource_Object
 				$cond_data =& $step_data['conditions'][$pub];
 				// work out who can publish this condition
 				$can_publish = Array();
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
-				if ($asset->id) {
-					if (is_a($asset, 'user')) {
-						$can_publish[] = $asset->id;
-					} else if (is_a($asset, 'user_group')) {
-						$can_publish = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE));
+				$publisher =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+				if ($publisher->id) {
+					$asset_class = get_class($publisher);
+					switch ($asset_class) {
+						case 'user':
+							$can_publish[] = $publisher->id;
+						break;
+						case 'user_group':
+							$can_publish = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($publisher->id, Array('user'), FALSE));
+						break;
+						case 'role':
+							$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $publisher->id, NULL, FALSE, FALSE, TRUE);
+							foreach ($roles as $roleid => $userids) {
+								foreach ($userids as $userid) {
+									$can_publish[] = $userid;
+								}
+							}
+						break;
 					}
 				}
 
-				if (in_array($publisher, $can_publish)) {
+				if (in_array($publisherid, $can_publish)) {
 					if (!isset($cond_data['published_by'])) {
 						$cond_data['published_by'] = Array();
 					}
-					// if the publisher has not already published
-					if (!isset($cond_data['published_by'][$publisher])) {
-						$cond_data['published_by'][$publisher] = time();
+					// if the publisherid has not already published
+					if (!isset($cond_data['published_by'][$publisherid])) {
+						$cond_data['published_by'][$publisherid] = time();
 						$workflow_updated = TRUE;
 					}
 				}
