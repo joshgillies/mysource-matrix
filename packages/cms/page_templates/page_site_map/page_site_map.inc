@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.28 2006/02/15 22:30:13 sdanis Exp $
+* $Id: page_site_map.inc,v 1.29 2006/02/28 00:48:55 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -218,14 +218,15 @@ class Page_Site_Map extends Page
 				if ($this->attr('icons')) {
 					?><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($item['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;<?php
 				}
-			?><a href="<?php echo $url;?>"><?php echo $item['name']; ?></a></li>
+			?><a href="<?php echo $url;?>"><?php echo $item['name']; ?></a>
 <?php
 			if (isset($page_data[$item['assetid']]) && $level + 1 <= $top_level) {
 ?>
-			<li><?php
+			<?php
 				$this->_paintUnorderedList($page_data[$item['assetid']], $page_data, $level + 1, $generating);
 ?>
-			</li><?php
+			</li>
+			<?php
 			}
 		}
 		?>
