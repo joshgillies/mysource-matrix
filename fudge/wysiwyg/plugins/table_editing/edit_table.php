@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.29 2006/02/27 23:19:23 rong Exp $
+* $Id: edit_table.php,v 1.30 2006/02/28 05:18:11 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 */
 
@@ -167,6 +167,21 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			__dlg_init("editTableProperties");
 			table = new TTable("table");
 			table.Import(window.dialogArguments.table_structure);
+
+			// initialise the drop down for css/html table width
+			if (table.width != "") {
+				switchWidthView('css');
+			} else if (table.htmlwidth != "") {
+				switchWidthView('html');
+			}
+			//alert("style="+table.borderStyle+"\nborder="+ table.border+"\nhtmlborder="+table.htmlborder);
+			// initialise the drop down for css/html table border
+			if (table.border != null && table.border != "") {
+				switchBorderView('css');
+			} else {
+				switchBorderView('html');
+			}
+
 			window.focus();
 			init_finished = true;
 		};
@@ -227,11 +242,50 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 				i++;
 			}
 			return false;
+
 		};
 
+		function switchWidthView(value) {
+			document.getElementById("widthView").value = value;
+			if (value == 'css') {
+				document.getElementById('width').style['display'] = '';
+				document.getElementById('widthtype').style['display'] = '';
+				document.getElementById('htmlwidth').style['display'] = 'none';
+				document.getElementById('htmlwidthtype').style['display'] = 'none';
+				table.setHTMLWidth("");
+				table.setWidth(parseInt(document.getElementById('width').value) + document.getElementById('widthtype').value);
+			} else if (value == 'html') {
+				document.getElementById('width').style['display'] = 'none';
+				document.getElementById('widthtype').style['display'] = 'none';
+				document.getElementById('htmlwidth').style['display'] = '';
+				document.getElementById('htmlwidthtype').style['display'] = '';
+				table.setHTMLWidth(parseInt(document.getElementById('htmlwidth').value) + document.getElementById('htmlwidthtype').value);
+				table.setWidth("");
+			}
+
+		}
+
+		function switchBorderView(value) {
+			document.getElementById("borderView").value = value;
+			if (value == 'css') {
+				document.getElementById('table_border').style['display'] = '';
+				document.getElementById('table_bordertype').style['display'] = '';
+				document.getElementById('html_table_border').style['display'] = 'none';
+				table.setTableHtmlBorder("");
+				table.setElementBorder(document.getElementById('table_border').value, document.getElementById('table_bordertype').value);
+			} else if (value == 'html') {
+				document.getElementById('table_border').style['display'] = 'none';
+				document.getElementById('table_bordertype').style['display'] = 'none';
+				document.getElementById('html_table_border').style['display'] = '';
+				table.setTableHtmlBorder(document.getElementById('html_table_border').value);
+				table.setElementBorder("", "");
+			}
+
+		}
+
 		//]]>
-	</script>
-	<script type="text/javascript" src="table-editor.js"></script>
+		</script>
+		<script type="text/javascript" src="table-editor.js"></script>
 </head>
 <body onload="Init();">
 
@@ -268,26 +322,35 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			<hr />
 			<label for="class">Class Name:</label>
 			<input id="class" name="class" onkeyup="table.setClass(this.value)" /><br />
-			<label for="width"><?php echo translate('css').' '; echo translate('width'); ?>:</label>
-			<input id="width" name="width" onkeyup="table.setWidth(parseInt(document.getElementById('width').value) + document.getElementById('widthtype').value)" style="width:100px" value="100" />
-			<select id="widthtype" name="widthtype" style="width:50px" onchange="table.setWidth(parseInt(document.getElementById('width').value) + document.getElementById('widthtype').value)">
+
+			<!-- table html/css width -->
+			<label for="width"><?php echo translate('width'); ?>:</label>
+			<select id="widthView" onChange="switchWidthView(this.value)" style="width:65px">
+				<option value="html">HTML</option>
+				<option value="css" selected="1">CSS</option>
+			</select>
+			<input id="width" name="width" onkeyup="table.setWidth(parseInt(document.getElementById('width').value) + document.getElementById('widthtype').value)" style="width:50px" />
+			<select id="widthtype" name="widthtype" style="width:45px" onchange="table.setWidth(parseInt(document.getElementById('width').value) + document.getElementById('widthtype').value)">
 				<option value="px">px</option>
 				<option value="%" selected="selected">%</option>
 				<option value="pt">pt</option>
 				<option value="em">em</option>
 				<option value="ex">ex</option>
-			</select><br />
-			<label for="htmlwidth"><?php echo translate('htmlwidth'); ?>:</label>
-			<input id="htmlwidth" name="htmlwidth" onkeyup="table.setHTMLWidth(parseInt(document.getElementById('htmlwidth').value) + document.getElementById('htmlwidthtype').value)" style="width:100px" value="100" />
-			<select id="htmlwidthtype" name="htmlwidthtype" style="width:50px" onchange="table.setHTMLWidth(parseInt(document.getElementById('htmlwidth').value) + document.getElementById('htmlwidthtype').value)">
-				<option value="" selected="selected"> </option>
-				<option value="%">%</option>
-			</select><br />
-			<label for="html_table_border"><?php echo translate('html_border'); ?>:</label>
-			<input id="html_table_border" name="html_table_border" style="width: 50px" onkeyup="table.setTableHtmlBorder(parseInt(document.getElementById('html_table_border').value))" value="0" /><br />
+			</select>
+			<input id="htmlwidth" name="htmlwidth" onkeyup="table.setHTMLWidth(parseInt(document.getElementById('htmlwidth').value) + document.getElementById('htmlwidthtype').value)" style="width:50px" />
+			<select id="htmlwidthtype" name="htmlwidthtype" style="width:45px" onchange="table.setHTMLWidth(parseInt(document.getElementById('htmlwidth').value) + document.getElementById('htmlwidthtype').value)">
+				<option value="">px</option>
+				<option value="%" selected="selected">%</option>
+			</select>
+
+			<!-- table html/css border -->
 			<label for="table_border"><?php echo translate('border'); ?>:</label>
-			<input id="table_border" name="table_border" style="width: 50px" onkeyup="table.setElementBorder((parseInt(document.getElementById('table_border').value)), document.getElementById('table_bordertype').value);" value="0" />
-			<select id="table_bordertype" name="table_bordertype" style="width:80px" onchange="table.setElementBorder((parseInt(document.getElementById('table_border').value)), document.getElementById('table_bordertype').value);" >
+			<select id="borderView" onChange="switchBorderView(this.value)" style="width:65px">
+				<option value="html">HTML</option>
+				<option value="css" selected="1">CSS</option>
+			</select>
+			<input id="table_border" name="table_border" style="width: 40px" onkeyup="table.setElementBorder((parseInt(document.getElementById('table_border').value)), document.getElementById('table_bordertype').value);" value="0" />
+			<select id="table_bordertype" name="table_bordertype" style="width:70px" onchange="table.setElementBorder((parseInt(document.getElementById('table_border').value)), document.getElementById('table_bordertype').value);" >
 				<option value="solid" selected="selected">solid</option>
 				<option value="dotted">dotted</option>
 				<option value="dashed">dashed</option>
@@ -299,11 +362,12 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 				<option value="none">none</option>
 				<option value="hidden">hidden</option>
 			</select>
-			<br />
+			<input id="html_table_border" name="html_table_border" style="width: 50px" onkeyup="table.setTableHtmlBorder(parseInt(document.getElementById('html_table_border').value));" value="0" /><br />
+
 			<label for="cellspacing"><?php echo translate('cell_spacing'); ?>:</label>
-			<input id="cellspacing" name="cellspacing" onkeyup="table.setCellSpacing(parseInt(this.value))" value="2"/><br />
+			<input id="cellspacing" name="cellspacing" onkeyup="table.setCellSpacing(parseInt(this.value))" value=""/><br />
 			<label for="cellpadding"><?php echo translate('cell_padding'); ?>:</label>
-			<input id="cellpadding" name="cellpadding" onkeyup="table.setCellPadding(parseInt(this.value))" value="2"/><br />
+			<input id="cellpadding" name="cellpadding" onkeyup="table.setCellPadding(parseInt(this.value))" value=""/><br />
 			<hr />
 			<label for="summary"><?php echo translate('summary'); ?>:</label>
 			<textarea id="summary" cols="10" rows="3" onkeyup="table.setSummary(this.value)"></textarea>
@@ -377,8 +441,8 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		<!-- Properties for the column selector -->
 		<fieldset id="col_panel" style="display:none;">
 			<legend>Column Properties</legend>
-			 <label for="col_class">Class Name:</label>
-			 <input id="col_class" name="col_class" onkeyup="table.setColClass(document.getElementById('col_class').value)" disabled="disabled"/><br />
+			<label for="col_class">Class Name:</label>
+			<input id="col_class" name="col_class" onkeyup="table.setColClass(document.getElementById('col_class').value)" disabled="disabled"/><br />
 			<label for="col_width"><?php echo translate('width'); ?></label>
 			<input id="col_width" name="col_width" onkeyup="table.setColumnWidth(parseInt(document.getElementById('col_width').value) + document.getElementById('col_widthtype').value)" style="width:100px" value="100" disabled="disabled" />
 			<select id="col_widthtype" name="col_widthtype" style="width:50px" onchange="table.setColumnWidth(parseInt(document.getElementById('col_width').value) + document.getElementById('col_widthtype').value)" disabled="disabled">

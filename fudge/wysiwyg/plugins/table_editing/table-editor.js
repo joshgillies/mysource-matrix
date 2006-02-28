@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.15 2006/02/27 23:19:23 rong Exp $
+* $Id: table-editor.js,v 1.16 2006/02/28 05:18:11 rong Exp $
 *
 */
 
@@ -1177,7 +1177,7 @@ TTable = function(name, rows, cols)
 		this.id			= table.id;
 		this.summary	= table.summary;
 		this.className	= table.className;
-		this.htmlborder	= (table.border == "")?0:table.border;
+		this.htmlborder	= (table.border == "")?null:table.border;
 		this.frame		= table.frame;
 		this.rules		= table.rules;
 		this.cellSpacing= table.cellSpacing;
@@ -1194,16 +1194,27 @@ TTable = function(name, rows, cols)
 			if (borderParts[i].indexOf('px') != -1) {
 				this.border = borderParts[i].substring(0, borderParts[i].indexOf('px'));
 			} else if ((borderParts[i].indexOf('#') != -1) || (colorsStr.indexOf(borderParts[i]) != -1)) {
+				// FIXME: Mozilla uses rgb(10, 20, 0) while while IE uses #FFF000
+				// this wont work on Mozilla
 				this.borderColor = borderParts[i];
 			} else {
 				this.borderStyle = borderParts[i];
 			}
 			i++;
 		}
+		// IE has "1px" but Gecko has "1px 1px 1px 1px"
+		if (this.border == null || this.border == "") {
+			widthParts = table.style.borderWidth.split(' ');
+			this.border = widthParts[0].substring(0, widthParts[0].indexOf('px'));
+		}
+		// IE has "dotted" but Gecko has "solid solid solid solid"
+		if (this.borderStyle == null || this.borderStyle == "") {
+			styleParts = table.style.borderStyle.split(' ');
+			this.borderStyle = styleParts[0];
+		}
+
 		this.style += getStyle(table);
-
 		this.rows = table.rows.length;
-
 		this.cols = 0;
 		for (i=0;i<table.rows.length;i++)
 			if (this.cols < table.rows[i].cells.length) this.cols = table.rows[i].cells.length;
@@ -1428,34 +1439,38 @@ TTable = function(name, rows, cols)
 	}
 
 	this.setTableHtmlBorder = function(new_size) {
-		if (isNaN(new_size)) {
-			new_size = 0;
+		if (isNaN(new_size) || new_size == 0 || new_size == "") {
+			this.htmlborder = null;
+		} else {
+			this.htmlborder = new_size
 		}
-		this.htmlborder = new_size
+		this.refresh();
 	}
 
 	this.setElementBorder = function(new_size, style)
 	{
 		//If border size text box is empty or text, set the size to zero
-		if (isNaN(new_size)) {
-			new_size = 0;
-		}
-		if (this.lastSelect == 'row') {
-			for (i = 0; i < this.cols; i++) {
-				this.matrix[this.r].cells[i].borderWidth = new_size + 'px';
-				this.matrix[this.r].cells[i].borderStyle = style;
+		if (isNaN(new_size) || new_size == 0 || new_size == "") {
+			this.border = null;
+			this.borderStyle = null;
+		} else {
+			if (this.lastSelect == 'row') {
+				for (i = 0; i < this.cols; i++) {
+					this.matrix[this.r].cells[i].borderWidth = new_size + 'px';
+					this.matrix[this.r].cells[i].borderStyle = style;
+				}
+			} else if (this.lastSelect == 'col') {
+				for (i = 0; i < this.rows; i++) {
+					this.matrix[i].cells[this.c].borderWidth = new_size + 'px';
+					this.matrix[i].cells[this.c].borderStyle = style;
+				}
+			} else if (this.lastSelect == 'cell') {
+					this.matrix[this.r].cells[this.c].borderWidth = new_size + 'px';
+					this.matrix[this.r].cells[this.c].borderStyle = style;
+			} else if (this.selector == 'table') {
+					this.border = new_size;
+					this.borderStyle = style;
 			}
-		} else if (this.lastSelect == 'col') {
-			for (i = 0; i < this.rows; i++) {
-				this.matrix[i].cells[this.c].borderWidth = new_size + 'px';
-				this.matrix[i].cells[this.c].borderStyle = style;
-			}
-		} else if (this.lastSelect == 'cell') {
-				this.matrix[this.r].cells[this.c].borderWidth = new_size + 'px';
-				this.matrix[this.r].cells[this.c].borderStyle = style;
-		} else if (this.selector == 'table') {
-				this.border = new_size;
-				this.borderStyle = style;
 		}
 		this.refresh();
 	}
