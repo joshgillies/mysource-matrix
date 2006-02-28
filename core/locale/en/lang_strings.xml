@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18.2.25 2006/02/21 01:03:22 bcaldwell Exp $
+* $Id: lang_strings.xml,v 1.18.2.26 2006/02/28 03:37:01 lwright Exp $
 *
 */
 
@@ -776,8 +776,8 @@
 	<string source="user_group_unrestricted_access_denied">Unrestricted access has not been granted. Security restrictions do apply on this user group.</string>
 	<string source="grant_unrestricted_access">Grant Unrestricted Access</string>
 	<string source="grant_unrestricted_access_note">When this box is selected, unrestricted access is granted to all assets. Note this will delete all currently applied restrictions.&lt;br /&gt;To apply restrictions, select which assets to apply restrictions to in the section below</string>
-	<string source="grant_screen_access">Grant access for screen</string>
-	<string source="granted_unrestricted_acces_explanation">You have granted access to all screens so you cannot grant access to any more. Remove the "All Screens" option to futher customise this asset type</string>
+	<string source="grant_screen_access">Allow access to the following screen (any screen not specified will be restricted): </string>
+	<string source="granted_unrestricted_access_explanation">You have granted access to all screens so you cannot grant access to any more. Remove the "All Screens" option to futher customise this asset type</string>
 	<string source="remove_all_screens_explanation">If you delete the "All Screens" option, the "Details" screen will be added as a default. You can choose to remove this later.</string>
 	<string source="preference_currently_customised">This preference is currently customised. The global preference setting is currently being overridden for users in this user group.</string>
 	<string source="revert_to_global_preferences">Revert to global preference</string>
@@ -791,6 +791,7 @@
 	<string source="members_must_approve">%s member(s) must approve</string>
 	<string source="security_key_question">Can't read the security key?</string>
 	<string source="security_key_link">Click here to get a new key</string>
+	<string source="restrict_screen_access_to_new_type">Add new type code to restrict</string>
 
 
 

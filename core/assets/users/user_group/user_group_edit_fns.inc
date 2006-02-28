@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.22.2.4 2005/09/20 06:36:33 dheppell Exp $
+* $Id: user_group_edit_fns.inc,v 1.22.2.5 2006/02/28 03:37:01 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22.2.4 $
+* @version $Revision: 1.22.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -166,7 +166,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 							echo '<br />'.translate('grant_screen_access').' ';
 							combo_box($prefix.'_add_type_screen['.$type_code.']', $screens, false, Array());
 						} else {
-							echo '<br />'.translate('granted_unrestricted_acces_explanation');
+							echo '<br />'.translate('granted_unrestricted_access_explanation');
 							if (count($current[$type_code]) == 1) echo '<br />'.translate('remove_all_screens_explanation');
 						}
 					}
@@ -185,7 +185,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 				$uc_types[$type] = ucwords(str_replace('_',' ', $type));
 			}
 
-			$o->openSection(translate('grant_access_to_new_type'));
+			$o->openSection(translate('restrict_screen_access_to_new_type'));
 				$o->openField('');
 					combo_box($prefix.'_restrict_types', $uc_types, true, '', 6);
 				$o->closeField();
@@ -241,7 +241,9 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
+
 			}
+
 		}//end if
 
 
@@ -249,7 +251,6 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		 //  REMOVE ACCESS TO SCREENS  //
 		////////////////////////////////
 		if (isset($_POST[$prefix.'_remove_type_screen'])) {
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$doomed_screens = $_POST[$prefix.'_remove_type_screen'];
 			foreach ($doomed_screens as $type_code => $screen_data) {
 				foreach ($screen_data as $doomed_screen => $on) {
@@ -290,8 +291,8 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 					$result = $db->query($sql);
 					assert_valid_db_result($result);
-				}
-			}
+				}//end foreach doomed screen
+			}//end foreach type code
 		}//end if
 
 
