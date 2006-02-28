@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.23 2006/02/27 04:55:36 emcdonald Exp $
+* $Id: email_format.inc,v 1.24 2006/02/28 03:48:24 emcdonald Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *    <email_format />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -506,7 +506,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$html_body = replace_keywords($current_value['html_format'], $replacements);
 
 
-		$to =  array_merge($to, $assetid_emails);
+		$to =  array_unique(array_merge($to, $assetid_emails));
 
 		// if no 'From:' address (possibly because of empty keyword replacement)
 		// send from the system's default email address
