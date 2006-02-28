@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.62 2006/01/26 22:34:06 lwright Exp $
+* $Id: cron_manager.inc,v 1.62.2.1 2006/02/28 01:02:51 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.62.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,6 +54,13 @@ class Cron_Manager extends Asset
 	function Cron_Manager($assetid=0)
 	{
 		$this->Asset($assetid);
+
+		// including these assets here as they are required to send an error
+		// message in the case that a cron job run() fails. necessary because
+		// getSystemAsset() will fail because it cannot includeAsset() inside
+		// an aborted transaction
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_user');
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('system_user_group');
 
 	}//end constructor
 
