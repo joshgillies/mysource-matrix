@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.160.2.9 2006/02/28 04:24:31 lwright Exp $
+* $Id: page_calendar.inc,v 1.160.2.10 2006/02/28 05:26:31 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.160.2.9 $
+* @version $Revision: 1.160.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -224,10 +224,17 @@ class Page_Calendar extends Page_Asset_Listing
 
 				// Get replacements.  Contents is first because it may change the view if,
 				// for example, we have just finished editing an event
+
 				$replacements = Array();
+
+				// Save the current calendar date - we need to edit it in contents to make it work
+				$calendar_date = $_REQUEST['SQ_CALENDAR_DATE'];
 				$replacements['calendar_contents'] = $this->getCalendarContents();
+				$_REQUEST['SQ_CALENDAR_DATE'] = $calendar_date;
+
 				$replacements['calendar_title'] = $this->getCalendarTitle();
 				$replacements['current_user'] = $GLOBALS['SQ_SYSTEM']->user->name;
+
 
 				$replacements += $this->_getNavLinkReplacements();
 
@@ -819,8 +826,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$enabled_views = $this->attr('enabled_views');
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
-			$events = $this->getWeekEvents($date);
-			$events = sortByOccurrence($date, $events);
+			$events = $this->getWeekEventsByDay($date);
 			$done_events = Array();
 
 			// loop through each day but exclude events that have already
