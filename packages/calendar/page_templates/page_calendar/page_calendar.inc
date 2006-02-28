@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.160.2.8 2006/01/16 04:38:09 lwright Exp $
+* $Id: page_calendar.inc,v 1.160.2.9 2006/02/28 04:24:31 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.160.2.8 $
+* @version $Revision: 1.160.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -365,8 +365,9 @@ class Page_Calendar extends Page_Asset_Listing
 		} else {
 			$date_format = 'Y-m-d';
 		}
-		$prev_date = date($date_format, strtotime('-1 '.$cal_view, strtotime($cal_date)));
-		$next_date = date($date_format, strtotime('+1 '.$cal_view, strtotime($cal_date)));
+
+		$prev_date = date($date_format, strtotime('-1 '.$cal_view, strtotime(date($date_format, strtotime($cal_date)))));
+		$next_date = date($date_format, strtotime('+1 '.$cal_view, strtotime(date($date_format, strtotime($cal_date)))));
 
 		$replacements['prev_link'] = $event_id ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$prev_date.'">'.htmlentities(str_replace('%v%', ucfirst($cal_view), $this->attr('prev_link_text'))).'</a>';
 		$replacements['next_link'] = $event_id ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$next_date.'">'.htmlentities(str_replace('%v%', ucfirst($cal_view), $this->attr('next_link_text'))).'</a>';
