@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: definition_list.inc,v 1.1 2006/02/28 05:51:50 skim Exp $
+* $Id: definition_list.inc,v 1.2 2006/02/28 23:16:00 skim Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     some extra tags like <cite> and <dfn>
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -232,14 +232,6 @@ class definition_list extends wysiwyg_plugin
 
 						new_child.appendChild(new_text);
 						dl.replaceChild(new_child, parent);
-						if (HTMLArea.is_gecko) {
-							range.selectNode(new_text);
-							sel.removeAllRanges();
-							sel.addRange(range);
-						} else if (HTMLArea.is_ie) {
-							range.findText(new_child.innerText);
-							range.select();
-						}
 					}
 				}
 			}
