@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table_editing.inc,v 1.28 2006/02/24 02:41:05 rong Exp $
+* $Id: table_editing.inc,v 1.29 2006/02/28 22:03:36 skim Exp $
 *
 */
 
@@ -55,7 +55,6 @@ class Table_Editing extends WYSIWYG_Plugin
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
 		$this->_add_button('inserttable','InsertTable','Insert Table','false','35');
 		$this->_add_button('tableproperties','TableProperties','Table Properties','false','36','table');
-		$this->_add_button('show_table_borders','show_table_borders','Show Table Borders','false','57');
 
 	}//end constructor
 
@@ -289,111 +288,6 @@ class Table_Editing extends WYSIWYG_Plugin
 					elt.style.borderBottom = stored.borderBottom;
 				}
 			}
-
-			HTMLArea.prototype._toggleBorders = function()
-			{
-			var bordersClass = 'wysiwyg-noborders';
-			var storeClass = 'wysiwyg-noborders-store-';
-
-			if (HTMLArea.is_gecko || this.config.bodyType.toLowerCase() == 'iframe') {
-				tables = this._doc.getElementsByTagName("TABLE");
-				tds = this._doc.getElementsByTagName("TD");
-				ths = this._doc.getElementsByTagName("TH");
-			} else {
-				tables = this._docContent.getElementsByTagName("TABLE");
-				tds = this._docContent.getElementsByTagName("TD");
-				ths = this._docContent.getElementsByTagName("TH");
-			}
-			if(tables.length != 0)
-			{
-			this.borders = !this.borders;
-			}
-
-			for (var ix=0;ix < tables.length;ix++)
-			{
-				if(this.borders)
-				{
-					if (tables[ix].style) {
-						var storedMe = new clonedBorder();
-						storedMe.cloneSaveBorder(tables[ix].style);
-						this.storedBorders.push(storedMe);
-						tables[ix].style.border = "";
-						//following may be IE only
-						tables[ix].style.borderWidth = "";
-						tables[ix].style.borderStyle = "";
-						tables[ix].style.borderColor = "";
-					}
-					HTMLArea._addClass(tables[ix], bordersClass);
-					HTMLArea._addClass(tables[ix], 'wysiwyg-noborders-store-' + (this.storedBorders.length - 1).toString());
-				} else {
-					HTMLArea._removeClass(tables[ix], bordersClass);
-					if (tables[ix].className.indexOf(storeClass) != -1) {
-						//has a stored border, so we have to look it up and restore its values
-						var index = parseInt(tables[ix].className.substring((tables[ix].className.indexOf(storeClass) + storeClass.length)));
-						HTMLArea._removeClass(tables[ix], storeClass + index.toString());
-						HTMLArea._restoreBorder(tables[ix], this.storedBorders[index]);
-					}
-				}
-			}
-			for (var ix=0;ix < tds.length;ix++)
-			{
-				if(this.borders)
-				{
-					if (tds[ix].style) {
-						var storedMe = new clonedBorder();
-						storedMe.cloneSaveBorder(tds[ix].style);
-						this.storedBorders.push(storedMe);
-						tds[ix].style.border = "";
-						//following may be IE only
-						tds[ix].style.borderWidth = "";
-						tds[ix].style.borderStyle = "";
-						tds[ix].style.borderColor = "";
-					}
-					HTMLArea._addClass(tds[ix], bordersClass);
-					HTMLArea._addClass(tds[ix], 'wysiwyg-noborders-store-' + (this.storedBorders.length - 1).toString());
-				} else {
-					HTMLArea._removeClass(tds[ix], bordersClass);
-					if (tds[ix].className.indexOf(storeClass) != -1) {
-						//has a stored border, so we have to look it up and restore its values
-						var index = parseInt(tds[ix].className.substring((tds[ix].className.indexOf(storeClass) + storeClass.length)));
-						HTMLArea._removeClass(tds[ix], storeClass + index.toString());
-						HTMLArea._restoreBorder(tds[ix], this.storedBorders[index]);
-					}
-				}
-			}
-			for (var ix=0;ix < ths.length;ix++)
-			{
-				if(this.borders)
-				{
-					if (ths[ix].style) {
-						var storedMe = new clonedBorder();
-						storedMe.cloneSaveBorder(ths[ix].style);
-						this.storedBorders.push(storedMe);
-						ths[ix].style.border = "";
-						//following may be IE only
-						ths[ix].style.borderWidth = "";
-						ths[ix].style.borderStyle = "";
-						ths[ix].style.borderColor = "";
-					}
-					HTMLArea._addClass(ths[ix], bordersClass);
-					HTMLArea._addClass(ths[ix], 'wysiwyg-noborders-store-' + (this.storedBorders.length - 1).toString());
-				} else {
-					HTMLArea._removeClass(ths[ix], bordersClass);
-					if (ths[ix].className.indexOf(storeClass) != -1) {
-						//has a stored border, so we have to look it up and restore its values
-						var index = parseInt(ths[ix].className.substring((ths[ix].className.indexOf(storeClass) + storeClass.length)));
-						HTMLArea._removeClass(ths[ix], storeClass + index.toString());
-						HTMLArea._restoreBorder(ths[ix], this.storedBorders[index]);
-					}
-				}
-			}
-			if (!this.borders) {
-				this.storedBorders.splice(0, this.storedBorders.length);
-			}
-			this.forceRedraw();
-			this.focusEditor();
-			return true;
-			}
 		//]]>
 		</script>
 		<?php
@@ -425,9 +319,6 @@ class Table_Editing extends WYSIWYG_Plugin
 		case "tableproperties":
 			this._editTableProperties();
 		break;
-		case "show_table_borders":
-			this._toggleBorders();
-		break;
 		<?php
 
 	}//end print_plugin_button_click()
@@ -446,24 +337,6 @@ class Table_Editing extends WYSIWYG_Plugin
 
 
 	/**
-	* Removes the table tags so the returned html doesn't contain table borders classes
-	*
-	* @return void
-	* @access public
-	*/
-	function print_plugin_pre_get_html()
-	{
-		?>
-		if (this.borders) {
-				this._toggleBorders();
-		}
-		<?php
-		return;
-
-	}//end print_plugin_pre_get_html()
-
-
-	/**
 	* Removes empty class tags that the table borders button may have left
 	* This code is a function - do not use script tags
 	*
@@ -478,25 +351,6 @@ class Table_Editing extends WYSIWYG_Plugin
 		return;
 
 	}//end print_plugin_get_html()
-
-
-	/**
-	* Resets the borders of the tables prior to submitting
-	* This code is a function - do not use script tags
-	*
-	* @return void
-	* @access public
-	*/
-	function print_plugin_form_submit()
-	{
-		?>
-		if (this.borders) {
-				this._toggleBorders();
-		}
-		<?php
-		return;
-
-	}//end print_plugin_form_submit()
 
 
 }//end class
