@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.25 2006/02/28 06:13:58 skim Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.26 2006/02/28 06:19:04 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -216,14 +216,21 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 				}
 			$wysiwyg->close_group();
 
-			// contents must be set AFTER all plugins are loaded
-			$wysiwyg->set_contents($html);
-
 			$wysiwyg->open_group();
 				if ($iap || in_array('quotation', $ap)) {
 					$wysiwyg->add_plugin('quotation');
 				}
 			$wysiwyg->close_group();
+
+			$wysiwyg->open_group();
+				if ($iap || in_array('visual_aid', $ap)) {
+					$wysiwyg->add_plugin('visual_aid');
+				}
+			$wysiwyg->close_group();
+
+			// contents must be set AFTER all plugins are loaded
+			$wysiwyg->set_contents($html);
+
 
 			$this->_tmp['wysiwg_object'] = $wysiwyg;
 
