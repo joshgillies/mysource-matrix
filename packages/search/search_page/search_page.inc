@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.98.2.13 2005/12/07 05:10:57 sdanis Exp $
+* $Id: search_page.inc,v 1.98.2.14 2006/02/28 23:14:34 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.98.2.13 $
+* @version $Revision: 1.98.2.14 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1132,8 +1132,6 @@ class Search_Page extends Listing_Engine
 	function getResultsBodyReplacements(&$results)
 	{
 		$mode = array_get_index($_REQUEST, 'mode', 'results');
-		$bodycopy =& $this->getBodycopy('results');
-		$keywords = $bodycopy->getKeywords();
 		$replaces = Array();
 
 		$current_result_page = array_get_index($_REQUEST, 'current_result_page', '0');
@@ -1156,20 +1154,18 @@ class Search_Page extends Listing_Engine
 
 		$this->filterAssetList($asset_info);
 
-		if ($results_per_page != 0) {
-			$total_pages = ceil(count($asset_info) / $results_per_page);
-		} else {
-			$total_pages = 1;
-		}
-
 		if (!is_array($asset_info)) $asset_info = Array();
 		$this->_tmp['asset_info'] = $asset_info;
 
 		if ($results_per_page != 0) {
 			$total_pages = ceil(count($asset_info) / $results_per_page);
+			$bodycopy =& $this->getBodycopy('results');
 		} else {
 			$total_pages = 1;
+			$bodycopy =& $this->getBodycopy('no_results');
 		}
+
+		$keywords = $bodycopy->getKeywords();
 
 		foreach ($keywords as $keyword) {
 			$replacement = "%$keyword%";
