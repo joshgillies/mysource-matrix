@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.4 2005/08/15 01:28:31 cboudjnah Exp $
+#* $Id: backup.sh,v 1.4.2.1 2006/02/28 05:24:28 dmckee Exp $
 #*
 #*/
 #
@@ -28,7 +28,7 @@
 
 # Creates a backup
 
-SYSTEM_ROOT=`dirname $0`"/..";
+SYSTEM_ROOT=".";
 
 if [ ! -f ${SYSTEM_ROOT}/data/private/conf/main.inc ]; then
 	echo "This isn't being run from the system root folder. Aborting."
@@ -93,7 +93,7 @@ set | grep "^DB_"
 dumpfile=${SYSTEM_ROOT}/matrix-`date +%Y-%m-%d_%H-%M`.dump
 [[ -n $remote ]] && remotefile="/tmp/matrix-`date +%Y-%m-%d_%H-%M`.dump"
 
-case "${DB_PHPTYPE}" in 
+case "${DB_PHPTYPE}" in
 	"pgsql")
 		args="";
 		if [ "${DB_USERNAME}" != "" ]; then
@@ -188,12 +188,6 @@ fi
 #
 
 tar -C `dirname ${SYSTEM_ROOT}` -cv -f ${backupdir}/${backupfilename} `basename ${SYSTEM_ROOT}` --exclude=${backupfilename} --exclude=${SYSTEM_ROOT}/cache/* --exclude=matrix-*-backup.tar*
-
-if [ $? -gt 0 ]; then
-	echo "Unable to create tarball ${backupdir}/${backupfilename}."
-	echo "Aborting."
-	exit 8
-fi
 
 gzip -f ${backupdir}/${backupfilename}
 if [ $? -gt 0 ]; then
