@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.2.2.4 2006/02/05 21:52:48 mmcintyre Exp $
+* $Id: pgsql_functions.xml,v 1.2.2.5 2006/02/28 03:57:44 mmcintyre Exp $
 *
 */
 -->
@@ -56,10 +56,6 @@
 				rec RECORD;
 			BEGIN
 
-				-- create a temp table so that we can determine what out temporary namespace is
-				CREATE TEMP TABLE _temp_foo(f1 int);
-				DROP TABLE _temp_foo;
-
 				-- try to find a temporary table with the name of sq_rollback_timestamp where
 				-- it exists in our temporary schema name
 
@@ -75,8 +71,6 @@
 				ELSE
 					RETURN;
 				END IF;
-
-
 
 				FOR rec in EXECUTE ''SELECT rb_timestamp FROM sq_rollback_timestamp'' LOOP
 					ts := rec.rb_timestamp;
