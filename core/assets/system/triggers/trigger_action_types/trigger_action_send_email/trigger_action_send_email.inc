@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.3 2006/02/13 04:20:20 sdanis Exp $
+* $Id: trigger_action_send_email.inc,v 1.4 2006/02/28 03:30:56 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/email_format/email_format.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,6 +73,20 @@ class Trigger_Action_Send_Email extends Trigger_Action
 			$email_format_value = serialize($unserialised);
 		}
 
+		if ($settings['roles']) {
+			// add role members
+			$role_members = Array();
+			foreach ($settings['roles'] as $role) {
+				$result = $GLOBALS['SQ_SYSTEM']->am->getRole($state['assetid'], $role, NULL, FALSE, TRUE);
+				foreach ($result[$role] as $role_member) {
+					$role_members[] = $role_member;
+				}
+			}
+			$unserialised = unserialize($email_format_value);
+			$unserialised['to_assetids'] = array_merge($unserialised['to_assetids'],$role_members);
+			$email_format_value = serialize($unserialised);
+		}
+
 		// get the keywords
 		$avl_keywords = $state['asset']->getAvailableKeywords();
 		foreach ($avl_keywords as $keyword => $desc) {
@@ -107,16 +121,36 @@ class Trigger_Action_Send_Email extends Trigger_Action
 	{
 		ob_start();
 		$to_owner = array_get_index($settings, 'to_owner', 0);
+		$current_roles = array_get_index($settings, 'roles', Array());
 
 		$new_prefix = ereg_replace('\[','_',ereg_replace('\]','_',$prefix));
 		$email_format_value = array_get_index($settings, 'email_format_value', Array());
 
 		if ($write_access) {
 			?>
+			<table border="0">
+				<tr>
+					<td align="right" valign="top">&nbsp;</td>
+					<td valign="top">
 			<?php
-				echo '<strong>'.translate('trigger_send_to_active_user').'</strong>';
 				check_box($prefix.'[to_owner]', 1, $to_owner);
+				echo '<strong>'.translate('trigger_send_to_active_user').'</strong>';
 				echo '<br />'.translate('trigger_send_to_active_user_note').'<br /><br >';
+			?>
+					</td>
+				</tr>
+				<tr>
+					<td align="right" valign="top"><strong><?php echo translate('trigger_send_to_roles'); ?></strong></td>
+					<td valign="top">
+			<?php
+				multiple_asset_finder($prefix.'[roles]', $current_roles, Array('role' => 'I'));
+				echo '<br />'.translate('trigger_send_to_roles_note').'<br /><br >';
+
+			?>
+					</td>
+				</tr>
+			</table>
+			<?php
 				$atr_email_format =& new Asset_Attribute_Email_Format(0, $email_format_value);
 				$atr_email_format->paint($new_prefix, FALSE, TRUE);
 
@@ -154,6 +188,16 @@ class Trigger_Action_Send_Email extends Trigger_Action
 
 		// save other settings
 		$settings['to_owner'] = array_get_index($request_data, 'to_owner', FALSE);
+
+		$roles = array_get_index($request_data, 'roles', Array());
+		$role_ids = Array();
+		foreach ($roles as $role) {
+			if (!empty($role['assetid'])) {
+				$role_ids[] =  $role['assetid'];
+			}
+		}
+
+		$settings['roles'] = $role_ids;
 
 		// create a wysiwyg compatable prefix
 		$new_prefix = ereg_replace('\[','_',ereg_replace('\]','_',array_get_index($request_data, 'new_prefix', '')));
