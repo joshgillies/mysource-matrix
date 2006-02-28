@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.114 2006/02/28 03:30:56 emcdonald Exp $
+* $Id: lang_strings.xml,v 1.115 2006/02/28 06:07:02 skim Exp $
 *
 */
 
@@ -1386,6 +1386,7 @@
 	<string source="reorder_rows">Reorder Rows</string>
 
 	<string source="insert_image">Insert Image</string>
+	<string source="insert_definition">Insert Definition</string>
 	<string source="image_url">Image URL</string>
 	<string source="border_thickness">Border thickness</string>
 	<string source="selectors">Selectors</string>
