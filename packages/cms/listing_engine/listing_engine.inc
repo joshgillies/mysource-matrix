@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.150.2.2 2006/02/16 00:55:05 sdanis Exp $
+* $Id: listing_engine.inc,v 1.150.2.3 2006/02/28 03:46:41 mmcintyre Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.150.2.2 $
+* @version $Revision: 1.150.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -658,6 +658,7 @@ class Listing_Engine extends Page
 
 		$skipped_assets = Array();
 		$sort_assets = Array();
+		$reverse_sort = $this->isDescending();
 
 		// default to a numeric sort until we are proven otherwise
 		$sort_numeric = TRUE;
@@ -771,13 +772,15 @@ class Listing_Engine extends Page
 
 				if ($sort_field != 'assetid') $sort_numeric = FALSE;
 			} else {
+
+				if ($reverse_sort) return array_reverse($asset_list, true);
+
 				// sort field is not defined, return the assetlist
 				return $asset_list;
 			}
 
 		}
 
-		$reverse_sort = $this->isDescending();
 
 		if ($sort_numeric) {
 			uasort($sort_assets, create_function('$a,$b','return '.($reverse_sort ? '$b - $a' : '$a - $b').';'));
