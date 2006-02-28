@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.23 2006/02/22 23:10:34 skim Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.24 2006/02/28 05:51:54 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -201,6 +201,12 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$wysiwyg->open_group();
 				if ($iap || in_array('choose_language', $ap)) {
 					$wysiwyg->add_plugin('choose_language');
+				}
+			$wysiwyg->close_group();
+
+			$wysiwyg->open_group();
+				if ($iap || in_array('definition_list', $ap)) {
+					$wysiwyg->add_plugin('definition_list');
 				}
 			$wysiwyg->close_group();
 
