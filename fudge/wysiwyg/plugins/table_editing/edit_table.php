@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.30 2006/02/28 05:18:11 rong Exp $
+* $Id: edit_table.php,v 1.31 2006/02/28 05:48:48 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 
@@ -40,7 +40,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 	<title>Tables</title>
 	<style type="text/css">
 		html, body {
-			height: 620px;
+			height: 700px;
 			width: 850px;
 			overflow: hidden;
 			font: 11px Tahoma,Verdana,sans-serif;
@@ -112,16 +112,6 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			padding: 1px;
 			overflow: auto;
 			background: #FFF;
-		}
-
-		#footer {
-			position: absolute;
-			left: 324px;
-			top: 686px;
-			width: 500px;
-			height: 40px;
-			overflow: hidden;
-			border: solid 0px #CCC;
 		}
 
 		#table_container {
@@ -582,18 +572,14 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 				</script>
 			</div>
 		</fieldset>
+
+		<div align="right">
+			<button accesskey="s" type="button" onclick="onOK()"><?php echo translate('ok'); ?></button>
+			<button type="button" onclick="onCancel()"><?php echo translate('cancel'); ?></button>
+		</div>
 	</div>
 
-	<div id="footer">
-		<table border="0" cellpadding="0" cellspacing="0" style="width:100%;height:100%">
-			<tr>
-				<td align="right">
-					<button accesskey="s" type="button" onclick="onOK()"><?php echo translate('ok'); ?></button>
-					<button type="button" onclick="onCancel()"><?php echo translate('cancel'); ?></button>
-				</td>
-			</tr>
-		</table>
-	</div>
+
 	<img alt="" src="images/semigray.gif" style="display:none;" id="semigray" />
 	<img alt="" src="images/semired.gif" style="display:none;" id="semired" />
 	<img alt="" src="images/empty.gif" style="display:none;" id="empty" />
