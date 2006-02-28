@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.83.2.11 2006/02/13 05:50:14 sdanis Exp $
+* $Id: metadata_manager.inc,v 1.83.2.12 2006/02/28 00:12:22 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.83.2.11 $
+* @version $Revision: 1.83.2.12 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -326,7 +326,7 @@ class Metadata_Manager extends MySource_Object
 	function getMetadataFields($schemaids)
 	{
 		if (!is_array($schemaids)) {
-			return $GLOBALS['SQ_SYSTEM']->am->getChildren($schemaid, 'metadata_field', false);
+			return $GLOBALS['SQ_SYSTEM']->am->getChildren($schemaids, 'metadata_field', false);
 		} else {
 			$fieldids = Array();
 			foreach ($schemaids as $schemaid) {
