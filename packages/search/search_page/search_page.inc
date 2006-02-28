@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.162 2006/02/27 23:52:11 dmckee Exp $
+* $Id: search_page.inc,v 1.163 2006/02/28 02:38:03 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.162 $
+* @version $Revision: 1.163 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -447,23 +447,11 @@ class Search_Page extends Listing_Engine
 	*/
 	function sortAssetList($asset_list, $sort_info)
 	{
-		if (($sort_info['type'] == 'field') && ($sort_info['params']['field'] == 'score')) {
-			// due to how asset listing is returned from search manager, it
-			// will already be in descending score order
+		if ((!isset($sort_info['type']) || ($sort_info['type'] == '')) && (!isset($sort_info['params']['field']) || $sort_info['params']['field'] == '')) {
+			arsort($asset_list);
 			$sort_assets = Array();
-			$sort_order = array_keys($this->_tmp['search_results']);
-			if (!$this->isDescending()) {
-				$sort_order = array_reverse($sort_order);
-			}
-			foreach ($sort_order as $assetid) {
-				if (isset($asset_list[$assetid])) {
-					$sort_assets[$assetid] = $asset_list[$assetid];
-				}
-			}
-			return $sort_assets;
-		} else {
-			return parent::sortAssetList($asset_list, $sort_info);
 		}
+		return parent::sortAssetList($asset_list, $sort_info);
 
 	}//end sortAssetList()
 
