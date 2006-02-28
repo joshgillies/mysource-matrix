@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.156 2006/02/26 23:51:28 pgannavarapu Exp $
+* $Id: listing_engine.inc,v 1.157 2006/02/28 02:39:49 mmcintyre Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.156 $
+* @version $Revision: 1.157 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -660,6 +660,7 @@ class Listing_Engine extends Page
 
 		$skipped_assets = Array();
 		$sort_assets = Array();
+		$reverse_sort = $this->isDescending();
 
 		// default to a numeric sort until we are proven otherwise
 		$sort_numeric = TRUE;
@@ -672,7 +673,6 @@ class Listing_Engine extends Page
 		$sort_params =& $sort_info['params'];
 
 		$assetids = array_keys($asset_list);
-
 		if ($is_sort_by_attribute) {
 			$sort_by_attr = $sort_params['attribute'];
 			$sort_by_type_code = $sort_params['type_code'];
@@ -773,14 +773,15 @@ class Listing_Engine extends Page
 
 				if ($sort_field != 'assetid') $sort_numeric = FALSE;
 			} else {
+
+				if ($reverse_sort) return array_reverse($asset_list, true);
+			
 				// sort field is not defined, return the assetlist
 				return $asset_list;
 			}
 
 		}
-
-		$reverse_sort = $this->isDescending();
-
+		
 		if ($sort_numeric) {
 			uasort($sort_assets, create_function('$a,$b','return '.($reverse_sort ? '$b - $a' : '$a - $b').';'));
 		} else {
