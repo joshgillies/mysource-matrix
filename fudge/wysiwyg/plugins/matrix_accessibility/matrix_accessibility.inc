@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_accessibility.inc,v 1.7 2005/05/16 06:36:36 lwright Exp $
+* $Id: matrix_accessibility.inc,v 1.8 2006/02/28 06:22:31 skim Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     Triple-A level accessibility tags (e.g. abbr and acronym)
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -52,8 +52,8 @@ class matrix_accessibility extends wysiwyg_plugin
 	function matrix_accessibility(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('matrixabbr','MatrixAbbr','Insert Abbreviation','false','55');
-		$this->_add_button('matrixacronym','MatrixAcronym','Insert Acronym','false','56');
+		$this->_add_button('matrixabbr','MatrixAbbr','Insert Abbreviation','false','64');
+		$this->_add_button('matrixacronym','MatrixAcronym','Insert Acronym','false','66');
 
 	}//end constructor
 
@@ -177,7 +177,6 @@ class matrix_accessibility extends wysiwyg_plugin
 
 						var html = '<abbr title="' + param["title"] + '">' + inside_html + '</abbr>';
 
-						// replace with new URL
 						editor.insertHTML(html, range);
 
 					}// end if param exists
