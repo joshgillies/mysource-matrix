@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.38 2006/02/24 05:19:22 skim Exp $
+* $Id: insert_image.php,v 1.39 2006/03/01 06:32:51 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 */
 
@@ -43,7 +43,7 @@ $url_protocol_options = Array(
 if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 ?>
 
-<html style="width: 740px; height: 460px;">
+<html style="width: 740px; height: 580px;">
 	<head>
 		<title>Insert Image</title>
 
@@ -313,39 +313,47 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 									<legend><b><?php echo translate('optional_attributes'); ?></b></legend>
 									<table style="width:100%">
 										<tr>
-											<td valign="top" class="label" nowrap="nowrap"><?php echo translate('longdesc_text'); ?>:<br />(optional)</td>
+											<td valign="top" class="label" nowrap="nowrap"><?php echo translate('longdesc_text'); ?>:</td>
 											<td>
 												<?php
 												if (!empty($_GET['f_longdesc'])) {
 													if (preg_match("/^\d+$/", $_GET['f_longdesc']) && $_GET['f_longdesc'] != "0") {?>
+														Enter URL manually<br />
 														<?php echo translate('protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, '', 'style="font-family: courier new; font-size: 11px;"'); ?>
-														<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', '', 40, 0)?><br />
-														<br /><b>Or Choose From Standard Page Asset</b><br />
-														<?php asset_finder('f_longdesc', $_GET['f_longdesc'], Array('page_standard' => 'D'), ''); ?><br />
+														<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', '', 40, 0)?>
+														<br /><br />or choose a Standard Page asset<br />
+														<?php asset_finder('f_longdesc', $_GET['f_longdesc'], Array('page_standard' => 'D'), ''); ?>
+														<br /><br />If you enter URL manually, current asset in the asset finder must be cleared .<br />
 													<?php
 													} else {
 														$matches = Array();
 														if (preg_match_all('/^(http:\/\/|https:\/\/){1}(.*)$/', $_GET['f_longdesc'], $matches) === FALSE ||
 															empty($matches[0])) {?>
+															Enter URL manually<br />
 															<?php echo translate('protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, FALSE, '', 'style="font-family: courier new; font-size: 11px;"'); ?>
-															<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', $_GET['f_longdesc'], 40, 0)?><br />
-															<br />Or Choose From Standard Page Asset<br />
-															<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), ''); ?><br />
+															<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', $_GET['f_longdesc'], 40, 0)?>
+															<br /><br />or choose a Standard Page asset<br />
+															<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), ''); ?>
+															<br /><br />If you enter URL manually, current asset in the asset finder must be cleared .<br />
 														<?php
 														} else {?>
+															Enter URL manually<br />
 															<?php echo translate('protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, FALSE, $matches[1][0], 'style="font-family: courier new; font-size: 11px;"'); ?>
-															<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', $matches[2][0], 40, 0)?><br />
-															<br />Or Choose From Standard Page Asset<br />
-															<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), ''); ?><br />
+															<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', $matches[2][0], 40, 0)?>
+															<br /><br />or choose a Standard Page asset<br />
+															<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), ''); ?>
+															<br /><br />If you enter URL manually, current asset in the asset finder must be cleared .<br />
 														<?php
 														}
 
 													}
 												} else {?>
+													Enter URL manually<br />
 													<?php echo translate('protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, '', 'style="font-family: courier new; font-size: 11px;"'); ?>
-													<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', '', 40, 0)?><br />
-													<br />Or Choose From Standard Page Asset<br />
-													<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), ''); ?><br />
+													<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', '', 40, 0)?>
+													<br /><br />or choose a Standard Page asset<br />
+													<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), ''); ?>
+													<br /><br />If you enter URL manually, current asset in the asset finder must be cleared .<br />
 												<?php
 												}?>
 											</td>
