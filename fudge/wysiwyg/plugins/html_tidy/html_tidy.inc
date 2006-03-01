@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.34 2006/02/22 22:28:28 skim Exp $
+* $Id: html_tidy.inc,v 1.35 2006/03/01 01:15:07 rong Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -175,7 +175,7 @@ class HTML_Tidy extends Wysiwyg_Plugin
 	{
 		?>
 		case "replacetext":
-				this._popupDialog("ReplaceText", "<?php echo $this->get_popup_href('html_tidy.php')?>", 380, 400, true, function(types){
+				this._popupDialog("ReplaceText", "<?php echo $this->get_popup_href('html_tidy.php')?>", 440, 520, true, function(types){
 					if (types == null) return false;
 					var reg = null;
 					var rep = null;
@@ -186,6 +186,9 @@ class HTML_Tidy extends Wysiwyg_Plugin
 					} else if (!types[0]) {
 						selected_html = false;
 						var curHTML = editor.getHTML();
+					} else {
+						alert("Selected text is not defined. Replace Text action aborted.");
+						return false;
 					}
 					var HTMLtags = "!--|a|abbr|above|acronym|address|applet|array|area|b|base|basefont|bdo|bgsound|big|blink|blockquote|body|box|br|blink|button|caption|center|cite|code|col|colgroup|comment|dd|del|dfn|dir|div|dl|dt|em|embed|fieldset|fig|font|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|hr|html|i|id|iframe|ilayer|img|input|ins|isindex|kbd|label|layer|legend|li|link|listing|map|marquee|menu|meta|multicol|nextid|nobr|noframes|nolayer|note|noscript|object|ol|option|keygen|optgroup|p|param|pre|q|quote|range|root|s|samp|script|select|small|sound|spacer|span|sqrt|strike|strong|style|sub|sup|table|tbody|td|text|textarea|tfoot|th|thead|title|tr|tt|u|ul|var|wbr|xmp";
 					var bullet = unescape("%B7");

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.php,v 1.8 2006/02/22 22:28:28 skim Exp $
+* $Id: html_tidy.php,v 1.9 2006/03/01 01:15:07 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 
@@ -39,7 +39,7 @@ if (!isset($_GET['name']))		  $_GET['name'] = '';
 
 ?>
 
-<html style="width: 380px; height: 400px;">
+<html style="width: 420px; height: 500px;">
 
 	<head>
 		<title>Replace Text</title>
@@ -77,7 +77,7 @@ if (!isset($_GET['name']))		  $_GET['name'] = '';
 			};
 
 			function onOK() {
-				var confirm_str = "WARNING!\nThe apprearance of the content can be changed and it can not be undone.\nAre you sure you want to run the replacement?";
+				var confirm_str = "WARNING!\nThe appearance of the content may be affected and the action cannot be undone.\nAre you sure you want to apply the replacement?";
 
 				if (confirm(confirm_str)) {
 					var rep_types = new Array();
