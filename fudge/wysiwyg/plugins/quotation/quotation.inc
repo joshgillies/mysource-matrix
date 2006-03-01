@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: quotation.inc,v 1.1 2006/02/28 06:13:55 skim Exp $
+* $Id: quotation.inc,v 1.2 2006/03/01 23:38:29 rong Exp $
 *
 */
 
@@ -128,7 +128,7 @@ class Quotation extends WYSIWYG_Plugin
 							parent_parent.insertBefore(blockquote, parent);
 							parent_parent.removeChild(parent);
 						} else {
-							alert("The partial text within paragraph can be blockquoted.");
+							alert("<BLOCKQUOTE> tags cannot be added to partial text within a paragraph.");
 						}
 
 					} else {
