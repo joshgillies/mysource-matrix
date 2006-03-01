@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.4 2006/02/28 03:30:56 emcdonald Exp $
+* $Id: trigger_action_send_email.inc,v 1.5 2006/03/01 05:41:45 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/email_format/email_format.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,8 +78,10 @@ class Trigger_Action_Send_Email extends Trigger_Action
 			$role_members = Array();
 			foreach ($settings['roles'] as $role) {
 				$result = $GLOBALS['SQ_SYSTEM']->am->getRole($state['assetid'], $role, NULL, FALSE, TRUE);
-				foreach ($result[$role] as $role_member) {
-					$role_members[] = $role_member;
+				if (!empty($result)) {
+					foreach ($result[$role] as $role_member) {
+						$role_members[] = $role_member;
+					}
 				}
 			}
 			$unserialised = unserialize($email_format_value);
