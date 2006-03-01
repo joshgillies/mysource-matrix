@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2005/07/27 10:45:21 brobertson Exp $
+* $Id: lang_strings.xml,v 1.5 2006/03/01 23:20:52 sdanis Exp $
 *
 */
 -->
@@ -35,5 +35,7 @@
 	<string source="session_max_length">When the time since their last login is longer than</string>
 	<string source="session_timeout_explanation">Matrix-Activity refers to either accessing a page on the frontend, or having the backend interface open</string>
 	<string source="user_prefs_session_settings_header">Session Expiry Rules</string>
+	<string source="user_prefs_asset_map_root_asset_header">Asset Map Root Asset</string>
+	<string source="user_prefs_asset_map_root_asset_explanation">The asset that will be displayed as the Asset Map's root node</string>
 	<string source="end_user_session">End the user's session</string>
 </strings>

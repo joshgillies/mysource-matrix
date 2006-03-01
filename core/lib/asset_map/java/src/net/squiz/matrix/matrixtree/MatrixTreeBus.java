@@ -95,7 +95,7 @@ public class MatrixTreeBus {
 			}
 			tree = (MatrixTree)trees.get(0);
 		}
-		tree.loadChildAssets(assetIds, sort_orders, true);
+		tree.loadChildAssets(assetIds, sort_orders, true, false);
 	}
 
 	/**

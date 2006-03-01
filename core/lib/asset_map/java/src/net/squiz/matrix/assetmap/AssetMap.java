@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMap.java,v 1.20 2006/01/29 23:43:22 sdanis Exp $
+* $Id: AssetMap.java,v 1.21 2006/03/01 23:24:02 sdanis Exp $
 *
 */
 
@@ -193,8 +193,31 @@ public class AssetMap extends JApplet implements InitialisationListener, KeyList
 				Object get = get();
 				// success
 				if (get instanceof MatrixTreeNode) {
+
+					// Check if root folder asset is the actual root node for this user
+					// if not use the specified asset as the root node
+					String newRoot = Matrix.getProperty("parameter.rootlineage");
 					MatrixTreeModelBus.setRoot((MatrixTreeNode) get());
+
+					if (newRoot.length() > 0) {
+						// root folder asset is not the root node
+						String[] info = newRoot.split("~");
+						String[] assetIds = info[0].split("\\|");
+						String[] sort_orders = info[1].split("\\|");
+
+						// update tree root nodes
+						Iterator trees = MatrixTreeBus.getTrees();
+						while (trees.hasNext()) {
+							MatrixTree tree = (MatrixTree) trees.next();
+							// collapse the current root so we dont see its kids while switching root nodes
+							tree.collapsePath(tree.getPathToRoot((MatrixTreeNode)tree.getModel().getRoot()));
+							// find the specified asset/link and switch root node
+							tree.loadChildAssets(assetIds, sort_orders, false, true);
+						}
+					}
+
 					MatrixStatusBar.setStatusAndClear(Matrix.translate("asset_map_status_bar_success"), 1000);
+
 				// error
 				} else if (get instanceof IOException) {
 					IOException ioe = (IOException) get;
@@ -354,6 +377,7 @@ public class AssetMap extends JApplet implements InitialisationListener, KeyList
 
 	public void processAssetLocator(String params) {
 		// we need to create 2 arrays
+		System.out.println(params);
 		String[] info = params.split("~");
 		String[] assetIds = info[0].split("\\|");
 		String[] sort_orders = info[1].split("\\|");

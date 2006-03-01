@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_prefs.inc,v 1.3 2006/01/26 22:34:07 lwright Exp $
+* $Id: user_prefs.inc,v 1.4 2006/03/01 23:20:48 sdanis Exp $
 *
 */
 
@@ -27,19 +27,25 @@ require_once SQ_ATTRIBUTES_PATH.'/duration/duration.inc';
 *    Looks after the session expiry prefences for user groups
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class User_Prefs extends Prefs
 {
 
 	var $pref_vars = Array (
-						'SQ_USER_SESSION_PREFS'	=> Array(
-													'name'			=> 'Session Expiry Rules',
-													'description'	=> 'This preference allows you to change the session settings for this user group',
-													'default'		=> Array('persist' => '0', 'timeout' => '0', 'max_length' => '0'),
-													'protected'		=> FALSE,
-												   ),
+						'SQ_USER_SESSION_PREFS'		=> Array(
+														'name'			=> 'Session Expiry Rules',
+														'description'	=> 'This preference allows you to change the session settings for this user group',
+														'default'		=> Array('persist' => '0', 'timeout' => '0', 'max_length' => '0'),
+														'protected'		=> FALSE,
+													   ),
+						'SQ_USER_ASSET_MAP_LINEAGE'	=> Array(
+														'name'			=> 'Asset Map Root Asset',
+														'description'	=> 'This preference allows you to change the root node that is displated in the Asset Map',
+														'default'		=> '',
+														'protected'		=> FALSE,
+													   ),
 					 );
 
 
@@ -163,6 +169,42 @@ class User_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}//end if
 
+		if (is_null($pref) || $pref == 'SQ_USER_ASSET_MAP_LINEAGE') {
+			if (is_null($pref)) {
+				$o->openField(translate('user_prefs_asset_map_root_asset_header'));
+			}
+			?>
+			<div class="sq-backend-table sq-backend-table-cell">
+			<?php
+
+			if ($have_lock && $is_admin) {
+
+				if (isset($this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['default'])) {
+					$asset_map_settings = $this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['default'];
+				} else {
+					$asset_map_settings = '';
+				}
+				asset_finder('prefs[SQ_USER_ASSET_MAP_LINEAGE]', $asset_map_settings);
+			} else {
+				if (!empty($this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['default'])) {
+					echo get_asset_tag_line($this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['default']);
+				} else {
+					echo translate('root_folder');
+				}
+			}
+			?>
+			<br /><br />
+			<?php
+			echo translate('user_prefs_asset_map_root_asset_explanation');
+			?>
+			</div>
+			<?php
+
+			if (is_null($pref)) $o->closeField();
+		}//end if
+
+
+
 		return TRUE;
 
 	}//end paintBackend()
@@ -198,6 +240,14 @@ class User_Prefs extends Prefs
 			}
 			$this->pref_vars['SQ_USER_SESSION_PREFS']['default'] = $new_prefs;
 		}
+
+		if (is_null($pref) || $pref == 'SQ_USER_ASSET_MAP_LINEAGE') {
+			// update lineage pref
+			if (isset($_POST['prefs']['SQ_USER_ASSET_MAP_LINEAGE'])) {
+				$this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['default'] = $_POST['prefs']['SQ_USER_ASSET_MAP_LINEAGE']['assetid'];
+			}
+		}
+
 		$gc_min = max($new_prefs['timeout'], $new_prefs['max_length']);
 		if ($gc_min > SQ_CONF_SESSION_GC_MAXLIFETIME) {
 			// update the main conf
@@ -207,10 +257,14 @@ class User_Prefs extends Prefs
 				trigger_localised_error('CORE0233', E_USER_NOTICE);
 				return FALSE;
 			}
+
 			$system_conf->acquireLock();
 			$system_conf->save(Array('SQ_CONF_SESSION_GC_MAXLIFETIME' => $gc_min + 86400), FALSE, FALSE);
 			$system_conf->releaseLock();
 		}
+
+
+
 		return TRUE;
 
 	}//end processBackend()
@@ -232,19 +286,45 @@ class User_Prefs extends Prefs
 	*/
 	function mergePrefs($prefs1, $prefs2)
 	{
-		// Follow the princple that the most-open option (the one with the check disabled,
-		// or with the longest timeout) wins.
-		$session_settings_1 = $prefs1['SQ_USER_SESSION_PREFS']['default'];
-		$session_settings_2 = $prefs2['SQ_USER_SESSION_PREFS']['default'];
-		$merged['persist'] = max($session_settings_1['persist'], $session_settings_2['persist']);
-		foreach (Array('timeout', 'max_length') as $pref_comp) {
-			if (0 == min($session_settings_1[$pref_comp], $session_settings_2[$pref_comp])) {
-				$merged[$pref_comp] = 0;
-			} else {
-				$merged[$pref_comp] = max($session_settings_1[$pref_comp], $session_settings_2[$pref_comp]);
+		$res = Array();
+		if (isset($prefs1['SQ_USER_SESSION_PREFS']['default']) && isset($prefs2['SQ_USER_SESSION_PREFS']['default'])) {
+			// Follow the princple that the most-open option (the one with the check disabled,
+			// or with the longest timeout) wins.
+			$session_settings_1 = $prefs1['SQ_USER_SESSION_PREFS']['default'];
+			$session_settings_2 = $prefs2['SQ_USER_SESSION_PREFS']['default'];
+			$merged['persist'] = max($session_settings_1['persist'], $session_settings_2['persist']);
+			foreach (Array('timeout', 'max_length') as $pref_comp) {
+				if (0 == min($session_settings_1[$pref_comp], $session_settings_2[$pref_comp])) {
+					$merged[$pref_comp] = 0;
+				} else {
+					$merged[$pref_comp] = max($session_settings_1[$pref_comp], $session_settings_2[$pref_comp]);
+				}
 			}
+
+			$res['SQ_USER_SESSION_PREFS']['default'] = $merged;
+		} else if (isset($prefs1['SQ_USER_ASSET_MAP_LINEAGE']['default']) && isset($prefs2['SQ_USER_ASSET_MAP_LINEAGE'])) {
+
+			// asset map settings merge get the common
+			$asset_map_settings1 = $prefs1['SQ_USER_ASSET_MAP_LINEAGE']['default'];
+			if (is_array($prefs2['SQ_USER_ASSET_MAP_LINEAGE'])) {
+				$asset_map_settings2 = $prefs2['SQ_USER_ASSET_MAP_LINEAGE']['default'];
+			} else {
+				$asset_map_settings2 = $prefs2['SQ_USER_ASSET_MAP_LINEAGE'];
+			}
+
+			if (empty($asset_map_settings1) && !empty($asset_map_settings2)) {
+				$asset_map_settings1 = $asset_map_settings2;
+				$asset_map_settings2 = '';
+			}
+
+			$res['SQ_USER_ASSET_MAP_LINEAGE']['default'] = $asset_map_settings1;
+
+			if (!empty($asset_map_settings2)) {
+				$res['SQ_USER_ASSET_MAP_LINEAGE']['default'] .= ','.$asset_map_settings2;
+			}
+
 		}
-		$res['SQ_USER_SESSION_PREFS']['default'] = $merged;
+
 		return $res;
 
 	}//end mergePrefs()

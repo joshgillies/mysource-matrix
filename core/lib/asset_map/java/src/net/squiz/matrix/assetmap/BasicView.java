@@ -36,7 +36,7 @@ public class BasicView extends JPanel implements View {
 		JPanel tabUnderlay = new JPanel();
 		tabUnderlay.setBackground(MatrixLookAndFeel.PANEL_COLOUR);
 		add(tabUnderlay, BorderLayout.WEST);
-		add(new AssetMapMenuPanel(tree), BorderLayout.NORTH);
+		add(new AssetMapMenuPanel(tree, true), BorderLayout.NORTH);
 
 		add(MatrixStatusBar.createStatusBar(), BorderLayout.SOUTH);
 		add(splitPane);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.120 2006/01/30 04:12:10 sdanis Exp $
+* $Id: general.inc,v 1.121 2006/03/01 23:21:59 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.120 $
+* @version $Revision: 1.121 $
 * @package MySource_Matrix
 */
 
@@ -1034,7 +1034,9 @@ function get_asset_tag_line($assetid, $screen='')
 		}
 	} else {
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
-		$asset_info = $asset_info[$assetid];
+		if (isset($asset_info[$assetid])) {
+			$asset_info = $asset_info[$assetid];
+		}
 		$real_assetid = $assetid;
 	}
 
@@ -1224,6 +1226,22 @@ function asset_locator_js($asset_lineage=Array(),$map_frame='sq_sidenav', $new_w
 		$map_frame = 'top';
 	}
 
+	return $map_frame.'.asset_locator_start(\''.get_asset_lineage_sort_order($asset_lineage).'\');';
+
+}//end asset_locator_js()
+
+
+/**
+* Returns assetids and their sort orders seperated by ~
+* Example: 12|14|254~3|11|123
+*
+* @param array	$asset_lineage	Asset IDs in an asset lineage. Indexed from root to leaf
+*
+* @return string
+* @access public
+*/
+function get_asset_lineage_sort_order($asset_lineage=Array()) {
+
 	if ($asset_lineage[0] == 1) {
 		array_shift($asset_lineage);
 	}
@@ -1249,9 +1267,9 @@ function asset_locator_js($asset_lineage=Array(),$map_frame='sq_sidenav', $new_w
 		$sort_orders[] = $sort_order;
 	}
 
-	return $map_frame.'.asset_locator_start(\''.implode('|',$asset_lineage).'~'.implode('|',$sort_orders).'\');';
+	return implode('|',$asset_lineage).'~'.implode('|',$sort_orders);
 
-}//end asset_locator_js()
+}//end get_asset_lineage_sort_order()
 
 
 /**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.212 2006/02/17 02:36:01 sdanis Exp $
+* $Id: asset_map.inc,v 1.213 2006/03/01 23:23:50 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.212 $
+* @version $Revision: 1.213 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -84,6 +84,84 @@ class Asset_Map
 		<?php
 
 	}//end paint()
+
+
+	/**
+	* Finds a common parent for two assets
+	*
+	* @param int	$assetid1	First assetid
+	* @param int	$assetid2	Second assetid
+	*
+	* @return int
+	* @access public
+	*/
+	function _findCommonParentId($assetid1, $assetid2)
+	{
+		if (!isset($assetid2) || empty($assetid2) || $assetid1 == $assetid2) {
+			return $assetid1;
+		}
+
+		$lineages1 = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid1);
+
+		$lineages2 = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid2);
+
+		if (empty($lineages1) && !empty($lineages2)) {
+			return $assetid2;
+		} else if (!empty($lineages1) && empty($lineages2)) {
+			return $assetid1;
+		}
+
+		$common_lineage = Array();
+		foreach ($lineages1 as $lineage) {
+			$lineageids = array_keys($lineage['lineage']);
+			if ($lineageids[0] == 1) array_shift($lineageids);
+			$lineageids[] = $assetid1;
+			foreach ($lineages2 as $lineage2) {
+				$lineage2ids = array_keys($lineage2['lineage']);
+				if ($lineage2ids[0] == 1) array_shift($lineage2ids);
+				$lineage2ids[] = $assetid2;
+				$intersected = array_intersect($lineageids, $lineage2ids);
+				if (count($intersected) > count($common_lineage)) {
+					$common_lineage = $intersected;
+				}
+			}
+		}
+
+		if (empty($common_lineage)) return 1;
+
+		return array_pop($common_lineage);
+
+	}//end _findCommonParentId()
+
+
+	/**
+	* Finds a common root (parent) asset for a set of assetids
+	*
+	* @param int	$assetids	Assetids
+	*
+	* @return int
+	* @access public
+	*/
+	function _findCommonRoot($assetids)
+	{
+		$count = count($assetids);
+		// if we have only 1 asset then thats the common root
+		if ($count == 1) return $assetids[0];
+
+		$parentid = $assetids[0];
+		for ($i=0; $i<$count; $i++) {
+			if ($i == $count-1) {
+				$compare_to = 0;
+			} else {
+				$compare_to = $assetids[$i+1];
+			}
+			$parentid = $this->_findCommonParentId($parentid, $compare_to);
+			if ($parentid == 1) break;
+		}
+
+		return $parentid;
+
+	}//end _findCommonRoot()
 
 
 	/**
@@ -145,6 +223,24 @@ class Asset_Map
 			<applet id="sq_asset_map" width="<?php echo $width; ?>" height="%applet_height%" code="net/squiz/matrix/<?php echo ($type == 'simple') ? $jarname : 'assetmap'; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar?t=<?php echo time(); ?>" MAYSCRIPT>
 
 				<?php
+
+					$prefs = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_LINEAGE');
+
+					$assetids = explode(',',$prefs);
+					$rootlineage = '';
+
+					$common_parentid = $this->_findCommonRoot($assetids);
+
+					if (!empty($common_parentid)) {
+						$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($common_parentid);
+						$first_lineage = array_shift($lineages);
+						if (!empty($first_lineage)) {
+							$lineage_assetids = array_keys($first_lineage['lineage']);
+							$lineage_assetids[] = $common_parentid;
+							$rootlineage = get_asset_lineage_sort_order($lineage_assetids);
+						}
+					}
+
 					$parameters = Array(
 									'parameter.backendsuffix'			=> SQ_CONF_BACKEND_SUFFIX,
 									'parameter.sessionid'				=> $_COOKIE['SQ_SYSTEM_SESSION'],
@@ -159,6 +255,7 @@ class Asset_Map
 									'parameter.asset.limit'				=> SQ_CONF_ASSET_MAP_ASSET_LIMIT,
 									'parameter.java.supportedversion'	=> '1.4.2,1.5.0',
 									'parameter.java.sunurl'				=> 'http://java.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=www.java.com:80',
+									'parameter.rootlineage'				=> $rootlineage,
 								  );
 
 					// this is important because it tells the asset map what the available
@@ -402,6 +499,7 @@ class Asset_Map
 		} else {
 			return $string;
 		}
+
 	}//end _convertCharset()
 
 

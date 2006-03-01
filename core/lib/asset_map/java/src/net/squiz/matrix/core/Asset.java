@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: Asset.java,v 1.10 2006/02/19 23:10:14 sdanis Exp $
+* $Id: Asset.java,v 1.11 2006/03/01 23:24:04 sdanis Exp $
 *
 */
 
@@ -316,6 +316,9 @@ public class Asset implements MatrixConstants, Serializable {
 			if (child == null || (AssetManager.isShadowAsset(childAsset) && !childExists)) {
 				//childAsset.createNode(linkid, linkType, node, index);
 			} else if (!AssetManager.isShadowAsset(childAsset)) {
+				if (node.hasPreviousNode()) {
+					index++;
+				}
 				if (node.getIndex(child) != index) {
 					MatrixTreeModelBus.moveNode(child, node, index);
 				}

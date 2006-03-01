@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.22 2006/02/19 23:10:16 sdanis Exp $
+ * $Id: MatrixTree.java,v 1.23 2006/03/01 23:24:06 sdanis Exp $
  *
  */
 
@@ -133,6 +133,7 @@ public class MatrixTree extends CueTree
 		addMouseMotionListener(mmListener);
 		ToolTipManager.sharedInstance().registerComponent(this);
 		setKeyboardActions();
+
 	}
 
 	/**
@@ -444,15 +445,23 @@ public class MatrixTree extends CueTree
 
 
 	/**
-	 * Works like original loadChildAssets but uses asset ids to locate nodes in the tree
-	 *
-	 * @param node The node whos children are to be loaded
-	 */
-	public void loadChildAssets(final String[] assetids, final String[] sort_orders, final boolean selectAll) {
+	* Works like original loadChildAssets but uses asset ids to locate nodes in the tree
+	*
+	* @param assetids		Ids of the assets that are in the lineage of the asset that we are searching for
+	* @param sort_orders	Sort orders of the assets. This will make search quicker
+	* @param selectAll		Selects all the nodes that are in the lineage
+	* @param teleport		Teleport to the last selected node (i.e. searched asset)
+	*/
+	public void loadChildAssets(final String[] assetids, final String[] sort_orders, final boolean selectAll, final boolean teleport) {
 		MatrixStatusBar.setStatus(Matrix.translate("asset_map_status_bar_requesting"));
 		Runnable runner = new Runnable() {
 			public void run() {
-				MatrixTreeNode parent = (MatrixTreeNode)getModel().getRoot();
+
+				// if we have a different root and not the actual root then this will not work
+				// or should it?
+				tree.setRootVisible(false);
+				((DefaultTreeModel) tree.getModel()).setRoot(AssetManager.getRootFolderNode());
+				MatrixTreeNode parent = AssetManager.getRootFolderNode();
 				int numAssets = assetids.length;
 				int level = 0;
 				int loadedNodes = 0;
@@ -460,6 +469,8 @@ public class MatrixTree extends CueTree
 				TreePath path = null;
 
 				try {
+
+
 					// clear all other selections
 					tree.clearSelection();
 
@@ -520,7 +531,7 @@ public class MatrixTree extends CueTree
 									} else {
 										// we will check assets around us due to notice links having sort_order
 										if (((AssetManager.getLimit()*modifier) + loc) < foundChild.getSortOrder()) {
-											while (loc >= 0 && !found) {System.out.println("h1");
+											while (loc >= 0 && !found) {
 												foundChild = (MatrixTreeNode)parent.getChildAt(loc);
 												if (foundChild.getAsset().getId().equals(assetids[level])) {
 													found = true;
@@ -529,7 +540,7 @@ public class MatrixTree extends CueTree
 												loc--;
 											}
 										} else if (((AssetManager.getLimit()*modifier) + loc) > foundChild.getSortOrder()) {
-											while ((loc <  parent.getChildCount()) && !found) {System.out.println("h2");
+											while ((loc <  parent.getChildCount()) && !found) {
 												foundChild = (MatrixTreeNode)parent.getChildAt(loc);
 												if (foundChild.getAsset().getId().equals(assetids[level])) {
 													found = true;
@@ -539,7 +550,7 @@ public class MatrixTree extends CueTree
 											}
 										} else {
 											loc = 0;
-											while ((loc <  parent.getChildCount()) && !found) {System.out.println("h3");
+											while ((loc <  parent.getChildCount()) && !found) {
 												foundChild = (MatrixTreeNode)parent.getChildAt(loc);
 												if (foundChild.getAsset().getId().equals(assetids[level])) {
 													found = true;
@@ -567,7 +578,16 @@ public class MatrixTree extends CueTree
 						}
 
 						// scroll to the last selected node
-						tree.addSelectionPaths(paths);
+						if (selectAll) {
+							tree.addSelectionPaths(paths);
+						} else {
+							tree.addSelectionPath(path);
+						}
+
+						if (teleport) {
+							teleportToRoot((MatrixTreeNode)path.getLastPathComponent());
+						}
+
 						scrollPathToVisible(path);
 					}
 

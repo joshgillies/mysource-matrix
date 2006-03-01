@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMapMenuPanel.java,v 1.6 2005/05/20 00:08:35 ndvries Exp $
+* $Id: AssetMapMenuPanel.java,v 1.7 2006/03/01 23:24:02 sdanis Exp $
 *
 */
 
@@ -54,7 +54,7 @@ public class AssetMapMenuPanel extends JPanel {
 	 * Constructs an AssetMapMenuPanel and adds the tools to it.
 	 * @return the new AssetMapMenuPanel
 	 */
-	public AssetMapMenuPanel(MatrixTree tree) {
+	public AssetMapMenuPanel(MatrixTree tree, boolean includeCreateButton) {
 		this.tree = tree;
 
 		setLayout(new BorderLayout());
@@ -67,9 +67,11 @@ public class AssetMapMenuPanel extends JPanel {
 		rightPanel.add(createCollapseAllButton());
 		rightPanel.add(createPaintStatusesButton());
 
-		leftPanel.add(createAddMenuButton());
+		if (includeCreateButton) {
+			leftPanel.add(createAddMenuButton());
+			add(leftPanel, BorderLayout.WEST);
+		}
 
-		add(leftPanel, BorderLayout.WEST);
 		add(rightPanel, BorderLayout.EAST);
 
 		leftPanel.setBackground(BG_COLOUR);
@@ -152,8 +154,19 @@ public class AssetMapMenuPanel extends JPanel {
 
 		ActionListener restoreListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				tree.setRootVisible(false);
-				((DefaultTreeModel) tree.getModel()).setRoot(AssetManager.getRootFolderNode());
+				String newRoot = Matrix.getProperty("parameter.rootlineage");
+				// user can switch between the two root nodes
+				if ((newRoot.length() > 0) && (tree.getModel().getRoot() == AssetManager.getRootFolderNode())) {
+					// root folder is not the actual root
+					String[] info = newRoot.split("~");
+					String[] assetIds = info[0].split("\\|");
+					String[] sort_orders = info[1].split("\\|");
+					tree.collapsePath(tree.getPathToRoot((MatrixTreeNode)tree.getModel().getRoot()));
+					tree.loadChildAssets(assetIds, sort_orders, false, true);
+				} else {
+					tree.setRootVisible(false);
+					((DefaultTreeModel) tree.getModel()).setRoot(AssetManager.getRootFolderNode());
+				}
 			}
 		};
 		JButton restoreButton
