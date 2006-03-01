@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_anchor.php,v 1.6 2006/02/22 23:00:49 skim Exp $
+* $Id: insert_anchor.php,v 1.7 2006/03/01 23:39:21 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 
@@ -39,7 +39,7 @@ if (!isset($_GET['name']))		$_GET['name']	= "";
 
 ?>
 
-<html style="width: 400px; height: 180px;">
+<html style="width: 400px; height: 280px;">
 	<head>
 		<title>Insert Anchor</title>
 

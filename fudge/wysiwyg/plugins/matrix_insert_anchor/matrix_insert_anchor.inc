@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_anchor.inc,v 1.10 2006/02/22 23:00:49 skim Exp $
+* $Id: matrix_insert_anchor.inc,v 1.11 2006/03/01 23:39:21 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -111,7 +111,6 @@ class matrix_insert_anchor extends wysiwyg_plugin
 						this.selectNodeContents(current_a);
 						inside_html = editor.getSelectedHTML();
 					}
-					this.selectNodeContents(current_a);
 				} else {
 					inside_html = editor.getSelectedHTML();
 				}
@@ -177,27 +176,37 @@ class matrix_insert_anchor extends wysiwyg_plugin
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				var strPage = "<?php echo $this->get_popup_href('insert_anchor.php')?>?&name=" + escape(currArgs["name"]) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				this._popupDialog("matrixInsertAnchor", strPage, 420, 180, true, function(param) {
+				this._popupDialog("matrixInsertAnchor", strPage, 480, 300, true, function(param) {
+
 					if (!param) {
 						// user must have pressed Cancel
 						if (visual_aid_mode) {
-							current_a.innerHTML = copied_html;
+							if (current_a != null) {
+								current_a.innerHTML = copied_html;
+							}
 						}
 						return false;
 					}
 
 					if (param["remove"] == "1") {
-						// remove this anchor tag
-						var parent = current_a.parentNode;
-						if (HTMLArea.is_gecko) {
-							var e = '(<a.*name="' + param["name"] + '".*>)' + current_a.innerHTML + '</a>';
-						} else if (HTMLArea.is_ie) {
-							var e = '(<a.*name=' + param["name"] + '.*>)' + current_a.innerHTML + '</a>';
+						if (current_a != null) {
+							// remove this anchor tag
+							var parent = current_a.parentNode;
+							if (HTMLArea.is_gecko) {
+								var e = '(<a.*name="' + param["name"] + '".*>)' + current_a.innerHTML + '</a>';
+							} else if (HTMLArea.is_ie) {
+								var e = '(<a.*name=' + param["name"] + '.*>)' + current_a.innerHTML + '</a>';
+							}
+							var re = new RegExp(e, "ig");
+							var new_html = parent.innerHTML.replace(re, current_a.innerHTML);
+							parent.innerHTML = new_html;
 						}
-						var re = new RegExp(e, "ig");
-						var new_html = parent.innerHTML.replace(re, current_a.innerHTML);
-						parent.innerHTML = new_html;
 					} else {
+						var visual_aid_tag = "";
+						if (visual_aid_mode) {
+							var visual_aid_style = 'padding-left: 1px; padding-right: 1px; padding-top: 1px; padding-bottom: 1px; background-color : #37DF5E; font: 10px Verdana,Tahoma,sans-serif; font-weight: bold; border-left: 1px solid; border-right: 1px solid; border-top: 1px solid; border-bottom: 1px solid;';
+							visual_aid_tag = '<span id="wysiwyg-visual-aid-plugin-anchor" style="' + visual_aid_style + '">A</span>';
+						}
 
 						if (param["name"] != "") {
 
@@ -212,7 +221,7 @@ class matrix_insert_anchor extends wysiwyg_plugin
 										// this is just mysterious...
 										var e = '<A( id=' + current_a.getAttribute("name") + '){0,1} name=' + current_a.getAttribute("name") + '>';
 										var re = new RegExp(e, "gi");
-										var replacement = '<A id=' + param["name"] + ' name=' + param["name"] + '>';
+										var replacement = '<A id=' + param["name"] + ' name=' + param["name"] + '>' + visual_aid_tag;
 										current_a.parentNode.innerHTML = current_a.parentNode.innerHTML.replace(re, replacement);
 									}
 								}
@@ -223,19 +232,24 @@ class matrix_insert_anchor extends wysiwyg_plugin
 
 								if (insideP != inside_html) {
 									var html = '<p><a name="' + param["name"] + '" id="' + param["name"];
-									html += '">' + insideP + '</a></p>';
+									html += '">' + visual_aid_tag + insideP + '</a></p>';
 								} else {
 									var html = '<a name="' + param["name"] + '" id="' + param["name"];
-									html += '">' + inside_html + '</a>';
+									html += '">' + visual_aid_tag + inside_html + '</a>';
 								}
 
-								html = editor.make_absolute_urls(html);
-
 								// replace with new URL
+								html = editor.make_absolute_urls(html);
 								editor.insertHTML(html, range);
 							}
 
 						}// end if param exists
+					}
+					// unselect the selection
+					if (HTMLArea.is_ie) {
+						range.execCommand("Unselect");
+					} else {
+						sel.removeAllRanges();
 					}
 
 				}, null);
