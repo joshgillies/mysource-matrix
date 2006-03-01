@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: choose_language.inc,v 1.1 2006/02/22 22:51:33 skim Exp $
+* $Id: choose_language.inc,v 1.2 2006/03/01 04:37:41 rong Exp $
 *
 */
 
@@ -34,7 +34,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to add keywords to the editor using a nice interface
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -74,26 +74,27 @@ class Choose_Language extends WYSIWYG_Plugin
 	function print_plugin_vars()
 	{
 		$common_languages = Array(
-								'en' => 'English',
-								'es' => 'Spanish',
-								'fr' => 'French',
-								'it' => 'Italian',
-								'pt' => 'Portuguese',
-								'de' => 'German',
-								'ru' => 'Russian',
-								'ar' => 'Arabic',
-								'zh' => 'Chinese',
-								'he' => 'Hebrew',
-								'ja' => 'Japanese',
-								'ko' => 'Korean',
-								'sw' => 'Swahili',
-								'el' => 'Greek',
-								'la' => 'Latin',
-								'he' => 'Hebrew',
+								''	=> 'None',
+								'en'	=> 'English',
+								'es'	=> 'Spanish',
+								'fr'	=> 'French',
+								'it'	=> 'Italian',
+								'pt'	=> 'Portuguese',
+								'de'	=> 'German',
+								'ru'	=> 'Russian',
+								'ar'	=> 'Arabic',
+								'zh'	=> 'Chinese',
+								'he'	=> 'Hebrew',
+								'ja'	=> 'Japanese',
+								'ko'	=> 'Korean',
+								'sw'	=> 'Swahili',
+								'el'	=> 'Greek',
+								'la'	=> 'Latin',
+								'he'	=> 'Hebrew',
 							);
 		?>
 		this.config.chooselang = {
-			"-- choose language --": "none",<?php
+			"-- choose language --": "",<?php
 			foreach ($common_languages as $code => $name) {
 				echo '"'.$name.'": "'.$code.'",'."\n";
 			}
@@ -182,10 +183,10 @@ class Choose_Language extends WYSIWYG_Plugin
 	{
 		?>
 		case "chooselang":
-			if (value != "") {
+			if (value != null) {
 				var current_span = this.getClosest("span");
 				if (current_span) {
-					if (value == "none") {
+					if (value == "") {
 						  /////////////////////
 						 // Remove Lang Tag //
 						/////////////////////
@@ -240,11 +241,13 @@ class Choose_Language extends WYSIWYG_Plugin
 						this.selectNodeContents(current_span);
 						current_span.lang = value;
 					}
-				} else if (value != "none") {
+				} else if (value != "") {
 					  /////////////////////////////////////
 					 // Add The Span Tag With Lang Attr //
 					/////////////////////////////////////
-					this.surroundHTML("<span lang=\"" + value + "\">", "</span>");
+					if (this.getSelectedHTML().length != 0) {
+						this.surroundHTML("<span lang=\"" + value + "\">", "</span>");
+					}
 				}
 			}
 		break;
