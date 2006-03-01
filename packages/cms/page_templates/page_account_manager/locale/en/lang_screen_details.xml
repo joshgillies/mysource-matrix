@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2006/02/13 04:33:01 sdanis Exp $
+* $Id: lang_screen_details.xml,v 1.6 2006/03/01 06:33:37 tbarrett Exp $
 *
 */
 -->
@@ -73,6 +73,12 @@
 				<paint_function   name="paintPostValidationRedirect"   />
 				<process_function name="processPostValidationRedirect" />
 			</function_call>
+		</field>
+	</section>
+	<section name="Advanced Settings" write_access="write:attributes">
+		<field attribute="submit_to_page_url">
+			<display_name>Form Submission URL</display_name>
+			<note>If this page will be nested (in another page, or in a design), its form will be visible at a URL different to this page's URL.  Use this setting to control whether the form should submit to the same URL it's displayed at, or to this page's own URL.</note>
 		</field>
 	</section>
 </contents>
