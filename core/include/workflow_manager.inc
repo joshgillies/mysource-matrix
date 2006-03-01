@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.84.2.1 2006/02/27 22:20:39 ndvries Exp $
+* $Id: workflow_manager.inc,v 1.84.2.2 2006/03/01 05:58:06 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84.2.1 $
+* @version $Revision: 1.84.2.2 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -607,6 +607,7 @@ class Workflow_Manager extends MySource_Object
 	*/
 	function _whoCanPublishWorkflow($assetid, $schemaid)
 	{
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		// these will be the people who can approve this asset at this point in the workflow
 		$can_publish = Array();
 		$workflow = $this->getSchemaWorkflows($assetid, $schemaid);
@@ -638,28 +639,27 @@ class Workflow_Manager extends MySource_Object
 					$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
 					if ($asset->id) {
 						$asset_class = get_class($asset);
-						switch ($asset_class) {
-							case 'user':
-								$can_publish_cond[] = $asset->id;
-							break;
-							case 'user_group':
-								$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE));
-							break;
-							case 'role':
-								$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $asset->id);
-								foreach ($roles as $roleid => $userids) {
-									foreach ($userids as $userid) {
-										$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array(), FALSE, 'type_code');
-										if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid], 'user_group')) {
-											$can_publish_cond += array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid, Array('user'), FALSE));
-										} else {
-											$can_publish_cond[] = $userid;
-										}
+						// Note that the order of IF statements is important, because roles are
+						// a descendent of groups but should be treated differently
+						if ($am->isTypeDecendant($asset_class, 'user')) {
+							$can_publish_cond[] = $asset->id;
+						} else if ($am->isTypeDecendant($asset_class, 'role')) {
+							$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $asset->id);
+							foreach ($roles as $roleid => $userids) {
+								foreach ($userids as $userid) {
+									$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array(), FALSE, 'type_code');
+									if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid], 'user_group')) {
+										$can_publish_cond += array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid, Array('user'), FALSE));
+									} else {
+										$can_publish_cond[] = $userid;
 									}
 								}
-							break;
+							}
+						} else if ($am->isTypeDecendant($asset_class, 'user_group')) {
+							$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE));
 						}
 					}
+
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
 					if ($cond_data['logic'] == 'all') {
@@ -670,7 +670,8 @@ class Workflow_Manager extends MySource_Object
 									   ' '.$cond_data['logic'].') { $complete = true; }';
 					}
 					eval($cond_string);
-				}
+
+				}//end else
 
 				if (!$complete) {
 					$can_publish = array_merge($can_publish, array_diff($can_publish_cond, array_keys($cond_data['published_by'])));
@@ -964,14 +965,16 @@ class Workflow_Manager extends MySource_Object
 	* Returns TRUE if the publisher was able to publish and thus that the passed workflow
 	* has actually changed - FALSE otherwise.
 	*
-	* @param array	&$workflow	the workflow add approval to
-	* @param int	$publisher	the ID of the user who has approved
+	* @param array	&$workflow		the workflow add approval to
+	* @param int	$publisherid	the ID of the user who has approved
+	* @param int	$assetid		the ID of the asset being published
 	*
 	* @return boolean
 	* @access public
 	*/
 	function _recordPublish(&$workflow, $publisherid, $assetid)
 	{
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$workflow_updated = FALSE;
 
 		// safety code for blank workflows
@@ -995,22 +998,21 @@ class Workflow_Manager extends MySource_Object
                 $publisher =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
                 if ($publisher->id) {
                     $asset_class = get_class($publisher);
-                    switch ($asset_class) {
-                        case 'user':
-                            $can_publish[] = $publisher->id;
-                        break;
-                        case 'user_group':
-                            $can_publish = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($publisher->id, Array('user'), FALSE));
-                        break;
-                        case 'role':
-                            $roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $publisher->id, NULL, FALSE, FALSE, TRUE);
-                            foreach ($roles as $roleid => $userids) {
-                                foreach ($userids as $userid) {
-                                    $can_publish[] = $userid;
-                                }
-                            }
-                        break;
-                    }
+
+					// Note that the order of IF statements is important, because roles are
+					// a descendent of groups but should be treated differently
+					if ($am->isTypeDecendant($asset_class, 'user')) {
+						$can_publish[] = $publisher->id;
+					} else if ($am->isTypeDecendant($asset_class, 'role')) {
+						$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $publisher->id, NULL, FALSE, FALSE, TRUE);
+						foreach ($roles as $roleid => $userids) {
+							foreach ($userids as $userid) {
+								$can_publish[] = $userid;
+							}
+						}
+					} else if ($am->isTypeDecendant($asset_class, 'user_group')) {
+						$can_publish = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($publisher->id, Array('user'), FALSE));
+					}
                 }
 
                 if (in_array($publisherid, $can_publish)) {
@@ -1023,7 +1025,7 @@ class Workflow_Manager extends MySource_Object
                         $workflow_updated = TRUE;
                     }
                 }
-            }
+            }//end for
         }//end for
 
 		if ($workflow_updated) {
