@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.34.2.1 2006/02/09 04:10:44 mmcintyre Exp $
+* $Id: cache_manager.inc,v 1.34.2.2 2006/03/01 03:34:01 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.34.2.1 $
+* @version $Revision: 1.34.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -240,7 +240,7 @@ class Cache_Manager extends Asset
 		// replace/update existing cache entry
 		// warning: will NOT cause duplicate primary key db error
 		$cached = $this->_getCache($cache_key, $perm_key, $url);
-		if (!is_null($cached) && (time() < strtotime($cached['expires']))) {
+		if (!is_null($cached)) {
 			$this->_updateCache($cache_key, $perm_key, $url, $expiry_sql, $file_path, $contents);
 			return TRUE;
 		}
@@ -510,6 +510,9 @@ class Cache_Manager extends Asset
 	*/
 	function _getCache($cache_key, $perm_key, $url)
 	{
+		 // to get rid of replication lag if the system has multiple db
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT
 					expires, path
@@ -521,6 +524,8 @@ class Cache_Manager extends Asset
 					url = '.$db->quoteSmart($url);
 		$result = $db->getAll($sql);
 		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return array_shift($result);
 
