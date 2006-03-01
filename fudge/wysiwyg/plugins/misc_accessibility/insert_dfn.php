@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_dfn.php,v 1.1 2006/02/28 06:06:13 skim Exp $
+* $Id: insert_dfn.php,v 1.2 2006/03/01 03:26:16 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 *
 * @author  Scott Kim <skim@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
@@ -38,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 if (!isset($_GET['title'])) $_GET['title'] = "";
 ?>
 
-<html style="width: 400px; height: 200px;">
+<html style="width: 400px; height: 250px;">
 	<head>
 		<title>Insert Definition</title>
 
@@ -65,8 +65,6 @@ if (!isset($_GET['title'])) $_GET['title'] = "";
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/general.js' ?>"></script>
 
 		<script type="text/javascript">
-			var can_insert = true;
-			if (navigator.appName == "Microsoft Internet Explorer") { can_insert = false; }
 
 			function getFocus() {
 				setTimeout('self.focus()',100);
@@ -96,21 +94,14 @@ if (!isset($_GET['title'])) $_GET['title'] = "";
 			};
 
 			function buildForm() {
-				if (can_insert) {
-					document.write('<tr>');
-					document.write('<td class="label"><?php echo translate('definition'); ?>:</td>');
-					document.write('<td colspan="3"><?php text_box('dfn', trim($_GET['dfn']), 40, 0);?></td>');
-					document.write('</tr>');
-					document.write('<tr>');
-					document.write('    <td class="label"><?php echo translate('title'); ?>:</td>');
-					document.write('    <td colspan="3"><?php text_box('title', trim($_GET['title']), 40, 0);?></td>');
-					document.write('</tr>');
-				} else {
-					document.write('<tr>');
-					document.write('    <td colspan="4">Internet Explorer does not support automatically');
-					document.write('    inserting the Definition tag. You may insert this tag manually in Source View mode.</td>');
-					document.write('</tr>');
-				}
+				document.write('<tr>');
+				document.write('<td class="label"><?php echo translate('definition'); ?>:</td>');
+				document.write('<td colspan="3"><?php text_box('dfn', trim($_GET['dfn']), 40, 0);?></td>');
+				document.write('</tr>');
+				document.write('<tr>');
+				document.write('    <td class="label"><?php echo translate('title'); ?>:</td>');
+				document.write('    <td colspan="3"><?php text_box('title', trim($_GET['title']), 40, 0);?></td>');
+				document.write('</tr>');
 			};
 
 		</script>
@@ -205,9 +196,7 @@ if (!isset($_GET['title'])) $_GET['title'] = "";
 			<div style="margin-top: 5px; margin-right: 5px; text-align: right;">
 				<hr />
 				<script type="text/javascript" language="javascript">
-				if (can_insert) {
-					document.write('<button type="button" name="ok" onclick="return onOK();"><?php echo translate('ok'); ?></button>');
-				};
+				document.write('<button type="button" name="ok" onclick="return onOK();"><?php echo translate('ok'); ?></button>');
 				</script>
 				<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>
 			</div>

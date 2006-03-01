@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: misc_accessibility.inc,v 1.2 2006/03/01 02:58:52 rong Exp $
+* $Id: misc_accessibility.inc,v 1.3 2006/03/01 03:26:16 rong Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     some extra tags like <cite> and <dfn>
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -232,7 +232,7 @@ class misc_accessibility extends wysiwyg_plugin
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				var strPage = "<?php echo $this->get_popup_href('insert_dfn.php')?>?&title=" + escape(currArgs["title"]) + "&dfn=" + escape(inside_html) +"&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				this._popupDialog("matrixInsertDfn", strPage, 400, 200, true, function(param) {
+				this._popupDialog("matrixInsertDfn", strPage, 420, 270, true, function(param) {
 					if (!param) {
 						// user must have pressed Cancel
 						return false;
