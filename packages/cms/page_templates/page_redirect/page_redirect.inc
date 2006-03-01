@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.16.2.2 2005/06/30 07:03:15 ykasim Exp $
+* $Id: page_redirect.inc,v 1.16.2.3 2006/03/01 23:54:48 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.16.2.2 $
+* @version $Revision: 1.16.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -94,7 +94,7 @@ class Page_Redirect extends Page
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', true, 'redirect_asset');
 		if (empty($link)) {
 			$null = null;
-			return null;
+			return $null;
 		}
 
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
