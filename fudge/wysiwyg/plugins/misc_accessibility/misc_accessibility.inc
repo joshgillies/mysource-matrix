@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: misc_accessibility.inc,v 1.1 2006/02/28 06:06:13 skim Exp $
+* $Id: misc_accessibility.inc,v 1.2 2006/03/01 02:58:52 rong Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     some extra tags like <cite> and <dfn>
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -118,11 +118,9 @@ class misc_accessibility extends wysiwyg_plugin
 				sel = this._getSelection();
 				range = this._createRange(sel);
 
-				// remove nested cite tag
-				//var e = '<cite>(.*?)</cite>';
-				var e = '</?cite>';
-				var re = new RegExp(e, "gi");
-				inside_html = inside_html.replace(re, "");
+				// remove nested cite tags in selection
+				var reg = new RegExp("<\/?cite ?[^>]*>", "gi");
+				inside_html = inside_html.replace(reg, "");
 
 				// if citation exists, remove it
 				if (current_cite) {
@@ -137,7 +135,7 @@ class misc_accessibility extends wysiwyg_plugin
 				// else insert the citation
 				} else {
 					if (inside_html != '') {
-						this.surroundHTML('<cite>', '</cite>');
+						this.insertHTML('<cite>' + inside_html + '</cite>');
 					}
 				}
 			};
