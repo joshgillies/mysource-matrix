@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.87 2006/02/10 08:52:12 rhoward Exp $
+* $Id: page_asset_builder.inc,v 1.88 2006/03/01 03:13:11 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -397,7 +397,6 @@ class Page_Asset_Builder extends Page
 						// the new links to all the other parents
 						if (is_array($create_locations)) {
 							foreach ($create_locations as $link_parentid => $link_type) {
-								$link_parentid = (int)$link_parentid;
 
 								// skip the orginal parent we linked the new asset to
 								if ($link_parentid == $parent->id) continue;
