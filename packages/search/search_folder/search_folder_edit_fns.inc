@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_edit_fns.inc,v 1.21 2006/01/25 04:58:34 sdanis Exp $
+* $Id: search_folder_edit_fns.inc,v 1.21.2.1 2006/03/01 00:29:41 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -208,7 +208,7 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 
 		$settings = $asset->attr('settings');
-		$current = (isset($settings['logic'])) ? $settings['logic'] : 'all';
+		$current = (isset($settings['logic'])) ? $settings['logic'] : 'and';
 
 		if ($write_access) {
 			combo_box($prefix.'_logic', Array('and' => translate('sch_folder_logic_and'), 'or' => translate('sch_folder_logic_or')), FALSE, $current);
