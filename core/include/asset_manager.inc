@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.3 2006/02/27 22:20:39 ndvries Exp $
+* $Id: asset_manager.inc,v 1.431.2.4 2006/03/01 22:23:46 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.3 $
+* @version $Revision: 1.431.2.4 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5559,9 +5559,7 @@ class Asset_Manager extends MySource_Object
 							}
 						}
 					} else {
-						$assetid = $userid_assetid['assetid'];
-						$userid =$userid_assetid['userid'];
-						$roles[$roleid][$userid][] = $assetid;
+						$roles[$roleid][] = $userid_assetid;
 					}
 				}
 			}
