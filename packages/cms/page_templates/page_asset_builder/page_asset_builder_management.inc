@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.28 2006/02/10 08:52:12 rhoward Exp $
+* $Id: page_asset_builder_management.inc,v 1.29 2006/03/01 05:57:10 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -211,6 +211,15 @@ class Page_Asset_Builder_Management extends Asset_Management
 															   ),
 										   );
 
+		$this->vars['submit_to_page_url'] = Array(
+												'added'			=> '0.1',
+												'type'			=> 'boolean',
+												'default'		=> FALSE,
+												'parameters'	=> Array(
+																	'allow_empty'	=> FALSE,
+																   ),
+											);
+		
 	}//end constructor
 
 

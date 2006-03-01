@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2005/07/04 23:33:20 pgannavarapu Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10 2006/03/01 05:57:10 tbarrett Exp $
 *
 */
 -->
@@ -25,7 +25,7 @@
 			<text width="25" height="1" />
 		</field>
 	</section>
-	<section name="Asset Builder Settings" write_access="write:attributes">
+	<section name="Asset Creation Settings" write_access="write:attributes">
 		<field>
 			<function_call>
 				<paint_function   name="paintAssetTypes"   />
@@ -38,8 +38,13 @@
 				<process_function name="processCreateStatus" />
 			</function_call>
 		</field>
+	</section>
+	<section name="Advanced Settings" write_access="write:attributes">
 		<field attribute="allow_public_user">
 			<boolean true_text="yes" false_text="no"/>
+		</field>
+		<field attribute="submit_to_page_url">
+			<boolean true_text="cms_asset_builder_this_page_own_url" false_text="cms_asset_builder_current_url" />
 		</field>
 	</section>
 </contents>

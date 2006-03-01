@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.3 2005/06/01 01:06:52 ndvries Exp $
+* $Id: lang_strings.xml,v 1.4 2006/03/01 05:57:10 tbarrett Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -57,5 +57,7 @@
 <string source="cms_asset_builder_keyword_create_form">Create Asset Form</string>
 <string source="cms_asset_builder_keyword_create_error">Create Asset Error Message</string>
 <string source="cms_asset_builder_keyword_logout_form">Logout Form</string>
+<string source="cms_asset_builder_current_url">The current URL</string>
+<string source="cms_asset_builder_this_page_own_url">This page's own URL</string>
 
 </strings>
