@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.14 2006/01/30 05:51:46 sdanis Exp $
+* $Id: search_manager_edit_fns.inc,v 1.14.2.1 2006/03/01 00:53:50 mmcintyre Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.14 $ - 1.0
+* @version $Revision: 1.14.2.1 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -843,8 +843,8 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 					}
 
 					$o->openField(translate('sch_indexing_enabled'));
-						if (isset($weights[$key]['indexed'])) {
-							$indexed = $weights[$key]['indexed'];
+						if (isset($weights['indexed'])) {
+							$indexed = $weights['indexed'];
 						} else {
 							$indexed = 1;
 						}
