@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.34 2006/01/26 22:34:06 lwright Exp $
+* $Id: cron_job_future_status.inc,v 1.35 2006/03/02 05:22:54 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -165,6 +165,7 @@ class Cron_Job_Future_Status extends Cron_Job
 				SQ_STATUS_ARCHIVED				=> 'ARCHIVED',
 				SQ_STATUS_UNDER_CONSTRUCTION	=> 'UNDER_CONSTRUCTION',
 				SQ_STATUS_LIVE					=> 'LIVE',
+				SQ_STATUS_EDITING				=> 'EDITING',
 				SQ_STATUS_LIVE_APPROVAL			=> 'LIVE_APPROVAL',
 			   );
 

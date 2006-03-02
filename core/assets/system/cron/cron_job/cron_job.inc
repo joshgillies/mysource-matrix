@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.43 2006/02/21 01:33:33 tbarrett Exp $
+* $Id: cron_job.inc,v 1.44 2006/03/02 05:22:54 bcaldwell Exp $
 *
 */
 
@@ -40,7 +40,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -219,6 +219,12 @@ class Cron_Job extends Asset
 					$period = substr($value, strpos($value, '!') + 1, 1);
 
 					switch ($period) {
+						case 'i':
+							$then = $now + $duration*60;
+						break;
+						case 'h':
+							$then = $now + $duration*3600;
+						break;
 						case 'd':
 							$then = $now + $duration*86400;
 						break;

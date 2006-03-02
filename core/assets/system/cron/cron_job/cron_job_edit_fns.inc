@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.32 2006/01/25 04:27:05 rong Exp $
+* $Id: cron_job_edit_fns.inc,v 1.33 2006/03/02 05:22:54 bcaldwell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -281,6 +281,8 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 				&nbsp;
 				<?php
 				$periods = Array(
+							'i'	=> translate('minutes'),
+							'h'	=> translate('hours'),
 							'd'	=> translate('days'),
 							'w'	=> translate('weeks'),
 							'm'	=> translate('months'),
