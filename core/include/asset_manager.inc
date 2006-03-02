@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.440 2006/03/01 22:21:48 ndvries Exp $
+* $Id: asset_manager.inc,v 1.441 2006/03/02 04:38:28 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.440 $
+* @version $Revision: 1.441 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4174,6 +4174,7 @@ class Asset_Manager extends MySource_Object
 			return $err_msg;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// check for web path conflicts with the new parents children
@@ -4211,6 +4212,8 @@ class Asset_Manager extends MySource_Object
 			}
 
 		}//end if
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
