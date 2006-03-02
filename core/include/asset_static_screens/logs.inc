@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.17 2006/02/07 02:18:51 skim Exp $
+* $Id: logs.inc,v 1.18 2006/03/02 03:13:55 mmcintyre Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Logs Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 
@@ -53,8 +53,8 @@ function paintLogs(&$owner, &$o, &$ei)
 	$sql = 'SELECT
 				DISTINCT type FROM sq_internal_msg
 			WHERE
-					userto = 0
-				AND type LIKE '.$db->quote('asset%');
+					userto = '.$db->quoteSmart('0').'
+				AND type LIKE '.$db->quoteSmart('asset%');
 
 	$log_types = $db->getCol($sql);
 	assert_valid_db_result($log_types);
