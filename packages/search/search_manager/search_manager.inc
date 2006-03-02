@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.98 2006/03/01 23:36:29 mmcintyre Exp $
+* $Id: search_manager.inc,v 1.99 2006/03/02 02:30:49 mmcintyre Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.99 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -883,7 +883,11 @@ class Search_Manager extends Asset
 		if (empty($weights)) {
 			$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'type_code');
 
+			error_log($info[$assetid]);
+
 			if(!$this->isTypeIndexable($info[$assetid])) {
+
+				error_log('here');
 				return;
 			}
 
@@ -910,6 +914,7 @@ class Search_Manager extends Asset
 	function isTypeIndexable($type_code)
 	{
 		$weights = $this->getAssetTypeWeightings($type_code);
+		error_log(print_r($weights, 1));
 		return (!isset($weights['indexed']) || $weights['indexed']);
 
 	}//end isTypeIndexable()
@@ -1370,8 +1375,8 @@ class Search_Manager extends Asset
 		if (is_null($type_code)) return $type_weights;
 
 		if (!$strict_type_code) {
-			$type_hier = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, TRUE);
-			$type_hier[] = $type_code;
+			$type_hier = Array($type_code);
+			$type_hier += $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, TRUE);
 		} else {
 			$type_hier = Array($type_code);
 		}
