@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.97 2006/02/02 02:29:37 ndvries Exp $
+* $Id: search_manager.inc,v 1.97.2.1 2006/03/02 02:42:14 mmcintyre Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.97.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -289,6 +289,12 @@ class Search_Manager extends Asset
 		if (!empty($flush_vars)) {
 			$this->flushIndexableContent($asset->id, $flush_vars);
 		}
+
+		// check that we want to index this asset first
+		if (!$this->isAssetIndexable($asset->id)) {
+			return;
+		}
+
 		$index_content = $this->getIndexableAssetContent($asset, $vars);
 		$this->addIndexableContent($asset->id, $index_content);
 
@@ -329,6 +335,11 @@ class Search_Manager extends Asset
 			$this->flushIndexableContent($asset->id, $flush_vars);
 		}
 
+		// check that we want to index this asset first
+		if (!$this->isAssetIndexable($asset->id)) {
+			return;
+		}
+
 		$index_content = $this->getIndexableAttributeContent($asset, $vars);
 		$this->addIndexableContent($asset->id, $index_content);
 
@@ -358,6 +369,12 @@ class Search_Manager extends Asset
 		$index_content  = $this->getIndexableContent($indexing_asset);
 
 		$this->flushIndexableContent($indexing_assetid, Array('__contents__'));
+
+		// check that we want to index this asset first
+		if (!$this->isAssetIndexable($indexing_assetid)) {
+			return;
+		}
+
 		$this->addIndexableContent($indexing_assetid, $index_content);
 
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($indexing_asset);
@@ -862,7 +879,22 @@ class Search_Manager extends Asset
 	function isAssetIndexable($assetid)
 	{
 		$weights = $this->getAssetWeightings($assetid);
-		return (isset($weights['indexed']) && $weights['indexed']);
+
+		if (empty($weights)) {
+			$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'type_code');
+
+			if(!$this->isTypeIndexable($info[$assetid])) {
+				return;
+			}
+
+			if (empty($weights)) {
+				$weights = $this->getAssetTreeWeightings($assetid, FALSE);
+			}
+		}
+
+		// if there is no indexed value in the array then we can assume
+		// that indexing is on for this asset
+		return (!isset($weights['indexed']) || $weights['indexed']);
 
 	}//end isAssetIndexable()
 
@@ -878,7 +910,7 @@ class Search_Manager extends Asset
 	function isTypeIndexable($type_code)
 	{
 		$weights = $this->getAssetTypeWeightings($type_code);
-		return (isset($weights['indexed']) && $weights['indexed']);
+		return (!isset($weights['indexed']) || $weights['indexed']);
 
 	}//end isTypeIndexable()
 
@@ -1009,6 +1041,10 @@ class Search_Manager extends Asset
 
 		if (!empty($flush_fieldids)) {
 			$this->flushIndexableContent($assetid, $flush_fieldids);
+		}
+
+		if (!$this->isAssetIndexable($assetid)) {
+			return;
 		}
 
 		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -1330,18 +1366,22 @@ class Search_Manager extends Asset
 		$weights = $this->getAssetTreeWeightings($root_folder_assetid, TRUE, TRUE);
 
 		$type_weights = array_get_index($weights, 'type_weights', Array());
+
 		if (is_null($type_code)) return $type_weights;
 
 		if (!$strict_type_code) {
-			$type_hier = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, TRUE);
+			$type_hier = Array($type_code);
+			$type_hier += $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, TRUE);
 		} else {
 			$type_hier = Array($type_code);
 		}
+
 		foreach ($type_hier as $type_code) {
 			if (in_array($type_code, array_keys($type_weights))) {
 				return $type_weights[$type_code];
 			}
 		}
+
 		return Array();
 
 	}//end getAssetTypeWeightings()
@@ -1382,6 +1422,11 @@ class Search_Manager extends Asset
 					// firstly, check to see if there is an explicit entry for this assetid
 					if (isset($asset_tree_weightings[$assetid]['type_weights'][$type_code])) {
 						return $asset_tree_weightings[$assetid]['type_weights'][$type_code];
+					}
+
+					// check to see if there are customisations for all asset types
+					if (isset($asset_tree_weightings[$assetid]['type_weights']['asset'])) {
+						return $asset_tree_weightings[$assetid]['type_weights']['asset'];
 					}
 
 					// there is no explicit weighting customisation for the assetid
