@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: help.inc,v 1.9 2004/12/06 14:39:54 brobertson Exp $
+* $Id: help.inc,v 1.10 2006/03/02 05:46:02 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to provide help to the end user
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -64,7 +64,7 @@ class Help extends WYSIWYG_Plugin
 	{
 		?>
 		case "showhelp":
-			this._popupDialog("help", "<?php echo $this->get_popup_href('help.html')?>", 700, 550, true, function() {}, 0);
+			this._popupDialog("help", "<?php echo $this->get_popup_href('help.html')?>", 790, 590, true, function() {}, 0);
 		break;
 		<?php
 
