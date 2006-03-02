@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.100 2006/03/02 02:35:50 mmcintyre Exp $
+* $Id: search_manager.inc,v 1.101 2006/03/02 23:36:44 tbarrett Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -547,7 +547,13 @@ class Search_Manager extends Asset
 				$value = $this->_getRawNumberInText($value);
 			}
 
-			foreach (get_word_counts($value) as $word => $count) {
+			if ($var_data['type'] == 'datetime') {
+				$words = Array($value => 1);
+			} else {
+				$words = get_word_counts($value);
+			}
+
+			foreach ($words as $word => $count) {
 				$index_content[] = Array(
 									'value'		=> $word,
 									'type_code'	=> $type_code,
