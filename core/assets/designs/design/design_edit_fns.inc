@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.106 2006/02/03 05:30:43 dmckee Exp $
+* $Id: design_edit_fns.inc,v 1.107 2006/03/02 22:19:24 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.106 $
+* @version $Revision: 1.107 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -851,9 +851,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				return FALSE;
 			}
 
-			$print = !in_array(array_get_index($element['attributes'], 'print', 'yes'), Array('no', 'FALSE', '0'));
+			$print = !in_array(array_get_index($element['attributes'], 'print', 'yes'), Array('no', 'false', '0'));
 			$design_areas[$element['attributes']['id_name']]->setAttrValue('print', $print);
-			$cache = in_array(array_get_index($element['attributes'], 'cache', FALSE), Array('yes', 'TRUE', '1'));
+			$cache = in_array(array_get_index($element['attributes'], 'cache', FALSE), Array('yes', 'true', '1'));
 			$design_areas[$element['attributes']['id_name']]->setAttrValue('cache', $cache);
 
 			if (!$design_areas[$element['attributes']['id_name']]->saveAttributes()) {

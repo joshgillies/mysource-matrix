@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.105 2006/02/27 05:44:58 bcaldwell Exp $
+* $Id: design.inc,v 1.106 2006/03/02 22:19:24 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -663,7 +663,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 				if (!empty($args['start_query_string'])) {
 					switch ($args['start_query_string']) {
 						case 'yes'  :
-						case 'TRUE' :
+						case 'true' :
 						case '1'    :
 							$sqs = TRUE;
 						break;
