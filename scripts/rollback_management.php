@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.12 2006/01/30 00:31:08 lwright Exp $
+* $Id: rollback_management.php,v 1.13 2006/03/02 02:51:52 sdanis Exp $
 *
 */
 
@@ -28,16 +28,18 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
-if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+if ((php_sapi_name() != 'cli')) {
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+}
 
 require_once 'Console/Getopt.php';
 
 $shortopt = 'd:p:s:q::f:';
-$longopt = Array('enable-rollback', 'disable-rollback');
+$longopt = Array('enable-rollback', 'disable-rollback', 'reset-rollback');
 
 $args = Console_Getopt::readPHPArgv();
 array_shift($args);
@@ -48,9 +50,10 @@ if (empty($options[0])) usage();
 $PURGE_FV_DATE = '';
 $ROLLBACK_DATE = '';
 $SYSTEM_ROOT = '';
-$ENABLE_ROLLBACK = false;
-$DISABLE_ROLLBACK = false;
-$QUIET = false;
+$ENABLE_ROLLBACK = FALSE;
+$DISABLE_ROLLBACK = FALSE;
+$RESET_ROLLBACK = FALSE;
+$QUIET = FALSE;
 
 foreach ($options[0] as $option) {
 
@@ -58,7 +61,9 @@ foreach ($options[0] as $option) {
 		case 'd':
 			if (!empty($ROLLBACK_DATE)) usage();
 			if (empty($option[1])) usage();
-			if (!preg_match('|^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}$|', $option[1])) usage();
+			if (!preg_match('|^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}$|', $option[1])) {
+				usage();
+			}
 			$ROLLBACK_DATE = $option[1];
 		break;
 
@@ -66,7 +71,9 @@ foreach ($options[0] as $option) {
 			if (!empty($ROLLBACK_DATE)) usage();
 			if (empty($option[1])) usage();
 			$matches = Array();
-			if (!preg_match('|^(\d+)([hdwmy])$|', $option[1], $matches)) usage();
+			if (!preg_match('|^(\d+)([hdwmy])$|', $option[1], $matches)) {
+				usage();
+			}
 
 			$time_num = (int)$matches[1];
 			$time_units = '';
@@ -95,7 +102,9 @@ foreach ($options[0] as $option) {
 			if (!empty($PURGE_FV_DATE)) usage();
 			if (empty($option[1])) usage();
 			$matches = Array();
-			if (!preg_match('|^(\d+)([hdwmy])$|', $option[1], $matches)) usage();
+			if (!preg_match('|^(\d+)([hdwmy])$|', $option[1], $matches)) {
+				usage();
+			}
 
 			$time_num = (int)$matches[1];
 			$time_units = '';
@@ -127,30 +136,46 @@ foreach ($options[0] as $option) {
 		break;
 
 		case '--enable-rollback':
-			if ($DISABLE_ROLLBACK) usage();
-			$ENABLE_ROLLBACK = true;
+			if ($DISABLE_ROLLBACK || $RESET_ROLLBACK) {
+				usage();
+			}
+			$ENABLE_ROLLBACK = TRUE;
 		break;
 
 		case '--disable-rollback':
-			if ($ENABLE_ROLLBACK) usage();
-			$DISABLE_ROLLBACK = true;
+			if ($ENABLE_ROLLBACK || $RESET_ROLLBACK) {
+				usage();
+			}
+			$DISABLE_ROLLBACK = TRUE;
 		break;
+
+		case '--reset-rollback':
+			if ($ENABLE_ROLLBACK || $DISABLE_ROLLBACK) {
+				usage();
+			}
+			$RESET_ROLLBACK = TRUE;
+		break;
+
 		case 'q':
-			$QUIET = true;
+			$QUIET = TRUE;
 		break;
 		default:
-			echo "Invalid option - ".$option[0];
+			echo 'Invalid option - '.$option[0];
 			usage();
 	}//end switch
 
 }//end foreach arguments
 
-if ($ENABLE_ROLLBACK || $DISABLE_ROLLBACK) {
-	if (!empty($ROLLBACK_DATE) || !empty($PURGE_FV_DATE)) usage();
+if ($ENABLE_ROLLBACK || $DISABLE_ROLLBACK || $RESET_ROLLBACK) {
+	if (!empty($ROLLBACK_DATE) || !empty($PURGE_FV_DATE)) {
+		usage();
+	}
 	$ROLLBACK_DATE = date('Y-m-d H:i:s');
 }
 
-if (!empty($ROLLBACK_DATE) && !empty($PURGE_FV_DATE)) usage();
+if (!empty($ROLLBACK_DATE) && !empty($PURGE_FV_DATE)) {
+	usage();
+}
 
 if (empty($SYSTEM_ROOT)) usage();
 
@@ -170,11 +195,21 @@ $LIMIT_ROWS = 500;
 
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-$db = &$GLOBALS['SQ_SYSTEM']->db;
+$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 if ($PURGE_FV_DATE) {
 	purge_file_versioning($PURGE_FV_DATE);
 } else {
+
+	if ($RESET_ROLLBACK) {
+		// truncate toll back tables here then enable rollback
+		foreach ($tables as $table) {
+			truncate_rollback_entries($table);
+		}
+		$ENABLE_ROLLBACK = TRUE;
+		echo "\nEnabling rollback...\n\n";
+	}
+
 	foreach ($tables as $table) {
 
 		if ($ENABLE_ROLLBACK) {
@@ -197,12 +232,33 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 
+/**
+* Truncates rollback tables
+*
+* @param string	$table_name	the tablename to update
+*
+* @return void
+* @access public
+*/
+function truncate_rollback_entries($table_name)
+{
+	global $db, $QUIET;
+
+	$sql = 'TRUNCATE TABLE sq_rb_'.$table_name;
+	$result = $db->query($sql);
+	assert_valid_db_result($result);
+	if (!$QUIET) {
+		echo 'Rollback table sq_rb_'.$table_name." truncated.\n";
+	}
+
+}//end truncate_rollback_entries()
+
 
 /**
 * Closes of rollback entries to the specified date
 *
-* @param string $table_name 	the tablename to update
-* @param string $date 		the date to close to
+* @param string	$table_name	the tablename to update
+* @param string	$date		the date to close to
 *
 * @return void
 * @access public
@@ -218,7 +274,9 @@ function close_rollback_entries($table_name, $date)
 	$affected_rows = $db->affectedRows();
 	assert_valid_db_result($affected_rows);
 
-	if (!$QUIET) echo $affected_rows.' ENTRIES CLOSED IN sq_rb_'.$table_name."\n";
+	if (!$QUIET) {
+		echo $affected_rows.' ENTRIES CLOSED IN sq_rb_'.$table_name."\n";
+	}
 
 }//end close_rollback_entries()
 
@@ -226,8 +284,8 @@ function close_rollback_entries($table_name, $date)
 /**
 * Opens any rollback entries that have not allready been opened
 *
-* @param string $table_name 	the tablename to update
-* @param string $date 		the date to close to
+* @param string	$table_name	the tablename to update
+* @param string	$date		the date to close to
 *
 * @return void
 * @access public
@@ -246,7 +304,9 @@ function open_rollback_entries($table_name, $date)
 	$affected_rows = $db->affectedRows();
 	assert_valid_db_result($affected_rows);
 
-	if (!$QUIET) echo $affected_rows.' ENTRIES OPENED IN sq_rb_'.$table_name."\n";
+	if (!$QUIET) {
+		echo $affected_rows.' ENTRIES OPENED IN sq_rb_'.$table_name."\n";
+	}
 
 }//end open_rollback_entries()
 
@@ -255,8 +315,8 @@ function open_rollback_entries($table_name, $date)
 * Aligns all the minimum eff_from entries in the specified rollback table so
 * they all start at a specified date
 *
-* @param string $table_name 	the tablename to update
-* @param string $date 		the date to close to
+* @param string	$table_name	the tablename to update
+* @param string	$date		the date to close to
 *
 * @return void
 * @access public
@@ -287,7 +347,9 @@ function align_rollback_entries($table_name, $date)
 	$affected_rows = $db->affectedRows();
 	assert_valid_db_result($affected_rows);
 
-	if (!$QUIET) echo $affected_rows.' ENTRIES ALIGNED IN sq_rb_'.$table_name."\n";
+	if (!$QUIET) {
+		echo $affected_rows.' ENTRIES ALIGNED IN sq_rb_'.$table_name."\n";
+	}
 
 }//end align_rollback_entries()
 
@@ -295,8 +357,8 @@ function align_rollback_entries($table_name, $date)
 /**
 * Deletes the rollback entries that started before the specified date
 *
-* @param string $table_name 	the tablename to update
-* @param string $date 		the date to close to
+* @param string	$table_name	the tablename to update
+* @param string	$date		the date to close to
 *
 * @return void
 * @access public
@@ -312,7 +374,9 @@ function delete_rollback_entries($table_name, $date)
 	$affected_rows = $db->affectedRows();
 	assert_valid_db_result($affected_rows);
 
-	if (!$QUIET) echo $affected_rows.' ENTRIES DELETED IN sq_rb_'.$table_name."\n";
+	if (!$QUIET) {
+		echo $affected_rows.' ENTRIES DELETED IN sq_rb_'.$table_name."\n";
+	}
 
 }//end delete_rollback_entries()
 
@@ -320,7 +384,7 @@ function delete_rollback_entries($table_name, $date)
 /**
 * Returns the table names of the database tables that require rollback
 *
-* @return Array()
+* @return array
 * @access public
 */
 function get_rollback_table_names()
@@ -341,8 +405,8 @@ function get_rollback_table_names()
 
 		if (!file_exists($table_file)) continue;
 
-		$tree = new XML_Tree($table_file);
-		$root = &$tree->getTreeFromFile();
+		$tree =& new XML_Tree($table_file);
+		$root =& $tree->getTreeFromFile();
 
 		if ($root->name != 'schema' || $root->children[0]->name != 'tables') {
 			trigger_error('Invalid table schema for file "'.$table_file.'"', E_USER_ERROR);
@@ -366,7 +430,7 @@ function get_rollback_table_names()
 /**
 * Purge file versioning database entries and files before a certain date
 *
-* @param string $date 		the date to purge to
+* @param string	$date	the date to purge to
 *
 * @return void
 * @access public
@@ -387,7 +451,7 @@ function purge_file_versioning($date)
 
 	// Delete the files - if it isn't there then don't worry because it means the
 	// DB entry shouldn't have been there in the first place
-	while($row = $result->fetchRow()) {
+	while ($row = $result->fetchRow()) {
 		$ffv_file = SQ_SYSTEM_ROOT.'/data/file_repository/'.$row['path'].'/'.$row['filename'].',ffv'.$row['version'];
 		unlink($ffv_file);
 		$count++;
@@ -398,9 +462,11 @@ function purge_file_versioning($date)
 	$result = $db->query($SQL);
 	assert_valid_db_result($result);
 	$affected_rows = $db->affectedRows();
+	assert_valid_db_result($affected_rows);
 
-	if (!$QUIET) echo $affected_rows.' FILE VERSIONING FILES AND ENTRIES DELETED'."\n";
-
+	if (!$QUIET) {
+		echo $affected_rows.' FILE VERSIONING FILES AND ENTRIES DELETED'."\n";
+	}
 
 }//end purge_file_versioning()
 
@@ -408,21 +474,22 @@ function purge_file_versioning($date)
 /**
 * Prints the usage for this script and exits
 *
-* @access public
 * @return void
+* @access public
 */
 function usage()
 {
-	echo "\nUSAGE: rollback_management.php -s <system_root> [-d <date>] [-p <period>] [--enable-rollback] [--disable-rollback] [-q --quiet]\n".
+	echo "\nUSAGE: rollback_management.php -s <system_root> [-d <date>] [-p <period>] [--enable-rollback] [--disable-rollback] [--reset-rollback] [-q --quiet]\n".
 		"--enable-rollback  Enables rollback in MySource Matrix\n".
 		"--disable-rollback Disables rollback in MySource Matrix\n".
+		"--reset-rollback Removes all rollback information and enables rollback in MySource Matrix\n".
 		"-q No output will be sent\n".
 		"-d The date to set rollback entries to in the format YYYY-MM-DD HH:MM:SS\n".
 		"-p The period to purge rollback entries before\n".
 		"-f The period to purge file versioning entries and files before\n".
 		"(For -p and -f, the period is in the format nx where n is the number of units and x is one of:\n".
 		" h - hours\t\n d - days\t\n w - weeks\t\n m - months\t\n y - years\n".
-		"\nNOTE: only one of [-d -p -f --enable-rollback --disable-rollback] option is allowed to be specified\n";
+		"\nNOTE: only one of [-d -p -f --enable-rollback --disable-rollback --reset-rollback] option is allowed to be specified\n";
 	exit();
 
 }//end usage()
