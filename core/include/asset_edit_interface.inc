@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.285.2.1 2006/02/06 21:46:13 lwright Exp $
+* $Id: asset_edit_interface.inc,v 1.285.2.2 2006/03/02 01:54:35 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.285.2.1 $
+* @version $Revision: 1.285.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1257,7 +1257,9 @@ class Asset_Edit_Interface extends MySource_Object
 					$replacements['__custom-'.$keyword] = $replacement;
 				}
 				$this->_tmp['layout_keyword_replacements'] = array_merge($this->_tmp['layout_keyword_replacements'], $replacements);
-				$print_commit_button = $custom_replacements['print_commit_button'];
+				if ($custom_replacements['print_commit_button']) {
+					$print_commit_button = TRUE;
+				}
 
 			}//end if
 
