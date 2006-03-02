@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMap.java,v 1.21 2006/03/01 23:24:02 sdanis Exp $
+* $Id: AssetMap.java,v 1.22 2006/03/02 22:51:45 sdanis Exp $
 *
 */
 
@@ -213,6 +213,21 @@ public class AssetMap extends JApplet implements InitialisationListener, KeyList
 							tree.collapsePath(tree.getPathToRoot((MatrixTreeNode)tree.getModel().getRoot()));
 							// find the specified asset/link and switch root node
 							tree.loadChildAssets(assetIds, sort_orders, false, true);
+
+
+						}
+					}
+
+					// if we have an initial lineage selected (i.e. from /_admin) then expand the tree
+					String initial_lineage = Matrix.getProperty("parameter.initialselection");
+					if (initial_lineage.length() > 0) {
+						String[] init_info = initial_lineage.split("~");
+						String[] init_assetIds = init_info[0].split("\\|");
+						String[] init_sort_orders = init_info[1].split("\\|");
+						Iterator trees = MatrixTreeBus.getTrees();
+						while (trees.hasNext()) {
+							MatrixTree tree = (MatrixTree) trees.next();
+							tree.loadChildAssets(init_assetIds, init_sort_orders, true, false);
 						}
 					}
 

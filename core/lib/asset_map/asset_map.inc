@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.213 2006/03/01 23:23:50 sdanis Exp $
+* $Id: asset_map.inc,v 1.214 2006/03/02 22:51:44 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.213 $
+* @version $Revision: 1.214 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -165,6 +165,67 @@ class Asset_Map
 
 
 	/**
+	* Gets the current assets lineage from the url
+	*
+	* @return string
+	* @access public
+	*/
+	function _getInitialLineageSelection()
+	{
+		$initial_selection_lineage = '';
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, NULL, TRUE, TRUE);
+
+		if (!is_null($asset) && !empty($asset)) {
+
+			// get assets lineage info
+			$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL();
+
+			$assetids = '';
+			$sort_orders = '';
+
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+			$num_assets = count($asset_lineage);
+			for ($i=0; $i < $num_assets; $i++) {
+
+				if (!($asset_lineage[$i]['link_type'] & (SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2))) {
+					continue;
+				}
+
+				if ($i == 0) {
+					$previd = 1;
+				} else {
+					$previd = $asset_lineage[$i-1]['assetid'];
+				}
+				$currentid = $asset_lineage[$i]['assetid'];
+
+				$assetids .= $currentid.'|';
+
+				// get the sort orders for each link
+				$sql = 'SELECT l.sort_order FROM sq_ast_lnk l
+				INNER JOIN sq_ast_lookup u ON l.minorid = u.assetid
+				WHERE l.majorid = '.$db->quoteSmart($previd).'
+								AND l.minorid ='.$db->quoteSmart($currentid).'
+								AND u.url = '.$db->quoteSmart($asset_lineage[$i]['url']);
+
+				$sort_order = $db->getOne($sql);
+				assert_valid_db_result($sort_order);
+				$sort_orders .= $sort_order.'|';
+
+			}//end for
+
+			$assetids = trim($assetids, '|');
+			$sort_orders = trim($sort_orders, '|');
+
+			$initial_selection_lineage = $assetids.'~'.$sort_orders;
+		}//end if
+
+		return $initial_selection_lineage;
+
+	}//end _getInitialLineageSelection()
+
+
+	/**
 	* To create the tags that embed the simple asset map into the matrix system
 	*
 	* NB. this function does not attempt to print any form tags. It is up the the printing entity to do this.
@@ -241,6 +302,10 @@ class Asset_Map
 						}
 					}
 
+
+					// Initial lineage selection (i.e ..com/site1/blah/_admin will expand the lineage of that asset)
+					$initial_selection_lineage = $this->_getInitialLineageSelection();
+
 					$parameters = Array(
 									'parameter.backendsuffix'			=> SQ_CONF_BACKEND_SUFFIX,
 									'parameter.sessionid'				=> $_COOKIE['SQ_SYSTEM_SESSION'],
@@ -256,6 +321,7 @@ class Asset_Map
 									'parameter.java.supportedversion'	=> '1.4.2,1.5.0',
 									'parameter.java.sunurl'				=> 'http://java.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=www.java.com:80',
 									'parameter.rootlineage'				=> $rootlineage,
+									'parameter.initialselection'		=> $initial_selection_lineage,
 								  );
 
 					// this is important because it tells the asset map what the available
