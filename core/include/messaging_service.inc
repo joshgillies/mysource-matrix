@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.39.2.6 2005/09/23 05:48:11 lwright Exp $
+* $Id: messaging_service.inc,v 1.39.2.7 2006/03/02 03:26:33 mmcintyre Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39.2.6 $
+* @version $Revision: 1.39.2.7 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -451,18 +451,18 @@ class Messaging_Service extends MySource_Object
 		if (is_string($get_user_name)) {
 			$sql .= ',
 					CASE
-						WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = 0 THEN '.$db->quote(SQ_SYSTEM_SHORT_NAME.' System').'
+						WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = '.$db->quoteSmart('0').' THEN '.$db->quote(SQ_SYSTEM_SHORT_NAME.' System').'
 						ELSE a.'.$get_user_name.'
 					END as from_name';
-			$sql  .=	', CASE WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = 0 THEN \'root_user\''.
+			$sql  .=	', CASE WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = '.$db->quoteSmart('0').' THEN \'root_user\''.
 					' ELSE a.type_code END as type_code';
 		}
 
 		$sql  .= ' FROM sq_internal_msg m';
 		if (is_null($userid)) {
-			$where = 'm.userto != '.$db->quote('0');
+			$where = 'm.userto != '.$db->quoteSmart('0');
 		} else {
-			$where = 'm.userto = '.$db->quote($userid);
+			$where = 'm.userto = '.$db->quoteSmart($userid);
 		}
 
 		if (is_string($get_user_name)) {
@@ -474,33 +474,33 @@ class Messaging_Service extends MySource_Object
 
 		if (!is_null($type)) {
 			if (substr($type, -2) == '.*') {
-				$where .= ' AND m.type LIKE '.$db->quote(substr($type, 0, -1).'%');
+				$where .= ' AND m.type LIKE '.$db->quoteSmart(substr($type, 0, -1).'%');
 			} else {
-				$where .= ' AND m.type = '.$db->quote($type);
+				$where .= ' AND m.type = '.$db->quoteSmart($type);
 			}
 		}
 		if (!empty($statii)) {
 			for ($i = 0; $i < count($statii); $i++) {
-				$statii[$i] = $db->quote($statii[$i]);
+				$statii[$i] = $db->quoteSmart($statii[$i]);
 			}
 			$where .= ' AND m.status IN ('.implode(', ', $statii).')';
 		}
 		if (!empty($messageids)) {
 			for ($i = 0; $i < count($messageids); $i++) {
-				$messageids[$i] = $db->quote($messageids[$i]);
+				$messageids[$i] = $db->quoteSmart($messageids[$i]);
 			}
 			$where .= ' AND m.msgid IN ('.implode(', ', $messageids).')';
 		}
 		if (!empty($parameters)) {
 			foreach ($parameters as $param_key => $param_value) {
-				$where .= ' AND m.parameters LIKE '.$db->quote('%'.$param_key.':'.$param_value.';%');
+				$where .= ' AND m.parameters LIKE '.$db->quoteSmart('%'.$param_key.':'.$param_value.';%');
 			}
 		}
 		if (!is_null($from)) {
-			$where .= ' AND m.sent >= '.$db->quote(ts_iso8601($from));
+			$where .= ' AND m.sent >= '.$db->quoteSmart(ts_iso8601($from));
 		}
 		if (!is_null($to)) {
-			$where .= ' AND m.sent <= '.$db->quote(ts_iso8601($to));
+			$where .= ' AND m.sent <= '.$db->quoteSmart(ts_iso8601($to));
 		}
 
 		$sql .= ' '.$where.' ORDER BY m.sent DESC';
