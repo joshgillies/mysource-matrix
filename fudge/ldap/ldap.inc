@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap.inc,v 1.7.2.1 2005/08/29 06:07:39 dmckee Exp $
+* $Id: ldap.inc,v 1.7.2.2 2006/03/02 15:21:46 jhurst Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     To provide an interface to an LDAP directory server for basic functionality
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7.2.1 $
+* @version $Revision: 1.7.2.2 $
 * @package Fudge
 * @subpackage ldap
 */
@@ -125,13 +125,13 @@ class Ldap
 		if (is_null($pass)) {
 			// attempting an anonymous bind
 			if (!($r = ldap_bind($this->ptr))) {
-				trigger_error('Unable to Anonomously bind to LDAP server: '.$h, E_USER_WARNING);
+				trigger_error('Unable to Anonomously bind to LDAP server: '.$this->host, E_USER_WARNING);
 				unset($this->ptr);
 				return false;
 			}
 		} else {
 			if (!($r = ldap_bind($this->ptr, $bdn, $pass))) {
-				trigger_error('Unable to bind to LDAP server: '.$h.' BDN: '.$bdn.' Using Password: '.(($pass) ? 'YES' : 'NO'), E_USER_WARNING);
+				trigger_error('Unable to bind to LDAP server: '.$this->host.' BDN: '.$bdn.' Using Password: '.(($pass) ? 'YES' : 'NO'), E_USER_WARNING);
 				$this->ptr = null;
 				return false;
 			}
