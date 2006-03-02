@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.php,v 1.9 2006/03/01 01:15:07 rong Exp $
+* $Id: html_tidy.php,v 1.10 2006/03/02 22:51:10 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 
@@ -81,7 +81,9 @@ if (!isset($_GET['name']))		  $_GET['name'] = '';
 
 				if (confirm(confirm_str)) {
 					var rep_types = new Array();
-					var i = 0;
+					var selected_only = parseInt(document.getElementById("rep_type0").value);
+					rep_types.push(selected_only);
+					var i = 1;
 					while (document.getElementById("rep_type"+i) != null)
 					{
 						rep_types.push(document.getElementById("rep_type"+i).checked);
@@ -169,44 +171,56 @@ if (!isset($_GET['name']))		  $_GET['name'] = '';
 							<legend><b>Replacement types</b></legend>
 							<table style="width:100%">
 								<tr>
-									<td class="label" style="border-bottom:solid 1px #725B7D">
-										<input type="checkbox" name="rep_type" onclick="checkAll(this.checked)"/><span id="checkAllSpan"> Check All</span>
-									</td>
+									<td>Selected text only?
+										<select id="rep_type0" name="rep_type0">
+											<option value="1">Yes</option>
+											<option value="0">No</option>
+										</select>
 								</tr>
 								<tr>
-									<td class="label" style="border-bottom:solid 1px #725B7D; font-weight: bold;">Selected text only?</td>
-								</tr>
-								<tr>
-									<td class="label" style="border-bottom:solid 1px #725B7D">
-										<input type="checkbox" name="rep_type0" id="rep_type0" checked="checked"/> Yes<br/>
-									</td>
-								</tr>
-								<tr>
-									<td class="label" style="border-bottom:solid 1px #725B7D; font-weight: bold;">Non-extreme options</td>
-								</tr>
-								<tr>
-									<td class="label" style="border-bottom:solid 1px #725B7D">
-										<input type="checkbox" name="rep_type1" id="rep_type1" checked="checked"/> Remove <b>&lt;font&gt;</b> tags<br/>
-										<input type="checkbox" name="rep_type2" id="rep_type2" checked="checked"/> Remove double spaces<br/>
-										<input type="checkbox" name="rep_type3" id="rep_type3" checked="checked"/> Remove <b>non-HTML</b> tags<br/>
-										<input type="checkbox" name="rep_type4" id="rep_type4" checked="checked"/> Change Microsoft Word<sup>&#174;</sup>'s bullets<br/>
-									</td>
-								</tr>
-								<tr>
-									<td class="label" style="border-bottom:solid 1px #725B7D; font-weight: bold;">Extreme options</td>
-								</tr>
-								<tr>
-									<td class="label">
-										<input type="checkbox" name="rep_type5" id="rep_type5" /> Remove <b>style</b> attribute<br/>
-										<input type="checkbox" name="rep_type6" id="rep_type6" /> Remove <b>class</b> attribute<br/>
-										<input type="checkbox" name="rep_type7" id="rep_type7" /> Remove <b>&lt;table&gt;</b> tags<br/>
-										<input type="checkbox" name="rep_type8" id="rep_type8" /> Remove <b>&lt;span&gt;</b> tags<br/>
-										<input type="checkbox" name="rep_type9" id="rep_type9" /> Remove all empty tags<br/>
-										<input type="checkbox" name="rep_type10" id="rep_type10" /> Remove all tags' attributes<br/>
+									<td>
+										<input type="checkbox" name="rep_type" id="rep_type" onclick="checkAll(this.checked)"/><label for="rep_type"><span id="checkAllSpan"> Check All</span></label>
 									</td>
 								</tr>
 							</table>
 						</fieldset>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<fieldset>
+							<legend><b>Non-extreme options</b></legend>
+							<table style="width:100%">
+								<tr>
+									<td>
+										<input type="checkbox" name="rep_type1" id="rep_type1" checked="checked"/><label for="rep_type1"> Remove <b>&lt;font&gt;</b> tags</label><br/>
+										<input type="checkbox" name="rep_type2" id="rep_type2" checked="checked"/><label for="rep_type2"> Remove double spaces</label><br/>
+										<input type="checkbox" name="rep_type3" id="rep_type3" checked="checked"/><label for="rep_type3"> Remove <b>non-HTML</b> tags</label><br/>
+										<input type="checkbox" name="rep_type4" id="rep_type4" checked="checked"/><label for="rep_type4"> Change Microsoft Word<sup>&#174;</sup>'s bullets</label><br/>
+									</td>
+								</tr>
+								<tr>
+							</table>
+						</fieldset>
+					</td>
+				</tr>
+				<tr>
+					<td>
+					<fieldset>
+							<legend><b>Extreme options</b></legend>
+							<table style="width:100%">
+								<tr>
+									<td>
+										<input type="checkbox" name="rep_type5" id="rep_type5" /><label for="rep_type5"> Remove <b>style</b> attribute</label><br/>
+										<input type="checkbox" name="rep_type6" id="rep_type6" /><label for="rep_type6"> Remove <b>class</b> attribute</label><br/>
+										<input type="checkbox" name="rep_type7" id="rep_type7" /><label for="rep_type7"> Remove <b>&lt;table&gt;</b> tags</label><br/>
+										<input type="checkbox" name="rep_type8" id="rep_type8" /><label for="rep_type8"> Remove <b>&lt;span&gt;</b> tags</label><br/>
+										<input type="checkbox" name="rep_type9" id="rep_type9" /><label for="rep_type9"> Remove all empty tags</label><br/>
+										<input type="checkbox" name="rep_type10" id="rep_type10" /><label for="rep_type10"> Remove all tags' attributes</label><br/>
+									</td>
+								</tr>
+							</table>
+					</fieldset>
 					</td>
 				</tr>
 			</table>
