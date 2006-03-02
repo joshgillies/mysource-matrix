@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.10 2006/02/14 22:10:36 mmcintyre Exp $
+* $Id: authentication_ldap.inc,v 1.11 2006/03/02 17:14:34 jhurst Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -72,7 +72,7 @@ class Authentication_LDAP extends Authentication
 
 			$ldap = $bridge->connectToLdap();
 
-			if (is_null($ldap)) return $user; 
+			if (is_null($ldap)) continue;
 
 			// the attribute mappings to the LDAP schemas
 			$attrs = $bridge->attr('attributes');
