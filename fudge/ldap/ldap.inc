@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap.inc,v 1.9 2006/03/02 14:21:33 jhurst Exp $
+* $Id: ldap.inc,v 1.10 2006/03/02 17:16:05 jhurst Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     To provide an interface to an LDAP directory server for basic functionality
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package Fudge
 * @subpackage ldap
 */
@@ -92,6 +92,12 @@ class Ldap
 	*/
 	function connect($h, $p=null)
 	{
+		// bail out safely if we have no ldap functions
+		if (!extension_loaded('ldap')) {
+			$this->ptr = null;
+			return false;
+		}
+		
 		if ($h != $this->host || $p != $this->port) {
 			// close old connection
 			if ($this->ptr) ldap_close($this->ptr);
