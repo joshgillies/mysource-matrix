@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.34.2.2 2006/03/01 03:34:01 rong Exp $
+* $Id: cache_manager.inc,v 1.34.2.3 2006/03/02 01:08:37 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.34.2.2 $
+* @version $Revision: 1.34.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -207,8 +207,6 @@ class Cache_Manager extends Asset
 	*/
 	function saveToCache($assetid, $asset_type, $cache_key, $contents, $use_url=TRUE)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
 		if (SQ_ROLLBACK_VIEW) return FALSE;
 		if (basename($_SERVER['PHP_SELF']) == SQ_CONF_NOCACHE_SUFFIX) {
 			return FALSE;
@@ -235,6 +233,7 @@ class Cache_Manager extends Asset
 		$file_name = md5($cache_key.':'.$perm_key.':'.$url);
 		$file_path = $group.'/'.$file_name;
 		$expiry = time() + $this->getExpiry($asset_type);
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$expiry_sql = db_extras_todate($db, ts_iso8601($expiry));
 
 		// replace/update existing cache entry
