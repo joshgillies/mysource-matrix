@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.106 2006/03/02 22:19:24 sdanis Exp $
+* $Id: design.inc,v 1.107 2006/03/03 00:32:03 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.106 $
+* @version $Revision: 1.107 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -669,15 +669,32 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 						break;
 					}
 				}
-				$additional = '';
+
+				$cqs = FALSE;
+				if (!empty($args['clean_query_string'])) {
+					switch ($args['clean_query_string']) {
+						case 'yes'  :
+						case 'true' :
+						case '1'    :
+							$cqs = TRUE;
+						break;
+					}
+				}
+
+				$additional = '$query_string = $_SERVER[\'QUERY_STRING\'];';
+				if ($cqs) {
+					$additional .= 'if (!empty($query_string)) $query_string = preg_replace("/[?&]?SQ_[^&]+/",\'\',$query_string);';
+				}
+
+
 				if ($aqs) {
-					$additional .= 'echo htmlentities((!empty($_SERVER[\'QUERY_STRING\'])) ? \'?\'.$_SERVER[\'QUERY_STRING\'] : \'\');'."\n";
+					$additional .= 'echo htmlentities((!empty($query_string)) ? \'?\'.$query_string : \'\');'."\n";
 				}
 				if ($sqs) {
 					if (!$aqs) {
 						$additional .= 'echo \'?\';';
 					} else {
-						$additional .= 'echo htmlentities((!empty($_SERVER[\'QUERY_STRING\'])) ? \'&\' : \'?\');';
+						$additional .= 'echo htmlentities((!empty($query_string)) ? \'&\' : \'?\');';
 					}
 					$additional .= "\n";
 				}
