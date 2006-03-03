@@ -20,7 +20,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.3 2005/07/27 10:45:19 brobertson Exp $
+* $Id: asset.xml,v 1.4 2006/03/03 00:58:26 arailean Exp $
 *
 */
 -->
@@ -28,7 +28,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<package>__core__</package>
 	<type_code>trigger_condition_link_exists</type_code>
-	<version>0.2</version>
+	<version>0.2.1</version>
 	<name>Has a Child / Parent</name>
 	<description>Checks if a link to either a specific asset or asset type exists</description>
 	<instantiable>no</instantiable>

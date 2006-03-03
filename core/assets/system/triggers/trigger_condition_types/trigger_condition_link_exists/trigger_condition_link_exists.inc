@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_link_exists.inc,v 1.11 2006/02/07 02:27:13 sdanis Exp $
+* $Id: trigger_condition_link_exists.inc,v 1.12 2006/03/03 00:58:26 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,24 +78,24 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		$value        = array_get_index($settings, 'value');
 		$dependant    = array_get_index($settings, 'is_dependant');
 		$exclusive    = array_get_index($settings, 'is_exclusive');
-		$use_new_link = array_get_index($settings, 'use_new_link', FALSE);
-
-		// check if we only want to work with a newly created link
-		if ($use_new_link) {
-			if ($state['event']['name'] != 'trigger_event_link_created') {
-				// incorrect event for this option
-				return FALSE;
-			} else {
-				$new_link = array_get_index($state['event']['data'], 'linkid', FALSE);
-				if (!$new_link) {
-					// correct event, but link id is not provided
-					return FALSE;
-				}
-			}
-		}
 
 		$selector_type = array_get_index($settings, 'selector_type', FALSE);
+
 		if (!$selector_type) return FALSE;
+
+		// second array_get_index is for backwards compatibility. it should be removed sometime in the future
+		$use_current_link   = array_get_index($settings, 'use_current_link', array_get_index($settings, 'use_new_link', FALSE));
+
+		// extract link data in case this is a link event
+		$current_link = array_get_index($state['event']['data'], 'link_info');
+
+		// check if we only want to work with a newly created link
+		if ($use_current_link) {
+			if ($state['event']['name'] != 'trigger_event_link_created' && $state['event']['name'] != 'trigger_event_link_deleted' && is_null($current_link)) {
+				// incorrect event for this option
+				return FALSE;
+			}
+		}
 
 		switch ($selector_type) {
 			case 'asset_type':
@@ -116,17 +116,38 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 
 			break;
 
+			case 'only_link_info':
+				// only link info (without parent/child asset data) can only be used for link events (where link data is already known)
+				if (!$use_current_link) {
+					return FALSE;
+				} else if (!is_null($value) && ($value != $current_link['value'])) {
+					return FALSE;
+				} else if (!is_null($dependant) && ($dependant != $current_link['is_dependant'])) {
+					return FALSE;
+				} else if (!is_null($exclusive) && ($exclusive != $current_link['is_exclusive'])) {
+					return FALSE;
+				} else if (!is_null($link_type) && !($link_type | $current_link['link_type'])) {
+					return FALSE;
+				} else if ($assetid != $current_link[$link_side.'id']) {
+					return FALSE;
+				} else {
+					return TRUE;
+				}
+			break;
+
 			default:
 				return FALSE;
-		}
+		}//end switch $selector_type
+
 
 		// we rely on the fact that the links that we got already satisfy the criteria
 		if (empty($links)) return FALSE;
-
 		// now do the final test to see if we are looking for a particular link ID
-		if ($use_new_link) {
+		if ($use_current_link) {
 			foreach ($links as $link) {
-				if ($new_link == $link['linkid']) return TRUE;
+				if ($current_link['linkid'] == $link['linkid']) {
+					return TRUE;
+				}
 			}
 			return FALSE;
 		}
@@ -160,7 +181,8 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		$asset_type         = array_get_index($settings, 'asset_type');
 
 		// event-specific
-		$use_new_link       = array_get_index($settings, 'use_new_link', FALSE);
+		// second array_get_index is for backwards compatibility. it should be removed sometime in the future
+		$use_current_link   = array_get_index($settings, 'use_current_link', array_get_index($settings, 'use_new_link', FALSE));
 
 		$is_major_list = Array(
 							0	=> translate('parent'),
@@ -168,7 +190,7 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 						 );
 
 		$link_type_list = Array('' => '--- '.translate('any').' ---');
-		$link_type_list = array_merge($link_type_list, get_link_type_names());
+		$link_type_list = $link_type_list + get_link_type_names();
 
 		$dependant_options = Array(
 								''	=> '--- '.translate('any').' ---',
@@ -191,13 +213,11 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		// begin bufferning basic options
 		ob_start();
 			combo_box($prefix.'[is_major]', $is_major_list, FALSE, $is_major, NULL, $form_element_extras);
-			$basic_part_1 = ob_get_contents();
-		ob_end_clean();
+		$major_selector = ob_get_clean();
 
 		ob_start();
 			radio_button($prefix.'[selector_type]', 'asset_type', $selector_type == 'asset_type', NULL, $form_element_extras);
-			$basic_part_2 = ob_get_contents();
-		ob_end_clean();
+		$asset_type_option = ob_get_clean();
 
 		ob_start();
 			if ($write_access) {
@@ -207,14 +227,11 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 					echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset_type, 'name');
 				}
 			}
-
-			$basic_part_3 = ob_get_contents();
-		ob_end_clean();
+		$asset_type_selector = ob_get_clean();
 
 		ob_start();
 			radio_button($prefix.'[selector_type]', 'asset_id', $selector_type == 'asset_id', NULL, $form_element_extras);
-			$basic_part_4 = ob_get_contents();
-		ob_end_clean();
+		$asset_id_option = ob_get_clean();
 
 		ob_start();
 			if ($write_access) {
@@ -227,51 +244,40 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 					text_box($prefix.'[assetid]', '', '', '', FALSE, $form_element_extras);
 				}
 			}
-
-			$basic_part_5 = ob_get_contents();
-		ob_end_clean();
+		$asset_id_selector = ob_get_clean();
 
 		ob_start();
-			check_box($prefix.'[use_new_link]', '1', $use_new_link, NULL, $form_element_extras, NULL, $form_element_extras);
-			label(translate('match_newly_created_link_only'), $prefix.'[use_new_link]');
-			$basic_part_6 = ob_get_contents();
-		ob_end_clean();
+			radio_button($prefix.'[selector_type]', 'only_link_info', $selector_type == 'only_link_info', NULL, $form_element_extras);
+		$only_link_option = ob_get_clean();
 
+		ob_start();
+			check_box($prefix.'[use_current_link]', '1', $use_current_link, NULL, $form_element_extras, NULL, $form_element_extras);
+			label(translate('match_current_link_only'), $prefix.'[use_current_link]');
+		$current_link_enabler = ob_get_clean();
 
 
 		// begin buffering advanced options
 		ob_start();
-			combo_box($prefix.'[link_type]', $link_type_list, FALSE, $selected_link_type, NULL, $form_element_extras); ?>
-			</li>
-			<li><?php
-			$advanced_part_1 = ob_get_contents();
-		ob_end_clean();
+			combo_box($prefix.'[link_type]', $link_type_list, FALSE, $selected_link_type, NULL, $form_element_extras);
+		$link_type_selector = ob_get_clean();
 
 		ob_start();
-			combo_box($prefix.'[is_dependant]', $dependant_options, FALSE, $is_dependant, NULL, $form_element_extras); ?>
-			</li>
-			<li><?php
-			$advanced_part_2 = ob_get_contents();
-		ob_end_clean();
+			combo_box($prefix.'[is_dependant]', $dependant_options, FALSE, $is_dependant, NULL, $form_element_extras);
+		$dependent_selector = ob_get_clean();
 
 		ob_start();
-			combo_box($prefix.'[is_exclusive]', $exclusive_options, FALSE, $is_exclusive, NULL, $form_element_extras); ?>
-			</li>
-		</ul><?php
-			$advanced_part_3 = ob_get_contents();
-		ob_end_clean();
+			combo_box($prefix.'[is_exclusive]', $exclusive_options, FALSE, $is_exclusive, NULL, $form_element_extras);
+		$exclusive_selector = ob_get_clean();
 
 		ob_start();
 			text_box($prefix.'[value]', $value, 60, NULL, FALSE, $form_element_extras);
-			$advanced_part_4 = ob_get_contents();
-		ob_end_clean();
+		$link_value = ob_get_clean();
 
 
-		$contents = translate('trigger_link_exists_basic', $basic_part_1, $basic_part_2, $basic_part_3, $basic_part_4, $basic_part_5, $basic_part_6).
+		$contents = translate('trigger_link_exists_basic', $major_selector, $asset_type_option, $asset_type_selector, $asset_id_option, $asset_id_selector, $only_link_option, $current_link_enabler).
 					'<hr />'.
 					'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
-					'<ul style="list-style-type: none; padding: 0;"><li>'
-					.translate('trigger_link_exists_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3, $advanced_part_4);
+					translate('trigger_link_exists_advanced', $link_type_selector, $dependent_selector, $exclusive_selector, $link_value);
 
 		return $contents;
 
@@ -309,6 +315,14 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 				}
 			break;
 
+			case 'only_link_info':
+				// nothing here at the moment
+				// we should check if any advanced data is supplied
+				// otherwise the condition is too generic and almost always return true
+				// because all assets have links
+				// give them a warning if condition is too broad
+			break;
+
 			default:
 				return 'You have to choose the appropriate asset ID or asset type selector';
 		}
@@ -324,8 +338,11 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 
 		$settings['is_dependant']   = array_get_index($request_data, 'is_dependant');
 		$settings['is_exclusive']   = array_get_index($request_data, 'is_exclusive');
-		$settings['use_new_link']   = isset($request_data['use_new_link']);
+		$settings['use_current_link'] = isset($request_data['use_current_link']);
 
+		foreach ($settings as $key=>$value) {
+			if ($value == '') $settings[$key] = NULL;
+		}
 		return FALSE;
 
 	}//end processInterface()

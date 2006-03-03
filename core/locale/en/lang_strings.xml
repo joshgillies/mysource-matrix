@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.115 2006/02/28 06:07:02 skim Exp $
+* $Id: lang_strings.xml,v 1.116 2006/03/03 00:58:26 arailean Exp $
 *
 */
 
@@ -958,9 +958,9 @@
 	<string source="trigger_asset_id">Asset ID is %s</string>
 	<string source="trigger_asset_type">Asset is of type %s</string>
 
-	<string source="trigger_link_exists_basic"> has a %1$s asset &lt;ul style="list-style-type: none; padding: 0;"&gt;&lt;li&gt;%2$sof type %3$s&lt;/li&gt;&lt;li&gt; %4$s with ID %5$s&lt;/li&gt;&lt;/ul&gt;&lt;br /&gt;&lt;br /&gt;%6$s</string>
-	<string source="match_newly_created_link_only">Match the newly-created link only (Applicable only to the event 'Link Created')</string>
-	<string source="trigger_link_exists_advanced">Link Type:%1$s Is Dependant ? %2$s Is Exclusive ? %3$s Value: %4$s</string>
+	<string source="trigger_link_exists_basic"><![CDATA[has a %1$s asset <ul style="list-style-type: none; padding: 0;"><li>%2$sof type %3$s</li><li>%4$s with ID %5$s</li><li>%6$s Use only advanced link parameters (below). This option ONLY works for the triggering link.</li></ul>%7$s]]></string>
+	<string source="match_current_link_only">Match only the triggering link (for events that relate to links like 'Link Created' and 'Link Deleted')</string>
+	<string source="trigger_link_exists_advanced"><![CDATA[<ul style="list-style-type: none; padding: 0;"><li>Link Type:%1$s</li><li>Is Dependant ? %2$s</li><li>Is Exclusive ? %3$s</li><li>Value: %4$s</li></ul>]]></string>
 
 	<string source="trigger_has_status_basic">Asset has the current status of: %s</string>
 	<string source="trigger_selected_status_invalid">Selected status is invalid</string>
