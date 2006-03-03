@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_anchor.inc,v 1.11 2006/03/01 23:39:21 rong Exp $
+* $Id: matrix_insert_anchor.inc,v 1.12 2006/03/03 03:21:07 skim Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -124,9 +124,9 @@ class matrix_insert_anchor extends wysiwyg_plugin
 						// we keep the copy here in the case of canceling
 						var copied_html = current_a.innerHTML;
 						if (HTMLArea.is_gecko) {
-							current_a.innerHTML = current_a.innerHTML.replace(/<span id="wysiwyg-visual-aid-plugin-anchor".*>A<\/span>/, "");
+							current_a.innerHTML = current_a.innerHTML.replace(/<span id="wysiwyg-visual-aid-plugin-anchor"[^>]*>A[^>]*<\/span>/, "");
 						} else if (HTMLArea.is_ie) {
-							var e = '<span id=wysiwyg-visual-aid-plugin-anchor.*>A<\/span>';
+							var e = '<span id=wysiwyg-visual-aid-plugin-anchor[^>]*>A[^>]*<\/span>';
 							var re = new RegExp(e, "ig");
 							current_a.innerHTML = current_a.innerHTML.replace(re, '');
 						}
@@ -193,9 +193,9 @@ class matrix_insert_anchor extends wysiwyg_plugin
 							// remove this anchor tag
 							var parent = current_a.parentNode;
 							if (HTMLArea.is_gecko) {
-								var e = '(<a.*name="' + param["name"] + '".*>)' + current_a.innerHTML + '</a>';
+								var e = '(<a.*name="' + param["name"] + '"[^>]*>)' + current_a.innerHTML + '</a>';
 							} else if (HTMLArea.is_ie) {
-								var e = '(<a.*name=' + param["name"] + '.*>)' + current_a.innerHTML + '</a>';
+								var e = '(<a.*name="' + param["name"] + '"[^>]*>)' + current_a.innerHTML + '</a>';
 							}
 							var re = new RegExp(e, "ig");
 							var new_html = parent.innerHTML.replace(re, current_a.innerHTML);
@@ -203,25 +203,25 @@ class matrix_insert_anchor extends wysiwyg_plugin
 						}
 					} else {
 						var visual_aid_tag = "";
-						if (visual_aid_mode) {
-							var visual_aid_style = 'padding-left: 1px; padding-right: 1px; padding-top: 1px; padding-bottom: 1px; background-color : #37DF5E; font: 10px Verdana,Tahoma,sans-serif; font-weight: bold; border-left: 1px solid; border-right: 1px solid; border-top: 1px solid; border-bottom: 1px solid;';
-							visual_aid_tag = '<span id="wysiwyg-visual-aid-plugin-anchor" style="' + visual_aid_style + '">A</span>';
-						}
+						var visual_aid_style = 'padding-left: 1px; padding-right: 1px; padding-top: 1px; padding-bottom: 1px; background-color : #37DF5E; font: 10px Verdana,Tahoma,sans-serif; font-weight: bold; border-left: 1px solid; border-right: 1px solid; border-top: 1px solid; border-bottom: 1px solid;';
 
 						if (param["name"] != "") {
-
+							if (visual_aid_mode) {
+								visual_aid_tag = '<span id="wysiwyg-visual-aid-plugin-anchor" style="' + visual_aid_style + '">A "' + param["name"] + '"</span>';
+							}
 							if (current_a) {
 								// editing
 								if (param["name"] != current_a.getAttribute("name")) {
 									if (HTMLArea.is_gecko) {
 										current_a.setAttribute("name", param["name"]);
 										current_a.setAttribute("id", param["name"]);
+										current_a.innerHTML = visual_aid_tag + current_a.innerHTML;
 									} else if (HTMLArea.is_ie) {
 										// somehow IE can not update the name attribute value in the wysiwyg
 										// this is just mysterious...
-										var e = '<A( id=' + current_a.getAttribute("name") + '){0,1} name=' + current_a.getAttribute("name") + '>';
+										var e = '<A( id="' + current_a.getAttribute("name") + '"){0,1} name="' + current_a.getAttribute("name") + '">';
 										var re = new RegExp(e, "gi");
-										var replacement = '<A id=' + param["name"] + ' name=' + param["name"] + '>' + visual_aid_tag;
+										var replacement = '<A id="' + param["name"] + '" name="' + param["name"] + '">' + visual_aid_tag;
 										current_a.parentNode.innerHTML = current_a.parentNode.innerHTML.replace(re, replacement);
 									}
 								}
@@ -229,7 +229,6 @@ class matrix_insert_anchor extends wysiwyg_plugin
 								// adding
 								var para = new RegExp("^[\n\t\s]*<P[^>]*>(.*)<\/P>", "gim")
 								var insideP = inside_html.replace(para, "$1");
-
 								if (insideP != inside_html) {
 									var html = '<p><a name="' + param["name"] + '" id="' + param["name"];
 									html += '">' + visual_aid_tag + insideP + '</a></p>';

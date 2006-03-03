@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: visual-aid.js,v 1.1 2006/02/28 06:19:00 skim Exp $
+* $Id: visual-aid.js,v 1.2 2006/03/03 03:21:46 skim Exp $
 *
 */
 
@@ -110,12 +110,12 @@ visual_aid_a = function(element)
 		var href_attr = element.getAttribute("href");
 		if (HTMLArea.is_gecko) {
 			if (href_attr == null && name_attr != null && name_attr != "") {
-				var test_html = '<span id="wysiwyg-visual-aid-plugin-anchor" style="' + this.style + '">A</span>';
+				var test_html = '<span id="wysiwyg-visual-aid-plugin-anchor" style="' + this.style + '">A "' + name_attr + '"</span>';
 				element.innerHTML = test_html + element.innerHTML;
 			}
 		} else if (HTMLArea.is_ie) {
 			if (href_attr == "" && name_attr != "") {
-				var test_html = '<span id="wysiwyg-visual-aid-plugin-anchor" style="' + this.style + '">A</span>';
+				var test_html = '<span id="wysiwyg-visual-aid-plugin-anchor" style="' + this.style + '">A "' + name_attr + '"</span>';
 				element.innerHTML = test_html + element.innerHTML;
 			}
 		}
