@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.441 2006/03/02 04:38:28 rong Exp $
+* $Id: asset_manager.inc,v 1.442 2006/03/03 01:05:27 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.441 $
+* @version $Revision: 1.442 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4069,7 +4069,19 @@ class Asset_Manager extends MySource_Object
 		// check if the link involves the trash
 		if ($major->type() != 'trash_folder' && $minor->type() != 'trash_folder') {
 			// fire the 'Link Created' events, one for the major asset, one for the minor
-			$event_data = Array('linkid' => $linkid);
+
+			$link_info['majorid'] = $major->id;
+			$link_info['minorid'] = $minor->id;
+			$link_info['linkid'] = $linkid;
+			$link_info['value'] = $value;
+			$link_info['link_type'] = $link_type;
+			$link_info['minor_type_code'] = $minor->type();
+			$link_info['major_type_code'] = $major->type();
+			$link_info['sort_order'] = $sort_order;
+			$link_info['is_dependant'] = $dependant;
+			$link_info['is_exclusive'] = $exclusive;
+
+			$event_data = Array('link_info' => $link_info, 'linkid' => $linkid);
 
 			if ($major->type() != 'root_folder') {
 				$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_link_created', $major, $event_data);
@@ -5024,6 +5036,16 @@ class Asset_Manager extends MySource_Object
 
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($major, 'DeleteLink', Array('linkid' => $linkid));
+
+		if ($major->type() != 'trash_folder' && $minor->type() != 'trash_folder') {
+			$event_data = Array('link_info' => $link, 'linkid' => $linkid);
+			if (!$this->assetInTrash($minor->id, TRUE)) {
+				$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_link_deleted', $minor, $event_data);
+			}
+			if (!$this->assetInTrash($major->id, TRUE)) {
+				$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_link_deleted', $major, $event_data);
+			}
+		}
 
 		return TRUE;
 
