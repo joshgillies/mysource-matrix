@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.10 2005/11/24 23:11:08 rong Exp $
+* $Id: lang_messages.xml,v 1.11 2006/03/03 05:00:30 rong Exp $
 *
 * Core Internal Messages File
 */
@@ -74,7 +74,7 @@
 	</message>
 	<message type="asset.linking.delete">
 		<subject>Asset Link Deleted</subject>
-		<body>"%minor_name%" was successfully unlinked from "%major_name"</body><!-- minor-name, major-name -->
+		<body>"%minor_name%" was successfully unlinked from "%major_name%"</body><!-- minor-name, major-name -->
 	</message>
 	<message type="asset.permissions.grant">
 		<subject>Asset Permission Set</subject>
