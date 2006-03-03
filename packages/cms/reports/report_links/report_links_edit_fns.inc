@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.9 2006/02/06 04:57:29 sdanis Exp $
+* $Id: report_links_edit_fns.inc,v 1.10 2006/03/03 05:19:27 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -453,9 +453,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					?>
 					<table class="sq-backend-table" style="border: 1px solid #DDDDDD;" border="0">
 						<tr>
-							<td colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in') ?></td>
-							<td colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('linking_to') ?></td>
-							<td class="sq-backend-table-header"><?php echo translate('comments'); ?></td>
+							<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in') ?></td>
+							<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('linking_to') ?></td>
+							<th class="sq-backend-table-header"><?php echo translate('comments'); ?></td>
 						</tr>
 					<?php
 					foreach ($reported_links['internal'] as $assetid => $links) {
@@ -470,22 +470,22 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 							if (is_null($to)) {
 								$to_type = '';
 								$to_string = translate('unknown_asset_id', $link['data']);
-								$to_bg = 'FFF';
+								$to_bg = '';
 								$to_status = '';
 								$to_name = '';
 							} else {
 								$to_type = $to->type();
 								$to_name = (strlen($to->name) < 40) ? $to->name : ellipsisize($to->name, 40);
 								$to_string = '<span title="'.$to->name.'"> [#'.$to->id.'] '.$to_name.'</span>';
-								$to_bg = get_status_colour($to->status);
+								$to_bg = get_asset_status_icon($to->status);
 								$to_status = get_status_description($to->status);
 							}
 
 							?>
 							<tr>
 								<!-- ASSET STATUS -->
-								<td class="sq-backend-table-cell" style="width: 16px; padding-top: 7px; padding-right: 0px;">
-									<span style="border: solid 1px #CCC; padding: 0 1ex;background: #<?php echo $from_info['bg']; ?>">&nbsp;</span>
+								<td class="sq-backend-table-cell" style="width: 120px; padding-top: 7px; padding-right: 0px;">
+									<?php echo $from_info['bg']; ?> <?php echo $from_info['status']; ?>
 								</td>
 
 								<!-- ASSET ICON -->
@@ -494,7 +494,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 									if (!empty($from_info['type'])) {
 										?>
 										<span title="<?php echo ucwords(str_replace('_', ' ', $from_info['type'])); ?>">
-											<script type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($from_info['type']); ?>", "16", "16", "");</script>
+											<?php echo get_asset_type_icon($from_info['type']); ?>
 										</span>
 										<?php
 									}
@@ -502,24 +502,20 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 								</td>
 
 								<!-- ASSET NAME -->
-								<td class="sq-backend-table-cell" style="width: 190px; padding-right: 1px; padding-top:6px; text-align: left;">
+								<td class="sq-backend-table-cell" style="width: 260px; padding-right: 1px; padding-top:6px; text-align: left;">
 									<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('edit_this_asset'); ?>">[#<?php echo  $from_info['assetid']; ?>] <?php echo  $from_name ?></a>
 								</td>
 
 								<!-- LINKED STATUS -->
 								<td class="sq-backend-table-cell" style="width: 16px; padding-top: 7px; padding-right: 0px;">
-										<span style="border: solid 1px #CCC; padding: 0 1ex;background: #<?php echo $to_bg; ?>">&nbsp;</span>
+										<?php echo $to_bg; ?><?php echo $to_status; ?>
 								</td>
 
 								<!-- LINKED ICON -->
 								<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
 									<?php
 									if (!empty($to_type)) {
-										?>
-										<span title="<?php echo ucwords(str_replace('_', ' ', $to_type)); ?>">
-											<script type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($to_type); ?>", "16", "16", "");</script>
-										</span>
-										<?php
+										echo get_asset_type_icon($to_type);
 									}
 									?>
 								</td>
@@ -560,9 +556,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					?>
 					<table class="sq-backend-table">
 						<tr>
-							<td colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in'); ?></td>
-							<td class="sq-backend-table-header" style="width: 274px;"><?php echo translate('url'); ?></td>
-							<td class="sq-backend-table-header"><?php echo translate('comments'); ?></td>
+							<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in'); ?></td>
+							<th class="sq-backend-table-header" style="width: 274px;"><?php echo translate('url'); ?></td>
+							<th class="sq-backend-table-header"><?php echo translate('comments'); ?></td>
 						</tr>
 					<?php
 					foreach ($reported_links['external'] as $assetid => $links) {
@@ -575,8 +571,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 							?>
 							<tr>
 								<!-- ASSET STATUS -->
-								<td class="sq-backend-table-cell" style="width: 16px; padding-top: 7px; padding-right: 0px;">
-									<span style="border: solid 1px #CCC; padding: 0 1ex;background: #<?php echo $from_info['bg']; ?>">&nbsp;</span>
+								<td class="sq-backend-table-cell" style="width: 120px; padding-top: 7px; padding-right: 0px;">
+									<?php echo $from_info['bg']; ?> <?php echo $from_info['status']; ?>
 								</td>
 
 								<!-- ASSET ICON -->
@@ -585,7 +581,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 									if (!empty($from_info['type'])) {
 										?>
 										<span title="<?php echo ucwords(str_replace('_', ' ', $from_info['type'])); ?>">
-											<script type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($from_info['type']); ?>", "16", "16", "");</script>
+											<?php echo get_asset_type_icon($from_info['type']); ?>
 										</span>
 										<?php
 									}
@@ -632,9 +628,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					?>
 					<table class="sq-backend-table">
 						<tr>
-							<td colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in'); ?></td>
-							<td class="sq-backend-table-header" style="width: 274px;"><?php echo translate('email'); ?></td>
-							<td class="sq-backend-table-header"><?php echo translate('comments'); ?></td>
+							<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in'); ?></td>
+							<th class="sq-backend-table-header" style="width: 274px;"><?php echo translate('email'); ?></td>
+							<th class="sq-backend-table-header"><?php echo translate('comments'); ?></td>
 						</tr>
 					<?php
 					foreach ($reported_links['mailto'] as $assetid => $links) {
@@ -646,8 +642,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 							<tr>
 
 								<!-- ASSET STATUS -->
-								<td class="sq-backend-table-cell" style="width: 16px; padding-top: 7px; padding-right: 0px;">
-								<span style="border: solid 1px #CCC; padding: 0 1ex;background: #<?php echo $from_info['bg']; ?>">&nbsp;</span>
+								<td class="sq-backend-table-cell" style="width: 120px; padding-top: 7px; padding-right: 0px;">
+									<?php echo $from_info['bg']; ?> <?php echo $from_info['status']; ?>
 								</td>
 
 								<!-- ASSET ICON -->
@@ -656,7 +652,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 									if (!empty($from_info['type'])) {
 										?>
 										<span title="<?php echo ucwords(str_replace('_', ' ', $from_info['type'])); ?>">
-											<script type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($from_info['type']); ?>", "16", "16", "");</script>
+											<?php echo get_asset_type_icon($from_info['type']); ?>
 										</span>
 										<?php
 									}
@@ -726,7 +722,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			if (!is_null($parent)) {
 				$asset_type = $parent->type();
 				$asset_name = $parent->name;
-				$asset_bg = get_status_colour($parent->status);
+				$asset_bg = get_asset_status_icon($parent->status);
 				$asset_status = get_status_description($parent->status);
 				$assetid = $parent->id;
 				$asset_url = $parent->getBackendHref();
@@ -734,7 +730,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			} else {
 				$asset_type = $asset->type();
 				$asset_name = $asset->name;
-				$asset_bg = get_status_colour($asset->status);
+				$asset_bg = get_asset_status_icon($asset->status);
 				$asset_status = get_status_description($asset->status);
 				$asset_url = $asset->getBackendHref();
 				$asset_preview_url = $asset->getURL();
