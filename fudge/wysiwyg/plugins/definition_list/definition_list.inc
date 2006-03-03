@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: definition_list.inc,v 1.2 2006/02/28 23:16:00 skim Exp $
+* $Id: definition_list.inc,v 1.3 2006/03/03 02:15:43 skim Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     some extra tags like <cite> and <dfn>
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -166,7 +166,52 @@ class definition_list extends wysiwyg_plugin
 						}
 					}
 				} else if (HTMLArea.is_ie) {
-					return false;
+					var selected_html = range.htmlText;
+					var tmp = "";
+					var new_html = "";
+
+					var e		= '<(P|DT|DD)>(.+)<\/(P|DT|DD)>|([^>]+)<BR>|([^>]+)';
+					var re		= new RegExp(e, "ig");
+					var p_re	= new RegExp('<(P)>([^>]+)<\/(P)>', "ig");
+					var d_re	= new RegExp('<(DT|DD)>([^>]+)<\/(DT|DD)>', "ig");
+					var b_re	= new RegExp('([^>]+)<BR>', "ig");
+					var n_re	= new RegExp('([^>]+)', "ig");
+
+					var surround_dl	= false;
+					var warning		= false;
+
+					var result = selected_html.match(re);
+					for (var i = 0; i < result.length; i++) {
+						var curr_type = result[i].replace(re, "$1");
+
+						if (result[i].match(p_re)) {
+							tmp += result[i].replace(p_re, "<" + type + ">$2<\/" + type + ">");
+							surround_dl = true;
+						} else if (result[i].match(d_re)) {
+							tmp += result[i].replace(d_re, "<" + type + ">$2<\/" + type + ">");
+							if (surround_dl) {
+								warning = true;
+								break;
+							}
+						} else if (result[i].match(b_re)) {
+							tmp += result[i].replace(b_re, "<" + type + ">$1<\/" + type + ">");
+							surround_dl = true;
+						} else if (result[i].match(n_re)) {
+							tmp += result[i].replace(n_re, "<" + type + ">$1<\/" + type + ">");
+							surround_dl = true;
+						}
+					}
+
+					if (!warning) {
+						if (surround_dl) {
+							new_html = '<DL>' + tmp + '</DL>';
+						} else if (!surround_dl) {
+							new_html = tmp;
+						}
+						range.pasteHTML(new_html);
+					} else {
+						alert("Please do not select DD or DT tags with other types of tags.");
+					}
 				}
 			}
 
