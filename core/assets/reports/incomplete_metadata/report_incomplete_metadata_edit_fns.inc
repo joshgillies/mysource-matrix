@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata_edit_fns.inc,v 1.11 2006/01/26 22:34:05 lwright Exp $
+* $Id: report_incomplete_metadata_edit_fns.inc,v 1.12 2006/03/03 05:18:39 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,7 +67,6 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$owner =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['assetid'], 'report_incomplete_metadata');
-		error_log(var_export($job->_running_vars,TRUE));
 
 		$asset_types = $owner->getAllowedAssetTypeMap();
 
@@ -106,8 +105,6 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 			if (!is_null($asset)) {
 				// If asset type list is empty, then none were set and therefore we do all asset
 				// types. If set, then it needs to be a key in the $asset_types
-				error_log('asset types empty = '.var_export(empty($asset_types),TRUE));
-				error_log('asset type '.$asset->type().' found = '.var_export(isset($asset_types[$asset->type()]),TRUE));
 				if (empty($asset_types) || isset($asset_types[$asset->type()])) {
 					$step_data['message'] = translate('core_checking_for_metadata', $asset->name);
 
@@ -179,7 +176,6 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 	*/
 	function paintReport(&$asset, &$o, $prefix)
 	{
-		error_log('Start  '.memory_get_usage());
 		require_once 'XML/Tree.php';
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
@@ -191,7 +187,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 
 		$input =& new XML_Tree($report_path);
 		$root  =& $input->getTreeFromFile();
-		error_log('Load '.memory_get_usage());
+
 		if (PEAR::isError($root)) {
 			trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
 			return;
@@ -235,7 +231,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 						$asset_status = '';
 					} else {
 						$asset_type = $asset->type();
-						$asset_bg = get_status_colour($asset->status);
+						$asset_bg = get_asset_status_icon($asset->status);
 						$asset_status = get_status_description($asset->status);
 						$asset_url = $asset->getBackendHref('metadata');
 						$asset_string = '<u title="'.$asset->name.'">'.ellipsisize($asset->name, 40).'</u>';
@@ -252,22 +248,19 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 							}
 							?>
 						</td>
-						<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px;">
-							<div title="<?php echo $asset_status; ?>" style="border: 1px solid #CCCCCC; padding: 4px; background-color: #<?php echo $asset_bg; ?>; width: 8px; height: 8px;">&nbsp;</div>
-						</td>
-						<td class="sq-backend-table-cell" style="width: 16px; padding-right: 2px; padding-left: 2px;">
+
+						<td class="sq-backend-table-cell" style="width: 16px; padding-right: 2px; padding-left: 15px;">
 							<?php
 							if (!empty($asset_type)) {
-								?>
-								<span title="<?php echo ucwords(str_replace('_', ' ', $asset_type)); ?>">
-									<script type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($asset_type); ?>", "16", "16", "");</script>
-								</span>
-								<?php
+								echo get_asset_type_icon($asset_type);
 							}
 							?>
 						</td>
 						<td class="sq-backend-table-cell" style="padding-left: 2px;">
 							<?php echo $asset_string; ?>
+						</td>
+						<td class="sq-backend-table-cell" style="padding-right: 1px;">
+							<?php echo $asset_bg; ?><?php echo $asset_status; ?>
 						</td>
 						<td class="sq-backend-table-cell">
 							<?php
