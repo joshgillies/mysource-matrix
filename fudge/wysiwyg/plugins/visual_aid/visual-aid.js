@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: visual-aid.js,v 1.2 2006/03/03 03:21:46 skim Exp $
+* $Id: visual-aid.js,v 1.3 2006/03/03 03:44:24 rong Exp $
 *
 */
 
@@ -78,6 +78,7 @@ visual_aid_span = function(element)
 		if (lang_attr != null && lang_attr != "") {
 			var test_html = '<span id="wysiwyg-visual-aid-plugin-lang" style="' + this.style + '">' + lang_attr + '</span>';
 			element.innerHTML = test_html + element.innerHTML;
+			element.style.backgroundColor = "#DDDF0D";
 		}
 	}
 
@@ -87,12 +88,15 @@ visual_aid_span = function(element)
 		if (lang_attr != null && lang_attr != "") {
 			if (HTMLArea.is_gecko) {
 				element.innerHTML = element.innerHTML.replace(/<span id="wysiwyg-visual-aid-plugin-lang".*<\/span>/g, '');
+				element.style.backgroundColor = "";
 			} else if (HTMLArea.is_ie) {
 				var e = '<span id=wysiwyg-visual-aid-plugin-lang.*<\/span>';
 				var re = new RegExp(e, "ig");
 				var new_html = element.innerHTML.replace(re, '');
 				element.innerHTML = new_html;
+				element.removeAttribute("style");
 			}
+
 		}
 	}
 }
