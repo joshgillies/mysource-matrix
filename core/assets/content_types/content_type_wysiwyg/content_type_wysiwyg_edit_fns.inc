@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.26 2006/02/28 06:19:04 skim Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.27 2006/03/03 00:09:58 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -168,21 +168,6 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 				}
 			$wysiwyg->close_group();
 
-			$wysiwyg->open_group();
-				if ($iap || in_array('spell_checker', $ap)) {
-					$wysiwyg->add_plugin('spell_checker');
-				}
-				if ($iap || in_array('text_indicator', $ap)) {
-					$wysiwyg->add_plugin('text_indicator');
-				}
-				if ($iap || in_array('view_source', $ap)) {
-					$wysiwyg->add_plugin('view_source');
-				}
-				if ($iap || in_array('help', $ap)) {
-					$wysiwyg->add_plugin('help');
-				}
-			$wysiwyg->close_group();
-
 			// html_tidy needs to be last so other plugins can set options
 			if ($iap || in_array('html_tidy', $ap)) {
 				$wysiwyg->add_plugin('html_tidy');
@@ -214,9 +199,6 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 				if ($iap || in_array('misc_accessibility', $ap)) {
 					$wysiwyg->add_plugin('misc_accessibility');
 				}
-			$wysiwyg->close_group();
-
-			$wysiwyg->open_group();
 				if ($iap || in_array('quotation', $ap)) {
 					$wysiwyg->add_plugin('quotation');
 				}
@@ -225,6 +207,21 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$wysiwyg->open_group();
 				if ($iap || in_array('visual_aid', $ap)) {
 					$wysiwyg->add_plugin('visual_aid');
+				}
+			$wysiwyg->close_group();
+
+			$wysiwyg->open_group();
+				if ($iap || in_array('spell_checker', $ap)) {
+					$wysiwyg->add_plugin('spell_checker');
+				}
+				if ($iap || in_array('text_indicator', $ap)) {
+					$wysiwyg->add_plugin('text_indicator');
+				}
+				if ($iap || in_array('view_source', $ap)) {
+					$wysiwyg->add_plugin('view_source');
+				}
+				if ($iap || in_array('help', $ap)) {
+					$wysiwyg->add_plugin('help');
 				}
 			$wysiwyg->close_group();
 
