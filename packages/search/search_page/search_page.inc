@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.164 2006/02/28 03:50:47 mmcintyre Exp $
+* $Id: search_page.inc,v 1.165 2006/03/03 03:49:06 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.164 $
+* @version $Revision: 1.165 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1077,7 +1077,7 @@ class Search_Page extends Listing_Engine
 
 		ob_start();
 
-			if (count($fields[$field_name]['data_sources']) == 1) {
+			if (!$this->_hasMixedFieldTypes($fields[$field_name])) {
 				$data_source = $fields[$field_name]['data_sources'][0];
 
 				switch ($data_source['type']) {
@@ -1237,7 +1237,7 @@ class Search_Page extends Listing_Engine
 
 		ob_start();
 
-			if (count($fields[$field_name]['data_sources']) == 1) {
+			if (!$this->_hasMixedFieldTypes($fields[$field_name])) {
 				switch ($fields[$field_name]['data_sources'][0]['type']) {
 
 					case 'metadata' :
@@ -2080,10 +2080,10 @@ class Search_Page extends Listing_Engine
 						   );
 			if ($value == $empty_dates) continue;
 
-			if ((count($fields[$field_name]['data_sources']) == 1) && $fields[$field_name]['data_sources'][0]['type'] == 'exclude') {
+			if (!$this->_hasMixedFieldTypes($fields[$field_name]) && $fields[$field_name]['data_sources'][0]['type'] == 'exclude') {
 				$search_info['exclude'][] = $value;
 			} else {
-				if ((count($fields[$field_name]['data_sources']) == 1) && $fields[$field_name]['data_sources'][0]['type'] == 'asset_attrib') {
+				if (!$this->_hasMixedFieldTypes($fields[$field_name]) && $fields[$field_name]['data_sources'][0]['type'] == 'asset_attrib') {
 					$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['data_sources'][0]['params']['attrid']);
 					if (!is_null($attribute) && $attribute->type() == 'boolean') {
 						// we need to convert the value into a word representation,
