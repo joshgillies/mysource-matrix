@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.116 2006/03/03 00:58:26 arailean Exp $
+* $Id: lang_strings.xml,v 1.117 2006/03/03 03:57:05 sdanis Exp $
 *
 */
 
@@ -592,6 +592,7 @@
 	<string source="hipo_warning_trashing_affects_other_assets">Moving these assets to the trash is going to affect other assets in the system. A list of the affected assets is shown below along with a description of their purpose.</string>
 	<string source="hipo_move">Moving "%1$s" to "%2$s"</string>
 	<string source="hipo_asset_link_successful">The following asset(s) have been successfully linked under "%s":</string>
+	<string source="hipo_asset_move_successful">The following asset(s) have been successfully moved under "%s":</string>
 	<string source="hipo_permission_workflow_metadata_display">The permissions, workflow schemas, and metadata schemas of "%s" are shown below.</string>
 	<string source="hipo_permission_workflow_metadata_cascade_select">To cascade the permissions, workflow schemas, and/or metadata schemas of "%s" to the newly linked asset(s) and their children, check the appropriate boxes below and press the &lt;b&gt;Next&lt;/b&gt; button.</string>
 	<string source="hipo_permission_workflow_metadata_cascade_none">If you do not wish to cascade any permissions or schemas, press the &lt;b&gt;Next&lt;/b&gt; button without checking any boxes.</string>

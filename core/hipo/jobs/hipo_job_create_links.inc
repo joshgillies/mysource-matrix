@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.29 2006/01/26 22:34:08 lwright Exp $
+* $Id: hipo_job_create_links.inc,v 1.30 2006/03/03 03:56:30 sdanis Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -675,7 +675,12 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				$o->addHiddenField('link_completed', '0');
 
 				if (count($this->_running_vars['assets']) > 0) {
-					echo '<p><b>'.translate('hipo_asset_link_successful', $parent->name).'</b></p>';
+					if ($this->_running_vars['link_action'] == 'move') {
+						$success_msg = translate('hipo_asset_move_successful', $parent->name);
+					} else {
+						$success_msg = translate('hipo_asset_link_successful', $parent->name);
+					}
+					echo '<p><b>'.$success_msg.'</b></p>';
 					echo '<ul>';
 					for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid,));
