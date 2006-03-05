@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div.inc,v 1.13 2006/01/17 06:08:12 lwright Exp $
+* $Id: bodycopy_div.inc,v 1.14 2006/03/05 22:58:57 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,6 +58,8 @@ class Bodycopy_Div extends Bodycopy_Container
 	* Perform any additional processing required during the creation of this asset
 	*
 	* Bodycopy DIVs create a WYSIWYG content type when they are created
+	* Edit: Now the content type can be passed through bc_data, and this determines what
+	*       kind of content type is created
 	*
 	* @param array	&$link	information used to create the initial link
 	*
@@ -79,8 +81,13 @@ class Bodycopy_Div extends Bodycopy_Container
 			$this->setAttrValue('name', $this->attr('name').' '.$this->id);
 		}
 
-		// create a content type
-		$content_type = $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DEFAULT_CONTENT_TYPE');
+		// create a content type based on the user selection in the popup
+		// If this isn't set, use the default content type
+		if (isset($bc_data['attributes']['content_type'])) {
+			$content_type = $bc_data['attributes']['content_type'];
+		} else {
+			$content_type = $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DEFAULT_CONTENT_TYPE');
+		}
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($content_type);
 		$wysiwyg =& new $content_type();
 		$div_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'div_contents', 'sort_order' => 1, 'is_dependant' => 1, 'is_exclusive' => 1);
