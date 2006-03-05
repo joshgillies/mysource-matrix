@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_div.php,v 1.9 2006/01/17 04:55:16 lwright Exp $
+* $Id: insert_div.php,v 1.10 2006/03/05 23:03:35 dmckee Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,6 +40,7 @@ header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
 include(dirname(__FILE__).'/header.php');
 ?>
 <script type="text/javascript" language="javascript" src="<?php echo sq_web_path('lib')?>/js/general.js"></script>
+<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js'?>"	></script>
 <script language="JavaScript" type="text/javascript">
 
 	function popup_init() {
@@ -51,11 +52,16 @@ include(dirname(__FILE__).'/header.php');
 		data["identifier"]  = owner.form_element_value(f.identifier);
 		data["layout_type"] = owner.form_element_value(f.layout_type);
 		data["css_class"]   = owner.form_element_value(f.css_class);
+		data["content_type"] = owner.form_element_value(f.content_type);
 		owner.bodycopy_save_insert_div(data);
 	}
 
 </script>
-
+<?php
+	$am = $GLOBALS['SQ_SYSTEM']->am;
+	$content_types = $am->getAssetTypeHierarchy('content_type');
+	$default_content_type = $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DEFAULT_CONTENT_TYPE');
+?>
 <div class="title" style="text-align: right;"><?php echo translate('insert_div'); ?></div>
 
 <form name="main_form">
@@ -76,6 +82,24 @@ include(dirname(__FILE__).'/header.php');
 		<fieldset>
 			<legend><b><?php echo translate('style_information'); ?></b></legend>
 			<table style="width:100%">
+				<tr>
+					<td class="bodycopy-popup-heading"><?php echo translate('content_type'); ?>:</td>
+					<td>
+						<select name="content_type" id="content_type">
+							<?php
+								foreach ($content_types as $type_code => $data) {
+									$selected_text = '';
+									if ($type_code == $default_content_type) {
+										$selected_text = 'SELECTED';
+									}
+									?>
+										<option value="<?php echo $type_code; ?>" <?php echo $selected_text; ?>><?php echo str_replace(' Content Type', '', $data['name']); ?></option>
+									<?php
+								}
+							?>
+						</select>
+					</td>
+				</tr>
 				<tr>
 					<td class="bodycopy-popup-heading"><?php echo translate('presentation'); ?>:</td>
 					<td>
