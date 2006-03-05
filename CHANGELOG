@@ -1,5 +1,54 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.8.0
+
+Featured Changes
+-----------------------------------
+
+Specify Asset Types in Site Map
+
+	The site map now has the ability to limit the type of assets displayed. If no asset types are selected, all assets types will be included in the site map.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+
+* Fixed bug #1120: Paint layouts in safe edit broken
+* Fixed bug #1123: Configuring a default Thesaurus on the Global Preferences screen causes an error
+* Fixed bug #1126: Datetime attribute doesn't handle early dates well
+* Fixed bug #1127: Public deny access causes menu area to disappear for all users except sys admins
+* Fixed bug #1109: Special Characters do not display in the asset map
+* Fixed bug #1130: Bad types sent with getAsset not allowing inheritance
+* Fixed bug #1143: Acquiring the locks for a simple edit fails if a HIPO has to run
+* Fixed bug #1146: Creating Thumbnail picture with pre uploaded files
+* Fixed bug #1149: Insert Link dialogue window size - enhancement request
+* Fixed bug #1151: Typo: 'You can forceably acquire...'
+* Fixed bug #1152: Image varieties not clearing sq_ast_lookup_value for paint layouts
+* Fixed bug #1153: Image varieties don't respect SQ_CONF_STATIC_ROOT_URL
+* Fixed bug #1157: Query string not being prefixed with question mark
+* Fixed bug #1158: 'Safe Edit Approved To Go Live' status standard page has no 'Commit' button
+
+CMS
+
+* Fixed bug #1119: Mulitple page safe edit not working (Multiple Page)
+* Fixed bug #1134: Asset Listing Custom Grouping ignoring Restrict Types (Asset Listing)
+* Fixed bug #1142: Asset status report stalls hipo if no valid statuses found (Asset Status Report)
+* Fixed bug #1156: File file upload question size rule errors when size > php.ini setting (Custom Form)
+
+Data
+
+* Fixed bug #1139: Manually-entered SQL is lost when result asset name is entered in DB data source (DB Data Source)
+* Fixed bug #1150: DB datasource tries to save attributes while *painting* its query builder screen (DB Data Source)
+
+Calendar
+
+* Fixed bug #1089: Asset keywords of recurring event always based on first day of a view (Calendar Page)
+
+
+
+
 VERSION 3.8.0 RC1
 
 Featured Changes
