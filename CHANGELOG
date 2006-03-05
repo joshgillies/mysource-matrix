@@ -1,5 +1,42 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.6.6
+
+Complete Changelog
+----------------------
+
+Core
+
+* Fixed bug #1109: Special Characters do not display in the asset map
+* Fixed bug #1130: Bad types sent with getAsset not allowing inheritance
+* Fixed bug #1143: Acquiring the locks for a simple edit fails if a HIPO has to run
+* Fixed bug #1146: Creating Thumbnail picture with pre uploaded files
+* Fixed bug #1149: Insert Link dialogue window size - enhancement request
+* Fixed bug #1151: Typo: 'You can forceably acquire...'
+* Fixed bug #1158: 'Safe Edit Approved To Go Live' status standard page has no 'Commit' button
+
+CMS
+
+* Fixed bug #1134: Asset Listing Custom Grouping ignoring Restrict Types (Asset Listing)
+* Fixed bug #1138: File extension rule not working on file upload field (Custom Form)
+* Fixed bug #1142: Asset status report stalls hipo if no valid statuses found (Asset Status Report)
+* Fixed bug #1156: File file upload question size rule errors when size > php.ini setting (Custom Form)
+
+Search
+
+* Fixed bug #1159: No Results Page Layout keywords no longer work (Search Page)
+
+Lexicon
+
+* Fixed bug #1136: Lexicon metadata doesn't work through simple edit interface (Thesaurus Metadata Field)
+
+Calendar
+
+* Fixed bug #1089: Asset keywords of recurring event always based on first day of a view (Calendar Page)
+
+
+
+
 VERSION 3.6.5
 
 Complete Changelog
