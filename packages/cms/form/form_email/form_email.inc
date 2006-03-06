@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.47 2006/01/26 22:35:20 lwright Exp $
+* $Id: form_email.inc,v 1.48 2006/03/06 00:34:28 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -305,6 +305,11 @@ class Form_Email extends Form
 			Array('%form_info%', '%form_summary%'),
 			Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
 
+
+		// add attachments to emails
+		$current_value['attachments'] = Array();
+		$current_value['attachments'] = $this->_getAttachments();
+
 		$email_format_attr->value = serialize($current_value);
 
 		$email_format_attr->sendMail($reps);
@@ -356,6 +361,7 @@ class Form_Email extends Form
 		$sections =& $this->getSections();
 
 		foreach ($questions as $q_id => $question) {
+
 			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
 			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary();
@@ -379,6 +385,10 @@ class Form_Email extends Form
 			Array('%form_info%',      '%form_summary%'),
 			Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
 
+		// add attachments to emails
+		$current_value['attachments'] = Array();
+		$current_value['attachments'] = $this->_getAttachments();
+
 		$email_format_attr->value = serialize($current_value);
 
 		$email_format_attr->sendMail($reps);
@@ -386,6 +396,34 @@ class Form_Email extends Form
 		return TRUE;
 
 	}//end mailRecipients()
+
+
+	/**
+	* Returns array of file attachment assetids
+	*
+	* @return array
+	* @access public
+	*/
+	function _getAttachments()
+	{
+		$questions = $this->getAllQuestions();
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$file_assets = Array();
+		foreach ($questions as $q_id => $question) {
+			if ($question['question_type_code'] == 'form_question_type_file_upload') {
+				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+				if (!is_null($q_asset) && $q_asset->attr('attach_to_mail')) {
+					$file_asset_id = $q_asset->getUploadedFileId();
+					if (!is_null($file_asset_id)) {
+						$file_assets[] = $file_asset_id;
+					}
+				}
+			}
+		}
+
+		return $file_assets;
+
+	}//end _getAttachments()
 
 
 	/**
@@ -462,6 +500,10 @@ class Form_Email extends Form
 		$current_value['text_format'] = str_replace(
 			Array('%form_info%', '%form_summary%'),
 			Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
+
+		// add attachments to emails
+		$current_value['attachments'] = Array();
+		$current_value['attachments'] = $this->_getAttachments();
 
 		$email_format_attr->value = serialize($current_value);
 
@@ -628,6 +670,10 @@ class Form_Email extends Form
 					Array('%form_info%', '%form_summary%'),
 					Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
 
+				// add attachments to emails
+				$current_value['attachments'] = Array();
+				$current_value['attachments'] = $this->_getAttachments();
+
 				$email_format->value = serialize($current_value);
 
 				$email_format->sendMail($reps);
@@ -654,6 +700,10 @@ class Form_Email extends Form
 					Array('%form_info%', '%form_summary%'),
 					Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
 
+				// add attachments to emails
+				$current_value['attachments'] = Array();
+				$current_value['attachments'] = $this->_getAttachments();
+
 				$email_format->value = serialize($current_value);
 
 				$email_format->sendMail($reps);
@@ -679,6 +729,10 @@ class Form_Email extends Form
 				$current_value['text_format'] = str_replace(
 					Array('%form_info%', '%form_summary%'),
 					Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
+
+				// add attachments to emails
+				$current_value['attachments'] = Array();
+				$current_value['attachments'] = $this->_getAttachments();
 
 				$email_format->value = serialize($current_value);
 

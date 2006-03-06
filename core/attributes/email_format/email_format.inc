@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.24 2006/02/28 03:48:24 emcdonald Exp $
+* $Id: email_format.inc,v 1.25 2006/03/06 00:33:43 sdanis Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *    <email_format />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -92,6 +92,12 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		if (!isset($current_value['text_format'])) {
 			$current_value['text_format'] = '';
 		}
+		if (!isset($current_value['inc_attachments'])) {
+			$current_value['inc_attachments'] = Array();
+		}
+		if (!isset($current_value['attachments'])) {
+			$current_value['attachments'] = Array();
+		}
 
 		if ($read_only) {
 			?>
@@ -137,6 +143,10 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				<tr>
 					<td align="right" valign="top"><b><?php echo translate('subject'); ?></b></td>
 					<td valign="top"><?php echo $current_value['subject']; ?></td>
+				</tr>
+				<tr>
+					<td align="right" valign="top"><b><?php echo translate('inc_attachments'); ?></b></td>
+					<td valign="top"><?php echo ($current_value['inc_attachments'] ? translate('yes') : translate('no')); ?></td>
 				</tr>
 				<tr>
 					<td align="right" valign="top"><b><?php echo translate('body'); ?></b></td>
@@ -333,6 +343,10 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				<td valign="top"><?php text_box($prefix.'_subject', $current_value['subject'], 80); ?></td>
 			</tr>
 			<tr>
+				<td align="right" valign="top"><b><?php echo translate('inc_attachments'); ?></b></td>
+				<td valign="top"><?php check_box($prefix.'_inc_attachments', TRUE, $current_value['inc_attachments']); ?></td>
+			</tr>
+			<tr>
 				<td align="right" valign="top"><b><?php echo translate('body'); ?></b></td>
 				<td>
 					<table style="width:100%;">
@@ -416,6 +430,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		$value['from']    = (isset($_REQUEST[$prefix.'_from'])) ? $_REQUEST[$prefix.'_from'] : '';
 		$value['subject'] = (isset($_REQUEST[$prefix.'_subject'])) ? $_REQUEST[$prefix.'_subject'] : '';
+		$value['inc_attachments'] = (isset($_REQUEST[$prefix.'_inc_attachments'])) ? $_REQUEST[$prefix.'_inc_attachments'] : FALSE;
 
 		$this->processed = $this->setValue($value);
 
@@ -499,6 +514,16 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			}
 		}
 
+		// Attachments
+		$attachments = Array();
+		if ($current_value['inc_attachments'] && isset($current_value['attachments']) && !empty($current_value['attachments'])) {
+			foreach ($current_value['attachments'] as $file_asset_id) {
+				$file_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($file_asset_id);
+				$file_info = $file_asset->getExistingFile();
+				$attachments[] = $file_info['path'];
+			}
+		}
+
 		$to 	   = replace_keywords($current_value['to'], 		 $replacements);
 		$from      = replace_keywords($current_value['from'],        $replacements);
 		$subject   = replace_keywords($current_value['subject'],     $replacements);
@@ -541,6 +566,12 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 			if (empty($to_email) || !valid_email($to_addr)) {
 				continue;
+			}
+
+			foreach ($attachments as $file_path) {
+				if (file_exists($file_path)) {
+					$mime->addAttachment($file_path);
+				}
 			}
 
 			$mime->setTXTBody(strip_tags($text_body));

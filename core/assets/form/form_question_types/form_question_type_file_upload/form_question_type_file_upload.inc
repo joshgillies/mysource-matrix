@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.5 2005/10/13 03:58:43 sdanis Exp $
+* $Id: form_question_type_file_upload.inc,v 1.6 2006/03/06 00:33:08 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -119,16 +119,16 @@ class Form_Question_Type_File_Upload extends Form_Question
 		if (empty($create_loc)) {
 			// no create location set
 			$this->failed_rules[] = translate('core_form_file_upload_no_create_locs', $this->attr('name'));' "'.$this->attr('name').'"';
-			return false;
+			return FALSE;
 		}
 
-		if ($this->_tmp['file_info'] === false) {
+		if ($this->_tmp['file_info'] === FALSE) {
 			// there was an upload error
 			$this->failed_rules[] = translate('core_form_file_upload_error', $this->attr('name'));
-			return false;
+			return FALSE;
 		}
 
-		$ok = true;
+		$ok = TRUE;
 
 		if (is_array($this->_tmp['file_info']) && empty($this->_tmp['file_info']) && $this->attr('is_required')) {
 			// no file uploaded to required field
@@ -137,7 +137,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 			} else {
 				$this->failed_rules[] = translate('core_form_file_upload_none_rule', $this->attr('name'));
 			}
-			$ok = false;
+			$ok = FALSE;
 		}
 
 		if ($this->attr('overwrite_rule') == 'D') {
@@ -147,14 +147,14 @@ class Form_Question_Type_File_Upload extends Form_Question
 			assert_valid_db_result($existing_file);
 			if ($existing_file) {
 				// file already exists so throw the error
-				$ok = false;
+				$ok = FALSE;
 				$this->failed_rules[] = translate('core_form_file_upload_already_exists', $this->attr('name'));
 			}
 		}
 
 		if ($ok) return parent::hasValidValue();
 
-		return false;
+		return FALSE;
 
 	}//end hasValidValue()
 
@@ -224,7 +224,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 	*/
 	function isEditable()
 	{
-		return false;
+		return FALSE;
 
 	}//end isEditable()
 
@@ -252,7 +252,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 		$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($this->getValue()));
 		assert_valid_db_result($existing_file);
 
-		$ok = true;
+		$ok = TRUE;
 		if ($existing_file) {
 			switch ($this->attr('overwrite_rule')) {
 				case 'D':
@@ -286,7 +286,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 				if ($lock_status === 1) {
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
 				}
-				return false;
+				return FALSE;
 			}
 			if ($lock_status === 1) {
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
@@ -296,7 +296,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 			// create a new file asset
 			$file_asset =& new File();
-			$file_asset->_tmp['uploading_file'] = true;
+			$file_asset->_tmp['uploading_file'] = TRUE;
 
 			// set the run level to ensure the file is correctly saved without
 			// the hassle of having to deal with permission errors
@@ -306,16 +306,37 @@ class Form_Question_Type_File_Upload extends Form_Question
 			$link = Array('asset' => &$create_loc_asset, 'link_type' => SQ_LINK_TYPE_2);
 			if (!$file_asset->create($link, $this->_tmp['file_info'])) {
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-				return false;
+				return FALSE;
 			}
 
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 		}
 
-		return true;
+		return TRUE;
 
 	}//end saveValue()
+
+
+	/**
+	* Returns the assetid of the uploaded file
+	*
+	* @return mixed int|NULL
+	* @access public
+	*/
+	function getUploadedFileId()
+	{
+		$create_loc = $this->attr('create_location');
+		$create_loc_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($create_loc);
+		if (is_null($create_loc_asset)) return NULL;
+
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($this->getValue()));
+		assert_valid_db_result($existing_file);
+
+		return $existing_file;
+
+	}//end getUploadedFileId()
 
 
 }//end class

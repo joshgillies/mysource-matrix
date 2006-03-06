@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2005/10/13 03:58:43 sdanis Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2006/03/06 00:33:08 sdanis Exp $
 */
 -->
 
@@ -43,6 +43,9 @@
 		</field>
 		<field attribute="extra">
 			<text width="40" height="1" />
+		</field>
+		<field attribute="attach_to_mail">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Simple Validation Rules" write_access="write:attributes">

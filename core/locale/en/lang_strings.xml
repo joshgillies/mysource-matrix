@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.117 2006/03/03 03:57:05 sdanis Exp $
+* $Id: lang_strings.xml,v 1.118 2006/03/06 00:34:01 sdanis Exp $
 *
 */
 
@@ -546,6 +546,7 @@
 	<string source="subject">Subject</string>
 	<string source="body">Body</string>
 	<string source="text_email_version">Text Email Version</string>
+	<string source="inc_attachments">Inc. Attachments</string>
 
 	<string source="percent">Percent</string>
 	<string source="pixels">Pixels</string>

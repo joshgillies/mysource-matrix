@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.133 2006/02/14 21:28:52 lwright Exp $
+* $Id: form.inc,v 1.134 2006/03/06 00:34:28 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.133 $
+* @version $Revision: 1.134 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -584,9 +584,10 @@ class Form extends Asset
 	* @return array
 	* @access public
 	*/
-	function getQuestions()
+	function &getQuestions()
 	{
-		return $this->attr('questions');
+		$questions = $this->attr('questions');
+		return $questions;
 
 	}//end getQuestions()
 

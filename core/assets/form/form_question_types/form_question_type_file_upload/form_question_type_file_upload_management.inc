@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload_management.inc,v 1.1 2005/07/20 00:02:44 lwright Exp $
+* $Id: form_question_type_file_upload_management.inc,v 1.2 2006/03/06 00:33:08 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,9 +57,9 @@ class Form_Question_Type_File_Upload_Management extends Asset_Management
 						'required'			=> Array(
 												'added'			=> '0.0.1',
 												'type'			=> 'boolean',
-												'default'		=> false,
+												'default'		=> FALSE,
 												'parameters'	=> Array(
-																	'allow_empty'	=> false,
+																	'allow_empty'	=> FALSE,
 																   ),
 												'description'	=> 'DEPRECATED AS OF v0.3',
 											   ),
@@ -68,7 +68,7 @@ class Form_Question_Type_File_Upload_Management extends Asset_Management
 												'type'			=> 'selection',
 												'default'		=> 'D',
 												'parameters'	=> Array(
-																	'allow_empty'	=> false,
+																	'allow_empty'	=> FALSE,
 																	'options'		=> Array(
 																						'O'	=> 'Overwrite Existing File',
 																						'R'	=> 'Rename Uploaded File',
@@ -80,6 +80,14 @@ class Form_Question_Type_File_Upload_Management extends Asset_Management
 												'added'		=> '0.0.1',
 												'type'		=> 'text',
 												'default'	=> '',
+											   ),
+						'attach_to_mail'	=> Array(
+												'added'			=> '0.2',
+												'type'			=> 'boolean',
+												'default'		=> FALSE,
+												'parameters'	=> Array(
+																	'allow_empty'	=> FALSE,
+																   ),
 											   ),
 					  );
 
