@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.11 2006/03/02 17:14:34 jhurst Exp $
+* $Id: authentication_ldap.inc,v 1.12 2006/03/06 23:54:33 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -57,18 +57,21 @@ class Authentication_LDAP extends Authentication
 	* @param string	$username	the user name to search for
 	* @param string	$password	the password to match
 	*
-	* @return object User | NULL
+	* @return mixed object|NULL
 	* @access public
 	*/
 	function &authenticateUser($username, $password)
 	{
-		$user = null;
+		$user = NULL;
 
-		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ldap_bridge', true);
+		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ldap_bridge', TRUE);
 		foreach ($bridges as $bridgeid => $type_code) {
 
-			$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
+			$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
 			if (is_null($bridge)) continue;
+
+			// if status is not live then skip this bridge
+			if ($bridge->status != SQ_STATUS_LIVE) continue;
 
 			$ldap = $bridge->connectToLdap();
 
@@ -103,7 +106,6 @@ class Authentication_LDAP extends Authentication
 					return $user;
 				}
 			}
-
 		}//end foreach
 
 		if (!is_null($user)) {
@@ -111,7 +113,7 @@ class Authentication_LDAP extends Authentication
 			$this->_registerInvalidLogin($user);
 		}
 
-		$return_value = null;
+		$return_value = NULL;
 		return $return_value;
 
 	}//end authenticateUser()
@@ -120,16 +122,19 @@ class Authentication_LDAP extends Authentication
 	/**
 	* If this authentication has a user matching the username in $_SERVER['REMOTE_USER'], return that user
 	*
+	* @return mixed object|NULL
 	* @access public
-	* @return Object | null
 	*/
 	function &authenticateHttpUser()
 	{
-		$user = null;
-		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ldap_bridge', true);
+		$user = NULL;
+		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ldap_bridge', TRUE);
 		foreach ($bridges as $bridgeid => $type_code) {
-			$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
+			$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
 			if (is_null($bridge)) continue;
+
+			// if status is not live then skip this bridge
+			if ($bridge->status != SQ_STATUS_LIVE) continue;
 
 			// Search for users matching the HTTP username
 			$ldap = $bridge->connectToLdap();
@@ -148,6 +153,7 @@ class Authentication_LDAP extends Authentication
 				break;
 			}
 		}
+
 		return $user;
 
 	}//end authenticateHttpUser()
@@ -156,7 +162,7 @@ class Authentication_LDAP extends Authentication
 	/**
 	* Registers that an invalid login attempt has been made
 	*
-	* @param object User	&$user	the user account upon which an invalid login attempt was made
+	* @param object	&$user	the user account upon which an invalid login attempt was made
 	*
 	* @return void
 	* @access private
@@ -176,7 +182,7 @@ class Authentication_LDAP extends Authentication
 		if ($_SESSION['user_login_attempts'][$username] >= SQ_CONF_MAX_LOGIN_ATTEMPTS) {
 			if (!is_null($user) && $user->canLogin()) {
 				// log a message so we know someone has tried to log in too many times
-				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$msg_reps = Array(
 								'asset_name'	=> $user->name,
 								'user_name'		=> $username,
@@ -195,6 +201,7 @@ class Authentication_LDAP extends Authentication
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
+	* @return array
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
@@ -204,7 +211,7 @@ class Authentication_LDAP extends Authentication
 				SQ_LINK_TYPE_1	=> Array(
 									'ldap_bridge'	=> Array(
 														'card'		=> 'M',
-														'exclusive'	=> false,
+														'exclusive'	=> FALSE,
 													   ),
 								   ),
 			   );
