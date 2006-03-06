@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.36 2006/02/13 03:30:28 ndvries Exp $
+* $Id: bulkmail_manager.inc,v 1.37 2006/03/06 02:55:13 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -277,10 +277,6 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	*/
 	function addJob($job, $post_office=NULL)
 	{
-		// open the transaction
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
 		// if no post office is supplied, work out which one to use
 		if (is_null($post_office)) {
 			if ($job->id == 0) {
@@ -319,7 +315,11 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		$this->initDetailsFile($details_info, $data_dir);
 
 		// add a new entry to the database table
+		// open the transaction
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
 		$sql = 'INSERT INTO
 					sq_bmail_queue
 					(
@@ -336,6 +336,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
