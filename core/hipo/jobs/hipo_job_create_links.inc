@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.30 2006/03/03 03:56:30 sdanis Exp $
+* $Id: hipo_job_create_links.inc,v 1.31 2006/03/06 23:18:03 emcdonald Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -248,6 +248,38 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			return '';
 		}
 
+		// get a list of links that will be affected by this change
+		if ($this->_running_vars['link_action'] == 'move') {
+			$new_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
+			$assets = $this->_running_vars['assets'];
+			$trash_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+			// Check if the assets have been moved to the trash. If there are any, warn about which links will be affected
+			if ($new_parent->id == $trash_folder->id) {
+				// when checking for the number of links left in the system, make sure we disregard
+				// any link to the trash folder because even if this asset is already in the trash,
+				// we should warn about deleting it
+				for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
+					$current = current($assets);
+					$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					$trash_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($trash_folder->id, $asset->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
+					$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_LINK_TYPE_1 + SQ_LINK_TYPE_2, '', TRUE, $current['linkid']);
+
+					if (!empty($trash_link)) $num_other_links--;
+					if (!$num_other_links) {
+						// now lets get all the other links this asset has in the system and
+						// display them to the user
+						// note that we are also going to ask the major asset in the link
+						// to describe it so it makes sense to the user looking at it
+						$this->_running_vars['affected_links'][$assetid] = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE, '', TRUE, 'minor');
+					}//end if !$num_other_links
+				}//end for
+		}//end if the assets have been moved to the trash
+		}
+
+
+
+
+
 		$this->_running_vars['assets_children'] = Array();
 
 		return parent::initialise($source_code_name);
@@ -370,72 +402,63 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 					$trash_section_painted = FALSE;
 
-					for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
-						$current = current($assets);
+					foreach ($this->_running_vars['affected_links'] as $assetid => $links) {
 						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-						$trash_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($trash_folder->id, $asset->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
-						$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_LINK_TYPE_1 + SQ_LINK_TYPE_2, '', TRUE, $current['linkid']);
+						// now lets get all the other links this asset has in the system and
+						// display them to the user
+						// note that we are also going to ask the major asset in the link
+						// to describe it so it makes sense to the user looking at it
 
-						if (!empty($trash_link)) $num_other_links--;
-						if (!$num_other_links) {
-							// now lets get all the other links this asset has in the system and
-							// display them to the user
-							// note that we are also going to ask the major asset in the link
-							// to describe it so it makes sense to the user looking at it
-							$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE, '', TRUE, 'minor');
+						if (!$trash_section_painted) {
+							$o->openSection(translate('warning_-_moving_to_trash'));
+								$o->openField('&nbsp;');
+									?><p><?php echo translate('hipo_warning_trashing_affects_other_assets'); ?></p><?php
+									$trash_section_painted = TRUE;
+						}
 
-							if (!empty($links)) {
-								if (!$trash_section_painted) {
-									$o->openSection(translate('warning_-_moving_to_trash'));
-										$o->openField('&nbsp;');
-											?><p><?php echo translate('hipo_warning_trashing_affects_other_assets'); ?></p><?php
-											$trash_section_painted = TRUE;
+						echo $asset->name;
+
+						$link_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id);
+
+						?><table class="sq-backend-table"><?php
+						foreach ($links as $link_data) {
+							$major =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['majorid'], $link_data['major_type_code']);
+							$link_description = $major->describeLink($link_data['linkid']);
+							$link_lineage_data = array_pop($link_lineages);
+							$link_lineage = $link_lineage_data['lineage'];
+
+							// construct a human readable lineage
+							$num_in_lineage = count($link_lineage);
+							$lineage = '';
+
+							$i = 0;
+							foreach ($link_lineage as $parentid => $name) {
+								if ($i == ($num_in_lineage - 1)) {
+									continue;
+								} else if ($i <= 1 || $num_in_lineage <= 5) {
+									$lineage .= $name.' &gt; ';
+								} else if ($num_in_lineage - $i <= 3 && $num_in_lineage > 5) {
+									$lineage .= $name.' &gt; ';
+								} else if ($i == 2 && $num_in_lineage > 5) {
+									$lineage .= '... &gt; ';
 								}
+								$i++;
+							}
 
-								echo $asset->name;
+							$lineage .= '<b>'.array_pop($link_lineage).'</b>';
 
-								$link_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id);
+							?>
+							<tr>
+								<td class="sq-backend-table-cell">
+									<?php echo $lineage; ?>
+									<?php echo (!empty($link_description)) ? '<br/>'.$link_description : ''; ?>
+								</td>
+							</tr>
+							<?php
+						}//end foreach
+						?></table><?php
 
-								?><table class="sq-backend-table"><?php
-								foreach ($links as $link_data) {
-									$major =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['majorid'], $link_data['major_type_code']);
-									$link_description = $major->describeLink($link_data['linkid']);
-									$link_lineage = array_pop($link_lineages);
-									$link_lineage = $link_lineage['lineage'];
-
-									// construct a human readable lineage
-									$num_in_lineage = count($link_lineage);
-									$lineage = '';
-
-									$i = 0;
-									foreach ($link_lineage as $parentid => $name) {
-										if ($i == ($num_in_lineage - 1)) {
-											continue;
-										} else if ($i <= 1 || $num_in_lineage <= 5) {
-											$lineage .= $name.' &gt; ';
-										} else if ($num_in_lineage - $i <= 3 && $num_in_lineage > 5) {
-											$lineage .= $name.' &gt; ';
-										} else if ($i == 2 && $num_in_lineage > 5) {
-											$lineage .= '... &gt; ';
-										}
-										$i++;
-									}
-
-									$lineage .= '<b>'.array_pop($link_lineage).'</b>';
-
-									?>
-									<tr>
-										<td class="sq-backend-table-cell">
-											<?php echo $lineage; ?>
-											<?php echo (!empty($link_description)) ? '<br/>'.$link_description : ''; ?>
-										</td>
-									</tr>
-									<?php
-								}//end foreach
-										?></table><?php
-							}//end if !empty($links)
-						}//end if !$num_other_links
-					}//end for
+					}//end foreach
 
 					if ($trash_section_painted) {
 						$o->closeField();
@@ -556,6 +579,12 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
 				$this->_running_vars['assets_children'] = array_merge($this->_running_vars['assets_children'], array_keys($children));
+
+				// delete links in which the minor is being deleted
+
+				foreach ($this->_running_vars['affected_links'][$assetid] as $link) {
+					$success = $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
+				}
 			}
 
 			// if we are moving a shadow asset to the trash, the bridge is responsible for deletion of links
@@ -758,8 +787,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				}
 				// tags
 				if (!in_array('cascade_ta', $_REQUEST['cascade'])) {
-					log_dump('skipping tag cascade');
-					$this->skipStep(7);
+				$this->skipStep(7);
 				}
 			} else {
 				$this->skipStep(4); // permissions
