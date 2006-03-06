@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2006/02/15 22:30:13 sdanis Exp $
+* $Id: lang_screen_details.xml,v 1.6 2006/03/06 03:46:32 sdanis Exp $
 *
 */
 -->
@@ -38,7 +38,7 @@
 		</field>
 		<field attribute="map_format">
 			<display_name>Map Format</display_name>
-			<note>Format in which the Site Map is to be displayed. Note stalks are useless in this format</note>
+			<note>Format in which the Site Map is to be displayed. Note stalks are useless in 'Unordered List' format</note>
 		</field>
 		<field attribute="columns">
 			<display_name>Number of Columns</display_name>
