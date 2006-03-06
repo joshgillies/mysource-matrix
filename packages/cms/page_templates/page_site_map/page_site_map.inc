@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.29 2006/02/28 00:48:55 dmckee Exp $
+* $Id: page_site_map.inc,v 1.30 2006/03/06 04:24:38 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -149,8 +149,8 @@ class Page_Site_Map extends Page
 
 			ob_start();
 				?>
-				<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/js/edit.js' ?>"></script>
-				<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/js/general.js' ?>"></script>
+				<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/edit.js' ?>"></script>
+				<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/general.js' ?>"></script>
 
 				<?php
 				// figure out the columns for the site map
@@ -216,9 +216,9 @@ class Page_Site_Map extends Page
 ?>
 			<li><?php
 				if ($this->attr('icons')) {
-					?><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($item['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;<?php
+					?><script type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($item['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;<?php
 				}
-			?><a href="<?php echo $url;?>"><?php echo $item['name']; ?></a>
+			?><a href="<?php echo $url;?>" title="<?php echo $item['name']; ?>"><?php echo $item['name']; ?></a>
 <?php
 			if (isset($page_data[$item['assetid']]) && $level + 1 <= $top_level) {
 ?>
@@ -309,10 +309,10 @@ class Page_Site_Map extends Page
 						<?php
 						if ($this->attr('icons')) {
 ?>
-							<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;
+							<script type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;
 						<?php }
 ?>
-						<a href="<?php echo $url?>"><?php echo $data['name'];?></a>
+						<a href="<?php echo $url?>" title="<?php echo $data['name']; ?>"><?php echo $data['name'];?></a>
 					</td>
 				</tr>
 				<?php
