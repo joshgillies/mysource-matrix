@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_password_reset.inc,v 1.5 2006/02/10 02:47:01 lwright Exp $
+* $Id: page_password_reset.inc,v 1.6 2006/03/06 00:10:05 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	Allows a user to reset their password.
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -242,6 +242,7 @@ class Page_Password_Reset extends Page
 		$replacements = Array();
 		if (!isset($_POST['username']) || empty($_POST['username'])) {
 			$replacements['password_reset_error'] = translate('cms_password_reset_message_empty_username');
+			return $this->_buildContents('request', $replacements);
 		} else {
 			$username = $_POST['username'];
 
@@ -289,7 +290,8 @@ class Page_Password_Reset extends Page
 				$email_attr->value = serialize($email_value);
 
 				@$email_attr->sendMail($email_replacements);
-			}
+			} 
+			
 		}//end else
 
 		return $this->_buildContents('request_receipt', $replacements);
