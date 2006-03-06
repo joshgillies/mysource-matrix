@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_link_manager.inc,v 1.3 2006/02/10 02:47:01 lwright Exp $
+* $Id: page_link_manager.inc,v 1.4 2006/03/06 23:00:00 rhoward Exp $
 *
 */
 
@@ -35,7 +35,7 @@ define('SQ_PAGE_LINK_MGR_PRESET_LINKED', 'Linked');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -61,7 +61,7 @@ class Page_Link_Manager extends Page_Asset_Listing
 	function Page_Link_Manager($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Page($assetid);
+		$this->Page_Asset_Listing($assetid);
 
 	}//end constructor
 
@@ -265,23 +265,23 @@ class Page_Link_Manager extends Page_Asset_Listing
 
 
 	/**
-	* Prints out the Frontend for this asset
+	* Called by the design to print the body of this asset
 	*
 	* @return void
 	* @access public
 	*/
-	function printFrontend()
+	function printBody()
 	{
 		// Tie the process and following paint together using db2 in order to
 		// avoid possible replication slowdown on db1
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 
 		$this->processAssetSelections();
-		parent::printFrontend();
+		parent::printBody();
 
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-	}//end printFrontend()
+	}//end printBody()
 
 
 	/**
