@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.27 2006/02/07 02:18:51 skim Exp $
+* $Id: details.inc,v 1.28 2006/03/06 03:30:01 sdanis Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 */
 
@@ -142,7 +142,6 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 						}
 
 					$o->closeField();
-
 				break;
 
 				case 'status_future_status' :
@@ -346,7 +345,7 @@ function _paintStatusChange(&$owner, &$o, $prefix)
 		combo_box($prefix.'_change_status', $statii, FALSE, 0);
 		echo '&nbsp;';
 		check_box($prefix.'_change_status_all_children');
-		echo translate('cascade_status_change');
+		label(translate('cascade_status_change'), $prefix.'_change_status_all_children');
 	}
 
 	return $statii;
@@ -366,11 +365,20 @@ function _paintStatusChange(&$owner, &$o, $prefix)
 */
 function _processStatusChange(&$owner, &$o, $prefix)
 {
-	if (isset($_POST[$prefix.'_change_status']) && (int) $_POST[$prefix.'_change_status'] > 0) {
+	if (isset($_POST[$prefix.'_change_status'])) {
 		$dependants_only = (isset($_POST[$prefix.'_change_status_all_children']) && $_POST[$prefix.'_change_status_all_children']) ? FALSE : TRUE;
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$vars = Array('assetid' => $owner->id, 'new_status' => $_POST[$prefix.'_change_status'], 'dependants_only' => $dependants_only);
-		$hh->queueHipo('hipo_job_edit_status', $vars);
+		if ($_POST[$prefix.'_change_status'] > 0 || !$dependants_only) {
+			$new_status = 0;
+			if ($_POST[$prefix.'_change_status'] == 0 && !$dependants_only) {
+				$new_status = $owner->status;
+			} else if ($_POST[$prefix.'_change_status'] > 0) {
+				$new_status = $_POST[$prefix.'_change_status'];
+			}
+
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$vars = Array('assetid' => $owner->id, 'new_status' => $new_status, 'dependants_only' => $dependants_only);
+			$hh->queueHipo('hipo_job_edit_status', $vars);
+		}
 	}
 
 }//end _processStatusChange()
