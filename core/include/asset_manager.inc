@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.442 2006/03/03 01:05:27 arailean Exp $
+* $Id: asset_manager.inc,v 1.443 2006/03/06 23:36:52 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.442 $
+* @version $Revision: 1.443 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -843,9 +843,7 @@ class Asset_Manager extends MySource_Object
 		assert_valid_assetid($assetid);
 		$asset =& $this->_asset_cache->get($assetid);
 		if (!empty($asset) && !empty($type_code)) {
-			if ($asset->type() != $type_code) {
-				$asset = null;
-			}
+			if ($asset->type() != $type_code) $asset = NULL;
 		}
 		if (empty($asset)) {
 
@@ -5145,13 +5143,12 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		$trash = &$this->getSystemAsset('trash_folder');
+		$trash =& $this->getSystemAsset('trash_folder');
 
 		foreach ($parent_links as $link_details) {
 			// don't delete the link to the trash, we don't want to end up with an orphan asset
-			if ($trash->id == $link_details['majorid']) {
-				continue;
-			}
+			if ($trash->id == $link_details['majorid']) continue;
+
 			// deleteAssetLink will create the trash link when no other links remain
 			if (!$this->deleteAssetLink($link_details['linkid'])) {
 				trigger_localised_error('SYS0152', $link_details['linkid']);
@@ -5533,7 +5530,10 @@ class Asset_Manager extends MySource_Object
 	* @param int		$userid				the assetid of the user performing the role
 	* @param boolean	$include_assetid	whether to include the assetid in the returned array
 	* @param boolean	$include_globals	whether to query the role view which includes
-	*										expanded global roles as individual users
+	* 										expanded global roles as individual users
+	* @param boolean	$expand_groups		when TRUE, any groups defined within a role will be
+	*										replaced with the userids in that group.
+	*										If FALSE, return the groupids
 	*
 	* @return array
 	* @access public
