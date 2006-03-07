@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.53 2006/02/13 03:30:24 ndvries Exp $
+* $Id: bulk_mailer.inc,v 1.54 2006/03/07 23:15:15 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -878,6 +878,7 @@ class Bulk_Mailer
 
 		foreach ($thresholds as $threshold) {
 			if ($threshold['type'] == translate('bulkmail_threshold_rule_excluded_time')) {
+				$excluded_days = Array();
 				foreach ($threshold['params']['days'] as $excluded_day) {
 					$excluded_days[] = $days_array[$excluded_day];
 				}
