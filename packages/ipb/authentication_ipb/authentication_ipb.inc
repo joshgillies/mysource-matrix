@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ipb.inc,v 1.3 2006/02/16 01:18:03 gsherwood Exp $
+* $Id: authentication_ipb.inc,v 1.4 2006/03/07 00:02:35 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -69,6 +69,9 @@ class Authentication_IPB extends Authentication
 
 			$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
 			if (is_null($bridge)) continue;
+
+			// if status is not live then skip this bridge
+			if ($bridge->status != SQ_STATUS_LIVE) continue;
 
 			$ipb =& $bridge->getIpbConn();
 
@@ -112,6 +115,9 @@ class Authentication_IPB extends Authentication
 		foreach ($bridges as $bridgeid => $type_code) {
 			$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
 			if (is_null($bridge)) continue;
+
+			// if status is not live then skip this bridge
+			if ($bridge->status != SQ_STATUS_LIVE) continue;
 
 			$ipb =& $bridge->getIpbConn();
 			$data = $ipb->getMemberByName($_SERVER['REMOTE_USER']);
