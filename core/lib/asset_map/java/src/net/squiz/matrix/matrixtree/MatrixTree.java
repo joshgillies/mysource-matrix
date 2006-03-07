@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.23 2006/03/01 23:24:06 sdanis Exp $
+ * $Id: MatrixTree.java,v 1.24 2006/03/07 23:05:02 sdanis Exp $
  *
  */
 
@@ -460,7 +460,10 @@ public class MatrixTree extends CueTree
 				// if we have a different root and not the actual root then this will not work
 				// or should it?
 				tree.setRootVisible(false);
-				((DefaultTreeModel) tree.getModel()).setRoot(AssetManager.getRootFolderNode());
+				if (((DefaultTreeModel) tree.getModel()).getRoot() != AssetManager.getRootFolderNode()) {
+					((DefaultTreeModel) tree.getModel()).setRoot(AssetManager.getRootFolderNode());
+				}
+
 				MatrixTreeNode parent = AssetManager.getRootFolderNode();
 				int numAssets = assetids.length;
 				int level = 0;
@@ -469,29 +472,13 @@ public class MatrixTree extends CueTree
 				TreePath path = null;
 
 				try {
-
-
 					// clear all other selections
 					tree.clearSelection();
 
 					int sort_order = 0;
 					int totalKids = 0;
 
-					if (parent.getChildCount() > 0) {
-						// get the first asset in our lineage list
-						sort_order = Integer.parseInt(sort_orders[level]);
-						parent = (MatrixTreeNode)parent.getChildAt(sort_order);
-
-						if (parent.getAsset().getId().equals(assetids[level])) {
-							found = true;
-							path = getPathToRoot(parent);
-							if (isExpanded(path)) {
-								// we want treeWillExpand action to fire later on
-								tree.collapsePath(path);
-							}
-							level++;
-						}
-					}
+					found=true;
 
 					if (found) {
 						TreePath[] paths = new TreePath[numAssets+1];
@@ -508,16 +495,25 @@ public class MatrixTree extends CueTree
 								int modifier = (int)(sort_order/AssetManager.getLimit());
 								int loc = 0;
 								if (parent.getChildCount() == 0 || (AssetManager.getLimit()*modifier != totalKids)) {
-									// load another set of assets
-									removeChildNodes(parent);
-									AssetManager.refreshAsset(parent, "", AssetManager.getLimit()*modifier, -1);
-									loadedNodes += parent.getChildCount();
+									for (int i=(AssetManager.getLimit()*modifier); i > 0; i--) {
+										if (parent.getAsset().getNumKids() >= AssetManager.getLimit()*modifier) {
+											break;
+										} else {
+											modifier--;
+										}
+									}
+									if (parent.getAsset().getNumKids() >= AssetManager.getLimit()*modifier) {
+										// load another set of assets
+										removeChildNodes(parent);
+										AssetManager.refreshAsset(parent, "", AssetManager.getLimit()*modifier, -1);
+										loadedNodes += parent.getChildCount();
+									}
 								}
 
 								if (parent.getChildCount() > 0) {
 									loc += (sort_order%AssetManager.getLimit());
 
-									if (loc > parent.getChildCount()) {
+									if (loc >= parent.getChildCount()) {
 										loc = parent.getChildCount()-1;
 									} else if (loc < 0) {
 										loc = 0;
@@ -529,34 +525,13 @@ public class MatrixTree extends CueTree
 										found = true;
 										parent = foundChild;
 									} else {
-										// we will check assets around us due to notice links having sort_order
-										if (((AssetManager.getLimit()*modifier) + loc) < foundChild.getSortOrder()) {
-											while (loc >= 0 && !found) {
-												foundChild = (MatrixTreeNode)parent.getChildAt(loc);
-												if (foundChild.getAsset().getId().equals(assetids[level])) {
-													found = true;
-													parent = foundChild;
-												}
-												loc--;
-											}
-										} else if (((AssetManager.getLimit()*modifier) + loc) > foundChild.getSortOrder()) {
-											while ((loc <  parent.getChildCount()) && !found) {
-												foundChild = (MatrixTreeNode)parent.getChildAt(loc);
-												if (foundChild.getAsset().getId().equals(assetids[level])) {
-													found = true;
-													parent = foundChild;
-												}
-												loc++;
-											}
-										} else {
-											loc = 0;
-											while ((loc <  parent.getChildCount()) && !found) {
-												foundChild = (MatrixTreeNode)parent.getChildAt(loc);
-												if (foundChild.getAsset().getId().equals(assetids[level])) {
-													found = true;
-													parent = foundChild;
-												}
-												loc++;
+
+										for (int i = 0; i < parent.getChildCount(); i++) {
+											foundChild = (MatrixTreeNode)parent.getChildAt(i);
+											if (foundChild.getAsset().getId().equals(assetids[level])) {
+												found = true;
+												parent = foundChild;
+												break;
 											}
 										}
 									}
@@ -590,6 +565,8 @@ public class MatrixTree extends CueTree
 
 						scrollPathToVisible(path);
 					}
+
+
 
 					if (!found) {
 						// asset not found
