@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.508 2006/02/27 22:49:51 ndvries Exp $
+* $Id: asset.inc,v 1.509 2006/03/07 00:19:53 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.508 $
+* @version $Revision: 1.509 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2953,6 +2953,7 @@ class Asset extends MySource_Object
 		$keywords = Array();
 		$default_keywords = Array(
 								'asset_name',
+								'asset_type',
 								'asset_short_name',
 								'asset_version',
 								'asset_version_major',
@@ -3014,6 +3015,7 @@ class Asset extends MySource_Object
 		if ($descriptions) {
 			$keywords['asset_assetid']['description']                     = 'The ID of the asset';
 			$keywords['asset_name']['description']                        = 'Full name of the asset';
+			$keywords['asset_type']['description']                        = 'Asset\'s type';
 			$keywords['asset_short_name']['description']                  = 'Short name of the asset';
 			$keywords['asset_version']['description']                     = 'Version of the asset being displayed';
 			$keywords['asset_version_major']['description']               = 'Major version number of the asset being displayed';
@@ -3086,6 +3088,7 @@ class Asset extends MySource_Object
 		$default_keywords = Array(
 								'asset_assetid',
 								'asset_name',
+								'asset_type',
 								'asset_short_name',
 								'asset_version',
 								'asset_version_major',
@@ -3181,6 +3184,8 @@ class Asset extends MySource_Object
 			$replacement = $this->$func_name();
 		} else if (strcmp('asset_assetid', $keyword) == 0) {
 			$replacement = $this->id;
+		} else if (strcmp('asset_type', $keyword) == 0) {
+			$replacement = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 		} else if (0 === strpos($keyword, 'asset_attribute_')) {
 			$attr_name = substr($keyword, strlen('asset_attribute_'));
 			preg_match('/(_([^_]*)){0,1}$/', $attr_name, $matches);
