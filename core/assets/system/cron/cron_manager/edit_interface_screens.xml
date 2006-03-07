@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.8 2005/01/20 13:07:37 brobertson Exp $
+* $Id: edit_interface_screens.xml,v 1.9 2006/03/07 06:01:24 sdanis Exp $
 *
 */
 -->
 
 <screens>
-	<screen code_name="options" display_name="Options" icon="page" />
+	<screen code_name="options" display_name="Options" icon="page" force_unlock="0" />
 	<screen code_name="status" display_name="Running Status" icon="page" />
 </screens>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_options.xml,v 1.10 2005/03/30 00:39:55 lwright Exp $
+* $Id: edit_interface_screen_options.xml,v 1.11 2006/03/07 06:01:24 sdanis Exp $
 *
 */
 -->
@@ -39,6 +39,12 @@
 		</field>
 		<field attribute="num_failed_attempts">
 			<int width="3" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintExcludedTime" />
+				<process_function name="processExcludedTime" />
+			</function_call>
 		</field>
 	</section>
 </contents>

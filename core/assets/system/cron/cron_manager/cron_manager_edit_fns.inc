@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.33 2006/01/26 22:34:06 lwright Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.34 2006/03/07 06:01:24 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,7 +51,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		$this->static_screens = Array(
 									'details'		=> Array(
 														'name'			=> translate('view_jobs'),
-														'force_unlock'	=> TRUE,
+														'force_unlock'	=> FALSE,
 													   ),
 									'permissions'	=> Array(
 														'name'			=> translate('permissions'),
@@ -522,6 +522,190 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		return FALSE;
 
 	}//end processDeadLockStatus()
+
+
+	/**
+	* Paints the 'excluded time' rule
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return void
+	* @access private
+	*/
+	function paintExcludedTime(&$asset, &$o, $prefix)
+	{
+		$hours_array = Array(
+						0	=> '00',
+						1	=> '01',
+						2	=> '02',
+						3	=> '03',
+						4	=> '04',
+						5	=> '05',
+						6	=> '06',
+						7	=> '07',
+						8	=> '08',
+						9	=> '09',
+						10	=> '10',
+						11	=> '11',
+						12	=> '12',
+						13	=> '13',
+						14	=> '14',
+						15	=> '15',
+						16	=> '16',
+						17	=> '17',
+						18	=> '18',
+						19	=> '19',
+						20	=> '20',
+						21	=> '21',
+						22	=> '22',
+						23	=> '23',
+					   );
+		$days_array = Array(
+						0	=> translate('sunday'),
+						1	=> translate('monday'),
+						2	=> translate('tuesday'),
+						3	=> translate('wednesday'),
+						4	=> translate('thursday'),
+						5	=> translate('friday'),
+						6	=> translate('saturday'),
+					  );
+
+		$write_access = $asset->writeAccess('all');
+
+		$exclude_times = $asset->attr('exclude_times');
+
+		if ($write_access || !empty($exclude_times)) {
+		?>
+		<table class="sq-backend-table">
+				<tr>
+					<th class="sq-backend-table-header"><?php echo translate('cron_excluded_time') ?></th>
+					<?php
+						if ($write_access) {
+							?><th class="sq-backend-table-header"><?php echo translate('delete') ?></th><?php
+						}
+					?>
+				</tr><?php
+
+		}
+
+		if ($write_access) {
+
+			foreach ($exclude_times as $key => $details) {
+				?>
+				<tr>
+				<?php
+				$field_prefix = $prefix.'_exlude_times['.$key.']';
+				ob_start();
+					combo_box($field_prefix.'[from]', $hours_array, FALSE, $details['from']);
+					$from = ob_get_contents();
+				ob_end_clean();
+				ob_start();
+					combo_box($field_prefix.'[to]', $hours_array, FALSE, $details['to']);
+					$to = ob_get_contents();
+				ob_end_clean();
+				ob_start();
+					combo_box($field_prefix.'[days]', $days_array, TRUE, $details['days']);
+					$days = ob_get_contents();
+				ob_end_clean();
+				?><td class="sq-backend-table-cell"><?php
+					echo translate('cron_excluded_time_hour', $from, $to);
+					echo translate('cron_excluded_time_days', $days);
+				?></td><td class="sq-backend-table-cell"><?php
+					check_box($field_prefix.'[delete]', TRUE, FALSE);?></td></tr><?php
+			}
+
+			?>
+			<tr><td colspan="2">Add <?php check_box($prefix.'_add_exclude_time', TRUE, FALSE); ?></tr>
+			<?php
+
+		} else {
+			if (!empty($exclude_times)) {
+
+				foreach ($exclude_times as $key => $details) {
+					?>
+					<tr>
+					<?php
+					$from = $hours_array[$details['from']];
+					$to = $hours_array[$details['to']];
+					if (!empty($details['days'])) {
+						$selected_days = Array();
+						foreach ($details['days'] as $day) {
+							$selected_days[] = $days_array[$day];
+						}
+						$days = implode(', ', $selected_days);
+					}
+					?><td class="sq-backend-table-cell" colspan="2"><?php
+						echo translate('cron_excluded_time_hour', $from, $to);
+						if (!empty($days)) {
+							if (count($selected_days) == 7) {
+								echo translate('cron_excluded_time_every_day');
+							} else {
+								echo translate('cron_excluded_time_days', $days);
+							}
+						}
+					?></td></tr><?php
+				}
+			} else {
+				echo translate('cron_excluded_not_specified');
+			}
+		}
+
+		if ($write_access || !empty($exclude_times)) {
+			?></table><?php
+		}
+
+	}//end paintExcludedTime()
+
+
+	/**
+	* Processes the 'excluded time' rule
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return void
+	* @access private
+	*/
+	function processExcludedTime(&$asset, &$o, $prefix)
+	{
+		$modified = FALSE;
+
+		$exlude_times = Array();
+		if (isset($_POST[$prefix.'_exlude_times'])) {
+			$modified = TRUE;
+			foreach ($_POST[$prefix.'_exlude_times'] as $key => $exclude_period) {
+				if (isset($_POST[$prefix.'_exlude_times'][$key]['delete'])) {
+					continue;
+				}
+
+				if (!isset($exclude_period['days'])) {
+					$exclude_period['days'] = Array();
+				}
+
+				$exlude_times[] = $exclude_period;
+			}
+		}
+
+		if (isset($_POST[$prefix.'_add_exclude_time'])) {
+			$modified = TRUE;
+			$new_exclude_time = Array();
+			$new_exclude_time['from'] = 0;
+			$new_exclude_time['to'] = 0;
+			$new_exclude_time['days'] = Array();
+			$exlude_times[] = $new_exclude_time;
+
+		}
+
+		if ($modified) {
+			return $asset->setAttrValue('exclude_times', $exlude_times);
+		}
+
+		return FALSE;
+
+	}//end processExcludedTime()
 
 
 }//end class

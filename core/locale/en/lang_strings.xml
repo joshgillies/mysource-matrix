@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.118 2006/03/06 00:34:01 sdanis Exp $
+* $Id: lang_strings.xml,v 1.119 2006/03/07 06:02:04 sdanis Exp $
 *
 */
 
@@ -323,6 +323,11 @@
 	<string source="deleting_link_id">Deleting Link Id #%s</string>
 	<string source="asset_from_under_asset">%1$s from under %2$s</string>
 	<string source="cron_altered_asset_status">Altered status of %1$s from %2$s to %3$s</string>
+	<string source="cron_excluded_time">Blackout Period</string>
+	<string source="cron_excluded_time_hour">Do not process jobs between %1$s:00 and %2$s:00</string>
+	<string source="cron_excluded_time_days"> on %s</string>
+	<string source="cron_excluded_time_every_day"> on every day</string>
+	<string source="cron_excluded_not_specified">There are no blackout periods</string>
 
 	<string source="scheduled_future_status_change">Scheduled Future Status Changes</string>
 	<string source="locking_editing">Locking / Editing</string>

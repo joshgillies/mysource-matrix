@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.63 2006/02/28 01:03:06 bcaldwell Exp $
+* $Id: cron_manager.inc,v 1.64 2006/03/07 06:01:24 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,6 +53,7 @@ class Cron_Manager extends Asset
 	*/
 	function Cron_Manager($assetid=0)
 	{
+		$this->_ser_attrs = TRUE;
 		$this->Asset($assetid);
 
 		// including these assets here as they are required to send an error
@@ -387,6 +388,54 @@ class Cron_Manager extends Asset
 
 
 	/**
+	* Check if current time is within excluded time
+	*
+	* @param int	$start_time	Current time
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isExcludedTime($start_time)
+	{
+
+		$days_array = Array(
+						0	=> 'Sun',
+						1	=> 'Mon',
+						2	=> 'Tue',
+						3	=> 'Wed',
+						4	=> 'Thu',
+						5	=> 'Fri',
+						6	=> 'Sat',
+					  );
+		$excluded_times = $this->attr('exclude_times');
+
+		foreach ($excluded_times as $exclude_time) {
+			$excluded_days = Array();
+			foreach ($exclude_time['days'] as $excluded_day) {
+				$excluded_days[] = $days_array[$excluded_day];
+			}
+
+			$now_day = date('D', $start_time); // A textual representation of a day, three letters, eg. 'Mon'
+			$now_time = date('G', $start_time); // 24-hour format of an hour without leading zeros, eg. 8, 15
+			if (in_array($now_day, $excluded_days)) {
+				// range: [from, to)
+				if ($now_time >= $exclude_time['from'] && (($exclude_time['to'] < $exclude_time['from']) || ($now_time < $exclude_time['to']))) {
+					return TRUE;
+				}
+			} else if ($exclude_time['from'] > $exclude_time['to']) {
+				// exclude from previous day X hour to today Y hour
+				$yesterday_day = date('D', time()-86400);
+				if (in_array($yesterday_day, $excluded_days)) {
+					if ($now_time < $exclude_time['to']) return TRUE;
+				}
+			}
+		}
+		return FALSE;
+
+	}//end isExcludedTime()
+
+
+	/**
 	* Run the jobs that need executing in the system
 	*
 	* @return void
@@ -394,10 +443,17 @@ class Cron_Manager extends Asset
 	*/
 	function run()
 	{
+
 		$start_time = time();
+
 		$old_log_errors = ini_set('log_errors', '1');
 		$old_error_log  = ini_set('error_log',  SQ_LOG_PATH.'/'.$this->error_log_file_name.SQ_CONF_LOG_EXTENSION);
 		set_error_handler(Array(&$this, '_errorHandler'));
+
+		if ($this->isExcludedTime($start_time)) {
+			trigger_localised_error('CRON0047', E_USER_NOTICE, $this->name);
+			return;
+		}
 
 		if (!empty($GLOBALS['SQ_SYSTEM']->tm) && $GLOBALS['SQ_SYSTEM']->tm->inTransaction($GLOBALS['SQ_SYSTEM']->db)) {
 			trigger_localised_error('CRON0012', E_USER_WARNING);

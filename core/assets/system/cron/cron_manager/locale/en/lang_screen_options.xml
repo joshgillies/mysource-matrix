@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_options.xml,v 1.1 2005/03/30 00:39:56 lwright Exp $
+* $Id: lang_screen_options.xml,v 1.2 2006/03/07 06:01:24 sdanis Exp $
 *
 */
 -->
@@ -44,6 +44,14 @@
 		<field attribute="num_failed_attempts">
 			<display_name>Max Number of&lt;br&gt;Failed Attempts</display_name>
 			<note>%description%</note>
+		</field>
+		<field>
+			<display_name>Blackout Periods</display_name>
+			<note>Cron jobs will not run during blackout periods</note>
+			<function_call>
+				<paint_function   name="paintExcludedTime" />
+				<process_function name="processExcludedTime" />
+			</function_call>
 		</field>
 	</section>
 </contents>

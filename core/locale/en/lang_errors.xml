@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.40 2006/02/23 00:12:45 lwright Exp $
+* $Id: lang_errors.xml,v 1.41 2006/03/07 06:02:04 sdanis Exp $
 *
 */
 
@@ -371,6 +371,8 @@
 	<error code="CRON0045">Only repeating type cron jobs can have their "when" attributes set to a "TI=" prefixed value</error>
 
 	<error code="CRON0046">To add a future status you must specify the date and time at which the status should be changed</error>
+
+	<error code="CRON0047">The Cron Manager run() aborted due to blackout period.</error>
 
 	<!-- MAPS - MYSOURCE AUTOMATED PATCHING SYSTEM -->
 
