@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.157 2006/02/28 02:39:49 mmcintyre Exp $
+* $Id: listing_engine.inc,v 1.158 2006/03/07 00:44:24 sdanis Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.157 $
+* @version $Revision: 1.158 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -110,26 +110,31 @@ class Listing_Engine extends Page
 		$asset->setAttrValue('name', translate('default_format'));
 		if (!$asset->create($copy_link)) return FALSE;
 
-		return $this->_createBodycopies();
+		return $this->_createBodycopies(Array('content' => '%asset_listing%'));
 
 	}//end _createAdditional()
 
 
 	/**
 	* Creates bodycopies for this asset
-	*
 	* Override if different bodycopies are needed (eg. in search page).
+	*
+	* @param array	$contents	Content for the bodycopies
+	*							['attributes']['identifier'] => id for the default div container
+	*							['content'] => html content for the default div container
 	*
 	* @return boolean
 	* @access protected
 	*/
-	function _createBodycopies()
+	function _createBodycopies($contents=Array())
 	{
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 		$asset =& new Bodycopy();
 		$copy_link = Array('asset' => &$this, 'value' => 'page_contents' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', 'Page Contents');
-		if (!$asset->create($copy_link)) return FALSE;
+		if (!$asset->create($copy_link, $contents)) {
+			return FALSE;
+		}
 
 		if (!$this->createNoResultsBodycopy(TRUE)) {
 			return FALSE;
@@ -774,14 +779,16 @@ class Listing_Engine extends Page
 				if ($sort_field != 'assetid') $sort_numeric = FALSE;
 			} else {
 
-				if ($reverse_sort) return array_reverse($asset_list, true);
-			
+				if ($reverse_sort) {
+					return array_reverse($asset_list, TRUE);
+				}
+
 				// sort field is not defined, return the assetlist
 				return $asset_list;
 			}
 
 		}
-		
+
 		if ($sort_numeric) {
 			uasort($sort_assets, create_function('$a,$b','return '.($reverse_sort ? '$b - $a' : '$a - $b').';'));
 		} else {
