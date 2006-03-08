@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.19 2006/02/06 03:45:18 dmckee Exp $
+* $Id: design_css.inc,v 1.20 2006/03/08 23:22:48 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -556,8 +556,8 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			$filename .= '.css';
 		}
 
-
-		if (!touch($this->data_path.'/'.$filename)) {
+		
+		if (!string_to_file('', $this->data_path.'/'.$filename)) {
 			return $null;
 		}
 
