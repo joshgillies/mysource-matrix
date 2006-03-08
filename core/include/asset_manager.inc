@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.443 2006/03/06 23:36:52 emcdonald Exp $
+* $Id: asset_manager.inc,v 1.444 2006/03/08 06:04:10 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.443 $
+* @version $Revision: 1.444 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5877,6 +5877,7 @@ class Asset_Manager extends MySource_Object
 			$valid_sites = Array();
 			foreach ($all_sites as $id => $type_code) {
 				$current_site =& $this->getAsset($id);
+				if (!is_object($current_site)) continue;
 				$site_url = $original_site_url = $current_site->getUrl();
 				$original_site_url = $site_url = str_replace(Array('http://', 'https://'), '', $site_url);
 				$valid = FALSE;
