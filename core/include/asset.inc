@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.509 2006/03/07 00:19:53 sdanis Exp $
+* $Id: asset.inc,v 1.510 2006/03/08 06:15:51 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.509 $
+* @version $Revision: 1.510 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4468,7 +4468,7 @@ class Asset extends MySource_Object
 					continue;
 				}
 				$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
-				if (is_null($parent)) continue;
+				if (is_null($parent) || !is_object($parent)) continue;
 				$done_parents[] = $parent->id;
 
 				$parent_lookup_values = $parent->getLookupValues();
