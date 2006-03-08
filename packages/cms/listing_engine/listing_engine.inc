@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.158 2006/03/07 00:44:24 sdanis Exp $
+* $Id: listing_engine.inc,v 1.159 2006/03/08 22:11:55 tbarrett Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.158 $
+* @version $Revision: 1.159 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1492,6 +1492,7 @@ class Listing_Engine extends Page
 	{
 		$pointer = reset($todo);
 		if (!empty($group_info)) {
+			include_once SQ_FUDGE_PATH.'/general/general.inc';
 			// get the group bodycopy relative to this level
 			$remaining_groups = array_shift($group_info);
 			$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($remaining_groups['format_assetid']);
