@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.119 2006/03/07 06:02:04 sdanis Exp $
+* $Id: lang_strings.xml,v 1.120 2006/03/08 00:53:29 dmckee Exp $
 *
 */
 
@@ -633,6 +633,9 @@
 	<string source="hipo_abort_complete">Abort Complete</string>
 	<string source="hipo_cannot_edit_tags">Could not edit tags for asset #%s, asset does not exist</string>
 	<string source="hipo_editing_tags">Editing Tags for "%s"</string>
+	<string source="hipo_herder_resume">Resume</string>
+	<string source="hipo_herder_job_type">Job Type</string>
+	<string source="hipo_herder_continue">Resume this HIPO Job</string>
 
 	<string source="inbox_lock">Please lock the Inbox to send messages</string>
 	<string source="inbox_trash_empty">Your trash is empty.</string>
