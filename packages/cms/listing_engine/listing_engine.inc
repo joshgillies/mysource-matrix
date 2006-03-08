@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.159 2006/03/08 22:11:55 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.160 2006/03/08 23:54:07 bcaldwell Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.159 $
+* @version $Revision: 1.160 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -149,8 +149,8 @@ class Listing_Engine extends Page
 	* Returns a list of lock types available for this asset type
 	*
 	* Only maps Content lock type to the Menu lock type (Attributes|Links) for
-	* backward compatibilty purposes with Asset Listing. {@internal If this
-	* mapping is not required then this function can be removed}
+	* backward compatibilty purposes with Asset Listing. (@internal If this
+	* mapping is not required then this function can be removed)
 	*
 	* @return array
 	* @access public
@@ -1519,8 +1519,13 @@ class Listing_Engine extends Page
 
 						case 'metadata':
 						case 'standard_asset':
-							// the field value will have been the index
-							$group_name = $group_level;
+							// format type codes for printing
+							if ($remaining_groups['field'] == 'type_code') {
+								$group_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($group_level, 'name');
+							} else {
+								// the field value will have been the index
+								$group_name = $group_level;
+							}
 						break;
 
 						case 'attribute':
