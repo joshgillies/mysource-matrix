@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.150.2.3 2006/02/28 03:46:41 mmcintyre Exp $
+* $Id: listing_engine.inc,v 1.150.2.4 2006/03/08 05:38:17 sdanis Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.150.2.3 $
+* @version $Revision: 1.150.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1443,13 +1443,16 @@ class Listing_Engine extends Page
 		$relations = $this->_analyseCheckAllRelations($todo);
 
 		ob_start();
-			?>
-			<script type="text/javascript">
-			<!--
-				<?php echo $this->_buildRelationsJS(); ?>
-			//-->
-			</script>
-			<?php
+			$selections = $this->attr('asset_selections');
+			if (!empty($selections)) {
+				?>
+				<script type="text/javascript">
+				<!--
+					<?php echo $this->_buildRelationsJS(); ?>
+				//-->
+				</script>
+				<?php
+			}
 		$this->_tmp['js_relation_code'] = ob_get_clean();
 
 		if ($this->attr('group_by') == 'grouped') {
