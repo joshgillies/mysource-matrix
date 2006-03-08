@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.21.2.1 2006/02/19 23:07:25 sdanis Exp $
+ * $Id: MatrixTree.java,v 1.21.2.2 2006/03/08 04:49:01 sdanis Exp $
  *
  */
 
@@ -444,15 +444,26 @@ public class MatrixTree extends CueTree
 
 
 	/**
-	 * Works like original loadChildAssets but uses asset ids to locate nodes in the tree
-	 *
-	 * @param node The node whos children are to be loaded
-	 */
+	* Works like original loadChildAssets but uses asset ids to locate nodes in the tree
+	*
+	* @param assetids		Ids of the assets that are in the lineage of the asset that we are searching for
+	* @param sort_orders	Sort orders of the assets. This will make search quicker
+	* @param selectAll		Selects all the nodes that are in the lineage
+	* @param teleport		Teleport to the last selected node (i.e. searched asset)
+	*/
 	public void loadChildAssets(final String[] assetids, final String[] sort_orders, final boolean selectAll) {
 		MatrixStatusBar.setStatus(Matrix.translate("asset_map_status_bar_requesting"));
 		Runnable runner = new Runnable() {
 			public void run() {
-				MatrixTreeNode parent = (MatrixTreeNode)getModel().getRoot();
+
+				// if we have a different root and not the actual root then this will not work
+				// or should it?
+				tree.setRootVisible(false);
+				if (((DefaultTreeModel) tree.getModel()).getRoot() != AssetManager.getRootFolderNode()) {
+					((DefaultTreeModel) tree.getModel()).setRoot(AssetManager.getRootFolderNode());
+				}
+
+				MatrixTreeNode parent = AssetManager.getRootFolderNode();
 				int numAssets = assetids.length;
 				int level = 0;
 				int loadedNodes = 0;
@@ -466,110 +477,81 @@ public class MatrixTree extends CueTree
 					int sort_order = 0;
 					int totalKids = 0;
 
-					if (parent.getChildCount() > 0) {
-						// get the first asset in our lineage list
+					TreePath[] paths = new TreePath[numAssets+1];
+					paths[0] = path;
+
+					while (level < numAssets) {
+
+						found = false;
+						Asset asset = parent.getAsset();
+						totalKids = asset.getTotalKidsLoaded();
 						sort_order = Integer.parseInt(sort_orders[level]);
-						parent = (MatrixTreeNode)parent.getChildAt(sort_order);
 
-						if (parent.getAsset().getId().equals(assetids[level])) {
-							found = true;
-							path = getPathToRoot(parent);
-							if (isExpanded(path)) {
-								// we want treeWillExpand action to fire later on
-								tree.collapsePath(path);
-							}
-							level++;
-						}
-					}
-
-					if (found) {
-						TreePath[] paths = new TreePath[numAssets+1];
-						paths[0] = path;
-
-						while (level < numAssets) {
-
-							found = false;
-							Asset asset = parent.getAsset();
-							totalKids = asset.getTotalKidsLoaded();
-							sort_order = Integer.parseInt(sort_orders[level]);
-
-							if (!sort_orders[level].equals("-1")) {
-								int modifier = (int)(sort_order/AssetManager.getLimit());
-								int loc = 0;
-								if (parent.getChildCount() == 0 || (AssetManager.getLimit()*modifier != totalKids)) {
+						if (!sort_orders[level].equals("-1")) {
+							int modifier = (int)(sort_order/AssetManager.getLimit());
+							int loc = 0;
+							if (parent.getChildCount() == 0 || (AssetManager.getLimit()*modifier != totalKids)) {
+								for (int i=(AssetManager.getLimit()*modifier); i > 0; i--) {
+									if (parent.getAsset().getNumKids() >= AssetManager.getLimit()*modifier) {
+										break;
+									} else {
+										modifier--;
+									}
+								}
+								if (parent.getAsset().getNumKids() >= AssetManager.getLimit()*modifier) {
 									// load another set of assets
 									removeChildNodes(parent);
 									AssetManager.refreshAsset(parent, "", AssetManager.getLimit()*modifier, -1);
 									loadedNodes += parent.getChildCount();
 								}
+							}
 
-								if (parent.getChildCount() > 0) {
-									loc += (sort_order%AssetManager.getLimit());
+							if (parent.getChildCount() > 0) {
+								loc += (sort_order%AssetManager.getLimit());
 
-									if (loc > parent.getChildCount()) {
-										loc = parent.getChildCount()-1;
-									} else if (loc < 0) {
-										loc = 0;
-									}
+								if (loc >= parent.getChildCount()) {
+									loc = parent.getChildCount()-1;
+								} else if (loc < 0) {
+									loc = 0;
+								}
 
-									MatrixTreeNode foundChild = null;
-									foundChild = (MatrixTreeNode)parent.getChildAt(loc);
-									if (foundChild.getAsset().getId().equals(assetids[level])) {
-										found = true;
-										parent = foundChild;
-									} else {
-										// we will check assets around us due to notice links having sort_order
-										if (((AssetManager.getLimit()*modifier) + loc) < foundChild.getSortOrder()) {
-											while (loc >= 0 && !found) {System.out.println("h1");
-												foundChild = (MatrixTreeNode)parent.getChildAt(loc);
-												if (foundChild.getAsset().getId().equals(assetids[level])) {
-													found = true;
-													parent = foundChild;
-												}
-												loc--;
-											}
-										} else if (((AssetManager.getLimit()*modifier) + loc) > foundChild.getSortOrder()) {
-											while ((loc <  parent.getChildCount()) && !found) {System.out.println("h2");
-												foundChild = (MatrixTreeNode)parent.getChildAt(loc);
-												if (foundChild.getAsset().getId().equals(assetids[level])) {
-													found = true;
-													parent = foundChild;
-												}
-												loc++;
-											}
-										} else {
-											loc = 0;
-											while ((loc <  parent.getChildCount()) && !found) {System.out.println("h3");
-												foundChild = (MatrixTreeNode)parent.getChildAt(loc);
-												if (foundChild.getAsset().getId().equals(assetids[level])) {
-													found = true;
-													parent = foundChild;
-												}
-												loc++;
-											}
+								MatrixTreeNode foundChild = null;
+								foundChild = (MatrixTreeNode)parent.getChildAt(loc);
+								if (foundChild.getAsset().getId().equals(assetids[level])) {
+									found = true;
+									parent = foundChild;
+								} else {
+
+									for (int i = 0; i < parent.getChildCount(); i++) {
+										foundChild = (MatrixTreeNode)parent.getChildAt(i);
+										if (foundChild.getAsset().getId().equals(assetids[level])) {
+											found = true;
+											parent = foundChild;
+											break;
 										}
 									}
 								}
-							} else {
-								parent = findAssetUnderParent(parent, assetids[level], false);
-								if (parent != null) {
-									found = true;
-								}
 							}
-
-							if (!found) {
-								break;
-							} else {
-								path = getPathToRoot(parent);
-								paths[level] = path;
-								level++;
+						} else {
+							parent = findAssetUnderParent(parent, assetids[level], false);
+							if (parent != null) {
+								found = true;
 							}
 						}
 
-						// scroll to the last selected node
-						tree.addSelectionPaths(paths);
-						scrollPathToVisible(path);
+						if (!found) {
+							break;
+						} else {
+							path = getPathToRoot(parent);
+							paths[level] = path;
+							level++;
+						}
 					}
+
+					// scroll to the last selected node
+					tree.addSelectionPaths(paths);
+					scrollPathToVisible(path);
+
 
 					if (!found) {
 						// asset not found
