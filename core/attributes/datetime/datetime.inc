@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.35 2006/01/10 01:25:45 tbarrett Exp $
+* $Id: datetime.inc,v 1.36 2006/03/08 22:57:49 tbarrett Exp $
 *
 */
 
@@ -46,7 +46,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    </datetime>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -187,18 +187,20 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 
 				if ($timestamp < time()) {
 					$format = easy_time_total(time() - $timestamp, false, true);
-					if ($format['d'] > 0) {
-						$period_num = $format['d'];
-						$period_type = 'd';
-					} else if ($format['h'] > 0) {
-						$period_num = $format['h'];
-						$period_type = 'h';
-					} else if ($format['m'] > 0) {
-						$period_num = $format['m'];
-						$period_type = 'i';
-					} else if ($format['s'] > 0) {
-						$period_num = $format['s'];
-						$period_type = 's';
+					if (!empty($format)) {
+						if ($format['d'] > 0) {
+							$period_num = $format['d'];
+							$period_type = 'd';
+						} else if ($format['h'] > 0) {
+							$period_num = $format['h'];
+							$period_type = 'h';
+						} else if ($format['m'] > 0) {
+							$period_num = $format['m'];
+							$period_type = 'i';
+						} else if ($format['s'] > 0) {
+							$period_num = $format['s'];
+							$period_type = 's';
+						}
 					}
 				}
 			} else if (empty($date_field_value)) {
