@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.115 2006/01/16 23:50:50 skim Exp $
+* $Id: backend_outputter.inc,v 1.116 2006/03/08 05:55:16 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.115 $
+* @version $Revision: 1.116 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1075,7 +1075,7 @@ class Backend_Outputter
 			// -->
 			</script>
 		</head>
-		<body bgcolor="#FFFFFF" onLoad="javascript: page_on_load();" onUnLoad="javascript: page_on_unload();" marginwidth="0" marginheight="0" topmargin="0" leftmargin="0">
+		<body bgcolor="#FFFFFF" onLoad="page_on_load();" onUnLoad="page_on_unload();" marginwidth="0" marginheight="0" topmargin="0" leftmargin="0">
 
 		<form action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
 	<?php
