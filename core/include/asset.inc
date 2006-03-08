@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.503.2.4 2006/02/27 22:48:40 ndvries Exp $
+* $Id: asset.inc,v 1.503.2.5 2006/03/08 06:18:57 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.503.2.4 $
+* @version $Revision: 1.503.2.5 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -427,7 +427,7 @@ class Asset extends MySource_Object
 				// has if the parent is not the root folder
 				$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
 
-				if (!$link['asset']->cloneComponents($this, Array('permissions', 'metadata_schemas', 'workflow', 'content_tags'))) {
+				if (!$link['asset']->cloneComponents($this, Array('permissions', 'metadata_schemas', 'workflow', 'content_tags', 'roles'))) {
 					return $this->_abortCreate($trigger_level_changed);
 				}
 				unset($this->_tmp[__CLASS__.'_in_create_cascading']);
@@ -1951,6 +1951,20 @@ class Asset extends MySource_Object
 				$tag_manager->setTag($clone->id, $link['minorid'], $link['value']);
 			}
 		}//end if content tags
+
+
+		  /////////////
+		 /// ROLES ///
+		/////////////
+
+		if (in_array('roles', $components) || in_array('all', $components)) {
+			$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($this->id);
+			foreach ($roles as $roleid => $userids) {
+				foreach ($userids as $userid) {
+					$GLOBALS['SQ_SYSTEM']->am->setRole($clone->id, $roleid, $userid);
+				}
+			}
+		}//end if roles
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
