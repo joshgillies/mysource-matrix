@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.24 2006/03/07 23:05:02 sdanis Exp $
+ * $Id: MatrixTree.java,v 1.25 2006/03/08 22:17:49 sdanis Exp $
  *
  */
 
@@ -478,93 +478,89 @@ public class MatrixTree extends CueTree
 					int sort_order = 0;
 					int totalKids = 0;
 
-					found=true;
+					TreePath[] paths = new TreePath[numAssets+1];
+					paths[0] = path;
 
-					if (found) {
-						TreePath[] paths = new TreePath[numAssets+1];
-						paths[0] = path;
+					while (level < numAssets) {
 
-						while (level < numAssets) {
+						found = false;
+						Asset asset = parent.getAsset();
+						totalKids = asset.getTotalKidsLoaded();
+						sort_order = Integer.parseInt(sort_orders[level]);
 
-							found = false;
-							Asset asset = parent.getAsset();
-							totalKids = asset.getTotalKidsLoaded();
-							sort_order = Integer.parseInt(sort_orders[level]);
-
-							if (!sort_orders[level].equals("-1")) {
-								int modifier = (int)(sort_order/AssetManager.getLimit());
-								int loc = 0;
-								if (parent.getChildCount() == 0 || (AssetManager.getLimit()*modifier != totalKids)) {
-									for (int i=(AssetManager.getLimit()*modifier); i > 0; i--) {
-										if (parent.getAsset().getNumKids() >= AssetManager.getLimit()*modifier) {
-											break;
-										} else {
-											modifier--;
-										}
-									}
+						if (!sort_orders[level].equals("-1")) {
+							int modifier = (int)(sort_order/AssetManager.getLimit());
+							int loc = 0;
+							if (parent.getChildCount() == 0 || (AssetManager.getLimit()*modifier != totalKids)) {
+								for (int i=(AssetManager.getLimit()*modifier); i > 0; i--) {
 									if (parent.getAsset().getNumKids() >= AssetManager.getLimit()*modifier) {
-										// load another set of assets
-										removeChildNodes(parent);
-										AssetManager.refreshAsset(parent, "", AssetManager.getLimit()*modifier, -1);
-										loadedNodes += parent.getChildCount();
+										break;
+									} else {
+										modifier--;
 									}
 								}
+								if (parent.getAsset().getNumKids() >= AssetManager.getLimit()*modifier) {
+									// load another set of assets
+									removeChildNodes(parent);
+									AssetManager.refreshAsset(parent, "", AssetManager.getLimit()*modifier, -1);
+									loadedNodes += parent.getChildCount();
+								}
+							}
 
-								if (parent.getChildCount() > 0) {
-									loc += (sort_order%AssetManager.getLimit());
+							if (parent.getChildCount() > 0) {
+								loc += (sort_order%AssetManager.getLimit());
 
-									if (loc >= parent.getChildCount()) {
-										loc = parent.getChildCount()-1;
-									} else if (loc < 0) {
-										loc = 0;
-									}
+								if (loc >= parent.getChildCount()) {
+									loc = parent.getChildCount()-1;
+								} else if (loc < 0) {
+									loc = 0;
+								}
 
-									MatrixTreeNode foundChild = null;
-									foundChild = (MatrixTreeNode)parent.getChildAt(loc);
-									if (foundChild.getAsset().getId().equals(assetids[level])) {
-										found = true;
-										parent = foundChild;
-									} else {
+								MatrixTreeNode foundChild = null;
+								foundChild = (MatrixTreeNode)parent.getChildAt(loc);
+								if (foundChild.getAsset().getId().equals(assetids[level])) {
+									found = true;
+									parent = foundChild;
+								} else {
 
-										for (int i = 0; i < parent.getChildCount(); i++) {
-											foundChild = (MatrixTreeNode)parent.getChildAt(i);
-											if (foundChild.getAsset().getId().equals(assetids[level])) {
-												found = true;
-												parent = foundChild;
-												break;
-											}
+									for (int i = 0; i < parent.getChildCount(); i++) {
+										foundChild = (MatrixTreeNode)parent.getChildAt(i);
+										if (foundChild.getAsset().getId().equals(assetids[level])) {
+											found = true;
+											parent = foundChild;
+											break;
 										}
 									}
 								}
-							} else {
-								parent = findAssetUnderParent(parent, assetids[level], false);
-								if (parent != null) {
-									found = true;
-								}
 							}
-
-							if (!found) {
-								break;
-							} else {
-								path = getPathToRoot(parent);
-								paths[level] = path;
-								level++;
-							}
-						}
-
-						// scroll to the last selected node
-						if (selectAll) {
-							tree.addSelectionPaths(paths);
 						} else {
-							tree.addSelectionPath(path);
+							parent = findAssetUnderParent(parent, assetids[level], false);
+							if (parent != null) {
+								found = true;
+							}
 						}
 
-						if (teleport) {
-							teleportToRoot((MatrixTreeNode)path.getLastPathComponent());
+						if (!found) {
+							break;
+						} else {
+							path = getPathToRoot(parent);
+							paths[level] = path;
+							level++;
 						}
-
-						scrollPathToVisible(path);
 					}
+
+					// scroll to the last selected node
+					if (selectAll) {
+						tree.addSelectionPaths(paths);
+					} else {
+						tree.addSelectionPath(path);
+					}
+
+					if (teleport) {
+						teleportToRoot((MatrixTreeNode)path.getLastPathComponent());
+					}
+
+					scrollPathToVisible(path);
 
 
 
