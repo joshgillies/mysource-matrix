@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: GUIUtilities.java,v 1.5 2005/12/13 22:18:48 sdanis Exp $
+* $Id: GUIUtilities.java,v 1.5.2.1 2006/03/08 22:11:58 sdanis Exp $
 *
 */
 
@@ -148,9 +148,10 @@ public class GUIUtilities {
 	 */
 	public static Icon getCompoundIconForTypeCode(
 			String typeCode,
-			String compoundIconName) {
+			String compoundIconName,
+			String assetId) {
 
-		String key = "__compound_icon_" + typeCode;
+		String key = "__compound_icon_" + assetId;
 		if (!icons.containsKey(key)) {
 			Icon baseIcon = getIconForTypeCode(typeCode);
 			Icon overlayIcon = getIcon(Matrix.getProperty("parameter.url.iconurl")

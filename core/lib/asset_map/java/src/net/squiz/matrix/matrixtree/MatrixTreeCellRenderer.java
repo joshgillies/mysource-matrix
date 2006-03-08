@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTreeCellRenderer.java,v 1.6.2.1 2006/02/19 23:07:26 sdanis Exp $
+* $Id: MatrixTreeCellRenderer.java,v 1.6.2.2 2006/03/08 22:11:58 sdanis Exp $
 *
 */
 
@@ -90,12 +90,12 @@ public class MatrixTreeCellRenderer extends JLabel implements TreeCellRenderer, 
 				this.selected = selected;
 				if (!(asset.isAccessible())) {
 					CompoundIcon icon = (CompoundIcon) GUIUtilities.getCompoundIconForTypeCode(
-							asset.getType().getTypeCode(), Matrix.getProperty("parameter.url.notaccessibleicon"));
+							asset.getType().getTypeCode(), Matrix.getProperty("parameter.url.notaccessibleicon"), asset.getId());
 					setIcon(icon);
 					setDisabledIcon(icon.getDisabledIcon());
 				} else if (node.getLinkType() == LINK_TYPE_2) {
 					CompoundIcon icon = (CompoundIcon) GUIUtilities.getCompoundIconForTypeCode(
-							asset.getType().getTypeCode(), Matrix.getProperty("parameter.url.type2icon"));
+							asset.getType().getTypeCode(), Matrix.getProperty("parameter.url.type2icon"), asset.getId());
 					setIcon(icon);
 					setDisabledIcon(icon.getDisabledIcon());
 				} else {
