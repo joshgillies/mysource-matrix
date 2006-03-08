@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.73 2006/01/26 22:34:08 lwright Exp $
+* $Id: hipo_herder.inc,v 1.74 2006/03/08 00:56:23 dmckee Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -49,7 +49,7 @@ class HIPO_Herder extends MySource_Object
 	* @var &object Hipo_backend_Outputter
 	* Reference to the hipo backend outputter
 	*/
-	var $ho = null;
+	var $ho = NULL;
 
 	/**
 	* @var integer
@@ -112,13 +112,13 @@ class HIPO_Herder extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 			if (!assert_valid_db_result($hipo_vars)) {
-				$null = null;
+				$null = NULL;
 				return $null;
 			}
 
 			$job_type = $hipo_vars['job_type'];
 			if (empty($job_type)) {
-				$null = null;
+				$null = NULL;
 				return $null;
 			}
 
@@ -137,7 +137,7 @@ class HIPO_Herder extends MySource_Object
 
 			if (!$this->_jobs[$code_name]->code_name) {
 				// something buggered up, not our problem
-				$null = null;
+				$null = NULL;
 				return $null;
 			}
 
@@ -206,6 +206,10 @@ class HIPO_Herder extends MySource_Object
 				$_POST['aborting_hipo_url'] = $source_job->getOption('on_complete_url');
 			}
 			return TRUE;
+		}
+
+		if (!empty($_GET['return_to_herder'])) {
+			$source_job->_options['on_complete_url'] = './?SQ_BACKEND_PAGE=main&backend_section=hipo_herder';
 		}
 
 		$o =& $this->getBackendOutputter();
@@ -826,7 +830,7 @@ class HIPO_Herder extends MySource_Object
 				$message = $ms->newMessage(Array(), 'hipo.force_kill', $msg_reps);
 				$message->send();
 
-			}
+			}//end if have lock, and forece kill is set
 
 			if (!empty($_POST['sq_lock_release']) || !empty($_POST['sq_lock_release_manual'])) {
 				$GLOBALS['SQ_SYSTEM']->releaseLock(get_class($this));
@@ -841,7 +845,7 @@ class HIPO_Herder extends MySource_Object
 			$lock      = $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class($this));
 			$have_lock = (!empty($lock) && ($current_user_id == $lock['userid']));
 
-		}
+		}//end if not empty herder posted
 
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 		$o->setHeading('HIPO Herder', '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/hipo_herder.png').'", "20", "20", "HIPO Icon");</script>');
@@ -937,16 +941,22 @@ class HIPO_Herder extends MySource_Object
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-header"><?php echo translate('source_job_code_name'); ?></td>
-						<td class="sq-backend-table-header"><?php echo translate('code_name'); ?></td>
+						<?php
+							if ($have_lock) {
+								?>
+									<td class="sq-backend-table-header" style="width: 30px;"><?php echo translate('hipo_herder_resume'); ?></td>
+								<?php
+							}
+						?>
+						<td class="sq-backend-table-header"><?php echo translate('hipo_herder_job_type'); ?></td>
 						<td class="sq-backend-table-header"><?php echo translate('owner'); ?></td>
 						<td class="sq-backend-table-header"><?php echo translate('hipo_last_updated'); ?></td>
 						<td class="sq-backend-table-header" style="text-align: center;"><?php echo translate('percent_complete'); ?></td>
 				<?php
 					if ($have_lock) {
-				?>
-						<td class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></td>
-				<?php
+						?>
+							<td class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></td>
+						<?php
 					} // end if have lock
 				?>
 					</tr>
@@ -957,20 +967,25 @@ class HIPO_Herder extends MySource_Object
 					if (is_null($source_job)) continue;
 				?>
 					<tr>
+						<?php
+							if ($have_lock) {
+							?>
+							<td class="sq-backend-table-cell" style="text-align: center;">
+								<a href="./?SQ_ACTION=hipo&hipo_source_code_name=<?php echo $source_code_name; ?>&return_to_herder=1" style="text-decoration: none;"><img style="border: none;" src="<?php echo sq_web_path('lib'); ?>/web/images/hipo_resume.png" title="<?php echo translate('hipo_herder_continue'); ?>" alt="Resume <?php echo $source_code_name; ?>" /></a>
+							</td>
+							<?php
+							}
+						?>
 						<td class="sq-backend-table-cell">
-							<?php echo $source_job->code_name; ?>
-						</td>
-						<td class="sq-backend-table-cell">
-							<?php echo $source_job->code_name; ?>
+							<?php echo ucwords(str_replace('_', ' ', $source_job_type)); ?>
 						</td>
 						<td class="sq-backend-table-cell">
 						<?php
 							$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($source_job->userid);
-							echo $user->name.'<br>(Id #'.$user->id.')';
+							echo $user->name.' (Id #'.$user->id.')';
 						?>
 						</td>
 						<td class="sq-backend-table-cell">
-							<?php echo $GLOBALS['SQ_SYSTEM']->datetime($source_job->last_updated); ?><br>
 							<?php echo easy_time_total($source_job->last_updated - $now, TRUE); ?>
 
 						</td>
@@ -979,11 +994,11 @@ class HIPO_Herder extends MySource_Object
 						</td>
 				<?php
 					if ($have_lock) {
-				?>
-						<td class="sq-backend-table-cell" style="text-align: center;">
-							<?php check_box('force_kill[]', $source_job->code_name); ?>
-						</td>
-				<?php
+						?>
+							<td class="sq-backend-table-cell" style="text-align: center;">
+								<?php check_box('force_kill[]', $source_job->code_name); ?>
+							</td>
+						<?php
 					}// end if have_lock
 				?>
 					</tr>
@@ -999,13 +1014,12 @@ class HIPO_Herder extends MySource_Object
 									&nbsp;
 								</td>
 								<td class="sq-backend-table-cell">
-									<?php echo $job->code_name; ?>
+									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ucwords(str_replace('_', ' ', $job_type)); ?>
 								</td>
 								<td class="sq-backend-table-cell">
 									&nbsp;
 								</td>
 								<td class="sq-backend-table-cell">
-									<?php echo $GLOBALS['SQ_SYSTEM']->datetime($job->last_updated); ?><br>
 									<?php echo easy_time_total($source_job->last_updated - $now, TRUE); ?>
 								</td>
 								<td class="sq-backend-table-cell" style="text-align: center;">
@@ -1019,12 +1033,12 @@ class HIPO_Herder extends MySource_Object
 
 						}// end foreach
 					}// end if
-				}// end foreach
+				}//end foreach
 				?>
 
 				</table>
 				<?php
-			}// end if
+			}//end else
 
 
 		$o->closeSection();
