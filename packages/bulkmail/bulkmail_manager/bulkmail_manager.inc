@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.37 2006/03/06 02:55:13 rong Exp $
+* $Id: bulkmail_manager.inc,v 1.38 2006/03/09 05:10:59 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -435,6 +435,9 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	*/
 	function getQueuedJobs($job_id=NULL, $post_office_id=NULL)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$db_table = SQ_TABLE_RUNNING_PREFIX.'bmail_queue';
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -453,6 +456,9 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		$results = $db->getAssoc($sql);
 		assert_valid_db_result($results);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		// add progress/details info to each job result
 		foreach ($results as $job_id => $result) {

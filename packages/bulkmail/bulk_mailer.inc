@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.54 2006/03/07 23:15:15 sdanis Exp $
+* $Id: bulk_mailer.inc,v 1.55 2006/03/09 05:10:59 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -366,11 +366,17 @@ class Bulk_Mailer
 	*/
 	function _reconnectDB()
 	{
-			$GLOBALS['SQ_SYSTEM']->_db_conns = Array();
-			$GLOBALS['SQ_SYSTEM']->db->disconnect();
-			$GLOBALS['SQ_SYSTEM']->db = NULL;
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db');
+		// need to reset both, so that other processes wont break
+		if(!empty($GLOBALS['SQ_SYSTEM']->_db_conns['db2'])) {
+			$GLOBALS['SQ_SYSTEM']->_db_conns['db2']->disconnect();
+			$GLOBALS['SQ_SYSTEM']->_db_conns['db2'] = Array();
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		}
+		$GLOBALS['SQ_SYSTEM']->_db_conns['db']->disconnect();
+		$GLOBALS['SQ_SYSTEM']->_db_conns['db'] = Array();
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}//end _reconnectDB()
 
