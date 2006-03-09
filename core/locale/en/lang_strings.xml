@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.120 2006/03/08 00:53:29 dmckee Exp $
+* $Id: lang_strings.xml,v 1.121 2006/03/09 05:25:19 tbarrett Exp $
 *
 */
 
@@ -229,6 +229,8 @@
 	<string source="system_static_url">System Static URL</string>
 	<string source="system_static_url_http">Static URL uses HTTP</string>
 	<string source="system_static_url_https">Static URL uses HTTPS</string>
+	<string source="system_parent_domains">System Parent Domains</string>
+	<string source="system_parent_domains_note">Parent domains are examined when the system is setting the session cookie, and are useful if several system root URLs have a common parent domain (eg syd.example.com and melb.example.com).  If the current URL ends with one of the parent domains then the cookie will be set on the parent domain instead, with the result that the user's session will persist across the parent domain and all its subdomains.</string>	
 	<string source="system_static_url_note">Static URLs can be used to offload delivery of static files and images to an alternative web server. This is an advanced configuration option and requires specific web server configuration to operate correctly.</string>
 	<string source="system_root">System Root</string>
 	<string source="system_settings">System Settings</string>
