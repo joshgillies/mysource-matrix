@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.54 2006/02/17 04:28:42 skim Exp $
+* $Id: image.inc,v 1.55 2006/03/09 23:10:27 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -943,10 +943,20 @@ class Image extends File
 			$varieties = $this->attr('varieties');
 			if (empty($varieties)) return '';
 			$variety_name = substr($keyword, 8);
+			$url_only = FALSE;
+			if (substr($variety_name, -4) == '_url') {
+				$variety_name = substr($variety_name, 0, strlen($variety_name) - 4);
+				$url_only = TRUE;
+			}
 			$variety_id = array_get_index($varieties['lookups'], $variety_name);
 			if (!empty($variety_id)) {
 				$variety =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':'.$variety_id);
-				return $variety->printImageTag($this->attr('alt'), $this->attr('title'), TRUE);
+				if ($url_only) {
+					$string = $variety->getURL();
+				} else {
+					$string = $variety->printImageTag($this->attr('alt'), $this->attr('title'), TRUE);
+				}
+				return $string;
 			}
 		}
 		return parent::getKeywordReplacement($keyword);
