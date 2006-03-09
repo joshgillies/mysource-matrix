@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.61 2005/09/06 00:18:01 rong Exp $
+* $Id: general_occasional.inc,v 1.62 2006/03/09 01:02:04 dmckee Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix
 */
 
@@ -66,8 +66,8 @@ function link_type_name($type)
 /**
 * Returns an array containing ALL the valid link types (names), indexed by value (int)
 *
+* @return array
 * @access public
-* @return array(int => string)
 */
 function get_link_type_names()
 {
@@ -92,7 +92,7 @@ function get_link_type_names()
 */
 function permission_type_name($type)
 {
-	$name = get_bit_names('SQ_PERMISSION_', $type, false, true);
+	$name = get_bit_names('SQ_PERMISSION_', $type, FALSE, TRUE);
 	if (is_array($name)) return 'Unknown';
 	return ucwords(strtolower($name));
 
@@ -108,12 +108,12 @@ function permission_type_name($type)
 * @param int		$bit_value		the bit value to check
 * @param boolean	$force_array	force the return of an array even if only one name found
 * @param boolean	$exact_value	find a match for $bit_value exactly - not an array of constants that
-* 									that comprise it (ie 3 == 3 NOT 3 == 1|2)
+*									that comprise it (ie 3 == 3 NOT 3 == 1|2)
 *
 * @return string
 * @access public
 */
-function get_bit_names($prefix, $bit_value, $force_array=false, $exact_value=false)
+function get_bit_names($prefix, $bit_value, $force_array=FALSE, $exact_value=FALSE)
 {
 	if ($exact_value) {
 		$bit_values = Array($bit_value);
@@ -145,9 +145,9 @@ function get_bit_names($prefix, $bit_value, $force_array=false, $exact_value=fal
 /**
 * Takes a prefix to a set of constants and returns the set of constants and their values
 *
-* @param string	$prefix		the constants prefix (eg SQ_LINK_)
+* @param string	$prefix	the constants prefix (eg SQ_LINK_)
 *
-* @return array(string => string)
+* @return array
 * @access public
 */
 function get_constant_values($prefix)
@@ -238,7 +238,6 @@ function get_status_colour($status)
 /**
 * Returns an array showing the names of all statuses
 *
-*
 * @return array
 * @access public
 */
@@ -261,10 +260,11 @@ function get_status_names()
 * For decoding takes a string created by this fn and returns an integer
 * Returns NULL on error
 *
-* @param string|int		$value	The value to encode or decode
-* @param boolean		$encode	Whether to encode or decode
+* @param string|int	$value	The value to encode or decode
+* @param boolean	$encode	Whether to encode or decode
 *
-* @return mixed string if encoding, int if decoding and NULL on error
+* @return mixed string|int|NULL
+* @access public
 */
 function asset_link_treeid_convert($value, $encode)
 {
@@ -290,7 +290,7 @@ function asset_link_treeid_convert($value, $encode)
 		}
 		if (strlen($str) > SQ_CONF_ASSET_TREE_SIZE) {
 			trigger_localised_error('SYS0213', E_USER_WARNING, (int) $value, SQ_CONF_ASSET_TREE_SIZE, (pow(SQ_CONF_ASSET_TREE_BASE, SQ_CONF_ASSET_TREE_SIZE) - 1));
-			return null;
+			return NULL;
 		} else {
 			return str_pad($str, SQ_CONF_ASSET_TREE_SIZE, $digits[0], STR_PAD_LEFT);
 		}
@@ -302,7 +302,7 @@ function asset_link_treeid_convert($value, $encode)
 		$x = pow(SQ_CONF_ASSET_TREE_BASE, $len - 1);
 		for ($i = 0; $i < $len; $i++) {
 			if (($d = array_search($str{$i}, $digits)) === FALSE) {
-				return null;
+				return NULL;
 			}
 			$num += $x * $d;
 			$x = $x / SQ_CONF_ASSET_TREE_BASE;
@@ -319,7 +319,7 @@ function asset_link_treeid_convert($value, $encode)
 *
 * @param array	$paths	array of web paths to check
 *
-* @return array(string)
+* @return array
 * @access public
 */
 function make_valid_web_paths($paths)
@@ -348,6 +348,27 @@ function make_valid_web_paths($paths)
 		// no parentheses
 		$path = preg_replace('/[\(\)\[\]]/', '', $path);
 
+		// Replaces non-ASCII chars, so that they are still represented in the web path
+		// See Feature Request #1133
+		$replacements = Array(
+							'Å'	=> 'A',
+							'å'	=> 'a',
+							'ä'	=> 'a',
+							'ö'	=> 'o',
+							'ü'	=> 'u',
+							'Ä'	=> 'A',
+							'Ö'	=> 'O',
+							'Ü'	=> 'U',
+							'ë'	=> 'e',
+							'ï'	=> 'i',
+							'ÿ'	=> 'y',
+							'Ë'	=> 'E',
+							'Ï'	=> 'I',
+							'?'	=> 'Y',
+						);
+
+		$path = str_replace(array_keys($replacements), array_values($replacements), $path);
+
 		// taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
 		$path = preg_replace('/[^a-zA-Z0-9\-$_@.!*~(),]/', '',  $path);
 
@@ -355,7 +376,7 @@ function make_valid_web_paths($paths)
 		if ($path !== '' && !in_array($path, $valid_paths)) {
 			$valid_paths[] = $path;
 		}
-	}
+	}//end foreach
 	return $valid_paths;
 
 }//end make_valid_web_paths()
@@ -365,27 +386,26 @@ function make_valid_web_paths($paths)
 * Given an array of parameters, constructs a well-formatted SQL query from them
 *
 * Note that this does not support any use of the JOIN keyword - it only supports joins
-* that use of the WHERE clause.
+* that use the WHERE clause.
+* $query_components should be in the form:
+*			Array(
+*				'select'		=> Array of fields for the select clause
+*				'from'			=> Array of table names optionally with aliases
+*				'where'			=> Array of elements for the where clause
+*				'where_joiner'	=> operator to connect the where elements (OR or AND)
+*				'group_by'		=> Array of fields for the GROUP BY clause
+*				'order_by'		=> Array of fields for the ORDER BY clause
+*			)
 *
 * @param array	$query_components	Array of query components
-*									(
-*										'select'		=> Array of fields for the select clause
-*										'from'			=> Array of table names optionally with aliases
-*										'where'			=> Array of elements for the where clause
-*										'where_joiner'	=> operator to connect the where elements (OR or AND)
-*										'group_by'		=> Array of fields for the GROUP BY clause
-*										'order_by'		=> Array of fields for the ORDER BY clause
-*									)
 *
+* @return string
 * @access public
-* @return string	SQL query
 */
 function implode_sql($query_components)
 {
 	$where_joiner = trim(strtoupper(array_get_index($query_components, 'where_joiner', '')));
-	if ($where_joiner != 'OR') {
-		$where_joiner = 'AND';
-	}
+	if ($where_joiner != 'OR') $where_joiner = 'AND';
 
 	$select = 'SELECT '.implode(', ', $query_components['select']);
 	$from = 'FROM '.implode(', ', $query_components['from']);
