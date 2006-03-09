@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.444 2006/03/08 06:04:10 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.445 2006/03/09 03:46:04 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.444 $
+* @version $Revision: 1.445 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -843,7 +843,13 @@ class Asset_Manager extends MySource_Object
 		assert_valid_assetid($assetid);
 		$asset =& $this->_asset_cache->get($assetid);
 		if (!empty($asset) && !empty($type_code)) {
-			if ($asset->type() != $type_code) $asset = NULL;
+			if ($asset->type() != $type_code) {
+				if (!$mute_errors) {
+					trigger_localised_error('SYS0089', E_USER_WARNING, $assetid, $type_code);
+				}
+				$asset = NULL;
+				return $asset;
+			}
 		}
 		if (empty($asset)) {
 
@@ -4954,7 +4960,6 @@ class Asset_Manager extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
-
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		} else {
