@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.51 2006/01/26 22:34:05 lwright Exp $
+* $Id: site_edit_fns.inc,v 1.52 2006/03/09 01:26:00 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,46 +71,89 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	function paintURLs(&$asset, &$o, $prefix)
 	{
 		?>
-		<table border="0" cellspacing="0" cellpadding="3">
-		<?php
+		<table border="0" cellspacing="0" cellpadding="3" id="urls_<?php echo $prefix; ?>-table">
+			<tbody id="urls_<?php echo $prefix; ?>">
+				<?php
 
-		$urls = $asset->getSiteURLs();
-		$wa = $asset->writeAccess('lookups');
+				$urls = $asset->getSiteURLs();
+				$wa = $asset->writeAccess('lookups');
 
-		$urlids = Array();
+				$urlids = Array();
 
-		for (reset($urls); NULL !== ($urlid = key($urls)); next($urls)) {
-			$this->_paintURL($o, $prefix, $urlid, $urls[$urlid], $wa);
-			$urlids[] = $urlid;
-		}//end for
+				for (reset($urls); NULL !== ($urlid = key($urls)); next($urls)) {
+					$this->_paintURL($o, $prefix, $urlid, $urls[$urlid], $wa);
+					$urlids[] = $urlid;
+				}//end for
 
-		if ($wa) {
-			// paint a nice blank version
-			$this->_paintURL($o, $prefix, 0, Array('url' => '', 'protocols' => Array()), TRUE);
-			$urlids[] = 0;
+				$last_id = 0;
+				if (count($urlids) > 0) {
+					$last_id = $urlids[count($urlids)-1];
+				}
 
-			// let's be a bit nice about this, and when they submit confirm that they know what they are doing
-			$o->addOnSubmit('if (!site_url_check()) return false;');
+				if ($wa) {
+					// paint a nice blank version
+					$this->_paintURL($o, $prefix, ++$last_id, Array('url' => '', 'protocols' => Array()), TRUE);
+					$urlids[] = $last_id;
 
-		}//end if
+					// let's be a bit nice about this, and when they submit confirm that they know what they are doing
+					$o->addOnSubmit('if (!site_url_check()) return false;');
 
-		?>
+				}//end if
+
+
+				?>
+			</tbody>
 		</table>
 		<script language="JavaScript" type="text/javascript">
 
 			var site_url_protos = new Array("<?php echo implode('","', $this->protos); ?>");
 			var site_url_urlids = new Array("<?php echo implode('","', $urlids); ?>");
 
+			var optionList = document.getElementById('urls_<?php echo $prefix; ?>');
+			var	inputs = optionList.getElementsByTagName('TR');
+
+			function expandList(el) {
+				var lastId = site_url_urlids[site_url_urlids.length-1];
+				lastId++;
+				var lastInput = inputs[inputs.length-1];
+				var newInput = lastInput.cloneNode(true);
+
+
+
+				// get parent tr
+				var parentTr = el.parentNode.parentNode;
+				if (lastInput != parentTr || (inputs.length > 1 && inputs[inputs.length-2].getElementsByTagName('INPUT')[0].value == '')) {
+					return;
+				}
+
+				newInput.getElementsByTagName('INPUT')[0].value = '';
+				newInput.getElementsByTagName('INPUT')[0].id = '<?php echo $prefix; ?>' + '_urls['+lastId+'][url]';
+				newInput.getElementsByTagName('INPUT')[0].name = '<?php echo $prefix; ?>' + '_urls['+lastId+'][url]';
+
+				// protocols
+				var prot = 0;
+				for (var i = 1; i < newInput.getElementsByTagName('INPUT').length; i++) {
+					newInput.getElementsByTagName('INPUT')[i].id = '<?php echo $prefix; ?>' + '_urls['+lastId+'][protocols]['+prot+']';
+					newInput.getElementsByTagName('INPUT')[i].name = '<?php echo $prefix; ?>' + '_urls['+lastId+'][protocols]['+prot+']';
+					prot++;
+				}
+
+				site_url_urlids.push(lastId);
+				optionList.appendChild(newInput);
+
+			}
+
 			function site_url_check() {
 
 				for (var j = 0; j < site_url_urlids.length; j++) {
 					var urlid = site_url_urlids[j];
+
 					// if there isn't any value in the url box, it doesn't matter
 					var url = get_form_element_value("<?php echo $prefix; ?>_urls[" + urlid + "][url]");
 					if (url.length) {
 						var found = false;
 						for (var i = 0; i < site_url_protos.length; i++) {
-							if (get_form_element_value("<?php echo $prefix; ?>_urls[" + urlid + "][protocols][" + i + "]")) {
+							if (document.getElementById("<?php echo $prefix; ?>_urls[" + urlid + "][protocols][" + i + "]").checked) {
 								found = true;
 								break;
 							}
@@ -166,7 +209,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 				<td class="sq-backend-data">
 				<?php
 					if ($write_access) {
-						text_box($prefix.'_urls['.$i.'][url]',  $url_info['url'], 40);
+						text_box($prefix.'_urls['.$i.'][url]',  $url_info['url'], 40, '', FALSE, 'onFocus="expandList(this);"');
 					} else {
 						echo $url_info['url'];
 					}
@@ -229,7 +272,6 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		}
 
 		$old_urls = $asset->getSiteURLs();
-
 		if (!$asset->saveWebURLs($urls)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -237,7 +279,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		foreach ($urls as $urlid => $url_data) {
-			if ($urlid == 0) continue;
+			if (!isset($old_urls[$urlid])) continue;
 
 			// update the root url in the asset url table to the new url
 			$sql = 'UPDATE

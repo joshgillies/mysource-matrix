@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.86 2006/02/06 01:11:00 ndvries Exp $
+* $Id: site.inc,v 1.87 2006/03/09 01:26:00 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -266,7 +266,7 @@ class Site extends Folder
 			}
 
 			// are we an existing or an new one
-			if ($save_urlid) {
+			if (isset($current_urls[$save_urlid])) {
 				if ($current_urls[$save_urlid]['url']   != $save_urls[$save_urlid]['url'] ||
 					$current_urls[$save_urlid]['http']  != $save_urls[$save_urlid]['http'] ||
 					$current_urls[$save_urlid]['https'] != $save_urls[$save_urlid]['https']) {
@@ -549,9 +549,8 @@ class Site extends Folder
 	function printBody()
 	{
 		$index_page =& $this->getSpecialPage('index');
-		if (!is_null($index_page)) {
-			$index_page->printBody();
-		}
+		if (!is_null($index_page)) $index_page->printBody();
+
 		return;
 
 	}//end printBody()
