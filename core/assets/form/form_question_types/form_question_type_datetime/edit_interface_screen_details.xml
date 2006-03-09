@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2005/10/30 23:26:29 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2006/03/09 22:18:47 sdanis Exp $
 */
 -->
 
@@ -85,6 +85,9 @@
 		</field>
 		<field attribute="extra">
 			<text width="20" height="1" />
+		</field>
+		<field attribute="cust_required_error">
+			<text width="60" />
 		</field>
 	</section>
 </contents>

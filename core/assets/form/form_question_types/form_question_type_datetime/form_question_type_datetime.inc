@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.3 2005/10/30 23:26:29 lwright Exp $
+* $Id: form_question_type_datetime.inc,v 1.4 2006/03/09 22:18:47 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,8 +58,9 @@ class Form_Question_Type_Datetime extends Form_Question
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -71,8 +72,8 @@ class Form_Question_Type_Datetime extends Form_Question
 	/**
 	* generates the html for this question to display it in the frontend
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function getHtmlField()
 	{
@@ -106,7 +107,8 @@ class Form_Question_Type_Datetime extends Form_Question
 		foreach ($elements as $attr => $t) {
 			$parameters['style'][$t] = ($text_params[$t] ? 't' : 's');
 			if ($show_params[$t]) $parameters['show'][] = $t;
-			if ($null_params[$t]) $parameters['null'][$t] = 1;
+			// we will allow null if this field is required then check for blank value
+			$parameters['null'][] = $t;
 		}
 
 		$dt_field =& new Datetime_Field($name, $value, $parameters);
@@ -125,8 +127,8 @@ class Form_Question_Type_Datetime extends Form_Question
 	/**
 	* returns a set of default parameters for the datatime_field class
 	*
+	* @return array
 	* @access public
-	* @return Array(mixed)
 	*/
 	function getDefaultParameters()
 	{
@@ -156,8 +158,8 @@ class Form_Question_Type_Datetime extends Form_Question
 	*
 	* Returned array is 'short name' => 'full name'
 	*
+	* @return array
 	* @access public
-	* @return Array(string => string)
 	*/
 	function getAllowedRules()
 	{
@@ -169,13 +171,47 @@ class Form_Question_Type_Datetime extends Form_Question
 	/**
 	* Look at user-specified and internal rules to see if this question currently has a valid value
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function hasValidValue()
 	{
 		$answer = $this->getValue();
-		if (!is_iso8601($answer)) return false;
+		$required_fields = $this->attr('null');
+		$show_params = $this->attr('show');
+
+		$custom_error = $this->attr('cust_required_error');
+		if (empty($custom_error)) {
+			$custom_error = translate('core_form_datetime_invalid_date_time');
+		}
+
+		$this->failed_rules[] = $custom_error;
+
+		foreach ($required_fields as $field => $required) {
+			if ($required != '1' && $show_params[$field] == '1') {
+				if ($field == 'y' && (substr($answer, 0, 2) == '--')) {
+					return FALSE;
+
+				} else if ($field == 'm' && (substr($answer, 5, 2) == '--')) {
+					return FALSE;
+
+				} else if ($field == 'd' && (substr($answer, 8, 2) == '--')) {
+					return FALSE;
+
+				} else if ($field == 'h' && (substr($answer, 11, 2) == '--')) {
+					return FALSE;
+
+				} else if ($field == 's' && (substr($answer, 14, 2) == '--')) {
+					return FALSE;
+
+				} else if ($field == 'i' && (substr($answer, 17, 2) == '--')) {
+					return FALSE;
+
+				}
+			}
+		}
+
+		if (!is_iso8601($answer)) return FALSE;
 		return parent::hasValidValue();
 
 	}//end hasValidValue()
@@ -184,16 +220,16 @@ class Form_Question_Type_Datetime extends Form_Question
 	/**
 	* returns the answer for this question for the summary, generally overriden by children
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function getSummary()
 	{
 
 
-		$allow_circa = false;
+		$allow_circa = FALSE;
 		$show_params = $this->attr('show');
-		if ($show_params['c']) $allow_circa = true;
+		if ($show_params['c']) $allow_circa = TRUE;
 
 		if ($allow_circa) {
 			list($date, $time, $circa) = explode(' ', $this->getValue());
@@ -210,9 +246,9 @@ class Form_Question_Type_Datetime extends Form_Question
 
 		// if blank, then fill date up (using bits and pieces from the date
 		// 2000-01-01 00:00:00 - year 2000 so leap year dates appear properly)
-		foreach($val as $val_key => $val_time) {
+		foreach ($val as $val_key => $val_time) {
 			if (preg_match('|^-*$|', $val[$val_key])) {
-				switch($val_key) {
+				switch ($val_key) {
 					case 'y':
 						$val[$val_key] = 2000;
 					break;
@@ -320,7 +356,7 @@ class Form_Question_Type_Datetime extends Form_Question
 
 		// so we can extract the correct month and day-suffix- using 2000 as it's a leap year (so we can extract for Jan 29).
 
-		//return ($circa ? 'circa ' : '').trim($show_date).(empty($show_date) || empty($show_time) ? '' : ', ').trim($show_time);
+		// return ($circa ? 'circa ' : '').trim($show_date).(empty($show_date) || empty($show_time) ? '' : ', ').trim($show_time);
 
 	}//end getSummary()
 
@@ -330,17 +366,17 @@ class Form_Question_Type_Datetime extends Form_Question
 	*
 	* @param mixed	$answer	the answer for the question
 	*
+	* @return string
 	* @access public
-	* @return string the summary XML
 	*/
 	function getXML($answer)
 	{
 		ob_start();
 
-		$allow_circa = false;
+		$allow_circa = FALSE;
 
 		$show_params = $this->attr('show');
-		if ($show_params['c']) $allow_circa = true;
+		if ($show_params['c']) $allow_circa = TRUE;
 
 		if ($allow_circa) {
 			list($date, $time, $circa) = explode(' ', $answer);
@@ -377,15 +413,15 @@ class Form_Question_Type_Datetime extends Form_Question
 		$value = $_POST[$name.'value'];
 		$show = $_POST[$name.'show'];
 
-		if (strpos($show, 'y') === false) {
+		if (strpos($show, 'y') === FALSE) {
 			$val .= '----';
 		} else {
-			$val .= str_pad($_POST[$name.'value']['y'], 4, '0', STR_PAD_LEFT);
+			$val .= str_pad($_POST[$name.'value']['y'], 4, '-', STR_PAD_LEFT);
 		}
 
 		$val .= '-';
 
-		if (strpos($show, 'm') === false) {
+		if (strpos($show, 'm') === FALSE) {
 			$val .= '--';
 		} else {
 			$val .= str_pad($_POST[$name.'value']['m'], 2, '0', STR_PAD_LEFT);
@@ -393,7 +429,7 @@ class Form_Question_Type_Datetime extends Form_Question
 
 		$val .= '-';
 
-		if (strpos($show, 'd') === false) {
+		if (strpos($show, 'd') === FALSE) {
 			$val .= '--';
 		} else {
 			$val .= str_pad($_POST[$name.'value']['d'], 2, '0', STR_PAD_LEFT);
@@ -401,7 +437,7 @@ class Form_Question_Type_Datetime extends Form_Question
 
 		$val .= ' ';
 
-		if (strpos($show, 'h') === false) {
+		if (strpos($show, 'h') === FALSE) {
 			$val .= '--';
 		} else {
 			$val .= str_pad($_POST[$name.'value']['h'], 2, '0', STR_PAD_LEFT);
@@ -409,7 +445,7 @@ class Form_Question_Type_Datetime extends Form_Question
 
 		$val .= ':';
 
-		if (strpos($show, 'i') === false) {
+		if (strpos($show, 'i') === FALSE) {
 			$val .= '--';
 		} else {
 			$val .= str_pad($_POST[$name.'value']['i'], 2, '0', STR_PAD_LEFT);
@@ -417,7 +453,7 @@ class Form_Question_Type_Datetime extends Form_Question
 
 		$val .= ':';
 
-		if (strpos($show, 's') === false) {
+		if (strpos($show, 's') === FALSE) {
 			$val .= '--';
 		} else {
 			$val .= str_pad($_POST[$name.'value']['s'], 2, '0', STR_PAD_LEFT);
@@ -425,7 +461,7 @@ class Form_Question_Type_Datetime extends Form_Question
 
 		$this->setValue($val);
 
-		return true;
+		return TRUE;
 
 	}//end populate()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2005/10/30 23:26:29 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.3 2006/03/09 22:18:47 sdanis Exp $
 */
 -->
 
@@ -69,6 +69,10 @@
 		<field attribute="extra">
 			<display_name>Extras</display_name>
 			<note>Provides a means of specifying CSS classes, javascript onClick functions or other INPUT tag attributes, eg class="yourCssClass"</note>
+		</field>
+		<field attribute="cust_required_error">
+			<display_name>Custom Error Message</display_name>
+			<note>Error message that will be displayed if the entered date/time is invalid</note>
 		</field>
 	</section>
 </contents>
