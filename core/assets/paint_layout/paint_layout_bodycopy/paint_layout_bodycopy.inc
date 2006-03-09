@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.26 2006/02/09 00:41:46 lwright Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.27 2006/03/09 04:32:35 dmckee Exp $
 *
 */
 
@@ -50,7 +50,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -436,7 +436,9 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			foreach ($condition_names as $condition_name) {
 				$keywords[$condition_name] = ucwords(str_replace('_', ' ', $condition_name));
 				$keywords['begin_'.$condition_name] = translate('core_paint_layout_bodycopy_begin').' '.ucwords(str_replace('_', ' ', $condition_name));
+				$keywords['else_'.$condition_name] = translate('core_paint_layout_bodycopy_else').' '.ucwords(str_replace('_', ' ', $condition_name));
 				$keywords['end_'.$condition_name] = translate('core_paint_layout_bodycopy_end').' '.ucwords(str_replace('_', ' ', $condition_name));
+				$keywords['begin_'.$condition_name.'%<br />%else_'.$condition_name.'%<br />%end_'.$condition_name] = translate('core_paint_layout_bodycopy_full').' '.ucwords(str_replace('_', ' ', $condition_name));
 			}
 
 			ksort($keywords);
