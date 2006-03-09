@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.53 2005/12/07 05:57:42 dmckee Exp $
+* $Id: edit.css,v 1.54 2006/03/09 03:31:07 sdanis Exp $
 *
 */
 
@@ -193,6 +193,12 @@ td.sq-backend-nav-history {
 	font-size:			11px;
 	font-weight:		bold;
 	vertical-align:		top;
+}
+
+
+.sq-backend-commit-button-container {
+	padding-right:30px;
+	text-align: right;
 }
 
 
