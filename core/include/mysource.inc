@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.168 2006/02/27 00:47:54 emcdonald Exp $
+* $Id: mysource.inc,v 1.169 2006/03/09 01:08:36 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.168 $
+* @version $Revision: 1.169 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1267,7 +1267,22 @@ class MySource
 			$header .= "path=$session_params[path]; ";
 		}
 		if (!empty($session_params['domain'])) {
-			$header .= "domain=$session_params[domain]";
+			$domain = $session_params['domain'];
+			if (defined('SQ_CONF_SYSTEM_PARENT_DOMAINS')) {
+				$parent_domains = explode("\n", SQ_CONF_SYSTEM_PARENT_DOMAINS);
+				if (is_array($parent_domains)) {
+					foreach ($parent_domains as $parent_domain) {
+						$parent_length = strlen($parent_domain);
+						if ((strlen($domain) >= $parent_length) && (substr($domain, -$parent_length) == $parent_domain)) {
+							// our current domain is a subdomain of this parent domain, so we will
+							// actually set the cookie for the parent domain and its children
+							$domain = '.'.$parent_domain;
+							break;
+						}
+					}
+				}
+			}
+			$header .= "domain=$domain";
 		}
 		header($header);
 

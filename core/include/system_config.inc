@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.75 2006/02/22 04:47:09 lwright Exp $
+* $Id: system_config.inc,v 1.76 2006/03/09 01:08:36 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -60,6 +60,7 @@ class System_Config extends Config
 						'SQ_CONF_SYSTEM_NAME'				=> Array('editable' => 1, 'default' => 'The System'),
 						'SQ_CONF_SYSTEM_OWNER'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_SYSTEM_ROOT_URLS'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_SYSTEM_PARENT_DOMAINS'		=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_STATIC_ROOT_URL'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_WEB_PATH_SEPARATOR'		=> Array('editable'	=> 1, 'default'	=> '_'),
 						'SQ_CONF_STATIC_ROOT_HTTP'			=> Array('editable' => 1, 'default' => true),
@@ -385,30 +386,38 @@ class System_Config extends Config
 		$o->openSection(translate('system_urls'));
 
 			$o->openField(translate('system_root_urls'));
-			if ($write_access) {
-				text_area($class.'[SQ_CONF_SYSTEM_ROOT_URLS]', SQ_CONF_SYSTEM_ROOT_URLS, 80, 4);
-			} else {
-				echo nl2br(SQ_CONF_SYSTEM_ROOT_URLS);
-			}
+				if ($write_access) {
+					text_area($class.'[SQ_CONF_SYSTEM_ROOT_URLS]', SQ_CONF_SYSTEM_ROOT_URLS, 80, 4);
+				} else {
+					echo nl2br(SQ_CONF_SYSTEM_ROOT_URLS);
+				}
+			$o->closeField();
+
+			$o->openField(translate('system_parent_domains'));
+				if ($write_access) {
+					text_area($class.'[SQ_CONF_SYSTEM_PARENT_DOMAINS]', SQ_CONF_SYSTEM_PARENT_DOMAINS, 80, 2);
+				} else {
+					if (SQ_CONF_SYSTEM_PARENT_DOMAINS == '') {
+						echo translate('none');
+					} else {
+						echo nl2br(SQ_CONF_SYSTEM_PARENT_DOMAINS);
+					}
+				}
+				$o->note(translate('system_parent_domains_note'));
+			$o->closeField();
 
 			$o->openField(translate('system_static_url'));
 				if ($write_access && $is_root) {
 					text_box($class.'[SQ_CONF_STATIC_ROOT_URL]', SQ_CONF_STATIC_ROOT_URL, 80);
 				} else {
 					if (SQ_CONF_STATIC_ROOT_URL == '') {
-						echo 'Not configured';
+						echo translate('not_set');
 					} else {
 						echo SQ_CONF_STATIC_ROOT_URL;
 					}
 				}
-				$o->closeField();
-
-			$o->openField(translate('system_web_path_separator'));
-			if ($write_access) {
-				text_box($class.'[SQ_CONF_WEB_PATH_SEPARATOR]', SQ_CONF_WEB_PATH_SEPARATOR, 1, 1);
-			} else {
-				echo nl2br(SQ_CONF_WEB_PATH_SEPARATOR);
-			}
+				$o->note(translate('system_static_url_note'));
+			$o->closeField();
 
 			$o->openField(translate('system_static_url_http'));
 				if ($write_access && $is_root) {
@@ -426,7 +435,13 @@ class System_Config extends Config
 				}
 			$o->closeField();
 
-			$o->sectionNote(translate('system_static_url_note'));
+			$o->openField(translate('system_web_path_separator'));
+			if ($write_access) {
+				text_box($class.'[SQ_CONF_WEB_PATH_SEPARATOR]', SQ_CONF_WEB_PATH_SEPARATOR, 1, 1);
+			} else {
+				echo nl2br(SQ_CONF_WEB_PATH_SEPARATOR);
+			}
+			$o->closeField();
 
 		$o->closeSection();
 
