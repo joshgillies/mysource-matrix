@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.25 2006/03/06 00:33:43 sdanis Exp $
+* $Id: email_format.inc,v 1.26 2006/03/09 03:44:35 sdanis Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *    <email_format />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -516,7 +516,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		// Attachments
 		$attachments = Array();
-		if ($current_value['inc_attachments'] && isset($current_value['attachments']) && !empty($current_value['attachments'])) {
+		if (isset($current_value['inc_attachments']) && $current_value['inc_attachments'] && isset($current_value['attachments']) && !empty($current_value['attachments'])) {
 			foreach ($current_value['attachments'] as $file_asset_id) {
 				$file_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($file_asset_id);
 				$file_info = $file_asset->getExistingFile();
