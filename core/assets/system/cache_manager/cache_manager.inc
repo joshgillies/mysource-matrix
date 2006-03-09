@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.34.2.3 2006/03/02 01:08:37 rong Exp $
+* $Id: cache_manager.inc,v 1.34.2.4 2006/03/09 23:53:06 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.34.2.3 $
+* @version $Revision: 1.34.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -306,14 +306,16 @@ class Cache_Manager extends Asset
 	function clearCache($assetids)
 	{
 		if (!empty($assetids)) {
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'DELETE FROM
 						sq_cache
 					WHERE
 						assetid in ('.implode(',', $assetids).')';
+
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
@@ -509,7 +511,7 @@ class Cache_Manager extends Asset
 	*/
 	function _getCache($cache_key, $perm_key, $url)
 	{
-		 // to get rid of replication lag if the system has multiple db
+		// to get rid of replication lag if the system has multiple db
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
