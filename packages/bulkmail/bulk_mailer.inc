@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.55 2006/03/09 05:10:59 rong Exp $
+* $Id: bulk_mailer.inc,v 1.56 2006/03/09 23:37:06 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -367,7 +367,7 @@ class Bulk_Mailer
 	function _reconnectDB()
 	{
 		// need to reset both, so that other processes wont break
-		if(!empty($GLOBALS['SQ_SYSTEM']->_db_conns['db2'])) {
+		if (!empty($GLOBALS['SQ_SYSTEM']->_db_conns['db2'])) {
 			$GLOBALS['SQ_SYSTEM']->_db_conns['db2']->disconnect();
 			$GLOBALS['SQ_SYSTEM']->_db_conns['db2'] = Array();
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -464,8 +464,8 @@ class Bulk_Mailer
 	* Expands user_group to get all user/bulkmail_user
 	* Skips those recipients that is in .queue or .sent directory
 	*
-	* @param int	$asset_to_send	the id of the asset to send
-	* @param array	$recipients		the job's 'recipients' attribute stripped from vars
+	* @param int	$asset_to_send_id	the id of the asset to send
+	* @param array	$recipients			the job's 'recipients' attribute stripped from vars
 	*
 	* @return array
 	* @access public
@@ -475,41 +475,49 @@ class Bulk_Mailer
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-		$asset_to_send =& $am->getAsset($asset_to_send_id);
-
 		if (!is_array($recipients)) {
 			$recipients = Array($recipients);
 		}
 
+		$asset_to_send =& $am->getAsset($asset_to_send_id);
 		$recipients_expanded = Array();
+		$problematic_list = Array();
+
 		foreach ($recipients as $recipient_id) {
-			$recipient =& $am->getAsset($recipient_id);
-			if ($am->isTypeDecendant($recipient->type(), 'user_group')) {
-				$recipients_expanded += $am->getChildren($recipient->id, 'user', FALSE, FALSE);
-				$recipients_expanded += $am->getChildren($recipient->id, 'bulkmail_user', FALSE, FALSE);
+			// check for read permission (user/group) beforehand
+			if (!$asset_to_send->readAccess(Array($recipient_id))) {
+				$problematic_list[] = $recipient_id;
 			} else {
-				$recipients_expanded[$recipient->id] = '';
+				$recipient =& $am->getAsset($recipient_id);
+				if ($am->isTypeDecendant($recipient->type(), 'user_group')) {
+					// expand user group
+					$recipients_expanded += $am->getChildren($recipient->id, 'user', FALSE, FALSE);
+					$recipients_expanded += $am->getChildren($recipient->id, 'bulkmail_user', FALSE, FALSE);
+				} else {
+					// add single recipient
+					$recipients_expanded[$recipient->id] = $recipient->type();
+				}
+				$am->forgetAsset($recipient);
 			}
-			$am->forgetAsset($recipient);
 		}
 
 		$recipients = Array();
 		$recipients_query = Array();
-		$problematic_list = Array();
+		$permission_denied = $am->getPermission($asset_to_send_id, SQ_PERMISSION_READ, FALSE, FALSE);
 
 		for ($recipients_expanded; NULL != ($recipient_id = key($recipients_expanded)); next($recipients_expanded)) {
-			if (!$asset_to_send->readAccess(Array($recipient_id))) {
-				unset($recipients_expanded[$recipient_id]);
-				$problematic_list[] = $recipient_id;
-			}
-
-			$recipient_id_parts = explode(':', $recipient_id);
-			if (isset($recipient_id_parts[1])) {
-				$recipient =& $am->getAsset($recipient_id);
-				$recipients[$recipient->id] = $recipient->attr('email');
-				$am->forgetAsset($recipient);
+			if (!in_array($recipient_id, $permission_denied)) {
+				$recipient_id_parts = explode(':', $recipient_id);
+				if (isset($recipient_id_parts[1])) {
+					$recipient =& $am->getAsset($recipient_id);
+					$recipients[$recipient->id] = $recipient->attr('email');
+					$am->forgetAsset($recipient);
+				} else {
+					$recipients_query[] = $db->quoteSmart($recipient_id);
+				}
 			} else {
-				$recipients_query[] = $db->quoteSmart($recipient_id);
+				// read access denied for this recipient
+				$problematic_list[] = $recipient_id;
 			}
 		}
 
@@ -530,7 +538,7 @@ class Bulk_Mailer
 		$recipients += $query;
 
 		$result['recipient'] = $recipients;
-		$result['problematic'] = array_diff(array_keys($recipients_expanded), array_keys($recipients));
+		$result['problematic'] = $problematic_list;
 		return $result;
 
 	}//end getAllRecipients()
@@ -640,7 +648,7 @@ class Bulk_Mailer
 	* @return string
 	* @access public
 	*/
-	function generateContent($content_id, $content_gen_as, $content_design, $content_layout, $job_path, $recipient_id=null)
+	function generateContent($content_id, $content_gen_as, $content_design, $content_layout, $job_path, $recipient_id=NULL)
 	{
 		// Get the user before we change it
 		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
@@ -717,7 +725,7 @@ class Bulk_Mailer
 	function replaceContentKeywords($content, $user)
 	{
 		// to insert user keywords in the 'Asset to Send' content,
-		// add 'bulkmail_' prefix in front of normal keywords
+		// add 'recipient_' prefix in front of normal keywords
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$keywords = $user->getAvailableKeywords();
 		$keyword_replacements = Array();
