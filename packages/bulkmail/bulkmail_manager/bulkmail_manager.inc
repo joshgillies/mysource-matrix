@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.38 2006/03/09 05:10:59 rong Exp $
+* $Id: bulkmail_manager.inc,v 1.39 2006/03/10 04:11:20 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -733,7 +733,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 						$errors[] = translate('bm_warning_generate_as_login_error', $user->name, $user->id);
 					}
 					// pre-selected user does not have (effective) read permission for content page
-					$read_access =$GLOBALS['SQ_SYSTEM']->am->getPermission($content_page->id, SQ_PERMISSION_READ, TRUE, TRUE, TRUE);
+					$read_access = $GLOBALS['SQ_SYSTEM']->am->getPermission($content_page->id, SQ_PERMISSION_READ, TRUE, TRUE, TRUE);
 					$public_read_access = $content_page->readAccess(Array($public_user->id));
 					if (!in_array($user->id, $read_access) && !$public_read_access) {
 						$errors[] = translate('bm_warning_generate_as_no_read_access', $user->name, $user->id, $content_page->name, $content_page->id);
@@ -741,8 +741,24 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 				}
 			}
+
+			// check recipient read access (not expanding groups)
+			$problematic_list = Array();
+			$permission_denied = $GLOBALS['SQ_SYSTEM']->am->getPermission($details_info['content_id'], SQ_PERMISSION_READ, FALSE, FALSE);
+			foreach ($recipients as $recipient_id) {
+				if (!$content_page->readAccess(Array($recipient_id))) {
+					$problematic_list[] = $recipient_id;
+				}
+				if (in_array($recipient_id, $permission_denied)) {
+					$problematic_list[] = $recipient_id;
+				}
+			}
+			if (!empty($problematic_list)) {
+				$errors[] = translate('bm_warning_recipient_no_read_access', implode(', ', $problematic_list));
+			}
+
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_page);
-		}
+		}//end else
 
 		// design does not have public read access
 		if (!empty($details_info['content_design'])) {

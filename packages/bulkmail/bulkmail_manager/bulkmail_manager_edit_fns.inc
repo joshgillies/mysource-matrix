@@ -13,7 +13,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_offi
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -142,9 +142,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	*/
 	function _paintJobQueue(&$asset, $jobs)
 	{
-		if (empty($jobs)) {
-			return;
-		}
+		if (empty($jobs)) return;
 
 		$write_access = $asset->writeAccess('attributes');
 
