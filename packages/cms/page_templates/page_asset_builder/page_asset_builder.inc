@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.89 2006/03/01 05:57:10 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.90 2006/03/10 02:27:39 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1298,12 +1298,29 @@ class Page_Asset_Builder extends Page
 				} else {
 					$asset =& new $create_type();
 				}
+
+				// If this form was commited before but AB failed to create the asset due to errors
+				// then we will insert the previously entered field values to the asset's attribute values
+				foreach ($asset->vars as $attr_name => $attr_details) {
+					foreach ($_POST as $post_var => $post_var_value) {
+						$pos = strpos($post_var, $create_type);
+						if (($pos !== FALSE) && ($pos == 0)) {
+							// does this var ends with the current attrid?
+							$idlength = strlen($attr_details['attrid']);
+							if (substr($post_var, -$idlength) == $attr_details['attrid']) {
+								// we got the attribute value in post change the attr val
+								$asset->setAttrValue($attr_name, $post_var_value);
+							}
+						}
+					}
+				}
+
 				$asset->paintBackend($o);
 				$o->paintSections();
 				$o->_contents = Array();
 				echo '</div>';
 				$display = 'none'; // all subsequent create types hidden initially
-			}
+			}//end foreach
 			$create_form = ob_get_contents();
 		ob_end_clean();
 
