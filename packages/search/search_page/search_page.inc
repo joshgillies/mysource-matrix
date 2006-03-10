@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.165 2006/03/03 03:49:06 tbarrett Exp $
+* $Id: search_page.inc,v 1.166 2006/03/10 04:16:25 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.165 $
+* @version $Revision: 1.166 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -524,20 +524,20 @@ class Search_Page extends Listing_Engine
 	*/
 	function _hasMixedFieldTypes($field)
 	{
-		$mixed_ds_types = false;
+		$mixed_ds_types = FALSE;
 		if (count($field['data_sources']) > 1) {
 			// several data sources, see what we can do
-			$first_ds_type = null;
-			$first_field_type = null;
+			$first_ds_type = NULL;
+			$first_field_type = NULL;
 			foreach ($field['data_sources'] as $ds) {
 				if (is_null($first_ds_type)) {
 					$first_ds_type = $ds['type'];
 				}
 				if ($ds['type'] != $first_ds_type) {
-					$mixed_ds_types = true;
+					$mixed_ds_types = TRUE;
 					break;
 				}
-				$this_field_type = null;
+				$this_field_type = NULL;
 				switch ($ds['type']) {
 					case 'metadata':
 						$assetid = $ds['params']['assetid'];
@@ -563,15 +563,15 @@ class Search_Page extends Listing_Engine
 					$first_field_type = $this_field_type;
 				}
 				if ($this_field_type != $first_field_type) {
-					$mixed_ds_types = true;
+					$mixed_ds_types = TRUE;
 					break;
 				}
 				if (in_array(strtolower($this_field_type), Array('selection', 'metadata_field_select'))) {
-					$mixed_ds_types = true;
+					$mixed_ds_types = TRUE;
 					break;
 				}
-			}
-		}
+			}//end foreach
+		}//end if
 		return $mixed_ds_types;
 
 	}//end _hasMixedFieldTypes()
@@ -1045,7 +1045,7 @@ class Search_Page extends Listing_Engine
 					break;
 
 				}//end switch field type
-			}
+			}//end else
 
 			if (!$read_only) {
 				$this->registerFormField('queries_'.$query_var);
@@ -2591,6 +2591,13 @@ class Search_Page extends Listing_Engine
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
 		$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy');
 
+		// if there is a search in search bodycopy add it to the bodycopy list
+		// it will need some of the initial page keywords
+		$sis_bodycopy_link    = $this->getFormatBodycopyLink('sis_form');
+		if (!empty($sis_bodycopy_link)) {
+			$bodycopy_links[] = $sis_bodycopy_link;
+		}
+
 		$bodycopies = Array();
 		$type_formats = Array();
 
@@ -2610,40 +2617,44 @@ class Search_Page extends Listing_Engine
 
 		// work out if forms are customised
 		$search_bodycopy_link = $this->getFormatBodycopyLink('search_form');
-		$sis_bodycopy_link    = $this->getFormatBodycopyLink('sis_form'); // search in search
 		$search_customised    = !empty($search_bodycopy_link) && $search_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
 		$sis_customised       = !empty($sis_bodycopy_link) && $sis_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
 
 		foreach ($bodycopies as $bodycopy) {
-			if ($bodycopy == 'initial') {
+			if ($bodycopy == 'initial' || $bodycopy == 'sis_form') {
 				// work out the query field keywords
 				$fields = $this->attr('fields');
 				foreach ($fields as $field => $field_data) {
 					$keywords[$field.'_query'] = translate('sch_page_keyword_search_field', $field);
-					$keywords[$field.'_query_logic'] = translate('sch_page_keyword_search_field_logic', $field);
+					if ($bodycopy == 'initial') {
+						$keywords[$field.'_query_logic'] = translate('sch_page_keyword_search_field_logic', $field);
+					}
 				}
 
-				// work out search category keywords
-				foreach ($this->attr('categories') as $cat_name => $cat_details) {
-					$keywords[$cat_name.'_category_chooser'] = 'Dropdown box for category set '.$cat_name;
+				if ($bodycopy == 'initial') {
+					// work out search category keywords
+					foreach ($this->attr('categories') as $cat_name => $cat_details) {
+						$keywords[$cat_name.'_category_chooser'] = 'Dropdown box for category set '.$cat_name;
+					}
+				}
+			}
+
+			if ($bodycopy != 'sis_form') {
+				foreach ($this->keywords[$bodycopy] as $keyword) {
+					$keywords[$keyword] = ucwords(str_replace('_', ' ', $keyword));
 				}
 
-			}
+				// customised forms
+				if ($search_customised) {
+					$keywords += $this->_getCustomisedFormKeywords();
+				}
 
-			foreach ($this->keywords[$bodycopy] as $keyword) {
-				$keywords[$keyword] = ucwords(str_replace('_', ' ', $keyword));
+				// search in search
+				if ($sis_customised) {
+					$keywords += $this->_getSearchInSearchKeywords();
+				}
 			}
-
-			// customised forms
-			if ($search_customised) {
-				$keywords += $this->_getCustomisedFormKeywords();
-			}
-
-			// search in search
-			if ($sis_customised) {
-				$keywords += $this->_getSearchInSearchKeywords();
-			}
-		}
+		}//end foreach
 
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
