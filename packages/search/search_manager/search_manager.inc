@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.101 2006/03/02 23:36:44 tbarrett Exp $
+* $Id: search_manager.inc,v 1.102 2006/03/10 03:10:38 mmcintyre Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2567,9 +2567,9 @@ class Search_Manager extends Asset
 			$query['from'][] = 'sq_vw_ast_perm ap';
 			$query['where'][] = 'a.assetid = ap.assetid';
 			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-			array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+			array_push($userids, (string) $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user'), $GLOBALS['SQ_SYSTEM']->user->id);
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-				$userids[$i] = $db->quote($userids[$i]);
+				$userids[$i] = $db->quoteSmart($userids[$i]);
 			}
 			$query['where'][] = 'ap.userid  IN ('.implode(',', $userids).')';
 		}
