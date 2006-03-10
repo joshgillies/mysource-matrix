@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_structured_file_import.inc,v 1.1.1.1 2006/02/20 22:36:45 dmckee Exp $
+* $Id: tool_structured_file_import.inc,v 1.2 2006/03/10 05:14:01 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    searching.
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -67,160 +67,172 @@ class Tool_Structured_File_Import extends Tool
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$itm =& $am->getSystemAsset('import_tools_manager');
 
-		$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
-		$o->openSection($tool_info['name']);
+		$import_dir = $itm->attr('import_dir');
+		if (empty($import_dir)) {
 
-		$o->closeSection();
+			$o->openSection('Warning');
+				$o->openField(translate('import_tools_not_ready'));
+					echo translate('import_tools_not_ready_msg');
+				$o->closeField();
+			$o->closeSection();
 
-		$o->openSection(translate('import_tools_new_html_file'));
+		} else {
 
-		$o->closeSection();
-
-
-		$o->openSection(translate('import_tools_available_files'));
 			// Some variable initialisation
-			$import_dir = $itm->attr('import_dir');
-			$compatible_types = $itm->attr('valid_file_types');
-			$o->openField(translate('import_tools_import_dir'));
-				echo $import_dir;
-			$o->closeField();
-			$o->openField(translate('import_tools_files'));
-				// This will get us a list of all the files in the import directory
-				$files_array = list_files($import_dir, TRUE);
-				// Filter these to include only compatible files.
-				foreach ($files_array as $id => $file_name) {
-					$file_type = get_file_type($file_name);
-					if (!in_array($file_type, $compatible_types)) {
-						unset($files_array[$id]);
+			$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
+			$o->openSection($tool_info['name']);
+
+			$o->closeSection();
+
+			$o->openSection(translate('import_tools_new_html_file'));
+
+			$o->closeSection();
+
+
+			$o->openSection(translate('import_tools_available_files'));
+
+				$compatible_types = $itm->attr('valid_file_types');
+				$o->openField(translate('import_tools_import_dir'));
+					echo $import_dir;
+				$o->closeField();
+				$o->openField(translate('import_tools_files'));
+					// This will get us a list of all the files in the import directory
+					$files_array = list_files($import_dir, TRUE);
+					// Filter these to include only compatible files.
+					foreach ($files_array as $id => $file_name) {
+						$file_type = get_file_type($file_name);
+						if (!in_array($file_type, $compatible_types)) {
+							unset($files_array[$id]);
+						}
 					}
-				}
-				?>
-				<table class="sq-backend-table" style="width: 300px;">
-					<tr>
-						<th class="sq-backend-table-header"><?php echo translate('import_tools_select_file'); ?></th>
-						<th class="sq-backend-table-header" style="width: 100px;"><?php echo translate('import_tools_select_for_import'); ?></th>
-					</tr>
-					<tr>
-						<td class="sq-backend-table-cell"><?php echo translate('none'); ?></td>
-						<td class="sq-backend-table-cell" style="text-align: center;"><?php radio_button('structured_file_import_filename', '', TRUE); ?></td>
-					</tr>
-					<?php
-						foreach ($files_array as $file_name) {
-							$stripped_fname = substr($file_name, strrpos($file_name, '/') + 1);
-							?>
-								<tr>
-									<td class="sq-backend-table-cell"><?php echo $stripped_fname; ?></td>
-									<td class="sq-backend-table-cell" style="text-align: center;"><?php radio_button('structured_file_import_filename', $file_name, FALSE); ?></td>
-								</tr>
-							<?php
-						}
 					?>
-				</table>
-				<?php
-				$o->note(translate('import_tools_select_file'));
-			$o->closeField();
-			$o->openField(translate('import_tools_asset_to_import'));
-				asset_finder($type_code.'_root_assetid', '');
-				?>
-					<span style="font-weight: bold;"><?php echo strtoupper(translate('or')); ?></span>
-				<?php
-			$o->closeField();
-			$o->openField(translate('import_tools_new_site'));
-				?>
-				<table class="sq-backend-table" style="width: 300px;">
-					<tr>
-						<td>
-							<?php echo translate('import_tools_create_new_site'); ?>
-						</td>
-						<td>
-							<?php
-								check_box($type_code.'_create_new_site', '1');
-							?>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<?php echo translate('import_tools_create_new_site_name'); ?>
-						</td>
-						<td>
-							<?php
-								text_box($type_code.'_new_site_name', '', '30', '255');
-							?>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<?php echo 'Create Site Map for New Site:'; ?>
-						</td>
-						<td>
-							<?php
-								check_box($type_code.'_create_new_map', '1');
-							?>
-						</td>
-					</tr>
-				</table>
-				<?php
-				$o->note(translate('import_tools_create_new_site_note'));
-			$o->closeField();
-			$o->openField('Headings to Split On');
-				check_box($type_code.'_no_headings', '1', FALSE, 'document.getElementById(\''.$type_code.'_headings_table\').style.visibility = (this.checked == true) ? \'hidden\' : \'\';');
-				label('Import as a Single Page (Headings will be ignored)', $type_code.'_no_headings');
-				$heading_defaults = $itm->attr('heading_defaults');
-				?>
-				<table id="<?php echo $type_code.'_headings_table'; ?>" class="sq-backend-table" style="width: 300px;">
-					<tr>
-						<th class="sq-backend-table-header"><?php echo translate('import_tools_heading_style'); ?></th>
-						<th class="sq-backend-table-header" style="width: 120px;"><?php echo translate('import_tools_use_for_structure'); ?></th>
-					</tr>
-
-					<?php
-						for ($i = 1; $i <= 6; $i++) {
-							$h_string = 'h'.strval($i);
-							?>
-							<tr>
-								<td class="sq-backend-table-cell"><?php echo strtoupper($h_string); ?></td>
-								<td class="sq-backend-table-cell" style="text-align: center;">
-								<?php
-									check_box('structured_file_import_headings['.$h_string.']', '1', in_array($h_string, $heading_defaults));
+					<table class="sq-backend-table" style="width: 300px;">
+						<tr>
+							<th class="sq-backend-table-header"><?php echo translate('import_tools_select_file'); ?></th>
+							<th class="sq-backend-table-header" style="width: 100px;"><?php echo translate('import_tools_select_for_import'); ?></th>
+						</tr>
+						<tr>
+							<td class="sq-backend-table-cell"><?php echo translate('none'); ?></td>
+							<td class="sq-backend-table-cell" style="text-align: center;"><?php radio_button('structured_file_import_filename', '', TRUE); ?></td>
+						</tr>
+						<?php
+							foreach ($files_array as $file_name) {
+								$stripped_fname = substr($file_name, strrpos($file_name, '/') + 1);
 								?>
-								</td>
-							</tr>
-							<?php
-						}
+									<tr>
+										<td class="sq-backend-table-cell"><?php echo $stripped_fname; ?></td>
+										<td class="sq-backend-table-cell" style="text-align: center;"><?php radio_button('structured_file_import_filename', $file_name, FALSE); ?></td>
+									</tr>
+								<?php
+							}
+						?>
+					</table>
+					<?php
+					$o->note(translate('import_tools_select_file'));
+				$o->closeField();
+				$o->openField(translate('import_tools_asset_to_import'));
+					asset_finder($type_code.'_root_assetid', '');
 					?>
-				</table>
-				<?php
-			$o->closeField();
-			$o->openField(translate('import_tools_leading_text'));
-				check_box($type_code.'_leading_text', '1');
-				$o->note(translate('import_tools_leading_text_note'));
-			$o->closeField();
-			$o->openField(translate('import_tools_leading_page_name'));
-				text_box($type_code.'_leading_name', 'Preface');
-				$o->note(translate('import_tools_leading_page_name_note'));
-			$o->closeField();
-		$o->closeSection();
+						<span style="font-weight: bold;"><?php echo strtoupper(translate('or')); ?></span>
+					<?php
+				$o->closeField();
+				$o->openField(translate('import_tools_new_site'));
+					?>
+					<table class="sq-backend-table" style="width: 300px;">
+						<tr>
+							<td>
+								<?php echo translate('import_tools_create_new_site'); ?>
+							</td>
+							<td>
+								<?php
+									check_box($type_code.'_create_new_site', '1');
+								?>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<?php echo translate('import_tools_create_new_site_name'); ?>
+							</td>
+							<td>
+								<?php
+									text_box($type_code.'_new_site_name', '', '30', '255');
+								?>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<?php echo 'Create Site Map for New Site:'; ?>
+							</td>
+							<td>
+								<?php
+									check_box($type_code.'_create_new_map', '1');
+								?>
+							</td>
+						</tr>
+					</table>
+					<?php
+					$o->note(translate('import_tools_create_new_site_note'));
+				$o->closeField();
+				$o->openField('Headings to Split On');
+					check_box($type_code.'_no_headings', '1', FALSE, 'document.getElementById(\''.$type_code.'_headings_table\').style.visibility = (this.checked == true) ? \'hidden\' : \'\';');
+					label('Import as a Single Page (Headings will be ignored)', $type_code.'_no_headings');
+					$heading_defaults = $itm->attr('heading_defaults');
+					?>
+					<table id="<?php echo $type_code.'_headings_table'; ?>" class="sq-backend-table" style="width: 300px;">
+						<tr>
+							<th class="sq-backend-table-header"><?php echo translate('import_tools_heading_style'); ?></th>
+							<th class="sq-backend-table-header" style="width: 120px;"><?php echo translate('import_tools_use_for_structure'); ?></th>
+						</tr>
 
-		$o->openSection(translate('import_tools_tidying_options'));
-			$o->openField(translate('import_tools_word_tags'));
-				check_box($type_code.'_remove_word', '1');
-			$o->closeField();
-			$o->openField(translate('import_tools_html_tidy'));
-				check_box($type_code.'_run_tidy');
-				$o->note(translate('import_tools_tidy_note'));
-			$o->closeField();
-			$o->openField(translate('import_tools_footnotes'));
-				check_box($type_code.'_footnotes');
-			$o->closeField();
-		$o->closeSection();
+						<?php
+							for ($i = 1; $i <= 6; $i++) {
+								$h_string = 'h'.strval($i);
+								?>
+								<tr>
+									<td class="sq-backend-table-cell"><?php echo strtoupper($h_string); ?></td>
+									<td class="sq-backend-table-cell" style="text-align: center;">
+									<?php
+										check_box('structured_file_import_headings['.$h_string.']', '1', in_array($h_string, $heading_defaults));
+									?>
+									</td>
+								</tr>
+								<?php
+							}
+						?>
+					</table>
+					<?php
+				$o->closeField();
+				$o->openField(translate('import_tools_leading_text'));
+					check_box($type_code.'_leading_text', '1');
+					$o->note(translate('import_tools_leading_text_note'));
+				$o->closeField();
+				$o->openField(translate('import_tools_leading_page_name'));
+					text_box($type_code.'_leading_name', 'Preface');
+					$o->note(translate('import_tools_leading_page_name_note'));
+				$o->closeField();
+			$o->closeSection();
 
-		$o->openSection(translate('import_tools_perform_operations'));
-			$o->openField('', 'commit');
-				echo '&nbsp;';
-				hidden_field('committed_tool_type_code', $type_code);
-				submit_button('tool_commit', SQ_CONF_COMMIT_BUTTON_TEXT);
-			$o->closeField();
-		$o->closeSection();
+			$o->openSection(translate('import_tools_tidying_options'));
+				$o->openField(translate('import_tools_word_tags'));
+					check_box($type_code.'_remove_word', '1');
+				$o->closeField();
+				$o->openField(translate('import_tools_html_tidy'));
+					check_box($type_code.'_run_tidy');
+					$o->note(translate('import_tools_tidy_note'));
+				$o->closeField();
+				$o->openField(translate('import_tools_footnotes'));
+					check_box($type_code.'_footnotes');
+				$o->closeField();
+			$o->closeSection();
+
+			$o->openSection(translate('import_tools_perform_operations'));
+				$o->openField('', 'commit');
+					echo '&nbsp;';
+					hidden_field('committed_tool_type_code', $type_code);
+					submit_button('tool_commit', SQ_CONF_COMMIT_BUTTON_TEXT);
+				$o->closeField();
+			$o->closeSection();
+		}
 		return ob_get_clean();
 
 	}//end paintTool()

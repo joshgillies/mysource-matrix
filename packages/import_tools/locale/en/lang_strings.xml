@@ -11,13 +11,15 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1.1.1 2006/02/20 22:36:45 dmckee Exp $
+* $Id: lang_strings.xml,v 1.2 2006/03/10 05:13:57 skim Exp $
 *
 *
 * CMS Package Localised Strings File
 */
 -->
 <strings>
+<string source="import_tools_not_ready">Import Tool is not ready to use</string>
+<string source="import_tools_not_ready_msg">Please set the import directory in Import Tool Manager under System Management.</string>
 <string source="import_tools_new_doc">New Document Import</string>
 <string source="import_tools_new_word_select">Select Document to Upload</string>
 <string source="import_tools_overwrite_existing">Overwrite existing document</string>
