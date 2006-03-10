@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list_management.inc,v 1.5 2005/06/20 04:38:26 dheppell Exp $
+* $Id: search_list_management.inc,v 1.6 2006/03/10 04:10:31 sdanis Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -53,6 +53,32 @@ class Search_List_Management extends Asset_Management
 
 	}//end constructor
 
+
+	/**
+	* Return an array with information about the events that this page is listening for
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getEventList()
+	{
+		return Array(
+				Array(
+					'event_name'					=> 'requestKeywords',
+					'broadcast_type_code'			=> 'content_type',
+					'broadcast_strict_type_code'	=> FALSE,
+					'options'						=> Array(
+														'side_of_link'	=> 'major',
+														'indirect'		=> TRUE,
+														'is_exclusive'	=> NULL,
+														'is_dependant'	=> 1,
+														'value'			=> '',
+														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+													   ),
+				),
+			   );
+
+	}//end getEventList()
 
 }//end class
 
