@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.15.2.3 2006/02/23 02:43:17 sdanis Exp $
+* $Id: thesaurus.inc,v 1.15.2.4 2006/03/10 02:58:11 mmcintyre Exp $
 *
 */
 
@@ -36,7 +36,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.15.2.3 $
+* @version $Revision: 1.15.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1883,7 +1883,7 @@ class Thesaurus extends Asset
 
 		$this->setAttrValue('relations', Array());
 
-		if ($this->_deleteStoredContents() && $this->saveAttributes()) {
+		if ($this->_deleteStoredContents() && $this->markContentsChanged()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return TRUE;
@@ -1906,16 +1906,18 @@ class Thesaurus extends Asset
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = '
-			DELETE FROM sq_thes_term WHERE thesid = '.$db->quoteSmart($this->id).';
-			DELETE FROM sq_thes_lnk WHERE thesid = '.$db->quoteSmart($this->id).';
-			DELETE FROM sq_thes_lnk_tree WHERE thesid = '.$db->quoteSmart($this->id).';
-		';
-
-		$result   = $db->query($sql);
+		$sql = 'DELETE FROM sq_thes_term WHERE thesid = '.$db->quoteSmart($this->id);
+		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
-		$this->markContentsChanged();
+		$sql = 'DELETE FROM sq_thes_lnk WHERE thesid = '.$db->quoteSmart($this->id);
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+		$sql = 'DELETE FROM sq_thes_lnk_tree WHERE thesid = '.$db->quoteSmart($this->id);
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
 		return TRUE;
 
 	}//end _deleteStoredContents()
