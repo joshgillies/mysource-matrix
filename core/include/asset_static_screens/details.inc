@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.26 2006/01/26 22:34:08 lwright Exp $
+* $Id: details.inc,v 1.26.2.1 2006/03/12 23:38:35 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.2.1 $
 * @package MySource_Matrix
 */
 
@@ -164,18 +164,18 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 								<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></td>
 							</tr>
 							<?php
-							for ($i = 0; $i < count($fs_jobs); $i++) {
+							for ($k = 0; $k < count($fs_jobs); $k++) {
 								?>
 								<tr>
 									<td class="sq-backend-table-cell">
-										<?php echo $fs_jobs[$i]->statusName(); ?>
+										<?php echo $fs_jobs[$k]->statusName(); ?>
 									</td>
 									<td class="sq-backend-table-cell">
-										<?php echo $fs_jobs[$i]->readableWhen(); ?>
+										<?php echo $fs_jobs[$k]->readableWhen(); ?>
 									</td>
 									<td align="center" class="sq-backend-table-cell">
 									<?php
-										if ($fs_jobs[$i]->attr('dependants_only')) {
+										if ($fs_jobs[$k]->attr('dependants_only')) {
 											echo translate('no');
 										} else {
 											echo translate('yes');
@@ -184,8 +184,8 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 									</td>
 									<td align="center" class="sq-backend-table-cell">
 									<?php
-										if ($fs_jobs[$i]->canDelete()) {
-											check_box($prefix.'_remove_fs[]', $fs_jobs[$i]->id);
+										if ($fs_jobs[$k]->canDelete()) {
+											check_box($prefix.'_remove_fs[]', $fs_jobs[$k]->id);
 										} else {
 											echo '&nbsp;';
 										}
