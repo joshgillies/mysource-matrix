@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.30 2006/02/10 02:03:19 sdanis Exp $
+* $Id: trigger_manager.inc,v 1.31 2006/03/12 22:05:25 bcaldwell Exp $
 *
 */
 
@@ -48,7 +48,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -564,7 +564,7 @@ class Trigger_Manager extends Asset
 
 			// check condition
 			// dynamic substitution of static condition class
-			eval('$condition_success = '.$condition['type'].'::evaluate($condition["data"], $state_data);');
+			$condition_success = call_user_func(Array($condition['type'], 'evaluate'), $condition['data'], array(&$state_data));
 
 			// if condition fails return with Success
 			// (trigger does not need execution, false alarm but trigger did not fail)
@@ -599,14 +599,14 @@ class Trigger_Manager extends Asset
 
 				// execute action
 				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-				eval('$action_success = '.$action['type'].'::execute($action["data"], $state_data);');
+				$action_success = call_user_func(Array($action['type'], 'execute'), $action['data'], array(&$state_data));
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 			} else {
 				$lock_success = TRUE;
 				// acquire locks
 				// dynamic substitution of static action class
-				eval('$action_locks = '.$action['type'].'::getLocks($action["data"], $state_data);');
+				$action_locks = call_user_func(Array($action['type'], 'getLocks'), $action['data'], array(&$state_data));
 
 				foreach ($action_locks as $lock_assetid => $lock_types) {
 					foreach ($lock_types as $lock_type) {
@@ -631,7 +631,7 @@ class Trigger_Manager extends Asset
 				}
 
 				// execute action
-				eval('$action_success = '.$action['type'].'::execute($action["data"], $state_data);');
+				$action_success = call_user_func(Array($action['type'], 'execute'), $action['data'], array(&$state_data));
 			}
 
 			if ($action_success === FALSE) {
@@ -819,7 +819,7 @@ class Trigger_Manager extends Asset
 							if ($this->_loadComponent($condition['type'])) {
 								if (isset($condition['data'])) {
 									$settings =& $condition['data'];
-									eval($condition['type'].'::setHash($settings, $hash);');
+									call_user_func(Array($condition['type'], 'setHash'), $settings, $hash);
 								}
 							}
 						}
@@ -1344,7 +1344,7 @@ class Trigger_Manager extends Asset
 	{
 		if (!$this->_loadComponent($type_code)) return '';
 
-		eval('$interface = '.$type_code.'::getInterface($data, $prefix, $write_access);');
+		$interface = call_user_func(Array($type_code, 'getInterface'), $data, $prefix, $write_access);
 
 		return $interface;
 
@@ -1362,7 +1362,7 @@ class Trigger_Manager extends Asset
 	function _isMultipleConditionAllowed($type_code)
 	{
 		$this->_loadComponent($type_code);
-		eval('$status = '.$type_code.'::allowMultiple();');
+		$status = call_user_func(Array($type_code, 'allowMultiple'));
 		return $status;
 
 	}//end _isMultipleConditionAllowed()
