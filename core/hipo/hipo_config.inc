@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.28 2005/05/11 06:05:07 lwright Exp $
+* $Id: hipo_config.inc,v 1.29 2006/03/12 23:34:00 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the hipo config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 */
 class HIPO_Config extends Config
@@ -44,7 +44,7 @@ class HIPO_Config extends Config
 	* @var Array()
 	*/
 	var $config_vars = Array(
-						'SQ_HIPO_USE_SERVER'		=> Array('editable' => 1, 'default' => false),
+						'SQ_HIPO_USE_SERVER'		=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_HIPO_TOTAL_THRESHOLD'	=> Array('editable' => 1, 'default' => 80),
 					   );
 
@@ -79,7 +79,7 @@ class HIPO_Config extends Config
 		if (is_dir($hipo_job_path)) {
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			$d = dir($hipo_job_path);
-			while (false !== ($file = $d->read())) {
+			while (FALSE !== ($file = $d->read())) {
 				if ($file == '.' || $file == '..') {
 					continue;
 				}
@@ -106,16 +106,17 @@ class HIPO_Config extends Config
 
 
 	/**
-	* Rewrites the conf file with current variables
+	* Rewrites the conf file with current variables. It returns the boolean value
+	* indicating whether the file was written
 	*
-	* @param Array		$vars				the array with any new values (that are allowed to be edited)
+	* @param array		$vars				the array with any new values (that are allowed to be edited)
 	*										Array('[config_var_name]' => [scalar value])
 	* @param boolean	$backup_existing	whether we should backup the existing config file first
 	*
-	* @return boolean	indicates whether the file was written
+	* @return boolean
 	* @access public
 	*/
-	function save($vars, $backup_existing=false)
+	function save($vars, $backup_existing=FALSE)
 	{
 		// if the config file exists, just do a normal save
 		if (file_exists($this->config_file)) {
@@ -126,11 +127,11 @@ class HIPO_Config extends Config
 
 			// first we save as normal, but we won't have the jobs config vars in there
 			// (no need to backup either because the file doesn't exist)
-			if (!parent::save($vars, false)) return false;
+			if (!parent::save($vars, FALSE)) return FALSE;
 			// then we load all jobs configs (which can happen now that there is a
 			// config file that they can require) and save again to put them in the file
 			$this->_loadJobConfigVars();
-			return parent::save($vars, false);
+			return parent::save($vars, FALSE);
 
 		}//end if
 
@@ -160,9 +161,9 @@ class HIPO_Config extends Config
 	*/
 	function writeAccess()
 	{
-		if (!parent::writeAccess()) return false;
+		if (!parent::writeAccess()) return FALSE;
 		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
-			return true;
+			return TRUE;
 		}
 
 		// need to be root
@@ -177,7 +178,7 @@ class HIPO_Config extends Config
 	* If you (as a sub-class) put your config vars so that when they are submitted appear in
 	* $_POST[get_class($this)] then you probably won't need to override processBackend()
 	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	* @param object	&$o	Backend_Outputter, reference to the backend outputter
 	*
 	* @return void
 	* @access public
@@ -195,7 +196,7 @@ class HIPO_Config extends Config
 			// writing out standard fields, which are not specific to any single job
 			$o->openField(translate('run_on_squiz_server'));
 			if ($write_access) {
-				combo_box($class.'[SQ_HIPO_USE_SERVER]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_HIPO_USE_SERVER);
+				combo_box($class.'[SQ_HIPO_USE_SERVER]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_HIPO_USE_SERVER);
 			} else {
 				echo (SQ_HIPO_USE_SERVER) ? translate('yes') : translate('no');
 			}
@@ -217,13 +218,16 @@ class HIPO_Config extends Config
 
 		$o->closeSection();
 
-		if ($write_access) $o->commitButton('', true);
+		if ($write_access) $o->commitButton('', TRUE);
 
 	}//end paintBackend()
 
 
 	/**
 	* One crazy function which calls paintBackend function of each job
+	*
+	* @param object	&$o		Backend_Outputter, reference to the backend outputter
+	* @param string	$class	The name of the job class
 	*
 	* @return void
 	* @access private
@@ -232,9 +236,8 @@ class HIPO_Config extends Config
 	{
 		$hipo_job_path = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
 		if (is_dir($hipo_job_path)) {
-			//require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			$d = dir($hipo_job_path);
-			while (false !== ($file = $d->read())) {
+			while (FALSE !== ($file = $d->read())) {
 				if ($file == '.' || $file == '..') {
 					continue;
 				}

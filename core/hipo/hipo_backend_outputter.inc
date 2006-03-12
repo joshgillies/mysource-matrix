@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_backend_outputter.inc,v 1.18 2005/08/30 09:05:16 brobertson Exp $
+* $Id: hipo_backend_outputter.inc,v 1.19 2006/03/12 23:34:00 skim Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/include/backend_outputter.inc';
 *    suite hipo jobs
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 class Hipo_Backend_Outputter extends Backend_Outputter
@@ -64,6 +64,9 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 	/**
 	* Set the form name and url to submit to
 	*
+	* @param string	$form_name	the name of the form
+	* @param string	$url		the url to submit to
+	*
 	* @return void
 	* @access public
 	*/
@@ -86,7 +89,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 			if ($this->_charset) {
 				header("Content-type: text/html; charset=$this->_charset");
 			} else {
-				header("Content-type: text/html; charset=".SQ_CONF_DEFAULT_CHARACTER_SET);
+				header('Content-type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
 			}
 		}
 		?>
@@ -150,6 +153,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 	/**
 	* Paint the footer of the page
 	*
+	* @return void
 	* @access private
 	*/
 	function _paintFooter()
@@ -169,6 +173,10 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 	/**
 	* Paint the passed section onto the page
 	*
+	* @param string	$section	the type of the section
+	* @param int	$depth		the number of nested steps
+	*
+	* @return void
 	* @access private
 	*/
 	function _paintSection($section, $depth=0)
@@ -213,7 +221,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 					</tr>
 					<?php
 				}
-			} // endif
+			}//end if
 
 			// print the section seperator
 			?>
@@ -241,11 +249,18 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 					break;
 
 					case 'field' :
-						$field = &$section['areas'][$j];
+						$field =& $section['areas'][$j];
 						switch ($field['format']) {
 							case 'new_line' :
+								$style = $id = '';
+								if ($field['hidden']) {
+									$style = 'style="display: none"';
+								}
+								if ($field['id_name']) {
+									$id = 'id="'.$field['id_name'].'"';
+								}
 								?>
-									<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?> <?php if ($field['id_name']) echo 'id="'.$field['id_name'].'"'; ?>>
+									<tr <?php echo $style; ?> <?php echo $id; ?>>
 										<td nowrap valign="top" class="sq-backend-field" colspan="3">
 											<a name="field_<?php echo $field['field_count']; ?>"></a>
 											<?php echo $field['name'];?>
@@ -287,8 +302,15 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 							break;
 
 							default :
+								$style = $id = '';
+								if ($field['hidden']) {
+									$style = 'style="display: none"';
+								}
+								if ($field['id_name']) {
+									$id = 'id="'.$field['id_name'].'"';
+								}
 							?>
-								<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?> <?php if ($field['id_name']) echo 'id="'.$field['id_name'].'"'; ?>>
+								<tr <?php echo $style; ?> <?php echo $id; ?>>
 									<td nowrap valign="top" class="sq-backend-field">
 										<a name="field_<?php echo $field['field_count']; ?>"></a>
 										<?php echo $field['name'];?>
@@ -311,7 +333,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 					default :
 						trigger_localised_error('HIPO0059', E_USER_ERROR, $section['areas'][$j]['area_type']);
 
-				}// end switch area type
+				}//end switch area type
 
 			}//end for
 
@@ -324,7 +346,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 			<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td></tr></table>
 			<?php
 
-		}//end if section type == raw
+		}//end else section type == raw
 
 	}//end _paintSection()
 
