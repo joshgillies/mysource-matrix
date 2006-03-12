@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.16.2.1 2005/08/01 11:16:41 brobertson Exp $
+* $Id: details.inc,v 1.16.2.2 2006/03/12 23:43:48 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.16.2.1 $
+* @version $Revision: 1.16.2.2 $
 * @package MySource_Matrix
 */
 
@@ -141,19 +141,19 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 								<td align="center" class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td>
 							</tr>
 							<?php
-							for ($i = 0; $i < count($fs_jobs); $i++) {
+							for ($k = 0; $k < count($fs_jobs); $k++) {
 								?>
 								<tr>
 									<td class="sq-backend-table-cell">
-										<?php echo $fs_jobs[$i]->statusName(); ?>
+										<?php echo $fs_jobs[$k]->statusName(); ?>
 									</td>
 									<td class="sq-backend-table-cell">
-										<?php echo $fs_jobs[$i]->readableWhen(); ?>
+										<?php echo $fs_jobs[$k]->readableWhen(); ?>
 									</td>
 									<td align="center" class="sq-backend-table-cell">
 									<?php
-										if ($fs_jobs[$i]->canDelete()) {
-											check_box($prefix.'_remove_fs[]', $fs_jobs[$i]->id);
+										if ($fs_jobs[$k]->canDelete()) {
+											check_box($prefix.'_remove_fs[]', $fs_jobs[$k]->id);
 										} else {
 											echo '&nbsp;';
 										}
@@ -187,7 +187,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 								$edit_fns->paintInLineBackend($fs, $o, $prefix.'_new_fs');
 
 								$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
-								
+
 								if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) {
 									// check to see if we added anything to the keyword replacements above
 									if (!isset($ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_future_status']])) {
