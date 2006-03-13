@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.90 2006/03/10 02:27:39 sdanis Exp $
+* $Id: page_asset_builder.inc,v 1.91 2006/03/13 03:12:26 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -394,6 +394,15 @@ class Page_Asset_Builder extends Page
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					} else {
+
+						// make sure text attributes dont have javascripts etc
+						foreach ($new_asset->vars as $attr_name => $attr_info) {
+							if ($attr_info['type'] == 'text') {
+								$new_asset->setAttrValue($attr_name, htmlspecialchars($attr_info['value']));
+							}
+						}
+						$new_asset->saveAttributes();
+
 						// if we have multiple locations to create this asset under, create
 						// the new links to all the other parents
 						if (is_array($create_locations)) {
@@ -412,6 +421,7 @@ class Page_Asset_Builder extends Page
 									continue;
 								}
 							}
+
 							// we need to update lookups to make sure the URLs for the
 							// new create locations are set correctly
 							$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
