@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.99 2006/03/12 22:12:12 sdanis Exp $
+* $Id: user.inc,v 1.100 2006/03/13 02:31:10 sdanis Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -196,8 +196,6 @@ class User extends Asset
 			}
 		}
 
-		// javascript injection fix
-		$value = htmlspecialchars($value);
 		if (!parent::setAttrValue($name, $value)) return FALSE;
 
 		// tell the workspace (or anyone else listening) that the username has been updated
