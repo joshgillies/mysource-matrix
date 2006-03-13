@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.23 2005/08/01 15:26:58 brobertson Exp $
+* $Id: system_config_edit_interface.inc,v 1.24 2006/03/13 05:54:51 dmckee Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -93,12 +93,13 @@ class System_Config_Edit_Interface extends MySource_Object
 		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
 
 		$config_screens = Array(
-							'system_config'			=> translate('system_configuration'),
-							'squiz_server_config'	=> translate('squiz_server_configuration'),
-							'hipo_config'			=> translate('hipo_configuration'),
-							'external_tools_config'	=> translate('external_tools_configuration'),
-							'user_prefs'			=> translate('global_preferences'),
-							'password_rules_config'	=> translate('password_rules_configuration'),
+							'system_config'				=> translate('system_configuration'),
+							'squiz_server_config'		=> translate('squiz_server_configuration'),
+							'hipo_config'				=> translate('hipo_configuration'),
+							'external_tools_config'		=> translate('external_tools_configuration'),
+							'user_prefs'				=> translate('global_preferences'),
+							'password_rules_config'		=> translate('password_rules_configuration'),
+							'messaging_service_config'	=> translate('messaging_service_configuration'),
 						  );
 
 		foreach ($config_screens as $screen_code => $screen_name) {
@@ -116,6 +117,7 @@ class System_Config_Edit_Interface extends MySource_Object
 			case 'external_tools_config' :
 			case 'password_rules_config' :
 			case 'session_rules_config' :
+			case 'messaging_service_config' :
 
 				$config = null;
 
@@ -143,6 +145,10 @@ class System_Config_Edit_Interface extends MySource_Object
 					case 'session_rules_config' :
 						require_once SQ_INCLUDE_PATH.'/session_rules_config.inc';
 						$config =& new Session_Rules_Config();
+					break;
+					case 'messaging_service_config' :
+						require_once SQ_INCLUDE_PATH.'/messaging_service_config.inc';
+						$config =& new Messaging_Service_Config();
 					break;
 
 				}// end switch

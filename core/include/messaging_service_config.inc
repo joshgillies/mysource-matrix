@@ -18,12 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service_config.inc,v 1.21 2005/12/09 04:46:27 lwright Exp $
+* $Id: messaging_service_config.inc,v 1.22 2006/03/13 05:54:51 dmckee Exp $
 *
 */
 
 
 require_once SQ_LIB_PATH.'/config/config.inc';
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
 * Messaging_Service_Config
@@ -33,7 +34,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the messaging service config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 class Messaging_Service_Config extends Config
@@ -63,6 +64,82 @@ class Messaging_Service_Config extends Config
 		$this->config_file = SQ_DATA_PATH.'/private/conf/messaging_service.inc';
 
 	}//end constructor
+
+
+	/**
+	* Paints the interface for our config options.
+	*
+	* If you (as a sub-class) put your config vars so that when they are submitted appear in
+	* $_POST[get_class($this)] then you probably won't need to override processBackend()
+	*
+	* @param object	&$o	Backend_Outputter, reference to the backend outputter
+	*
+	* @return void
+	* @access public
+	* @see processBackend()
+	*/
+	function paintBackend(&$o)
+	{
+		parent::paintBackend($o);
+
+		$write_access = $this->writeAccess();
+		$class = get_class($this);
+
+		$o->openSection(translate('hipo_server_configuration'));
+			$o->openField(translate('messaging_service_file_white_list'));
+				if ($write_access) {
+					text_area($class.'[SQ_MS_LOG_TO_FILE_WHITE_LIST]', SQ_MS_LOG_TO_FILE_WHITE_LIST, 60, 10);
+				} else {
+					echo nl2br(SQ_MS_LOG_TO_FILE_WHITE_LIST);
+				}
+				$o->note(translate('messaging_service_file_white_list_note'));
+			$o->closeField();
+			$o->openField(translate('messaging_service_file_black_list'));
+				if ($write_access) {
+					text_area($class.'[SQ_MS_LOG_TO_FILE_BLACK_LIST]', SQ_MS_LOG_TO_FILE_BLACK_LIST, 60, 10);
+				} else {
+					echo nl2br(SQ_MS_LOG_TO_FILE_BLACK_LIST);
+				}
+				$o->note(translate('messaging_service_file_black_list_note'));
+			$o->closeField();
+			$o->openField(translate('messaging_service_db_white_list'));
+				if ($write_access) {
+					text_area($class.'[SQ_MS_LOG_TO_DB_WHITE_LIST]', SQ_MS_LOG_TO_DB_WHITE_LIST, 60, 10);
+				} else {
+					echo nl2br(SQ_MS_LOG_TO_DB_WHITE_LIST);
+				}
+				$o->note(translate('messaging_service_db_white_list_note'));
+			$o->closeField();
+			$o->openField(translate('messaging_service_db_black_list'));
+				if ($write_access) {
+					text_area($class.'[SQ_MS_LOG_TO_DB_BLACK_LIST]', SQ_MS_LOG_TO_DB_BLACK_LIST, 60, 10);
+				} else {
+					echo nl2br(SQ_MS_LOG_TO_DB_BLACK_LIST);
+				}
+				$o->note(translate('messaging_service_db_black_list_note'));
+			$o->closeField();
+			$o->openField(translate('messaging_service_mail_white_list'));
+				if ($write_access) {
+					text_area($class.'[SQ_MS_SEND_MAIL_WHITE_LIST]', SQ_MS_SEND_MAIL_WHITE_LIST, 60, 10);
+				} else {
+					echo nl2br(SQ_MS_SEND_MAIL_WHITE_LIST);
+				}
+				$o->note(translate('messaging_service_mail_white_list_note'));
+			$o->closeField();
+			$o->openField(translate('messaging_service_mail_black_list'));
+				if ($write_access) {
+					text_area($class.'[SQ_MS_SEND_MAIL_BLACK_LIST]', SQ_MS_SEND_MAIL_BLACK_LIST, 60, 10);
+				} else {
+					echo nl2br(SQ_MS_SEND_MAIL_BLACK_LIST);
+				}
+				$o->note(translate('messaging_service_mail_black_list_note'));
+			$o->closeField();
+			$o->sectionNote(translate('messaging_service_section_note'));
+		$o->closeSection();
+
+		if ($write_access) $o->commitButton('', TRUE);
+
+	}//end paintBackend()
 
 
 }//end class
