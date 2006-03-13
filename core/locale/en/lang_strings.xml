@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.121 2006/03/09 05:25:19 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.122 2006/03/13 05:55:14 dmckee Exp $
 *
 */
 
@@ -230,7 +230,7 @@
 	<string source="system_static_url_http">Static URL uses HTTP</string>
 	<string source="system_static_url_https">Static URL uses HTTPS</string>
 	<string source="system_parent_domains">System Parent Domains</string>
-	<string source="system_parent_domains_note">Parent domains are examined when the system is setting the session cookie, and are useful if several system root URLs have a common parent domain (eg syd.example.com and melb.example.com).  If the current URL ends with one of the parent domains then the cookie will be set on the parent domain instead, with the result that the user's session will persist across the parent domain and all its subdomains.</string>	
+	<string source="system_parent_domains_note">Parent domains are examined when the system is setting the session cookie, and are useful if several system root URLs have a common parent domain (eg syd.example.com and melb.example.com).  If the current URL ends with one of the parent domains then the cookie will be set on the parent domain instead, with the result that the user's session will persist across the parent domain and all its subdomains.</string>
 	<string source="system_static_url_note">Static URLs can be used to offload delivery of static files and images to an alternative web server. This is an advanced configuration option and requires specific web server configuration to operate correctly.</string>
 	<string source="system_root">System Root</string>
 	<string source="system_settings">System Settings</string>
@@ -365,6 +365,7 @@
 	<string source="squiz_server_configuration">Squiz Server Configuration</string>
 	<string source="hipo_configuration">HIPO Configuration</string>
 	<string source="external_tools_configuration">External Tools Configuration</string>
+	<string source="messaging_service_configuration">Messaging Service Configuration</string>
 	<string source="global_preferences">Global Preferences</string>
 	<string source="tools">Tools</string>
 	<string source="hipo_herder">HIPO Herder</string>
@@ -1838,4 +1839,19 @@ Items to delete: %s</string>
 	<string source="status_change_cancel_safe_edit">Cancel Safe Edit</string>
 	<string source="status_change_archive">Archive</string>
 	<string source="status_change_make_live">Make Live</string>
+
+	<!-- Messaging Service Config -->
+	<string source="messaging_service_file_white_list">Log To File White List</string>
+	<string source="messaging_service_file_black_list">Log To File Black List</string>
+	<string source="messaging_service_db_white_list">Log To Database White List</string>
+	<string source="messaging_service_db_black_list">Log To Database Black List</string>
+	<string source="messaging_service_mail_white_list">Log To Email White List</string>
+	<string source="messaging_service_mail_black_list">Log To Email Black List</string>
+	<string source="messaging_service_file_white_list_note">Message Types that should always be written to system logs</string>
+	<string source="messaging_service_file_black_list_note">Message Types that should never be written to system logs</string>
+	<string source="messaging_service_db_white_list_note">Message Types that should be logged to the database and be visible on the asset's logs screen</string>
+	<string source="messaging_service_db_black_list_note">Message Types that should never be logged to the database and never be visible on the asset's logs screen</string>
+	<string source="messaging_service_mail_white_list_note">Message Types that should always be emailed</string>
+	<string source="messaging_service_mail_black_list_note">Message Types that should never be emailed</string>
+	<string source="messaging_service_section_note">All fields should have individual options seperated by newlines.</string>
 </strings>
