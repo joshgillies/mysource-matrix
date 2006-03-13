@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.169 2006/03/09 01:08:36 tbarrett Exp $
+* $Id: mysource.inc,v 1.170 2006/03/13 06:09:55 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.169 $
+* @version $Revision: 1.170 $
 * @package MySource_Matrix
 */
 class MySource
@@ -375,14 +375,30 @@ class MySource
 				$rm =& $this->am->getSystemAsset('remap_manager');
 				if (!$rm->loadRemapFromURL($protocol, $url)) {
 
+					// redirect the user to the https version if available
+					if ($protocol == 'http') {
+						$asset =& $this->am->getAssetFromURL('https', NULL, TRUE, TRUE);
+						if (!is_null($asset)) {
+							$url = 'https://'.$url;
+							?>
+							<html>
+								<head>
+									<title><?php echo translate('redirecting_you_to', $url); ?></title>
+									<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib');?>/js/general.js"></script>
+								</head>
+								<body onLoad="Javascript: sq_redirect('<?php echo $url; ?>');"></body>
+							</html>
+							<?php
+							exit(1);
+						}
+					}
+
 					// okay, the remap manager could not remap this url, so
 					// check to see if we can find a 404 page from a site matching this url
-
 					$root_url = $this->am->getRootURL($url);
 
 					// if we can get a site from the url,
 					// try to delegate the 404 to its not found page
-
 					if (!empty($root_url)) {
 						$site =& $this->am->getAsset($root_url['assetid'], 'site');
 						if (!is_null($site)) {
@@ -394,15 +410,16 @@ class MySource
 							}
 						}
 					}
+
 					// if we can't get a site from the url, or the
 					// site does not have a 404 page, then try asking
 					// the remap manager to remap to its 404 page
-
 					if (!$rm->paintPageNotFoundRemap()) {
 						header('HTTP/1.0 404 Not Found');
 						// last resort, display little green error
 						trigger_localised_error('SYS0218', E_USER_NOTICE, $url);
 					}
+
 				}//end if !load remap
 
 				exit(1);
