@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_query.xml,v 1.4 2005/12/01 23:25:35 skim Exp $
+* $Id: lang_screen_query.xml,v 1.5 2006/03/13 03:28:21 bcaldwell Exp $
 *
 */
 -->
@@ -53,7 +53,7 @@
 				<paint_function name="paintCustomFields" />
 				<process_function name="processCustomFields" />
 			</function_call>
-			<display_name>Select Custom Fields(Optional)</display_name>
+			<display_name>Select Custom&lt;br \&gt;Fields (Optional)</display_name>
 			<note />
 		</field>
 		<field>
@@ -61,7 +61,7 @@
 				<paint_function name="paintNewJoin" />
 				<process_function name="processNewJoin" />
 			</function_call>
-			<display_name>New Join? Select Tables Here To Create A Join!</display_name>
+			<display_name>New Join? Select Tables&lt;br \&gt;Here To Create A Join!</display_name>
 		</field>
 		<field>
 			<function_call>
@@ -75,7 +75,7 @@
 				<paint_function name="paintAggregateFunctions" />
 				<process_function name="processAggregateFunctions" />
 			</function_call>
-			<display_name>Select Aggregate Functions(Optional)</display_name>
+			<display_name>Select Aggregate&lt;br \&gt;Functions (Optional)</display_name>
 		</field>
 		<field>
 			<function_call>
@@ -94,7 +94,7 @@
 			<note />
 		</field>
 		<field attribute="limit">
-			<display_name>Number Of Data Source Record Sets To Be Retrieved</display_name>
+			<display_name>Number Of Data Source&lt;br \&gt;Record Sets To Be Retrieved</display_name>
 			<note />
 		</field>
 	</section>
@@ -114,7 +114,7 @@
 				<paint_function name="paintShadow" />
 				<process_function name="processShadow" />
 			</function_call>
-			<display_name>Enter The Name Of The Shadow Assets</display_name>
+			<display_name>Enter The Name Of&lt;br \&gt;The Shadow Assets</display_name>
 			<note>You can choose the name of the shadow assets. It can either be a normal string or a combination of string and keywords.
 			For example you can enter 'Result Of Query1' or you can enter '%asset_data_source_id%(%asset_short_name%)Result'
 			to have the 'datasourceid(short name of the asset)Result' as the name of your Shadow Asset. Please have a look in the
@@ -125,7 +125,7 @@
 			<paint_function name="paintKeywords" />
 			<process_function name="processKeywords" />
 		</function_call>
-		<display_name>Available Keywords For the Data Source RecordSet Asset</display_name>
+		<display_name>Available Keywords For&lt;br \&gt;the Data Source RecordSet&lt;br \&gt;Asset</display_name>
 		<note>The above are the avaialable keywords for the record set assets. You can choose to have one or more keywords
 		or a combination of strings and keywords as the name of the record set assets. Please remember that the keywords
 		have to be preceded and succeeded with a '%' sign or else it can be considered as a normal string.  </note>
