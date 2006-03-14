@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox.inc,v 1.29 2006/01/26 22:34:07 lwright Exp $
+* $Id: inbox.inc,v 1.30 2006/03/14 05:30:47 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,8 +76,13 @@ class Inbox extends Asset
 	*/
 	function &_getUser()
 	{
+		$user = NULL;
+
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user', FALSE, '', 'minor', '1');
-		$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+		if (!empty($link)) {
+			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+		}
+
 		return $user;
 
 	}//end _getUser()

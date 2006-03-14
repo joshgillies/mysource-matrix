@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_sent.xml,v 1.2 2005/03/30 00:40:03 lwright Exp $
+* $Id: edit_interface_screen_sent.xml,v 1.3 2006/03/14 05:30:47 sdanis Exp $
 *
 */
 -->
@@ -28,7 +28,7 @@
 		<field>
 			<function_call>
 				<paint_function   name="paintSent"   />
-				<process_function name="processMail" />
+				<process_function name="processSent" />
 			</function_call>
 		</field>
 	</section>

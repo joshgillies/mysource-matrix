@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.54 2006/01/26 22:34:07 lwright Exp $
+* $Id: inbox_edit_fns.inc,v 1.55 2006/03/14 05:30:47 sdanis Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -282,6 +282,41 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		return $write_access;
 
 	}//end paintSent()
+
+
+	/**
+	* Processes the inbox sent interface
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processSent(&$asset, &$o, $prefix)
+	{
+
+		$delete = (isset ($_POST[$prefix.'_delete'])) ? array_keys($_POST[$prefix.'_delete']) : Array();
+
+		$user =& $asset->_getUser();
+
+		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$messages = $ms->getMessages($user->id);
+
+		if (!empty ($delete)) {
+			foreach ($delete as $messageid) {
+				// delete message
+				$message = $ms->getMessageById($messageid);
+				if (!$message->updateStatus(SQ_MSG_DELETED)) {
+						trigger_localised_error('CORE0063', E_USER_WARNING, $messageid);
+				}
+			}
+		}
+
+		return TRUE;
+
+	}//end processSent()
 
 
 	/**
@@ -579,11 +614,11 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			if ($write_access) {
 ?>
 					<td class="sq-backend-table-header">
-						<?php check_box($prefix.'_select_all_recover', '1', FALSE, 'check_all(document.main_form, "{'.$prefix.'}_recover", this.checked);'); ?>
+						<?php check_box($prefix.'_select_all_recover', '1', FALSE, 'check_all(document.main_form, "'.$prefix.'_recover", this.checked);'); ?>
 						<?php echo strtoupper(translate('recover')); ?>
 					</td>
 					<td class="sq-backend-table-header">
-						<?php check_box($prefix.'_select_all_purge', '1', FALSE, 'check_all(document.main_form, "{'.$prefix.'}_purge", this.checked);'); ?>
+						<?php check_box($prefix.'_select_all_purge', '1', FALSE, 'check_all(document.main_form, "'.$prefix.'_purge", this.checked);'); ?>
 						<?php echo strtoupper(translate('purge')); ?>
 					</td>
 					<?php
