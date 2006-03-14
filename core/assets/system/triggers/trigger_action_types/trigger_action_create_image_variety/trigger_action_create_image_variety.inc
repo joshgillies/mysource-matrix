@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_image_variety.inc,v 1.8 2005/08/18 06:55:41 lwright Exp $
+* $Id: trigger_action_create_image_variety.inc,v 1.8.2.1 2006/03/14 22:31:02 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -105,11 +105,11 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 		}
 
 		// rely on image_variety to check whether the variety already exists
-		$state['asset']->saveVariety($variety);
+		$vid = $state['asset']->saveVariety($variety);
 
 		return Array(
 				'imageid'	=> $state['asset']->id,
-				'varietyid'	=> $variety->id,
+				'varietyid'	=> $state['asset']->id.':'.$vid,
 				'name'		=> $variety->name,
 				'width'		=> $variety->attr('width'),
 				'height'	=> $variety->attr('height'),
