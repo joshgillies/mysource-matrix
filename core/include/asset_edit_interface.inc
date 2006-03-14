@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.287 2006/03/02 01:54:50 lwright Exp $
+* $Id: asset_edit_interface.inc,v 1.288 2006/03/14 06:04:16 sdanis Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.287 $
+* @version $Revision: 1.288 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -171,6 +171,7 @@ class Asset_Edit_Interface extends MySource_Object
 			exit();
 		}
 
+
 		// if there are no screens or static screens, piss off
 		assert_false(!count($this->_screens) && empty($this->_edit_fns->static_screens));
 
@@ -238,6 +239,14 @@ class Asset_Edit_Interface extends MySource_Object
 
 		// do we unlock this asset when committing?
 		$force_unlock_on_commit = TRUE;
+
+		// if we are in LIMBO and release locks button was clicked then return to normal page
+		if (SQ_IN_LIMBO && isset($_REQUEST['sq_lock_release_manual'])) {
+			?>
+			<script>top.location='<?php echo current_url(TRUE, TRUE);  ?>';</script>
+			<?php
+			exit();
+		}
 
 		if (!$creating) {
 			// default to 'all', so if lock type is left out a lock can still be gotten and the asset edited
@@ -1276,6 +1285,13 @@ class Asset_Edit_Interface extends MySource_Object
 				ob_start();
 					$o->commitButton('', FALSE);
 					$this->_tmp['layout_keyword_replacements']['commit_button'] = ob_get_contents();
+				ob_end_clean();
+				continue;
+
+			} else if (($keyword == 'release_locks_button')) {
+				ob_start();
+					submit_button('sq_lock_release_manual', translate('release_lock_button'), '', 'accesskey="r"');
+					$this->_tmp['layout_keyword_replacements']['release_locks_button'] = ob_get_contents();
 				ob_end_clean();
 				continue;
 
