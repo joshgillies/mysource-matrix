@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.98.2.14 2006/02/28 23:14:34 lwright Exp $
+* $Id: search_page.inc,v 1.98.2.15 2006/03/14 03:06:51 bcaldwell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.98.2.14 $
+* @version $Revision: 1.98.2.15 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1685,6 +1685,10 @@ class Search_Page extends Listing_Engine
 	*/
 	function sortAssetList($asset_list, $sort_info)
 	{
+		if (count($asset_list) == 1 || empty($sort_info)) {
+			return $asset_list;
+		}
+
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($asset_list), 'asset', false, 'type_code');
 
 		// check to see if we are sorting by relevance. If so, sort the search_score
