@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.55 2006/03/09 23:10:27 ndvries Exp $
+* $Id: image.inc,v 1.56 2006/03/14 03:21:40 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -873,6 +873,7 @@ class Image extends File
 				$variety =& $this->getAsset($this->id.':'.$varietyid);
 				if (is_null($variety)) continue;
 				$keywords['image_v_'.$variety->name] = 'Image variety '.$variety->name;
+				$keywords['image_v_'.$variety->name.'_url'] = 'Image variety '.$variety->name.' URL';
 			}
 		}
 		$keywords['image_width']	= 'Width of the image in pixels';
