@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.16 2005/05/04 00:39:16 arailean Exp $
+* $Id: pdf_file.inc,v 1.16.2.1 2006/03/14 17:43:31 trodger Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -112,8 +112,6 @@ class PDF_File extends File
 
 		$indexer_path = dirname(__FILE__).'/files';
 
-		$file = ereg_replace('\"','\\\"',$file);
-
 		$output = '';
 
 		if (SQ_TOOL_PDFTOHTML_ENABLED) {
@@ -122,8 +120,11 @@ class PDF_File extends File
 
 			// Run a program that converts a PDF to HTML, set environment variable of bin_path
 			$cmd = SQ_TOOL_PDFTOHTML_PATH." -nomerge -noframes -stdout $pwd $file";
+			$cmd = escapeshellcmd($cmd);
 			$output = shell_exec($cmd);
 		}
+
+		$file = ereg_replace('\"','\\\"',$file);
 
 		if (!$output) return $keydata;
 
