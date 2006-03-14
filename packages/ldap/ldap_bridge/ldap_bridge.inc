@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.39 2006/02/21 23:38:10 bcaldwell Exp $
+* $Id: ldap_bridge.inc,v 1.40 2006/03/14 05:51:26 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -170,6 +170,14 @@ class LDAP_Bridge extends Asset
 			$shadowid = $id_parts[1];
 		} else {
 			return $asset;
+		}
+
+		// Setup user's inbox
+		if (isset($id_parts[2]) && $id_parts[2] == 'inbox') {
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('inbox');
+			$inbox_asset =& new Inbox();
+			$inbox_asset->id = $this->id.':'.$shadowid.':inbox';
+			return $inbox_asset;
 		}
 
 		$ldap = @$this->connectToLdap();
@@ -919,6 +927,35 @@ class LDAP_Bridge extends Asset
 	*/
 	function getLink($assetid, $link_type=NULL, $type_code='', $strict_type_code=TRUE, $value=NULL, $side_of_link='major', $exclusive=NULL)
 	{
+		if ($type_code=='inbox') {
+			return $links = Array(
+								'linkid'			=> 0,
+								'majorid'			=> $assetid,
+								'minor_type_code'	=> 'inbox',
+								'minorid'			=> $assetid.':inbox',
+								'value'				=> '',
+								'link_type'			=> $this->ldap_shdw_link_type,
+								'is_dependant'		=> FALSE,
+								'is_exclusive'		=> FALSE,
+								'sort_order'		=> 0,
+							);
+		} else if ($type_code == 'user' && $side_of_link == 'minor') {
+			$id_parts = explode(':', $assetid);
+			if (isset($id_parts[2]) && $id_parts[2] == 'inbox') {
+				return $links = Array(
+									'linkid'			=> 0,
+									'majorid'			=> $id_parts[0].':'.$id_parts[1],
+									'major_type_code'	=> 'ldap_user',
+									'minorid'			=> $assetid,
+									'value'				=> '',
+									'link_type'			=> $this->ldap_shdw_link_type,
+									'is_dependant'		=> FALSE,
+									'is_exclusive'		=> FALSE,
+									'sort_order'		=> 0,
+								);
+			}
+		}
+
 		return Array();
 
 	}//end getLink()
