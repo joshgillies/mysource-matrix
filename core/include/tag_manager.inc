@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_manager.inc,v 1.9 2006/01/05 04:11:08 emcdonald Exp $
+* $Id: tag_manager.inc,v 1.10 2006/03/14 16:56:21 gnoel Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 class Tag_Manager extends MySource_Object
@@ -247,7 +247,7 @@ class Tag_Manager extends MySource_Object
 	*/
 	function setTagWeight($linkid, $weight)
 	{
-		$success = $GLOBALS['SQ_SYSTEM']->am->updateLink($link_id, SQ_LINK_NOTICE, $weight);
+		$success = $GLOBALS['SQ_SYSTEM']->am->updateLink($linkid, SQ_LINK_NOTICE, $weight);
 		return $success;
 
 	}//end setTagWeight()
@@ -264,7 +264,7 @@ class Tag_Manager extends MySource_Object
 	*/
 	function deleteTag($assetid, $tag)
 	{
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($assetod, $one_tag_id, SQ_LINK_NOTICE);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($assetid, $tag, SQ_LINK_NOTICE);
 		$success = $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
 
 		return $success;

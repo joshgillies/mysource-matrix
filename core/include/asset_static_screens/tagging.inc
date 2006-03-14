@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tagging.inc,v 1.10 2006/01/09 03:41:03 emcdonald Exp $
+* $Id: tagging.inc,v 1.11 2006/03/14 16:56:21 gnoel Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Tagging Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 
@@ -341,14 +341,14 @@ function processTagging(&$owner, &$o, $ei)
 
 
 	$submitted_weights = array_get_index($_REQUEST, $prefix.'_weights', Array());
-	foreach ($submitted_weights as $link_id => $weight) {
-		if (empty($weight)) $submitted_weights[$link_id] = 1;
+	foreach ($submitted_weights as $linkid => $weight) {
+		if (empty($weight)) $submitted_weights[$linkid] = 1;
 	}
 
 	$modified_weights = array_diff_assoc($submitted_weights, $current_weights);
-	foreach ($modified_weights as $link_id => $weight) {
+	foreach ($modified_weights as $linkid => $weight) {
 		if ($cascade_changes) {
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($link_id);
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 			// cascading add, so queue it up for the HIPO
 			$tag_vars[] = Array(
 							'tag_id'	=> $link['minorid'],
