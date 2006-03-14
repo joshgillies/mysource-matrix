@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.31 2006/03/12 22:05:25 bcaldwell Exp $
+* $Id: trigger_manager.inc,v 1.32 2006/03/14 01:32:43 bcaldwell Exp $
 *
 */
 
@@ -48,7 +48,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -564,7 +564,7 @@ class Trigger_Manager extends Asset
 
 			// check condition
 			// dynamic substitution of static condition class
-			$condition_success = call_user_func(Array($condition['type'], 'evaluate'), $condition['data'], array(&$state_data));
+			$condition_success = call_user_func_array(Array($condition['type'], 'evaluate'), Array($condition['data'], &$state_data));
 
 			// if condition fails return with Success
 			// (trigger does not need execution, false alarm but trigger did not fail)
@@ -599,14 +599,14 @@ class Trigger_Manager extends Asset
 
 				// execute action
 				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-				$action_success = call_user_func(Array($action['type'], 'execute'), $action['data'], array(&$state_data));
+				$action_success = call_user_func_array(Array($action['type'], 'execute'), Array($action['data'], &$state_data));
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 			} else {
 				$lock_success = TRUE;
 				// acquire locks
 				// dynamic substitution of static action class
-				$action_locks = call_user_func(Array($action['type'], 'getLocks'), $action['data'], array(&$state_data));
+				$action_locks = call_user_func_array(Array($action['type'], 'getLocks'), Array($action['data'], &$state_data));
 
 				foreach ($action_locks as $lock_assetid => $lock_types) {
 					foreach ($lock_types as $lock_type) {
@@ -631,7 +631,7 @@ class Trigger_Manager extends Asset
 				}
 
 				// execute action
-				$action_success = call_user_func(Array($action['type'], 'execute'), $action['data'], array(&$state_data));
+				$action_success = call_user_func_array(Array($action['type'], 'execute'), Array($action['data'], &$state_data));
 			}
 
 			if ($action_success === FALSE) {
@@ -819,7 +819,7 @@ class Trigger_Manager extends Asset
 							if ($this->_loadComponent($condition['type'])) {
 								if (isset($condition['data'])) {
 									$settings =& $condition['data'];
-									call_user_func(Array($condition['type'], 'setHash'), $settings, $hash);
+									call_user_func_array(Array($condition['type'], 'setHash'), Array($settings, $hash));
 								}
 							}
 						}
@@ -1344,7 +1344,7 @@ class Trigger_Manager extends Asset
 	{
 		if (!$this->_loadComponent($type_code)) return '';
 
-		$interface = call_user_func(Array($type_code, 'getInterface'), $data, $prefix, $write_access);
+		$interface = call_user_func_array(Array($type_code, 'getInterface'), Array($data, $prefix, $write_access));
 
 		return $interface;
 
