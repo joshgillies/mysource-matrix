@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.6 2006/03/14 03:27:46 ndvries Exp $
+* $Id: asset_manager.inc,v 1.431.2.7 2006/03/14 22:25:16 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.6 $
+* @version $Revision: 1.431.2.7 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -936,10 +936,9 @@ class Asset_Manager extends MySource_Object
 			// catch the shadow assets
 			$id_parts = explode(':', $assetids);
 			if (isset($id_parts[1])) {
-				$shadows[$id_parts[0]][] = $value;
+				$shadows[$id_parts[0]][] = $id_parts[1];
 			}
 		}
-
 
 		// pipe it off to the real asset
 		if (!empty($shadows)) {
@@ -949,7 +948,6 @@ class Asset_Manager extends MySource_Object
 				$this->forgetAsset($asset);
 			}
 		}
-
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT assetid
@@ -2444,7 +2442,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $value=NULL, $dependant=NULL, $exclusive=NULL, $sort_by=NULL, $access=NULL)
 	{
-		// $dependant_links = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'minor', null, 1);
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 
 		$force_array = FALSE;
@@ -2815,11 +2812,25 @@ class Asset_Manager extends MySource_Object
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT
-						majorid
+						sl.majorid
 					FROM
-						'.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk';
+						'.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
 
-			$where = 'minorid = '.$db->quoteSmart($assetid);
+			$where = 'sl.minorid = '.$db->quoteSmart($assetid);
+
+			if (!empty($type_code)) {
+				$sql .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a
+						 ON sl.majorid = a.assetid ';
+				if (is_array($type_code)) {
+					for (reset($type_code); null !== ($key = key($type_code)); next($type_code)) {
+						$type_code[$key] = $db->quoteSmart($type_code[$key]);
+					}
+					$where .= ' AND a.type_code IN ('.implode(',', $type_code).')';
+				} else {
+					$where .= ' AND a.type_code = '.$db->quoteSmart($type_code);
+				}
+			}
+
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			$shdw_parentids = $db->getCol($sql.$where);
