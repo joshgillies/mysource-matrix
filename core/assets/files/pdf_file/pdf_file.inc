@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.20 2006/02/08 12:21:06 trodger Exp $
+* $Id: pdf_file.inc,v 1.21 2006/03/14 16:45:48 trodger Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -109,6 +109,7 @@ class PDF_File extends File
 
 			// Run a program that converts a PDF to HTML, set environment variable of bin_path
 			$cmd = SQ_TOOL_PDFTOHTML_PATH." -i -nomerge -noframes -stdout $pwd $file";
+			$cmd = escapeshellcmd($cmd);
 			$content = shell_exec($cmd);
 		}
 
