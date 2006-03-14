@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.446 2006/03/14 03:26:06 ndvries Exp $
+* $Id: asset_manager.inc,v 1.447 2006/03/14 21:47:14 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.446 $
+* @version $Revision: 1.447 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -944,10 +944,9 @@ class Asset_Manager extends MySource_Object
 			// catch the shadow assets
 			$id_parts = explode(':', $assetids);
 			if (isset($id_parts[1])) {
-				$shadows[$id_parts[0]][] = $value;
+				$shadows[$id_parts[0]][] = $id_parts[1];
 			}
 		}
-
 
 		// pipe it off to the real asset
 		if (!empty($shadows)) {
@@ -957,7 +956,6 @@ class Asset_Manager extends MySource_Object
 				$this->forgetAsset($asset);
 			}
 		}
-
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT assetid
@@ -2822,11 +2820,25 @@ class Asset_Manager extends MySource_Object
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT
-						majorid
+						sl.majorid
 					FROM
-						'.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk';
+						'.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
 
-			$where = 'minorid = '.$db->quoteSmart($assetid);
+			$where = 'sl.minorid = '.$db->quoteSmart($assetid);
+
+			if (!empty($type_code)) {
+				$sql .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a
+						 ON sl.majorid = a.assetid ';
+				if (is_array($type_code)) {
+					for (reset($type_code); null !== ($key = key($type_code)); next($type_code)) {
+						$type_code[$key] = $db->quoteSmart($type_code[$key]);
+					}
+					$where .= ' AND a.type_code IN ('.implode(',', $type_code).')';
+				} else {
+					$where .= ' AND a.type_code = '.$db->quoteSmart($type_code);
+				}
+			}
+
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			$shdw_parentids = $db->getCol($sql.$where);
@@ -5248,6 +5260,7 @@ class Asset_Manager extends MySource_Object
 
 			// cache the result for next time
 			$this->_tmp['permission_cache'][$assetid][$storage_name] = $result;
+
 		}//end if
 
 		$ret_val = Array();
