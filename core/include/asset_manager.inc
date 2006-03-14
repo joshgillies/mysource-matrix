@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.5 2006/03/02 04:43:27 rong Exp $
+* $Id: asset_manager.inc,v 1.431.2.6 2006/03/14 03:27:46 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.5 $
+* @version $Revision: 1.431.2.6 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5193,7 +5193,8 @@ class Asset_Manager extends MySource_Object
 		}
 
 		// return cached version if we can
-		$storage_name =(($and_greater) ? 'effective_' : '').'permission_'.$permission;
+		$suffix = $include_roles ? '1' : '0';
+		$storage_name =(($and_greater) ? 'effective_' : '').'permission_'.$permission.'_'.$suffix;
 		if (!isset($this->_tmp['permission_cache'][$assetid][$storage_name])) {
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
