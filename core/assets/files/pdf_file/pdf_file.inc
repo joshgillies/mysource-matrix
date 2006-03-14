@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.19.2.2 2006/03/14 16:10:33 trodger Exp $
+* $Id: pdf_file.inc,v 1.19.2.3 2006/03/14 17:45:50 trodger Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19.2.2 $
+* @version $Revision: 1.19.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -99,8 +99,6 @@ class PDF_File extends File
 
 		$indexer_path = dirname(__FILE__).'/files';
 
-		$file = ereg_replace('\"','\\\"',$file);
-
 		$content = '';
 
 		if (SQ_TOOL_PDFTOHTML_ENABLED) {
@@ -113,7 +111,10 @@ class PDF_File extends File
 			$content = shell_exec($cmd);
 		}
 
+		$file = ereg_replace('\"','\\\"',$file);
+		
 		if (!$content) return '';
+
 		// strip out the tags
 		$content = trim(strip_tags($content));
 
