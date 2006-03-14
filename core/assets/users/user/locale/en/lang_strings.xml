@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.5 2006/03/01 23:20:52 sdanis Exp $
+* $Id: lang_strings.xml,v 1.6 2006/03/14 03:08:46 dmckee Exp $
 *
 */
 -->
@@ -38,4 +38,8 @@
 	<string source="user_prefs_asset_map_root_asset_header">Asset Map Root Asset</string>
 	<string source="user_prefs_asset_map_root_asset_explanation">The asset that will be displayed as the Asset Map's root node</string>
 	<string source="end_user_session">End the user's session</string>
+	<string source="user_held_locks">%s currently holds %d Locks.</string>
+	<string source="current_locks">Current Locks</string>
+	<string source="release_locks">Release Held Locks</string>
+	<string source="release_locks_note">Releasing all locks will delete any editing changes that this user has not yet committed.</string>
 </strings>

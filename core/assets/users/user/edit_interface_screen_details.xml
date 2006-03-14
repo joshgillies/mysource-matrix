@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.21 2005/09/29 00:19:22 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.22 2006/03/14 03:08:43 dmckee Exp $
 *
 */
 -->
@@ -39,6 +39,14 @@
 		</field>
 		<field attribute="email">
 			<email width="25" />
+		</field>
+	</section>
+	<section name="Locks" read_access="admin:" write_access="admin:" limbo_access="0">
+		<field>
+			<function_call>
+				<paint_function   name="paintLockDetails"   />
+				<process_function name="processLockDetails" />
+			</function_call>
 		</field>
 	</section>
 </contents>

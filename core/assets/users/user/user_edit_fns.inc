@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.27 2006/02/23 00:14:27 lwright Exp $
+* $Id: user_edit_fns.inc,v 1.28 2006/03/14 03:08:44 dmckee Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -334,6 +334,81 @@ class User_Edit_Fns extends Asset_Edit_Fns
 		return $user_group_edit_fns->processRoles($asset, $o, $prefix);
 
 	}//end processRoles()
+
+
+	/**
+	* Paints the current Locks held by the user
+	*
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintLockDetails(&$asset, &$o, $prefix)
+	{
+		$current_locks = $asset->getUserLocks();
+		$write_access = $asset->writeAccess('attributes');
+		$o->openField(translate('current_locks'));
+			echo translate('user_held_locks', $asset->name, count($current_locks));
+		$o->closeField();
+		$o->openField(translate('release_locks'));
+			if (!$write_access) {
+				?>
+				<script type="text/javascript">
+
+					// Confirms that this is what the user wants to do
+					function onReleaseAllClick() {
+						if (confirm('Are you sure you want to release all user locks?')) {
+							set_hidden_field("process_form", "1");
+							return true;
+						} else {
+							return false;
+						}
+					}
+				</script>
+
+				<?php
+				// No lock, so we need to create our own commit button
+				submit_button($prefix.'_release_all_locks', 'Release All Locks', 'return onReleaseAllClick();');
+			} else {
+				// We have the lock, so we can use the normal commit button. Just print a dropdown box
+				$options = Array(
+							'yes'	=> translate('yes'),
+							'no'	=> translate('no'),
+						   );
+				combo_box($prefix.'_release_all_locks_dropdown', $options, FALSE, 'no');
+			}
+			$o->note(translate('release_locks_note'));
+		$o->closeField();
+
+		return FALSE;
+
+	}//end paintLockDetails()
+
+
+	/**
+	* Process the current Locks held by the user
+	*
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processLockDetails(&$asset, &$o, $prefix)
+	{
+		$admin_access = $asset->adminAccess();
+		if (!$admin_access) return FALSE;
+
+		if ((isset($_POST[$prefix.'_release_all_locks'])) || (isset($_POST[$prefix.'_release_all_locks_dropdown']) && ($_POST[$prefix.'_release_all_locks_dropdown'] == 'yes'))) {
+			$asset->releaseUserLocks();
+		}
+		return TRUE;
+
+	}//end processLockDetails()
 
 
 }//end class

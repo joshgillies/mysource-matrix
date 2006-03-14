@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.100 2006/03/13 02:31:10 sdanis Exp $
+* $Id: user.inc,v 1.101 2006/03/14 03:08:44 dmckee Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -691,6 +691,41 @@ class User extends Asset
 		return TRUE;
 
 	}//end _catchBlankSetUserName()
+
+
+	/**
+	* Returns an array of the current locks that this user holds
+	*
+	* @return array
+	* @access public
+	*/
+	function getUserLocks()
+	{
+		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'SELECT lockid, source_lockid, userid, expires FROM sq_lock WHERE userid='.$db->quote($this->id).'';
+
+		$result = $db->getAll($sql);
+		assert_valid_db_result($result);
+		return $result;
+
+	}//end getUserLocks()
+
+
+	/**
+	* Releases all locks that this user currently holds in the system
+	*
+	* @return void
+	* @access public
+	*/
+	function releaseUserLocks()
+	{
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$current_locks = $this->getUserLocks();
+		foreach ($current_locks as $lock_data) {
+			$GLOBALS['SQ_SYSTEM']->releaseLock($lock_data['lockid']);
+		}
+
+	}//end releaseUserLocks()
 
 
 }//end class
