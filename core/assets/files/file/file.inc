@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.123 2006/01/27 00:00:58 lwright Exp $
+* $Id: file.inc,v 1.124 2006/03/14 21:58:16 mmcintyre Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.123 $
+* @version $Revision: 1.124 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,6 +55,31 @@ class File extends Asset
 
 
 	/**
+	* Perform any pre-validation required during the creation of this asset
+	*
+	* Folders ensure a name has been set before they are created
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _preCreateCheck(&$link)
+	{
+		if (!parent::_preCreateCheck($link)) return FALSE;
+
+		$name = trim($this->attr('name'));
+		if ($name == '') {
+			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end _preCreateCheck()
+
+
+	/**
 	* Create this asset
 	*
 	* @param array	&$link	information used to create the initial link
@@ -68,48 +93,43 @@ class File extends Asset
 	{
 		$this->_tmp['file_create_data'] =& $info;
 
-		$name = trim($this->attr('name'));
-		if ($name == '') {
-			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-			return FALSE;
-		}
-
-		// check that a file was uploaded at least and that it succeeded
-		if (empty($info)) {
-			$info = get_file_upload_info($this->getPrefix());
-		}
-		if ($info === FALSE || empty($info)) {
-			$edit = $this->getEditFns();
-			$info = $edit->getChosenFileInfo($this->getPrefix());
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_DATA_VALIDATION)) {
+			// check that a file was uploaded at least and that it succeeded
+			if (empty($info)) {
+				$info = get_file_upload_info($this->getPrefix());
+			}
 			if ($info === FALSE || empty($info)) {
-				trigger_localised_error('CORE0056', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+				$edit = $this->getEditFns();
+				$info = $edit->getChosenFileInfo($this->getPrefix());
+				if ($info === FALSE || empty($info)) {
+					trigger_localised_error('CORE0056', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+					return FALSE;
+				}
+			}
+
+			// make the info array look like a result from getExistingFile()
+			if (!isset($info['path'])) {
+				$info['path'] = array_get_index($info, 'tmp_name', '');
+			}
+			if (!isset($info['filename'])) {
+				$info['filename'] = array_get_index($info, 'name', '');
+			}
+			if (!$this->validFile($info)) return FALSE;
+
+			// check that we are not going to have web path conflicts
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			$valid_names = make_valid_web_paths(Array($info['name']));
+			$name = array_shift($valid_names);
+
+			// make sure the new web path is not already is use
+			$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], Array($name));
+			if (!empty($bad_paths)) {
+				trigger_localised_error('CORE0086', E_USER_WARNING, $name);
 				return FALSE;
 			}
+
+			$this->setAttrValue('name', $name);
 		}
-
-		// make the info array look like a result from getExistingFile()
-		if (!isset($info['path'])) {
-			$info['path'] = array_get_index($info, 'tmp_name', '');
-		}
-		if (!isset($info['filename'])) {
-			$info['filename'] = array_get_index($info, 'name', '');
-		}
-		if (!$this->validFile($info)) return FALSE;
-
-		// check that we are not going to have web path conflicts
-		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		$valid_names = make_valid_web_paths(Array($info['name']));
-		$name = array_shift($valid_names);
-
-		// make sure the new web path is not already is use
-		$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], Array($name));
-		if (!empty($bad_paths)) {
-			trigger_localised_error('CORE0086', E_USER_WARNING, $name);
-			return FALSE;
-		}
-
-		$this->setAttrValue('name', $name);
-
 		return parent::create($link);
 
 	}//end create()
