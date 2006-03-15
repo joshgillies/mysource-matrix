@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.122 2006/03/13 05:55:14 dmckee Exp $
+* $Id: lang_strings.xml,v 1.123 2006/03/15 03:13:32 sdanis Exp $
 *
 */
 
@@ -381,6 +381,7 @@
 	<string source="inbox_view">View your inbox</string>
 	<string source="inbox_send">Send a new message</string>
 	<string source="inbox_view_sent">View sent messages</string>
+	<string source="inbox_view_trash">View trashed messages</string>
 	<string source="my_details">My Details</string>
 	<string source="details_edit">Edit the details of your account</string>
 	<string source="new_messages">New Messages</string>
