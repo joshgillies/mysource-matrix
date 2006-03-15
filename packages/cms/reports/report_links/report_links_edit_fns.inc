@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.11 2006/03/15 02:56:23 dmckee Exp $
+* $Id: report_links_edit_fns.inc,v 1.12 2006/03/15 03:06:39 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -833,10 +833,10 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 		<table class="sq-backend-table" style="width: 300px;">
 			<tr>
-				<th class="sq-backend-table-header" colspan="2">Internal Links</td>
+				<th class="sq-backend-table-header" colspan="2"><?php echo translate('cms_report_links_internal_links'); ?></td>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-cell" style="padding-left: 30px;">Display Internal Links Section</td>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;"><?php echo translate('cms_report_links_display_section', 'Internal'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 						$value = $current_settings['internal_section'];
@@ -851,7 +851,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-cell" style="padding-left: 30px;">Display Broken Links</td>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;"><?php echo translate('cms_report_links_display_broken'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 						$value = $current_settings['internal_broken'];
@@ -866,7 +866,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-cell" style="padding-left: 30px;">Display Working Links</td>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;"><?php echo translate('cms_report_links_display_working'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 						$value = $current_settings['internal_working'];
@@ -881,10 +881,10 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<th class="sq-backend-table-header" colspan="2">External Links</td>
+				<th class="sq-backend-table-header" colspan="2"><?php echo translate('cms_report_links_external_links'); ?></td>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-cell" style="padding-left: 30px;">Display External Links Section</td>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;"><?php echo translate('cms_report_links_display_section', 'External'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 						$value = $current_settings['external_section'];
@@ -899,7 +899,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-cell" style="padding-left: 30px;">Display Broken Links</td>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;"><?php echo translate('cms_report_links_display_broken'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 						$value = $current_settings['external_broken'];
@@ -914,7 +914,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-cell" style="padding-left: 30px;">Display Working Links</td>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;"><?php echo translate('cms_report_links_display_working'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 						$value = $current_settings['external_working'];
@@ -929,10 +929,10 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<th class="sq-backend-table-header" colspan="2">Email Links</td>
+				<th class="sq-backend-table-header" colspan="2"><?php echo translate('cms_report_links_email_links'); ?></td>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-cell" style="padding-left: 30px;">Display Email Links Section</td>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;"><?php echo translate('cms_report_links_display_section', 'Email'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 						$value = $current_settings['email_section'];
@@ -947,7 +947,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-cell" style="padding-left: 30px;">Display Broken Links</td>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;"><?php echo translate('cms_report_links_display_broken'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 						$value = $current_settings['email_broken'];
@@ -962,7 +962,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-cell" style="padding-left: 30px;">Display Working Links</td>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;"><?php echo translate('cms_report_links_display_working'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 						$value = $current_settings['email_working'];
